@@ -25,10 +25,12 @@
 */
 
 #include "ResourceArbiterInterface.hh"
+
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
 
+#include <algorithm> // std::stable_sort()
 #include <cctype>
 #include <cmath>
 #include <cstdlib> // strtod()
@@ -39,6 +41,14 @@
 
 namespace PLEXIL
 {
+  template <typename T> struct NameComparator
+  {
+    bool operator() (T const &x, T const &y) const
+    {
+      return x.name < y.name;
+    }
+  };
+
   struct ChildResourceNode
   {
     ChildResourceNode(const double _weight,
@@ -70,46 +80,57 @@ namespace PLEXIL
     std::vector<ChildResourceNode> children;
   };
 
-  struct ResourceComparator
+  typedef std::set<ChildResourceNode, NameComparator<ChildResourceNode> > ResourceSet;
+
+  struct CommandPriorityEntry
   {
-    bool operator() (const ChildResourceNode& x, const ChildResourceNode& y) const
+    CommandPriorityEntry(int32_t prio, Command *cmd)
+      : priority(prio),
+        command(cmd),
+        resources()
     {
-      return x.name < y.name;
     }
+
+    int32_t priority;
+    Command *command;
+    ResourceSet resources;
   };
 
-  // Type names
-  typedef std::set<ChildResourceNode, ResourceComparator> ResourceMapEntry;
-  typedef std::map<Command *, ResourceMapEntry> ResourceMap;
-  typedef std::map<std::string, ResourceNode> ResourceHierarchyMap;
-  typedef std::multimap<int32_t, Command *> CommandPriorityMap;
-    
-  static void partitionCommands(std::vector<Command *> const &cmds,
-                                std::vector<Command *> &acceptCmds,
-                                std::vector<Command *> &sortedCommands)
+  // Used internally by optimalResourceAllocation() method.
+  struct ResourceEstimate
   {
-    CommandPriorityMap sortedCommandMap;
-
-    for (std::vector<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
-      Command *cmd = *it;
-      assertTrue_1(cmd);
-      const ResourceValueList& resList = cmd->getResourceValues();
-
-      if (resList.empty()) {
-        debugMsg("ResourceArbiterInterface:partitionCommands",
-                 " accepting " << cmd->getName() << " with no resource requests");
-        acceptCmds.push_back(cmd); // no arbitration required
-      }
-      else
-        sortedCommandMap.insert(std::make_pair(resList.front().priority, cmd));
+    ResourceEstimate()
+      : renewable(0.0),
+        consumable(0.0)
+    {
     }
 
-    // Flatten map
-    for (CommandPriorityMap::const_iterator iter = sortedCommandMap.begin();
-         iter != sortedCommandMap.end();
-         ++iter)
-      sortedCommands.push_back(iter->second);
-  }
+    ResourceEstimate(double initial)
+      : renewable(initial),
+        consumable(initial)
+    {
+    }
+  
+    double renewable;
+    double consumable;
+  };
+
+  typedef std::map<std::string, ResourceEstimate> EstimateMap;
+
+  // Type names
+  typedef std::pair<Command *, ResourceSet> ResourceMapEntry;
+  typedef std::map<Command *, ResourceSet> ResourceMap;
+  typedef std::map<std::string, ResourceNode> ResourceHierarchyMap;
+  typedef std::vector<CommandPriorityEntry> CommandPriorityList;
+
+
+  struct CommandPriorityComparator
+  {
+    bool operator() (CommandPriorityEntry const &x, CommandPriorityEntry const &y) const
+    {
+      return x.priority < y.priority;
+    }
+  };
 
   // Flatten resource request into a preorder list (vector)
   static void determineChildResources(std::string const &resName,
@@ -137,7 +158,7 @@ namespace PLEXIL
 
   static void determineAllChildResources(ResourceValue const &res,
                                          ResourceHierarchyMap const &resourceHierarchy,
-                                         ResourceMapEntry &resourcesNeeded)
+                                         ResourceSet &resourcesNeeded)
   {
     debugMsg("ResourceArbiterInterface:determineAllChildResources", ' ' << res.name);
 
@@ -170,7 +191,7 @@ namespace PLEXIL
   private:
     // Persistent state across calls to arbitrateCommands(),
     // releaseResourcesForCommand()
-    std::map<std::string, double> m_lockedRes;
+    std::map<std::string, double> m_allocated;
     ResourceMap m_cmdResMap;
 
     // Set at initialization
@@ -300,10 +321,8 @@ namespace PLEXIL
       debugMsg("ResourceArbiterInterface:arbitrateCommands",
                " processing " << cmds.size() << " commands");
 
-      std::vector<Command *> sortedCommands;
-
+      CommandPriorityList sortedCommands;
       partitionCommands(cmds, acceptCmds, sortedCommands);
-      preprocessCommandsToArbitrate(sortedCommands);
     
       debugStmt("ResourceArbiterInterface:printSortedCommands",
                 printSortedCommands(sortedCommands));
@@ -313,8 +332,8 @@ namespace PLEXIL
       debugStmt("ResourceArbiterInterface:printAcceptedCommands",
                 printAcceptedCommands(acceptCmds));
       // Also print all the locked resources. 
-      debugStmt("ResourceArbiterInterface:printLockedResources",
-                printLockedResources());
+      debugStmt("ResourceArbiterInterface:printAllocatedResources",
+                printAllocatedResources());
     }
 
     virtual void releaseResourcesForCommand(Command *cmd)
@@ -323,143 +342,139 @@ namespace PLEXIL
       // from the locked list as well as the command list if there are releasable.
       ResourceMap::iterator resListIter = m_cmdResMap.find(cmd);
       if (resListIter != m_cmdResMap.end()) {
-        for (ResourceMapEntry::const_iterator resIter = resListIter->second.begin();
+        for (ResourceSet::const_iterator resIter = resListIter->second.begin();
              resIter != resListIter->second.end();
              ++resIter) {
           if (resIter->release) 
-            m_lockedRes[resIter->name] -= resIter->weight;
-          if (m_lockedRes[resIter->name] == 0)
-            m_lockedRes.erase(resIter->name);
+            m_allocated[resIter->name] -= resIter->weight;
+          if (m_allocated[resIter->name] == 0)
+            m_allocated.erase(resIter->name);
         }
         m_cmdResMap.erase(resListIter);
       }
     
       debugMsg("ResourceArbiterInterface:releaseResourcesForCommand", 
                "remaining locked resources after releasing for command " << cmd->getName());
-      printLockedResources();
+      printAllocatedResources();
     }
 
   private:
-
-    void preprocessCommandsToArbitrate(std::vector<Command *> const &cmds)
+    
+    void partitionCommands(std::vector<Command *> const &cmds,
+                           std::vector<Command *> &acceptCmds,
+                           CommandPriorityList &sortedCommands)
     {
-      for (std::vector<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it)
-        preprocessCommand(*it);
-    }
+      for (std::vector<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
+        Command *cmd = *it;
+        assertTrue_1(cmd);
+        const ResourceValueList& resList = cmd->getResourceValues();
 
-    void preprocessCommand(Command *cmd)
-    {
-      const ResourceValueList& resList = cmd->getResourceValues();
-      ResourceMapEntry resourcesNeeded;
+        if (resList.empty()) {
+          debugMsg("ResourceArbiterInterface:partitionCommands",
+                   " accepting " << cmd->getName() << " with no resource requests");
+          acceptCmds.push_back(cmd); // no arbitration required
+        }
+        else {
+          sortedCommands.push_back(CommandPriorityEntry(resList.front().priority,
+                                                        cmd));
 
-      // Expand all the resources in the hierarchy.
-      for (ResourceValueList::const_iterator resListIter = resList.begin();
-           resListIter != resList.end();
-           ++resListIter)
-        determineAllChildResources(*resListIter, m_resourceHierarchy, resourcesNeeded);
+          ResourceSet &resources = sortedCommands.back().resources;
+          for (ResourceValueList::const_iterator resListIter = resList.begin();
+               resListIter != resList.end();
+               ++resListIter)
+            determineAllChildResources(*resListIter, m_resourceHierarchy, resources);
+        }
+      }
 
-      m_cmdResMap[cmd] = resourcesNeeded;
+      // Sort the resulting list by priority
+      if (sortedCommands.size() > 1)
+        std::stable_sort(sortedCommands.begin(),
+                         sortedCommands.end(),
+                         CommandPriorityComparator());
     }
 
     void optimalResourceArbitration(std::vector<Command *> &acceptCmds,
-                                    std::vector<Command *> &sortedCommands)
+                                    CommandPriorityList const &sortedCommands)
     {
-      // convert the priority sorted map to a vector for convenience
-      std::vector<Command *> commandCombo;
-      std::map<std::string, double> totalConsResMap;
-      std::map<std::string, double> totalRenewResMap;
+      EstimateMap estimates;
 
-      // Initialize the total resource levels to the locked values
-      for (ResourceMap::const_iterator cmdIt = m_cmdResMap.begin();
-           cmdIt != m_cmdResMap.end();
+      // Prepare estimate map and ensure entries in allocated map based on requests
+      for (CommandPriorityList::const_iterator cmdIt = sortedCommands.begin();
+           cmdIt != sortedCommands.end();
            ++cmdIt) {
-        for (ResourceMapEntry::const_iterator rit = cmdIt->second.begin();
-             rit != cmdIt->second.end();
+        ResourceSet const &resources = cmdIt->resources;
+        for (ResourceSet::const_iterator rit = resources.begin();
+             rit != resources.end();
              ++rit) {
           std::string const &resName = rit->name;
-          if (totalConsResMap.find(resName) != totalConsResMap.end())
-            continue; // ignore duplicates
-          double resLocked = (m_lockedRes.find(resName) != m_lockedRes.end()) ?
-            m_lockedRes.find(resName)->second : 0.0;
-          totalConsResMap[resName] = totalRenewResMap[resName] = resLocked;
+          double value = 0.0;
+          if (m_allocated.find(resName) == m_allocated.end())
+            m_allocated[resName] = 0.0; // ensure entry in allocation map
+          else
+            value = m_allocated[resName];
+          estimates[resName] = ResourceEstimate(value);
         }
       }
-    
-      for (std::vector<Command *>::const_iterator cmdIter1 = sortedCommands.begin();
-           cmdIter1 != sortedCommands.end(); ++cmdIter1) {
-        debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                 " considering " << (*cmdIter1)->getName());
-        
-        std::map<std::string, double> localConsResMap = totalConsResMap;
-        std::map<std::string, double> localRenewResMap = totalRenewResMap;
 
+      for (CommandPriorityList::const_iterator cmdIt = sortedCommands.begin();
+           cmdIt != sortedCommands.end();
+           ++cmdIt) {
+        EstimateMap savedEstimates = estimates;
+        Command *cmd = cmdIt->command;
+        ResourceSet const &requests = cmdIt->resources;
         bool invalid = false;
+        
+        debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
+                 " considering " << cmd->getName());
 
-        ResourceMapEntry const &requests = m_cmdResMap[*cmdIter1];
-
-        for (ResourceMapEntry::const_iterator iter = requests.begin();
+        for (ResourceSet::const_iterator iter = requests.begin();
              (iter != requests.end()) && !invalid;
              ++iter) {
-
           std::string const &resName = iter->name;
           double resValue = iter->weight;
+          ResourceEstimate &est = estimates[resName];
+
           debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                   " " << (*cmdIter1)->getName() << " requires " << resValue << " of " << resName);
+                   "  " << cmd->getName() << " requires " << resValue << " of " << resName);
 
           if (resValue < 0.0)
-            localRenewResMap[resName] += resValue;
+            est.renewable += resValue;
           else
-            localConsResMap[resName] += resValue;
+            est.consumable += resValue;
 
           // Make sure that each of the individual resource usage does not exceed
           // the permitted maximum. This handles the worst case resource usage 
           // behavior of both types of resources.
-          if (isResourceUsageOutsideLimits(localConsResMap[resName], resName) ||
-              isResourceUsageOutsideLimits(localRenewResMap[resName], resName)) {
+          double resMax = maxConsumableResourceValue(resName);
+          if (est.renewable < 0.0 || est.renewable > resMax) {
             invalid = true;
             debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                     " rejecting " << (*cmdIter1)->getName()
-                     << " because usage of " << resName << " exceeds limits");
+                     " rejecting " << cmd->getName()
+                     << " because renewable usage of " << resName << " exceeds limits");
+          }
+          else if (est.consumable < 0 || est.consumable > resMax) {
+            invalid = true;
+            debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
+                     " rejecting " << cmd->getName()
+                     << " because consumable usage of " << resName << " exceeds limits");
           }
         }
         
         if (invalid) {
-          debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                   " rejected " << (*cmdIter1)->getName());
-          m_cmdResMap.erase(*cmdIter1);
+          // Back out effects of rejected command
+          estimates = savedEstimates;
         }
         else {
-          commandCombo.push_back(*cmdIter1);
           debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                   " accepting " << (*cmdIter1)->getName());
+                   " accepting " << cmd->getName());
 
-          // Update the total resource levels to include the chosen command
-          for (ResourceMapEntry::const_iterator resIter = requests.begin();
-               resIter != requests.end(); ++resIter) {
-            std::string const &resName = resIter->name;
-            totalConsResMap[resName] += localConsResMap[resName];
-            totalRenewResMap[resName] += localRenewResMap[resName];
-          }
-        }
-      }
+          acceptCmds.push_back(cmd);
+          m_cmdResMap[cmd] = requests;
 
-      // Process accepted command combination
-      for (std::vector<Command *>::const_iterator cIter = commandCombo.begin();
-           cIter < commandCombo.end(); ++cIter) {
-        acceptCmds.push_back(*cIter);
-        for (ResourceMapEntry::const_iterator resIter = 
-               m_cmdResMap[*cIter].begin();
-             resIter != m_cmdResMap[*cIter].end(); ++resIter) {
-
-          // Check if the resource is already in the locked structure
-          // If yes, just add to the existing usage contribution.
-          // if no, add new entry.
-          if (m_lockedRes.find(resIter->name) != m_lockedRes.end()) {
-            m_lockedRes[resIter->name] += resIter->weight;
-          }
-          else {
-            m_lockedRes[resIter->name] = resIter->weight;
-          }
+          // Update the allocated resource map to include the chosen command
+          for (ResourceSet::const_iterator resIter = requests.begin();
+               resIter != requests.end(); ++resIter)
+            m_allocated[resIter->name] += resIter->weight;
         }
       }
     }
@@ -477,24 +492,21 @@ namespace PLEXIL
       return 1.0;
     }
 
-    void printSortedCommands(std::vector<Command *> &sortedCommands) const
+    void printSortedCommands(CommandPriorityList &sortedCommands) const
     {
-      for (std::vector<Command *>::const_iterator iter = sortedCommands.begin();
+      for (CommandPriorityList::const_iterator iter = sortedCommands.begin();
            iter != sortedCommands.end();
-           ++iter) {
-        Command const *cmd = *iter;
-        double priority = cmd->getResourceValues().front().priority;
+           ++iter)
         debugMsg("ResourceArbiterInterface:printSortedCommands", 
-                 "CommandName: " << cmd->getName()
-                 << " Priority: " << priority);
-      }
+                 "CommandName: " << iter->command->getName()
+                 << " Priority: " << iter->priority);
     }
 
-    void printLockedResources() const
+    void printAllocatedResources() const
     {
-      for (std::map<std::string, double>::const_iterator it = m_lockedRes.begin(); 
-           it != m_lockedRes.end(); ++it)
-        debugMsg("ResourceArbiterInterface:printLockedResources", it->first << ", " << it->second);
+      for (std::map<std::string, double>::const_iterator it = m_allocated.begin(); 
+           it != m_allocated.end(); ++it)
+        debugMsg("ResourceArbiterInterface:printAllocatedResources", ' ' << it->first << " = " << it->second);
     }
 
     void printAcceptedCommands(const std::vector<Command *>& acceptCmds)
@@ -505,13 +517,13 @@ namespace PLEXIL
            ++it) {
         Command *cmd = *it;
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
-                 "Accepted command: " << cmd->getName()
+                 " Accepted command: " << cmd->getName()
                  << " uses resources:");
-        ResourceMapEntry const &res = m_cmdResMap[cmd];
-        for (ResourceMapEntry::const_iterator resIter = res.begin();
+        ResourceSet const &res = m_cmdResMap[cmd];
+        for (ResourceSet::const_iterator resIter = res.begin();
              resIter != res.end();
              ++resIter)
-          debugMsg("ResourceArbiterInterface:printAcceptedCommands", resIter->name);
+          debugMsg("ResourceArbiterInterface:printAcceptedCommands", "  " << resIter->name);
       }
     }
 

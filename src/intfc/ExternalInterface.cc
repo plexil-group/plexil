@@ -99,23 +99,25 @@ namespace PLEXIL
    */
   void ExternalInterface::executeOutboundQueue()
   {
-    std::vector<Command *> acceptCmds;
-    m_raInterface->arbitrateCommands(m_commandsToExecute, acceptCmds);
-    for (std::vector<Command *>::iterator cit = m_commandsToExecute.begin();
-         cit != m_commandsToExecute.end();
-         ++cit) {
-      assertTrue_1(*cit);
-      Command *cmd = *cit;
-      if (std::find(acceptCmds.begin(), acceptCmds.end(), cmd) != acceptCmds.end())
-        this->executeCommand(*cit);
-      else {
-        debugMsg("Test:testOutput", 
-                 "Permission to execute " << cmd->getName()
-                 << " has been denied by the resource arbiter.");
-        reportCommandArbitrationFailure(cmd);
+    if (!m_commandsToExecute.empty()) {
+      std::vector<Command *> acceptCmds;
+      m_raInterface->arbitrateCommands(m_commandsToExecute, acceptCmds);
+      for (std::vector<Command *>::iterator cit = m_commandsToExecute.begin();
+           cit != m_commandsToExecute.end();
+           ++cit) {
+        assertTrue_1(*cit);
+        Command *cmd = *cit;
+        if (std::find(acceptCmds.begin(), acceptCmds.end(), cmd) != acceptCmds.end())
+          this->executeCommand(*cit);
+        else {
+          debugMsg("Test:testOutput", 
+                   "Permission to execute " << cmd->getName()
+                   << " has been denied by the resource arbiter.");
+          reportCommandArbitrationFailure(cmd);
+        }
       }
+      m_commandsToExecute.clear();
     }
-    m_commandsToExecute.clear();
     for (std::vector<Update *>::iterator uit = m_updatesToExecute.begin();
          uit != m_updatesToExecute.end();
          ++uit)
