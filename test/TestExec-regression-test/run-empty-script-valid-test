@@ -58,4 +58,16 @@ OUT_FILE=output/$1.out
 
 echo $1 >> tempRegressionResults
 $EXEC_PROG -d $TEST_DEBUG_CFG -p $PLAN_FILE -s $EMPTY_SCRIPT > $OUT_FILE 2>> tempRegressionResults
+declare -i execstatus=$?
+if [ $execstatus -gt 128 ]
+then
+    declare -i sig=$execstatus-128
+    echo '***' Test $1 exited on signal $sig >> RegressionResults
+    echo '***' Test $1 exited on signal $sig
+elif [ $execstatus -ne 0 ]
+then
+    echo '***' Test $1 exited with status $execstatus >> RegressionResults
+    echo '***' Test $1 exited with status $execstatus
+fi
+
 perl $REGRESSION_PL $OUT_FILE $VALID_FILE
