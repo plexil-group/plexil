@@ -276,7 +276,7 @@ namespace PLEXIL
     assertTrue_1(m_active);
     m_active = false;
     if (m_commandHandle != COMMAND_DENIED)
-      g_interface->getResourceArbiter()->releaseResourcesForCommand(m_command.name());
+      g_interface->getResourceArbiter()->releaseResourcesForCommand(this);
     for (ResourceList::iterator resListIter = m_resourceList.begin();
          resListIter != m_resourceList.end();
          ++resListIter)

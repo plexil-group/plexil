@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,13 +33,15 @@
 #include "StateCacheMap.hh"
 #include "Update.hh"
 
+#include <algorithm> // std::find
+
 namespace PLEXIL
 {
   // Define global variable
   ExternalInterface *g_interface = NULL;
 
   ExternalInterface::ExternalInterface()
-    : m_raInterface(new ResourceArbiterInterface()),
+    : m_raInterface(makeResourceArbiter()),
       m_cycleCount(1)
   {
   }
@@ -97,14 +99,14 @@ namespace PLEXIL
    */
   void ExternalInterface::executeOutboundQueue()
   {
-    std::set<Command *> acceptCmds;
+    std::vector<Command *> acceptCmds;
     m_raInterface->arbitrateCommands(m_commandsToExecute, acceptCmds);
     for (std::vector<Command *>::iterator cit = m_commandsToExecute.begin();
          cit != m_commandsToExecute.end();
          ++cit) {
       assertTrue_1(*cit);
       Command *cmd = *cit;
-      if (acceptCmds.find(cmd) != acceptCmds.end())
+      if (std::find(acceptCmds.begin(), acceptCmds.end(), cmd) != acceptCmds.end())
         this->executeCommand(*cit);
       else {
         debugMsg("Test:testOutput", 
