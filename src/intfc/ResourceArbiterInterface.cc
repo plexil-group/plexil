@@ -323,11 +323,13 @@ namespace PLEXIL
 
       CommandPriorityList sortedCommands;
       partitionCommands(cmds, acceptCmds, sortedCommands);
-    
-      debugStmt("ResourceArbiterInterface:printSortedCommands",
-                printSortedCommands(sortedCommands));
 
-      optimalResourceArbitration(acceptCmds, sortedCommands);
+      if (!sortedCommands.empty()) {
+        debugStmt("ResourceArbiterInterface:printSortedCommands",
+                  printSortedCommands(sortedCommands));
+
+        optimalResourceArbitration(acceptCmds, sortedCommands);
+      }
     
       debugStmt("ResourceArbiterInterface:printAcceptedCommands",
                 printAcceptedCommands(acceptCmds));
