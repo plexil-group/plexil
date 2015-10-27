@@ -395,7 +395,7 @@ namespace PLEXIL
 
         bool invalid = false;
 
-        ResourceMapEntry requests = m_cmdResMap[*cmdIter1];
+        ResourceMapEntry const &requests = m_cmdResMap[*cmdIter1];
 
         for (ResourceMapEntry::const_iterator iter = requests.begin();
              (iter != requests.end()) && !invalid;
@@ -426,6 +426,7 @@ namespace PLEXIL
         if (invalid) {
           debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                    " rejected " << (*cmdIter1)->getName());
+          m_cmdResMap.erase(*cmdIter1);
         }
         else {
           commandCombo.push_back(*cmdIter1);
@@ -433,9 +434,8 @@ namespace PLEXIL
                    " accepting " << (*cmdIter1)->getName());
 
           // Update the total resource levels to include the chosen command
-          ResourceMapEntry const & entry = m_cmdResMap[*cmdIter1];
-          for (ResourceMapEntry::const_iterator resIter = entry.begin();
-               resIter != entry.end(); ++resIter) {
+          for (ResourceMapEntry::const_iterator resIter = requests.begin();
+               resIter != requests.end(); ++resIter) {
             std::string const &resName = resIter->name;
             totalConsResMap[resName] += localConsResMap[resName];
             totalRenewResMap[resName] += localRenewResMap[resName];
