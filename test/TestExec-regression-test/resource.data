@@ -1,5 +1,5 @@
 %Contains the resource hierarchy
-% resource maxRenewableValue maxConsumableValue <percentage child resource pairs> ..
+% resource maxConsumableValue [fraction child-resource]*
 body 1.0 1.0 head 1.0 arms 1.0 legs
 head 1.0 1.0 vision 1.0 audio 1.0 brain
 vision 1.0 1.0 cameraL 1.0 cameraR 0.3 cpu
