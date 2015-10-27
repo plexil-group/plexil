@@ -32,6 +32,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdlib> // strtod()
+#include <cstring> // strspn(), strcspn() et al
 #include <fstream>
 #include <map>
 #include <set>
