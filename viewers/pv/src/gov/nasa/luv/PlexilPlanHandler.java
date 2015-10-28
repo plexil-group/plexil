@@ -28,6 +28,8 @@ package gov.nasa.luv;
 
 import java.io.InterruptedIOException;
 import org.xml.sax.Attributes;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import static gov.nasa.luv.Constants.*;
 
@@ -269,6 +271,56 @@ public class PlexilPlanHandler
         DECL_VAR,
         DECL_ARRAY,
     };
+
+    /** Map from tag name to pretty representation. */
+    private static final Map<String, String> TAG_LITERAL_MAP =
+        new HashMap<String, String>() {
+            {
+                put(EQ,          "==");
+                put(EQ_NUMERIC,  "==");
+                put(EQ_STRING,   "==");
+                put(EQ_BOOLEAN,  "==");
+                put(EQ_INTERNAL, "==");
+
+                put(NE,          "!=");
+                put(NE_NUMERIC,  "!=");
+                put(NE_STRING,   "!=");
+                put(NE_BOOLEAN,  "!=");
+                put(NE_INTERNAL, "!=");
+
+                put(LT,          "<");
+                put(GT,          ">");
+                put(LE,          "<=");
+                put(GE,          ">=");
+
+                put(ADD,         "+");
+                put(SUB,         "-");
+                put(MUL,         "*");
+                put(DIV,         "/");
+
+                put(CONCAT,      "+");
+
+                put(AND,         "&&");
+                put(OR,          "||");
+                put(NOT,         "!");
+
+                put(ALIAS,       "=");
+                put(PAIR,        "=");
+                for (String t: RETURN_TAGS)
+                    put(t,       "=");
+
+                put(NODE_STATE_VAL,      ".state");
+                put(NODE_OUTCOME_VAL,    ".outcome");
+                put(NODE_FAILURE_VAL,    ".failure");
+                put(NODE_CMD_HANDLE_VAL, ".command_handle");
+                put(NODE_TIMEPOINT_VAL,  ".timepoint");
+
+                put(RESOURCE_NAME,             "   Name" + SEPARATOR + "=");
+                put(RESOURCE_LOWER_BOUND,      "   LowerBound" + SEPARATOR + "=");
+                put(RESOURCE_UPPER_BOUND,      "   UpperBound" + SEPARATOR + "=");
+                put(RESOURCE_RELEASE_AT_TERM,  "   ReleaseAtTermination" + SEPARATOR + "=");
+            }
+        };
 
     private static int row_number;   
 
@@ -981,46 +1033,9 @@ public class PlexilPlanHandler
 
     private String convertTagNameToLiteral(String tag)
     {
-        if (tag.equals(EQ) ||
-            tag.equals(EQ_NUMERIC) || 
-            tag.equals(EQ_STRING) || 
-            tag.equals(EQ_BOOLEAN) ||
-            tag.equals(EQ_TIME) ||
-            tag.equals(EQ_INTERNAL))       
-            return "==";
-        else if (tag.equals(NE) ||
-                 tag.equals(NE_NUMERIC) ||
-                 tag.equals(NE_STRING) ||
-                 tag.equals(NE_BOOLEAN) || 
-                 tag.equals(NE_INTERNAL))  
-            return "!=";
-        else if (tag.equals(LT))                        return "<";
-        else if (tag.equals(GT))                        return ">";
-        else if (tag.equals(LE))                        return "<=";
-        else if (tag.equals(GE))                        return ">=";
-        else if (tag.equals(ADD) || tag.equals(CONCAT)) return "+"; 
-        else if (tag.equals(SUB))                       return "-"; 
-        else if (tag.equals(MUL))                       return "*"; 
-        else if (tag.equals(DIV))                       return "/"; 
-        else if (tag.equals(AND))                       return "&&"; 
-
-        else if (tag.equals(ALIAS) || 
-                 tag.equals(PAIR)  ||
-                 isReturnValue(tag))                    return "=";       
-
-        else if (tag.equals(OR))                        return "||";
-        else if (tag.equals(NOT))                       return "!";
-        else if (tag.equals(NODE_OUTCOME_VAL))          return ".outcome"; 
-        else if (tag.equals(NODE_FAILURE_VAL))          return ".failure";               
-        else if (tag.equals(NODE_STATE_VAL))            return ".state";    
-        else if (tag.equals(NODE_TIMEPOINT_VAL))        return ".timepoint"; 
-        else if (tag.equals(NODE_CMD_HANDLE_VAL))       return ".command_handle"; 
-
-        else if (tag.equals(RESOURCE_NAME))             return "   Name" + SEPARATOR + "=";
-        else if (tag.equals(RESOURCE_PRIORITY))         return "   Priority" + SEPARATOR + "=";
-        else if (tag.equals(RESOURCE_LOWER_BOUND))      return "   LowerBound" + SEPARATOR + "=";
-        else if (tag.equals(RESOURCE_UPPER_BOUND))      return "   UpperBound" + SEPARATOR + "=";
-        else if (tag.equals(RESOURCE_RELEASE_AT_TERM))  return "   ReleaseAtTermination" + SEPARATOR + "=";
-        else                                            return tag;
+        String result = TAG_LITERAL_MAP.get(tag);
+        if (result != null)
+            return result;
+        return tag;
     }
 }
