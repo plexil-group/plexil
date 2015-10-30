@@ -26,7 +26,11 @@
 
 package gov.nasa.luv;
 
+import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The AbstractDispatchableHandler class is an abstract class where Dispatchable 
@@ -35,54 +39,141 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public abstract class AbstractDispatchableHandler extends DefaultHandler
 {
-      /** buffer which holds text between xml tags */
-      StringBuilder tweenerBuffer;
+    //
+    // Facilities for use by derived classes
+    //
+
+    //* Base class for handling a particular element, or class of elements
+    protected class LuvElementHandler {
+        public void elementStart(String tagName, Attributes attributes) {
+        }
+        public void elementEnd(String tagName, String tweenerText) {
+        }
+    }
+
+    private Map<String, LuvElementHandler> elementMap;
+
+    protected Map<String, LuvElementHandler> getElementMap() {
+        return elementMap;
+    }
+
+    protected void setElementMap(Map<String, LuvElementHandler> newMap) {
+        elementMap = newMap;
+    }
+
+    protected LuvElementHandler getElementHandler(String tag) {
+        return elementMap.get(tag);
+    }
+
+    protected void setElementHandler(String tag, LuvElementHandler handler) {
+        elementMap.put(tag, handler);
+    }
+
+    // Tracking where we are in tree
+    protected StringStack tagStack;
+
+    /** buffer which holds text between xml tags */
+    private StringBuilder tweenerBuffer;
       
-      /**
-       * Constructs an AbstractDispatchableHandler by calling the parent 
-       * DefaultHandler class default constructor. 
-       */
+    /**
+     * Constructs an AbstractDispatchableHandler by calling the parent 
+     * DefaultHandler class default constructor. 
+     */
 
-      public AbstractDispatchableHandler() {
-          super();
-      }
+    public AbstractDispatchableHandler() {
+        super();
+        tagStack = new StringStack();
+        tweenerBuffer = new StringBuilder();
+    }
 
-      /** Handles data between XML element tags.
-       *
-       * @param ch character buffer
-       * @param start index of start of data characters in buffer
-       * @param length number of data characters in buffer
-       */
+    /** Handles data between XML element tags.
+     *
+     * @param ch character buffer
+     * @param start index of start of data characters in buffer
+     * @param length number of data characters in buffer
+     */
 
-      public void characters(char[] ch, int start, int length) {
-          if (length > 0) {
-              if (tweenerBuffer == null)
-                  tweenerBuffer = new StringBuilder();
-              tweenerBuffer.append(ch, start, length);
-          }
-      }
+    public void characters(char[] ch, int start, int length) {
+        if (length > 0) {
+            if (tweenerBuffer == null)
+                tweenerBuffer = new StringBuilder();
+            tweenerBuffer.append(ch, start, length);
+        }
+    }
       
-      /** 
-       * Collects text between XML element tags and trims any leading or 
-       * trailing white space.
-       * 
-       * This is a destructive action and clears the buffer which holds
-       * the text. Calling it again immediatly will always return null.
-       *
-       * @return the collected text or null if no such text exists
-       */
+    /** 
+     * Collects text between XML element tags and trims any leading or 
+     * trailing white space.
+     * 
+     * This is a destructive action and clears the buffer which holds
+     * the text. Calling it again immediatly will always return null.
+     *
+     * @return the collected text or null if no such text exists
+     */
 
-      public String getTweenerText() {
-          if (tweenerBuffer == null)
-              return null;
+    public String getTweenerText() {
+        if (tweenerBuffer == null)
+            return null;
           
-          // if there is some text between tags (after trimming leading
-          // and trailing white space), record that
-          String text = tweenerBuffer.toString().trim();
-          if (text.isEmpty())
-              text = null;
-          tweenerBuffer = null;
-          return text;
-      }
+        // if there is some text between tags (after trimming leading
+        // and trailing white space), record that
+        String text = tweenerBuffer.toString().trim();
+        if (text.isEmpty())
+            text = null;
+        tweenerBuffer = null;
+        return text;
+    }
+
+    /**
+     * Handles the start of an XML element. Watches for XML tags that might represent
+     * whether or not it is for a Plexil Model Node or Library or a property of a Plexil Model Node.
+     * 
+     * @param uri
+     * @param tagName
+     * @param qName
+     * @param attributes
+     *
+     * @note This is a default method and can be overridden.
+     */
+    public void startElement(String uri, String tagName, String qName, Attributes attributes) {    
+        try {
+            LuvElementHandler handler = getElementHandler(tagName);
+            if (handler != null)
+                handler.elementStart(tagName, attributes);
+            // *** TEMP DEBUG ***
+            // else
+            //     System.out.println("startElement: No handler for \"" + tagName + "\"");
+
+            // Save context
+            tagStack.push(tagName);
+        }
+        catch (Exception e) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: Exception in startElement for " + tagName);
+            tagStack.dump(System.err);
+        }
+    }
+
+    /**
+     * Handles the end of an XML element. Gathers the text in between the start
+     * and end tag that could be for conditions, local variables or actions.
+     * 
+     * @param uri
+     * @param tagName
+     * @param qName
+     *
+     * @note This is a default method and can be overridden.
+     */
+    public void endElement(String uri, String tagName, String qName) {
+        try {
+            tagStack.pop();
+            LuvElementHandler handler = getElementHandler(tagName);
+            if (handler != null)
+                handler.elementEnd(tagName, getTweenerText());
+        }
+        catch (Exception e) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: Exception in endElement for " + tagName);
+            tagStack.dump(System.err);
+        }
+    }
 
 }

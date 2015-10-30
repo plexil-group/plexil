@@ -298,7 +298,7 @@ public class Constants
             {
                 add(NODELIST,        NODELIST_ICO_NAME);
                 add(COMMAND,         COMMAND_ICO_NAME);
-                add(ASSN,            ASSN_ICO_NAME);
+                add(ASSIGNMENT,      ASSN_ICO_NAME);
                 add(EMPTY,           EMPTY_ICO_NAME);
                 add(UPDATE,          UPDATE_ICO_NAME);
                 add(LIBRARYNODECALL, LIBCALL_ICO_NAME);

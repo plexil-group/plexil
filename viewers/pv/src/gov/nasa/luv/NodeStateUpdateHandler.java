@@ -28,6 +28,9 @@ package gov.nasa.luv;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.xml.sax.Attributes;
+
 import static gov.nasa.luv.Constants.*;
 
 /**
@@ -35,7 +38,8 @@ import static gov.nasa.luv.Constants.*;
  * Plexil Plan is executing and sending updates to properties of the Plexil Model.
  */
 
-public class NodeStateUpdateHandler extends AbstractDispatchableHandler
+public class NodeStateUpdateHandler
+    extends AbstractDispatchableHandler
 {
     //* Top level XML tag name registered with DispatchHandler
     public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
@@ -54,75 +58,82 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
      */
     public NodeStateUpdateHandler() {
         super();
-        current = Model.getRoot();
         conditions = new HashMap<String, String>();
-    }
 
-    /**
-     * Handle end of an XML element or an update to an element in the Plexil Plan.
-     * @param uri N/A
-     * @param localName the name of the XML tag
-     * @param qName N/A
-     */
-    public void endElement(String uri, String localName, String qName)
-    {
-        // get text between tags
-        String text = getTweenerText();
-
-        // if this is the id of a path element, move down model tree
-        if (localName.equals(NODE_ID)) {
-            Node candidate;
-            if ((candidate = current.findChildByName(text)) != null) {
-                current = candidate;
-            }
-        }
-
-        // if this is the node state, record the state
-        else if (localName.equals(NODE_STATE))
-            state = text;
-
-        // if this is the node outcome, record the outcome
-        else if (localName.equals(NODE_OUTCOME))
-            outcome = text;
-
-        // if this is the node failure type, record the failure type
-        else if (localName.equals(NODE_FAILURE_TYPE))
-            failureType = text;        
-
-        // if this is the node state update, update the node state
-        else if (localName.equals(NODE_STATE_UPDATE)) {
-            if (!state.equals(current.getState()))
-                current.setState(state);
+        setElementMap(new HashMap<String, LuvElementHandler>() {
+                {
+                    put(NODE_ID, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                Node candidate = current.findChildByName(tweenerText);
+                                if (candidate != null)
+                                    current = candidate;
+                            }
+                        });
+                    put(NODE_STATE, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                state = tweenerText;
+                            }
+                        });
+                    put(NODE_OUTCOME, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                outcome = tweenerText;
+                            }
+                        });
+                    put(NODE_FAILURE_TYPE, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                failureType = tweenerText;
+                            }
+                        });
+                    put(NODE_STATE_UPDATE, new LuvElementHandler() {
+                            public void elementStart(String tagName, Attributes attributes) {
+                                reset();
+                            }
+                            public void elementEnd(String tagName, String tweenerText) {
+                                if (!state.equals(current.getState()))
+                                    current.setState(state);
             
-            if (!outcome.equals(UNKNOWN) || current.getOutcome() != null)
-                current.setOutcome(outcome);
+                                if (!outcome.equals(UNKNOWN) || current.getOutcome() == null)
+                                    current.setOutcome(outcome);
             
-            if (!failureType.equals(UNKNOWN) || current.getFailureType() != null)
-                current.setFailureType(failureType);
+                                if (!failureType.equals(UNKNOWN) || current.getFailureType() == null)
+                                    current.setFailureType(failureType);
           
-            if (current.hasConditions()) {
-                for (Map.Entry<String, String> condition: conditions.entrySet()) {
-                    if (current.hasCondition(condition.getKey()))
-                        current.setProperty(condition.getKey(), condition.getValue());
-                }
-            }
-        }
+                                if (current.hasConditions()) {
+                                    for (Map.Entry<String, String> condition: conditions.entrySet()) {
+                                        if (current.hasCondition(condition.getKey()))
+                                            current.setProperty(condition.getKey(), condition.getValue());
+                                    }
+                                }
+                            }
+                        });
 
-        // if this is one of the conditions, record it
-        else if (localName.endsWith("Condition"))
-            conditions.put(localName, text);
+                    LuvElementHandler conditionHandler = new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                conditions.put(tagName, tweenerText);
+                            }
+                        };
+                    for (String c: PlexilSchema.ALL_CONDITIONS)
+                        put(c, conditionHandler);
+                }
+            });
     }
 
     /**
      * Handles the end of the state update document.
      */
     public void endDocument() {
-        // Reset to root of model
-        current = Model.getRoot();
-
         // pause if single stepping
         if (Luv.getLuv().getPlanStep()) {
             Luv.getLuv().pausedState();
         }
+    }
+
+    private void reset()
+    {
+        current = Model.getRoot();
+        state = null;
+        outcome = null;
+        failureType = null;
+        conditions.clear();
     }
 }

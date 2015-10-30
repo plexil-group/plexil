@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import org.xml.sax.Attributes;
+
 import static gov.nasa.luv.PlexilSchema.*;
 
 /**
@@ -47,54 +49,53 @@ public class AssignmentHandler
 
     // XML tags
     private static final String NODE_ID = "NodeId";
-    private final static String VARIABLE_NAME = "VariableName";
-    private final static String VALUE = "Value";
+    private static final String VARIABLE_NAME = "VariableName";
+    private static final String VALUE = "Value";
 
 	private Node current;
 	private String vName;
 	private String value;
 
-	/**
-	 * Constructs a NodeStateUpdateHandler.
-	 */
 	public AssignmentHandler() {
 		super();
-		current = null;
+
+        setElementMap(new java.util.TreeMap<String, LuvElementHandler>() {
+                {
+                    put(NODE_ID, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                Node candidate = Model.getRoot().findChildByName(tweenerText); // *** FIXME ***
+                                if (candidate != null) 
+                                    current = candidate;
+                            }
+                        });
+                    put(VARIABLE_NAME, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                vName = tweenerText;
+                            }
+                        });
+                    put(VALUE, new LuvElementHandler() {
+                            public void elementEnd(String tagName, String tweenerText) {
+                                value = tweenerText;
+                            }
+                        });
+                    put(ASSIGNMENT, new LuvElementHandler() {
+                            public void elementStart(String tagName, Attributes attributes) {
+                                reset();
+                            }
+                            public void elementEnd(String tagName, String tweenerText) {
+                                if (vName != null && current != null) {
+                                    current.setVariable(vName, value);
+                                }
+                            }
+                        });
+                }
+            });
 	}
 
-	/**
-	 * Handle end of an XML element
-	 * 
-	 * @param uri
-	 *            N/A
-	 * @param localName
-	 *            the name of the XML tag
-	 * @param qName
-	 *            N/A
-	 */
-	public void endElement(String uri, String localName, String qName) {
-		String text = getTweenerText();
-		// get text between tags
-		if (NODE_ID.equals(qName)) {
-			Node candidate = Model.getRoot().findChildByName(text);
-			if (candidate != null) {
-				current = candidate;
-			}
-		} else if (VARIABLE_NAME.equals(qName)) {
-			vName = text;
-		} else if (VALUE.equals(qName)) {
-			value = text;
-		}
-	}
+    private void reset() {
+        current = null;
+        vName = null;
+        value = null;
+    }
 
-	/**
-	 * Handles the end of the state update document.
-	 */
-	public void endDocument() {
-		// set the variable to the given value
-		if (vName != null && current != null) {
-			current.setVariable(vName, value);
-		}
-		current = null;
-	}
 }

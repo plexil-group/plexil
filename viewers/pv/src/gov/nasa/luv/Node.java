@@ -460,6 +460,7 @@ public class Node
      * @param action  the action to add
      */
     public void addActionInfo(String action) { 
+        // *** FIXME! ***
         actionList.add(ActionTab.formatAction(action));
     }
     
