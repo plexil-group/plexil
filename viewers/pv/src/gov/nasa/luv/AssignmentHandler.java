@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import static gov.nasa.luv.PlexilSchema.*;
+
 /**
  * The AttributeUpdateHandler class provides mothods for handling when the
  * Plexil Plan is executing and a local variable changes.
@@ -33,6 +35,21 @@ package gov.nasa.luv;
 
 public class AssignmentHandler
     extends AbstractDispatchableHandler {
+
+    // Public constant
+
+    //* Top level XML tag name registered with DispatchHandler
+    public static final String ASSIGNMENT = "Assignment";
+
+    //
+    // Local constants
+    //
+
+    // XML tags
+    private static final String NODE_ID = "NodeId";
+    private final static String VARIABLE_NAME = "VariableName";
+    private final static String VALUE = "Value";
+
 	private Node current;
 	private String vName;
 	private String value;
@@ -58,14 +75,14 @@ public class AssignmentHandler
 	public void endElement(String uri, String localName, String qName) {
 		String text = getTweenerText();
 		// get text between tags
-		if (Constants.NODE_ID.equals(qName)) {
+		if (NODE_ID.equals(qName)) {
 			Node candidate = Model.getRoot().findChildByName(text);
 			if (candidate != null) {
 				current = candidate;
 			}
-		} else if (Constants.VARIABLE_NAME.equals(qName)) {
+		} else if (VARIABLE_NAME.equals(qName)) {
 			vName = text;
-		} else if (Constants.VALUE.equals(qName)) {
+		} else if (VALUE.equals(qName)) {
 			value = text;
 		}
 	}

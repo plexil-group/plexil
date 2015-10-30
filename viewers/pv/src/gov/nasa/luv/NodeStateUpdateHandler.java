@@ -37,6 +37,12 @@ import static gov.nasa.luv.Constants.*;
 
 public class NodeStateUpdateHandler extends AbstractDispatchableHandler
 {
+    //* Top level XML tag name registered with DispatchHandler
+    public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
+
+    // XML tags
+    private static final String NODE_ID = "NodeId";
+
     private Node current;
     private String state;
     private String outcome;

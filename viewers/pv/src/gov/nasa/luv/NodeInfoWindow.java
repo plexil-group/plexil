@@ -33,7 +33,9 @@ import javax.swing.JComponent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+
 import static gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.PlexilSchema.*;
 
 /** 
  * Teh NodeInfoWindow class holds the ConditionsTab, VariablesTab and ActionTab 

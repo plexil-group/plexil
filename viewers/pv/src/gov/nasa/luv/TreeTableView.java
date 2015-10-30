@@ -48,8 +48,11 @@ import java.util.Stack;
 import javax.swing.text.Position;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
-import static gov.nasa.luv.Constants.*;
 import treetable.JTreeTable;
+
+import static gov.nasa.luv.PlexilSchema.*;
+import static gov.nasa.luv.Constants.*;
+
 
 /**
  * The TreeTableView class provides methods and sub classes to create a tree
@@ -232,7 +235,7 @@ public class TreeTableView extends JTreeTable
         toolTip.append("<b>NAME</b> ");
         toolTip.append(node.getNodeName());
         toolTip.append("<br><b>TYPE</b>  ");
-        toolTip.append(node.getProperty(NODE_TYPE));
+        toolTip.append(node.getProperty(NODETYPE_ATTR));
         toolTip.append("<br><hr>");
         toolTip.append("<b>Double-Click</b> on node to view condition information");    
         toolTip.append("<br><b>Right-Click</b> on node to set breakpoints");

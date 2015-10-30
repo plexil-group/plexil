@@ -34,7 +34,11 @@ import java.awt.GridLayout;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import static gov.nasa.luv.Constants.*;
+
+import gov.nasa.luv.PlexilSchema.*;
+import static gov.nasa.luv.PlexilSchema.*;
 
 /** 
  * The ConditionsTab class provides methods for displaying Plexil Node condition 
@@ -76,7 +80,7 @@ public class ConditionsTab extends JPanel
         {
             for (final String condition: ALL_CONDITIONS)
             {
-                ArrayList elements = nodeConditions.get(getConditionNum(condition));            
+                ArrayList elements = nodeConditions.get(getConditionIndex(condition));            
 
                 if (elements != null && !elements.isEmpty())
                 {

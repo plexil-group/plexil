@@ -27,7 +27,9 @@
 package gov.nasa.luv;
 
 import java.util.ArrayList;
+
 import static gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.PlexilSchema.*;
 
 /** 
  * The RegexNodeFilter class provides methods to fileter a Plexil Node.

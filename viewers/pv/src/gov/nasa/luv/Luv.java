@@ -94,6 +94,8 @@ public class Luv extends JFrame {
     
     private static final int VIEW_SOURCE_MENU_ITEM         = 7;
 
+    private static final String NAME = "Name";
+
     // boolean variables to help determine Luv state	
     private boolean planPaused;
     private boolean planStep;

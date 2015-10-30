@@ -32,9 +32,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
-
 import static gov.nasa.luv.Constants.*;
-
+import static gov.nasa.luv.PlexilSchema.*;
 
 
 /** 
@@ -166,7 +165,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         checkBoxSide.add(emptyBox);
         iconSide.add(new JLabel(getIcon(EMPTY), JLabel.LEFT));
 
-        final JCheckBox assnBox = new JCheckBox("Show " + ASSN + " Nodes", isBoxChecked(ASSN));
+        final JCheckBox assnBox = new JCheckBox("Show " + ASSIGNMENT + " Nodes", isBoxChecked(ASSIGNMENT));
         assnBox.setFont(checkBoxFont);
         assnBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -175,7 +174,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             }
         });
         checkBoxSide.add(assnBox); 
-        iconSide.add(new JLabel(getIcon(ASSN), JLabel.LEFT));
+        iconSide.add(new JLabel(getIcon(ASSIGNMENT), JLabel.LEFT));
 
         final JCheckBox cmdBox = new JCheckBox("Show " + COMMAND + " Nodes", isBoxChecked(COMMAND)); 
         cmdBox.setFont(checkBoxFont);
@@ -332,7 +331,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
     private static void setAssignmentProperties(String value)
     {
-        Luv.getLuv().setProperty(ASSN, value);
+        Luv.getLuv().setProperty(ASSIGNMENT, value);
         Luv.getLuv().setProperty(THEN_ASSN, value);
         Luv.getLuv().setProperty(ELSE_ASSN, value);
     }

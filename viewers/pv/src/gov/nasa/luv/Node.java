@@ -38,6 +38,9 @@ import java.util.Vector;
 
 import static gov.nasa.luv.Constants.*;
 
+import gov.nasa.luv.PlexilSchema.*;
+import static gov.nasa.luv.PlexilSchema.*;
+
 public class Node
     extends java.util.Properties
     implements Cloneable {
@@ -48,7 +51,7 @@ public class Node
             {
                 put(NODELIST,        "List Node");
                 put(COMMAND,         "Command Node");
-                put(ASSN,            "Assignment Node");
+                put(ASSIGNMENT,      "Assignment Node");
                 put(EMPTY,           "Empty Node");
                 put(UPDATE,          "Update Node");
                 put(LIBRARYNODECALL, "Library Node");
@@ -318,7 +321,7 @@ public class Node
      */
     public boolean hasCondition(String condition)
     {
-        return conditionMap.containsKey(getConditionNum(condition));
+        return conditionMap.containsKey(getConditionIndex(condition));
     }
 
     /**
@@ -442,35 +445,6 @@ public class Node
                 ConditionsTab.formatCondition(conditionEquation);
 
         conditionMap.put(condition, equationHolder);
-    }
-    
-    /**
-     * Adds the specified local variable Stack to the list of variables for this Node. Converts into a Variable first
-     * @param variable the local variable to add to this Node's Stack of local variables
-     */
-    public void addVariableInfo(Stack variable) {
-        String value;
-        String type;
-        String name;
-        String in_inout;
-            
-        if (variable.size() == 4) {
-            value = (String) variable.pop();
-            type = (String) variable.pop();
-            name = (String) variable.pop();
-            in_inout = (String) variable.pop(); 
-        }
-        else {
-            value = UNKNOWN;
-            type = UNKNOWN;
-            name = UNKNOWN;
-            in_inout = UNKNOWN;
-        }
-        
-        if (!type.equals("UNKNOWN") && name.matches(".*\\[[0-9]*\\]"))
-            variableList.add(new ArrayVariable("--", name, type, value));
-        else
-        	variableList.add(new Variable(in_inout, name, type, value));
     }
     
     /**
@@ -646,10 +620,9 @@ public class Node
         if (rawType != null) {
             String polishedType = NODE_TYPES.get(rawType);
             if (polishedType != null)
-            setProperty(NODE_TYPE, polishedType);
+            setProperty(NODETYPE_ATTR, polishedType);
         }
 
-        nodeName = getProperty(NODE_ID);
         state = INACTIVE;
         outcome = null;
 

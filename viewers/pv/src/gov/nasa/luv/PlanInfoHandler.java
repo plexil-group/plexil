@@ -34,27 +34,32 @@ import static gov.nasa.luv.Constants.*;
 
 public class PlanInfoHandler extends AbstractDispatchableHandler
 {
-      /** Constructs a PlanInfoHandler. */
-      public PlanInfoHandler()
-      {
-         super();
-      }
+    //* Top level XML tag name registered with DispatchHandler
+    public static final String PLAN_INFO     = "PlanInfo";
+    
+    private static final String VIEWER_BLOCKS = "ViewerBlocks";
 
-      /**
-       * Handles the end of an XML element.
-       * 
-       * @param uri N/A
-       * @param localName the name of the XML tag
-       * @param qName N/A
-       */
-      @Override public void endElement(String uri, String localName, String qName)
-      {
-         // get text between tags
-         String text = getTweenerText();
+    /** Constructs a PlanInfoHandler. */
+    public PlanInfoHandler()
+    {
+        super();
+    }
 
-         // if this is blocking status, set that property in model
-         if (localName.equals(VIEWER_BLOCKS)) {
-             Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
-         }
-      }
+    /**
+     * Handles the end of an XML element.
+     * 
+     * @param uri N/A
+     * @param localName the name of the XML tag
+     * @param qName N/A
+     */
+    @Override public void endElement(String uri, String localName, String qName)
+    {
+        // get text between tags
+        String text = getTweenerText();
+
+        // if this is blocking status, set that property in model
+        if (localName.equals(VIEWER_BLOCKS)) {
+            Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
+        }
+    }
 }

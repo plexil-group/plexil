@@ -30,7 +30,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import java.util.HashMap;
-import static gov.nasa.luv.Constants.*;
+
 
 /**
  * @class DispatchHandler
@@ -41,12 +41,10 @@ import static gov.nasa.luv.Constants.*;
 
 public class DispatchHandler
     extends DefaultHandler {
+
     //
     // Local constants
     //
-    
-    /** Represents the XML tag in the Plexil Plan marking the Plan Info section. */
-    private static final String PLAN_INFO     = "PlanInfo";
 
     /** table of messages handlers */
     static HashMap<String, AbstractDispatchableHandler> handlerMap = 
@@ -62,9 +60,9 @@ public class DispatchHandler
       
     public DispatchHandler() {
         // add each type of handler to the table of possible handlers
-        registerHandler(PLAN_INFO, new PlanInfoHandler());
-        registerHandler(NODE_STATE_UPDATE, new NodeStateUpdateHandler());
-        registerHandler(ASSN, new AssignmentHandler());
+        registerHandler(PlanInfoHandler.PLAN_INFO, new PlanInfoHandler());
+        registerHandler(NodeStateUpdateHandler.NODE_STATE_UPDATE, new NodeStateUpdateHandler());
+        registerHandler(AssignmentHandler.ASSIGNMENT, new AssignmentHandler());
         
         AbstractDispatchableHandler planHandler =
             new PlexilPlanHandler(new PlexilPlanHandler.PlanReceiver() {
@@ -77,8 +75,8 @@ public class DispatchHandler
                     }
                 }
                 );
-        registerHandler(PLEXIL_PLAN, planHandler);
-        registerHandler(PLEXIL_LIBRARY, planHandler);
+        registerHandler(PlexilSchema.PLEXIL_PLAN, planHandler);
+        registerHandler(PlexilPlanHandler.PLEXIL_LIBRARY, planHandler);
 
         currentHandler = null;
     }

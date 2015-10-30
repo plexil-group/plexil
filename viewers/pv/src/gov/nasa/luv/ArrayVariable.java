@@ -13,7 +13,7 @@ public class ArrayVariable extends Variable {
 		super(inOut, name, type, value);
 		String[] valueList = null;
     	int counter = 0;
-    	if(!value.equals("UNKNOWN"))
+    	if (value != null)
     	{        		
     		valueList = value.replaceAll(",", "").split(" ");
     		counter = valueList.length;
