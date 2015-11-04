@@ -29,8 +29,8 @@ lib_LTLIBRARIES = libPlexilValue.la
 
 libPlexilValue_la_CPPFLAGS = -I@top_srcdir@/utils
 
-include_HEADERS = Array.hh ArrayImpl.hh CommandHandle.hh NodeConstants.hh \
- Value.hh ValueType.hh
+include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
+ NodeConstants.hh Value.hh ValueType.hh
 
 libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
  NodeConstants.cc Value.cc ValueType.cc

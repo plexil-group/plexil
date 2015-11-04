@@ -34,7 +34,8 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh \
  NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
- NodeTimepointValue.hh NodeVariableMap.hh NodeVariables.hh \
+ NodeTimepointValue.hh NodeTransition.hh \
+ NodeVariableMap.hh NodeVariables.hh \
  PlexilExec.hh PlexilNodeType.hh UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \

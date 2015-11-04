@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,8 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ACLOCAL_AMFLAGS = -I m4
+
+include_HEADERS = plexil-config.h
 
 if GANTT_OPT
   MAYBE_GANTT_SUBDIRS = interfaces/GanttListener
