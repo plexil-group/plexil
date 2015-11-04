@@ -46,4 +46,6 @@ include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 test1:
 	plexilexec -p plans/plan1.plx
 
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif
