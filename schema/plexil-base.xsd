@@ -1008,8 +1008,10 @@ element.  It is used as an included schema only.
   <xsd:element name="ArrayElement">
     <xsd:complexType>
       <xsd:sequence>
-        <!-- FIXME: generalize to array expression -->
-        <xsd:element name="Name" type="xsd:NCName"/>
+        <xsd:choice>
+          <xsd:group ref="GeneralizedArrayExpression"/>
+          <xsd:element name="Name" type="xsd:NCName"/>
+        </xsd:choice>
         <xsd:element name="Index">
           <xsd:complexType>
             <xsd:group ref="GeneralizedNumericExpression"/>

@@ -14,6 +14,45 @@ start =
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
   | Simultaneous
+element0 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element0)*
+    }
+  }
+Param =
+  notAllowed
+  | element Param { type?, xsd:string }
+Command =
+  notAllowed
+  | element Command { command-type }
+Simultaneous =
+  notAllowed
+  | element Simultaneous {
+      (State | UpdateAck | Command | CommandAck | CommandAbort)*
+    }
+\string = xsd:string
+SendPlan =
+  notAllowed
+  | element SendPlan {
+      attribute file { xsd:string }?
+    }
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
 CommandAck =
   notAllowed
   | element CommandAck { command-type }
@@ -25,30 +64,6 @@ State =
       Param*,
       element Value { \string }+
     }
-SendPlan =
-  notAllowed
-  | element SendPlan {
-      attribute file { xsd:string }?
-    }
-\string = xsd:string
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
-    }
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
-Command =
-  notAllowed
-  | element Command { command-type }
 Script =
   notAllowed
   | element Script {
@@ -66,9 +81,6 @@ Script =
            }
          })*
     }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
 type =
   attribute type {
     xsd:NMTOKEN "string-array"
@@ -80,21 +92,9 @@ type =
     | xsd:NMTOKEN "real"
     | xsd:NMTOKEN "int"
   }
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
-  }
-Simultaneous =
+CommandAbort =
   notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-InitialState =
-  notAllowed
-  | element InitialState { State* }
+  | element CommandAbort { command-type }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*
