@@ -33,6 +33,7 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "InterfaceSchema.hh"
 #include "parsePlan.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
@@ -638,6 +639,107 @@ namespace PLEXIL
     debugMsg("IpcAdapter:executeCommand", " command \"" << name << "\" sent.");
   }
 
+  // Helper function used in ParseExternalLookups.
+  static Value parseTypedValue(char const *type, pugi::xml_attribute const value)
+  {
+    ValueType t = parseValueType(type);
+
+    switch (t) {
+    case BOOLEAN_TYPE:
+      return Value(value.as_bool());
+
+    case INTEGER_TYPE:
+      // FIXME: pugixml attribute routines don't have out-of-band error signaling
+      // FIXME: pugixml relies on compiler definition of int type
+      return Value((int32_t) value.as_int());
+
+    case REAL_TYPE:
+      return Value(value.as_double());
+      
+    case STRING_TYPE:
+      return Value(value.value()); // empty string is valid
+
+    case BOOLEAN_ARRAY_TYPE: {
+      std::vector<std::string> * args =
+        InterfaceSchema::parseCommaSeparatedArgs(value.value());
+      size_t n = args->size();
+      BooleanArray ba(n);
+      for (size_t i = 0; i < n; ++i) {
+        Boolean b = false;
+        if (!parseValue<Boolean>((*args)[i], b)) {
+          assertTrueMsg(ALWAYS_FAIL,
+                        "IpcAdapter: \"" << (*args)[i] << "\" is not a valid Boolean");
+          return Value();
+        }
+        ba.setElement(i, b);
+      }
+      delete args;
+      return Value(ba);
+    }
+
+    case INTEGER_ARRAY_TYPE: {
+      std::vector<std::string> * args =
+        InterfaceSchema::parseCommaSeparatedArgs(value.value());
+      size_t n = args->size();
+      IntegerArray ia(n);
+      for (size_t i = 0; i < n; ++i) {
+        Integer in = 0;
+        if (!parseValue<Integer>((*args)[i], in)) {
+          assertTrueMsg(ALWAYS_FAIL,
+                        "IpcAdapter: \"" << (*args)[i] << "\" is not a valid Integer");
+          return Value();
+        }
+        ia.setElement(i, in);
+      }
+      delete args;
+      return Value(ia);
+    }
+
+    case REAL_ARRAY_TYPE: {
+      std::vector<std::string> * args =
+        InterfaceSchema::parseCommaSeparatedArgs(value.value());
+      size_t n = args->size();
+      RealArray ra(n);
+      for (size_t i = 0; i < n; ++i) {
+        Real d = 0.0;
+        if (!parseValue<Real>((*args)[i], d)) {
+          assertTrueMsg(ALWAYS_FAIL,
+                        "IpcAdapter: \"" << (*args)[i] << "\" is not a valid Real number");
+          return Value();
+        }
+        ra.setElement(i, d);
+      }
+      delete args;
+      return Value(ra);
+    }
+      
+    case STRING_ARRAY_TYPE: {
+      std::vector<std::string> * args =
+        InterfaceSchema::parseCommaSeparatedArgs(value.value());
+      size_t n = args->size();
+      StringArray sa(n);
+      for (size_t i = 0; i < n; ++i) {
+        String s = (*args)[i];
+        // TODO: handle escapes?
+        if (s[0] != '"' || s[s.size() - 1] != '"') {
+          assertTrueMsg(ALWAYS_FAIL,
+                        "IpcAdapter: String \"" << (*args)[i] << "\" lacks leading or trailing double-quote character(s)");
+          return Value();
+        }
+        s = s.substr(1, s.size() - 2);
+        sa.setElement(i, s);
+      }
+      delete args;
+      return Value(sa);
+    }
+      
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "IpcAdapter: invalid or unimplemented lookup value type " << type);
+      return Value();
+    }
+  }
+  
   void IpcAdapter::parseExternalLookups(pugi::xml_node const external) 
   {
     if (external) {
@@ -670,21 +772,8 @@ namespace PLEXIL
         }
         else {
           m_externalLookupNames.push_back(nameString);
-          State state(nameString);
           g_configuration->registerLookupInterface(nameString, this);
-          if (strcmp(type, "String") == 0)
-            m_externalLookups[state] = Value(defAttr.value());
-          // FIXME: pugixml attribute routines don't have out-of-band error signaling
-          else if (strcmp(type, "Real") == 0)
-            m_externalLookups[state] = Value(defAttr.as_double());
-          // FIXME: pugixml relies on compiler definition of int type
-          else if (strcmp(type, "Integer") == 0)
-            m_externalLookups[state] = Value((int32_t) defAttr.as_int());
-          else if (strcmp(type, "Boolean") == 0)
-            m_externalLookups[state] = Value(defAttr.as_bool());
-          else
-            assertTrueMsg(ALWAYS_FAIL,
-                          "IpcAdapter: invalid or unimplemented lookup value type " << type);
+          m_externalLookups[State(nameString)] = parseTypedValue(type, defAttr);
         }
         lookup = lookup.next_sibling("Lookup");
       }
