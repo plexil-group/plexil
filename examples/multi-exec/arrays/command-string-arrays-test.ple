@@ -2,19 +2,29 @@
 // Subscription commands are sent using SendMessage("<command name>")
 
 String[2] Command GetName;
+String[4] Lookup sa;
+Command pprint(...);
 
 MasterPlan:
 {
   String name = "n.a";
-  String ret[2];
+  String lkupret[4], cmdret[2];
 
-  Action:
-  {
-    EndCondition isKnown(ret[0]) && isKnown(ret[1]);
-    ret = GetName();
+  pprint("Sending LookupNow(sa)");
+  Lkup: {
+    lkupret = LookupNow(sa);    
   }
-  NotifyViewer1: ret[0] = ret[0];
-  NotifyViewer2: ret[1] = ret[1];
-  Set: name = ret[0] + " " + ret[1];
+  pprint("LookupNow(sa) returned ", lkupret);
+
+  pprint("Sending GetName command");
+  Cmd:
+  {
+    EndCondition isKnown(cmdret[0]) && isKnown(cmdret[1]);
+    cmdret = GetName();
+  }
+  pprint("GetName returned ", cmdret);
+  NotifyViewer1: cmdret[0] = cmdret[0];
+  NotifyViewer2: cmdret[1] = cmdret[1];
+  Set: name = cmdret[0] + " " + cmdret[1];
   Check: { InvariantCondition isKnown(name); }
 }
