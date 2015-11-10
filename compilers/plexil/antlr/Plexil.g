@@ -673,7 +673,14 @@ booleanLiteral : TRUE_KYWD | FALSE_KYWD ;
 
 realValue : DOUBLE | INT ;
 
-arrayReference :
+// TODO: extend to other expressions
+
+lookupArrayReference :
+    lookup LBRACKET expression RBRACKET
+    -> ^(ARRAY_REF lookup expression)
+  ;
+
+simpleArrayReference :
     variable LBRACKET expression RBRACKET
     -> ^(ARRAY_REF variable expression)
   ;
@@ -715,7 +722,7 @@ assignment
 
 assignmentLHS : 
     ( NCNAME LBRACKET )
-    => arrayReference
+    => simpleArrayReference
   | 
     variable
 ;
@@ -923,6 +930,7 @@ quantity :
   | oneArgFn^ LPAREN! expression RPAREN!
   | twoArgFn^ LPAREN! expression COMMA! expression RPAREN!
   | isKnownExp
+  | (lookupExpr LBRACKET) => lookupArrayReference
   | lookupExpr
   | messageReceivedExp
   | nodeStatePredicateExp
@@ -931,7 +939,7 @@ quantity :
   | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
   | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD STATE_KYWD) => nodeStateVariable
   | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD nodeStateKywd) => nodeTimepointValue
-  | (NCNAME LBRACKET) => arrayReference
+  | (NCNAME LBRACKET) => simpleArrayReference
   | variable
 // These are for the nodeRef variants
   | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
@@ -939,7 +947,6 @@ quantity :
   | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
   | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD STATE_KYWD) => nodeStateVariable
   | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD nodeStateKywd) => nodeTimepointValue
-  | arrayReference
   | literalValue
   | nodeCommandHandleKywd
   | nodeFailureKywd

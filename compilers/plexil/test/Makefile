@@ -35,7 +35,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               on-message1 on-message2 concat1 nodeState1 nodeState2 \
               nodeOutcome1 command-handle1 interface-test interface-test1 \
               DriveToSchool SafeDrive CruiseControl sync-cmd-test sync-cmd-test1 \
-              simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
+              simpleIf simpleIfThenElse simpleAssignment while1 AddArray ArrayLookup \
               Decrement Increment Sum RoboSimSimple2 SimpleDrive \
               array-add array-complex array-copy basic-wait-test boolean1 \
               duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
@@ -55,7 +55,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
-SEMANTIC_ERROR_TESTS = BadResource0 duplicateLookupDecl1 expr5 expr2 lookup1 \
+SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup BadResource0 duplicateLookupDecl1 expr5 expr2 lookup1 \
           LibraryCall5 LibraryCall6 on-message3 SeekGoalAndEnergy
 
 TESTS	         := $(SMALL_TESTS)

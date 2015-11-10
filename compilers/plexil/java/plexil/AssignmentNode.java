@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,8 @@ public class AssignmentNode extends PlexilTreeNode
                 (lhsType == PlexilDataType.REAL_TYPE && rhsType.isNumeric())) {
                 // All OK so far
                 if (lhsType.isArray()) {
-                    // *** TODO *** Check array dimensions if applicable
+                    // Check array dimensions if possible
+                    // *** TODO generalize LHS to array expr ***
                     // LHS must be array var
                     // RHS can only be command, lookup, or variable (at present)
                     VariableName lhsVar = ((VariableNode) lhs).getVariableName();

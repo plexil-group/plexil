@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -51,22 +51,38 @@ public class ArrayReferenceNode extends VariableNode
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         earlyCheckChildren(context, state);
-
-        // Check that variable is declared array
-        VariableNode variableNode = (VariableNode) this.getChild(0);
-        PlexilDataType varType = variableNode.getDataType();
-        if (varType.isArray()) {
-            m_dataType = varType.arrayElementType();
-        }
+        ExpressionNode arrayNode = (ExpressionNode) this.getChild(0);
+        PlexilDataType arrayType = arrayNode.getDataType();
+        if (arrayType.isArray())
+            m_dataType = arrayType.arrayElementType();
         else {
-            state.addDiagnostic(this.getChild(0),
-                                "Variable \"" + variableNode.getText() + "\" is not an array variable",
+            state.addDiagnostic(arrayNode,
+                                "Expression is not an array",
                                 Severity.ERROR);
         }
     }
 
     public void checkTypeConsistency(NodeContext context, CompilerState state)
     {
+        // Check array expression type
+        ExpressionNode arrayNode = (ExpressionNode) this.getChild(0);
+        PlexilDataType arrayType = arrayNode.getDataType();
+        
+        if (arrayType == PlexilDataType.UNKNOWN_ARRAY_TYPE
+            || arrayType == PlexilDataType.ERROR_TYPE) {
+            // type error already detected elsewhere
+            }
+        else if (arrayType == PlexilDataType.ANY_TYPE)
+            m_dataType = PlexilDataType.ANY_TYPE;
+
+        else if (arrayType.isArray())
+            m_dataType = arrayType.arrayElementType(); // may be redundannt with earlyCheck()
+
+        else
+            state.addDiagnostic(arrayNode,
+                                "Expression is not an array",
+                                Severity.ERROR);
+
         // Check index expression type
         ExpressionNode index = (ExpressionNode) this.getChild(1);
         if (index.getDataType() != PlexilDataType.INTEGER_TYPE) {
@@ -81,10 +97,8 @@ public class ArrayReferenceNode extends VariableNode
     {
         constructXMLBase();
 
-        // Construct variable name element
-        IXMLElement var = new XMLElement("Name");
-        var.setContent(this.getChild(0).getText());
-        m_xml.addChild(var);
+        // Construct array expression
+        m_xml.addChild(this.getChild(0).getXML());
 
         // Construct index
         IXMLElement idx = new XMLElement("Index");
