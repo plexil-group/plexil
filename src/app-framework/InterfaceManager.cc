@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -328,9 +328,17 @@ namespace PLEXIL
     }
 
     adapter->lookupNow(state, cacheEntry);
-    // LookupNow not supported for this state, use last cached value
-    debugMsg("InterfaceManager:lookupNow", " returning " << cacheEntry.cachedValue()->toValue());
-
+    debugStmt("InterfaceManager:lookupNow", {
+	CachedValue const *cv = cacheEntry.cachedValue();
+	if (cv) {
+	  debugMsg("InterfaceManager:lookupNow",
+		   " returning " << cacheEntry.cachedValue()->toValue());
+	}
+	else {
+	  debugMsg("InterfaceManager:lookupNow",
+		   " no cached value, so is UNKNOWN");
+	}
+      });
     // update internal idea of time if required
     if (state == State::timeState()) {
       CachedValue const *val = cacheEntry.cachedValue();
