@@ -311,11 +311,17 @@ namespace PLEXIL
       return;
     }
 
-    if (g_configuration->lookupIsTelemetry(state.name()))
+    if (g_configuration->lookupIsTelemetry(state.name())) {
       // LookupNow not supported for this state, use last cached value
+      debugMsg("InterfaceManager:lookupNow", " state " << state
+	       << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
       return;
+    }
 
     adapter->lookupNow(state, cacheEntry);
+    // LookupNow not supported for this state, use last cached value
+    debugMsg("InterfaceManager:lookupNow", " returning " << cacheEntry.cachedValue()->toValue());
+
     // update internal idea of time if required
     if (state == State::timeState()) {
       CachedValue const *val = cacheEntry.cachedValue();
