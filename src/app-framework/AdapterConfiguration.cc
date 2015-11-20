@@ -500,7 +500,7 @@ namespace PLEXIL {
     if (it == m_commandMap.end()) {
       // Not found, OK to add
       debugMsg("AdapterConfiguration:registerCommandInterface",
-               " registering interface for command '" << commandName << "'");
+               " registering interface " << intf << " for command '" << commandName << "'");
       m_commandMap.insert(std::pair<std::string, InterfaceAdapter *>(commandName, intf));
       m_adapters.insert(intf);
       return true;
@@ -527,7 +527,7 @@ namespace PLEXIL {
     if (it == m_lookupMap.end()) {
       // Not found, OK to add
       debugMsg("AdapterConfiguration:registerLookupInterface",
-               " registering interface for lookup '" << stateName << "'");
+               " registering interface " << intf << " for lookup '" << stateName << "'");
       m_lookupMap.insert(std::pair<std::string, InterfaceAdapter *>(stateName, intf));
       m_adapters.insert(intf);
       if (telemetryOnly)
@@ -554,7 +554,7 @@ namespace PLEXIL {
       return false;
     }
     debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
-             " registering planner update interface");
+             " registering planner update interface " << intf);
     m_plannerUpdateInterface = intf;
     m_adapters.insert(intf);
     return true;
