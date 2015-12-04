@@ -539,10 +539,13 @@
             </xsl:call-template>
           </xsl:with-param>
           <xsl:with-param name="skip-condition">
-            <xsl:call-template name="noderef-skipped">
-              <xsl:with-param name="ref"
-                              select="$preceding-test-ref" />
-            </xsl:call-template>
+            <NOT>
+              <xsl:call-template
+                  name="noderef-postcondition-failed">
+                <xsl:with-param name="ref"
+                                select="$preceding-test-ref" />
+              </xsl:call-template>
+            </NOT>
           </xsl:with-param>
         </xsl:call-template>
       </xsl:when>
