@@ -487,10 +487,10 @@
         <xsl:choose>
           <xsl:when test="preceding-sibling::ElseIf">
             <OR>
-              <xsl:call-template name="noderef-succeeded">
+              <xsl:call-template name="noderef-skipped">
                 <xsl:with-param name="ref" select="$preceding-test-ref" />
               </xsl:call-template>
-              <xsl:call-template name="noderef-skipped">
+              <xsl:call-template name="noderef-succeeded">
                 <xsl:with-param name="ref" select="$preceding-test-ref" />
               </xsl:call-template>
             </OR>
@@ -532,20 +532,22 @@
         </xsl:variable>
         <xsl:call-template name="if-clause-body">
           <xsl:with-param name="start-condition">
-            <xsl:call-template
-                name="noderef-postcondition-failed">
+            <xsl:call-template name="noderef-postcondition-failed">
               <xsl:with-param name="ref"
                               select="$preceding-test-ref" />
             </xsl:call-template>
           </xsl:with-param>
           <xsl:with-param name="skip-condition">
-            <NOT>
-              <xsl:call-template
-                  name="noderef-postcondition-failed">
+            <OR>
+              <xsl:call-template name="noderef-skipped">
                 <xsl:with-param name="ref"
                                 select="$preceding-test-ref" />
               </xsl:call-template>
-            </NOT>
+              <xsl:call-template name="noderef-succeeded">
+                <xsl:with-param name="ref"
+                                select="$preceding-test-ref" />
+              </xsl:call-template>
+            </OR>
           </xsl:with-param>
         </xsl:call-template>
       </xsl:when>
