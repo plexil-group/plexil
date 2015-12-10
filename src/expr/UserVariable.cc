@@ -380,6 +380,17 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  Value UserVariable<T>::getSavedValue() const
+  {
+    return Value(m_savedValue);
+  }
+
+  Value UserVariable<std::string>::getSavedValue() const
+  {
+    return Value(m_savedValue);
+  }
+
+  template <typename T>
   void UserVariable<T>::setName(const std::string &name)
   {
     if (m_name)

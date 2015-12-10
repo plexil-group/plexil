@@ -140,6 +140,12 @@ namespace PLEXIL {
     virtual void restoreSavedValue() = 0;
 
     /**
+     * @brief Read the saved value of this variable.
+     * @return The saved value.
+     */
+    virtual Value getSavedValue() const = 0;
+
+    /**
      * @brief Get the node that owns this expression.
      * @return The parent node; may be NULL.
      * @note Used by LuvFormat::formatAssignment().  

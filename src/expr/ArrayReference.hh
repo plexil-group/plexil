@@ -97,6 +97,9 @@ namespace PLEXIL {
     bool m_arrayIsGarbage;
     bool m_indexIsGarbage;
 
+    // For getName()
+    std::string *m_namePtr;
+
   private:
     // Disallow default, copy, assignment
     ArrayReference();
@@ -106,14 +109,13 @@ namespace PLEXIL {
     // Internal function
     bool selfCheck(Array const *&valuePtr,
                    size_t &idx) const;
+
   };
 
   /**
    * @class MutableArrayReference
    * @brief Expression class that represents a modifiable location in an array.
    */
-
-  // TODO: Support exec listener for assignments
 
   class MutableArrayReference : public ArrayReference, public Assignable
   {
@@ -187,8 +189,8 @@ namespace PLEXIL {
     bool getMutableValuePointer(StringArray *& ptr);
 
     void saveCurrentValue();
-
     void restoreSavedValue();
+    Value getSavedValue() const;
 
     NodeConnector const *getNode() const;
     NodeConnector *getNode();

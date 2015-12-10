@@ -27,6 +27,8 @@
 #include "Assignment.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecListenerBase.hh"
+#include "PlexilExec.hh" // getExecListener()
 
 namespace PLEXIL
 {
@@ -115,6 +117,9 @@ namespace PLEXIL
     debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
     m_dest->setValue(m_value);
     m_ack.setValue(true);
+    ExecListenerBase *l = g_exec->getExecListener();
+    if (l)
+      l->notifyOfAssignment(m_dest, m_dest->getName(), m_value);
   }
 
   void Assignment::retract()
@@ -123,6 +128,9 @@ namespace PLEXIL
              "Restoring previous value of " << m_dest->toString());
     m_dest->restoreSavedValue();
     m_abortComplete.setValue(true);
+    ExecListenerBase *l = g_exec->getExecListener();
+    if (l)
+      l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->getSavedValue());
   }
 
   void Assignment::reset()

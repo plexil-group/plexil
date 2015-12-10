@@ -39,8 +39,6 @@ namespace PLEXIL
    * @brief Templatized class for user-created plan variables.
    */
 
-  // TODO: Support exec listener for assignments
-
   // Scalar case
   template <typename T>
   class UserVariable :
@@ -115,6 +113,8 @@ namespace PLEXIL
     void saveCurrentValue();
 
     void restoreSavedValue();
+
+    Value getSavedValue() const;
 
     void setName(const std::string &);
 
@@ -250,6 +250,8 @@ namespace PLEXIL
     void saveCurrentValue();
 
     void restoreSavedValue();
+
+    Value getSavedValue() const;
 
     void setName(const std::string &);
 

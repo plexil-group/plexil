@@ -137,10 +137,12 @@ namespace PLEXIL {
     simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
 
     // add outcome
-    simpleTextElement(s, NODE_OUTCOME_TAG(), outcomeName(node->getOutcome()).c_str());
+    if (node->getOutcome() != NO_OUTCOME)
+      simpleTextElement(s, NODE_OUTCOME_TAG(), outcomeName(node->getOutcome()).c_str());
 
     // add failure type
-    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), failureTypeName(node->getFailureType()).c_str());
+    if (node->getFailureType() != NO_FAILURE)
+      simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), failureTypeName(node->getFailureType()).c_str());
       
     // add the condition states
     formatConditions(s, node);
@@ -174,13 +176,12 @@ namespace PLEXIL {
       formatNodePath(s, node);
 
     // get variable name
-    // *** TODO: enhance for array reference ***
     simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());
     endTag(s, VARIABLE_TAG());
 
     // format variable value
     simpleTextElement(s, 
-                      VARIABLE_VALUE_TAG(), 
+                      VARIABLE_VALUE_TAG(),
                       value.valueToString().c_str());
     
     endTag(s, ASSIGNMENT_TAG());

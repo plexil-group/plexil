@@ -87,6 +87,12 @@ namespace PLEXIL
      */
     virtual void setExecListener(ExecListenerBase * l) = 0;
 
+    /**
+     * @brief Get the ExecListener instance.
+     * @return The ExecListener. May be NULL.
+     */
+    virtual ExecListenerBase *getExecListener() = 0;
+
     // Needed by ExecApplication
 
     virtual void deleteFinishedPlans() = 0;

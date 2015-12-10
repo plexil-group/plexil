@@ -39,10 +39,12 @@ namespace PLEXIL
       m_array(ary),
       m_index(idx),
       m_arrayIsGarbage(aryIsGarbage),
-      m_indexIsGarbage(idxIsGarbage)
+      m_indexIsGarbage(idxIsGarbage),
+      m_namePtr(new std::string())
   {
     assertTrue_2(ary && idx,
                  "ArrayReference constructor: Null subexpression");
+
     // TODO:
     // Check type of array, index
     m_array->addListener(this);
@@ -57,14 +59,17 @@ namespace PLEXIL
       delete m_array;
     if (m_indexIsGarbage)
       delete m_index;
+    delete m_namePtr;
   }
 
   char const *ArrayReference::getName() const
   {
     Expression const *base = getBaseExpression();
     if (base) {
-      // TODO: add array subscript 
-      return base->getName();
+      std::ostringstream s;
+      s << base->getName() << '[' << m_index->valueString() << ']';
+      *m_namePtr = s.str();
+      return m_namePtr->c_str();
     }
     static char const *sl_dummy = "";
     return sl_dummy;
@@ -491,6 +496,11 @@ namespace PLEXIL
       m_mutableArray->notifyChanged(this);
     }
     m_saved = false;
+  }
+
+  Value MutableArrayReference::getSavedValue() const
+  {
+    return Value(m_savedValue);
   }
 
   NodeConnector const *MutableArrayReference::getNode() const

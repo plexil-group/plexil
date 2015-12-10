@@ -115,6 +115,8 @@ namespace PLEXIL
 
     void restoreSavedValue();
 
+    Value getSavedValue() const;
+
     void setName(const std::string &);
 
     NodeConnector const *getNode() const;

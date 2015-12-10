@@ -90,6 +90,15 @@ namespace PLEXIL
     }
 
     /**
+     * @brief Get the ExecListener instance.
+     * @return The ExecListener. May be NULL.
+     */
+    ExecListenerBase *getExecListener()
+    {
+      return m_listener;
+    }
+
+    /**
      * @brief Queries whether all plans are finished.
      * @return true if all finished, false otherwise.
      */

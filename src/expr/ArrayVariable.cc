@@ -247,6 +247,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  Value ArrayVariable<T>::getSavedValue() const
+  {
+    return Value(m_savedValue);
+  }
+
+  template <typename T>
   void ArrayVariable<T>::setName(const std::string &name)
   {
     if (m_name)

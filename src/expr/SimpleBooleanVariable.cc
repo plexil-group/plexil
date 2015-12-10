@@ -132,6 +132,12 @@ namespace PLEXIL
     assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
   }
 
+  Value SimpleBooleanVariable::getSavedValue() const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
+    return Value();
+  }
+  
   //
   // NotifierImpl API
   // 

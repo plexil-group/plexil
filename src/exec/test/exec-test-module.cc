@@ -62,6 +62,7 @@ public:
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
   void setExecListener(ExecListenerBase * /* l */) {}
+  ExecListenerBase *getExecListener() { return NULL; }
   void deleteFinishedPlans() {}
   bool allPlansFinished() const { return true; }
   std::list<Node *> const &getPlans() const { return g_dummyPlanList; }

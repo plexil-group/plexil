@@ -94,6 +94,7 @@ namespace PLEXIL {
     // They throw an exception when called.
     virtual void saveCurrentValue();
     virtual void restoreSavedValue();
+    Value getSavedValue() const;
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;
