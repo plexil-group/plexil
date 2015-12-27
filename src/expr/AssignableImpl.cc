@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -198,13 +198,122 @@ namespace PLEXIL
   // Explicit instantiations
   //
   template class AssignableImpl<bool>;
+  template void AssignableImpl<bool>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<bool>::setValueImpl(int32_t const &);
+  template void AssignableImpl<bool>::setValueImpl(double const &);
+  template void AssignableImpl<bool>::setValueImpl(std::string const &);
+  template void AssignableImpl<bool>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<bool>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<bool>::setValueImpl(RealArray const &);
+  template void AssignableImpl<bool>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<bool>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<bool>::getMutableValuePointerImpl(Array *&);
+  template bool AssignableImpl<bool>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<bool>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<bool>::getMutableValuePointerImpl(RealArray *&);
+  template bool AssignableImpl<bool>::getMutableValuePointerImpl(StringArray *&);
+  
   template class AssignableImpl<int32_t>;
+  template void AssignableImpl<int32_t>::setValueImpl(bool const &);
+  template void AssignableImpl<int32_t>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<int32_t>::setValueImpl(double const &);
+  template void AssignableImpl<int32_t>::setValueImpl(std::string const &);
+  template void AssignableImpl<int32_t>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<int32_t>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<int32_t>::setValueImpl(RealArray const &);
+  template void AssignableImpl<int32_t>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<int32_t>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<int32_t>::getMutableValuePointerImpl(Array *&);
+  template bool AssignableImpl<int32_t>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<int32_t>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<int32_t>::getMutableValuePointerImpl(RealArray *&);
+  template bool AssignableImpl<int32_t>::getMutableValuePointerImpl(StringArray *&);
+
   template class AssignableImpl<double>;
+  template void AssignableImpl<double>::setValueImpl(bool const &);
+  template void AssignableImpl<double>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<double>::setValueImpl(int32_t const &);
+  template void AssignableImpl<double>::setValueImpl(std::string const &);
+  template void AssignableImpl<double>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<double>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<double>::setValueImpl(RealArray const &);
+  template void AssignableImpl<double>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<double>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<double>::getMutableValuePointerImpl(Array *&);
+  template bool AssignableImpl<double>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<double>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<double>::getMutableValuePointerImpl(RealArray *&);
+  template bool AssignableImpl<double>::getMutableValuePointerImpl(StringArray *&);
+
   //template class AssignableImpl<std::string>;
+  template void AssignableImpl<std::string>::setValueImpl(bool const &);
+  template void AssignableImpl<std::string>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<std::string>::setValueImpl(int32_t const &);
+  template void AssignableImpl<std::string>::setValueImpl(double const &);
+  template void AssignableImpl<std::string>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<std::string>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<std::string>::setValueImpl(RealArray const &);
+  template void AssignableImpl<std::string>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<std::string>::getMutableValuePointerImpl(Array *&);
+  template bool AssignableImpl<std::string>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<std::string>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<std::string>::getMutableValuePointerImpl(RealArray *&);
+  template bool AssignableImpl<std::string>::getMutableValuePointerImpl(StringArray *&);
 
   template class AssignableImpl<BooleanArray>;
+  template void AssignableImpl<BooleanArray>::setValueImpl(bool const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(int32_t const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(double const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(std::string const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(RealArray const &);
+  template void AssignableImpl<BooleanArray>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<BooleanArray>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<BooleanArray>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<BooleanArray>::getMutableValuePointerImpl(RealArray *&);
+  template bool AssignableImpl<BooleanArray>::getMutableValuePointerImpl(StringArray *&);
+
   template class AssignableImpl<IntegerArray>;
+  template void AssignableImpl<IntegerArray>::setValueImpl(bool const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(int32_t const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(double const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(std::string const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(RealArray const &);
+  template void AssignableImpl<IntegerArray>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<IntegerArray>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<IntegerArray>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<IntegerArray>::getMutableValuePointerImpl(RealArray *&);
+  template bool AssignableImpl<IntegerArray>::getMutableValuePointerImpl(StringArray *&);
+
   template class AssignableImpl<RealArray>;
+  template void AssignableImpl<RealArray>::setValueImpl(bool const &);
+  template void AssignableImpl<RealArray>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<RealArray>::setValueImpl(int32_t const &);
+  template void AssignableImpl<RealArray>::setValueImpl(double const &);
+  template void AssignableImpl<RealArray>::setValueImpl(std::string const &);
+  template void AssignableImpl<RealArray>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<RealArray>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<RealArray>::setValueImpl(StringArray const &);
+  template bool AssignableImpl<RealArray>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<RealArray>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<RealArray>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<RealArray>::getMutableValuePointerImpl(StringArray *&);
+
   template class AssignableImpl<StringArray>;
+  template void AssignableImpl<StringArray>::setValueImpl(bool const &);
+  template void AssignableImpl<StringArray>::setValueImpl(uint16_t const &);
+  template void AssignableImpl<StringArray>::setValueImpl(int32_t const &);
+  template void AssignableImpl<StringArray>::setValueImpl(double const &);
+  template void AssignableImpl<StringArray>::setValueImpl(std::string const &);
+  template void AssignableImpl<StringArray>::setValueImpl(BooleanArray const &);
+  template void AssignableImpl<StringArray>::setValueImpl(IntegerArray const &);
+  template void AssignableImpl<StringArray>::setValueImpl(RealArray const &);
+  template bool AssignableImpl<StringArray>::getMutableValuePointerImpl(std::string *&);
+  template bool AssignableImpl<StringArray>::getMutableValuePointerImpl(BooleanArray *&);
+  template bool AssignableImpl<StringArray>::getMutableValuePointerImpl(IntegerArray *&);
+  template bool AssignableImpl<StringArray>::getMutableValuePointerImpl(RealArray *&);
 
 } // namespace PLEXIL
