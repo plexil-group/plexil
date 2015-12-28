@@ -29,8 +29,9 @@ package gov.nasa.luv;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import java.util.HashMap;
 
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @class DispatchHandler
@@ -47,8 +48,8 @@ public class DispatchHandler
     //
 
     /** table of messages handlers */
-    static HashMap<String, AbstractDispatchableHandler> handlerMap = 
-        new HashMap<String, AbstractDispatchableHandler>();
+    static Map<String, AbstractDispatchableHandler> handlerMap = 
+        new TreeMap<String, AbstractDispatchableHandler>();
       
     /** The currently selected handler */
     AbstractDispatchableHandler currentHandler;
@@ -66,12 +67,23 @@ public class DispatchHandler
         
         AbstractDispatchableHandler planHandler =
             new PlexilPlanHandler(new PlexilPlanHandler.PlanReceiver() {
-                    public void newPlan(Model m) {
-                        Luv.getLuv().newPlanFromExec(m);
+                    public void newPlan(Plan p) {
+                        try {
+                            javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
+                                    public void run() {
+                                        Luv.getLuv().newPlanFromExec(p);
+                                    }
+                                });
+                        }
+                        catch (InterruptedException i) {
+                        }
+                        catch (Exception e) {
+                            StatusMessageHandler.instance().displayErrorMessage(e, "While handling new plan from Exec");
+                        }
                     }
 
-                    public void newLibrary(Model m) {
-                        Luv.getLuv().getFileHandler().handleNewLibrary(m);
+                    public void newLibrary(Plan p) {
+                        RootModel.libraryLoaded(p);
                     }
                 }
                 );
@@ -111,7 +123,7 @@ public class DispatchHandler
         if (currentHandler == null) {
             currentHandler = handlerMap.get(localName);
             if (currentHandler == null) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
+                StatusMessageHandler.instance().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
                 throw(new Error("ERROR: unhandled XML tag: <" + localName + ">."));
             }
             

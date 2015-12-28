@@ -26,15 +26,17 @@
 
 package gov.nasa.luv;
 
-import static java.awt.event.InputEvent.META_MASK;
-import static java.awt.event.KeyEvent.VK_E;
-import static java.awt.event.KeyEvent.VK_O;
+import static java.awt.event.InputEvent.META_DOWN_MASK;
+import static java.awt.event.KeyEvent.*;
+import static java.awt.GridBagConstraints.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -42,250 +44,220 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Vector;
 
 import gov.nasa.luv.Constants.AppType;
 import static gov.nasa.luv.Constants.AppType.*;
-import static gov.nasa.luv.Constants.FILE_EXTENSIONS;
 
-public class ExecSelectDialog extends JPanel {
-	/**
-	 * 
-	 */	
-    private Luv theLuv;
-    private Settings settings;
-	private JFrame frame;
-	private JButton planBut, configBut, scriptBut, saveBut, cancelBut, defaultScriptBut, defaultConfigBut, libBut;
-	private JRadioButton externalApp, plexilExec, plexilTest, plexilSim;
-	private JLabel planLab, configLab, scriptLab;	
-	private JPanel patternPanel;
-	private PlexilFilter planFilter, configFilter, teScriptFilter;
-	private JFileChooser dirChooser;
+public class ExecSelectDialog
+    extends JFrame {
 
-	public ExecSelectDialog(Luv luv) {
-        theLuv = luv;
-        settings = theLuv.getSettings();
-		init();
-		constructFrame();
-		add(patternPanel);				
-		setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));		
-        setOpaque(true);
-		frame = new JFrame("Select Configuration");
-        frame.setContentPane(this);
+    private static final Dimension FILE_LIST_DIALOG_SIZE = new Dimension(600, 400);
+    private static final Point LIBRARY_DIALOG_LOC = new Point(300, 300);
+    private static final Point PATH_DIALOG_LOC = new Point(400, 400);
+
+    private ButtonGroup execGroup;
+	private JRadioButton plexilTest, plexilExec, plexilSim, userDefined, externalApp;
+	private JButton debugBut, configBut, scriptBut, saveBut;
+    private JButton defaultScriptBut, defaultConfigBut;
+	private JLabel configLab, debugLab, scriptLab, libLab, pathLab;
+    private JButton defaultDebugBut, noneDebugBut, generateDebugBut;
+	private FileFilter planFilter, debugFilter, configFilter, teScriptFilter;
+
+    private LibraryListEditor libEditor;
+    private LibraryPathEditor pathEditor;
+
+    private Plan plan;
+    private PlanView view;
+
+    //
+    // Local temporary storage
+    //
+
+    private AppType mode;
+    private File debugFile, scriptFile, configFile;
+    private Vector<File> libraryPath, libraryFiles;
+
+    public ExecSelectDialog(PlanView parent) {
+        super();
+        view = parent;
+        plan = null;
+
+		planFilter = new FileNameExtensionFilter("Plexil plan", "plx");
+		debugFilter = new FileNameExtensionFilter("Debug config file", "cfg");
+		configFilter = new FileNameExtensionFilter("PlexilExec config file", "xml");
+		teScriptFilter = new FileNameExtensionFilter("PlexilTest sim script", "psx");
+
+        libEditor = null;
+        pathEditor = null;
+
+        constructFrame();
 	}
-	
-	private void init() {
-		ButtonGroup execGroup = new ButtonGroup(); 
-		externalApp = new JRadioButton("External");
-		externalApp.setToolTipText("Monitor plan execution on an external executive");
-		execGroup.add(externalApp);
-		externalApp.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    settings.setAppMode(EXTERNAL_APP);
-                    theLuv.getStatusMessageHandler().showStatus("Monitor external exec", Color.GREEN.darker(), 1000);
-                    refresh();
-                }
-            }
-            );
 
-		plexilExec = new JRadioButton("PlexilExec");
-		plexilExec.setToolTipText("Execute a plan on the PlexilExec");
-		execGroup.add(plexilExec);
-		plexilExec.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    settings.setAppMode(PLEXIL_EXEC);
-                    theLuv.getStatusMessageHandler().showStatus("Use UniversalExec", Color.GREEN.darker(), 1000);
-                    refresh();
-                }
-            }
-            );
+    private void constructFrame() {
+        JPanel panel = new JPanel();
+		panel.add(constructPatternPanel());				
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));		
+        panel.setOpaque(true);
+        setContentPane(panel);
+    }
+
+	private JPanel constructPatternPanel() {
+		JPanel patternPanel = new JPanel();
+		GridBagLayout gridbag = new GridBagLayout();
+		patternPanel.setLayout(gridbag);
+
+        // Radio buttons
+		int row = 0;
+		execGroup = new ButtonGroup(); 
 
 		plexilTest = new JRadioButton("PlexilTest");
-		plexilTest.setToolTipText("Simulate Plan Execution using a Test Executive Script");
+		plexilTest.setToolTipText("Execute a plan using the scripted Test Executive");
 		execGroup.add(plexilTest);
 		plexilTest.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    settings.setAppMode(PLEXIL_TEST);
-                    theLuv.getStatusMessageHandler().showStatus("Use TestExec", Color.GREEN.darker(), 1000);
+                    setMode(PLEXIL_TEST);
+                    view.showMessage("Use PlexilTest", Color.GREEN.darker());
                     refresh();
                 }
-            }
-            );
+            });
+
+		plexilExec = new JRadioButton("PlexilExec");
+		plexilExec.setToolTipText("Execute a plan with PlexilExec");
+		execGroup.add(plexilExec);
+		plexilExec.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setMode(PLEXIL_EXEC);
+                    view.showMessage("Use PlexilExec", Color.GREEN.darker());
+                    refresh();
+                }
+            });
 
 		plexilSim = new JRadioButton("PlexilSim");
 		plexilSim.setToolTipText("Execute a plan using PlexilExec and PlexilSimulator");
 		execGroup.add(plexilSim);
 		plexilSim.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    settings.setAppMode(PLEXIL_SIM);
-                    theLuv.getStatusMessageHandler().showStatus("Use PlexilSim", Color.GREEN.darker(), 1000);
+                    setMode(PLEXIL_SIM);
+                    view.showMessage("Use PlexilSim", Color.GREEN.darker());
                     refresh();
                 }
-            }
-            );
+            });
 
-		planLab = new JLabel("");
-		planBut =
-            new JButton(new LuvAction("Plan",
-                                      "Choose a plexil plan file.",
-                                      VK_O,
-                                      META_MASK) {
-                    public void actionPerformed(ActionEvent e) {
-                        File p = openFile(e,
-                                          planFilter,
-                                          settings.getPlanLocation());
-                        if (p != null) {
-                            settings.setPlanLocation(p);
-                            updateLabel(planLab, p);
-                        }
-                    }
+		userDefined = new JRadioButton("User defined");
+		userDefined.setToolTipText("Execute a plan with a user-defined executive");
+		execGroup.add(userDefined);
+		userDefined.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setMode(USER_SPECIFIED);
+                    view.showMessage("Use user-defined exec", Color.GREEN.darker());
+                    refresh();
                 }
-                        );
+            });
 
-		libBut = new JButton("Libraries");
+		externalApp = new JRadioButton("External");
+		externalApp.setToolTipText("Monitor plan execution on an external executive");
+		execGroup.add(externalApp);
+		externalApp.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setMode(EXTERNAL_APP);
+                    view.showMessage("Monitor external exec", Color.GREEN.darker());
+                    refresh();
+                }
+            });
+
+		gridbag.setConstraints(plexilTest, makeConstraints(0, row, 1, 1, 1, 1));
+		gridbag.setConstraints(plexilExec, makeConstraints(1, row, 1, 1, 1, 1));
+		gridbag.setConstraints(plexilSim, makeConstraints(2, row, 1, 1, 1, 1));
+		gridbag.setConstraints(externalApp, makeConstraints(3, row, 1, 1, 1, 1));
+		gridbag.setConstraints(userDefined, makeConstraints(4, row, 1, 1, 1, 1));
+
+        patternPanel.add(plexilTest);
+        patternPanel.add(plexilExec);
+        patternPanel.add(plexilSim);
+        patternPanel.add(userDefined);
+        patternPanel.add(externalApp);
+
+        // Libraries button
+		row++; // 1
+		JButton libBut = new JButton("Libraries");
+        libBut.setToolTypeText("Select library files for the Exec to load.");
 		libBut.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    theLuv.getLibraryLoader().openDialog();
+                    if (libEditor == null)
+                        libEditor = new LibraryListEditor();
+                    libEditor.display();
                 }
-            }
-            );
-
-		configLab = new JLabel("");
-		configBut =
-            new JButton(new LuvAction("Config",
-                                      "Choose a Config file.",
-                                      VK_E,
-                                      META_MASK) {
-
-                    public void actionPerformed(ActionEvent e) {
-                        File c = openFile(e,
-                                          configFilter,
-                                          settings.getConfigLocation());
-                        if (c != null) {
-                            settings.setConfigLocation(c);
-                            updateLabel(configLab, c);
-                        }
-                    }
-                }
-                        );
-		configBut.setEnabled(false);
-		configBut.setVisible(false);
-
-		defaultConfigBut = new JButton("Use Default");
-		defaultConfigBut.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    AppType mode = settings.getAppMode();
-                    if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
-                        settings.setConfigLocation(new File(Constants.DEFAULT_CONFIG_PATH, Constants.DEFAULT_CONFIG_NAME));
-                        updateLabel(configLab, settings.getConfigLocation());
-                        theLuv.getStatusMessageHandler().showStatus("Default Config");
-                    }
-                }
-            }
-            );
-		defaultConfigBut.setVisible(false);
-
-		scriptLab = new JLabel("");	
-		scriptBut =
-            new JButton(new LuvAction("Script",
-                                      "Choose a script file.",
-                                      VK_E,
-                                      META_MASK) {
-                    public void actionPerformed(ActionEvent e) {
-                        File s = openFile(e,
-                                          (settings.getAppMode() == PLEXIL_TEST)
-                                          ? teScriptFilter
-                                          : null,
-                                          settings.getScriptLocation());
-                        if (s != null) {
-                            settings.setScriptLocation(s);
-                            updateLabel(scriptLab, s);
-                        }
-                    }
-                }
-                        );
-
-		defaultScriptBut = new JButton("Use Default");
-		defaultScriptBut.addActionListener(new ActionListener() {
-                // Dumbed down for simplicity's sake
-                public void actionPerformed(ActionEvent e) {
-                    File script = settings.defaultEmptyScriptFile();
-                    settings.setScriptLocation(script);
-                    updateLabel(scriptLab, script);
-                    theLuv.getStatusMessageHandler().showStatus("Default Script");
-                }
-            }
-            );
-		
-		saveBut = new JButton("OK");
-		saveBut.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    saveSettings();
-                    frame.setVisible(false);
-                }
-            }
-            );
-
-		cancelBut = new JButton("Cancel");
-		cancelBut.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    settings.loadFromProperties(); // restore
-                    frame.setVisible(false);
-                    theLuv.getStatusMessageHandler().showStatus("Reverted Configuration");
-                }
-            }
-            );
-		
-		patternPanel = new JPanel();
-		
-		dirChooser = new JFileChooser(Constants.PLEXIL_HOME);
-        dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		planFilter = new PlexilFilter("PLX");
-		configFilter = new PlexilFilter("XML");
-		teScriptFilter = new PlexilFilter("PSX");
-	}
-
-	private void constructFrame() {
-		GridBagLayout gridbag = new GridBagLayout();
-		patternPanel.setLayout(gridbag);
-
-        // Radio buttons
-		int row = 0;
-		gridbag.setConstraints(externalApp, makeConstraints(0, row, 1, 1, 1, 1));
-		gridbag.setConstraints(plexilExec, makeConstraints(1, row, 1, 1, 1, 1));
-		gridbag.setConstraints(plexilTest, makeConstraints(2, row, 1, 1, 1, 1));
-		gridbag.setConstraints(plexilSim, makeConstraints(3, row, 1, 1, 1, 1));
-        patternPanel.add(externalApp);
-        patternPanel.add(plexilExec);
-        patternPanel.add(plexilTest);
-        patternPanel.add(plexilSim);
-		
-        // Plan button, label
-		row++; //1
-		gridbag.setConstraints(planBut, makeConstraints(0, row, 1, 1, 1, 1));
-		gridbag.setConstraints(planLab, makeConstraints(1, row, 1, 5, 1, 1));
-        patternPanel.add(planBut);
-        patternPanel.add(planLab);
-
-        // Library button
-		row++; //2
+            });
+        libLab = new JLabel();
 		gridbag.setConstraints(libBut, makeConstraints(0, row, 1, 1, 1, 1));
+		gridbag.setConstraints(libLab, makeConstraints(1, row, 1, 5, 1, 1));
         patternPanel.add(libBut);
+        patternPanel.add(libLab);
+
+        // Library path button
+		row++; // 2
+		JButton pathBut = new JButton("Library path");
+		pathBut.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (pathEditor == null)
+                        pathEditor = new LibraryPathEditor();
+                    pathEditor.display();
+                }
+            });
+        pathLab = new JLabel();
+		gridbag.setConstraints(pathBut, makeConstraints(0, row, 1, 1, 1, 1));
+		gridbag.setConstraints(pathLab, makeConstraints(1, row, 1, 5, 1, 1));
+        patternPanel.add(pathBut);
+        patternPanel.add(pathLab);
 			
         // Configuration
 		row++; //3
+		configLab = new JLabel("");
+		configBut =
+            new JButton(new LuvAction("Interface Config",
+                                      "Choose an Interface Config file.",
+                                      VK_E,
+                                      META_DOWN_MASK) {
+
+                    public void actionPerformed(ActionEvent e) {
+                        File c = chooseFile(configFile,
+                                            configFilter,
+                                            "Select Configuration");
+                        if (c != null) {
+                            configFile = c;
+                            updateLabel(configLab, c);
+                        }
+                    }
+                });
+		configBut.setEnabled(false);
+		configBut.setVisible(false);
+		defaultConfigBut = new JButton("Use Default");
+		defaultConfigBut.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
+                        configFile = new File(Constants.DEFAULT_CONFIG_PATH, Constants.DEFAULT_CONFIG_NAME);
+                        updateLabel(configLab, configFile);
+                        view.showMessage("Default Config");
+                    }
+                }
+            });
+		defaultConfigBut.setVisible(false);
 		gridbag.setConstraints(configBut, makeConstraints(0, row, 1, 1, 1, 1));
 		gridbag.setConstraints(configLab, makeConstraints(1, row, 1, 5, 1, 1));		
 		gridbag.setConstraints(defaultConfigBut, makeConstraints(2, row, 1, 10, 1, 1));
@@ -295,6 +267,27 @@ public class ExecSelectDialog extends JPanel {
 				
         // Sim script
 		row++;//4
+		scriptLab = new JLabel("");	
+		scriptBut =
+            new JButton(new LuvAction("Sim Script",
+                                      "Choose a script file.",
+                                      VK_E,
+                                      META_DOWN_MASK) {
+                    public void actionPerformed(ActionEvent e) {
+                        chooseScriptFile(scriptFile);
+                    }
+                });
+		defaultScriptBut = new JButton("Use Default");
+        defaultScriptBut.setToolTipText("Use an empty sim script")
+		defaultScriptBut.addActionListener(new ActionListener() {
+                // Dumbed down for simplicity's sake
+                public void actionPerformed(ActionEvent e) {
+                    scriptFile = Settings.instance().defaultEmptyScriptFile(mode);
+                    updateLabel(scriptLab, scriptFile);
+                    view.showMessage("Default Script");
+                }
+            }
+            );
 		gridbag.setConstraints(scriptBut, makeConstraints(0, row, 1, 1, 1, 1));
 		gridbag.setConstraints(scriptLab, makeConstraints(1, row, 1, 5, 1, 1));
 		gridbag.setConstraints(defaultScriptBut, makeConstraints(2, row, 1, 10, 1, 1));
@@ -302,13 +295,90 @@ public class ExecSelectDialog extends JPanel {
         patternPanel.add(scriptLab);
         patternPanel.add(defaultScriptBut);
 		
-		row+=3;//6
-		//gridbag.setConstraints(defaultBut, makeConstraints(0, row, 10, 10, 1, 10));
+        // Debug config
+        row++;//5
+		debugLab = new JLabel(" ");
+		debugBut =
+            new JButton(new LuvAction("Debug",
+                                      "Choose a debug file.",
+                                      VK_D,
+                                      META_DOWN_MASK) {
+                    public void actionPerformed(ActionEvent e) {
+                        chooseDebugFile(debugFile);
+                    }
+                });
+		defaultDebugBut = new JButton("Use Default");
+        defaultDebugBut.setToolTipText("Use standard debug file location");
+		defaultDebugBut.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    String debugDir = System.getProperty("user.dir");
+                    if (debugDir == null)
+                        debugDir = plan.getPlanFile().getParent();
+                    debugFile = new File(debugDir, "Debug.cfg");
+                    updateLabel(debugLab, debugFile);
+                    view.showMessage("Selected default debug file " + debugFile);
+                }
+            });
+		noneDebugBut = new JButton("None");
+        noneDebugBut.setToolTipText("Don't use a debug file at all");
+		noneDebugBut.addActionListener(new ActionListener() {
+                // Dumbed down for simplicity's sake
+                public void actionPerformed(ActionEvent e) {
+                    debugFile = null;
+                    debugLab.setText("(none)");
+                    view.showMessage("Selected no debug file");
+                }
+            });
+        generateDebugBut = new JButton("Generate");
+        generateDebugBut.setToolTipText("Generate a debug file from a menu");
+        generateDebugBut.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    // *** TODO ***
+                    File f = generateDebugFile();
+                    if (f == null) {
+                        view.showMessage("Canceled generate debug file");
+                    }
+                    else {
+                        debugFile = f;
+                        updateLabel(debugLab, debugFile);
+                        view.showMessage("Generated debug file " + f);
+                    }
+                }
+            });
+        
+		gridbag.setConstraints(debugBut, makeConstraints(0, row, 1, 1, 1, 1));
+		gridbag.setConstraints(debugLab, makeConstraints(1, row, 1, 5, 1, 1));
+		gridbag.setConstraints(defaultDebugBut, makeConstraints(2, row, 1, 10, 1, 1));
+		gridbag.setConstraints(noneDebugBut, makeConstraints(3, row, 1, 10, 1, 1));
+		gridbag.setConstraints(generateDebugBut, makeConstraints(4, row, 1, 10, 1, 1));
+        patternPanel.add(debugBut);
+        patternPanel.add(debugLab);
+        patternPanel.add(defaultDebugBut);
+        patternPanel.add(noneDebugBut);
+        patternPanel.add(generateDebugBut);
+
+		row+=2;//7
+		JButton cancelBut = new JButton("Cancel");
+		cancelBut.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                    view.showMessage("Reverted Configuration");
+                }
+            }
+            );
+		saveBut = new JButton("OK");
+		saveBut.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    saveSettings();
+                    setVisible(false);
+                }
+            });
 		gridbag.setConstraints(cancelBut, makeConstraints(1, row, 10, 10, 1, 10));
 		gridbag.setConstraints(saveBut, makeConstraints(2, row, 10, 10, 1, 10));
-        //patternPanel.add(defaultBut);
         patternPanel.add(cancelBut);
         patternPanel.add(saveBut);
+
+        return patternPanel;
 	}
 	
 	/*
@@ -326,11 +396,6 @@ public class ExecSelectDialog extends JPanel {
         return c;
 	}
 
-    // Needed by LibraryLoader
-    public FileFilter getPlanFileFilter() {
-        return planFilter;
-    }
-
     public void enableSaveButton() {
         saveBut.setEnabled(true);
     }
@@ -344,133 +409,169 @@ public class ExecSelectDialog extends JPanel {
 	}
 
 	public void activate() {
-        settings.saveToProperties(); // back up so we can restore if needed
-		refresh();
-        frame.setVisible(true);
+        Plan plan = view.getPlan();
+        // Copy plan settings to local
+        libraryPath = new Vector<File>(plan.getLibraryPath());
+        libraryFiles = new Vector<File>(plan.getLibraryFiles());
+        debugFile = plan.getDebugFile();
+        scriptFile = plan.getScriptFile();
+        configFile = plan.getConfigFile();
+
+        setTitle("Settings for plan " + plan.getName());
+        AppType t = plan.getAppType();
+        if (t == NO_APP) // new plan
+            t = Settings.instance().getAppMode(); // use last default
+        setMode(t);
+        refresh();
+        setVisible(true);
 	}
 	
     // Refreshes the dialog display on update
     public void refresh() {
-        Settings s = settings;
-        setMode(s.getAppMode());
-        updateButtonVisibility();
+        updateLabel(debugLab, debugFile);
 
-        // Update plan location
-		File plan = s.getPlanLocation();
-        if (plan != null) {
-            if (!plan.exists()) {
-                theLuv.getStatusMessageHandler().displayErrorMessage(this,
-                                                                     null,
-                                                                     "ERROR: unable to find plan file "
-                                                                     + plan.toString());
-                s.setPlanLocation(null);
-            }
+        switch (libraryFiles.size()) {
+        case 0:
+            libLab.setText("(empty)");
+            libLab.setToolTipText(null);
+            break;
+
+        case 1:
+            libLab.setText("1 file");
+            libLab.setToolTipText(libraryFiles.get(0).toString());
+            break;
+
+        default:
+            libLab.setText(libraryFiles.size() + " files");
+            libLab.setToolTipText(null);
+            break;
         }
-        updateLabel(planLab, s.getPlanLocation());
-        
+
+        switch (libraryPath.size()) {
+        case 0:
+            pathLab.setText("(empty)");
+            pathLab.setToolTipText(null);
+            break;
+
+        case 1:
+            pathLab.setText("1 directory");
+            pathLab.setToolTipText(libraryPath.get(0).toString());
+            break;
+
+        default:
+            pathLab.setText(libraryPath.size() + " directories");
+            pathLab.setToolTipText(null);
+            break;
+        }
+
+        updateMode();
+        repaint();
+	}
+
+    private void updateMode() {
+		// Set radio buttons
+        switch (mode) {
+        case EXTERNAL_APP:
+            externalApp.setSelected(true);
+            break;
+
+        case PLEXIL_EXEC:
+            plexilExec.setSelected(true);
+            break;
+
+        case PLEXIL_TEST:
+            plexilTest.setSelected(true);
+            break;
+
+        case PLEXIL_SIM:
+            plexilSim.setSelected(true);
+            break;
+
+        case USER_SPECIFIED:
+            userDefined.setSelected(true);
+            break;
+
+        default:
+            execGroup.clearSelection();
+            break;
+		}
+
         // Update script location if appropriate to mode
-        AppType mode = settings.getAppMode();
-        if (mode == PLEXIL_SIM || mode == PLEXIL_TEST) {
-            File script = s.getScriptLocation();
-            if (script != null) {
-                if (!script.exists()) {
-                    theLuv.getStatusMessageHandler().displayErrorMessage(this,
-                                                                         null,
-                                                                         "ERROR: simulation script file not found: "
-                                                                         + script.toString());
-                    s.setScriptLocation(null);
-                }
-                updateLabel(scriptLab, s.getScriptLocation());
-            }
-        } else {
+        if (mode == PLEXIL_SIM || mode == PLEXIL_TEST)
+            updateLabel(scriptLab, scriptFile);
+        else 
             updateLabel(scriptLab, null);
-        }
         
         // Update config location if appropriate to mode
-        if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
-            File config = s.getConfigLocation();
-            if (config != null) {
-                if (!config.exists()) {
-                    theLuv.getStatusMessageHandler().displayErrorMessage(this,
-                                                                         null,
-                                                                         "ERROR: simulation config file not found: "
-                                                                         + config.toString());
-                    s.setConfigLocation(null);
-                }
-                updateLabel(configLab, s.getConfigLocation());
-            }
-        } else {
+        if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) 
+            updateLabel(configLab, configFile);
+        else
             updateLabel(configLab, null);
-        }
-
-        frame.pack();
-	}
+        
+        updateButtonVisibility();
+        pack();
+    }
 
     private void updateButtonVisibility() {
         // Handle buttons and labels
         // Plan, library buttons always enabled and visible
-        switch (settings.getAppMode()) {
-        case EXTERNAL_APP:
-            configBut.setVisible(false);
-            configBut.setEnabled(false);
-            configLab.setVisible(false);
-            defaultConfigBut.setVisible(false);
-            defaultConfigBut.setEnabled(false);
-
-            scriptBut.setVisible(false);
-            scriptBut.setEnabled(false);
-            scriptLab.setVisible(false);
-            defaultScriptBut.setVisible(false);
-            defaultScriptBut.setEnabled(false);
-
-            break;
-
+        switch (mode) {
         case PLEXIL_EXEC:
-            configBut.setVisible(true);
-            configBut.setEnabled(true);
-            configLab.setVisible(true);
-            defaultConfigBut.setEnabled(true);
-            defaultConfigBut.setVisible(true);
-
-            scriptBut.setVisible(false);
-            scriptBut.setEnabled(false);
-            scriptLab.setVisible(false);
-            defaultScriptBut.setVisible(false);
-            defaultScriptBut.setEnabled(false);
+            setDebugFileVisibility(true);
+            setConfigFileVisibility(true);
+            setScriptFileVisibility(false);
             break;
 
         case PLEXIL_TEST:
-            configBut.setVisible(false);
-            configBut.setEnabled(false);
-            configLab.setVisible(false);
-            defaultConfigBut.setVisible(false);
-            defaultConfigBut.setEnabled(false);
-
-            scriptBut.setVisible(true);
-            scriptBut.setEnabled(true);
-            scriptLab.setVisible(true);
-            defaultScriptBut.setEnabled(true);
-            defaultScriptBut.setVisible(true);
+            setDebugFileVisibility(true);
+            setConfigFileVisibility(false);
+            setScriptFileVisibility(true);
             break;
 
         case PLEXIL_SIM:
-            configBut.setVisible(true);
-            configBut.setEnabled(true);
-            configLab.setVisible(true);
-            defaultConfigBut.setEnabled(true);
-            defaultConfigBut.setVisible(true);
-
-            scriptBut.setVisible(true);
-            scriptBut.setEnabled(true);
-            scriptLab.setVisible(true);
-            defaultScriptBut.setEnabled(true);
-            defaultScriptBut.setVisible(true);
+            setDebugFileVisibility(true);
+            setConfigFileVisibility(true);
+            setScriptFileVisibility(true);
             break;
 
         case USER_SPECIFIED:
-            // *** TODO ***
+            // TODO
+            break;
+
+        default:
+            setDebugFileVisibility(false);
+            setConfigFileVisibility(false);
+            setScriptFileVisibility(false);
             break;
         }
+    }
+
+    private void setDebugFileVisibility(boolean val) {
+        debugLab.setVisible(val);
+        debugBut.setVisible(val);
+        debugBut.setEnabled(val);
+        defaultDebugBut.setVisible(val);
+        defaultDebugBut.setEnabled(val);
+        noneDebugBut.setVisible(val);
+        noneDebugBut.setEnabled(val);
+        generateDebugBut.setVisible(val);
+        generateDebugBut.setEnabled(val);
+    }
+
+    private void setConfigFileVisibility(boolean val) {
+        configBut.setVisible(val);
+        configBut.setEnabled(val);
+        configLab.setVisible(val);
+        defaultConfigBut.setEnabled(val);
+        defaultConfigBut.setVisible(val);
+    }
+
+    private void setScriptFileVisibility(boolean val) {
+        scriptBut.setVisible(val);
+        scriptBut.setEnabled(val);
+        scriptLab.setVisible(val);
+        defaultScriptBut.setEnabled(val);
+        defaultScriptBut.setVisible(val);
     }
 
     private static void updateLabel(JLabel label, File filename)
@@ -489,145 +590,427 @@ public class ExecSelectDialog extends JPanel {
 	 * @param Plexil mode constant
 	 */
 	private void setMode(AppType newMode) {
-		switch (newMode) {
-        case EXTERNAL_APP:
-            externalApp.setSelected(true);
-            break;
-
-        case PLEXIL_EXEC:
-            plexilExec.setSelected(true);
-            break;
-
-        case PLEXIL_TEST:
-            plexilTest.setSelected(true);
-            break;
-
-        case PLEXIL_SIM:
-            plexilSim.setSelected(true);
-            break;
-		}
-        settings.setAppMode(newMode);
+        mode = newMode;
+        updateMode();
 	}
 
     // Called by save button listener
     private void saveSettings() {
-        if (theLuv.getIsExecuting()) {
-            try {
-                theLuv.stopExecutionState();
-                theLuv.getStatusMessageHandler().displayInfoMessage(this,
-                                                                    "Stopping execution and loading plan",
-                                                                    "Stopping execution");
-            } catch (IOException ex) {
-                theLuv.getStatusMessageHandler().displayErrorMessage(this,
-                                                                     ex,
-                                                                     "ERROR: exception occurred while reloading plan");
-            }
-        }
-
+        Plan plan = view.getPlan();
+        plan.setAppType(mode);
+        plan.setLibraryPath(libraryPath);
+        plan.setLibraryFiles(libraryFiles);
+        plan.setConfigFile(configFile);
+        plan.setScriptFile(scriptFile);
+        plan.setDebugFile(debugFile);
+        
         // Commit settings
-        settings.saveToProperties();
-        settings.save(); // to prefs file
+        Settings.instance().setPlanDefaults(plan);
+    }
 
-        if (!theLuv.getIsExecuting()) {
-            if (settings.getPlanLocation() != null) {	
-                theLuv.loadPlan(settings.getPlanLocation());
-                theLuv.readyState();
-                AppType mode = settings.getAppMode();
-                if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
-                    File config = settings.getConfigLocation();
-                    if (config != null) {
-                        theLuv.getCurrentPlan().setConfigFile(config);
-                        theLuv.getStatusMessageHandler().showStatus("Configuration file \""
-                                                                    + config.toString()
-                                                                    + "\" loaded", 1000);
-                    }
-                }
-                if (mode == PLEXIL_SIM || mode == PLEXIL_TEST) {
-                    File script = settings.getScriptLocation();
-                    if (script != null) {
-                        theLuv.getCurrentPlan().setScriptFile(script);
-                        theLuv.getStatusMessageHandler().showStatus("Script \""
-                                                                    + script.toString()
-                                                                    + "\" loaded", 1000);
-                    }
-                }
-                if (theLuv.getSourceWindow() != null)
-                    theLuv.getSourceWindow().refresh();
-            }
-            theLuv.setTitle();
+    //
+    // Dependent dialogs
+    //
+
+    private void chooseScriptFile(File dflt) {
+        if (dflt == null) {
+            dflt = view.getPlan().getPlanFile();
+            if (dflt != null) 
+                dflt = new File(dflt.getParent(), dflt.getName().replace(".plx", ".psx"));
+            else 
+                dflt = new File(System.getProperty("user.dir"),
+                                "script.psx");
+        }
+        File s = chooseFile(dflt,
+                            (mode == PLEXIL_TEST) ? teScriptFilter : null,
+                            "Select Sim Script");
+        if (s != null) {
+            scriptFile = s;
+            updateLabel(scriptLab, scriptFile);
         }
     }
+
+    private void chooseDebugFile(File dflt) {
+        if (dflt == null) {
+            dflt = view.getPlan().getPlanFile();
+            if (dflt != null) 
+                dflt = new File(dflt.getParentFile(),
+                                dflt.getName().replace(".plx", ".cfg"));
+            else 
+                dflt = new File(System.getProperty("user.dir"), "Debug.cfg");
+        }
+
+        // FIXME: No file is also a valid choice
+        File d = chooseFile(dflt, debugFilter, "Select Debug");
+        debugFile = d;
+        updateLabel(debugLab, debugFile);
+    }
+
+    private File chooseDirectory(File dflt, String buttonText) {
+        if (dflt == null)
+            dflt = new File(System.getProperty("user.dir"));
+        else if (!dflt.isDirectory())
+            dflt = dflt.getParentFile();
+        JFileChooser dc = new JFileChooser(dflt);
+        dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int selection = dc.showDialog(this, buttonText);
+        if (selection == JFileChooser.APPROVE_OPTION) 
+            return dc.getSelectedFile();
+        else
+            return null;
+    }
 	
-	/*
-	 * universal open file method
-	 */
-	private File openFile(ActionEvent e, PlexilFilter pf, File dflt) {
-		final JFileChooser fc;
+    /*
+     * universal open file method
+     */
+    private File chooseFile(File dflt, FileFilter pf, String buttonText) {
+        final JFileChooser fc;
         
         // If the default is a file rather than a directory, get its parent directory.
         if (dflt != null && !dflt.isDirectory())
             dflt = dflt.getParentFile();
 
-		fc = new JFileChooser(dflt);
-		if (pf != null)
-            fc.addChoosableFileFilter(pf);
+        fc = new JFileChooser(dflt);
+        if (pf != null)
+            fc.setFileFilter(pf);
 
-		int returnVal = fc.showDialog(dirChooser, "Choose File");
+        int returnVal = fc.showDialog(this, buttonText);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            theLuv.getStatusMessageHandler().showStatus("Selected " + file.getAbsolutePath());
+            view.showMessage("Selected " + file.getAbsolutePath());
             return file;
         }
         return null;
-	}
+    }
 
-	private class PlexilFilter extends FileFilter {
-		
-		private String descr;
-		private String[] filter;
-		
-		PlexilFilter(String description){
-			descr = description;
-			filter = descr.split(" / ");
-			if (filter.length < 1 || filter[0].matches(""))
-				filter = FILE_EXTENSIONS;
-		}
+    private File generateDebugFile() {
+        // *** TODO ***
+        return null;
+    }
 
-		// accept file?                          
-		public boolean accept(File f) 
-		{
-		    // allow browse directories                             
-		    if (f.isDirectory())
-                return true;
-                          
-		    // allow files with correct Extension                              
-		    String extension = getExtension(f);
-		    Boolean correctExtension = false;
-		    if (extension != null) {
-                for (String ext: filter)
-                    if (extension.toLowerCase().equals(ext.toLowerCase()))
-                        correctExtension = true;
-            }
-		    return correctExtension;
-		}
+    private class LibraryListEditor
+        extends JFrame {
 
-		// get file extension                        
-		public String getExtension(File f)
-		{
-		    String ext = null;
-		    String s = f.getName();
-		    int i = s.lastIndexOf('.');
-                          
-		    if (i > 0 && i < s.length() - 1)
-                ext = s.substring(i+1).toLowerCase();
-                          
-		    return ext;
-		}
+        FileListPanel libList;
 
-		// return Description                          
-		public String getDescription()
-		{
-		    return descr;
-		}
-	}
+        public LibraryListEditor() {
+            super("Select Libraries");
+
+            GridBagLayout layout = new GridBagLayout();
+            getContentPane().setLayout(layout);
+
+            Box heading = Box.createHorizontalBox();
+            heading.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel label = new JLabel("Libraries", SwingConstants.LEFT);
+            heading.add(label);
+            heading.add(Box.createHorizontalGlue());
+
+            JButton libButton = new JButton("Add");
+            libButton.setToolTipText("Insert library after selection, or at top if none selected");
+            libButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) { 
+                        File dflt = libList.getSelection();
+                        if (dflt == null) {
+                            File planLoc = view.getPlan().getPlanFile();
+                            if (planLoc != null)
+                                dflt = planLoc.getParentFile();
+                            else
+                                dflt = new File(System.getenv("HOME"));
+                        }
+                        JFileChooser fc = new JFileChooser(dflt);
+                        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                        fc.setFileFilter(planFilter);
+                        int returnVal = fc.showDialog(LibraryListEditor.this, "Choose Library File");
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            File lib = fc.getSelectedFile();
+                            libList.insertAfterSelection(lib);
+                            libList.setSelection(lib);
+                            view.showMessage("Added Library File " + lib.getAbsolutePath());
+                        }            	            	            	
+                    }
+                });
+            heading.add(libButton);
+            heading.add(Box.createHorizontalStrut(3));
+
+            JButton removeButton = new JButton("Remove");
+            removeButton.setToolTipText("Remove selected library");
+            removeButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        if (libList.getSelectionIndex() >= 0) {
+                            // Confirm that the user wants to clear Libraries
+                            Object[] options = {"OK", "Cancel"};
+                            int del =
+                                JOptionPane.showOptionDialog(LibraryListEditor.this,
+                                                             "Remove library" + libList.getSelection().toString() + "?",
+                                                             "Confirm Remove Library",
+                                                             JOptionPane.OK_CANCEL_OPTION,
+                                                             JOptionPane.WARNING_MESSAGE,
+                                                             null,
+                                                             options,
+                                                             options[1]);
+
+                            if (del == 0)
+                                libList.removeSelection();
+                        }
+                    }
+                });
+            heading.add(removeButton);
+            heading.add(Box.createHorizontalStrut(3));
+        
+            JButton clearButton = new JButton("Clear");
+            clearButton.setToolTipText("Clear libraries");
+            clearButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        Object[] options = {"OK", "Cancel"};
+                        int clear =
+                            JOptionPane.showOptionDialog(LibraryListEditor.this,
+                                                         "Really clear all libraries?",
+                                                         "Confirm Clear Libraries",
+                                                         JOptionPane.OK_CANCEL_OPTION,
+                                                         JOptionPane.WARNING_MESSAGE,
+                                                         null,
+                                                         options,
+                                                         options[1]);
+
+                        if (clear == 0)
+                            libList.clearFiles();
+                    }
+                });
+            heading.add(clearButton);
+
+            GridBagConstraints headingConstraints = new GridBagConstraints();
+            headingConstraints.gridx = 1;
+            headingConstraints.gridy = 0;
+            headingConstraints.fill = HORIZONTAL;
+            layout.setConstraints(heading, headingConstraints);
+            getContentPane().add(heading);
+
+            libList = new FileListPanel();
+            GridBagConstraints libConstraints = new GridBagConstraints();
+            libConstraints.gridx = 1;
+            libConstraints.gridy = 1;
+            libConstraints.weightx = 1.0;
+            libConstraints.weighty = 1.0;
+            libConstraints.fill = BOTH;
+            layout.setConstraints(libList, libConstraints);
+            getContentPane().add(libList);
+
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        setVisible(false);
+                    }
+                }
+                );
+
+            JButton createCFGButton = new JButton("OK");
+            createCFGButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        libraryFiles = libList.getFiles();
+                        setVisible(false);
+                        refresh();
+                    }
+                });
+
+            // Panel to hold buttons and file location message
+            JPanel buttonPane = new JPanel();
+            buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+            buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            buttonPane.add(Box.createHorizontalGlue());
+            buttonPane.add(cancelButton);
+            buttonPane.add(Box.createHorizontalStrut(3));
+            buttonPane.add(createCFGButton);
+            buttonPane.add(Box.createHorizontalGlue());
+
+            GridBagConstraints buttonConstraints = new GridBagConstraints();
+            buttonConstraints.gridx = 0;
+            buttonConstraints.gridy = 2;
+            buttonConstraints.gridwidth = REMAINDER;
+            buttonConstraints.fill = HORIZONTAL;
+            layout.setConstraints(buttonPane, buttonConstraints);
+            getContentPane().add(buttonPane);
+
+            // *** FIXME *** Make settable
+            setPreferredSize(FILE_LIST_DIALOG_SIZE);
+            setLocation(LIBRARY_DIALOG_LOC);
+            pack();
+        }
+
+        // Update contents from current settings
+        private void refreshFileList() {
+            libList.setFiles(libraryFiles);
+        }
+
+        public void display() {
+            setVisible(false);
+            refreshFileList();
+            setVisible(true);
+        }
+    }
+
+    private class LibraryPathEditor
+        extends JFrame {
+
+        FileListPanel pathList;
+
+        public LibraryPathEditor() {
+            super("Select Library Path");
+
+            GridBagLayout layout = new GridBagLayout();
+            getContentPane().setLayout(layout);
+
+            Box heading = Box.createHorizontalBox();
+            heading.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel label = new JLabel("Library Search Path", SwingConstants.LEFT);
+            heading.add(label);
+            heading.add(Box.createHorizontalGlue());
+            JButton dirButton = new JButton("Add");
+            dirButton.setToolTipText("Insert directory after selection, or at top if none selected");
+            dirButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) { 
+                        File dflt = pathList.getSelection();
+                        if (dflt == null) {
+                            File planLoc = view.getPlan().getPlanFile();
+                            if (planLoc != null)
+                                dflt = planLoc.getParentFile();
+                            else
+                                dflt = new File(System.getProperty("user.dir"));
+                        }
+                    
+                        JFileChooser dc = new JFileChooser(dflt.getParentFile());
+                        dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        dc.setSelectedFile(dflt);
+                        if (dc.showDialog(LibraryPathEditor.this, "Add Directory") ==
+                            JFileChooser.APPROVE_OPTION) {
+                            File dir = dc.getSelectedFile();
+                            pathList.insertAfterSelection(dir);
+                            pathList.setSelection(dir);
+                            view.showMessage("Added Library Directory " + dir.getAbsolutePath());
+                        }
+                    }
+                }
+                );
+            heading.add(dirButton);
+            heading.add(Box.createHorizontalStrut(3));
+
+            JButton removeButton = new JButton("Remove");
+            removeButton.setToolTipText("Remove selection from search path");
+            removeButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        if (pathList.getSelectionIndex() >= 0) {
+                            // Confirm that the user wants to clear Libraries
+                            Object[] options = {"OK", "Cancel"};
+                            int del =
+                                JOptionPane.showOptionDialog(LibraryPathEditor.this,
+                                                             "Remove " + pathList.getSelection().toString() + " from path?",
+                                                             "Confirm Remove From Path",
+                                                             JOptionPane.OK_CANCEL_OPTION,
+                                                             JOptionPane.WARNING_MESSAGE,
+                                                             null,
+                                                             options,
+                                                             options[1]);
+
+                            if (del == 0)
+                                pathList.removeSelection();
+                        }
+                    }
+                }
+                );
+            heading.add(removeButton);
+            heading.add(Box.createHorizontalStrut(3));
+
+            JButton clearDirsButton = new JButton("Clear");
+            clearDirsButton.setToolTipText("Clear library search path");
+            clearDirsButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        Object[] options = {"OK", "Cancel"};
+                        int clear =
+                            JOptionPane.showOptionDialog(LibraryPathEditor.this,
+                                                         "Are you sure you want to clear all Library directories?",
+                                                         "Clear Path",
+                                                         JOptionPane.OK_CANCEL_OPTION,
+                                                         JOptionPane.WARNING_MESSAGE,
+                                                         null,
+                                                         options,
+                                                         options[1]);
+
+                        if (clear == 0)
+                            pathList.clearFiles();
+                    }
+                }
+                );
+            heading.add(clearDirsButton);
+
+            GridBagConstraints headingConstraints = new GridBagConstraints();
+            headingConstraints.gridx = 0;
+            headingConstraints.gridy = 0;
+            headingConstraints.fill = HORIZONTAL;
+            layout.setConstraints(heading, headingConstraints);
+            getContentPane().add(heading);
+
+            pathList = new FileListPanel();
+            GridBagConstraints listConstraints = new GridBagConstraints();
+            listConstraints.gridx = 0;
+            listConstraints.gridy = 1;
+            listConstraints.weightx = 1.0;
+            listConstraints.weighty = 1.0;
+            listConstraints.fill = BOTH;
+            layout.setConstraints(pathList, listConstraints);
+            getContentPane().add(pathList);
+
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        setVisible(false);
+                    }
+                }
+                );
+
+            JButton createCFGButton = new JButton("OK");
+            createCFGButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        libraryPath = pathList.getFiles();
+                        setVisible(false);
+                        refresh();
+                    }
+                });
+
+            // Panel to hold buttons and file location message
+            JPanel buttonPane = new JPanel();
+            buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+            buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            buttonPane.add(Box.createHorizontalGlue());
+            buttonPane.add(cancelButton);
+            buttonPane.add(Box.createHorizontalStrut(3));
+            buttonPane.add(createCFGButton);
+            buttonPane.add(Box.createHorizontalGlue());
+
+            GridBagConstraints buttonConstraints = new GridBagConstraints();
+            buttonConstraints.gridx = 0;
+            buttonConstraints.gridy = 2;
+            buttonConstraints.gridwidth = REMAINDER;
+            buttonConstraints.fill = HORIZONTAL;
+            layout.setConstraints(buttonPane, buttonConstraints);
+            getContentPane().add(buttonPane);
+
+            // *** FIXME *** Make settable
+            setPreferredSize(FILE_LIST_DIALOG_SIZE);
+            setLocation(PATH_DIALOG_LOC);
+
+            pack();
+        }
+
+        // Update contents from current settings
+        private void refreshPathList() {
+            pathList.setFiles(libraryPath);
+        }
+
+        public void display() {
+            setVisible(false);
+            refreshPathList();
+            setVisible(true);
+        }
+    }
 }

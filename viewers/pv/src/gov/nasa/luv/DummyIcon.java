@@ -26,23 +26,35 @@
 
 package gov.nasa.luv;
 
-import java.util.List;
+import java.awt.Component;
+import java.awt.Graphics;
 
-import static gov.nasa.luv.Constants.AppType;
+import javax.swing.Icon;
 
-/*
- * Command line generation interface
- */
+public class DummyIcon
+    implements Icon {
 
-public interface CommandGenerator {
-    public List<String> generateCommand(Plan p, Settings s)
-        throws CommandGenerationException;
+    // Empty icon
+    static DummyIcon _the_dummy_icon_instance_ = null;
 
-    public boolean checkFiles(Plan p, Settings s)
-        throws CommandGenerationException;
+    public static DummyIcon instance() {
+        if (_the_dummy_icon_instance_ == null)
+            _the_dummy_icon_instance_ = new DummyIcon();
+        return _the_dummy_icon_instance_;
+    }
 
-    public boolean checkPlanFile(Plan p)
-        throws CommandGenerationException;
+    public DummyIcon() {
+    }
 
-    public void forceKillSubprocesses();
+    public int getIconHeight() {
+        return 0;
+    }
+
+    public int getIconWidth() {
+        return 0;
+    }
+
+    public void paintIcon(Component c, Graphics g, int x, int y) {
+    }
 }
+

@@ -88,17 +88,17 @@ public class LuvPortGUI
     // FIXME: spin off in separate object?
 	public void actionPerformed(ActionEvent e) {
         int newSelection = getSelectedPort();
-        int curr = Luv.getLuv().getSettings().getPort();
+        int curr = Settings.instance().getPort();
         if (newSelection == curr) {
             frame.setVisible(false);
         } else if (LuvSocketServer.portFree(newSelection)) {
             frame.setVisible(false);
             Luv.getLuv().changePort(newSelection);
         } else {
-        	Luv.getLuv().getStatusMessageHandler().displayWarningMessage(this,
+        	StatusMessageHandler.instance().displayWarningMessage(this,
                                                                          "Port " + newSelection + " in use, please pick another",
                                                                          "Port " + newSelection + " in use");
-        	Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Still on port " + curr, Color.BLUE);
+        	StatusMessageHandler.instance().showChangeOnPort("Still on port " + curr, Color.BLUE);
         	refresh();
         }
     }	
@@ -111,7 +111,7 @@ public class LuvPortGUI
 	}
 	
     private void selectCurrentPort() {
-        int deflt = Luv.getLuv().getSettings().getPort();
+        int deflt = Settings.instance().getPort();
 		if (Constants.PORT_MIN <= deflt && deflt <= Constants.PORT_MAX)
             comboBoxModel.setSelectedItem(new Integer(deflt));
     }
@@ -124,11 +124,11 @@ public class LuvPortGUI
 
 	public void activate()
 	{
-        Luv.getLuv().getStatusMessageHandler().showStatus("Finding open ports");
+        StatusMessageHandler.instance().showStatus("Finding open ports");
         refresh();
         frame.pack();
         frame.setVisible(true);
-        Luv.getLuv().getStatusMessageHandler().showStatus("Select a port");
+        StatusMessageHandler.instance().showStatus("Select a port");
 	}
 
 }

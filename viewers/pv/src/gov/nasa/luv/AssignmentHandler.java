@@ -26,6 +26,7 @@
 
 package gov.nasa.luv;
 
+import java.util.Vector;
 import org.xml.sax.Attributes;
 
 import static gov.nasa.luv.PlexilSchema.*;
@@ -52,20 +53,21 @@ public class AssignmentHandler
     private static final String VARIABLE_NAME = "VariableName";
     private static final String VALUE = "Value";
 
-	private Node current;
-	private String vName;
-	private String value;
+    public Vector<String> path;
+    public String vName;
+    public String value;
 
 	public AssignmentHandler() {
 		super();
+        path = new Vector<String>();
+        vName = null;
+        value = null;
 
         setElementMap(new java.util.TreeMap<String, LuvElementHandler>() {
                 {
                     put(NODE_ID, new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                Node candidate = Model.getRoot().findChildByName(tweenerText); // *** FIXME ***
-                                if (candidate != null) 
-                                    current = candidate;
+                                path.add(tweenerText);
                             }
                         });
                     put(VARIABLE_NAME, new LuvElementHandler() {
@@ -80,22 +82,22 @@ public class AssignmentHandler
                         });
                     put(ASSIGNMENT, new LuvElementHandler() {
                             public void elementStart(String tagName, Attributes attributes) {
-                                reset();
+                                path.clear();
+                                vName = null;
+                                value = null;
                             }
+
                             public void elementEnd(String tagName, String tweenerText) {
-                                if (vName != null && current != null) {
-                                    current.setVariable(vName, value);
-                                }
+                                if (path.isEmpty() || vName == null || value == null)
+                                    return;
+                                PlanView view = Luv.getLuv().getPlanView(path.get(0));
+                                if (view == null)
+                                    return; // plan not currently displayed
+                                view.assignmentEvent(path, vName, value);
                             }
                         });
                 }
             });
 	}
-
-    private void reset() {
-        current = null;
-        vName = null;
-        value = null;
-    }
 
 }

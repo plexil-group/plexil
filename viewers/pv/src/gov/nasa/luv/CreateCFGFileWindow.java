@@ -135,7 +135,7 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 scanner.close();
             }
         } catch (FileNotFoundException ex) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+            StatusMessageHandler.instance().displayErrorMessage(this,
                                                                        ex,
                                                                        "ERROR: " + COMPLETE_FLAG_LIST +
                                                                        " not found.\nYou need to run the python script: " +
@@ -239,7 +239,7 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                     lines.add(line);
                 }
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                StatusMessageHandler.instance().displayErrorMessage(this,
                                                                            e,
                                                                            "ERROR: exception occurred while reading "
                                                                            + DEBUG_CFG_FILE);
@@ -433,7 +433,7 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 p.println(preview.getText());
                 p.close();
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(CreateCFGFileWindow.this,
+                StatusMessageHandler.instance().displayErrorMessage(CreateCFGFileWindow.this,
                                                                            e,
                                                                            "ERROR: exception occurred while writing to " + DEBUG_CFG_FILE);
             }
@@ -472,7 +472,7 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                     p.close();
                 }
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                StatusMessageHandler.instance().displayErrorMessage(this,
                                                                            e,
                                                                            "ERROR: exception occurred while enabling/disabling " + DEBUG_CFG_FILE);
             } finally {
@@ -490,8 +490,8 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
         frame = new CreateCFGFileWindow("Create Debug Configuration File");
 
         if (!error) {
-            frame.setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_CFGWIN_SIZE));
-            frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
+            frame.setPreferredSize(Settings.instance().getDimension(PROP_CFGWIN_SIZE));
+            frame.setLocation(Settings.instance().getPoint(PROP_CFGWIN_LOC));
             frame.pack();
             frame.setVisible(true);
         }
@@ -507,9 +507,9 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 frame.setPreviewOfCFGFile();
             }
         } catch (FileNotFoundException ex) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
-                                                                       ex,
-                                                                       "ERROR: " + DEBUG_CFG_FILE + " not found");
+            StatusMessageHandler.instance().displayErrorMessage(this,
+                                                                ex,
+                                                                "ERROR: " + DEBUG_CFG_FILE + " not found");
         }
     }
 }

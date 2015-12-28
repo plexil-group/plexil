@@ -75,6 +75,15 @@ public class PlexilSchema
     public static final String NODELIST = "NodeList";
     public static final String UPDATE = "Update";
 
+    public enum NodeType {
+        Assignment,
+        Command,
+        Empty,
+        LibraryNodeCall,
+        NodeList,
+        Update;
+    }
+
     // LibraryNodeCall body tags
     public static final String ALIAS = "Alias";
     public static final String NODE_PARAMETER = "NodeParameter";
@@ -133,21 +142,35 @@ public class PlexilSchema
     public static final String NODE_REF = "NodeRef";
     public static final String TIMEPOINT = "Timepoint";
       
-    // Condition tags
-    public static final String SKIP_CONDITION = "SkipCondition";
-    public static final String START_CONDITION = "StartCondition";
-    public static final String END_CONDITION = "EndCondition";
-    public static final String EXIT_CONDITION = "ExitCondition";
-    public static final String INVARIANT_CONDITION = "InvariantCondition";
-    public static final String PRE_CONDITION = "PreCondition";
-    public static final String POST_CONDITION = "PostCondition";
-    public static final String REPEAT_CONDITION = "RepeatCondition";
-    public static final String ANCESTOR_INVARIANT_CONDITION = "AncestorInvariantCondition";
-    // Below are internal use only, not found in plan XML
-    public static final String ANCESTOR_END_CONDITION = "AncestorEndCondition";
-    public static final String ANCESTOR_EXIT_CONDITION = "AncestorExitCondition";
-    public static final String ACTION_COMPLETE = "ActionCompleteCondition";
-    public static final String ABORT_COMPLETE = "AbortCompleteCondition";
+    // Conditions
+
+    // IMPORTANT! Must be kept in same order as C++ Node enum ConditionIndex.
+    // See $PLEXIL_HOME/src/exec/Node.hh
+    public enum Condition {
+        AncestorEndCondition(0),
+        AncestorInvariantCondition(1),
+        AncestorExitCondition(2),
+        SkipCondition(3),
+        StartCondition(4),
+        PreCondition(5),
+        ExitCondition(6),
+        InvariantCondition(7),
+        EndCondition(8),
+        PostCondition(9),
+        RepeatCondition(10),
+        ActionCompleteCondition(11),
+        AbortCompleteCondition(12);
+
+        private int index;
+
+        Condition(int idx) {
+            index = idx;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
 
     // Expressions
 
@@ -251,27 +274,33 @@ public class PlexilSchema
     public static final String CONCURRENCE = "Concurrence";
       
     // Node state values
-    public static final String INACTIVE         = "INACTIVE";
-    public static final String WAITING          = "WAITING";
-    public static final String EXECUTING        = "EXECUTING";
-    public static final String ITERATION_ENDED  = "ITERATION_ENDED";
-    public static final String FINISHED         = "FINISHED";
-    public static final String FAILING          = "FAILING";
-    public static final String FINISHING        = "FINISHING";
+    public enum NodeState {
+        INACTIVE,
+        WAITING,
+        EXECUTING,
+        ITERATION_ENDED,
+        FINISHED,
+        FAILING,
+        FINISHING;
+    }
 
     // Node outcome values
-    public static final String SUCCESS = "SUCCESS";
-    public static final String FAILURE = "FAILURE";
-    public static final String SKIPPED = "SKIPPED";
-    public static final String INTERRUPTED = "INTERRUPTED";
+    public enum NodeOutcome {
+        SUCCESS,
+        FAILURE,
+        SKIPPED,
+        INTERRUPTED;
+    }
 
     // Node failure type values
-    public static final String PRE_CONDITION_FAILED = "PRE_CONDITION_FAILED";
-    public static final String POST_CONDITION_FAILED = "POST_CONDITION_FAILED";
-    public static final String INVARIANT_CONDITION_FAILED = "INVARIANT_CONDITION_FAILED";
-    public static final String PARENT_FAILED = "PARENT_FAILED";
-    public static final String EXITED = "EXITED";
-    public static final String PARENT_EXITED = "PARENT_EXITED";
+    public enum NodeFailureType {
+        PRE_CONDITION_FAILED,
+        POST_CONDITION_FAILED,
+        INVARIANT_CONDITION_FAILED,
+        PARENT_FAILED,
+        EXITED,
+        PARENT_EXITED;
+    }
 
     // NodeRef directions
     public static final String PARENT = "parent";
@@ -279,64 +308,5 @@ public class PlexilSchema
     public static final String CHILD = "child";
     public static final String SELF = "self";
 
-    //* A collection of all the possible Plexil Plan conditions.
-    // IMPORTANT! Must be kept in same order as PLEXIL Exec internal enum.
-    public static final String[] ALL_CONDITIONS = 
-    {
-        ANCESTOR_EXIT_CONDITION,
-        ANCESTOR_INVARIANT_CONDITION,
-        ANCESTOR_END_CONDITION,
-        SKIP_CONDITION,
-        START_CONDITION,
-        PRE_CONDITION,
-        EXIT_CONDITION,
-        INVARIANT_CONDITION,
-        END_CONDITION,
-        POST_CONDITION,
-        REPEAT_CONDITION,
-        ACTION_COMPLETE,
-        ABORT_COMPLETE
-    };
-
-    
-    /** A collection of all the possible Plexil node states. */
-    public static final String[] NODE_STATES = 
-    {
-        INACTIVE,
-        WAITING,
-        EXECUTING,
-        FINISHING,
-        FINISHED,
-        FAILING,
-        ITERATION_ENDED,
-    };
-
-    /** A collection of all the possible Plexil node outcomes. */
-    public static final String[] NODE_OUTCOMES = 
-    {
-        SUCCESS,
-        FAILURE,
-        SKIPPED,
-        INTERRUPTED
-    };
-
-    /** A collection of all the possible Plexil node failure types. */
-    public static final String[] NODE_FAILURE_TYPES = 
-    {
-        PRE_CONDITION_FAILED,
-        POST_CONDITION_FAILED,
-        INVARIANT_CONDITION_FAILED,
-        PARENT_FAILED,
-        EXITED,
-        PARENT_EXITED
-    };
-
-    public static final int getConditionIndex(String tag)
-    {
-        for (int i = 0; i < ALL_CONDITIONS.length; i++)
-            if (tag.equals(ALL_CONDITIONS[i]))
-                return i;
-        return -1;
-    }
 }
 

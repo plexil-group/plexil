@@ -27,24 +27,29 @@
 package gov.nasa.luv;
 
 import java.io.File;
+
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 // Shared logic for classes implementing interface CommandGenerator
 
 public class CommandGeneratorBase {
-    protected String getPlan(Settings s)
+    protected File getPlanFile(Plan plan)
         throws CommandGenerationException {
-        File p = s.getPlanLocation();
-        if (p == null)
-            throw new CommandGenerationException("Plan not set");
-        return p.getAbsoluteFile().toString();
+        if (plan == null)
+            throw new CommandGenerationException("Plan not specified");
+
+        File p = plan.getPlanFile();
+        if (p != null)
+            return p;
+        else
+            throw new CommandGenerationException("Plan not specified");
     }
 
-    public boolean checkPlanFile(Settings s)
+    public boolean checkPlanFile(Plan plan)
         throws CommandGenerationException {
-        File p = s.getPlanLocation();
-        if (p == null)
-            throw new CommandGenerationException("No plan file specified");
+        File p = getPlanFile(plan);
         if (!p.exists())
             throw new CommandGenerationException("Plan file " + p.toString() + " not found");
         if (!p.isFile())
@@ -54,17 +59,9 @@ public class CommandGeneratorBase {
         return true;
     }
 
-    protected String getScript(Settings s)
+    protected boolean checkScriptFile(Plan p)
         throws CommandGenerationException {
-        File f = s.getScriptLocation();
-        if (f == null)
-            throw new CommandGenerationException("Script not set");
-        return f.getAbsoluteFile().toString();
-    }
-
-    protected boolean checkScriptFile(Settings s)
-        throws CommandGenerationException {
-        File scr = s.getScriptLocation();
+        File scr = p.getScriptFile();
         if (scr == null)
             throw new CommandGenerationException("No script file specified");
         if (!scr.exists())
@@ -76,17 +73,9 @@ public class CommandGeneratorBase {
         return true;
     }
 
-    protected String getConfig(Settings s)
+    protected boolean checkConfigFile(Plan p)
         throws CommandGenerationException {
-        File f = s.getConfigLocation();
-        if (f == null)
-            throw new CommandGenerationException("Config not set");
-        return f.getAbsoluteFile().toString();
-    }
-
-    protected boolean checkConfigFile(Settings s)
-        throws CommandGenerationException {
-        File c = s.getConfigLocation();
+        File c = p.getConfigFile();
         if (c == null)
             throw new CommandGenerationException("No config file specified");
         if (!c.exists())
@@ -98,14 +87,66 @@ public class CommandGeneratorBase {
         return true;
     }
 
-    protected Collection<File> getLibraryDirs(Settings s)
+    protected boolean checkDebugFile(Plan p)
         throws CommandGenerationException {
-        return s.getLibDirs();
+        File c = p.getDebugFile();
+        if (c == null)
+            return true; // completely optional
+        if (!c.exists())
+            throw new CommandGenerationException("Debug file " + c.toString() + " not found");
+        if (!c.isFile())
+            throw new CommandGenerationException("Debug file " + c.toString() + " is not a plain file");
+        if (!c.canRead())
+            throw new CommandGenerationException("Debug file " + c.toString() + " is not readable");
+        return true;
     }
 
-    protected Collection<String> getLibraryNames(Settings s)
-        throws CommandGenerationException {
-        return s.getLibs();
+    //* Adds exec options common to all PLEXIL executive types to the command.
+    protected void addCommonOptions(List<String> command, Plan p, Settings s) {
+        //automation to allow PID capture
+        command.add("--for-viewer");
+
+        // LuvListener options
+        command.add("-v");
+        //port
+        command.add("-n");
+        command.add(Integer.toString(s.getPort()));
+        //breaks
+        if (s.blocksExec())
+            command.add("-b");
+
+        //debug file
+        command.add("-d");
+        File debug = p.getDebugFile();
+        if (debug != null) 
+            command.add(debug.toString());
+        else
+            command.add("/dev/null"); // override default
+
+        // get plan
+        command.add("-p");
+        command.add(s.getPlanLocation().toString());
+
+        addLibraryPath(command, p);
+        addLibraryFiles(command, p);
+    }
+
+    protected void addLibraryPath(List<String> command, Plan p) {
+        Collection<File> path = p.getLibraryPath();
+        if (path != null && !path.isEmpty())
+            for (File ld : path) {
+                command.add("-L");
+                command.add(ld.toString());
+            }
+    }
+
+    protected void addLibraryFiles(List<String> command, Plan p) {
+        Collection<File> libs = p.getLibraryFiles();
+        if (libs != null && !libs.isEmpty())
+            for (File lf: p.getLibraryFiles()) {
+                command.add("-l");
+                command.add(lf.toString());
+            }
     }
 
 }

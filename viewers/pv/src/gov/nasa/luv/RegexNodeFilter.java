@@ -26,7 +26,7 @@
 
 package gov.nasa.luv;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 import static gov.nasa.luv.Constants.*;
 import static gov.nasa.luv.PlexilSchema.*;
@@ -38,7 +38,7 @@ import static gov.nasa.luv.PlexilSchema.*;
 public class RegexNodeFilter extends AbstractNodeFilter
 {
     // list of elements to filter from view    
-    private ArrayList<String> regexList;
+    private Vector<String> regexList;
 
     /**
      * Constructs a RegexNodeFilter with the specified value to 
@@ -48,9 +48,9 @@ public class RegexNodeFilter extends AbstractNodeFilter
      */
     public RegexNodeFilter(boolean enabled) {
         super(enabled);
-        regexList = Luv.getLuv().getSettings().getStringList(PROP_HIDE_SHOW_LIST);
+        regexList = Settings.instance().getStringList(PROP_HIDE_SHOW_LIST);
         if (regexList == null)
-            regexList = new ArrayList<String>();
+            regexList = new Vector<String>();
     }
 
     /** {@inheritDoc} */
@@ -61,7 +61,7 @@ public class RegexNodeFilter extends AbstractNodeFilter
         if (value == null && type.equals(UNKNOWN))
             return false;
 
-        if ("HIDE".equals(Luv.getLuv().getProperty(type)))
+        if ("HIDE".equals(Settings.instance().getProperty(type)))
             return true;
             
         for (String regex : regexList)
@@ -78,8 +78,8 @@ public class RegexNodeFilter extends AbstractNodeFilter
      */
     public void addRegex(String regex) {
         regexList.add(formatRegex(regex));
-        Luv.getLuv().getSettings().setStringList(PROP_HIDE_SHOW_LIST, regexList);
-        Luv.getLuv().getViewHandler().refreshRegexView();  
+        Settings.instance().setStringList(PROP_HIDE_SHOW_LIST, regexList);
+        // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***  
     }
     
     /**
@@ -89,8 +89,8 @@ public class RegexNodeFilter extends AbstractNodeFilter
     public void removeRegex(String regex)
     {
         regexList.remove(formatRegex(regex));
-        Luv.getLuv().getSettings().setStringList(PROP_HIDE_SHOW_LIST, regexList);
-        Luv.getLuv().getViewHandler().refreshRegexView();  
+        Settings.instance().setStringList(PROP_HIDE_SHOW_LIST, regexList);
+        // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***  
     }
     
     /**
@@ -99,7 +99,7 @@ public class RegexNodeFilter extends AbstractNodeFilter
      * in the Luv properties file.
      */
     public void updateRegexList() {
-        String namelist = Luv.getLuv().getSettings().get(PROP_HIDE_SHOW_LIST);
+        String namelist = Settings.instance().get(PROP_HIDE_SHOW_LIST);
         if (namelist != null && !namelist.isEmpty()) {
             String [] array = namelist.split(", ");
             for (int i = 0; i < array.length; i++)
@@ -108,15 +108,15 @@ public class RegexNodeFilter extends AbstractNodeFilter
     }
 
     public void extendedPlexilView() {
-        Luv.getLuv().setProperty(AUX, "HIDE");
-        Luv.getLuv().setProperty(AUX_THEN, "HIDE");
-        Luv.getLuv().setProperty(AUX_ELSE, "HIDE");
+        Settings.instance().setProperty(AUX, "HIDE");
+        Settings.instance().setProperty(AUX_THEN, "HIDE");
+        Settings.instance().setProperty(AUX_ELSE, "HIDE");
     }
 
     public void corePlexilView() {
-        Luv.getLuv().setProperty(AUX, "SHOW");
-        Luv.getLuv().setProperty(AUX_THEN, "SHOW");
-        Luv.getLuv().setProperty(AUX_ELSE, "SHOW");
+        Settings.instance().setProperty(AUX, "SHOW");
+        Settings.instance().setProperty(AUX_THEN, "SHOW");
+        Settings.instance().setProperty(AUX_ELSE, "SHOW");
     }
     
     private String formatRegex(String regex) {  

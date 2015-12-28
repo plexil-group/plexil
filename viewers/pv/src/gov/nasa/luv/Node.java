@@ -28,13 +28,18 @@ package gov.nasa.luv;
 
 import java.awt.Color;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
+
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 import static gov.nasa.luv.Constants.*;
 
@@ -43,76 +48,88 @@ import static gov.nasa.luv.PlexilSchema.*;
 
 public class Node
     extends java.util.Properties
-    implements Cloneable {
+    implements TreeNode, Cloneable {
 
     /** A collection of all the possible Plexil Plan node types. */
-    public static final Map<String, String> NODE_TYPES =
-        new HashMap<String, String>(6) {
+    public static final Map<NodeType, String> NODE_TYPES =
+        new HashMap<NodeType, String>(6) {
             {
-                put(NODELIST,        "List Node");
-                put(COMMAND,         "Command Node");
-                put(ASSIGNMENT,      "Assignment Node");
-                put(EMPTY,           "Empty Node");
-                put(UPDATE,          "Update Node");
-                put(LIBRARYNODECALL, "Library Node");
+                put(NodeType.NodeList,        "List Node");
+                put(NodeType.Command,         "Command Node");
+                put(NodeType.Assignment,      "Assignment Node");
+                put(NodeType.Empty,           "Empty Node");
+                put(NodeType.Update,          "Update Node");
+                put(NodeType.LibraryNodeCall, "Library Node");
             }
         };
 
     protected String nodeName; 
-    protected String type;
-    protected String state;
-    protected String outcome;
-    protected String failureType;
+    protected NodeType type;
+    protected NodeState state;
+    protected NodeOutcome outcome;
+    protected NodeFailureType failureType;
 
-    /** Library name for a LibraryNodeCall. */
-    protected String libraryName;
     protected Node parent;
-    protected Vector<Node> children;
-    private HashMap<Integer, ArrayList> conditionMap;
-    private ArrayList<Variable> variableList;
-    private ArrayList<String> actionList;
-    private Vector<LuvBreakPoint> breakPoints;
-    protected Vector<ChangeListener> changeListeners;
-    private int row_number;
-    private boolean unresolvedLibraryCall;               
 
-    /** Standard constructor when loading a plan. */
-    public Node(String typ, int row) {
+    protected TreePath treePath;
+
+    protected NodeInfoWindow infoWindow;
+    protected boolean highlight;
+
+    protected Map<Condition, Vector<String> > conditionExprs;
+    protected Map<Condition, String> conditionValues;
+    protected Vector<Variable> variableList;
+    protected Vector<String> actionList;
+    protected Vector<LuvBreakPoint> breakPoints;
+    protected Vector<ChangeListener> changeListeners;
+
+
+    public static Node makeNode(NodeType typ) {
+        switch (typ) {
+        case NodeList:
+            return new ListNode();
+
+        case LibraryNodeCall:
+            return new LibraryCallNode();
+
+        default:
+            return new Node(typ);
+        }
+    }
+
+    protected Node(NodeType typ) {
         super();
         nodeName = null;
         type = typ;
-        state = INACTIVE;
-        outcome = null;
-        failureType = null;
-        libraryName = null;
         parent = null;
-        if (typ == null // special global root node
-            || NODELIST.equals(typ) 
-            || LIBRARYNODECALL.equals(typ))
-            children = new Vector<Node>();
-        else
-            children = null;
-        conditionMap = new HashMap<Integer, ArrayList>();
-        variableList = new ArrayList<Variable>();
-        actionList = new ArrayList<String>();
+        treePath = null;
+        infoWindow = null;
+        highlight = false;
+
+        conditionExprs = new EnumMap<Condition, Vector<String> >(Condition.EndCondition.getDeclaringClass());
+        conditionValues = new EnumMap<Condition, String>(Condition.EndCondition.getDeclaringClass());
+        variableList = new Vector<Variable>();
+        actionList = new Vector<String>();
         breakPoints = new Vector<LuvBreakPoint>();
         changeListeners = new Vector<ChangeListener>();
-        row_number = row;
-        unresolvedLibraryCall = false;
+
+        state = NodeState.INACTIVE;
+        outcome = null;
+        failureType = null;
     }
 
-    /** Copy constructor. Used by library linker. */
-    public Node(Node orig) {
+    /** Copy constructor. Used by clone(). */
+    protected Node(Node orig) {
         super(orig); // copies properties
         nodeName = orig.nodeName;
         type = orig.type;
         state = orig.state;
         outcome = orig.outcome;
         failureType = orig.failureType;
-        libraryName = orig.libraryName;
         // parent will be supplied by caller
-        conditionMap = orig.conditionMap;
-        variableList = new ArrayList<Variable>();
+        conditionExprs = orig.conditionExprs;
+        conditionValues = new EnumMap<Condition, String>(orig.conditionValues);
+        variableList = new Vector<Variable>(orig.variableList.size());
         for (Variable v : orig.variableList) {
             variableList.add(v.clone());
         }
@@ -120,40 +137,130 @@ public class Node
         actionList = orig.actionList;
         breakPoints = new Vector<LuvBreakPoint>();
         changeListeners = new Vector<ChangeListener>();
-        row_number = orig.row_number;
-        unresolvedLibraryCall = orig.unresolvedLibraryCall;
-
-        // Recurse over children
-        if (orig.children != null) {
-            children = new Vector<Node>(orig.children.size());
-            for (Node n : orig.children)
-                addChild(n.clone());
-        }
+        infoWindow = null;
+        highlight = false;
     }
 
     public Node clone() {
         return new Node(this);
     }
 
-    /** Returns the name of this Plexil Node.
-     *  @return the name */
+    public int hashCode() {
+        int result = super.hashCode();
+        result = result * 31 + getClass().getName().hashCode();
+        result = result * 31 + type.hashCode();
+        result = result * 31 +
+            (nodeName == null ? 0 : nodeName.hashCode());
+        return result;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Node))
+            return false;
+        Node other = (Node) o;
+        if (type != other.type)
+            return false;
+        // nodeName should never be null when fully instantiated
+        if (nodeName == null && other.nodeName != null)
+            return false;
+        if (!nodeName.equals(other.nodeName))
+            return false;
+        if (!conditionExprs.equals(other.conditionExprs))
+            return false;
+        
+        return super.equals(o); // compare properties
+    }
+
+    // For convenience of Plan class.
+    public void findUnresolvedLibraryCalls(Plan plan) {
+        // no-op for leaf nodes
+    }
+
+    public Enumeration children() {
+        return null;
+    }
+
+    public boolean getAllowsChildren() {
+        return false;
+    }
+
+    public TreeNode getChildAt(int childIndex) {
+        return null;
+    }
+
+    public int getChildCount() {
+        return 0;
+    }
+
+    public int getIndex(TreeNode node) {
+        return -1;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public boolean isLeaf() {
+        return true;
+    }
+
+    //
+    // Basic accessors
+    //
+
     public String                       getNodeName()              { return nodeName; }
+    public NodeType                     getNodeType()              { return type; }
+    public NodeState                    getNodeState()             { return state; }
+    public NodeOutcome                  getNodeOutcome()           { return outcome; }
+    public NodeFailureType              getNodeFailureType()       { return failureType; }
 
-    /** Returns the type of this Plexil Node.
+    /** Returns the type of this Plexil Node as a String.
      *  @return the type */
-    public String                       getType()                   { return type; }
-
-    /** Returns the row number of this Plexil Node.
-     *  @return the row number */
-    public int                          getRowNumber()              { return row_number; }
-
-    /** Returns the parent of this Plexil Node.
-     *  @return the parent */
-    public Node                        getParent()                 { return parent; }    
+    public String                       getType()                   { return type.toString(); }
 
     /** Returns the Vector of Node children of this Node.
      *  @return the children */
-    public Vector<Node>                getChildren()               { return children; }
+    public Vector<Node> getChildren() {
+        return null;
+    }
+
+    public boolean hasChildren() {
+        return false;
+    }
+
+    public TreePath getTreePath() {
+        if (treePath == null)
+            treePath = 
+                (parent == null)
+                ? new TreePath(this) // is root
+                : parent.getTreePath().pathByAddingChild(this);
+        return treePath;
+    }
+
+    public Node getRootNode() {
+        Node n = this;
+        while (n.parent != null)
+            n = n.parent;
+        return n;
+    }
+
+    public NodeInfoWindow getInfoWindow() {
+        return infoWindow;
+    }
+
+    public void setInfoWindow(NodeInfoWindow w) {
+        infoWindow = w;
+    }
+
+    public boolean getHighlight() {
+        return highlight;
+    }
+
+    public void setHighlight(boolean val) {
+        highlight = val;
+    }
 
     //
     // Breakpoint handling
@@ -170,121 +277,132 @@ public class Node
     public void addBreakPoint(LuvBreakPoint bp) {
         for (LuvBreakPoint l : breakPoints) {
             if (l.toString().equals(bp.toString())) {
-                Luv.getLuv().getStatusMessageHandler().showStatus("Breakpoint \"" + bp 
-                                                                  + "\" already set", Color.RED, 5000l);
+                StatusMessageHandler.instance().showStatus("Breakpoint \"" + bp 
+                                                           + "\" already set", Color.RED, 5000l);
                 return;
             }
         }
 
         breakPoints.add(bp);
         addChangeListener(bp); // *** redundant? ***
-        // do UI bookkeeping last
-        Luv.getLuv().getLuvBreakPointHandler().addBreakPoint(bp);
+        notifyAddBreakPoint(bp);
     }
 
     // Called from node menu
     public void removeBreakPoint(LuvBreakPoint bp) {
         // do UI bookkeeping first
-        Luv.getLuv().getLuvBreakPointHandler().removeBreakPoint(bp);
+        notifyRemoveBreakPoint(bp);
+        deleteBreakPoint(bp);
+    }
 
-        removeChangeListener(bp); // *** redundant? ***
+    // Called from PlanView remove-all-bps menu
+    public void deleteBreakPoint(LuvBreakPoint bp) {
+        removeChangeListener(bp);
         breakPoints.remove(bp);
     }
 
-    // Same, but from global menu - no UI bookkeeping to do.
-    public void deleteBreakPoint(LuvBreakPoint bp) {
-        removeChangeListener(bp); // *** redundant? ***
-        breakPoints.remove(bp);
+    synchronized private void notifyAddBreakPoint(LuvBreakPoint bp) {
+        for (ChangeListener cl: changeListeners)
+            cl.addBreakPoint(this, bp);
+    }
+
+    synchronized private void notifyRemoveBreakPoint(LuvBreakPoint bp) {
+        for (ChangeListener cl: changeListeners)
+            cl.removeBreakPoint(this, bp);
     }
 
     public String getState() {
-        return state;
+        return state.toString();
     }
 
-    public void setState(String newval) {
-        String oldState = state;
+    public void setState(NodeState newval) {
         state = newval;
-        if (oldState == null || !oldState.equals(state))
-	    notifyPropertyChange(NODE_STATE);
-    }
-
-    synchronized private void notifyPropertyChange(String prop) {
-	for (ChangeListener cl: changeListeners)
-	    cl.propertyChange(this, NODE_STATE);
     }
 
     public String getOutcome() {
-        return outcome;
+        return outcome.toString();
     }
 
-    public void setOutcome(String newval) {
-        String oldOutcome = outcome;
+    public void setOutcome(NodeOutcome newval) {
         outcome = newval;
-        if (oldOutcome == null || !oldOutcome.equals(outcome))
-	    notifyPropertyChange(NODE_OUTCOME);
     }
 
     public String getFailureType() {
-        return failureType;
+        return failureType.toString();
     }
 
-    public void setFailureType(String newval) {
-        String oldFailureType = failureType;
+    public void setFailureType(NodeFailureType newval) {
         failureType = newval;
-        if (oldFailureType == null || !oldFailureType.equals(failureType))
-	    notifyPropertyChange(NODE_FAILURE_TYPE);
+    }
+
+    public void stateTransition(NodeState newState,
+                                NodeOutcome newOutcome,
+                                NodeFailureType newFailure,
+                                Map<Condition, String> newConds) {
+        if (state == newState)
+            return;
+        state = newState;
+        if (outcome != newOutcome)
+            outcome = newOutcome;
+        if (failureType != newFailure)
+            failureType = newFailure;
+        notifyStateTransition(newState, newOutcome, newFailure, newConds);
+    }
+
+    synchronized private void notifyStateTransition(NodeState newState,
+                                                    NodeOutcome newOutcome,
+                                                    NodeFailureType newFailure,
+                                                    Map<Condition, String> newConds) {
+        for (ChangeListener cl: changeListeners)
+            cl.stateTransition(this, newState, newOutcome, newFailure, newConds);
     }
 
     /** Returns the HashMap of Conditions for this Node.
      *  @return the Conditions */
-    public HashMap<Integer, ArrayList>  getConditionMap()           { return conditionMap; }
-
-    /** Returns the ArrayList of local variables for this Node.
-     *  @return the variables */
-    public ArrayList<Variable>     getVariableList()           { return variableList; }
-
-    /** Returns the ArrayList of actions for this Node.
-     *  @return the actions */
-    public ArrayList<String>            getActionList()             { return actionList; }
-
-    /** Returns whether this Node has an unresolved library call.
-     *  @return true if unresolved, false otherwise */
-    public boolean                      getUnresolvedLibraryCall()  { return unresolvedLibraryCall; }
-    
-    /** Returns the Library Name for this Plexil Model/node.
-     *  @return the Library Name for this Plexil Model/node */
-    public String                       getLibraryName()            { return libraryName; }
-
-    /**
-     * Returns the specified child of this Node.
-     * @param i the index of the child for this Node
-     * @return the child or null
-     */
-    public Node getChild(int i)
-    {
-        if (children == null)
-            return null;
-        return children.get(i);
+    public Map<Condition, Vector<String> >  getConditionExprs() {
+        return conditionExprs;
     }
 
-    public boolean hasChildren() {
-        return children != null
-            && !children.isEmpty();
+    public Map<Condition, String> getConditionValues() {
+        return conditionValues;
+    }
+
+    public String getConditionValue(Condition c) {
+        return conditionValues.get(c);
+    }
+
+    /** Returns the vector of local variables for this Node.
+     *  @return the variables */
+    public Vector<Variable>     getVariableList()           { return variableList; }
+
+    /** Returns the vector of actions for this Node.
+     *  @return the actions */
+    public Vector<String>            getActionList()             { return actionList; }
+
+    /** Returns the Library Name for this Plexil Node. */
+    public String getLibraryName() {
+        // TODO
+        return null;
+    }
+
+    /**
+     * Sets the specified string for the library name of this Node.
+     */
+    public void setLibraryName(String libname) {
+        // TODO
     }
 
     public boolean isRoot() {
-        return parent == Model.getRoot();
+        return parent == null;
     }
 
     /**
      * Returns the top level ancestor of this Node.
      * @return the top level ancestor
      */
-    public Model topLevelNode() {
-        if (this == Model.getRoot())
-            return null;
-        if (parent == Model.getRoot())
-            return (Model) this;
+    public Node topLevelNode() {
+        if (parent == null)
+            return this;
         return parent.topLevelNode();
     }
     
@@ -312,16 +430,7 @@ public class Node
      */
     public boolean hasConditions()
     {
-        return !conditionMap.isEmpty();
-    }
-    
-    /**
-     * Returns whether or not this Node has the specified condition.
-     * @return whether or not this Node has the specified condition
-     */
-    public boolean hasCondition(String condition)
-    {
-        return conditionMap.containsKey(getConditionIndex(condition));
+        return !conditionExprs.isEmpty();
     }
 
     /**
@@ -333,37 +442,11 @@ public class Node
     }
 
     /**
-     * Sets specified the row number for this Node.
-     * @param row the row number for this Node
-     */
-    public void setRowNumber(int row)
-    {
-        row_number = row;      
-    }
-    
-    /**
      * Sets the specified Node as this Node's parent.
      * @param newParent the parent Node of this Node
      */
     public void setParent(Node newParent) {
         parent = newParent;
-    }
-    
-    /**
-     * Sets whether this Node has an unresolved library call with this specified boolean value.
-     * @param val the  boolean value to set whether or not this Node has an unresolved library call
-     */
-    public void setUnresolvedLibraryCall(boolean val) {
-        unresolvedLibraryCall = val;
-    }
-
-    /**
-     * Sets the specified string for the library name of this Model.
-     * @param libname the library name for this Model
-     */
-    public void setLibraryName(String libname)
-    {
-        libraryName = libname;
     }
 
     /**
@@ -375,78 +458,123 @@ public class Node
     public Object setProperty(String key, String value) {
         if (key == null || value == null) {
             // Properties.setProperty() throws an exception if either arg is null
-            Luv.getLuv().getStatusMessageHandler().showStatus("Warning: attempt to set property "
+            StatusMessageHandler.instance().showStatus("Warning: attempt to set property "
                                                               + (nodeName == null ? "" : " of node " + nodeName)
                                                               + "(key: " + key + ", type: " + type + ") to null");
             return null;
         }
 
-        Object result = super.setProperty(key, value);
-        if (value == null || value != result && value.equals(result) == false)
-	    notifyChangeListeners(key);
-         
-        return result;
-    }
-
-    synchronized private void notifyChangeListeners(String key) {
-	for (ChangeListener cl: changeListeners)
-	    cl.propertyChange(this, key);
+        return super.setProperty(key, value);
     }
 
 	public void setVariable(String vName, String value) {
-		boolean found = false;
-		if (vName != null) {
-			Node walker = this;
-			if(getVariableList().isEmpty())
-				while(!found && (walker = walker.parent) != null)
-					if(!walker.getVariableList().isEmpty())
-						for(Variable v : walker.getVariableList())
-							if(ArrayVariable.getBaseName(vName).equals(ArrayVariable.getBaseName(v.getName())))
-							{
-								found = true;
-								break;								
-							}
-			Variable var = null;
-			if(walker != null)
-			for (Variable v : walker.getVariableList()) {
-				//needs some other logic if there is dynamic support for assigning a set of values to array
-				if (v instanceof ArrayVariable && vName.contains(((ArrayVariable)v).getBaseName())){
-					((ArrayVariable) v).setArrayIndexVariable(vName, value);					
-					var = v;
-					break;
-				}
-				else if (vName.equals(v.getName())) {
-					var = v;
-					break;
-				}				
-			}
-			if (var != null) {
-				if(!(var instanceof ArrayVariable))
-					var.setValue(value);
-				System.out.println("Assigned " + value + " to variable " + vName);
-				walker.notifyVariableAssigned(vName);
-			}
-		}
+        if (vName == null)
+            return;
+
+        setVariableInternal(vName, ArrayVariable.getBaseName(vName), value);
 	}
 
-    synchronized private void notifyVariableAssigned(String vName) {
-	for (ChangeListener cl : changeListeners)
-	    cl.variableAssigned(this, vName);
+    protected void setVariableInternal(String vName, String baseName, String value) {
+        Variable var = findLocalVariable(baseName);
+        if (var == null)
+            return; // not found
+        if (var instanceof ArrayVariable)
+            ((ArrayVariable) var).setArrayIndexVariable(ArrayVariable.getIndex(vName), value);
+        else 
+            var.setValue(value);
+        notifyVariableAssigned(vName, value);
+    }
+
+    // Subfunction of above
+    protected Variable findLocalVariable(String vName) {
+        for (Variable v : variableList)
+            if (v.getName().equals(vName))
+                return v;
+        return null;
+    }
+
+    synchronized private void notifyVariableAssigned(String vName, String value) {
+        for (ChangeListener cl : changeListeners)
+            cl.variableAssigned(this, vName, value);
     }
     
     /**
-     * Adds the specified condition and condition equation to the ArrayList of conditions for this Node.
+     * Adds the specified condition and condition equation to the vector of conditions for this Node.
      * @param condition the condition type to add
      * @param conditionEquation the equation of the condition to add
      */
-    public void addConditionInfo(int condition, String conditionEquation)
-    { 
-        ArrayList<String> equationHolder = 
-                ConditionsTab.formatCondition(conditionEquation);
+    public void addConditionInfo(Condition c, String conditionEquation) { 
+        conditionExprs.put(c, formatCondition(conditionEquation));
+    }
+        
+    /** 
+     * Rewrites the condition information into standard Plexil syntax for
+     * better user readability.
+     *
+     * @param condition the condition expression before it has been rewritten
+     * @return the value the formatted condition expression
+     */
+    
+    public static Vector<String> formatCondition(String condition)
+    {
+        String tempCondition = "";
+        Vector<String> formattedCondition = new Vector<String>();
+        
+        if (condition != null)
+            {
+                if (condition.contains(SEPARATOR))
+                    {
+                        String array[] = condition.split(SEPARATOR); 
 
-        conditionMap.put(condition, equationHolder);
+                        for (int i = 0; i < array.length; i++)
+                            {
+                                tempCondition += array[i] + " ";
+
+                                if (array[i].equals("||") || array[i].equals("&&"))
+                                    {
+                                        formattedCondition.add(tempCondition);
+                                        tempCondition = "";
+                                    }
+                            }
+
+                        if (!tempCondition.equals(""))
+                            formattedCondition.add(tempCondition);
+                    }
+                else if (!condition.equals(""))
+                    {
+                        formattedCondition.add(condition);
+                    }
+            }  
+        else
+            {
+                formattedCondition.add("COULD NOT IDENTIFY CONDITION");
+            }         
+        
+        return formattedCondition;
     }
     
+    /** Rewrites the action information into standard Plexil syntax for
+     *  better user readability.   
+     *
+     * @param expression action information before it has been rewritten
+     */
+     
+    // FIXME: use StringBuilder?
+    public static String formatAction(String expression) {
+        String formattedExpression = "COULD NOT IDENTIFY ACTION";
+  
+        if (expression != null && expression.contains(SEPARATOR)) {
+            String array[] = expression.split(SEPARATOR);      
+            if (array.length > 0) {
+                formattedExpression = "";
+                for (int i = 0; i < array.length; i++)
+                    formattedExpression += array[i] + " ";
+            }
+        }
+        
+        return formattedExpression;
+    }
+
     /**
      * Adds the given variable to the list of variables for this Node.
      * @param v The local variable to add.
@@ -456,12 +584,11 @@ public class Node
     }
     
     /**
-     * Adds the specified action to the ArrayList of actions for this Node.
+     * Adds the specified action to the vector of actions for this Node.
      * @param action  the action to add
      */
     public void addActionInfo(String action) { 
-        // *** FIXME! ***
-        actionList.add(ActionTab.formatAction(action));
+        actionList.add(formatAction(action));
     }
     
     /**
@@ -469,30 +596,7 @@ public class Node
      * @param child the node child
      */
     public void addChild(Node child) {
-        children.add(child);
-        child.setParent(this);
-    }
-    
-    /**
-     * Removes the specified Node child from this Node.
-     * @param child the Node child
-     * @return whether or the child was removed
-     * @note Only called on the model root.
-     */
-    public boolean removeChild(Node child)
-    {
-        // Can't use Vector.remove(Object) because it uses equals(),
-        // and two nodes are often equal without being identical!
-        boolean removed = false;
-        for (Iterator<Node> it = children.iterator(); it.hasNext(); ) {
-            if (it.next() == child) {
-                it.remove();
-                child.parent = null;
-                removed = true;
-                break;
-            }
-        }
-        return removed;
+        // TODO: throw exception?
     }
 
     /**
@@ -518,39 +622,29 @@ public class Node
     public boolean equivalent(Node other) {
         if (other == this)
             return true; // identity
+
         if (other == null) {
-            System.out.println("Not equivalent because other is null");
+            // System.out.println("Not equivalent because other node is null");
             return false;
         }
+
         if (!type.equals(other.type)) {
-            System.out.println("Not equivalent because other has different type");
+            // System.out.println("Not equivalent because other node has different type");
             return false;
         }
-        if (!nodeName.equals(other.nodeName)) {
-            System.out.println("Not equivalent because node IDs differ; this = " + nodeName
-                               + " other = " + other.nodeName);
-            return false;
-        }
-        if (children == null) {
-            if (other.children != null) {
-                System.out.println("Not equivalent because other has children, this doesn't");
+
+        if (nodeName == null) {
+            if (other.nodeName != null) {
+                // System.out.println("Not equivalent because this node has no node ID and other does");
                 return false;
             }
-            return true;
+            else
+                return true;
         }
-        if (children != null && other.children == null) {
-            System.out.println("Not equivalent because this has children, other doesn't");
+        else if (!nodeName.equals(other.nodeName)) {
+            //System.out.println("Not equivalent because node IDs differ; this = " + nodeName
+            //                   + " other = " + other.nodeName);
             return false;
-        }
-        if (children.size() != other.children.size()) {
-            System.out.println("Not equivalent because number of children differs");
-            return false;
-        }
-        for (int i = 0; i < children.size(); i++) {
-            if (!children.get(i).equivalent(other.children.get(i))) {
-                System.out.println("Not equivalent because children differ");
-                return false;
-            }
         }
         return true;
     }
@@ -561,31 +655,30 @@ public class Node
      * @return the matching Node
      */
     public Node findChildByName(String name) {
-        if (children == null)
-            return null;
-        for (Node child : children)
-            if (child.nodeName.equals(name))
-                return child;
         return null;
     }
-    
-    /**
-     * Returns the Node that matches with the specified row number.
-     * @param row the row number to match the Node to
-     * @return the matching Node
-     */
-    public Node findChildByRowNumber(int row) {
-        if (children == null)
+
+    // Meant to be called on the root node.
+    public Node getNode(final String[] path) {
+        if (path == null || path.length == 0)
             return null;
-        // Simple depth-first search
-        for (Node child : children) {
-            if (child.row_number == row)
-                return child;
-            Node foundChild = child.findChildByRowNumber(row);
-            if (foundChild != null)
-                return foundChild;
-        }        
-        return null;
+        if (!nodeName.equals(path[0]))
+            return null; // wrong root
+        Node n = this;
+        for (int i = 1; i < path.length; ++i)
+            if (null == (n = n.findChildByName(path[i])))
+                return null;
+        return n;
+    }
+
+    // Leaf node method
+    synchronized public void addChangeListenerToAll(ChangeListener listener) {
+        changeListeners.add(listener);
+    }
+
+    // Leaf node method
+    synchronized public void removeChangeListenerFromAll(ChangeListener listener) {
+        changeListeners.remove(listener);
     }
             
     /**
@@ -608,11 +701,16 @@ public class Node
      * Resets all the properties of this Node to the beginning values (pre-execution).
      */
     public void reset() {
-        setMainAttributesOfNode();
-        if (children == null)
-            return;
-        for (Node child : children)
-            child.reset();
+        setState(NodeState.INACTIVE);
+        setOutcome(null);
+        setFailureType(null);
+
+        // Only reset values of properties this node has
+        for (Condition c : conditionExprs.keySet())
+            conditionValues.put(c, UNKNOWN);
+
+        for (Variable v : variableList)
+            setVariable(v.getName(), UNKNOWN);
     }
 
     public void setMainAttributesOfNode()
@@ -621,28 +719,15 @@ public class Node
         if (rawType != null) {
             String polishedType = NODE_TYPES.get(rawType);
             if (polishedType != null)
-            setProperty(NODETYPE_ATTR, polishedType);
+                setProperty(NODETYPE_ATTR, polishedType);
         }
-
-        state = INACTIVE;
-        outcome = null;
-
-        setProperty(SKIP_CONDITION, UNKNOWN);                     
-        setProperty(START_CONDITION, UNKNOWN);               
-        setProperty(END_CONDITION, UNKNOWN); 
-        setProperty(EXIT_CONDITION, UNKNOWN);
-        setProperty(INVARIANT_CONDITION, UNKNOWN);
-        setProperty(PRE_CONDITION, UNKNOWN);
-        setProperty(POST_CONDITION, UNKNOWN);
-        setProperty(REPEAT_CONDITION, UNKNOWN);
-        setProperty(ANCESTOR_INVARIANT_CONDITION, UNKNOWN);
-        setProperty(ANCESTOR_END_CONDITION, UNKNOWN);
-        setProperty(ANCESTOR_EXIT_CONDITION, UNKNOWN);
-        setProperty(ACTION_COMPLETE, UNKNOWN);
-        setProperty(ABORT_COMPLETE, UNKNOWN);
     }
 
     public String toString() {
+        return nodeName;
+    }
+
+    public String toStringVerbose() {
         StringBuilder s = new StringBuilder();
         toStringInternal(s);
         return s.toString();
@@ -662,39 +747,14 @@ public class Node
             s.append(property.getValue());
         }
         s.append(")");
-
-        if (children != null && !children.isEmpty()) {
-            Node lastChild = children.lastElement();
-            s.append("[");
-            for (Node child: children) {
-                child.toStringInternal(s);
-                if (child != lastChild)
-                    s.append(", ");
-            }
-            s.append("]");
-        }
     }
         
     /**
-     * Links the specified library into this Node and makes the appropriate 
-     * annotations in the top level Model.
+     * Links a copy of the specified library into this Node.
      * @param library the library for this Node
      * @return whether or not the library was linked
      */
-    public boolean linkLibrary(Model library) {
-        if (type.equals(NODE)
-            && getProperty(NODETYPE_ATTR).equals(LIBRARYNODECALL)
-            && libraryName.equals(library.nodeName)) {
-            addChild(new Model(library));
-            unresolvedLibraryCall = false;
-            Model topLevelNode = topLevelNode();
-            if (topLevelNode != null) {
-                topLevelNode.addLibraryFile(library.getPlanFile());
-                Model.getRoot().missingLibraryFound(library.getNodeName());
-                return true;
-            }
-        }
-        
+    public boolean linkLibrary(Plan library) {
         return false;
     }
       
@@ -716,7 +776,7 @@ public class Node
      * @param node the node on which the LuvBreakPoint fires
      * @return the LuvBreakPoint
      */
-    public LuvBreakPoint createNodeStateValueBreakpoint(final String targetState) {
+    public LuvBreakPoint createNodeStateValueBreakpoint(final NodeState targetState) {
         return new LuvBreakPoint(this,
                                  new StateValueFilter(targetState));
     }
@@ -727,7 +787,7 @@ public class Node
      * @param node the node on which the LuvBreakPoint fires
      * @return the LuvBreakPoint
      */
-    public LuvBreakPoint createNodeOutcomeValueBreakpoint(final String targetOutcome) {
+    public LuvBreakPoint createNodeOutcomeValueBreakpoint(final NodeOutcome targetOutcome) {
         return new LuvBreakPoint(this,
                                  new OutcomeValueFilter(targetOutcome));
     }
@@ -738,7 +798,7 @@ public class Node
      * @param node the node on which the LuvBreakPoint fires
      * @return the LuvBreakPoint
      */
-    public LuvBreakPoint createNodeFailureValueBreakpoint(final String targetFailureType) {
+    public LuvBreakPoint createNodeFailureValueBreakpoint(final NodeFailureType targetFailureType) {
         return new LuvBreakPoint(this,
                                  new FailureTypeValueFilter(targetFailureType));
     }
@@ -748,49 +808,57 @@ public class Node
      * is changed in some way.
      */
     public static interface ChangeListener {
-        public void propertyChange(Node node, String property);
-
-        public void planChanged(Model model);
-
-        public void planFileAdded(Model model, File planName);
-            
-        public void scriptFileAdded(Model model, File scriptName);
-
-        public void libraryFileAdded(Model model, File libName);
+        public void stateTransition(Node node,
+                                    NodeState state,
+                                    NodeOutcome outcome,
+                                    NodeFailureType failure,
+                                    Map<Condition, String> conditions);
 	
-        public void variableAssigned(Node node, String variableName);
+        public void variableAssigned(Node node, String variableName, String value);
+
+        // UI
+        public void addBreakPoint(Node node, LuvBreakPoint bp);
+        public void removeBreakPoint(Node node, LuvBreakPoint bp);
+
     }
 
     /**
-     * The ChangeAdapter class is signaled when the Plexil Model is changed in some way.
+     * The ChangeAdapter class is signaled when the Plexil node is changed in some way.
      */
     public static class ChangeAdapter implements ChangeListener {
-        public void propertyChange(Node node, String property) {}
-
-        public void planChanged(Model model) {}
-
-        public void planFileAdded(Model model, File planName) {}
-
-        public void scriptFileAdded(Model model, File scriptName) {}
-
-        public void libraryFileAdded(Model model, File libName) {}
+        public void stateTransition(Node node,
+                                    NodeState state,
+                                    NodeOutcome outcome,
+                                    NodeFailureType failure,
+                                    Map<Condition, String> conditions)
+        {}
 	
-        public void variableAssigned(Node node, String variableName) {}
+        public void variableAssigned(Node node, String variableName, String value) {}
+
+        public void addBreakPoint(Node node, LuvBreakPoint bp) {};
+
+        public void removeBreakPoint(Node node, LuvBreakPoint bp) {};
     }
 
-    public static interface PropertyChangeFilter {
-        public boolean eventMatches(Node n, String property);
+    public static interface StateTransitionFilter {
+        public boolean eventMatches(Node n, 
+                                    NodeState state,
+                                    NodeOutcome outcome,
+                                    NodeFailureType failure);
         public String getDescription();
     }
 
     public static class StateChangeFilter
-        implements PropertyChangeFilter {
+        implements StateTransitionFilter {
 
         StateChangeFilter() {
         }
 
-        public boolean eventMatches(Node n, String property) {
-            return NODE_STATE.equals(property);
+        public boolean eventMatches(Node n,
+                                    NodeState state,
+                                    NodeOutcome outcome,
+                                    NodeFailureType failure) {
+            return true;
         }
 
         public String getDescription() {
@@ -799,20 +867,21 @@ public class Node
     }
 
     public static class StateValueFilter
-        implements PropertyChangeFilter {
+        implements StateTransitionFilter {
 
-        private final String targetValue;
+        private final NodeState targetState;
         private final String description;
 
-        StateValueFilter(final String target) {
-            targetValue = target;
-            description = " state changed to " + target;
+        StateValueFilter(final NodeState target) {
+            targetState = target;
+            description = " state changed to " + target.toString();
         }
 
-        public boolean eventMatches(Node n, String property) {
-            if (!NODE_STATE.equals(property))
-                return false;
-            return targetValue.equals(n.getState());
+        public boolean eventMatches(Node n,
+                                    NodeState newState,
+                                    NodeOutcome newOutcome,
+                                    NodeFailureType newFailure) {
+            return targetState == newState;
         }
 
         public String getDescription() {
@@ -821,20 +890,21 @@ public class Node
     }
 
     public static class OutcomeValueFilter
-        implements PropertyChangeFilter {
+        implements StateTransitionFilter {
 
-        private final String targetValue;
+        private final NodeOutcome targetOutcome;
         private final String description;
 
-        OutcomeValueFilter(final String target) {
-            targetValue = target;
-            description = " outcome changed to " + target;
+        OutcomeValueFilter(final NodeOutcome target) {
+            targetOutcome = target;
+            description = " outcome changed to " + target.toString();
         }
 
-        public boolean eventMatches(Node n, String property) {
-            if (!NODE_OUTCOME.equals(property))
-                return false;
-            return targetValue.equals(n.getOutcome());
+        public boolean eventMatches(Node n,
+                                    NodeState newState,
+                                    NodeOutcome newOutcome,
+                                    NodeFailureType newFailure) {
+            return targetOutcome == newOutcome;
         }
 
         public String getDescription() {
@@ -843,20 +913,21 @@ public class Node
     }
 
     public static class FailureTypeValueFilter
-        implements PropertyChangeFilter {
+        implements StateTransitionFilter {
 
-        private final String targetValue;
+        private final NodeFailureType targetFailureType;
         private final String description;
 
-        FailureTypeValueFilter(final String target) {
-            targetValue = target;
-            description = " failure type changed to " + target;
+        FailureTypeValueFilter(final NodeFailureType target) {
+            targetFailureType = target;
+            description = " failure type changed to " + target.toString();
         }
 
-        public boolean eventMatches(Node n, String property) {
-            if (!NODE_FAILURE_TYPE.equals(property))
-                return false;
-            return targetValue.equals(n.getFailureType());
+        public boolean eventMatches(Node n,
+                                    NodeState newState,
+                                    NodeOutcome newOutcome,
+                                    NodeFailureType newFailure) {
+            return targetFailureType == newFailure;
         }
 
         public String getDescription() {

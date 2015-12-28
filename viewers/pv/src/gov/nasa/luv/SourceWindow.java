@@ -24,6 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// TODO:
+// Add menu bar with (at least) 'Refresh' option
+// Handle source vs. executable for both plan, script
+
 package gov.nasa.luv;
 
 import java.awt.BorderLayout;
@@ -53,13 +57,11 @@ import static javax.swing.ScrollPaneConstants.*;
 
 import static gov.nasa.luv.Constants.*;
 
-
 /**
  * The SourceWindow class is an interface for the user to view source file content.
  */
 public class SourceWindow extends JFrame 
 {
-    private static SourceWindow frame;
     private JComponent planPanel = null;
     private JLabel planLabel = null;
     private JScrollPane planScroller = null;
@@ -68,10 +70,21 @@ public class SourceWindow extends JFrame
     private JLabel scriptLabel = null;
     private JScrollPane scriptScroller = null;
     private JList<String> scriptList = null;
+    private Plan plan = null;
+    private File planFile = null;
+    private File scriptFile = null;
+    // private File planSource = null;
+    // private File scriptSource = null;
 
     public SourceWindow() {
         super("Source Window");
         constructWindow();
+    }
+
+    public SourceWindow(Plan p) {
+        super();
+        constructWindow();
+        open(p);
     }
 
     private void constructWindow() {
@@ -82,7 +95,7 @@ public class SourceWindow extends JFrame
                                           scriptPanel);
         split.setResizeWeight(0.5);
         getContentPane().add(split, BorderLayout.CENTER);
-        setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
+        setLocation(Settings.instance().getPoint(PROP_CFGWIN_LOC));
     }
 
     private void constructPlanPanel() {
@@ -130,10 +143,11 @@ public class SourceWindow extends JFrame
                 result.addElement(line);
 	
             in.close();
-        } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
-                                                                       e,
-                                                                       "ERROR: source window unable to load " + f.toString());
+        }
+        catch (Exception e) {
+            StatusMessageHandler.instance().displayErrorMessage(this,
+                                                                e,
+                                                                "ERROR: source window unable to load " + f.toString());
             return null;
         }        
 
@@ -141,39 +155,41 @@ public class SourceWindow extends JFrame
     }
 
     /**
-     * Displays the specified Plexil Model in the source window.
+     * Displays the specified Plexil Plan in the source window.
      */
-    public void open(Model model) {
+    public void open(Plan p) {
         if (isVisible())
             setVisible(false);
 
         boolean loaded = false;
-        if (model != null) {
-            File plan = model.getPlanFile();
-            if (plan != null && plan.isFile() && plan.canRead()) {
-                ListModel<String> planModel = loadFileModel(plan);
+        if (p != null) {
+            plan = p;
+            planFile = p.getPlanFile();
+            if (planFile != null && planFile.isFile() && planFile.canRead()) {
+                ListModel<String> planModel = loadFileModel(planFile);
                 if (planModel != null) {
                     planList.setModel(planModel);
-                    planLabel.setText(plan.toString());
+                    planLabel.setText(planFile.toString());
                     loaded = true;
                 }
             }
-            File script = model.getScriptFile();
-            if (script != null && script.isFile() && script.canRead()) {
-                ListModel<String> scriptModel = loadFileModel(script);
+            scriptFile = p.getScriptFile();
+            if (scriptFile != null && scriptFile.isFile() && scriptFile.canRead()) {
+                ListModel<String> scriptModel = loadFileModel(scriptFile);
                 if (scriptModel != null) {
                     scriptList.setModel(scriptModel);
-                    scriptLabel.setText(script.toString());
+                    scriptLabel.setText(scriptFile.toString());
                     loaded = true;
                 }
             }
         }
         if (loaded) {
+            setTitle("Source Window - " + p.getName());
             pack();
         	setVisible(true);
         }
         else
-        	Luv.getLuv().getStatusMessageHandler().showStatus("No Data available", Color.RED, 10000);
+        	StatusMessageHandler.instance().showStatus("No Data available", Color.RED, 10000);
     }
     
     /**
@@ -181,6 +197,6 @@ public class SourceWindow extends JFrame
      */
 
     public void refresh() {
-        open(Luv.getLuv().getCurrentPlan());
+        open(plan);
     }
 }

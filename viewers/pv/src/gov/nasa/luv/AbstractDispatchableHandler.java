@@ -125,8 +125,7 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
     }
 
     /**
-     * Handles the start of an XML element. Watches for XML tags that might represent
-     * whether or not it is for a Plexil Model Node or Library or a property of a Plexil Model Node.
+     * Handles the start of an XML element.
      * 
      * @param uri
      * @param tagName
@@ -140,22 +139,18 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
             LuvElementHandler handler = getElementHandler(tagName);
             if (handler != null)
                 handler.elementStart(tagName, attributes);
-            // *** TEMP DEBUG ***
-            // else
-            //     System.out.println("startElement: No handler for \"" + tagName + "\"");
 
             // Save context
             tagStack.push(tagName);
         }
         catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: Exception in startElement for " + tagName);
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: Exception in startElement for " + tagName);
             tagStack.dump(System.err);
         }
     }
 
     /**
-     * Handles the end of an XML element. Gathers the text in between the start
-     * and end tag that could be for conditions, local variables or actions.
+     * Handles the end of an XML element.
      * 
      * @param uri
      * @param tagName
@@ -171,7 +166,7 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
                 handler.elementEnd(tagName, getTweenerText());
         }
         catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: Exception in endElement for " + tagName);
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: Exception in endElement for " + tagName);
             tagStack.dump(System.err);
         }
     }

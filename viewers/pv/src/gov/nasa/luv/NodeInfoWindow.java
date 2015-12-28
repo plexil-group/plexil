@@ -26,28 +26,45 @@
 
 package gov.nasa.luv;
 
-import javax.swing.JTabbedPane;
-import javax.swing.JPanel;
-import javax.swing.JFrame;
-import javax.swing.JComponent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 
 import static gov.nasa.luv.Constants.*;
 import static gov.nasa.luv.PlexilSchema.*;
 
 /** 
- * Teh NodeInfoWindow class holds the ConditionsTab, VariablesTab and ActionTab 
+ * The NodeInfoWindow class holds the ConditionsTab, VariablesTab and ActionTab 
  * Plexil Node might contain. 
  */
 
-public class NodeInfoWindow extends JPanel
+public class NodeInfoWindow extends JFrame
 {
-    private static  JTabbedPane tabbedPane;
-    private static JFrame frame;
-            
-    public NodeInfoWindow(){}
+    public static Dimension paneDimensions = new Dimension(900, 300); // shared with VariablesTab in separate file
+
+    private JTabbedPane tabbedPane;
+
+    private ActionTab actionTab;
+    private ConditionsTab conditionsTab;
+    private VariablesTab variablesTab;
     
     /** 
      * Constructs a NodeInfoWindow with the specified Plexil Node. 
@@ -55,92 +72,39 @@ public class NodeInfoWindow extends JPanel
      * @param node the Plexil Node on which the NodeInfoWindow displays information
      */
     
-    public NodeInfoWindow(Node node) 
+    protected NodeInfoWindow(Node node) 
     {
-        super(new GridLayout(1, 1));
+        super(node.getNodeName() + " Information Window");
+        setSize(Settings.instance().getDimension(PROP_NODEINFOWIN_SIZE));
+        setLocation(Settings.instance().getPoint(PROP_NODEINFOWIN_LOC));
         
         tabbedPane = new JTabbedPane();
-
-        addConditionsTab(node);
-        addVariablesTab(node);
-        addActionTab(node, node.getProperty(NODETYPE_ATTR));
-        
-        add(tabbedPane);
-
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-    }
-    
-    /** 
-     * Returns whether the current instance of the NodeInfoWindow is open.
-     *
-     * @return whether the current instance of the NodeInfoWindow is open
-     */
-    
-    public static boolean isNodeInfoWindowOpen()
-    {
-        if (frame != null)
-            return frame.isVisible();
-        
-        return false;
-    }
-    
-    /** 
-     * Closes the current instance of the NodeInfoWindow.
-     */
-    
-    public static void closeNodeInfoWindow()
-    {
-        if (frame != null)
-            frame.setVisible(false);
-    }
-    
-    /** 
-     * Adds a ConditionsTab to this NodeInfoWindow for the specified Plexil Node. 
-     *
-     * @param node the Plexil Node on which the NodeInfoWindow gathers condition information
-     */
-    
-    private void addConditionsTab(Node node)
-    {
-        if (node.hasConditions())
-        {
-           JComponent panel = ConditionsTab.getCurrentConditionsTab();
-           panel.setPreferredSize(new Dimension(900, 300));
-           tabbedPane.addTab("Conditions", null , panel, "Displays node conditions");
-        }  
-    }
-    
-    /** 
-     * Adds a VariablesTab to this NodeInfoWindow for the specified Plexil Node. 
-     *
-     * @param node the Plexil Node on which the NodeInfoWindow gathers local variable information
-     */
-    
-    private void addVariablesTab(Node node)
-    {
-        if (node.hasVariables())
-        {
-           JComponent panel = VariablesTab.getCurrentVariablesTab();
-           panel.setPreferredSize(new Dimension(900, 300));
-           tabbedPane.addTab("Variables", null , panel, "Displays node local variables");
+
+        if (node.hasConditions()) {
+            conditionsTab = new ConditionsTab(node);
+            tabbedPane.addTab("Conditions", null , conditionsTab, "Displays node conditions");
         }
-    }
-    
-    /** 
-     * Adds a ActionTab to this NodeInfoWindow for the specified Plexil Node and action type. 
-     *
-     * @param node the Plexil Node on which the NodeInfoWindow gathers action information
-     * @param actioType the type of action this Plexil Node represents
-     */
-        
-    private void addActionTab(Node node, String actionType)
-    {
-        if (node.hasAction())
-        {
-           JComponent panel = ActionTab.getCurrentActionTab();
-           panel.setPreferredSize(new Dimension(900, 300));
-           tabbedPane.addTab(actionType, null , panel, "Displays action node expression");
+        else
+            conditionsTab = null;
+
+        if (node.hasVariables()) {
+            variablesTab = new VariablesTab(node);
+            tabbedPane.addTab("Variables", null , variablesTab, "Displays node local variables");
+
         }
+        else
+            variablesTab = null;
+
+        if (node.hasAction()) {
+            actionTab = new ActionTab(node);
+            tabbedPane.addTab(node.getProperty(NODETYPE_ATTR), null , actionTab, "Displays action node expression");
+        }
+        else
+            actionTab = null;
+        
+        setContentPane(tabbedPane);
+        pack();
     }
     
     /** 
@@ -151,15 +115,211 @@ public class NodeInfoWindow extends JPanel
     
     public static void open(Node node) 
     {
-        frame = new JFrame(node.getNodeName() + " Information Window");
-        
-        frame.add(new NodeInfoWindow(node), BorderLayout.CENTER);
-        frame.setSize(Luv.getLuv().getSettings().getDimension(PROP_NODEINFOWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_NODEINFOWIN_LOC));
-        
-        frame.pack();
-        frame.setVisible(true);
+        NodeInfoWindow iw = node.getInfoWindow();
+        if (iw == null) {
+            iw = new NodeInfoWindow(node);
+            node.setInfoWindow(iw);
+        }
+        iw.setVisible(true);
+        iw.toFront();
     }
+
+    /** 
+     * The ActionTab class provides methods for displaying Plexil Node Actions, 
+     * such as, Assignment, Command, FunctionCall, LibraryCall or Update. 
+     */
+
+    public class ActionTab extends JPanel 
+    {    
+        /** 
+         * Constructs an ActionTab with the specified Plexil Node.
+         *
+         * @param node Plexil Node on which the ActionTab represents
+         */
+       
+        public ActionTab(Node node) 
+        {       
+            super(new GridLayout(1,0));
+            setPreferredSize(paneDimensions);
+        
+            // for now there is only one column since the UE does not transmit a
+            // resulting value to LUV yet.
+            String[] columnNames = {"Expression",};       
+            String[][] info = new String[1000][1];  
+        
+            Vector<String> actionList = node.getActionList();     
+            int row = 0;
+            for (String action : actionList)
+                {
+                    if (action != null)
+                        {
+                            info[row][0] = action; 
+                            ++row;
+                        }
+                }
+        
+            JTable table = new JTable(info, columnNames);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+            table.getColumnModel().getColumn(0).setPreferredWidth(900);
+            table.setPreferredScrollableViewportSize(paneDimensions);
+            table.setShowGrid(false);
+            table.setGridColor(Color.GRAY);
+            JScrollPane scrollPane = new JScrollPane(table);
+
+            add(scrollPane);
+            setOpaque(true);
+        }
+    }
+    
+    /** 
+     * The ConditionsTab class provides methods for displaying Plexil Node condition 
+     * information.
+     */
+
+    public class ConditionsTab extends JPanel 
+    {
+        private Node node;    
+        private int rows;    
+        private String info[][];    
+        private JTable table;     
+        private Map<Condition, Integer> rowMap;
+    
+        /** 
+         * Constructs a ConditionsTab with the specified Plexil Node.
+         *
+         * @param node Plexil Node on which the ConditionsTab represents
+         */
+
+        public ConditionsTab(Node node) 
+        {       
+            super(new GridLayout(1,0));
+            setPreferredSize(paneDimensions);
+
+            rowMap = new EnumMap<Condition, Integer>(Condition.EndCondition.getDeclaringClass());
+            this.node = node;
+
+            final Map<Condition, Vector<String> > nodeConditions = node.getConditionExprs();
+            String[] columnNames = {"Conditions",
+                                    "Value",
+                                    "Expression"};             
+                
+            // Compute size of table
+            rows = 0;
+            for (Vector<String> al : nodeConditions.values())
+                rows += al.size();
+
+            // Account for internal conditions
+            switch (node.getNodeType()) {
+            case Empty:
+                rows += 3;
+                break;
+
+            case Update:
+                rows += 4;
+                break;
+                
+            default:
+                rows += 5;
+                break;
+            }
+
+            info = new String[rows][3];
+
+            int row = 0;
+            for (Map.Entry<Condition, Vector<String> > entry : nodeConditions.entrySet()) {
+                final Condition c = entry.getKey();
+                final int thisRow = row;
+                rowMap.put(c, row);
+
+                info[row][0] = c.toString();
+                info[row][1] = formatConditionValue(node.getConditionValue(c));
+                for (String s : entry.getValue())
+                    info[row++][2] = s;
+            }
+            
+            // Add internal conditions
+            rowMap.put(Condition.AncestorEndCondition, row);
+            info[row][0] = Condition.AncestorEndCondition.toString();
+            info[row++][1] = formatConditionValue(node.getConditionValue(Condition.AncestorEndCondition));
+
+            rowMap.put(Condition.AncestorInvariantCondition, row);
+            info[row][0] = Condition.AncestorInvariantCondition.toString();
+            info[row++][1] = formatConditionValue(node.getConditionValue(Condition.AncestorInvariantCondition));
+
+            rowMap.put(Condition.AncestorExitCondition, row);
+            info[row][0] = Condition.AncestorExitCondition.toString();
+            info[row++][1] = formatConditionValue(node.getConditionValue(Condition.AncestorExitCondition));
+
+            switch (node.getNodeType()) {
+            default:
+                rowMap.put(Condition.AbortCompleteCondition, row);
+                info[row][0] = Condition.AbortCompleteCondition.toString();
+                info[row++][1] = formatConditionValue(node.getConditionValue(Condition.AbortCompleteCondition));
+
+            case Update:
+                rowMap.put(Condition.ActionCompleteCondition, row);
+                info[row][0] = Condition.ActionCompleteCondition.toString();
+                info[row++][1] = formatConditionValue(node.getConditionValue(Condition.ActionCompleteCondition));
+
+            case Empty:
+                break;
+            }
+
+            this.node.addChangeListener(new Node.ChangeAdapter() {
+                    @Override 
+                    public void stateTransition(Node node,
+                                                NodeState state,
+                                                NodeOutcome outcome,
+                                                NodeFailureType failure,
+                                                Map<Condition, String> conditions) {
+
+                        for (Map.Entry<Condition, String> entry : conditions.entrySet()) {
+                            Condition c = entry.getKey();
+                            String val = formatConditionValue(entry.getValue());
+                            Integer row = rowMap.get(c);
+                            if (row == null)
+                                continue; // shouldn't happen, but don't blow up if it does
+                            info[row][1] = val; // redundant?
+                            table.setValueAt(val, row, 1);
+                        }
+                        repaint();
+                    }
+                });
+
+            table = new JTable(info, columnNames);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+            table.getColumnModel().getColumn(0).setPreferredWidth(200);
+            table.getColumnModel().getColumn(1).setPreferredWidth(100);
+            table.getColumnModel().getColumn(2).setPreferredWidth(600);        
+            table.setPreferredScrollableViewportSize(paneDimensions);
+            table.setShowGrid(false);
+            table.setGridColor(Color.GRAY);
+            JScrollPane scrollPane = new JScrollPane(table);
+
+            add(scrollPane);
+            setOpaque(true);
+        }
+    
+        /** 
+         * Returns the value of the specific condition expression.   
+         *
+         * @param value the confition value
+         * @return the value the condition expression evaluates to (TRUE, FALSE or inf)
+         */
+
+        private String formatConditionValue(String value) {
+            if (value == null || UNKNOWN.equals(value))
+                return UNKNOWN;
+            else if (value.equals("0"))
+                return "FALSE";
+            else if (value.equals("1"))
+                return "TRUE";
+            else
+                return value;
+        }
+    }
+
+
 }
 
 

@@ -55,6 +55,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// TODO:
+// - Change base class to JFrame
+// - Implement search support on PlanView
+// - Get rid of static variables (except singleton instance var)
+
 package gov.nasa.luv;
 
 import java.awt.BorderLayout;
@@ -74,8 +79,9 @@ import static gov.nasa.luv.Constants.*;
  * the tree that match, by name, the complete or partial input string. 
  */
 
-public class FindWindow extends JPanel implements KeyListener
-{
+public class FindWindow
+    extends JPanel
+    implements KeyListener {
     private static JFrame       frame;  
     private static JComboBox    searchListHolder;
     private static String []    searchList;     
@@ -89,8 +95,6 @@ public class FindWindow extends JPanel implements KeyListener
     private ArrayList<Stack>    foundNodes;
     private String              previousSearch;
     private int                 next;
-    
-    public FindWindow() {}
     
     /** 
      * Constructs a FindWindow with the specified list of previous searches. 
@@ -114,16 +118,15 @@ public class FindWindow extends JPanel implements KeyListener
         add(createMessageDisplay());     
     }
     
-    private Component createEntryField(String list) 
-    {
+    private Component createEntryField(String list) {
         setSearchList(list);
         
         leftHalf = new JPanel() {
-            public Dimension getMaximumSize() {
-                Dimension pref = getPreferredSize();
-                return new Dimension(Integer.MAX_VALUE, pref.height);
-            }
-        };
+                public Dimension getMaximumSize() {
+                    Dimension pref = getPreferredSize();
+                    return new Dimension(Integer.MAX_VALUE, pref.height);
+                }
+            };
         
         leftHalf.setLayout(new BoxLayout(leftHalf, BoxLayout.Y_AXIS));
      
@@ -147,8 +150,7 @@ public class FindWindow extends JPanel implements KeyListener
         return leftHalf;
     }
     
-    private void setSearchList(String list)
-    {
+    private void setSearchList(String list) {
         if (list != null && !list.isEmpty()) {
             String[] getList;
             getList = list.split(", ");
@@ -158,8 +160,7 @@ public class FindWindow extends JPanel implements KeyListener
         }      
     }
     
-    private JComponent createMessageDisplay() 
-    {
+    private JComponent createMessageDisplay() {
         JPanel panel = new JPanel(new BorderLayout());
         
         message_to_user = new JLabel();
@@ -177,8 +178,7 @@ public class FindWindow extends JPanel implements KeyListener
         return panel;
     }
     
-    private String getMessageToUser() 
-    {
+    private String getMessageToUser() {
         if (!searchSet)
             return "No search set";
 
@@ -214,66 +214,67 @@ public class FindWindow extends JPanel implements KeyListener
         return sb.toString();
     }
     
-    private void lookForNode() 
-    {
+    private void lookForNode() {
         String text = searchListEditor.getText(); 
 
         if (!text.equals(previousSearch))
             newSearch(text);
         
         if (foundMatch)
-        {
-            showUserNextNode();
-            message_to_user.setFont(regularFont);
-        }
+            {
+                showUserNextNode();
+                message_to_user.setFont(regularFont);
+            }
         else
-        {
-            message_to_user.setText(getMessageToUser());
-            message_to_user.setFont(italicFont);
-        }  
+            {
+                message_to_user.setText(getMessageToUser());
+                message_to_user.setFont(italicFont);
+            }  
     }
     
-    private void newSearch(String text)
-    {
+    private void newSearch(String text) {
         String search = text;
         boolean startsWith = false;
         boolean endsWith = false;
         boolean both = false;
                 
         if (text.contains("*"))
-        {
-            if (text.startsWith("*") && text.endsWith("*"))
             {
-                both = true;
-                search = text.substring(1, text.length() - 1);
+                if (text.startsWith("*") && text.endsWith("*"))
+                    {
+                        both = true;
+                        search = text.substring(1, text.length() - 1);
+                    }
+                else if (text.startsWith("*"))
+                    {              
+                        endsWith = true;
+                        search = text.substring(1, text.length());
+                    }
+                else if (text.endsWith("*"))
+                    {
+                        startsWith = true;
+                        search = text.substring(0, text.length() - 1);
+                    }
             }
-            else if (text.startsWith("*"))
-            {              
-                endsWith = true;
-                search = text.substring(1, text.length());
-            }
-            else if (text.endsWith("*"))
-            {
-                startsWith = true;
-                search = text.substring(0, text.length() - 1);
-            }
-        }
         
         saveSearchWord(text);
         leftHalf.remove(entryPanel);
-        leftHalf.add(createEntryField(Luv.getLuv().getSettings().get(PROP_SEARCH_LIST)));
+        leftHalf.add(createEntryField(Settings.instance().get(PROP_SEARCH_LIST)));
         foundNodes.clear();
         next = 0;
-        TreeTableView.getCurrent().restartSearch();
+        // *** FIXME ***
+        // TreeTableView.getCurrent().restartSearch();
         previousSearch = text;  
         foundMatch = false;
      
-        findMatchInNode(Luv.getLuv().getCurrentPlan(), search, both, startsWith, endsWith);
+        // *** FIXME ***
+        // findMatchInNode(Luv.getLuv().getCurrentPlan().getRootNode(),
+        //                 search, both, startsWith, endsWith);
     }
     
     private void saveSearchWord(String searchWord)
     {
-        String list = Luv.getLuv().getSettings().get(PROP_SEARCH_LIST);
+        String list = Settings.instance().get(PROP_SEARCH_LIST);
         
         if (list != null) {
             String [] array = list.split(", ");
@@ -286,27 +287,26 @@ public class FindWindow extends JPanel implements KeyListener
         else
             list = searchWord;
         
-        Luv.getLuv().getSettings().set(PROP_SEARCH_LIST, list);
+        Settings.instance().set(PROP_SEARCH_LIST, list);
     }
     
     private void showUserNextNode()
     {
-        if (next >= foundNodes.size())
-        {   
-            next = 0;
-            TreeTableView.getCurrent().restartSearch();
-        }
+        if (next >= foundNodes.size()) {
+                next = 0;
+                // *** FIXME ***
+                //TreeTableView.getCurrent().restartSearch();
+            }
 
         Stack<String> node_path = new Stack<String>();
         
         Object[] obj = foundNodes.get(next).toArray();
 
         for (int i = 0; i < obj.length; i++)
-        {
             node_path.push((String) obj[i]);
-        }
      
-        TreeTableView.getCurrent().showNode(node_path);        
+        // *** FIXME ***
+        // TreeTableView.getCurrent().showNode(node_path);        
         message_to_user.setText(getMessageToUser());
         next++;
     }
@@ -329,12 +329,11 @@ public class FindWindow extends JPanel implements KeyListener
                     if ((both        && child.getNodeName().contains(search))     ||
                         (startsWith  && child.getNodeName().startsWith(search))   ||
                         (endsWith    && child.getNodeName().endsWith(search))     ||
-                        (child.getNodeName().equals(search)))
-                        {
-                            Stack<String> node_path = child.pathToNode(child);    
-                            foundMatch = true;
-                            foundNodes.add(node_path);                    
-                        }
+                        (child.getNodeName().equals(search))) {
+                        Stack<String> node_path = child.pathToNode(child);    
+                        foundMatch = true;
+                        foundNodes.add(node_path);                    
+                    }
                 }
             
                 findMatchInNode(child, search, both, startsWith, endsWith);       
@@ -343,16 +342,13 @@ public class FindWindow extends JPanel implements KeyListener
     
     /** {@inheritDoc} */
     
-    public void keyTyped(KeyEvent e) 
-    {
+    public void keyTyped(KeyEvent e) {
     }
     
     /** {@inheritDoc} */
 
-    public void keyPressed(KeyEvent e) 
-    {
-        if (e.getKeyCode() == (KeyEvent.VK_ENTER) && !searchListEditor.getText().equals(""))
-        {
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == (KeyEvent.VK_ENTER) && !searchListEditor.getText().equals("")) {
             searchSet = true; 
             lookForNode();
             searchListHolder.requestFocusInWindow();
@@ -362,8 +358,7 @@ public class FindWindow extends JPanel implements KeyListener
     
     /** {@inheritDoc} */
 
-    public void keyReleased(KeyEvent e) 
-    {
+    public void keyReleased(KeyEvent e) {
     }
     
     /** 
@@ -372,18 +367,19 @@ public class FindWindow extends JPanel implements KeyListener
      *  @param list the list of previous search strings
      */
     
-    public static void open(String list)
-    {
+    public static void open(String list) {
         if (frame != null && frame.isVisible())
             frame.setVisible(false);
         frame = new JFrame("Find Node");
-        if (!Luv.getLuv().getCurrentPlan().getPlanName().equals(UNKNOWN))
-            frame.setTitle("Find Node in " + Luv.getLuv().getCurrentPlan().getPlanName());
+        
+        String name = null; // Luv.getLuv().getCurrentPlan().getName(); // *** FIXME ***
+        if (name != null)
+            frame.setTitle("Find Node in " + name);
      
         frame.add(new FindWindow(list));
         
-        frame.setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_FINDWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_FINDWIN_LOC));
+        frame.setPreferredSize(Settings.instance().getDimension(PROP_FINDWIN_SIZE));
+        frame.setLocation(Settings.instance().getPoint(PROP_FINDWIN_LOC));
         
         frame.pack();
         

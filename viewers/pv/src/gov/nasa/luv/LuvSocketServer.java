@@ -37,6 +37,10 @@ import java.net.Socket;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
+
+import static java.awt.Color.RED;
+import static java.lang.Thread.State.TERMINATED;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -47,79 +51,128 @@ import static gov.nasa.luv.Constants.END_OF_MESSAGE;
 public class LuvSocketServer {
 
     private boolean exitRequested;
-    private static Thread serverThread;
+    private Semaphore stopSem;
+    private Thread listenThread;
+    private Thread serverThread;
+
+    private static LuvSocketServer _the_instance_ = null;
 
     /**
      * Constructs a server which listens on the specified port and StreamWranglerFactory.
      *
      * @param port port on which this server listens.
      */
-    public LuvSocketServer() {
+    private LuvSocketServer() {
         exitRequested = false;
-        serverThread = null;
+        stopSem = new Semaphore(0, true); // initially blocked
+        listenThread = serverThread = null;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    if (LuvSocketServer.serverActive())
+                        LuvSocketServer.stopServer();
+                }
+            });
     }
 
-    public void startServer(int port) {
-        if (serverThread != null) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: attempt to start server when it is already running");
+    public static LuvSocketServer instance() {
+        if (_the_instance_ == null)
+            _the_instance_ = new LuvSocketServer();
+        return _the_instance_;
+    }
+
+    public static boolean serverActive() {
+        if (_the_instance_ == null)
+            return false;
+        else
+            return _the_instance_.isActive();
+    }
+
+    public static boolean serverConnected() {
+        if (_the_instance_ == null)
+            return false;
+        else
+            return _the_instance_.isConnected();
+    }
+
+    private boolean isActive() {
+        if (listenThread == null)
+            return false;
+        else
+            return listenThread.getState() != TERMINATED;
+    }
+
+    public boolean isConnected() {
+        if (!isActive() || serverThread == null)
+            return false;
+        else
+            // N.B. Slight chance of race condition on server thread exit
+            try {
+                return serverThread.getState() != TERMINATED;
+            }
+            catch (NullPointerException n) {
+                return false;
+            }
+    }
+
+    public static void startServer(int port) {
+        instance().start(port);
+    }
+
+    private void start(int port) {
+        if (listenThread != null) {
+            StatusMessageHandler.instance().displayErrorMessage(null, "ERROR: attempt to start server when it is already running");
             return;
         }
 
         if (!portFree(port)) {
-            if (Luv.getLuv().getSettings().getPortSupplied()) {
+            if (Settings.instance().getPortSupplied()) {
                 // User chose this port
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                           "ERROR: port " + port + " is in use, please try another.");
-                Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Unable to listen on port " + port);
+                StatusMessageHandler.instance().displayErrorMessage(null,
+                                                                    "ERROR: port " + port + " is in use, please try another.");
+                StatusMessageHandler.instance().showChangeOnPort("Unable to listen on port " + port);
                 return;
             }
             // Used default, choose another
             else {
                 Vector<Integer> ports = getPortList();
-                Luv.getLuv().getStatusMessageHandler().displayWarningMessage("Port " + port
-                                                                             + " is unavailable, using port " + ports.firstElement()
-                                                                             + " instead.",
-                                                                             "Port unavailable");
+                StatusMessageHandler.instance().displayWarningMessage("Port " + port
+                                                                      + " is unavailable, using port " + ports.firstElement()
+                                                                      + " instead.",
+                                                                      "Port unavailable");
                 port = ports.firstElement();
-                Luv.getLuv().getSettings().setPort(port);
+                Settings.instance().setPort(port);
             }
         }
 
         final int thePort = port; // work around compiler error
-        // create a thread which listens for events
-        serverThread = new Thread() {
+        // create a thread which listens for connections
+        listenThread = new Thread() {
                 public void run() {
                     acceptConnections(thePort);
                 }
             };
-        serverThread.start();
-        Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Listening on port " + port);
+        listenThread.start();
+        StatusMessageHandler.instance().showChangeOnPort("Listening on port " + port);
     }
     
-    public void stopServer() {
-        if (serverThread == null)
+    public static void stopServer() {
+        if (!instance().isActive())
             return; // nothing to do
+        instance().stop();
+    }
 
-        Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Stopping service on port "
-                                                                + Luv.getLuv().getSettings().getPort());
-        Thread.State s = serverThread.getState();
+    private void stop() {
+        StatusMessageHandler.instance().showChangeOnPort("Stopping service on port "
+                                                         + Settings.instance().getPort());
+        Thread.State s = listenThread.getState();
         if (s != Thread.State.TERMINATED) {
             exitRequested = true;
             try {
-                serverThread.join(2000);
+                listenThread.join(2000);
             } catch (InterruptedException e) {
             }
         }
-        serverThread = null;
-    }
-
-    public boolean isGood() {
-        if (serverThread == null)
-            return false;
-        Thread.State s = serverThread.getState();
-        if (s == Thread.State.TERMINATED)
-            return false;
-        return true;
+        listenThread = null;
     }
 
     /**
@@ -134,7 +187,7 @@ public class LuvSocketServer {
             try {
                 luvSocket.setSoTimeout(1000); // check for request to quit once a second
             } catch (java.net.SocketException e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: while configuring server socket on port " + port);
+                StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: while configuring server socket on port " + port);
             }
             while (!exitRequested) {
                 try {
@@ -143,25 +196,25 @@ public class LuvSocketServer {
                     // do nothing and repeat
                 } catch (java.net.SocketException e) {
                     if (e.getMessage().equals("Socket closed")) {
-                        Luv.getLuv().getStatusMessageHandler().showStatus("Previous " + e.getMessage(), 100);
+                        StatusMessageHandler.instance().showStatus("Previous " + e.getMessage(), 100);
                         return;
                     }
                     else if (e.getMessage().equals("Permission denied")) {
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: " + e.getMessage()
-                                                                                   + " Port " + port + " is in use");
-                        Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Port " + port + " unavailable, please change server port");
+                        StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: " + e.getMessage()
+                                                                            + " Port " + port + " is in use");
+                        StatusMessageHandler.instance().showChangeOnPort("Port " + port + " unavailable, please change server port");
                         return;
                     }
                     else {        			
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: socket exception occurred while starting server on port " + port);
+                        StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: socket exception occurred while starting server on port " + port);
                         return;
                     }
                 }
             }
             luvSocket.close();
         } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);
-                e.printStackTrace();
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);
+            e.printStackTrace();
         }
         exitRequested = false;
     }
@@ -175,12 +228,14 @@ public class LuvSocketServer {
         }
 
         public void run() {
+            serverThread = this;
             try {
                 wrangle(socket.getInputStream(), socket.getOutputStream());
             } catch (IOException e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception in server on port "
-                                                                           + socket.getLocalPort());
+                StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception in server on port "
+                                                                    + socket.getLocalPort());
             }
+            serverThread = null;
         }
 
         /**
@@ -194,7 +249,7 @@ public class LuvSocketServer {
             try {
                 parser = XMLReaderFactory.createXMLReader();
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while initializing XML reader");
+                StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while initializing XML reader");
                 return;
             }
             parser.setContentHandler(new DispatchHandler());
@@ -209,40 +264,66 @@ public class LuvSocketServer {
                 // This would be a good place to notify viewer that execution is complete.
                 catch (EOFException e) {
                     quit = true;
-                    try {
-                        in.close();
-                    } catch (Exception f) {
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(f, "ERROR: exception occurred while closing Universal Executive input stream");
-                    }
 
+                    // TODO: notify whoever is listening of EOF
                     Luv.getLuv().finishedExecutionState(); // FIXME: tell Luv what (EOF), not how
                     break;
-                } catch (Exception e) {
-                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: while parsing input stream");
-                    e.printStackTrace();
-                    Luv.getLuv().finishedExecutionState(); // FIXME: tell Luv what (comm error), not how
+                }
+                catch (Exception e) {
                     quit = true;
+                    StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: while parsing input stream");
+                    e.printStackTrace();
+                    // TODO: notify whoever is listening that it broke
+                    Luv.getLuv().finishedExecutionState();
                     break;
                 }
 
-                if (Luv.getLuv().breaksAllowed()) {
-                    if (Luv.getLuv().shouldBlock()) {
-                        Luv.getLuv().blockViewer();
-                    }
+                if (Settings.instance().blocksExec()) {
+                    if (ExecutionHandler.instance().shouldBlock())
+                        block();
 
                     // tell Exec it's OK to proceed
                     try {
                         out.write(END_OF_MESSAGE);
                     } catch (Exception e) {
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while acknowledging message from the Universal Executive");
+                        StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception while acknowledging Exec Listener message");
                         break;
                     }
                 }
             } while (!quit);
+
+            try {
+                in.close();
+            } catch (Exception f) {
+                StatusMessageHandler.instance().displayErrorMessage(f, "ERROR: exception while closing Exec Listener stream");
+            }
         }
     }
 
+    /** 
+     * Pauses the execution of the Plexil plan by the Universal Executive
+     * when directed to by the user. 
+     */
+    private void block() {
+        ExecutionHandler.instance().blocked();
+        // wait here for user action
+        boolean released = false;
+        do {
+            try {
+                stopSem.acquire();
+                released = true;
+            }
+            catch (InterruptedException e) {
+            }
+        }
+        while (!released);
+    }
 
+    public static void resume() {
+        if (serverConnected())
+            _the_instance_.stopSem.release();
+    }
+    
     // Utilities
 
     public static Set<Integer> getPortsInUse() {
@@ -257,12 +338,12 @@ public class LuvSocketServer {
                 try {
                     result.add(Integer.parseUnsignedInt(line));
                 } catch (NumberFormatException e) {
-                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error reading ports in use");
+                    StatusMessageHandler.instance().displayErrorMessage(e, "Error reading ports in use");
                     return new TreeSet<Integer>();
                 }
             }
         } catch (IOException e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error reading ports in use");
+            StatusMessageHandler.instance().displayErrorMessage(e, "Error reading ports in use");
             return new TreeSet<Integer>();
         }
         return result;
@@ -271,10 +352,10 @@ public class LuvSocketServer {
     public static Vector<Integer> getPortList() {
         Set<Integer> inUse = getPortsInUse();
         Vector<Integer> portList = new Vector<Integer>(Constants.PORT_MAX - Constants.PORT_MIN + 1);
-        int deflt = Luv.getLuv().getSettings().getPort(); // current setting
+        int deflt = Settings.instance().getPort(); // current setting
 		for (Integer i = Constants.PORT_MIN; i <= Constants.PORT_MAX; i++)
 			if (!inUse.contains(i)
-                || (serverThread != null && i == deflt))
+                || (serverConnected() && i == deflt))
 				portList.add(Integer.valueOf(i));
         return portList;
     }
@@ -286,7 +367,7 @@ public class LuvSocketServer {
         try {
             return (1 == Runtime.getRuntime().exec(cmd).waitFor());
         } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while checking port");
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while checking port");
         }
         return false; // caution on side of error
     }

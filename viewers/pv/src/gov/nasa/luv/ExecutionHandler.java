@@ -26,33 +26,25 @@
 
 package gov.nasa.luv;
 
+import gov.nasa.luv.Constants.AppType;
 import static gov.nasa.luv.Constants.AppType.*;
-import static gov.nasa.luv.Constants.DEBUG_CFG_FILE;
-import static gov.nasa.luv.Constants.RUN_SIMULATOR;
-import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
-import static gov.nasa.luv.Constants.RUN_UE_EXEC;
-import static gov.nasa.luv.Constants.SIM_SCRIPT;
-import static gov.nasa.luv.Constants.TE_SCRIPT;
-import static gov.nasa.luv.Constants.UE_EXEC;
-import static gov.nasa.luv.Constants.UE_SCRIPT;
-import static gov.nasa.luv.Constants.UE_TEST_EXEC;
+import static gov.nasa.luv.Constants.PLEXIL_SCRIPTS_DIR;
 import static gov.nasa.luv.Constants.UNKNOWN;
-
-import gov.nasa.luv.Luv;
-import gov.nasa.luv.CommandGenerator;
-import gov.nasa.luv.CommandGenerationException;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.ProcessBuilder;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /** The ExecutionHandler class runs an instance of the Universal Executive. */
 
@@ -61,137 +53,268 @@ import java.util.Vector;
  */
 public class ExecutionHandler
 {
+    private Plan currentPlan;
+    private PlanView currentView;
     private Process execProcess;
     private Thread execMonitorThread;
 
+    private boolean block;
+
     private static File CHECKER_PROG = new File(Constants.PLEXIL_SCRIPTS_DIR, "checkPlexil");
+
+    /** Represents the "universal executive" for PLEXIL. */ 
+    public static final String    UE_EXEC = "universalExec";
+
+    /** Represents the "test executive" for PLEXIL. */ 
+    public static final String    UE_TEST_EXEC = "TestExec";
       
-    public ExecutionHandler()
-    {
+    /** Represents the script for running the "Universal executive" for PLEXIL. */ 
+    public static final String    UE_SCRIPT = "plexilexec";
+
+    /** Represents the script path for running the "Universal executive" for PLEXIL. */ 
+    public static final String    RUN_UE_EXEC = (new File(PLEXIL_SCRIPTS_DIR, UE_SCRIPT)).getAbsolutePath();
+      
+    /** Represents the script for running the "Test executive" for PLEXIL. */ 
+    public static final String    TE_SCRIPT = "plexiltest";
+      
+    /** Represents the script path for running the "Test executive" for PLEXIL. */ 
+    public static final String    RUN_TEST_EXEC = (new File(PLEXIL_SCRIPTS_DIR, TE_SCRIPT)).getAbsolutePath();
+      
+    /** Represents the script for running the "Plexil Simulator (includes Universal Exec)" for PLEXIL. */ 
+    public static final String    SIM_SCRIPT = "plexilsim";
+      
+    /** Represents the script path for running the "Plexil Simulator" for PLEXIL. */ 
+    public static final String    RUN_SIMULATOR = (new File(PLEXIL_SCRIPTS_DIR, SIM_SCRIPT)).getAbsolutePath();
+
+    private static ExecutionHandler _the_instance_ = null;
+
+    private ExecutionHandler() {
+        currentPlan = null;
+        execProcess = null;
+        execMonitorThread = null;
+        block = false;
     }
 
-	private void cleanup(Process ue_process) throws IOException
-	{
-		ue_process.getInputStream().close();
-		ue_process.getOutputStream().close();
-		ue_process.getErrorStream().close();		
+    public static ExecutionHandler instance() {
+        if (_the_instance_ == null)
+            _the_instance_ = new ExecutionHandler();
+        return _the_instance_;
+    }
+
+    public boolean shouldBlock() {
+        return block;
+    }
+
+    public void blocked() {
+        if (currentView != null)
+            currentView.blocked();
+        else
+            StatusMessageHandler.instance().displayErrorMessage(null,
+                                                                "Execution paused but no view to resume it");
+    }
+
+	private void cleanup(Process p) {
+        try {
+            p.getInputStream().close();
+        }
+        catch (IOException e) {
+        }
+        try {
+            p.getOutputStream().close();
+        }
+        catch (IOException e) {
+        }
+        try {
+            p.getErrorStream().close();
+        }
+        catch (IOException e) {
+        }
 	}
-      
+
+    public boolean isAvailable() {
+        return currentPlan == null;
+    }
+
+  	/**
+  	 * Determine status of execution.
+  	 * 
+  	 * @return whether an internal exec instance is runnning
+  	 */
+
+    public boolean isExecuting() {
+        return execProcess != null
+            && execProcess.isAlive();
+    }
+
+    public PlanView getPlanView() {
+        return currentView;
+    }
+    
     /**
      * @brief Starts the selected PLEXIL Exec and a thread to monitor its output.
      * @return True if the process was launched, false if an error occurred.
      */
- 
-    public boolean runExec()
-    {
-        CommandGenerator g = null;
-        try {
-            g = getCommandGenerator();
-        }
-        catch (CommandGenerationException c) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                       "Error in Exec command generation: "
-                                                                       + c.getMessage());
-            return false;
-        }
-        catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error constructing PLEXIL Exec command line");
+
+    public boolean runExec(Plan p, PlanView v) {
+        if (!isAvailable()) {
+            v.showErrorMessage(null, "Already executing another plan");
             return false;
         }
 
-        if (g == null) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                       "Error in Exec command generation: "
-                                                                       + "Couldn't find command generator");
-            return false;
-        }
+        currentPlan = p;
+        currentView = v;
 
-        Settings s = Luv.getLuv().getSettings();
-        try {
-            g.checkPlanFile(s);
-        }
-        catch (CommandGenerationException c) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                       "Error locating PLEXIL plan: "
-                                                                       + c.getMessage());
-            return false;
-        }
-        catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error locating PLEXIL plan");
-            return false;
-        }
-
-        if (s.checkPlan())
-            try {
-                File p = s.getPlanLocation();
-                String[] cmd = {CHECKER_PROG.toString(), p.toString()};
-                Luv.getLuv().getStatusMessageHandler().showStatus("Checking plan file " + p.toString());
-                if (0 != Runtime.getRuntime().exec(cmd).waitFor()) {
-                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                               "Plan " + p.toString() + " failed static checks");
-                    return false;
-                }
-            }
-            catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error checking PLEXIL plan");
-                return false;
-            }
-
-        List<String> cmd;
-        try {
-            cmd = createCommand(g, s);
-        }
-        catch (CommandGenerationException c) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                       "Error constructing PLEXIL Exec command line: "
-                                                                       + c.getMessage());
-            return false;
-        }
-        catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error constructing PLEXIL Exec command line");
-            return false;
-        }
-
-        if (cmd == null) {
-            Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Sorry",
-                                                                      "Application mode doesn't support execution from Viewer");
-            return false;
-        }
-
-        try {
-            execMonitorThread = new Thread(new ExecRunner(cmd));
-            execMonitorThread.start();
-        }
-        catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error launching PLEXIL Exec process");
-            return false;
+        boolean result;
+        if (!(result = runExecInternal())) {
+            currentPlan = null;
+            currentView = null;
         }
 
         return true;
     }
 
-    /** Stop running the UE. */
-    public void stop()
-    {
-        if (execProcess != null)
+    private boolean runExecInternal() {
+        CommandGenerator g = null;
+        try {
+            g = getCommandGenerator();
+            if (g == null) {
+                currentView.showErrorMessage(null,
+                                             "Error in Exec command generation: "
+                                             + "Couldn't find command generator");
+                return false;
+            }
+        }
+        catch (CommandGenerationException c) {
+            currentView.showErrorMessage(null,
+                                         "Error in Exec command generation");
+            return false;
+        }
+        catch (Exception e) {
+            currentView.showErrorMessage(e, "Error constructing Exec command line");
+            return false;
+        }
+
+        try {
+            g.checkPlanFile(currentPlan);
+        }
+        catch (CommandGenerationException c) {
+            currentView.showErrorMessage(null,
+                                         "Error locating PLEXIL plan");
+            return false;
+        }
+        catch (Exception e) {
+            currentView.showErrorMessage(e, "Error locating PLEXIL plan");
+            return false;
+        }
+
+        Settings s = Settings.instance();
+        if (s.checkPlan())
             try {
-                cleanup(execProcess);
-                execProcess.destroy();
-                execProcess = null;
+                String[] cmd = {CHECKER_PROG.toString(), currentPlan.toString()};
+                currentView.showMessage("Checking plan file " + currentPlan);
+                if (0 != Runtime.getRuntime().exec(cmd).waitFor()) {
+                    currentView.showErrorMessage(null,
+                                                 "Plan " + currentPlan.getPlanFile() + " failed static checks.");
+                    return false;
+                }
             }
             catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while stopping the Universal Executive");
+                currentView.showErrorMessage(e, "Error checking PLEXIL plan" + currentPlan.getPlanFile());
+                return false;
             }
-    	  
+
+        List<String> cmd;
+        try {
+            cmd = createCommand(g, currentPlan, s);
+        }
+        catch (CommandGenerationException c) {
+            currentView.showErrorMessage(null,
+                                         "Error constructing PLEXIL Exec command line");
+            return false;
+        }
+        catch (Exception e) {
+            currentView.showErrorMessage(e, "Error constructing PLEXIL Exec command line");
+            return false;
+        }
+
+        if (cmd == null) {
+            currentView.showInfoDialog("Sorry",
+                                       "Application mode doesn't support execution from Viewer");
+            return false;
+        }
+
+        // Block immediately after start if requested
+        if (s.blocksExec())
+            block = true;
+        try {
+            execMonitorThread = new Thread(new ExecRunner(cmd));
+            execMonitorThread.start();
+        }
+        catch (Exception e) {
+            currentView.showErrorMessage(e, "Error launching PLEXIL Exec process");
+            return false;
+        }
+
+        return true;
     }
-      
+    
+    /** Stop running the UE. */
+
+    // TODO: Ensure all subshells have exited
+    
+    public void stop() {
+        if (execProcess == null) {
+            currentView.executionComplete();
+            return;
+        }
+
+        if (execProcess.isAlive()) {
+            cleanup(execProcess);
+            execProcess.destroy();
+            boolean terminated = false;
+            try {
+                terminated = execProcess.waitFor(5, SECONDS);
+            }
+            catch (InterruptedException e) {
+            }
+            while (!terminated)
+                try {
+                    execProcess.destroyForcibly().waitFor();
+                    terminated = true;
+                }
+                catch (InterruptedException i) {
+                }
+        }
+        currentView.executionTerminated();
+    }
+
+    public void breakpointReached(LuvBreakPoint bp) {
+        block = true;
+    }
+
+    public void step() {
+        block = true;
+        LuvSocketServer.resume();
+    }
+
+    public void resume() {
+        block = false;
+        LuvSocketServer.resume();
+    }
+
+    public void pause() {
+        if (Settings.instance().blocksExec())
+            block = true;
+    }
+
     /**
      * This methods returns a concrete CommandGenerator for the selected mode.
      * If the environment variable ALT_EXECUTIVE is set, returns an instance of the
      * class named to generate the command.
      * @return a plexil command generator.
      */
-    // *** FIXME: don't construct a new instance for each call! ***
+    // TODO: don't construct a new instance for each call
+    // *** FIXME: Only look for ALT_EXECUTIVE when in USER_SPECIFIED mode. ***
     @SuppressWarnings("unchecked")
     private CommandGenerator getCommandGenerator()
         throws CommandGenerationException
@@ -199,7 +322,7 @@ public class ExecutionHandler
         String alternativeExecutive = System.getenv("ALT_EXECUTIVE");
         if (alternativeExecutive != null) {
             Class ecgClass;
-            try {    			
+            try {
 				ecgClass = Class.forName(alternativeExecutive);
             } catch (ClassNotFoundException e) {
 				throw new CommandGenerationException("The class named by the ALT_EXECUTIVE system variable, "
@@ -245,7 +368,7 @@ public class ExecutionHandler
                                                      + alternativeExecutive
                                                      + ", is not a subclass of gov.nasa.luv.CommandGenerator.");
         } else {
-            switch (Luv.getLuv().getAppMode()) {
+            switch (currentPlan.getAppType()) {
             case PLEXIL_EXEC:
                 return new PlexilUniversalExecutiveCommandGenerator();
 
@@ -262,129 +385,102 @@ public class ExecutionHandler
         return null; // make f'n compiler happy
     }
       
-      
-      
     /** Creates the command to execute the Universal Executive.
      * 
      *  @return the command to execute or an error message if the command could not be created.
      */      
-    private List<String> createCommand(CommandGenerator g, Settings s)
-        throws IOException, CommandGenerationException
-    {
-        if (Luv.getLuv().getAppMode() == EXTERNAL_APP)
+    private List<String> createCommand(CommandGenerator g, Plan p, Settings s)
+        throws IOException, CommandGenerationException {
+        AppType t = p.getAppType();
+        if (t == EXTERNAL_APP || t == NO_APP)
             return null;
 
-        if (!g.checkFiles(s)) // can throw, exception has reason
-            throw new CommandGenerationException("Can't run exec: Some file is not accessible");
+        if (!g.checkFiles(p, s)) // can throw, exception has reason
+            throw new CommandGenerationException("Can't run exec. Check plan and Viewer settings.");
 
-        return g.generateCommand(s); // can throw
+        return g.generateCommand(p, s); // can throw
     }
       
     /** Kills the currently running instance of the Universal Executive. */
-      
-    public void killUEProcess() throws IOException
-    {   
-        String killa = "killall ";    	        	      	 
-        String kill_ue = "kill " + Luv.getLuv().getPid();    	  
-    	  
-        try {
-            if (Luv.getLuv().getPid() == 0) {
-                Runtime.getRuntime().exec(killa + UE_SCRIPT);
-                Runtime.getRuntime().exec(killa + UE_EXEC);        		  
-                Runtime.getRuntime().exec(killa + TE_SCRIPT);        		  
-                Runtime.getRuntime().exec(killa + UE_TEST_EXEC);
-                Runtime.getRuntime().exec(killa + SIM_SCRIPT);
-            }
-            else {
-                System.out.println("Killing PID: " + Luv.getLuv().getPid());
-                Runtime.getRuntime().exec(kill_ue);
-            }
-        }
-        catch (IOException e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: unable to execute " + kill_ue);
-        }
+    // Only caller is shutdown handler for Luv class.
+    public void killUEProcess()
+        throws IOException {   
+        stop();
     }
-
-  	/**
-  	 * Determine status of Execution Thread.
-  	 * 
-  	 * @return whether an internal instance is still runnning
-  	 */
-
-  	public boolean isAlive() 
-    {
-  		return execMonitorThread != null
-            && execMonitorThread.isAlive();
-  	}
 
     //
     // Helper classes
     //
 
-    private class ExecRunner implements Runnable
-    {
+    private class ExecRunner
+        implements Runnable {
+
         private List<String> commandList;
 
-        public ExecRunner(List<String> cmd)
-        {
+        public ExecRunner(List<String> cmd) {
             commandList = cmd;
         }
 
-        public void run()
-        {
+        public void run() {
             ProcessBuilder builder = new ProcessBuilder(commandList);
             builder.redirectErrorStream(true); // funnel stderr to stdout
             // other environment setup goes here
 
-            StatusMessageHandler msgHandler = Luv.getLuv().getStatusMessageHandler();
-
             // Launch the process
             try {
+                // Echo the command to console
                 for (String token : commandList) {
                     System.out.print(token);
                     System.out.print(' ');
                 }
                 System.out.println();
-
                 execProcess = builder.start();
             }
             catch (Exception e) {
-                msgHandler.displayErrorMessage(e, 
-                                               "ERROR: unable to start PLEXIL Exec process: " + e.toString());
+                currentView.showErrorMessage(e, 
+                                             "ERROR: unable to start PLEXIL Exec process");
+                return;
             }
 
             // Monitor process output (may contain error messages from exec)
-            BufferedReader is = new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
-            String line;
-            boolean pid_seen = false;
+            BufferedReader is =
+                new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
             try {
+                String line;
                 while ((line = is.readLine()) != null) {
                     System.out.println(line);
-                    if (!pid_seen && line.contains("RUN_UE_PID") || line.contains("RUN_TE_PID")) {
-                        int pid = Integer.parseInt(line.replaceAll("[^0-9]", ""));
-                        System.out.println("THE PID is: " + pid);
-                        Luv.getLuv().setPid(pid);
-                        pid_seen = true;
+                    if (line.startsWith("ERROR:")) {
+                        currentView.showErrorMessage(null, "ERROR: error reported by the Executive: " + line);
                     }
-                    else if (line.contains("null interface adapter") && line.contains("command")) {
-                        msgHandler.displayErrorMessage(null,
-                                                       "an interface configuration xml file is required for handling "
-                                                       + line.substring(line.indexOf("command"), line.length()));
-                    }
-                    else if (line.contains("PINGED") || line.contains("IPC Connected on port 1381")) {
-                        // ignore
-                    }
-                    else if (line.contains("Error")) {            	  
-                        msgHandler.displayErrorMessage(null, "ERROR: error reported by the Executive: " + line);
+                    else if (line.contains("null interface adapter for command")) { // see src/app-framework/InterfaceManager.cc
+                        currentView.showErrorMessage(null,
+                                                     "interface configuration error for "
+                                                     + line.substring(line.indexOf("command"), line.length()));
                     }
                 }
             }
             catch (Exception e) {
-                msgHandler.displayErrorMessage(e,
-                                               "ERROR: error in monitoring PLEXIL Exec process: " + e.toString());
+                currentView.showErrorMessage(e,
+                                             "ERROR: error in monitoring PLEXIL Exec process.");
             }
-            // If we get here, process has ended (or been killed)
+
+            // If we get here, process is ending (has ended), or an error has interrupted monitoring
+            boolean waitSucceeded = false;
+            try {
+                waitSucceeded = execProcess.waitFor(1, SECONDS);
+            }
+            catch (InterruptedException e) {
+            }
+            if (!waitSucceeded)
+                stop();
+            else if (execProcess.exitValue() != 0)
+                currentView.executionFailed();
+            else
+                currentView.executionComplete();
+
             execProcess = null;
+            currentPlan = null;
+            currentView = null;
         }
     }
 
@@ -392,193 +488,96 @@ public class ExecutionHandler
         extends CommandGeneratorBase
         implements CommandGenerator {
 
-        public boolean checkFiles(Settings s)
+        public boolean checkFiles(Plan p, Settings s)
             throws CommandGenerationException {
-            return checkPlanFile(s)
-                && checkConfigFile(s);
+            return checkPlanFile(p)
+                && checkConfigFile(p);
         }
 
-        public List<String> generateCommand(Settings s) {
+        public List<String> generateCommand(Plan p, Settings s) {
             Vector<String> command = new Vector<String>();
   
             System.out.println("Using Universal Executive...");
 
-            //viewer
             command.add(RUN_UE_EXEC);
-            command.add("-v");
-            //port
-            command.add("-n");
-            command.add(Integer.toString(s.getPort()));
-            //blocking
-            if (s.blocksExec())
-                command.add("-b");
-            //automation to allow PID capture	  
-            command.add("--for-viewer");
-
-            //debug file		   
-            File debug = s.getDebugLocation();
-            if (debug != null && debug.exists()) {
-                command.add("-d");
-                command.add(debug.toString());
-            }
-	  
-            // get plan
-            command.add("-p");
-            command.add(s.getPlanLocation().toString());
+            addCommonOptions(command, p, s);
 	  	  
-            if (s.getConfigLocation() != null) {
-                command.add("-c");
-                command.add(s.getConfigLocation().toString());
-            }
-
-            if (s.getLibDirs() != null) {
-                for (File ld : s.getLibDirs()) {
-                    command.add("-L");
-                    command.add(ld.toString());
-                }
-            }
-		  
-            if (s.getLibs() != null) {
-                for (String lf: s.getLibs()) {
-                    command.add("-l");
-                    command.add(lf);
-                }
-            }	  
+            // add interface configuration
+            command.add("-c");
+            command.add(p.getConfigFile().toString());
 
             return command;
         }
 
+        public void forceKillSubprocesses() {
+            // TODO
+        }
     }
 
-    class PlexilTestExecutiveCommandGenerator
+    private class PlexilTestExecutiveCommandGenerator
         extends CommandGeneratorBase
         implements CommandGenerator {
 
-        public boolean checkFiles(Settings s)
+        public boolean checkFiles(Plan p, Settings s)
             throws CommandGenerationException {
-            return checkPlanFile(s)
-                && checkScriptFile(s);
+            return checkPlanFile(p)
+                && checkScriptFile(p);
         }
 
-        public List<String> generateCommand(Settings s) 
-        {
+        public List<String> generateCommand(Plan p, Settings s) {
             Vector<String> command = new Vector<String>();
 		  
             System.out.println("Using Test Executive...");
+
             command.add(RUN_TEST_EXEC);
+            addCommonOptions(command, p, s);
 
-            //viewer
-            command.add("-v");
-
-            //port
-            command.add("-n");
-            command.add(Integer.toString(s.getPort()));
-
-            //breaks
-            if (Luv.getLuv().breaksAllowed())
-                command.add("-b");
-
-            //automation to allow PID capture
-            command.add("--for-viewer");
-
-            //debug file		   
-            File debug = s.getDebugLocation();
-            if (debug != null && debug.exists()) {
-                command.add("-d");
-                command.add(debug.toString());
-            }
-		  
-            // get plan
-            command.add("-p");
-            command.add(s.getPlanLocation().toString());
             command.add("-s");
             command.add(s.getScriptLocation().toString());
-
-            if (s.getLibDirs() != null) {
-                for (File ld : s.getLibDirs()) {
-                    command.add("-L");
-                    command.add(ld.toString());
-                }
-            }
-
-            if (s.getLibs() != null) {
-                for (String lf: s.getLibs()) {
-                    command.add("-l");
-                    command.add(lf);
-                }
-            }	  
 
             return command;
         }	
 
+        public void forceKillSubprocesses() {
+            // TODO
+        }
     }
 
-    class PlexilSimulatorCommandGenerator
+    private class PlexilSimulatorCommandGenerator
         extends CommandGeneratorBase
         implements CommandGenerator {
 
-        public boolean checkFiles(Settings s)
+        public boolean checkFiles(Plan p, Settings s)
             throws CommandGenerationException {
-            return checkPlanFile(s)
-                && checkConfigFile(s)
-                && checkScriptFile(s);
+            return checkPlanFile(p)
+                && checkConfigFile(p)
+                && checkScriptFile(p);
         }
 
-        public List<String> generateCommand(Settings s) {
+        public List<String> generateCommand(Plan p, Settings s) {
             Vector<String> command = new Vector<String>();	 
   
             System.out.println("Using PlexilSim...");
 
             //viewer
             command.add(RUN_SIMULATOR);
-            command.add("-v");
-            //port
-            command.add("-n");
-            command.add(Integer.toString(s.getPort()));
-            //breaks
-            if (Luv.getLuv().breaksAllowed())
-                command.add("-b");
+            addCommonOptions(command, p, s);
 
-            //debug file		   
             // TODO: sim can have debug file too!
-            File debug = s.getDebugLocation();
-            if (debug != null && debug.exists()) {
-                command.add("-d");
-                command.add(debug.toString());
-            }
-	  
-            // get plan
-            command.add("-p");
-            command.add(s.getPlanLocation().toString());
 
-            File c = s.getConfigLocation();
-            if (c != null && c.isFile() && c.canRead()) {
-                command.add("-c");
-                command.add(c.toString());
-            }
+            // Interface configuration file
+            command.add("-c");
+            command.add(p.getConfigFile().toString());
 	  	  
-            File scr = s.getScriptLocation();
-            if (scr != null && scr.isFile() && scr.canRead()) {
-                command.add("-s");
-                command.add(scr.toString());
-            }
-
-            if (s.getLibDirs() != null) {
-                for (File ld : s.getLibDirs()) {
-                    command.add("-L");
-                    command.add(ld.toString());
-                }
-            }
-
-            if (s.getLibs() != null) {
-                for (String lf : s.getLibs()) {
-                    command.add("-l");
-                    command.add(lf);
-                }
-            }
+            // Sim script
+            command.add("-s");
+            command.add(p.getScriptFile().toString());
 
             return command;
         }
 
+        public void forceKillSubprocesses() {
+            // TODO
+        }
     }
 }

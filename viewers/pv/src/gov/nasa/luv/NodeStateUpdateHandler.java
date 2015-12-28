@@ -26,12 +26,15 @@
 
 package gov.nasa.luv;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import org.xml.sax.Attributes;
 
-import static gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.PlexilSchema.*;
+import static gov.nasa.luv.Constants.UNKNOWN;
 
 /**
  * The NodeStateUpdateHandler class provides mothods for handling when the 
@@ -39,81 +42,81 @@ import static gov.nasa.luv.Constants.*;
  */
 
 public class NodeStateUpdateHandler
-    extends AbstractDispatchableHandler
-{
+    extends AbstractDispatchableHandler {
+
     //* Top level XML tag name registered with DispatchHandler
     public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
 
     // XML tags
-    private static final String NODE_ID = "NodeId";
+    private static final String NODE_ID           = "NodeId";
+    private static final String NODE_STATE        = "NodeState";
+    private static final String NODE_OUTCOME      = "NodeOutcome";
+    private static final String NODE_FAILURE_TYPE = "NodeFailureType";
 
-    private Node current;
-    private String state;
-    private String outcome;
-    private String failureType;
-    private HashMap<String, String> conditions;
+    private Vector<String> path;
+    private NodeState state;
+    private NodeOutcome outcome;
+    private NodeFailureType failureType;
+    private Map<Condition, String> conditions;
 
     /**
      * Constructs a NodeStateUpdateHandler.
      */
     public NodeStateUpdateHandler() {
         super();
-        conditions = new HashMap<String, String>();
 
-        setElementMap(new HashMap<String, LuvElementHandler>() {
+        // working state
+        path = new Vector<String>();
+        conditions = new EnumMap<Condition, String>(Condition.EndCondition.getDeclaringClass());
+
+        setElementMap(new TreeMap<String, LuvElementHandler>() {
                 {
                     put(NODE_ID, new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                Node candidate = current.findChildByName(tweenerText);
-                                if (candidate != null)
-                                    current = candidate;
+                                path.add(tweenerText);
                             }
                         });
                     put(NODE_STATE, new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                state = tweenerText;
+                                state = NodeState.valueOf(tweenerText);
                             }
                         });
                     put(NODE_OUTCOME, new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                outcome = tweenerText;
+                                outcome = NodeOutcome.valueOf(tweenerText);
                             }
                         });
                     put(NODE_FAILURE_TYPE, new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                failureType = tweenerText;
+                                failureType = NodeFailureType.valueOf(tweenerText);
                             }
                         });
                     put(NODE_STATE_UPDATE, new LuvElementHandler() {
                             public void elementStart(String tagName, Attributes attributes) {
-                                reset();
+                                path.clear();
+                                state = null;
+                                outcome = null;
+                                failureType = null;
+                                conditions.clear();
                             }
                             public void elementEnd(String tagName, String tweenerText) {
-                                if (!state.equals(current.getState()))
-                                    current.setState(state);
-            
-                                if (!outcome.equals(UNKNOWN) || current.getOutcome() == null)
-                                    current.setOutcome(outcome);
-            
-                                if (!failureType.equals(UNKNOWN) || current.getFailureType() == null)
-                                    current.setFailureType(failureType);
-          
-                                if (current.hasConditions()) {
-                                    for (Map.Entry<String, String> condition: conditions.entrySet()) {
-                                        if (current.hasCondition(condition.getKey()))
-                                            current.setProperty(condition.getKey(), condition.getValue());
-                                    }
-                                }
+                                if (path.isEmpty() || state == null)
+                                    return;
+
+                                PlanView view = Luv.getLuv().getPlanView(path.get(0));
+                                if (view == null)
+                                    return; // plan not currently displayed
+                                view.nodeStateEvent(path, state, outcome, failureType, conditions);
                             }
                         });
 
                     LuvElementHandler conditionHandler = new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                conditions.put(tagName, tweenerText);
+                                conditions.put(Condition.valueOf(tagName), tweenerText);
                             }
                         };
-                    for (String c: PlexilSchema.ALL_CONDITIONS)
-                        put(c, conditionHandler);
+                    for (Condition c: Condition.values())
+                        put(c.toString(), conditionHandler);
                 }
             });
     }
@@ -122,18 +125,5 @@ public class NodeStateUpdateHandler
      * Handles the end of the state update document.
      */
     public void endDocument() {
-        // pause if single stepping
-        if (Luv.getLuv().getPlanStep()) {
-            Luv.getLuv().pausedState();
-        }
-    }
-
-    private void reset()
-    {
-        current = Model.getRoot();
-        state = null;
-        outcome = null;
-        failureType = null;
-        conditions.clear();
     }
 }

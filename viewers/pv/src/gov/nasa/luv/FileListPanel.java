@@ -36,7 +36,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -124,9 +124,9 @@ public class FileListPanel
         model.clear();
     }
 
-    public ArrayList<File> getFiles() {
+    public Vector<File> getFiles() {
         int n = model.getSize();
-        ArrayList<File> result = new ArrayList<File>(n);
+        Vector<File> result = new Vector<File>(n);
         for (int i = 0; i < n; ++i)
             result.add(model.getElementAt(i));
         return result;

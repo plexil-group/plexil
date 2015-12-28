@@ -44,13 +44,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 public class Settings {
+
+    /** Represents the location of the Luv application properties file. */      
+    private static final File PROPERTIES_FILE_LOCATION = new File(System.getProperty("user.home"), ".luv");
 
     private static final String HELP_TEXT  =
         "Usage:\n"
@@ -64,6 +67,7 @@ public class Settings {
         + "\nOptions to specify which files are used:\n"
         + " -p  | -plan <plan>\n\t specify PLEXIL plan\n"
         + " -s  | -script <scrpt>\n\t specify simulation script\n"
+        + " -c  | -config <cfg>\n\t specify Universal Exec interface configuration file\n"
         + " -l  | -library <name>\n\t specifies a PLEXIL library (.plx file)\n"
         + "\t (option may be repeated)\n"
         + " -L  | -libraryPath <directory name>\n\t specifies a directory for finding PLEXIL library files\n"
@@ -90,6 +94,8 @@ public class Settings {
     private static final String    PROP_CHECK_PLAN       = "plexil.checkPlan";
     private static final String    PROP_AUTO_RUN         = "plexil.autoRun";
 
+    private static Settings _the_instance_ = null;
+
     // Persistent storage
     private File m_file;
     private Properties m_properties;
@@ -111,13 +117,20 @@ public class Settings {
     private boolean scriptSupplied;
 
     // Local caches
-    private ArrayList<File> libDirs;
-    private ArrayList<String> libs;
+    private Vector<File> libDirs;
+    private Vector<File> libs;
 
-    public Settings() {
+
+    public static Settings instance() {
+        if (_the_instance_ == null)
+            _the_instance_ = new Settings();
+        return _the_instance_;
+    }
+
+    protected Settings() {
         m_properties = new java.util.Properties(getDefaultDefaults());
-        libDirs = new ArrayList<File>();
-        libs = new ArrayList<String>();
+        libDirs = new Vector<File>();
+        libs = new Vector<File>();
         autoRunSupplied = false;
         blockSupplied = false;
         checkSupplied = false;
@@ -148,8 +161,6 @@ public class Settings {
         defaults.setProperty(PROP_WIN_LOC, serialize(PROP_WIN_LOC_DEF));
         defaults.setProperty(PROP_WIN_SIZE, serialize(PROP_WIN_SIZE_DEF));
         defaults.setProperty(PROP_WIN_BCLR, serialize(PROP_WIN_BCLR_DEF));
-        defaults.setProperty(PROP_DBWIN_LOC, serialize(PROP_DBWIN_LOC_DEF));
-        defaults.setProperty(PROP_DBWIN_SIZE, serialize(PROP_DBWIN_SIZE_DEF));
 
         defaults.setProperty(PROP_NODEINFOWIN_LOC, serialize(PROP_NODEINFOWIN_LOC_DEF));
         defaults.setProperty(PROP_NODEINFOWIN_SIZE, serialize(PROP_NODEINFOWIN_SIZE_DEF));
@@ -181,8 +192,8 @@ public class Settings {
         portSupplied = false;
         scriptSupplied = false;
 
-        ArrayList<File> specdLibDirs = new ArrayList<File>();
-        ArrayList<String> specdLibNames = new ArrayList<String>();
+        Vector<File> specdLibDirs = new Vector<File>();
+        Vector<File> specdLibNames = new Vector<File>();
         File plan = null;
         File script = null;
         File config = null;
@@ -226,11 +237,11 @@ public class Settings {
                 }
                 else if (opt.equals("-L") || opt.equals("-libraryPath")) {
                     pathSupplied = true;
-                    specdLibDirs.add((new File(opts[++i])).getAbsoluteFile());
+                    specdLibDirs.add((new File(System.getProperty("user.dir"), opts[++i])).getAbsoluteFile());
                 }
                 else if (opt.equals("-l") || opt.equals("-library")) {
                     librariesSupplied = true;
-                    specdLibNames.add(opts[++i]);
+                    specdLibNames.add(new File(System.getProperty("user.dir"), opts[++i]).getAbsoluteFile());
                 }
                 else if (opt.equals("-n") || opt.equals("-port")) {
                     try {
@@ -337,9 +348,9 @@ public class Settings {
         try {
             m_properties.load(new FileInputStream(file));
         } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
-                                                                       "Unable to load settings from file "
-                                                                       + file.getPath());
+            StatusMessageHandler.instance().displayErrorMessage(e,
+                                                                "Unable to load settings from file "
+                                                                + file.getPath());
             return;
         }
         loadFromProperties();
@@ -349,9 +360,9 @@ public class Settings {
         try {
             m_properties.store(new FileOutputStream(file), null);
         } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
-                                                                       "Unable to save settings to file "
-                                                                       + file.getPath());
+            StatusMessageHandler.instance().displayErrorMessage(e,
+                                                                "Unable to save settings to file "
+                                                                + file.getPath());
         }
     }
 
@@ -369,6 +380,14 @@ public class Settings {
 
     public String get(String name) {
         return m_properties.getProperty(name);
+    }
+
+    public String getProperty(String name) {
+        return m_properties.getProperty(name);
+    }
+
+    public void setProperty(String name, String value) {
+        m_properties.setProperty(name, value);
     }
 
     public boolean getBoolean(String name) {
@@ -408,12 +427,12 @@ public class Settings {
     }
 
     // Collections of files are stored as arrays of strings
-    public ArrayList<File> getFileList(String name) {
+    public Vector<File> getFileList(String name) {
         Object o = getObject(name);
         if (o instanceof String[]) {
             @SuppressWarnings("unchecked")
                 String[] sa = (String[]) o;
-            ArrayList<File> result = new ArrayList<File>(sa.length);
+            Vector<File> result = new Vector<File>(sa.length);
             for (String s : sa)
                 result.add(new File(s));
             return result;
@@ -421,12 +440,12 @@ public class Settings {
         return null;
     }
 
-    public ArrayList<String> getStringList(String name) {
+    public Vector<String> getStringList(String name) {
         Object o = getObject(name);
         if (o instanceof String[]) {
             @SuppressWarnings("unchecked")
                 String[] sa = (String[]) o;
-            ArrayList<String> result = new ArrayList<String>(sa.length);
+            Vector<String> result = new Vector<String>(sa.length);
             for (String s : sa)
                 result.add(s);
             return result;
@@ -504,9 +523,9 @@ public class Settings {
             os.close();
             return Base64.getEncoder().encodeToString(bs.toByteArray());
         } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
-                                                                       "Unable to serialize object "
-                                                                       + o.toString());
+            StatusMessageHandler.instance().displayErrorMessage(e,
+                                                                "Unable to serialize object "
+                                                                + o.toString());
         }
         return null;
     }
@@ -520,7 +539,7 @@ public class Settings {
             os.close();
             return result;
         } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
+            StatusMessageHandler.instance().displayErrorMessage(e,
                                                                        "Unable to serialize object from string \""
                                                                        + s + "\"");
         }
@@ -661,9 +680,8 @@ public class Settings {
         return libDirs;
     }
 
-    // Used by LibraryLoader
-    public void setLibDirs(ArrayList<File> dirs) {
-        libDirs = dirs;
+    public void setLibDirs(Collection<File> dirs) {
+        libDirs = new Vector<File>(dirs);
     }
 
     public void addLibDir(File f) {
@@ -674,23 +692,22 @@ public class Settings {
         return librariesSupplied;
     }
 
-    public Collection<String> getLibs() {
+    public Collection<File> getLibs() {
         return libs;
     }
 
-    // Used by LibraryLoader
-    public void setLibs(ArrayList<String> names) {
-        libs = names;
+    public void setLibs(Collection<File> names) {
+        libs = new Vector<File>(names);
     }
 
-    public void addLib(String s) {
+    public void addLib(File s) {
         libs.add(s);
     }
 
     // FIXME: behavior should vary by app mode
     // FIXME: not clear this is right place for this behavior
-    public File defaultEmptyScriptFile() {
-        switch (getAppMode()) {
+    public File defaultEmptyScriptFile(AppType mode) {
+        switch (mode) {
         case PLEXIL_TEST:
             return new File(Constants.DEFAULT_CONFIG_PATH, Constants.DEFAULT_SCRIPT_NAME);
 
@@ -703,18 +720,89 @@ public class Settings {
 
     // Restore settings from stored properties
     public void loadFromProperties() {
-        ArrayList<File> fl = getFileList(PROP_LIB_DIRS);
+        Vector<File> fl = getFileList(PROP_LIB_DIRS);
         if (fl != null)
             libDirs = fl;
-        ArrayList<String> sl = getStringList(PROP_LIB_NAMES);
+        Vector<File> sl = getFileList(PROP_LIB_NAMES);
         if (sl != null)
             libs = sl;
     }
 
     // Saves current settings
     public void saveToProperties() {
-        set(PROP_LIB_DIRS, libDirs);
-        set(PROP_LIB_NAMES, libs);
+        setFileList(PROP_LIB_DIRS, libDirs);
+        setFileList(PROP_LIB_NAMES, libs);
+    }
+
+    // N.B. Plan will not have a name or last-modified until loaded
+    public Plan newPlanFromDefaults() {
+        Plan result = new Plan();
+        File pf = getPlanLocation();
+        if (pf == null)
+            pf = new File(System.getProperty("user.dir"), "example.plx");
+        result.setPlanFile(pf);
+
+        if (!libDirs.isEmpty())
+            result.setLibraryPath(libDirs);
+        if (!libs.isEmpty())
+            result.setLibraryFiles(libs);
+
+        AppType t = getAppMode();
+        result.setAppType(t);
+        File tf = null; // temp
+        switch (t) {
+        case PLEXIL_TEST:
+            tf = getScriptLocation();
+            if (tf == null)
+                tf = new File(System.getProperty("user.dir"), "example.psx");
+            result.setScriptFile(tf);
+            break;
+
+        case PLEXIL_SIM:
+            tf = getScriptLocation();
+            if (tf == null)
+                tf = new File(System.getProperty("user.dir"), "example.psx");
+            result.setScriptFile(tf);
+            // fall through to...
+        case PLEXIL_EXEC:
+            tf = getConfigLocation();
+            if (tf == null)
+                tf = new File(System.getProperty("user.dir"), "example.xml");
+            result.setConfigFile(tf);
+            break;
+
+        default:
+            break;
+        }
+
+        return result;
+    }
+
+    public void setPlanDefaults(Plan p) {
+        setPlanLocation(p.getPlanFile());
+        setDebugLocation(p.getDebugFile());
+        setLibDirs(p.getLibraryPath());
+        setLibs(p.getLibraryFiles());
+        AppType m = p.getAppType();
+        setAppMode(m);
+        switch (m) {
+        case PLEXIL_TEST:
+            setScriptLocation(p.getScriptFile());
+            break;
+
+        case PLEXIL_SIM:
+            setScriptLocation(p.getScriptFile());
+            // fall thru to...
+        case PLEXIL_EXEC:
+            setConfigLocation(p.getConfigFile());
+            break;
+
+        default:
+            // can't make any assumptions
+            break;
+        }
+
+        save(); 
     }
 
 }

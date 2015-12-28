@@ -28,19 +28,20 @@ package gov.nasa.luv;
 
 /** 
  * The LuvBreakPoint class is an abstract class that provides methods for 
- * breaking action in the event that a breakpoint is signaled.  Derived classes 
- * are expected to provide the conditions underwich the break is eligible to fire. 
+ * breaking action in the event that a breakpoint is signaled.
  */
+
+import static gov.nasa.luv.PlexilSchema.NodeState;
+import static gov.nasa.luv.PlexilSchema.NodeOutcome;
+import static gov.nasa.luv.PlexilSchema.NodeFailureType;
 
 public class LuvBreakPoint
     extends Node.ChangeAdapter {
 
-    private Node.PropertyChangeFilter filter;
+    private Node.StateTransitionFilter filter;
 
     /** enabled state of this breakpoint jsdhcb */
     private boolean enabled = true;
-
-    private boolean breakStatus = false;
 
     // The following are protected for the convenience of derived classes.
 
@@ -55,9 +56,10 @@ public class LuvBreakPoint
      *
      * @param node the node on which the break point operates
      */
-    public LuvBreakPoint(Node node, Node.PropertyChangeFilter f) {
+    public LuvBreakPoint(Node node, Node.StateTransitionFilter f) {
         filter = f;
-        setNode(node);
+        this.node = node;
+        node.addBreakPoint(this);
     }
 
     /** {@inheritDoc} */
@@ -92,37 +94,31 @@ public class LuvBreakPoint
 
     /** {@inheritDoc} */
     public void onBreak() {
-        Luv.getLuv().pausedState();
-        Luv.getLuv().getLuvBreakPointHandler().setActiveBreakPoint(this);
+        ExecutionHandler.instance().breakpointReached(this);
+        node.setHighlight(true);
+        PlanView view = Luv.getLuv().getViewForNode(node);
+        if (view == null)
+            return;
+        view.setVisible(true);
+        view.toFront();
+        view.repaint(); // redundant?
     }
 
-    /** {@inheritDoc} */
-
-    public void setNode(Node n) {
-        // unregister from previous node, if any
-        unregister();
-
-        // assign the new node
-        node = n;
-        node.addBreakPoint(this);
-    }
-    
-    public void reserveBreakStatus(boolean value) {
-        breakStatus = value;
-    }
-
-    public boolean getReserveBreakStatus() {
-        return breakStatus;
+    public void onResume() {
+        node.setHighlight(false);
     }
 
     //
     // Node.ChangeListener API
     //
 
-    public void propertyChange(Node node, String property) {
+    public void stateTransition(Node node,
+                                NodeState newState,
+                                NodeOutcome newOutcome,
+                                NodeFailureType newFailure) {
         if (!enabled)
             return;
-        if (filter.eventMatches(node, property))
+        if (filter.eventMatches(node, newState, newOutcome, newFailure))
             onBreak();
     }
 

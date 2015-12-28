@@ -94,17 +94,25 @@ public abstract class LuvAction extends AbstractAction
      *
      * @return some random description of the accelerator key
      */
-    public String getAcceleratorDescription()
-    {
+    public String getAcceleratorDescription() {
         // if there is no accelerator indicate this
         if (accelerator == null)
             return "<no key>";
 
         // get and clean up the key name
+        // Syntax is
+        //  <modifiers>* (<typedID> | <pressedReleasedID>)
+        // where
+        //  modifiers := shift | control | ctrl | meta | alt | altGraph
+        //  typedID := typed <typedKey>
+        //  typedKey := string of length 1 giving Unicode character.
+        //  pressedReleasedID := (pressed | released) key
+        //  key := KeyEvent key code name, i.e. the name following "VK_".
+
         String key = accelerator.toString();
-        key = key.replaceAll("pressed", "").trim();
-        key = key.replaceAll("  ", " ");
-        key = key.replaceAll(" ", "-");
+        key = key.replaceFirst("(?:typ|press|releas)ed ", "").trim();
+        key = key.replace("  ", " ");
+        key = key.replace(" ", "-");
         return key;
     }
 

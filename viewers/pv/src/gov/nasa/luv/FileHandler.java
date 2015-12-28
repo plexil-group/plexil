@@ -46,6 +46,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import gov.nasa.luv.PlexilPlanHandler.SimplePlanCatcher;
+
 import static gov.nasa.luv.Constants.*;
 import static gov.nasa.luv.Constants.AppType.*;
 import static javax.swing.JFileChooser.*;
@@ -58,22 +60,26 @@ import static javax.swing.JFileChooser.*;
 
 public class FileHandler 
 {
+    private static FileHandler _the_instance_ = null;
+
     // is library found? if so, stop searching for missing libraries
     private static boolean stopSearchForMissingLibs;           
     // directory chooser object       
     private JFileChooser dirChooser;      
     // file chooser object       
     private JFileChooser fileChooser;
-    // list of loaded libraries
-    private List<PlanInfo> loadedLibraries;
+
+    public static FileHandler instance() {
+        if (_the_instance_ == null)
+            _the_instance_ = new FileHandler();
+        return _the_instance_;
+    }
     
     /**
      * Constructs a FileHandler.
      */
-    public FileHandler() {
+    private FileHandler() {
         stopSearchForMissingLibs  = false; 
-        // Must use a synchronized list because can be accessed from multiple threads.
-        loadedLibraries = Collections.synchronizedList(new ArrayList<PlanInfo>());
         
         dirChooser = new JFileChooser();
         dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -143,50 +149,52 @@ public class FileHandler
      * @throws java.io.InterruptedIOException
      */
 
-    public Model searchForLibrary(String libraryName, boolean askUser)
+    public Plan searchForLibrary(String libraryName, boolean askUser)
         throws InterruptedIOException {
+
         // Try known libraries first
-        synchronized(loadedLibraries) {
-            PlanInfo dummy = new PlanInfo();
-            dummy.name = libraryName;
-            int idx = loadedLibraries.indexOf(dummy);
-            if (idx >= 0) {
-                // Check that it hasn't been updated
-                PlanInfo p = loadedLibraries.get(idx);
-                if (p.file != null && p.file.isFile()) {
-                    Date lastMod = new Date(p.file.lastModified());
-                    if (lastMod.after(p.lastModified)) {
-                        // stale, reload it
-                        p.model = readPlan(p.file);
-                        p.lastModified = lastMod;
-                    }
-                    return p.model;
-                } else {
-                    // file no longer exists in that location
-                    loadedLibraries.remove(p);
+        Plan p = RootModel.getLibrary(libraryName);
+        if (p != null) {
+            File f = p.getPlanFile();
+            if (f != null)
+                // No file info, have to presume this is the one
+                return p;
+            else if (!f.isFile())
+                // file no longer exists in that location
+                RootModel.removeLibrary(libraryName);
+            else {
+                // Check if current
+                Date newLastMod = new Date(f.lastModified());
+                Date oldLastMod = p.getLastModified();
+                if (oldLastMod == null || newLastMod.after(oldLastMod)) {
+                    p = loadLibraryFile(f);
+                    if (p != null)
+                        return p;
                 }
+                else
+                    return p;
             }
         }
 
         // Try plan directory next
         String candidateName = libraryName + ".plx";
-	File planLoc = Luv.getLuv().getSettings().getPlanLocation();
-	if (planLoc != null) {
-	    File libDir = planLoc.getParentFile();
-	    File candidate = new File(libDir, candidateName);
-	    if (candidate.isFile()) {
-		Model result = loadLibraryFile(candidate);
-		if (result != null)
-		    return result;
-	    }
-	}
+        File planLoc = Settings.instance().getPlanLocation();
+        if (planLoc != null) {
+            File libDir = planLoc.getParentFile();
+            File candidate = new File(libDir, candidateName);
+            if (candidate.isFile()) {
+                Plan result = loadLibraryFile(candidate);
+                if (result != null)
+                    return result;
+            }
+        }
 
         // Check user specified library path
-        for (File entry : Luv.getLuv().getSettings().getLibDirs()) {
+        for (File entry : Settings.instance().getLibDirs()) {
             if (entry.isDirectory()) {
                 File candidate = new File(entry, candidateName);
                 if (candidate.isFile()) {
-                    Model m = loadLibraryFile(candidate);
+                    Plan m = loadLibraryFile(candidate);
                     if (m != null)
                         return m;
                 }
@@ -203,72 +211,20 @@ public class FileHandler
         return null;
     }
 
-    private Model loadLibraryFile(File f) {
+    private Plan loadLibraryFile(File f) {
         File location = f.getAbsoluteFile();
-        Model result = readPlan(location);
-        if (result != null) {
-            Luv.getLuv().getSettings().addLib(location.toString());
-            Luv.getLuv().getStatusMessageHandler().showStatus("Library "
-                                                              + location.toString()
-                                                              + " loaded",
-                                                              1000);
-            PlanInfo p = new PlanInfo();
-            p.name = result.getNodeName();
-            p.model = result;
-            p.file = location;
-            p.lastModified = new Date(location.lastModified());
-            registerLibrary(p);
-        }
+        Plan result = readPlan(location);
+        if (result == null)
+            return null;
+
+        result.setLastModified(new Date(location.lastModified()));
+        Settings.instance().addLib(location); // FIXME: plan needs this too
+        StatusMessageHandler.instance().showStatus("Library "
+                                                          + location.toString()
+                                                          + " loaded",
+                                                          1000);
+        RootModel.libraryLoaded(result);
         return result;
-    }
-
-    /** Called when a new library notification is received from the Exec. */
-    public void handleNewLibrary(Model m) {
-        if (m == null)
-            return;
-        PlanInfo p = new PlanInfo();
-        p.model = m;
-        p.name = m.getNodeName();
-        p.file = null; // don't have file info from exec, which may be on another machine
-        p.lastModified = null;
-        registerLibrary(p);
-    }
-
-    private void registerLibrary(PlanInfo p) {
-        synchronized(loadedLibraries) {
-            int idx = loadedLibraries.indexOf(p);
-            if (idx >= 0) {
-                PlanInfo existing = loadedLibraries.get(idx);
-                // If we have file dates for both, and new is <= old, assume no change
-                if (p.file != null) {
-                    if (existing.file != null) {
-                        if (!p.lastModified.after(existing.lastModified))
-                            return; // no change
-                    }
-                }
-                // Dates missing or inconclusive, have to compare, sigh
-                if (p.model.equivalent(existing.model))
-                    return; // no change
-                // Replace old with new
-                loadedLibraries.remove(idx);
-                // fall thru to insert at front
-            }
-
-            // Simply insert at front
-            loadedLibraries.add(0, p);
-        }
-    }
-
-    private File chooseConfig() {
-        try {
-            File defaultDir = Luv.getLuv().getSettings().getPlanLocation().getParentFile();
-            fileChooser.setCurrentDirectory(defaultDir);
-            if (fileChooser.showDialog(dirChooser, "Open Config") == APPROVE_OPTION)
-                return fileChooser.getSelectedFile().getAbsoluteFile();
-        } catch(Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while choosing config file");
-        }
-        return null;
     }
           
     /** Selects and loads a Plexil library from the disk. This operates on the global model.
@@ -276,66 +232,33 @@ public class FileHandler
      */
     private File chooseLibrary() {
         try {
-            File defaultDir = Luv.getLuv().getSettings().getPlanLocation().getParentFile();
+            File defaultDir = Settings.instance().getPlanLocation().getParentFile();
             fileChooser.setCurrentDirectory(defaultDir);
             if (fileChooser.showDialog(dirChooser, "Open Library") == APPROVE_OPTION)
                 return fileChooser.getSelectedFile().getAbsoluteFile();
         } catch(Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while choosing library");
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while choosing library");
         }
         return null;
-    }
-
-    public void loadConfig(File cfg) {
-        if (cfg != null) {
-            if (Luv.getLuv().getCurrentPlan() != null)
-                Luv.getLuv().getCurrentPlan().setConfigFile(cfg.getAbsoluteFile());
-        }
-    }
-      
-    /** Loads a Plexil script from the disk.
-     * 
-     * @param script the Plexil script to be loaded
-     */
-    public void loadScript(File script) {          
-        if (script != null) {
-            if (Luv.getLuv().getCurrentPlan() != null)
-                Luv.getLuv().getCurrentPlan().setScriptFile(script.getAbsoluteFile());
-        }
     }
       
     // read plexil plan from disk and create an internal model.
-    public Model readPlan(File file) {
+    public static Plan readPlan(File file) {
         try {
-            Model result = parseXml(new FileInputStream(file));
-            result.setPlanFile(file.getAbsoluteFile());
+            Plan result = parseXml(new FileInputStream(file));
+            File f = file.getAbsoluteFile();
+            result.setPlanFile(f);
+            result.setLastModified(new Date(f.lastModified()));
             return result;
         } catch(Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: while loading: " + file.getName());
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: while loading: " + file.getName());
         }
         return null;
     }
 
-    // Helper class for parseXml.
-    private class PlanCatcher
-        implements PlexilPlanHandler.PlanReceiver {
-
-        public Model plan;
-
-        PlanCatcher() {
-            plan = null;
-        }
-        public void newPlan(Model m) {
-            plan = m;
-        }
-        public void newLibrary(Model m) {
-            plan = m;
-        }
-    }
-
     // parse a plan from an XML stream
-    private Model parseXml(InputStream input) {
-        PlanCatcher c = new PlanCatcher();
+    private static Plan parseXml(InputStream input) {
+        SimplePlanCatcher c = new SimplePlanCatcher();
         PlexilPlanHandler ch =
             new PlexilPlanHandler(c);
         try {
@@ -345,12 +268,12 @@ public class FileHandler
             parser.parse(is);          
         }
         catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");
+            StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");
             return null;
         }
         return c.plan;
     }
-      
+
     private File unfoundLibrary(String callName)
         throws InterruptedIOException {
         boolean retry = true;
@@ -364,7 +287,7 @@ public class FileHandler
                 };
 
             // show the options
-            Luv.getLuv().getStatusMessageHandler().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
+            StatusMessageHandler.instance().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
             int result = JOptionPane.showOptionDialog(Luv.getLuv(),
                                                       "Unable to locate the \"" + callName + "\" library.\n\n" +
                                                       "What do you want to do?\n\n",
@@ -379,7 +302,7 @@ public class FileHandler
             switch (result) {
                 // try to load the library and retry the link
             case 0:
-                libFile = chooseLibrary();
+                libFile = chooseLibrary(); // *** FIXME ***
                 retry = false;
                 break;
 
@@ -395,85 +318,6 @@ public class FileHandler
         while (retry); 
           
         return libFile;
-    }
-
-    // *** FIXME: Only relevant for the TestExec ***
-    // *** FIXME: where does this behavior belong?
-    private File createEmptyScript(File path)
-        throws IOException {
-        File script = Luv.getLuv().getSettings().defaultEmptyScriptFile();
-        Object[] options = 
-            {
-                "Yes, use default script",
-                "No, I will locate script",
-                "Cancel plan execution"
-            };
-         
-        int option = 
-            JOptionPane.showOptionDialog(Luv.getLuv(),
-                                         "Unable to locate a script for this plan. \n\nDo you want to use the default script\n\n"
-                                         + script.toString()
-                                         + "instead? \n\n",
-                                         "Default Script Option",
-                                         JOptionPane.YES_NO_CANCEL_OPTION,
-                                         JOptionPane.WARNING_MESSAGE,
-                                         null,
-                                         options,
-                                         options[0]);
-
-        switch (option) {
-        case 0:
-            File scriptFile = new File(path, DEFAULT_SCRIPT_NAME);
-            if (Luv.getLuv().getAppMode() == PLEXIL_TEST) {	                
-                writeEmptyPlexilTestScript(scriptFile);
-                Luv.getLuv().getSettings().setScriptLocation(scriptFile);
-                return scriptFile;
-            } else if (Luv.getLuv().getAppMode() == PLEXIL_SIM) {
-                return script;
-            }
-            else {
-                return null;
-            }
-            		
-            // TEMPORARY -- comment out so we can compile
-        // case 1:
-        //     return chooseScript();
-
-        case 2:
-            Luv.getLuv().readyState();
-            return null;                    
-        }
-        
-        return null;
-    }
-
-    private void writeEmptyPlexilTestScript(File scriptFile)
-        throws IOException {
-        FileWriter emptyScript = new FileWriter(scriptFile);
-        BufferedWriter out = new BufferedWriter(emptyScript);
-        out.write(EMPTY_SCRIPT);
-        out.close();                          
-    }        
-
-    private final class PlanInfo {
-        public String name;
-        public File file;
-        public Model model;
-        public Date lastModified;
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof PlanInfo)
-                return this.equals((PlanInfo) o);
-            return super.equals(o);
-        }
-
-        // Not full equality; used for search by name
-        public boolean equals(PlanInfo other) {
-            return this == other
-                || (name == null && other.name == null)
-                || name.equals(other.name);
-        }
     }
     
 }

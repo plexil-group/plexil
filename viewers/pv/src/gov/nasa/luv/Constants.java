@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Vector;
@@ -45,11 +46,9 @@ import static gov.nasa.luv.PlexilSchema.*;
 
 public class Constants
 {     
-    public static final String PLEXIL_VERSION = "Version 4.1a\n";
+    public static final String PLEXIL_VERSION = "Version 4.5a\n";
     public static final String PLEXIL_COPYRIGHT = "Copyright 2006-2015 Universities Space Research Association\n";
     public static final String PLEXIL_WEBSITE = "plexil.sourceforge.net";
-    /** Represents the location of the Luv application properties file. */      
-    public static final File      PROPERTIES_FILE_LOCATION = new File(System.getProperty("user.home"), ".luv");
       
     ////////// Info stored in the Luv application properties file  //////////
 
@@ -71,11 +70,8 @@ public class Constants
     /** the background color of the Luv application window. */
     public static final String    PROP_WIN_BCLR       = "plexil.viewer.window.background";
 
-    /** the location of the DebugWindow. */
-    public static final String    PROP_DBWIN_LOC            = "plexil.viewer.dbwindow.location";
-
-    /** the size of the DebugWindow. */ 
-    public static final String    PROP_DBWIN_SIZE           = "plexil.viewer.dbwindow.size";
+    /** the foreground color of the Luv application window. */
+    public static final String    PROP_WIN_FCLR       = "plexil.viewer.window.foreground";
 
     /** the location of the NodeInfoWindow. */
     public static final String    PROP_NODEINFOWIN_LOC      = "plexil.viewer.niwindow.location";
@@ -109,20 +105,17 @@ public class Constants
     /** Default number of characters the viewer will allow arrays to display for arrays. */ 
     public static final int       PROP_ARRAY_MAX_CHARS_DEF = 40;
 
-    /** Default location of the Luv application window. */ 
+    /** Default location of the Luv console window. */ 
     public static final Point     PROP_WIN_LOC_DEF    = new Point(100, 100);
 
-    /** Default size of the Luv application window. */ 
-    public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 650);
+    /** Default size of the Luv console window. */ 
+    public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(800, 500);
 
     /** Default background color of the Luv application window. */ 
     public static final Color     PROP_WIN_BCLR_DEF   = Color.WHITE;
 
-    /** Default location of the DebugWindow. */
-    public static final Point     PROP_DBWIN_LOC_DEF        = new Point(100, 750);
-
-    /** Default size of the DebugWindow. */ 
-    public static final Dimension PROP_DBWIN_SIZE_DEF       = new Dimension(1200, 300);     
+    /** Default background color of the Luv application window. */ 
+    public static final Color     PROP_WIN_FCLR_DEF   = Color.BLACK;
 
     /** Default location of the NodeInfoWindow. */
     public static final Point     PROP_NODEINFOWIN_LOC_DEF  = new Point(300, 300);
@@ -149,7 +142,7 @@ public class Constants
     public static final Dimension PROP_CFGWIN_SIZE_DEF      = new Dimension(900, 700);
 
     /** Default application type. */
-    public static final AppType   APP_TYPE_DEF = AppType.PLEXIL_TEST;
+    public static final AppType   APP_TYPE_DEF = AppType.NO_APP;
 
     /** Default exec-blocks value. */
     public static final boolean   PROP_BLOCKS_EXEC_DEF = false;
@@ -173,6 +166,7 @@ public class Constants
 
     //////////// Executive configuration information /////////////
     public enum AppType {
+        NO_APP,
         EXTERNAL_APP,
         PLEXIL_EXEC,
         PLEXIL_SIM,
@@ -188,34 +182,7 @@ public class Constants
     /** Location of the PLEXIL shell scripts. */
     public static final File      PLEXIL_SCRIPTS_DIR = new File(PLEXIL_HOME, "scripts");
 
-    /** Represents the "universal executive" for PLEXIL. */ 
-    public static final String    UE_EXEC = "universalExec";
-
-    /** Represents the "test executive" for PLEXIL. */ 
-    public static final String    UE_TEST_EXEC = "TestExec";
-      
-    /** Represents the script for running the "Universal executive" for PLEXIL. */ 
-    public static final String    UE_SCRIPT = "plexilexec";
-
-    /** Represents the script path for running the "Universal executive" for PLEXIL. */ 
-    public static final String    RUN_UE_EXEC = (new File(PLEXIL_SCRIPTS_DIR, UE_SCRIPT)).getAbsolutePath();
-      
-    /** Represents the script for running the "Test executive" for PLEXIL. */ 
-    public static final String    TE_SCRIPT = "plexiltest";
-      
-    /** Represents the script path for running the "Test executive" for PLEXIL. */ 
-    public static final String    RUN_TEST_EXEC = (new File(PLEXIL_SCRIPTS_DIR, TE_SCRIPT)).getAbsolutePath();
-      
-    /** Represents the script for running the "Plexil Simulator (includes Universal Exec)" for PLEXIL. */ 
-    public static final String    SIM_SCRIPT = "plexilsim";
-      
-    /** Represents the script path for running the "Plexil Simulator" for PLEXIL. */ 
-    public static final String    RUN_SIMULATOR = (new File(PLEXIL_SCRIPTS_DIR, SIM_SCRIPT)).getAbsolutePath();
-
     public static final File      PLEXIL_EXAMPLES_DIR = new File(PLEXIL_HOME, "examples");
-
-    /** Represents the Luv application debug log file. Note this file is not referenced yet in the DebugWindow class. */ 
-    public static final File      DEBUG_LOG_FILE = new File(System.getProperty("user.home"), "luv.log");
       
     /** Represents the python script that is used to create a complete list of debug flag list. */ 
     public static final String    PYTHON_SCRIPT = (new File(PLEXIL_SCRIPTS_DIR,
@@ -361,14 +328,17 @@ public class Constants
     {
         return iconLut.get(icon);
     }
+
+    public static URL getIconLocation(String iconFileName) {
+        return ClassLoader.getSystemResource(ICONS_DIR + iconFileName);
+    }
       
-    private static ImageIcon loadImage(String name)
+    public static ImageIcon loadImage(String name)
     {         
-        return new ImageIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
+        return new ImageIcon(Toolkit.getDefaultToolkit().getImage(getIconLocation(name)));
     }
 
-    /** While displayed in the Outcome column, it indicates that the Plexil node outcome was UNKNOWN. */
-    public static final String UNKNOWN = "UNKNOWN";
+    public static final String UNKNOWN = "[unknown_value]";
       
     /** Indicates that a Plexil node has a breakpoint set on it. */
     public static final String NODE_ENABLED_BREAKPOINTS = "model.breakpoint.enabled";
@@ -390,30 +360,6 @@ public class Constants
     private static HashMap<String, Color> colorLut = new HashMap<String, Color>()
                                                      {
                                                          {
-                                                             // node state
-                                                             put(INACTIVE,        Color.LIGHT_GRAY);
-                                                             put(WAITING,         Color.RED); 
-                                                             put(EXECUTING,       Color.GREEN.darker());
-                                                             put(ITERATION_ENDED, Color.BLUE.darker());
-                                                             put(FINISHED,        Color.GRAY);
-                                                             put(FAILING,         new Color(255, 128, 128));
-                                                             put(FINISHING,       new Color(128, 128, 255));
-
-                                                             // node outcome
-                                                             put(UNKNOWN,         new Color(255, 255, 255, 0));
-                                                             put(SUCCESS,         Color.GREEN.darker());
-                                                             put(FAILURE,         Color.RED);
-                                                             put(SKIPPED,         Color.BLUE.darker());
-                                                             put(INTERRUPTED,     Color.RED.darker());
-
-                                                             // node failure types
-                                                             put(PRE_CONDITION_FAILED,               Color.RED.darker());
-                                                             put(POST_CONDITION_FAILED,              Color.RED.darker());
-                                                             put(INVARIANT_CONDITION_FAILED,         Color.RED.darker());
-                                                             put(PARENT_FAILED,                      Color.RED.darker());
-                                                             put(EXITED,                             Color.RED.darker());
-                                                             put(PARENT_EXITED,                      Color.RED.darker());
-
                                                              // model colors
                                                              put(NODE_ENABLED_BREAKPOINTS,          Color.RED);
                                                              put(NODE_DISABLED_BREAKPOINTS,         Color.ORANGE);
@@ -451,41 +397,12 @@ public class Constants
       
     /** Represents an empty Plexil script. */ 
     public static final String DEFAULT_SCRIPT_NAME = "empty.psx";
-    /** Represents an default UE config. */      
+    /** Represents a default UE config. */      
     public static final String DEFAULT_CONFIG_NAME = "dummy-config.xml";
-    /** Represents an default UE path. */
+    /** Represents a default UE path. */
     public static final File DEFAULT_CONFIG_PATH = new File(PLEXIL_HOME, "examples");
-    /** Represents an default SIM Script. */      
-    public static final String DEFAULT_SIM_SCRIPT_NAME = "unified-script.txt";
-    /** Represents an default SIM Script path. */
-    public static final String DEFAULT_SIM_SCRIPT_PATH = PLEXIL_HOME +
-        System.getProperty("file.separator") +	"src" + System.getProperty("file.separator") + "apps"
-        + System.getProperty("file.separator") + "StandAloneSimulator" + System.getProperty("file.separator")
-        + "PlexilSimulator" + System.getProperty("file.separator") + "test" + System.getProperty("file.separator");
-    /** Contains the contents of an empty Plexil script. */
-    public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";          
 
-
-    ///////////////////////// Node class constants ////////////////////////
-
-    /** Property used in the Node class to store the node's state. */
-    public static final String NODE_STATE        = "NodeState";
-    /** Property used in the Node class to store the node's outcome. */
-    public static final String NODE_OUTCOME      = "NodeOutcome";
-    /** Property used in the Node class to store the node's failure type. */
-    public static final String NODE_FAILURE_TYPE = "NodeFailureType";
-      
-    ////////////////////////// Plexil plan XML tags ////////////////////////
-    ///////////////// Scanned for in the PlexilPlanHandler //////////////////
-    
     public static final String NODETYPE_ATTR_PLX = "NodeTypePLX";
-
-    /** Represents the XML tag in the Plexil Plan marking the Node Failure information. */
-    public static final String NODE_FAILURE      = "NodeFailure";
-    /** Represents the XML tag in the Plexil Plan marking the Node Timepoint information. */
-    public static final String NODE_TIMEPOINT    = "NodeTimepoint";
-    /** Represents the XML tag in the Plexil Plan marking the Node Command Handle information. */
-    public static final String NODE_CMD_HANDLE   = "NodeCommandHandle";
 
     public static final String    START_LOGO        = "Clear Screen";
     public static final String    ABOUT_LOGO        = "About Logo";

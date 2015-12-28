@@ -159,7 +159,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         emptyBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setEmptyProperties(emptyBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(emptyBox);
@@ -170,7 +170,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         assnBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setAssignmentProperties(assnBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(assnBox); 
@@ -181,7 +181,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         cmdBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setCommandProperties(cmdBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(cmdBox); 
@@ -192,7 +192,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         updateBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setUpdateProperties(updateBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(updateBox);
@@ -203,7 +203,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         listBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setListProperties(listBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(listBox);
@@ -214,7 +214,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         libBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setLibraryCallProperties(libBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(libBox);
@@ -225,7 +225,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         ifBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setIfProperties(ifBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(ifBox);
@@ -236,7 +236,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         thenBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setThenProperties(thenBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(thenBox);
@@ -247,7 +247,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         elseBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setElseProperties(elseBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(elseBox);
@@ -258,7 +258,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         whileBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setWhileProperties(whileBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(whileBox);
@@ -269,7 +269,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         forBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setForProperties(forBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(forBox);
@@ -280,7 +280,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         tryBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setTryProperties(tryBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(tryBox);
@@ -291,7 +291,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         seqBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setSequenceProperties(seqBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(seqBox);
@@ -302,7 +302,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         unchkdSeqBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setUncheckedSequenceProperties(unchkdSeqBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(unchkdSeqBox);
@@ -313,7 +313,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         concBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 setConcurrenceProperties(concBox.isSelected() ? "SHOW" : "HIDE");
-                Luv.getLuv().getViewHandler().refreshRegexView();
+                // Luv.getLuv().getViewHandler().refreshRegexView(); // *** FIXME ***
             }
         });
         checkBoxSide.add(concBox);
@@ -331,134 +331,134 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
     private static void setAssignmentProperties(String value)
     {
-        Luv.getLuv().setProperty(ASSIGNMENT, value);
-        Luv.getLuv().setProperty(THEN_ASSN, value);
-        Luv.getLuv().setProperty(ELSE_ASSN, value);
+        Settings.instance().setProperty(ASSIGNMENT, value);
+        Settings.instance().setProperty(THEN_ASSN, value);
+        Settings.instance().setProperty(ELSE_ASSN, value);
     }
 
     private static void setCommandProperties(String value)
     {
-        Luv.getLuv().setProperty(COMMAND, value);
-        Luv.getLuv().setProperty(THEN_CMD, value);
-        Luv.getLuv().setProperty(ELSE_CMD, value);
+        Settings.instance().setProperty(COMMAND, value);
+        Settings.instance().setProperty(THEN_CMD, value);
+        Settings.instance().setProperty(ELSE_CMD, value);
     }
 
     private static void setUpdateProperties(String value)
     {
-        Luv.getLuv().setProperty(UPDATE, value);
-        Luv.getLuv().setProperty(THEN_UPDATE, value);
-        Luv.getLuv().setProperty(ELSE_UPDATE, value);
+        Settings.instance().setProperty(UPDATE, value);
+        Settings.instance().setProperty(THEN_UPDATE, value);
+        Settings.instance().setProperty(ELSE_UPDATE, value);
     }
 
     private static void setEmptyProperties(String value)
     {
-        Luv.getLuv().setProperty(EMPTY, value);
-        Luv.getLuv().setProperty(THEN_EMPTY, value);
-        Luv.getLuv().setProperty(ELSE_EMPTY, value);
+        Settings.instance().setProperty(EMPTY, value);
+        Settings.instance().setProperty(THEN_EMPTY, value);
+        Settings.instance().setProperty(ELSE_EMPTY, value);
     }
 
     private static void setListProperties(String value)
     {
-        Luv.getLuv().setProperty(NODELIST, value);
-        Luv.getLuv().setProperty(THEN_LIST, value);
-        Luv.getLuv().setProperty(ELSE_LIST, value);
+        Settings.instance().setProperty(NODELIST, value);
+        Settings.instance().setProperty(THEN_LIST, value);
+        Settings.instance().setProperty(ELSE_LIST, value);
     }
 
     private static void setLibraryCallProperties(String value)
     {
-        Luv.getLuv().setProperty(LIBRARYNODECALL, value);
-        Luv.getLuv().setProperty(THEN_LIB, value);
-        Luv.getLuv().setProperty(ELSE_LIB, value);
+        Settings.instance().setProperty(LIBRARYNODECALL, value);
+        Settings.instance().setProperty(THEN_LIB, value);
+        Settings.instance().setProperty(ELSE_LIB, value);
     }
 
     private static void setIfProperties(String value)
     {
-        Luv.getLuv().setProperty(IF, value);
-        Luv.getLuv().setProperty(THEN_IF, value);
-        Luv.getLuv().setProperty(ELSE_IF, value);
+        Settings.instance().setProperty(IF, value);
+        Settings.instance().setProperty(THEN_IF, value);
+        Settings.instance().setProperty(ELSE_IF, value);
     }
 
     private static void setThenProperties(String value)
     {
-        Luv.getLuv().setProperty(THEN, value);
-        Luv.getLuv().setProperty(THEN_LIST, value);
-        Luv.getLuv().setProperty(THEN_ASSN, value);
-        Luv.getLuv().setProperty(THEN_CMD, value);
-        Luv.getLuv().setProperty(THEN_EMPTY, value);
-        Luv.getLuv().setProperty(THEN_LIB, value);
-        Luv.getLuv().setProperty(THEN_UPDATE, value);
-        Luv.getLuv().setProperty(THEN_IF, value);
-        Luv.getLuv().setProperty(THEN_WHILE, value);
-        Luv.getLuv().setProperty(THEN_FOR, value);
-        Luv.getLuv().setProperty(THEN_TRY, value);
-        Luv.getLuv().setProperty(THEN_SEQ, value);
-        Luv.getLuv().setProperty(THEN_UNCHKD_SEQ, value);
-        Luv.getLuv().setProperty(THEN_CONCURRENCE, value);
+        Settings.instance().setProperty(THEN, value);
+        Settings.instance().setProperty(THEN_LIST, value);
+        Settings.instance().setProperty(THEN_ASSN, value);
+        Settings.instance().setProperty(THEN_CMD, value);
+        Settings.instance().setProperty(THEN_EMPTY, value);
+        Settings.instance().setProperty(THEN_LIB, value);
+        Settings.instance().setProperty(THEN_UPDATE, value);
+        Settings.instance().setProperty(THEN_IF, value);
+        Settings.instance().setProperty(THEN_WHILE, value);
+        Settings.instance().setProperty(THEN_FOR, value);
+        Settings.instance().setProperty(THEN_TRY, value);
+        Settings.instance().setProperty(THEN_SEQ, value);
+        Settings.instance().setProperty(THEN_UNCHKD_SEQ, value);
+        Settings.instance().setProperty(THEN_CONCURRENCE, value);
     }
 
     private static void setElseProperties(String value)
     {
-        Luv.getLuv().setProperty(ELSE, value);
-        Luv.getLuv().setProperty(ELSE_LIST, value);
-        Luv.getLuv().setProperty(ELSE_ASSN, value);
-        Luv.getLuv().setProperty(ELSE_CMD, value);
-        Luv.getLuv().setProperty(ELSE_EMPTY, value);
-        Luv.getLuv().setProperty(ELSE_LIB, value);
-        Luv.getLuv().setProperty(ELSE_UPDATE, value);
-        Luv.getLuv().setProperty(ELSE_IF, value);
-        Luv.getLuv().setProperty(ELSE_WHILE, value);
-        Luv.getLuv().setProperty(ELSE_FOR, value);
-        Luv.getLuv().setProperty(ELSE_TRY, value);
-        Luv.getLuv().setProperty(ELSE_SEQ, value);
-        Luv.getLuv().setProperty(ELSE_UNCHKD_SEQ, value);
-        Luv.getLuv().setProperty(ELSE_CONCURRENCE, value);
+        Settings.instance().setProperty(ELSE, value);
+        Settings.instance().setProperty(ELSE_LIST, value);
+        Settings.instance().setProperty(ELSE_ASSN, value);
+        Settings.instance().setProperty(ELSE_CMD, value);
+        Settings.instance().setProperty(ELSE_EMPTY, value);
+        Settings.instance().setProperty(ELSE_LIB, value);
+        Settings.instance().setProperty(ELSE_UPDATE, value);
+        Settings.instance().setProperty(ELSE_IF, value);
+        Settings.instance().setProperty(ELSE_WHILE, value);
+        Settings.instance().setProperty(ELSE_FOR, value);
+        Settings.instance().setProperty(ELSE_TRY, value);
+        Settings.instance().setProperty(ELSE_SEQ, value);
+        Settings.instance().setProperty(ELSE_UNCHKD_SEQ, value);
+        Settings.instance().setProperty(ELSE_CONCURRENCE, value);
     }
 
     private static void setWhileProperties(String value)
     {
-        Luv.getLuv().setProperty(WHILE, value);
-        Luv.getLuv().setProperty(THEN_WHILE, value);
-        Luv.getLuv().setProperty(ELSE_WHILE, value);
+        Settings.instance().setProperty(WHILE, value);
+        Settings.instance().setProperty(THEN_WHILE, value);
+        Settings.instance().setProperty(ELSE_WHILE, value);
     }
 
     private static void setForProperties(String value)
     {
-        Luv.getLuv().setProperty(FOR, value);
-        Luv.getLuv().setProperty(THEN_FOR, value);
-        Luv.getLuv().setProperty(ELSE_FOR, value);
+        Settings.instance().setProperty(FOR, value);
+        Settings.instance().setProperty(THEN_FOR, value);
+        Settings.instance().setProperty(ELSE_FOR, value);
     }
 
     private static void setTryProperties(String value)
     {
-        Luv.getLuv().setProperty(TRY, value);
-        Luv.getLuv().setProperty(THEN_TRY, value);
-        Luv.getLuv().setProperty(ELSE_TRY, value);
+        Settings.instance().setProperty(TRY, value);
+        Settings.instance().setProperty(THEN_TRY, value);
+        Settings.instance().setProperty(ELSE_TRY, value);
     }
 
     private static void setSequenceProperties(String value)
     {
-        Luv.getLuv().setProperty(SEQ, value);
-        Luv.getLuv().setProperty(THEN_SEQ, value);
-        Luv.getLuv().setProperty(ELSE_SEQ, value);
+        Settings.instance().setProperty(SEQ, value);
+        Settings.instance().setProperty(THEN_SEQ, value);
+        Settings.instance().setProperty(ELSE_SEQ, value);
     }
 
     private static void setUncheckedSequenceProperties(String value)
     {
-        Luv.getLuv().setProperty(UNCHKD_SEQ, value);
-        Luv.getLuv().setProperty(THEN_UNCHKD_SEQ, value);
-        Luv.getLuv().setProperty(ELSE_UNCHKD_SEQ, value);
+        Settings.instance().setProperty(UNCHKD_SEQ, value);
+        Settings.instance().setProperty(THEN_UNCHKD_SEQ, value);
+        Settings.instance().setProperty(ELSE_UNCHKD_SEQ, value);
     }
 
     private static void setConcurrenceProperties(String value)
     {
-        Luv.getLuv().setProperty(CONCURRENCE, value);
-        Luv.getLuv().setProperty(THEN_CONCURRENCE, value);
-        Luv.getLuv().setProperty(ELSE_CONCURRENCE, value);
+        Settings.instance().setProperty(CONCURRENCE, value);
+        Settings.instance().setProperty(THEN_CONCURRENCE, value);
+        Settings.instance().setProperty(ELSE_CONCURRENCE, value);
     }
 
     private static boolean isBoxChecked(String type)
     {
-        String prop = Luv.getLuv().getSettings().get(type);
+        String prop = Settings.instance().get(type);
         return (prop == null || prop.equals("SHOW"));
     }
 
@@ -652,8 +652,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     {
         frame = new JFrame("Hide/Show Nodes");
         frame.add(this, BorderLayout.CENTER);
-        frame.setSize(Luv.getLuv().getSettings().getDimension(PROP_HIDESHOWWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_HIDESHOWWIN_LOC));
+        frame.setSize(Settings.instance().getDimension(PROP_HIDESHOWWIN_SIZE));
+        frame.setLocation(Settings.instance().getPoint(PROP_HIDESHOWWIN_LOC));
         frame.pack();
     }
 
