@@ -37,13 +37,6 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 include makeinclude/standard-defs.make
 
 #
-# Compiler defaults
-#
-
-CC ?= gcc
-CXX ?= g++
-
-#
 # Locations for GNU autotools
 #
 
