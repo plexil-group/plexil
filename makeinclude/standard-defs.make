@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,6 @@ PREFIX			?= $(PLEXIL_HOME)
 # These can be overridden at the command line or in the shell environment
 PLEXIL_DEBUG		?= 1
 PLEXIL_OPTIMIZED	?=
-PLEXIL_PROFILE		?=
 PLEXIL_STATIC		?=
 ifeq ($(PLEXIL_STATIC),)
 PLEXIL_SHARED		?= 1
@@ -60,7 +59,6 @@ RM		= /bin/rm -fr
 LN		= /bin/ln -s
 # Directory list
 LS              = /bin/ls
-DEPEND		= $(CXX) -MM
 TAG		= etags -t
 # Move a file
 MV              = /bin/mv
@@ -69,21 +67,17 @@ MKDIR           = /bin/mkdir
 # Copy a file
 CP              = /bin/cp -p
 
-# Which compilers to use by default.
-CC	        := gcc
-CXX	        := g++
+##### C/C++ compiler options.
 
-# Get compiler version - presumes gcc
-CXX_VERSION = $(shell $(CXX) -dumpversion)
-CXX_MAJOR_VERSION = $(firstword $(subst ., ,$(CXX_VERSION)))
-CXX_MINOR_VERSION = $(word 2,$(subst ., ,$(CXX_VERSION)))
-CXX_PATCH_VERSION = $(word 3,$(subst ., ,$(CXX_VERSION)))
-# for debug use
-#CXX_VERSION_DUMMY = $(info C++ version is $(CXX_MAJOR_VERSION) $(CXX_MINOR_VERSION) $(CXX_PATCH_VERSION))
-
-##### C++ compiler options.
+##### *** FIXME: Most of these presume gcc,
+##### *** but clang is default on OS X and the BSDs,
+##### *** and cross-compilers could be anything.
+##### *** Fortunately clang emulates gcc's option parsing.
 
 # Compiler options
+
+# Generating include file dependencies
+DEPEND		= $(CXX) -MM
 
 # Defines
 # -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
@@ -102,17 +96,12 @@ INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
 
 # Compiler flags for debug builds
-DEBUG_FLAGS	:= -ggdb
+#DEBUG_FLAGS	:= -ggdb # Not appropriate for OS X
+DEBUG_FLAGS	:= -g
 WARNING_FLAGS	:= -Wall
-
-# Compiler flags for profiling
-PROFILE_FLAGS	:= -pg
 
 # Compiler flags for optimized builds
 OPTIMIZE_FLAGS	:= -O3 -DPLEXIL_FAST
-
-# Compiler flags for code coverage (e.g., gcov)
-COVERAGE_FLAGS	:= -fprofile-arcs -ftest-coverage
 
 VARIANT_CFLAGS	=
 ifneq ($(PLEXIL_DEBUG),)
@@ -120,9 +109,6 @@ VARIANT_CFLAGS	+= $(DEBUG_FLAGS) $(WARNING_FLAGS)
 endif
 ifneq ($(PLEXIL_OPTIMIZED),)
 VARIANT_CFLAGS	+= $(OPTIMIZE_FLAGS)
-endif
-ifneq ($(PLEXIL_PROFILE),)
-VARIANT_CFLAGS	+= $(PROFILE_FLAGS)
 endif
 
 CFLAGS		+= $(DEFINES) $(STANDARD_CFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
