@@ -89,7 +89,7 @@ STANDARD_CXXFLAGS	:=
 # Include path
 
 SYSTEM_INC_DIRS	=
-INC_DIRS	= . $(PLEXIL_HOME)/src
+INC_DIRS	= . $(PLEXIL_HOME)/include
 INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 
 # Compiler flags for shared libraries
