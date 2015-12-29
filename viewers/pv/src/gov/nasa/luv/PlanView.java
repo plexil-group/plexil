@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -65,6 +66,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.TableModelEvent;
@@ -147,11 +149,11 @@ public class PlanView
         nodeChangeListener = makeNodeChangeListener();
         constructFrame();
         setPlan(p);
-        String name =
+        String displayName =
             p.getPlanFile() != null
             ? p.getPlanFile().toString()
             : p.getName();
-        readyState("Loaded " + name, Color.GREEN.darker());
+        readyState("Loaded " + displayName, Color.GREEN.darker());
     }
 
     private void constructFrame() {
@@ -440,7 +442,7 @@ public class PlanView
         };
     }
 
-    // TODO: run in AWT worker thread?
+    // TODO: run in SwingWorker
     private void linkLibraries() {
         if (!plan.hasLibraryCalls()) {
             showMessage("No library calls to link.");
@@ -465,6 +467,8 @@ public class PlanView
         }
     }
 
+    // Runs in AWT event thread
+    // TODO: load in SwingWorker
     private void reload() {
         if (plan.getPlanFile() == null) {
             reset();
@@ -472,20 +476,60 @@ public class PlanView
             return;
         }
 
-        Plan newPlan = FileHandler.readPlan(plan.getPlanFile());
-        if (newPlan == null) {
-            reset();
-            readyState("Unable to reload plan file " + plan.getPlanFile(), Color.RED);
-        }
-        else {
-            setVisible(false);
-            unsetPlan();
-            plan.merge(newPlan);
-            setPlan(plan);
-            readyState("Reloaded " + plan.getPlanFile(), Color.GREEN.darker());
-            setVisible(true);
-            linkItem.setEnabled(plan.hasLibraryCalls());
-        }
+        SwingWorker<Integer, Object> worker =
+            new SwingWorker<Integer, Object>() {
+                @Override
+                public Integer doInBackground() {
+                    Plan newPlan = FileHandler.readPlan(plan.getPlanFile());
+                    if (newPlan == null)
+                        return -1; // couldn't load
+                    else if (newPlan.equals(plan) && !plan.hasLibraryCalls())
+                        return 0; // no change
+                    else {
+                        Plan oldPlan = plan;
+                        unsetPlan();
+                        oldPlan.merge(newPlan);
+                        setPlan(oldPlan);
+                        return 1;
+                    }
+                }
+
+                @Override
+                protected void done() {
+                    int result = -1;
+                    try {
+                        result = get().intValue();
+                    }
+                    catch (InterruptedException i) {
+                        // punt for now
+                    }
+                    catch (ExecutionException e) {
+                        reset();
+                        showErrorMessage(e, "Reloading " + plan.getPlanFile() + " failed");
+                        readyState("Reloading " + plan.getPlanFile() + " failed", Color.RED);
+                    }
+
+                    reset(); // can't avoid it!
+
+                    switch (result) {
+                    case 0:
+                        linkItem.setEnabled(plan.hasUnresolvedLibraryCalls());
+                        readyState("Plan " + plan.getPlanFile() + " is unchanged");
+                        return;
+
+                    case 1:
+                        repaint();
+                        linkItem.setEnabled(plan.hasLibraryCalls());
+                        readyState("Reloaded " + plan.getPlanFile(), Color.GREEN.darker());
+                        return;
+
+                    default:
+                        readyState("Unable to reload plan file " + plan.getPlanFile(), Color.RED);
+                        return;
+                    }
+                }
+            };
+        worker.execute();
     }
 
     private void expandAll() {
@@ -834,6 +878,7 @@ public class PlanView
         startEventProcessing();
     }
 
+    // TODO: return immediately if view not ready
     private void startEventProcessing() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
@@ -843,6 +888,7 @@ public class PlanView
     }
 
     // Must be called in AWT event thread.
+    // TODO: return immediately if view not ready
     private void processEventQueue() {
         PlanEvent e = eventQueue.poll();
         while (e != null) {
