@@ -196,7 +196,7 @@ public class ExecSelectDialog
         // Libraries button
 		row++; // 1
 		JButton libBut = new JButton("Libraries");
-        libBut.setToolTypeText("Select library files for the Exec to load.");
+        libBut.setToolTipText("Select library files for the Exec to load.");
 		libBut.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (libEditor == null)
@@ -278,7 +278,7 @@ public class ExecSelectDialog
                     }
                 });
 		defaultScriptBut = new JButton("Use Default");
-        defaultScriptBut.setToolTipText("Use an empty sim script")
+        defaultScriptBut.setToolTipText("Use an empty sim script");
 		defaultScriptBut.addActionListener(new ActionListener() {
                 // Dumbed down for simplicity's sake
                 public void actionPerformed(ActionEvent e) {
