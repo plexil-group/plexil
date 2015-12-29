@@ -32,6 +32,12 @@
 package gov.nasa.luv;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,8 +51,7 @@ import static gov.nasa.luv.Constants.AppType;
 import static gov.nasa.luv.Constants.AppType.*;
 
 public class Plan
-    extends Properties
-    implements Cloneable {
+    implements Cloneable, Serializable {
     private AppType appType;
     private String name;
     private File planFile;
@@ -61,6 +66,9 @@ public class Plan
     private Node rootNode;
     private Map<String, Vector<LibraryCallNode> > libraryCalls;
 
+    // Support for Serializable
+    private static final long serialVersionUID = 20151228L; // date of last format mod as decimal number
+
     public Plan() {
         appType = NO_APP;
         name = null;
@@ -71,6 +79,7 @@ public class Plan
         libraryPath = new Vector<File>();
         libraryFiles = new HashSet<File>();
 
+        // transient data, not serialized
         planLastModified = null;
         rootNode = null;
         libraryCalls = new HashMap<String, Vector<LibraryCallNode> >();
@@ -86,6 +95,7 @@ public class Plan
         libraryPath = new Vector<File>(orig.libraryPath);
         libraryFiles = new HashSet<File>(orig.libraryFiles);
 
+        // transient data, not serialized
         planLastModified = orig.planLastModified;
         rootNode = orig.rootNode.clone();
         libraryCalls = new HashMap<String, Vector<LibraryCallNode> >();
@@ -96,6 +106,69 @@ public class Plan
         return result;
     }
 
+    //
+    // Serializable API
+    //
+
+    private void writeObject(ObjectOutputStream out)
+        throws IOException {
+        ObjectOutputStream.PutField putter = out.putFields();
+        putter.put("name", name);
+        if (appType != NO_APP)
+            putter.put("appType", appType);
+        if (planFile != null)
+            putter.put("planFile", planFile);
+        if (scriptFile != null)
+            putter.put("scriptFile", scriptFile);
+        if (configFile != null)
+            putter.put("configFile", configFile);
+        if (debugFile != null)
+            putter.put("debugFile", debugFile);
+        putter.put("libraryPath",
+                   libraryPath.toArray(new File[libraryPath.size()]));
+        putter.put("libraryFiles",
+                   libraryFiles.toArray(new File[libraryFiles.size()]));
+        out.writeFields();
+    }
+    
+    private void readObject(java.io.ObjectInputStream in)
+        throws IOException, ClassNotFoundException {
+        ObjectInputStream.GetField getter = in.readFields();
+        name = (String) getter.get("name", null);
+        appType = (AppType) getter.get("appType", NO_APP);
+        planFile = (File) getter.get("planFile", null);
+        scriptFile = (File) getter.get("scriptFile", null);
+        configFile = (File) getter.get("configFile", null);
+        debugFile = (File) getter.get("debugFile", null);
+        File[] path = (File[]) getter.get("libraryPath", null);
+        if (path != null) {
+            libraryPath.ensureCapacity(path.length);
+            for (File f : path)
+                libraryPath.add(f);
+        }
+        File[] libs = (File[]) getter.get("libraryFiles", null);
+        if (libs != null) 
+            for (File f : libs)
+                libraryFiles.add(f);
+    }
+
+    private void readObjectNoData()
+        throws ObjectStreamException {
+        appType = NO_APP;
+        name = null;
+        planFile = null;
+        scriptFile = null;
+        configFile = null;
+        debugFile = null;
+        libraryPath = new Vector<File>();
+        libraryFiles = new HashSet<File>();
+
+        // transient data, not serialized
+        planLastModified = null;
+        rootNode = null;
+        libraryCalls = new HashMap<String, Vector<LibraryCallNode> >();
+    }
+     
     /**
      * @brief Merge the settings in another plan with the current settings.
      * @param p Another Plan instance.
@@ -149,20 +222,15 @@ public class Plan
     public int hashCode() {
         int result = super.hashCode();
         result = result * 31 + getClass().getName().hashCode();
-        result = result * 31 + appType.ordinal();
         result = result * 31 +
             (name == null ? 0 : name.hashCode());
-        result = result * 31 +
-            (planFile == null ? 0 : planFile.hashCode());
-        result = result * 31 +
-            (scriptFile == null ? 0 : scriptFile.hashCode());
-        result = result * 31 +
-            (configFile == null ? 0 : configFile.hashCode());
         result = result * 31 +
             (rootNode == null ? 0 : rootNode.hashCode());
         return result;
     }
 
+    // equals() only cares about plan name and root nodes,
+    // since those are all that can be expected from an external exec
     public boolean equals(Object o) {
         if (!(o instanceof Plan))
             return false;
@@ -170,9 +238,6 @@ public class Plan
         Plan other = (Plan) o;
         if (other == this)
             return true; // identity
-
-        if (appType != other.appType)
-            return false;
 
         if (name == null) {
             if (other.name != null) {
@@ -188,6 +253,31 @@ public class Plan
             // System.out.println("Not equivalent because plan names differ");
             return false;
         }
+
+        if (rootNode == null) {
+            if (other.rootNode != null) {
+                // System.out.println("Not equivalent because root node is null and other plan's isn't");
+                return false;
+            }
+        }
+        else if (other.rootNode == null) {
+            // System.out.println("Not equivalent because other plan's root node is null and this plan's isn't");
+            return false;
+        }
+        else if (!rootNode.equals(other.rootNode))
+            return false;
+
+        return true;
+    }
+
+
+    // *** Not sure if this is really necessary ***
+    public boolean equivalent(Plan other) {
+        if (!equals(other))
+            return false; 
+
+        if (appType != other.appType)
+            return false;
         
         if (planFile == null) {
             if (other.planFile != null) {
@@ -249,20 +339,7 @@ public class Plan
             return false;
         }
 
-        if (rootNode == null) {
-            if (other.rootNode != null) {
-                // System.out.println("Not equivalent because root node is null and other plan's isn't");
-                return false;
-            }
-        }
-        else if (other.rootNode == null) {
-            // System.out.println("Not equivalent because other plan's root node is null and this plan's isn't");
-            return false;
-        }
-        else if (!rootNode.equals(other.rootNode))
-            return false;
-
-        return super.equals(o);
+        return true;
     }
 
     public AppType getAppType() {
