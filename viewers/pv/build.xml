@@ -20,7 +20,7 @@
   <!-- java library files that belong in the class path and the jar -->
   
   <fileset dir = "${lib-dir}" id = "libraries">
-    <!--include name = "your.jar"/-->
+    <include name = "org-netbeans-swing-outline.jar"/>
   </fileset>
   
   <!-- any extra resources which may be neaded by the application -->
@@ -108,6 +108,7 @@
            excludes = "${compile-excludes}">
       <compilerarg value = "-Xlint:deprecation"/>
       <compilerarg value = "-Xlint:unchecked"/>
+      <compilerarg value = "-Xdiags:verbose"/>
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>
@@ -119,7 +120,6 @@
   <!-- construct jar -->
 
   <target name = "jar" depends = "compile" description = "construct jar package">
-
     <jar destfile = "${jar-name}"
          update   = "false"
          basedir  = "${build-dir}"
@@ -128,11 +128,6 @@
       <zipgroupfileset refid = "libraries"/>
       <fileset refid = "resources"/>
     </jar>
-    <jar destfile = "${jar-name}"
-         update   = "true"
-         basedir  = "${source-dir}"
-         includes = "${domain-scope-dir}/**"/>
-    
 </target>
 
 <!-- construct mac app -->
