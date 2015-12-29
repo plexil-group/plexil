@@ -66,7 +66,14 @@ public class ListNode
             return false;
 
         ListNode other = (ListNode) o;
-        return children.size() == other.children.size();
+        if (children.size() != other.children.size())
+            return false;
+
+        for (int i = 0; i < children.size(); ++i)
+            if (!children.get(i).equals(other.children.get(i)))
+                return false;
+
+        return true;
     }
 
     /** Returns the Vector of Node children of this Node. */
