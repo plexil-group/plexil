@@ -1,0 +1,39 @@
+Features
+--------
+
+Single-step display independently of execution
+ - Reimplement execution breakpoints
+ - Implement display breakpoints
+
+New breakpoints:
+ - on condition change
+ - on assignment (is this already implemented?)
+
+Recent items history
+ - 'Load recent' menu item
+ - Restore settings if plan file in history
+ - Save history at shutdown
+
+
+Bugs
+----
+
+Redisplay still not always happening when it should
+ - plan views not "live", even when front window
+ - variable display in node info window; strangely, condition view works.
+
+
+Performance
+-----------
+
+Console display sluggish with large amounts of output
+
+
+UI changes
+----------
+
+Menu item accelerators appropriate to platform (ctrl-X vs cmd-X)
+
+Only application-wide status should be shown in console status bar
+
+Monitoring external apps - much to sort out
