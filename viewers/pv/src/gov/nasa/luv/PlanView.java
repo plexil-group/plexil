@@ -114,6 +114,8 @@ public class PlanView
     //
     // Menus and menu items
     //
+
+    private JMenuBar menuBar;
     
     private JMenu fileMenu;
     private JMenuItem configItem;
@@ -158,7 +160,8 @@ public class PlanView
 
     private void constructFrame() {
         addWindowListener(makeWindowListener());
-        setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        setDefaultCloseOperation(HIDE_ON_CLOSE); // *** FIXME ***
 
         constructMenuBar();
 
@@ -171,6 +174,7 @@ public class PlanView
 
         // Build outline
         outline = new Outline();
+        outline.setFocusable(false);
         outline.setRenderDataProvider(new PlanRenderDataProvider());
         outline.setDefaultRenderer(NodeState.class, new NodeStateRenderer());
         outline.setDefaultRenderer(NodeOutcome.class, new NodeOutcomeRenderer());
@@ -212,9 +216,11 @@ public class PlanView
         // Build local message area
 
         JPanel infoBar = new JPanel(new BorderLayout());
+        infoBar.setFocusable(false);
         infoBar.setBackground(Settings.instance().getColor(PROP_WIN_BCLR));
         infoBar.setBorder(new LineBorder(Color.GRAY, 2));
         messageBar = new JLabel(" ");
+        messageBar.setFocusable(false);
         Font infoFont = messageBar.getFont().deriveFont(Font.PLAIN, 12.0f);
         messageBar.setFont(infoFont);
         messageBar.setBorder(new EmptyBorder(2, 2, 2, 2));        
@@ -223,6 +229,7 @@ public class PlanView
 
         // TODO? set fixed width for status bar based on width of longest string
         statusBar = new JLabel(" ");
+        statusBar.setFocusable(false);
         statusBar.setFont(infoFont);
         statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));        
         statusBar.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -233,7 +240,7 @@ public class PlanView
     }
     
     private void constructMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
+        menuBar = new JMenuBar();
 
         // File menu
         fileMenu = new JMenu("File");
@@ -360,6 +367,7 @@ public class PlanView
 
         // TODO more
 
+        menuBar.setRequestFocusEnabled(true);
         setJMenuBar(menuBar);
     }
 
@@ -518,7 +526,7 @@ public class PlanView
                         return;
 
                     case 1:
-                        repaint();
+                        outline.repaint();
                         linkItem.setEnabled(plan.hasLibraryCalls());
                         readyState("Reloaded " + plan.getPlanFile(), Color.GREEN.darker());
                         return;
@@ -832,7 +840,7 @@ public class PlanView
     private void resetView() {
         plan.getRootNode().reset();
         // outline.tableChanged(new TableModelEvent(model, 0, model.getLayout().getRowCount() - 1)); // *** redundant? ***
-        repaint();
+        outline.repaint();
     }
 
     //
@@ -903,11 +911,11 @@ public class PlanView
 
     public void setBreaksEnabled(boolean value) {
         allowBreaksItem.setText(value ? "Disable Breaks" : "Enable Breaks");
+        if (value) 
+            showMessage("Enabled breaks", Color.GREEN.darker());
+        else
+            showMessage("Disabled breaks", Color.RED);
     }
-
-    // startState() not needed because no PlanView active at that time
-
-    // openPlanState() just clears all breakpoints and goes to readyState()
 
     //
     // UI actions
@@ -1007,7 +1015,9 @@ public class PlanView
         pauseExecutionItem.setEnabled(false);
         stepExecutionItem.setEnabled(false);
         execItem.setEnabled(true);
-        setBreaksEnabled(Settings.instance().blocksExec());
+        allowBreaksItem.setText(Settings.instance().blocksExec() ? "Disable Breaks" : "Enable Breaks");
+        menuBar.requestFocusInWindow();
+        outline.repaint();
     }
 
     // preExecutionState() resets current plan, disables execItem, pauseExecutionItem
@@ -1019,6 +1029,7 @@ public class PlanView
         pauseExecutionItem.setEnabled(true);
         stepExecutionItem.setEnabled(false);
         execItem.setEnabled(false);
+        menuBar.requestFocusInWindow();
     }
 
     // Like executionState(), but only one step to be taken
@@ -1031,6 +1042,7 @@ public class PlanView
         stepExecutionItem.setEnabled(false);
         execItem.setEnabled(false);
         ExecutionHandler.instance().step();
+        menuBar.requestFocusInWindow();
     }
 
     public void pausedExecutionState() {
@@ -1045,6 +1057,7 @@ public class PlanView
         pauseExecutionItem.setText("Resume execution");
         pauseExecutionItem.setEnabled(true);
         stepExecutionItem.setEnabled(true);
+        menuBar.requestFocusInWindow();
     }
 
     // stopExecutionState() ???
@@ -1365,7 +1378,7 @@ public class PlanView
                                                        boolean hasFocus,
                                                        int row,
                                                        int column) {
-            // TODO set background color appropriately when selected
+           // TODO set background color appropriately when selected
             setBackground(Color.WHITE); // FIXME
             if (value == null || !(value instanceof NodeOutcome)) {
                 setForeground(Color.LIGHT_GRAY);

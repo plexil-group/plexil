@@ -45,7 +45,10 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
                 {
                     put(VIEWER_BLOCKS, new LuvElementHandler() {
                             public void elementEnd(String tagName, String tweenerText) {
-                                Luv.getLuv().setBreaksAllowed(Boolean.valueOf(tweenerText));
+                                boolean allowBreaks = Boolean.valueOf(tweenerText);
+                                // Only set if different from current
+                                if (allowBreaks != Settings.instance().blocksExec())
+                                    Luv.getLuv().setBreaksAllowed(allowBreaks);
                             }
                         });
                 }

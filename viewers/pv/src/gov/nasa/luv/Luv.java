@@ -676,14 +676,10 @@ public class Luv extends JFrame {
         Settings.instance().setBlocksExec(value);
         for (PlanView v : getAllPlanViews())
             v.setBreaksEnabled(value);
-        if (value) 
-            statusMessageHandler.showStatus("Enabled breaks", Color.GREEN.darker(), 1000);
-        else
-            statusMessageHandler.showStatus("Disabled breaks", Color.RED, 1000);
     }
 
     public void toggleBreaksEnabled() {
-        if (!ExecutionHandler.instance().isExecuting())
+        if (ExecutionHandler.instance().isExecuting())
             setBreaksAllowed(!Settings.instance().blocksExec());
     }
 

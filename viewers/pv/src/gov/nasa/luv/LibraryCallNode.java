@@ -61,6 +61,11 @@ public class LibraryCallNode
         return new LibraryCallNode(this);
     }
 
+    public int hashCode() {
+        return super.hashCode() * 31
+            + (libraryName == null ? 0 : libraryName.hashCode());
+    }
+
     public boolean equals(LibraryCallNode other) {
         if (!super.equals(other))
             return false;
@@ -147,50 +152,6 @@ public class LibraryCallNode
     @Override
     public void setLibraryName(String libname) {
         libraryName = libname;
-    }
-    
-    /**
-     * Compares this Node with the specified Node to see if they are the same.
-     * @param other the node to compare with
-     * @return whether or not these two Nodes are equivalent
-     */
-    @Override
-    public boolean equivalent(Node other) {
-        if (!super.equivalent(other))
-            return false;
-
-        LibraryCallNode otherLib = (LibraryCallNode) other;
-        if (libraryName == null) {
-            if (otherLib.libraryName != null) {
-                //System.out.println("Not equivalent because library name differs");
-                return false;
-            }
-            else
-                return true;
-        }
-        else if (otherLib.libraryName == null) {
-            //System.out.println("Not equivalent because library name differs");
-            return false;
-        }
-
-        if (child == null) {
-            if (otherLib.child != null) {
-                //System.out.println("Not equivalent because number of children differs");
-                return false;
-            }
-            else
-                return true;
-        }
-        else if (otherLib.child == null) {
-            //System.out.println("Not equivalent because number of children differs");
-            return false;
-        }
-        
-        if (!child.equivalent(otherLib.child)) {
-            //System.out.println("Not equivalent because children differ");
-            return false;
-        }
-        return true;
     }
     
     /**

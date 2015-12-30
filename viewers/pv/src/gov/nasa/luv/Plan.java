@@ -182,7 +182,7 @@ public class Plan
             name = p.name;
             modified = true;
         }
-        if (p.rootNode != null && !p.rootNode.equivalent(rootNode)) {
+        if (p.rootNode != null && !p.rootNode.equals(rootNode)) {
             rootNode = p.rootNode;
             libraryCalls = p.libraryCalls;
             modified = true;
@@ -232,112 +232,27 @@ public class Plan
     // equals() only cares about plan name and root nodes,
     // since those are all that can be expected from an external exec
     public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
         if (!(o instanceof Plan))
             return false;
 
         Plan other = (Plan) o;
-        if (other == this)
-            return true; // identity
 
         if (name == null) {
-            if (other.name != null) {
-                // System.out.println("Not equivalent because name is null and other plan's isn't");
+            if (other.name != null)
                 return false;
-            }
         }
-        else if (other.name == null) {
-            // System.out.println("Not equivalent because other plan's name is null and this plan's isn't");
+        else if (!name.equals(other.name)) 
             return false;
-        }
-        else if (!name.equals(other.name)) {
-            // System.out.println("Not equivalent because plan names differ");
-            return false;
-        }
 
         if (rootNode == null) {
-            if (other.rootNode != null) {
-                // System.out.println("Not equivalent because root node is null and other plan's isn't");
+            if (other.rootNode != null)
                 return false;
-            }
-        }
-        else if (other.rootNode == null) {
-            // System.out.println("Not equivalent because other plan's root node is null and this plan's isn't");
-            return false;
         }
         else if (!rootNode.equals(other.rootNode))
             return false;
-
-        return true;
-    }
-
-
-    // *** Not sure if this is really necessary ***
-    public boolean equivalent(Plan other) {
-        if (!equals(other))
-            return false; 
-
-        if (appType != other.appType)
-            return false;
-        
-        if (planFile == null) {
-            if (other.planFile != null) {
-                // System.out.println("Not equivalent because plan file is null and other plan's isn't");
-                return false;
-            }
-        }
-        else if (other.planFile == null) {
-            // System.out.println("Not equivalent because other plan file is null and this plan's isn't");
-            return false;
-        }
-        else if (!planFile.equals(other.planFile)) {
-            // System.out.println("Not equivalent because plan files differ");
-            return false;
-        }
-
-        if (scriptFile == null) {
-            if (other.scriptFile != null) {
-                // System.out.println("Not equivalent because script file is null and other plan's isn't");
-                return false;
-            }
-        }
-        else if (other.scriptFile == null) {
-            // System.out.println("Not equivalent because other plan's script file is null and this plan's isn't");
-            return false;
-        }
-        else if (!scriptFile.equals(other.scriptFile)) {
-            // System.out.println("Not equivalent because script files differ");
-            return false;
-        }
-
-        if (configFile == null) {
-            if (other.configFile != null) {
-                // System.out.println("Not equivalent because config file is null and other plan's isn't");
-                return false;
-            }
-        }
-        else if (other.configFile == null) {
-            // System.out.println("Not equivalent because other plan's config file is null and this plan's isn't");
-            return false;
-        }
-        else if (!configFile.equals(other.configFile)) {
-            // System.out.println("Not equivalent because config files differ");
-            return false;
-        }
-
-        if (debugFile == null) {
-            if (other.debugFile != null) {
-                // System.out.println("Not equivalent because debug file is null and other plan's isn't");
-                return false;
-            }
-        }
-        else if (other.debugFile == null) {
-            // System.out.println("Not equivalent because other plan's debug file is null and this plan's isn't");
-            return false;
-        }
-        else if (!debugFile.equals(other.debugFile)) {
-            // System.out.println("Not equivalent because debug files differ");
-            return false;
-        }
 
         return true;
     }

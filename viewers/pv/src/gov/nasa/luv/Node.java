@@ -151,22 +151,37 @@ public class Node
         result = result * 31 + type.hashCode();
         result = result * 31 +
             (nodeName == null ? 0 : nodeName.hashCode());
+        result = result * 31 +
+            (treePath == null ? 0 : treePath.getPathCount());
         return result;
     }
 
     public boolean equals(Object o) {
         if (this == o)
-            return true;
+            return true; // identity
+
         if (!(o instanceof Node))
             return false;
         Node other = (Node) o;
         if (type != other.type)
             return false;
+
         // nodeName should never be null when fully instantiated
-        if (nodeName == null && other.nodeName != null)
+        if (nodeName == null) {
+            if (other.nodeName != null)
             return false;
-        if (!nodeName.equals(other.nodeName))
+        }
+        else if (!nodeName.equals(other.nodeName))
             return false;
+
+        // Redundant? Consider multiple library calls.
+        if (treePath == null) {
+            if (other.treePath != null)
+                return false;
+        }
+        else if (!treePath.equals(other.treePath))
+            return false;
+
         if (!conditionExprs.equals(other.conditionExprs))
             return false;
         
@@ -614,40 +629,6 @@ public class Node
         return node_path;
     }
     
-    /**
-     * Compares this Node with the specified Node to see if they are the same.
-     * @param other the node to compare with
-     * @return whether or not these two Nodes are equivalent
-     */
-    public boolean equivalent(Node other) {
-        if (other == this)
-            return true; // identity
-
-        if (other == null) {
-            // System.out.println("Not equivalent because other node is null");
-            return false;
-        }
-
-        if (!type.equals(other.type)) {
-            // System.out.println("Not equivalent because other node has different type");
-            return false;
-        }
-
-        if (nodeName == null) {
-            if (other.nodeName != null) {
-                // System.out.println("Not equivalent because this node has no node ID and other does");
-                return false;
-            }
-            else
-                return true;
-        }
-        else if (!nodeName.equals(other.nodeName)) {
-            //System.out.println("Not equivalent because node IDs differ; this = " + nodeName
-            //                   + " other = " + other.nodeName);
-            return false;
-        }
-        return true;
-    }
     
     /**
      * Returns the Node that matches with the specified name.

@@ -141,30 +141,6 @@ public class ListNode
     }
     
     /**
-     * Compares this Node with the specified Node to see if they are the same.
-     * @param other the node to compare with
-     * @return whether or not these two Nodes are equivalent
-     */
-    @Override
-    public boolean equivalent(Node other) {
-        if (!super.equivalent(other))
-            return false;
-
-        ListNode otherList = (ListNode) other;
-        if (children.size() != otherList.children.size()) {
-            //System.out.println("Not equivalent because number of children differs");
-            return false;
-        }
-        for (int i = 0; i < children.size(); i++) {
-            if (!children.get(i).equivalent(otherList.children.get(i))) {
-                //System.out.println("Not equivalent because children differ");
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    /**
      * Returns the Node that matches with the specified name.
      * @param name the name to match the Node to
      * @return the matching Node
