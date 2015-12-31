@@ -395,6 +395,11 @@ public class Luv extends JFrame {
         menuBar.add(debugMenu);
     }
 
+    // *** TEMP ***
+    public JTextArea getConsoleTextArea() {
+        return console;
+    }
+
     public PlanView getViewForNode(Node n) {
         Node r = n.getRootNode();
         if (r == null)
@@ -553,6 +558,7 @@ public class Luv extends JFrame {
                 // same 'plan' already loaded, so use it, 
                 // but refresh view
                 if (view != null) {
+                    //System.out.println("handleNewPlan: Received same plan from exec, refreshing it");
                     view.resetEvent();
                     return;
                 }
@@ -560,17 +566,20 @@ public class Luv extends JFrame {
             }
             else {
                 // plan has changed
+                //System.out.println("handleNewPlan: Received plan has same name but differs, loading new");
                 RootModel.removePlan(existing);
                 RootModel.addPlan(plan);
                 view.newPlanEvent(plan);
                 return;
             }
         }
-        else
+        else {
             RootModel.addPlan(plan); // totally new
+        }
 
         // At this point either we have a new plan,
         // or an old plan with no view that is about to run.
+        //System.out.println("handleNewPlan: Constructing new PlanView");
         view = new PlanView(plan); // FIXME
         planViews.put(plan.getRootNode().getNodeName(), view);
         view.setVisible(true);
@@ -679,7 +688,7 @@ public class Luv extends JFrame {
     }
 
     public void toggleBreaksEnabled() {
-        if (ExecutionHandler.instance().isExecuting())
+        if (!ExecutionHandler.instance().isExecuting())
             setBreaksAllowed(!Settings.instance().blocksExec());
     }
 

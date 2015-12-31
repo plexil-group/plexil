@@ -151,8 +151,6 @@ public class Node
         result = result * 31 + type.hashCode();
         result = result * 31 +
             (nodeName == null ? 0 : nodeName.hashCode());
-        result = result * 31 +
-            (treePath == null ? 0 : treePath.getPathCount());
         return result;
     }
 
@@ -162,8 +160,9 @@ public class Node
 
         if (!(o instanceof Node))
             return false;
+
         Node other = (Node) o;
-        if (type != other.type)
+        if (type != other.type) 
             return false;
 
         // nodeName should never be null when fully instantiated
@@ -179,7 +178,9 @@ public class Node
             if (other.treePath != null)
                 return false;
         }
-        else if (!treePath.equals(other.treePath))
+        else if (other.treePath == null)
+            return false;
+        else if (treePath.getPathCount() != other.treePath.getPathCount())
             return false;
 
         if (!conditionExprs.equals(other.conditionExprs))
@@ -247,10 +248,7 @@ public class Node
 
     public TreePath getTreePath() {
         if (treePath == null)
-            treePath = 
-                (parent == null)
-                ? new TreePath(this) // is root
-                : parent.getTreePath().pathByAddingChild(this);
+            treePath = new TreePath(this); // must be root
         return treePath;
     }
 
@@ -459,23 +457,37 @@ public class Node
     /**
      * Sets the specified Node as this Node's parent.
      * @param newParent the parent Node of this Node
+     * @note Sets treePath as side effect 
      */
+
     public void setParent(Node newParent) {
+        Node oldParent = parent;
         parent = newParent;
+        updateTreePath(oldParent != null && oldParent != newParent);
     }
 
+    // Re-rooting should only happen when linking a library into its caller.
+    protected void updateTreePath(boolean isReRoot) {
+        if (parent == null) {
+            System.out.println("updateTreePath: new parent is null"); // shouldn't happen?
+            treePath = new TreePath(this);
+        }
+        else
+            treePath = parent.getTreePath().pathByAddingChild(this);            
+    }
+    
     /**
      * Sets the specified property value with key to this Node.
      * @param key the key to the specified value
      * @param value the value of a property for this Node
-     * @return an object result
+     * @return previous value of the property
      */
     public Object setProperty(String key, String value) {
         if (key == null || value == null) {
             // Properties.setProperty() throws an exception if either arg is null
             StatusMessageHandler.instance().showStatus("Warning: attempt to set property "
-                                                              + (nodeName == null ? "" : " of node " + nodeName)
-                                                              + "(key: " + key + ", type: " + type + ") to null");
+                                                       + (nodeName == null ? "" : " of node " + nodeName)
+                                                       + "(key: " + key + ", type: " + type + ") to null");
             return null;
         }
 

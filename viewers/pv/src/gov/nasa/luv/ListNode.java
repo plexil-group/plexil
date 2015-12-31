@@ -62,12 +62,16 @@ public class ListNode
     public boolean equals(Object o) {
         if (!super.equals(o))
             return false;
-        if (!(o instanceof ListNode))
+        if (!(o instanceof ListNode)) {
+            System.out.println("Not a ListNode: " + this + " != " + o);
             return false;
+        }
 
         ListNode other = (ListNode) o;
-        if (children.size() != other.children.size())
+        if (children.size() != other.children.size()) {
+            System.out.println("Numbers of children differ: " + children.size() + " != " + other.children.size());
             return false;
+        }
 
         for (int i = 0; i < children.size(); ++i)
             if (!children.get(i).equals(other.children.get(i)))
@@ -139,6 +143,15 @@ public class ListNode
         children.add(child);
         child.setParent(this);
     }
+
+    @Override
+    protected void updateTreePath(boolean isReRoot) {
+        super.updateTreePath(isReRoot);
+        if (isReRoot)
+            for (Node c : children)
+                c.updateTreePath(isReRoot);
+    }
+
     
     /**
      * Returns the Node that matches with the specified name.

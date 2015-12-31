@@ -141,6 +141,13 @@ public class LibraryCallNode
         children.add(newChild);
     }
 
+    @Override
+    protected void updateTreePath(boolean isReRoot) {
+        super.updateTreePath(isReRoot);
+        if (isReRoot && child != null)
+            child.updateTreePath(isReRoot);
+    }
+
     /** Returns the Library Name for this Plexil Node. */
     public String getLibraryName() {
         return libraryName;

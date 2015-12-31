@@ -32,6 +32,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle; // *** TEMP? ***
+import java.awt.Window; // *** TEMP? ***
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
@@ -40,6 +42,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import static java.awt.event.InputEvent.*;
 import static java.awt.event.KeyEvent.*;
+
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.Enumeration;
 import java.util.EnumMap;
@@ -50,6 +54,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -65,7 +70,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextArea; // *** TEMP ***
+import javax.swing.RepaintManager;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -140,14 +148,17 @@ public class PlanView
 
     // Display event queue
     private Queue<PlanEvent> eventQueue;
+    private Semaphore displaySem;
 
     public PlanView(Plan p) {
         super();
+
         plan = null;
         executionPaused = false;
         configDialog = null;
         breakPointSet = new TreeSet<LuvBreakPoint>();
         eventQueue = new ConcurrentLinkedQueue<PlanEvent>();
+        displaySem = new Semaphore(1);
         nodeChangeListener = makeNodeChangeListener();
         constructFrame();
         setPlan(p);
@@ -166,6 +177,7 @@ public class PlanView
         constructMenuBar();
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(true);
         setContentPane(panel);
         Settings s = Settings.instance();
         Color bgColor = s.getColor(PROP_WIN_BCLR);
@@ -425,17 +437,20 @@ public class PlanView
                                         NodeFailureType failure,
                                         Map<Condition, String> conditions) {
                 int row = model.getLayout().getRowForPath(node.getTreePath());
-                if (row < 0)
+                if (row < 0) {
                     // node not visible
+                    System.out.println("stateTransition: Node " + node.getNodeName() + " not visible, tree path "
+                                       + node.getTreePath());
                     return;
-
-                outline.setValueAt(outcome, row, STATE_COL_NUM);
-                if (outcome != node.getNodeOutcome())
-                    outline.setValueAt(outcome, row, OUTCOME_COL_NUM);
-                if (failure != node.getNodeFailureType())
-                    outline.setValueAt(node.getNodeFailureType(), row, FAILURE_TYPE_COL_NUM);
-                outline.tableChanged(new TableModelEvent(model, row));
-                outline.repaint();
+                }
+                
+                // Call the table setter functions to properly record the update event.
+                model.setValueAt(state, row, STATE_COL_NUM + 1);
+                if (outcome != null) 
+                    model.setValueAt(outcome, row, OUTCOME_COL_NUM + 1);
+                if (failure != null)
+                    model.setValueAt(failure, row, FAILURE_TYPE_COL_NUM + 1);
+                // repaint(); // redundant?
             }
 
             @Override
@@ -465,7 +480,7 @@ public class PlanView
         else {
             boolean allFound = plan.resolveLibraryCalls();
             treeModel.reload();
-            outline.repaint();
+            repaint(); // redundant?
             if (allFound) {
                 showMessage("All library nodes linked.", Color.GREEN.darker());
                 linkItem.setEnabled(false);
@@ -476,7 +491,6 @@ public class PlanView
     }
 
     // Runs in AWT event thread
-    // TODO: load in SwingWorker
     private void reload() {
         if (plan.getPlanFile() == null) {
             reset();
@@ -526,7 +540,7 @@ public class PlanView
                         return;
 
                     case 1:
-                        outline.repaint();
+                        repaint(); // redundant?
                         linkItem.setEnabled(plan.hasLibraryCalls());
                         readyState("Reloaded " + plan.getPlanFile(), Color.GREEN.darker());
                         return;
@@ -578,6 +592,7 @@ public class PlanView
             while (e.hasMoreElements())
                 expandListNodes(p.pathByAddingChild(e.nextElement()));
         }
+        readyState("Expanded List nodes");
     }
 
     private void collapseAllRecursively(TreePath p) {
@@ -613,6 +628,7 @@ public class PlanView
                 && outline.isExpanded(p))
                 outline.collapsePath(p);
         }
+        readyState("Collapsed List nodes");
     }
 
     public Plan getPlan() {
@@ -729,7 +745,7 @@ public class PlanView
                         public void actionPerformed(ActionEvent e) {
                             bp.setEnabled(!bp.isEnabled());
                             // TODO Highlight node by setting appropriately colored border
-                            outline.repaint();
+                            repaint(); // remove when highlighting added
                         }
                     }); 
             }
@@ -839,8 +855,7 @@ public class PlanView
     // Should only be executed on AWT event thread.
     private void resetView() {
         plan.getRootNode().reset();
-        // outline.tableChanged(new TableModelEvent(model, 0, model.getLayout().getRowCount() - 1)); // *** redundant? ***
-        outline.repaint();
+        outline.tableChanged(new TableModelEvent(model, 0, model.getLayout().getRowCount() - 1));
     }
 
     //
@@ -888,8 +903,13 @@ public class PlanView
 
     // TODO: return immediately if view not ready
     private void startEventProcessing() {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+        // Don't bother if already scheduled but not yet run
+        if (!displaySem.tryAcquire())
+            return;
+
+        SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
+                    displaySem.release();
                     processEventQueue();
                 }
             });
@@ -899,10 +919,33 @@ public class PlanView
     // TODO: return immediately if view not ready
     private void processEventQueue() {
         PlanEvent e = eventQueue.poll();
+        if (e == null)
+            return;
+
         while (e != null) {
             e.display();
             e = eventQueue.poll();
         }
+
+        RepaintManager.currentManager(this).paintDirtyRegions();
+    }
+
+    private void refresh() {
+        if (SwingUtilities.isEventDispatchThread())
+            processEventQueue();
+        else
+            try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        processEventQueue();
+                    }
+                });
+            }
+            catch (InterruptedException e) {
+            }
+            catch (InvocationTargetException x) {
+                StatusMessageHandler.instance().displayErrorMessage(x, "Error in refreshing plan view");
+            }
     }
 
     //
@@ -1016,14 +1059,15 @@ public class PlanView
         stepExecutionItem.setEnabled(false);
         execItem.setEnabled(true);
         allowBreaksItem.setText(Settings.instance().blocksExec() ? "Disable Breaks" : "Enable Breaks");
+        refresh();
         menuBar.requestFocusInWindow();
-        outline.repaint();
     }
 
     // preExecutionState() resets current plan, disables execItem, pauseExecutionItem
 
     public void executionState() {
         executionPaused = false;
+        showMessage("");
         showStatus("Executing");
         pauseExecutionItem.setText("Pause execution");
         pauseExecutionItem.setEnabled(true);
@@ -1035,7 +1079,7 @@ public class PlanView
     // Like executionState(), but only one step to be taken
     public void stepState() {
         executionPaused = false;
-        showMessage(" ");
+        showMessage("");
         showStatus("Single Step");
         pauseExecutionItem.setText("Pause execution");
         pauseExecutionItem.setEnabled(false);
@@ -1057,6 +1101,7 @@ public class PlanView
         pauseExecutionItem.setText("Resume execution");
         pauseExecutionItem.setEnabled(true);
         stepExecutionItem.setEnabled(true);
+        refresh();
         menuBar.requestFocusInWindow();
     }
 
@@ -1076,14 +1121,14 @@ public class PlanView
         if (breakPointSet.isEmpty())
             removeBPsItem.setEnabled(true);
         breakPointSet.add(bp);
-        outline.repaint();
+        repaint();
     }
 
     private void deleteBreakPoint(LuvBreakPoint bp) {
         breakPointSet.remove(bp);
         if (breakPointSet.isEmpty())
             removeBPsItem.setEnabled(false);
-        outline.repaint();
+        repaint();
     }
 
     private void removeAllBreakPoints() {
@@ -1091,7 +1136,7 @@ public class PlanView
             bp.getNode().deleteBreakPoint(bp);
         breakPointSet.clear();
         removeBPsItem.setEnabled(false);
-        outline.repaint();
+        repaint();
     }
 
     //

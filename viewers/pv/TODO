@@ -7,7 +7,7 @@ Single-step display independently of execution
 
 New breakpoints:
  - on condition change
- - on assignment (is this already implemented?)
+ - on assignment (was this already implemented?)
 
 Recent items history
  - 'Load recent' menu item
@@ -20,7 +20,13 @@ Bugs
 
 Redisplay still not always happening when it should
  - plan views not "live", even when front window
+  * FIXED! was problem with changing hash code
  - variable display in node info window; strangely, condition view works.
+
+Debug file in settings window
+ - if 'none' selected, need to make it stick somehow between settings
+
+Occasional hang on exit, usually if execution paused or (once) with multiple plan views
 
 
 Performance
