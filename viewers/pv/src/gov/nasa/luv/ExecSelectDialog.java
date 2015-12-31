@@ -71,6 +71,8 @@ public class ExecSelectDialog
     private static final Point LIBRARY_DIALOG_LOC = new Point(300, 300);
     private static final Point PATH_DIALOG_LOC = new Point(400, 400);
 
+    private static final File DEV_NULL = new File("/dev/null");
+
     private ButtonGroup execGroup;
 	private JRadioButton plexilTest, plexilExec, plexilSim, userDefined, externalApp;
 	private JButton debugBut, configBut, scriptBut, saveBut;
@@ -324,7 +326,7 @@ public class ExecSelectDialog
 		noneDebugBut.addActionListener(new ActionListener() {
                 // Dumbed down for simplicity's sake
                 public void actionPerformed(ActionEvent e) {
-                    debugFile = null;
+                    debugFile = DEV_NULL;
                     debugLab.setText("(none)");
                     view.showMessage("Selected no debug file");
                 }
@@ -574,12 +576,16 @@ public class ExecSelectDialog
         defaultScriptBut.setVisible(val);
     }
 
-    private static void updateLabel(JLabel label, File filename)
-    {
+    private static void updateLabel(JLabel label, File filename) {
         if (filename == null) {
             label.setText("");
             label.setToolTipText("");
-        } else {
+        }
+        else if (DEV_NULL.equals(filename)) {
+            label.setText("(none)");
+            label.setToolTipText("/dev/null");
+        }
+        else {
             label.setText(filename.getName());
             label.setToolTipText(filename.toString());
         }

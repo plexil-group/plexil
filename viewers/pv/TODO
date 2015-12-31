@@ -20,11 +20,12 @@ Bugs
 
 Redisplay still not always happening when it should
  - plan views not "live", even when front window
-  * FIXED! was problem with changing hash code
+  [FIXED! was problem with changing hash code]
  - variable display in node info window; strangely, condition view works.
+  [in progress; found part of problem, not completely solved yet]
 
 Debug file in settings window
- - if 'none' selected, need to make it stick somehow between settings
+ - if 'none' selected, need to make it stick somehow between settings [done]
 
 Occasional hang on exit, usually if execution paused or (once) with multiple plan views
 

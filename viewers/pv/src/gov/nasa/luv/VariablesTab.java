@@ -72,6 +72,7 @@ import org.netbeans.swing.outline.TreePathSupport;
 
 public class VariablesTab
     extends JPanel { 
+
     private boolean flexState;
     
     /** 
@@ -125,6 +126,12 @@ public class VariablesTab
 
     private class VariableTreeTable
         extends Outline {
+
+        // Column numbers in *row model* coordinates
+        // Add 1 for Outline model coordinates
+        private static final int IN_OUT_COL = 0;
+        private static final int TYPE_COL = 1;
+        private static final int VALUE_COL = 2;
 	
         private RootNode root;
         private OutlineModel model;
@@ -231,15 +238,20 @@ public class VariablesTab
                             if (n != node)
                                 return; // shouldn't happen
                             VNode v = getChildByName(name);
-                            if (v == null)
+                            if (v == null) {
+                                // *** TEMP ***
+                                System.out.println("Can't find variable " + name + " in node " + n.getNodeName());
                                 return; // not supposed to happen
+                            }
                             int row =
-                                model.getLayout().getRowForPath(n.getTreePath());
-                            if (row < 0)
+                                model.getLayout().getRowForPath(v.getTreePath());
+                            if (row < 0) {
+                                // *** TEMP ***
+                                System.out.println("No row for variable " + name + " in node " + n.getNodeName());
                                 return;
-                            setValueAt(value, row, 2); // FIXME: flush magic number
-                            tableChanged(new TableModelEvent(model, row, row, 2)); // ""
-                            repaint();
+                            }
+                            // For effect
+                            model.setValueAt(value, row, VALUE_COL + 1);
                         }
                     });		
 
@@ -251,6 +263,21 @@ public class VariablesTab
 
             public String toString() {
                 return node.getNodeName();
+            }
+
+            public boolean equals(Object o) {
+                if (this == o)
+                    return true;
+                if (!(o instanceof RootNode))
+                    return false;
+                RootNode other = (RootNode) o;
+                return node.getNodeName().equals(other.node.getNodeName())
+                    && children.size() == other.children.size(); 
+            }
+
+            public int hashCode() {
+                return node.getNodeName().hashCode() * 31
+                    + children.size();
             }
 
             //
@@ -310,10 +337,6 @@ public class VariablesTab
             public Icon getIcon() {
                 return Constants.getIcon(node.getType());
             }
-
-            //
-            // Internals
-            //
         }
 
         private class VariableNode
@@ -346,6 +369,19 @@ public class VariablesTab
 
             public TreePath getTreePath() {
                 return parent.getTreePath().pathByAddingChild(this);
+            }
+
+            public boolean equals(Object o) {
+                if (this == o)
+                    return true;
+                if (!(o instanceof VariableNode))
+                    return false;
+                VariableNode other = (VariableNode) o;
+                return getName().equals(other.getName());
+            }
+
+            public int hashCode() {
+                return getName().hashCode();
             }
 
             //
@@ -415,6 +451,22 @@ public class VariablesTab
             //
 
             @Override
+            public boolean equals(Object o) {
+                if (!super.equals(o))
+                    return false;
+                if (!(this instanceof ArrayVariableNode))
+                    return false;
+                ArrayVariableNode other = (ArrayVariableNode) o;
+                return getChildCount() == other.getChildCount();
+            }
+
+            @Override
+            public int hashCode() {
+                return getName().hashCode() * 31
+                    + children.size();
+            }
+
+            @Override
             public Enumeration<VNode> children() {
                 return children.elements();
             }
@@ -469,11 +521,11 @@ public class VariablesTab
 
             public String getColumnName(int col) {
                 switch (col) {
-                case 0:
+                case IN_OUT_COL:
                     return "In/InOut";
-                case 1:
+                case TYPE_COL:
                     return "Type";
-                case 2:
+                case VALUE_COL:
                     return "Value";
                 default:
                     return null;
@@ -490,11 +542,11 @@ public class VariablesTab
 
                 Variable var = ((VariableNode) node).getVariable();
                 switch(column) {
-                case 0:
+                case IN_OUT_COL:
                     return var.getInOut();
-                case 1:
+                case TYPE_COL:
                     return var.getType();
-                case 2:
+                case VALUE_COL:
                     return var.getValue();
                 default:
                     return null;
@@ -575,7 +627,4 @@ public class VariablesTab
     
     }
 
-    //
-    // Helper classes for VariableTreeTable
-    //
 }

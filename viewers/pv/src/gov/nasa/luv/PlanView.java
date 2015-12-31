@@ -172,7 +172,7 @@ public class PlanView
     private void constructFrame() {
         addWindowListener(makeWindowListener());
 
-        setDefaultCloseOperation(HIDE_ON_CLOSE); // *** FIXME ***
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         constructMenuBar();
 
@@ -387,7 +387,7 @@ public class PlanView
         if (plan == null)
             return;
             
-        // TODO
+        // TODO: remove from root model?
         plan.getRootNode().removeChangeListenerFromAll(nodeChangeListener);
         plan = null;
     }
@@ -410,10 +410,8 @@ public class PlanView
             // when dispose called
             @Override
             public void windowClosed(WindowEvent e) {
-                if (plan != null) {
-                    plan.getRootNode().removeChangeListenerFromAll(nodeChangeListener);
-                    // *** TODO: MORE CLEANUP ***
-                }
+                Luv.getLuv().deleteView(PlanView.this);
+                unsetPlan();
             }
 
             // when closed from system menu - per dox:
@@ -422,7 +420,12 @@ public class PlanView
             //  the window close operation will be cancelled."
             @Override
             public void windowClosing(WindowEvent e) {
-                // *** TODO ***
+                dispose();
+            }
+
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                menuBar.requestFocusInWindow();
             }
         };
 
@@ -450,7 +453,6 @@ public class PlanView
                     model.setValueAt(outcome, row, OUTCOME_COL_NUM + 1);
                 if (failure != null)
                     model.setValueAt(failure, row, FAILURE_TYPE_COL_NUM + 1);
-                // repaint(); // redundant?
             }
 
             @Override
@@ -480,7 +482,6 @@ public class PlanView
         else {
             boolean allFound = plan.resolveLibraryCalls();
             treeModel.reload();
-            repaint(); // redundant?
             if (allFound) {
                 showMessage("All library nodes linked.", Color.GREEN.darker());
                 linkItem.setEnabled(false);
@@ -500,19 +501,24 @@ public class PlanView
 
         SwingWorker<Integer, Object> worker =
             new SwingWorker<Integer, Object>() {
+
+                private static final int LOAD_FAILED = -1;
+                private static final int NO_CHANGE = 0;
+                private static final int NEW_PLAN = 1;
+                
                 @Override
                 public Integer doInBackground() {
                     Plan newPlan = FileHandler.readPlan(plan.getPlanFile());
                     if (newPlan == null)
-                        return -1; // couldn't load
+                        return LOAD_FAILED; // couldn't load
                     else if (newPlan.equals(plan) && !plan.hasLibraryCalls())
-                        return 0; // no change
+                        return NO_CHANGE; // no change
                     else {
                         Plan oldPlan = plan;
                         unsetPlan();
                         oldPlan.merge(newPlan);
                         setPlan(oldPlan);
-                        return 1;
+                        return NEW_PLAN;
                     }
                 }
 
@@ -534,12 +540,12 @@ public class PlanView
                     reset(); // can't avoid it!
 
                     switch (result) {
-                    case 0:
+                    case NO_CHANGE:
                         linkItem.setEnabled(plan.hasUnresolvedLibraryCalls());
                         readyState("Plan " + plan.getPlanFile() + " is unchanged");
                         return;
 
-                    case 1:
+                    case NEW_PLAN:
                         repaint(); // redundant?
                         linkItem.setEnabled(plan.hasLibraryCalls());
                         readyState("Reloaded " + plan.getPlanFile(), Color.GREEN.darker());

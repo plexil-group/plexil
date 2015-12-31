@@ -585,6 +585,15 @@ public class Luv extends JFrame {
         view.setVisible(true);
     }
 
+    // Bookkeeping for when a window is disposed
+    public void deleteView(PlanView view) {
+        Plan p = view.getPlan();
+        if (p == null)
+            return;
+        planViews.remove(p.getName());
+        RootModel.removePlan(p);
+    }
+
     // Called when a plan is received from the Exec.
     public void newPlanFromExec(Plan plan) {
         handleNewPlan(plan);
