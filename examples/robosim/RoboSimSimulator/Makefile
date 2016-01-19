@@ -32,13 +32,6 @@ INC		:= $(wildcard *.hh)
 
 LIBS		+= IpcUtils PlexilExpr PlexilUtils standalonesimulator ipc pthread
 
-INC_DIRS 	+= $(PLEXIL_HOME)/src/utils \
-  $(PLEXIL_HOME)/src/expr \
-  $(PLEXIL_HOME)/src/third-party/ipc/src \
-  $(PLEXIL_HOME)/src/third-party/ooid/kashmir \
-  $(PLEXIL_HOME)/src/interfaces/IpcUtils \
-  $(PLEXIL_HOME)/src/apps/StandAloneSimulator
-
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend

@@ -44,12 +44,6 @@ endif
 EXECUTABLE := robotSimulator
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
-  $(PLEXIL_HOME)/src/value \
-  $(PLEXIL_HOME)/src/expr \
-  $(PLEXIL_HOME)/src/interfaces/IpcUtils \
-  $(PLEXIL_HOME)/src/third-party/ipc/src \
-  $(PLEXIL_HOME)/src/third-party/ooid/kashmir
 LIB_PATH	+= $(OPENGL_LIB_PATH)
 LIBS		+= pugixml IpcUtils ipc \
  PlexilExpr PlexilUtils PlexilValue $(PTHREAD_LIB) $(OPENGL_LIBS)
