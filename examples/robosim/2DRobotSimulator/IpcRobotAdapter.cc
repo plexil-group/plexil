@@ -31,10 +31,6 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
-// ooid classes
-#include "uuid.h"
-#include "system/devrand.h"
-
 #include <sys/time.h>
 
 /**
