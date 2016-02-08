@@ -32,6 +32,8 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
+#include <map>
+
 #include <cstring>
 
 // ooid classes
@@ -41,14 +43,28 @@
 namespace PLEXIL 
 {
 
+  // Message type name cache
+  // Not clear whether string concatenation or map lookup is more expensive.
+
+  typedef std::pair<std::string, std::string> MessageFormatKey;
+  typedef std::map<MessageFormatKey, std::string> MessageFormatMap;
+  static MessageFormatMap messageFormatMap;
+
   /**
-   * Returns a formatted message type string given the basic message type and destination ID.
-   * The caller is responsible for
+   * Returns a constant character string pointer for the formatted message type,
+   *  given the basic message type and destination ID.
    * @param msgName The name of the message type
    * @param destId The destination ID for the message
+   * @return Character string pointer.
    */
-  static std::string formatMsgName(const std::string& msgName, const std::string& destId) {
-    return destId + msgName;
+  static char const *formatMsgName(const std::string& msgName, const std::string& destId) {
+    MessageFormatKey const key(msgName, destId);
+    MessageFormatMap::iterator it = messageFormatMap.find(key);
+    if (it != messageFormatMap.end())
+      return it->second.c_str();
+    it = messageFormatMap.insert(it,
+                                 std::pair<MessageFormatKey, std::string>(key, destId + msgName));
+    return it->second.c_str();
   }
 
   /**
@@ -665,7 +681,7 @@ namespace PLEXIL
     assertTrue_2(m_isStarted, "publishCommand called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
-    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest).c_str(), (void *) &cmdPacket);
+    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &cmdPacket);
     if (result == IPC_OK) {
       result = sendParameters(argsToDeliver, serial);
       debugMsg("IpcFacade:publishCommand", "Command " << command << " published with serial " << serial);
@@ -684,8 +700,8 @@ namespace PLEXIL
     uint32_t serial = getSerialNumber();
     struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupNow, argsToDeliver.size(), serial, m_myUID.c_str() }, lookup.c_str() };
 
-    IPC_RETURN_TYPE result;
-    result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest).c_str(), (void *) &leader);
+    IPC_RETURN_TYPE result =
+      IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &leader);
     if (result == IPC_OK) {
       result = sendParameters(argsToDeliver, serial);
     }
@@ -700,7 +716,8 @@ namespace PLEXIL
     assertTrue_2(m_isStarted, "publishReturnValues called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, m_myUID.c_str() }, request_serial, request_uid.c_str() };
-    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid).c_str(), (void *) &packet);
+    IPC_RETURN_TYPE result =
+      IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid), (void *) &packet);
     if (result == IPC_OK) {
       result = sendParameters(std::vector<Value>(1, arg), serial, request_uid);
     }
@@ -720,6 +737,7 @@ namespace PLEXIL
     // Telemetry values message
     debugMsg("IpcFacade:publishTelemetry",
              " sending telemetry message for \"" << destName << "\"");
+    // *** FIXME: Memory leak? ***
     PlexilStringValueMsg* tvMsg = new PlexilStringValueMsg();
     tvMsg->header.msgType = (uint16_t) PlexilMsgType_TelemetryValues;
     tvMsg->stringValue = destName.c_str();
@@ -769,13 +787,15 @@ namespace PLEXIL
     IPC_RETURN_TYPE result = IPC_OK;
     for (size_t i = 0; i < nParams && result == IPC_OK; i++) {
       char const *msgFormat = msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType);
-      std::string msgName;
-      if (!dest.empty()) {
-        msgName = formatMsgName(msgFormat, dest);
-        msgFormat = msgName.c_str();
+      if (dest.empty()) {
+        debugMsg("IpcFacade:sendParameters", " using format " << msgFormat << " for parameter " << i);
+        result = IPC_publishData(msgFormat, paramMsgs[i]);
       }
-      debugMsg("IpcFacade:sendParameters", " using format " << msgFormat << " for parameter " << i);
-      result = IPC_publishData(msgFormat, paramMsgs[i]);
+      else {
+        char const *msgName = formatMsgName(msgFormat, dest);
+        debugMsg("IpcFacade:sendParameters", " using format " << msgName << " for parameter " << i);
+        result = IPC_publishData(msgName, paramMsgs[i]);
+      }
     }
 
     // free the parameter packets
@@ -854,85 +874,85 @@ namespace PLEXIL
     status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(MSG_BASE), m_myUID).c_str(), IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
+    status = IPC_defineMsg(formatMsgName(MSG_BASE, m_myUID), IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(RETURN_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(RETURN_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(BOOLEAN_VALUE_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(BOOLEAN_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(BOOLEAN_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(INTEGER_VALUE_MSG, IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(INTEGER_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(INTEGER_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(REAL_VALUE_MSG, IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(REAL_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(REAL_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(STRING_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(STRING_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(BOOLEAN_ARRAY_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(BOOLEAN_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(BOOLEAN_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(INTEGER_ARRAY_MSG, IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(INTEGER_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(INTEGER_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(REAL_ARRAY_MSG, IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(REAL_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(REAL_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_ARRAY_MSG, IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(STRING_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(STRING_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(BOOLEAN_PAIR_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(BOOLEAN_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(BOOLEAN_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(INTEGER_PAIR_MSG, IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(INTEGER_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(INTEGER_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(REAL_PAIR_MSG, IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(REAL_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(REAL_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(STRING_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(STRING_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
     condDebugMsg(status == IPC_OK, "IpcFacade:definePlexilIPCMessageTypes", " succeeded");
     return status == IPC_OK;
   }
@@ -1146,10 +1166,9 @@ namespace PLEXIL
    */
   IPC_RETURN_TYPE IpcFacade::unsubscribeCentral (const char *msgName, HANDLER_TYPE handler) {
     IPC_RETURN_TYPE result = IPC_unsubscribe(msgName, handler);
-    if (result == IPC_OK) {
-      result = IPC_unsubscribe(formatMsgName(std::string(msgName), m_myUID).c_str(), handler);
-    }
-    return result;
+    if (result != IPC_OK)
+      return result;
+    return IPC_unsubscribe(formatMsgName(std::string(msgName), m_myUID), handler);
   }
 
   /**
@@ -1166,9 +1185,8 @@ namespace PLEXIL
     checkError(IPC_isMsgDefined(msgName),
                "IpcFacade::subscribeDataCentral: fatal error: message \"" << msgName << "\" not defined");
     IPC_RETURN_TYPE result = IPC_subscribeData(msgName, handler, clientData);
-    if (result == IPC_OK) {
-      result = IPC_subscribeData(formatMsgName(std::string(msgName), m_myUID).c_str(), handler, clientData);
-    }
+    if (result == IPC_OK)
+      result = IPC_subscribeData(formatMsgName(msgName, m_myUID), handler, clientData);
     condDebugMsg(result != IPC_OK,
                  "IpcFacade:subscribeDataCentral", " for message name \"" << msgName << "\" failed, IPC_errno = " << IPC_errno);
     return result;
