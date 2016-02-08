@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "JNIUtils.hh"
 #include "ScopedOstreamRedirect.hh"
-#include "lifecycle-utils.h'
+#include "lifecycle-utils.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
