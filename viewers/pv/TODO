@@ -1,20 +1,3 @@
-Features
---------
-
-Single-step display independently of execution
- - Reimplement execution breakpoints
- - Implement display breakpoints
-
-New breakpoints:
- - on condition change
- - on assignment (was this already implemented?)
-
-Recent items history
- - 'Load recent' menu item
- - Restore settings if plan file in history
- - Save history at shutdown
-
-
 Bugs
 ----
 
@@ -28,6 +11,30 @@ Debug file in settings window
  - if 'none' selected, need to make it stick somehow between settings [done]
 
 Occasional hang on exit, usually if execution paused or (once) with multiple plan views
+
+
+Restore Features
+----------------
+
+Breakpoints
+ - Need to pause execution when state update received, NOT when displayed
+ - 
+
+New Features
+------------
+
+Single-step display independently of execution
+ - Reimplement execution breakpoints
+ - Implement display breakpoints
+
+New breakpoints:
+ - on condition change
+ - on assignment (was this already implemented?)
+
+Recent items history
+ - 'Load recent' menu item
+ - Restore settings if plan file in history
+ - Save history at shutdown
 
 
 Performance
