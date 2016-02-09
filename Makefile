@@ -47,10 +47,16 @@ AUTORECONF := autoreconf
 LIBTOOLIZE := libtoolize
 
 # Primary target
-plexil-default: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample
+plexil-default: tools
+
+# The whole shooting match
+all: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample
 
 # Just the tools without the examples
 tools: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv
+
+# Core facilities
+essentials: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim
 
 #
 # Standalone targets
