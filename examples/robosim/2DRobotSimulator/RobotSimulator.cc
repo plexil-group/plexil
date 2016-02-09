@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -175,27 +175,32 @@ void readRobotLocations(const std::string& fName)
       lastPos = dataStr.find_first_not_of(delimiter, pos);
       pos = dataStr.find_first_of(delimiter, lastPos);
       CHECK_READ_DATA(pos, lastPos, myFile);
-      int x = atoi(dataStr.substr(lastPos, pos - lastPos).c_str());
+      std::string temp = dataStr.substr(lastPos, pos - lastPos);
+      int x = atoi(temp.c_str());
 
       lastPos = dataStr.find_first_not_of(delimiter, pos);
       pos = dataStr.find_first_of(delimiter, lastPos);
       CHECK_READ_DATA(pos, lastPos, myFile);
-      int y = atoi(dataStr.substr(lastPos, pos - lastPos).c_str());
+      temp = dataStr.substr(lastPos, pos - lastPos);
+      int y = atoi(temp.c_str());
 
       lastPos = dataStr.find_first_not_of(delimiter, pos);
       pos = dataStr.find_first_of(delimiter, lastPos);
       CHECK_READ_DATA(pos, lastPos, myFile);
-      double r = atof(dataStr.substr(lastPos, pos - lastPos).c_str());
+      temp = dataStr.substr(lastPos, pos - lastPos);
+      double r = atof(temp.c_str());
 
       lastPos = dataStr.find_first_not_of(delimiter, pos);
       pos = dataStr.find_first_of(delimiter, lastPos);
       CHECK_READ_DATA(pos, lastPos, myFile);
-      double g = atof(dataStr.substr(lastPos, pos - lastPos).c_str());
+      temp = dataStr.substr(lastPos, pos - lastPos);
+      double g = atof(temp.c_str());
 
       lastPos = dataStr.find_first_not_of(delimiter, pos);
       pos = dataStr.find_first_of(delimiter, lastPos);
       CHECK_READ_DATA(pos, lastPos, myFile);
-      double b = atof(dataStr.substr(lastPos, pos - lastPos).c_str());
+      temp = dataStr.substr(lastPos, pos - lastPos);
+      double b = atof(temp.c_str());
 
       Robot* robot = new Robot(terrain, 
                                resources,
