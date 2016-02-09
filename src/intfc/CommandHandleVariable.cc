@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ namespace PLEXIL
   void CommandHandleVariable::setName(std::string const &name)
   {
     if (m_name)
-      delete m_name;
+      free((void *) m_name);
     m_name = strdup(name.c_str());
   }
 
