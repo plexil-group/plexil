@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -463,7 +463,8 @@ namespace PLEXIL
     //grab serial from parameter
     std::string::size_type sep_pos = front->find(SERIAL_UID_SEPERATOR(), 1);
     assertTrueMsg(sep_pos != std::string::npos, "Could not find UID seperator in first parameter of return value");
-    serial = atoi(front->substr(0, sep_pos).c_str());
+    std::string const serial_string = front->substr(0, sep_pos);
+    serial = atoi(serial_string.c_str());
     std::string front_string = front->substr(sep_pos + 1, front->size());
     debugMsg("IpcAdapter:executeCommand",
              " SendReturnValue(sender_serial:\"" << serial << "\" \"" << front_string << "\")");

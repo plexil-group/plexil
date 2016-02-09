@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,9 @@
 
 #include <sstream>
 
+#include <cstring>
+#include <cstdlib>
+
 namespace PLEXIL
 {
 
@@ -52,11 +55,11 @@ namespace PLEXIL
 	  m_ignoreConnectFailure(true)
   {
     // Parse XML
-    char const *hostname = xml.attribute(LUV_HOSTNAME_ATTR()).value();
+    char const *hostname = strdup(xml.attribute(LUV_HOSTNAME_ATTR()).value());
     if (hostname && *hostname)
       m_host = hostname;
     else
-      m_host = LUV_DEFAULT_HOSTNAME();
+      m_host = strdup(LUV_DEFAULT_HOSTNAME());
 
     pugi::xml_attribute portattr = xml.attribute(LUV_PORT_ATTR());
     if (portattr)
@@ -76,19 +79,20 @@ namespace PLEXIL
 						   const bool ignoreConnectionFailure)
 	: ExecListener(),
 	  m_socket(NULL),
-	  m_host(host.c_str()),
+	  m_host(strdup(host.c_str())),
 	  m_port(port),
 	  m_block(block),
 	  m_ignoreConnectFailure(ignoreConnectionFailure)
   {
 	// open the socket
-	openSocket(port, host.c_str(), ignoreConnectionFailure);
+	openSocket(m_port, m_host, m_ignoreConnectFailure);
   }
 
   //* Destructor.
   LuvListener::~LuvListener()
   {
 	closeSocket();
+    free((void *) m_host);
   }
 
   /**

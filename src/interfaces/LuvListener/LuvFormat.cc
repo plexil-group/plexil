@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -98,9 +98,10 @@ namespace PLEXIL {
     for (size_t i = 0; i < allConditions.size(); ++i) {
       Expression const *cond = node->getCondition(i);
       if (cond) {
+        std::string const valueStr = cond->valueString();
         simpleTextElement(s, 
                           allConditions[i].c_str(), 
-                          cond->valueString().c_str());
+                          valueStr.c_str());
       }
     }
 
@@ -180,9 +181,10 @@ namespace PLEXIL {
     endTag(s, VARIABLE_TAG());
 
     // format variable value
+    std::string const valueStr = value.valueToString();
     simpleTextElement(s, 
                       VARIABLE_VALUE_TAG(),
-                      value.valueToString().c_str());
+                      valueStr.c_str());
     
     endTag(s, ASSIGNMENT_TAG());
   }
