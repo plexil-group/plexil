@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,7 @@ public class CommandNode extends ExpressionNode
     // AST is:
     // (COMMAND ((COMMAND_NAME NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
+    @Override
     public void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
@@ -130,6 +131,7 @@ public class CommandNode extends ExpressionNode
         }
     }
 
+    @Override
     public void check(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);

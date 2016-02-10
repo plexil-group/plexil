@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,8 @@ public class VariableNode extends ExpressionNode
     /**
      * @brief Prepare for the semantic check.
      */
-    public void earlyCheck(NodeContext context, CompilerState state)
+    @Override
+    public void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         // Get variable from context, if possible
         m_variable = context.findVariable(this.getText());
@@ -68,7 +69,6 @@ public class VariableNode extends ExpressionNode
                                 Severity.ERROR);
         }
         else {
-
             m_dataType = m_variable.getVariableType();
         }
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     }
 
     /**
-     * @brief Establish bindings and do initial checks.
+     * @brief Establish bindings and do initial checks in top-down order.
      * @note Derived classes that establish binding contexts should override or wrap this method.
      */
     public void earlyCheck(NodeContext context, CompilerState state)
@@ -125,7 +125,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     }
 
     /**
-     * @brief Perform a recursive semantic check.
+     * @brief Perform a recursive semantic check in bottom-up order.
      */
     public void check(NodeContext context, CompilerState state)
     {

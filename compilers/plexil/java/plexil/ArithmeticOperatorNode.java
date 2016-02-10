@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,9 +60,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
-    public void check (NodeContext context, CompilerState state)
+    @Override
+    public void check(NodeContext context, CompilerState state)
     {
-        checkChildren (context, state);
+        checkChildren(context, state);
 
         switch (this.getType()) {
         case PlexilLexer.PLUS:

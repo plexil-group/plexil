@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,9 @@ public class ArgumentListNode extends PlexilTreeNode
                                     + " parameters, but " + Integer.toString(this.getChildCount()) 
                                     + " were supplied",
                                     Severity.ERROR);
+                break; // no need to check further
             }
+            this.getChild(i).earlyCheck(context, state); // for effect
         }
     }
 
@@ -95,6 +97,7 @@ public class ArgumentListNode extends PlexilTreeNode
 
             PlexilDataType reqdType = paramSpec.elementAt(i).getVariableType();
             ExpressionNode parm = (ExpressionNode) this.getChild(i);
+            parm.check(context, state);
             if (!parm.assumeType(reqdType, state)) {
                 state.addDiagnostic(parm,
                                     "Parameter " + Integer.toString(i+1)
