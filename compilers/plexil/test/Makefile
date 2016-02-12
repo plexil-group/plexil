@@ -47,7 +47,8 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               maxTest minTest mod1 expr1 expr3 expr4 \
               try1 update1 update2 update3 \
               resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
-              invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
+              invariantFail1 succeeded1 waiting1 executing1 executing2 \
+              finished1 failed1 skipped1 \
               iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 \
               inactive1 wait1 date1 \
               time-lookup-test time-lookup-test1 time_tolerance_test timed-iteration \
@@ -55,7 +56,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
-SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup BadResource0 duplicateLookupDecl1 expr5 expr2 lookup1 \
+SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 duplicateLookupDecl1 expr5 expr2 lookup1 \
           LibraryCall5 LibraryCall6 on-message3 SeekGoalAndEnergy
 
 TESTS	         := $(SMALL_TESTS)
