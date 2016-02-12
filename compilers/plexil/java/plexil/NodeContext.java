@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,9 +105,18 @@ public class NodeContext
 
     public boolean isChildNodeId(String name)
     {
-        if (name == null) return false;
-        if (m_childIds.containsKey(name)) return true;
+        if (name == null)
+            return false;
+        if (m_childIds.containsKey(name))
+            return true;
         return false;
+    }
+
+    public boolean isSiblingNodeId(String name)
+    {
+        if (m_parentContext == null)
+            return false;
+        return m_parentContext.isChildNodeId(name);
     }
 
     public PlexilTreeNode getChildNodeId(String name)
@@ -123,37 +132,75 @@ public class NodeContext
         m_childIds.put(name, nameNode);
     }
 
-    // *** this won't find library nodes!
-    // Only finds nodes in the current tree.
-    public PlexilTreeNode findNode(String name)
+    public boolean isAncestorNodeId(String name)
     {
-        if (name == null) return null;
-        PlexilTreeNode result = null;
-        try {
-            result = getRootContext().findNodeInternal(name);
+        NodeContext ancestor = m_parentContext;
+        while (ancestor != null) {
+            if (name.equals(ancestor.getNodeName()))
+                return true;
+            ancestor = ancestor.getParentContext();
         }
-        catch (Exception e) {
-        }
-        return result;
+        return false;
     }
 
-    protected PlexilTreeNode findNodeInternal(String name)
+    public NodeContext getAncestorContext(String name)
     {
-        // check self
-        // FIXME: implement (?)
-
-        // check children
-        if (m_childIds.containsKey(name))
-            return m_childIds.get(name);
-
-        // recurse down child contexts
-        for (NodeContext child : m_children) {
-            PlexilTreeNode result = 
-                child.findNodeInternal(name);
-            if (result != null)
-                return result;
+        if (name.equals(m_nodeName))
+            return this;
+        NodeContext ancestor = m_parentContext;
+        while (ancestor != null) {
+            if (name.equals(ancestor.getNodeName()))
+                return ancestor;
+            ancestor = ancestor.getParentContext();
         }
         return null;
+    }
+
+    public NodeContext getChildContext(String name)
+    {
+        for (NodeContext child : m_children)
+            if (name.equals(child.getNodeName()))
+                return child;
+        return null;
+    }
+
+    public NodeContext getSiblingContext(String name)
+    {
+        if (m_parentContext == null)
+            return null;
+        return m_parentContext.getChildContext(name);
+    }
+
+    // Meant to be called from a node reference.
+    public boolean isNodeIdReachable(String name)
+    {
+        return name.equals(m_nodeName)
+            || isAncestorNodeId(name)
+            || isChildNodeId(name)
+            || isSiblingNodeId(name);
+    }
+
+    // Meant to be called from a node reference.
+    public boolean isNodeIdUnique(String name)
+    {
+        NodeContext c = null;
+        if (name.equals(m_nodeName))
+            c = this;
+        if (isAncestorNodeId(name)) {
+            if (c != null)
+                return false;
+            else
+                c = getAncestorContext(name);
+        }
+        if (isChildNodeId(name)) {
+            if (c != null)
+                return false;
+            else
+                c = getChildContext(name);
+        }
+        if (isSiblingNodeId(name) && c != null && c != this)
+            return false;
+        return true;
     }
 
     // Creates a locally unique node name based on the child's type

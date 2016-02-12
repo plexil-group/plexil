@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,10 @@ public class NodeRefNode extends PlexilTreeNode
 		return new NodeRefNode(this);
 	}
 
+    @Override
 	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-
+        // Nothing to check
 	}
 
 	public void check(NodeContext context, CompilerState state)

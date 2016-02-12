@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -56,17 +56,26 @@ public class NodeStatePredicateNode extends ExpressionNode
 		// TODO: check that argument is a node ID or reference (??)
 	}
 
-	public void check(NodeContext context, CompilerState state)
+    @Override
+	public void checkChildren(NodeContext context, CompilerState state)
 	{
 		PlexilTreeNode child = this.getChild(0);
 		switch (child.getToken().getType()) {
-		case PlexilLexer.NCNAME:
-			// Check that argument is a valid node ID
-			if (context.findNode(child.getToken().getText()) == null) {
-				state.addDiagnostic(child,
-									"Unable to find node \"" + child.getToken().getText() + "\"",
-									Severity.ERROR);
-			}
+		case PlexilLexer.NCNAME: {
+			// Check that argument is a unique, reachable node ID
+            String nodeName = child.getToken().getText();
+            PlexilTreeNode target = null;
+            if (!context.isNodeIdReachable(nodeName)) {
+                state.addDiagnostic(child,
+                                    "No reachable node named \"" + nodeName + "\"",
+                                    Severity.ERROR);
+            }
+            else if (!context.isNodeIdUnique(nodeName)) {
+                state.addDiagnostic(child,
+                                    "Node id \"" + nodeName + "\" is ambiguous",
+                                    Severity.ERROR);
+            }
+        }
 			break;
 
 		case PlexilLexer.CHILD_KYWD:

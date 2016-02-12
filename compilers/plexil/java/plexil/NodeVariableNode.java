@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -78,12 +78,35 @@ public class NodeVariableNode extends ExpressionNode
 		return new NodeVariableNode(this);
 	}
 
-
-    public void check (NodeContext context, CompilerState state)
+    @Override
+    public void checkSelf(NodeContext context, CompilerState state)
     {
-        super.check(context, state);
         if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE)
             m_dataType = GlobalContext.getGlobalContext().getTimeType();
+    }
+
+    @Override
+    public void checkChildren(NodeContext context, CompilerState state)
+    {
+        // Verify that referenced node is reachable from context
+        PlexilTreeNode nodeRef = this.getChild(0);
+        if (nodeRef.getToken().getType() == PlexilLexer.NCNAME) {
+			// Check for a unique, reachable node ID
+            String nodeName = nodeRef.getToken().getText();
+            PlexilTreeNode target = null;
+            if (!context.isNodeIdReachable(nodeName)) {
+                state.addDiagnostic(nodeRef,
+                                    "No reachable node named \"" + nodeName + "\"",
+                                    Severity.ERROR);
+            }
+            else if (!context.isNodeIdUnique(nodeName)) {
+                state.addDiagnostic(nodeRef,
+                                    "Node id \"" + nodeName + "\" is ambiguous",
+                                    Severity.ERROR);
+            }
+        }
+        else
+            nodeRef.check(context, state);
     }
 
     public void constructXML()
@@ -95,9 +118,9 @@ public class NodeVariableNode extends ExpressionNode
 
 		PlexilTreeNode nodeRef = this.getChild(0);
 		if (nodeRef.getToken().getType() == PlexilLexer.NCNAME) {
-			IXMLElement id = new XMLElement ("NodeId");
-			id.setContent (this.getChild(0).getText());
-			m_xml.addChild (id);
+			IXMLElement id = new XMLElement("NodeId");
+			id.setContent(this.getChild(0).getText());
+			m_xml.addChild(id);
 		}
 		else if (nodeRef instanceof NodeRefNode) {
 			// NodeRef
