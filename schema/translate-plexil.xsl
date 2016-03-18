@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -780,8 +780,13 @@
           <NodeId>
             <xsl:value-of select="$loop-node-id" />
           </NodeId>
+          <SkipCondition>
+            <NOT>
+              <xsl:apply-templates select="Condition/*" />
+            </NOT>
+          </SkipCondition>
           <RepeatCondition>
-            <xsl:apply-templates select="Condition/*" />
+            <BooleanValue>true</BooleanValue>
           </RepeatCondition>
           <NodeBody>
             <NodeList>
