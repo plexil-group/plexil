@@ -68,7 +68,7 @@ namespace PLEXIL
   Lookup::~Lookup()
   {
     if (m_entry) {
-      m_entry->unregisterLookup(this);
+      m_entry->unregisterLookup(m_cachedState, this);
       m_entry = NULL;
     }
     if (m_paramVec) {
@@ -130,7 +130,7 @@ namespace PLEXIL
       }
     }
     if (m_entry)
-      m_entry->registerLookup(this);
+      m_entry->registerLookup(m_cachedState, this);
   }
 
   void Lookup::handleDeactivate()
@@ -141,7 +141,7 @@ namespace PLEXIL
       m_paramVec->deactivate();
 
     if (m_stateKnown)
-      m_entry->unregisterLookup(this);
+      m_entry->unregisterLookup(m_cachedState, this);
 
     // Preserve cache entry if state is known constant
     if (!m_stateIsConstant)
@@ -165,13 +165,13 @@ namespace PLEXIL
     if (!m_stateKnown) {
       if (oldKnown) {
         // state used to be known, isn't any longer
-        m_entry->unregisterLookup(this);
+        m_entry->unregisterLookup(m_cachedState, this);
         m_entry = NULL;
       }
     }
     else { // state now known
       if (oldKnown && newState != m_cachedState) {
-        m_entry->unregisterLookup(this);
+        m_entry->unregisterLookup(m_cachedState, this);
         m_entry = NULL;
         stateChanged = true;
       }
@@ -179,7 +179,7 @@ namespace PLEXIL
       m_entry =
         StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
       assertTrue_2(m_entry != NULL, "Lookup::handleChange: Failed to get state cache entry");
-      m_entry->registerLookup(this);
+      m_entry->registerLookup(m_cachedState, this);
     }
     return stateChanged;
   }
@@ -571,7 +571,7 @@ namespace PLEXIL
         m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
         m_cachedValue = val->clone();
         m_thresholds->setThresholds(val, m_tolerance);
-        m_entry->setThresholds(m_tolerance);
+        m_entry->setThresholds(m_cachedState, m_tolerance);
         return true;
       }
       else {
@@ -585,7 +585,7 @@ namespace PLEXIL
           // TODO? Check that value hasn't changed type
           *m_cachedValue = *val;
           m_thresholds->setThresholds(val, m_tolerance);
-          m_entry->setThresholds(m_tolerance);
+          m_entry->setThresholds(m_cachedState, m_tolerance);
           return true;
         }
         else

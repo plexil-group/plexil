@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,52 +26,61 @@
 
 #include "StateCacheMap.hh"
 
+#include "State.hh"
 #include "StateCacheEntry.hh"
+
+#include <map>
 
 namespace PLEXIL
 {
-  StateCacheMap::StateCacheMap()
+  class StateCacheMapImpl : public StateCacheMap
   {
-    // Initialize time state to 0
-    ensureStateCacheEntry(State::timeState())->update((double) 0);
-  }
+  private:
+    typedef std::map<State, StateCacheEntry> EntryMap;
+    EntryMap m_map;
 
-  StateCacheMap::~StateCacheMap()
-  {
-  }
+  public:
+    StateCacheMapImpl()
+      : StateCacheMap()
+    {
+      // Initialize time state to 0
+      ensureStateCacheEntry(State::timeState())->update((double) 0);
+    }
+
+    virtual ~StateCacheMapImpl()
+    {
+    }
+
+    virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
+    {
+      EntryMap::iterator it = m_map.find(state);
+      if (it == m_map.end())
+	it = m_map.insert(std::make_pair(state, StateCacheEntry())).first;
+      return &(it->second);
+    }
+
+    virtual StateCacheEntry *findStateCacheEntry(State const &state)
+    {
+      EntryMap::iterator it = m_map.find(state);
+      if (it == m_map.end())
+	return NULL;
+      else
+	return &(it->second);
+    }
+
+    virtual void removeStateCacheEntry(State const &state)
+    {
+      EntryMap::iterator it = m_map.find(state);
+      if (it == m_map.end())
+	return;
+      m_map.erase(it);
+    }
+  };
 
   StateCacheMap &StateCacheMap::instance()
   {
-    static StateCacheMap sl_instance;
-    return sl_instance;
-  }
-
-  StateCacheEntry *StateCacheMap::ensureStateCacheEntry(State const &state)
-  {
-    StateCacheEntry temp(state);
-    EntryMap::iterator it = m_map.find(temp);
-    if (it == m_map.end())
-      it = m_map.insert(StateCacheEntry(state)).first;
-    return const_cast<StateCacheEntry *>(&(*it));
-  }
-
-  StateCacheEntry *StateCacheMap::findStateCacheEntry(State const &state)
-  {
-    StateCacheEntry temp(state);
-    EntryMap::iterator it = m_map.find(temp);
-    if (it != m_map.end())
-      return const_cast<StateCacheEntry *>(&(*it));
-    else
-      return NULL;
-  }
-
-  void StateCacheMap::removeStateCacheEntry(State const &state)
-  {
-    StateCacheEntry temp(state);
-    EntryMap::iterator it = m_map.find(state);
-    if (it == m_map.end())
-      return;
-    m_map.erase(it);
+    static StateCacheMapImpl sl_instance;
+    return static_cast<StateCacheMap &>(sl_instance);
   }
 
 } // namespace PLEXIL

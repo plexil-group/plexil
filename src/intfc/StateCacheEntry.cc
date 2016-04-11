@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,33 +32,28 @@
 #include "Error.hh"
 #include "ExternalInterface.hh"
 #include "Lookup.hh"
+#include "State.hh"
 
 #include <algorithm> // std::find
 
 namespace PLEXIL
 {
-  StateCacheEntry::StateCacheEntry(State const &state)
-    : m_state(state),
-      m_value(NULL)
+  StateCacheEntry::StateCacheEntry()
+    : m_value(NULL)
   {
   }
 
   // Copy constructor, used ONLY by StateCacheMap
   // Will throw an exception if called with an entry which has a value or lookups
   StateCacheEntry::StateCacheEntry(StateCacheEntry const &orig)
-    : m_state(orig.m_state),
-      m_value(NULL)  {
+    : m_value(NULL)
+  {
     assertTrue_1(!orig.m_value && orig.m_lookups.empty());
   }
 
   StateCacheEntry::~StateCacheEntry()
   {
     delete m_value;
-  }
-
-  bool StateCacheEntry::operator<(StateCacheEntry const &y) const
-  {
-    return m_state < y.m_state;
   }
 
   ValueType const StateCacheEntry::valueType() const
@@ -77,16 +72,18 @@ namespace PLEXIL
       return false;
   }
 
-  void StateCacheEntry::registerLookup(Lookup *l)
+  void StateCacheEntry::registerLookup(State const &s, Lookup *l)
   {
     bool unsubscribed = m_lookups.empty();
     m_lookups.push_back(l);
     if (unsubscribed)
-      g_interface->subscribe(m_state);
-    updateIfStale();
+      g_interface->subscribe(s);
+    // Update if stale
+    if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount())
+      g_interface->lookupNow(s, *this);
   }
 
-  void StateCacheEntry::unregisterLookup(Lookup *l)
+  void StateCacheEntry::unregisterLookup(State const &s, Lookup *l)
   {
     if (m_lookups.empty())
       return; // can't possibly be registered
@@ -105,10 +102,10 @@ namespace PLEXIL
     }
 
     if (m_lookups.empty())
-      g_interface->unsubscribe(m_state);
+      g_interface->unsubscribe(s);
   }
 
-  void StateCacheEntry::setThresholds(Expression const *tolerance)
+  void StateCacheEntry::setThresholds(State const &s, Expression const *tolerance)
   {
     // Check for valid tolerance
     if (!tolerance->isKnown())
@@ -137,14 +134,14 @@ namespace PLEXIL
       if (vtype == INTEGER_TYPE) {
         int32_t curr;
         m_value->getValue(curr); // known to be known
-        g_interface->setThresholds(m_state, curr + itol, curr - itol);
+        g_interface->setThresholds(s, curr + itol, curr - itol);
       }
       // FIXME: add support for non-double date/duration types
       else {
         double rtol = (double) itol;
         double rcurr;
         m_value->getValue(rcurr); // known to be known
-        g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
+        g_interface->setThresholds(s, rcurr + rtol, rcurr - rtol);
       }
       break;
     }
@@ -165,13 +162,13 @@ namespace PLEXIL
         rtol = -rtol;
       double rcurr;
       m_value->getValue(rcurr); // known to be known
-      g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
+      g_interface->setThresholds(s, rcurr + rtol, rcurr - rtol);
       break;
     }
 
     default:
       assertTrueMsg(ALWAYS_FAIL,
-                    "LookupOnChange internal error: tolerance type "
+                    "LookupOnChange internal error: invalid/unimplemented tolerance type "
                     << valueTypeName(ttype));
       break;
     }
@@ -302,12 +299,6 @@ namespace PLEXIL
       return;
     if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
       notify();
-  }
-
-  void StateCacheEntry::updateIfStale()
-  {
-    if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount())
-      g_interface->lookupNow(m_state, *this);
   }
 
   void StateCacheEntry::notify() const

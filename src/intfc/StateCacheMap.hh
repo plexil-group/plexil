@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,12 @@
 #ifndef PLEXIL_STATE_CACHE_MAP_HH
 #define PLEXIL_STATE_CACHE_MAP_HH
 
-#include "StateCacheEntry.hh"
-#include <set>
-
 namespace PLEXIL
 {
+  // Forward references
+  class State;
+  class StateCacheEntry;
+
   /**
    * @class StateCacheMap
    * @brief An index to the currently active StateCacheEntry instances
@@ -39,8 +40,13 @@ namespace PLEXIL
   class StateCacheMap
   {
   public:
-    StateCacheMap();
-    ~StateCacheMap();
+    StateCacheMap()
+    {
+    };
+    
+    virtual ~StateCacheMap()
+    {
+    }
 
     static StateCacheMap &instance();
 
@@ -51,34 +57,20 @@ namespace PLEXIL
      * @note Return value can be presumed to be non-null.
      */
     // FIXME: what if existing entry has different type?
-    StateCacheEntry *ensureStateCacheEntry(State const &state);
+    virtual StateCacheEntry *ensureStateCacheEntry(State const &state) = 0;
 
     /**
      * @brief Find the cache entry for this state.
      * @param state The state being looked up.
      * @return Pointer to the StateCacheEntry for the state; NULL if not found.
      */
-    StateCacheEntry *findStateCacheEntry(State const &state);
+    virtual StateCacheEntry *findStateCacheEntry(State const &state) = 0;
 
     /**
      * @brief Remove the cache entry for this state.
      * @param state The state being looked up.
      */
-    void removeStateCacheEntry(State const &state);
-
-  private:
-
-    // Disallow copy, assign
-    StateCacheMap(StateCacheMap const &);
-    StateCacheMap &operator=(StateCacheMap const &);
-
-    typedef std::set<StateCacheEntry> EntryMap;
-
-    EntryMap m_map;
-    
-    // Should time be special? It will be very heavily used by Exec internals.
-    // Might even require a special implementation because of all the subscribers.
-    // StateCacheEntry *m_timeEntry;
+    virtual void removeStateCacheEntry(State const &state) = 0;
   };
 
 } // namespace PLEXIL

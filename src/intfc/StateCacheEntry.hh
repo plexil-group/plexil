@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,15 @@
 #ifndef PLEXIL_STATE_CACHE_ENTRY_HH
 #define PLEXIL_STATE_CACHE_ENTRY_HH
 
-#include "State.hh"
+#include "ValueType.hh"
 
 namespace PLEXIL
 {
   class CachedValue;
   class Expression;
   class Lookup;
+  class State;
+  class Value;
 
   /**
    * @class StateCacheEntry
@@ -43,24 +45,21 @@ namespace PLEXIL
   class StateCacheEntry
   {
   public:
-    StateCacheEntry(State const &state);
-    StateCacheEntry(StateCacheEntry const &); // needed by StateCacheMap for creation
+    StateCacheEntry();
+    StateCacheEntry(StateCacheEntry const &orig);
 
     virtual ~StateCacheEntry();
 
-    State const &state() const { return m_state; }
-
     // Utility
-    bool operator<(StateCacheEntry const &y) const;
     ValueType const valueType() const;
     bool isKnown() const;
 
     // API to Lookup
-    void registerLookup(Lookup *); // calls updateIfStale()
-    virtual void unregisterLookup(Lookup *);
+    void registerLookup(State const &s, Lookup *l); // calls updateIfStale()
+    virtual void unregisterLookup(State const &s, Lookup *l);
 
     // Can be called multiple times
-    void setThresholds(Expression const *tolerance);
+    void setThresholds(State const &s, Expression const *tolerance);
 
     // Read access to the actual value is through the helper object.
     CachedValue const *cachedValue() const;
@@ -98,20 +97,13 @@ namespace PLEXIL
      */
     void notify() const;
 
-    /*
-     * @brief Check if the cached value is current, and update if required.
-     */
-    void updateIfStale();
-
     // Return true if entry type is compatible with requested, false if not.
     bool ensureCachedValue(ValueType v = UNKNOWN_TYPE);
 
   private:
-    // Default, assign disallowed
-    StateCacheEntry();
+    // Assign disallowed
     StateCacheEntry &operator=(StateCacheEntry const &);
 
-    State const m_state;
     std::vector<Lookup *> m_lookups;
     CachedValue *m_value;
   };
