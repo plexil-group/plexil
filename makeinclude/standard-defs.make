@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ BIN_DIR		?= $(PREFIX)/bin
 AR		= ar
 
 # Command for building shared libraries, if applicable.
-LD		= $(CXX) $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
+LD		= $(CXX) $(CXXFLAGS) $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
 
 # Compiler flag to pass an argument to the linker
 LINKER_PASSTHROUGH_FLAG			:= -Wl,
