@@ -422,6 +422,8 @@ namespace PLEXIL
       return newTol != m_tolerance;
     }
 
+    // This implementation is appropriate for integers.
+    // See below for floating point types.
     bool checkImpl(CachedValue const *value) const
     {
       check_error_1(value); // paranoid check
@@ -453,6 +455,27 @@ namespace PLEXIL
     NUM m_high;
     NUM m_tolerance;
   };
+
+  // Separate check for double-valued lookups
+  // Covers up a horde of sins, notably timers returning early (!)
+  template <>
+  bool ThresholdCacheImpl<double>::checkImpl(CachedValue const *value) const
+  {
+    check_error_1(value); // paranoid check
+    double currentValue;
+    assertTrue_2(value->getValue(currentValue),
+		 "LookupOnChange: internal error: lookup value unknown");
+    if ((currentValue >= m_high) || (currentValue <= m_low))
+      return true;
+
+    // Put guard bands around thresholds
+    double epsilon = fabs(currentValue) * 1e-13; // on the order of 150 usec for time
+    if (m_high - currentValue < epsilon)
+      return true;
+    if (currentValue - m_low < epsilon)
+      return true;
+    return false;
+  }
 
   static ThresholdCache * ThresholdCacheFactory(ValueType typ)
   {
@@ -554,16 +577,24 @@ namespace PLEXIL
   // May be called before lookup fully activated
   void LookupOnChange::valueChanged()
   {
-    if (!this->isActive()) 
+    if (!this->isActive()) {
+      debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << " not active, ignoring");
       return;
-    if (updateInternal(true))
+    }
+    if (updateInternal(true)) {
+      debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << ": notifying listeners");
       this->publishChange(this);
+    }
+    else {
+      debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << ": no change");
+    }
   }
 
   // Call if something has changed - could be state, tolerance, or value
   // Returns true if event should trigger notification, false otherwise.
   bool LookupOnChange::updateInternal(bool valueChanged)
   {
+    debugMsg("LookupOnChange:update", " changed = " << valueChanged);
     if (this->m_entry && this->m_entry->isKnown() && m_tolerance->isKnown()) {
       CachedValue const *val = this->m_entry->cachedValue();
       // If no threshold, establish one and cache current value
