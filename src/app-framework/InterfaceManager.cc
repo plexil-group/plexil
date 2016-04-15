@@ -485,10 +485,10 @@ namespace PLEXIL
   InterfaceManager::queryTime()
   {
     assertTrue_1(g_configuration);
-    debugMsg("InterfaceManager:queryTime", " called");
     StateCacheEntry *cacheEntry = 
       StateCacheMap::instance().ensureStateCacheEntry(State::timeState());
-    this->lookupNow(State::timeState(), *cacheEntry); // sets m_current time as side effect
+    this->lookupNow(State::timeState(), *cacheEntry); // sets m_currentTime as side effect
+    debugMsg("InterfaceManager:queryTime", " returning " << std::setprecision(15) << m_currentTime);
     return m_currentTime;
   }
 
