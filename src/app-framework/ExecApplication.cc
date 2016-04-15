@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -174,21 +174,31 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
       RTMutexGuard guard(m_execMutex);
 #endif
-      debugMsg("ExecApplication:step", " Checking interface queue");
-      if (g_manager->processQueue()) {
-        do {
-          debugMsg("ExecApplication:step", " Stepping exec");
-          g_exec->step(g_manager->queryTime());
-        }
-        while (g_exec->needsStep());
-        debugMsg("ExecApplication:step", " Step complete and all nodes quiescent");
+      g_manager->processQueue();           // for effect
+      double now = g_manager->queryTime(); // update time before attempting to step
+      if (g_exec->needsStep()) {
+	g_exec->step(now);
+        debugMsg("ExecApplication:step", " complete");
       }
       else {
-        debugMsg("ExecApplication:step", " Queue processed, no step required.");
+        debugMsg("ExecApplication:step", " no step required");
       }
     }
 
     return true;
+  }
+
+  bool ExecApplication::isQuiescent()
+  {
+    if (m_state != APP_READY)
+      return true; // can't execute if not ready
+
+    {
+#ifdef PLEXIL_WITH_THREADS
+      RTMutexGuard guard(m_execMutex);
+#endif
+      return !g_exec->needsStep();
+    }
   }
 
   /**
@@ -205,9 +215,12 @@ namespace PLEXIL
       RTMutexGuard guard(m_execMutex);
 #endif
       debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
-      while (g_manager->processQueue() || g_exec->needsStep()) {
+      g_manager->processQueue(); // for effect
+      double now = g_manager->queryTime(); // update time before attempting to step
+      while (g_exec->needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
-        g_exec->step(g_manager->queryTime());
+        g_exec->step(now);
+	now = g_manager->queryTime(); // update time before attempting to step again
       }
       g_exec->deleteFinishedPlans();
     }
@@ -525,19 +538,25 @@ namespace PLEXIL
       debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
       g_exec->step(g_manager->queryTime());
     }
+    if (m_suspended) {
+      debugMsg("ExecApplication:runExec", " Suspended");
+    }
     else {
-      g_exec->deleteFinishedPlans();
+      g_manager->processQueue(); // for effect
+      do {
+	double now = g_manager->queryTime(); // update time before attempting to step
+	while (g_exec->needsStep()) {
+	  debugMsg("ExecApplication:runExec", " Stepping exec");
+	  g_exec->step(now);
+	  now = g_manager->queryTime(); // update time before stepping again
+	}
+      } while (g_manager->processQueue());
+      debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
     }
-    // Must update time BEFORE checking whether step is needed
-    double currentTime = g_manager->queryTime(); // for effect
-    while (!m_suspended && 
-           (g_exec->needsStep() || g_manager->processQueue())) {
-      debugMsg("ExecApplication:runExec", " Stepping exec");
-      g_exec->step(currentTime);
-      currentTime = g_manager->queryTime(); // for effect
-    }
-    condDebugMsg(!m_suspended, "ExecApplication:runExec", " No events are pending");
-    condDebugMsg(m_suspended, "ExecApplication:runExec", " Suspended");
+
+    // Clean up
+    g_exec->deleteFinishedPlans();
+
   }
 
 #ifdef PLEXIL_WITH_THREADS
