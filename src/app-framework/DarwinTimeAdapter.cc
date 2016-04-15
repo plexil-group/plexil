@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ namespace PLEXIL
     if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
       // Already past the scheduled time, submit wakeup
       debugMsg("TimeAdapter:setTimer",
-               " new value " << date << " is in past");
+               " new value " << std::setprecision(15) << date << " is in past");
       return false;
     }
 
@@ -148,7 +148,7 @@ namespace PLEXIL
     assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
                   "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
-             " timer set for " << date);
+             " timer set for " << std::setprecision(15) << date);
     return true;
   }
 
