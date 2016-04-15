@@ -108,16 +108,20 @@ namespace PLEXIL
   void StateCacheEntry::setThresholds(State const &s, Expression const *tolerance)
   {
     // Check for valid tolerance
-    if (!tolerance->isKnown())
+    if (!tolerance->isKnown()) {
+      debugMsg("StateCacheEntry:setThresholds", " tolerance value unknown, ignoring");
       return;
+    }
     ValueType ttype = tolerance->valueType();
     assertTrueMsg(isNumericType(ttype),
                   "LookupOnChange with invalid tolerance type "
                   << valueTypeName(tolerance->valueType()));
 
     // Can only set thresholds if we know the current value.
-    if (!m_value->isKnown())
+    if (!m_value->isKnown()) {
+      debugMsg("StateCacheEntry:setThresholds", " lookup value unknown, ignoring");
       return;
+    }
 
     ValueType vtype = m_value->valueType();
     assertTrueMsg(isNumericType(vtype),

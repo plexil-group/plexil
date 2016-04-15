@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 #include "Error.hh"
 #include "ExternalInterface.hh"
 #include "Value.hh"
+
+#include <iomanip>
 
 namespace PLEXIL
 {
@@ -501,8 +503,25 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
       m_value = val;
       m_known = true;
       this->m_timestamp = timestamp;
+      debugMsg("CachedValue:update", " updated to " << val);
       return true;
     }
+    debugMsg("CachedValue:update", " value is already " << val << ", not updating");
+    return false;
+  }
+
+  // Specialization for double, solely for debug printing purposes.
+  template <>
+  bool CachedValueImpl<double>::updateImpl(unsigned int timestamp, double const &val)
+  {
+    if (!m_known || m_value != val) {
+      m_value = val;
+      m_known = true;
+      this->m_timestamp = timestamp;
+      debugMsg("CachedValue:update", " updated to " << std::setprecision(15) << val);
+      return true;
+    }
+    debugMsg("CachedValue:update", " value is already " << val << ", not updating");
     return false;
   }
 
