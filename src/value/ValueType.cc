@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <cmath>   // for HUGE_VAL
 #include <cstdlib> // for strtod(), strtol()
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -352,6 +353,13 @@ namespace PLEXIL
     s << val;
   }
 
+  // Specialization for Real
+  template <>
+  void printValue(const double &val, std::ostream &s)
+  {
+    s << std::setprecision(15) << val;
+  }
+  
   // Specialization for internal enums
   template <>
   void printValue(const uint16_t &val, std::ostream &s)
