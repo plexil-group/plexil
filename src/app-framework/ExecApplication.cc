@@ -984,11 +984,13 @@ namespace PLEXIL
                "released semaphore");
       return;
     }
-#endif
     // Exec is idle, so run it
     // If another thread grabs it first, no worries.
     debugMsg("ExecApplication:notify", " exec was idle, stepping it");
     this->runExec();
+#else
+    // Don't do a thing - caller will tell us when to run
+#endif
   }
 
   /**
