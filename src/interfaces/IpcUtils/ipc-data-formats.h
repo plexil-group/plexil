@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -164,7 +164,7 @@ struct PlexilStringArrayMsg
     delete [] stringArray;
   }
   struct PlexilMsgBase header;
-  int32_t arraySize;
+  uint32_t arraySize;
   const char** stringArray;
 };
 
@@ -178,7 +178,7 @@ struct PlexilStringArrayMsg
 struct PlexilRealArrayMsg
 {
   struct PlexilMsgBase header;
-  int32_t arraySize;
+  uint32_t arraySize;
   double* doubleArray;
 
   ~PlexilRealArrayMsg()
@@ -197,7 +197,7 @@ struct PlexilRealArrayMsg
 struct PlexilIntegerArrayMsg
 {
   struct PlexilMsgBase header;
-  int32_t arraySize;
+  uint32_t arraySize;
   int32_t* intArray;
 
   ~PlexilIntegerArrayMsg()
@@ -216,7 +216,7 @@ struct PlexilIntegerArrayMsg
 struct PlexilBooleanArrayMsg
 {
   struct PlexilMsgBase header;
-  int32_t arraySize;
+  uint32_t arraySize;
   unsigned char* boolArray;
 
   ~PlexilBooleanArrayMsg()
