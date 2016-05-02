@@ -680,7 +680,7 @@ namespace PLEXIL
   uint32_t IpcFacade::sendCommand(std::string const &command, std::string const &dest, std::vector<Value> const &argsToDeliver) {
     assertTrue_2(m_isStarted, "publishCommand called before started");
     uint32_t serial = getSerialNumber();
-    struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
+    struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, (uint16_t) argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
     IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &cmdPacket);
     if (result == IPC_OK) {
       result = sendParameters(argsToDeliver, serial);
@@ -698,7 +698,7 @@ namespace PLEXIL
     // Construct the messages
     // Leader
     uint32_t serial = getSerialNumber();
-    struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupNow, argsToDeliver.size(), serial, m_myUID.c_str() }, lookup.c_str() };
+    struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupNow, (uint16_t) argsToDeliver.size(), serial, m_myUID.c_str() }, lookup.c_str() };
 
     IPC_RETURN_TYPE result =
       IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &leader);
