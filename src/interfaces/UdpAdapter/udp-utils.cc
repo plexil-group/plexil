@@ -303,6 +303,10 @@ namespace PLEXIL
     }
 
     // Wait for input to become available and then read from the socket
+    if (debug)
+       printf("  wait_for_input calling recvfrom %s:%d on file %d\n",
+	      inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port), sock);
+
     socklen_t slen = sizeof(struct sockaddr_in);
     int bytes_read = recvfrom(sock, buffer, size, 0, (struct sockaddr *) &peer_addr, &slen);
     if (bytes_read < 0) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -351,12 +351,13 @@ namespace PLEXIL
     debugMsg("UdpAdapter:executeGetParameterCommand", " " << msgName);
     size_t pos;
     pos = msgName.find(":");
-    msgName = msgName.substr(0, pos);
+    std::string const baseName = msgName.substr(0, pos);
     MessageMap::iterator msg;
-    msg = m_messages.find(msgName);
-    assertTrueMsg(msg != m_messages.end(), "UdpAdapter:executeGetParameterCommand: no message definition found for " << msgName);
+    msg = m_messages.find(baseName);
+    assertTrueMsg(msg != m_messages.end(),
+		  "UdpAdapter:executeGetParameterCommand: no message definition found for " << baseName);
     int params = msg->second.parameters.size();
-    //debugMsg("UdpAdapter:executeGetParameterCommand", " msgName==" << msgName << ", params==" << params);
+    debugMsg("UdpAdapter:executeGetParameterCommand", " msgName==" << msgName << ", params==" << params);
     std::vector<Value>::const_iterator it = ++args.begin();
     int32_t id = 0;
     if (it != args.end()) {
@@ -377,17 +378,18 @@ namespace PLEXIL
                     << id+1 << " arguments");
     }
     std::string command = formatMessageName(msgName, GET_PARAMETER_COMMAND(), id);
-    m_messageQueues.addRecipient(msgName, cmd);
+    m_messageQueues.addRecipient(command, cmd);
     debugMsg("UdpAdapter:executeGetParameterCommand", " message handler for \"" << cmd->getName() << "\" registered");
     m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
   }
 
   // SEND_RETURN_VALUE_COMMAND
-  void UdpAdapter::executeSendReturnValueCommand(Command * /* cmd */)
+  // Required by OnCommand XML macro. No-op for UDP.
+  void UdpAdapter::executeSendReturnValueCommand(Command * cmd)
   {
-    // Open loop communications only.  Perhaps this is being called by the expanded nodes?
-    //debugMsg("UdpAdapter:executeSendReturnValueCommand", " called for " << std::string::c_str(args.front()));
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
+    m_execInterface.notifyOfExternalEvent();
   }
 
   // SEND_MESSAGE_COMMAND
@@ -619,7 +621,10 @@ namespace PLEXIL
     // Handle a UDP message once it has indeed arrived.
     // msgDef is passed in, therefore, we will assume it is good.
     debugMsg("UdpAdapter:handleUdpMessage", " called for " << msgDef->name);
-    if (debug) {std::cout << "  handleUdpMessage: buffer: "; print_buffer(buffer, msgDef->len);}
+    if (debug) {
+      std::cout << "  handleUdpMessage: buffer: ";
+      print_buffer(buffer, msgDef->len);
+    }
     // (1) addMessage for expected message
     static int counter = 1;     // gensym counter
     std::ostringstream unique_id;
@@ -633,127 +638,127 @@ namespace PLEXIL
     //     calls addRecipient and updateQueue
     int i = 0;
     int offset = 0;
-    std::vector<Parameter>::const_iterator param;
-    for (param=msgDef->parameters.begin() ; param != msgDef->parameters.end() ; param++, i++)
-      {
-        const std::string param_label = formatMessageName(msg_label, GET_PARAMETER_COMMAND(), i);
-        int len = param->len;   // number of bytes to read
-        int size = param->elements; // size of the array, or 1 for scalars
-        std::string type = param->type; // type to decode
-        if (debug) {
-          if (size==1)
-            {
-              std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
-                        << " starting at buffer[" << offset << "]: ";
-            }
-          else
-            {
-              size_t pos = type.find("-"); // remove the "-array" from the type
-              std::cout << "  handleUdpMessage: decoding " << size << " element array of " << len
-                        << " byte " << type.substr(0, pos) << "s starting at buffer[" << offset
-                        << "]: ";
-            }
-        }
-        if (type.compare("int") == 0) {
-          assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
-          int num;
-          num = (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
-          if (debug) std::cout << num << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) parameter " << num);
-          m_messageQueues.addMessage(param_label, Value(num));
-          offset += len;
-        }
-        else if (type.compare("int-array") == 0) {
-          assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
-          IntegerArray array(size);
-          for (int i = 0 ; i < size ; i++) {
-            array.setElement(i, (int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset)));
-            offset += len;
-          }
-          if (debug)
-            std::cout << array.toString() << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) array " << array.toString());
-          m_messageQueues.addMessage(param_label, array);
-        }
-        else if (type.compare("float") == 0) {
-          assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
-          float num = decode_float(buffer, offset);
-          if (debug)
-            std::cout << num << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (real) parameter " << num);
-          m_messageQueues.addMessage(param_label, Value((double) num));
-          offset += len;
-        }
-        else if (type.compare("float-array") == 0) {
-          assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
-          RealArray array(size);
-          for (int i = 0 ; i < size ; i++) {
-            array.setElement(i, (double) decode_float(buffer, offset));
-            offset += len;
-          }
-          if (debug)
-            std::cout << array.toString() << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (real) array " << array.toString());
-          m_messageQueues.addMessage(param_label, Value(array));
-        }
-        else if (type.compare("bool") == 0) {
-          assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
-          int num;
-          switch (len) {
-          case 1:
-            num = network_bytes_to_number(buffer, offset, 8, false); break;
-          case 2:
-            num = decode_short_int(buffer, offset); break;
-          default:
-            num = decode_long_int(buffer, offset);
-          }
-          if (debug)
-            std::cout << num << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (boolean) parameter " << num);
-          m_messageQueues.addMessage(param_label, Value(num != 0));
-          offset += len;
-        }
-        else if (type.compare("bool-array") == 0) {
-          assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
-          BooleanArray array(size);
-          for (int i = 0 ; i < size ; i++) {
-            switch (len) {
-            case 1: 
-              array.setElement(i, 0 != network_bytes_to_number(buffer, offset, 8, false)); break;
-            case 2:
-              array.setElement(i, 0 != decode_short_int(buffer, offset)); break;
-            default:
-              array.setElement(i, 0 != decode_long_int(buffer, offset)); break;
-            }
-            offset += len;
-          }
-          if (debug)
-            std::cout << array.toString() << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queueing boolean array " << array.toString());
-          m_messageQueues.addMessage(param_label, Value(array));
-        }
-        else if (type.compare("string-array") == 0) {
-          // XXXX For unknown reasons, OnCommand(... String arg); is unable to receive this (inlike int and float arrays)
-          StringArray array(size);
-          for (int i = 0 ; i < size ; i++) {
-            array.setElement(i, decode_string(buffer, offset, len));
-            offset += len;
-          }
-          if (debug)
-            std::cout << array.toString() << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queuing string array " << array.toString());
-          m_messageQueues.addMessage(param_label, Value(array));
-        }
-        else { // string or die
-          assertTrueMsg(!type.compare("string"), "handleUdpMessage: unknown parameter type " << type);
-          std::string str = decode_string(buffer, offset, len);
-          if (debug)
-            std::cout << str << std::endl;
-          debugMsg("UdpAdapter:handleUdpMessage", " queuing string parameter \"" << str << "\"");
-          m_messageQueues.addMessage(param_label, Value(str));
-          offset += len;
-        }
+    for (std::vector<Parameter>::const_iterator param = msgDef->parameters.begin();
+	 param != msgDef->parameters.end();
+	 param++, i++) {
+      const std::string param_label = formatMessageName(msg_label, GET_PARAMETER_COMMAND(), i);
+      int len = param->len;   // number of bytes to read
+      int size = param->elements; // size of the array, or 1 for scalars
+      std::string type = param->type; // type to decode
+      if (debug) {
+	if (size == 1) {
+	  std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
+		    << " starting at buffer[" << offset << "]: ";
+	}
+	else {
+	  size_t pos = type.find("-"); // remove the "-array" from the type
+	  std::cout << "  handleUdpMessage: decoding " << size << " element array of " << len
+		    << " byte " << type.substr(0, pos) << "s starting at buffer[" << offset
+		    << "]: ";
+	}
       }
+      if (type.compare("int") == 0) {
+	assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
+	int num;
+	num = (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
+	if (debug)
+	  std::cout << num << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) parameter " << num);
+	m_messageQueues.addMessage(param_label, Value(num));
+	offset += len;
+      }
+      else if (type.compare("int-array") == 0) {
+	assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
+	IntegerArray array(size);
+	for (int i = 0 ; i < size ; i++) {
+	  array.setElement(i, (int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset)));
+	  offset += len;
+	}
+	if (debug)
+	  std::cout << array.toString() << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) array " << array.toString());
+	m_messageQueues.addMessage(param_label, array);
+      }
+      else if (type.compare("float") == 0) {
+	assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
+	float num = decode_float(buffer, offset);
+	if (debug)
+	  std::cout << num << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (real) parameter " << num);
+	m_messageQueues.addMessage(param_label, Value((double) num));
+	offset += len;
+      }
+      else if (type.compare("float-array") == 0) {
+	assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
+	RealArray array(size);
+	for (int i = 0 ; i < size ; i++) {
+	  array.setElement(i, (double) decode_float(buffer, offset));
+	  offset += len;
+	}
+	if (debug)
+	  std::cout << array.toString() << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (real) array " << array.toString());
+	m_messageQueues.addMessage(param_label, Value(array));
+      }
+      else if (type.compare("bool") == 0) {
+	assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
+	int num;
+	switch (len) {
+	case 1:
+	  num = network_bytes_to_number(buffer, offset, 8, false); break;
+	case 2:
+	  num = decode_short_int(buffer, offset); break;
+	default:
+	  num = decode_long_int(buffer, offset);
+	}
+	if (debug)
+	  std::cout << num << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (boolean) parameter " << num);
+	m_messageQueues.addMessage(param_label, Value(num != 0));
+	offset += len;
+      }
+      else if (type.compare("bool-array") == 0) {
+	assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
+	BooleanArray array(size);
+	for (int i = 0 ; i < size ; i++) {
+	  switch (len) {
+	  case 1: 
+	    array.setElement(i, 0 != network_bytes_to_number(buffer, offset, 8, false)); break;
+	  case 2:
+	    array.setElement(i, 0 != decode_short_int(buffer, offset)); break;
+	  default:
+	    array.setElement(i, 0 != decode_long_int(buffer, offset)); break;
+	  }
+	  offset += len;
+	}
+	if (debug)
+	  std::cout << array.toString() << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queueing boolean array " << array.toString());
+	m_messageQueues.addMessage(param_label, Value(array));
+      }
+      else if (type.compare("string-array") == 0) {
+	// XXXX For unknown reasons, OnCommand(... String arg); is unable to receive this (inlike int and float arrays)
+	StringArray array(size);
+	for (int i = 0 ; i < size ; i++) {
+	  array.setElement(i, decode_string(buffer, offset, len));
+	  offset += len;
+	}
+	if (debug)
+	  std::cout << array.toString() << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queuing string array " << array.toString());
+	m_messageQueues.addMessage(param_label, Value(array));
+      }
+      else { // string or die
+	assertTrueMsg(!type.compare("string"), "handleUdpMessage: unknown parameter type " << type);
+	std::string str = decode_string(buffer, offset, len);
+	if (debug)
+	  std::cout << str << std::endl;
+	debugMsg("UdpAdapter:handleUdpMessage", " queuing string parameter \"" << str << "\"");
+	m_messageQueues.addMessage(param_label, Value(str));
+	offset += len;
+      }
+    }
+    debugMsg("UdpAdapter:handleUdpMessage", " for " << msgDef->name << " complete");
     return 0;
   }
 

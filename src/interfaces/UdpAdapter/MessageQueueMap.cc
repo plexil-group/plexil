@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
  */
 
 #include "MessageQueueMap.hh"
+#include "Command.hh"
 #include "Debug.hh"
 #include "Expression.hh"
 #include "Value.hh"
@@ -56,12 +57,12 @@ namespace PLEXIL
    * @param ack The command acknowledgment
    */
   void MessageQueueMap::addRecipient(const std::string& message, Command *cmd) {
-    debugMsg("MessageQueueMap:addRecipient", " entered for \"" << message.c_str() << "\"");
+    debugMsg("MessageQueueMap:addRecipient", " entered for \"" << message << "\"");
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* que = getQueue(message);
     que->m_recipientQueue.push_back(Recipient(cmd));
     updateQueue(que);
-    debugMsg("MessageQueueMap:addRecipient", " recipient for message \"" << que->m_name.c_str() << "\" added");
+    debugMsg("MessageQueueMap:addRecipient", " recipient for message \"" << que->m_name << "\" added");
   }
 
   /**
@@ -72,7 +73,7 @@ namespace PLEXIL
     PairingQueue* pq = getQueue(message);
     for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
       if (it->m_cmd == cmd) {
-        debugMsg("MessageQueueMap:removeRecipient", " Removing recipient for \"" << pq->m_name.c_str() << "\"");
+        debugMsg("MessageQueueMap:removeRecipient", " Removing recipient for \"" << pq->m_name << "\"");
         it = pq->m_recipientQueue.erase(it);
         //this increments the iterator, so check for the end immediately
         if (it == pq->m_recipientQueue.end())
@@ -101,7 +102,7 @@ namespace PLEXIL
       pq->m_messageQueue.clear();
     pq->m_messageQueue.push_back(message);
     updateQueue(pq);
-    debugMsg("MessageQueueMap:addMessage", " Message \"" << pq->m_name.c_str() << "\" added");
+    debugMsg("MessageQueueMap:addMessage", " Message \"" << pq->m_name << "\" added");
   }
 
   /**
@@ -118,7 +119,7 @@ namespace PLEXIL
     pq->m_messageQueue.push_back(param);
     updateQueue( pq);
     debugMsg("MessageQueueMap:addMessage",
-             " Message \"" << pq->m_name.c_str() << "\" added, value = \"" << param << "\"");
+             " Message \"" << pq->m_name << "\" added, value = \"" << param << "\"");
   }
 
   /**
@@ -151,10 +152,11 @@ namespace PLEXIL
     PairingQueue* result;
     std::map<std::string, PairingQueue*>::iterator it = m_map.find(message);
     if (m_map.end() == it) {
-      debugMsg("MessageQueueMap:getQueue", " creating new queue with name \"" << message.c_str() << "\"");
+      debugMsg("MessageQueueMap:getQueue", " creating new queue with name \"" << message << "\"");
       result = new PairingQueue(message, m_allowDuplicateMessages);
       m_map.insert(it, std::pair<std::string, PairingQueue*> (message, result));
     } else {
+      debugMsg("MessageQueueMap:getQueue", " returning existing queue \"" << message << "\"");
       result = it->second;
     }
     return result;
@@ -171,13 +173,14 @@ namespace PLEXIL
     RecipientQueue::iterator rqIter = rq.begin();
     bool valChanged = !mq.empty() && !rq.empty();
     while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
-      debugMsg("MessageQueueMap:updateQueue", " returning value");
+      debugMsg("MessageQueueMap:updateQueue",
+	       " returning value " << *mqIter << " for command " << rqIter->m_cmd->getName());
       m_execInterface.handleCommandReturn(rqIter->m_cmd, (*mqIter));
       rqIter = rq.erase(rqIter);
       mqIter = mq.erase(mqIter);
     }
     if (valChanged) {
-      debugMsg("MessageQueueMap:updateQueue", " Message \"" << queue->m_name.c_str() << "\" paired and sent");
+      debugMsg("MessageQueueMap:updateQueue", " Message \"" << queue->m_name << "\" paired and sent");
       m_execInterface.notifyOfExternalEvent();
     }
   }
