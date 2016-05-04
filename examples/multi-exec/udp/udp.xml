@@ -10,7 +10,6 @@
       <Parameter type="int-array" elements="3" bytes="2" desc="16 bit ints"/>
       <Parameter type="float-array" elements="3" bytes="4" desc="32 bit floats"/>
       <Parameter type="bool-array" elements="3" bytes="1"/>
-      <!-- Plexil will gladly insert "UNKNOWN" in strings, which is 7 bytes long, so be very careful -->
       <Parameter type="string-array" elements="3" bytes="3"/>
     </Message>
     <Message name="ack_msg" local_port="8033" peer_port="8033">
