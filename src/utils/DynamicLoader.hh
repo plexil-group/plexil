@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
  * DynamicLoader.hh
  *
  * Facilitates loading dynamic libraries and executing functions in them.
- * Linux-only at the moment. Mac may work, but needs testing.
  *
  *  Created on: Jan 27, 2010
  *      Author: jhogins
@@ -38,6 +37,7 @@
 #define DYNAMICLOADER_HH_
 
 #include <cstddef> // for NULL
+#include <dlfcn.h> // RTLD_DEFAULT
 
 namespace PLEXIL
 {
@@ -50,7 +50,7 @@ namespace PLEXIL
     
     /**
      * @brief Dynamically load the shared library containing the module name, using the library name if provided.
-     * @param typeName The name of the module
+     * @param moduleName The name of the module
      * @param libPath The library name containing the module; defaults to NULL.
      * @return true if successful, false otherwise.
      * @note If libPath is not provided, attempts to load 'lib<moduleName><LIB_EXT>'.
@@ -61,24 +61,30 @@ namespace PLEXIL
 			   const char* libPath = NULL);
 
     /**
-     * @brief Executes the given function in the given dynamic library (loaded and cached
-     *    if not already).
-     * @param libPath The path to the library to execute funcSymbol.
-     * @param funcSymbol The function to execute.
-     * @return NULL if loading failed, or a void * pointing to the requested symbol.
-     * See getError for more info on NULL errors
-     * @note The function must take no arguments and must
-     *        have a return type of void.
+     * @brief Load the named library.
+     * @param libName The library name, with or without the appropriate extension.
+     * @return The dlopen() handle if successful, NULL otherwise.
      */
-    static void *getDynamicSymbol(const char* libPath, const char* symbol);
+    static void *loadLibrary(const char *libName);
 
     /**
-     * @brief Returns a human readable string describing the most recent error that
-     * occurred from runDynamicFunction.
-     * @return NULL if no errors have occured since startup; a human readable string
-     * describing the most recent error otherwise.
+     * @brief Call the module's init function.
+     * @param moduleName The name of the module
+     * @param dl_handle If supplied, the return value from dlopen() or loadLibrary() below.
+     * @return true if the function was found and called, false otherwise.
+     * @note Expects to call init<moduleName>() with no args.
      */
-    static const char *getError();
+    static bool initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT);
+
+    /**
+     * @brief Find the named symbol.
+     * @param symName The name of the symbol to locate.
+     * @param dl_handle If supplied, the return value from dlopen() or loadLibrary() above.
+     * @return The symbol value if successful, NULL otherwise.
+     * @note If NULL may be a valid result, you should be calling dlsym() directly
+     *       instead of this convenience wrapper.
+     */
+    static void *findSymbol(char const *symName, void *dl_handle = RTLD_DEFAULT);
 
   };
 
