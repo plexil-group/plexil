@@ -1,5 +1,5 @@
 // -*- Mode: java -*-
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,87 +31,68 @@ Command quit_msg(String);
 
 Real Lookup time;
 
+// Allow the plan to succeed whether it is ended by a Quit message or a timeout
 test_recv:
-UncheckedSequence
+Concurrence
 {
-    Real run_start_time;        // When this run started
-    Integer timeout = 5;        // Time out the run
+    Integer timeout = 30;        // Time out the run
     Boolean continue = true;    // Repeat the HandleCommand node
     Boolean send_ack = true;    // If true, send an ack for test_udp_msg
-    // Allow the plan to succeed whether it is ended by a Quit message or a timeout
-    RecordStartTime:
+
+    ExitCondition !continue;
+    HandleCommand:
     {
-        Assignment: run_start_time = Lookup(time);
+	RepeatCondition continue;
+
+	ReceiveCommand:
+	OnCommand "test_udp_msg" (String arg1,
+				  Boolean arg2,
+				  Integer arg3,
+				  Real arg4,
+				  Integer arg5[3],
+				  Real arg6[3],
+				  Boolean arg7[3],
+				  String arg8[3])
+	    {
+		print ("\ntest_recv: received arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
+		       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7,  ", arg8==", arg8, "\n\n");
+
+		CheckForAckRequest:
+		send_ack = arg2;
+	    }
+        
+	SendCommandAck:
+	UncheckedSequence
+	{
+	    SkipCondition !send_ack;
+	    print ("\ntest_recv: sending ack\n\n");
+	    ack_msg ("ack");
+	}
     }
-    WaitForTimeoutOrCommand:
-    Concurrence
+
+    HandleTimeout:
     {
-        InvariantCondition continue == true;
-        HandleCommand:
-        Sequence
-        {
-            RepeatCondition continue;
-            ReceiveCommand:
-            Sequence
-            {   //OnCommand does not allow arrays, so arg7 and arg8 are simply left off
-                OnCommand "test_udp_msg" (String arg1, Boolean arg2, Integer arg3, Real arg4, Integer arg5, Real arg6)
-                {
-                    ReportCommand:
-                    {
-                        print ("\ntest_recv: received arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
-                               ", arg5==", arg5, ", arg6==", arg6, ", arg7==", ", arg8==", "\n\n");
-                    }
-                    CheckForAckRequest:
-                    {
-                        Assignment: send_ack = arg2;
-                    }
-                }
-            }
-            SendCommandAck:
-            Sequence
-            {
-                SkipCondition send_ack != true;
-                ReportSendingAck:
-                {
-                    print ("\ntest_recv: sending ack\n\n");
-                }
-                SendAck:
-                {
-                    ack_msg ("ack");
-                }
-            }
-        }
-        HandleTimeout:
-        UncheckedSequence
-        {
-            StartCondition Lookup(time, 1) > run_start_time + timeout;
-            ReportTimeout:
-            {
-                print ("\ntest_recv: timed out after ", timeout, " seconds\n\n");
-            }
-            SignalTimeout:
-            {
-                Priority 1;        // high number := low priority
-                continue = false;
-            }
-        }
-        HandleQuitMessage:
-        UncheckedSequence
-        {
-            OnCommand "quit_msg" (String junk)
-            {
-                ReportQuitReceived:
-                {
-                    print ("\ntest_recv: received quit command\n\n");
-                }
-                SignalQuit:
-                {
-                    Priority 0;        // low number := high priority
-                    continue = false;
-                }
-            }
-        }
+	StartCondition Lookup(time, 1) > HandleCommand.EXECUTING.START + timeout;
+	print ("\ntest_recv: timed out after ", timeout, " seconds\n\n");
+
+	SignalTimeout:
+	{
+	    Priority 1;        // high number := low priority
+	    continue = false;
+	}
     }
+
+    HandleQuitMessage:
+    OnCommand "quit_msg" (String junk)
+	{
+	    print ("\ntest_recv: received quit command\n\n");
+
+	    SignalQuit:
+	    {
+		Priority 0;        // low number := high priority
+		continue = false;
+	    }
+	}
 }
 
 // EOF

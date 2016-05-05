@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,111 +25,133 @@
 */
 
 #include "DynamicLoader.hh"
-#include <dlfcn.h>
+
+// #include <dlfcn.h> // included in above
 #include <string>
 
 #include "Debug.hh"
 
-// *** KLUDGE ALERT ***
-// This macro used to be provided by the Makefile system.
-// It *should* be conditional based on the target OS.
-// I have not yet found a way to properly pass it in using automake. So punt for now.
-
-#define LIB_EXT ".so"
-
 namespace PLEXIL
 {
-    /**
-     * @brief Dynamically load the shared library containing the module name, using the library name if provided.
-     * @param typeName The name of the module
-     * @param libPath The library name containing the module, or NULL.
-     * @param moduleTypeForDisplay Used in display messages only.
-     * @return true if successful, false otherwise.
-     * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
-     */
+  /**
+   * @brief Dynamically load the shared library containing the module name, using the library name if provided.
+   * @param typeName The name of the module
+   * @param libPath The library name containing the module, or NULL.
+   * @return true if successful, false otherwise.
+   * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
+   */
 
   bool DynamicLoader::loadModule(const char* moduleName, 
 				 const char* libPath)
   {
+    // Try to initialize it, in hopes it's already loaded
+    if (initModule(moduleName)) {
+      debugMsg("DynamicLoader:loadModule", " for " << moduleName << " succeeded");
+      return true;
+    }
+
+    // Try to load it.
     std::string libName;
     if (libPath == NULL || *libPath == '\0') {
-	  // construct library name from module name
-	  libName = "lib" + std::string(moduleName);
-	  debugMsg("DynamicLoader:loadModule",
-			   " no library name provided for module \""
-			   << moduleName << "\", using default value of \""
-			   << libName << "\"");
-	}
-    else {
-	  // use provided name
-	  libName = libPath;
-	}
+      // construct library name from module name
+      libName = "lib" + std::string(moduleName);
+      debugMsg("DynamicLoader:loadModule",
+	       " no library name provided for module \""
+	       << moduleName << "\", using default value of \""
+	       << libName << "\"");
+      libPath = libName.c_str();
+    }
 
-    std::string funcName = (std::string("init") + moduleName);
-    void (*func)();
-
-    // attempt to load the library
-    // (technically, attempt to find the named symbol in the spec'd library)
-    *(void **)(&func) = DynamicLoader::getDynamicSymbol(libName.c_str(), funcName.c_str());
-    if (!func) {
-	  debugMsg("DynamicLoader:loadModule", 
-			   " Failed to load library " << libPath);
-	  return false;
-	}
-
-    // Call init function
-    (*func)();
+    void *dl_handle = loadLibrary(libPath);
+    if (!dl_handle) {
+      debugMsg("DynamicLoader:loadModule",
+	       " for " << moduleName << " failed; library " << libPath << " not found");
+      return false;
+    }
 
     debugMsg("DynamicLoader:loadModule",
-			 " successfully loaded \"" << moduleName << "\"");
+	     "for " << moduleName << ", found library " << libPath);
+
+    // Try to initialize it again
+    if (initModule(moduleName, dl_handle)) {
+      debugMsg("DynamicLoader:loadModule", " for " << moduleName << " succeeded");
+      return true;
+    }
+
+    debugMsg("DynamicLoader:loadModule",
+	     " unable to initialize \"" << moduleName << '\"');
+    return false;
+  }
+
+  void *DynamicLoader::findSymbol(char const *symName, void *dl_handle)
+  {
+    void *sym = dlsym(dl_handle, symName);
+    if (!sym) {
+      // error,  or is symbol actually NULL?
+      char const *err = dlerror();
+      if (err) {
+	debugMsg("DynamicLoader:findSymbol",
+		 " failed; symbol \"" << symName << "\" not found: " << err);
+	return NULL;
+      }
+    }
+    debugMsg("DynamicLoader:findSymbol",
+	     " succeeded for \"" << symName << '"');
+    return sym;
+  }
+
+  bool DynamicLoader::initModule(const char *moduleName, void *dl_handle)
+  {
+    std::string funcName = (std::string("init") + moduleName);
+    void (*func)() = NULL;
+    *(void **)(&func) = findSymbol(funcName.c_str(), dl_handle);
+    if (!func) {
+      debugMsg("DynamicLoader:initModule",
+	       " failed; init function for module " << moduleName << " not found");
+      return false;
+    }
+
+    // FIXME - Could blow up spectacularly, how to defend?
+    (*func)();
+
+    debugMsg("DynamicLoader:initModule",
+	     " for module " << moduleName << " succeeded");
     return true;
   }
 
   static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
 
-  void *DynamicLoader::getDynamicSymbol(const char* libName, const char* symbol) 
+  void *DynamicLoader::loadLibrary(const char *libName)
   {
-    void *handle = NULL;
     // Try path verbatim
-    handle = dlopen(libName, RTLD_NOW | RTLD_GLOBAL);
+    void *handle = dlopen(libName, RTLD_NOW | RTLD_GLOBAL);
     if (handle) {
-	  debugMsg("DynamicLoader:verboseLoadModule",
-			   " dlopen succeeded for " << libName);
+      debugMsg("DynamicLoader:loadLibrary",
+	       " dlopen succeeded for " << libName);
+      return handle;
     }
-    else {
-	  debugMsg("DynamicLoader:verboseLoadModule",
-			   " dlopen failed on file " << libName << ": " << dlerror());
-      // Try adding the appropriate extension
-      size_t i = 0;
-      while (!handle && LIBRARY_EXTENSIONS[i]) {
-        std::string libPath = libName;
-        libPath += LIBRARY_EXTENSIONS[i++];
-        handle = dlopen(libPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
-        if (handle) {
-          debugMsg("DynamicLoader:verboseLoadModule",
-                   " dlopen succeeded for " << libPath);
-        }
-        else {
-          debugMsg("DynamicLoader:verboseLoadModule",
-                   " dlopen failed on file " << libPath << ": " << dlerror());
-        }
-      }
-      if (!handle) {
-        debugMsg("DynamicLoader:loadModule",
-                 " unable to open library \"" << libName << "\"");
-        return NULL;
-      }
-	}
-    void *func = dlsym(handle, symbol);
-    if (!func) { // an error occured in loading the function
-	  debugMsg("DynamicLoader:loadModule",
-			   " dlsym failed to find symbol \"" << symbol << "\": " << dlerror());
-      return NULL;
-	}
-    return func;
-  }
 
-  const char *DynamicLoader::getError() {
-    return dlerror();
+    debugMsg("DynamicLoader:verboseLoadLibrary",
+	     " dlopen failed on file " << libName << ": " << dlerror());
+    // Try adding the appropriate extension
+    size_t i = 0;
+    while (!handle && LIBRARY_EXTENSIONS[i]) {
+      std::string libPath = libName;
+      libPath += LIBRARY_EXTENSIONS[i++];
+      handle = dlopen(libPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
+      if (handle) {
+	debugMsg("DynamicLoader:loadLibrary",
+		 " dlopen succeeded for " << libPath);
+	return handle;
+      }
+      else {
+	debugMsg("DynamicLoader:verboseLoadLibrary",
+		 " dlopen failed on file " << libPath << ": " << dlerror());
+      }
+    }
+
+    debugMsg("DynamicLoader:loadLibrary",
+	     " unable to open library \"" << libName << "\"");
+    return NULL;
   }
 }

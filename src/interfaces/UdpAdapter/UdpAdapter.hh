@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,14 +46,25 @@ namespace PLEXIL
   {
   public:
     std::string name;                // the Plexil Command name
-    unsigned int len;                         // the length of the message in bytes
-    std::vector<Parameter> parameters; // message value parameters
-    unsigned int local_port;                  // local port on which to receive
     std::string peer;                // peer to which to send
+    std::vector<Parameter> parameters; // message value parameters
+    void *self;                      // reference to the UdpAdapter for use in message decoding
+    unsigned int len;                         // the length of the message in bytes
+    unsigned int local_port;                  // local port on which to receive
     unsigned int peer_port;                   // port to which to send
     int sock;                        // socket to use -- only meaningful in call to waitForUdpMessage
-    void* self;                      // reference to the UdpAdapter for use in message decoding
-    UdpMessage() : name(), len(0), parameters(), local_port(0), peer(""), peer_port(0), sock(0), self(NULL) {}
+
+    UdpMessage()
+      : name(),
+	peer(),
+	parameters(),
+	self(NULL),
+	len(0),
+	local_port(0),
+	peer_port(0),
+	sock(0)
+    {
+    }
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;

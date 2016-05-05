@@ -1,5 +1,5 @@
 // -*- Mode: Java -*-
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,80 +42,82 @@ UncheckedSequence
     Real arg6[3] = #(36.0 -104.7 25000.0);
     Boolean arg7[3] = #(true true false);
     String arg8[3] = #("foo" "baz" "bar");
-    Real run_start_time;
-    Boolean ackTimedOut = false;
 
-    RecordStartTime:
-    {
-        Assignment: run_start_time = Lookup(time);
-    }
+    Boolean ackReceived;
+    Boolean ackTimedOut;
 
     SendUdpCommand1:
-    Sequence
     {
-        ReportParameters:
+	ackReceived = false;
+	ackTimedOut = false;
+	print ("\ntest_send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
+	       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+	test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
+    }
+
+    WaitForAckOrTimeout1:
+    Concurrence
+    {
+	InvariantCondition !ackTimedOut;
+
+        HandleAck1:
+	OnCommand "ack_msg" (String ack)
+            {
+                print ("\ntest_send: received ack\n\n");
+		ackReceived = true;
+            }
+
+        HandleTimeout1:
+        UncheckedSequence
         {
-            print ("\ntest_send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
-                   ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
-        }
-        SendCommand:
-        {
-            test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
+            StartCondition Lookup(time, 1) > WaitForAckOrTimeout1.EXECUTING.START + 4;
+            SkipCondition ackReceived;
+
+	    print ("\ntest_send: ack timed out\n\n");
+
+            SignalTimeout:
+	    ackTimedOut = true;
         }
     }
 
     SendUdpCommand2:
+    {
+	ackReceived = false;
+	ackTimedOut = false;
+	print ("\ntest_send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
+	       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+	test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
+    }
+
+    WaitForAckOrTimeout2:
     Concurrence
     {
-        StartCondition Lookup(time, 1) > run_start_time + 2;
-        //StartCondition Lookup(time, 1) > SendUdpCommand1.FINISHED.END + 2; // why doesn't this work?
-        InvariantCondition ackTimedOut == false;
-        ReportParameters:
-        {
-            print ("\ntest_send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
-                   ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
-        }
-        HandleAck:
-        {
-            StartCondition ReportParameters.state == FINISHED;
-            OnCommand "ack_msg" (String ack)
+	InvariantCondition !ackTimedOut;
+
+        HandleAck2:
+	OnCommand "ack_msg" (String ack)
             {
                 print ("\ntest_send: received ack\n\n");
+		ackReceived = true;
             }
-        }
-        HandleTimeout:
+
+        HandleTimeout2:
         UncheckedSequence
         {
-            StartCondition Lookup(time, 1) > run_start_time + 4;
-            SkipCondition HandleAck.state == FINISHED;
-            ReportTimeout:
-            {
-                print ("\ntest_send: ack timed out\n\n");
-            }
-            SignalTimeout:
-            {
-                Assignment: ackTimedOut = true;
-            }
-        }
-        SendCommand:
-        {
-            StartCondition HandleAck.state == EXECUTING;
-            test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
+            StartCondition Lookup(time, 1) > WaitForAckOrTimeout2.EXECUTING.START + 4;
+            SkipCondition ackReceived;
+
+	    print ("\ntest_send: ack timed out\n\n");
+
+            SignalTimeout2:
+	    ackTimedOut = true;
         }
     }
 
     SendQuitCommand:
-    Sequence
     {
-        StartCondition SendUdpCommand2.state == FINISHED;
-        ReportSendQuit:
-        {
-            print ("\ntest_send: sending quit command\n\n");
-        }
-        SendQuit:
-        {
-            quit_msg ("quit");   // Send a Quit command
-        }
+	print ("\ntest_send: sending quit command\n\n");
+	quit_msg ("quit");   // Send a Quit command
     }
 }
 
