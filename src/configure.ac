@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 AC_PREREQ(2.59)
-AC_INIT(Plexil, 4.0.2a1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+AC_INIT(Plexil, 6.0.0d1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
@@ -46,7 +46,7 @@ AC_ARG_WITH([unix-time],
 AC_ARG_WITH([threads],
         AS_HELP_STRING([--with-threads], [Build for multithreaded use (default=yes)]))
 AC_ARG_ENABLE([debug-listener],
-        AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=yes)]))
+        AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=no)]))
 AC_ARG_ENABLE([debug-logging],
         AS_HELP_STRING([--enable-debug-logging], [Allow debug output (default=yes)]))
 AC_ARG_ENABLE([gantt],
@@ -68,13 +68,13 @@ AC_ARG_ENABLE([universal-exec],
 
 # Conditionals for makefiles
 # These default to enabled (with)
-AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
 
 # These default to disabled (without)
+AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" = "xyes"])
 AM_CONDITIONAL([GANTT_OPT], [test "x$enable_gantt" = "xyes"])
 AM_CONDITIONAL([IPC_OPT], [test "x$enable_ipc" = "xyes"])
 AM_CONDITIONAL([JNI_OPT], [test "x$with_jni" = "xyes"])
@@ -94,8 +94,19 @@ AS_IF([test "x$with_unix_time" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_UNIX_TIME],[1],[Define to 1 if Unix native time facilities are enabled.])
 ])
 
+
+# C preprocessor defines with custom definitions
+#
+# *** NOTE WELL: These comparisons MUST be identical to the ones above!
+# E.g. if this appears above:
+#  AM_CONDITIONAL([FOO_OPT], [test "x$with_foo" != "xno"])
+# then the corresponding AC_DEFINE_UNQUOTED must use the exact same test:
+#  [` iftest "x$with_foo" != "xno" then ... fi`])
+# Failure to make them consistent will result in references to undefined symbols.
+#
+
 AC_DEFINE_UNQUOTED([HAVE_DEBUG_LISTENER],
-  [`if test "x$enable_debug_listener" != "xno" 
+  [`if test "x$enable_debug_listener" = "xyes" 
     then 
       echo 1
     else
@@ -153,11 +164,11 @@ AC_C_INLINE
 # These types have special macros in newer autoconf versions,
 # which aren't present in older autoconf versions
 AC_CHECK_TYPES([int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t])
-AC_CHECK_TYPES([pid_t, size_t, ssize_t])
+AC_CHECK_TYPES([size_t, ssize_t])
 AC_HEADER_TIME
 AC_STRUCT_TM
 AC_C_VOLATILE
-AC_CHECK_TYPES([ptrdiff_t, suseconds_t])
+AC_CHECK_TYPES([suseconds_t])
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
@@ -181,6 +192,7 @@ AC_CHECK_FUNCS([pthread_mutexattr_settype])
 
 # Used only in GanttListener
 AS_IF([test "x$enable_gantt" = "xyes"], [
+AC_CHECK_TYPES([pid_t])
 AC_CHECK_FUNCS([getcwd])
 ])
 
@@ -190,6 +202,7 @@ AC_CHECK_LIB([nsl], [inet_ntoa])
 AC_CHECK_LIB([wrap], [hosts_ctl])
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
+AC_CHECK_TYPES([pid_t])
 AC_FUNC_FORK
 AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
@@ -197,6 +210,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk])
 ])
 
+# This is the core set of Makefiles to build.
 AC_CONFIG_FILES([Makefile
                  utils/Makefile
                  value/Makefile
@@ -205,14 +219,26 @@ AC_CONFIG_FILES([Makefile
                  exec/Makefile
                  third-party/pugixml/src/Makefile
                  xml-parser/Makefile
-                 app-framework/Makefile
-                 apps/TestExec/Makefile
-                 interfaces/GanttListener/Makefile
-                 interfaces/LuvListener/Makefile
-                 interfaces/PlanDebugListener/Makefile
-                 interfaces/Sockets/Makefile
-                 interfaces/UdpAdapter/Makefile
-                 universal-exec/Makefile])
+                 app-framework/Makefile])
+
+#
+# Conditionally make these Makefiles
+#
+# *** NOTE WELL: These comparisons MUST be identical to the ones above!
+# E.g. if this appears above:
+#  AM_CONDITIONAL([FOO_OPT], [test "x$with_foo" != "xno"])
+# then the corresponding AS_IF must use the exact same test:
+#  AS_IF([test "x$with_foo" != "xno"], [ ... ])
+# Failure to make them consistent will result in missing Makefiles.
+#
+
+AS_IF([test "x$enable_debug_listener" = "xyes"], [
+AC_CONFIG_FILES([interfaces/PlanDebugListener/Makefile])
+])
+
+AS_IF([test "x$enable_gantt" = "xyes"], [
+AC_CONFIG_FILES([interfaces/GanttListener/Makefile])
+])
 
 AS_IF([test "x$enable_ipc" = "xyes"], [
 AC_CONFIG_FILES([third-party/ipc/Makefile
@@ -222,6 +248,23 @@ AC_CONFIG_FILES([third-party/ipc/Makefile
 
 AS_IF([test "x$enable_sas" = "xyes"], [
 AC_CONFIG_FILES([apps/StandAloneSimulator/Makefile])
+])
+
+AS_IF([test "x$enable_test_exec" = "xyes"], [
+AC_CONFIG_FILES([apps/TestExec/Makefile])
+])
+
+AS_IF([test "x$enable_udp" = "xyes"], [
+AC_CONFIG_FILES([interfaces/UdpAdapter/Makefile])
+])
+
+AS_IF([test "x$enable_universal_exec" != "xno"], [
+AC_CONFIG_FILES([universal-exec/Makefile])
+])
+
+AS_IF([test "x$enable_viewer" != "xno"], [
+AC_CONFIG_FILES([interfaces/LuvListener/Makefile
+                 interfaces/Sockets/Makefile])
 ])
 
 AC_OUTPUT
