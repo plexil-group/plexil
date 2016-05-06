@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,8 @@
 
 #include "Array.hh"
 #include "Error.hh"
-//#include <string>  // included by Error.hh
-//#include <sstream> // included by Error.hh
+
+#include <memory> // std::move()
 
 namespace PLEXIL
 {
@@ -37,6 +37,11 @@ namespace PLEXIL
 
   Array::Array(Array const &orig)
     : m_known(orig.m_known)
+  {
+  }
+
+  Array::Array(Array &&orig)
+    : m_known(std::move(orig.m_known))
   {
   }
 
@@ -52,6 +57,12 @@ namespace PLEXIL
   Array &Array::operator=(Array const &other)
   {
     m_known = other.m_known;
+    return *this;
+  }
+
+  Array &Array::operator=(Array &&other)
+  {
+    m_known = std::move(other.m_known);
     return *this;
   }
 
@@ -87,7 +98,7 @@ namespace PLEXIL
 
   void Array::reset()
   {
-    m_known = std::vector<bool>(m_known.size(), false);
+    std::fill(m_known.begin(), m_known.end(), false);
   }
 
   bool Array::operator==(Array const &other) const

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 #include "Value.hh"
 #include "ValueType.hh"
 
+#include <memory> // std::move()
+
 namespace PLEXIL
 {
 
@@ -42,6 +44,13 @@ namespace PLEXIL
   ArrayImpl<T>::ArrayImpl(ArrayImpl<T> const &orig)
     : ArrayAdapter<ArrayImpl<T> >(orig),
       m_contents(orig.m_contents)
+  {
+  }
+
+  template <typename T>
+  ArrayImpl<T>::ArrayImpl(ArrayImpl<T> &&orig)
+    : ArrayAdapter<ArrayImpl<T> >(orig),
+    m_contents(std::move(orig.m_contents))
   {
   }
 
@@ -67,6 +76,13 @@ namespace PLEXIL
   }
 
   template <typename T>
+  ArrayImpl<T>::ArrayImpl(std::vector<T> &&initval)
+    : ArrayAdapter<ArrayImpl<T> >(initval.size(), true),
+    m_contents(std::move(initval))
+  {
+  }
+
+  template <typename T>
   ArrayImpl<T>::~ArrayImpl()
   {
   }
@@ -82,6 +98,14 @@ namespace PLEXIL
   {
     Array::operator=(orig);
     m_contents = orig.m_contents;
+    return *this;
+  }
+
+  template <typename T>
+  ArrayImpl<T> &ArrayImpl<T>::operator=(ArrayImpl<T> &&orig)
+  {
+    Array::operator=(orig);
+    m_contents = std::move(orig.m_contents);
     return *this;
   }
 

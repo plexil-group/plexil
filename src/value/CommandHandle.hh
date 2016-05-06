@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,16 +35,16 @@ namespace PLEXIL
   /**
    * @brief Command handle state enumeration.
    */
-  enum CommandHandleValue
-    {NO_COMMAND_HANDLE = 48,
-     COMMAND_SENT_TO_SYSTEM,
-     COMMAND_ACCEPTED,
-     COMMAND_RCVD_BY_SYSTEM,
-     COMMAND_FAILED,
-     COMMAND_DENIED,
-     COMMAND_SUCCESS,
-     COMMAND_HANDLE_MAX
-    };
+  enum CommandHandleValue : uint16_t {
+    NO_COMMAND_HANDLE = 48,
+      COMMAND_SENT_TO_SYSTEM,
+      COMMAND_ACCEPTED,
+      COMMAND_RCVD_BY_SYSTEM,
+      COMMAND_FAILED,
+      COMMAND_DENIED,
+      COMMAND_SUCCESS,
+      COMMAND_HANDLE_MAX
+      };
 
   /**
    * @brief Parse the given string as a command handle name.
@@ -61,9 +61,9 @@ namespace PLEXIL
 
   /**
    * @brief Get the name of this command handle value.
-   * @return Pointer to one of the names.
+   * @return Const reference to one of the names.
    */
-  extern std::string const &commandHandleValueName(unsigned int c);
+  extern std::string const &commandHandleValueName(CommandHandleValue c);
 
   /**
    * @brief Test whether the value is a valid CommandHandle value.

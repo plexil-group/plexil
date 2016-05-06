@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ namespace PLEXIL
   // PLEXIL expression data types
   //
 
-  enum ValueType {
+  enum ValueType : uint8_t {
       UNKNOWN_TYPE = 0,
       // User scalar types
       BOOLEAN_TYPE,

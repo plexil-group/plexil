@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,8 @@
 #define PLEXIL_VALUE_HH
 
 #include "ValueType.hh"
+
+#include <memory> // std::unique_ptr
 
 namespace PLEXIL
 {
@@ -65,13 +67,15 @@ namespace PLEXIL
 
     Value();
     Value(Value const &);
+    Value(Value &&);
 
-    Value(bool val);
+    Value(Boolean val);
     Value(uint16_t enumVal, ValueType typ); // internal values, typed UNKNOWN
-    Value(int32_t val);
-    Value(double val);
-    Value(std::string const &val);
+    Value(Integer val);
+    Value(Real val);
+    Value(String const &val);
     Value(char const *val); // for convenience
+    // TODO: templatize
     Value(BooleanArray const &val);
     Value(IntegerArray const &val);
     Value(RealArray const &val);
@@ -84,28 +88,31 @@ namespace PLEXIL
     ~Value();
     
     Value &operator=(Value const &);
-    Value &operator=(bool val);
+    Value &operator=(Value &&);
+    Value &operator=(Boolean val);
     Value &operator=(uint16_t enumVal);
-    Value &operator=(int32_t val);
-    Value &operator=(double val);
-    Value &operator=(std::string const &val);
+    Value &operator=(Integer val);
+    Value &operator=(Real val);
+    Value &operator=(String const &val);
     Value &operator=(char const *val);
+    // TODO: templatize
     Value &operator=(BooleanArray const &val);
     Value &operator=(IntegerArray const &val);
     Value &operator=(RealArray const &val);
     Value &operator=(StringArray const &val);
+
     void setUnknown();
 
     ValueType valueType() const;
     bool isKnown() const;
 
-    bool getValue(bool &result) const;
+    bool getValue(Boolean &result) const;
     bool getValue(uint16_t &result) const;
-    bool getValue(int32_t &result) const;
-    bool getValue(double &result) const;
-    bool getValue(std::string &result) const;
+    bool getValue(Integer &result) const;
+    bool getValue(Real &result) const;
+    bool getValue(String &result) const;
 
-    bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(String const *&ptr) const;
     bool getValuePointer(Array const *&ptr) const;
     bool getValuePointer(BooleanArray const *&ptr) const;
     bool getValuePointer(IntegerArray const *&ptr) const;
@@ -119,17 +126,22 @@ namespace PLEXIL
     std::string valueToString() const;
 
   private:
-    // Delete the previous object, if any.
+    
     void cleanup();
+
+    // Prepare to be assigned a new value
+    void cleanupForImmediate();
+    void cleanupForString();
+    void cleanupForArray();
     
     union {
-      bool          booleanValue;
-      uint16_t      enumValue;
-      int32_t       integerValue;
-      double        realValue;
-      std::string  *stringValue;
-      Array        *arrayValue;
-    } m_value;
+      Boolean                  booleanValue;
+      uint16_t                 enumValue;
+      Integer                  integerValue;
+      Real                     realValue;
+      std::unique_ptr<String>  stringValue;
+      std::unique_ptr<Array>   arrayValue;
+    };
     ValueType m_type;
     bool m_known;
   };

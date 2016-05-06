@@ -365,13 +365,13 @@ namespace PLEXIL
   void printValue(const uint16_t &val, std::ostream &s)
   {
     if (isNodeStateValid(val))
-      s << nodeStateName(val);
+      s << nodeStateName((NodeState) val);
     else if (isNodeOutcomeValid(val))
-      s << outcomeName(val);
+      s << outcomeName((NodeOutcome) val);
     else if (isFailureTypeValid(val))
-      s << failureTypeName(val);
+      s << failureTypeName((FailureType) val);
     else if (isCommandHandleValid(val))
-      s << commandHandleValueName(val);
+      s << commandHandleValueName((CommandHandleValue) val);
     else
       s << "<INVALID ENUM " << val << ">";
   }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ namespace PLEXIL {
   /**
    * @brief Node state enumeration.
    */
-  enum NodeState {
+  enum NodeState : uint16_t {
     INACTIVE_STATE = 0,
     WAITING_STATE,
     EXECUTING_STATE,
@@ -72,7 +72,7 @@ namespace PLEXIL {
    * @brief Get the name of this state.
    * @return Const reference to one of the state names.
    */
-  extern std::string const &nodeStateName(unsigned int s);
+  extern std::string const &nodeStateName(NodeState s);
 
   /**
    * @brief Test whether the value is a valid NodeState value.
@@ -84,7 +84,7 @@ namespace PLEXIL {
   /**
    * @brief Outcome enumeration.
    */
-  enum NodeOutcome {
+  enum NodeOutcome : uint16_t {
     NO_OUTCOME = 16,
     SUCCESS_OUTCOME,
     FAILURE_OUTCOME,
@@ -109,9 +109,9 @@ namespace PLEXIL {
 
   /**
    * @brief Get the name of this outcome.
-   * @return Pointer to one of the outcome names.
+   * @return Const reference to one of the outcome names.
    */
-  extern std::string const &outcomeName(unsigned int o);
+  extern std::string const &outcomeName(NodeOutcome o);
 
   /**
    * @brief Test whether the value is a valid NodeOutcome value.
@@ -123,7 +123,7 @@ namespace PLEXIL {
   /**
    * @brief Node failure type enumeration.
    */
-  enum FailureType {
+  enum FailureType : uint16_t {
     NO_FAILURE = 32,
     PRE_CONDITION_FAILED,
     POST_CONDITION_FAILED,
@@ -152,7 +152,7 @@ namespace PLEXIL {
    * @brief Get the name of this failure type.
    * @return Pointer to one of the names.
    */
-  extern std::string const &failureTypeName(unsigned int f);
+  extern std::string const &failureTypeName(FailureType f);
 
   /**
    * @brief Test whether the value is a valid FailureType value.

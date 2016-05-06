@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -121,6 +121,11 @@ namespace PLEXIL
     : Array(orig)
     {
     }
+
+    ArrayAdapter(ArrayAdapter &&orig)
+    : Array(orig)
+    {
+    }
     
     ArrayAdapter(size_t size, bool known)
       : Array(size, known)
@@ -129,7 +134,8 @@ namespace PLEXIL
 
   private:
     // No one should ever call this.
-    ArrayAdapter &operator=(ArrayAdapter const &);
+    ArrayAdapter &operator=(ArrayAdapter const &) = delete;
+    ArrayAdapter &operator=(ArrayAdapter &&) = delete;
   };
 
   //
@@ -141,14 +147,17 @@ namespace PLEXIL
   public:
     ArrayImpl();
     ArrayImpl(ArrayImpl const &);
+    ArrayImpl(ArrayImpl &&);
     ArrayImpl(size_t size);
     ArrayImpl(size_t size, T const &initval);
     ArrayImpl(std::vector<T> const &initval);
+    ArrayImpl(std::vector<T> &&initval);
 
     ~ArrayImpl();
 
     Array *clone() const;
     ArrayImpl &operator=(ArrayImpl<T> const &);
+    ArrayImpl &operator=(ArrayImpl<T> &&);
 
     void resize(size_t size);
 

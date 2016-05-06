@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,12 +46,12 @@ namespace PLEXIL
   CommandHandleValue parseCommandHandleValue(std::string const &name)
   {
     for (size_t i = COMMAND_SENT_TO_SYSTEM; i < COMMAND_HANDLE_MAX; ++i)
-      if (ALL_COMMAND_HANDLE_NAMES[i - NO_COMMAND_HANDLE] == name)
+      if (ALL_COMMAND_HANDLE_NAMES[i - (size_t) NO_COMMAND_HANDLE] == name)
         return (CommandHandleValue) i;
     return NO_COMMAND_HANDLE;
   }
 
-  std::string const &commandHandleValueName(unsigned int c)
+  std::string const &commandHandleValueName(CommandHandleValue c)
   {
     if (c <= NO_COMMAND_HANDLE || c >= COMMAND_HANDLE_MAX)
       return ALL_COMMAND_HANDLE_NAMES[0];

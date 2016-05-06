@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,12 +47,14 @@ namespace PLEXIL
   public:
     Array();
     Array(Array const &);
+    Array(Array &&);
     Array(size_t size, bool known = false);
 
     virtual ~Array();
 
     virtual Array *clone() const = 0;
     Array &operator=(Array const &);
+    Array &operator=(Array &&);
 
     // Generic accessors
 

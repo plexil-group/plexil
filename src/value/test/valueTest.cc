@@ -1346,6 +1346,7 @@ static bool testScalarLessThan()
   Value *unkint = new Value(0, INTEGER_TYPE);
   Value *unkreal = new Value(0, REAL_TYPE);
   Value *unkstr = new Value(0, STRING_TYPE);
+
   assertTrue_1(!(*unkbool < *unkbool));
   assertTrue_1(!(*unkint < *unkint));
   assertTrue_1(!(*unkreal < *unkreal));
@@ -1361,45 +1362,50 @@ static bool testScalarLessThan()
   assertTrue_1(!(*unkstr < *unkv));
 
   Value *troo = new Value(true);
-  Value *falls = new Value(false);
-  assertTrue_1(!(*troo < *troo));
-  assertTrue_1(!(*falls < *falls));
-  assertTrue_1(!(*troo < *falls));
-  assertTrue_1(*falls < *troo);
 
-  // Unknown unknown always < typed known
-  assertTrue_1(*unkv < *troo);
-  assertTrue_1(!(*troo < *unkv));
-  assertTrue_1(*unkv < *falls);
-  assertTrue_1(!(*falls < *unkv));
+  {
+    Value *falls = new Value(false);
 
-  // Same type unknown always < known
-  assertTrue_1(*unkbool < *falls);
-  assertTrue_1(*unkbool < *troo);
-  assertTrue_1(!(*falls < *unkbool));
-  assertTrue_1(!(*troo < *unkbool));
+    assertTrue_1(!(*troo < *troo));
+    assertTrue_1(!(*falls < *falls));
+    assertTrue_1(!(*troo < *falls));
+    assertTrue_1(*falls < *troo);
 
-  // Greater type unknown always < known
-  assertTrue_1(*unkint < *falls);
-  assertTrue_1(*unkint < *troo);
-  assertTrue_1(!(*falls < *unkint));
-  assertTrue_1(!(*troo < *unkint));
+    // Unknown unknown always < typed known
+    assertTrue_1(*unkv < *troo);
+    assertTrue_1(!(*troo < *unkv));
+    assertTrue_1(*unkv < *falls);
+    assertTrue_1(!(*falls < *unkv));
 
-  assertTrue_1(*unkreal < *falls);
-  assertTrue_1(*unkreal < *troo);
-  assertTrue_1(!(*falls < *unkreal));
-  assertTrue_1(!(*troo < *unkreal));
+    // Same type unknown always < known
+    assertTrue_1(*unkbool < *falls);
+    assertTrue_1(*unkbool < *troo);
+    assertTrue_1(!(*falls < *unkbool));
+    assertTrue_1(!(*troo < *unkbool));
 
-  assertTrue_1(*unkstr < *falls);
-  assertTrue_1(*unkstr < *troo);
-  assertTrue_1(!(*falls < *unkstr));
-  assertTrue_1(!(*troo < *unkstr));
+    // Greater type unknown always < known
+    assertTrue_1(*unkint < *falls);
+    assertTrue_1(*unkint < *troo);
+    assertTrue_1(!(*falls < *unkint));
+    assertTrue_1(!(*troo < *unkint));
 
-  delete falls;
+    assertTrue_1(*unkreal < *falls);
+    assertTrue_1(*unkreal < *troo);
+    assertTrue_1(!(*falls < *unkreal));
+    assertTrue_1(!(*troo < *unkreal));
+
+    assertTrue_1(*unkstr < *falls);
+    assertTrue_1(*unkstr < *troo);
+    assertTrue_1(!(*falls < *unkstr));
+    assertTrue_1(!(*troo < *unkstr));
+
+    delete falls;
+  }
 
   Value *fortytwo = new Value((int32_t) 42);
   {
     Value *fortythree = new Value((int32_t) 43);
+
     assertTrue_1(!(*fortytwo < *fortytwo));
     assertTrue_1(!(*fortythree < *fortythree));
     assertTrue_1(*fortytwo < *fortythree);
@@ -1442,6 +1448,7 @@ static bool testScalarLessThan()
   {
     Value *ev = new Value(2.718);
     Value *piv = new Value(3.14);
+
     assertTrue_1(!(*ev < *ev));
     assertTrue_1(!(*piv < *piv));
     assertTrue_1(*ev < *piv);
@@ -1485,6 +1492,7 @@ static bool testScalarLessThan()
     {
       Value *foov = new Value("Foo");
       Value *fopv = new Value("Fop");
+
       assertTrue_1(!(*foov < *foov));
       assertTrue_1(!(*fopv < *fopv));
       assertTrue_1(*foov < *fopv);
@@ -1556,6 +1564,8 @@ static bool testScalarLessThan()
     // Equal
     assertTrue_1(!(*fortytwo < *real42v));
     assertTrue_1(!(*real42v < *fortytwo));
+
+    delete real42v;
   }
 
   delete fortytwo;
@@ -1916,6 +1926,7 @@ bool valueTest()
 {
   runTest(testConstructorsAndAccessors);
   runTest(testScalarEquality);
+  runTest(testScalarLessThan);
   runTest(testBooleanArrayEquality);
   runTest(testIntegerArrayEquality);
   runTest(testRealArrayEquality);
@@ -1925,7 +1936,6 @@ bool valueTest()
   runTest(testScalarIntegerArrayEquality);
   runTest(testScalarRealArrayEquality);
   runTest(testScalarStringArrayEquality);
-  runTest(testScalarLessThan);
   runTest(testBooleanArrayLessThan);
   runTest(testIntegerArrayLessThan);
   runTest(testRealArrayLessThan);

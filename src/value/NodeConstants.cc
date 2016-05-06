@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ namespace PLEXIL
     return NO_NODE_STATE;
   }
 
-  std::string const &nodeStateName(unsigned int s)
+  std::string const &nodeStateName(NodeState s)
   {
     if (s >= NODE_STATE_MAX)
       return ALL_STATE_NAMES[NO_NODE_STATE];
@@ -109,7 +109,7 @@ namespace PLEXIL
     return NO_OUTCOME;
   }
 
-  std::string const &outcomeName(unsigned int o)
+  std::string const &outcomeName(NodeOutcome o)
   {
     if (o <= NO_OUTCOME || o >= OUTCOME_MAX)
       return ALL_OUTCOME_NAMES[0];
@@ -141,7 +141,7 @@ namespace PLEXIL
     return ALL_FAILURE_NAMES[f - NO_FAILURE];
   }
 
-  bool isFailureTypeValid(unsigned int val)
+  bool isFailureTypeValid(FailureType val)
   {
     return val > NO_FAILURE && val < FAILURE_TYPE_MAX;
   }
