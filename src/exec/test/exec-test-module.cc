@@ -759,7 +759,7 @@ static bool listFailingTransTest()
 
       debugMsg("UnitTest:listFailingTrans",
                "Testing with children waiting or finished = " << values[children]
-               << " failure type = " << failureType[i]);
+               << " failure type = " << failureTypeName(failureType[i]));
 
       if (node->getDestState()) {
         node->transition();
@@ -1174,7 +1174,7 @@ static bool bindingFailingTransTest()
 
       debugMsg("UnitTest:listFailingTrans",
                "Testing with children waiting or finished = " << values[children]
-               << " failure type = " << failureType[failure]);
+               << " failure type = " << failureTypeName(failureType[failure]));
 
       if (node->getDestState()) {
         node->transition();
@@ -1406,7 +1406,7 @@ static bool commandFailingTransTest()
       debugMsg("UnitTest:finishedTransition",
                "Testing Command with"
                << " abort complete = " << values[abort]
-               << " failure type = " << failureTypes[failure]);
+               << " failure type = " << failureTypeName(failureTypes[failure]));
 
       if (node->getDestState()) {
         node->transition();
@@ -1792,7 +1792,7 @@ static bool updateFailingTransTest()
       debugMsg("UnitTest:finishedTransition",
                "Testing Update with"
                << " action complete = " << values[actionComplete]
-               << " failure type = " << failureTypes[failure]);
+               << " failure type = " << failureTypeName(failureTypes[failure]));
 
       if (node->getDestState()) {
         node->transition();

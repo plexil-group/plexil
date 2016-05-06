@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -495,15 +495,15 @@ namespace PLEXIL {
     // Common state
     //
 
-    uint8_t m_queueStatus;         /*!< Which exec queue the node is in, if any. */
-    uint8_t m_state;               /*!< The current state of the node. */
-    uint8_t m_outcome;             /*!< The current outcome. */
-    uint8_t m_failureType;         /*!< The current failure. */
+    uint8_t     m_queueStatus;         /*!< Which exec queue the node is in, if any. */
+    NodeState   m_state;               /*!< The current state of the node. */
+    NodeOutcome m_outcome;             /*!< The current outcome. */
+    FailureType m_failureType;         /*!< The current failure. */
 
     bool m_pad; // to ensure 8 byte alignment
-    uint8_t m_nextState;           /*!< The state returned by getDestState() the last time checkConditions() was called. */
-    uint8_t m_nextOutcome;         /*!< The pending outcome. */
-    uint8_t m_nextFailureType;     /*!< The pending failure. */
+    NodeState   m_nextState;           /*!< The state returned by getDestState() the last time checkConditions() was called. */
+    NodeOutcome m_nextOutcome;         /*!< The pending outcome. */
+    FailureType m_nextFailureType;     /*!< The pending failure. */
 
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */

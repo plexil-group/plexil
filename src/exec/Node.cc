@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -214,7 +214,7 @@ namespace PLEXIL {
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL, "Node module test constructor: Invalid state " << state);
+      assertTrueMsg(ALWAYS_FAIL, "Node module test constructor: Invalid state " << (uint8_t) state);
     }
   }
 
@@ -225,7 +225,7 @@ namespace PLEXIL {
       m_variablesByName.setParentMap(m_parent->getChildVariableMap());
 
     // Initialize transition trace
-    logTransition(g_interface->currentTime(), (NodeState) m_state);
+    logTransition(g_interface->currentTime(), m_state);
   }
 
   NodeVariableMap *Node::getChildVariableMap()
@@ -488,7 +488,7 @@ namespace PLEXIL {
 
     default:
       assertTrueMsg(ALWAYS_FAIL,
-                    "Node::getDestState: invalid node state " << m_state);
+                    "Node::getDestState: invalid node state " << (uint8_t) m_state);
       return false;
     }
   }
@@ -520,15 +520,15 @@ namespace PLEXIL {
     condDebugMsg((m_state == FINISHED_STATE),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId <<
-                 "' is " << outcomeName((NodeOutcome) m_outcome));
+                 "' is " << outcomeName(m_outcome));
     condDebugMsg((m_state == FINISHED_STATE && m_outcome == FAILURE_OUTCOME),
                  "Node:failure",
                  "Failure type of '" << m_nodeId <<
-                 "' is " << failureTypeName((FailureType) m_failureType));
+                 "' is " << failureTypeName(m_failureType));
     condDebugMsg((m_state == ITERATION_ENDED_STATE),
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId <<
-                 "' is " << outcomeName((NodeOutcome) m_outcome));
+                 "' is " << outcomeName(m_outcome));
   }
 
   // Common method 
@@ -565,7 +565,7 @@ namespace PLEXIL {
 
     default:
       checkError(ALWAYS_FAIL,
-                 "Node::transitionFrom: Invalid node state " << m_state);
+                 "Node::transitionFrom: Invalid node state " << (uint8_t) m_state);
     }
   }
 
@@ -603,14 +603,14 @@ namespace PLEXIL {
 
     default:
       checkError(ALWAYS_FAIL,
-                 "Node::transitionTo: Invalid destination state " << m_nextState);
+                 "Node::transitionTo: Invalid destination state " << (uint8_t) m_nextState);
     }
 
-    setState((NodeState) m_nextState, time);
+    setState(m_nextState, time);
     if (m_nextOutcome != NO_OUTCOME) {
-      setNodeOutcome((NodeOutcome) m_nextOutcome);
+      setNodeOutcome(m_nextOutcome);
       if (m_nextFailureType != NO_FAILURE) 
-        setNodeFailureType((FailureType) m_nextFailureType);
+        setNodeFailureType(m_nextFailureType);
     }
     if (m_nextState == EXECUTING_STATE)
       execute();
@@ -1183,7 +1183,7 @@ namespace PLEXIL {
   }
 
   NodeState Node::getState() const {
-    return (NodeState) m_state;
+    return m_state;
   }
 
   // Some transition handlers call this twice.
@@ -1263,7 +1263,7 @@ namespace PLEXIL {
 
   NodeOutcome Node::getOutcome() const
   {
-    return (NodeOutcome) m_outcome;
+    return m_outcome;
   }
 
   void Node::setNodeFailureType(FailureType f)
@@ -1276,7 +1276,7 @@ namespace PLEXIL {
 
   FailureType Node::getFailureType() const
   {
-    return (FailureType) m_failureType;
+    return m_failureType;
   }
 
   // Searches ancestors' maps when required
@@ -1545,10 +1545,10 @@ namespace PLEXIL {
     stream << indentStr << " State: " << getStateName() <<
       " (" << getCurrentStateStartTime() << ")\n";
     if (m_state == FINISHED_STATE) {
-      stream << indentStr << " Outcome: " << outcomeName((NodeOutcome) m_outcome) << '\n';
+      stream << indentStr << " Outcome: " << outcomeName(m_outcome) << '\n';
       if (m_failureType != NO_FAILURE)
         stream << indentStr << " Failure type: " <<
-          failureTypeName((FailureType) m_failureType) << '\n';
+          failureTypeName(m_failureType) << '\n';
       // Print variables, starting with command handle
       printCommandHandle(stream, indent);
       printVariables(stream, indent);
