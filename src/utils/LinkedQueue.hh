@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,15 @@
 #ifndef LINKED_QUEUE_HH
 #define LINKED_QUEUE_HH
 
-#include <stddef.h>
-
 namespace PLEXIL
 {
   // Forward declaration
   template <typename T> class LinkedQueue; 
+
+  //*
+  // @class QueueItem
+  // @brief Class template to be used as a base class for entries in a LinkedQueue.
+  //
 
   template <typename T> class QueueItem
   {
@@ -40,7 +43,7 @@ namespace PLEXIL
     
   public:
     QueueItem()
-      : m_next(NULL)
+      : m_next(nullptr)
     {
     }
     
@@ -50,10 +53,29 @@ namespace PLEXIL
 
     T *next() const
     {
-      return static_cast<T *>(m_next);
+      return static_cast<T *>(getNext());
     }
 
   private:
+
+    // Not implemented
+    QueueItem(QueueItem<T> const &) = delete;
+    QueueItem(QueueItem<T> &&) = delete;
+    QueueItem& operator=(QueueItem<T> const &) = delete;
+    QueueItem& operator=(QueueItem<T> &&) = delete;
+
+    // These member functions should only be called by LinkedQueue methods
+
+    void setNext(QueueItem<T> *item)
+    {
+      m_next = item;
+    }
+
+    QueueItem<T> *getNext() const
+    {
+      return m_next;
+    }
+
     QueueItem<T> *m_next;
   };
 
@@ -67,7 +89,7 @@ namespace PLEXIL
   public:
     LinkedQueue()
       : QueueItem<T>(),
-        m_tail(NULL),
+        m_tail(nullptr),
         m_count(0)
     {
     }
@@ -78,7 +100,7 @@ namespace PLEXIL
 
     T *front() const
     {
-      return static_cast<T *>(this->m_next); // may be null
+      return this->next(); // may be null
     }
 
     size_t size() const
@@ -88,61 +110,60 @@ namespace PLEXIL
 
     bool empty() const
     {
-      return (this->m_next == NULL);
+      return (this->getNext() == nullptr);
     }
 
     void pop()
     {
-      if (!this->m_next)
+      if (empty())
         return; // empty, nothing to do
 
-      if (this->m_next == m_tail)
+      if (this->getNext() == m_tail)
         // Exactly one item was in queue, is now empty
-        this->m_next = m_tail = NULL;
+        this->setNext((m_tail = nullptr));
       else
-        this->m_next = this->m_next->m_next;
+        this->setNext(this->getNext()->getNext());
       --m_count; // better be 0 if empty!
     }
 
     void push(T *item_as_T)
     {
       QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      item->m_next = NULL; // mark as end of queue
-      if (!this->m_next)
+      item->setNext(nullptr); // mark as end of queue
+      if (empty())
         // Was empty
-        this->m_next = item;
+        this->setNext(item);
       else
-        m_tail->m_next = item;
+        m_tail->setNext(item);
       m_tail = item;
       ++m_count;
     }
 
     void remove(T *item_as_T)
     {
-      if (!item_as_T || !this->m_next)
+      if (empty() || item_as_T == nullptr)
         return;
       QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      QueueItem<T> *ptr =  static_cast<QueueItem<T> *>(this);
-      while (ptr->m_next) {
-        QueueItem<T> *nxt = ptr->m_next;
+      QueueItem<T> *ptr  = static_cast<QueueItem<T> *>(this);
+      QueueItem<T> *nxt  = nullptr;
+      while (nullptr != (nxt = ptr->getNext())) {
         if (item == nxt) {
           // unlink it
-          ptr->m_next = nxt->m_next;
-          if (this->m_next == NULL)
-            // Deleted only item in queue
-            m_tail = NULL;
+          ptr->setNext(nxt->getNext());
+          if (empty())
+            // Removed only item in queue
+            m_tail = nullptr;
           --m_count;
           return;
         }
-        ptr = ptr->m_next;
+        ptr = ptr->getNext();
       }
       // Can fall through to here without finding item
     }
 
-    // TODO: null out links of items?
     void clear()
     {
-      this->m_next = m_tail = NULL;
+      this->setNext((m_tail = nullptr));
       m_count = 0;
     }
 

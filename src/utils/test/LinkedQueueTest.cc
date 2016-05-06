@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,19 +44,19 @@ bool LinkedQueueTest()
   // Basics
   assertTrue_1(testq.empty());
   assertTrue_1(testq.size() == 0);
-  assertTrue_1(testq.front() == NULL);
+  assertTrue_1(testq.front() == nullptr);
 
   // Pop empty queue should be safe
   testq.pop();
   assertTrue_1(testq.empty());
   assertTrue_1(testq.size() == 0);
-  assertTrue_1(testq.front() == NULL);
+  assertTrue_1(testq.front() == nullptr);
 
-  // Remove of NULL should be safe
-  testq.remove(NULL);
+  // Remove of nullptr should be safe
+  testq.remove(nullptr);
   assertTrue_1(testq.empty());
   assertTrue_1(testq.size() == 0);
-  assertTrue_1(testq.front() == NULL);
+  assertTrue_1(testq.front() == nullptr);
 
   {
     QueueTest *won = new QueueTest(1);
@@ -66,32 +66,32 @@ bool LinkedQueueTest()
     testq.remove(won);
     assertTrue_1(testq.empty());
     assertTrue_1(testq.size() == 0);
-    assertTrue_1(testq.front() == NULL);
+    assertTrue_1(testq.front() == nullptr);
     
     // Test insert on empty queue
     testq.push(won);
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.size() == 1);
-    assertTrue_1(testq.front() != NULL);
+    assertTrue_1(testq.front() != nullptr);
     assertTrue_1(testq.front()->value == 1);
-    assertTrue_1(testq.front()->next() == NULL);
+    assertTrue_1(testq.front()->next() == nullptr);
 
     // Test pop
     testq.pop();
     assertTrue_1(testq.empty());
     assertTrue_1(testq.size() == 0);
-    assertTrue_1(testq.front() == NULL);
+    assertTrue_1(testq.front() == nullptr);
 
     // Insert again
     testq.push(won);
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.size() == 1);
-    assertTrue_1(testq.front() != NULL);
+    assertTrue_1(testq.front() != nullptr);
     assertTrue_1(testq.front()->value == 1);
-    assertTrue_1(testq.front()->next() == NULL);
+    assertTrue_1(testq.front()->next() == nullptr);
 
-    // Remove of NULL should be safe
-    testq.remove(NULL);
+    // Remove of nullptr should be safe
+    testq.remove(nullptr);
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.size() == 1);
     assertTrue_1(testq.front()->value == 1);
@@ -100,13 +100,13 @@ bool LinkedQueueTest()
     testq.remove(won);
     assertTrue_1(testq.empty());
     assertTrue_1(testq.size() == 0);
-    assertTrue_1(testq.front() == NULL);
+    assertTrue_1(testq.front() == nullptr);
 
     // Pop empty queue should still be safe
     testq.pop();
     assertTrue_1(testq.empty());
     assertTrue_1(testq.size() == 0);
-    assertTrue_1(testq.front() == NULL);
+    assertTrue_1(testq.front() == nullptr);
 
     delete won;
   }
@@ -117,25 +117,25 @@ bool LinkedQueueTest()
     testq.push(new QueueTest(i));
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.size() == i);
-    assertTrue_1(testq.front() != NULL);
+    assertTrue_1(testq.front() != nullptr);
   }
 
   // Step through the queue
   QueueTest *item = testq.front();
   for (int i = 1; i <= n; ++i) {
-    assertTrue_1(item != NULL);
+    assertTrue_1(item != nullptr);
     assertTrue_1(item->value == i);
     item = item->next();
   }
   // Should have reached end
-  assertTrue_1(item == NULL);
+  assertTrue_1(item == nullptr);
 
   // Remove first
   item = testq.front();
-  assertTrue_1(item != NULL);
+  assertTrue_1(item != nullptr);
   assertTrue_1(item->value == 1);
   QueueTest *nxt = item->next();
-  assertTrue_1(nxt != NULL);
+  assertTrue_1(nxt != nullptr);
   testq.remove(item);
   assertTrue_1(!testq.empty());
   assertTrue_1(testq.size() == n - 1);
@@ -144,7 +144,7 @@ bool LinkedQueueTest()
 
   // Remove from middle
   item = testq.front()->next()->next()->next();
-  assertTrue_1(item != NULL);
+  assertTrue_1(item != nullptr);
   testq.remove(item);
   assertTrue_1(!testq.empty());
   assertTrue_1(testq.size() == n - 2);
@@ -162,12 +162,12 @@ bool LinkedQueueTest()
 
   // Pop and delete remaining
   while (!testq.empty()) {
-    assertTrue_1(testq.front() != NULL);
+    assertTrue_1(testq.front() != nullptr);
     item = testq.front();
     testq.pop();
     delete item;
   }
-  item = NULL;
+  item = nullptr;
 
   assertTrue_1(testq.empty());
   assertTrue_1(testq.size() == 0);
