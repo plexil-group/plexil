@@ -25,17 +25,20 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
+
 # Platform-dependent configuration
-ifeq (Darwin,$(OSNAME))
+
+ifeq (Darwin,$(TARGET_OS))
+DEFINES += -DDarwin
 OPENGL_EXTRA_FLAGS	:= -framework OpenGL -framework GLUT
 endif
 
-ifeq (Linux,$(OSNAME))
+ifeq (Linux,$(TARGET_OS))
 OPENGL_LIB_PATH := /usr/X11R6/lib
 OPENGL_LIBS	:= GL GLU glut Xi Xmu
 endif
 
-ifeq (FreeBSD,$(OSNAME))
+ifeq (FreeBSD,$(TARGET_OS))
 OPENGL_LIB_PATH := /usr/local/lib
 OPENGL_LIBS	:= GL GLU glut Xi Xmu
 INCLUDES += -I/usr/local/include
@@ -53,9 +56,6 @@ SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
 SVN_FILES       := Makefile $(SRC) $(INC)
-
-# a hack until we need to get VxWorks working
-DEFINES += -DUNIX
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)

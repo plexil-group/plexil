@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,15 +24,10 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #
-# C/C++ compiler flag overrides
+# C/C++ compiler flags specific to Mac OS X
 #
 
-DEFINES			+= -DDarwin
 DEBUG_FLAGS		+= -gfull
-
-ifeq (4,$(CXX_MAJOR_VERSION))
-DEFINES		+= -DPLATFORM_HAS_EXECINFO_H
-endif
 
 #
 # Compiler/linker option overrides

@@ -46,6 +46,21 @@ AUTOMAKE := automake
 AUTORECONF := autoreconf
 LIBTOOLIZE := libtoolize
 
+# Configuration options for src/configure
+CONF_BUILD_OPTS :=
+
+# TODO figure out what to do with these
+CONF_MODULE_OPTS := --enable-udp --enable-ipc --enable-sas --enable-test-exec
+
+# *** TEMPORARY *** Comment out when done porting to C++11
+CONF_MODULE_OPTS += --enable-module-tests
+
+ifneq ($(PLEXIL_SHARED),)
+CONF_BUILD_OPTS += --enable-shared --disable-static
+else
+CONF_BUILD_OPTS += --disable-shared --enable-static
+endif
+
 # Primary target
 plexil-default: tools
 
@@ -151,16 +166,18 @@ most-build: src/Makefile
 most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
-src/Makefile: src/configure
-	cd ./src && ./configure --prefix=$(PLEXIL_HOME) \
- CC=$(CC) CXX=$(CXX) --disable-static \
- --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+# Be sure to inherit compiler options from makeinclude directory
+src/Makefile: src/configure src/Makefile.am makeinclude/standard-defs.make makeinclude/platform-defs.make makeinclude/platform-$(TARGET_OS).make
+	cd ./src && ./configure --prefix="$(PLEXIL_HOME)" \
+ CC="$(CC)" CFLAGS="$(CFLAGS)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
+ $(CONF_BUILD_OPTS) $(CONF_MODULE_OPTS)
+
 
 #
 # Bootstrapping autobuild files
 #
 
-src/configure: src/configure.ac src/Makefile.am
+src/configure: src/configure.ac
 	cd ./src && $(AUTORECONF) -f -i
 
 #

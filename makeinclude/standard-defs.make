@@ -83,8 +83,8 @@ DEPEND		= $(CXX) -MM
 # -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
 DEFINES			:= -D__STDC_LIMIT_MACROS
 
-STANDARD_CFLAGS		:=
-STANDARD_CXXFLAGS	:=
+STANDARD_CFLAGS		:= --std=c11
+STANDARD_CXXFLAGS	:= --std=c++11
 
 # Include path
 
@@ -96,8 +96,7 @@ INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
 
 # Compiler flags for debug builds
-#DEBUG_FLAGS	:= -ggdb # Not appropriate for OS X
-DEBUG_FLAGS	:= -g
+DEBUG_FLAGS		:= -g
 WARNING_FLAGS	:= -Wall
 
 # Compiler flags for optimized builds
@@ -108,7 +107,7 @@ ifneq ($(PLEXIL_DEBUG),)
 VARIANT_CFLAGS	+= $(DEBUG_FLAGS) $(WARNING_FLAGS)
 endif
 ifneq ($(PLEXIL_OPTIMIZED),)
-VARIANT_CFLAGS	+= $(OPTIMIZE_FLAGS)
+VARIANT_CFLAGS	+= $(OPTIMIZE_FLAGS) $(WARNING_FLAGS)
 endif
 
 CFLAGS		+= $(DEFINES) $(STANDARD_CFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
