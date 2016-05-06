@@ -42,7 +42,7 @@ namespace PLEXIL {
   /**
    * @brief Node state enumeration.
    */
-  enum NodeState : uint16_t {
+  enum NodeState : uint8_t {
     INACTIVE_STATE = 0,
     WAITING_STATE,
     EXECUTING_STATE,
@@ -84,7 +84,7 @@ namespace PLEXIL {
   /**
    * @brief Outcome enumeration.
    */
-  enum NodeOutcome : uint16_t {
+  enum NodeOutcome : uint8_t {
     NO_OUTCOME = 16,
     SUCCESS_OUTCOME,
     FAILURE_OUTCOME,
@@ -123,7 +123,7 @@ namespace PLEXIL {
   /**
    * @brief Node failure type enumeration.
    */
-  enum FailureType : uint16_t {
+  enum FailureType : uint8_t {
     NO_FAILURE = 32,
     PRE_CONDITION_FAILED,
     POST_CONDITION_FAILED,

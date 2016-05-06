@@ -134,14 +134,14 @@ namespace PLEXIL
     return NO_FAILURE;
   }
 
-  std::string const &failureTypeName(unsigned int f)
+  std::string const &failureTypeName(FailureType f)
   {
     if (f <= NO_FAILURE || f >= FAILURE_TYPE_MAX)
       return ALL_FAILURE_NAMES[0];
     return ALL_FAILURE_NAMES[f - NO_FAILURE];
   }
 
-  bool isFailureTypeValid(FailureType val)
+  bool isFailureTypeValid(unsigned int val)
   {
     return val > NO_FAILURE && val < FAILURE_TYPE_MAX;
   }

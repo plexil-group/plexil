@@ -238,7 +238,8 @@ namespace PLEXIL
   }
 
   Value::Value(std::vector<Value> const &vals)
-    : m_type(UNKNOWN_TYPE),
+    : arrayValue(), // we can be sure result is an array
+      m_type(UNKNOWN_TYPE),
       m_known(true)
   {
     size_t len = vals.size();
@@ -269,7 +270,7 @@ namespace PLEXIL
     case BOOLEAN_TYPE: {
       m_type = BOOLEAN_ARRAY_TYPE;
       BooleanArray *ary = new BooleanArray(len);
-      arrayValue = std::unique_ptr<Array>(static_cast<Array *>(ary));
+      arrayValue.reset(static_cast<Array *>(ary));
       for (size_t i = 0; i < len; ++i) {
         bool temp;
         if (vals[i].getValue(temp))
@@ -283,7 +284,7 @@ namespace PLEXIL
     case INTEGER_TYPE: {
       m_type = INTEGER_ARRAY_TYPE;
       IntegerArray *ary = new IntegerArray(len);
-      arrayValue = std::unique_ptr<Array>(static_cast<Array *>(ary));
+      arrayValue.reset(static_cast<Array *>(ary));
       for (size_t i = 0; i < len; ++i) {
         int32_t temp;
         if (vals[i].getValue(temp))
@@ -299,7 +300,7 @@ namespace PLEXIL
     case REAL_TYPE: {
       m_type = REAL_ARRAY_TYPE;
       RealArray *ary = new RealArray(len);
-      arrayValue = std::unique_ptr<Array>(static_cast<Array *>(ary));
+      arrayValue.reset(static_cast<Array *>(ary));
       for (size_t i = 0; i < len; ++i) {
         double temp;
         if (vals[i].getValue(temp))
@@ -313,7 +314,7 @@ namespace PLEXIL
     case STRING_TYPE: {
       m_type = STRING_ARRAY_TYPE;
       StringArray *ary = new StringArray(len);
-      arrayValue = std::unique_ptr<Array>(static_cast<Array *>(ary));
+      arrayValue.reset(static_cast<Array *>(ary));
       for (size_t i = 0; i < len; ++i) {
         std::string const *temp;
         if (vals[i].getValuePointer(temp))
