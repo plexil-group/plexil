@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ int Logging::ENABLE_W_PROMPT = 0; // if != 0, enable warning prompt messages
 static const char *DEFAULT_LOG_FILE_NAME = "universalexec.log";
 
 // Don't allocate until needed; if used, cleanup at exit
-static char *FILE_NAME = NULL;   // global buffer
+static char *FILE_NAME = nullptr;   // global buffer
 static size_t FILE_NAME_LEN = 0; // allocated size of above
 
 // Locally defined functions
@@ -258,7 +258,7 @@ static void print_stack()
 
 static void ensure_log_file_name()
 {
-  if (FILE_NAME == NULL)
+  if (FILE_NAME == nullptr)
     Logging::set_log_file_name(DEFAULT_LOG_FILE_NAME);
 }
 
@@ -266,6 +266,6 @@ static void ensure_log_file_name()
 static void purge()
 {
   char *filename = FILE_NAME;
-  FILE_NAME = NULL;
+  FILE_NAME = nullptr;
   delete filename;
 }

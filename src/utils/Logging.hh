@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef LOGGING_HH
 #define LOGGING_HH
 
-class Logging {
+class Logging final {
 public:
   enum LogType {
     LOG_ERROR         = 0,  
@@ -45,20 +45,6 @@ public:
   static void handle_message(int msg_type, const char * msg);
   static void handle_message(int msg_type, const char * file, int offset, const char * msg);
   static void handle_message(int msg_type, const char * file, int line, int col, const char * msg);
-
-private:
-
-  // Deliberately not implemented -- all members are static
-  Logging();
-  Logging(const Logging&);
-  Logging& operator=(const Logging&);
-  ~Logging();
-
 };
 
 #endif /* _LOGGING_HH */
-
-
-
-
-

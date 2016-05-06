@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ inline void enableMatchingDebugMessages(char const * /* file */,
   @see DebugMessage
 */
 #define condDebugMsg(cond, marker, data) { \
-  static DebugMessage *dmPtr = NULL; \
+  static DebugMessage *dmPtr = nullptr; \
   if (!dmPtr) \
      dmPtr = addDebugMessage(__FILE__, marker); \
   if (dmPtr->enabled && (cond)) { \
@@ -173,7 +173,7 @@ inline void enableMatchingDebugMessages(char const * /* file */,
   @see DebugMessage
 */
 #define condDebugStmt(cond, marker, stmt) { \
-  static DebugMessage *dmPtr = NULL; \
+  static DebugMessage *dmPtr = nullptr; \
   if (!dmPtr) \
      dmPtr = addDebugMessage(__FILE__, marker); \
   if (dmPtr->enabled && (cond)) { \
@@ -212,7 +212,7 @@ extern DebugMessage *addDebugMessage(char const *file,
  * @brief Represents one debug marker in a source file.
  */
 
-struct DebugMessage 
+struct DebugMessage final 
 {
   /**
    * @brief Pointer to next (previous) message in list.
@@ -259,9 +259,11 @@ struct DebugMessage
 
 private:
   // Not implemented
-  DebugMessage();
-  DebugMessage(const DebugMessage&);
-  DebugMessage& operator=(const DebugMessage&);
+  DebugMessage() = delete;
+  DebugMessage(DebugMessage const &) = delete;
+  DebugMessage(DebugMessage &) = delete;
+  DebugMessage& operator=(const DebugMessage&) = delete;
+  DebugMessage& operator=(DebugMessage &&) = delete;
 };
 
 std::ostream &operator<<(std::ostream &os, const DebugMessage &dm);

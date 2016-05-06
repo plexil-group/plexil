@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -69,17 +69,17 @@ struct DebugPattern;
 /**
  * @brief The debug output stream.
  */
-static std::ostream *debugStream = NULL;
+static std::ostream *debugStream = nullptr;
 
 /**
  * @brief Linked list of debug messages.
  */
-static DebugMessage *allMsgs = NULL;
+static DebugMessage *allMsgs = nullptr;
 
 /**
  * @brief Linked list of all enabled debug patterns.
  */
-static DebugPattern *enabledPatterns = NULL;
+static DebugPattern *enabledPatterns = nullptr;
 
 /**
  * @brief All-messages-enabled flag
@@ -113,7 +113,7 @@ public:
  * @brief Used to store the "patterns" of presently enabled debug messages.
  * @see enableMatchingDebugMsgs
  */
-struct DebugPattern
+struct DebugPattern final
 {
   /**
    * @brief The source file substring the DebugMessage must match.
@@ -138,7 +138,7 @@ struct DebugPattern
   DebugPattern(char const *f, char const *m, bool garbage = false)
     : file(strdup(f)),
       pattern(strdup(m)),
-      next(NULL)
+      next(nullptr)
   {
     assertTrue_3(file && pattern,
                  "DebugPattern constructor: not enough memory to copy argument strings",
@@ -157,9 +157,11 @@ struct DebugPattern
 private:
 
   // Not implemented
-  DebugPattern();
-  DebugPattern(DebugPattern const &);
-  DebugPattern &operator=(DebugPattern const &);
+  DebugPattern() = delete;
+  DebugPattern(DebugPattern const &) = delete;
+  DebugPattern(DebugPattern &&) = delete;
+  DebugPattern &operator=(DebugPattern const &) = delete;
+  DebugPattern &operator=(DebugPattern &&) = delete;
 };
 
 // Take advantage of the fact that the DebugMessage constructor will usually be called 
@@ -167,7 +169,7 @@ private:
 
 DebugMessage::DebugMessage(char const *f,
                            char const *m)
-  : next(NULL),
+  : next(nullptr),
     file(f), 
     marker(m),
     enabled(false)
@@ -197,7 +199,7 @@ void DebugMessage::print(std::ostream &os) const
 static void deleteAllDebugPatterns()
 {
   DebugPattern *nextPat = enabledPatterns;
-  enabledPatterns = NULL;
+  enabledPatterns = nullptr;
   while (nextPat) {
     DebugPattern *pat = nextPat;
     nextPat = pat->next;
@@ -209,7 +211,7 @@ static void debugCleanup()
 {
   deleteAllDebugPatterns();
   DebugMessage *nextMessage = allMsgs;
-  allMsgs = NULL;
+  allMsgs = nullptr;
   while (nextMessage) {
     DebugMessage *msg = nextMessage;
     nextMessage = msg->next;
@@ -223,8 +225,8 @@ static void ensureDebugInited()
     return;
   addFinalizer(&debugCleanup);
   debugStream = &std::cout;
-  allMsgs = NULL;
-  enabledPatterns = NULL;
+  allMsgs = nullptr;
+  enabledPatterns = nullptr;
   allEnabled = false;
   debugInited = true;
 }
@@ -243,19 +245,19 @@ static bool markerMatches(char const *marker, char const *pattern)
   if (!*pattern)
     return true;
   char const *result = strstr(marker, pattern);
-  return result != NULL;
+  return result != nullptr;
 }
 
 /**
  * @brief Find the existing DebugMessage with exactly the given file and marker.
- * @return Pointer to the message, or NULL if not found.
+ * @return Pointer to the message, or nullptr if not found.
  */
 static DebugMessage *findDebugMessage(char const *file, char const *marker)
 {
   for (DebugMessage *m = allMsgs; m; m = m->next)
     if (!strcmp(m->file, file) && !strcmp(m->marker, marker))
       return m;
-  return NULL;
+  return nullptr;
 }
 
 //
