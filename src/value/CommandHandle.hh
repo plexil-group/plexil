@@ -35,7 +35,7 @@ namespace PLEXIL
   /**
    * @brief Command handle state enumeration.
    */
-  enum CommandHandleValue : uint16_t {
+  enum CommandHandleValue : uint8_t {
     NO_COMMAND_HANDLE = 48,
       COMMAND_SENT_TO_SYSTEM,
       COMMAND_ACCEPTED,

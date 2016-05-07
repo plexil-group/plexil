@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,21 @@
 
 #include "Expression.hh"
 
+// Local macro
+
 namespace PLEXIL
 {
 
   /**
-   * @class ExpressionAdapter
+   * @class ExpressionShim
    * @brief Adapter (Design Patterns pp. 139-150) around templatized Expression derivatives,
    *        isolating the Expression API from the implementation.
    * @note This class should NEVER be explicitly mentioned outside this file.
    * @note If the template trickery confuses you, do a web search for "Curiously Recurring Template Pattern".
    */
 
-  template <class C>
-  class ExpressionAdapter : public virtual Expression
+  template <class IMPL>
+  class ExpressionShim : public virtual Expression
   {
   public:
 
@@ -50,65 +52,43 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValue(bool &result) const
-    {
-      return static_cast<const C *>(this)->getValueImpl(result);
-    }
 
-    bool getValue(uint16_t &result) const
-    {
-      return static_cast<const C *>(this)->getValueImpl(result);
-    }
+    // Local macro
+#define DEFINE_GET_VALUE_METHOD(_type_) \
+  bool getValue(_type_ &result) const \
+  { return static_cast<IMPL const *>(this)->getValueImpl(result); }
 
-    bool getValue(int32_t &result) const
-    {
-      return static_cast<const C *>(this)->getValueImpl(result);
-    }
+    DEFINE_GET_VALUE_METHOD(Boolean)
+    DEFINE_GET_VALUE_METHOD(Integer)
+    DEFINE_GET_VALUE_METHOD(Real)
+    DEFINE_GET_VALUE_METHOD(NodeState)
+    DEFINE_GET_VALUE_METHOD(NodeOutcome)
+    DEFINE_GET_VALUE_METHOD(FailureType)
+    DEFINE_GET_VALUE_METHOD(CommandHandleValue)
+    DEFINE_GET_VALUE_METHOD(String)
 
-    bool getValue(double &result) const
-    {
-      return static_cast<const C *>(this)->getValueImpl(result);
-    }
-
-    bool getValue(std::string &result) const
-    {
-      return static_cast<const C *>(this)->getValueImpl(result);
-    }
-
+#undef DEFINE_GET_VALUE_METHOD
+    
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(std::string const *&ptr) const
-    {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
-    }
 
-    bool getValuePointer(Array const *&ptr) const
-    {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
-    }
 
-    bool getValuePointer(BooleanArray const *&ptr) const
-    {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
-    }
+    // Local macro
+#define DEFINE_GET_VALUE_POINTER_METHOD(_type_) \
+  bool getValuePointer(_type_ const *&ptr) const \
+  { return static_cast<IMPL const *>(this)->getValuePointerImpl(ptr); }
 
-    bool getValuePointer(IntegerArray const *&ptr) const
-    {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
-    }
+    DEFINE_GET_VALUE_POINTER_METHOD(String)
+    DEFINE_GET_VALUE_POINTER_METHOD(Array)
+    DEFINE_GET_VALUE_POINTER_METHOD(BooleanArray)
+    DEFINE_GET_VALUE_POINTER_METHOD(IntegerArray)
+    DEFINE_GET_VALUE_POINTER_METHOD(RealArray)
+    DEFINE_GET_VALUE_POINTER_METHOD(StringArray)
 
-    bool getValuePointer(RealArray const *&ptr) const
-    {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
-    }
-
-    bool getValuePointer(StringArray const *&ptr) const
-    {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
-    }
+#undef DEFINE_GET_VALUE_POINTER_METHOD
 
   };
 
@@ -119,7 +99,7 @@ namespace PLEXIL
   */
 
   template <typename T>
-  class ExpressionImpl : public ExpressionAdapter<ExpressionImpl<T> >
+  class ExpressionImpl : public ExpressionShim<ExpressionImpl<T> >
   {
   public:
     /**
@@ -175,8 +155,8 @@ namespace PLEXIL
 
   // Specialization for string
   template <>
-  class ExpressionImpl<std::string>
-    : public ExpressionAdapter<ExpressionImpl<std::string> >
+  class ExpressionImpl<String>
+    : public ExpressionShim<ExpressionImpl<String> >
   {
   public:
     /**
@@ -204,7 +184,7 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValueImpl(std::string &result) const = 0;
+    virtual bool getValueImpl(String &result) const = 0;
 
     // Conversion wrapper, error if particular conversion not supported
     template <typename U>
@@ -215,7 +195,7 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointerImpl(std::string const *& ptr) const = 0;
+    virtual bool getValuePointerImpl(String const *& ptr) const = 0;
 
     // Error for wrong type call
     template <typename U>
@@ -232,7 +212,7 @@ namespace PLEXIL
   // Specialization for array types
   template <typename T>
   class ExpressionImpl<ArrayImpl<T> >
-    : public ExpressionAdapter<ExpressionImpl<ArrayImpl<T> > >
+    : public ExpressionShim<ExpressionImpl<ArrayImpl<T> > >
   {
   public:
     /**

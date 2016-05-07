@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ namespace PLEXIL
     std::string const &getName() const;
     std::vector<Value> const &getArgValues() const;
     const ResourceValueList &getResourceValues() const;
-    CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
+    CommandHandleValue getCommandHandle() const {return m_commandHandle;}
     bool isActive() const { return m_active; }
 
     // Interface to plan parser
@@ -133,7 +133,7 @@ namespace PLEXIL
     Expression *m_nameExpr;
     Assignable *m_dest;
     ExprVec *m_argVec;
-    uint16_t m_commandHandle; // accessed by CommandHandleVariable
+    CommandHandleValue m_commandHandle; // accessed by CommandHandleVariable
     bool m_fixed, m_resourceFixed, m_active;
   };
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,10 @@ using namespace PLEXIL;
 static bool testArrayConstantReference()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -135,10 +135,10 @@ static bool testArrayConstantReference()
 static bool testArrayVariableReference()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -247,10 +247,10 @@ static bool testArrayVariableReference()
 bool testMutableArrayReference()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -481,10 +481,10 @@ bool testMutableArrayReference()
 bool testAssignablePointer()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -514,10 +514,10 @@ bool testAssignablePointer()
   Assignable *dvp = dv.asAssignable();
   Assignable *svp = sv.asAssignable();
 
-  bool        pb;
-  int32_t     pi;
-  double      pd;
-  std::string ps;
+  Boolean  pb;
+  Integer  pi;
+  Real     pd;
+  String   ps;
   
   IntegerVariable ivar;
   MutableArrayReference bar(bvp, &ivar);
@@ -545,7 +545,7 @@ bool testAssignablePointer()
   // Check that index variable is inactive
   assertTrue_1(!ivar.isActive());
 
-  int32_t n;
+  Integer n;
 
   // Read tests
 
@@ -557,7 +557,11 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
+    // *** TEMP DEBUG ***
+    std::cout << "Before getValue(Boolean &)" << std::endl;
     assertTrue_1(barp->getValue(pb));
+    // *** TEMP DEBUG ***
+    std::cout << "After getValue(Boolean &)" << std::endl;
     assertTrue_1(pb == vb[i]);
   }
 
@@ -725,10 +729,10 @@ bool testAssignablePointer()
 bool testArrayRefNotification()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -793,7 +797,7 @@ bool testArrayRefNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
 
-  Constant<bool> dummy;
+  Constant<Boolean> dummy;
 
   // Check that nothing propagates while inactive
   ivar.notifyChanged(&dummy);
@@ -931,10 +935,10 @@ bool testArrayRefNotification()
 bool testMutableNotification()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -999,7 +1003,7 @@ bool testMutableNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
 
-  Constant<bool> dummy;
+  Constant<Boolean> dummy;
 
   // Check that nothing propagates while inactive
   ivar.notifyChanged(&dummy);

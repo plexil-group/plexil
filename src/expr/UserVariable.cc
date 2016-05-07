@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,8 @@
 #include <cstdlib> // free()
 #include <cstring> // strdup()
 
-namespace PLEXIL {
+namespace PLEXIL
+{
 
   template <typename T>
   UserVariable<T>::UserVariable()
@@ -53,10 +54,10 @@ namespace PLEXIL {
   {
   }
 
-  UserVariable<std::string>::UserVariable()
+  UserVariable<String>::UserVariable()
     : NotifierImpl(),
-      ExpressionImpl<std::string>(),
-    AssignableImpl<std::string>(),
+      ExpressionImpl<String>(),
+    AssignableImpl<String>(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -67,8 +68,8 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable(T const &initVal)
-  : NotifierImpl(),
-    ExpressionImpl<T>(),
+    : NotifierImpl(),
+      ExpressionImpl<T>(),
     AssignableImpl<T>(),
     m_initializer(new Constant<T>(initVal)),
     m_name(NULL),
@@ -79,11 +80,11 @@ namespace PLEXIL {
   {
   }
 
-  UserVariable<std::string>::UserVariable(std::string const &initVal)
-  : NotifierImpl(),
-    ExpressionImpl<std::string>(),
-    AssignableImpl<std::string>(),
-    m_initializer(new Constant<std::string>(initVal)),
+  UserVariable<String>::UserVariable(std::string const &initVal)
+    : NotifierImpl(),
+      ExpressionImpl<String>(),
+    AssignableImpl<String>(),
+    m_initializer(new Constant<String>(initVal)),
     m_name(NULL),
     m_node(NULL),
     m_known(false),
@@ -95,8 +96,8 @@ namespace PLEXIL {
   // Only two possible constant initializers for BooleanVariable
   template <>
   UserVariable<bool>::UserVariable(const bool &initVal)
-  : NotifierImpl(),
-    ExpressionImpl<bool>(),
+    : NotifierImpl(),
+      ExpressionImpl<bool>(),
     AssignableImpl<bool>(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
     m_name(NULL),
@@ -122,11 +123,11 @@ namespace PLEXIL {
   {
   }
 
-  UserVariable<std::string>::UserVariable(NodeConnector *node,
-                                          char const *name)
+  UserVariable<String>::UserVariable(NodeConnector *node,
+                                     char const *name)
     : NotifierImpl(),
-      ExpressionImpl<std::string>(),
-    AssignableImpl<std::string>(),
+      ExpressionImpl<String>(),
+    AssignableImpl<String>(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),
@@ -148,7 +149,7 @@ namespace PLEXIL {
       delete m_initializer;
   }
 
-  UserVariable<std::string>::~UserVariable()
+  UserVariable<String>::~UserVariable()
   {
     free((void *) m_name);
     if (m_initializerIsGarbage)
@@ -168,7 +169,7 @@ namespace PLEXIL {
     return sl_anon;
   }
 
-  char const *UserVariable<std::string>::getName() const
+  char const *UserVariable<String>::getName() const
   {
     if (m_name)
       return m_name;
@@ -182,7 +183,7 @@ namespace PLEXIL {
     return "Variable";
   }
 
-  const char *UserVariable<std::string>::exprName() const
+  const char *UserVariable<String>::exprName() const
   {
     return "Variable";
   }
@@ -193,7 +194,7 @@ namespace PLEXIL {
     return this->isActive() && m_known;
   }
 
-  bool UserVariable<std::string>::isKnown() const
+  bool UserVariable<String>::isKnown() const
   {
     return this->isActive() && m_known;
   }
@@ -208,7 +209,7 @@ namespace PLEXIL {
     return m_known;
   }
 
-  bool UserVariable<std::string>::getValueImpl(std::string &result) const
+  bool UserVariable<String>::getValueImpl(std::string &result) const
   {
     if (!this->isActive())
       return false;
@@ -217,7 +218,7 @@ namespace PLEXIL {
     return m_known;
   }
 
-  bool UserVariable<std::string>::getValuePointerImpl(std::string const *&ptr) const
+  bool UserVariable<String>::getValuePointerImpl(std::string const *&ptr) const
   {
     if (!this->isActive())
       return false;
@@ -227,13 +228,13 @@ namespace PLEXIL {
   }
 
   template <typename U>
-  bool UserVariable<std::string>::getValuePointerImpl(U const *&ptr) const
+  bool UserVariable<String>::getValuePointerImpl(U const *&ptr) const
   {
     assertTrue_2(ALWAYS_FAIL, "UserVariable::getValuePointer type error");
     return false;
   }
 
-  bool UserVariable<std::string>::getMutableValuePointerImpl(std::string *&ptr)
+  bool UserVariable<String>::getMutableValuePointerImpl(std::string *&ptr)
   {
     if (!this->isActive())
       return false;
@@ -255,7 +256,7 @@ namespace PLEXIL {
       this->publishChange(this);
   }
 
-  void UserVariable<std::string>::handleActivate()
+  void UserVariable<String>::handleActivate()
   {
     if (m_initializer) {
       m_initializer->activate();
@@ -276,7 +277,7 @@ namespace PLEXIL {
       m_initializer->deactivate();
   }
 
-  void UserVariable<std::string>::handleDeactivate()
+  void UserVariable<String>::handleDeactivate()
   {
     // Clear saved value
     m_savedValue.clear();
@@ -291,7 +292,7 @@ namespace PLEXIL {
     s << m_name << ' ';
   }
 
-  void UserVariable<std::string>::printSpecialized(std::ostream &s) const
+  void UserVariable<String>::printSpecialized(std::ostream &s) const
   {
     s << m_name << ' ';
   }
@@ -306,7 +307,7 @@ namespace PLEXIL {
       this->publishChange(this);
   }
 
-  void UserVariable<std::string>::setValueImpl(std::string const &value)
+  void UserVariable<String>::setValueImpl(std::string const &value)
   {
     bool changed = !m_known || value != m_value;
     m_value = value;
@@ -324,7 +325,7 @@ namespace PLEXIL {
       this->publishChange(this);
   }
 
-  void UserVariable<std::string>::setUnknown()
+  void UserVariable<String>::setUnknown()
   {
     bool changed = m_known;
     m_known = false;
@@ -340,7 +341,7 @@ namespace PLEXIL {
     m_savedKnown = m_known = false;
   }
 
-  void UserVariable<std::string>::reset()
+  void UserVariable<String>::reset()
   {
     assertTrueMsg(!this->isActive(), "UserVariable " << *this << " reset while active");
     m_savedKnown = m_known = false;
@@ -353,7 +354,7 @@ namespace PLEXIL {
     m_savedKnown = m_known;
   }
 
-  void UserVariable<std::string>::saveCurrentValue()
+  void UserVariable<String>::saveCurrentValue()
   {
     m_savedValue = m_value;
     m_savedKnown = m_known;
@@ -370,7 +371,7 @@ namespace PLEXIL {
       this->publishChange(this);
   }
 
-  void UserVariable<std::string>::restoreSavedValue()
+  void UserVariable<String>::restoreSavedValue()
   {
     bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
     m_value = m_savedValue;
@@ -385,7 +386,7 @@ namespace PLEXIL {
     return Value(m_savedValue);
   }
 
-  Value UserVariable<std::string>::getSavedValue() const
+  Value UserVariable<String>::getSavedValue() const
   {
     return Value(m_savedValue);
   }
@@ -398,7 +399,7 @@ namespace PLEXIL {
     m_name = strdup(name.c_str());
   }
 
-  void UserVariable<std::string>::setName(const std::string &name)
+  void UserVariable<String>::setName(const std::string &name)
   {
     if (m_name)
       delete m_name;
@@ -411,7 +412,7 @@ namespace PLEXIL {
     return m_node;
   }
 
-  NodeConnector *UserVariable<std::string>::getNode()
+  NodeConnector *UserVariable<String>::getNode()
   {
     return m_node;
   }
@@ -422,7 +423,7 @@ namespace PLEXIL {
     return m_node;
   }
 
-  NodeConnector const *UserVariable<std::string>::getNode() const
+  NodeConnector const *UserVariable<String>::getNode() const
   {
     return m_node;
   }
@@ -433,7 +434,7 @@ namespace PLEXIL {
     return Assignable::asAssignable();
   }
 
-  Assignable *UserVariable<std::string>::getBaseVariable()
+  Assignable *UserVariable<String>::getBaseVariable()
   {
     return Assignable::asAssignable();
   }
@@ -444,7 +445,7 @@ namespace PLEXIL {
     return Assignable::asAssignable();
   }
 
-  Assignable const *UserVariable<std::string>::getBaseVariable() const
+  Assignable const *UserVariable<String>::getBaseVariable() const
   {
     return Assignable::asAssignable();
   }
@@ -460,7 +461,7 @@ namespace PLEXIL {
   }
 
   template <>
-  void UserVariable<double>::setInitializer(Expression *expr, bool garbage)
+  void UserVariable<Real>::setInitializer(Expression *expr, bool garbage)
   {
     assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
     assertTrue_2(expr->valueType() == REAL_TYPE
@@ -471,7 +472,7 @@ namespace PLEXIL {
     m_initializerIsGarbage = garbage;
   }
 
-  void UserVariable<std::string>::setInitializer(Expression *expr, bool garbage)
+  void UserVariable<String>::setInitializer(Expression *expr, bool garbage)
   {
     assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
     assertTrue_2(expr->valueType() == STRING_TYPE || expr->valueType() == UNKNOWN_TYPE,
@@ -486,7 +487,7 @@ namespace PLEXIL {
     return m_conflicts;
   }
 
-  VariableConflictSet &UserVariable<std::string>::getConflictSet()
+  VariableConflictSet &UserVariable<String>::getConflictSet()
   {
     return m_conflicts;
   }
@@ -495,8 +496,8 @@ namespace PLEXIL {
   // Explicit instantiations
   //
 
-  template class UserVariable<bool>;
-  template class UserVariable<int32_t>;
-  template class UserVariable<double>;
+  template class UserVariable<Boolean>;
+  template class UserVariable<Integer>;
+  template class UserVariable<Real>;
 
 } // namespace PLEXIL

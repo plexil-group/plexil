@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ namespace PLEXIL
   // IsKnown
   //
   IsKnown::IsKnown()
-    : OperatorImpl<bool>("IsKnown")
+    : OperatorImpl<Boolean>("IsKnown")
   {
   }
 
@@ -59,7 +59,7 @@ namespace PLEXIL
 
   template <typename T>
   Equal<T>::Equal()
-    : OperatorImpl<bool>("EQ")
+    : OperatorImpl<Boolean>("EQ")
   {
   }
 
@@ -84,26 +84,13 @@ namespace PLEXIL
     return true;
   }
 
-  // a.k.a. EQInternal
-  template <>
-  bool Equal<uint16_t>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    if (argA->valueType() != argB->valueType())
-      return false; // type mismatch
-    uint16_t tempA, tempB;
-    if (!argA->getValue(tempA) || !argB->getValue(tempB))
-      return false; // some value unknown -> result unknown
-    result = (tempA == tempB);
-    return true;
-  }
-
   //
   // NotEqual
   //
 
   template <typename T>
   NotEqual<T>::NotEqual()
-    : OperatorImpl<bool>("NEQ")
+    : OperatorImpl<Boolean>("NEQ")
   {
   }
 
@@ -128,26 +115,13 @@ namespace PLEXIL
     return true;
   }
 
-  // a.k.a. NEInternal
-  template <>
-  bool NotEqual<uint16_t>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    if (argA->valueType() != argB->valueType())
-      return true; // type mismatch
-    uint16_t tempA, tempB;
-    if (!argA->getValue(tempA) || !argB->getValue(tempB))
-      return false; // some value unknown -> result unknown
-    result = (tempA != tempB);
-    return true;
-  }
-
   //
   // GreaterThan
   //
 
   template <typename T>
   GreaterThan<T>::GreaterThan()
-    : OperatorImpl<bool>("GT")
+    : OperatorImpl<Boolean>("GT")
   {
   }
 
@@ -178,7 +152,7 @@ namespace PLEXIL
 
   template <typename T>
   GreaterEqual<T>::GreaterEqual()
-    : OperatorImpl<bool>("GEQ")
+    : OperatorImpl<Boolean>("GEQ")
   {
   }
 
@@ -209,7 +183,7 @@ namespace PLEXIL
 
   template <typename T>
   LessThan<T>::LessThan()
-    : OperatorImpl<bool>("LT")
+    : OperatorImpl<Boolean>("LT")
   {
   }
 
@@ -240,7 +214,7 @@ namespace PLEXIL
 
   template <typename T>
   LessEqual<T>::LessEqual()
-    : OperatorImpl<bool>("LEQ")
+    : OperatorImpl<Boolean>("LEQ")
   {
   }
 
@@ -269,34 +243,40 @@ namespace PLEXIL
   // Explicit instantiations of template classes
   //
 
-  template class Equal<bool>;
-  template class Equal<uint16_t>;
-  template class Equal<int32_t>;
-  template class Equal<double>;
-  template class Equal<std::string>;
+  template class Equal<Boolean>;
+  template class Equal<Integer>;
+  template class Equal<Real>;
+  template class Equal<NodeState>;
+  template class Equal<NodeOutcome>;
+  template class Equal<FailureType>;
+  template class Equal<CommandHandleValue>;
+  template class Equal<String>;
 
-  template class NotEqual<bool>;
-  template class NotEqual<uint16_t>;
-  template class NotEqual<int32_t>;
-  template class NotEqual<double>;
-  template class NotEqual<std::string>;
+  template class NotEqual<Boolean>;
+  template class NotEqual<Integer>;
+  template class NotEqual<Real>;
+  template class NotEqual<NodeState>;
+  template class NotEqual<NodeOutcome>;
+  template class NotEqual<FailureType>;
+  template class NotEqual<CommandHandleValue>;
+  template class NotEqual<String>;
 
   // Comparisons below don't make sense for Booleans
 
-  template class GreaterThan<int32_t>;
-  template class GreaterThan<double>;
-  template class GreaterThan<std::string>;
+  template class GreaterThan<Integer>;
+  template class GreaterThan<Real>;
+  template class GreaterThan<String>;
 
-  template class GreaterEqual<int32_t>;
-  template class GreaterEqual<double>;
-  template class GreaterEqual<std::string>;
+  template class GreaterEqual<Integer>;
+  template class GreaterEqual<Real>;
+  template class GreaterEqual<String>;
 
-  template class LessThan<int32_t>;
-  template class LessThan<double>;
-  template class LessThan<std::string>;
+  template class LessThan<Integer>;
+  template class LessThan<Real>;
+  template class LessThan<String>;
 
-  template class LessEqual<int32_t>;
-  template class LessEqual<double>;
-  template class LessEqual<std::string>;
+  template class LessEqual<Integer>;
+  template class LessEqual<Real>;
+  template class LessEqual<String>;
 
 }

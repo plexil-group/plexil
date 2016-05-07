@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 namespace PLEXIL
 {
 
-  class NodeStateConstant : public Constant<uint16_t>
+  class NodeStateConstant : public Constant<NodeState>
   {
   public:
     NodeStateConstant(NodeState value);
@@ -58,7 +58,7 @@ namespace PLEXIL
   extern Expression *FAILING_CONSTANT();
   extern Expression *FINISHING_CONSTANT();
   
-  class NodeOutcomeConstant : public Constant<uint16_t>
+  class NodeOutcomeConstant : public Constant<NodeOutcome>
   {
   public:
     NodeOutcomeConstant(NodeOutcome value);
@@ -78,7 +78,7 @@ namespace PLEXIL
   extern Expression *SKIPPED_CONSTANT();
   extern Expression *INTERRUPTED_CONSTANT();
   
-  class FailureTypeConstant : public Constant<uint16_t>
+  class FailureTypeConstant : public Constant<FailureType>
   {
   public:
     FailureTypeConstant(FailureType value);
@@ -100,7 +100,7 @@ namespace PLEXIL
   extern Expression *EXITED_CONSTANT();
   extern Expression *PARENT_EXITED_CONSTANT();
   
-  class CommandHandleConstant : public Constant<uint16_t>
+  class CommandHandleConstant : public Constant<CommandHandleValue>
   {
   public:
     CommandHandleConstant(CommandHandleValue value);

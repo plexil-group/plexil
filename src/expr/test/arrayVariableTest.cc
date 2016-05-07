@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,10 @@ using namespace PLEXIL;
 static bool arrayConstantReadTest()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -68,10 +68,10 @@ static bool arrayConstantReadTest()
   RealArray const      *pad = NULL;
   StringArray const *pas = NULL;
 
-  std::vector<bool> const *pvb;
-  std::vector<int32_t> const *pvi;
-  std::vector<double> const *pvd;
-  std::vector<std::string> const *pvs;
+  std::vector<Boolean> const *pvb;
+  std::vector<Integer> const *pvi;
+  std::vector<Real> const *pvd;
+  std::vector<String> const *pvs;
 
   // Constants are always active
   assertTrue_1(bc.isKnown());
@@ -180,10 +180,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(pfoosa == NULL);
 
   // Assign and check result
-  std::vector<bool> vb(1, true);
-  std::vector<int32_t> vi(1, 42);
-  std::vector<double> vd(1, 3.1416);
-  std::vector<std::string> vs(1, std::string("Foo"));
+  std::vector<Boolean> vb(1, true);
+  std::vector<Integer> vi(1, 42);
+  std::vector<Real> vd(1, 3.1416);
+  std::vector<String> vs(1, std::string("Foo"));
 
   BooleanArrayConstant acb(vb);
   IntegerArrayConstant aci(vi);
@@ -200,10 +200,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(vuda.isKnown());
   assertTrue_1(vusa.isKnown());
 
-  std::vector<bool> const *pvb;
-  std::vector<int32_t> const *pvi;
-  std::vector<double> const *pvd;
-  std::vector<std::string> const *pvs;
+  std::vector<Boolean> const *pvb;
+  std::vector<Integer> const *pvi;
+  std::vector<Real> const *pvd;
+  std::vector<String> const *pvs;
 
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -312,10 +312,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(vs == *pvs);
 
   // Set values and check that they changed
-  std::vector<bool> vab(2, false);
-  std::vector<int32_t> vai(2, 69);
-  std::vector<double> vad(2, 2.718);
-  std::vector<std::string> vas(2, std::string("bar"));
+  std::vector<Boolean> vab(2, false);
+  std::vector<Integer> vai(2, 69);
+  std::vector<Real> vad(2, 2.718);
+  std::vector<String> vas(2, std::string("bar"));
 
   BooleanArrayConstant acab(vab);
   IntegerArrayConstant acai(vai);
@@ -370,10 +370,10 @@ static bool uninitializedVariableTest()
 
 static bool testVariableInitialValue()
 {
-  std::vector<bool> bv(2, true);
-  std::vector<int32_t> iv(2, 56);
-  std::vector<double> dv(2, 1.414);
-  std::vector<std::string> sv(2, std::string("yahoo"));
+  std::vector<Boolean> bv(2, true);
+  std::vector<Integer> iv(2, 56);
+  std::vector<Real> dv(2, 1.414);
+  std::vector<String> sv(2, std::string("yahoo"));
 
   BooleanArrayVariable vba(bv);
   IntegerArrayVariable via(iv);
@@ -420,10 +420,10 @@ static bool testVariableInitialValue()
   RealArray const *pfooda = NULL;
   StringArray const *pfoosa = NULL;
 
-  std::vector<bool> const *pvb;
-  std::vector<int32_t> const *pvi;
-  std::vector<double> const *pvd;
-  std::vector<std::string> const *pvs;
+  std::vector<Boolean> const *pvb;
+  std::vector<Integer> const *pvi;
+  std::vector<Real> const *pvd;
+  std::vector<String> const *pvs;
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -538,10 +538,10 @@ static bool testVariableInitialValue()
   assertTrue_1(sv == *pvs);
 
   // Set values and check
-  std::vector<bool> bv2(1, true);
-  std::vector<int32_t> iv2(1, 65);
-  std::vector<double> dv2(1, 3.162);
-  std::vector<std::string> sv2(1, std::string("yoohoo"));
+  std::vector<Boolean> bv2(1, true);
+  std::vector<Integer> iv2(1, 65);
+  std::vector<Real> dv2(1, 3.162);
+  std::vector<String> sv2(1, std::string("yoohoo"));
 
   BooleanArrayConstant bac(bv2);
   IntegerArrayConstant iac(iv2);
@@ -588,10 +588,10 @@ static bool testVariableInitialValue()
 // on an inactive to active transition.
 static bool testVariableInitializers()
 {
-  std::vector<bool> bv(2, true);
-  std::vector<int32_t> iv(2, 56);
-  std::vector<double> dv(2, 1.414);
-  std::vector<std::string> sv(2, std::string("yahoo"));
+  std::vector<Boolean> bv(2, true);
+  std::vector<Integer> iv(2, 56);
+  std::vector<Real> dv(2, 1.414);
+  std::vector<String> sv(2, std::string("yahoo"));
 
   BooleanArrayVariable vba;
   BooleanArrayConstant cba(bv);
@@ -649,10 +649,10 @@ static bool testVariableInitializers()
   RealArray const *pfooda = NULL;
   StringArray const *pfoosa = NULL;
 
-  std::vector<bool> const *pvb;
-  std::vector<int32_t> const *pvi;
-  std::vector<double> const *pvd;
-  std::vector<std::string> const *pvs;
+  std::vector<Boolean> const *pvb;
+  std::vector<Integer> const *pvi;
+  std::vector<Real> const *pvd;
+  std::vector<String> const *pvs;
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -767,10 +767,10 @@ static bool testVariableInitializers()
   assertTrue_1(sv == *pvs);
 
   // Set values and check
-  std::vector<bool> bv2(1, true);
-  std::vector<int32_t> iv2(1, 65);
-  std::vector<double> dv2(1, 3.162);
-  std::vector<std::string> sv2(1, std::string("yoohoo"));
+  std::vector<Boolean> bv2(1, true);
+  std::vector<Integer> iv2(1, 65);
+  std::vector<Real> dv2(1, 3.162);
+  std::vector<String> sv2(1, std::string("yoohoo"));
 
   BooleanArrayConstant bac(bv2);
   IntegerArrayConstant iac(iv2);
@@ -856,10 +856,10 @@ static bool testVariableSavedValue()
   vusa.saveCurrentValue();
 
   // Assign and check result
-  std::vector<bool> bv(2, true);
-  std::vector<int32_t> iv(2, 56);
-  std::vector<double> dv(2, 1.414);
-  std::vector<std::string> sv(2, std::string("yahoo"));
+  std::vector<Boolean> bv(2, true);
+  std::vector<Integer> iv(2, 56);
+  std::vector<Real> dv(2, 1.414);
+  std::vector<String> sv(2, std::string("yahoo"));
 
   BooleanArrayConstant bac(bv);
   IntegerArrayConstant iac(iv);
@@ -876,10 +876,10 @@ static bool testVariableSavedValue()
   assertTrue_1(vuda.isKnown());
   assertTrue_1(vusa.isKnown());
 
-  std::vector<bool> const *pvb;
-  std::vector<int32_t> const *pvi;
-  std::vector<double> const *pvd;
-  std::vector<std::string> const *pvs;
+  std::vector<Boolean> const *pvb;
+  std::vector<Integer> const *pvi;
+  std::vector<Real> const *pvd;
+  std::vector<String> const *pvs;
 
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -1082,10 +1082,10 @@ static bool testVariableSavedValue()
 // through an Assignable * pointer.
 static bool testAssignablePointer()
 {
-  std::vector<bool> bv(2, true);
-  std::vector<int32_t> iv(2, 56);
-  std::vector<double> dv(2, 1.414);
-  std::vector<std::string> sv(2, std::string("yahoo"));
+  std::vector<Boolean> bv(2, true);
+  std::vector<Integer> iv(2, 56);
+  std::vector<Real> dv(2, 1.414);
+  std::vector<String> sv(2, std::string("yahoo"));
 
   BooleanArrayVariable vba(bv);
   IntegerArrayVariable via(iv);
@@ -1144,10 +1144,10 @@ static bool testAssignablePointer()
   RealArray const *pfooda = NULL;
   StringArray const *pfoosa = NULL;
 
-  std::vector<bool> const *pvb;
-  std::vector<int32_t> const *pvi;
-  std::vector<double> const *pvd;
-  std::vector<std::string> const *pvs;
+  std::vector<Boolean> const *pvb;
+  std::vector<Integer> const *pvi;
+  std::vector<Real> const *pvd;
+  std::vector<String> const *pvs;
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -1179,10 +1179,10 @@ static bool testAssignablePointer()
 
   // Set values
 
-  std::vector<bool> bv2(1, false);
-  std::vector<int32_t> iv2(1, 99);
-  std::vector<double> dv2(1, 2.718);
-  std::vector<std::string> sv2(1, std::string("yeehaw"));
+  std::vector<Boolean> bv2(1, false);
+  std::vector<Integer> iv2(1, 99);
+  std::vector<Real> dv2(1, 2.718);
+  std::vector<String> sv2(1, std::string("yeehaw"));
 
   BooleanArrayConstant bac(bv2);
   IntegerArrayConstant iac(iv2);
@@ -1410,10 +1410,10 @@ static bool testVariableNotification()
   assertTrue_1(!sachanged);
 
   // Assign should notify this time
-  std::vector<bool> bv(2, true);
-  std::vector<int32_t> iv(2, 56);
-  std::vector<double> dv(2, 1.414);
-  std::vector<std::string> sv(2, std::string("yahoo"));
+  std::vector<Boolean> bv(2, true);
+  std::vector<Integer> iv(2, 56);
+  std::vector<Real> dv(2, 1.414);
+  std::vector<String> sv(2, std::string("yahoo"));
 
   BooleanArrayConstant bac(bv);
   IntegerArrayConstant iac(iv);

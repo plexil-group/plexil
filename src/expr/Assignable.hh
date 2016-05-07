@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,17 @@ namespace PLEXIL {
   class Assignable : public virtual Expression
   {
   public:
+    Assignable() = default;
+    virtual ~Assignable() = default;
+
+    Assignable(Assignable const &) = delete;
+    Assignable(Assignable &&) = delete;
+    Assignable &operator=(Assignable const &) = delete;
+    Assignable &operator=(Assignable &&) = delete;
 
     /**
      * @brief Destructor.
      */
-    virtual ~Assignable();
 
     /**
      * @brief Query whether this expression is assignable.
@@ -89,12 +95,16 @@ namespace PLEXIL {
      * @param val The new value for this expression.
      * @note May cause change notifications to occur.
      */
-    virtual void setValue(double const &val) = 0;
-    virtual void setValue(int32_t const &val) = 0;
-    virtual void setValue(uint16_t const &val) = 0;
-    virtual void setValue(bool const &val) = 0;
-    virtual void setValue(std::string const &val) = 0;
-    virtual void setValue(char const *val) = 0;
+    virtual void setValue(Boolean const &val) = 0;
+    virtual void setValue(Integer const &val) = 0;
+    virtual void setValue(Real const &val) = 0;
+    virtual void setValue(NodeState const &val) = 0;
+    virtual void setValue(NodeOutcome const &val) = 0;
+    virtual void setValue(FailureType const &val) = 0;
+    virtual void setValue(CommandHandleValue const &val) = 0;
+
+    virtual void setValue(String const &val) = 0;
+    virtual void setValue(char const *val) = 0; // convenience
 
     virtual void setValue(BooleanArray const &val) = 0;
     virtual void setValue(IntegerArray const &val) = 0;
@@ -116,11 +126,11 @@ namespace PLEXIL {
     virtual void setValue(Value const &value) = 0;
 
     /**
-     * @brief Retrieve a writable ponter to the value.
+     * @brief Retrieve a pointer to the non-const value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
      */
-    virtual bool getMutableValuePointer(std::string *&ptr) = 0;
+    virtual bool getMutableValuePointer(String *&ptr) = 0;
     virtual bool getMutableValuePointer(Array *&ptr) = 0;
     virtual bool getMutableValuePointer(BooleanArray *&ptr) = 0;
     virtual bool getMutableValuePointer(IntegerArray *&ptr) = 0;

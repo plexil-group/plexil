@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ namespace PLEXIL
   // Forward reference
   class Command;
 
-  class CommandHandleVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class CommandHandleVariable : public NotifierImpl, public ExpressionImpl<CommandHandleValue>
   {
   public:
     /**
@@ -69,7 +69,7 @@ namespace PLEXIL
     /**
      * @brief Get the current value of the command handle.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValueImpl(CommandHandleValue &) const;
 
     // Command notifies variable when value changes
     void valueChanged();

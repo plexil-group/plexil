@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,8 @@ namespace PLEXIL
   {
   public:
     CachedValue() : m_timestamp(0) {}
-    CachedValue(CachedValue const &) : m_timestamp(0) {}
+    CachedValue(CachedValue const &orig) : m_timestamp(orig.m_timestamp) {}
+    CachedValue(CachedValue && orig) : m_timestamp(orig.m_timestamp) {}
     virtual ~CachedValue() {}
 
     unsigned int getTimestamp() const
@@ -53,6 +54,7 @@ namespace PLEXIL
     virtual ValueType const valueType() const = 0;
     virtual bool isKnown() const = 0;
     virtual CachedValue &operator=(CachedValue const &) = 0;
+    virtual CachedValue &operator=(CachedValue &&) = 0;
     virtual CachedValue *clone() const = 0;
     virtual bool operator==(CachedValue const &) const = 0;
 
@@ -64,11 +66,14 @@ namespace PLEXIL
      * @note Derived classes should implement only the appropriate methods.
      */
 
-    virtual bool getValue(bool &) const = 0;        // Boolean
-    virtual bool getValue(double &) const = 0;      // Real
-    virtual bool getValue(uint16_t &) const = 0;    // not implemented
-    virtual bool getValue(int32_t &) const = 0;     // Integer
-    virtual bool getValue(std::string &) const = 0; // String
+    virtual bool getValue(Boolean &) const = 0;
+    virtual bool getValue(Integer &) const = 0;
+    virtual bool getValue(Real &) const = 0;
+    virtual bool getValue(NodeState &) const = 0;
+    virtual bool getValue(NodeOutcome &) const = 0;
+    virtual bool getValue(FailureType &) const = 0;
+    virtual bool getValue(CommandHandleValue &) const = 0;
+    virtual bool getValue(String &) const = 0;
 
     /**
      * @brief Retrieve a pointer to the (const) cached value.
@@ -77,7 +82,7 @@ namespace PLEXIL
      * @note Derived classes should implement only the appropriate method.
      * @note Default methods return an error in every case.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const = 0;
+    virtual bool getValuePointer(String const *&ptr) const = 0;
     virtual bool getValuePointer(Array const *&ptr) const = 0; // generic
     virtual bool getValuePointer(BooleanArray const *&ptr) const = 0; // specific
     virtual bool getValuePointer(IntegerArray const *&ptr) const = 0; //
@@ -100,11 +105,15 @@ namespace PLEXIL
      * @return True if changed, false otherwise.
      * @note The caller is responsible for deleting the object pointed to upon return.
      */
-    virtual bool update(unsigned int timestamp, bool const &val) = 0;
-    virtual bool update(unsigned int timestamp, int32_t const &val) = 0;
-    virtual bool update(unsigned int timestamp, double const &val) = 0;
-    virtual bool update(unsigned int timestamp, std::string const &val) = 0;
-    virtual bool updatePtr(unsigned int timestamp, std::string const *valPtr) = 0;
+    virtual bool update(unsigned int timestamp, Boolean const &val) = 0;
+    virtual bool update(unsigned int timestamp, Integer const &val) = 0;
+    virtual bool update(unsigned int timestamp, Real const &val) = 0;
+    virtual bool update(unsigned int timestamp, NodeState const &val) = 0;
+    virtual bool update(unsigned int timestamp, NodeOutcome const &val) = 0;
+    virtual bool update(unsigned int timestamp, FailureType const &val) = 0;
+    virtual bool update(unsigned int timestamp, CommandHandleValue const &val) = 0;
+    virtual bool update(unsigned int timestamp, String const &val) = 0;
+    virtual bool updatePtr(unsigned int timestamp, String const *valPtr) = 0;
     virtual bool updatePtr(unsigned int timestamp, BooleanArray const *valPtr) = 0;
     virtual bool updatePtr(unsigned int timestamp, IntegerArray const *valPtr) = 0;
     virtual bool updatePtr(unsigned int timestamp, RealArray const *valPtr) = 0;

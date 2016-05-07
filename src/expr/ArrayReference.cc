@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,8 @@ namespace PLEXIL
     return kv[idx];
   }
 
-  bool ArrayReference::getValue(bool &result) const
+  template <typename R>
+  bool ArrayReference::getValueImpl(R &result) const
   {
     Array const *ary;
     size_t idx;
@@ -161,34 +162,13 @@ namespace PLEXIL
     return ary->getElement(idx, result);
   }
 
-  bool ArrayReference::getValue(int32_t &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
-  }
+  // getValueImpl explicit instantiations
+  template bool ArrayReference::getValueImpl(Boolean &) const;
+  template bool ArrayReference::getValueImpl(Integer &) const;
+  template bool ArrayReference::getValueImpl(Real &) const;
+  template bool ArrayReference::getValueImpl(String &) const;
 
-  bool ArrayReference::getValue(double &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
-  }
-
-  bool ArrayReference::getValue(std::string &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
-  }
-
-  bool ArrayReference::getValuePointer(std::string const *&ptr) const
+  bool ArrayReference::getValuePointer(String const *&ptr) const
   {
     Array const *ary;
     size_t idx;
@@ -279,28 +259,41 @@ namespace PLEXIL
     return true;
   }
 
-  void MutableArrayReference::setValue(bool const &value)
+  template <typename V>
+  void MutableArrayReference::setValueImpl(V const &val)
   {
     Array *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;
-    bool oldValue;
+    V oldValue;
     bool known = ary->getElement(idx, oldValue); // error here if wrong type
-    bool changed = (!known || (value != oldValue));
+    bool changed = (!known || (val != oldValue));
     if (changed) {
-      ary->setElement(idx, value);
+      ary->setElement(idx, val);
       NotifierImpl::publishChange(this);
       m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
-  void MutableArrayReference::setValue(uint16_t const &value)
+  template <typename V>
+  void MutableArrayReference::setValueImpl(ArrayImpl<V> const & /* value */)
   {
-    setValue((int32_t) value);
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: array types not implemented");
   }
 
-  void MutableArrayReference::setValue(int32_t const &value)
+  // Instantiations of the above
+  template void MutableArrayReference::setValueImpl(Boolean const &);
+  template void MutableArrayReference::setValueImpl(Real const &);
+  template void MutableArrayReference::setValueImpl(String const &);
+
+  template void MutableArrayReference::setValueImpl(BooleanArray const &);
+  template void MutableArrayReference::setValueImpl(IntegerArray const &value);
+  template void MutableArrayReference::setValueImpl(RealArray const &value);
+  template void MutableArrayReference::setValueImpl(StringArray const &value);
+
+  // Specialized for Integer
+  void MutableArrayReference::setValue(Integer const &value)
   {
     Array *ary;
     size_t idx;
@@ -336,41 +329,29 @@ namespace PLEXIL
     }
   }
 
-  void MutableArrayReference::setValue(double const &value)
+  void MutableArrayReference::setValue(NodeState const &)
   {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    double oldValue;
-    bool known = ary->getElement(idx, oldValue);
-    bool changed = (!known || (value != oldValue));
-    if (changed) {
-      ary->setElement(idx, value); // error here if wrong type
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
   }
 
-  void MutableArrayReference::setValue(std::string const &value)
+  void MutableArrayReference::setValue(NodeOutcome const &)
   {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    std::string const *oldValue;
-    bool known = ary->getElementPointer(idx, oldValue); // error here if wrong type
-    bool changed = (!known || (value != *oldValue));
-    if (changed) {
-      ary->setElement(idx, value);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
+  }
+
+  void MutableArrayReference::setValue(FailureType const &)
+  {
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
+  }
+
+  void MutableArrayReference::setValue(CommandHandleValue const &)
+  {
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
   }
 
   void MutableArrayReference::setValue(char const *value)
   {
-    setValue(std::string(value));
+    setValue(String(value));
   }
 
   // TODO: optimize
@@ -391,26 +372,6 @@ namespace PLEXIL
       NotifierImpl::publishChange(this);
       m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
-  }
-
-  void MutableArrayReference::setValue(BooleanArray const &value)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
-  }
-
-  void MutableArrayReference::setValue(IntegerArray const &value)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
-  }
-
-  void MutableArrayReference::setValue(RealArray const &value)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
-  }
-
-  void MutableArrayReference::setValue(StringArray const &value)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
   }
 
   void MutableArrayReference::setUnknown()

@@ -40,7 +40,7 @@ namespace PLEXIL
 
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
     : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
+      ExpressionImpl<CommandHandleValue>(),
     m_command(cmd),
     m_name(NULL)
   {
@@ -71,11 +71,11 @@ namespace PLEXIL
     return NO_COMMAND_HANDLE != m_command.getCommandHandle();
   }
 
-  bool CommandHandleVariable::getValueImpl(uint16_t &result) const
+  bool CommandHandleVariable::getValueImpl(CommandHandleValue &result) const
   {
     if (!isActive())
       return false;
-    uint16_t handle = m_command.getCommandHandle();
+    CommandHandleValue handle = m_command.getCommandHandle();
     if (handle == NO_COMMAND_HANDLE)
       return false;
     result = handle;
@@ -89,12 +89,12 @@ namespace PLEXIL
   
   void CommandHandleVariable::printValue(std::ostream &s) const
   {
-    uint16_t handle;
+    CommandHandleValue handle;
     if (!isActive()
         || (handle = m_command.getCommandHandle()) == NO_COMMAND_HANDLE)
       s << "UNKNOWN";
     else
-      s << commandHandleValueName((CommandHandleValue) handle);
+      s << commandHandleValueName(handle);
   }
 
 } // namespace PLEXIL

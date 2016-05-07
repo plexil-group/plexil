@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -121,42 +121,81 @@ namespace PLEXIL
     m_exp->printValue(s);
   }
 
-  bool Alias::getValue(bool &var) const
+  template <typename R>
+  bool Alias::getValue(R &var) const
   {
     if (!isActive())
       return false;
     return m_exp->getValue(var);
   }
 
-  bool Alias::getValue(double &var) const
-  {
-    if (!isActive())
-      return false;
-    return m_exp->getValue(var);
-  }
+  // explicit instantiations
+  template bool Alias::getValue(Boolean &) const;
+  template bool Alias::getValue(Integer &) const;
+  template bool Alias::getValue(Real &) const;
+  template bool Alias::getValue(NodeState &) const;
+  template bool Alias::getValue(NodeOutcome &) const;
+  template bool Alias::getValue(FailureType &) const;
+  template bool Alias::getValue(CommandHandleValue &) const;
+  template bool Alias::getValue(String &) const;
 
-  bool Alias::getValue(uint16_t &var) const
-  {
-    if (!isActive())
-      return false;
-    return m_exp->getValue(var);
-  }
+  // bool Alias::getValue(Boolean &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
 
-  bool Alias::getValue(int32_t &var) const
-  {
-    if (!isActive())
-      return false;
-    return m_exp->getValue(var);
-  }
+  // bool Alias::getValue(Integer &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
 
-  bool Alias::getValue(std::string &var) const
-  {
-    if (!isActive())
-      return false;
-    return m_exp->getValue(var);
-  }
+  // bool Alias::getValue(Real &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
 
-  bool Alias::getValuePointer(std::string const *&ptr) const
+  // bool Alias::getValue(NodeState &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
+
+  // bool Alias::getValue(NodeOutcome &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
+
+  // bool Alias::getValue(FailureType &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
+
+  // bool Alias::getValue(CommandHandleValue &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
+
+  // bool Alias::getValue(String &var) const
+  // {
+  //   if (!isActive())
+  //     return false;
+  //   return m_exp->getValue(var);
+  // }
+
+  bool Alias::getValuePointer(String const *&ptr) const
   {
     if (!isActive())
       return false;

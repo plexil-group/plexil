@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -166,10 +166,10 @@ namespace PLEXIL
 
   // String case
   template <>
-  class UserVariable<std::string> :
+  class UserVariable<String> :
     public NotifierImpl,
-    public ExpressionImpl<std::string>,
-    public AssignableImpl<std::string>
+    public ExpressionImpl<String>,
+    public AssignableImpl<String>
   {
   public:
 
@@ -182,7 +182,7 @@ namespace PLEXIL
      * @brief Constructor with initial value.
      * @param val The initial value.
      */
-    UserVariable(std::string const &initVal);
+    UserVariable(String const &initVal);
 
     /**
      * @brief Constructor for plan loading.
@@ -212,14 +212,14 @@ namespace PLEXIL
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(std::string &result) const;
+    bool getValueImpl(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(std::string const *&ptr) const;
+    bool getValuePointerImpl(String const *&ptr) const;
     template <typename U>
     bool getValuePointerImpl(U const *&ptr) const;
 
@@ -228,14 +228,14 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getMutableValuePointerImpl(std::string *&ptr);
+    bool getMutableValuePointerImpl(String *&ptr);
 
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
      * @note Type conversions must go on derived classes.
      */
-    void setValueImpl(std::string const &value);
+    void setValueImpl(String const &value);
 
     /**
      * @brief Set the current value unknown.
@@ -253,7 +253,7 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    void setName(const std::string &);
+    void setName(const String &);
 
     NodeConnector *getNode();
     NodeConnector const *getNode() const;
@@ -283,8 +283,8 @@ namespace PLEXIL
 
   private:
 
-    std::string m_value;
-    std::string m_savedValue;   // for undoing assignment 
+    String m_value;
+    String m_savedValue;   // for undoing assignment 
 
     Expression *m_initializer;
     char const *m_name;
@@ -303,10 +303,10 @@ namespace PLEXIL
   // Convenience typedefs 
   //
 
-  typedef UserVariable<bool>        BooleanVariable;
-  typedef UserVariable<int32_t>     IntegerVariable;
-  typedef UserVariable<double>      RealVariable;
-  typedef UserVariable<std::string> StringVariable;
+  typedef UserVariable<Boolean>     BooleanVariable;
+  typedef UserVariable<Integer>     IntegerVariable;
+  typedef UserVariable<Real>        RealVariable;
+  typedef UserVariable<String>      StringVariable;
 
 } // namespace PLEXIL
 

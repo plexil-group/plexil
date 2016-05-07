@@ -219,7 +219,8 @@ namespace PLEXIL
       return m_entry->isKnown();
   }
 
-  bool Lookup::getValue(bool &result) const
+  template <typename R>
+  bool Lookup::getValueImpl(R &result) const
   {
     if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
@@ -227,40 +228,19 @@ namespace PLEXIL
       return m_entry->cachedValue()->getValue(result);
   }
 
-  // Not implemented for this set of internal types
-  bool Lookup::getValue(uint16_t & /*result */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Lookup::getValue: type error");
-    return false;
-  }
+  // Explicit instantiations
+  template bool Lookup::getValueImpl(Boolean &result) const;
+  template bool Lookup::getValueImpl(Integer &result) const;
+  template bool Lookup::getValueImpl(Real &result) const;
+  template bool Lookup::getValueImpl(NodeState &result) const;
+  template bool Lookup::getValueImpl(NodeOutcome &result) const;
+  template bool Lookup::getValueImpl(FailureType &result) const;
+  template bool Lookup::getValueImpl(CommandHandleValue &result) const;
+  template bool Lookup::getValueImpl(String &result) const;
 
-  bool Lookup::getValue(int32_t &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else {
-      return m_entry->cachedValue()->getValue(result);
-    }
-  }
 
-  bool Lookup::getValue(double &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else {
-      return m_entry->cachedValue()->getValue(result);
-    }
-  }
-
-  bool Lookup::getValue(std::string &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValue(result);
-  }
-
-  bool Lookup::getValuePointer(std::string const *&ptr) const
+  template <typename R>
+  bool Lookup::getValuePointerImpl(R const *&ptr) const
   {
     if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
@@ -268,45 +248,13 @@ namespace PLEXIL
       return m_entry->cachedValue()->getValuePointer(ptr);
   }
 
-  bool Lookup::getValuePointer(Array const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
-
-  bool Lookup::getValuePointer(BooleanArray const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
-
-  bool Lookup::getValuePointer(IntegerArray const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
-
-  bool Lookup::getValuePointer(RealArray const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
-
-  bool Lookup::getValuePointer(StringArray const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
+  // Explicit instantiations
+  template bool Lookup::getValuePointerImpl(String const *&ptr) const;
+  template bool Lookup::getValuePointerImpl(Array const *&ptr) const;
+  template bool Lookup::getValuePointerImpl(BooleanArray const *&ptr) const;
+  template bool Lookup::getValuePointerImpl(IntegerArray const *&ptr) const;
+  template bool Lookup::getValuePointerImpl(RealArray const *&ptr) const;
+  template bool Lookup::getValuePointerImpl(StringArray const *&ptr) const;
 
   /**
    * @brief Get the value of this expression as a Value instance.
@@ -635,7 +583,8 @@ namespace PLEXIL
     return valueChanged;
   }
 
-  bool LookupOnChange::getValue(int32_t &result) const
+  template <typename R>
+  bool LookupOnChange::getValueImpl(R &result) const
   {
     if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
@@ -647,17 +596,9 @@ namespace PLEXIL
       return false;
   }
 
-  bool LookupOnChange::getValue(double &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else if (m_cachedValue)
-      return m_cachedValue->getValue(result);
-    else if (m_entry->isKnown())
-      return m_entry->cachedValue()->getValue(result);
-    else
-      return false;
-  }
+  // Instantiations
+  template bool LookupOnChange::getValueImpl(Integer &result) const;
+  template bool LookupOnChange::getValueImpl(Real &result) const;
 
   /**
    * @brief Get the value of this expression as a Value instance.

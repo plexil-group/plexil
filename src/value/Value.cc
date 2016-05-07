@@ -34,6 +34,10 @@
 namespace PLEXIL
 {
 
+  //
+  // Constructors
+  //
+
   Value::Value()
     : realValue(0.0),
       m_type(UNKNOWN_TYPE),
@@ -62,10 +66,19 @@ namespace PLEXIL
       break;
 
     case NODE_STATE_TYPE:
+      stateValue = other.stateValue;
+      break;
+      
     case OUTCOME_TYPE:
+      outcomeValue = other.outcomeValue;
+      break;
+
     case FAILURE_TYPE:
+      failureValue = other.failureValue;
+      break;
+      
     case COMMAND_HANDLE_TYPE:
-      enumValue = other.enumValue;
+      commandHandleValue = other.commandHandleValue;
       break;
 
     case STRING_TYPE:
@@ -108,10 +121,19 @@ namespace PLEXIL
       break;
 
     case NODE_STATE_TYPE:
+      stateValue = other.stateValue;
+      break;
+
     case OUTCOME_TYPE:
+      outcomeValue = other.outcomeValue;
+      break;
+
     case FAILURE_TYPE:
+      failureValue = other.failureValue;
+      break;
+      
     case COMMAND_HANDLE_TYPE:
-      enumValue = other.enumValue;
+      commandHandleValue = other.commandHandleValue;
       break;
 
       // Pointer data - move it
@@ -138,44 +160,83 @@ namespace PLEXIL
       m_type(BOOLEAN_TYPE),
       m_known(true)
   {
-    booleanValue = val;
   }
 
-  Value::Value(uint16_t enumVal, ValueType typ)
+  Value::Value(NodeState val)
+    : stateValue(val),
+      m_type(NODE_STATE_TYPE),
+      m_known(true)
+  {
+  }
+
+  Value::Value(NodeOutcome val)
+    : outcomeValue(val),
+      m_type(OUTCOME_TYPE),
+      m_known(true)
+  {
+  }
+
+  Value::Value(FailureType val)
+    : failureValue(val),
+      m_type(FAILURE_TYPE),
+      m_known(true)
+  {
+  }
+
+  Value::Value(CommandHandleValue val)
+    : commandHandleValue(val),
+      m_type(COMMAND_HANDLE_TYPE),
+      m_known(true)
+  {
+  }
+
+  Value::Value(uint8_t enumVal, ValueType typ)
     : realValue(0.0), // don't know what type we are yet
       m_type(typ),
-      m_known(false)
+      m_known(enumVal != 0)
   {
+    if (enumVal == 0) {
+      m_known = false;
+      switch (m_type) {
+        case STRING_TYPE:
+          new (&stringValue) std::unique_ptr<String>();
+          break;
+
+        case BOOLEAN_ARRAY_TYPE:
+        case INTEGER_ARRAY_TYPE:
+        case REAL_ARRAY_TYPE:
+        case STRING_ARRAY_TYPE:
+          new (&arrayValue) std::unique_ptr<Array>();
+          break;
+
+        default:
+          break;
+        }
+      return;
+    }
+
+    // Enum val of some sort
     switch (m_type) {
       // Internal enumerations
     case NODE_STATE_TYPE:
-      enumValue = enumVal; // 0 is a valid value
-      m_known = true;
-      break;
+      stateValue = (NodeState) enumVal;
+      return;
       
     case OUTCOME_TYPE:
+      outcomeValue = (NodeOutcome) enumVal;
+      return;
+
     case FAILURE_TYPE:
+      failureValue = (FailureType) enumVal;
+      return;
+
     case COMMAND_HANDLE_TYPE:
-      if (enumVal != 0) {
-        enumValue = enumVal;
-        m_known = true;
-      }
-      // otherwise is typed unknown
-      break;
-
-    case STRING_TYPE:
-      new (&stringValue) std::unique_ptr<String>();
-      break;
-
-    case BOOLEAN_ARRAY_TYPE:
-    case INTEGER_ARRAY_TYPE:
-    case REAL_ARRAY_TYPE:
-    case STRING_ARRAY_TYPE:
-      new (&arrayValue) std::unique_ptr<Array>();
-      break;
+      commandHandleValue = (CommandHandleValue) enumVal;
+      return;
 
     default:
-      break;
+      assertTrue_2(ALWAYS_FAIL, "Value constructor: illegal value for type");
+      return;
     }
   }
       
@@ -329,12 +390,20 @@ namespace PLEXIL
       assertTrue_2(ALWAYS_FAIL, "Value constructor: Unknown or unimplemented element type");
     }
   }
+
+  //
+  // Destructor
+  //
     
   Value::~Value()
   {
     cleanup();
   }
-    
+
+  //
+  // Assignment
+  //
+
   // Copy assignment
   Value &Value::operator=(Value const &other)
   {
@@ -365,11 +434,23 @@ namespace PLEXIL
       break;
 
     case NODE_STATE_TYPE:
+      cleanup();
+      stateValue = other.stateValue;
+      break;
+
     case OUTCOME_TYPE:
+      cleanup();
+      outcomeValue = other.outcomeValue;
+      break;
+
     case FAILURE_TYPE:
+      cleanup();
+      failureValue = other.failureValue;
+      break;
+
     case COMMAND_HANDLE_TYPE:
       cleanup();
-      enumValue = other.enumValue;
+      commandHandleValue = other.commandHandleValue;
       break;
 
     case STRING_TYPE:
@@ -424,11 +505,23 @@ namespace PLEXIL
       break;
 
     case NODE_STATE_TYPE:
+      cleanup();
+      stateValue = other.stateValue;
+      break;
+
     case OUTCOME_TYPE:
+      cleanup();
+      outcomeValue = other.outcomeValue;
+      break;
+
     case FAILURE_TYPE:
+      cleanup();
+      failureValue = other.failureValue;
+      break;
+
     case COMMAND_HANDLE_TYPE:
       cleanup();
-      enumValue = other.enumValue;
+      commandHandleValue = other.commandHandleValue;
       break;
 
       // Pointer data - move it
@@ -465,12 +558,37 @@ namespace PLEXIL
     return *this;
   }
 
-  Value &Value::operator=(uint16_t enumVal)
+  Value &Value::operator=(NodeState val)
   {
     cleanup();
-    enumValue = enumVal;
-    // *** FIXME: Have to determine type ***
-    // For now assume command handle
+    stateValue = val;
+    m_type = NODE_STATE_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(NodeOutcome val)
+  {
+    cleanup();
+    outcomeValue = val;
+    m_type = OUTCOME_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(FailureType val)
+  {
+    cleanup();
+    failureValue = val;
+    m_type = FAILURE_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(CommandHandleValue val)
+  {
+    cleanup();
+    commandHandleValue = val;
     m_type = COMMAND_HANDLE_TYPE;
     m_known = true;
     return *this;
@@ -620,6 +738,10 @@ namespace PLEXIL
     }
   }
 
+  //
+  // Accessors
+  //
+
   ValueType Value::valueType() const
   {
     return m_type;
@@ -635,30 +757,63 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != BOOLEAN_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a Boolean value");
       return false;
     }
     result = booleanValue;
     return true;
   }
 
-  bool Value::getValue(uint16_t &result) const
+  bool Value::getValue(NodeState &result) const
   {
     if (!m_known)
       return false;
-
-    switch (m_type) {
-    case NODE_STATE_TYPE:
-    case OUTCOME_TYPE:
-    case FAILURE_TYPE:
-    case COMMAND_HANDLE_TYPE:
-      result = enumValue;
-      return true;
-
-    default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+    if (m_type != NODE_STATE_TYPE) {
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeState value");
       return false;
     }
+
+    result = stateValue;
+    return true;
+  }
+
+  bool Value::getValue(NodeOutcome &result) const
+  {
+    if (!m_known)
+      return false;
+    if (m_type != OUTCOME_TYPE) {
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeOutcome value");
+      return false;
+    }
+
+    result = outcomeValue;
+    return true;
+  }
+
+  bool Value::getValue(FailureType &result) const
+  {
+    if (!m_known)
+      return false;
+    if (m_type != FAILURE_TYPE) {
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a FailureType value");
+      return false;
+    }
+
+    result = failureValue;
+    return true;
+  }
+
+  bool Value::getValue(CommandHandleValue &result) const
+  {
+    if (!m_known)
+      return false;
+    if (m_type != COMMAND_HANDLE_TYPE) {
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a CommandHandle value");
+      return false;
+    }
+
+    result = commandHandleValue;
+    return true;
   }
 
   bool Value::getValue(int32_t &result) const
@@ -666,7 +821,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != INTEGER_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not an Integer value");
       return false;
     }
     result = integerValue;
@@ -687,7 +842,7 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a Real or Integer value");
       return false;
     }
   }
@@ -697,7 +852,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != STRING_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a String value");
       return false;
     }
     result = *stringValue;
@@ -709,7 +864,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != STRING_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a String value");
       return false;
     }
     ptr = stringValue.get();
@@ -729,7 +884,7 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not an Array value");
       return false;
     }
   }
@@ -739,7 +894,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != BOOLEAN_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a BooleanArray value");
       return false;
     }
     ptr = dynamic_cast<BooleanArray const *>(arrayValue.get());
@@ -752,7 +907,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != INTEGER_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not an IntegerArray value");
       return false;
     }
     ptr = dynamic_cast<IntegerArray const *>(arrayValue.get());
@@ -765,7 +920,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != REAL_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a RealArray value");
       return false;
     }
     ptr = dynamic_cast<RealArray const *>(arrayValue.get());
@@ -778,7 +933,7 @@ namespace PLEXIL
     if (!m_known)
       return false;
     if (m_type != STRING_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a StringArray value");
       return false;
     }
     ptr = dynamic_cast<StringArray const *>(arrayValue.get());
@@ -826,19 +981,19 @@ namespace PLEXIL
       break;
 
     case NODE_STATE_TYPE:
-      s << nodeStateName((NodeState) enumValue);
+      printValue<NodeState>(stateValue, s);
       break;
 
     case OUTCOME_TYPE:
-      s << outcomeName((NodeOutcome) enumValue);
+      printValue<NodeOutcome>(outcomeValue, s);
       break;
 
     case FAILURE_TYPE:
-      s << failureTypeName((FailureType) enumValue);
+      printValue<FailureType>(failureValue, s);
       break;
 
     case COMMAND_HANDLE_TYPE:
-      s << commandHandleValueName((CommandHandleValue) enumValue);
+      printValue<CommandHandleValue>(commandHandleValue, s);
       break;
 
     default:
@@ -906,10 +1061,16 @@ namespace PLEXIL
         return booleanValue == other.booleanValue;
 
       case NODE_STATE_TYPE:
+        return stateValue == other.stateValue;
+
       case OUTCOME_TYPE:
+        return outcomeValue == other.outcomeValue;
+
       case FAILURE_TYPE:
+        return failureValue == other.failureValue;
+        
       case COMMAND_HANDLE_TYPE:
-        return enumValue == other.enumValue;
+        return commandHandleValue == other.commandHandleValue;
       
       case STRING_TYPE:
         return *stringValue == *other.stringValue;
@@ -985,10 +1146,16 @@ namespace PLEXIL
         return ((int) booleanValue) < ((int) other.booleanValue);
 
       case NODE_STATE_TYPE:
+        return stateValue < other.stateValue;
+
       case OUTCOME_TYPE:
+        return outcomeValue < other.outcomeValue;
+
       case FAILURE_TYPE:
+        return failureValue < other.failureValue;
+        
       case COMMAND_HANDLE_TYPE:
-        return enumValue < other.enumValue;
+        return commandHandleValue < other.commandHandleValue;
       
       case STRING_TYPE:
         return *stringValue < *other.stringValue;

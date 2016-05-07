@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #ifndef PLEXIL_OPERATOR_HH
 #define PLEXIL_OPERATOR_HH
 
-#include "ArrayFwd.hh"
 #include "ValueType.hh"
 
 namespace PLEXIL
@@ -44,9 +43,7 @@ namespace PLEXIL
   class Operator
   {
   public:
-    virtual ~Operator()
-    {
-    }
+    virtual ~Operator() = default;
 
     std::string const &getName() const
     {
@@ -62,41 +59,23 @@ namespace PLEXIL
     virtual void *allocateCache() const = 0;
     virtual void deleteCache(void *Ptr) const = 0;
 
-    virtual bool operator()(bool &result, Expression const *arg) const = 0;
-    virtual bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(bool &result, ExprVec const &args) const = 0;
+    // Local macro to generate a truckload of boilerplate
+#define DECLARE_OPERATOR_METHODS(_rtype_) \
+    virtual bool operator()(_rtype_ &result, Expression const *arg) const = 0; \
+    virtual bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const = 0; \
+    virtual bool operator()(_rtype_ &result, ExprVec const &args) const = 0; \
 
-    virtual bool operator()(int32_t &result, Expression const *arg) const = 0;
-    virtual bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(int32_t &result, ExprVec const &args) const = 0;
+    DECLARE_OPERATOR_METHODS(Boolean)
+    DECLARE_OPERATOR_METHODS(Integer)
+    DECLARE_OPERATOR_METHODS(Real)
+    DECLARE_OPERATOR_METHODS(String)
+    DECLARE_OPERATOR_METHODS(Array)
+    DECLARE_OPERATOR_METHODS(BooleanArray)
+    DECLARE_OPERATOR_METHODS(IntegerArray)
+    DECLARE_OPERATOR_METHODS(RealArray)
+    DECLARE_OPERATOR_METHODS(StringArray)
 
-    virtual bool operator()(double &result, Expression const *arg) const = 0;
-    virtual bool operator()(double &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(double &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(std::string &result, Expression const *arg) const = 0;
-    virtual bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(std::string &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(Array &result, Expression const *arg) const = 0;
-    virtual bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(Array &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(BooleanArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(BooleanArray &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(IntegerArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(IntegerArray &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(RealArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(RealArray &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(StringArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(StringArray &result, ExprVec const &args) const = 0;
+#undef DECLARE_OPERATOR_METHODS
 
     virtual bool calcNative(void *cache, ExprVec const &exprs) const = 0;
     virtual void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const = 0;
@@ -112,9 +91,11 @@ namespace PLEXIL
 
   private:
     // unimplemented
-    Operator();
-    Operator(Operator const &);
-    Operator &operator=(Operator const &);
+    Operator() = delete;
+    Operator(Operator const &) = delete; 
+    Operator(Operator &&) = delete; 
+    Operator& operator=(Operator const &) = delete; 
+    Operator& operator=(Operator &&) = delete; 
   };
 
 } // namespace PLEXIL

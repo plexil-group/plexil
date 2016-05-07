@@ -34,10 +34,6 @@ namespace PLEXIL {
   // Assignable
   //
 
-  Assignable::~Assignable()
-  {
-  }
-
   bool Assignable::isAssignable() const
   {
     return true;

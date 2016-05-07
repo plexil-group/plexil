@@ -27,6 +27,8 @@
 #ifndef PLEXIL_VALUE_HH
 #define PLEXIL_VALUE_HH
 
+#include "CommandHandle.hh"
+#include "NodeConstants.hh"
 #include "ValueType.hh"
 
 #include <memory> // std::unique_ptr
@@ -34,34 +36,14 @@
 namespace PLEXIL
 {
 
-  //
-  // Type aliases
-  //
-
-  typedef bool        Boolean;
-  typedef int32_t     Integer;
-  typedef double      Real;
-  typedef std::string String;
-
-  // Subject to change in the future.
-  typedef double      Duration;
-  typedef double      Time;
-
-  // Array types declared in ArrayFwd.hh, defined in ArrayImpl.hh:
-  // BooleanArray
-  // IntegerArray
-  // RealArray
-  // StringArray
-
-
   /**
    * @class Value
    * @brief An encapsulation representing any possible value in the PLEXIL language.
-   * @note A crude implementation of a tagged (discriminated) union.
-   * @note Should only be used when there is no way of knowing the type of a value
+   * @note Implemented a tagged (discriminated) union.
+   * @note Of use when there is no way of knowing the PLEXIL type of a value
    *       at C++ compile time.
    */
-  class Value
+  class Value final
   {
   public:
 
@@ -70,16 +52,21 @@ namespace PLEXIL
     Value(Value &&);
 
     Value(Boolean val);
-    Value(uint16_t enumVal, ValueType typ); // internal values, typed UNKNOWN
     Value(Integer val);
     Value(Real val);
+    Value(NodeState val);
+    Value(NodeOutcome val);
+    Value(FailureType val);
+    Value(CommandHandleValue val);
     Value(String const &val);
     Value(char const *val); // for convenience
-    // TODO: templatize
+    // TODO: templatize?
     Value(BooleanArray const &val);
     Value(IntegerArray const &val);
     Value(RealArray const &val);
     Value(StringArray const &val);
+
+    Value(uint8_t enumVal, ValueType typ); // Typed UNKNOWN
 
     // Constructs the appropriate array type.
     // Used by TestExternalInterface.
@@ -90,7 +77,6 @@ namespace PLEXIL
     Value &operator=(Value const &);
     Value &operator=(Value &&);
     Value &operator=(Boolean val);
-    Value &operator=(uint16_t enumVal);
     Value &operator=(Integer val);
     Value &operator=(Real val);
     Value &operator=(String const &val);
@@ -101,13 +87,17 @@ namespace PLEXIL
     Value &operator=(RealArray const &val);
     Value &operator=(StringArray const &val);
 
+    Value &operator=(NodeState val);
+    Value &operator=(NodeOutcome val);
+    Value &operator=(FailureType val);
+    Value &operator=(CommandHandleValue val);
+
     void setUnknown();
 
     ValueType valueType() const;
     bool isKnown() const;
 
     bool getValue(Boolean &result) const;
-    bool getValue(uint16_t &result) const;
     bool getValue(Integer &result) const;
     bool getValue(Real &result) const;
     bool getValue(String &result) const;
@@ -118,6 +108,11 @@ namespace PLEXIL
     bool getValuePointer(IntegerArray const *&ptr) const;
     bool getValuePointer(RealArray const *&ptr) const;
     bool getValuePointer(StringArray const *&ptr) const;
+
+    bool getValue(NodeState &result) const;
+    bool getValue(NodeOutcome &result) const;
+    bool getValue(FailureType &result) const;
+    bool getValue(CommandHandleValue &result) const;
 
     bool equals(Value const &) const;
     bool lessThan(Value const &) const; // for (e.g.) std::map
@@ -136,7 +131,10 @@ namespace PLEXIL
     
     union {
       Boolean                  booleanValue;
-      uint16_t                 enumValue;
+      NodeState                stateValue;
+      NodeOutcome              outcomeValue;
+      FailureType              failureValue;
+      CommandHandleValue       commandHandleValue;
       Integer                  integerValue;
       Real                     realValue;
       std::unique_ptr<String>  stringValue;

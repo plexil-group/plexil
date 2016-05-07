@@ -27,15 +27,41 @@
 #ifndef PLEXIL_VALUE_TYPE_HH
 #define PLEXIL_VALUE_TYPE_HH
 
-#include "ParserException.hh"
-
 #include "ArrayFwd.hh"
+#include "CommandHandle.hh"
+#include "NodeConstants.hh"
+#include "ParserException.hh"
 
 #include <iosfwd>
 #include <vector>
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
+
 namespace PLEXIL
 {
+  //
+  // Type aliases
+  //
+
+  typedef bool        Boolean;
+  typedef int32_t     Integer;
+  typedef double      Real;
+  typedef std::string String;
+
+  // Subject to change in the future.
+  typedef double      Duration;
+  typedef double      Time;
+
+  // Array types declared in ArrayFwd.hh, defined in ArrayImpl.hh:
+  // BooleanArray
+  // IntegerArray
+  // RealArray
+  // StringArray
+
   //
   // PLEXIL expression data types
   //

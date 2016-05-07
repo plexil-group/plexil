@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,8 @@
 #ifndef PLEXIL_EXPRESSION_HH
 #define PLEXIL_EXPRESSION_HH
 
-#include "Array.hh"
-#include "ExpressionListener.hh" 
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
+#include "ExpressionListener.hh"
+#include "ValueType.hh"
 
 //
 // Virtual base classes for the expression system
@@ -62,12 +56,16 @@ namespace PLEXIL
    */
   class Expression : public ExpressionListener
   {
-  public:
-    Expression();
-    Expression(Expression const &);
-    Expression &operator=(Expression const &);
+  private:
+    // Unimplmented
+    Expression(Expression const &) = delete;
+    Expression(Expression &&) = delete;
+    Expression &operator=(Expression const &) = delete;
+    Expression &operator=(Expression &&) = delete;
 
-    virtual ~Expression();
+  public:
+    Expression() = default;
+    virtual ~Expression() = default;
 
     //
     // Essential type-invariant Expression API
@@ -236,11 +234,15 @@ namespace PLEXIL
      * @note Default methods return an error in every case.
      */
 
-    virtual bool getValue(bool &) const;        // Boolean
-    virtual bool getValue(double &) const;      // Real
-    virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(int32_t &) const;     // Integer
-    virtual bool getValue(std::string &) const; // String
+    virtual bool getValue(Boolean &) const;
+    virtual bool getValue(Integer &) const;
+    virtual bool getValue(Real &) const;
+    virtual bool getValue(NodeState &) const;
+    virtual bool getValue(NodeOutcome &) const;
+    virtual bool getValue(FailureType &) const;
+    virtual bool getValue(CommandHandleValue &) const;
+
+    virtual bool getValue(String &) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -250,7 +252,7 @@ namespace PLEXIL
      * @note Derived classes should implement only the appropriate method.
      * @note Default methods return an error in every case.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const;
+    virtual bool getValuePointer(String const *&ptr) const;
     virtual bool getValuePointer(Array const *&ptr) const; // generic
     virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
     virtual bool getValuePointer(IntegerArray const *&ptr) const; //

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -64,21 +64,27 @@ namespace PLEXIL {
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
-     * @note Limited type conversions supported.
      * @note Unimplemented conversions will cause a link time error.
      */
-    virtual bool getValue(bool &) const;        // Boolean
-    virtual bool getValue(double &) const;      // Real
-    //virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(int32_t &) const;     // Integer
-    virtual bool getValue(std::string &) const; // String
+
+    bool getValue(Boolean &result) const
+    { return getValueImpl(result); }
+
+    bool getValue(Integer &result) const
+    { return getValueImpl(result); }
+
+    bool getValue(Real &result) const
+    { return getValueImpl(result); }
+
+    bool getValue(String &result) const
+    { return getValueImpl(result); }
 
     /**
      * @brief Get a pointer to the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const;
+    virtual bool getValuePointer(String const *&ptr) const;
 
     Value toValue() const;
 
@@ -109,6 +115,10 @@ namespace PLEXIL {
     // Internal function
     bool selfCheck(Array const *&valuePtr,
                    size_t &idx) const;
+
+    // Internal template function
+    template <typename R>
+    bool getValueImpl(R &) const;
 
   };
 
@@ -146,18 +156,39 @@ namespace PLEXIL {
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    void setValue(double const &val);
-    void setValue(int32_t const &val);
-    void setValue(uint16_t const &val);
-    void setValue(bool const &val);
-    void setValue(std::string const &val);
+    template <typename V>
+    void setValueImpl(V const &);
+
+    template <typename V>
+    void setValueImpl(ArrayImpl<V> const &);
+
+    // Instantiations of above
+    void setValue(Boolean const &val)
+    { setValueImpl(val); }
+    void setValue(Real const &val)
+    { setValueImpl(val); }
+    void setValue(String const &val)
+    { setValueImpl(val); }
+
+    void setValue(BooleanArray const &val)
+    { setValueImpl(val); }
+    void setValue(IntegerArray const &val)
+    { setValueImpl(val); }
+    void setValue(RealArray const &val)
+    { setValueImpl(val); }
+    void setValue(StringArray const &val)
+    { setValueImpl(val); }
+
+
+    // Specialized
+    void setValue(Integer const &);
     void setValue(char const *val);
 
-    // These will throw an exception
-    void setValue(BooleanArray const &val);
-    void setValue(IntegerArray const &val);
-    void setValue(RealArray const &val);
-    void setValue(StringArray const &val);
+    // Not implemented (will assert)
+    void setValue(NodeState const &);
+    void setValue(NodeOutcome const &);
+    void setValue(FailureType const &);
+    void setValue(CommandHandleValue const &);
 
     /**
      * @brief Set the value for this expression from another expression.

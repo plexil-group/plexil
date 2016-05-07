@@ -45,8 +45,15 @@ namespace PLEXIL
   VoidCachedValue::~VoidCachedValue()
   {
   }
-
+ 
   CachedValue &VoidCachedValue::operator=(CachedValue const &other)
+  {
+    assertTrue_2(dynamic_cast<VoidCachedValue const *>(&other),
+                 "VoidCachedValue: assigning from incompatible CachedValue type");
+    return static_cast<CachedValue &>(*this);
+  }
+
+  CachedValue &VoidCachedValue::operator=(CachedValue &&other)
   {
     assertTrue_2(dynamic_cast<VoidCachedValue const *>(&other),
                  "VoidCachedValue: assigning from incompatible CachedValue type");
@@ -73,92 +80,9 @@ namespace PLEXIL
     return !other.isKnown();
   }
 
-  /**
-   * @brief Retrieve the cached value.
-   * @param The appropriately typed place to put the result.
-   * @return True if known, false if unknown or invalid.
-   * @note The expression value is not copied if the return value is false.
-   * @note Derived classes should implement only the appropriate methods.
-   */
-
-  bool VoidCachedValue::getValue(bool &) const
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValue(double &) const
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValue(uint16_t &) const
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValue(int32_t &) const
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValue(std::string &) const
-  {
-    return false;
-  }
-
-
-  /**
-   * @brief Retrieve a pointer to the (const) cached value.
-   * @param ptr Reference to the pointer variable to receive the result.
-   * @return True if known, false if unknown or invalid.
-   * @note The pointer is not copied if the return value is false.
-   * @note Derived classes should implement only the appropriate method.
-   * @note Default methods return an error in every case.
-   */
-  bool VoidCachedValue::getValuePointer(std::string const *&ptr) const
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValuePointer(Array const *&ptr) const // generic
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValuePointer(BooleanArray const *&ptr) const // specific
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValuePointer(IntegerArray const *&ptr) const //
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValuePointer(RealArray const *&ptr) const    //
-  {
-    return false;
-  }
-
-  bool VoidCachedValue::getValuePointer(StringArray const *&ptr) const  //
-  {
-    return false;
-  }
-
-
   Value VoidCachedValue::toValue() const
   {
     return Value();
-  }
-
-
-  /**
-   * @brief Set the state to unknown.
-   * @return true if changed, false otherwise.
-   */
-  bool VoidCachedValue::setUnknown(unsigned int /* timestamp */)
-  {
-    return false;
   }
 
   /**
@@ -167,60 +91,40 @@ namespace PLEXIL
    * @param val The new value.
    * @note The caller is responsible for deleting the object pointed to upon return.
    */
-  bool VoidCachedValue::update(unsigned int /* timestamp */, bool const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-      
-  bool VoidCachedValue::update(unsigned int /* timestamp */, int32_t const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
+
+#define DEFINE_UPDATE_METHOD(_type_) \
+  bool VoidCachedValue::update(unsigned int /* timestamp */, _type_ const & /* val */) \
+  { \
+    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue"); \
+    return false; \
   }
 
-  bool VoidCachedValue::update(unsigned int /* timestamp */, double const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
+  DEFINE_UPDATE_METHOD(Boolean)
+  DEFINE_UPDATE_METHOD(Integer)
+  DEFINE_UPDATE_METHOD(Real)
+  DEFINE_UPDATE_METHOD(NodeState)
+  DEFINE_UPDATE_METHOD(NodeOutcome)
+  DEFINE_UPDATE_METHOD(FailureType)
+  DEFINE_UPDATE_METHOD(CommandHandleValue)
+  DEFINE_UPDATE_METHOD(String)
+
+#undef DEFINE_UPDATE_METHOD
+
+#define DEFINE_UPDATE_PTR_METHOD(_type_) \
+  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, _type_ const * /* valPtr */) \
+  { \
+    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue"); \
+    return false; \
   }
 
-  bool VoidCachedValue::update(unsigned int /* timestamp */, std::string const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
+  DEFINE_UPDATE_PTR_METHOD(String)
+  DEFINE_UPDATE_PTR_METHOD(BooleanArray)
+  DEFINE_UPDATE_PTR_METHOD(IntegerArray)
+  DEFINE_UPDATE_PTR_METHOD(RealArray)
+  DEFINE_UPDATE_PTR_METHOD(StringArray)
 
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, std::string const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, BooleanArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, IntegerArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, RealArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, StringArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
+#undef DEFINE_UPDATE_PTR_METHOD
+  
   bool VoidCachedValue::update(unsigned int timestamp, Value const &val)
   {
     assertTrue_2(!val.isKnown(), "Can't update a VoidCachedValue");
@@ -232,6 +136,10 @@ namespace PLEXIL
   // Typed implementation
   //
 
+  //
+  // Default constructors
+  //
+  
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl()
     : CachedValueShim<CachedValueImpl<T> >(),
@@ -239,8 +147,8 @@ namespace PLEXIL
   {
   }
 
-  CachedValueImpl<std::string>::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<std::string> >(),
+  CachedValueImpl<String>::CachedValueImpl()
+    : CachedValueShim<CachedValueImpl<String> >(),
       m_known(false)
   {
   }
@@ -252,38 +160,70 @@ namespace PLEXIL
   {
   }
 
+  //
+  // Copy constructors
+  //
+
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> const &orig)
-    : CachedValueShim<CachedValueImpl<T> >(),
+    : CachedValueShim<CachedValueImpl<T> >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
-    this->m_timestamp = orig.getTimestamp();
   }
 
-  CachedValueImpl<std::string>::CachedValueImpl(CachedValueImpl<std::string> const &orig)
-    : CachedValueShim<CachedValueImpl<std::string> >(),
+  CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> const &orig)
+    : CachedValueShim<CachedValueImpl<String> >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
-    this->m_timestamp = orig.getTimestamp();
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &orig)
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
+    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
-    this->m_timestamp = orig.getTimestamp();
   }
+
+  //
+  // Move constructors
+  //
+
+  template <typename T>
+  CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> &&orig)
+    : CachedValueShim<CachedValueImpl<T> >(orig),
+      m_value(orig.m_value),
+      m_known(orig.m_known)
+  {
+  }
+
+  CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> &&orig)
+    : CachedValueShim<CachedValueImpl<String> >(orig),
+      m_value(orig.m_value),
+      m_known(orig.m_known)
+  {
+  }
+
+  template <typename T>
+  CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > &&orig)
+    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
+      m_value(orig.m_value),
+      m_known(orig.m_known)
+  {
+  }
+
+  //
+  // Destructor
+  //
 
   template <typename T>
   CachedValueImpl<T>::~CachedValueImpl()
   {
   }
 
-  CachedValueImpl<std::string>::~CachedValueImpl()
+  CachedValueImpl<String>::~CachedValueImpl()
   {
   }
 
@@ -291,6 +231,10 @@ namespace PLEXIL
   CachedValueImpl<ArrayImpl<T> >::~CachedValueImpl()
   {
   }
+
+  //
+  // Copy assignment
+  //
 
   template <typename T>
   CachedValue &CachedValueImpl<T>::operator=(CachedValue const &other)
@@ -301,10 +245,10 @@ namespace PLEXIL
     return static_cast<CachedValue &>(operator=(*otherPtr));
   }
 
-  CachedValue &CachedValueImpl<std::string>::operator=(CachedValue const &other)
+  CachedValue &CachedValueImpl<String>::operator=(CachedValue const &other)
   {
-    CachedValueImpl<std::string> const *otherPtr = 
-      dynamic_cast<CachedValueImpl<std::string> const * > (&other);
+    CachedValueImpl<String> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<String> const * > (&other);
     assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
     return static_cast<CachedValue &>(operator=(*otherPtr));
   }
@@ -327,7 +271,7 @@ namespace PLEXIL
     return *this;
   }
 
-  CachedValueImpl<std::string> &CachedValueImpl<std::string>::operator=(CachedValueImpl<std::string> const &other)
+  CachedValueImpl<String> &CachedValueImpl<String>::operator=(CachedValueImpl<String> const &other)
   {
     this->m_timestamp = other.getTimestamp();
     if ((m_known = other.m_known))
@@ -344,49 +288,109 @@ namespace PLEXIL
     return *this;
   }
 
+  //
+  // Move assignment
+  //
+
+  template <typename T>
+  CachedValue &CachedValueImpl<T>::operator=(CachedValue &&other)
+  {
+    CachedValueImpl<T> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<T> const * > (&other);
+    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    return static_cast<CachedValue &>(operator=(*otherPtr));
+  }
+
+  CachedValue &CachedValueImpl<String>::operator=(CachedValue &&other)
+  {
+    CachedValueImpl<String> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<String> const * > (&other);
+    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    return static_cast<CachedValue &>(operator=(*otherPtr));
+  }
+
+  template <typename T>
+  CachedValue &CachedValueImpl<ArrayImpl<T> >::operator=(CachedValue &&other)
+  {
+    CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
+      dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
+    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    return static_cast<CachedValue &>(operator=(*otherPtr));
+  }
+
+  template <typename T>
+  CachedValueImpl<T> &CachedValueImpl<T>::operator=(CachedValueImpl<T> &&other)
+  {
+    this->m_timestamp = other.getTimestamp();
+    if ((m_known = other.m_known))
+      m_value = other.m_value;
+    return *this;
+  }
+
+  CachedValueImpl<String> &CachedValueImpl<String>::operator=(CachedValueImpl<String> &&other)
+  {
+    this->m_timestamp = other.getTimestamp();
+    if ((m_known = other.m_known))
+      m_value = other.m_value;
+    return *this;
+  }
+
+  template <typename T>
+  CachedValueImpl<ArrayImpl<T> > &CachedValueImpl<ArrayImpl<T> >::operator=(CachedValueImpl<ArrayImpl<T> > &&other)
+  {
+    this->m_timestamp = other.getTimestamp();
+    if ((m_known = other.m_known))
+      m_value = other.m_value;
+    return *this;
+  }
+
+  //
+  // Accessors
+  //
+
   template <>
-  const ValueType CachedValueImpl<bool>::valueType() const
+  const ValueType CachedValueImpl<Boolean>::valueType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<int32_t>::valueType() const
+  const ValueType CachedValueImpl<Integer>::valueType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<double>::valueType() const
+  const ValueType CachedValueImpl<Real>::valueType() const
   {
     return REAL_TYPE;
   }
 
-  const ValueType CachedValueImpl<std::string>::valueType() const
+  const ValueType CachedValueImpl<String>::valueType() const
   {
     return STRING_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<bool> >::valueType() const
+  const ValueType CachedValueImpl<ArrayImpl<Boolean> >::valueType() const
   {
     return BOOLEAN_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<int32_t> >::valueType() const
+  const ValueType CachedValueImpl<ArrayImpl<Integer> >::valueType() const
   {
     return INTEGER_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<double> >::valueType() const
+  const ValueType CachedValueImpl<ArrayImpl<Real> >::valueType() const
   {
     return REAL_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<std::string> >::valueType() const
+  const ValueType CachedValueImpl<ArrayImpl<String> >::valueType() const
   {
     return STRING_ARRAY_TYPE;
   }
@@ -397,7 +401,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool CachedValueImpl<std::string>::isKnown() const
+  bool CachedValueImpl<String>::isKnown() const
   {
     return m_known;
   }
@@ -417,7 +421,7 @@ namespace PLEXIL
     return wasKnown;
   }
 
-  bool CachedValueImpl<std::string>::setUnknown(unsigned int timestamp)
+  bool CachedValueImpl<String>::setUnknown(unsigned int timestamp)
   {
     bool wasKnown = m_known;
     m_known = false;
@@ -449,12 +453,12 @@ bool CachedValueImpl<T>::operator==(CachedValue const &other) const
   return true;
 }
 
-bool CachedValueImpl<std::string>::operator==(CachedValue const &other) const
+bool CachedValueImpl<String>::operator==(CachedValue const &other) const
 {
   if (!m_known && other.isKnown())
     return true;
-  CachedValueImpl<std::string> const *otherPtr = 
-    dynamic_cast<CachedValueImpl<std::string> const *>(&other);
+  CachedValueImpl<String> const *otherPtr = 
+    dynamic_cast<CachedValueImpl<String> const *>(&other);
   if (!otherPtr)
     return false; // different type
   if (m_known != otherPtr->m_known
@@ -484,9 +488,9 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return new CachedValueImpl<T>(*this);
   }
 
-  CachedValue *CachedValueImpl<std::string>::cloneImpl() const
+  CachedValue *CachedValueImpl<String>::cloneImpl() const
   {
-    return new CachedValueImpl<std::string>(*this);
+    return new CachedValueImpl<String>(*this);
   }
 
   template <typename T>
@@ -512,7 +516,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 
   // Specialization for double, solely for debug printing purposes.
   template <>
-  bool CachedValueImpl<double>::updateImpl(unsigned int timestamp, double const &val)
+  bool CachedValueImpl<Real>::updateImpl(unsigned int timestamp, double const &val)
   {
     if (!m_known || m_value != val) {
       m_value = val;
@@ -525,7 +529,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
-  bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, std::string const &val)
+  bool CachedValueImpl<String>::updateImpl(unsigned int timestamp, std::string const &val)
   {
     if (!m_known || m_value != val) {
       m_value = val;
@@ -546,7 +550,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   }
 
   template <typename U>
-  bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, U const & /* val */)
+  bool CachedValueImpl<String>::updateImpl(unsigned int timestamp, U const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::update: Type error");
     return false;
@@ -563,7 +567,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   // Type conversion method.
   template <>
   template <>
-  bool CachedValueImpl<double>::updateImpl(unsigned int timestamp, int32_t const &val)
+  bool CachedValueImpl<Real>::updateImpl(unsigned int timestamp, int32_t const &val)
   {
     return this->updateImpl(timestamp, (double) val);
   }
@@ -585,7 +589,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   }
 
   // Special case for string
-  bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, Value const &val)
+  bool CachedValueImpl<String>::updateImpl(unsigned int timestamp, Value const &val)
   {
     std::string const *valPtr;
     if (val.getValuePointer(valPtr))
@@ -616,7 +620,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 // updatePtrImpl
 //
 
-bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::string const *ptr)
+bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string const *ptr)
   {
     if (!m_known || m_value != *ptr) {
       m_value = *ptr;
@@ -649,7 +653,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   }
 
   template <typename U>
-  bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
+  bool CachedValueImpl<String>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
     return false;
@@ -675,7 +679,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
     return m_known;
   }
 
-  bool CachedValueImpl<std::string>::getValueImpl(std::string &result) const
+  bool CachedValueImpl<String>::getValueImpl(std::string &result) const
   {
     if (m_known)
       result = m_value;
@@ -692,7 +696,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   }
 
   template <typename U>
-  bool CachedValueImpl<std::string>::getValueImpl(U & /* result */) const
+  bool CachedValueImpl<String>::getValueImpl(U & /* result */) const
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
     return false;
@@ -709,7 +713,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   // Conversion method
   template <>
   template <>
-  bool CachedValueImpl<int32_t>::getValueImpl(double &result) const
+  bool CachedValueImpl<Integer>::getValueImpl(double &result) const
   {
     if (m_known)
       result = (double) m_value;
@@ -717,7 +721,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   }
 
   // Same-type methods
-  bool CachedValueImpl<std::string>::getValuePointerImpl(std::string const *&ptr) const
+  bool CachedValueImpl<String>::getValuePointerImpl(std::string const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -742,7 +746,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   }
 
   template <typename U>
-  bool CachedValueImpl<std::string>::getValuePointerImpl(U const *& /* ptr */) const
+  bool CachedValueImpl<String>::getValuePointerImpl(U const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
     return false;
@@ -774,7 +778,7 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
       return Value(0, valueType());
   }
 
-  Value CachedValueImpl<std::string>::toValue() const
+  Value CachedValueImpl<String>::toValue() const
   {
     if (m_known)
       return Value(m_value);
@@ -799,18 +803,18 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   {
     switch (vtype) {
     case BOOLEAN_TYPE:
-      return static_cast<CachedValue *>(new CachedValueImpl<bool>());
+      return static_cast<CachedValue *>(new CachedValueImpl<Boolean>());
 
     case INTEGER_TYPE:
-      return static_cast<CachedValue *>(new CachedValueImpl<int32_t>());
+      return static_cast<CachedValue *>(new CachedValueImpl<Integer>());
 
     case REAL_TYPE:
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
-      return static_cast<CachedValue *>(new CachedValueImpl<double>());
+      return static_cast<CachedValue *>(new CachedValueImpl<Real>());
 
     case STRING_TYPE:
-      return static_cast<CachedValue *>(new CachedValueImpl<std::string>());
+      return static_cast<CachedValue *>(new CachedValueImpl<String>());
 
     case BOOLEAN_ARRAY_TYPE:
       return static_cast<CachedValue *>(new CachedValueImpl<BooleanArray>());
@@ -837,10 +841,10 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   // Explicit instantiation (possibly redundant with factory above)
   //
 
-  template class CachedValueImpl<bool>;
-  template class CachedValueImpl<int32_t>;
-  template class CachedValueImpl<double>;
-// template class CachedValueImpl<std::string>; // redundant
+  template class CachedValueImpl<Boolean>;
+  template class CachedValueImpl<Integer>;
+  template class CachedValueImpl<Real>;
+// template class CachedValueImpl<String>; // redundant
   template class CachedValueImpl<BooleanArray>;
   template class CachedValueImpl<IntegerArray>;
   template class CachedValueImpl<RealArray>;

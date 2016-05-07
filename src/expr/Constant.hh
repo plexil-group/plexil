@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -145,7 +145,7 @@ namespace PLEXIL {
 
   // String is different
   template <>
-  class Constant<std::string> : public ExpressionImpl<std::string>
+  class Constant<String> : public ExpressionImpl<String>
   {
   public:
 
@@ -162,7 +162,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor from value type.
      */
-    Constant(const std::string &value);
+    Constant(const String &value);
 
     /**
      * @brief Constructor from char *.
@@ -186,14 +186,14 @@ namespace PLEXIL {
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(std::string &result) const;
+    bool getValueImpl(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(std::string const *& ptr) const;
+    bool getValuePointerImpl(String const *& ptr) const;
 
     /**
      * @brief Query whether the expression's value is known.
@@ -247,7 +247,7 @@ namespace PLEXIL {
 
   protected:
 
-    std::string m_value;
+    String m_value;
     bool m_known;
 
   private:
@@ -361,15 +361,15 @@ namespace PLEXIL {
   // Convenience typedefs
   //
 
-  typedef Constant<bool>        BooleanConstant;
-  typedef Constant<int32_t>     IntegerConstant;
-  typedef Constant<double>      RealConstant;
-  typedef Constant<std::string> StringConstant;
+  typedef Constant<Boolean>   BooleanConstant;
+  typedef Constant<Integer>   IntegerConstant;
+  typedef Constant<Real>      RealConstant;
+  typedef Constant<String>    StringConstant;
 
-  typedef Constant<ArrayImpl<bool> >        BooleanArrayConstant;
-  typedef Constant<ArrayImpl<int32_t> >     IntegerArrayConstant;
-  typedef Constant<ArrayImpl<double> >      RealArrayConstant;
-  typedef Constant<ArrayImpl<std::string> > StringArrayConstant;
+  typedef Constant<BooleanArray>   BooleanArrayConstant;
+  typedef Constant<IntegerArray>   IntegerArrayConstant;
+  typedef Constant<RealArray>      RealArrayConstant;
+  typedef Constant<StringArray>    StringArrayConstant;
   
 } // namespace PLEXIL
 

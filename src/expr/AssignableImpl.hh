@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,100 +41,70 @@ namespace PLEXIL
   class AssignableShim : public Assignable
   {
   public:
-    virtual ~AssignableShim()
-    {
-    }
+    AssignableShim() = default;
+    ~AssignableShim() = default;
 
-    inline void setValue(bool const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
+    //
+    // setValue
+    //
 
-    inline void setValue(uint16_t const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(int32_t const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(double const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(std::string const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(char const *val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(BooleanArray const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(IntegerArray const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(RealArray const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    inline void setValue(StringArray const &val)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(val);
-    }
-
-    // Wrappers
-    inline void setValue(Expression const *valex)
+    void setValue(Expression const *valex)
     {
       static_cast<IMPL *>(this)->setValueImpl(valex);
     }
 
-    inline void setValue(Value const &val)
+    // Convenience member function
+    void setValue(char const *val)
     {
-      static_cast<IMPL *>(this)->setValueImpl(val);
+      static_cast<IMPL *>(this)->setValueImpl(String(val));
     }
 
-    inline bool getMutableValuePointer(std::string *& ptr)
-    {
-      return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
-    }
+    // This didn't work for a variety of reasons.
+    // template <typename V>
+    // void setValue(V const &val)
+    // {
+    //   static_cast<IMPL *>(this)->setValueImpl(val);
+    // }
 
-    inline bool getMutableValuePointer(Array *& ptr)
-    {
-      return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
-    }
+    // Local macro
+#define DEFINE_SET_VALUE_METHOD(_type_) \
+    void setValue(_type_ const &val) \
+    {static_cast<IMPL *>(this)->setValueImpl(val);}
 
-    inline bool getMutableValuePointer(BooleanArray *& ptr)
-    {
-      return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
-    }
+    DEFINE_SET_VALUE_METHOD(Value)
+    DEFINE_SET_VALUE_METHOD(Boolean)
+    DEFINE_SET_VALUE_METHOD(Integer)
+    DEFINE_SET_VALUE_METHOD(Real)
+    DEFINE_SET_VALUE_METHOD(NodeState)
+    DEFINE_SET_VALUE_METHOD(NodeOutcome)
+    DEFINE_SET_VALUE_METHOD(FailureType)
+    DEFINE_SET_VALUE_METHOD(CommandHandleValue)
+    DEFINE_SET_VALUE_METHOD(String)
+    DEFINE_SET_VALUE_METHOD(BooleanArray)
+    DEFINE_SET_VALUE_METHOD(IntegerArray)
+    DEFINE_SET_VALUE_METHOD(RealArray)
+    DEFINE_SET_VALUE_METHOD(StringArray)
 
-    inline bool getMutableValuePointer(IntegerArray *& ptr)
-    {
-      return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
-    }
+#undef DEFINE_SET_VALUE_METHOD
 
-    inline bool getMutableValuePointer(RealArray *& ptr)
-    {
-      return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
-    }
+    //
+    // getMutableValuePointer
+    //
 
-    inline bool getMutableValuePointer(StringArray *& ptr)
-    {
-      return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
-    }
+    // Local macro
+#define DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(_type_) \
+    bool getMutableValuePointer(_type_ *&ptr) \
+    {return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);}
+
+    DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(String)
+    DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(Array)
+    DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(BooleanArray)
+    DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(IntegerArray)
+    DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(RealArray)
+    DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD(StringArray)
+
+#undef DEFINE_GET_MUTABLE_VALUE_POINTER_METHOD
+
   };
 
   /**
@@ -147,7 +117,8 @@ namespace PLEXIL
   class AssignableImpl : public AssignableShim<AssignableImpl<T> >
   {
   public:
-    virtual ~AssignableImpl();
+    AssignableImpl() = default;
+    virtual ~AssignableImpl() = default;
 
     // To be defined by derived classes.
     virtual void setValueImpl(T const &val) = 0;
@@ -170,13 +141,14 @@ namespace PLEXIL
 
   // Special case for string
   template <>
-  class AssignableImpl<std::string> : public AssignableShim<AssignableImpl<std::string> >
+  class AssignableImpl<String> : public AssignableShim<AssignableImpl<String> >
   {
   public:
-    virtual ~AssignableImpl();
+    AssignableImpl() = default;
+    virtual ~AssignableImpl() = default;
 
     // To be defined by derived classes.
-    virtual void setValueImpl(std::string const &val) = 0;
+    virtual void setValueImpl(String const &val) = 0;
 
     // Type mismatch methods.
     // Can be overridden for conversions (e.g. for string).
@@ -190,7 +162,7 @@ namespace PLEXIL
     void setValueImpl(Expression const *valex);
     void setValueImpl(Value const &val);
 
-    virtual bool getMutableValuePointerImpl(std::string *& ptr) = 0;
+    virtual bool getMutableValuePointerImpl(String *& ptr) = 0;
 
     // Type mismatch
     template <typename U>
@@ -202,7 +174,8 @@ namespace PLEXIL
   class AssignableImpl<ArrayImpl<T> > : public AssignableShim<AssignableImpl<ArrayImpl<T> > >
   {
   public:
-    virtual ~AssignableImpl();
+    AssignableImpl() = default;
+    virtual ~AssignableImpl() = default;
 
     // To be defined by derived classes.
     virtual void setValueImpl(ArrayImpl<T> const &val) = 0;

@@ -360,20 +360,41 @@ namespace PLEXIL
     s << std::setprecision(15) << val;
   }
   
-  // Specialization for internal enums
+  // Specializations for internal enums
   template <>
-  void printValue(const uint16_t &val, std::ostream &s)
+  void printValue(NodeState const &val, std::ostream &s)
   {
     if (isNodeStateValid(val))
-      s << nodeStateName((NodeState) val);
-    else if (isNodeOutcomeValid(val))
-      s << outcomeName((NodeOutcome) val);
-    else if (isFailureTypeValid(val))
-      s << failureTypeName((FailureType) val);
-    else if (isCommandHandleValid(val))
-      s << commandHandleValueName((CommandHandleValue) val);
+      s << nodeStateName(val);
     else
-      s << "<INVALID ENUM " << val << ">";
+      s << "<INVALID NODE STATE " << val << ">";
+  }
+
+  template <>
+  void printValue(NodeOutcome const &val, std::ostream &s)
+  {
+    if (isNodeOutcomeValid(val))
+      s << outcomeName(val);
+    else
+      s << "<INVALID NODE OUTCOME " << val << ">";
+  }
+
+  template <>
+  void printValue(FailureType const &val, std::ostream &s)
+  {
+    if (isFailureTypeValid(val))
+      s << failureTypeName(val);
+    else
+      s << "<INVALID FAILURE TYPE " << val << ">";
+  }
+
+  template <>
+  void printValue(CommandHandleValue const &val, std::ostream &s)
+  {
+    if (isCommandHandleValid(val))
+      s << commandHandleValueName(val);
+    else
+      s << "<INVALID COMMAND HANDLE VALUE " << val << ">";
   }
 
   template <typename T>
@@ -485,7 +506,6 @@ namespace PLEXIL
   // Explicit instantiation
   //
   template void printValue(bool const &, std::ostream &);
-  // template void printValue(uint16_t const &, std::ostream &); // redundant
   template void printValue(int32_t const &, std::ostream &);
   template void printValue(double const &, std::ostream &);
   template void printValue(std::string const &, std::ostream &);
@@ -494,7 +514,5 @@ namespace PLEXIL
   template void printValue(ArrayImpl<int32_t> const &, std::ostream &);
   template void printValue(ArrayImpl<double> const &, std::ostream &);
   template void printValue(ArrayImpl<std::string> const &, std::ostream &);
-
-  // array types NYI
 
 }

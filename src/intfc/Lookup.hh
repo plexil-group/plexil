@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -98,11 +98,21 @@ namespace PLEXIL
      * @note The expression value is not copied if the return value is false.
      */
 
-    virtual bool getValue(bool &) const;        // Boolean
-    virtual bool getValue(double &) const;      // Real
-    virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(int32_t &) const;     // Integer
-    virtual bool getValue(std::string &) const; // String
+    // Local macro
+#define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
+    virtual bool getValue(_rtype_ &result) const \
+    { return getValueImpl(result); }
+
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Boolean)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Real)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(NodeState)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(NodeOutcome)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(FailureType)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(CommandHandleValue)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(String)
+
+#undef DEFINE_LOOKUP_GET_VALUE_METHOD
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -110,12 +120,18 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      * @note The pointer is not copied if the return value is false.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const;
-    virtual bool getValuePointer(Array const *&ptr) const; // generic
-    virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
-    virtual bool getValuePointer(IntegerArray const *&ptr) const; //
-    virtual bool getValuePointer(RealArray const *&ptr) const;    //
-    virtual bool getValuePointer(StringArray const *&ptr) const;  //
+
+    // Local macro
+#define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
+    virtual bool getValue(_rtype_ const *&ptr) const \
+    { return getValuePointerImpl(ptr); }
+
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
 
     /**
      * @brief Get the value of this expression as a Value instance.
@@ -143,6 +159,12 @@ namespace PLEXIL
     // Shared behavior needed by LookupOnChange
     bool handleChangeInternal(Expression const *src);
     
+    template <typename R>
+    bool getValueImpl(R &) const;
+
+    template <typename R>
+    bool getValuePointerImpl(R const *&) const;
+
     // Member variables shared with implementation classes
     State m_cachedState;
     Expression *m_stateName;
@@ -154,6 +176,12 @@ namespace PLEXIL
     bool m_stateNameIsGarbage;
 
   private:
+    // Unimplemented
+    Lookup() = delete;
+    Lookup(Lookup const &) = delete;
+    Lookup(Lookup &&) = delete;
+    Lookup &operator=(Lookup const &) = delete;
+    Lookup &operator=(Lookup &&) = delete;
   };
 
   class LookupOnChange : public Lookup
@@ -182,8 +210,15 @@ namespace PLEXIL
      * @note The expression value is not copied if the return value is false.
      */
 
-    bool getValue(int32_t &) const;     // Integer
-    bool getValue(double &) const;      // Real
+    // Local macro
+#define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
+    virtual bool getValue(_rtype_ &result) const \
+    { return getValueImpl(result); }
+
+    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
+
+#undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
@@ -192,13 +227,18 @@ namespace PLEXIL
     Value toValue() const;
 
   private:
-    // Prohibit default, copy, assign
-    LookupOnChange();
-    LookupOnChange(const LookupOnChange &);
-    LookupOnChange &operator=(const LookupOnChange &);
+    // Prohibit default constructor, copy, assign
+    LookupOnChange() = delete;
+    LookupOnChange(LookupOnChange const &) = delete;
+    LookupOnChange(LookupOnChange &&) = delete;
+    LookupOnChange &operator=(LookupOnChange const &) = delete;
+    LookupOnChange &operator=(LookupOnChange &&) = delete;
 
-    // Internal helper
+    // Internal helpers
     bool updateInternal(bool valueChanged);
+
+    template <typename R>
+    bool getValueImpl(R &) const;
 
     // Unique member data
     ThresholdCache *m_thresholds;

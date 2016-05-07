@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ namespace PLEXIL
     return this->getValueImpl(dummy);
   }
 
-  bool ExpressionImpl<std::string>::isKnown() const
+  bool ExpressionImpl<String>::isKnown() const
   {
     std::string const *dummy;
     return this->getValuePointerImpl(dummy);
@@ -61,24 +61,48 @@ namespace PLEXIL
   }
 
   template <>
-  const ValueType ExpressionImpl<bool>::valueType() const
+  const ValueType ExpressionImpl<Boolean>::valueType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<int32_t>::valueType() const
+  const ValueType ExpressionImpl<Integer>::valueType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<double>::valueType() const
+  const ValueType ExpressionImpl<Real>::valueType() const
   {
     return REAL_TYPE;
   }
 
-  const ValueType ExpressionImpl<std::string>::valueType() const
+  template <>
+  const ValueType ExpressionImpl<NodeState>::valueType() const
+  {
+    return NODE_STATE_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<NodeOutcome>::valueType() const
+  {
+    return OUTCOME_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<FailureType>::valueType() const
+  {
+    return FAILURE_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<CommandHandleValue>::valueType() const
+  {
+    return COMMAND_HANDLE_TYPE;
+  }
+
+  const ValueType ExpressionImpl<String>::valueType() const
   {
     return STRING_TYPE;
   }
@@ -132,9 +156,9 @@ namespace PLEXIL
       s << "UNKNOWN";
   }
 
-  void ExpressionImpl<std::string>::printValue(std::ostream &s) const
+  void ExpressionImpl<String>::printValue(std::ostream &s) const
   {
-    std::string const *temp;
+    String const *temp;
     if (this->getValuePointerImpl(temp))
       PLEXIL::printValue(*temp, s);
     else
@@ -150,7 +174,7 @@ namespace PLEXIL
   }
 
   template <typename U>
-  bool ExpressionImpl<std::string>::getValueImpl(U &result) const
+  bool ExpressionImpl<String>::getValueImpl(U &result) const
   {
     check_error_2(ALWAYS_FAIL, "getValue: value type error");
     return false;
@@ -175,12 +199,12 @@ namespace PLEXIL
   // More conversions can be added as required.
   template <>
   template <>
-  bool ExpressionImpl<int32_t>::getValueImpl(double &result) const
+  bool ExpressionImpl<Integer>::getValueImpl(Real &result) const
   {
-    int32_t temp;
+    Integer temp;
     if (!this->getValueImpl(temp))
       return false;
-    result = (double) temp;
+    result = (Real) temp;
     return true;
   }
 
@@ -202,7 +226,7 @@ namespace PLEXIL
 
   // Report error for string types
   template <typename U>
-  bool ExpressionImpl<std::string>::getValuePointerImpl(U const *& /* ptr */) const
+  bool ExpressionImpl<String>::getValuePointerImpl(U const *& /* ptr */) const
   {
     check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
     return false;
@@ -239,18 +263,6 @@ namespace PLEXIL
       return Value(0, this->valueType());
   }
 
-  // Specialization for internal values
-  template <>
-  Value ExpressionImpl<uint16_t>::toValue() const
-  {
-    uint16_t temp;
-    bool known = this->getValueImpl(temp);
-    if (known)
-      return Value(temp, this->valueType());
-    else
-      return Value(0, this->valueType());
-  }
-
   template <typename T>
   Value ExpressionImpl<ArrayImpl<T> >::toValue() const
   {
@@ -262,7 +274,7 @@ namespace PLEXIL
       return Value(0, this->valueType());
   }
 
-  Value ExpressionImpl<std::string>::toValue() const
+  Value ExpressionImpl<String>::toValue() const
   {
     std::string const *ptr;
     bool known = this->getValuePointerImpl(ptr);
@@ -276,122 +288,212 @@ namespace PLEXIL
   //
   // Explicit instantiations
   //
-  template class ExpressionImpl<bool>;
+  template class ExpressionImpl<Boolean>;
 
-  template bool ExpressionImpl<bool>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<bool>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<bool>::getValueImpl(double &) const;
-  template bool ExpressionImpl<bool>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(String &) const;
 
-  template bool ExpressionImpl<bool>::getValuePointerImpl(std::string const *&) const;
-  template bool ExpressionImpl<bool>::getValuePointerImpl(Array const *&) const;
-  template bool ExpressionImpl<bool>::getValuePointerImpl(BooleanArray const *&) const;
-  template bool ExpressionImpl<bool>::getValuePointerImpl(IntegerArray const *&) const;
-  template bool ExpressionImpl<bool>::getValuePointerImpl(RealArray const *&) const;
-  template bool ExpressionImpl<bool>::getValuePointerImpl(StringArray const *&) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<Boolean>::getValueImpl(CommandHandleValue &) const;
 
-  template class ExpressionImpl<uint16_t>;
+  template bool ExpressionImpl<Boolean>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<Boolean>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<Boolean>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<Boolean>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<Boolean>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<Boolean>::getValuePointerImpl(StringArray const *&) const;
 
-  template bool ExpressionImpl<uint16_t>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<uint16_t>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<uint16_t>::getValueImpl(double &) const;
-  template bool ExpressionImpl<uint16_t>::getValueImpl(std::string &) const;
+  template class ExpressionImpl<Integer>;
 
-  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(std::string const *&) const;
-  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(Array const *&) const;
-  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(BooleanArray const *&) const;
-  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(IntegerArray const *&) const;
-  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(RealArray const *&) const;
-  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(StringArray const *&) const;
+  template bool ExpressionImpl<Integer>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<Integer>::getValueImpl(String &) const;
 
-  template class ExpressionImpl<int32_t>;
+  template bool ExpressionImpl<Integer>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<Integer>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<Integer>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<Integer>::getValueImpl(CommandHandleValue &) const;
 
-  template bool ExpressionImpl<int32_t>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<int32_t>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<int32_t>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<Integer>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<Integer>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<Integer>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<Integer>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<Integer>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<Integer>::getValuePointerImpl(StringArray const *&) const;
 
-  template bool ExpressionImpl<int32_t>::getValuePointerImpl(std::string const *&) const;
-  template bool ExpressionImpl<int32_t>::getValuePointerImpl(Array const *&) const;
-  template bool ExpressionImpl<int32_t>::getValuePointerImpl(BooleanArray const *&) const;
-  template bool ExpressionImpl<int32_t>::getValuePointerImpl(IntegerArray const *&) const;
-  template bool ExpressionImpl<int32_t>::getValuePointerImpl(RealArray const *&) const;
-  template bool ExpressionImpl<int32_t>::getValuePointerImpl(StringArray const *&) const;
+  template class ExpressionImpl<Real>;
 
-  template class ExpressionImpl<double>;
+  template bool ExpressionImpl<Real>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<Real>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<Real>::getValueImpl(String &) const;
 
-  template bool ExpressionImpl<double>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<double>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<double>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<double>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<Real>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<Real>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<Real>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<Real>::getValueImpl(CommandHandleValue &) const;
 
-  template bool ExpressionImpl<double>::getValuePointerImpl(std::string const *&) const;
-  template bool ExpressionImpl<double>::getValuePointerImpl(Array const *&) const;
-  template bool ExpressionImpl<double>::getValuePointerImpl(BooleanArray const *&) const;
-  template bool ExpressionImpl<double>::getValuePointerImpl(IntegerArray const *&) const;
-  template bool ExpressionImpl<double>::getValuePointerImpl(RealArray const *&) const;
-  template bool ExpressionImpl<double>::getValuePointerImpl(StringArray const *&) const;
+  template bool ExpressionImpl<Real>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<Real>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<Real>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<Real>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<Real>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<Real>::getValuePointerImpl(StringArray const *&) const;
 
-  //template class ExpressionImpl<std::string>;
+  template class ExpressionImpl<NodeState>;
 
-  template bool ExpressionImpl<std::string>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<std::string>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<std::string>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<std::string>::getValueImpl(double &) const;
+  template bool ExpressionImpl<NodeState>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<NodeState>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<NodeState>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<NodeState>::getValueImpl(String &) const;
+
+  template bool ExpressionImpl<NodeState>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<NodeState>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<NodeState>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<NodeState>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<NodeState>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<NodeState>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<NodeState>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<NodeState>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<NodeState>::getValuePointerImpl(StringArray const *&) const;
+
+  template class ExpressionImpl<NodeOutcome>;
+
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(String &) const;
+
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<NodeOutcome>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<NodeOutcome>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<NodeOutcome>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<NodeOutcome>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<NodeOutcome>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<NodeOutcome>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<NodeOutcome>::getValuePointerImpl(StringArray const *&) const;
+
+  template class ExpressionImpl<FailureType>;
+
+  template bool ExpressionImpl<FailureType>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<FailureType>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<FailureType>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<FailureType>::getValueImpl(String &) const;
+
+  template bool ExpressionImpl<FailureType>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<FailureType>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<FailureType>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<FailureType>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<FailureType>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<FailureType>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<FailureType>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<FailureType>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<FailureType>::getValuePointerImpl(StringArray const *&) const;
+
+  template class ExpressionImpl<CommandHandleValue>;
+
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(String &) const;
+
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValueImpl(FailureType &) const;
+
+  template bool ExpressionImpl<CommandHandleValue>::getValuePointerImpl(String const *&) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<CommandHandleValue>::getValuePointerImpl(StringArray const *&) const;
+
+  //template class ExpressionImpl<String>; // explicitly defined in header file
+
+  template bool ExpressionImpl<String>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<String>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<String>::getValueImpl(Real &) const;
+
+  template bool ExpressionImpl<String>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<String>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<String>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<String>::getValueImpl(CommandHandleValue &) const;
   
-  template bool ExpressionImpl<std::string>::getValuePointerImpl(Array const *&) const;
-  template bool ExpressionImpl<std::string>::getValuePointerImpl(BooleanArray const *&) const;
-  template bool ExpressionImpl<std::string>::getValuePointerImpl(IntegerArray const *&) const;
-  template bool ExpressionImpl<std::string>::getValuePointerImpl(RealArray const *&) const;
-  template bool ExpressionImpl<std::string>::getValuePointerImpl(StringArray const *&) const;
+  template bool ExpressionImpl<String>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<String>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<String>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<String>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<String>::getValuePointerImpl(StringArray const *&) const;
 
   template class ExpressionImpl<BooleanArray>;
 
-  template bool ExpressionImpl<BooleanArray>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<BooleanArray>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<BooleanArray>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<BooleanArray>::getValueImpl(double &) const;
-  template bool ExpressionImpl<BooleanArray>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(String &) const;
 
-  template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(String const *&) const;
   template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(IntegerArray const *&) const;
   template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(RealArray const *&) const;
   template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(StringArray const *&) const;
 
   template class ExpressionImpl<IntegerArray>;
 
-  template bool ExpressionImpl<IntegerArray>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<IntegerArray>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<IntegerArray>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<IntegerArray>::getValueImpl(double &) const;
-  template bool ExpressionImpl<IntegerArray>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(String &) const;
 
-  template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(String const *&) const;
   template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(BooleanArray const *&) const;
   template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(RealArray const *&) const;
   template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(StringArray const *&) const;
 
   template class ExpressionImpl<RealArray>;
 
-  template bool ExpressionImpl<RealArray>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<RealArray>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<RealArray>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<RealArray>::getValueImpl(double &) const;
-  template bool ExpressionImpl<RealArray>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(String &) const;
 
-  template bool ExpressionImpl<RealArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<RealArray>::getValuePointerImpl(String const *&) const;
   template bool ExpressionImpl<RealArray>::getValuePointerImpl(BooleanArray const *&) const;
   template bool ExpressionImpl<RealArray>::getValuePointerImpl(IntegerArray const *&) const;
   template bool ExpressionImpl<RealArray>::getValuePointerImpl(StringArray const *&) const;
 
   template class ExpressionImpl<StringArray>;
 
-  template bool ExpressionImpl<StringArray>::getValueImpl(bool &) const;
-  template bool ExpressionImpl<StringArray>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<StringArray>::getValueImpl(int32_t &) const;
-  template bool ExpressionImpl<StringArray>::getValueImpl(double &) const;
-  template bool ExpressionImpl<StringArray>::getValueImpl(std::string &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(Boolean &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(Integer &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(Real &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(String &) const;
 
-  template bool ExpressionImpl<StringArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(NodeState &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(NodeOutcome &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(FailureType &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool ExpressionImpl<StringArray>::getValuePointerImpl(String const *&) const;
   template bool ExpressionImpl<StringArray>::getValuePointerImpl(BooleanArray const *&) const;
   template bool ExpressionImpl<StringArray>::getValuePointerImpl(IntegerArray const *&) const;
   template bool ExpressionImpl<StringArray>::getValuePointerImpl(RealArray const *&) const;

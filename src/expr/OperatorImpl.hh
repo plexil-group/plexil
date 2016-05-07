@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,143 +42,39 @@ namespace PLEXIL
   protected:
     OperatorShim(std::string const &name) : Operator(name) {}
 
+  private:
+    // Unimplemented
+    OperatorShim() = delete;
+    OperatorShim(OperatorShim const &) = delete;
+    OperatorShim(OperatorShim &&) = delete;
+    OperatorShim &operator=(OperatorShim const &) = delete;
+    OperatorShim &operator=(OperatorShim &&) = delete;
+
   public:
-    virtual ~OperatorShim() {}
+    virtual ~OperatorShim() = default;
 
-    inline bool operator()(bool &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
+    // Local macro to generate a truckload of boilerplate
+#define DEFINE_OPERATOR_SHIM_METHODS(_rtype_) \
+    bool operator()(_rtype_ &result, Expression const *arg) const \
+    {return static_cast<IMPL const *>(this)->calc(result, arg);} \
+ \
+    bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const \
+    {return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);} \
+ \
+    bool operator()(_rtype_ &result, ExprVec const &args) const \
+    {return static_cast<IMPL const *>(this)->calc(result, args);}
 
-    inline bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
+    DEFINE_OPERATOR_SHIM_METHODS(Boolean)
+    DEFINE_OPERATOR_SHIM_METHODS(Integer)
+    DEFINE_OPERATOR_SHIM_METHODS(Real)
+    DEFINE_OPERATOR_SHIM_METHODS(String)
+    DEFINE_OPERATOR_SHIM_METHODS(Array)
+    DEFINE_OPERATOR_SHIM_METHODS(BooleanArray)
+    DEFINE_OPERATOR_SHIM_METHODS(IntegerArray)
+    DEFINE_OPERATOR_SHIM_METHODS(RealArray)
+    DEFINE_OPERATOR_SHIM_METHODS(StringArray)
 
-    inline bool operator()(bool &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(int32_t &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(int32_t &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(double &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(double &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(double &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(std::string &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(std::string &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(Array &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(Array &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(BooleanArray &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(BooleanArray &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(IntegerArray &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(IntegerArray &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(RealArray &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(RealArray &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
-
-    inline bool operator()(StringArray &result, Expression const *arg) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg);
-    }
-
-    inline bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
-    }
-
-    inline bool operator()(StringArray &result, ExprVec const &args) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, args);
-    }
+#undef DEFINE_OPERATOR_SHIM_METHODS
 
   };
 
@@ -235,9 +131,12 @@ namespace PLEXIL
 
   private:
     // Unimplemented
-    OperatorImpl();
-    OperatorImpl(OperatorImpl const &);
-    OperatorImpl &operator=(OperatorImpl const &);
+    OperatorImpl() = delete;
+    OperatorImpl(OperatorImpl const &) = delete;
+    OperatorImpl(OperatorImpl &&) = delete;
+    OperatorImpl &operator=(OperatorImpl const &) = delete;
+    OperatorImpl &operator=(OperatorImpl &&) = delete;
+
   };
 
   // Specialized conversions for Integer operator to Real

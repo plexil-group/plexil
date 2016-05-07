@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef PLEXIL_EXPR_VEC_HH
 #define PLEXIL_EXPR_VEC_HH
 
-#include "ArrayFwd.hh"
+#include "ValueType.hh"
 
 #include <vector>
 
@@ -64,10 +64,10 @@ namespace PLEXIL
 
     virtual void print(std::ostream &s) const = 0;
 
-    virtual bool apply(Operator const *op, bool &result) const;
-    virtual bool apply(Operator const *op, int32_t &result) const;
-    virtual bool apply(Operator const *op, double &result) const;
-    virtual bool apply(Operator const *op, std::string &result) const;
+    virtual bool apply(Operator const *op, Boolean &result) const;
+    virtual bool apply(Operator const *op, Integer &result) const;
+    virtual bool apply(Operator const *op, Real &result) const;
+    virtual bool apply(Operator const *op, String &result) const;
     virtual bool apply(Operator const *op, Array &result) const;
     virtual bool apply(Operator const *op, BooleanArray &result) const;
     virtual bool apply(Operator const *op, IntegerArray &result) const;

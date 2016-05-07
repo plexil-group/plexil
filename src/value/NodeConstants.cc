@@ -34,14 +34,14 @@ namespace PLEXIL
    * @note Must be in same order as NodeState enum.
    */
   std::string const ALL_STATE_NAMES[] =
-    {"INACTIVE",
+    {"NO_STATE",
+     "INACTIVE",
      "WAITING",
      "EXECUTING",
      "ITERATION_ENDED",
      "FINISHED",
      "FAILING",
-     "FINISHING",
-     "NO_STATE"
+     "FINISHING"
     };
 
   /**

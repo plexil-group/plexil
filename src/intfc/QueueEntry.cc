@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ namespace PLEXIL
     type = Q_LOOKUP;
   }
 
-  void QueueEntry::initForCommandAck(Command *cmd, uint16_t val)
+  void QueueEntry::initForCommandAck(Command *cmd, CommandHandleValue val)
   {
     command = cmd;
     value = val;

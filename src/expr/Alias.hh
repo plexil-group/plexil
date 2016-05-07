@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -78,18 +78,23 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getValue(bool &var) const;
-    bool getValue(double &var) const;
-    bool getValue(uint16_t &var) const;
-    bool getValue(int32_t &var) const;
-    bool getValue(std::string &var) const;
+    template <typename R>
+    bool getValue(R &var) const;
+    // bool getValue(Boolean &var) const;
+    // bool getValue(Integer &var) const;
+    // bool getValue(Real &var) const;
+    // bool getValue(NodeState &) const;
+    // bool getValue(NodeOutcome &) const;
+    // bool getValue(FailureType &) const;
+    // bool getValue(CommandHandleValue &) const;
+    // bool getValue(String &var) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(String const *&ptr) const;
     bool getValuePointer(Array const *&ptr) const;
     bool getValuePointer(BooleanArray const *&ptr) const;
     bool getValuePointer(IntegerArray const *&ptr) const;

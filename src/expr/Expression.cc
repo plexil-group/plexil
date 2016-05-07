@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,23 +33,6 @@
 
 namespace PLEXIL 
 {
-  Expression::Expression()
-  {
-  }
-
-  Expression::Expression(Expression const &)
-  {
-  }
-
-  Expression &Expression::operator=(Expression const &)
-  {
-    return *this;
-  }
-
-  Expression::~Expression()
-  {
-  }
-
   // Default method.
   char const *Expression::getName() const
   {
@@ -146,12 +129,6 @@ namespace PLEXIL
     return false;
   }
 
-  bool Expression::getValue(uint16_t &) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for internal types for this expression");
-    return false;
-  }
-
   bool Expression::getValue(int32_t &) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Integer for this expression");
@@ -161,6 +138,30 @@ namespace PLEXIL
   bool Expression::getValue(double &) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Real for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(NodeState &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for NodeState for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(NodeOutcome &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for NodeOutcome for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(FailureType &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for FailureType for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(CommandHandleValue &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for CommandHandleValue for this expression");
     return false;
   }
 
