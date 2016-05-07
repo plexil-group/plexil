@@ -186,7 +186,7 @@ namespace PLEXIL {
       else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
         // Add to plan path
         const char* pathstring = element.child_value();
-        if (pathstring != '\0') {
+        if (*pathstring != '\0') {
           std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
           for (std::vector<std::string>::const_iterator it = path->begin();
                it != path->end();
