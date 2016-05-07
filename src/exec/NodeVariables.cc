@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ namespace PLEXIL
 
   StateVariable::StateVariable(Node const &node)
     : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
+      ExpressionImpl<NodeState>(),
       m_node(node)
   {
   }
@@ -45,7 +45,7 @@ namespace PLEXIL
   {
   }
 
-  bool StateVariable::getValueImpl(uint16_t &result) const
+  bool StateVariable::getValueImpl(NodeState &result) const
   {
     result = m_node.getState();
     return true;
@@ -72,7 +72,7 @@ namespace PLEXIL
 
   OutcomeVariable::OutcomeVariable(Node const &node)
     : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
+      ExpressionImpl<NodeOutcome>(),
       m_node(node)
   {
   }
@@ -83,13 +83,13 @@ namespace PLEXIL
 
   bool OutcomeVariable::isKnown() const
   {
-    uint16_t outcome = m_node.getOutcome();
-    return (outcome == NO_OUTCOME);
+    NodeOutcome outcome = m_node.getOutcome();
+    return (outcome != NO_OUTCOME);
   }
 
-  bool OutcomeVariable::getValueImpl(uint16_t &result) const
+  bool OutcomeVariable::getValueImpl(NodeOutcome &result) const
   {
-    uint16_t outcome = m_node.getOutcome();
+    NodeOutcome outcome = m_node.getOutcome();
     if (outcome == NO_OUTCOME)
       return false;
     result = outcome;
@@ -98,7 +98,7 @@ namespace PLEXIL
       
   void OutcomeVariable::printValue(std::ostream& s) const
   {
-    uint16_t outcome = m_node.getOutcome();
+    NodeOutcome outcome = m_node.getOutcome();
     if (outcome == NO_OUTCOME)
       s << "UNKNOWN";
     else
@@ -121,7 +121,7 @@ namespace PLEXIL
 
   FailureVariable::FailureVariable(Node const &node)
     : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
+      ExpressionImpl<FailureType>(),
       m_node(node)
   {
   }
@@ -132,13 +132,13 @@ namespace PLEXIL
 
   bool FailureVariable::isKnown() const
   {
-    uint16_t ftype = m_node.getFailureType();
-    return (ftype == NO_FAILURE);
+    FailureType ftype = m_node.getFailureType();
+    return (ftype != NO_FAILURE);
   }
 
-  bool FailureVariable::getValueImpl(uint16_t &result) const
+  bool FailureVariable::getValueImpl(FailureType &result) const
   {
-    uint16_t ftype = m_node.getFailureType();
+    FailureType ftype = m_node.getFailureType();
     if (ftype == NO_FAILURE)
       return false;
     result = ftype;

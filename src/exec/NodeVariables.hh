@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL {
   // Forward references
   class Node;
 
-  class StateVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class StateVariable : public NotifierImpl, public ExpressionImpl<NodeState>
   {
   public:
     /**
@@ -75,7 +75,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValueImpl(NodeState &) const;
 
     /**
      * @brief Print the expression's value to the given stream.
@@ -106,7 +106,7 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class OutcomeVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class OutcomeVariable : public NotifierImpl, public ExpressionImpl<NodeOutcome>
   {
   public:
     /**
@@ -137,7 +137,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValueImpl(NodeOutcome &) const;
 
     /**
      * @brief Print the expression's value to the given stream.
@@ -169,7 +169,7 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class FailureVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class FailureVariable : public NotifierImpl, public ExpressionImpl<FailureType>
   {
   public:
     /**
@@ -200,7 +200,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValueImpl(FailureType &) const;
 
     /**
      * @brief Print the expression's value to the given stream.

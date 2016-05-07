@@ -58,7 +58,7 @@ namespace PLEXIL
   class Equal : public OperatorImpl<bool>
   {
   public:
-    ~Equal();
+    ~Equal() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -78,7 +78,7 @@ namespace PLEXIL
   class NotEqual : public OperatorImpl<bool>
   {
   public:
-    ~NotEqual();
+    ~NotEqual() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -92,6 +92,45 @@ namespace PLEXIL
     // Disallow copy, assignment
     NotEqual(const NotEqual<T> &);
     NotEqual &operator=(const NotEqual<T> &);
+  };
+
+  // Special cases for internal values
+  class EqualInternal : public OperatorImpl<bool>
+  {
+  public:
+    ~EqualInternal() = default;
+
+    bool checkArgCount(size_t count) const;
+
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(EqualInternal, bool)
+
+  private:
+    EqualInternal();
+
+    // Disallow copy, assignment
+    EqualInternal(const EqualInternal &) = delete;
+    EqualInternal &operator=(const EqualInternal &) = delete;
+  };
+
+  class NotEqualInternal : public OperatorImpl<Boolean>
+  {
+  public:
+    ~NotEqualInternal() = default;
+
+    bool checkArgCount(size_t count) const;
+
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqualInternal, Boolean)
+
+  private:
+    NotEqualInternal();
+
+    // Disallow copy, assignment
+    NotEqualInternal(const NotEqualInternal &) = delete;
+    NotEqualInternal &operator=(const NotEqualInternal &) = delete;
   };
 
   template <typename T>

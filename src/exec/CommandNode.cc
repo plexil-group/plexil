@@ -62,7 +62,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *arg) const
     {
-      uint16_t val;
+      CommandHandleValue val;
       if (!arg->getValue(val)) // unknown
         return false;
       if (val == COMMAND_DENIED || val == COMMAND_FAILED)

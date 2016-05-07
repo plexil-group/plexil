@@ -518,7 +518,7 @@ namespace PLEXIL {
     // Node transition history trace
     // Records the state and the time it was entered
     double m_transitionTimes[NODE_STATE_MAX]; /*!< The times of each node transition since activation. */
-    uint16_t m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
+    NodeState m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
     uint16_t m_traceIdx; /*!< The index of the next entry into the transition history tables. */
 
     // Housekeeping details

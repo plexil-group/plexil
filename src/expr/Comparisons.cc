@@ -64,11 +64,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Equal<T>::~Equal()
-  {
-  }
-
-  template <typename T>
   bool Equal<T>::checkArgCount(size_t count) const
   {
     return count == 2;
@@ -95,11 +90,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  NotEqual<T>::~NotEqual()
-  {
-  }
-
-  template <typename T>
   bool NotEqual<T>::checkArgCount(size_t count) const
   {
     return count == 2;
@@ -113,6 +103,118 @@ namespace PLEXIL
       return false; // some value unknown
     result = (tempA != tempB);
     return true;
+  }
+
+  //
+  // EqualInternal
+  //
+  EqualInternal::EqualInternal()
+    : OperatorImpl<Boolean>("EQ")
+  {
+  }
+
+  bool EqualInternal::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  bool EqualInternal::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    if (!argA->isKnown() || !argB->isKnown()) {
+      return false; // some value unknown
+    }
+    ValueType typ = argA->valueType();
+    if (typ != argB->valueType()) {
+      result = false;
+      return true;
+    }
+    // Both values are same type and both are known
+    switch (typ) {
+    case NODE_STATE_TYPE: {
+      NodeState sa, sb;
+      argA->getValue(sa); argB->getValue(sb);
+      result = (sa == sb);
+      return true;
+    }
+    case OUTCOME_TYPE: {
+      NodeOutcome oa, ob;
+      argA->getValue(oa); argB->getValue(ob);
+      result = (oa == ob);
+      return true;
+    }
+    case FAILURE_TYPE: {
+      FailureType fa, fb;
+      argA->getValue(fa); argB->getValue(fb);
+      result = (fa == fb);
+      return true;
+    }
+    case COMMAND_HANDLE_TYPE: {
+      CommandHandleValue ha, hb;
+      argA->getValue(ha); argB->getValue(hb);
+      result = (ha == hb);
+      return true;
+    }
+
+    default:
+      // Type not valid, return unknown
+      return false;
+    }
+  }
+
+  //
+  // NotEqualInternal
+  //
+  NotEqualInternal::NotEqualInternal()
+    : OperatorImpl<Boolean>("NEQ")
+  {
+  }
+
+  bool NotEqualInternal::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  bool NotEqualInternal::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    if (!argA->isKnown() || !argB->isKnown())
+      return false; // some value unknown
+    ValueType typ = argA->valueType();
+    if (typ != argB->valueType()) {
+      // type mismatch
+      result = true;
+      return true;
+    }
+    // Both values are same type and both are known
+    switch (typ) {
+    case NODE_STATE_TYPE: {
+      NodeState sa, sb;
+      argA->getValue(sa); argB->getValue(sb);
+      result = (sa != sb);
+      return true;
+    }
+    case OUTCOME_TYPE: {
+      NodeOutcome oa, ob;
+      argA->getValue(oa); argB->getValue(ob);
+      result = (oa != ob);
+      return true;
+    }
+    case FAILURE_TYPE: {
+      FailureType fa, fb;
+      argA->getValue(fa); argB->getValue(fb);
+      result = (fa != fb);
+      return true;
+    }
+    case COMMAND_HANDLE_TYPE: {
+      CommandHandleValue ha, hb;
+      argA->getValue(ha); argB->getValue(hb);
+      result = (ha != hb);
+      return true;
+    }
+
+    default:
+      // Type not valid, return unknown
+      return false;
+    }
   }
 
   //

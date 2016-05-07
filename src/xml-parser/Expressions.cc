@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,10 +88,10 @@ namespace PLEXIL
       new ArrayVariableFactory("DeclareArray"); // for effect
       new UserVariableFactory("DeclareVariable"); // for effect
 
-      REGISTER_FUNCTION(Equal<bool>, EQBoolean);
-      REGISTER_FUNCTION(Equal<uint16_t>, EQInternal);
+      REGISTER_FUNCTION(Equal<Boolean>, EQBoolean);
+      REGISTER_FUNCTION(EqualInternal, EQInternal);
       REGISTER_ARITHMETIC_FUNCTION(Equal, EQNumeric);
-      REGISTER_FUNCTION(Equal<std::string>, EQString);
+      REGISTER_FUNCTION(Equal<String>, EQString);
 
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
 
@@ -114,10 +114,10 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Modulo, MOD);
       REGISTER_ARITHMETIC_FUNCTION(Multiplication, MUL);
 
-      REGISTER_FUNCTION(NotEqual<bool>, NEBoolean);
-      REGISTER_FUNCTION(NotEqual<uint16_t>, NEInternal);
+      REGISTER_FUNCTION(NotEqual<Boolean>, NEBoolean);
+      REGISTER_FUNCTION(NotEqualInternal, NEInternal); // *** PROBLEM ***
       REGISTER_ARITHMETIC_FUNCTION(NotEqual, NENumeric);
-      REGISTER_FUNCTION(NotEqual<std::string>, NEString);
+      REGISTER_FUNCTION(NotEqual<String>, NEString);
 
       REGISTER_FUNCTION(BooleanNot, NOT);
 
@@ -147,7 +147,7 @@ namespace PLEXIL
       REGISTER_EXPRESSION(RealConstant, RealValue);
       new VariableReferenceFactory("RealVariable"); // for effect
 
-      REGISTER_FUNCTION(SquareRoot<double>, SQRT);
+      REGISTER_FUNCTION(SquareRoot<Real>, SQRT);
 
       REGISTER_FUNCTION(StringLength, STRLEN);
 

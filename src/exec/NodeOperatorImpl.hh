@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,50 +45,21 @@ namespace PLEXIL
   public:
     virtual ~NodeOperatorShim() {}
 
-    inline bool operator()(bool &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
+#define DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(_rtype_) \
+    virtual bool operator()(_rtype_ &result, Node const *node) const \
+    {return static_cast<IMPL const *>(this)->calc(result, node);}
 
-    inline bool operator()(int32_t &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(Boolean)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(Integer)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(Real)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(String)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(Array)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(BooleanArray)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(IntegerArray)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(RealArray)
+    DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(StringArray)
 
-    inline bool operator()(double &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
-
-    inline bool operator()(std::string &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
-
-    inline bool operator()(Array &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
-
-    inline bool operator()(BooleanArray &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
-
-    inline bool operator()(IntegerArray &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
-
-    inline bool operator()(RealArray &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
-
-    inline bool operator()(StringArray &result, Node const *node) const
-    {
-      return static_cast<IMPL const *>(this)->calc(result, node);
-    }
+#undef DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD
 
   };
 

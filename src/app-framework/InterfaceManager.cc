@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -215,7 +215,7 @@ namespace PLEXIL
         assertTrue_1(entry->command);
         assertTrue_1(entry->value.valueType() == COMMAND_HANDLE_TYPE);
         {
-          uint16_t handle;
+          CommandHandleValue handle;
           bool known = entry->value.getValue(handle);
           assertTrue_1(known);
           assertTrue_1(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX);

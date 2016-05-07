@@ -78,16 +78,14 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
      */
-    template <typename R>
-    bool getValue(R &var) const;
-    // bool getValue(Boolean &var) const;
-    // bool getValue(Integer &var) const;
-    // bool getValue(Real &var) const;
-    // bool getValue(NodeState &) const;
-    // bool getValue(NodeOutcome &) const;
-    // bool getValue(FailureType &) const;
-    // bool getValue(CommandHandleValue &) const;
-    // bool getValue(String &var) const;
+    bool getValue(Boolean &var) const;
+    bool getValue(Integer &var) const;
+    bool getValue(Real &var) const;
+    bool getValue(NodeState &) const;
+    bool getValue(NodeOutcome &) const;
+    bool getValue(FailureType &) const;
+    bool getValue(CommandHandleValue &) const;
+    bool getValue(String &var) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.

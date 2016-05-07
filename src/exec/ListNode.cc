@@ -45,21 +45,21 @@ namespace PLEXIL
   // Condition operators only used by ListNode
   //
 
-  class AllFinished : public NodeOperatorImpl<bool>
+  class AllFinished : public NodeOperatorImpl<Boolean>
   {
   public:
     ~AllFinished()
     {
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished, bool);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished, Boolean);
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    bool operator()(bool &result, Node const *node) const
+    bool operator()(Boolean &result, Node const *node) const
     {
       std::vector<Node *> const &kids = node->getChildren();
       size_t total = kids.size();
@@ -87,21 +87,21 @@ namespace PLEXIL
     AllFinished &operator=(AllFinished const &);
   };
 
-  class AllWaitingOrFinished : public NodeOperatorImpl<bool>
+  class AllWaitingOrFinished : public NodeOperatorImpl<Boolean>
   {
   public:
     ~AllWaitingOrFinished()
     {
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, bool);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, Boolean);
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    bool operator()(bool &result, Node const *node) const
+    bool operator()(Boolean &result, Node const *node) const
     {
       std::vector<Node *> const &kids = node->getChildren();
       size_t total = kids.size();

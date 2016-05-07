@@ -121,79 +121,61 @@ namespace PLEXIL
     m_exp->printValue(s);
   }
 
-  template <typename R>
-  bool Alias::getValue(R &var) const
+  bool Alias::getValue(Boolean &var) const
   {
     if (!isActive())
       return false;
     return m_exp->getValue(var);
   }
 
-  // explicit instantiations
-  template bool Alias::getValue(Boolean &) const;
-  template bool Alias::getValue(Integer &) const;
-  template bool Alias::getValue(Real &) const;
-  template bool Alias::getValue(NodeState &) const;
-  template bool Alias::getValue(NodeOutcome &) const;
-  template bool Alias::getValue(FailureType &) const;
-  template bool Alias::getValue(CommandHandleValue &) const;
-  template bool Alias::getValue(String &) const;
+  bool Alias::getValue(Integer &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
-  // bool Alias::getValue(Boolean &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
+  bool Alias::getValue(Real &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
-  // bool Alias::getValue(Integer &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
+  bool Alias::getValue(NodeState &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
-  // bool Alias::getValue(Real &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
+  bool Alias::getValue(NodeOutcome &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
-  // bool Alias::getValue(NodeState &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
+  bool Alias::getValue(FailureType &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
-  // bool Alias::getValue(NodeOutcome &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
+  bool Alias::getValue(CommandHandleValue &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
-  // bool Alias::getValue(FailureType &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
-
-  // bool Alias::getValue(CommandHandleValue &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
-
-  // bool Alias::getValue(String &var) const
-  // {
-  //   if (!isActive())
-  //     return false;
-  //   return m_exp->getValue(var);
-  // }
+  bool Alias::getValue(String &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
 
   bool Alias::getValuePointer(String const *&ptr) const
   {

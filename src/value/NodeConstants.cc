@@ -78,7 +78,7 @@ namespace PLEXIL
 
   NodeState parseNodeState(char const *name)
   {
-    for (size_t i = INACTIVE_STATE; i < NO_NODE_STATE; ++i)
+    for (size_t i = INACTIVE_STATE; i < NODE_STATE_MAX; ++i)
       if (ALL_STATE_NAMES[i] == name)
         return (NodeState) i;
     return NO_NODE_STATE;
@@ -93,7 +93,7 @@ namespace PLEXIL
 
   bool isNodeStateValid(unsigned int val)
   {
-    return val >= INACTIVE_STATE && val < NO_NODE_STATE;
+    return val >= INACTIVE_STATE && val < NODE_STATE_MAX;
   }
   
   NodeOutcome parseNodeOutcome(std::string const &name)

@@ -44,9 +44,7 @@ namespace PLEXIL
   class NodeOperator
   {
   public:
-    virtual ~NodeOperator()
-    {
-    }
+    virtual ~NodeOperator() = default;
 
     std::string const &getName() const
     {
@@ -62,10 +60,10 @@ namespace PLEXIL
     virtual void *allocateCache() const = 0;
     virtual void deleteCache(void *Ptr) const = 0;
 
-    virtual bool operator()(bool &result, Node const *arg) const = 0;
-    virtual bool operator()(int32_t &result, Node const *node) const = 0;
-    virtual bool operator()(double &result, Node const *node) const = 0;
-    virtual bool operator()(std::string &result, Node const *node) const = 0;
+    virtual bool operator()(Boolean &result, Node const *arg) const = 0;
+    virtual bool operator()(Integer &result, Node const *node) const = 0;
+    virtual bool operator()(Real &result, Node const *node) const = 0;
+    virtual bool operator()(String &result, Node const *node) const = 0;
     virtual bool operator()(Array &result, Node const *node) const = 0;
     virtual bool operator()(BooleanArray &result, Node const *node) const = 0;
     virtual bool operator()(IntegerArray &result, Node const *node) const = 0;
@@ -86,9 +84,11 @@ namespace PLEXIL
 
   private:
     // unimplemented
-    NodeOperator();
-    NodeOperator(NodeOperator const &);
-    NodeOperator &operator=(NodeOperator const &);
+    NodeOperator() = delete;
+    NodeOperator(NodeOperator const &) = delete;
+    NodeOperator(NodeOperator &&) = delete;
+    NodeOperator &operator=(NodeOperator const &) = delete;
+    NodeOperator &operator=(NodeOperator &&) = delete;
   };
 
 } // namespace PLEXIL

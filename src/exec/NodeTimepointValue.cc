@@ -32,8 +32,9 @@
 
 namespace PLEXIL
 {
-  static char const *timepointName[NO_NODE_STATE][2] =
-    {{"INACTIVE.START", "INACTIVE.END"},
+  static char const *timepointName[NODE_STATE_MAX][2] =
+    {{"INVALID.START", "INVALID.END"},
+     {"INACTIVE.START", "INACTIVE.END"},
      {"WAITING.START", "WAITING.END"},
      {"EXECUTING.START", "EXECUTING.END"},
      {"ITERATION_ENDED.START", "ITERATION_ENDED.END"},
