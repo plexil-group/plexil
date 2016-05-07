@@ -123,7 +123,7 @@ namespace PLEXIL
 
     // Local macro
 #define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
-    virtual bool getValue(_rtype_ const *&ptr) const \
+    virtual bool getValuePointer(_rtype_ const *&ptr) const \
     { return getValuePointerImpl(ptr); }
 
     DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
