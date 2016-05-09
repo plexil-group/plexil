@@ -87,7 +87,7 @@
                   <StringValue>time</StringValue>
                 </Name>
                 <Tolerance>
-                  <RealValue>1.0</RealValue>
+                  <RealVariable>x</RealVariable>
                 </Tolerance>
               </LookupOnChange>
               <ADD>
