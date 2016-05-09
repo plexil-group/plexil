@@ -90,7 +90,16 @@
                   <StringValue>time</StringValue>
                 </Name>
                 <Tolerance>
-                  <RealValue>1.0</RealValue>
+                  <ABS>
+                    <SUB>
+                      <LookupOnChange>
+                        <Name>
+                          <StringValue>x</StringValue>
+                        </Name>
+                      </LookupOnChange>
+                      <RealValue>23.0</RealValue>
+                    </SUB>
+                  </ABS>
                 </Tolerance>
               </LookupOnChange>
               <ADD>

@@ -908,7 +908,7 @@
           </xsl:when>
           <xsl:otherwise>
             <Tolerance>
-              <RealValue>1.0</RealValue>
+	      <xsl:apply-templates select="$element"/>
             </Tolerance>
           </xsl:otherwise>
         </xsl:choose>
