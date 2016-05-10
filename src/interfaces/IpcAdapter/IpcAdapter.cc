@@ -1004,9 +1004,9 @@ namespace PLEXIL
         Value ack = parseReturnValue(msgs);
         assertTrue_2(ack.isKnown() && ack.valueType() == COMMAND_HANDLE_TYPE,
                      "IpcAdapter:handleReturnValuesSequence received a command acknowledgment which is not a CommandHandle value");
-        uint16_t handle;
+        CommandHandleValue handle;
         ack.getValue(handle);
-        m_execInterface.handleCommandAck(cmd, (CommandHandleValue) handle);
+        m_execInterface.handleCommandAck(cmd, handle);
         m_execInterface.notifyOfExternalEvent();
       }
       else {

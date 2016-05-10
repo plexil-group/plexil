@@ -195,7 +195,7 @@ namespace PLEXIL
       }
 
       case COMMAND_HANDLE_TYPE: {
-        uint16_t handle;
+        CommandHandleValue handle;
         val.getValue(handle);
         struct PlexilCommandHandleValueMsg *handleMsg = new struct PlexilCommandHandleValueMsg;
         handleMsg->header.msgType = PlexilMsgType_CommandHandleValue;
@@ -315,8 +315,8 @@ namespace PLEXIL
     case PlexilMsgType_CommandHandleValue: {
       PlexilCommandHandleValueMsg const *param = reinterpret_cast<const struct PlexilCommandHandleValueMsg*> (msg);
       debugMsg("getPlexilMsgValue",
-               " received CommandHandle " << commandHandleValueName(param->commandHandleValue));
-      return Value(param->commandHandleValue, COMMAND_HANDLE_TYPE);
+               " received CommandHandle " << commandHandleValueName((CommandHandleValue) param->commandHandleValue));
+      return Value((CommandHandleValue) param->commandHandleValue);
     }
 
     case PlexilMsgType_BooleanValue: {
