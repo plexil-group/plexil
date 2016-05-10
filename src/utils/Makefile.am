@@ -29,11 +29,11 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS =
 
-include_HEADERS = ConstantMacros.hh Debug.hh Error.hh LinkedQueue.hh Logging.hh \
+include_HEADERS = ConstantMacros.hh Debug.hh DebugMessage.hh Error.hh LinkedQueue.hh Logging.hh \
  ParserException.hh SimpleMap.hh TestSupport.hh lifecycle-utils.h map-utils.hh \
  stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
-libPlexilUtils_la_SOURCES = Debug.cc Error.cc Logging.cc \
+libPlexilUtils_la_SOURCES = DebugMessage.cc Error.cc Logging.cc \
  ParserException.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
  timeval-utils.cc
 
