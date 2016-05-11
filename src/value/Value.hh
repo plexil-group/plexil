@@ -54,10 +54,9 @@ namespace PLEXIL
     Value(Boolean val);
     Value(Integer val);
     Value(Real val);
-    // Maybe later
-    // Value(NodeState val);
-    // Value(NodeOutcome val);
-    // Value(FailureType val);
+    Value(NodeState val);
+    Value(NodeOutcome val);
+    Value(FailureType val);
     Value(CommandHandleValue val);
     Value(String const &val);
     Value(char const *val); // for convenience
@@ -88,10 +87,9 @@ namespace PLEXIL
     Value &operator=(RealArray const &val);
     Value &operator=(StringArray const &val);
 
-    // Maybe later
-    // Value &operator=(NodeState val);
-    // Value &operator=(NodeOutcome val);
-    // Value &operator=(FailureType val);
+    Value &operator=(NodeState val);
+    Value &operator=(NodeOutcome val);
+    Value &operator=(FailureType val);
     Value &operator=(CommandHandleValue val);
 
     void setUnknown();
@@ -111,10 +109,9 @@ namespace PLEXIL
     bool getValuePointer(RealArray const *&ptr) const;
     bool getValuePointer(StringArray const *&ptr) const;
 
-    // Maybe later
-    // bool getValue(NodeState &result) const;
-    // bool getValue(NodeOutcome &result) const;
-    // bool getValue(FailureType &result) const;
+    bool getValue(NodeState &result) const;
+    bool getValue(NodeOutcome &result) const;
+    bool getValue(FailureType &result) const;
     bool getValue(CommandHandleValue &result) const;
 
     bool equals(Value const &) const;
@@ -125,19 +122,18 @@ namespace PLEXIL
 
   private:
     
-    // Prepare for deletion (or assignment of an immediate value)
     void cleanup();
 
     // Prepare to be assigned a new value
+    void cleanupForImmediate();
     void cleanupForString();
     void cleanupForArray();
     
     union {
       Boolean                  booleanValue;
-      // Maybe later
-      // NodeState                stateValue;
-      // NodeOutcome              outcomeValue;
-      // FailureType              failureValue;
+      NodeState                stateValue;
+      NodeOutcome              outcomeValue;
+      FailureType              failureValue;
       CommandHandleValue       commandHandleValue;
       Integer                  integerValue;
       Real                     realValue;
@@ -154,7 +150,6 @@ namespace PLEXIL
   {
     return a.equals(b);
   }
-
   inline bool operator!=(Value const &a, Value const &b)
   {
     return !a.equals(b);
@@ -164,17 +159,14 @@ namespace PLEXIL
   {
     return a.lessThan(b);
   }
-
   inline bool operator<=(Value const &a, Value const &b)
   {
     return !b.lessThan(a);
   }
-
   inline bool operator>(Value const &a, Value const &b)
   {
     return b.lessThan(a);
   }
-
   inline bool operator>=(Value const &a, Value const &b)
   {
     return !a.lessThan(b);
