@@ -70,35 +70,37 @@ static bool testBasicConstructorsAndAccessors()
   }
 
   // Node enums
-  {
-    Value *statev = new Value(INACTIVE_STATE);
-    NodeState temps;
-    assertTrue_1(statev->isKnown());
-    assertTrue_1(NODE_STATE_TYPE == statev->valueType());
-    assertTrue_1(statev->getValue(temps));
-    assertTrue_1(temps == INACTIVE_STATE);
-    delete statev;
-  }
 
-  {
-    Value *outcomev = new Value(SUCCESS_OUTCOME);
-    NodeOutcome tempo;
-    assertTrue_1(outcomev->isKnown());
-    assertTrue_1(OUTCOME_TYPE == outcomev->valueType());
-    assertTrue_1(outcomev->getValue(tempo));
-    assertTrue_1(tempo == SUCCESS_OUTCOME);
-    delete outcomev;
-  }
+  // Maybe later for these three types
+  // {
+  //   Value *statev = new Value(INACTIVE_STATE);
+  //   NodeState temps;
+  //   assertTrue_1(statev->isKnown());
+  //   assertTrue_1(NODE_STATE_TYPE == statev->valueType());
+  //   assertTrue_1(statev->getValue(temps));
+  //   assertTrue_1(temps == INACTIVE_STATE);
+  //   delete statev;
+  // }
 
-  {
-    Value *failv = new Value(EXITED);
-    FailureType tempf;
-    assertTrue_1(failv->isKnown());
-    assertTrue_1(FAILURE_TYPE == failv->valueType());
-    assertTrue_1(failv->getValue(tempf));
-    assertTrue_1(tempf == EXITED);
-    delete failv;
-  }
+  // {
+  //   Value *outcomev = new Value(SUCCESS_OUTCOME);
+  //   NodeOutcome tempo;
+  //   assertTrue_1(outcomev->isKnown());
+  //   assertTrue_1(OUTCOME_TYPE == outcomev->valueType());
+  //   assertTrue_1(outcomev->getValue(tempo));
+  //   assertTrue_1(tempo == SUCCESS_OUTCOME);
+  //   delete outcomev;
+  // }
+
+  // {
+  //   Value *failv = new Value(EXITED);
+  //   FailureType tempf;
+  //   assertTrue_1(failv->isKnown());
+  //   assertTrue_1(FAILURE_TYPE == failv->valueType());
+  //   assertTrue_1(failv->getValue(tempf));
+  //   assertTrue_1(tempf == EXITED);
+  //   delete failv;
+  // }
 
   {
     Value *handlev = new Value(COMMAND_SUCCESS);
@@ -338,35 +340,37 @@ static bool testMoveConstructors()
   }
 
   // Node enums
-  {
-    Value *statev = new Value(Value(INACTIVE_STATE));
-    NodeState temps;
-    assertTrue_1(statev->isKnown());
-    assertTrue_1(NODE_STATE_TYPE == statev->valueType());
-    assertTrue_1(statev->getValue(temps));
-    assertTrue_1(temps == INACTIVE_STATE);
-    delete statev;
-  }
 
-  {
-    Value *outcomev = new Value(Value(SUCCESS_OUTCOME));
-    NodeOutcome tempo;
-    assertTrue_1(outcomev->isKnown());
-    assertTrue_1(OUTCOME_TYPE == outcomev->valueType());
-    assertTrue_1(outcomev->getValue(tempo));
-    assertTrue_1(tempo == SUCCESS_OUTCOME);
-    delete outcomev;
-  }
+  // Maybe later for these 3 types
+  // {
+  //   Value *statev = new Value(Value(INACTIVE_STATE));
+  //   NodeState temps;
+  //   assertTrue_1(statev->isKnown());
+  //   assertTrue_1(NODE_STATE_TYPE == statev->valueType());
+  //   assertTrue_1(statev->getValue(temps));
+  //   assertTrue_1(temps == INACTIVE_STATE);
+  //   delete statev;
+  // }
 
-  {
-    Value *failv = new Value(Value(EXITED));
-    FailureType tempf;
-    assertTrue_1(failv->isKnown());
-    assertTrue_1(FAILURE_TYPE == failv->valueType());
-    assertTrue_1(failv->getValue(tempf));
-    assertTrue_1(tempf == EXITED);
-    delete failv;
-  }
+  // {
+  //   Value *outcomev = new Value(Value(SUCCESS_OUTCOME));
+  //   NodeOutcome tempo;
+  //   assertTrue_1(outcomev->isKnown());
+  //   assertTrue_1(OUTCOME_TYPE == outcomev->valueType());
+  //   assertTrue_1(outcomev->getValue(tempo));
+  //   assertTrue_1(tempo == SUCCESS_OUTCOME);
+  //   delete outcomev;
+  // }
+
+  // {
+  //   Value *failv = new Value(Value(EXITED));
+  //   FailureType tempf;
+  //   assertTrue_1(failv->isKnown());
+  //   assertTrue_1(FAILURE_TYPE == failv->valueType());
+  //   assertTrue_1(failv->getValue(tempf));
+  //   assertTrue_1(tempf == EXITED);
+  //   delete failv;
+  // }
 
   {
     Value *handlev = new Value(Value(COMMAND_SUCCESS));

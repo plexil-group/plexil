@@ -65,17 +65,18 @@ namespace PLEXIL
       realValue = other.realValue;
       break;
 
-    case NODE_STATE_TYPE:
-      stateValue = other.stateValue;
-      break;
+      // Maybe later for these 3 types
+    // case NODE_STATE_TYPE:
+    //   stateValue = other.stateValue;
+    //   break;
       
-    case OUTCOME_TYPE:
-      outcomeValue = other.outcomeValue;
-      break;
+    // case OUTCOME_TYPE:
+    //   outcomeValue = other.outcomeValue;
+    //   break;
 
-    case FAILURE_TYPE:
-      failureValue = other.failureValue;
-      break;
+    // case FAILURE_TYPE:
+    //   failureValue = other.failureValue;
+    //   break;
       
     case COMMAND_HANDLE_TYPE:
       commandHandleValue = other.commandHandleValue;
@@ -120,17 +121,18 @@ namespace PLEXIL
       realValue = other.realValue;
       break;
 
-    case NODE_STATE_TYPE:
-      stateValue = other.stateValue;
-      break;
+      // Maybe later for these three types
+    // case NODE_STATE_TYPE:
+    //   stateValue = other.stateValue;
+    //   break;
 
-    case OUTCOME_TYPE:
-      outcomeValue = other.outcomeValue;
-      break;
+    // case OUTCOME_TYPE:
+    //   outcomeValue = other.outcomeValue;
+    //   break;
 
-    case FAILURE_TYPE:
-      failureValue = other.failureValue;
-      break;
+    // case FAILURE_TYPE:
+    //   failureValue = other.failureValue;
+    //   break;
       
     case COMMAND_HANDLE_TYPE:
       commandHandleValue = other.commandHandleValue;
@@ -162,26 +164,27 @@ namespace PLEXIL
   {
   }
 
-  Value::Value(NodeState val)
-    : stateValue(val),
-      m_type(NODE_STATE_TYPE),
-      m_known(true)
-  {
-  }
+  // Maybe later for these three types
+  // Value::Value(NodeState val)
+  //   : stateValue(val),
+  //     m_type(NODE_STATE_TYPE),
+  //     m_known(true)
+  // {
+  // }
 
-  Value::Value(NodeOutcome val)
-    : outcomeValue(val),
-      m_type(OUTCOME_TYPE),
-      m_known(true)
-  {
-  }
+  // Value::Value(NodeOutcome val)
+  //   : outcomeValue(val),
+  //     m_type(OUTCOME_TYPE),
+  //     m_known(true)
+  // {
+  // }
 
-  Value::Value(FailureType val)
-    : failureValue(val),
-      m_type(FAILURE_TYPE),
-      m_known(true)
-  {
-  }
+  // Value::Value(FailureType val)
+  //   : failureValue(val),
+  //     m_type(FAILURE_TYPE),
+  //     m_known(true)
+  // {
+  // }
 
   Value::Value(CommandHandleValue val)
     : commandHandleValue(val),
@@ -218,17 +221,19 @@ namespace PLEXIL
     // Enum val of some sort
     switch (m_type) {
       // Internal enumerations
-    case NODE_STATE_TYPE:
-      stateValue = (NodeState) enumVal;
-      return;
-      
-    case OUTCOME_TYPE:
-      outcomeValue = (NodeOutcome) enumVal;
-      return;
 
-    case FAILURE_TYPE:
-      failureValue = (FailureType) enumVal;
-      return;
+      // Maybe later for these 3 types
+    // case NODE_STATE_TYPE:
+    //   stateValue = (NodeState) enumVal;
+    //   return;
+      
+    // case OUTCOME_TYPE:
+    //   outcomeValue = (NodeOutcome) enumVal;
+    //   return;
+
+    // case FAILURE_TYPE:
+    //   failureValue = (FailureType) enumVal;
+    //   return;
 
     case COMMAND_HANDLE_TYPE:
       commandHandleValue = (CommandHandleValue) enumVal;
@@ -433,20 +438,21 @@ namespace PLEXIL
       realValue = other.realValue;
       break;
 
-    case NODE_STATE_TYPE:
-      cleanup();
-      stateValue = other.stateValue;
-      break;
+      // Maybe later for these 3 types
+    // case NODE_STATE_TYPE:
+    //   cleanup();
+    //   stateValue = other.stateValue;
+    //   break;
 
-    case OUTCOME_TYPE:
-      cleanup();
-      outcomeValue = other.outcomeValue;
-      break;
+    // case OUTCOME_TYPE:
+    //   cleanup();
+    //   outcomeValue = other.outcomeValue;
+    //   break;
 
-    case FAILURE_TYPE:
-      cleanup();
-      failureValue = other.failureValue;
-      break;
+    // case FAILURE_TYPE:
+    //   cleanup();
+    //   failureValue = other.failureValue;
+    //   break;
 
     case COMMAND_HANDLE_TYPE:
       cleanup();
@@ -504,20 +510,21 @@ namespace PLEXIL
       realValue = other.realValue;
       break;
 
-    case NODE_STATE_TYPE:
-      cleanup();
-      stateValue = other.stateValue;
-      break;
+      // Maybe later for these 3 types
+    // case NODE_STATE_TYPE:
+    //   cleanup();
+    //   stateValue = other.stateValue;
+    //   break;
 
-    case OUTCOME_TYPE:
-      cleanup();
-      outcomeValue = other.outcomeValue;
-      break;
+    // case OUTCOME_TYPE:
+    //   cleanup();
+    //   outcomeValue = other.outcomeValue;
+    //   break;
 
-    case FAILURE_TYPE:
-      cleanup();
-      failureValue = other.failureValue;
-      break;
+    // case FAILURE_TYPE:
+    //   cleanup();
+    //   failureValue = other.failureValue;
+    //   break;
 
     case COMMAND_HANDLE_TYPE:
       cleanup();
@@ -558,32 +565,33 @@ namespace PLEXIL
     return *this;
   }
 
-  Value &Value::operator=(NodeState val)
-  {
-    cleanup();
-    stateValue = val;
-    m_type = NODE_STATE_TYPE;
-    m_known = true;
-    return *this;
-  }
+  // Maybe later for these three types
+  // Value &Value::operator=(NodeState val)
+  // {
+  //   cleanup();
+  //   stateValue = val;
+  //   m_type = NODE_STATE_TYPE;
+  //   m_known = true;
+  //   return *this;
+  // }
 
-  Value &Value::operator=(NodeOutcome val)
-  {
-    cleanup();
-    outcomeValue = val;
-    m_type = OUTCOME_TYPE;
-    m_known = true;
-    return *this;
-  }
+  // Value &Value::operator=(NodeOutcome val)
+  // {
+  //   cleanup();
+  //   outcomeValue = val;
+  //   m_type = OUTCOME_TYPE;
+  //   m_known = true;
+  //   return *this;
+  // }
 
-  Value &Value::operator=(FailureType val)
-  {
-    cleanup();
-    failureValue = val;
-    m_type = FAILURE_TYPE;
-    m_known = true;
-    return *this;
-  }
+  // Value &Value::operator=(FailureType val)
+  // {
+  //   cleanup();
+  //   failureValue = val;
+  //   m_type = FAILURE_TYPE;
+  //   m_known = true;
+  //   return *this;
+  // }
 
   Value &Value::operator=(CommandHandleValue val)
   {
@@ -764,44 +772,45 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValue(NodeState &result) const
-  {
-    if (!m_known)
-      return false;
-    if (m_type != NODE_STATE_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeState value");
-      return false;
-    }
+  // Maybe later for these 3 types
+  // bool Value::getValue(NodeState &result) const
+  // {
+  //   if (!m_known)
+  //     return false;
+  //   if (m_type != NODE_STATE_TYPE) {
+  //     assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeState value");
+  //     return false;
+  //   }
 
-    result = stateValue;
-    return true;
-  }
+  //   result = stateValue;
+  //   return true;
+  // }
 
-  bool Value::getValue(NodeOutcome &result) const
-  {
-    if (!m_known)
-      return false;
-    if (m_type != OUTCOME_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeOutcome value");
-      return false;
-    }
+  // bool Value::getValue(NodeOutcome &result) const
+  // {
+  //   if (!m_known)
+  //     return false;
+  //   if (m_type != OUTCOME_TYPE) {
+  //     assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeOutcome value");
+  //     return false;
+  //   }
 
-    result = outcomeValue;
-    return true;
-  }
+  //   result = outcomeValue;
+  //   return true;
+  // }
 
-  bool Value::getValue(FailureType &result) const
-  {
-    if (!m_known)
-      return false;
-    if (m_type != FAILURE_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a FailureType value");
-      return false;
-    }
+  // bool Value::getValue(FailureType &result) const
+  // {
+  //   if (!m_known)
+  //     return false;
+  //   if (m_type != FAILURE_TYPE) {
+  //     assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a FailureType value");
+  //     return false;
+  //   }
 
-    result = failureValue;
-    return true;
-  }
+  //   result = failureValue;
+  //   return true;
+  // }
 
   bool Value::getValue(CommandHandleValue &result) const
   {
@@ -980,17 +989,18 @@ namespace PLEXIL
       printValue<std::string>(*dynamic_cast<StringArray const *>(arrayValue.get()), s);
       break;
 
-    case NODE_STATE_TYPE:
-      printValue<NodeState>(stateValue, s);
-      break;
+      // Maybe later for these three types
+    // case NODE_STATE_TYPE:
+    //   printValue<NodeState>(stateValue, s);
+    //   break;
 
-    case OUTCOME_TYPE:
-      printValue<NodeOutcome>(outcomeValue, s);
-      break;
+    // case OUTCOME_TYPE:
+    //   printValue<NodeOutcome>(outcomeValue, s);
+    //   break;
 
-    case FAILURE_TYPE:
-      printValue<FailureType>(failureValue, s);
-      break;
+    // case FAILURE_TYPE:
+    //   printValue<FailureType>(failureValue, s);
+    //   break;
 
     case COMMAND_HANDLE_TYPE:
       printValue<CommandHandleValue>(commandHandleValue, s);
@@ -1060,14 +1070,15 @@ namespace PLEXIL
       case BOOLEAN_TYPE:
         return booleanValue == other.booleanValue;
 
-      case NODE_STATE_TYPE:
-        return stateValue == other.stateValue;
+	// Maybe later for these three types
+      // case NODE_STATE_TYPE:
+      //   return stateValue == other.stateValue;
 
-      case OUTCOME_TYPE:
-        return outcomeValue == other.outcomeValue;
+      // case OUTCOME_TYPE:
+      //   return outcomeValue == other.outcomeValue;
 
-      case FAILURE_TYPE:
-        return failureValue == other.failureValue;
+      // case FAILURE_TYPE:
+      //   return failureValue == other.failureValue;
         
       case COMMAND_HANDLE_TYPE:
         return commandHandleValue == other.commandHandleValue;
@@ -1145,14 +1156,15 @@ namespace PLEXIL
       case BOOLEAN_TYPE:
         return ((int) booleanValue) < ((int) other.booleanValue);
 
-      case NODE_STATE_TYPE:
-        return stateValue < other.stateValue;
+	// Maybe later for these three types
+      // case NODE_STATE_TYPE:
+      //   return stateValue < other.stateValue;
 
-      case OUTCOME_TYPE:
-        return outcomeValue < other.outcomeValue;
+      // case OUTCOME_TYPE:
+      //   return outcomeValue < other.outcomeValue;
 
-      case FAILURE_TYPE:
-        return failureValue < other.failureValue;
+      // case FAILURE_TYPE:
+      //   return failureValue < other.failureValue;
         
       case COMMAND_HANDLE_TYPE:
         return commandHandleValue < other.commandHandleValue;
