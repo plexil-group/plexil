@@ -61,7 +61,7 @@ DebugMessage::DebugMessage(std::string const &mrkr)
 }
 
 DebugMessage::DebugMessage(std::string &&mrkr)
-  : marker(mrkr),
+  : marker(std::move(mrkr)),
     next(allDebugMessages),
     enabled(matchesPatterns(marker))
 {
@@ -146,7 +146,7 @@ void enableMatchingDebugMessages(std::string &&pattern)
       m->enabled = true;
 
   // Add pattern for messages added in the future
-  allDebugPatterns.push_back(pattern);
+  allDebugPatterns.push_back(std::move(pattern));
 }
 
 bool readDebugConfigStream(std::istream& is)
