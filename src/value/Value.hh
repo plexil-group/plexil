@@ -27,9 +27,7 @@
 #ifndef PLEXIL_VALUE_HH
 #define PLEXIL_VALUE_HH
 
-#include "CommandHandle.hh"
-#include "NodeConstants.hh"
-#include "ValueType.hh"
+#include "GetValue.hh"
 
 #include <memory> // std::unique_ptr
 
@@ -43,7 +41,7 @@ namespace PLEXIL
    * @note Of use when there is no way of knowing the PLEXIL type of a value
    *       at C++ compile time.
    */
-  class Value final
+  class Value final : public GetValue
   {
   public:
 
