@@ -59,7 +59,7 @@ namespace PLEXIL
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return COMMAND_HANDLE_TYPE;
     }

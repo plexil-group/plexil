@@ -42,7 +42,7 @@ namespace PLEXIL
 
     ~VoidCachedValue();
 
-    ValueType const valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
     CachedValue &operator=(CachedValue const &other);
     CachedValue &operator=(CachedValue &&other);
@@ -236,7 +236,7 @@ namespace PLEXIL
     CachedValueImpl<T> &operator=(CachedValueImpl<T> const &);
     CachedValueImpl<T> &operator=(CachedValueImpl<T> &&);
 
-    ValueType const valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
 
     CachedValue *cloneImpl() const;
@@ -291,7 +291,7 @@ namespace PLEXIL
     CachedValueImpl<String> &operator=(CachedValueImpl<String> const &);
     CachedValueImpl<String> &operator=(CachedValueImpl<String> &&);
 
-    ValueType const valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
 
     CachedValue *cloneImpl() const;
@@ -351,7 +351,7 @@ namespace PLEXIL
     CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > const &);
     CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > &&);
 
-    ValueType const valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
 
     CachedValue *cloneImpl() const;

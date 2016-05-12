@@ -184,7 +184,7 @@ namespace PLEXIL
     return stateChanged;
   }
 
-  const ValueType Lookup::valueType() const
+  ValueType Lookup::valueType() const
   {
     if (!m_entry)
       return UNKNOWN_TYPE;

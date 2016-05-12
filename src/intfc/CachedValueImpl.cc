@@ -60,7 +60,7 @@ namespace PLEXIL
     return static_cast<CachedValue &>(*this);
   }
 
-  ValueType const VoidCachedValue::valueType() const
+  ValueType VoidCachedValue::valueType() const
   {
     return UNKNOWN_TYPE;
   }
@@ -349,48 +349,48 @@ namespace PLEXIL
   //
 
   template <>
-  const ValueType CachedValueImpl<Boolean>::valueType() const
+  ValueType CachedValueImpl<Boolean>::valueType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<Integer>::valueType() const
+  ValueType CachedValueImpl<Integer>::valueType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<Real>::valueType() const
+  ValueType CachedValueImpl<Real>::valueType() const
   {
     return REAL_TYPE;
   }
 
-  const ValueType CachedValueImpl<String>::valueType() const
+  ValueType CachedValueImpl<String>::valueType() const
   {
     return STRING_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<Boolean> >::valueType() const
+  ValueType CachedValueImpl<ArrayImpl<Boolean> >::valueType() const
   {
     return BOOLEAN_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<Integer> >::valueType() const
+  ValueType CachedValueImpl<ArrayImpl<Integer> >::valueType() const
   {
     return INTEGER_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<Real> >::valueType() const
+  ValueType CachedValueImpl<ArrayImpl<Real> >::valueType() const
   {
     return REAL_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType CachedValueImpl<ArrayImpl<String> >::valueType() const
+  ValueType CachedValueImpl<ArrayImpl<String> >::valueType() const
   {
     return STRING_ARRAY_TYPE;
   }

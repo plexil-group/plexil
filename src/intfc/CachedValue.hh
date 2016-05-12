@@ -27,8 +27,7 @@
 #ifndef PLEXIL_CACHED_VALUE_HH
 #define PLEXIL_CACHED_VALUE_HH
 
-#include "ArrayFwd.hh"
-#include "ValueType.hh"
+#include "GetValue.hh"
 
 namespace PLEXIL
 {
@@ -37,7 +36,7 @@ namespace PLEXIL
   /**
    * Pure virtual base class for storing state cache values
    */
-  class CachedValue
+  class CachedValue : public GetValue
   {
   public:
     CachedValue() : m_timestamp(0) {}
@@ -51,43 +50,10 @@ namespace PLEXIL
     }
 
     // Delegated to derived classes.
-    virtual ValueType const valueType() const = 0;
-    virtual bool isKnown() const = 0;
     virtual CachedValue &operator=(CachedValue const &) = 0;
     virtual CachedValue &operator=(CachedValue &&) = 0;
     virtual CachedValue *clone() const = 0;
     virtual bool operator==(CachedValue const &) const = 0;
-
-    /**
-     * @brief Retrieve the cached value.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate methods.
-     */
-
-    virtual bool getValue(Boolean &) const = 0;
-    virtual bool getValue(Integer &) const = 0;
-    virtual bool getValue(Real &) const = 0;
-    virtual bool getValue(NodeState &) const = 0;
-    virtual bool getValue(NodeOutcome &) const = 0;
-    virtual bool getValue(FailureType &) const = 0;
-    virtual bool getValue(CommandHandleValue &) const = 0;
-    virtual bool getValue(String &) const = 0;
-
-    /**
-     * @brief Retrieve a pointer to the (const) cached value.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @note The pointer is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate method.
-     * @note Default methods return an error in every case.
-     */
-    virtual bool getValuePointer(String const *&ptr) const = 0;
-    virtual bool getValuePointer(Array const *&ptr) const = 0; // generic
-    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0; // specific
-    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0; //
-    virtual bool getValuePointer(RealArray const *&ptr) const = 0;    //
-    virtual bool getValuePointer(StringArray const *&ptr) const = 0;  //
 
     virtual Value toValue() const = 0;
 

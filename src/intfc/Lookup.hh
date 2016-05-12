@@ -88,7 +88,7 @@ namespace PLEXIL
     //
     // These are delegated to the StateCacheEntry in every case
     //
-    const ValueType valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
 
     /**
