@@ -52,7 +52,7 @@ namespace PLEXIL {
 
     char const *getName() const;
     char const *exprName() const;
-    const ValueType valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
     bool isConstant() const;
     bool isAssignable() const;

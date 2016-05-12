@@ -55,78 +55,78 @@ namespace PLEXIL
 
   // Default methods.
   template <typename T>
-  const ValueType ExpressionImpl<T>::valueType() const
+  ValueType ExpressionImpl<T>::valueType() const
   {
     return UNKNOWN_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<Boolean>::valueType() const
+  ValueType ExpressionImpl<Boolean>::valueType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<Integer>::valueType() const
+  ValueType ExpressionImpl<Integer>::valueType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<Real>::valueType() const
+  ValueType ExpressionImpl<Real>::valueType() const
   {
     return REAL_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<NodeState>::valueType() const
+  ValueType ExpressionImpl<NodeState>::valueType() const
   {
     return NODE_STATE_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<NodeOutcome>::valueType() const
+  ValueType ExpressionImpl<NodeOutcome>::valueType() const
   {
     return OUTCOME_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<FailureType>::valueType() const
+  ValueType ExpressionImpl<FailureType>::valueType() const
   {
     return FAILURE_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<CommandHandleValue>::valueType() const
+  ValueType ExpressionImpl<CommandHandleValue>::valueType() const
   {
     return COMMAND_HANDLE_TYPE;
   }
 
-  const ValueType ExpressionImpl<String>::valueType() const
+  ValueType ExpressionImpl<String>::valueType() const
   {
     return STRING_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<BooleanArray>::valueType() const
+  ValueType ExpressionImpl<BooleanArray>::valueType() const
   {
     return BOOLEAN_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<IntegerArray>::valueType() const
+  ValueType ExpressionImpl<IntegerArray>::valueType() const
   {
     return INTEGER_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<RealArray>::valueType() const
+  ValueType ExpressionImpl<RealArray>::valueType() const
   {
     return REAL_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<StringArray>::valueType() const
+  ValueType ExpressionImpl<StringArray>::valueType() const
   {
     return STRING_ARRAY_TYPE;
   }

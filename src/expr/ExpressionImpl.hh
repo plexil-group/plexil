@@ -114,12 +114,12 @@ namespace PLEXIL
      * @return A constant enumeration.
      * @note May be overridden by derived classes.
      */
-    const ValueType valueType() const;
+    ValueType valueType() const;
 
-	/**
-	 * @brief Print the expression's value to the given stream.
-	 * @param s The output stream.
-	 */
+    /**
+     * @brief Print the expression's value to the given stream.
+     * @param s The output stream.
+     */
     void printValue(std::ostream &) const; // may be overridden?
 
     /**
@@ -171,7 +171,7 @@ namespace PLEXIL
      * @return A constant enumeration.
      * @note May be overridden by derived classes.
      */
-    const ValueType valueType() const;
+    ValueType valueType() const;
 
 	/**
 	 * @brief Print the expression's value to the given stream.
@@ -227,7 +227,7 @@ namespace PLEXIL
      * @return A constant enumeration.
      * @note May be overridden by derived classes.
      */
-    const ValueType valueType() const;
+    ValueType valueType() const;
 
 	/**
 	 * @brief Print the expression's value to the given stream.

@@ -28,7 +28,7 @@
 #define PLEXIL_EXPRESSION_HH
 
 #include "ExpressionListener.hh"
-#include "ValueType.hh"
+#include "GetValue.hh"
 
 //
 // Virtual base classes for the expression system
@@ -54,7 +54,7 @@ namespace PLEXIL
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression : public ExpressionListener
+  class Expression : virtual public GetValue, public ExpressionListener
   {
   private:
     // Unimplmented
@@ -83,18 +83,6 @@ namespace PLEXIL
      * @return A constant character string.
      */
     virtual char const *exprName() const = 0;
-
-    /**
-     * @brief Return the value type.
-     * @return A constant enumeration.
-     */
-    virtual const ValueType valueType() const = 0;
-
-    /**
-     * @brief Query whether the expression's value is known.
-     * @return True if known, false otherwise.
-     */
-    virtual bool isKnown() const = 0;
 
     /**
      * @brief Query whether this expression is assignable.
@@ -144,10 +132,10 @@ namespace PLEXIL
      */
     virtual void printSubexpressions(std::ostream &s) const;
 
-	/**
-	 * @brief Print the expression's value to the given stream.
-	 * @param s The output stream.
-	 */
+    /**
+     * @brief Print the expression's value to the given stream.
+     * @param s The output stream.
+     */
     virtual void printValue(std::ostream& s) const = 0;
 
     //
@@ -158,7 +146,7 @@ namespace PLEXIL
      * @brief Get a string representation of this Expression.
      * @return The string representation.
      */
-	virtual std::string toString() const;
+    virtual std::string toString() const;
 
     /**
      * @brief Get a string representation of the value of this Expression.
@@ -209,29 +197,14 @@ namespace PLEXIL
     virtual void notifyChanged(Expression const *src);
 
     //
-    // Value API
-    //
-
-    //
-    // The base class has to explicitly name all the potential types;
-    // we can't use a template to declare pure virtual member functions
-    // with a default method.
-    //
-
-    // 
-    // If the above weren't bad enough, to maintain type consistency,
-    // we have to use an out parameter instead of a return value for getValue()
-    // because a return value might be implicitly promoted to the wrong type.
-    // C++ sucks at polymorphism.
+    // GetValue API
     //
 
     /**
-     * @brief Retrieve the value of this Expression.
+     * @brief Retrieve the value of this object.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate methods.
-     * @note Default methods return an error in every case.
+     * @note The value is not copied if the return value is false.
      */
 
     virtual bool getValue(Boolean &) const;
@@ -245,12 +218,10 @@ namespace PLEXIL
     virtual bool getValue(String &) const;
 
     /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @brief Retrieve a pointer to the (const) value of this object.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      * @note The pointer is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate method.
-     * @note Default methods return an error in every case.
      */
     virtual bool getValuePointer(String const *&ptr) const;
     virtual bool getValuePointer(Array const *&ptr) const; // generic

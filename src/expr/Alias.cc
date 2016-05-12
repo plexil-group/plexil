@@ -84,7 +84,7 @@ namespace PLEXIL
     return "InAlias";
   }
    
-  const ValueType Alias::valueType() const
+  ValueType Alias::valueType() const
   {
     return m_exp->valueType();
   }

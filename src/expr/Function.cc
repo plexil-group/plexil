@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ namespace PLEXIL
     return m_op->getName().c_str();
   }
 
-  const ValueType Function::valueType() const
+  ValueType Function::valueType() const
   {
     return m_op->valueType();
   }

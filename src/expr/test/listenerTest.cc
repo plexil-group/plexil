@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public:
   }
 
   const char *exprName() const { return "trivial"; }
-  const PLEXIL::ValueType valueType() const { return PLEXIL::UNKNOWN_TYPE; }
+  PLEXIL::ValueType valueType() const { return PLEXIL::UNKNOWN_TYPE; }
 
   void print(std::ostream& s) const {}
   void printValue(std::ostream& s) const {}

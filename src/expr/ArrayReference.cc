@@ -80,7 +80,7 @@ namespace PLEXIL
     return "ArrayReference";
   }
 
-  const ValueType ArrayReference::valueType() const
+  ValueType ArrayReference::valueType() const
   {
     ValueType aryType = m_array->valueType();
     if (!isArrayType(aryType))
