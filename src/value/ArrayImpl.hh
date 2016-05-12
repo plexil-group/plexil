@@ -45,25 +45,20 @@ namespace PLEXIL
     {
     }
 
-    bool getElement(size_t index, bool &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
+#define DEFINE_AA_GET_ELEMENT_METHOD_SHIM(_type) \
+    bool getElement(size_t index, _type &result) const \
+    {return static_cast<const IMPL *>(this)->getElementImpl(index, result);}
 
-    bool getElement(size_t index, int32_t &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Boolean)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(NodeState)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(NodeOutcome)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(FailureType)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(CommandHandleValue)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Integer)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Real)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(String)
 
-    bool getElement(size_t index, double &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
-
-    bool getElement(size_t index, std::string &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
+#undef DEFINE_AA_GET_ELEMENT_METHOD_SHIM
 
     bool getElementPointer(size_t index, std::string const *&result) const
     {

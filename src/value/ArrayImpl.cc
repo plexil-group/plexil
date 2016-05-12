@@ -117,25 +117,25 @@ namespace PLEXIL
   }
 
   template <>
-  ValueType ArrayImpl<bool>::getElementType() const
+  ValueType ArrayImpl<Boolean>::getElementType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  ValueType ArrayImpl<int32_t>::getElementType() const
+  ValueType ArrayImpl<Integer>::getElementType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  ValueType ArrayImpl<double>::getElementType() const
+  ValueType ArrayImpl<Real>::getElementType() const
   {
     return REAL_TYPE;
   }
 
   template <>
-  ValueType ArrayImpl<std::string>::getElementType() const
+  ValueType ArrayImpl<String>::getElementType() const
   {
     return STRING_TYPE;
   }
@@ -172,13 +172,13 @@ namespace PLEXIL
   // Conversion
   template <>
   template <>
-  bool ArrayImpl<int32_t>::getElementImpl(size_t index, double &result) const
+  bool ArrayImpl<Integer>::getElementImpl(size_t index, Real &result) const
   {
     if (!this->checkIndex(index))
       return false;
     if (!this->m_known[index])
       return false;
-    result = (double) m_contents[index];
+    result = (Real) m_contents[index];
     return true;
   }
 
@@ -215,21 +215,21 @@ namespace PLEXIL
 
   // Limitation of std::vector<bool>
   template <>
-  bool ArrayImpl<bool>::getElementPointerImpl(size_t index, bool const *&result) const
+  bool ArrayImpl<Boolean>::getElementPointerImpl(size_t index, Boolean const *&result) const
   {
     assertTrue_2(ALWAYS_FAIL, "Array::getElementPointer not implemented for BooleanArray");
     return false;
   }
 
   template <typename T>
-  bool ArrayImpl<T>::getMutableElementPointer(size_t index, std::string *&result)
+  bool ArrayImpl<T>::getMutableElementPointer(size_t index, String *&result)
   {
     assertTrue_2(ALWAYS_FAIL, "Array:getMutableElementPointer: type error");
     return false;
   }
 
   template <>
-  bool ArrayImpl<std::string>::getMutableElementPointer(size_t index, std::string *&result)
+  bool ArrayImpl<String>::getMutableElementPointer(size_t index, String *&result)
   {
     if (!this->checkIndex(index))
       return false;
@@ -294,11 +294,11 @@ namespace PLEXIL
   // Conversion
   template <>
   template <>
-  void ArrayImpl<double>::setElementImpl(size_t index, int32_t const &newval)
+  void ArrayImpl<Real>::setElementImpl(size_t index, Integer const &newval)
   {
     if (!this->checkIndex(index))
       return;
-    m_contents[index] = (double) newval;
+    m_contents[index] = (Real) newval;
     this->m_known[index] = true;
   }
 
@@ -388,7 +388,7 @@ namespace PLEXIL
 
   // Specialization for bool
   template <>
-  bool operator< <bool>(ArrayImpl<bool> const &a, ArrayImpl<bool> const &b)
+  bool operator< <Boolean>(ArrayImpl<Boolean> const &a, ArrayImpl<Boolean> const &b)
   {
     std::vector<bool> const &aKnownVec = a.getKnownVector();
     std::vector<bool> const &bKnownVec = b.getKnownVector();
@@ -401,7 +401,7 @@ namespace PLEXIL
       return false;
 
     // Same size
-    std::vector<bool> const *aVec, *bVec;
+    std::vector<Boolean> const *aVec, *bVec;
     a.getContentsVectorImpl(aVec);
     b.getContentsVectorImpl(bVec);
 
@@ -456,40 +456,74 @@ namespace PLEXIL
   //
   // Explicit instantiations
   //
-  template class ArrayImpl<bool>;
-  template class ArrayImpl<int32_t>;
-  template class ArrayImpl<double>;
-  template class ArrayImpl<std::string>;
+  template class ArrayImpl<Boolean>;
 
-  template bool operator!=(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
-  template bool operator!=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
-  template bool operator!=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
-  template bool operator!=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, NodeState &) const;
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, NodeOutcome &) const;
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, FailureType &) const;
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, CommandHandleValue &) const;
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, Integer &) const;
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, Real &) const;
+  template bool ArrayImpl<Boolean>::getElementImpl(size_t, String &) const;
+
+  template class ArrayImpl<Integer>;
+
+  template bool ArrayImpl<Integer>::getElementImpl(size_t, Boolean &) const;
+  template bool ArrayImpl<Integer>::getElementImpl(size_t, NodeState &) const;
+  template bool ArrayImpl<Integer>::getElementImpl(size_t, NodeOutcome &) const;
+  template bool ArrayImpl<Integer>::getElementImpl(size_t, FailureType &) const;
+  template bool ArrayImpl<Integer>::getElementImpl(size_t, CommandHandleValue &) const;
+  template bool ArrayImpl<Integer>::getElementImpl(size_t, String &) const;
+
+  template class ArrayImpl<Real>;
+
+  template bool ArrayImpl<Real>::getElementImpl(size_t, Boolean &) const;
+  template bool ArrayImpl<Real>::getElementImpl(size_t, NodeState &) const;
+  template bool ArrayImpl<Real>::getElementImpl(size_t, NodeOutcome &) const;
+  template bool ArrayImpl<Real>::getElementImpl(size_t, FailureType &) const;
+  template bool ArrayImpl<Real>::getElementImpl(size_t, CommandHandleValue &) const;
+  template bool ArrayImpl<Real>::getElementImpl(size_t, Integer &) const;
+  template bool ArrayImpl<Real>::getElementImpl(size_t, String &) const;
+
+  template class ArrayImpl<String>;
+
+  template bool ArrayImpl<String>::getElementImpl(size_t, Boolean &) const;
+  template bool ArrayImpl<String>::getElementImpl(size_t, NodeState &) const;
+  template bool ArrayImpl<String>::getElementImpl(size_t, NodeOutcome &) const;
+  template bool ArrayImpl<String>::getElementImpl(size_t, FailureType &) const;
+  template bool ArrayImpl<String>::getElementImpl(size_t, CommandHandleValue &) const;
+  template bool ArrayImpl<String>::getElementImpl(size_t, Integer &) const;
+  template bool ArrayImpl<String>::getElementImpl(size_t, Real &) const;
+
+  template bool operator!=(ArrayImpl<Boolean> const &, ArrayImpl<Boolean> const &);
+  template bool operator!=(ArrayImpl<Integer> const &, ArrayImpl<Integer> const &);
+  template bool operator!=(ArrayImpl<Real> const &,    ArrayImpl<Real> const &);
+  template bool operator!=(ArrayImpl<String> const &,  ArrayImpl<String> const &);
 
   // Explicitly defined above
-  // template bool operator<(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
-  template bool operator<(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
-  template bool operator<(ArrayImpl<double> const &,      ArrayImpl<double> const &);
-  template bool operator<(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+  // template bool operator<(ArrayImpl<Boolean> const &, ArrayImpl<Boolean> const &);
+  template bool operator<(ArrayImpl<Integer> const &, ArrayImpl<Integer> const &);
+  template bool operator<(ArrayImpl<Real> const &,    ArrayImpl<Real> const &);
+  template bool operator<(ArrayImpl<String> const &,  ArrayImpl<String> const &);
 
-  template bool operator<=(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
-  template bool operator<=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
-  template bool operator<=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
-  template bool operator<=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+  template bool operator<=(ArrayImpl<Boolean> const &, ArrayImpl<Boolean> const &);
+  template bool operator<=(ArrayImpl<Integer> const &, ArrayImpl<Integer> const &);
+  template bool operator<=(ArrayImpl<Real> const &,    ArrayImpl<Real> const &);
+  template bool operator<=(ArrayImpl<String> const &,  ArrayImpl<String> const &);
 
-  template bool operator>(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
-  template bool operator>(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
-  template bool operator>(ArrayImpl<double> const &,      ArrayImpl<double> const &);
-  template bool operator>(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+  template bool operator>(ArrayImpl<Boolean> const &, ArrayImpl<Boolean> const &);
+  template bool operator>(ArrayImpl<Integer> const &, ArrayImpl<Integer> const &);
+  template bool operator>(ArrayImpl<Real> const &,    ArrayImpl<Real> const &);
+  template bool operator>(ArrayImpl<String> const &,  ArrayImpl<String> const &);
 
-  template bool operator>=(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
-  template bool operator>=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
-  template bool operator>=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
-  template bool operator>=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+  template bool operator>=(ArrayImpl<Boolean> const &, ArrayImpl<Boolean> const &);
+  template bool operator>=(ArrayImpl<Integer> const &, ArrayImpl<Integer> const &);
+  template bool operator>=(ArrayImpl<Real> const &,    ArrayImpl<Real> const &);
+  template bool operator>=(ArrayImpl<String> const &,  ArrayImpl<String> const &);
 
-  template std::ostream &operator<<(std::ostream &s, ArrayImpl<bool> const &);
-  template std::ostream &operator<<(std::ostream &s, ArrayImpl<int32_t> const &);
-  template std::ostream &operator<<(std::ostream &s, ArrayImpl<double> const &);
-  template std::ostream &operator<<(std::ostream &s, ArrayImpl<std::string> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<Boolean> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<Integer> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<Real> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<String> const &);
 
 } // namespace PLEXIL

@@ -99,26 +99,26 @@ namespace PLEXIL
     };
 
   // Type name string constants
-  extern char const *BOOLEAN_STR;
-  extern char const *INTEGER_STR;
-  extern char const *REAL_STR;
-  extern char const *DATE_STR;
-  extern char const *DURATION_STR;
-  extern char const *STRING_STR;
-  extern char const *ARRAY_STR;
-  extern char const *BOOLEAN_ARRAY_STR;
-  extern char const *INTEGER_ARRAY_STR;
-  extern char const *REAL_ARRAY_STR;
-  extern char const *STRING_ARRAY_STR;
-  extern char const *NODE_STATE_STR;
-  extern char const *NODE_OUTCOME_STR;
-  extern char const *NODE_FAILURE_STR;
-  extern char const *NODE_COMMAND_HANDLE_STR;
+  constexpr char const *BOOLEAN_STR = "Boolean";
+  constexpr char const *INTEGER_STR = "Integer";
+  constexpr char const *REAL_STR = "Real";
+  constexpr char const *DATE_STR = "Date";
+  constexpr char const *DURATION_STR = "Duration";
+  constexpr char const *STRING_STR = "String";
+  constexpr char const *ARRAY_STR = "Array";
+  constexpr char const *BOOLEAN_ARRAY_STR = "BooleanArray";
+  constexpr char const *INTEGER_ARRAY_STR = "IntegerArray";
+  constexpr char const *REAL_ARRAY_STR = "RealArray";
+  constexpr char const *STRING_ARRAY_STR = "StringArray";
+  constexpr char const *NODE_STATE_STR = "NodeState";
+  constexpr char const *NODE_OUTCOME_STR = "NodeOutcome";
+  constexpr char const *NODE_FAILURE_STR = "NodeFailure";
+  constexpr char const *NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
 
-  extern char const *VAL_SUFFIX;
-  extern char const *VAR_SUFFIX;
+  constexpr char const *VAL_SUFFIX = "Value";
+  constexpr char const *VAR_SUFFIX = "Variable";
 
-  extern char const *UNKNOWN_STR;
+  constexpr char const *UNKNOWN_STR = "UNKNOWN";
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
