@@ -50,7 +50,7 @@ namespace PLEXIL
     return m_op->getName().c_str();
   }
 
-  const ValueType NodeFunction::valueType() const
+  ValueType NodeFunction::valueType() const
   {
     return m_op->valueType();
   }

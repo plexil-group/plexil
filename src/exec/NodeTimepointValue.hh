@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ namespace PLEXIL
 
     char const *getName() const;
     char const *exprName() const;
-    ValueType const valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
 
     bool getValueImpl(double &result) const; // FIXME

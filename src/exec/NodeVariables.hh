@@ -62,7 +62,7 @@ namespace PLEXIL {
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return NODE_STATE_TYPE;
     }
@@ -127,7 +127,7 @@ namespace PLEXIL {
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return OUTCOME_TYPE;
     }
@@ -190,7 +190,7 @@ namespace PLEXIL {
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return FAILURE_TYPE;
     }

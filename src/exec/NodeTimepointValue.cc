@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ namespace PLEXIL
     return "NodeTimepointValue";
   }
 
-  ValueType const NodeTimepointValue::valueType() const
+  ValueType NodeTimepointValue::valueType() const
   {
     return DATE_TYPE;
   }
