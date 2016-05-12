@@ -557,11 +557,7 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    // *** TEMP DEBUG ***
-    std::cout << "Before getValue(Boolean &)" << std::endl;
     assertTrue_1(barp->getValue(pb));
-    // *** TEMP DEBUG ***
-    std::cout << "After getValue(Boolean &)" << std::endl;
     assertTrue_1(pb == vb[i]);
   }
 
