@@ -112,6 +112,8 @@ namespace PLEXIL
     bool getValue(FailureType &result) const;
     bool getValue(CommandHandleValue &result) const;
 
+    Value toValue() const;
+
     bool equals(Value const &) const;
     bool lessThan(Value const &) const; // for (e.g.) std::map
 

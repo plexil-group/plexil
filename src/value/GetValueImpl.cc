@@ -29,6 +29,7 @@
 #include "ArrayImpl.hh"
 #include "Error.hh"
 #include "PlexilTypeTraits.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -47,6 +48,59 @@ namespace PLEXIL
   ValueType GetValueImpl<ArrayImpl<T> >::valueType() const
   {
     return PlexilValueType<ArrayImpl<T> >::value;
+  }
+
+  template <typename T>
+  bool GetValueImpl<T>::isKnown() const
+  {
+    T dummy;
+    return this->getValueImpl(dummy);
+  }
+
+  bool GetValueImpl<String>::isKnown() const
+  {
+    String const *dummy;
+    return this->getValuePointerImpl(dummy);
+  }
+
+  template <typename T>
+  bool GetValueImpl<ArrayImpl<T> >::isKnown() const
+  {
+    ArrayImpl<T> const *dummy;
+    return this->getValuePointerImpl(dummy);
+  }
+
+
+  template <typename T>
+  Value GetValueImpl<T>::toValue() const
+  {
+    T temp;
+    bool known = this->getValueImpl(temp);
+    if (known)
+      return Value(temp);
+    else
+      return Value(0, this->valueType());
+  }
+
+  Value GetValueImpl<String>::toValue() const
+  {
+    std::string const *ptr;
+    bool known = this->getValuePointerImpl(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <typename T>
+  Value GetValueImpl<ArrayImpl<T> >::toValue() const
+  {
+    ArrayImpl<T> const *ptr;
+    bool known = this->getValuePointerImpl(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
   }
 
   template <typename T>

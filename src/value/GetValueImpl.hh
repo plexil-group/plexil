@@ -87,6 +87,19 @@ namespace PLEXIL
     ValueType valueType() const;
 
     /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    bool isKnown() const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
+    /**
      * @brief Retrieve the value of this object in its native type.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
@@ -123,6 +136,19 @@ namespace PLEXIL
     ValueType valueType() const;
 
     /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    bool isKnown() const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
+    /**
      * @brief Retrieve the value of this object in its native type.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
@@ -156,6 +182,19 @@ namespace PLEXIL
      * @note May be overridden by derived classes.
      */
     ValueType valueType() const;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    bool isKnown() const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
 
     // Not implemented - no implicit copying allowed
     bool getValueImpl(ArrayImpl<T> &result) const;

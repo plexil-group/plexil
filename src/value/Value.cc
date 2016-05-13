@@ -941,6 +941,11 @@ namespace PLEXIL
     return true;
   }
 
+  Value Value::toValue() const
+  {
+    return Value(*this);
+  }
+
   void Value::print(std::ostream &s) const
   {
     if (!m_known) {

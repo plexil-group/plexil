@@ -33,6 +33,8 @@
 
 namespace PLEXIL
 {
+  class Value;
+
   //*
   // @class GetValue
   // @brief Abstract base class defining the getValue() API used
@@ -44,8 +46,25 @@ namespace PLEXIL
   public:
     virtual ~GetValue() = default;
     
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
     virtual ValueType valueType() const = 0;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
     virtual bool isKnown() const = 0;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const = 0;
 
     //
     // The base class has to explicitly name all the potential types;
