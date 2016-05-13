@@ -34,12 +34,6 @@
 // Virtual base classes for the expression system
 //
 
-//
-// TODO:
-//  - Move dependency on ExpressionListener somewhere else
-//    Some expressions (e.g. Constant) don't need it.
-//
-
 namespace PLEXIL
 {
 
@@ -48,7 +42,6 @@ namespace PLEXIL
   //
 
   class Assignable;
-  class Value;
 
   /**
    * @class Expression
@@ -196,45 +189,6 @@ namespace PLEXIL
      */
     virtual void notifyChanged(Expression const *src);
 
-    //
-    // GetValue API
-    //
-
-    /**
-     * @brief Retrieve the value of this object.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The value is not copied if the return value is false.
-     */
-
-    virtual bool getValue(Boolean &) const;
-    virtual bool getValue(Integer &) const;
-    virtual bool getValue(Real &) const;
-    virtual bool getValue(NodeState &) const;
-    virtual bool getValue(NodeOutcome &) const;
-    virtual bool getValue(FailureType &) const;
-    virtual bool getValue(CommandHandleValue &) const;
-
-    virtual bool getValue(String &) const;
-
-    /**
-     * @brief Retrieve a pointer to the (const) value of this object.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The pointer is not copied if the return value is false.
-     */
-    virtual bool getValuePointer(String const *&ptr) const;
-    virtual bool getValuePointer(Array const *&ptr) const; // generic
-    virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
-    virtual bool getValuePointer(IntegerArray const *&ptr) const; //
-    virtual bool getValuePointer(RealArray const *&ptr) const;    //
-    virtual bool getValuePointer(StringArray const *&ptr) const;  //
-
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
-    virtual Value toValue() const = 0;
   };
 
   // Stream-style print operator

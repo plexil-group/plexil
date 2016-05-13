@@ -121,94 +121,44 @@ namespace PLEXIL
     return m_op->toValue(m_valueCache, *m_exprVec);
   }
 
-  bool Function::getValue(bool &result) const
-  {
-    if (!isActive())
-      return false;
-    return m_exprVec->apply(m_op, result);
+  // Local macro for boilerplate
+#define DEFINE_FUNC_GET_VALUE_METHOD(_type) \
+  bool Function::getValue(_type &result) const \
+  { \
+    if (!isActive()) \
+      return false; \
+    return m_exprVec->apply(m_op, result); \
   }
 
-  bool Function::getValue(int32_t &result) const
-  {
-    if (!isActive())
-      return false;
-    return m_exprVec->apply(m_op, result);
+  DEFINE_FUNC_GET_VALUE_METHOD(Boolean)
+  DEFINE_FUNC_GET_VALUE_METHOD(NodeState)
+  DEFINE_FUNC_GET_VALUE_METHOD(NodeOutcome)
+  DEFINE_FUNC_GET_VALUE_METHOD(FailureType)
+  DEFINE_FUNC_GET_VALUE_METHOD(CommandHandleValue)
+  DEFINE_FUNC_GET_VALUE_METHOD(Integer)
+  DEFINE_FUNC_GET_VALUE_METHOD(Real)
+  DEFINE_FUNC_GET_VALUE_METHOD(String)
+
+#undef DEFINE_FUNC_GET_VALUE_METHOD
+
+#define DEFINE_FUNC_GET_VALUE_PTR_METHOD(_type) \
+  bool Function::getValuePointer(_type const *&ptr) const \
+  { \
+    if (!isActive()) \
+      return false; \
+    bool result = m_exprVec->apply(m_op, *static_cast<_type *>(m_valueCache)); \
+    if (result) \
+      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
+    return result; \
   }
 
-  bool Function::getValue(double &result) const
-  {
-    if (!isActive())
-      return false;
-    return m_exprVec->apply(m_op, result);
-  }
-
-  bool Function::getValue(std::string &result) const
-  {
-    if (!isActive())
-      return false;
-    return m_exprVec->apply(m_op, result);
-  }
-
-  bool Function::getValuePointer(std::string const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = m_exprVec->apply(m_op, *static_cast<std::string *>(m_valueCache));
-    if (result)
-      ptr = static_cast<std::string const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  // Generic Array
-  bool Function::getValuePointer(Array const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = m_exprVec->apply(m_op, *static_cast<Array *>(m_valueCache));
-    if (result)
-      ptr = static_cast<Array const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  // Specific array types
-  bool Function::getValuePointer(BooleanArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = m_exprVec->apply(m_op, *static_cast<BooleanArray *>(m_valueCache));
-    if (result)
-      ptr = static_cast<BooleanArray const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  bool Function::getValuePointer(IntegerArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = m_exprVec->apply(m_op, *static_cast<IntegerArray *>(m_valueCache));
-    if (result)
-      ptr = static_cast<IntegerArray const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  bool Function::getValuePointer(RealArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = m_exprVec->apply(m_op, *static_cast<RealArray *>(m_valueCache));
-    if (result)
-      ptr = static_cast<RealArray const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  bool Function::getValuePointer(StringArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = m_exprVec->apply(m_op, *static_cast<StringArray *>(m_valueCache));
-    if (result)
-      ptr = static_cast<StringArray const *>(m_valueCache); // trust me
-    return result;
-  }
+  DEFINE_FUNC_GET_VALUE_PTR_METHOD(String)
+  DEFINE_FUNC_GET_VALUE_PTR_METHOD(Array)
+  DEFINE_FUNC_GET_VALUE_PTR_METHOD(BooleanArray)
+  DEFINE_FUNC_GET_VALUE_PTR_METHOD(IntegerArray)
+  DEFINE_FUNC_GET_VALUE_PTR_METHOD(RealArray)
+  DEFINE_FUNC_GET_VALUE_PTR_METHOD(StringArray)
+  
+#undef DEFINE_FUNC_GET_VALUE_PTR_METHOD
 
 } // namespace PLEXIL

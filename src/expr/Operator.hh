@@ -66,6 +66,10 @@ namespace PLEXIL
     virtual bool operator()(_rtype_ &result, ExprVec const &args) const = 0; \
 
     DECLARE_OPERATOR_METHODS(Boolean)
+    DECLARE_OPERATOR_METHODS(NodeState)
+    DECLARE_OPERATOR_METHODS(NodeOutcome)
+    DECLARE_OPERATOR_METHODS(FailureType)
+    DECLARE_OPERATOR_METHODS(CommandHandleValue)
     DECLARE_OPERATOR_METHODS(Integer)
     DECLARE_OPERATOR_METHODS(Real)
     DECLARE_OPERATOR_METHODS(String)

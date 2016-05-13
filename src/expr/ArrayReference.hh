@@ -67,17 +67,21 @@ namespace PLEXIL {
      * @note Unimplemented conversions will cause a link time error.
      */
 
-    bool getValue(Boolean &result) const
+    // Local macro
+#define DEFINE_AREF_GET_VALUE_METHOD_SHIM(_type_)	\
+    bool getValue(_type_ &result) const			\
     { return getValueImpl(result); }
 
-    bool getValue(Integer &result) const
-    { return getValueImpl(result); }
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(Boolean)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(NodeState)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(NodeOutcome)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(FailureType)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(CommandHandleValue)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(Integer)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(Real)
+    DEFINE_AREF_GET_VALUE_METHOD_SHIM(String)
 
-    bool getValue(Real &result) const
-    { return getValueImpl(result); }
-
-    bool getValue(String &result) const
-    { return getValueImpl(result); }
+#undef DEFINE_AREF_GET_VALUE_METHOD_SHIM
 
     /**
      * @brief Get a pointer to the expression's value.
@@ -85,6 +89,18 @@ namespace PLEXIL {
      * @return True if known, false if unknown.
      */
     virtual bool getValuePointer(String const *&ptr) const;
+
+    // Local macro
+#define DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(_type_) \
+    bool getValuePointer(_type_ const *&ptr) const \
+    { return getValuePointerImpl(ptr); }
+
+    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(Array)
+    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(BooleanArray)
+    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(IntegerArray)
+    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(RealArray)
+    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(StringArray)
+#undef DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM
 
     Value toValue() const;
 
@@ -116,10 +132,12 @@ namespace PLEXIL {
     bool selfCheck(Array const *&valuePtr,
                    size_t &idx) const;
 
-    // Internal template function
+    // Internal template functions
     template <typename R>
     bool getValueImpl(R &) const;
 
+    template <typename T>
+    bool getValuePointerImpl(T const *&) const;
   };
 
   /**

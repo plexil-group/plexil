@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,50 +51,26 @@ namespace PLEXIL
       (*this)[i]->removeListener(ptr);
   }
 
-  bool ExprVec::apply(Operator const *op, bool &result) const
-  {
-    return (*op)(result, *this);
-  }
+  // Local macro for boilerplate
+#define DEFINE_EXPR_VEC_APPLY_METHOD(_type) \
+  bool ExprVec::apply(Operator const *op, _type &result) const \
+  {return (*op)(result, *this);}
 
-  bool ExprVec::apply(Operator const *op, int32_t &result) const
-  {
-    return (*op)(result, *this);
-  }
+  DEFINE_EXPR_VEC_APPLY_METHOD(Boolean)
+  DEFINE_EXPR_VEC_APPLY_METHOD(NodeState)
+  DEFINE_EXPR_VEC_APPLY_METHOD(NodeOutcome)
+  DEFINE_EXPR_VEC_APPLY_METHOD(FailureType)
+  DEFINE_EXPR_VEC_APPLY_METHOD(CommandHandleValue)
+  DEFINE_EXPR_VEC_APPLY_METHOD(Integer)
+  DEFINE_EXPR_VEC_APPLY_METHOD(Real)
+  DEFINE_EXPR_VEC_APPLY_METHOD(String)
+  DEFINE_EXPR_VEC_APPLY_METHOD(Array)
+  DEFINE_EXPR_VEC_APPLY_METHOD(BooleanArray)
+  DEFINE_EXPR_VEC_APPLY_METHOD(IntegerArray)
+  DEFINE_EXPR_VEC_APPLY_METHOD(RealArray)
+  DEFINE_EXPR_VEC_APPLY_METHOD(StringArray)
 
-  bool ExprVec::apply(Operator const *op, double &result) const
-  {
-    return (*op)(result, *this);
-  }
-
-  bool ExprVec::apply(Operator const *op, std::string &result) const
-  {
-    return (*op)(result, *this);
-  }
-
-  bool ExprVec::apply(Operator const *op, Array &result) const
-  {
-    return (*op)(result, *this);
-  }
-
-  bool ExprVec::apply(Operator const *op, BooleanArray &result) const
-  {
-    return (*op)(result, *this);
-  }
-
-  bool ExprVec::apply(Operator const *op, IntegerArray &result) const
-  {
-    return (*op)(result, *this);
-  }
-
-  bool ExprVec::apply(Operator const *op, RealArray &result) const
-  {
-    return (*op)(result, *this);
-  }
-
-  bool ExprVec::apply(Operator const *op, StringArray &result) const
-  {
-    return (*op)(result, *this);
-  }
+#undef DEFINE_EXPR_VEC_APPLY_METHOD
 
   /**
    * @class NullExprVec
@@ -245,50 +221,26 @@ namespace PLEXIL
       }
     }
 
-    bool apply(Operator const *op, bool &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
+    // Have to define this so specialized template functions can be defined below
+#define DEFINE_FIXED_ARG_APPLY_METHOD(_rtype) \
+    bool apply(Operator const *op, _rtype &result) const \
+    { return ExprVec::apply(op, result); }
 
-    bool apply(Operator const *op, int32_t &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
+    DEFINE_FIXED_ARG_APPLY_METHOD(Boolean)
+    DEFINE_FIXED_ARG_APPLY_METHOD(NodeState)
+    DEFINE_FIXED_ARG_APPLY_METHOD(NodeOutcome)
+    DEFINE_FIXED_ARG_APPLY_METHOD(FailureType)
+    DEFINE_FIXED_ARG_APPLY_METHOD(CommandHandleValue)
+    DEFINE_FIXED_ARG_APPLY_METHOD(Integer)
+    DEFINE_FIXED_ARG_APPLY_METHOD(Real)
+    DEFINE_FIXED_ARG_APPLY_METHOD(String)
+    DEFINE_FIXED_ARG_APPLY_METHOD(Array)
+    DEFINE_FIXED_ARG_APPLY_METHOD(BooleanArray)
+    DEFINE_FIXED_ARG_APPLY_METHOD(IntegerArray)
+    DEFINE_FIXED_ARG_APPLY_METHOD(RealArray)
+    DEFINE_FIXED_ARG_APPLY_METHOD(StringArray)
 
-    bool apply(Operator const *op, double &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
-
-    bool apply(Operator const *op, std::string &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
-
-    bool apply(Operator const *op, Array &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
-
-    bool apply(Operator const *op, BooleanArray &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
-
-    bool apply(Operator const *op, IntegerArray &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
-
-    bool apply(Operator const *op, RealArray &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
-
-    bool apply(Operator const *op, StringArray &result) const
-    {
-      return ExprVec::apply(op, result); 
-    }
+#undef DEFINE_FIXED_ARG_APPLY_METHOD
 
   private:
     // Not implemented
@@ -340,59 +292,28 @@ namespace PLEXIL
     exprs[0]->removeListener(ptr);
   }
 
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, bool &result) const
-  {
-    return (*op)(result, exprs[0]);
+#define DEFINE_ONE_ARG_APPLY_METHOD(_rtype) \
+  template <> \
+  bool FixedExprVec<1>::apply(Operator const *op, _rtype &result) const \
+  { \
+    return (*op)(result, exprs[0]); \
   }
 
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, int32_t &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
+  DEFINE_ONE_ARG_APPLY_METHOD(Boolean)
+  DEFINE_ONE_ARG_APPLY_METHOD(NodeState)
+  DEFINE_ONE_ARG_APPLY_METHOD(NodeOutcome)
+  DEFINE_ONE_ARG_APPLY_METHOD(FailureType)
+  DEFINE_ONE_ARG_APPLY_METHOD(CommandHandleValue)
+  DEFINE_ONE_ARG_APPLY_METHOD(Integer)
+  DEFINE_ONE_ARG_APPLY_METHOD(Real)
+  DEFINE_ONE_ARG_APPLY_METHOD(String)
+  DEFINE_ONE_ARG_APPLY_METHOD(Array)
+  DEFINE_ONE_ARG_APPLY_METHOD(BooleanArray)
+  DEFINE_ONE_ARG_APPLY_METHOD(IntegerArray)
+  DEFINE_ONE_ARG_APPLY_METHOD(RealArray)
+  DEFINE_ONE_ARG_APPLY_METHOD(StringArray)
 
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, double &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
-
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, std::string &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
-
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, Array &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
-
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, BooleanArray &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
-
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, IntegerArray &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
-
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, RealArray &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
-
-  template <>
-  bool FixedExprVec<1>::apply(Operator const *op, StringArray &result) const
-  {
-    return (*op)(result, exprs[0]);
-  }
+#undef DEFINE_ONE_ARG_APPLY_METHOD
  
   template <>
   void FixedExprVec<1>::print(std::ostream & s) const
@@ -453,59 +374,29 @@ namespace PLEXIL
     exprs[1]->removeListener(ptr);
   }
 
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, bool &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
+#define DEFINE_TWO_ARG_APPLY_METHOD(_rtype) \
+  template <> \
+  bool FixedExprVec<2>::apply(Operator const *op, _rtype &result) const \
+  { \
+    return (*op)(result, exprs[0], exprs[1]);\
   }
 
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, int32_t &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
+  DEFINE_TWO_ARG_APPLY_METHOD(Boolean)
+  DEFINE_TWO_ARG_APPLY_METHOD(NodeState)
+  DEFINE_TWO_ARG_APPLY_METHOD(NodeOutcome)
+  DEFINE_TWO_ARG_APPLY_METHOD(FailureType)
+  DEFINE_TWO_ARG_APPLY_METHOD(CommandHandleValue)
+  DEFINE_TWO_ARG_APPLY_METHOD(Integer)
+  DEFINE_TWO_ARG_APPLY_METHOD(Real)
+  DEFINE_TWO_ARG_APPLY_METHOD(String)
+  DEFINE_TWO_ARG_APPLY_METHOD(Array)
+  DEFINE_TWO_ARG_APPLY_METHOD(BooleanArray)
+  DEFINE_TWO_ARG_APPLY_METHOD(IntegerArray)
+  DEFINE_TWO_ARG_APPLY_METHOD(RealArray)
+  DEFINE_TWO_ARG_APPLY_METHOD(StringArray)
 
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, double &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
+#undef DEFINE_TWO_ARG_APPLY_METHOD
 
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, std::string &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
-
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, Array &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
-
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, BooleanArray &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
-
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, IntegerArray &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
-
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, RealArray &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
-
-  template <>
-  bool FixedExprVec<2>::apply(Operator const *op, StringArray &result) const
-  {
-    return (*op)(result, exprs[0], exprs[1]);
-  }
  
   template <>
   void FixedExprVec<2>::print(std::ostream & s) const

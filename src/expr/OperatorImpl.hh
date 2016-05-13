@@ -65,6 +65,10 @@ namespace PLEXIL
     {return static_cast<IMPL const *>(this)->calc(result, args);}
 
     DEFINE_OPERATOR_SHIM_METHODS(Boolean)
+    DEFINE_OPERATOR_SHIM_METHODS(NodeState)
+    DEFINE_OPERATOR_SHIM_METHODS(NodeOutcome)
+    DEFINE_OPERATOR_SHIM_METHODS(FailureType)
+    DEFINE_OPERATOR_SHIM_METHODS(CommandHandleValue)
     DEFINE_OPERATOR_SHIM_METHODS(Integer)
     DEFINE_OPERATOR_SHIM_METHODS(Real)
     DEFINE_OPERATOR_SHIM_METHODS(String)
@@ -143,15 +147,15 @@ namespace PLEXIL
   // *** Must be declared here for OS X 10.9 ***
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg) const;
+  bool OperatorImpl<Integer>::calc(Real &result, Expression const *arg) const;
 
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg0, Expression const *arg1) const;
+  bool OperatorImpl<Integer>::calc(Real &result, Expression const *arg0, Expression const *arg1) const;
 
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, ExprVec const &args) const;
+  bool OperatorImpl<Integer>::calc(Real &result, ExprVec const &args) const;
 
   template <typename R>
   class OperatorImpl<ArrayImpl<R> >

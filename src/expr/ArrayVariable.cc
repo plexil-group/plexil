@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,9 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : NotifierImpl(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
+      NotifierImpl(),
       m_size(NULL),
       m_initializer(NULL),
       m_name(NULL),
@@ -53,9 +53,9 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : NotifierImpl(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
+      NotifierImpl(),
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name(NULL),
@@ -73,9 +73,9 @@ namespace PLEXIL
                                   char const *name,
                                   Expression *size,
                                   bool sizeIsGarbage)
-    : NotifierImpl(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
+      NotifierImpl(),
       m_size(size),
       m_initializer(NULL),
       m_name(strdup(name)),

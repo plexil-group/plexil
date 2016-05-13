@@ -25,8 +25,10 @@
 */
 
 #include "ArrayReference.hh"
+
 #include "Array.hh"
 #include "Error.hh"
+#include "PlexilTypeTraits.hh"
 #include "UserVariable.hh"
 
 namespace PLEXIL
@@ -164,6 +166,10 @@ namespace PLEXIL
 
   // getValueImpl explicit instantiations
   template bool ArrayReference::getValueImpl(Boolean &) const;
+  template bool ArrayReference::getValueImpl(NodeState &) const;
+  template bool ArrayReference::getValueImpl(NodeOutcome &) const;
+  template bool ArrayReference::getValueImpl(FailureType &) const;
+  template bool ArrayReference::getValueImpl(CommandHandleValue &) const;
   template bool ArrayReference::getValueImpl(Integer &) const;
   template bool ArrayReference::getValueImpl(Real &) const;
   template bool ArrayReference::getValueImpl(String &) const;
@@ -175,6 +181,16 @@ namespace PLEXIL
     if (!selfCheck(ary, idx))
       return false;
     return ary->getElementPointer(idx, ptr);
+  }
+
+  // Error for arrays and any other types we can think of.
+  template <typename T>
+  bool ArrayReference::getValuePointerImpl(T const *&ptr) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+		  "getValuePointer: trying to get a " << PlexilValueType<T>::typeName
+		  << " pointer value from an ArrayReference");
+    return false;
   }
 
   Value ArrayReference::toValue() const

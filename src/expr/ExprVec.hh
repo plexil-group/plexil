@@ -65,6 +65,10 @@ namespace PLEXIL
     virtual void print(std::ostream &s) const = 0;
 
     virtual bool apply(Operator const *op, Boolean &result) const;
+    virtual bool apply(Operator const *op, NodeState &result) const;
+    virtual bool apply(Operator const *op, NodeOutcome &result) const;
+    virtual bool apply(Operator const *op, FailureType &result) const;
+    virtual bool apply(Operator const *op, CommandHandleValue &result) const;
     virtual bool apply(Operator const *op, Integer &result) const;
     virtual bool apply(Operator const *op, Real &result) const;
     virtual bool apply(Operator const *op, String &result) const;

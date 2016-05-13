@@ -69,17 +69,21 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if result known, false if unknown.
      */
-    bool getValue(bool &result) const;
-    bool getValue(int32_t &result) const;
-    bool getValue(double &result) const;
-    bool getValue(std::string &result) const;
+    bool getValue(Boolean &result) const;
+    bool getValue(NodeState &result) const;
+    bool getValue(NodeOutcome &result) const;
+    bool getValue(FailureType &result) const;
+    bool getValue(CommandHandleValue &result) const;
+    bool getValue(Integer &result) const;
+    bool getValue(Real &result) const;
+    bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(String const *&ptr) const;
     bool getValuePointer(BooleanArray const *&ptr) const;
     bool getValuePointer(IntegerArray const *&ptr) const;
     bool getValuePointer(RealArray const *&ptr) const;
