@@ -36,7 +36,7 @@ namespace PLEXIL
   /**
    * Pure virtual base class for storing state cache values
    */
-  class CachedValue : public GetValue
+  class CachedValue : virtual public GetValue
   {
   public:
     CachedValue() : m_timestamp(0) {}
@@ -54,8 +54,6 @@ namespace PLEXIL
     virtual CachedValue &operator=(CachedValue &&) = 0;
     virtual CachedValue *clone() const = 0;
     virtual bool operator==(CachedValue const &) const = 0;
-
-    virtual Value toValue() const = 0;
 
     /**
      * @brief Set the state to unknown.

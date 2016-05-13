@@ -40,7 +40,6 @@ namespace PLEXIL
   public:
     NodeStateConstant(NodeState value);
     ~NodeStateConstant();
-    ValueType valueType() const;
     char const *exprName() const;
 
   private:
@@ -63,7 +62,6 @@ namespace PLEXIL
   public:
     NodeOutcomeConstant(NodeOutcome value);
     ~NodeOutcomeConstant();
-    ValueType valueType() const;
     char const *exprName() const;
 
   private:
@@ -83,7 +81,6 @@ namespace PLEXIL
   public:
     FailureTypeConstant(FailureType value);
     ~FailureTypeConstant();
-    ValueType valueType() const;
     char const *exprName() const;
 
   private:
@@ -105,7 +102,6 @@ namespace PLEXIL
   public:
     CommandHandleConstant(CommandHandleValue value);
     ~CommandHandleConstant();
-    ValueType valueType() const;
     char const *exprName() const;
 
   private:

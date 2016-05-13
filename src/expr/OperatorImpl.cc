@@ -25,65 +25,17 @@
 */
 
 #include "OperatorImpl.hh"
-#include "Expression.hh"
+
 #include "ArrayFwd.hh"
+#include "Expression.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
-  // Default method for unspecialized types
   template <typename R>
   ValueType OperatorImpl<R>::valueType() const
   {
-    return UNKNOWN_TYPE;
-  }
-
-  // Specific types
-  template <>
-  ValueType OperatorImpl<double>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<bool>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<std::string>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<BooleanArray>::valueType() const
-  {
-    return BOOLEAN_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<IntegerArray>::valueType() const
-  {
-    return INTEGER_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<RealArray>::valueType() const
-  {
-    return REAL_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType OperatorImpl<StringArray>::valueType() const
-  {
-    return STRING_ARRAY_TYPE;
+    return PlexilValueType<R>::value;
   }
 
   // Convenience methods

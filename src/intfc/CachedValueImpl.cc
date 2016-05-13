@@ -30,6 +30,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 #include <iomanip>
@@ -142,20 +143,23 @@ namespace PLEXIL
   
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<T> >(),
+    : GetValueImpl<T>(),
+      CachedValueShim<CachedValueImpl<T> >(),
       m_known(false)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<String> >(),
+    : GetValueImpl<String>(),
+      CachedValueShim<CachedValueImpl<String> >(),
       m_known(false)
   {
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
       m_known(false)
   {
   }
@@ -166,14 +170,16 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> const &orig)
-    : CachedValueShim<CachedValueImpl<T> >(orig),
+    : GetValueImpl<T>(),
+      CachedValueShim<CachedValueImpl<T> >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> const &orig)
-    : CachedValueShim<CachedValueImpl<String> >(orig),
+    : GetValueImpl<String>(),
+      CachedValueShim<CachedValueImpl<String> >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
@@ -181,7 +187,8 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &orig)
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
+    : GetValueImpl<ArrayImpl<T> >(),
+      CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
@@ -193,14 +200,16 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> &&orig)
-    : CachedValueShim<CachedValueImpl<T> >(orig),
+    : GetValueImpl<T>(),
+      CachedValueShim<CachedValueImpl<T> >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> &&orig)
-    : CachedValueShim<CachedValueImpl<String> >(orig),
+    : GetValueImpl<String>(),
+      CachedValueShim<CachedValueImpl<String> >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
@@ -208,7 +217,8 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > &&orig)
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
+    : GetValueImpl<ArrayImpl<T> >(),
+      CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
@@ -347,53 +357,6 @@ namespace PLEXIL
   //
   // Accessors
   //
-
-  template <>
-  ValueType CachedValueImpl<Boolean>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  ValueType CachedValueImpl<Integer>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  ValueType CachedValueImpl<Real>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  ValueType CachedValueImpl<String>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
-  template <>
-  ValueType CachedValueImpl<ArrayImpl<Boolean> >::valueType() const
-  {
-    return BOOLEAN_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType CachedValueImpl<ArrayImpl<Integer> >::valueType() const
-  {
-    return INTEGER_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType CachedValueImpl<ArrayImpl<Real> >::valueType() const
-  {
-    return REAL_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType CachedValueImpl<ArrayImpl<String> >::valueType() const
-  {
-    return STRING_ARRAY_TYPE;
-  }
 
   template <typename T>
   bool CachedValueImpl<T>::isKnown() const
@@ -583,7 +546,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for "
-               << valueTypeName(valueType()) << " lookup");
+               << PlexilValueType<T>::typeName << " lookup");
       return setUnknown(timestamp);
     }
   }
@@ -611,7 +574,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for "
-               << valueTypeName(valueType()) << " lookup");
+               << PlexilValueType<ArrayImpl<T> >::typeName << " lookup");
       return setUnknown(timestamp);
     }
   }
@@ -686,40 +649,6 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string 
     return m_known;
   }
 
-  // Default wrong-type methods.
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<T>::getValueImpl(U & /* result */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
-  template <typename U>
-  bool CachedValueImpl<String>::getValueImpl(U & /* result */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(U & /* result */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
-  // Conversion method
-  template <>
-  template <>
-  bool CachedValueImpl<Integer>::getValueImpl(double &result) const
-  {
-    if (m_known)
-      result = (double) m_value;
-    return m_known;
-  }
-
   // Same-type methods
   bool CachedValueImpl<String>::getValuePointerImpl(std::string const *&ptr) const
   {
@@ -736,30 +665,6 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string 
     return m_known;
   }
 
-  // Default wrong-type methods.
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
-  template <typename U>
-  bool CachedValueImpl<String>::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
   // Conversion method
   template <typename T>
   bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(Array const *& ptr) const
@@ -767,32 +672,6 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string 
     if (m_known)
       ptr = dynamic_cast<Array const *>(&m_value);
     return m_known;
-  }
-
-  template <typename T>
-  Value CachedValueImpl<T>::toValue() const
-  {
-    if (m_known)
-      return Value(m_value);
-    else
-      return Value(0, valueType());
-  }
-
-  Value CachedValueImpl<String>::toValue() const
-  {
-    if (m_known)
-      return Value(m_value);
-    else
-      return Value(0, valueType());
-  }
-
-  template <typename T>
-  Value CachedValueImpl<ArrayImpl<T> >::toValue() const
-  {
-    if (m_known)
-      return Value(m_value);
-    else
-      return Value(0, valueType());
   }
 
   //

@@ -47,11 +47,6 @@ namespace PLEXIL
   {
   }
 
-  ValueType NodeStateConstant::valueType() const
-  {
-    return NODE_STATE_TYPE;
-  }
-
   char const *NodeStateConstant::exprName() const
   {
     return "NodeStateValue";
@@ -80,11 +75,6 @@ namespace PLEXIL
   {
   }
 
-  ValueType NodeOutcomeConstant::valueType() const
-  {
-    return OUTCOME_TYPE;
-  }
-
   char const *NodeOutcomeConstant::exprName() const
   {
     return "NodeOutcomeValue";
@@ -109,11 +99,6 @@ namespace PLEXIL
 
   FailureTypeConstant::~FailureTypeConstant()
   {
-  }
-
-  ValueType FailureTypeConstant::valueType() const
-  {
-    return FAILURE_TYPE;
   }
 
   char const *FailureTypeConstant::exprName() const
@@ -141,11 +126,6 @@ namespace PLEXIL
 
   CommandHandleConstant::~CommandHandleConstant()
   {
-  }
-
-  ValueType CommandHandleConstant::valueType() const
-  {
-    return COMMAND_HANDLE_TYPE;
   }
 
   char const *CommandHandleConstant::exprName() const

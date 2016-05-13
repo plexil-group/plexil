@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "ArrayFwd.hh"
 #include "Expression.hh"
 #include "NodeOperatorImpl.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -34,56 +35,7 @@ namespace PLEXIL
   template <typename R>
   ValueType NodeOperatorImpl<R>::valueType() const
   {
-    return UNKNOWN_TYPE;
-  }
-
-  // Specific types
-  template <>
-  ValueType NodeOperatorImpl<double>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<bool>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<std::string>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<BooleanArray>::valueType() const
-  {
-    return BOOLEAN_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<IntegerArray>::valueType() const
-  {
-    return INTEGER_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<RealArray>::valueType() const
-  {
-    return REAL_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<StringArray>::valueType() const
-  {
-    return STRING_ARRAY_TYPE;
+    return PlexilValueType<R>::value;
   }
 
   // Convenience methods
@@ -159,12 +111,12 @@ namespace PLEXIL
  
   template <>
   template <>
-  bool NodeOperatorImpl<int32_t>::calc(double &result, Node const *node) const
+  bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const
   {
-    int32_t temp;
+    Integer temp;
     if (!this->calc(temp, node))
       return false;
-    result = (double) temp;
+    result = (Real) temp;
     return true;
   }
 
@@ -172,11 +124,14 @@ namespace PLEXIL
   // Explicit instantiations
   //
 
-  template class NodeOperatorImpl<double>;
-  template class NodeOperatorImpl<int32_t>;
-  // template class NodeOperatorImpl<uint16_t>;
-  template class NodeOperatorImpl<bool>;
-  template class NodeOperatorImpl<std::string>;
+  template class NodeOperatorImpl<Boolean>;
+  template class NodeOperatorImpl<NodeState>;
+  template class NodeOperatorImpl<NodeOutcome>;
+  template class NodeOperatorImpl<FailureType>;
+  template class NodeOperatorImpl<CommandHandleValue>;
+  template class NodeOperatorImpl<Integer>;
+  template class NodeOperatorImpl<Real>;
+  template class NodeOperatorImpl<String>;
 
   // later?
   // template class NodeOperatorImpl<BooleanArray>;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,10 @@ namespace PLEXIL
     virtual void deleteCache(void *Ptr) const = 0;
 
     virtual bool operator()(Boolean &result, Node const *arg) const = 0;
+    virtual bool operator()(NodeState &result, Node const *arg) const = 0;
+    virtual bool operator()(NodeOutcome &result, Node const *arg) const = 0;
+    virtual bool operator()(FailureType &result, Node const *arg) const = 0;
+    virtual bool operator()(CommandHandleValue &result, Node const *arg) const = 0;
     virtual bool operator()(Integer &result, Node const *node) const = 0;
     virtual bool operator()(Real &result, Node const *node) const = 0;
     virtual bool operator()(String &result, Node const *node) const = 0;

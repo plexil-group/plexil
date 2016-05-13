@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -90,94 +90,44 @@ namespace PLEXIL
     return m_op->toValue(m_valueCache, m_node);
   }
 
-  bool NodeFunction::getValue(bool &result) const
-  {
-    if (!isActive())
-      return false;
-    return (*m_op)(result, m_node);
+#define DEFINE_NODE_FUNC_GET_VALUE_METHOD(_rtype) \
+  bool NodeFunction::getValue(_rtype &result) const \
+  { \
+    if (!isActive()) \
+      return false; \
+    return (*m_op)(result, m_node); \
   }
 
-  bool NodeFunction::getValue(int32_t &result) const
-  {
-    if (!isActive())
-      return false;
-    return (*m_op)(result, m_node);
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Boolean)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(NodeState)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(NodeOutcome)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(FailureType)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(CommandHandleValue)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
+  DEFINE_NODE_FUNC_GET_VALUE_METHOD(String)
+
+#undef DEFINE_NODE_FUNC_GET_VALUE_METHOD
+
+#define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
+  bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
+  { \
+    if (!isActive()) \
+      return false; \
+    bool result = (*m_op)(*static_cast<_rtype *>(m_valueCache), m_node); \
+    if (result) \
+      ptr = static_cast<_rtype const *>(m_valueCache); /* trust me */ \
+    return result; \
   }
 
-  bool NodeFunction::getValue(double &result) const
-  {
-    if (!isActive())
-      return false;
-    return (*m_op)(result, m_node);
-  }
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(Array)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(BooleanArray)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(IntegerArray)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(RealArray)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(StringArray)
+  
+#undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
 
-  bool NodeFunction::getValue(std::string &result) const
-  {
-    if (!isActive())
-      return false;
-    return (*m_op)(result, m_node);
-  }
-
-  bool NodeFunction::getValuePointer(std::string const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = (*m_op)(*static_cast<std::string *>(m_valueCache), m_node);
-    if (result)
-      ptr = static_cast<std::string const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  // Generic Array
-  bool NodeFunction::getValuePointer(Array const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = (*m_op)(*static_cast<Array *>(m_valueCache), m_node);
-    if (result)
-      ptr = static_cast<Array const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  // Specific array types
-  bool NodeFunction::getValuePointer(BooleanArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = (*m_op)(*static_cast<BooleanArray *>(m_valueCache), m_node);
-    if (result)
-      ptr = static_cast<BooleanArray const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  bool NodeFunction::getValuePointer(IntegerArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = (*m_op)(*static_cast<IntegerArray *>(m_valueCache), m_node);
-    if (result)
-      ptr = static_cast<IntegerArray const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  bool NodeFunction::getValuePointer(RealArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = (*m_op)(*static_cast<RealArray *>(m_valueCache), m_node);
-    if (result)
-      ptr = static_cast<RealArray const *>(m_valueCache); // trust me
-    return result;
-  }
-
-  bool NodeFunction::getValuePointer(StringArray const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = (*m_op)(*static_cast<StringArray *>(m_valueCache), m_node);
-    if (result)
-      ptr = static_cast<StringArray const *>(m_valueCache); // trust me
-    return result;
-  }
 
 } // namespace PLEXIL
