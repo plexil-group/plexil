@@ -51,28 +51,28 @@ SimpleDrive{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](UNKNOWN) (Interruptible Boolean 0x7f8cfa407b50 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a]([unknown_value]) (Interruptible Boolean 0x7f88f2407e10 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a]([unknown_value]))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a]([unknown_value]))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [i](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -85,23 +85,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [i](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -112,23 +112,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [i](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -142,23 +142,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [i](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -169,23 +169,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [i](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -203,28 +203,28 @@ SimpleDrive{
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
 [PlexilExec:handleNeedsExecution]Storing action for node 'NextWaypoint' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing next_waypoint() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN))
+[Test:testOutput]Executing next_waypoint() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 6
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM))
   }
   NextWaypoint{
    State: EXECUTING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value]))
   }
 }
 
@@ -243,23 +243,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM))
   }
   NextWaypoint{
    State: FINISHING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value]))
   }
 }
 
@@ -272,23 +272,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value]))
   }
 }
 
@@ -299,23 +299,23 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHING (0)
-   StartCondition: (EQ Boolean 0x7f8cfa407ca0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x110121988 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa407690 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f8cfa407570 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7f88f2407f80 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x102621d28 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f2407930 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean NextWaypoint abortComplete 0x7f88f24077e8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [a]([unknown_value]))
   }
 }
 
@@ -344,21 +344,21 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -369,21 +369,21 @@ SimpleDrive{
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f88f2407a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f88f24079c0 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f8cfa407b10 [a](0) (Interruptible Boolean 0x7f8cfa407b50 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8cfa407a30 [a](0) (Constant Integer 0x7f8cfa407a00 [a](10)) (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f8cfa407ab0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x1101219d0 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8cfa4072a0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8cfa407180 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7f88f2407dc0 [a](0) (Interruptible Boolean 0x7f88f2407e10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f88f2407cc0 [a](0) (Constant Integer 0x7f88f2407cb0 [a](10)) (Variable Integer retTestFunction 0x7f88f24070b0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f88f2407d50 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x102621da0 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f88f24074e0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f88f24073b8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
@@ -440,16 +440,16 @@ SimpleDrive{
 SimpleDrive{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [i](UNKNOWN))
+ retTestFunction: (Variable Integer retTestFunction 0x7f88f24070b0 [i]([unknown_value]))
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407360 [i]([unknown_value]))
   }
   NextWaypoint{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f88f2407790 [i]([unknown_value]))
   }
 }
 
