@@ -52,7 +52,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface)
-    : TimeAdapter(execInterface)
+    : TimeAdapterImpl(execInterface)
   {
   }
 
@@ -64,7 +64,7 @@ namespace PLEXIL
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface, 
                                        pugi::xml_node const xml)
-    : TimeAdapter(execInterface, xml)
+    : TimeAdapterImpl(execInterface, xml)
   {
   }
 

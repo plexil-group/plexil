@@ -27,7 +27,7 @@
 #ifndef POSIX_TIME_ADAPTER_H
 #define POSIX_TIME_ADAPTER_H
 
-#include "TimeAdapter.hh"
+#include "TimeAdapterImpl.hh"
 
 #include <time.h> // *** better be POSIX time.h! ***
 
@@ -38,7 +38,7 @@ namespace PLEXIL
    * @brief An interface adapter using standard POSIX time facilities
    *        to implement LookupNow and LookupOnChange.
    */
-  class PosixTimeAdapter : public TimeAdapter
+  class PosixTimeAdapter : public TimeAdapterImpl
   {
   public:
     /**

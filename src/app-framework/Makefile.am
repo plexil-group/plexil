@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,9 @@ libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
 # FIXME: if we can figure out whether unistd.h contains a suitable value of _POSIX_TIMERS,
 # include only the appropriate sources for the platform.
 if UNIX_TIME_OPT
-include_HEADERS += TimeAdapter.hh PosixTimeAdapter.hh DarwinTimeAdapter.hh
-libPlexilAppFramework_la_SOURCES += TimeAdapter.cc PosixTimeAdapter.cc DarwinTimeAdapter.cc
+include_HEADERS += TimeAdapter.hh
+libPlexilAppFramework_la_SOURCES += TimeAdapter.cc TimeAdapterImpl.cc \
+ PosixTimeAdapter.cc DarwinTimeAdapter.cc
 endif
 
 # Libraries to link against

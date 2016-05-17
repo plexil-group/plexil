@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef DARWIN_TIME_ADAPTER_H
 #define DARWIN_TIME_ADAPTER_H
 
-#include "TimeAdapter.hh"
+#include "TimeAdapterImpl.hh"
 
 namespace PLEXIL
 {
@@ -36,7 +36,7 @@ namespace PLEXIL
    * @brief An interface adapter using Darwin native time facilities
    *        to implement LookupNow and LookupOnChange.
    */
-  class DarwinTimeAdapter : public TimeAdapter
+  class DarwinTimeAdapter : public TimeAdapterImpl
   {
   public:
     /**
