@@ -61,10 +61,16 @@ namespace PLEXIL
     virtual bool isKnown() const = 0;
 
     /**
-     * @brief Get the value of this expression as a Value instance.
+     * @brief Get the value of this object as a Value instance.
      * @return The Value instance.
      */
     virtual Value toValue() const = 0;
+
+    /**
+     * @brief Print the object's value to the given stream.
+     * @param s The output stream.
+     */
+    virtual void printValue(std::ostream& s) const = 0;
 
     //
     // The base class has to explicitly name all the potential types;

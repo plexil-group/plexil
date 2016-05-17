@@ -47,8 +47,9 @@ namespace PLEXIL
     bool isKnown() const;
     CachedValue &operator=(CachedValue const &other);
     CachedValue &operator=(CachedValue &&other);
-    CachedValue *clone() const;
     bool operator==(CachedValue const &) const;
+    CachedValue *clone() const;
+    void printValue(std::ostream &) const;
 
     /**
      * @brief Retrieve the cached value.

@@ -28,7 +28,7 @@
 #define PLEXIL_COMMAND_HANDLE_VARIABLE_HH
 
 #include "CommandHandle.hh"
-#include "ExpressionImpl.hh"
+#include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL
@@ -36,7 +36,9 @@ namespace PLEXIL
   // Forward reference
   class Command;
 
-  class CommandHandleVariable : public NotifierImpl, public ExpressionImpl<CommandHandleValue>
+  class CommandHandleVariable :
+    public GetValueImpl<CommandHandleValue>,
+    public NotifierImpl
   {
   public:
     /**

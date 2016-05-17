@@ -334,7 +334,7 @@ namespace PLEXIL
 
   // Specialization for Real
   template <>
-  void printValue(const double &val, std::ostream &s)
+  void printValue(const Real &val, std::ostream &s)
   {
     s << std::setprecision(15) << val;
   }
@@ -391,7 +391,7 @@ namespace PLEXIL
    */
 
   template <>
-  bool parseValue(char const *s, bool &result)
+  bool parseValue(char const *s, Boolean &result)
     throw (ParserException)
   {
     assertTrue_1(s);
@@ -432,7 +432,7 @@ namespace PLEXIL
   }
 
   template <>
-  bool parseValue<int32_t>(char const *s, int32_t &result)
+  bool parseValue<Integer>(char const *s, Integer &result)
     throw (ParserException)
   {
     assertTrue_1(s);
@@ -445,15 +445,15 @@ namespace PLEXIL
     checkParserException(ends != s && *ends == '\0',
                          "parseValue: \"" << s << "\" is an invalid value for an Integer");
     checkParserException(errno == 0
-                         && temp <= std::numeric_limits<int32_t>::max()
-                         && temp >= std::numeric_limits<int32_t>::min(),
+                         && temp <= std::numeric_limits<Integer>::max()
+                         && temp >= std::numeric_limits<Integer>::min(),
                          "parseValue: " << s << " is out of range for an Integer");
-    result = (int32_t) temp;
+    result = (Integer) temp;
     return true;
   }
 
   template <>
-  bool parseValue<double>(char const *s, double &result)
+  bool parseValue<Real>(char const *s, Real &result)
     throw (ParserException)
   {
     assertTrue_1(s);
@@ -462,7 +462,7 @@ namespace PLEXIL
 
     char * ends;
     errno = 0;
-    double temp = strtod(s, &ends);
+    Real temp = strtod(s, &ends);
     checkParserException(ends != s && *ends == '\0',
                          "parseValue: \"" << s << "\" is an invalid value for a Real");
     checkParserException(temp != HUGE_VAL && temp != -HUGE_VAL,
@@ -484,14 +484,14 @@ namespace PLEXIL
   //
   // Explicit instantiation
   //
-  template void printValue(bool const &, std::ostream &);
-  template void printValue(int32_t const &, std::ostream &);
-  template void printValue(double const &, std::ostream &);
-  template void printValue(std::string const &, std::ostream &);
+  template void printValue(Boolean const &, std::ostream &);
+  template void printValue(Integer const &, std::ostream &);
+  template void printValue(Real const &, std::ostream &);
+  template void printValue(String const &, std::ostream &);
 
-  template void printValue(ArrayImpl<bool> const &, std::ostream &);
-  template void printValue(ArrayImpl<int32_t> const &, std::ostream &);
-  template void printValue(ArrayImpl<double> const &, std::ostream &);
-  template void printValue(ArrayImpl<std::string> const &, std::ostream &);
+  template void printValue(BooleanArray const &, std::ostream &);
+  template void printValue(IntegerArray const &, std::ostream &);
+  template void printValue(RealArray const &, std::ostream &);
+  template void printValue(StringArray const &, std::ostream &);
 
 }

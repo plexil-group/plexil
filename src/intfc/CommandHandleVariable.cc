@@ -39,8 +39,8 @@ namespace PLEXIL
   //
 
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
-    : NotifierImpl(),
-      ExpressionImpl<CommandHandleValue>(),
+    : GetValueImpl<CommandHandleValue>(),
+    NotifierImpl(),
     m_command(cmd),
     m_name(NULL)
   {
@@ -92,7 +92,7 @@ namespace PLEXIL
     CommandHandleValue handle;
     if (!isActive()
         || (handle = m_command.getCommandHandle()) == NO_COMMAND_HANDLE)
-      s << "UNKNOWN";
+      s << "[unknown_value]";
     else
       s << commandHandleValueName(handle);
   }

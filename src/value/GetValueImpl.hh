@@ -121,6 +121,8 @@ namespace PLEXIL
     bool getValuePointerImpl(T const *&) const;
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
+
+    void printValue(std::ostream &s) const;
   };
 
   // Specialization for string
@@ -169,6 +171,8 @@ namespace PLEXIL
     // Type error
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
+
+    void printValue(std::ostream &s) const;
   };
 
   // Specialization for array types
@@ -214,6 +218,8 @@ namespace PLEXIL
     // Error for type mismatch
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
+
+    void printValue(std::ostream &s) const;
   };
 
 }

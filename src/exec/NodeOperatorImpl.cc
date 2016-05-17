@@ -58,7 +58,7 @@ namespace PLEXIL
     if (calcNative(cache, node))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
     else
-      s << "UNKNOWN";
+      s << "[unknown_value]";
   }
 
   template <typename R>
@@ -67,7 +67,7 @@ namespace PLEXIL
     if (calcNative(cache, node))
       PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
     else
-      s << "UNKNOWN";
+      s << "[unknown_value]";
   }
 
   template <typename R>

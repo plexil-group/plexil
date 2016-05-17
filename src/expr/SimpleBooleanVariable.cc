@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "SimpleBooleanVariable.hh"
 
 #include "Error.hh"
+#include "Value.hh"
 
 #include <cstdlib> // free()
 #include <cstring> // strdup()
@@ -35,9 +36,9 @@ namespace PLEXIL
 {
 
   SimpleBooleanVariable::SimpleBooleanVariable()
-    : NotifierImpl(),
-      ExpressionImpl<bool>(),
-    AssignableImpl<bool>(),
+    : SetValueImpl<bool>(),
+    NotifierImpl(),
+    Assignable(),
     m_name(NULL),
     m_value(false)
   {
@@ -84,7 +85,7 @@ namespace PLEXIL
   }
 
   //
-  // Value API
+  // GetValue API
   //
   
   // A SimpleBooleanVariable's value is known whenever it is active.
@@ -101,6 +102,10 @@ namespace PLEXIL
     }
     return false;
   }
+
+  //
+  // SetValue API
+  //
 
   void SimpleBooleanVariable::setValueImpl(bool const &value)
   {

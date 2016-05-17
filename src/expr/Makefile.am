@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,14 @@ lib_LTLIBRARIES = libPlexilExpr.la
 libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh \
- AssignableImpl.hh Constant.hh Expression.hh \
- ExpressionConstants.hh ExpressionImpl.hh ExpressionListener.hh ExprVec.hh \
+ Constant.hh Expression.hh ExpressionConstants.hh ExpressionListener.hh ExprVec.hh \
  Function.hh NodeConnector.hh NodeConstantExpressions.hh NotifierImpl.hh \
  Operator.hh SimpleBooleanVariable.hh UserVariable.hh VariableConflictSet.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
- Assignable.cc AssignableImpl.cc BooleanOperators.cc \
- Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
- ExpressionImpl.cc ExprVec.cc Function.cc \
+ Assignable.cc BooleanOperators.cc Comparisons.cc Constant.cc \
+ Expression.cc ExpressionConstants.cc ExprVec.cc Function.cc \
  NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
  SimpleBooleanVariable.cc StringOperators.cc VariableConflictSet.cc \
  UserVariable.cc

@@ -25,8 +25,10 @@
 */
 
 #include "ArrayVariable.hh"
+
 #include "Constant.hh"
 #include "Error.hh"
+#include "Value.hh"
 
 #include <cstdlib> // free()
 #include <cstring> // strdup()
@@ -36,9 +38,10 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : ExpressionImpl<ArrayImpl<T> >(),
-      AssignableImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      SetValueImpl<ArrayImpl<T> >(),
       NotifierImpl(),
+      Assignable(),
       m_size(NULL),
       m_initializer(NULL),
       m_name(NULL),
@@ -53,9 +56,10 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : ExpressionImpl<ArrayImpl<T> >(),
-      AssignableImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      SetValueImpl<ArrayImpl<T> >(),
       NotifierImpl(),
+      Assignable(),
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name(NULL),
@@ -73,9 +77,10 @@ namespace PLEXIL
                                   char const *name,
                                   Expression *size,
                                   bool sizeIsGarbage)
-    : ExpressionImpl<ArrayImpl<T> >(),
-      AssignableImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      SetValueImpl<ArrayImpl<T> >(),
       NotifierImpl(),
+      Assignable(),
       m_size(size),
       m_initializer(NULL),
       m_name(strdup(name)),

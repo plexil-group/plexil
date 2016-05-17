@@ -27,8 +27,9 @@
 #ifndef PLEXIL_USER_VARIABLE_HH
 #define PLEXIL_USER_VARIABLE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
+#include "GetValueImpl.hh"
+#include "SetValueImpl.hh"
 #include "VariableConflictSet.hh"
 
 namespace PLEXIL 
@@ -42,9 +43,10 @@ namespace PLEXIL
   // Scalar case
   template <typename T>
   class UserVariable :
-    public NotifierImpl,
-    public ExpressionImpl<T>,
-    public AssignableImpl<T>
+    virtual public GetValueImpl<T>,
+    virtual public SetValueImpl<T>,
+    virtual public NotifierImpl,
+    virtual public Assignable
   {
   public:
 
@@ -80,11 +82,11 @@ namespace PLEXIL
 
     char const *exprName() const;
 
-    bool isKnown() const;
+    //
+    // GetValueImpl, SetValueImpl API
+    //
 
-    //
-    // Assignable and AssignableImpl API
-    //
+    bool isKnown() const;
 
     /**
      * @brief Get the expression's value.
@@ -167,9 +169,10 @@ namespace PLEXIL
   // String case
   template <>
   class UserVariable<String> :
-    public NotifierImpl,
-    public ExpressionImpl<String>,
-    public AssignableImpl<String>
+    virtual public GetValueImpl<String>,
+    virtual public SetValueImpl<String>,
+    virtual public NotifierImpl,
+    virtual public Assignable
   {
   public:
 

@@ -105,7 +105,7 @@ namespace PLEXIL
   void Function::printValue(std::ostream &s) const
   {
     if (!isActive()) {
-      s << "UNKNOWN";
+      s << "[unknown_value]";
       return;
     }
     m_op->printValue(s, m_valueCache, *m_exprVec);

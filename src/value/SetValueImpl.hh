@@ -24,34 +24,25 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_ASSIGNABLE_IMPL_HH
-#define PLEXIL_ASSIGNABLE_IMPL_HH
+#ifndef PLEXIL_SET_VALUE_IMPL_HH
+#define PLEXIL_SET_VALUE_IMPL_HH
 
-#include "Assignable.hh"
 #include "ArrayImpl.hh"
-#include "Value.hh"
+#include "GetValueImpl.hh"
+#include "SetValue.hh"
 
 namespace PLEXIL
 {
-  /**
-   * @class AssignableShim
-   * @brief CRTP shim between virtual base class Assignable and its typed derivations.
-   */
   template <class IMPL>
-  class AssignableShim : public Assignable
+  class SetValueShim : virtual public SetValue
   {
   public:
-    AssignableShim() = default;
-    ~AssignableShim() = default;
+    SetValueShim() = default;
+    ~SetValueShim() = default;
 
     //
     // setValue
     //
-
-    void setValue(Expression const *valex)
-    {
-      static_cast<IMPL *>(this)->setValueImpl(valex);
-    }
 
     // Convenience member function
     void setValue(char const *val)
@@ -59,19 +50,11 @@ namespace PLEXIL
       static_cast<IMPL *>(this)->setValueImpl(String(val));
     }
 
-    // This didn't work for a variety of reasons.
-    // template <typename V>
-    // void setValue(V const &val)
-    // {
-    //   static_cast<IMPL *>(this)->setValueImpl(val);
-    // }
-
     // Local macro
 #define DEFINE_SET_VALUE_METHOD(_type_) \
     void setValue(_type_ const &val) \
     {static_cast<IMPL *>(this)->setValueImpl(val);}
 
-    DEFINE_SET_VALUE_METHOD(Value)
     DEFINE_SET_VALUE_METHOD(Boolean)
     DEFINE_SET_VALUE_METHOD(Integer)
     DEFINE_SET_VALUE_METHOD(Real)
@@ -84,6 +67,8 @@ namespace PLEXIL
     DEFINE_SET_VALUE_METHOD(IntegerArray)
     DEFINE_SET_VALUE_METHOD(RealArray)
     DEFINE_SET_VALUE_METHOD(StringArray)
+
+    DEFINE_SET_VALUE_METHOD(GetValue)
 
 #undef DEFINE_SET_VALUE_METHOD
 
@@ -108,31 +93,28 @@ namespace PLEXIL
   };
 
   /**
-   * @class AssignableImpl
-   * @brief Typed implementation derived class of Assignable.
+   * @class SetValueImpl
+   * @brief Typed implementation derived class of SetValue.
    */
 
   // Scalar case
   template <typename T>
-  class AssignableImpl : public AssignableShim<AssignableImpl<T> >
+  class SetValueImpl :
+    public SetValueShim<SetValueImpl<T> >
   {
   public:
-    AssignableImpl() = default;
-    virtual ~AssignableImpl() = default;
+    SetValueImpl() = default;
+    virtual ~SetValueImpl() = default;
+
+    // Default method.
+    void setValueImpl(GetValue const &v);
 
     // To be defined by derived classes.
     virtual void setValueImpl(T const &val) = 0;
 
-    // Type mismatch methods.
-    virtual void setValueImpl(char const *val);
-
     // Generalized type mismatch
     template <typename U>
     void setValueImpl(U const &val);
-
-    // Delegate to typed setValueImpl() methods.
-    void setValueImpl(Expression const *valex);
-    void setValueImpl(Value const &val);
 
     // Error for scalar types
     template <typename U>
@@ -141,26 +123,23 @@ namespace PLEXIL
 
   // Special case for string
   template <>
-  class AssignableImpl<String> : public AssignableShim<AssignableImpl<String> >
+  class SetValueImpl<String> :
+    virtual public GetValueImpl<String>,
+    public SetValueShim<SetValueImpl<String> >
   {
   public:
-    AssignableImpl() = default;
-    virtual ~AssignableImpl() = default;
+    SetValueImpl() = default;
+    virtual ~SetValueImpl() = default;
+
+    // Default method.
+    void setValueImpl(GetValue const &v);
 
     // To be defined by derived classes.
     virtual void setValueImpl(String const &val) = 0;
 
-    // Type mismatch methods.
-    // Can be overridden for conversions (e.g. for string).
-    virtual void setValueImpl(char const *val);
-
     // Generalized type mismatch
     template <typename U>
     void setValueImpl(U const &val);
-
-    // Delegate to typed setValueImpl() methods.
-    void setValueImpl(Expression const *valex);
-    void setValueImpl(Value const &val);
 
     virtual bool getMutableValuePointerImpl(String *& ptr) = 0;
 
@@ -171,25 +150,22 @@ namespace PLEXIL
 
   // Array variant
   template <typename T>
-  class AssignableImpl<ArrayImpl<T> > : public AssignableShim<AssignableImpl<ArrayImpl<T> > >
+  class SetValueImpl<ArrayImpl<T> > :
+    public SetValueShim<SetValueImpl<ArrayImpl<T> > >
   {
   public:
-    AssignableImpl() = default;
-    virtual ~AssignableImpl() = default;
+    SetValueImpl() = default;
+    virtual ~SetValueImpl() = default;
+
+    // Default method.
+    void setValueImpl(GetValue const &v);
 
     // To be defined by derived classes.
     virtual void setValueImpl(ArrayImpl<T> const &val) = 0;
 
-    // Type mismatch
-    void setValueImpl(char const *val);
-
     // Generalized type mismatch
     template <typename U>
     void setValueImpl(U const &val);
-
-    // Delegate to typed setValueImpl() methods.
-    void setValueImpl(Expression const *valex);
-    void setValueImpl(Value const &val);
 
     // To be defined by derived classes.
     virtual bool getMutableValuePointerImpl(ArrayImpl<T> *& ptr) = 0;
@@ -204,4 +180,4 @@ namespace PLEXIL
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_ASSIGNABLE_IMPL_HH
+#endif // PLEXIL_SET_VALUE_IMPL_HH

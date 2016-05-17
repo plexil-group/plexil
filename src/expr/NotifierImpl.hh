@@ -45,7 +45,7 @@ namespace PLEXIL {
    *       aliases for other variables or expressions.
    */
 
-  class NotifierImpl : public virtual Expression
+  class NotifierImpl : virtual public Expression
   {
   public:
 

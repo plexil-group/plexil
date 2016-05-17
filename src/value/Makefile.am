@@ -31,10 +31,10 @@ libPlexilValue_la_CPPFLAGS = -I@top_srcdir@/utils
 
 include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
  GetValue.hh GetValueImpl.hh NodeConstants.hh PlexilTypeTraits.hh \
- Value.hh ValueType.hh
+ SetValue.hh SetValueImpl.hh Value.hh ValueType.hh
 
 libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
- GetValueImpl.cc NodeConstants.cc Value.cc ValueType.cc
+ GetValueImpl.cc NodeConstants.cc SetValueImpl.cc Value.cc ValueType.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/value-module-tests

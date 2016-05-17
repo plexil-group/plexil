@@ -40,24 +40,24 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant()
-    : Expression(),
-      ExpressionImpl<T>(),
-      m_known(false)
+    : GetValueImpl<T>(),
+    Expression(),
+    m_known(false)
   {
   }
 
   Constant<String>::Constant()
-    : Expression(),
-      ExpressionImpl<String>(),
-      m_known(false)
+    : GetValueImpl<String>(),
+    Expression(),
+    m_known(false)
   {
   }
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant()
-    : Expression(),
-      ExpressionImpl<ArrayImpl<T> >(),
-      m_known(false)
+    : GetValueImpl<ArrayImpl<T> >(),
+    Expression(),
+    m_known(false)
   {
   }
 
@@ -66,16 +66,16 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant(const Constant &other)
-  : Expression(),
-    ExpressionImpl<T>(),
+    : GetValueImpl<T>(),
+    Expression(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
   }
 
   Constant<String>::Constant(const Constant &other)
-  : Expression(),
-    ExpressionImpl<String>(),
+    : GetValueImpl<String>(),
+    Expression(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -83,8 +83,8 @@ namespace PLEXIL
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const Constant &other)
-    : Expression(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+    Expression(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -95,16 +95,16 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant(const T &value)
-  : Expression(),
-    ExpressionImpl<T>(),
+    : GetValueImpl<T>(),
+    Expression(),
     m_value(value),
     m_known(true)
   {
   }
 
   Constant<String>::Constant(const std::string &value)
-  : Expression(),
-    ExpressionImpl<String>(),
+  : GetValueImpl<String>(),
+    Expression(),
     m_value(value),
     m_known(true)
   {
@@ -112,8 +112,8 @@ namespace PLEXIL
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const ArrayImpl<T> &value)
-    : Expression(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+    Expression(),
     m_value(value),
     m_known(true)
   {
@@ -125,8 +125,8 @@ namespace PLEXIL
 
   // *** TODO: More types ***
   Constant<String>::Constant(const char *value)
-  : Expression(),
-    ExpressionImpl<String>(),
+    : GetValueImpl<String>(),
+    Expression(),
     m_value(value),
     m_known(true)
   {

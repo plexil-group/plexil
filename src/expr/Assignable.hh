@@ -28,6 +28,7 @@
 #define PLEXIL_ASSIGNABLE_HH
 
 #include "NotifierImpl.hh"
+#include "SetValue.hh"
 
 namespace PLEXIL {
   
@@ -42,7 +43,9 @@ namespace PLEXIL {
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    * @note This class has no state of its own.
    */
-  class Assignable : public virtual Expression
+  class Assignable :
+    virtual public SetValue,
+    virtual public Expression
   {
   public:
     Assignable() = default;
@@ -83,59 +86,6 @@ namespace PLEXIL {
      *        created.
      */
     virtual void reset() = 0;
-
-    /**
-     * @brief Set the current value of this variable to "unknown".
-     * @note May cause change notifications to occur.
-     */
-    virtual void setUnknown() = 0;
-
-    /**
-     * @brief Set the value for this expression.
-     * @param val The new value for this expression.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Boolean const &val) = 0;
-    virtual void setValue(Integer const &val) = 0;
-    virtual void setValue(Real const &val) = 0;
-    virtual void setValue(NodeState const &val) = 0;
-    virtual void setValue(NodeOutcome const &val) = 0;
-    virtual void setValue(FailureType const &val) = 0;
-    virtual void setValue(CommandHandleValue const &val) = 0;
-
-    virtual void setValue(String const &val) = 0;
-    virtual void setValue(char const *val) = 0; // convenience
-
-    virtual void setValue(BooleanArray const &val) = 0;
-    virtual void setValue(IntegerArray const &val) = 0;
-    virtual void setValue(RealArray const &val) = 0;
-    virtual void setValue(StringArray const &val) = 0;
-
-    /**
-     * @brief Set the value for this expression from another expression.
-     * @param valex The expression from which to obtain the new value.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Expression const *valex) = 0;
-
-    /**
-     * @brief Set the value for this expression from a generic Value.
-     * @param val The Value.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Value const &value) = 0;
-
-    /**
-     * @brief Retrieve a pointer to the non-const value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    virtual bool getMutableValuePointer(String *&ptr) = 0;
-    virtual bool getMutableValuePointer(Array *&ptr) = 0;
-    virtual bool getMutableValuePointer(BooleanArray *&ptr) = 0;
-    virtual bool getMutableValuePointer(IntegerArray *&ptr) = 0;
-    virtual bool getMutableValuePointer(RealArray *&ptr) = 0;
-    virtual bool getMutableValuePointer(StringArray *&ptr) = 0;
 
     /**
      * @brief Temporarily stores the previous value of this variable.

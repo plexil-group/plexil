@@ -46,9 +46,11 @@ namespace PLEXIL
   NodeTimepointValue::NodeTimepointValue(Node *node,
                                          NodeState state,
                                          bool isEnd)
-    : m_node(node),
-      m_state(state),
-      m_end(isEnd)
+    : GetValueImpl<double>(), // FIXME
+    NotifierImpl(),
+    m_node(node),
+    m_state(state),
+    m_end(isEnd)
   {
     m_node->getStateVariable()->addListener(this);
   }

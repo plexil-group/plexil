@@ -207,6 +207,35 @@ namespace PLEXIL
     return false;
   }
 
+  template <typename T>
+  void GetValueImpl<T>::printValue(std::ostream &s) const
+  {
+    T val;
+    if (this->getValue(val))
+      PLEXIL::printValue(val, s);
+    else
+      s << "[unknown_value]"; 
+  }
+
+  void GetValueImpl<String>::printValue(std::ostream &s) const
+  {
+    String const *val;
+    if (this->getValuePointer(val))
+      PLEXIL::printValue(*val, s);
+    else
+      s << "[unknown_value]"; 
+  }
+
+  template <typename T>
+  void GetValueImpl<ArrayImpl<T> >::printValue(std::ostream &s) const
+  {
+    ArrayImpl<T> const *val;
+    if (this->getValuePointer(val))
+      PLEXIL::printValue(*val, s);
+    else
+      s << "[unknown_value]"; 
+  }
+
   // Explicit instantiations
   template class GetValueImpl<Boolean>;
 
@@ -333,7 +362,7 @@ namespace PLEXIL
   template bool GetValueImpl<CommandHandleValue>::getValuePointerImpl(RealArray const *&) const;
   template bool GetValueImpl<CommandHandleValue>::getValuePointerImpl(StringArray const *&) const;
 
-  template class GetValueImpl<String>;
+  // template class GetValueImpl<String>;
 
   template bool GetValueImpl<String>::getValueImpl(Boolean &) const;
   template bool GetValueImpl<String>::getValueImpl(Integer &) const;

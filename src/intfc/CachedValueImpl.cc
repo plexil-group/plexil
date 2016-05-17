@@ -86,6 +86,11 @@ namespace PLEXIL
     return Value();
   }
 
+  void VoidCachedValue::printValue(std::ostream &s) const
+  {
+      s << "[unknown_value]"; 
+  }
+
   /**
    * @brief Update the cache entry with the given new value.
    * @param timestamp Sequence number.

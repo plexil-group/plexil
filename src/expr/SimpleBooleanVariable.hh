@@ -27,8 +27,10 @@
 #ifndef PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 #define PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
+#include "GetValueImpl.hh"
+#include "NotifierImpl.hh"
+#include "SetValueImpl.hh"
 
 namespace PLEXIL {
 
@@ -38,9 +40,10 @@ namespace PLEXIL {
    */
 
   class SimpleBooleanVariable :
+    public GetValueImpl<bool>,
+    public SetValueImpl<bool>,
     public NotifierImpl,
-    public ExpressionImpl<bool>,
-    public AssignableImpl<bool>
+    public Assignable
   {
   public:
     SimpleBooleanVariable();

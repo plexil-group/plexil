@@ -123,7 +123,7 @@ namespace PLEXIL
     Array const *ary;
     size_t idx;
     if (!selfCheck(ary, idx)) {
-      s << "UNKNOWN";
+      s << "[unknown_value]";
       return;
     }
 
@@ -370,10 +370,46 @@ namespace PLEXIL
     setValue(String(value));
   }
 
-  // TODO: optimize
-  void MutableArrayReference::setValue(Expression const *valex)
+  void MutableArrayReference::setValue(GetValue const &valex)
   {
-    setValue(valex->toValue());
+    if (valex.isKnown())
+      switch (valex.valueType()) {
+      case BOOLEAN_TYPE: {
+	Boolean b;
+	valex.getValue(b);
+	this->setValue(b);
+      }
+	break;
+	
+      case INTEGER_TYPE: {
+	Integer i;
+	valex.getValue(i);
+	this->setValue(i);
+      }
+	break;
+
+      case REAL_TYPE: {
+	Real r;
+	valex.getValue(r);
+	this->setValue(r);
+      }
+	break;
+
+      case STRING_TYPE: {
+	String const *ptr;
+	valex.getValuePointer(ptr);
+	this->setValue(*ptr);
+      }
+	break;
+
+      default:
+	assertTrueMsg(ALWAYS_FAIL,
+		      "ArrayReference:setValue: illegal or unimplemented type "
+		      << valueTypeName(valex.valueType()));
+	break;
+      }
+    else
+      setUnknown();
   }
 
   void MutableArrayReference::setValue(Value const &value)

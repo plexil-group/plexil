@@ -31,8 +31,8 @@
 // Plan-visible expressions derived from node internal state
 //
 
+#include "GetValueImpl.hh"
 #include "NodeConstants.hh"
-#include "ExpressionImpl.hh"
 #include "NotifierImpl.hh"
 //#include "UserVariable.hh" // includes both of the above
 
@@ -41,7 +41,9 @@ namespace PLEXIL {
   // Forward references
   class Node;
 
-  class StateVariable : public NotifierImpl, public ExpressionImpl<NodeState>
+  class StateVariable :
+    public GetValueImpl<NodeState>,
+    public NotifierImpl
   {
   public:
     /**
@@ -106,7 +108,9 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class OutcomeVariable : public NotifierImpl, public ExpressionImpl<NodeOutcome>
+  class OutcomeVariable :
+    public GetValueImpl<NodeOutcome>,
+    public NotifierImpl
   {
   public:
     /**
@@ -169,7 +173,9 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class FailureVariable : public NotifierImpl, public ExpressionImpl<FailureType>
+  class FailureVariable :
+    public GetValueImpl<FailureType>,
+    public NotifierImpl
   {
   public:
     /**

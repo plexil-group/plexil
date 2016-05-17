@@ -27,8 +27,7 @@
 #ifndef PLEXIL_ARRAY_REFERENCE_HH
 #define PLEXIL_ARRAY_REFERENCE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
 #include "Value.hh"
 
 namespace PLEXIL {
@@ -145,7 +144,9 @@ namespace PLEXIL {
    * @brief Expression class that represents a modifiable location in an array.
    */
 
-  class MutableArrayReference : public ArrayReference, public Assignable
+  class MutableArrayReference :
+    public ArrayReference,
+    public Assignable
   {
   public:
     MutableArrayReference(Expression *ary,
@@ -181,46 +182,47 @@ namespace PLEXIL {
     void setValueImpl(ArrayImpl<V> const &);
 
     // Instantiations of above
-    void setValue(Boolean const &val)
+    virtual void setValue(Boolean const &val)
     { setValueImpl(val); }
-    void setValue(Real const &val)
+    virtual void setValue(Real const &val)
     { setValueImpl(val); }
-    void setValue(String const &val)
-    { setValueImpl(val); }
-
-    void setValue(BooleanArray const &val)
-    { setValueImpl(val); }
-    void setValue(IntegerArray const &val)
-    { setValueImpl(val); }
-    void setValue(RealArray const &val)
-    { setValueImpl(val); }
-    void setValue(StringArray const &val)
+    virtual void setValue(String const &val)
     { setValueImpl(val); }
 
+    virtual void setValue(BooleanArray const &val)
+    { setValueImpl(val); }
+    virtual void setValue(IntegerArray const &val)
+    { setValueImpl(val); }
+    virtual void setValue(RealArray const &val)
+    { setValueImpl(val); }
+    virtual void setValue(StringArray const &val)
+    { setValueImpl(val); }
 
     // Specialized
-    void setValue(Integer const &);
-    void setValue(char const *val);
+    virtual void setValue(Integer const &);
+    virtual void setValue(char const *val);
 
     // Not implemented (will assert)
-    void setValue(NodeState const &);
-    void setValue(NodeOutcome const &);
-    void setValue(FailureType const &);
-    void setValue(CommandHandleValue const &);
+    virtual void setValue(NodeState const &);
+    virtual void setValue(NodeOutcome const &);
+    virtual void setValue(FailureType const &);
+    virtual void setValue(CommandHandleValue const &);
 
     /**
-     * @brief Set the value for this expression from another expression.
+     * @brief Set the value for this expression from another GetValue object.
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    void setValue(Expression const *valex);
+    virtual void setValue(GetValue const &valex);
 
     /**
      * @brief Set the value for this expression from a generic Value.
      * @param val The Value.
      * @note May cause change notifications to occur.
      */
-    void setValue(Value const &value);
+    virtual void setValue(Value const &value);
+
+    using Assignable::setValue;
 
     /**
      * @brief Retrieve a writable ponter to the value.

@@ -117,7 +117,7 @@ namespace PLEXIL
     bool equals(Value const &) const;
     bool lessThan(Value const &) const; // for (e.g.) std::map
 
-    void print(std::ostream &s) const;
+    void printValue(std::ostream &s) const;
     std::string valueToString() const;
 
   private:

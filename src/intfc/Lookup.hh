@@ -27,7 +27,6 @@
 #ifndef PLEXIL_LOOKUP_HH
 #define PLEXIL_LOOKUP_HH
 
-#include "ExpressionImpl.hh"
 #include "NotifierImpl.hh"
 #include "State.hh"
 

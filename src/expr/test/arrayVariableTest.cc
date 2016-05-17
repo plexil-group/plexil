@@ -190,10 +190,10 @@ static bool uninitializedVariableTest()
   RealArrayConstant acd(vd);
   StringArrayConstant acs(vs);
 
-  vuba.setValue(&acb);
-  vuia.setValue(&aci);
-  vuda.setValue(&acd);
-  vusa.setValue(&acs);
+  vuba.setValue(acb);
+  vuia.setValue(aci);
+  vuda.setValue(acd);
+  vusa.setValue(acs);
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -273,10 +273,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(pfoosa == NULL);
 
   // Set value and check result
-  vuba.setValue(&acb);
-  vuia.setValue(&aci);
-  vuda.setValue(&acd);
-  vusa.setValue(&acs);
+  vuba.setValue(acb);
+  vuia.setValue(aci);
+  vuda.setValue(acd);
+  vusa.setValue(acs);
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -322,10 +322,10 @@ static bool uninitializedVariableTest()
   RealArrayConstant acad(vad);
   StringArrayConstant acas(vas);
 
-  vuba.setValue(&acab);
-  vuia.setValue(&acai);
-  vuda.setValue(&acad);
-  vusa.setValue(&acas);
+  vuba.setValue(acab);
+  vuia.setValue(acai);
+  vuda.setValue(acad);
+  vusa.setValue(acas);
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -548,10 +548,10 @@ static bool testVariableInitialValue()
   RealArrayConstant dac(dv2);
   StringArrayConstant sac(sv2);
 
-  vba.setValue(&bac);
-  via.setValue(&iac);
-  vda.setValue(&dac);
-  vsa.setValue(&sac);
+  vba.setValue(bac);
+  via.setValue(iac);
+  vda.setValue(dac);
+  vsa.setValue(sac);
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -777,10 +777,10 @@ static bool testVariableInitializers()
   RealArrayConstant dac(dv2);
   StringArrayConstant sac(sv2);
 
-  vba.setValue(&bac);
-  via.setValue(&iac);
-  vda.setValue(&dac);
-  vsa.setValue(&sac);
+  vba.setValue(bac);
+  via.setValue(iac);
+  vda.setValue(dac);
+  vsa.setValue(sac);
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -866,10 +866,10 @@ static bool testVariableSavedValue()
   RealArrayConstant dac(dv);
   StringArrayConstant sac(sv);
 
-  vuba.setValue(&bac);
-  vuia.setValue(&iac);
-  vuda.setValue(&dac);
-  vusa.setValue(&sac);
+  vuba.setValue(bac);
+  vuia.setValue(iac);
+  vuda.setValue(dac);
+  vusa.setValue(sac);
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -934,10 +934,10 @@ static bool testVariableSavedValue()
   assertTrue_1(pfoosa == NULL);
 
   // Assign again
-  vuba.setValue(&bac);
-  vuia.setValue(&iac);
-  vuda.setValue(&dac);
-  vusa.setValue(&sac);
+  vuba.setValue(bac);
+  vuia.setValue(iac);
+  vuda.setValue(dac);
+  vusa.setValue(sac);
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -1189,10 +1189,10 @@ static bool testAssignablePointer()
   RealArrayConstant dac(dv2);
   StringArrayConstant sac(sv2);
 
-  eba->setValue(&bac);
-  eia->setValue(&iac);
-  eda->setValue(&dac);
-  esa->setValue(&sac);
+  eba->setValue(bac);
+  eia->setValue(iac);
+  eda->setValue(dac);
+  esa->setValue(sac);
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -1420,10 +1420,10 @@ static bool testVariableNotification()
   RealArrayConstant dac(dv);
   StringArrayConstant sac(sv);
 
-  vuba.setValue(&bac);
-  vuia.setValue(&iac);
-  vuda.setValue(&dac);
-  vusa.setValue(&sac);
+  vuba.setValue(bac);
+  vuia.setValue(iac);
+  vuda.setValue(dac);
+  vusa.setValue(sac);
 
   assertTrue_1(bachanged);
   assertTrue_1(iachanged);

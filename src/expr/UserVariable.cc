@@ -43,9 +43,10 @@ namespace PLEXIL
 
   template <typename T>
   UserVariable<T>::UserVariable()
-    : NotifierImpl(),
-      ExpressionImpl<T>(),
-    AssignableImpl<T>(),
+    : GetValueImpl<T>(),
+    SetValueImpl<T>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -55,9 +56,10 @@ namespace PLEXIL
   }
 
   UserVariable<String>::UserVariable()
-    : NotifierImpl(),
-      ExpressionImpl<String>(),
-    AssignableImpl<String>(),
+    : GetValueImpl<String>(),
+    SetValueImpl<String>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -68,9 +70,10 @@ namespace PLEXIL
 
   template <typename T>
   UserVariable<T>::UserVariable(T const &initVal)
-    : NotifierImpl(),
-      ExpressionImpl<T>(),
-    AssignableImpl<T>(),
+    : GetValueImpl<T>(),
+    SetValueImpl<T>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(new Constant<T>(initVal)),
     m_name(NULL),
     m_node(NULL),
@@ -81,9 +84,10 @@ namespace PLEXIL
   }
 
   UserVariable<String>::UserVariable(std::string const &initVal)
-    : NotifierImpl(),
-      ExpressionImpl<String>(),
-    AssignableImpl<String>(),
+    : GetValueImpl<String>(),
+    SetValueImpl<String>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(new Constant<String>(initVal)),
     m_name(NULL),
     m_node(NULL),
@@ -96,9 +100,10 @@ namespace PLEXIL
   // Only two possible constant initializers for BooleanVariable
   template <>
   UserVariable<bool>::UserVariable(const bool &initVal)
-    : NotifierImpl(),
-      ExpressionImpl<bool>(),
-    AssignableImpl<bool>(),
+    : GetValueImpl<bool>(),
+    SetValueImpl<bool>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
     m_name(NULL),
     m_node(NULL),
@@ -111,9 +116,10 @@ namespace PLEXIL
   template <typename T>
   UserVariable<T>::UserVariable(NodeConnector *node,
                                 char const *name)
-    : NotifierImpl(),
-      ExpressionImpl<T>(),
-    AssignableImpl<T>(),
+    : GetValueImpl<T>(),
+    SetValueImpl<T>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),
@@ -125,9 +131,10 @@ namespace PLEXIL
 
   UserVariable<String>::UserVariable(NodeConnector *node,
                                      char const *name)
-    : NotifierImpl(),
-      ExpressionImpl<String>(),
-    AssignableImpl<String>(),
+    : GetValueImpl<String>(),
+    SetValueImpl<String>(),
+    NotifierImpl(),
+    Assignable(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),

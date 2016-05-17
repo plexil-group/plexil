@@ -35,9 +35,9 @@ namespace PLEXIL
   //
 
   StateVariable::StateVariable(Node const &node)
-    : NotifierImpl(),
-      ExpressionImpl<NodeState>(),
-      m_node(node)
+    : GetValueImpl<NodeState>(),
+    NotifierImpl(),
+    m_node(node)
   {
   }
 
@@ -71,9 +71,9 @@ namespace PLEXIL
   //
 
   OutcomeVariable::OutcomeVariable(Node const &node)
-    : NotifierImpl(),
-      ExpressionImpl<NodeOutcome>(),
-      m_node(node)
+    : GetValueImpl<NodeOutcome>(),
+    NotifierImpl(),
+    m_node(node)
   {
   }
 
@@ -100,7 +100,7 @@ namespace PLEXIL
   {
     NodeOutcome outcome = m_node.getOutcome();
     if (outcome == NO_OUTCOME)
-      s << "UNKNOWN";
+      s << "[unknown_value]";
     else
       s << outcomeName((NodeOutcome) outcome);
   }
@@ -120,9 +120,9 @@ namespace PLEXIL
   //
 
   FailureVariable::FailureVariable(Node const &node)
-    : NotifierImpl(),
-      ExpressionImpl<FailureType>(),
-      m_node(node)
+    : GetValueImpl<FailureType>(),
+    NotifierImpl(),
+    m_node(node)
   {
   }
 

@@ -27,8 +27,10 @@
 #ifndef PLEXIL_ARRAY_VARIABLE_HH
 #define PLEXIL_ARRAY_VARIABLE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
+#include "GetValueImpl.hh"
+#include "NotifierImpl.hh"
+#include "SetValueImpl.hh"
 #include "VariableConflictSet.hh"
 
 namespace PLEXIL
@@ -42,9 +44,10 @@ namespace PLEXIL
 
   template <typename T>
   class ArrayVariable :
-    public ExpressionImpl<ArrayImpl<T> >,
-    public AssignableImpl<ArrayImpl<T> >,
-    public NotifierImpl
+    public GetValueImpl<ArrayImpl<T> >,
+    public SetValueImpl<ArrayImpl<T> >,
+    public NotifierImpl,
+    public Assignable
   {
   public:
 

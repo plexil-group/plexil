@@ -28,7 +28,8 @@
 #define PLEXIL_CONSTANT_HH
 
 #include "ArrayImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Expression.hh"
+#include "GetValueImpl.hh"
 
 namespace PLEXIL {
 
@@ -39,7 +40,9 @@ namespace PLEXIL {
    */
 
   template <typename T>
-  class Constant : public ExpressionImpl<T>
+  class Constant :
+    public GetValueImpl<T>,
+    public Expression
   {
   public:
 
@@ -145,7 +148,9 @@ namespace PLEXIL {
 
   // String is different
   template <>
-  class Constant<String> : public ExpressionImpl<String>
+  class Constant<String> :
+    public GetValueImpl<String>,
+    public Expression
   {
   public:
 
@@ -258,7 +263,9 @@ namespace PLEXIL {
 
   // Array types
   template <typename T>
-  class Constant<ArrayImpl<T> > : public ExpressionImpl<ArrayImpl<T> >
+  class Constant<ArrayImpl<T> > :
+    public GetValueImpl<ArrayImpl<T> >,
+    public Expression
   {
   public:
 

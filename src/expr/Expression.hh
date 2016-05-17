@@ -47,7 +47,9 @@ namespace PLEXIL
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression : virtual public GetValue, public ExpressionListener
+  class Expression :
+    virtual public GetValue,
+    virtual public ExpressionListener
   {
   private:
     // Unimplmented
@@ -124,12 +126,6 @@ namespace PLEXIL
      * @param s The output stream.
      */
     virtual void printSubexpressions(std::ostream &s) const;
-
-    /**
-     * @brief Print the expression's value to the given stream.
-     * @param s The output stream.
-     */
-    virtual void printValue(std::ostream& s) const = 0;
 
     //
     // Convenience methods which may be overridden or extended

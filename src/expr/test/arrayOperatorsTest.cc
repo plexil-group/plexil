@@ -80,10 +80,10 @@ static bool testArraySize()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(&emptybac);
-  iav.setValue(&emptyiac);
-  rav.setValue(&emptyrac);
-  sav.setValue(&emptysac);
+  bav.setValue(emptybac);
+  iav.setValue(emptyiac);
+  rav.setValue(emptyrac);
+  sav.setValue(emptysac);
 
   assertTrue_1(bl.getValue(len));
   assertTrue_1(len == 0);
@@ -100,10 +100,10 @@ static bool testArraySize()
   RealArrayConstant shortrac(8);
   StringArrayConstant shortsac(8);
 
-  bav.setValue(&shortbac);
-  iav.setValue(&shortiac);
-  rav.setValue(&shortrac);
-  sav.setValue(&shortsac);
+  bav.setValue(shortbac);
+  iav.setValue(shortiac);
+  rav.setValue(shortrac);
+  sav.setValue(shortsac);
 
   assertTrue_1(bl.getValue(len));
   assertTrue_1(len == 8);
@@ -146,10 +146,10 @@ static bool testArraySize()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(&unknownbac);
-  iav.setValue(&unknowniac);
-  rav.setValue(&unknownrac);
-  sav.setValue(&unknownsac);
+  bav.setValue(unknownbac);
+  iav.setValue(unknowniac);
+  rav.setValue(unknownrac);
+  sav.setValue(unknownsac);
 
   assertTrue_1(!bl.getValue(len));
   assertTrue_1(!il.getValue(len));
@@ -204,10 +204,10 @@ static bool testAllElementsKnown()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(&emptybac);
-  iav.setValue(&emptyiac);
-  rav.setValue(&emptyrac);
-  sav.setValue(&emptysac);
+  bav.setValue(emptybac);
+  iav.setValue(emptyiac);
+  rav.setValue(emptyrac);
+  sav.setValue(emptysac);
 
   // *** Boundary case -- see Array.cc ***
   assertTrue_1(bl.getValue(temp));
@@ -225,10 +225,10 @@ static bool testAllElementsKnown()
   RealArrayConstant shortrac(2);
   StringArrayConstant shortsac(2);
 
-  bav.setValue(&shortbac);
-  iav.setValue(&shortiac);
-  rav.setValue(&shortrac);
-  sav.setValue(&shortsac);
+  bav.setValue(shortbac);
+  iav.setValue(shortiac);
+  rav.setValue(shortrac);
+  sav.setValue(shortsac);
 
   assertTrue_1(bl.getValue(temp));
   assertTrue_1(!temp);
@@ -287,10 +287,10 @@ static bool testAllElementsKnown()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(&unknownbac);
-  iav.setValue(&unknowniac);
-  rav.setValue(&unknownrac);
-  sav.setValue(&unknownsac);
+  bav.setValue(unknownbac);
+  iav.setValue(unknowniac);
+  rav.setValue(unknownrac);
+  sav.setValue(unknownsac);
 
   assertTrue_1(!bl.getValue(temp));
   assertTrue_1(!il.getValue(temp));
@@ -347,10 +347,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(&emptybac);
-  iav.setValue(&emptyiac);
-  rav.setValue(&emptyrac);
-  sav.setValue(&emptysac);
+  bav.setValue(emptybac);
+  iav.setValue(emptyiac);
+  rav.setValue(emptyrac);
+  sav.setValue(emptysac);
 
   // *** Boundary case -- see Array.cc ***
   assertTrue_1(bl.getValue(temp));
@@ -368,10 +368,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant shortrac(2);
   StringArrayConstant shortsac(2);
 
-  bav.setValue(&shortbac);
-  iav.setValue(&shortiac);
-  rav.setValue(&shortrac);
-  sav.setValue(&shortsac);
+  bav.setValue(shortbac);
+  iav.setValue(shortiac);
+  rav.setValue(shortrac);
+  sav.setValue(shortsac);
 
   assertTrue_1(bl.getValue(temp));
   assertTrue_1(!temp);
@@ -430,10 +430,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(&unknownbac);
-  iav.setValue(&unknowniac);
-  rav.setValue(&unknownrac);
-  sav.setValue(&unknownsac);
+  bav.setValue(unknownbac);
+  iav.setValue(unknowniac);
+  rav.setValue(unknownrac);
+  sav.setValue(unknownsac);
 
   assertTrue_1(!bl.getValue(temp));
   assertTrue_1(!il.getValue(temp));
