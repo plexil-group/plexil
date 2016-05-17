@@ -1,6 +1,7 @@
 #!/bin/sh
+# Source or include this script to set up Plexil environment.
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,30 +28,33 @@
 
 # Check environment variables and UE executable
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
-    return 1
-else
-    export PATH=${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
-    _plexil_libpath=$PLEXIL_HOME/lib
+then
+    echo Error: Unable to set up Plexil environment.
+    echo Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' directory.
+    return
+fi
 
-    # Linux
-    if [ -z "$LD_LIBRARY_PATH" ]
-    then
-		export LD_LIBRARY_PATH=$_plexil_libpath
-	else
-		export LD_LIBRARY_PATH=$_plexil_libpath:$LD_LIBRARY_PATH
-	fi		
+export PATH=${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
+_plexil_libpath=$PLEXIL_HOME/lib
 
+if [ `uname` == "Darwin" ]
+then
     # Mac
     if [ -z "$DYLD_LIBRARY_PATH" ]
-	   then
-		   export DYLD_LIBRARY_PATH=$_plexil_libpath
-	else
-		export DYLD_LIBRARY_PATH=$_plexil_libpath:$DYLD_LIBRARY_PATH
-	fi
-
-    unset _plexil_libpath
+    then
+	export DYLD_LIBRARY_PATH=$_plexil_libpath
+    else
+	export DYLD_LIBRARY_PATH=$_plexil_libpath:$DYLD_LIBRARY_PATH
+    fi
+else
+    # Some other Unix variant
+    if [ -z "$LD_LIBRARY_PATH" ]
+    then
+	export LD_LIBRARY_PATH=$_plexil_libpath
+    else
+	export LD_LIBRARY_PATH=$_plexil_libpath:$LD_LIBRARY_PATH
+    fi		
 fi
+
+unset _plexil_libpath
