@@ -1,6 +1,6 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -103,6 +103,8 @@ IpcUtils: lib/libIpcUtils.$(SUFSHARE)
 
 IpcAdapter: lib/libIpcAdapter.$(SUFSHARE)
 
+Launcher: lib/libLauncher.$(SUFSHARE)
+
 LuvListener: lib/libLuvListener.$(SUFSHARE)
 
 PlanDebugListener: lib/libPlanDebugListener.$(SUFSHARE)
@@ -132,6 +134,7 @@ lib/libipc.a : most
 lib/libIpcAdapter.$(SUFSHARE) : most
 lib/libIpcUtils.$(SUFSHARE) : most
 lib/libLuvListener.$(SUFSHARE) : most
+lib/libLauncher.$(SUFSHARE) : most
 lib/libPlanDebugListener.$(SUFSHARE) : most
 lib/libPlexilAppFramework.$(SUFSHARE) : most
 lib/libPlexilExec.$(SUFSHARE) : most

@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -208,6 +208,7 @@ AC_CONFIG_FILES([Makefile
                  app-framework/Makefile
                  apps/TestExec/Makefile
                  interfaces/GanttListener/Makefile
+		 interfaces/Launcher/Makefile
                  interfaces/LuvListener/Makefile
                  interfaces/PlanDebugListener/Makefile
                  interfaces/Sockets/Makefile
