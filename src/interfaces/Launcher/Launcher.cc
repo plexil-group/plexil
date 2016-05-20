@@ -120,7 +120,7 @@ namespace PLEXIL
 
     for (size_t i = 1; i < nargs; i += 2) {
       if (i + 1 >= nargs) {
-        warn("Arguments to " << cmd->getName() " command not in name-value pairs");
+        warn("Arguments to " << cmd->getName() << " command not in name-value pairs");
         g_manager->handleCommandAck(cmd, COMMAND_FAILED);
 	g_manager->notifyOfExternalEvent();
         return;
