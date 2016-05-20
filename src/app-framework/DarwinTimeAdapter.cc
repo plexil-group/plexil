@@ -52,7 +52,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface)
-    : TimeAdapter(execInterface)
+    : TimeAdapterImpl(execInterface)
   {
   }
 
@@ -64,7 +64,7 @@ namespace PLEXIL
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface, 
                                        pugi::xml_node const xml)
-    : TimeAdapter(execInterface, xml)
+    : TimeAdapterImpl(execInterface, xml)
   {
   }
 
@@ -77,15 +77,15 @@ namespace PLEXIL
 
   /**
    * @brief Get the current time from the operating system.
-   * @return A double representing the current time.
+   * @return A Real representing the current time.
    */
-  double DarwinTimeAdapter::getCurrentTime()
+  Real DarwinTimeAdapter::getCurrentTime()
   {
     timeval tv;
     int status = gettimeofday(&tv, NULL);
     assertTrueMsg(status == 0,
                   "TimeAdapter:getCurrentTime: gettimeofday() failed, errno = " << errno);
-    double tym = timevalToDouble(tv);
+    Real tym = timevalToDouble(tv);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
   }
@@ -120,10 +120,10 @@ namespace PLEXIL
 
   /**
    * @brief Set the timer.
-   * @param date The Unix-epoch wakeup time, as a double.
+   * @param date The Unix-epoch wakeup time, as a Real.
    * @return True if the timer was set, false if clock time had already passed the wakeup time.
    */
-  bool DarwinTimeAdapter::setTimer(double date)
+  bool DarwinTimeAdapter::setTimer(Real date)
   {
     // Convert to timeval
     timeval dateval = doubleToTimeval(date);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface)
-    : TimeAdapter(execInterface)
+    : TimeAdapterImpl(execInterface)
   {
   }
 
@@ -61,7 +61,7 @@ namespace PLEXIL
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface, 
                                      pugi::xml_node const xml)
-    : TimeAdapter(execInterface, xml)
+    : TimeAdapterImpl(execInterface, xml)
   {
   }
 
@@ -83,14 +83,14 @@ namespace PLEXIL
 
   /**
    * @brief Get the current time from the operating system.
-   * @return A double representing the current time.
+   * @return A Real representing the current time.
    */
-  double PosixTimeAdapter::getCurrentTime()
+  Real PosixTimeAdapter::getCurrentTime()
   {
     timespec ts;
     assertTrueMsg(!clock_gettime(CLOCK_REALTIME, &ts),
                   "TimeAdapter::getCurrentTime:: clock_gettime() failed, errno = " << errno);
-    double tym = timespecToDouble(ts);
+    Real tym = timespecToDouble(ts);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
   }
@@ -138,10 +138,10 @@ namespace PLEXIL
 
   /**
    * @brief Set the timer.
-   * @param date The Unix-epoch wakeup time, as a double.
+   * @param date The Unix-epoch wakeup time, as a Real.
    * @return True if the timer was set, false if clock time had already passed the wakeup time.
    */
-  bool PosixTimeAdapter::setTimer(double date)
+  bool PosixTimeAdapter::setTimer(Real date)
   {
     // Get the current time
     timespec now;

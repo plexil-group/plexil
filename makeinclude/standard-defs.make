@@ -96,7 +96,7 @@ INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
 
 # Compiler flags for debug builds
-DEBUG_FLAGS		:= -g
+DEBUG_FLAGS		:= -g -O2
 WARNING_FLAGS	:= -Wall
 
 # Compiler flags for optimized builds

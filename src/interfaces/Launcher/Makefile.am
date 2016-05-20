@@ -23,51 +23,9 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-ACLOCAL_AMFLAGS = -I m4
-
-include_HEADERS = plexil-config.h
-
-if DEBUG_LISTENER_OPT
-  MAYBE_DEBUG_LISTENER_SUBDIRS = interfaces/PlanDebugListener
-endif
-
-if GANTT_OPT
-  MAYBE_GANTT_SUBDIRS = interfaces/GanttListener
-endif
-
-if IPC_OPT
-  MAYBE_IPC_SUBDIRS = third-party/ipc interfaces/IpcUtils interfaces/IpcAdapter
-endif
-
-if LAUNCHER_OPT
-  MAYBE_LAUNCHER_SUBDIRS = interfaces/Launcher
-endif
-
-if SAS_OPT
-  MAYBE_SAS_SUBDIRS = apps/StandAloneSimulator
-endif
-
-if TEST_EXEC_OPT
-  MAYBE_TEST_EXEC_SUBDIRS = apps/TestExec
-endif
-
-if UDP_OPT
-  MAYBE_UDP_SUBDIRS = interfaces/UdpAdapter
-endif
-
-if UNIVERSAL_EXEC_OPT
-  MAYBE_UNIVERSAL_EXEC_SUBDIRS = universal-exec
-endif
-
-if VIEWER_OPT
-  MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
-endif
-
-SUBDIRS = utils value expr intfc exec \
- third-party/pugixml/src xml-parser app-framework \
- $(MAYBE_DEBUG_LISTENER_SUBDIRS) $(MAYBE_GANTT_SUBDIRS) $(MAYBE_IPC_SUBDIRS) \
- $(MAYBE_LAUNCHER_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
- $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS)
-
-
-
+lib_LTLIBRARIES = libLauncher.la
+include_HEADERS =
+libLauncher_la_SOURCES = Launcher.cc
+libLauncher_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/app-framework -I@top_srcdir@/exec -I@top_srcdir@/intfc \
+ -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils

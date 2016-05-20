@@ -53,6 +53,8 @@ AC_ARG_ENABLE([gantt],
         AS_HELP_STRING([--enable-gantt], [Build GanttListener interface (default=no)]))
 AC_ARG_ENABLE([ipc],
         AS_HELP_STRING([--enable-ipc], [Build IPC and IpcAdapter library (default=no)]))
+AC_ARG_ENABLE([launcher],
+        AS_HELP_STRING([--enable-launcher], [Build Launcher adapter (default=yes)]))
 AC_ARG_ENABLE([module-tests],
         AS_HELP_STRING([--enable-module-tests], [Build module tests (default=no)]))
 AC_ARG_ENABLE([viewer],
@@ -68,6 +70,7 @@ AC_ARG_ENABLE([universal-exec],
 
 # Conditionals for makefiles
 # These default to enabled (with)
+AM_CONDITIONAL([LAUNCHER_OPT], [test "x$enable_launcher" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
@@ -244,6 +247,10 @@ AS_IF([test "x$enable_ipc" = "xyes"], [
 AC_CONFIG_FILES([third-party/ipc/Makefile
                  interfaces/IpcAdapter/Makefile
                  interfaces/IpcUtils/Makefile])
+])
+
+AS_IF([test "x$enable_launcher" != "xno"], [
+AC_CONFIG_FILES([interfaces/Launcher/Makefile])
 ])
 
 AS_IF([test "x$enable_sas" = "xyes"], [

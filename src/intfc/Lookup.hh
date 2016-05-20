@@ -142,7 +142,20 @@ namespace PLEXIL
     // API to external interface
     //
 
+    /**
+     * @brief Notify this Lookup that its value has been updated.
+     */
     virtual void valueChanged();
+
+    /**
+     * @brief Get this lookup's high and low thresholds.
+     * @param high Place to store the high threshold value.
+     * @param low Place to store the low threshold value.
+     * @return True if this lookup has active thresholds, false otherwise.
+     * @note The base class method always returns false.
+     */
+    virtual bool getThresholds(Integer &high, Integer &low);
+    virtual bool getThresholds(Real &high, Real &low);
 
     // Utility
 
@@ -155,8 +168,13 @@ namespace PLEXIL
 
   protected:
 
+    // Behavior that needs to be augmented for LookupOnChange
+    virtual void invalidateOldState(); // called before updating state to new value
+
     // Shared behavior needed by LookupOnChange
     bool handleChangeInternal(Expression const *src);
+    void ensureRegistered();
+    void unregister();
     
     template <typename R>
     bool getValueImpl(R &) const;
@@ -173,8 +191,7 @@ namespace PLEXIL
     bool m_stateKnown;
     bool m_stateIsConstant; // allows early caching of state value
     bool m_stateNameIsGarbage;
-
-  private:
+    bool m_isRegistered;
     // Unimplemented
     Lookup() = delete;
     Lookup(Lookup const &) = delete;
@@ -201,6 +218,9 @@ namespace PLEXIL
     void handleDeactivate();
     void handleChange(Expression const *exp);
     void valueChanged();
+
+    bool getThresholds(Integer &high, Integer &low);
+    bool getThresholds(Real &high, Real &low);
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -233,7 +253,10 @@ namespace PLEXIL
     LookupOnChange &operator=(LookupOnChange const &) = delete;
     LookupOnChange &operator=(LookupOnChange &&) = delete;
 
-    // Internal helpers
+    // Wrapper for base class method
+    virtual void invalidateOldState();
+
+    // Internal helper
     bool updateInternal(bool valueChanged);
 
     template <typename R>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,37 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TimeAdapter.hh"
+//
+// An interface adapter which enables execution of plans under plan control.
+//
 
-namespace PLEXIL
-{
+#define START_PLAN_CMD "StartPlan"
+#define EXIT_PLAN_CMD "ExitPlan"
 
-  /**
-   * @brief Constructor.
-   * @param execInterface Reference to the parent AdapterExecInterface object.
-   */
-  TimeAdapter::TimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface)
-  {
-  }
+#define PLAN_STATE_STATE "PlanState"
+#define PLAN_OUTCOME_STATE "PlanOutcome"
+#define PLAN_FAILURE_TYPE_STATE "PlanFailureType"
 
-  /**
-   * @brief Constructor from configuration XML.
-   * @param execInterface Reference to the parent AdapterExecInterface object.
-   * @param xml A const reference to the XML element describing this adapter
-   * @note The instance maintains a shared pointer to the XML.
-   */
-  TimeAdapter::TimeAdapter(AdapterExecInterface& execInterface, 
-                           pugi::xml_node const xml)
-    : InterfaceAdapter(execInterface, xml)
-  {
-  }
-
-  /**
-   * @brief Destructor.
-   */
-  TimeAdapter::~TimeAdapter()
-  {
-  }
-
-}
+extern "C"
+void initLauncher();

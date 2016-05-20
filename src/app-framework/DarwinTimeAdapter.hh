@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef DARWIN_TIME_ADAPTER_H
 #define DARWIN_TIME_ADAPTER_H
 
-#include "TimeAdapter.hh"
+#include "TimeAdapterImpl.hh"
 
 namespace PLEXIL
 {
@@ -36,7 +36,7 @@ namespace PLEXIL
    * @brief An interface adapter using Darwin native time facilities
    *        to implement LookupNow and LookupOnChange.
    */
-  class DarwinTimeAdapter : public TimeAdapter
+  class DarwinTimeAdapter : public TimeAdapterImpl
   {
   public:
     /**
@@ -61,9 +61,9 @@ namespace PLEXIL
 
     /**
      * @brief Get the current time from the operating system.
-     * @return A double representing the current time.
+     * @return A Real representing the current time.
      */
-    double getCurrentTime();
+    Real getCurrentTime();
 
   protected:
 
@@ -81,10 +81,10 @@ namespace PLEXIL
 
     /**
      * @brief Set the timer.
-     * @param date The Unix-epoch wakeup time, as a double.
+     * @param date The Unix-epoch wakeup time, as a Real.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    virtual bool setTimer(double date);
+    virtual bool setTimer(Real date);
 
     /**
      * @brief Stop the timer.
