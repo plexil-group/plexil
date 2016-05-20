@@ -39,14 +39,18 @@
 namespace PLEXIL
 {
   StateCacheEntry::StateCacheEntry()
-    : m_value(NULL)
+    : m_value(NULL),
+      m_lowThreshold(NULL),
+      m_highThreshold(NULL)
   {
   }
 
   // Copy constructor, used ONLY by StateCacheMap
   // Will throw an exception if called with an entry which has a value or lookups
   StateCacheEntry::StateCacheEntry(StateCacheEntry const &orig)
-    : m_value(NULL)
+    : m_value(NULL),
+      m_lowThreshold(NULL),
+      m_highThreshold(NULL)
   {
     assertTrue_1(!orig.m_value && orig.m_lookups.empty());
   }
@@ -54,6 +58,8 @@ namespace PLEXIL
   StateCacheEntry::~StateCacheEntry()
   {
     delete m_value;
+    delete m_lowThreshold;
+    delete m_highThreshold;
   }
 
   ValueType const StateCacheEntry::valueType() const
@@ -76,15 +82,23 @@ namespace PLEXIL
   {
     bool unsubscribed = m_lookups.empty();
     m_lookups.push_back(l);
-    if (unsubscribed)
+    if (unsubscribed) {
+      debugMsg("StateCacheEntry:registerLookup", ' ' << s << " subscribing to interface")
       g_interface->subscribe(s);
+    }
+    debugMsg("StateCacheEntry:registerLookup",
+	     ' ' << s << " now has " << m_lookups.size() << " lookups");
     // Update if stale
-    if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount())
+    if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount()) {
+      debugMsg("StateCacheEntry:registerLookup", ' ' << s << " updating stale value")
       g_interface->lookupNow(s, *this);
+    }
   }
 
   void StateCacheEntry::unregisterLookup(State const &s, Lookup *l)
   {
+    debugMsg("StateCacheEntry:unregisterLookup", ' ' << s)
+
     if (m_lookups.empty())
       return; // can't possibly be registered
 
@@ -97,84 +111,137 @@ namespace PLEXIL
         std::find(m_lookups.begin(), m_lookups.end(), l);
       if (it != m_lookups.end())
         m_lookups.erase(it);
-      else
-        return; // not found
+      else {
+	debugMsg("StateCacheEntry:unregisterLookup", ' ' << s << " lookup not found")
+        return;
+      }
     }
 
-    if (m_lookups.empty())
+    if (m_lookups.empty()) {
+      debugMsg("StateCacheEntry:unregisterLookup",
+	       ' ' << s << " no lookups remaining, unsubscribing");
       g_interface->unsubscribe(s);
+      if (m_lowThreshold || m_highThreshold) {
+	delete m_lowThreshold;
+	delete m_highThreshold;
+	m_lowThreshold = m_highThreshold = NULL;
+      }
+    }
+    else if (m_lowThreshold || m_highThreshold) {
+      // Check whether thresholds should be updated
+      debugMsg("StateCacheEntry:unregisterLookup",
+	       ' ' << s << " updating thresholds from remaining " << m_lookups.size() << " lookups");
+      updateThresholds(s);
+    }
   }
 
-  void StateCacheEntry::setThresholds(State const &s, Expression const *tolerance)
+  bool StateCacheEntry::integerUpdateThresholds(State const &s)
   {
-    // Check for valid tolerance
-    if (!tolerance->isKnown()) {
-      debugMsg("StateCacheEntry:setThresholds", " tolerance value unknown, ignoring");
-      return;
+    bool hasThresholds = false;
+    double ihi, ilo;
+    double newihi, newilo;
+    for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
+	 it != m_lookups.end();
+	 ++it) {
+      if ((*it)->getThresholds(newihi, newilo)) {
+	if (!hasThresholds) {
+	  hasThresholds = true;
+	  ilo = newilo;
+	  ihi = newihi;
+	}
+	else {
+	  if (newilo > ilo)
+	    ilo = newilo;
+	  if (newihi < ihi)
+	    ihi = newihi;
+	}
+      }
     }
-    ValueType ttype = tolerance->valueType();
-    assertTrueMsg(isNumericType(ttype),
-                  "LookupOnChange with invalid tolerance type "
-                  << valueTypeName(tolerance->valueType()));
-
-    // Can only set thresholds if we know the current value.
-    if (!m_value->isKnown()) {
-      debugMsg("StateCacheEntry:setThresholds", " lookup value unknown, ignoring");
-      return;
+    if (hasThresholds) {
+      debugMsg("StateCacheEntry:updateThresholds",
+	       ' ' << s << " resetting thresholds " << ilo << ", " << ihi);
+      if (!m_lowThreshold) {
+	m_lowThreshold = CachedValueFactory(INTEGER_TYPE);
+	m_highThreshold = CachedValueFactory(INTEGER_TYPE);
+      }
+      unsigned int timestamp = g_interface->getCycleCount();
+      m_lowThreshold->update(timestamp, ilo);
+      m_highThreshold->update(timestamp, ihi);
+      g_interface->setThresholds(s, ihi, ilo);
     }
+    return hasThresholds;
+  }
 
+  bool StateCacheEntry::realUpdateThresholds(State const &s)
+  {
+    bool hasThresholds = false;
+    double rhi, rlo;
+    double newrhi, newrlo;
+    for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
+	 it != m_lookups.end();
+	 ++it) {
+      if ((*it)->getThresholds(newrhi, newrlo)) {
+	if (!hasThresholds) {
+	  hasThresholds = true;
+	  rlo = newrlo;
+	  rhi = newrhi;
+	}
+	else {
+	  if (newrlo > rlo)
+	    rlo = newrlo;
+	  if (newrhi < rhi)
+	    rhi = newrhi;
+	}
+      }
+    }
+    if (hasThresholds) {
+      debugMsg("StateCacheEntry:updateThresholds",
+	       ' ' << s << " setting thresholds " << rlo << ", " << rhi);
+      if (!m_lowThreshold) {
+	m_lowThreshold = CachedValueFactory(REAL_TYPE);
+	m_highThreshold = CachedValueFactory(REAL_TYPE);
+      }
+      unsigned int timestamp = g_interface->getCycleCount();
+      m_lowThreshold->update(timestamp, rlo);
+      m_highThreshold->update(timestamp, rhi);
+      g_interface->setThresholds(s, rhi, rlo);
+    }
+    return hasThresholds;
+  }
+
+  void StateCacheEntry::updateThresholds(State const &s)
+  {
+    // Survey lookups to determine if the thresholds
+    // need to be established, changed, or deleted.
     ValueType vtype = m_value->valueType();
-    assertTrueMsg(isNumericType(vtype),
-                  "LookupOnChange: lookup value of type " << valueTypeName(vtype)
-                  << " does not allow a tolerance");
-    switch (ttype) {
-    case INTEGER_TYPE: {
-      int32_t itol;
-      tolerance->getValue(itol); // known to be known
-      if (itol == 0)
-        return;
-      if (itol < 0)
-        itol = -itol;
-      if (vtype == INTEGER_TYPE) {
-        int32_t curr;
-        m_value->getValue(curr); // known to be known
-        g_interface->setThresholds(s, curr + itol, curr - itol);
-      }
-      // FIXME: add support for non-double date/duration types
-      else {
-        double rtol = (double) itol;
-        double rcurr;
-        m_value->getValue(rcurr); // known to be known
-        g_interface->setThresholds(s, rcurr + rtol, rcurr - rtol);
-      }
+    bool hasThresholds = false;
+
+    switch (vtype) {
+    case INTEGER_TYPE:
+      hasThresholds = integerUpdateThresholds(s);
       break;
-    }
 
       // FIXME: support non-double date/duration types
     case DATE_TYPE:
     case DURATION_TYPE:
 
     case REAL_TYPE: {
-      // FIXME later if this proves to be a problem
-      assertTrue_2(vtype != INTEGER_TYPE,
-                   "LookupOnChange: integer state values must have integer tolerances");
-      double rtol;
-      tolerance->getValue(rtol);
-      if (rtol == 0)
-        return;
-      if (rtol < 0)
-        rtol = -rtol;
-      double rcurr;
-      m_value->getValue(rcurr); // known to be known
-      g_interface->setThresholds(s, rcurr + rtol, rcurr - rtol);
+      hasThresholds = realUpdateThresholds(s);
       break;
     }
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "LookupOnChange internal error: invalid/unimplemented tolerance type "
-                    << valueTypeName(ttype));
-      break;
+      // this is a plan error
+      warn("LookupOnChange: lookup value of type " << valueTypeName(vtype)
+	   << " does not allow a tolerance");
+      return;
+    }
+    if (!hasThresholds) {
+      debugMsg("StateCacheEntry:updateThresholds",
+	       ' ' << s << " no change lookups remaining, clearing thresholds");
+      delete m_lowThreshold;
+      delete m_highThreshold;
+      m_lowThreshold = m_highThreshold = NULL;
     }
   }
 

@@ -127,7 +127,20 @@ namespace PLEXIL
     // API to external interface
     //
 
+    /**
+     * @brief Notify this Lookup that its value has been updated.
+     */
     virtual void valueChanged();
+
+    /**
+     * @brief Get this lookup's high and low thresholds.
+     * @param high Place to store the high threshold value.
+     * @param low Place to store the low threshold value.
+     * @return True if this lookup has active thresholds, false otherwise.
+     * @note The base class method always returns false.
+     */
+    virtual bool getThresholds(int32_t &high, int32_t &low);
+    virtual bool getThresholds(double &high, double &low);
 
     // Utility
 
@@ -140,8 +153,13 @@ namespace PLEXIL
 
   protected:
 
+    // Behavior that needs to be augmented for LookupOnChange
+    virtual void invalidateOldState(); // called before updating state to new value
+
     // Shared behavior needed by LookupOnChange
     bool handleChangeInternal(Expression const *src);
+    void ensureRegistered();
+    void unregister();
     
     // Member variables shared with implementation classes
     State m_cachedState;
@@ -152,8 +170,7 @@ namespace PLEXIL
     bool m_stateKnown;
     bool m_stateIsConstant; // allows early caching of state value
     bool m_stateNameIsGarbage;
-
-  private:
+    bool m_isRegistered;
   };
 
   class LookupOnChange : public Lookup
@@ -174,6 +191,9 @@ namespace PLEXIL
     void handleDeactivate();
     void handleChange(Expression const *exp);
     void valueChanged();
+
+    bool getThresholds(int32_t &high, int32_t &low);
+    bool getThresholds(double &high, double &low);
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -196,6 +216,9 @@ namespace PLEXIL
     LookupOnChange();
     LookupOnChange(const LookupOnChange &);
     LookupOnChange &operator=(const LookupOnChange &);
+
+    // Wrapper for base class method
+    virtual void invalidateOldState();
 
     // Internal helper
     bool updateInternal(bool valueChanged);

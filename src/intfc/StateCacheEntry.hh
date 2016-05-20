@@ -57,9 +57,7 @@ namespace PLEXIL
     // API to Lookup
     void registerLookup(State const &s, Lookup *l); // calls updateIfStale()
     virtual void unregisterLookup(State const &s, Lookup *l);
-
-    // Can be called multiple times
-    void setThresholds(State const &s, Expression const *tolerance);
+    void updateThresholds(State const &s);
 
     // Read access to the actual value is through the helper object.
     CachedValue const *cachedValue() const;
@@ -89,7 +87,10 @@ namespace PLEXIL
     // For convenience of TestExternalInterface, others
     void update(Value const &val);
 
-  protected:
+  private:
+    // Assign disallowed
+    StateCacheEntry &operator=(StateCacheEntry const &);
+
     // Internal functions
 
     /**
@@ -100,12 +101,20 @@ namespace PLEXIL
     // Return true if entry type is compatible with requested, false if not.
     bool ensureCachedValue(ValueType v = UNKNOWN_TYPE);
 
-  private:
-    // Assign disallowed
-    StateCacheEntry &operator=(StateCacheEntry const &);
+    //
+    // Helpers
+    //
 
+    // Updates thresholds after any change in lookups.
+    // Returns true if thresholds still exist, false if none.
+    bool integerUpdateThresholds(State const &s);
+    bool realUpdateThresholds(State const &s);
+
+    // Member data
     std::vector<Lookup *> m_lookups;
     CachedValue *m_value;
+    CachedValue *m_lowThreshold;
+    CachedValue *m_highThreshold;
   };
 
 } // namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,10 @@ public:
       (*it)->removeListener(&m_listener);
   }
 
+  //
+  // ExternalInterface API
+  //
+
   void lookupNow(const State& state, StateCacheEntry &entry) 
   {
     if (state.name() == "test1") {
@@ -88,18 +92,22 @@ public:
 
   void subscribe(const State& /* state */)
   {
+    // TODO
   }
 
-  void unsubscribe(const State& /* state */)
+  void unsubscribe(State const &state)
   {
+    m_thresholds.erase(state.name());
   }
 
-  void setThresholds(const State& /* state */, double /* hi */, double /* lo */)
+  void setThresholds(State const &state, double hi, double lo)
   {
+    m_thresholds[state.name()] = std::make_pair(hi, lo);
   }
 
   void setThresholds(const State& /* state */, int32_t /* hi */, int32_t /* lo */)
   {
+    // TODO
   }
 
   double currentTime()
@@ -107,6 +115,10 @@ public:
     return 0.0;
   }
 
+  //
+  // API for unit test
+  //
+ 
   void watch(const char* name, Expression *expr)
   {
     if (m_exprs.find(expr) == m_exprs.end()) {
@@ -129,8 +141,20 @@ public:
     m_exprsToStateName.erase(expr);
   }
 
+  bool getThresholds(std::string const &stateName, double &hi, double &lo)
+  {
+    ThresholdMap::const_iterator it = m_thresholds.find(stateName);
+    if (it == m_thresholds.end())
+      return false;
+    hi = it->second.first;
+    lo = it->second.second;
+    return true;
+  }
+
 protected:
   friend class ChangeListener;
+
+  // Not used
 
   void executeCommand(Command * /* cmd */)
   {}
@@ -143,6 +167,10 @@ protected:
 
   void executeUpdate(Update * /* upd */)
   {}
+
+  //
+  // API for unit test
+  //
 
   void notifyChanged(Expression const *expression)
   {
@@ -173,8 +201,11 @@ private:
     TestInterface& m_intf;
   };
 
+  typedef std::map<std::string, std::pair<double, double > > ThresholdMap; 
+
   std::set<Expression *> m_exprs;
   std::map<std::string, Expression *> m_changingExprs; //map of names to expressions being watched
+  ThresholdMap m_thresholds;
   std::multimap<Expression const *, std::string> m_exprsToStateName; //make of watched expressions to their state names
   std::multimap<Expression const *, Expression *> m_listeningExprs; //map of changing expressions to listening expressions
   std::map<Expression const *, double> m_tolerances; //map of dest expressions to tolerances
@@ -186,6 +217,7 @@ static TestInterface *theInterface = NULL;
 
 // TODO:
 // - test state parameter changes
+// - test integer lookups
 
 static bool testLookupNow() 
 {
@@ -287,6 +319,9 @@ static bool testLookupNow()
 
   return true;
 }
+
+// TODO:
+// - test integer lookups
 
 static bool testLookupOnChange() 
 {
@@ -462,6 +497,252 @@ static bool testLookupOnChange()
   return true;
 }
 
+// TODO:
+// - test integer lookups
+
+static bool testThresholdUpdate()
+{
+  StringVariable thresholdTest("thresholdTest");
+  RealVariable watchVar(0.0);
+  watchVar.activate();
+  theInterface->watch("thresholdTest", &watchVar);
+
+  RealVariable tolerance2(0.5);
+  RealVariable tolerance3(0.75);
+  double temp, hi, lo;
+
+  LookupOnChange l2(&thresholdTest, false,
+                    &tolerance2, false);
+  LookupOnChange l3(&thresholdTest, false,
+                    &tolerance3, false);
+  
+  bool l2Notified = false;
+  bool l3Notified = false;
+  TrivialListener l2Listener(l2Notified);
+  TrivialListener l3Listener(l3Notified);
+  l2.addListener(&l2Listener);
+  l3.addListener(&l3Listener);
+
+  assertTrue_1(!l2.isKnown());
+  assertTrue_1(!l3.isKnown());
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  // Check that thresholds are not yet set
+  assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
+
+  l2.activate();
+  assertTrue_1(tolerance2.isActive());
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(l2Notified);
+  l3.activate();
+  assertTrue_1(tolerance3.isActive());
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(l3Notified);
+  // Thresholds should now be set to the tighter tolerance
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi = 0.5);
+  assertTrue_1(lo = -0.5);
+
+  l2Notified = false;
+  l3Notified = false;
+  watchVar.setValue(0.25);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(!l2Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(!l3Notified);
+  // Thresholds should not have changed
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi = 0.5);
+  assertTrue_1(lo = -0.5);
+
+  watchVar.setValue(0.5);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.5);
+  assertTrue_1(l2Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(!l3Notified);
+  // Low threshold should have updated with l2; high should now follow l3
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 0.75);
+  assertTrue_1(lo == 0.0);
+
+  l2Notified = false;
+
+  watchVar.setValue(0.75);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.5);
+  assertTrue_1(!l2Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 0.75);
+  assertTrue_1(l3Notified);
+  // Low threshold should be unchanged (l2 & l3 same); high should now follow l2
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 1.0);
+  assertTrue_1(lo == 0);
+
+  l3Notified = false;
+
+  watchVar.setValue(1.25);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.25);
+  assertTrue_1(l2Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 0.75);
+  assertTrue_1(!l3Notified);
+  // High follows l3, low l2
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 1.50);
+  assertTrue_1(lo == 0.75);
+
+  // Test changing tolerance
+
+  l2Notified = false;
+  watchVar.setValue(1.5);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.25);
+  assertTrue_1(!l2Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 1.5);
+  assertTrue_1(l3Notified);
+  // High should follow l2, low is both
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 1.75);
+  assertTrue_1(lo == 0.75);
+
+  l3Notified = false;
+
+  tolerance2.setValue(0.25);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.5);
+  assertTrue_1(l2Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 1.5);
+  assertTrue_1(!l3Notified);
+  // Low and high should follow l2
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 1.75);
+  assertTrue_1(lo == 1.25);
+
+  // Test making tolerances unknown
+  tolerance2.setUnknown();
+  l2Notified = false;
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  // Low and high should now track l3
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 2.25);
+  assertTrue_1(lo == 0.75);
+
+  // Test deactivation
+  l3.deactivate();
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  // Thresholds should no longer be in effect
+  // Unfortunately there's no API to tell the interface that!
+  // assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(!l3.getValue(temp));
+  assertTrue_1(!l3Notified);
+
+
+  // Test deactivation
+  l2.deactivate();
+
+  // NOW thresholds should no longer be in effect
+  assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(!l2.getValue(temp));
+  assertTrue_1(!l2Notified);
+
+  // Test reactivation
+  l3.activate();
+
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 1.5);
+  assertTrue_1(l3Notified);
+  // Thresholds should track l3 again
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 2.25);
+  assertTrue_1(lo == 0.75);
+
+  l2.activate(); // restores initial value 0.5
+
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.5);
+  assertTrue_1(l2Notified);
+  // Thresholds should now track l2
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi == 2.0);
+  assertTrue_1(lo == 1.0);
+
+  // Test making tolerance known again
+  tolerance2.setValue(0.25);
+  watchVar.setValue(1.625);
+  l2Notified = false;
+  l3Notified = false;
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(!l2Notified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.5); // threshold should be back in effect
+  assertTrue_1(!l3Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 1.5);
+
+  watchVar.setValue(1.75);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l2Notified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.75); // threshold should be back in effect
+  assertTrue_1(!l3Notified);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == 1.5);
+
+  l2.deactivate();
+  l3.deactivate();
+
+  l2.removeListener(&l2Listener);
+  l3.removeListener(&l3Listener);
+
+  theInterface->unwatch("thresholdTest", &watchVar);
+
+  return true;
+}
+
 bool lookupsTest()
 {
   TestInterface foo;
@@ -470,6 +751,7 @@ bool lookupsTest()
 
   runTest(testLookupNow);
   runTest(testLookupOnChange);
+  runTest(testThresholdUpdate);
   g_interface = NULL;
   return true;
 }
