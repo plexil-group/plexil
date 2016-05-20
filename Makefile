@@ -47,7 +47,7 @@ AUTORECONF := autoreconf
 LIBTOOLIZE := libtoolize
 
 # Configuration options for src/configure
-CONF_BUILD_OPTS :=
+CONF_BUILD_OPTS := --enable-debug-listener
 
 # TODO figure out what to do with these
 CONF_MODULE_OPTS := --enable-udp --enable-ipc --enable-sas --enable-test-exec
@@ -180,7 +180,7 @@ src/Makefile: src/configure src/Makefile.am makeinclude/standard-defs.make makei
 # Bootstrapping autobuild files
 #
 
-src/configure: src/configure.ac
+src/configure: src/configure.ac Makefile
 	cd ./src && $(AUTORECONF) -f -i
 
 #
