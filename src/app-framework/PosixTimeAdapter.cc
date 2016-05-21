@@ -78,7 +78,7 @@ namespace PLEXIL
    */
   bool PosixTimeAdapter::stop()
   {
-    return TimeAdapter::stop();
+    return TimeAdapterImpl::stop();
   }
 
   /**
