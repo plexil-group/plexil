@@ -27,7 +27,7 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
-#include "NotifierImpl.hh"
+#include "Expression.hh"
 #include "SetValue.hh"
 
 namespace PLEXIL {

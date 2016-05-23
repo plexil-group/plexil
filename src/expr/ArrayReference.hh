@@ -28,6 +28,7 @@
 #define PLEXIL_ARRAY_REFERENCE_HH
 
 #include "Assignable.hh"
+#include "NotifierImpl.hh"
 #include "Value.hh"
 
 namespace PLEXIL {

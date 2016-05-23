@@ -29,6 +29,7 @@
 
 #include "Assignable.hh"
 #include "GetValueImpl.hh"
+#include "NotifierImpl.hh"
 #include "SetValueImpl.hh"
 #include "VariableConflictSet.hh"
 
