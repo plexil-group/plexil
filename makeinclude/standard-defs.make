@@ -74,44 +74,52 @@ CP              = /bin/cp -p
 ##### *** and cross-compilers could be anything.
 ##### *** Fortunately clang emulates gcc's option parsing.
 
-# Compiler options
+### Compiler options
 
-# Generating include file dependencies
-DEPEND		= $(CXX) -MM
-
-# Defines
+## Preprocessor flags
 # -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
-DEFINES			:= -D__STDC_LIMIT_MACROS
+# Not supposed to be required in C++11.
+DEFINES		:= -D__STDC_LIMIT_MACROS
 
-STANDARD_CFLAGS		:= --std=c11
-STANDARD_CXXFLAGS	:= --std=c++11
-
-# Include path
+## Include path
 
 SYSTEM_INC_DIRS	=
 INC_DIRS	= . $(PLEXIL_HOME)/include
-INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
+INCLUDES	= $(addprefix -I,$(INC_DIRS)) $(addprefix -isystem,$(SYSTEM_INC_DIRS))
+
+CPPFLAGS	= $(DEFINES) $(INCLUDES)
+
+## Common compiler flags
+STANDARD_CFLAGS		:= --std=c11
+STANDARD_CXXFLAGS	:= --std=c++11
+MKDEP_FLAGS		= -MM -MP -MT $@
 
 # Compiler flags for shared libraries
-POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
+SHARED_CFLAGS	= -fno-common -fPIC
 
 # Compiler flags for debug builds
 DEBUG_FLAGS		:= -g -O2
-WARNING_FLAGS	:= -Wall
+WARNING_FLAGS		:= -Wall
 
 # Compiler flags for optimized builds
 OPTIMIZE_FLAGS	:= -O3 -DPLEXIL_FAST
 
 VARIANT_CFLAGS	=
+
+ifneq ($(PLEXIL_SHARED),)
+VARIANT_CFLAGS	+= $(SHARED_CFLAGS)
+endif
+
 ifneq ($(PLEXIL_DEBUG),)
 VARIANT_CFLAGS	+= $(DEBUG_FLAGS) $(WARNING_FLAGS)
 endif
+
 ifneq ($(PLEXIL_OPTIMIZED),)
 VARIANT_CFLAGS	+= $(OPTIMIZE_FLAGS) $(WARNING_FLAGS)
 endif
 
-CFLAGS		+= $(DEFINES) $(STANDARD_CFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
-CXXFLAGS	+= $(DEFINES) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
+CFLAGS		+= $(CPPFLAGS) $(STANDARD_CFLAGS) $(VARIANT_CFLAGS)
+CXXFLAGS	+= $(CPPFLAGS) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS)
 
 ##### Library support
 
@@ -161,7 +169,7 @@ STATIC_LIBRARY_PATH_FLAG		:= -L
 RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 # Linker flag to construct shared library
 SHARED_FLAGS				:= -shared
-# Extension for shared library
+# Extension for shared library on most platforms
 SUFSHARE				:= .so
 # Linker flag to construct statically linked executable
 STATIC_EXE_FLAG				:= -Bstatic
@@ -202,8 +210,4 @@ ifneq ($(PLEXIL_SHARED),)
 ifneq ($(PLEXIL_STATIC),)
 $(error PLEXIL_STATIC and PLEXIL_SHARED cannot both be true. Exiting.)
 endif
-endif
-
-ifneq ($(PLEXIL_SHARED),)
-VARIANT_CFLAGS	+= $(POSITION_INDEPENDENT_CODE_FLAG)
 endif

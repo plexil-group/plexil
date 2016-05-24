@@ -1,6 +1,6 @@
 # Platform definitions for cross-compilation for VxWorks RTOS
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -74,11 +74,9 @@ CPU_FAMILY := PPC32
 endif
 
 ifeq ($(CPU_FAMILY),PPC32)
+SHARED_CFLAGS		= -fno-common -fpic
 STANDARD_CFLAGS		+= -mhard-float -mstrict-align -mregnames -ansi -mrtp -Wall  -MD -MP
 STANDARD_CXXFLAGS	+= -mhard-float -mstrict-align -mregnames -ansi -mrtp -Wall  -MD -MP
-
-# Compiler flags for shared libraries
-POSITION_INDEPENDENT_CODE_FLAG	:= -fpic
 endif
 
 #

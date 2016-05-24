@@ -27,22 +27,26 @@
 # C/C++ compiler flags specific to Mac OS X
 #
 
-DEBUG_FLAGS		+= -gfull
+# Doesn't seem to be recognized by clang/clang++; only relevant under gcc
+#DEBUG_FLAGS		+= -gfull
 
 #
 # Compiler/linker option overrides
 #
 
+DEFINES		+=
+
 # Compiler flag to pass an argument to the linker
-LINKER_PASSTHROUGH_FLAG				:= 
+LINKER_PASSTHROUGH_FLAG			:= 
 # Linker flag for run-time library search path
 RUNTIME_SHARED_LIBRARY_PATH_FLAG	:=
 # Linker flag to construct shared library
-SHARED_FLAGS						:= -fno-common -dynamiclib
+# -dynamiclib is gcc/Darwin only
+SHARED_FLAGS				:= -dynamiclib
 # Extension for shared library
-SUFSHARE							:= .dylib
+SUFSHARE				:= .dylib
 # Name of the library with the pthreads API
-PTHREAD_LIB 		   	       		:= pthread
+PTHREAD_LIB 		   	       	:= pthread
 # Name of system library with realtime clock API
 # Is in libc on OS X
-RT_LIB								:= 
+RT_LIB					:= 

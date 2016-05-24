@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #       SVN_FILES - a list of all files under SVN control
 #       INCLUDES - "-I" flags
 #       RM - command to remove files
-#       DEPEND - command to generate header dependencies (Makedepend file)
 #       TARGET - the name of the product of compilation (library or executable)
 #       LIBRARY - the base name of the binary library file
 
@@ -44,27 +43,29 @@
 
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
-DIRT    = $(OBJ) $(addsuffix .d,$(basename $(SRC)))
+DEPS    = $(OBJ:.o=.d)
 
 ##### Internal Targets -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
-
-$(LIB_DIR):
-	-$(MKDIR) -p $(LIB_DIR)
 
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
 
 SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
-plexil-default: shlib
+plexil-default: $(LIB_DIR)/$(SHLIB)
 
-shlib $(LIB_DIR)/$(SHLIB): $(SHLIB) $(LIB_DIR)
-	-$(RM) $(LIB_DIR)/$(SHLIB)
+$(LIB_DIR)/$(SHLIB): $(SHLIB)
+	@ if [ -d $(LIB_DIR) ] ; \
+	then \
+	 $(RM) $(LIB_DIR)/$(SHLIB) ; \
+	else \
+	 $(MKDIR) $(LIB_DIR) ; \
+	fi
 	$(CP) $(SHLIB) $(LIB_DIR)/$(SHLIB)
 
-$(SHLIB): depend $(OBJ)
+$(SHLIB): $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
 
 localclean::
@@ -76,16 +77,21 @@ ifneq ($(PLEXIL_STATIC),)
 
 ARCHIVE = lib$(LIBRARY).a
 
-plexil-default: archive
+plexil-default: $(LIB_DIR)/$(ARCHIVE)
 
-archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE) $(LIB_DIR)
-	-$(RM) $(LIB_DIR)/$(ARCHIVE)
+$(LIB_DIR)/$(ARCHIVE): $(ARCHIVE)
+	@ if [ -d $(LIB_DIR) ] ; \
+	then \
+	 $(RM) $(LIB_DIR)/$(ARCHIVE) ; \
+	else \
+	 $(MKDIR) $(LIB_DIR) ; \
+	fi
 	$(CP) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
 
-$(ARCHIVE): depend $(OBJ)
+$(ARCHIVE): $(OBJ)
 	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
@@ -108,34 +114,17 @@ $(BIN_DIR):
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
-$(EXECUTABLE): depend $(OBJ)
+$(EXECUTABLE): $(OBJ)
 	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
 
 localclean::
 	-$(RM) $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
 endif
 
-##### Delete all products of compilation and dependency list.
-
-localclean:: localdust
-	-$(RM) Makedepend
-
 ##### Delete extraneous by-products of compilation.
 
 localdust:
-	$(RM) $(DIRT)
-
-##### Rebuild the dependency list.
-# NOTE: 'make' does not support automatic dependency updating like 'smake'
-
-depend: Makedepend
-
-Makedepend: $(SRC) $(INC) Makefile
-	-$(RM) $@
-	touch $@
-	for src in $(SRC) ; do \
-		$(DEPEND) $(DEFINES) $(INCLUDES) $${src} >> $@ ; \
-	done
+	$(RM) $(OBJ) $(DEPS)
 
 ##### Rebuild an Emacs tags table (the TAGS file).
 
@@ -161,7 +150,7 @@ test: plexil-default
 	fi
 
 ## Clean module and test directories
-clean: localclean
+clean: dust localclean
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test $@; \
@@ -173,3 +162,35 @@ dust: localdust
 	then \
 		$(MAKE) -C test $@; \
 	fi
+
+##### Dependencies
+
+# Automatic generation of dependency files
+# See http://scottmcpeak.com/autodepend/autodepend.html and
+# http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+
+%.o: %.c
+%.o: %.c %.d
+	@$(COMPILE.c) $< -o $*.o
+	@$(CC) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+
+%.o: %.cc
+%.o: %.cc %.d
+	@$(COMPILE.cc) $< -o $*.o
+	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+
+%.o: %.cpp
+%.o: %.cpp %.d
+	@$(COMPILE.cpp) $< -o $*.o
+	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+
+%.o: %.C
+%.o: %.C %.d
+	@$(COMPILE.C) $< -o $*.o
+	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+
+%.d: ;
+
+-include $(DEPS)
+
+.PHONY: all plexil-default clean dust localclean localdust
