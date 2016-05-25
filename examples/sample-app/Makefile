@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,10 +25,6 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-OSTYPE   ?= $(shell uname -s)
-MACHTYPE ?= $(shell uname -p)
-OS_ARCH = $(OSTYPE)-$(MACHTYPE)
-
 LIBRARY = SampleAdapter
 SRC = subscriber.cc sample_system.cc SampleAdapter.cc
 INC = subscriber.hh sample_system.hh SampleAdapter.hh
@@ -41,7 +37,3 @@ include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 test1:
 	plexilexec -p plans/plan1.plx
-
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif

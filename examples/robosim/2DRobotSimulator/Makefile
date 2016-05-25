@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,3 @@ INC		:= $(wildcard *.hh)
 SVN_FILES       := Makefile $(SRC) $(INC)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif
