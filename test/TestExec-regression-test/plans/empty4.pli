@@ -1,5 +1,5 @@
 (plexil-plan
- (list-node "root"
+ (list-node "empty4"
   (end-condition (finished "foo"))
   (list
    (empty-node "foo"

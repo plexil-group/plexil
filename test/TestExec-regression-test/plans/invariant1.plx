@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan>
   <Node NodeType="NodeList">
-    <NodeId>root</NodeId>
+    <NodeId>invariant1</NodeId>
     <InvariantCondition>
       <NOT>
           <EQInternal>

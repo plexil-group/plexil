@@ -1,5 +1,5 @@
 (plexil-plan
-  (list-node "Root"
+  (list-node "repeat3"
     (variables (boolean "done" false))
     (end-condition (boolvar "done"))
     (list

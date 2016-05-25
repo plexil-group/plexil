@@ -3,7 +3,7 @@
 <PlexilPlan>
 <!-- Tests command with general expressions for arguments -->
   <Node NodeType="NodeList" >
-    <NodeId>Root</NodeId>
+    <NodeId>command5</NodeId>
     <NodeBody>
       <NodeList>
         <Node NodeType="Command" >

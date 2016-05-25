@@ -1,5 +1,5 @@
 (plexil-plan
- (list-node "Root"
+ (list-node "repeat1"
    (variables (integer "count" 0))
    (end-condition (finished "Inc"))
    (start-condition true)

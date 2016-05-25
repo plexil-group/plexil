@@ -21,7 +21,7 @@
     </CommandDeclaration>
   </GlobalDeclarations>
   <Node NodeType="NodeList">
-    <NodeId>SimpleTask</NodeId>
+    <NodeId>NonUnaryResources</NodeId>
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">

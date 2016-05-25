@@ -24,7 +24,7 @@
     </CommandDeclaration>
   </GlobalDeclarations>
   <Node NodeType="NodeList">
-    <NodeId>SimpleTask</NodeId>
+    <NodeId>resource1</NodeId>
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">

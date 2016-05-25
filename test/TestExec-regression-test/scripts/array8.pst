@@ -2,6 +2,6 @@
 // Array8
 
 script {
-  update-ack Root;
+  update-ack array8;
 }
 

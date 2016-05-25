@@ -1,5 +1,5 @@
 (plexil-plan
-  (list-node "tests"
+  (list-node "conjuncts"
     (end-condition (finished "ConjunctTest1"))
     (list
       (command-node "ConjunctTest1"

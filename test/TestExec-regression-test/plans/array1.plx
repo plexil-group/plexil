@@ -16,7 +16,7 @@
     </CommandDeclaration>
   </GlobalDeclarations>
   <Node NodeType="NodeList">
-    <NodeId>TestArrays</NodeId>
+    <NodeId>array1</NodeId>
     <VariableDeclarations>
 
       <!-- an integer (good old X) -->

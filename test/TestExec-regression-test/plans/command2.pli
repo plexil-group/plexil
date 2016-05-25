@@ -1,5 +1,5 @@
 (plexil-plan
-  (command-node "Root"
+  (command-node "command2"
     (variables (string "CommandName" "foo"))
     (command (lookup-now (concat "bar" (stringvar "CommandName"))))))
 

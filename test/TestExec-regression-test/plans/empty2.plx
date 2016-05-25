@@ -8,6 +8,6 @@
         <StringValue>foo</StringValue>
       </EQString>
     </StartCondition>
-    <NodeId>EmptyTest</NodeId>
+    <NodeId>empty2</NodeId>
   </Node>
 </PlexilPlan>

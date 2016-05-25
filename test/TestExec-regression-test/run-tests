@@ -38,52 +38,51 @@ fi
 PARSER_ERROR_TESTS=`(cd ${TEST_DIR}/plans/parser-tests; ls *.plx | sed -e 's/.plx//g')`
 
 # Tests requiring no external interaction, for which root node success is sufficient
-EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9 array-in-loop
- array-assignment-w-failure assignment-failure-test assign-failure-with-conflict
+EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9 ArrayInLoop
+ ArrayAssignmentWithFailure AssignmentFailureTest AssignFailureWithConflict
  concat1 contention1 contention3
- double-invariant-assignment
- empty1 empty2 empty3 empty4 empty-string1
- failure-type1 failure-type2 failure-type3 failure-type4
- grandparent-access-plan
- interface1 iteration-ended1 invariant1 isKnown1
+ DoubleInvariantAssignment
+ empty1 empty2 empty3 empty4 EmptyString1
+ FailureType1 FailureType2 FailureType3 FailureType4
+ GrandparentAccess
+ interface1 IterationEnded1 invariant1 isKnown1
  maxTest minTest modulo1
  repeat1 repeat3 repeat4
- simple-assignment skip1 skip2
- test-abs-sqrt-plan test-node-name-scope-hack
- test-node-name-scope test-repeat-condition timepoint-variable-construction-order
- variables1 var-priority-with-exit var-priority-with-skip
- whitespace1
- uninitialized-assignment'
+ SimpleAssignment skip1 skip2
+ TestAbsSqrt TestNodeNameScope TestNodeNameScopeHack
+ TestRepeatCondition TimepointVariableConstructionOrder
+ UninitializedAssignment
+ var-priority-with-exit var-priority-with-skip variables1
+ whitespace1'
 
 # Tests requiring no external interaction, 
 # whose execution traces are compared against a "gold standard"
-EMPTY_SCRIPT_VALID_TESTS='assign-to-parent-invariant assign-to-parent-exit
- InactiveAncestorInvariantTest non-local-exit'
+EMPTY_SCRIPT_VALID_TESTS='AssignToParentInvariant AssignToParentExit
+ InactiveAncestorInvariantTest NonLocalExit'
 
 # Tests of library calls
-LIBRARY_TESTS='library-call-with-array'
+LIBRARY_TESTS='LibraryCallWithArray'
 
 # Tests which run to success and require a script of the same name
-SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 atomic-assignment
+SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 AtomicAssignment
  boolean1
- change-lookup-test command1 command2 command3 command4 command5 concat2 conjuncts conjuncts1
+ ChangeLookupTest command1 command2 command3 command4 command5 concat2 conjuncts conjuncts1
  lookup1 lookup2 lookup3
  repeat2 repeat5 repeat7 repeat8
- site-survey
- test-end-condition test-timepoint
- update-lookup-test update-test
+ SiteSurveyWithEOF
+ TestEndCondition TestTimepoint
+ UpdateLookupTest UpdateTest
  AssignmentMain'
 
 # Resource arbitration tests, which require comparing the output with a known standard
-RESOURCE_ARBITRATION_TESTS='resource1 resource1-repeatCond
- resource2-equalPriority
- resource3-ackRel resource3-denyHP resource3-deny2HP
- resource4-hvm resource4-hvm-repeatCond
- resource-renewable1
+RESOURCE_ARBITRATION_TESTS='resource1 Resource1RepeatCond
+ Resource2EqualPriority
+ Resource3AckRel Resource3DenyHP Resource3Deny2HP
+ Resource4Hvm Resource4HvmRepeatCond
+ ResourceRenewable1
  NonUnaryResources'
 
 # Simple-drive tests
-SIMPLE_DRIVE_PLAN='simple-drive'
 SIMPLE_DRIVE_SCRIPTS='single-drive double-drive'
 
 export PATH=${TEST_DIR}:${PATH}

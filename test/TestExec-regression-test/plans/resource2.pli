@@ -1,5 +1,5 @@
 (plexil-plan
-  (command-node "Root"
+  (command-node "resource2"
     (command "foot-in-mouth"
         (resources
           (resource "Foot" 1)
