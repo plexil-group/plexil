@@ -1,5 +1,5 @@
 (plexil-plan
-  (list-node "Root"
+  (list-node "interface1"
     (variables (integer "foo")
                (integer "bar"))
 

@@ -1,5 +1,5 @@
 (plexil-plan
-  (assignment-node "Root"
+  (assignment-node "concat2"
     (variables
       (string "foo" "blank")
        (string "bar" "Two"))

@@ -1,7 +1,7 @@
 Integer Lookup x;
 Command foo;
 
-Wrapper0:
+repeat2:
 {
   EndCondition Lookup(x) != 0;
 

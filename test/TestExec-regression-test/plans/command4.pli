@@ -1,6 +1,6 @@
 (plexil-plan
   (comment "Tests command with return value")
-  (list-node "Root"
+  (list-node "command4"
     (variables (string "result-string"))
     (list
       (command-node "StringCommand"

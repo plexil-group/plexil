@@ -1,5 +1,5 @@
 (plexil-plan
-  (list-node "Root"
+  (list-node "repeat5"
     (repeat-condition (lookup-on-change "continue"))
     (list
       (command-node "Command"

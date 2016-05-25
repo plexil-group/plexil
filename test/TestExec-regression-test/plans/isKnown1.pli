@@ -1,5 +1,5 @@
 (plexil-plan
- (list-node "root"
+ (list-node "isKnown1"
   (variables (boolean "test"))
   (postcondition (is-known (node-state "two")))
   (list

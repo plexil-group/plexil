@@ -1,5 +1,5 @@
 (plexil-plan
-  (assignment-node "Root"
+  (assignment-node "array4"
     (variables (real-array "a4" 500))
     (postcondition (= (array-element "a4" 1) 0.0))
     (assignment (arrayvar "a4") (lookup-now "a4"))))

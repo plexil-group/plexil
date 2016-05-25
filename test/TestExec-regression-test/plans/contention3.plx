@@ -3,7 +3,7 @@
 <PlexilPlan>
   <!-- Illustrates a bug (?) in resource contention. This plan succeeds, as desired, but not if the list nodes wrapping A and B are removed. -->
   <Node NodeType="NodeList">
-    <NodeId>Root</NodeId>
+    <NodeId>contention3</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>

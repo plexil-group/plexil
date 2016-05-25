@@ -1,5 +1,5 @@
 (plexil-plan
- (list-node "root"
+ (list-node "variables1"
             (variables (integer "x"))
             (list
              (sequence

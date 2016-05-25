@@ -2,7 +2,7 @@
   (comment "Illustrates a bug (?) in resource contention. "
            "This plan succeeds, as desired, but not if the list nodes "
            "wrapping A and B are removed.")
-  (list-node "Root"
+  (list-node "contention1"
     (variables (integer "foo"))
     (list
       (list-node "A"

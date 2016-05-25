@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan>
   <Node NodeType="Empty">
-    <NodeId>Root</NodeId>
+    <NodeId>whitespace1</NodeId>
     <PostCondition>
       <EQString>
         <StringValue> </StringValue>

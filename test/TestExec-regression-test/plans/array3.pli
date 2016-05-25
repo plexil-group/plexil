@@ -1,5 +1,5 @@
 (plexil-plan
-  (list-node "Root"
+  (list-node "array3"
     (variables
       (int-array "a1" 10)
       (string-array "a2" 10)

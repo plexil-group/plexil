@@ -40,7 +40,7 @@ fi
 . ${PLEXIL_HOME}/test/TestExec-regression-test/test-env.sh
 cd $TEST_DIR
 
-PLAN_FILE=plans/simple-drive.plx
+PLAN_FILE=plans/SimpleDrive.plx
 if [ ! -r $PLAN_FILE ]
 then
    echo "$0: Plan file $PLAN_FILE not found"
