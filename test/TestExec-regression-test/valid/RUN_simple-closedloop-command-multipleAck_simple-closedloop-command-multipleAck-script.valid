@@ -1,5 +1,5 @@
 [PlexilExec:addPlan]Added plan: 
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: INACTIVE (0)
   Drive{
    State: INACTIVE (0)
@@ -9,26 +9,26 @@ SimpleDrive{
   }
 }
 
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:cycle]==>Start cycle 1
-[PlexilExec:step][1:0] Check queue: SimpleDrive 
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 1
-[PlexilExec:step][1:0] State change queue: SimpleDrive 
-[PlexilExec:step][1:0:0] Transitioning node SimpleDrive from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
-[PlexilExec:step][1:1] Check queue: SimpleDrive 
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 2
-[PlexilExec:step][1:1] State change queue: SimpleDrive 
-[PlexilExec:step][1:1:0] Transitioning node SimpleDrive from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:step][1:0] Check queue: simple-closedloop-command-multipleAck 
+[PlexilExec:handleConditionsChanged]Node simple-closedloop-command-multipleAck had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-multipleAck' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-multipleAck' on the state change queue in position 1
+[PlexilExec:step][1:0] State change queue: simple-closedloop-command-multipleAck 
+[PlexilExec:step][1:0:0] Transitioning node simple-closedloop-command-multipleAck from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
+[PlexilExec:step][1:1] Check queue: simple-closedloop-command-multipleAck 
+[PlexilExec:handleConditionsChanged]Node simple-closedloop-command-multipleAck had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-multipleAck' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-multipleAck' on the state change queue in position 2
+[PlexilExec:step][1:1] State change queue: simple-closedloop-command-multipleAck 
+[PlexilExec:step][1:1:0] Transitioning node simple-closedloop-command-multipleAck from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
-[PlexilExec:handleNeedsExecution]Storing action for node 'SimpleDrive' of type 'NodeList' to be executed.
-[PlexilExec:step][1:2] Check queue: SimpleDrive Drive NextWaypoint 
+[PlexilExec:handleNeedsExecution]Storing action for node 'simple-closedloop-command-multipleAck' of type 'NodeList' to be executed.
+[PlexilExec:step][1:2] Check queue: simple-closedloop-command-multipleAck Drive NextWaypoint 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 3
@@ -37,24 +37,24 @@ SimpleDrive{
 [PlexilExec:handleConditionsChanged]Placing node 'NextWaypoint' on the state change queue in position 4
 [PlexilExec:step][1:2] State change queue: Drive NextWaypoint 
 [PlexilExec:step][1:2:0] Transitioning node Drive from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:step][1:2:1] Transitioning node NextWaypoint from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
-[PlexilExec:step][1:3] Check queue: SimpleDrive Drive NextWaypoint 
+[PlexilExec:step][1:3] Check queue: simple-closedloop-command-multipleAck Drive NextWaypoint 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 5
 [PlexilExec:step][1:3] State change queue: Drive 
 [PlexilExec:step][1:3:0] Transitioning node Drive from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7f8cfa406e80 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f8cfa407140 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -79,11 +79,11 @@ SimpleDrive{
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_ACCEPTED
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
 [PlexilExec:cycle]==>Start cycle 2
-[PlexilExec:step][2:0] Check queue: SimpleDrive Drive NextWaypoint 
+[PlexilExec:step][2:0] Check queue: simple-closedloop-command-multipleAck Drive NextWaypoint 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -110,7 +110,7 @@ SimpleDrive{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -140,7 +140,7 @@ SimpleDrive{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 4
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -167,7 +167,7 @@ SimpleDrive{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 5
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -199,14 +199,14 @@ SimpleDrive{
 [PlexilExec:handleConditionsChanged]Placing node 'NextWaypoint' on the state change queue in position 6
 [PlexilExec:step][6:0] State change queue: NextWaypoint 
 [PlexilExec:step][6:0:0] Transitioning node NextWaypoint from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
 [PlexilExec:handleNeedsExecution]Storing action for node 'NextWaypoint' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Executing next_waypoint() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f8cfa407530 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 6
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -229,19 +229,19 @@ SimpleDrive{
 }
 
 [PlexilExec:cycle]==>Start cycle 7
-[PlexilExec:step][7:0] Check queue: SimpleDrive NextWaypoint 
+[PlexilExec:step][7:0] Check queue: simple-closedloop-command-multipleAck NextWaypoint 
 [PlexilExec:handleConditionsChanged]Node NextWaypoint had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'NextWaypoint' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'NextWaypoint' on the state change queue in position 7
 [PlexilExec:step][7:0] State change queue: NextWaypoint 
 [PlexilExec:step][7:0:0] Transitioning node NextWaypoint from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
-[PlexilExec:step][7:1] Check queue: SimpleDrive NextWaypoint 
+[PlexilExec:step][7:1] Check queue: simple-closedloop-command-multipleAck NextWaypoint 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 7
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -270,7 +270,7 @@ SimpleDrive{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 8
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -297,7 +297,7 @@ SimpleDrive{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 9
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -328,21 +328,21 @@ SimpleDrive{
 [PlexilExec:handleConditionsChanged]Placing node 'NextWaypoint' on the state change queue in position 8
 [PlexilExec:step][10:0] State change queue: NextWaypoint 
 [PlexilExec:step][10:0:0] Transitioning node NextWaypoint from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
-[PlexilExec:step][10:1] Check queue: SimpleDrive NextWaypoint 
+[PlexilExec:step][10:1] Check queue: simple-closedloop-command-multipleAck NextWaypoint 
 [PlexilExec:handleConditionsChanged]Node NextWaypoint had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'NextWaypoint' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'NextWaypoint' on the state change queue in position 9
 [PlexilExec:step][10:1] State change queue: NextWaypoint 
 [PlexilExec:step][10:1:0] Transitioning node NextWaypoint from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node NextWaypoint
-[PlexilExec:step][10:2] Check queue: SimpleDrive NextWaypoint 
+[PlexilExec:step][10:2] Check queue: simple-closedloop-command-multipleAck NextWaypoint 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 10
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -367,7 +367,7 @@ SimpleDrive{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 11
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
  EndCondition: (AllChildrenFinished Boolean 0x7f8cfa4077d0 [a](0))
  ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8cfa407740 [i](UNKNOWN))
@@ -396,48 +396,48 @@ SimpleDrive{
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 10
 [PlexilExec:step][12:0] State change queue: Drive 
 [PlexilExec:step][12:0:0] Transitioning node Drive from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][12:1] Check queue: SimpleDrive Drive 
+[PlexilExec:step][12:1] Check queue: simple-closedloop-command-multipleAck Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 11
 [PlexilExec:step][12:1] State change queue: Drive 
 [PlexilExec:step][12:1:0] Transitioning node Drive from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][12:2] Check queue: SimpleDrive Drive 
+[PlexilExec:step][12:2] Check queue: simple-closedloop-command-multipleAck Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 12
 [PlexilExec:step][12:2] State change queue: Drive 
 [PlexilExec:step][12:2:0] Transitioning node Drive from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][12:3] Check queue: SimpleDrive Drive 
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 13
-[PlexilExec:step][12:3] State change queue: SimpleDrive 
-[PlexilExec:step][12:3:0] Transitioning node SimpleDrive from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
-[PlexilExec:step][12:4] Check queue: SimpleDrive 
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 14
-[PlexilExec:step][12:4] State change queue: SimpleDrive 
-[PlexilExec:step][12:4:0] Transitioning node SimpleDrive from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
-[PlexilExec:step][12:5] Check queue: SimpleDrive 
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 15
-[PlexilExec:step][12:5] State change queue: SimpleDrive 
-[PlexilExec:step][12:5:0] Transitioning node SimpleDrive from ITERATION_ENDED to FINISHED
+[PlexilExec:step][12:3] Check queue: simple-closedloop-command-multipleAck Drive 
+[PlexilExec:handleConditionsChanged]Node simple-closedloop-command-multipleAck had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-multipleAck' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-multipleAck' on the state change queue in position 13
+[PlexilExec:step][12:3] State change queue: simple-closedloop-command-multipleAck 
+[PlexilExec:step][12:3:0] Transitioning node simple-closedloop-command-multipleAck from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
+[PlexilExec:step][12:4] Check queue: simple-closedloop-command-multipleAck 
+[PlexilExec:handleConditionsChanged]Node simple-closedloop-command-multipleAck had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-multipleAck' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-multipleAck' on the state change queue in position 14
+[PlexilExec:step][12:4] State change queue: simple-closedloop-command-multipleAck 
+[PlexilExec:step][12:4:0] Transitioning node simple-closedloop-command-multipleAck from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck
+[PlexilExec:step][12:5] Check queue: simple-closedloop-command-multipleAck 
+[PlexilExec:handleConditionsChanged]Node simple-closedloop-command-multipleAck had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-multipleAck' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-multipleAck' on the state change queue in position 15
+[PlexilExec:step][12:5] State change queue: simple-closedloop-command-multipleAck 
+[PlexilExec:step][12:5:0] Transitioning node simple-closedloop-command-multipleAck from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 12
 [PlexilExec:printPlan]
-SimpleDrive{
+simple-closedloop-command-multipleAck{
  State: FINISHED (0)
  Outcome: SUCCESS
  retTestFunction: (Variable Integer retTestFunction 0x7f8cfa406e80 [i](UNKNOWN))

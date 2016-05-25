@@ -12,7 +12,7 @@
     </CommandDeclaration>
   </GlobalDeclarations>
   <Node NodeType="NodeList">
-    <NodeId>SimpleDrive</NodeId>
+    <NodeId>simple-closedloop-command-multipleAck</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>retTestFunction</Name>

@@ -9,7 +9,7 @@
     </CommandDeclaration>
   </GlobalDeclarations>
   <Node NodeType="NodeList">
-    <NodeId>SimpleDrive</NodeId>
+    <NodeId>simple-closedloop-command-a3</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>retTestFunction</Name>

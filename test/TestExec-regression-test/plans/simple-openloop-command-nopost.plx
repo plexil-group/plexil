@@ -6,7 +6,7 @@
     </CommandDeclaration>
   </GlobalDeclarations>
   <Node NodeType="NodeList">
-    <NodeId>SimpleDrive</NodeId>
+    <NodeId>simple-openloop-command-nopost</NodeId>
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">
