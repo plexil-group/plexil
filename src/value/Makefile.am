@@ -38,8 +38,8 @@ libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/value-module-tests
   noinst_HEADERS =
-  test_value_module_tests_SOURCES = test/arrayTest.cc test/valueTest.cc \
- test/valueTypeTest.cc test/value-test-module.cc
+  test_value_module_tests_SOURCES = test/arrayTest.cc test/serializeTest.cc \
+ test/valueTest.cc test/valueTypeTest.cc test/value-test-module.cc
   test_value_module_tests_CPPFLAGS = -I../utils
   test_value_module_tests_LDADD = libPlexilValue.la  ../utils/libPlexilUtils.la
 endif

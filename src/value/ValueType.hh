@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,26 @@
 
 namespace PLEXIL
 {
+
+  //
+  // Type aliases
+  //
+
+  typedef bool        Boolean;
+  typedef int32_t     Integer;
+  typedef double      Real;
+  typedef std::string String;
+
+  // Subject to change in the future.
+  typedef double      Duration;
+  typedef double      Time;
+
+  // Array types declared in ArrayFwd.hh, defined in ArrayImpl.hh:
+  // BooleanArray
+  // IntegerArray
+  // RealArray
+  // StringArray
+
   //
   // PLEXIL expression data types
   //
@@ -149,6 +169,35 @@ namespace PLEXIL
     return parseValue<T>(s.c_str(), result);
   }
 
+  /**
+   * @brief Write a binary version of the object to the given buffer.
+   * @param o The object.
+   * @param b Pointer to the insertion point in the buffer.
+   * @return Pointer to first byte after the object; NULL if failed.
+   */
+
+  template <typename T>
+  char *serialize(T const &o, char *b);
+
+  /**
+   * @brief Read a binary representation from the buffer and store it to the result object.
+   * @param o The result object.
+   * @param b Pointer to the representation in the buffer.
+   * @return Pointer to first byte after the object; NULL if failed.
+   */
+
+  template <typename T>
+  char const *deserialize(T &o, char const *b);
+
+  /**
+   * @brief Calculate the size of the serial representation of the object.
+   * @param o The object.
+   * @return Number of bytes; 0 if the object is not serializable.
+   */
+
+  template <typename T>
+  size_t serialSize(T const &o);
+   
 }
 
 #endif // PLEXIL_VALUE_TYPE_HH

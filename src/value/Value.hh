@@ -32,26 +32,6 @@
 namespace PLEXIL
 {
 
-  //
-  // Type aliases
-  //
-
-  typedef bool        Boolean;
-  typedef int32_t     Integer;
-  typedef double      Real;
-  typedef std::string String;
-
-  // Subject to change in the future.
-  typedef double      Duration;
-  typedef double      Time;
-
-  // Array types declared in ArrayFwd.hh, defined in ArrayImpl.hh:
-  // BooleanArray
-  // IntegerArray
-  // RealArray
-  // StringArray
-
-
   /**
    * @class Value
    * @brief An encapsulation representing any possible value in the PLEXIL language.

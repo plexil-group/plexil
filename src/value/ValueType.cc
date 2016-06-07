@@ -482,6 +482,228 @@ namespace PLEXIL
   }
 
   //
+  // Serialization
+  //
+
+  // Default methods
+  template <typename T>
+  char *serialize(T const &/* o */, char */* b */)
+  {
+    return NULL;
+  }
+
+  template <typename T>
+  size_t serialSize(T const &/* o */)
+  {
+    return 0;
+  }
+
+  template <typename T>
+  char const *deserialize(T &o, char const *b)
+  {
+    return NULL;
+  }
+
+  //
+  // Boolean
+  //
+
+  template <>
+  char *serialize<Boolean>(Boolean const &o, char *b)
+  {
+    *b++ = BOOLEAN_TYPE;
+    *b++ = (char) o;
+    return b;
+  }
+
+  template <>
+  char const *deserialize<Boolean>(Boolean &o, char const *b)
+  {
+    if (BOOLEAN_TYPE != (ValueType) *b++)
+      return NULL;
+    o = (Boolean) *b++;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<Boolean>(Boolean const &o)
+  {
+    return 2;
+  }
+
+  //
+  // Integer
+  //
+
+  template <>
+  char *serialize<Integer>(Integer const &o, char *b)
+  {
+    *b++ = INTEGER_TYPE;
+    // Store in big-endian format
+    *b++ = (char) (0xFF & (o >> 24));
+    *b++ = (char) (0xFF & (o >> 16));
+    *b++ = (char) (0xFF & (o >> 8));
+    *b++ = (char) (0xFF & o);
+    return b;
+  }
+
+  template <>
+  char const *deserialize<Integer>(Integer &o, char const *b)
+  {
+    if (INTEGER_TYPE != (ValueType) *b++)
+      return NULL;
+    uint32_t n = ((uint32_t) (unsigned char) *b++) << 8;
+    n = (n + (uint32_t) (unsigned char) *b++) << 8;
+    n = (n + (uint32_t) (unsigned char) *b++) << 8;
+    n = (n + (uint32_t) (unsigned char) *b++);
+    o = (Integer) n;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<Integer>(Integer const &o)
+  {
+    return 5;
+  }
+
+  //
+  // Real
+  //
+
+  template <>
+  char *serialize<Real>(Real const &o, char *b)
+  {
+    union {
+      Real r;
+      uint64_t l;
+    };
+    r = o;
+    *b++ = REAL_TYPE;
+    // Store in big-endian format
+    *b++ = (char) (0xFF & (l >> 56));
+    *b++ = (char) (0xFF & (l >> 48));
+    *b++ = (char) (0xFF & (l >> 40));
+    *b++ = (char) (0xFF & (l >> 32));
+    *b++ = (char) (0xFF & (l >> 24));
+    *b++ = (char) (0xFF & (l >> 16));
+    *b++ = (char) (0xFF & (l >> 8));
+    *b++ = (char) (0xFF & l);
+    return b;
+  }
+
+  template <>
+  char const *deserialize<Real>(Real &o, char const *b)
+  {
+    if (REAL_TYPE != (ValueType) *b++)
+      return NULL;
+    union {
+      Real r;
+      uint64_t l;
+    };
+    l = (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++;
+    o = r;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<Real>(Real const &o)
+  {
+    return 9;
+  }
+
+  //
+  // String
+  //
+
+  template <>
+  char *serialize<String>(String const &o, char *b)
+  {
+    size_t s = o.size();
+    if (s > 0xFFFFFF)
+      return NULL; // too big
+
+    *b++ = STRING_TYPE;
+    // Put 3 bytes of size first - std::string may contain embedded NUL
+    *b++ = (char) (0xFF & (s >> 16));
+    *b++ = (char) (0xFF & (s >> 8));
+    *b++ = (char) (0xFF & s);
+    memcpy(b, o.c_str(), s);
+    return b + s;
+  }
+
+  template <>
+  char const *deserialize<String>(String &o, char const *b)
+  {
+    if (STRING_TYPE != (ValueType) *b++)
+      return NULL;
+
+    // Get 3 bytes of size
+    size_t s = ((size_t) (unsigned char) *b++) << 8;
+    s = (s + (size_t) (unsigned char) *b++) << 8;
+    s = s + (size_t) (unsigned char) *b++;
+
+    o.replace(o.begin(), o.end(), b, s);
+    return b + s;
+  }
+
+  template <>
+  size_t serialSize<String>(String const &o)
+  {
+    return o.size() + 4;
+  }
+
+  //
+  // Character string
+  //
+
+  template <>
+  char *serialize<char const *>(char const * const &o, char *b)
+  {
+    size_t s = strlen(o);
+    if (s > 0xFFFFFF)
+      return NULL; // too big
+
+    *b++ = STRING_TYPE;
+    // Put 3 bytes of size first
+    *b++ = (char) (0xFF & (s >> 16));
+    *b++ = (char) (0xFF & (s >> 8));
+    *b++ = (char) (0xFF & s);
+    memcpy(b, o, s);
+    return b + s;
+  }
+
+  template <>
+  char const *deserialize<char *>(char *&o, char const *b)
+  {
+    if (STRING_TYPE != (ValueType) *b++)
+      return NULL;
+
+    // Get 3 bytes of size
+    size_t s = ((size_t) (unsigned char) *b++) << 8;
+    s = (s + (size_t) (unsigned char) *b++) << 8;
+    s = s + (size_t) (unsigned char) *b++;
+
+    o = (char *) malloc(s + 1);
+    memcpy(o, b, s);
+    o[s] = '\0'; 
+
+    return b + s;
+  }
+
+  template <>
+  size_t serialSize<char const *>(char const * const &o)
+  {
+    return strlen(o) + 4;
+  }
+
+  //
   // Explicit instantiation
   //
   template void printValue(bool const &, std::ostream &);
