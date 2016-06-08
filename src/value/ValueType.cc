@@ -573,12 +573,12 @@ namespace PLEXIL
   template <>
   char *serialize<Real>(Real const &o, char *b)
   {
+    *b++ = REAL_TYPE;
     union {
       Real r;
       uint64_t l;
     };
     r = o;
-    *b++ = REAL_TYPE;
     // Store in big-endian format
     *b++ = (char) (0xFF & (l >> 56));
     *b++ = (char) (0xFF & (l >> 48));

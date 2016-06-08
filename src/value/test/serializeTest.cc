@@ -24,14 +24,14 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArrayImpl.hh"
 #include "TestSupport.hh"
-#include "ValueType.hh"
 
 #include <cstring>
 
 using namespace PLEXIL;
 
-static size_t const BUFSIZE = 256; // increase for arrays, obviously
+static size_t const BUFSIZE = 4096;
 
 static char buffer[BUFSIZE];
 
@@ -426,6 +426,7 @@ static bool testCharStringSerDes()
 
 static bool testMixedBasicSerDes()
 {
+  // TODO
   return true;
 }
 
@@ -441,10 +442,293 @@ static bool testBasicSerDes()
   return true;
 }
 
+static bool testBooleanArraySerDes()
+{
+  // Fill buffer
+  memset((void *) buffer, 0xFF, BUFSIZE);
+  char *bufptr = buffer;
+  size_t offset = 0;
+
+  // Initialize test data
+  BooleanArray const b0;
+  BooleanArray const b10f(10, false);
+  BooleanArray brand(32);
+  size_t ix = 0;
+  for (size_t i = 0; ix < brand.size(); ++i, ix += i)
+    brand.setElement(ix, (ix & 1) != 0);
+
+  bufptr = serialize(b0, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr != (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(b0);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(b10f, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(b10f);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(brand, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(brand);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  // Read
+  char const *cbufptr = buffer;
+  BooleanArray tmp(1, true); // initialize differently than test data
+  offset = 0;
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(b0);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 1, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == b0, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(b10f);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 0, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == b10f, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(brand);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 10, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == brand, "deserialize failed to extract data correctly");
+
+  return true;
+}
+
+static bool testIntegerArraySerDes()
+{
+  // Fill buffer
+  memset((void *) buffer, 0xFF, BUFSIZE);
+  char *bufptr = buffer;
+  size_t offset = 0;
+
+  // Initialize test data
+  IntegerArray const i0;
+  IntegerArray const i10_0(10, 0);
+  IntegerArray irand(32);
+  size_t ix = 0;
+  for (size_t i = 0; ix < irand.size(); ++i, ix += i)
+    irand.setElement(ix, (Integer) i);
+
+  bufptr = serialize(i0, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr != (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(i0);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(i10_0, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(i10_0);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(irand, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(irand);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  // Read
+  char const *cbufptr = buffer;
+  IntegerArray tmp(1, 1); // initialize differently than test data
+  offset = 0;
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(i0);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 1, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == i0, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(i10_0);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 0, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == i10_0, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(irand);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 10, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == irand, "deserialize failed to extract data correctly");
+
+  return true;
+}
+
+static bool testRealArraySerDes()
+{
+  // Fill buffer
+  memset((void *) buffer, 0xFF, BUFSIZE);
+  char *bufptr = buffer;
+  size_t offset = 0;
+
+  // Initialize test data
+  RealArray const r0;
+  RealArray const r10_0(10, 0);
+  RealArray rrand(32);
+  size_t ix = 0;
+  for (size_t i = 0; ix < rrand.size(); ++i, ix += i)
+    rrand.setElement(ix, (Real) i);
+
+  bufptr = serialize(r0, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr != (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(r0);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(r10_0, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(r10_0);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(rrand, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(rrand);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  // Read
+  char const *cbufptr = buffer;
+  RealArray tmp(1, 1); // initialize differently than test data
+  offset = 0;
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(r0);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 1, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == r0, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(r10_0);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 0, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == r10_0, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(rrand);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 10, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == rrand, "deserialize failed to extract data correctly");
+
+  return true;
+}
+
+static bool testStringArraySerDes()
+{
+  // Fill buffer
+  memset((void *) buffer, 0xFF, BUFSIZE);
+  char *bufptr = buffer;
+  size_t offset = 0;
+
+  // Initialize test data
+  StringArray const s0;
+  StringArray const s10_e(10, "");
+  StringArray srand(32);
+  size_t ix = 0;
+  for (size_t i = 0; ix < srand.size(); ++i, ix += i)
+    srand.setElement(ix, String(i, 'a'));
+
+  bufptr = serialize(s0, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr != (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(s0);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(s10_e, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(s10_e);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(srand, bufptr);
+  assertTrueMsg(bufptr, "serialize returned null pointer");
+  assertTrueMsg(bufptr > offset + (char *) buffer, "serialize failed to increment pointer");
+  offset += serialSize(srand);
+  assertTrueMsg(bufptr == offset + (char *) buffer, "serialize failed to increment pointer as expected");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  // Read
+  char const *cbufptr = buffer;
+  StringArray tmp(1, "1"); // initialize differently than test data
+  offset = 0;
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(s0);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 1, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == s0, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(s10_e);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 0, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == s10_e, "deserialize failed to extract data correctly");
+
+  cbufptr = deserialize(tmp, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null pointer");
+  assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
+  offset += serialSize(srand);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize failed to increment pointer as expected");
+  assertTrueMsg(tmp.size() != 10, "deserialize failed to resize destination");
+  assertTrueMsg(tmp == srand, "deserialize failed to extract data correctly");
+
+  return true;
+}
+
+static bool testArraySerDes()
+{
+  testBooleanArraySerDes();
+  testIntegerArraySerDes();
+  testRealArraySerDes();
+  testStringArraySerDes();
+
+  // more later
+  return true;
+}
+
 bool serializeTest()
 {
   runTest(testBasicSerDes);
-  // runTest(testArraySerDes);
+  runTest(testArraySerDes);
   // runTest(testValueSerDes);
   return true;
 }  

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -110,6 +110,10 @@ namespace PLEXIL
     virtual void print(std::ostream &s) const = 0;
     virtual std::string toString() const;
 
+    virtual char *serialize(char *b) const = 0; 
+    virtual char const *deserialize(char const *b) = 0;
+    virtual size_t serialSize() const = 0;
+
   protected:
     // For use by implementation classes
     inline bool checkIndex(size_t index) const
@@ -121,6 +125,10 @@ namespace PLEXIL
   };
 
   std::ostream &operator<<(std::ostream &s, Array const &a);
+
+  template <> char *serialize<Array>(Array const &o, char *b);
+  template <> char const *deserialize<Array>(Array &o, char const *b);
+  template <> size_t serialSize(Array const &o);
 
 } // namespace PLEXIL
 
