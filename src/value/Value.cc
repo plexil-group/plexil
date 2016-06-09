@@ -825,4 +825,158 @@ namespace PLEXIL
       }
   }
 
+  char *Value::serialize(char *b) const
+  {
+    if (!m_known) {
+      *b++ = UNKNOWN_TYPE;
+      return b;
+    }
+    switch (m_type) {
+    case BOOLEAN_TYPE:
+      return PLEXIL::serialize(m_value.booleanValue, b);
+
+    case INTEGER_TYPE:
+      return PLEXIL::serialize(m_value.integerValue, b);
+      
+    case REAL_TYPE:
+      return PLEXIL::serialize(m_value.realValue, b);
+
+    case STRING_TYPE:
+      return PLEXIL::serialize(*m_value.stringValue, b);
+
+    case COMMAND_HANDLE_TYPE:
+      *b++ = (char) m_type;
+      *b++ = (char) m_value.enumValue;
+      return b;
+
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      return PLEXIL::serialize(*m_value.arrayValue, b);
+
+    default: // invalid/unimplemented
+      return NULL;
+    }
+  }
+  
+  char const *Value::deserialize(char const *b)
+  {
+    ValueType t = (ValueType) *b;
+    if (t != m_type)
+      cleanup();
+
+    switch (t) {
+    case UNKNOWN_TYPE:
+      setUnknown();
+      return ++b;
+
+    case BOOLEAN_TYPE:
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(m_value.booleanValue, b);
+
+    case INTEGER_TYPE:
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(m_value.integerValue, b);
+
+    case REAL_TYPE:
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(m_value.realValue, b);
+
+    case STRING_TYPE:
+      if (m_type != STRING_TYPE)
+	m_value.stringValue = new String();
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(*m_value.stringValue, b);
+
+    case COMMAND_HANDLE_TYPE:
+      m_type = t;
+      m_known = true;
+      m_value.enumValue = (CommandHandleValue) *b++;
+      return b;
+
+    case BOOLEAN_ARRAY_TYPE:
+      if (m_type != BOOLEAN_ARRAY_TYPE)
+	m_value.arrayValue = new BooleanArray();
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(*(BooleanArray *)m_value.arrayValue, b);
+
+    case INTEGER_ARRAY_TYPE:
+      if (m_type != INTEGER_ARRAY_TYPE)
+	m_value.arrayValue = new IntegerArray();
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(*(IntegerArray *) m_value.arrayValue, b);
+
+    case REAL_ARRAY_TYPE:
+      if (m_type != REAL_ARRAY_TYPE)
+	m_value.arrayValue = new RealArray();
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(*(RealArray *) m_value.arrayValue, b);
+
+    case STRING_ARRAY_TYPE:
+      if (m_type != STRING_ARRAY_TYPE)
+	m_value.arrayValue = new StringArray();
+      m_type = t;
+      m_known = true;
+      return PLEXIL::deserialize(*(StringArray *) m_value.arrayValue, b);
+
+    default: // invalid
+      return NULL;
+    }
+  }
+
+  size_t Value::serialSize() const
+  {
+    if (!isKnown())
+      return 1;
+
+    switch (m_type) {
+    case BOOLEAN_TYPE:
+      return PLEXIL::serialSize(m_value.booleanValue);
+
+    case INTEGER_TYPE:
+      return PLEXIL::serialSize(m_value.integerValue);
+
+    case REAL_TYPE:
+      return PLEXIL::serialSize(m_value.realValue);
+
+    case STRING_TYPE:
+      return PLEXIL::serialSize(*m_value.stringValue);
+
+    case COMMAND_HANDLE_TYPE:
+      return 2;
+
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      return PLEXIL::serialSize(*m_value.arrayValue);
+
+    default: // invalid/unimplemented
+      return 0;
+    }
+  }
+
+  template <> char *serialize(Value const &o, char *b)
+  {
+    return o.serialize(b);
+  }
+
+  template <> char const *deserialize(Value &o, char const *b)
+  {
+    return o.deserialize(b);
+  }
+
+  template <> size_t serialSize(Value const &o)
+  {
+    return o.serialSize();
+  }
+
 } // namespace PLEXIL

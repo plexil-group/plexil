@@ -98,6 +98,10 @@ namespace PLEXIL
     void print(std::ostream &s) const;
     std::string valueToString() const;
 
+    char *serialize(char *b) const; 
+    char const *deserialize(char const *b);
+    size_t serialSize() const; 
+
   private:
     // Delete the previous object, if any.
     void cleanup();
