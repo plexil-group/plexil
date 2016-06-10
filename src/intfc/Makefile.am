@@ -45,7 +45,8 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   noinst_HEADERS =
   test_intfc_module_tests_SOURCES = ../expr/test/TrivialListener.cc \
- test/lookupsTest.cc test/stateTest.cc test/intfc-test-module.cc
+ test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc \
+ test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/value \
  -I@top_srcdir@/utils
   test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \

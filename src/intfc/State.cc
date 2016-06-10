@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -151,6 +151,61 @@ namespace PLEXIL
   {
     st.print(s);
     return s;
+  }
+
+  char *State::serialize(char *b) const
+  {
+    *b++ = STATE_TYPE;
+    b = PLEXIL::serialize(m_name, b);
+    // Put 3 bytes of parameter count
+    size_t s = m_parameters.size();
+    *b++ = (char) (0xFF & (s >> 16));
+    *b++ = (char) (0xFF & (s >> 8));
+    *b++ = (char) (0xFF & s);
+    for (size_t i = 0; b != NULL && i < s; ++i)
+      b = PLEXIL::serialize(m_parameters[i], b);
+    return b;
+  }
+
+  template <>
+  char *serialize<State>(State const &o, char *b)
+  {
+    return o.serialize(b);
+  }
+
+  char const *State::deserialize(char const *b)
+  {
+    if (STATE_TYPE != (ValueType) *b++)
+      return NULL;
+    b = PLEXIL::deserialize(m_name, b);
+    // Get parameter count
+    size_t s = ((size_t) (unsigned char) *b++) << 8;
+    s = (s + (size_t) (unsigned char) *b++) << 8;
+    s = s + (size_t) (unsigned char) *b++;
+    m_parameters.resize(s);
+    for (size_t i = 0; b != NULL && i < s; ++i)
+      b = PLEXIL::deserialize(m_parameters[i], b);
+    return b;
+  }
+
+  template <>
+  char const *deserialize<State>(State &o, char const *b)
+  {
+    return o.deserialize(b);
+  }
+
+  size_t State::serialSize() const
+  {
+    size_t result = 4 + PLEXIL::serialSize(m_name);
+    for (size_t i = 0; i < m_parameters.size(); ++i)
+      result += PLEXIL::serialSize(m_parameters[i]);
+    return result;
+  }
+
+  template <>
+  size_t serialSize<State>(State const &o)
+  {
+    return o.serialSize();
   }
 
   bool operator==(State const &a, State const &b)
