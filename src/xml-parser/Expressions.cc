@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #include "ArrayOperators.hh"
 #include "ArrayVariable.hh"
 #include "ArrayVariableFactory.hh"
+#include "ArrayVariableReferenceFactory.hh"
 #include "BooleanOperators.hh"
 #include "Comparisons.hh"
 #include "ConcreteExpressionFactory.hh"
@@ -75,10 +76,10 @@ namespace PLEXIL
 
       REGISTER_EXPRESSION(ArrayReference, ArrayElement);
       new ArrayLiteralFactory("ArrayValue"); // for effect
-      new VariableReferenceFactory("ArrayVariable"); // for effect
+      new ArrayVariableReferenceFactory("ArrayVariable"); // for effect
 
       REGISTER_EXPRESSION(BooleanConstant, BooleanValue);
-      new VariableReferenceFactory("BooleanVariable"); // for effect
+      new VariableReferenceFactory("BooleanVariable", BOOLEAN_TYPE); // for effect
 
       REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
       REGISTER_FUNCTION(StringConcat, Concat);
@@ -99,7 +100,7 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
 
       REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
-      new VariableReferenceFactory("IntegerVariable"); // for effect
+      new VariableReferenceFactory("IntegerVariable", INTEGER_TYPE); // for effect
 
       REGISTER_FUNCTION(IsKnown, IsKnown);
 
@@ -145,7 +146,7 @@ namespace PLEXIL
 #endif // !defined(__VXWORKS__)
 
       REGISTER_EXPRESSION(RealConstant, RealValue);
-      new VariableReferenceFactory("RealVariable"); // for effect
+      new VariableReferenceFactory("RealVariable", REAL_TYPE); // for effect
 
       REGISTER_FUNCTION(SquareRoot<double>, SQRT);
 
@@ -154,7 +155,7 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB);
 
       REGISTER_EXPRESSION(StringConstant, StringValue);
-      new VariableReferenceFactory("StringVariable"); // for effect
+      new VariableReferenceFactory("StringVariable", STRING_TYPE); // for effect
 
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have trunc()
 #if !defined(__VXWORKS__)

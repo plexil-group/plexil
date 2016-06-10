@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -118,8 +118,9 @@ namespace PLEXIL
   class VariableReferenceFactory : public ExpressionFactory
   {
   public:
-    VariableReferenceFactory(std::string const &name)
-      : ExpressionFactory(name)
+    VariableReferenceFactory(std::string const &name, ValueType typ)
+      : ExpressionFactory(name),
+	m_type (typ)
     {
     }
 
@@ -136,6 +137,8 @@ namespace PLEXIL
     VariableReferenceFactory();
     VariableReferenceFactory(VariableReferenceFactory const &);
     VariableReferenceFactory &operator=(VariableReferenceFactory const &);
+
+    ValueType m_type;
   };
 
 } // namespace PLEXIL

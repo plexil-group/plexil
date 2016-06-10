@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,9 @@
 #include <cstring>
 #include <string>
 
+// *** TEMP ***
+#include <iostream>
+
 //
 // Comparator classes for use with SimpleMap class template
 //
@@ -59,20 +62,6 @@ namespace PLEXIL
     bool equal(std::string const &a, char const * const &b) const
     {
       return a == b;
-    }
-  };
-
-  // For prefix matches in tables keyed by std::string and accessed by char *
-  struct StringPrefixComparator
-  {
-    bool operator()(std::string const &a, char const * const &b) const
-    {
-      return (strncmp(a.c_str(), b, a.size()) < 0);
-    }
-
-    bool match(std::string const &a, char const * const &b) const
-    {
-      return !strncmp(a.c_str(), b, a.size());
     }
   };
 

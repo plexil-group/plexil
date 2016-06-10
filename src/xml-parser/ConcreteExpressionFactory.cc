@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -241,38 +241,27 @@ namespace PLEXIL
                                      bool & wasCreated) const
   {
     assertTrue_1(node); // internal error
-    char const *tag = expr.name();
-    ValueType typ;
-    checkParserExceptionWithLocation(scanValueTypePrefix(tag, typ),
-                                     expr,
-                                     "Invalid variable reference tag " << tag);
+    checkNotEmpty(expr);
     char const *varName = expr.child_value();
     checkParserExceptionWithLocation(*varName,
                                      expr,
-                                     "Empty or malformed " << tag << " element");
+                                     "Empty or malformed " << expr.name() << " element");
     Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,
-                                     "Can't find variable named " << varName);
-    if (typ == ARRAY_TYPE) {
-      checkParserExceptionWithLocation(isArrayType(result->valueType()),
-                                       expr,
-                                       "Variable " << varName
-                                       << " has invalid type " << valueTypeName(result->valueType())
-                                       << " for a " << expr.name());
-    }
-    else {
-      bool match = (typ == result->valueType());
-      if (!match
-          && typ == REAL_TYPE
-          && result->valueType() == INTEGER_TYPE)
-        match = true; // expecting real, but given an integer expression
-      checkParserExceptionWithLocation(match,
-                                       expr,
-                                       "Variable " << varName
-                                       << " has invalid type " << valueTypeName(result->valueType())
-                                       << " for a " << expr.name());
-    }
+                                     "No variable named " << varName << " accessible in this context");
+    bool match = (m_type == result->valueType());
+    // *** FIXME? ***
+    // Shouldn't be parsing reference to Integer variables as Real
+    if (!match
+	&& m_type == REAL_TYPE
+	&& result->valueType() == INTEGER_TYPE)
+      match = true; // expecting Real, but naming an Integer variable
+    checkParserExceptionWithLocation(match,
+				     expr,
+				     "Variable " << varName
+				     << " has invalid type " << valueTypeName(result->valueType())
+				     << " for a " << expr.name());
     wasCreated = false;
     return result;
   }

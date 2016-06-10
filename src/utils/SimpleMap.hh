@@ -31,6 +31,9 @@
 #include <vector>
 #include <utility>
 
+// *** TEMP ***
+#include <iostream>
+
 namespace PLEXIL
 {
   /**
@@ -192,34 +195,6 @@ namespace PLEXIL
         return it;
       else
         return m_store.end();
-    }
-
-    // Return the FIRST entry in sort order "matching" the index.
-    template <typename INDEX_TYPE, class INDEX_COMP>
-    const_iterator findFirst(INDEX_TYPE const &index)
-    {
-      static IndexComparator<INDEX_TYPE, INDEX_COMP> s_comp;
-      typename MAP_STORE_TYPE::const_iterator it = 
-        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
-      if (it == m_store.end() || !s_comp.match(*it, index))
-        return m_store.end(); // not found
-      return it;
-    }
-
-    // Return the LAST entry in sort order matching the index.
-    template <typename INDEX_TYPE, class INDEX_COMP>
-    const_iterator findLast(INDEX_TYPE const &index)
-    {
-      static IndexComparator<INDEX_TYPE, INDEX_COMP> s_comp;
-      typename MAP_STORE_TYPE::const_iterator it = 
-        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
-      if (it == m_store.end() || !s_comp.match(*it, index))
-        return m_store.end(); // no match
-      // See if there is a match to an entry with a greater key.
-      const_iterator scanit = it;
-      while (++scanit != m_store.end() && s_comp.match(*scanit, index))
-        it = scanit;
-      return it;
     }
 
     const_iterator begin() const

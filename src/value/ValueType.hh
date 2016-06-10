@@ -82,6 +82,8 @@ namespace PLEXIL
 
       ARRAY_TYPE_MAX,
 
+      STATE_TYPE = 32, // Lookup or Command descriptor, mostly for external use
+
       // Internal types
       INTERNAL_TYPE_OFFSET = 48, // Not a valid type
       NODE_STATE_TYPE,
@@ -104,6 +106,7 @@ namespace PLEXIL
   extern char const *INTEGER_ARRAY_STR;
   extern char const *REAL_ARRAY_STR;
   extern char const *STRING_ARRAY_STR;
+  extern char const *STATE_STR;
   extern char const *NODE_STATE_STR;
   extern char const *NODE_OUTCOME_STR;
   extern char const *NODE_FAILURE_STR;
@@ -132,14 +135,6 @@ namespace PLEXIL
   // Find the type whose name exactly matches the given string.
   extern ValueType parseValueType(char const *typeStr);
   extern ValueType parseValueType(const std::string &typeStr);
-
-  /**
-   * @brief Find the longest type name contained as a prefix in the given string.
-   * @param str The string to scan.
-   * @param result Reference to the place to put the ValueType.
-   * @return Length of the scanned prefix. If 0, no valid type prefix was found.
-   */
-  extern size_t scanValueTypePrefix(char const *str, ValueType &result);
 
   // Returns true if dest type can receive src type, false otherwise.
   extern bool areTypesCompatible(ValueType dest, ValueType src);

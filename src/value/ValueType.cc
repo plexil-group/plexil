@@ -59,6 +59,7 @@ namespace PLEXIL
   char const *INTEGER_ARRAY_STR = "IntegerArray";
   char const *REAL_ARRAY_STR = "RealArray";
   char const *STRING_ARRAY_STR = "StringArray";
+  char const *STATE_STR = "State";
   char const *NODE_STATE_STR = "NodeState";
   char const *NODE_OUTCOME_STR = "NodeOutcome";
   char const *NODE_FAILURE_STR = "NodeFailure";
@@ -113,10 +114,14 @@ namespace PLEXIL
       static std::string const sl_string_array(STRING_ARRAY_STR);
       return sl_string_array;
 
+    case STATE_TYPE:
+      static std::string const sl_state(STATE_STR);
+      return sl_state;
+
       // Internal types
     case NODE_STATE_TYPE:
-      static std::string const sl_state(NODE_STATE_STR);
-      return sl_state;
+      static std::string const sl_node_state(NODE_STATE_STR);
+      return sl_node_state;
 
     case OUTCOME_TYPE:
       static std::string const sl_outcome(NODE_OUTCOME_STR);
@@ -286,7 +291,7 @@ namespace PLEXIL
   typedef SimpleMap<std::string, ValueType> NameTypeTable;
 
   // Size argument to constructor should be at least as big as # of entries in table
-  static NameTypeTable s_nameTypeTable(15);
+  static NameTypeTable s_nameTypeTable(16);
 
   static void initNameTypeTable()
   {
@@ -303,6 +308,8 @@ namespace PLEXIL
       s_nameTypeTable.insert(INTEGER_ARRAY_STR, INTEGER_ARRAY_TYPE);
       s_nameTypeTable.insert(REAL_ARRAY_STR, REAL_ARRAY_TYPE);
       s_nameTypeTable.insert(STRING_ARRAY_STR, STRING_ARRAY_TYPE);
+
+      s_nameTypeTable.insert(STATE_STR, STATE_TYPE);
 
       s_nameTypeTable.insert(NODE_STATE_STR, NODE_STATE_TYPE);
       s_nameTypeTable.insert(NODE_OUTCOME_STR, OUTCOME_TYPE);
@@ -332,19 +339,6 @@ namespace PLEXIL
       return UNKNOWN_TYPE;
     else
       return it->second;
-  }
-
-  size_t scanValueTypePrefix(char const *typeStr, ValueType &result)
-  {
-    if (!typeStr)
-      return 0;
-    initNameTypeTable();
-    NameTypeTable::const_iterator it = 
-      s_nameTypeTable.findLast<char const *, StringPrefixComparator>(typeStr);
-    if (it == s_nameTypeTable.end())
-      return 0; // failure
-    result = it->second;
-    return it->first.size();
   }
 
   template <typename T>

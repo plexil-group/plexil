@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -220,46 +220,14 @@ bool testPrefixStrings()
   assertTrue_1(it != stringMap.end());
   assertTrue_1(it->second == 2);
 
-  it = stringMap.findFirst<char const *, StringPrefixComparator>("two");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 2);
-
-  it = stringMap.findLast<char const *, StringPrefixComparator>("two");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 2);
-
   it = stringMap.find<char const *, CStringComparator>("tututu");
   assertTrue_1(it == stringMap.end());
-
-  it = stringMap.findFirst<char const *, StringPrefixComparator>("tututu");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == -2);
-
-  it = stringMap.findLast<char const *, StringPrefixComparator>("tututu");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 22);
 
   it = stringMap.find<char const *, CStringComparator>("twotwenty");
   assertTrue_1(it != stringMap.end());
   assertTrue_1(it->second == 220);
 
-  it = stringMap.findFirst<char const *, StringPrefixComparator>("twotwenty");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 2);
-
-  it = stringMap.findLast<char const *, StringPrefixComparator>("twotwenty");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 220);
-
   it = stringMap.find<char const *, CStringComparator>("twotwentytwo");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 222);
-
-  it = stringMap.findFirst<char const *, StringPrefixComparator>("twotwentytwo");
-  assertTrue_1(it != stringMap.end());
-  assertTrue_1(it->second == 2);
-
-  it = stringMap.findLast<char const *, StringPrefixComparator>("twotwentytwo");
   assertTrue_1(it != stringMap.end());
   assertTrue_1(it->second == 222);
 
