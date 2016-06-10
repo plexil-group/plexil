@@ -845,9 +845,7 @@ namespace PLEXIL
       return PLEXIL::serialize(*m_value.stringValue, b);
 
     case COMMAND_HANDLE_TYPE:
-      *b++ = (char) m_type;
-      *b++ = (char) m_value.enumValue;
-      return b;
+      return PLEXIL::serialize((CommandHandleValue) m_value.enumValue, b);
 
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
@@ -896,7 +894,7 @@ namespace PLEXIL
     case COMMAND_HANDLE_TYPE:
       m_type = t;
       m_known = true;
-      m_value.enumValue = (CommandHandleValue) *b++;
+      return PLEXIL::deserialize((CommandHandleValue &) m_value.enumValue, b);
       return b;
 
     case BOOLEAN_ARRAY_TYPE:
@@ -951,7 +949,7 @@ namespace PLEXIL
       return PLEXIL::serialSize(*m_value.stringValue);
 
     case COMMAND_HANDLE_TYPE:
-      return 2;
+      return PLEXIL::serialSize<CommandHandleValue>((CommandHandleValue) m_value.enumValue);
 
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:

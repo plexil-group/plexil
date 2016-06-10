@@ -526,6 +526,34 @@ namespace PLEXIL
   }
 
   //
+  // CommandHandleValue
+  //
+
+  template <>
+  char *serialize<CommandHandleValue>(CommandHandleValue const &o, char *b)
+  {
+    *b++ = COMMAND_HANDLE_TYPE;
+    *b++ = (char) o;
+    return b;
+  }
+
+  template <>
+  char const *deserialize<CommandHandleValue>(CommandHandleValue &o, char const *b)
+  {
+    if (COMMAND_HANDLE_TYPE != (ValueType) *b++)
+      return NULL;
+    o = (CommandHandleValue) *b++;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<CommandHandleValue>(CommandHandleValue const &o)
+  {
+    return 2;
+  }
+  
+
+  //
   // Integer
   //
 
