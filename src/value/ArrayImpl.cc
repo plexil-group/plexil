@@ -29,6 +29,8 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
+#include <cstring>
+
 namespace PLEXIL
 {
 

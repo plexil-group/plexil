@@ -27,6 +27,8 @@
 #include "State.hh"
 #include "TestSupport.hh"
 
+#include <cstring>
+
 using namespace PLEXIL;
 
 static size_t const BUFSIZE = 4096;
