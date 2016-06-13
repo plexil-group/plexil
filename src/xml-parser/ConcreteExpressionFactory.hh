@@ -138,7 +138,7 @@ namespace PLEXIL
     VariableReferenceFactory(VariableReferenceFactory const &);
     VariableReferenceFactory &operator=(VariableReferenceFactory const &);
 
-    ValueType m_type;
+    ValueType const m_type;
   };
 
 } // namespace PLEXIL
