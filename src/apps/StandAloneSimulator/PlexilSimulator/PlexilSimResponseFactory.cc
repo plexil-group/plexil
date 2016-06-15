@@ -26,7 +26,10 @@
 #include "PlexilSimResponseFactory.hh"
 //#include "PlexilSimResponse.hh"
 #include "GenericResponse.hh"
+#include "simdefs.hh"
+
 #include "Debug.hh"
+
 
 PlexilSimResponseFactory::PlexilSimResponseFactory()
   : ResponseFactory()

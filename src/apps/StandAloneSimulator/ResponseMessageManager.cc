@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,12 @@
 #include "Debug.hh"
 #include "Error.hh"
 
+#include <sys/time.h>
+
 ResponseMessageManager::ResponseMessageManager(const std::string& id)
   : m_Identifier(id), 
-    m_Counter(1), 
-    m_DefaultResponse(NULL)
+    m_DefaultResponse(NULL),
+    m_Counter(1)
 {
 }
 
@@ -54,6 +56,16 @@ MsgType ResponseMessageManager::getType()
 const ResponseBase* ResponseMessageManager::getLastResponse() const
 {
   return NULL;
+}
+
+const std::string& ResponseMessageManager::getIdentifier() const 
+{
+  return m_Identifier;
+}
+
+int ResponseMessageManager::getCounter() const 
+{
+  return m_Counter;
 }
 
 void ResponseMessageManager::addResponse(ResponseBase* resp, int cmdIndex)
@@ -109,6 +121,11 @@ const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
       return respBase;
     }
   return NULL;
+}
+
+const ResponseBase* ResponseMessageManager::getDefaultResponse()
+{
+  return m_DefaultResponse;
 }
 
 /**

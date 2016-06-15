@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,13 @@ include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
  ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
  SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
 
-libstandalonesimulator_la_SOURCES = IpcCommRelay.cc ResponseFactory.cc ResponseMessageManager.cc \
+libstandalonesimulator_la_SOURCES = IpcCommRelay.cc \
+ ResponseBase.cc ResponseFactory.cc ResponseMessage.cc ResponseMessageManager.cc \
  Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc TimingService.cc
 
 bin_PROGRAMS = simulator
 
-noinst_HEADERS = PlexilSimulator/PlexilSimResponse.hh PlexilSimulator/PlexilSimResponseFactory.hh
+noinst_HEADERS = PlexilSimulator/PlexilSimResponseFactory.hh
 
 simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
  PlexilSimulator/PlexilSimulator.cc

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,38 +23,43 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef RESPONSE_FACTORY_HH
-#define RESPONSE_FACTORY_HH
 
-#include <string>
+#include "ResponseMessage.hh"
 
-class ResponseBase;
+#include "ResponseBase.hh"
 
-/**
- * @brief ResponseFactory handles constructing response base objects from the script reader.
- */
+ResponseMessage::ResponseMessage(const ResponseBase* _base,
+				 void* _id, 
+				 int _type)
+  : base(_base),
+    id(_id), 
+    messageType(_type) 
+{}
 
-class ResponseFactory
+ResponseMessage::~ResponseMessage()
 {
-public:
-  ResponseFactory();
-  virtual ~ResponseFactory();
+}
 
-  /**
-   * @brief Parse the line and return the corresponding response object.
-   * @param line The line to parse.
-   * @param lineCount Line number; intended for use in error reporting.
-   * @return The response object, or NULL if a parse error was encountered.
-   */
-  virtual ResponseBase* parseResponseValues(const std::string& cmdName,
-					    const std::string& line,
-					    unsigned int lineCount);
+const ResponseBase* ResponseMessage::getResponseBase() const
+{
+  return base;
+}
 
-private:
+void* ResponseMessage::getId() const
+{
+  return id;
+}
 
-  // deliberately not implemented
-  ResponseFactory(const ResponseFactory&);
-  ResponseFactory& operator=(const ResponseFactory&);
-};
+int ResponseMessage::getMessageType() const
+{
+  return messageType;
+}
 
-#endif // RESPONSE_FACTORY_HH
+const std::string& ResponseMessage::getName() const
+{
+  static const std::string emptyString("");
+  if (base == NULL)
+    return emptyString;
+  return base->getName();
+}
+

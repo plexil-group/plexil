@@ -28,6 +28,7 @@
 #include "GenericResponse.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "simdefs.hh"
 
 #include <sstream>
 

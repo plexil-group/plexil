@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,10 @@
 #ifndef RESPONSE_BASE_HH
 #define RESPONSE_BASE_HH
 
-#include "ResponseMessageManager.hh"
-
 #include <string>
 #include <sys/time.h>
 
-class ResponseMessage;
+class ResponseMessageManager;
 
 /**
  * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
@@ -39,56 +37,21 @@ class ResponseMessage;
 class ResponseBase
 {
 public:
-  ResponseBase() 
-    : m_Manager(NULL),
-      m_NumberOfResponses(0)
-  {
-  }
+  ResponseBase();
+  virtual ~ResponseBase();
 
-  virtual ~ResponseBase()
-  {
-  }
+  void setManager(ResponseMessageManager* mgr);
+  ResponseMessageManager* getManager() const;
 
-  void setManager(ResponseMessageManager* mgr)
-  {
-    m_Manager = mgr;
-  }
+  void notifyMessageSent();
 
-  ResponseMessageManager* getManager() const
-  {
-    return m_Manager;
-  }
+  void setNumberOfResponses(int numOfResp);
+  int getNumberOfResponses() const;
 
-  void notifyMessageSent()
-  {
-    if (m_Manager != NULL)
-      m_Manager->notifyMessageSent(this);
-  }
+  const timeval& getDelay() const;
+  void setDelay(const timeval& delay);
 
-  void setNumberOfResponses(int numOfResp)
-  {
-    m_NumberOfResponses = numOfResp;
-  }
-
-  int getNumberOfResponses() const 
-  {
-    return m_NumberOfResponses;
-  }
-
-  const timeval& getDelay() const 
-  {
-    return m_Delay;
-  }
-
-  void setDelay(const timeval& delay) 
-  {
-    m_Delay = delay;
-  }
-
-  const std::string& getName() const 
-  {
-    return m_Manager->getIdentifier();
-  }
+  const std::string& getName() const;
 
 private:
   // Deliberately not implemented

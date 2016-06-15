@@ -4,18 +4,19 @@
 // NOTE: there's both a plan variable and an external state variable
 // named 'x'.  Legal but confusing.
 
-Integer Lookup x;
-Integer Command MoveRight (Integer units);
+Real Lookup x;
+Real Command MoveRight (Integer units);
 Command SendMessage (String msg);
 
 Root:
 {
-  Integer rightIter = 4, x = 0;
+  Integer rightIter = 4;
+  Real x = 0;
   StartCondition Lookup(x) > 10;
   Invariant x <= 21;
 
   Right: {
-    Integer new_x;
+    Real new_x;
     RepeatCondition rightIter > 0;
 
     Action: {

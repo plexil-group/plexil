@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,15 +26,13 @@
 #ifndef RESPONSE_MESSAGE_MANAGER_HH
 #define RESPONSE_MESSAGE_MANAGER_HH
 
-#include <string>
+#include "ResponseMessage.hh" // enum MsgType
+
 #include <map>
-#include <sys/time.h>
 
-#include "simdefs.hh"
-
-class ResponseBase;
-class ResponseMessage;
 class Simulator;
+
+struct timeval;
 
 /**
  * @brief Base class which represents the simulation script for the named command or state.
@@ -51,24 +49,15 @@ public:
   // used only for LookupNow (i.e. telemetry managers)
   virtual const ResponseBase* getLastResponse() const;
 
-  const std::string& getIdentifier() const 
-  {
-    return m_Identifier;
-  }
+  const std::string& getIdentifier() const;
 
-  int getCounter() const 
-  {
-    return m_Counter;
-  }
+  int getCounter() const;
 
   virtual void addResponse(ResponseBase* resp, int cmdIndex);
 
   const ResponseBase* getResponses(timeval& tDelay);
 
-  const ResponseBase* getDefaultResponse()
-  {
-    return m_DefaultResponse;
-  }
+  const ResponseBase* getDefaultResponse();
 
   //
   // Virtual methods for extension
@@ -95,8 +84,8 @@ protected:
   typedef std::map<int, const ResponseBase*> IndexResponseMap;
   IndexResponseMap m_CmdIdToResponse;
   const std::string m_Identifier;
-  int m_Counter;
   const ResponseBase* m_DefaultResponse;
+  int m_Counter;
 
 private:
 
