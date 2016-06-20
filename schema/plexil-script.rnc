@@ -14,55 +14,21 @@ start =
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
   | Simultaneous
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
+type =
+  attribute type {
+    xsd:NMTOKEN "string-array"
+    | xsd:NMTOKEN "bool"
+    | xsd:NMTOKEN "string"
+    | xsd:NMTOKEN "bool-array"
+    | xsd:NMTOKEN "real-array"
+    | xsd:NMTOKEN "int-array"
+    | xsd:NMTOKEN "real"
+    | xsd:NMTOKEN "int"
   }
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
-Command =
-  notAllowed
-  | element Command { command-type }
-Simultaneous =
-  notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-\string = xsd:string
-SendPlan =
-  notAllowed
-  | element SendPlan {
-      attribute file { xsd:string }?
-    }
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
 UpdateAck =
   notAllowed
   | element UpdateAck {
       attribute name { xsd:string }?
-    }
-InitialState =
-  notAllowed
-  | element InitialState { State* }
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
     }
 Script =
   notAllowed
@@ -81,20 +47,54 @@ Script =
            }
          })*
     }
-type =
-  attribute type {
-    xsd:NMTOKEN "string-array"
-    | xsd:NMTOKEN "bool"
-    | xsd:NMTOKEN "string"
-    | xsd:NMTOKEN "bool-array"
-    | xsd:NMTOKEN "real-array"
-    | xsd:NMTOKEN "int-array"
-    | xsd:NMTOKEN "real"
-    | xsd:NMTOKEN "int"
-  }
 CommandAbort =
   notAllowed
   | element CommandAbort { command-type }
+SendPlan =
+  notAllowed
+  | element SendPlan {
+      attribute file { xsd:string }?
+    }
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+Simultaneous =
+  notAllowed
+  | element Simultaneous {
+      (State | UpdateAck | Command | CommandAck | CommandAbort)*
+    }
+element0 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element0)*
+    }
+  }
+Command =
+  notAllowed
+  | element Command { command-type }
+\string = xsd:string
+Param =
+  notAllowed
+  | element Param { type?, xsd:string }
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
+CommandAck =
+  notAllowed
+  | element CommandAck { command-type }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*
