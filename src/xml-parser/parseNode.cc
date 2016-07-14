@@ -254,11 +254,11 @@ namespace PLEXIL
 
     // Where to put the things we parse on the first pass
     char const *name = NULL;
-    xml_node prio;
-    xml_node iface;
-    xml_node varDecls;
-    xml_node body;
     size_t nVariables = 0;
+    bool hasPrio = false;
+    bool hasIface = false;
+    bool hasVarDecls = false;
+    bool hasBody = false;
 
     // Scan all children in order
     for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
@@ -287,11 +287,11 @@ namespace PLEXIL
         if (!strcmp(INVARIANT_CONDITION_TAG, tag))
           break;
         if (!strcmp(INTERFACE_TAG, tag)) {
-          checkParserExceptionWithLocation(!iface,
+          checkParserExceptionWithLocation(!hasIface,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           nVariables += estimateInterfaceSpace(temp);
-          iface = temp;
+          hasIface = true;
           break;
         }
         checkParserExceptionWithLocation(ALWAYS_FAIL,
@@ -311,10 +311,10 @@ namespace PLEXIL
                                            "Empty " << tag << " element in Node");
         }
         else if (!strcmp(BODY_TAG, tag)) {
-          checkParserExceptionWithLocation(!body,
+          checkParserExceptionWithLocation(!hasBody,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          body = temp;
+          hasBody = true;
         }
         else {
           checkParserExceptionWithLocation(ALWAYS_FAIL,
@@ -331,10 +331,10 @@ namespace PLEXIL
           checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
                                            temp,
                                            "Only Assignment nodes may have a Priority element");
-          checkParserExceptionWithLocation(!prio,
+          checkParserExceptionWithLocation(!hasPrio,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          prio = temp;
+          hasPrio = true;
           break;
         }
         checkParserExceptionWithLocation(ALWAYS_FAIL,
@@ -359,11 +359,11 @@ namespace PLEXIL
 
       case 'V': // VariableDeclarations
         if (!strcmp(VAR_DECLS_TAG, tag)) {
-          checkParserExceptionWithLocation(!varDecls,
+          checkParserExceptionWithLocation(!hasVarDecls,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           nVariables += estimateVariableSpace(temp);
-          varDecls = temp;
+          hasVarDecls = true;
           break;
         }
         // else fall thru to parser error
@@ -381,12 +381,11 @@ namespace PLEXIL
                                      "Node missing " << NODEID_TAG << " element");
 
     // Superficial checks of node body before we construct node
-    if (body) {
+    if (hasBody) {
       checkParserExceptionWithLocation(nodeType != NodeType_Empty,
-                                       body,
+                                       xml.child(BODY_TAG),
                                        "Empty Node \"" << name
                                        << "\" may not have a NodeBody element");
-      body = body.first_child(); // strip away NodeBody wrapper
     }
     else
       checkParserExceptionWithLocation(nodeType == NodeType_Empty,
@@ -412,49 +411,51 @@ namespace PLEXIL
 
     try {
       // Populate local variables
-      if (varDecls) {
+      if (hasVarDecls) {
         debugMsg("parseNode", " parsing variable declarations");
-        parseVariableDeclarations(node, varDecls);
+        parseVariableDeclarations(node, xml.child(VAR_DECLS_TAG));
       }
 
       // Check interface variables
-      if (iface) {
+      if (hasIface) {
         debugMsg("parseNode", " parsing interface declarations");
-        parseInterface(node, iface);
+        parseInterface(node, xml.child(INTERFACE_TAG));
       }
 
       // Construct body including all associated variables
-      debugMsg("parseNode", " constructing body");
-      switch (nodeType) {
-      case NodeType_Assignment:
-        if (prio) 
-          parsePriority(node, prio);
-        constructAssignment(node, body);
-        break;
+      if (hasBody) {
+        debugMsg("parseNode", " constructing body");
+        xml_node const body = xml.child(BODY_TAG).first_child(); // strip NodeBody wrapper
 
-      case NodeType_Command:
-        constructAndSetCommand(dynamic_cast<CommandNode *>(node), body);
-        break;
+        switch (nodeType) {
+        case NodeType_Assignment:
+          if (hasPrio) 
+            parsePriority(node, xml.child(PRIORITY_TAG));
+          constructAssignment(node, body);
+          break;
 
-      case NodeType_LibraryNodeCall:
-        constructLibraryCall(dynamic_cast<LibraryCallNode *>(node), body);
-        break;
+        case NodeType_Command:
+          constructAndSetCommand(dynamic_cast<CommandNode *>(node), body);
+          break;
 
-      case NodeType_NodeList:
-        constructChildNodes(dynamic_cast<ListNode *>(node), body);
-        break;
+        case NodeType_LibraryNodeCall:
+          constructLibraryCall(dynamic_cast<LibraryCallNode *>(node), body);
+          break;
 
-      case NodeType_Update:
-        constructAndSetUpdate(dynamic_cast<UpdateNode *>(node), body);
-        break;
+        case NodeType_NodeList:
+          constructChildNodes(dynamic_cast<ListNode *>(node), body);
+          break;
 
-      case NodeType_Empty:
-        // nothing to do
-        break;
+        case NodeType_Update:
+          constructAndSetUpdate(dynamic_cast<UpdateNode *>(node), body);
+          break;
 
-      default:
-        assertTrue_2(ALWAYS_FAIL, "Internal error: bad node type");
-        break;
+        case NodeType_Empty:
+          // should never get here, fall through
+        default:
+          assertTrue_2(ALWAYS_FAIL, "Internal error: bad node type");
+          break;
+        }
       }
     }
     catch (std::exception const & exc) {
