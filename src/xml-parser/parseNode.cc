@@ -199,7 +199,7 @@ namespace PLEXIL
   }
 
   void constructChildNodes(ListNode *node, xml_node const kidsXml)
-  throw (ParserException)
+    throw (ParserException)
   {
     assertTrue_1(node);
 
@@ -250,11 +250,9 @@ namespace PLEXIL
   {
     checkTag(NODE_TAG, xml);
 
+    // Where to put the things we detect on the first pass
     PlexilNodeType nodeType = checkNodeTypeAttr(xml);
-
-    // Where to put the things we parse on the first pass
-    char const *name = NULL;
-    size_t nVariables = 0;
+    bool hasId = false;
     bool hasPrio = false;
     bool hasIface = false;
     bool hasVarDecls = false;
@@ -290,7 +288,6 @@ namespace PLEXIL
           checkParserExceptionWithLocation(!hasIface,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          nVariables += estimateInterfaceSpace(temp);
           hasIface = true;
           break;
         }
@@ -302,13 +299,10 @@ namespace PLEXIL
 
       case 'N': // NodeId, NodeBody
         if (!strcmp(NODEID_TAG, tag)) {
-          checkParserExceptionWithLocation(!name,
+          checkParserExceptionWithLocation(!hasId,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          name = temp.child_value();
-          checkParserExceptionWithLocation(*name,
-                                           temp, 
-                                           "Empty " << tag << " element in Node");
+          hasId = true;
         }
         else if (!strcmp(BODY_TAG, tag)) {
           checkParserExceptionWithLocation(!hasBody,
@@ -362,7 +356,6 @@ namespace PLEXIL
           checkParserExceptionWithLocation(!hasVarDecls,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          nVariables += estimateVariableSpace(temp);
           hasVarDecls = true;
           break;
         }
@@ -376,7 +369,7 @@ namespace PLEXIL
       }
     }
 
-    checkParserExceptionWithLocation(name,
+    checkParserExceptionWithLocation(hasId,
                                      xml,
                                      "Node missing " << NODEID_TAG << " element");
 
@@ -384,25 +377,42 @@ namespace PLEXIL
     if (hasBody) {
       checkParserExceptionWithLocation(nodeType != NodeType_Empty,
                                        xml.child(BODY_TAG),
-                                       "Empty Node \"" << name
+                                       "Empty Node \""
+                                       << xml.child(NODEID_TAG).child_value()
                                        << "\" may not have a NodeBody element");
     }
     else
       checkParserExceptionWithLocation(nodeType == NodeType_Empty,
                                        xml,
-                                       "Node \"" << name << "\" has no "
-                                       << BODY_TAG << " element");
+                                       "Node \""
+                                       << xml.child(NODEID_TAG).child_value()
+                                       << "\" has no " << BODY_TAG << " element");
 
     debugMsg("parseNode", " constructing node");
-    Node *node = NodeFactory::createNode(name, nodeType, parent);
-    debugMsg("parseNode", " Node " << name  << " created");
+    // This is to reduce stack space usage -
+    // we don't need local variable name after we've constructed the node
+    Node *node = NULL;
+    {
+      char const *name = xml.child(NODEID_TAG).child_value();
+      checkParserExceptionWithLocation(*name,
+                                       xml.child(NODEID_TAG), 
+                                       "Empty " << NODEID_TAG << " element in Node");
+      node = NodeFactory::createNode(name, nodeType, parent);
+    }
+    debugMsg("parseNode", " Node " << node->getNodeId()  << " created");
 
     // Symbol table optimization part 1
     // By now we have an upper bound on how many entries are required.
     // Reserve space for them. 
     // This saves us from reallocating and copying the whole table as it grows.
-    if (nVariables)
+    if (hasVarDecls || hasIface) {
+      size_t nVariables = 0;
+      if (hasVarDecls)
+        nVariables = estimateVariableSpace(xml.child(VAR_DECLS_TAG));
+      if (hasIface)
+        nVariables += estimateInterfaceSpace(xml.child(INTERFACE_TAG));
       node->getVariableMap().grow(nVariables);
+    }
 
     // Symbol table optimization part 2
     // Our parent (if any) has already had its capacity established (see above).
@@ -425,29 +435,31 @@ namespace PLEXIL
       // Construct body including all associated variables
       if (hasBody) {
         debugMsg("parseNode", " constructing body");
-        xml_node const body = xml.child(BODY_TAG).first_child(); // strip NodeBody wrapper
-
         switch (nodeType) {
         case NodeType_Assignment:
           if (hasPrio) 
             parsePriority(node, xml.child(PRIORITY_TAG));
-          constructAssignment(node, body);
+          constructAssignment(node, xml.child(BODY_TAG).first_child());
           break;
 
         case NodeType_Command:
-          constructAndSetCommand(dynamic_cast<CommandNode *>(node), body);
+          constructAndSetCommand(dynamic_cast<CommandNode *>(node),
+                                 xml.child(BODY_TAG).first_child());
           break;
 
         case NodeType_LibraryNodeCall:
-          constructLibraryCall(dynamic_cast<LibraryCallNode *>(node), body);
+          constructLibraryCall(dynamic_cast<LibraryCallNode *>(node),
+                               xml.child(BODY_TAG).first_child());
           break;
 
         case NodeType_NodeList:
-          constructChildNodes(dynamic_cast<ListNode *>(node), body);
+          constructChildNodes(dynamic_cast<ListNode *>(node),
+                              xml.child(BODY_TAG).first_child());
           break;
 
         case NodeType_Update:
-          constructAndSetUpdate(dynamic_cast<UpdateNode *>(node), body);
+          constructAndSetUpdate(dynamic_cast<UpdateNode *>(node),
+                                xml.child(BODY_TAG).first_child());
           break;
 
         case NodeType_Empty:
@@ -459,7 +471,8 @@ namespace PLEXIL
       }
     }
     catch (std::exception const & exc) {
-      debugMsg("parseNode", " recovering from parse error, deleting node " << name);
+      debugMsg("parseNode", " recovering from parse error, deleting node "
+               << node->getNodeId());
       delete node;
       throw;
     }
