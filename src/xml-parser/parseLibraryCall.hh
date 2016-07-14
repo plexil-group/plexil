@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,12 +36,12 @@ namespace pugi
 
 namespace PLEXIL
 {
-  class Node;
+  class LibraryCallNode;
 
-  extern void constructLibraryCall(Node *node, pugi::xml_node callXml)
+  extern void constructLibraryCall(LibraryCallNode *node, pugi::xml_node callXml)
     throw (ParserException);
 
-  extern void finalizeLibraryCall(Node *node, pugi::xml_node callXml)
+  extern void finalizeLibraryCall(LibraryCallNode *node, pugi::xml_node callXml)
     throw (ParserException);
 
 } // namespace PLEXIL

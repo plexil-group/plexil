@@ -67,11 +67,11 @@ namespace PLEXIL
                                      "Alias " << name << " has malformed value expression in LibraryNodeCall node");
   }
 
-  void constructLibraryCall(Node *node, xml_node callXml)
+  void constructLibraryCall(LibraryCallNode *node, xml_node callXml)
     throw (ParserException)
   {
-    LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
-    assertTrue_2(callNode, "constructLibraryCall: Not a LibraryCallNode");
+    assertTrue_1(node);
+    debugMsg("constructLibraryCall", " caller " << node->getNodeId());
     xml_node temp = callXml.first_child();
     checkTag(NODEID_TAG, temp);
     char const *name = temp.child_value();
@@ -82,11 +82,11 @@ namespace PLEXIL
     // Check, preallocate, but don't populate, aliases
     size_t nAliases = 0;
     while ((temp = temp.next_sibling())) {
-      checkAlias(callNode, temp);
+      checkAlias(node, temp);
       ++nAliases;
     }
     if (nAliases) {
-      NodeVariableMap *map = callNode->getChildVariableMap();
+      NodeVariableMap *map = node->getChildVariableMap();
       assertTrue_2(map, "Internal error: no alias map for LibraryNodeCall node");
       map->grow(nAliases);
     }
@@ -96,7 +96,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(templ,
                                      callXml,
                                      "Library node " << name << " not found");
-    callNode->addChild(parseNode(templ, callNode));
+    node->addChild(parseNode(templ, node));
   }
 
   // Second pass
@@ -123,19 +123,18 @@ namespace PLEXIL
   }
 
   // Second pass
-  void finalizeLibraryCall(Node *node, xml_node callXml)
+  void finalizeLibraryCall(LibraryCallNode *node, xml_node callXml)
     throw (ParserException)
   {
+    assertTrue_1(node);
     debugMsg("finalizeLibraryCall", " caller " << node->getNodeId());
-    LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
-    assertTrue_2(callNode, "Not a LibraryCallNode");
     xml_node temp = callXml.first_child();
     char const *calleeName = temp.child_value();
     temp = temp.next_sibling();
     // Initialize aliases
     while (temp) {
       debugMsg("finalizeLibraryCall", " finalizing alias");
-      finalizeAlias(callNode, temp);
+      finalizeAlias(node, temp);
       temp = temp.next_sibling();
     }
     // Descend into called node

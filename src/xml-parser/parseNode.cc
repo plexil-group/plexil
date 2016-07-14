@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include "commandXmlParser.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "NodeFactory.hh"
 #include "parseAssignment.hh"
@@ -185,72 +186,81 @@ namespace PLEXIL
     }
   }
 
-  void constructChildNodes(Node *node, xml_node const kidsXml)
-  throw (ParserException)
+  // Count children and reserve right # of spots for them.
+  static void reserveSpaceForChildren(ListNode *node, xml_node const kidsXml)
   {
-    ListNode *lnode = dynamic_cast<ListNode *>(node);
-    assertTrue_2(lnode, "Not a ListNode");
-
-    // Count children so we can reserve right # of spots for them.
     size_t nKids = 0;
     for (xml_node kidXml = kidsXml.first_child();
          kidXml;
          kidXml = kidXml.next_sibling())
       ++nKids;
-    lnode->reserveChildren(nKids);
+    if (nKids)
+      node->reserveChildren(nKids);
+  }
+
+  void constructChildNodes(ListNode *node, xml_node const kidsXml)
+  throw (ParserException)
+  {
+    assertTrue_1(node);
+
+    reserveSpaceForChildren(node, kidsXml);
 
     // Construct the children.
     for (xml_node kidXml = kidsXml.first_child();
          kidXml;
          kidXml = kidXml.next_sibling()) {
-      Node *kid = parseNode(kidXml, node);
-      // Check name is not a duplicate
-      std::string const &kidId = kid->getNodeId();
-      if (node->getNodeId() == kidId) {
-        delete kid;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
+      {
+        // Checks on node ID
+        char const *kidId = kidXml.child(NODEID_TAG).child_value();
+
+        // Name is a duplicate
+        checkParserExceptionWithLocation(node->getNodeId() != kidId,
                                          kidXml,
                                          "List Node " << node->getNodeId()
-                                         << " cannot have a child node with the same NodeId");
-      }
-      else if (node->findChild(kidId.c_str())) {
-        delete kid;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         << " has a child node with the same NodeId");
+        checkParserExceptionWithLocation(NULL == node->findChild(kidId),
                                          kidXml,
                                          "List Node " << node->getNodeId()
-                                         << " cannot have multiple child nodes with the same NodeId "
+                                         << " has multiple child nodes with the same NodeId "
                                          << kidId);
       }
-      else {
-        lnode->addChild(kid);
-      }
+
+      // Parse and add it
+      node->addChild(parseNode(kidXml, node));
     }
+  }
+
+  PlexilNodeType checkNodeTypeAttr(xml_node const xml)
+    throw (ParserException)
+  {
+    xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
+    checkParserExceptionWithLocation(typeAttr,
+                                     xml,
+                                     "Node has no " << NODETYPE_ATTR << " attribute");
+
+    PlexilNodeType nodeType = parseNodeType(typeAttr.value());
+    checkParserExceptionWithLocation(nodeType < NodeType_error,
+                                     xml, // should be attribute
+                                     "Invalid node type \"" << typeAttr.value() << "\"");
+    return nodeType;
   }
 
   Node *parseNode(xml_node const xml, Node *parent)
     throw (ParserException)
   {
-    PlexilNodeType nodeType;
-    {
-      xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
-      checkParserExceptionWithLocation(typeAttr,
-                                       xml,
-                                       "Node has no " << NODETYPE_ATTR << " attribute");
-      nodeType = parseNodeType(typeAttr.value());
-      checkParserExceptionWithLocation(nodeType >= NodeType_NodeList && nodeType <= NodeType_LibraryNodeCall,
-                                       xml, // should be attribute
-                                       "Invalid node type \"" << typeAttr.value() << "\"");
-      debugMsg("parseNode", " of type " << typeAttr.value());
-    }
+    checkTag(NODE_TAG, xml);
+
+    PlexilNodeType nodeType = checkNodeTypeAttr(xml);
 
     // Where to put the things we parse on the first pass
     char const *name = NULL;
-    size_t nVariables = 0;
     xml_node prio;
     xml_node iface;
     xml_node varDecls;
     xml_node body;
+    size_t nVariables = 0;
 
+    // Scan all children in order
     for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
       char const *tag = temp.name();
       checkParserExceptionWithLocation(*tag,
@@ -299,20 +309,19 @@ namespace PLEXIL
           checkParserExceptionWithLocation(*name,
                                            temp, 
                                            "Empty " << tag << " element in Node");
-          break;
         }
-        if (!strcmp(BODY_TAG, tag)) {
+        else if (!strcmp(BODY_TAG, tag)) {
           checkParserExceptionWithLocation(!body,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           body = temp;
-          break;
         }
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp,
-                                         "Illegal element \"" << tag << "\" in Node");
+        else {
+          checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                           temp,
+                                           "Illegal element \"" << tag << "\" in Node");
+        }
         break;
-
 
       case 'P': // PostCondition, Priority, PreCondition
         if (!strcmp(POST_CONDITION_TAG, tag)
@@ -369,19 +378,21 @@ namespace PLEXIL
 
     checkParserExceptionWithLocation(name,
                                      xml,
-                                     "Node has no " << NODEID_TAG << " element");
+                                     "Node missing " << NODEID_TAG << " element");
 
     // Superficial checks of node body before we construct node
     if (body) {
       checkParserExceptionWithLocation(nodeType != NodeType_Empty,
                                        body,
-                                       "Empty Node \"" << name << "\" may not have a NodeBody element");
+                                       "Empty Node \"" << name
+                                       << "\" may not have a NodeBody element");
       body = body.first_child(); // strip away NodeBody wrapper
     }
     else
       checkParserExceptionWithLocation(nodeType == NodeType_Empty,
                                        xml,
-                                       "Node \"" << name << "\" has no NodeBody element");
+                                       "Node \"" << name << "\" has no "
+                                       << BODY_TAG << " element");
 
     debugMsg("parseNode", " constructing node");
     Node *node = NodeFactory::createNode(name, nodeType, parent);
@@ -421,27 +432,21 @@ namespace PLEXIL
         constructAssignment(node, body);
         break;
 
-      case NodeType_Command: {
-        CommandNode *cnode = dynamic_cast<CommandNode *>(node);
-        assertTrue_2(cnode, "Node is not a CommandNode");
-        cnode->setCommand(constructCommand(node, body));
-      }
+      case NodeType_Command:
+        constructAndSetCommand(dynamic_cast<CommandNode *>(node), body);
         break;
 
       case NodeType_LibraryNodeCall:
-        constructLibraryCall(node, body);
+        constructLibraryCall(dynamic_cast<LibraryCallNode *>(node), body);
         break;
 
       case NodeType_NodeList:
-        constructChildNodes(node, body);
+        constructChildNodes(dynamic_cast<ListNode *>(node), body);
         break;
 
-      case NodeType_Update: {
-        UpdateNode *unode = dynamic_cast<UpdateNode *>(node);
-        assertTrue_2(unode, "Not an UpdateNode");
-        unode->setUpdate(constructUpdate(node, body));
-      }
-          break;
+      case NodeType_Update:
+        constructAndSetUpdate(dynamic_cast<UpdateNode *>(node), body);
+        break;
 
       case NodeType_Empty:
         // nothing to do
@@ -453,7 +458,7 @@ namespace PLEXIL
       }
     }
     catch (std::exception const & exc) {
-      debugMsg("parseNode", " recovering from parse error, deleting node");
+      debugMsg("parseNode", " recovering from parse error, deleting node " << name);
       delete node;
       throw;
     }
@@ -750,15 +755,12 @@ namespace PLEXIL
         finalizeAssignment(node, temp);
         break;
 
-      case NodeType_Command: {
-        CommandNode *cnode = dynamic_cast<CommandNode *>(node);
-        assertTrue_2(cnode, "Node is not a CommandNode");
-        finalizeCommand(cnode->getCommand(), node, temp);
-      }
+      case NodeType_Command:
+        finalizeCommandNode(dynamic_cast<CommandNode *>(node), temp);
         break;
 
       case NodeType_LibraryNodeCall:
-        finalizeLibraryCall(node, temp);
+        finalizeLibraryCall(dynamic_cast<LibraryCallNode *>(node), temp);
         break;
 
       case NodeType_NodeList: {
@@ -773,11 +775,8 @@ namespace PLEXIL
       }
         break;
 
-      case NodeType_Update: {
-        UpdateNode *unode = dynamic_cast<UpdateNode *>(node);
-        assertTrue_2(unode, "Not an UpdateNode");
-        finalizeUpdate(unode->getUpdate(), node, temp);
-      }
+      case NodeType_Update:
+        finalizeUpdateNode(dynamic_cast<UpdateNode *>(node), temp);
         break;
 
       default:

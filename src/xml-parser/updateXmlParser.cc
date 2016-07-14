@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,10 @@
 
 #include "Error.hh"
 #include "ExpressionFactory.hh"
-#include "NodeConnector.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "Update.hh"
+#include "UpdateNode.hh"
 
 #include "pugixml.hpp"
 
@@ -38,6 +38,8 @@ using pugi::xml_node;
 
 namespace PLEXIL
 {
+
+  // Unit test entry point
 
   Update *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
     throw (ParserException)
@@ -61,6 +63,17 @@ namespace PLEXIL
     return result;
   }
 
+  // Parser entry point wrapper
+
+  void constructAndSetUpdate(UpdateNode *node, pugi::xml_node const updXml)
+    throw (ParserException)
+  {
+    assertTrue_1(node);
+    node->setUpdate(constructUpdate(node, updXml));
+  }
+
+  // Unit test entry point
+
   void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const updXml)
     throw (ParserException)
   {
@@ -81,6 +94,16 @@ namespace PLEXIL
       }
       pr = pr.next_sibling();
     }
+  }
+
+  // Parser entry point wrapper
+
+  void finalizeUpdateNode(UpdateNode *node, pugi::xml_node const updXml)
+    throw (ParserException)
+  {
+    assertTrue_1(node);
+    Update *update = node->getUpdate();
+    finalizeUpdate(update, node, updXml);
   }
 
 } // namespace PLEXIL

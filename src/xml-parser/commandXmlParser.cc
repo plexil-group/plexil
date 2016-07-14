@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,9 @@ using pugi::xml_node;
 namespace PLEXIL
 {
   // First pass
+  
+  // Entry point for unit test; see wrapper below for parser
+  
   Command *constructCommand(NodeConnector *node, xml_node const cmdXml)
     throw (ParserException)
   {
@@ -92,8 +95,19 @@ namespace PLEXIL
     return result;
   }
 
-  void finalizeResourceList(NodeConnector *node, Command *cmd, xml_node const rlist)
-  throw (ParserException)
+  // Entry point from parser
+
+  void constructAndSetCommand(CommandNode *node, xml_node const cmdXml)
+    throw (ParserException)
+  {
+    assertTrue_1(node);
+    node->setCommand(constructCommand(node, cmdXml));
+  }
+
+  static void finalizeResourceList(NodeConnector *node,
+                                   Command *cmd,
+                                   xml_node const rlist)
+    throw (ParserException)
   {
     ResourceList &resources = cmd->getResourceList();
     size_t n = 0;
@@ -193,6 +207,8 @@ namespace PLEXIL
     }
   }
 
+  // Entry point from unit test and wrapper below
+
   void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const cmdXml)
     throw (ParserException)
   {
@@ -244,6 +260,15 @@ namespace PLEXIL
         cmd->setArgumentVector(argVec);
       }
     }
+  }
+
+  // Entry point from parser
+
+  void finalizeCommandNode(CommandNode *node, xml_node const cmdXml)
+    throw (ParserException)
+  {
+    assertTrue_1(node);
+    finalizeCommand(node->getCommand(), node, cmdXml);
   }
 
 } // namespace PLEXIL
