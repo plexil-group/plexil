@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,20 @@ namespace PLEXIL
   // First pass
   //
 
-  static void checkAlias(LibraryCallNode *node, xml_node aliasXml)
+  static void checkLibraryCall(std::string const &callerId, xml_node const callXml)
+    throw (ParserException)
+  {
+    checkTag(LIBRARYNODECALL_TAG, callXml);
+    xml_node temp = callXml.first_child();
+    checkTag(NODEID_TAG, temp);
+    char const *name = temp.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     temp,
+                                     "Empty NodeId for called library in LibraryNodeCall node "
+                                     << callerId);
+  }
+
+  static void checkAlias(LibraryCallNode *node, xml_node const aliasXml)
     throw (ParserException)
   {
     checkTag(ALIAS_TAG, aliasXml);
@@ -56,95 +69,109 @@ namespace PLEXIL
     char const *name = nameXml.child_value();
     checkParserExceptionWithLocation(*name,
                                      nameXml,
-                                     "Alias element is empty or malformed");
+                                     "NodeParameter element is empty in LibraryNodeCall node "
+                                     << node->getNodeId());
+
+    // Check for duplicate parameter names here
+    for (xml_node sib = aliasXml.previous_sibling(); sib; sib = sib.previous_sibling()) {
+      checkParserExceptionWithLocation(strcmp(name, sib.first_child().child_value()),
+                                       aliasXml,
+                                       "Multiple aliases for \""
+                                       << name
+                                       << "\" in LibraryNodeCall node "
+                                       << node->getNodeId());
+    }
+    
     // Basic checks to see that we have something that could be an expression
     xml_node temp = nameXml.next_sibling();
     checkParserExceptionWithLocation(temp,
                                      aliasXml,
-                                     "Alias " << name << " missing value expression in LibraryNodeCall node");
+                                     "Alias for \"" << name
+                                     << "\" without value expression in LibraryNodeCall node "
+                                     << node->getNodeId());
     checkParserExceptionWithLocation(temp.type() == node_element && temp.first_child(),
                                      temp,
-                                     "Alias " << name << " has malformed value expression in LibraryNodeCall node");
+                                     "Alias for \"" << name
+                                     << "\" has malformed value expression in LibraryNodeCall node " 
+                                     << node->getNodeId());
   }
 
-  void constructLibraryCall(LibraryCallNode *node, xml_node callXml)
+  static void allocateAliases(LibraryCallNode *node, xml_node const callXml)
     throw (ParserException)
   {
-    assertTrue_1(node);
-    debugMsg("constructLibraryCall", " caller " << node->getNodeId());
-    xml_node temp = callXml.first_child();
-    checkTag(NODEID_TAG, temp);
-    char const *name = temp.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     temp,
-                                     "Empty NodeId in LibraryNodeCall node");
-
     // Check, preallocate, but don't populate, aliases
+    xml_node temp = callXml.first_child();
+    if (!temp)
+      return; // no aliases in this call
+
     size_t nAliases = 0;
     while ((temp = temp.next_sibling())) {
       checkAlias(node, temp);
       ++nAliases;
     }
-    if (nAliases) {
-      NodeVariableMap *map = node->getChildVariableMap();
-      assertTrue_2(map, "Internal error: no alias map for LibraryNodeCall node");
-      map->grow(nAliases);
-    }
+    NodeVariableMap *map = node->getChildVariableMap();
+    assertTrue_2(map, "Internal error: no alias map for LibraryNodeCall node");
+    map->grow(nAliases);
+  }
+
+  void constructLibraryCall(LibraryCallNode *node, xml_node const callXml)
+    throw (ParserException)
+  {
+    assertTrue_1(node);
+    debugMsg("constructLibraryCall", " caller " << node->getNodeId());
+
+    checkLibraryCall(node->getNodeId(), callXml);
+
+    allocateAliases(node, callXml);
 
     // Construct call
-    xml_node templ = getLibraryNode(name);
+    xml_node const templ = getLibraryNode(callXml.first_child().child_value());
     checkParserExceptionWithLocation(templ,
                                      callXml,
-                                     "Library node " << name << " not found");
+                                     "Library node "
+                                     << callXml.first_child().child_value()
+                                     << " not found while expanding LibraryNodeCall node "
+                                     << node->getNodeId());
     node->addChild(parseNode(templ, node));
   }
 
   // Second pass
-  static void finalizeAlias(LibraryCallNode *node, xml_node aliasXml)
+  static void finalizeAliases(LibraryCallNode *node, xml_node const callXml)
     throw (ParserException)
   {
-    // Construct the actual alias expression
-    xml_node nameXml = aliasXml.first_child();
-    char const *name = nameXml.child_value();
-
-    debugMsg("finalizeAlias",
-             " caller " << node->getNodeId() << ", constructing alias " << name);
+    debugMsg("finalizeAliases", " caller " << node->getNodeId());
+    // Skip over NodeId
+    xml_node aliasXml = callXml.first_child();
+    while ((aliasXml = aliasXml.next_sibling())) {
+      xml_node const nameXml = aliasXml.first_child();
+      debugMsg("finalizeAliases", " constructing alias " << nameXml.child_value());
              
-    // Add the alias
-    bool isGarbage = false;
-    Expression *exp = createExpression(nameXml.next_sibling(), node, isGarbage);
-    if (!node->addAlias(name, exp, isGarbage)) {
-      if (isGarbage)
-        delete exp;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       aliasXml,
-                                       "Duplicate alias name " << name << " in LibraryNodeCall node");
+      // Add the alias
+      bool isGarbage = false;
+      Expression *exp = createExpression(nameXml.next_sibling(), node, isGarbage);
+      node->addAlias(nameXml.child_value(), exp, isGarbage);
     }
   }
 
   // Second pass
-  void finalizeLibraryCall(LibraryCallNode *node, xml_node callXml)
+  void finalizeLibraryCall(LibraryCallNode *node, xml_node const callXml)
     throw (ParserException)
   {
     assertTrue_1(node);
     debugMsg("finalizeLibraryCall", " caller " << node->getNodeId());
-    xml_node temp = callXml.first_child();
-    char const *calleeName = temp.child_value();
-    temp = temp.next_sibling();
-    // Initialize aliases
-    while (temp) {
-      debugMsg("finalizeLibraryCall", " finalizing alias");
-      finalizeAlias(node, temp);
-      temp = temp.next_sibling();
-    }
-    // Descend into called node
-    assertTrue_2(!node->getChildren().empty(),
-                 "Internal error: LibraryNodeCall node missing called node");
-    Node *callee = node->getChildren().front();
-    xml_node calleeXml = getLibraryNode(calleeName);
+
+    finalizeAliases(node, callXml);
+
+    xml_node const calleeXml =
+      getLibraryNode(callXml.first_child().child_value());
+
+    // These should never happen, but...
     assertTrue_2(calleeXml,
                  "Internal error: LibraryNodeCall can't find XML for called node");
-    finalizeNode(callee, calleeXml);
+    assertTrue_2(!node->getChildren().empty(),
+                 "Internal error: LibraryNodeCall node missing called node");
+
+    finalizeNode(node->getChildren().front(), calleeXml);
   }
 
 } // namespace PLEXIL

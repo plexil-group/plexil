@@ -38,10 +38,10 @@ namespace PLEXIL
 {
   class LibraryCallNode;
 
-  extern void constructLibraryCall(LibraryCallNode *node, pugi::xml_node callXml)
+  extern void constructLibraryCall(LibraryCallNode *node, pugi::xml_node const callXml)
     throw (ParserException);
 
-  extern void finalizeLibraryCall(LibraryCallNode *node, pugi::xml_node callXml)
+  extern void finalizeLibraryCall(LibraryCallNode *node, pugi::xml_node const callXml)
     throw (ParserException);
 
 } // namespace PLEXIL

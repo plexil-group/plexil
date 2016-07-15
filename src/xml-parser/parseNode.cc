@@ -70,6 +70,7 @@ namespace PLEXIL
   }
 
   static char const *getVarDeclName(xml_node const decl)
+    throw (ParserException)
   {
     xml_node nameXml = decl.first_child();
     checkTag(NAME_TAG, nameXml);
@@ -81,19 +82,22 @@ namespace PLEXIL
   }
 
   static void parseVariableDeclarations(Node *node, xml_node const decls)
+    throw (ParserException)
   {
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
-      // Variables are always created here, no need for "garbage" flag.
+      // Check for duplicate names before allocating
       char const *name = getVarDeclName(decl);
-      Expression *exp = createExpression(decl, node);
-      if (!node->addLocalVariable(name, exp)) {
-        delete exp;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         decl.child(NAME_TAG),
-                                         "Node " << node->getNodeId()
-                                         << ": Duplicate variable name "
-                                         << name);
+      for (xml_node sib = decl.previous_sibling(); sib; sib = sib.previous_sibling()) {
+        checkParserExceptionWithLocation(strcmp(name, getVarDeclName(sib)),
+                                         decl,
+                                         "Multiple variables named \""
+                                         << name
+                                         << "\" in node "
+                                         << node->getNodeId());
       }
+
+      // Variables are always created here, no need for "garbage" flag.
+      node->addLocalVariable(name, createExpression(decl, node));
     }
   }
 
@@ -111,6 +115,7 @@ namespace PLEXIL
 
   // For Interface specs; may have other uses.
   static ValueType getVarDeclType(xml_node const decl)
+    throw (ParserException)
   {
     xml_node typeElt = decl.child(TYPE_TAG);
     checkParserExceptionWithLocation(typeElt,
@@ -187,45 +192,50 @@ namespace PLEXIL
     }
   }
 
-  // Count children and reserve right # of spots for them.
-  static void reserveSpaceForChildren(ListNode *node, xml_node const kidsXml)
+  // Check child nodes for duplicated names. Returns # of child nodes.
+
+  static size_t checkNodeIds(std::string const &parentId, xml_node const kidsXml)
+    throw (ParserException)
   {
     size_t nKids = 0;
     for (xml_node kidXml = kidsXml.first_child();
          kidXml;
-         kidXml = kidXml.next_sibling())
+         kidXml = kidXml.next_sibling()) {
       ++nKids;
-    if (nKids)
-      node->reserveChildren(nKids);
+
+      // Check parent and child don't have same name
+      char const *kidId = kidXml.child(NODEID_TAG).child_value();
+      checkParserExceptionWithLocation(parentId != kidId,
+                                       kidXml,
+                                       "List Node " << parentId
+                                       << " has a child node with the same NodeId");
+
+      // Check that none of siblings has same name
+      for (xml_node nextKid = kidXml.previous_sibling();
+           nextKid;
+           nextKid = nextKid.previous_sibling()) {
+        checkParserExceptionWithLocation(strcmp(kidId,
+                                                nextKid.child(NODEID_TAG).child_value()),
+                                         kidXml,
+                                         "List Node " << parentId
+                                         << " has multiple child nodes with the same NodeId "
+                                         << kidId);
+      }
+    }
+    return nKids;
   }
 
-  void constructChildNodes(ListNode *node, xml_node const kidsXml)
+  static void constructChildNodes(ListNode *node, xml_node const kidsXml)
     throw (ParserException)
   {
     assertTrue_1(node);
 
-    reserveSpaceForChildren(node, kidsXml);
+    node->reserveChildren(checkNodeIds(node->getNodeId(), kidsXml));
 
     // Construct the children.
     for (xml_node kidXml = kidsXml.first_child();
          kidXml;
          kidXml = kidXml.next_sibling()) {
-      {
-        // Checks on node ID
-        char const *kidId = kidXml.child(NODEID_TAG).child_value();
-
-        // Name is a duplicate
-        checkParserExceptionWithLocation(node->getNodeId() != kidId,
-                                         kidXml,
-                                         "List Node " << node->getNodeId()
-                                         << " has a child node with the same NodeId");
-        checkParserExceptionWithLocation(NULL == node->findChild(kidId),
-                                         kidXml,
-                                         "List Node " << node->getNodeId()
-                                         << " has multiple child nodes with the same NodeId "
-                                         << kidId);
-      }
-
       // Parse and add it
       node->addChild(parseNode(kidXml, node));
     }
@@ -497,12 +507,95 @@ namespace PLEXIL
   //
   // Second pass
   //
-  // The node is partially built and some XML checking has been done.
+  // The node is partially built and most XML checking has been done.
   // All nodes and their declared and internal variables have been constructed,
   // but aliases and interface variables may not have been.
   // Expressions (including LHS variable references) have NOT been constructed.
   // Finish populating the node and its children.
   // 
+
+  static void parseVariableInitializer(Node *node, xml_node const decl)
+    throw (ParserException)
+  {
+    xml_node initXml = decl.child(INITIALVAL_TAG);
+    if (initXml) {
+      char const *varName = decl.child_value(NAME_TAG);
+      Expression *var = node->findLocalVariable(varName);
+      assertTrueMsg(var,
+                    "finalizeNode: Internal error: variable " << varName
+                    << " not found in node " << node->getNodeId());
+      // FIXME: is this needed/possible?
+      checkParserExceptionWithLocation(var->isAssignable(),
+                                       initXml,
+                                       "This variable may not take an initializer");
+      checkHasChildElement(initXml);
+      Expression *init;
+      ValueType varType = var->valueType();
+      bool garbage;
+      if (isArrayType(varType)
+          && testTag(typeNameAsValue(arrayElementType(varType)).c_str(), initXml.first_child())) {
+        // Handle old style initializer
+        garbage = true; // always constructed
+        switch (varType) {
+        case BOOLEAN_ARRAY_TYPE:
+          init = createArrayLiteral<bool>("Boolean", initXml);
+          break;
+
+        case INTEGER_ARRAY_TYPE:
+          init = createArrayLiteral<int32_t>("Integer", initXml);
+          break;
+
+        case REAL_ARRAY_TYPE:
+          init = createArrayLiteral<double>("Real", initXml);
+          break;
+
+        case STRING_ARRAY_TYPE:
+          init = createArrayLiteral<std::string>("String", initXml);
+          break;
+
+        default:
+          checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                           initXml,
+                                           "Can't parse initial value for unimplemented or illegal type "
+                                           << valueTypeName(varType));
+          return;
+        }
+      }
+      else {
+        // Simply parse whatever's inside the <InitialValue>
+        initXml = initXml.first_child();
+        init = createExpression(initXml, node, garbage);
+      }
+      ValueType initType = init->valueType();
+      if (!areTypesCompatible(varType, initType)) {
+        if (garbage)
+          delete init;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         initXml,
+                                         "Node " << node->getNodeId()
+                                         << ": Initialization type mismatch for variable "
+                                         << varName << ", variable is " << valueTypeName(varType)
+                                         << ", initializer is " << valueTypeName(initType));
+      }
+      var->asAssignable()->setInitializer(init, garbage);
+    }
+  }
+
+  // Process variable declarations, if any
+  static void constructVariableInitializers(Node *node, xml_node const xml)
+    throw (ParserException)
+  {
+    xml_node temp = xml.child(VAR_DECLS_TAG);
+    if (!temp)
+      return;
+
+    debugMsg("finalizeNode",
+             " constructing variable initializers for " << node->getNodeId());
+    for (xml_node decl = temp.first_child();
+         decl;
+         decl = decl.next_sibling()) 
+      parseVariableInitializer(node, decl);
+  }
 
   static void linkInVar(Node *node, xml_node const inXml, bool isCall)
     throw (ParserException)
@@ -634,9 +727,13 @@ namespace PLEXIL
     }
   }
 
-  static void linkAndInitializeInterfaceVars(Node *node, xml_node const iface)
+  static void linkAndInitializeInterfaceVars(Node *node, xml_node const nodeXml)
     throw (ParserException)
   {
+    xml_node const iface = nodeXml.child(INTERFACE_TAG);
+    if (!iface)
+      return;
+    
     debugMsg("linkAndInitializeInterface", " node " << node->getNodeId());
     Node *parent = node->getParent();
     bool isCall = (parent && parent->getType() == NodeType_LibraryNodeCall);
@@ -652,106 +749,21 @@ namespace PLEXIL
       }
       else
         assertTrueMsg(ALWAYS_FAIL,
-                      "Internal error: Found " << temp.name() << " element in Interface during second pass");
+                      "Internal error: Found " << temp.name()
+                      << " element in Interface during second pass");
     }
   }
 
-  void parseVariableInitializer(Node *node, xml_node const decl)
-  throw (ParserException)
-  {
-    xml_node initXml = decl.child(INITIALVAL_TAG);
-    if (initXml) {
-      char const *varName = decl.child_value(NAME_TAG);
-      Expression *var = node->findLocalVariable(varName);
-      assertTrueMsg(var,
-                    "finalizeNode: Internal error: variable " << varName
-                    << " not found in node " << node->getNodeId());
-      // FIXME: is this needed/possible?
-      checkParserExceptionWithLocation(var->isAssignable(),
-                                       initXml,
-                                       "This variable may not take an initializer");
-      checkHasChildElement(initXml);
-      Expression *init;
-      ValueType varType = var->valueType();
-      bool garbage;
-      if (isArrayType(varType)
-          && testTag(typeNameAsValue(arrayElementType(varType)).c_str(), initXml.first_child())) {
-        // Handle old style initializer
-        garbage = true; // always constructed
-        switch (varType) {
-        case BOOLEAN_ARRAY_TYPE:
-          init = createArrayLiteral<bool>("Boolean", initXml);
-          break;
-
-        case INTEGER_ARRAY_TYPE:
-          init = createArrayLiteral<int32_t>("Integer", initXml);
-          break;
-
-        case REAL_ARRAY_TYPE:
-          init = createArrayLiteral<double>("Real", initXml);
-          break;
-
-        case STRING_ARRAY_TYPE:
-          init = createArrayLiteral<std::string>("String", initXml);
-          break;
-
-        default:
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           initXml,
-                                           "Can't parse initial value for unimplemented or illegal type "
-                                           << valueTypeName(varType));
-          return;
-        }
-      }
-      else {
-        // Simply parse whatever's inside the <InitialValue>
-        initXml = initXml.first_child();
-        init = createExpression(initXml, node, garbage);
-      }
-      ValueType initType = init->valueType();
-      if (!areTypesCompatible(varType, initType)) {
-        if (garbage)
-          delete init;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         initXml,
-                                         "Node " << node->getNodeId()
-                                         << ": Initialization type mismatch for variable "
-                                         << varName << ", variable is " << valueTypeName(varType)
-                                         << ", initializer is " << valueTypeName(initType));
-      }
-      var->asAssignable()->setInitializer(init, garbage);
-    }
-  }
-
-  void finalizeNode(Node *node, xml_node const xml)
+  static void createConditions(Node *node, xml_node const xml)
     throw (ParserException)
   {
-    debugMsg("finalizeNode", " node " << node->getNodeId());
-
-    // Process variable declarations, if any
-    xml_node temp = xml.child(VAR_DECLS_TAG);
-    if (temp) {
-      debugMsg("finalizeNode", " constructing variable initializers");
-      for (xml_node decl = temp.first_child();
-           decl;
-           decl = decl.next_sibling()) 
-        parseVariableInitializer(node, decl);
-    }
-
-    // Interface, if any
-    temp = xml.child(INTERFACE_TAG);
-    if (temp) {
-      debugMsg("finalizeNode", " linking interface variables");
-      linkAndInitializeInterfaceVars(node, temp);
-    }
-
-    // Process conditions
     for (xml_node elt = xml.first_child(); elt; elt = elt.next_sibling()) {
       char const *tag = elt.name();
       if (testSuffix(CONDITION_SUFFIX, tag)) {
         debugMsg("finalizeNode", " processing condition " << tag);
         // Check that condition name is valid, get index
         Node::ConditionIndex which = Node::getConditionIndex(tag);
+        // Bogus condition names should have been caught in first pass
         assertTrueMsg(which >= Node::skipIdx && which <= Node::repeatIdx,
                       "Internal error: Invalid condition name \"" << tag << "\"");
         bool garbage;
@@ -769,49 +781,64 @@ namespace PLEXIL
       }
     }
 
-    // finalize conditions
     node->finalizeConditions();
+  }
 
-    temp = xml.child(BODY_TAG);
-    if (temp) {
-      temp = temp.first_child();
-      debugMsg("finalizeNode", " processing node body");
-
-      // finalize node bodies
-      switch (node->getType()) {
-      case NodeType_Assignment:
-        finalizeAssignment(dynamic_cast<AssignmentNode *>(node), temp);
-        break;
-
-      case NodeType_Command:
-        finalizeCommandNode(dynamic_cast<CommandNode *>(node), temp);
-        break;
-
-      case NodeType_LibraryNodeCall:
-        finalizeLibraryCall(dynamic_cast<LibraryCallNode *>(node), temp);
-        break;
-
-      case NodeType_NodeList: {
-        std::vector<Node *> &kids = node->getChildren();
-        std::vector<Node *>::iterator kid = kids.begin();
-        xml_node kidXml = temp.first_child();
-        while (kid != kids.end() && kidXml) {
-          finalizeNode(*kid, kidXml);
-          ++kid;
-          kidXml = kidXml.next_sibling();
-        }
-      }
-        break;
-
-      case NodeType_Update:
-        finalizeUpdateNode(dynamic_cast<UpdateNode *>(node), temp);
-        break;
-
-      default:
-        break;
-      }
+  static void finalizeListNode(ListNode *node, xml_node const listXml)
+    throw (ParserException)
+  {
+    assertTrue_1(node);
+    std::vector<Node *> &kids = node->getChildren();
+    std::vector<Node *>::iterator kid = kids.begin();
+    xml_node kidXml = listXml.first_child();
+    while (kid != kids.end() && kidXml) {
+      finalizeNode(*kid, kidXml);
+      ++kid;
+      kidXml = kidXml.next_sibling();
     }
-    debugMsg("finalizeNode", " for " << node->getNodeId() << " complete.");
+  }
+
+  void finalizeNode(Node *node, xml_node const xml)
+    throw (ParserException)
+  {
+    debugMsg("finalizeNode", " node " << node->getNodeId());
+
+    constructVariableInitializers(node, xml);
+    linkAndInitializeInterfaceVars(node, xml);
+    createConditions(node, xml);
+
+    // Process body
+    switch (node->getType()) {
+    case NodeType_Assignment:
+      finalizeAssignment(dynamic_cast<AssignmentNode *>(node),
+                         xml.child(BODY_TAG).first_child());
+      break;
+      
+    case NodeType_Command:
+      finalizeCommandNode(dynamic_cast<CommandNode *>(node),
+                          xml.child(BODY_TAG).first_child());
+      break;
+
+    case NodeType_LibraryNodeCall:
+      finalizeLibraryCall(dynamic_cast<LibraryCallNode *>(node),
+                          xml.child(BODY_TAG).first_child());
+      break;
+
+    case NodeType_NodeList:
+      finalizeListNode(dynamic_cast<ListNode *>(node),
+                       xml.child(BODY_TAG).first_child());
+      break;
+
+    case NodeType_Update:
+      finalizeUpdateNode(dynamic_cast<UpdateNode *>(node),
+                         xml.child(BODY_TAG).first_child());
+      break;
+
+      // No-op for empty.
+      // Invalid type should have been caught in first pass.
+    default:
+      break;
+    }
   }
 
 } // namespace PLEXIL
