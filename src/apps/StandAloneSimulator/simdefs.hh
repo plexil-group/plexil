@@ -34,16 +34,6 @@
 class ResponseMessageManager;
 typedef std::map<const std::string, ResponseMessageManager*> ResponseManagerMap;
 
-/**
- * @brief Enumeration value representing the kind of message.
- */
-enum MsgType
-  {
-    MSG_COMMAND=0, 
-    MSG_TELEMETRY,
-    MSG_LOOKUP
-  };
-
 /*
  * @brief Function template to parse one object from an input stream.
  * @param instream The stream to read an object from.

@@ -92,10 +92,14 @@ namespace PLEXIL
       static std::string const sl_string_array(STRING_ARRAY_STR);
       return sl_string_array;
 
+    case STATE_TYPE:
+      static std::string const sl_state(STATE_STR);
+      return sl_state;
+
       // Internal types
     case NODE_STATE_TYPE:
-      static std::string const sl_state(NODE_STATE_STR);
-      return sl_state;
+      static std::string const sl_node_state(NODE_STATE_STR);
+      return sl_node_state;
 
     case OUTCOME_TYPE:
       static std::string const sl_outcome(NODE_OUTCOME_STR);
@@ -265,7 +269,7 @@ namespace PLEXIL
   typedef SimpleMap<std::string, ValueType> NameTypeTable;
 
   // Size argument to constructor should be at least as big as # of entries in table
-  static NameTypeTable s_nameTypeTable(15);
+  static NameTypeTable s_nameTypeTable(16);
 
   static void initNameTypeTable()
   {
@@ -282,6 +286,8 @@ namespace PLEXIL
       s_nameTypeTable.insert(INTEGER_ARRAY_STR, INTEGER_ARRAY_TYPE);
       s_nameTypeTable.insert(REAL_ARRAY_STR, REAL_ARRAY_TYPE);
       s_nameTypeTable.insert(STRING_ARRAY_STR, STRING_ARRAY_TYPE);
+
+      s_nameTypeTable.insert(STATE_STR, STATE_TYPE);
 
       s_nameTypeTable.insert(NODE_STATE_STR, NODE_STATE_TYPE);
       s_nameTypeTable.insert(NODE_OUTCOME_STR, OUTCOME_TYPE);
@@ -311,19 +317,6 @@ namespace PLEXIL
       return UNKNOWN_TYPE;
     else
       return it->second;
-  }
-
-  size_t scanValueTypePrefix(char const *typeStr, ValueType &result)
-  {
-    if (!typeStr)
-      return 0;
-    initNameTypeTable();
-    NameTypeTable::const_iterator it = 
-      s_nameTypeTable.findLast<char const *, StringPrefixComparator>(typeStr);
-    if (it == s_nameTypeTable.end())
-      return 0; // failure
-    result = it->second;
-    return it->first.size();
   }
 
   template <typename T>
@@ -479,6 +472,256 @@ namespace PLEXIL
     assertTrue_1(s);
     result = s;
     return true;
+  }
+
+  //
+  // Serialization
+  //
+
+  // Default methods
+  template <typename T>
+  char *serialize(T const &/* o */, char */* b */)
+  {
+    return NULL;
+  }
+
+  template <typename T>
+  size_t serialSize(T const &/* o */)
+  {
+    return 0;
+  }
+
+  template <typename T>
+  char const *deserialize(T &o, char const *b)
+  {
+    return NULL;
+  }
+
+  //
+  // Boolean
+  //
+
+  template <>
+  char *serialize<Boolean>(Boolean const &o, char *b)
+  {
+    *b++ = BOOLEAN_TYPE;
+    *b++ = (char) o;
+    return b;
+  }
+
+  template <>
+  char const *deserialize<Boolean>(Boolean &o, char const *b)
+  {
+    if (BOOLEAN_TYPE != (ValueType) *b++)
+      return NULL;
+    o = (Boolean) *b++;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<Boolean>(Boolean const &o)
+  {
+    return 2;
+  }
+
+  //
+  // CommandHandleValue
+  //
+
+  template <>
+  char *serialize<CommandHandleValue>(CommandHandleValue const &o, char *b)
+  {
+    *b++ = COMMAND_HANDLE_TYPE;
+    *b++ = (char) o;
+    return b;
+  }
+
+  template <>
+  char const *deserialize<CommandHandleValue>(CommandHandleValue &o, char const *b)
+  {
+    if (COMMAND_HANDLE_TYPE != (ValueType) *b++)
+      return NULL;
+    o = (CommandHandleValue) *b++;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<CommandHandleValue>(CommandHandleValue const &o)
+  {
+    return 2;
+  }
+  
+
+  //
+  // Integer
+  //
+
+  template <>
+  char *serialize<Integer>(Integer const &o, char *b)
+  {
+    *b++ = INTEGER_TYPE;
+    // Store in big-endian format
+    *b++ = (char) (0xFF & (o >> 24));
+    *b++ = (char) (0xFF & (o >> 16));
+    *b++ = (char) (0xFF & (o >> 8));
+    *b++ = (char) (0xFF & o);
+    return b;
+  }
+
+  template <>
+  char const *deserialize<Integer>(Integer &o, char const *b)
+  {
+    if (INTEGER_TYPE != (ValueType) *b++)
+      return NULL;
+    uint32_t n = ((uint32_t) (unsigned char) *b++) << 8;
+    n = (n + (uint32_t) (unsigned char) *b++) << 8;
+    n = (n + (uint32_t) (unsigned char) *b++) << 8;
+    n = (n + (uint32_t) (unsigned char) *b++);
+    o = (Integer) n;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<Integer>(Integer const &o)
+  {
+    return 5;
+  }
+
+  //
+  // Real
+  //
+
+  template <>
+  char *serialize<Real>(Real const &o, char *b)
+  {
+    *b++ = REAL_TYPE;
+    union {
+      Real r;
+      uint64_t l;
+    };
+    r = o;
+    // Store in big-endian format
+    *b++ = (char) (0xFF & (l >> 56));
+    *b++ = (char) (0xFF & (l >> 48));
+    *b++ = (char) (0xFF & (l >> 40));
+    *b++ = (char) (0xFF & (l >> 32));
+    *b++ = (char) (0xFF & (l >> 24));
+    *b++ = (char) (0xFF & (l >> 16));
+    *b++ = (char) (0xFF & (l >> 8));
+    *b++ = (char) (0xFF & l);
+    return b;
+  }
+
+  template <>
+  char const *deserialize<Real>(Real &o, char const *b)
+  {
+    if (REAL_TYPE != (ValueType) *b++)
+      return NULL;
+    union {
+      Real r;
+      uint64_t l;
+    };
+    l = (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++; l = l << 8;
+    l += (uint64_t) (unsigned char) *b++;
+    o = r;
+    return b;
+  }
+
+  template <>
+  size_t serialSize<Real>(Real const &o)
+  {
+    return 9;
+  }
+
+  //
+  // String
+  //
+
+  template <>
+  char *serialize<String>(String const &o, char *b)
+  {
+    size_t s = o.size();
+    if (s > 0xFFFFFF)
+      return NULL; // too big
+
+    *b++ = STRING_TYPE;
+    // Put 3 bytes of size first - std::string may contain embedded NUL
+    *b++ = (char) (0xFF & (s >> 16));
+    *b++ = (char) (0xFF & (s >> 8));
+    *b++ = (char) (0xFF & s);
+    memcpy(b, o.c_str(), s);
+    return b + s;
+  }
+
+  template <>
+  char const *deserialize<String>(String &o, char const *b)
+  {
+    if (STRING_TYPE != (ValueType) *b++)
+      return NULL;
+
+    // Get 3 bytes of size
+    size_t s = ((size_t) (unsigned char) *b++) << 8;
+    s = (s + (size_t) (unsigned char) *b++) << 8;
+    s = s + (size_t) (unsigned char) *b++;
+
+    o.replace(o.begin(), o.end(), b, s);
+    return b + s;
+  }
+
+  template <>
+  size_t serialSize<String>(String const &o)
+  {
+    return o.size() + 4;
+  }
+
+  //
+  // Character string
+  //
+
+  template <>
+  char *serialize<char const *>(char const * const &o, char *b)
+  {
+    size_t s = strlen(o);
+    if (s > 0xFFFFFF)
+      return NULL; // too big
+
+    *b++ = STRING_TYPE;
+    // Put 3 bytes of size first
+    *b++ = (char) (0xFF & (s >> 16));
+    *b++ = (char) (0xFF & (s >> 8));
+    *b++ = (char) (0xFF & s);
+    memcpy(b, o, s);
+    return b + s;
+  }
+
+  template <>
+  char const *deserialize<char *>(char *&o, char const *b)
+  {
+    if (STRING_TYPE != (ValueType) *b++)
+      return NULL;
+
+    // Get 3 bytes of size
+    size_t s = ((size_t) (unsigned char) *b++) << 8;
+    s = (s + (size_t) (unsigned char) *b++) << 8;
+    s = s + (size_t) (unsigned char) *b++;
+
+    o = (char *) malloc(s + 1);
+    memcpy(o, b, s);
+    o[s] = '\0'; 
+
+    return b + s;
+  }
+
+  template <>
+  size_t serialSize<char const *>(char const * const &o)
+  {
+    return strlen(o) + 4;
   }
 
   //

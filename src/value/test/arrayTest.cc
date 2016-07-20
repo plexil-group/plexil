@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -277,7 +277,7 @@ bool testResize()
     assertTrue_1(sizedBool   == emptyBool);
 
     emptyBool.resize(1);
-    assertTrue_1(emptyBool.size()   == 2);
+    assertTrue_1(emptyBool.size() == 1);
 
     std::vector<bool>        bv(2);
     bv[0] = false;
@@ -305,17 +305,13 @@ bool testResize()
     assertTrue_1(!initedBool.getElement(3, btemp));
 
     initedBool.resize(2);
-    assertTrue_1(initedBool.size()   == 4);
+    assertTrue_1(initedBool.size()   == 2);
     assertTrue_1(initedBool.elementKnown(0));
     assertTrue_1(initedBool.elementKnown(1));
     assertTrue_1(initedBool.getElement(0, btemp));
     assertTrue_1(btemp == bv[0]);
     assertTrue_1(initedBool.getElement(1, btemp));
     assertTrue_1(btemp == bv[1]);
-    assertTrue_1(!initedBool.elementKnown(2));
-    assertTrue_1(!initedBool.elementKnown(3));
-    assertTrue_1(!initedBool.getElement(2, btemp));
-    assertTrue_1(!initedBool.getElement(3, btemp));
   }
 
   {
@@ -337,7 +333,7 @@ bool testResize()
     assertTrue_1(sizedInt    == emptyInt);
 
     emptyInt.resize(1);
-    assertTrue_1(emptyInt.size()    == 2);
+    assertTrue_1(emptyInt.size()    == 1);
 
     std::vector<int32_t>     iv(2);
     iv[0] = 42;
@@ -365,17 +361,13 @@ bool testResize()
     assertTrue_1(!initedInt.getElement(3, itemp));
 
     initedInt.resize(2);
-    assertTrue_1(initedInt.size()    == 4);
+    assertTrue_1(initedInt.size()    == 2);
     assertTrue_1(initedInt.elementKnown(0));
     assertTrue_1(initedInt.elementKnown(1));
     assertTrue_1(initedInt.getElement(0, itemp));
     assertTrue_1(itemp == iv[0]);
     assertTrue_1(initedInt.getElement(1, itemp));
     assertTrue_1(itemp == iv[1]);
-    assertTrue_1(!initedInt.elementKnown(2));
-    assertTrue_1(!initedInt.elementKnown(3));
-    assertTrue_1(!initedInt.getElement(2, itemp));
-    assertTrue_1(!initedInt.getElement(3, itemp));
   }
 
   {
@@ -398,7 +390,7 @@ bool testResize()
     assertTrue_1(sizedReal   == emptyReal);
 
     emptyReal.resize(1);
-    assertTrue_1(emptyReal.size()   == 2);
+    assertTrue_1(emptyReal.size()   == 1);
     std::vector<double>      dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
@@ -426,17 +418,13 @@ bool testResize()
     assertTrue_1(!initedReal.getElement(3, dtemp));
 
     initedReal.resize(2);
-    assertTrue_1(initedReal.size()   == 4);
+    assertTrue_1(initedReal.size()   == 2);
     assertTrue_1(initedReal.elementKnown(0));
     assertTrue_1(initedReal.elementKnown(1));
     assertTrue_1(initedReal.getElement(0, dtemp));
     assertTrue_1(dtemp == dv[0]);
     assertTrue_1(initedReal.getElement(1, dtemp));
     assertTrue_1(dtemp == dv[1]);
-    assertTrue_1(!initedReal.elementKnown(2));
-    assertTrue_1(!initedReal.elementKnown(3));
-    assertTrue_1(!initedReal.getElement(2, dtemp));
-    assertTrue_1(!initedReal.getElement(3, dtemp));
 
   }
 
@@ -460,7 +448,7 @@ bool testResize()
     assertTrue_1(sizedString == emptyString);
 
     emptyString.resize(1);
-    assertTrue_1(emptyString.size() == 2);
+    assertTrue_1(emptyString.size() == 1);
 
     std::vector<std::string> sv(2);
     sv[0] = std::string("yo ");
@@ -489,17 +477,13 @@ bool testResize()
     assertTrue_1(!initedString.getElement(3, stemp));
 
     initedString.resize(2);
-    assertTrue_1(initedString.size() == 4);
+    assertTrue_1(initedString.size() == 2);
     assertTrue_1(initedString.elementKnown(0));
     assertTrue_1(initedString.elementKnown(1));
     assertTrue_1(initedString.getElement(0, stemp));
     assertTrue_1(stemp == sv[0]);
     assertTrue_1(initedString.getElement(1, stemp));
     assertTrue_1(stemp == sv[1]);
-    assertTrue_1(!initedString.elementKnown(2));
-    assertTrue_1(!initedString.elementKnown(3));
-    assertTrue_1(!initedString.getElement(2, stemp));
-    assertTrue_1(!initedString.getElement(3, stemp));
   }
   return true;
 }

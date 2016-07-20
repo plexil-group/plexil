@@ -82,9 +82,7 @@ namespace PLEXIL
 
   void Array::resize(size_t size)
   {
-    if (!checkIndex(size)) {
-      m_known.resize(size, false);
-    }
+    m_known.resize(size, false);
   }
 
   void Array::setElementUnknown(size_t index)
@@ -138,6 +136,23 @@ namespace PLEXIL
   {
     a.print(s);
     return s;
+  }
+
+  template <>
+  char *serialize<Array>(Array const &o, char *b)
+  {
+    return o.serialize(b);
+  }
+
+  template <>
+  char const *deserialize<Array>(Array &o, char const *b)
+  {
+    return o.deserialize(b);
+  }
+
+  template <> size_t serialSize(Array const &o)
+  {
+    return o.serialSize();
   }
 
 } // namespace PLEXIL

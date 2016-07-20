@@ -105,6 +105,21 @@ namespace PLEXIL
       static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
     }
 
+    char *serialize(char *b) const
+    {
+      return static_cast<IMPL const *>(this)->serializeImpl(b);
+    }
+
+    char const *deserialize(char const *b)
+    {
+      return static_cast<IMPL *>(this)->deserializeImpl(b);
+    }
+
+    size_t serialSize() const
+    {
+      return static_cast<IMPL const *>(this)->serialSizeImpl();
+    }
+
   protected:
     // Only available to derived classes
     ArrayAdapter()
@@ -186,6 +201,10 @@ namespace PLEXIL
     bool getMutableElementPointer(size_t index, String *&result);
 
     void print(std::ostream &s) const;
+
+    char *serializeImpl(char *b) const; 
+    char const *deserializeImpl(char const *b);
+    size_t serialSizeImpl() const; 
 
   private:
     std::vector<T> m_contents;

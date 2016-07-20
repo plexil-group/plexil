@@ -38,6 +38,7 @@ namespace PLEXIL
   struct PlexilValueType
   {
     static constexpr ValueType value = UNKNOWN_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = UNKNOWN_STR;
     static constexpr bool isPlexilType = false;
   };
@@ -46,6 +47,7 @@ namespace PLEXIL
   struct PlexilValueType<Boolean>
   {
     static constexpr ValueType value = BOOLEAN_TYPE;
+    static constexpr ValueType arrayValue = BOOLEAN_ARRAY_TYPE;
     static constexpr char const *typeName = BOOLEAN_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -54,6 +56,7 @@ namespace PLEXIL
   struct PlexilValueType<NodeState>
   {
     static constexpr ValueType value = NODE_STATE_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = NODE_STATE_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -62,6 +65,7 @@ namespace PLEXIL
   struct PlexilValueType<NodeOutcome>
   {
     static constexpr ValueType value = OUTCOME_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = NODE_OUTCOME_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -70,6 +74,7 @@ namespace PLEXIL
   struct PlexilValueType<FailureType>
   {
     static constexpr ValueType value = FAILURE_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = NODE_FAILURE_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -78,6 +83,7 @@ namespace PLEXIL
   struct PlexilValueType<CommandHandleValue>
   {
     static constexpr ValueType value = COMMAND_HANDLE_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = NODE_COMMAND_HANDLE_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -86,6 +92,7 @@ namespace PLEXIL
   struct PlexilValueType<Integer>
   {
     static constexpr ValueType value = INTEGER_TYPE;
+    static constexpr ValueType arrayValue = INTEGER_ARRAY_TYPE;
     static constexpr char const *typeName = INTEGER_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -94,6 +101,7 @@ namespace PLEXIL
   struct PlexilValueType<Real>
   {
     static constexpr ValueType value = REAL_TYPE;
+    static constexpr ValueType arrayValue = REAL_ARRAY_TYPE;
     static constexpr char const *typeName = REAL_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -102,6 +110,7 @@ namespace PLEXIL
   struct PlexilValueType<String>
   {
     static constexpr ValueType value = STRING_TYPE;
+    static constexpr ValueType arrayValue = STRING_ARRAY_TYPE;
     static constexpr char const *typeName = STRING_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -111,6 +120,7 @@ namespace PLEXIL
   struct PlexilValueType<Array>
   {
     static constexpr ValueType value = ARRAY_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = ARRAY_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -119,6 +129,7 @@ namespace PLEXIL
   struct PlexilValueType<BooleanArray>
   {
     static constexpr ValueType value = BOOLEAN_ARRAY_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = BOOLEAN_ARRAY_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -127,6 +138,7 @@ namespace PLEXIL
   struct PlexilValueType<IntegerArray>
   {
     static constexpr ValueType value = INTEGER_ARRAY_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = INTEGER_ARRAY_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -135,6 +147,7 @@ namespace PLEXIL
   struct PlexilValueType<RealArray>
   {
     static constexpr ValueType value = REAL_ARRAY_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = REAL_ARRAY_STR;
     static constexpr bool isPlexilType = true;
   };
@@ -143,6 +156,7 @@ namespace PLEXIL
   struct PlexilValueType<StringArray>
   {
     static constexpr ValueType value = STRING_ARRAY_TYPE;
+    static constexpr ValueType arrayValue = UNKNOWN_TYPE;
     static constexpr char const *typeName = STRING_ARRAY_STR;
     static constexpr bool isPlexilType = true;
   };

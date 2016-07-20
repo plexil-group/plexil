@@ -35,6 +35,7 @@
 extern bool valueTypeTest();
 extern bool arrayTest();
 extern bool valueTest();
+extern bool serializeTest();
 
 static void runValueTests()
 {
@@ -43,6 +44,7 @@ static void runValueTests()
   runTestSuite(valueTypeTest);
   runTestSuite(arrayTest);
   runTestSuite(valueTest);
+  runTestSuite(serializeTest);
 
   std::cout << "Finished" << std::endl;
 }

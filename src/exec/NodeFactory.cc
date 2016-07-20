@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -103,11 +103,17 @@ namespace PLEXIL
 
   static NodeFactory const *getNodeFactory(PlexilNodeType nodeType)
   {
+    assertTrue_2((nodeType > NodeType_uninitialized)
+		 && (nodeType < NodeType_error),
+		 "getNodeFactory: Invalid node type value");
+
     static bool s_inited = false;
     if (!s_inited) {
       initializeNodeFactories();
       s_inited = true;
     }
+    assertTrueMsg(s_nodeFactories[nodeType],
+                  "Internal error: no node factory for valid node type" << nodeType);
     return s_nodeFactories[nodeType];
   }
 
@@ -126,12 +132,7 @@ namespace PLEXIL
                                 PlexilNodeType nodeType,
                                 Node *parent)
   {
-    assertTrue_2((nodeType > NodeType_uninitialized)
-		 && (nodeType < NodeType_error),
-		 "createNode: Invalid node type value");
-    NodeFactory const *factory = getNodeFactory(nodeType);
-    assertTrue_2(factory != NULL, "Internal error: no node factory for valid node type");
-    Node *result = factory->create(name, parent);
+    Node *result = getNodeFactory(nodeType)->create(name, parent);
     debugMsg("NodeFactory", " created node " << name);
     // common post process here
     return result;
@@ -146,13 +147,10 @@ namespace PLEXIL
                                 Node *parent)
   {
     PlexilNodeType nodeType = parseNodeType(type.c_str());
-    checkError(nodeType > NodeType_uninitialized
-               && nodeType < NodeType_error,
+    checkError(nodeType < NodeType_error,
                "Invalid node type string " << type);
-    NodeFactory const *factory = getNodeFactory(nodeType);
-    checkError(factory != NULL, 
-               "No NodeFactory registered for node type " << type);
-    Node *result = factory->create(type, name, state, parent);
+    Node *result = getNodeFactory(nodeType)->create(type, name, state, parent);
+    debugMsg("NodeFactory", " created node " << name);
     // common post process here
     return result;
   }

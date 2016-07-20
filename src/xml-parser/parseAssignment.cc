@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,12 @@ namespace PLEXIL
 {
 
   // First pass
-  void parsePriority(Node *node, xml_node prio)
-  throw (ParserException)
+  static void parsePriority(AssignmentNode *anode, xml_node const nodeXml)
+    throw (ParserException)
   {
-    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
-    assertTrue_2(anode, "parsePriority: Not an AssignmentNode");
+    xml_node const prio = nodeXml.child(PRIORITY_TAG);
+    if (!prio)
+      return; // nothing to do
 
     char const *prioString = prio.child_value();
     checkParserExceptionWithLocation(*prioString,
@@ -63,45 +64,57 @@ namespace PLEXIL
     checkParserExceptionWithLocation(!errno,
                                      prio,
                                      "Priority element contains negative or out-of-range integer");
-    checkParserExceptionWithLocation(prioValue < std::numeric_limits<int32_t>::max(),
+    checkParserExceptionWithLocation(prioValue < (unsigned long) std::numeric_limits<int32_t>::max(),
                                      prio,
                                      "Priority element contains out-of-range integer");
     anode->setPriority((int32_t) prioValue);
   }
 
-  // First pass
-  void constructAssignment(Node *node, xml_node assn)
-  throw (ParserException)
+  static void checkAssignment(std::string const &nodeId, xml_node const nodeXml)
+    throw (ParserException)
   {
-    xml_node varXml = assn.first_child();
-    xml_node rhsXml = varXml.next_sibling();
+    xml_node const assn = nodeXml.child(BODY_TAG).first_child();
+    checkTag(ASSN_TAG, assn);
+
+    xml_node const varXml = assn.first_child();
+    xml_node const rhsXml = varXml.next_sibling();
     checkParserExceptionWithLocation(rhsXml,
                                      assn,
-                                     "Assignment Node " << node->getNodeId()
+                                     "Assignment Node " << nodeId
                                      << ": Malformed Assignment element");
     checkTagSuffix(RHS_TAG, rhsXml);
-    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
-    assertTrue_2(anode, "constructAssignment: Not an AssignmentNode");
-    anode->setAssignment(new Assignment(node->getNodeId()));
+  }
+
+  // First pass
+  void constructAssignment(AssignmentNode *anode, xml_node const xml)
+    throw (ParserException)
+  {
+    assertTrue_1(anode);
+
+    // Can throw ParserException
+    checkAssignment(anode->getNodeId(), xml);
+    parsePriority(anode, xml);
+    
+    // Just construct it, will be populated in second pass
+    anode->setAssignment(new Assignment(anode->getNodeId()));
   }
 
   // Second pass
-  void finalizeAssignment(Node *node, xml_node assn)
-  throw (ParserException)
+  void finalizeAssignment(AssignmentNode *anode, xml_node const assn)
+    throw (ParserException)
   {
-    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
-    assertTrue_2(anode, "finalizeAssignment: Not an AssignmentNode");
+    assertTrue_1(anode);
     Assignment *assign = anode->getAssignment();
     assertTrue_2(anode, "finalizeAssignment: AssignmentNode without an Assignment");
     xml_node temp = assn.first_child();
     bool varGarbage = false;
-    Assignable *var = createAssignable(temp, node, varGarbage);
+    Assignable *var = createAssignable(temp, anode, varGarbage);
     assertTrue_2(var, "finalizeAssignment: Internal error: null LHS expression");
     temp = temp.next_sibling().first_child();
-    bool rhsGarbage;
+    bool rhsGarbage = false;
     Expression *rhs = NULL;
     try {
-      rhs = createExpression(temp, node, rhsGarbage);
+      rhs = createExpression(temp, anode, rhsGarbage);
     }
     catch (ParserException &e) {
       if (varGarbage)
@@ -116,7 +129,7 @@ namespace PLEXIL
         delete rhs;
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        temp,
-                                       "Assignment Node " << node->getNodeId()
+                                       "Assignment Node " << anode->getNodeId()
                                        << ": Expression type mismatch with assignment variable");
     }
     assign->setVariable(var, varGarbage);

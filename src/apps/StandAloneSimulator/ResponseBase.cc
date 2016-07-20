@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,56 +23,60 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef PLEXILSIM_RESPONSE_HH
-#define PLEXILSIM_RESPONSE_HH
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <vector>
 #include "ResponseBase.hh"
-#include "ResponseMessage.hh"
+#include "ResponseMessageManager.hh"
 
-class MoveResponse : public ResponseBase
+/**
+ * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
+ */
+ResponseBase::ResponseBase() 
+  : m_Manager(NULL),
+    m_NumberOfResponses(0)
 {
-public:
-  MoveResponse(const std::string& name, timeval delay, const int returnValue)
-    : ResponseBase(name, delay), m_ReturnValue(returnValue) {}
+}
 
-  ~MoveResponse(){}
-
-  virtual ResponseMessage* createResponseMessage()
-  {
-
-    std::ostringstream str;
-    str << m_ReturnValue;
-    std::cout << "Creating a Move response: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str()+'\n');
-  }
-
-private:
-  const int m_ReturnValue;
-};
-
-class foo : public ResponseBase
+ResponseBase::~ResponseBase()
 {
-public:
-  foo(const std::string& name, timeval delay, const int returnValue)
-    : ResponseBase(name, delay), m_ReturnValue(returnValue) {}
+}
 
-  ~foo(){}
+void ResponseBase::setManager(ResponseMessageManager* mgr)
+{
+  m_Manager = mgr;
+}
 
-  virtual ResponseMessage* createResponseMessage()
-  {
+ResponseMessageManager* ResponseBase::getManager() const
+{
+  return m_Manager;
+}
 
-    std::ostringstream str;
-    str << m_ReturnValue;
-    std::cout << "Creating a foo message: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str()+'\n');
-  }
+void ResponseBase::notifyMessageSent()
+{
+  if (m_Manager != NULL)
+    m_Manager->notifyMessageSent(this);
+}
 
-private:
-  const int m_ReturnValue;
-};
+void ResponseBase::setNumberOfResponses(int numOfResp)
+{
+  m_NumberOfResponses = numOfResp;
+}
 
-#endif //ROBOSIM_RESPONSE_HH
+int ResponseBase::getNumberOfResponses() const 
+{
+  return m_NumberOfResponses;
+}
+
+const timeval& ResponseBase::getDelay() const 
+{
+  return m_Delay;
+}
+
+void ResponseBase::setDelay(const timeval& delay) 
+{
+  m_Delay = delay;
+}
+
+const std::string& ResponseBase::getName() const 
+{
+  return m_Manager->getIdentifier();
+}

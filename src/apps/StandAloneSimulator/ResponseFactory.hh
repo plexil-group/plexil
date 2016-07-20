@@ -27,8 +27,6 @@
 #define RESPONSE_FACTORY_HH
 
 #include <string>
-#include <iostream>
-#include "simdefs.hh"
 
 class ResponseBase;
 

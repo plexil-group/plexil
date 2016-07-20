@@ -24,47 +24,42 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_UPDATE_XML_PARSER
-#define PLEXIL_UPDATE_XML_PARSER
+#include "ResponseMessage.hh"
 
-#include "ParserException.hh"
+#include "ResponseBase.hh"
 
-// Forward declaration
-namespace pugi
+ResponseMessage::ResponseMessage(const ResponseBase* _base,
+				 void* _id, 
+				 int _type)
+  : base(_base),
+    id(_id), 
+    messageType(_type) 
+{}
+
+ResponseMessage::~ResponseMessage()
 {
-  class xml_node;
 }
 
-namespace PLEXIL
+const ResponseBase* ResponseMessage::getResponseBase() const
 {
-  // Forward declarations
-  class NodeConnector;
-  class Update;
-  class UpdateNode;
+  return base;
+}
 
-  //
-  // Parser entry points
-  //
+void* ResponseMessage::getId() const
+{
+  return id;
+}
 
-  extern void constructAndSetUpdate(UpdateNode *node, pugi::xml_node const updXml)
-    throw (ParserException);
+int ResponseMessage::getMessageType() const
+{
+  return messageType;
+}
 
-  extern void finalizeUpdateNode(UpdateNode *node, pugi::xml_node const updXml)
-    throw (ParserException);
+const std::string& ResponseMessage::getName() const
+{
+  static const std::string emptyString("");
+  if (base == NULL)
+    return emptyString;
+  return base->getName();
+}
 
-  //
-  // Unit test entry points
-  //
-
-  extern Update *constructUpdate(NodeConnector *node,
-                                 pugi::xml_node const updXml)
-    throw (ParserException);
-
-  extern void finalizeUpdate(Update *upd,
-                             NodeConnector *node,
-                             pugi::xml_node const updXml)
-    throw (ParserException);
-
-} // namespace PLEXIL
-
-#endif // PLEXIL_UPDATE_XML_PARSER

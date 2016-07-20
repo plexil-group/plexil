@@ -43,6 +43,7 @@
 
 namespace PLEXIL
 {
+
   //
   // Type aliases
   //
@@ -88,6 +89,8 @@ namespace PLEXIL
 
       ARRAY_TYPE_MAX,
 
+      STATE_TYPE = 32, // Lookup or Command descriptor, mostly for external use
+
       // Internal types
       INTERNAL_TYPE_OFFSET = 48, // Not a valid type
       NODE_STATE_TYPE,
@@ -110,6 +113,7 @@ namespace PLEXIL
   constexpr char const *INTEGER_ARRAY_STR = "IntegerArray";
   constexpr char const *REAL_ARRAY_STR = "RealArray";
   constexpr char const *STRING_ARRAY_STR = "StringArray";
+  constexpr char const *STATE_STR = "State";
   constexpr char const *NODE_STATE_STR = "NodeState";
   constexpr char const *NODE_OUTCOME_STR = "NodeOutcome";
   constexpr char const *NODE_FAILURE_STR = "NodeFailure";
@@ -139,14 +143,6 @@ namespace PLEXIL
   extern ValueType parseValueType(char const *typeStr);
   extern ValueType parseValueType(const std::string &typeStr);
 
-  /**
-   * @brief Find the longest type name contained as a prefix in the given string.
-   * @param str The string to scan.
-   * @param result Reference to the place to put the ValueType.
-   * @return Length of the scanned prefix. If 0, no valid type prefix was found.
-   */
-  extern size_t scanValueTypePrefix(char const *str, ValueType &result);
-
   // Returns true if dest type can receive src type, false otherwise.
   extern bool areTypesCompatible(ValueType dest, ValueType src);
 
@@ -175,6 +171,35 @@ namespace PLEXIL
     return parseValue<T>(s.c_str(), result);
   }
 
+  /**
+   * @brief Write a binary version of the object to the given buffer.
+   * @param o The object.
+   * @param b Pointer to the insertion point in the buffer.
+   * @return Pointer to first byte after the object; NULL if failed.
+   */
+
+  template <typename T>
+  char *serialize(T const &o, char *b);
+
+  /**
+   * @brief Read a binary representation from the buffer and store it to the result object.
+   * @param o The result object.
+   * @param b Pointer to the representation in the buffer.
+   * @return Pointer to first byte after the object; NULL if failed.
+   */
+
+  template <typename T>
+  char const *deserialize(T &o, char const *b);
+
+  /**
+   * @brief Calculate the size of the serial representation of the object.
+   * @param o The object.
+   * @return Number of bytes; 0 if the object is not serializable.
+   */
+
+  template <typename T>
+  size_t serialSize(T const &o);
+   
 }
 
 #endif // PLEXIL_VALUE_TYPE_HH

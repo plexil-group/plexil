@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,20 @@
 #ifndef RESPONSE_MESSAGE_HH
 #define RESPONSE_MESSAGE_HH
 
+#include <cstddef> // NULL
 #include <string>
-#include <vector>
-#include "ResponseBase.hh"
-#include "simdefs.hh"
+
+class ResponseBase;
+
+/**
+ * @brief Enumeration value representing the kind of message.
+ */
+enum MsgType
+  {
+    MSG_COMMAND=0, 
+    MSG_TELEMETRY,
+    MSG_LOOKUP
+  };
 
 /**
  * @brief ResponseMessage represents an outgoing message that has been scheduled for output.
@@ -39,38 +49,16 @@ class ResponseMessage
 public:
   ResponseMessage(const ResponseBase* _base,
 		  void* _id = NULL, 
-		  int _type=MSG_COMMAND)
-    : base(_base),
-      id(_id), 
-      messageType(_type) 
-  {}
+		  int _type=MSG_COMMAND);
+  virtual ~ResponseMessage();
 
-  virtual ~ResponseMessage()
-  {
-  }
+  const ResponseBase* getResponseBase() const;
 
-  const ResponseBase* getResponseBase() const
-  {
-    return base;
-  }
+  void* getId() const;
 
-  void* getId() const
-  {
-    return id;
-  }
+  int getMessageType() const;
 
-  int getMessageType() const
-  {
-    return messageType;
-  }
-
-  const std::string& getName() const
-  {
-    static const std::string emptyString("");
-    if (base == NULL)
-      return emptyString;
-    return base->getName();
-  }
+  const std::string& getName() const;
 
 private:  
   // deliberately not implemented

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,12 @@ namespace PLEXIL
                                                       NodeConnector *node,
                                                       bool & wasCreated) const
   {
+    assertTrue_1(node); // internal error
     checkNotEmpty(expr);
     char const *varName = expr.child_value();
+    checkParserExceptionWithLocation(*varName,
+                                     expr,
+                                     "Empty or malformed " << expr.name() << " element");
     Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,
