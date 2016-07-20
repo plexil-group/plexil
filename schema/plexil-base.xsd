@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
+
 <!--
-* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,1154 +34,1154 @@ NOTE: this is an incomplete schema, as it doesn't define the "Name"
 element.  It is used as an included schema only.
 -->
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
-  <xsd:attribute name="FileName" type="xsd:string"/>
-  <xsd:attribute name="LineNo" type="xsd:integer"/>
-  <xsd:attribute name="ColNo" type="xsd:integer"/>
-  <xsd:attributeGroup name="SourceLocators">
-    <xsd:attribute ref="FileName"/>
-    <xsd:attribute ref="LineNo"/>
-    <xsd:attribute ref="ColNo"/>
-  </xsd:attributeGroup>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  <xs:attribute name="FileName" type="xs:string"/>
+  <xs:attribute name="LineNo" type="xs:integer"/>
+  <xs:attribute name="ColNo" type="xs:integer"/>
+  <xs:attributeGroup name="SourceLocators">
+    <xs:attribute ref="FileName"/>
+    <xs:attribute ref="LineNo"/>
+    <xs:attribute ref="ColNo"/>
+  </xs:attributeGroup>
 
   <!-- This is the sole root element allowed! -->
-  <xsd:element name="PlexilPlan">
-    <xsd:complexType>
-      <xsd:sequence> 
-        <xsd:element ref="GlobalDeclarations" minOccurs="0"/>
-        <xsd:group ref="Action"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="PlexilPlan">
+    <xs:complexType>
+      <xs:sequence> 
+        <xs:element ref="GlobalDeclarations" minOccurs="0"/>
+        <xs:group ref="Action"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:group name="Action">
-    <xsd:choice>
-      <xsd:element ref="Node"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="Action">
+    <xs:choice>
+      <xs:element ref="Node"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="NodeReference">
-    <xsd:choice>
-      <xsd:element ref="NodeId"/>
-      <xsd:element ref="NodeRef"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="NodeReference">
+    <xs:choice>
+      <xs:element ref="NodeId"/>
+      <xs:element ref="NodeRef"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:complexType name="node-reference">
-    <xsd:group ref= "NodeReference"/>
-	<xsd:attributeGroup ref="SourceLocators"/>
-  </xsd:complexType>
+  <xs:complexType name="node-reference">
+    <xs:group ref= "NodeReference"/>
+	<xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xsd:element name="NodeId" type="xsd:NCName"/>
+  <xs:element name="NodeId" type="xs:NCName"/>
 
-  <xsd:element name="NodeRef">
-    <xsd:complexType>
-      <xsd:simpleContent>
-        <xsd:extension base="NCNameOrEmpty">
-          <xsd:attribute name="dir">
-            <xsd:simpleType>
-              <xsd:restriction base="xsd:NMTOKEN">
-                <xsd:enumeration value="parent"/>
-                <xsd:enumeration value="sibling"/>
-                <xsd:enumeration value="child"/>
-                <xsd:enumeration value="self"/>
-              </xsd:restriction>
-            </xsd:simpleType>
-          </xsd:attribute>
-        </xsd:extension>
-      </xsd:simpleContent>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NodeRef">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="NCNameOrEmpty">
+          <xs:attribute name="dir">
+            <xs:simpleType>
+              <xs:restriction base="xs:NMTOKEN">
+                <xs:enumeration value="parent"/>
+                <xs:enumeration value="sibling"/>
+                <xs:enumeration value="child"/>
+                <xs:enumeration value="self"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="GlobalDeclarations">
-    <xsd:complexType>
-      <xsd:choice maxOccurs="unbounded">
-        <xsd:element ref="CommandDeclaration" minOccurs="0"/>
-        <xsd:element ref="StateDeclaration" minOccurs="0"/>
-        <xsd:element ref="LibraryNodeDeclaration" minOccurs="0"/>
-        <xsd:element name="TimeScalingUnitsSubunits" type="xsd:integer" minOccurs="0"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="GlobalDeclarations">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="CommandDeclaration" minOccurs="0"/>
+        <xs:element ref="StateDeclaration" minOccurs="0"/>
+        <xs:element ref="LibraryNodeDeclaration" minOccurs="0"/>
+        <xs:element name="TimeScalingUnitsSubunits" type="xs:integer" minOccurs="0"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="CommandDeclaration">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName"/>
-        <xsd:element ref="Return" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="CommandDeclaration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName"/>
+        <xs:element ref="Return" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="StateDeclaration">
-    <xsd:complexType>
-      <xsd:sequence>      
-        <xsd:element name="Name" type="xsd:NCName"/>
-        <xsd:element ref="Return"/>
-        <xsd:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="StateDeclaration">
+    <xs:complexType>
+      <xs:sequence>      
+        <xs:element name="Name" type="xs:NCName"/>
+        <xs:element ref="Return"/>
+        <xs:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="LibraryNodeDeclaration">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName"/>
-        <xsd:element ref="Interface" minOccurs="0"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="LibraryNodeDeclaration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName"/>
+        <xs:element ref="Interface" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Parameter">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName" minOccurs="0" />
-        <xsd:element name="Type" type="AtomicTypeValues"/>
+  <xs:element name="Parameter">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName" minOccurs="0" />
+        <xs:element name="Type" type="AtomicTypeValues"/>
 		<!-- MaxSize indicates an array value, Type is the element type -->
-        <xsd:element name="MaxSize" type="xsd:nonNegativeInteger" minOccurs="0" />
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
+        <xs:element name="MaxSize" type="xs:nonNegativeInteger" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Return" nillable="true">
+  <xs:element name="Return" nillable="true">
     <!-- KMD: not sure about the motivation for 'nillable'.  Assuming it
          is for declaring a void return explicitly. -->
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName" minOccurs="0" />
-        <xsd:element name="Type" type="AtomicTypeValues" />
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName" minOccurs="0" />
+        <xs:element name="Type" type="AtomicTypeValues" />
 		<!-- MaxSize indicates an array value, Type is the element type -->
-        <xsd:element name="MaxSize" type="xsd:nonNegativeInteger" minOccurs="0" />
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
+        <xs:element name="MaxSize" type="xs:nonNegativeInteger" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:simpleType name="NCNameOrEmpty">
-    <xsd:union memberTypes="xsd:NCName">
-      <xsd:simpleType>
-        <xsd:restriction base="xsd:string">
-          <xsd:enumeration value=""/>
-        </xsd:restriction>
-      </xsd:simpleType>
-    </xsd:union>
-  </xsd:simpleType>
+  <xs:simpleType name="NCNameOrEmpty">
+    <xs:union memberTypes="xs:NCName">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value=""/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
 
-  <xsd:element name="Node">
-    <xsd:complexType>
-      <xsd:all>
-        <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
-        <xsd:element ref="NodeId"/>
-        <xsd:element ref="StartCondition" minOccurs="0"/>
-        <xsd:element ref="RepeatCondition" minOccurs="0"/>
-        <xsd:element ref="PreCondition" minOccurs="0"/>
-        <xsd:element ref="PostCondition" minOccurs="0"/>
-        <xsd:element ref="InvariantCondition" minOccurs="0"/>
-        <xsd:element ref="EndCondition" minOccurs="0"/>
-        <xsd:element ref="ExitCondition" minOccurs="0"/>
-        <xsd:element ref="SkipCondition" minOccurs="0"/>
-        <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-        <xsd:element ref="Interface" minOccurs="0"/>
-        <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-        <xsd:element ref="NodeBody" minOccurs="0"/>
-      </xsd:all>
-      <xsd:attribute name="NodeType" use="required">
-        <xsd:simpleType>
-          <xsd:restriction base="xsd:NMTOKEN">
-            <xsd:enumeration value="NodeList"/>
-            <xsd:enumeration value="Command"/>
-            <xsd:enumeration value="Assignment"/>
-            <xsd:enumeration value="Update"/>
-            <xsd:enumeration value="Empty"/>
-            <xsd:enumeration value="LibraryNodeCall"/>
-          </xsd:restriction>
-        </xsd:simpleType>
-      </xsd:attribute>
+  <xs:element name="Node">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Comment" type="xs:string" minOccurs="0"/>
+        <xs:element ref="NodeId"/>
+        <xs:element ref="StartCondition" minOccurs="0"/>
+        <xs:element ref="RepeatCondition" minOccurs="0"/>
+        <xs:element ref="PreCondition" minOccurs="0"/>
+        <xs:element ref="PostCondition" minOccurs="0"/>
+        <xs:element ref="InvariantCondition" minOccurs="0"/>
+        <xs:element ref="EndCondition" minOccurs="0"/>
+        <xs:element ref="ExitCondition" minOccurs="0"/>
+        <xs:element ref="SkipCondition" minOccurs="0"/>
+        <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
+        <xs:element ref="Interface" minOccurs="0"/>
+        <xs:element ref="VariableDeclarations" minOccurs="0"/>
+        <xs:element ref="NodeBody" minOccurs="0"/>
+      </xs:all>
+      <xs:attribute name="NodeType" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="NodeList"/>
+            <xs:enumeration value="Command"/>
+            <xs:enumeration value="Assignment"/>
+            <xs:enumeration value="Update"/>
+            <xs:enumeration value="Empty"/>
+            <xs:enumeration value="LibraryNodeCall"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
       <!-- The epx attribute indicates a node that is a translation of an
            Extended Plexil construct (i.e. macro).  Its value is the type of
            this construct, or 'aux' indicating it is an auxilliary generated
            node. -->
-      <xsd:attribute name="epx" use="optional">
-        <xsd:simpleType>
-          <xsd:restriction base="xsd:NCName"/>
-        </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attribute name="epx" use="optional">
+        <xs:simpleType>
+          <xs:restriction base="xs:NCName"/>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NodeBody">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="NodeList"/>
-        <xsd:element ref="Command"/>
-        <xsd:element ref="Assignment"/>
-        <xsd:element ref="Update"/>
-        <xsd:element ref="LibraryNodeCall"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NodeBody">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="NodeList"/>
+        <xs:element ref="Command"/>
+        <xs:element ref="Assignment"/>
+        <xs:element ref="Update"/>
+        <xs:element ref="LibraryNodeCall"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NodeList">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NodeList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="StartCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="StartCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="RepeatCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="RepeatCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="PreCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="PreCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="PostCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="PostCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="InvariantCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="InvariantCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="EndCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="EndCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ExitCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ExitCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="SkipCondition">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="SkipCondition">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Interface">
-    <xsd:complexType>
-      <xsd:all>
-        <xsd:element ref="In" minOccurs="0"/>
-        <xsd:element ref="InOut" minOccurs="0"/>
-      </xsd:all>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Interface">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="In" minOccurs="0"/>
+        <xs:element ref="InOut" minOccurs="0"/>
+      </xs:all>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="In">
-    <xsd:complexType>
-      <xsd:choice maxOccurs="unbounded">
-        <xsd:element ref="DeclareVariable"/>
-        <xsd:element ref="DeclareArray"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="In">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="DeclareVariable"/>
+        <xs:element ref="DeclareArray"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="InOut">
-    <xsd:complexType>
-      <xsd:choice maxOccurs="unbounded">
-        <xsd:element ref="DeclareVariable"/>
-        <xsd:element ref="DeclareArray"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="InOut">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="DeclareVariable"/>
+        <xs:element ref="DeclareArray"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
   
-  <xsd:element name="ResourceList">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="Resource" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ResourceList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Resource" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
   <!-- FIXME: make these tags less verbose -->
-  <xsd:element name="Resource">
-    <xsd:complexType>
-      <xsd:all>
-        <xsd:element name="ResourceName">
-          <xsd:complexType>
-            <xsd:group ref="GeneralizedStringExpression"/>
-          </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="ResourcePriority">
-          <xsd:complexType>
-            <xsd:group ref="GeneralizedNumericExpression"/>
-          </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="ResourceLowerBound" minOccurs="0">
-          <xsd:complexType>
-            <xsd:group ref="GeneralizedNumericExpression"/>
-          </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="ResourceUpperBound" minOccurs="0">
-          <xsd:complexType>
-            <xsd:group ref="GeneralizedNumericExpression"/>
-          </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="ResourceReleaseAtTermination" minOccurs="0">
-          <xsd:complexType>
-            <xsd:group ref="GeneralizedBooleanExpression"/>
-          </xsd:complexType>
-        </xsd:element>
-      </xsd:all>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Resource">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ResourceName">
+          <xs:complexType>
+            <xs:group ref="GeneralizedStringExpression"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ResourcePriority">
+          <xs:complexType>
+            <xs:group ref="GeneralizedNumericExpression"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ResourceLowerBound" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="GeneralizedNumericExpression"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ResourceUpperBound" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="GeneralizedNumericExpression"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ResourceReleaseAtTermination" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="GeneralizedBooleanExpression"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:group name="DeclaredVariable">
-    <xsd:choice>
-      <xsd:element ref="IntegerVariable"/>
-      <xsd:element ref="RealVariable"/>
-      <xsd:element ref="BooleanVariable"/>
-      <xsd:element ref="StringVariable"/>
-      <xsd:element ref="ArrayVariable"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="DeclaredVariable">
+    <xs:choice>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="StringVariable"/>
+      <xs:element ref="ArrayVariable"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
 
   <!-- Note: ArrayValue is not included here because arrays
        are handled independently (and NOT supported in places
        were Value is) -->
-  <xsd:group name="Value">
-    <xsd:choice>
-      <xsd:element ref="IntegerValue"/>
-      <xsd:element ref="RealValue"/>
-      <xsd:element ref="BooleanValue"/>
-      <xsd:element ref="StringValue"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="Value">
+    <xs:choice>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="BooleanValue"/>
+      <xs:element ref="StringValue"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="IntegerVariable" type="xsd:NCName"/>
-  <xsd:element name="RealVariable" type="xsd:NCName"/>
-  <xsd:element name="BooleanVariable" type="xsd:NCName"/>
-  <xsd:element name="StringVariable" type="xsd:NCName"/>
-  <xsd:element name="ArrayVariable" type="xsd:NCName"/>
+  <xs:element name="IntegerVariable" type="xs:NCName"/>
+  <xs:element name="RealVariable" type="xs:NCName"/>
+  <xs:element name="BooleanVariable" type="xs:NCName"/>
+  <xs:element name="StringVariable" type="xs:NCName"/>
+  <xs:element name="ArrayVariable" type="xs:NCName"/>
 
-  <xsd:element name="DeclareVariable">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName" />
-        <xsd:element name="Type" type="AtomicTypeValues"/>
-        <xsd:element name="InitialValue" minOccurs="0">
-          <xsd:complexType>
-            <xsd:group ref="Value"/>
-          </xsd:complexType>
-        </xsd:element>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="DeclareVariable">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName" />
+        <xs:element name="Type" type="AtomicTypeValues"/>
+        <xs:element name="InitialValue" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="Value"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="DeclareArray">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName" />
-        <xsd:element name="Type" type="AtomicTypeValues"/>
-        <xsd:element name="MaxSize" type="xsd:nonNegativeInteger" minOccurs="0"/>
-        <xsd:element name="InitialValue" minOccurs="0">
-          <xsd:complexType>
-            <xsd:choice>
+  <xs:element name="DeclareArray">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName" />
+        <xs:element name="Type" type="AtomicTypeValues"/>
+        <xs:element name="MaxSize" type="xs:nonNegativeInteger" minOccurs="0"/>
+        <xs:element name="InitialValue" minOccurs="0">
+          <xs:complexType>
+            <xs:choice>
               <!-- these for backward compatibility -->
-              <xsd:group ref="Value" maxOccurs="unbounded"/>
+              <xs:group ref="Value" maxOccurs="unbounded"/>
               <!-- preferred new style -->
-              <xsd:element ref ="ArrayValue"/>
-            </xsd:choice>
-          </xsd:complexType>
-        </xsd:element>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+              <xs:element ref ="ArrayValue"/>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="VariableDeclarations">
-    <xsd:complexType>
-      <xsd:choice maxOccurs="unbounded">
-        <xsd:element ref="DeclareVariable"/>
-        <xsd:element ref="DeclareArray"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="VariableDeclarations">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="DeclareVariable"/>
+        <xs:element ref="DeclareArray"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Command">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
-        <xsd:group ref="DeclaredVariable" minOccurs="0"/>
-        <xsd:element ref="Name"/>
-        <xsd:element ref="Arguments" minOccurs="0"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Command">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
+        <xs:group ref="DeclaredVariable" minOccurs="0"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="Arguments" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
   <!-- Expression of any type -->
-  <xsd:group name="Expression">
-    <xsd:choice>
-	  <xsd:group ref="BooleanExpression"/>
-	  <xsd:group ref="NumericExpression"/>
-	  <xsd:group ref="StringExpression"/>
-	  <xsd:group ref="ArrayExpression"/>
-      <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="Expression">
+    <xs:choice>
+	  <xs:group ref="BooleanExpression"/>
+	  <xs:group ref="NumericExpression"/>
+	  <xs:group ref="StringExpression"/>
+	  <xs:group ref="ArrayExpression"/>
+      <xs:group ref="LookupGroup"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="Arguments">
-    <xsd:complexType>
-      <xsd:group ref="Expression" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Arguments">
+    <xs:complexType>
+      <xs:group ref="Expression" maxOccurs="unbounded"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Update">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="Pair" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Update">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Pair" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Pair">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="Name" type="xsd:NCName"/>
-        <xsd:group ref="Expression"/>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Pair">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName"/>
+        <xs:group ref="Expression"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="LibraryNodeCall">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="NodeId"/>
-        <xsd:element ref="Alias" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="LibraryNodeCall">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="NodeId"/>
+        <xs:element ref="Alias" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Alias">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element name="NodeParameter" type="xsd:NCName"/>
-        <xsd:group ref="Expression"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Alias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="NodeParameter" type="xs:NCName"/>
+        <xs:group ref="Expression"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="IntegerValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:integer">
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="IntegerValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:integer">
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:element name="RealValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:double">
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="RealValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:double">
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:element name="BooleanValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:boolean">
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="BooleanValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:boolean">
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:element name="StringValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:string">
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="StringValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:element name="ArrayValue">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
-        <xsd:element ref="RealValue" maxOccurs="unbounded"/>
-        <xsd:element ref="BooleanValue" maxOccurs="unbounded"/>
-        <xsd:element ref="StringValue" maxOccurs="unbounded"/>
-      </xsd:choice>
-      <xsd:attribute name="Type" type="AtomicTypeValues" use="required"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ArrayValue">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="IntegerValue" maxOccurs="unbounded"/>
+        <xs:element ref="RealValue" maxOccurs="unbounded"/>
+        <xs:element ref="BooleanValue" maxOccurs="unbounded"/>
+        <xs:element ref="StringValue" maxOccurs="unbounded"/>
+      </xs:choice>
+      <xs:attribute name="Type" type="AtomicTypeValues" use="required"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:group name="GeneralizedArrayExpression">
-    <xsd:choice>
-      <xsd:group ref="ArrayExpression"/>
-      <xsd:group ref="LookupGroup"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="GeneralizedArrayExpression">
+    <xs:choice>
+      <xs:group ref="ArrayExpression"/>
+      <xs:group ref="LookupGroup"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="ArrayExpression">
-    <xsd:choice>
-      <xsd:element ref="ArrayValue"/>
-      <xsd:element ref="ArrayVariable"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="ArrayExpression">
+    <xs:choice>
+      <xs:element ref="ArrayValue"/>
+      <xs:element ref="ArrayVariable"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="BooleanRHS">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="BooleanRHS">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NumericRHS">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:group ref="GeneralizedNumericExpression"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NumericRHS">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group ref="GeneralizedNumericExpression"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="StringRHS">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedStringExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="StringRHS">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ArrayRHS">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedArrayExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ArrayRHS">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:complexType name="assignment">
-    <xsd:sequence>
-      <xsd:group ref="DeclaredVariable"/>
-      <xsd:choice>
-        <xsd:element ref="BooleanRHS"/>
-        <xsd:element ref="NumericRHS"/>
-        <xsd:element ref="StringRHS"/>
-        <xsd:element ref="ArrayRHS"/>
-      </xsd:choice>
-    </xsd:sequence>
-    <xsd:attributeGroup ref="SourceLocators"/>
-  </xsd:complexType>
+  <xs:complexType name="assignment">
+    <xs:sequence>
+      <xs:group ref="DeclaredVariable"/>
+      <xs:choice>
+        <xs:element ref="BooleanRHS"/>
+        <xs:element ref="NumericRHS"/>
+        <xs:element ref="StringRHS"/>
+        <xs:element ref="ArrayRHS"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xsd:element name="Assignment" type="assignment"/>
+  <xs:element name="Assignment" type="assignment"/>
 
-  <xsd:group name="GeneralizedBooleanExpression">
-    <xsd:choice>
-      <xsd:group ref="BooleanExpression"/>
-      <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="GeneralizedBooleanExpression">
+    <xs:choice>
+      <xs:group ref="BooleanExpression"/>
+      <xs:group ref="LookupGroup"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="BooleanExpression">
-    <xsd:choice>
-	  <xsd:group ref="LogicalOperator"/>
-	  <xsd:group ref="Equality"/>
-	  <xsd:group ref="NumericComparison"/>
-      <xsd:group ref="KnownTest"/>
-      <xsd:element ref="BooleanVariable"/>
-      <xsd:element ref="BooleanValue"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="BooleanExpression">
+    <xs:choice>
+	  <xs:group ref="LogicalOperator"/>
+	  <xs:group ref="Equality"/>
+	  <xs:group ref="NumericComparison"/>
+      <xs:group ref="KnownTest"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="LogicalOperator">
-	<xsd:choice>
-      <xsd:element ref="OR"/>
-      <xsd:element ref="XOR"/>
-      <xsd:element ref="AND"/>
-      <xsd:element ref="NOT"/>
-	</xsd:choice>
-  </xsd:group>
+  <xs:group name="LogicalOperator">
+	<xs:choice>
+      <xs:element ref="OR"/>
+      <xs:element ref="XOR"/>
+      <xs:element ref="AND"/>
+      <xs:element ref="NOT"/>
+	</xs:choice>
+  </xs:group>
 
-  <xsd:group name="Equality">
-	<xsd:choice>
-      <xsd:element ref="EQBoolean"/>
-      <xsd:element ref="EQNumeric"/>
-      <xsd:element ref="EQInternal"/>
-      <xsd:element ref="EQString"/>
-      <xsd:element ref="NEBoolean"/>
-      <xsd:element ref="NENumeric"/>
-      <xsd:element ref="NEInternal"/>
-      <xsd:element ref="NEString"/>
-	</xsd:choice>
-  </xsd:group>
+  <xs:group name="Equality">
+	<xs:choice>
+      <xs:element ref="EQBoolean"/>
+      <xs:element ref="EQNumeric"/>
+      <xs:element ref="EQInternal"/>
+      <xs:element ref="EQString"/>
+      <xs:element ref="NEBoolean"/>
+      <xs:element ref="NENumeric"/>
+      <xs:element ref="NEInternal"/>
+      <xs:element ref="NEString"/>
+	</xs:choice>
+  </xs:group>
 
-  <xsd:group name="NumericComparison">
-	<xsd:choice>
-      <xsd:element ref="GT"/>
-      <xsd:element ref="GE"/>
-      <xsd:element ref="LT"/>
-      <xsd:element ref="LE"/>
-	</xsd:choice>
-  </xsd:group>
+  <xs:group name="NumericComparison">
+	<xs:choice>
+      <xs:element ref="GT"/>
+      <xs:element ref="GE"/>
+      <xs:element ref="LT"/>
+      <xs:element ref="LE"/>
+	</xs:choice>
+  </xs:group>
 
-  <xsd:element name="IsKnown">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:group ref="Expression"/>
-        <xsd:element ref="NodeStateVariable"/>
-        <xsd:element ref="NodeOutcomeVariable"/>
-        <xsd:element ref="NodeCommandHandleVariable"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="IsKnown">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group ref="Expression"/>
+        <xs:element ref="NodeStateVariable"/>
+        <xs:element ref="NodeOutcomeVariable"/>
+        <xs:element ref="NodeCommandHandleVariable"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ALL_KNOWN">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedArrayExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ALL_KNOWN">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ANY_KNOWN">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedArrayExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ANY_KNOWN">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:group name="KnownTest">
-    <xsd:choice>
-      <xsd:element ref="IsKnown"/>
-      <xsd:element ref="ALL_KNOWN"/>
-      <xsd:element ref="ANY_KNOWN"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="KnownTest">
+    <xs:choice>
+      <xs:element ref="IsKnown"/>
+      <xs:element ref="ALL_KNOWN"/>
+      <xs:element ref="ANY_KNOWN"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="OR">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"
+  <xs:element name="OR">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"
                  minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="XOR">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"
+  <xs:element name="XOR">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"
                  minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="AND">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"
+  <xs:element name="AND">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"
                  minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NOT">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NOT">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="GT">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="GT">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="GE">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="GE">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="LT">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="LT">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="LE">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="LE">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="EQBoolean">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"
+  <xs:element name="EQBoolean">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="EQNumeric">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="EQNumeric">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="EQInternal">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:group ref="NodeState" minOccurs="2" maxOccurs="2"/>
-        <xsd:group ref="NodeOutcome" minOccurs="2" maxOccurs="2"/>
-        <xsd:group ref="NodeFailure" minOccurs="2" maxOccurs="2"/>
-        <xsd:group ref="NodeCommandHandle" minOccurs="2" maxOccurs="2"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="EQInternal">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group ref="NodeState" minOccurs="2" maxOccurs="2"/>
+        <xs:group ref="NodeOutcome" minOccurs="2" maxOccurs="2"/>
+        <xs:group ref="NodeFailure" minOccurs="2" maxOccurs="2"/>
+        <xs:group ref="NodeCommandHandle" minOccurs="2" maxOccurs="2"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="EQString">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedStringExpression"
+  <xs:element name="EQString">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NEBoolean">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedBooleanExpression"
+  <xs:element name="NEBoolean">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NENumeric">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="NENumeric">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NEInternal">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:group ref="NodeState" minOccurs="2" maxOccurs="2"/>
-        <xsd:group ref="NodeOutcome" minOccurs="2" maxOccurs="2"/>
-        <xsd:group ref="NodeFailure" minOccurs="2" maxOccurs="2"/>
-        <xsd:group ref="NodeCommandHandle" minOccurs="2" maxOccurs="2"/>
-      </xsd:choice>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NEInternal">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group ref="NodeState" minOccurs="2" maxOccurs="2"/>
+        <xs:group ref="NodeOutcome" minOccurs="2" maxOccurs="2"/>
+        <xs:group ref="NodeFailure" minOccurs="2" maxOccurs="2"/>
+        <xs:group ref="NodeCommandHandle" minOccurs="2" maxOccurs="2"/>
+      </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NEString">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedStringExpression"
+  <xs:element name="NEString">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="NodeCommandHandleVariable" type="node-reference"/>
+  <xs:element name="NodeCommandHandleVariable" type="node-reference"/>
 
-  <xsd:element name="NodeCommandHandleValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="COMMAND_SENT_TO_SYSTEM"/>
-        <xsd:enumeration value="COMMAND_ACCEPTED"/>
-        <xsd:enumeration value="COMMAND_DENIED"/>
-        <xsd:enumeration value="COMMAND_RCVD_BY_SYSTEM"/>
-        <xsd:enumeration value="COMMAND_FAILED"/>
-        <xsd:enumeration value="COMMAND_SUCCESS"/>
-        <xsd:enumeration value="COMMAND_ABORTED"/>
-        <xsd:enumeration value="COMMAND_ABORT_FAILED"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="NodeCommandHandleValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:NMTOKEN">
+        <xs:enumeration value="COMMAND_SENT_TO_SYSTEM"/>
+        <xs:enumeration value="COMMAND_ACCEPTED"/>
+        <xs:enumeration value="COMMAND_DENIED"/>
+        <xs:enumeration value="COMMAND_RCVD_BY_SYSTEM"/>
+        <xs:enumeration value="COMMAND_FAILED"/>
+        <xs:enumeration value="COMMAND_SUCCESS"/>
+        <xs:enumeration value="COMMAND_ABORTED"/>
+        <xs:enumeration value="COMMAND_ABORT_FAILED"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:group name="NodeCommandHandle">
-    <xsd:choice>
-      <xsd:element ref="NodeCommandHandleVariable"/>
-      <xsd:element ref="NodeCommandHandleValue"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="NodeCommandHandle">
+    <xs:choice>
+      <xs:element ref="NodeCommandHandleVariable"/>
+      <xs:element ref="NodeCommandHandleValue"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="NodeState">
-    <xsd:choice>
-      <xsd:element ref="NodeStateVariable"/>
-      <xsd:element ref="NodeStateValue"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="NodeState">
+    <xs:choice>
+      <xs:element ref="NodeStateVariable"/>
+      <xs:element ref="NodeStateValue"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="NodeStateVariable" type="node-reference"/>
+  <xs:element name="NodeStateVariable" type="node-reference"/>
 
-  <xsd:element name="NodeStateValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="WAITING"/>
-        <xsd:enumeration value="EXECUTING"/>
-        <xsd:enumeration value="FINISHING"/>
-        <xsd:enumeration value="FAILING"/>
-        <xsd:enumeration value="ITERATION_ENDED"/>
-        <xsd:enumeration value="FINISHED"/>
-        <xsd:enumeration value="INACTIVE"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="NodeStateValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:NMTOKEN">
+        <xs:enumeration value="WAITING"/>
+        <xs:enumeration value="EXECUTING"/>
+        <xs:enumeration value="FINISHING"/>
+        <xs:enumeration value="FAILING"/>
+        <xs:enumeration value="ITERATION_ENDED"/>
+        <xs:enumeration value="FINISHED"/>
+        <xs:enumeration value="INACTIVE"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:group name="NodeOutcome">
-    <xsd:choice>
-      <xsd:element ref="NodeOutcomeVariable"/>
-      <xsd:element ref="NodeOutcomeValue"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="NodeOutcome">
+    <xs:choice>
+      <xs:element ref="NodeOutcomeVariable"/>
+      <xs:element ref="NodeOutcomeValue"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="NodeOutcomeVariable" type="node-reference"/>
+  <xs:element name="NodeOutcomeVariable" type="node-reference"/>
 
-  <xsd:element name="NodeOutcomeValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="SUCCESS"/>
-        <xsd:enumeration value="FAILURE"/>
-        <xsd:enumeration value="SKIPPED"/>
-        <xsd:enumeration value="INTERRUPTED"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="NodeOutcomeValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:NMTOKEN">
+        <xs:enumeration value="SUCCESS"/>
+        <xs:enumeration value="FAILURE"/>
+        <xs:enumeration value="SKIPPED"/>
+        <xs:enumeration value="INTERRUPTED"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:group name="NodeFailure">
-    <xsd:choice>
-      <xsd:element ref="NodeFailureVariable"/>
-      <xsd:element ref="NodeFailureValue"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="NodeFailure">
+    <xs:choice>
+      <xs:element ref="NodeFailureVariable"/>
+      <xs:element ref="NodeFailureValue"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="NodeFailureVariable" type= "node-reference"/>
+  <xs:element name="NodeFailureVariable" type= "node-reference"/>
 
-  <xsd:element name="NodeFailureValue">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="PRE_CONDITION_FAILED"/>
-        <xsd:enumeration value="POST_CONDITION_FAILED"/>
-        <xsd:enumeration value="INVARIANT_CONDITION_FAILED"/>
-        <xsd:enumeration value="PARENT_FAILED"/>
-        <xsd:enumeration value="PARENT_EXITED"/>
-        <xsd:enumeration value="EXITED"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="NodeFailureValue">
+    <xs:simpleType>
+      <xs:restriction base="xs:NMTOKEN">
+        <xs:enumeration value="PRE_CONDITION_FAILED"/>
+        <xs:enumeration value="POST_CONDITION_FAILED"/>
+        <xs:enumeration value="INVARIANT_CONDITION_FAILED"/>
+        <xs:enumeration value="PARENT_FAILED"/>
+        <xs:enumeration value="PARENT_EXITED"/>
+        <xs:enumeration value="EXITED"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:element name="NodeTimepointValue">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:group ref= "NodeReference"/>
-        <xsd:element ref="NodeStateValue"/>
-        <xsd:element ref="Timepoint"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="NodeTimepointValue">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref= "NodeReference"/>
+        <xs:element ref="NodeStateValue"/>
+        <xs:element ref="Timepoint"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Timepoint">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="START"/>
-        <xsd:enumeration value="END"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:element>
+  <xs:element name="Timepoint">
+    <xs:simpleType>
+      <xs:restriction base="xs:NMTOKEN">
+        <xs:enumeration value="START"/>
+        <xs:enumeration value="END"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
-  <xsd:group name="GeneralizedStringExpression">
-    <xsd:choice>
-      <xsd:group ref="StringExpression"/>
-      <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="GeneralizedStringExpression">
+    <xs:choice>
+      <xs:group ref="StringExpression"/>
+      <xs:group ref="LookupGroup"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="StringExpression">
-    <xsd:choice>
-      <xsd:element ref="StringVariable"/>
-      <xsd:element ref="StringValue"/>
-      <xsd:group ref="StringOperator"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="StringExpression">
+    <xs:choice>
+      <xs:element ref="StringVariable"/>
+      <xs:element ref="StringValue"/>
+      <xs:group ref="StringOperator"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="StringOperator">
-	<xsd:choice>
-      <xsd:element ref="Concat"/>
-	</xsd:choice>
-  </xsd:group>
+  <xs:group name="StringOperator">
+	<xs:choice>
+      <xs:element ref="Concat"/>
+	</xs:choice>
+  </xs:group>
 
-  <xsd:element name="Concat">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedStringExpression" minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Concat">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:group name="GeneralizedNumericExpression">
-    <xsd:choice>
-      <xsd:group ref="NumericExpression"/>
-      <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="GeneralizedNumericExpression">
+    <xs:choice>
+      <xs:group ref="NumericExpression"/>
+      <xs:group ref="LookupGroup"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="NumericExpression">
-    <xsd:choice>
-	  <xsd:group ref="ArithmeticOperator"/>
-      <xsd:element ref="IntegerVariable"/>
-      <xsd:element ref="RealVariable"/>
-      <xsd:element ref="IntegerValue"/>
-      <xsd:element ref="RealValue"/>
-      <xsd:element ref="NodeTimepointValue"/>
+  <xs:group name="NumericExpression">
+    <xs:choice>
+	  <xs:group ref="ArithmeticOperator"/>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="NodeTimepointValue"/>
       <!-- read operations for arrays-->
-      <xsd:element ref="ArraySize"/>
-      <xsd:element ref="ArrayMaxSize"/>
-    </xsd:choice>
-  </xsd:group>
+      <xs:element ref="ArraySize"/>
+      <xs:element ref="ArrayMaxSize"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:group name="ArithmeticOperator">
-    <xsd:choice>
-      <xsd:element ref="ADD"/>
-      <xsd:element ref="SUB"/>
-      <xsd:element ref="MUL"/>
-      <xsd:element ref="DIV"/>
-      <xsd:element ref="MOD"/>
-      <xsd:element ref="MAX"/>
-      <xsd:element ref="MIN"/>
-      <xsd:element ref="SQRT"/>
-      <xsd:element ref="ABS"/>
-      <xsd:element ref="CEIL"/>
-      <xsd:element ref="FLOOR"/>
-      <xsd:element ref="ROUND"/>
-      <xsd:element ref="TRUNC"/>
-      <xsd:element ref="REAL_TO_INT"/>
-      <xsd:element ref="STRLEN"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="ArithmeticOperator">
+    <xs:choice>
+      <xs:element ref="ADD"/>
+      <xs:element ref="SUB"/>
+      <xs:element ref="MUL"/>
+      <xs:element ref="DIV"/>
+      <xs:element ref="MOD"/>
+      <xs:element ref="MAX"/>
+      <xs:element ref="MIN"/>
+      <xs:element ref="SQRT"/>
+      <xs:element ref="ABS"/>
+      <xs:element ref="CEIL"/>
+      <xs:element ref="FLOOR"/>
+      <xs:element ref="ROUND"/>
+      <xs:element ref="TRUNC"/>
+      <xs:element ref="REAL_TO_INT"/>
+      <xs:element ref="STRLEN"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="ArrayElement">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:choice>
-          <xsd:group ref="GeneralizedArrayExpression"/>
-          <xsd:element name="Name" type="xsd:NCName"/>
-        </xsd:choice>
-        <xsd:element name="Index">
-          <xsd:complexType>
-            <xsd:group ref="GeneralizedNumericExpression"/>
-          </xsd:complexType>
-        </xsd:element>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ArrayElement">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:group ref="GeneralizedArrayExpression"/>
+          <xs:element name="Name" type="xs:NCName"/>
+        </xs:choice>
+        <xs:element name="Index">
+          <xs:complexType>
+            <xs:group ref="GeneralizedNumericExpression"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ADD">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="ADD">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="SUB">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="SUB">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="MUL">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="MUL">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="unbounded"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="DIV">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="DIV">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="MOD">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="MOD">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="MAX">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="MAX">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="MIN">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"
+  <xs:element name="MIN">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="SQRT">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="SQRT">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ABS">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ABS">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="CEIL">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="CEIL">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="FLOOR">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="FLOOR">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ROUND">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ROUND">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="TRUNC">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="TRUNC">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="REAL_TO_INT">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="REAL_TO_INT">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="STRLEN">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedStringExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="STRLEN">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ArraySize">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedArrayExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ArraySize">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="ArrayMaxSize">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedArrayExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="ArrayMaxSize">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:group name="LookupGroup">
-    <xsd:choice>
-      <xsd:element ref="LookupOnChange"/>
-      <xsd:element ref="LookupNow"/>
-    </xsd:choice>
-  </xsd:group>
+  <xs:group name="LookupGroup">
+    <xs:choice>
+      <xs:element ref="LookupOnChange"/>
+      <xs:element ref="LookupNow"/>
+    </xs:choice>
+  </xs:group>
 
-  <xsd:element name="LookupOnChange">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="Name"/>
-        <xsd:element ref="Tolerance" minOccurs="0"/>
-        <xsd:element ref="Arguments" minOccurs="0"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="LookupOnChange">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Name"/>
+        <xs:element ref="Tolerance" minOccurs="0"/>
+        <xs:element ref="Arguments" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="LookupNow">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="Name"/>
-        <xsd:element ref="Arguments" minOccurs="0"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="LookupNow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Name"/>
+        <xs:element ref="Arguments" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
 
-  <xsd:element name="Tolerance">
-    <xsd:complexType>
-      <xsd:group ref="GeneralizedNumericExpression"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:element name="Tolerance">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+    </xs:complexType>
+  </xs:element>
 
-</xsd:schema>
+</xs:schema>

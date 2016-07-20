@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
+
 <!--
-* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,106 +32,106 @@
 <!-- Schema for extensions to Core PLEXIL that are not yet implemented 
      (i.e. this schema is not supported by the Plexil Executive).  -->
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
-  <xsd:include schemaLocation='core-plexil.xsd' />
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  <xs:include schemaLocation='core-plexil.xsd' />
 
-  <xsd:redefine id="core-plexil-draft" schemaLocation= 'core-plexil.xsd'>
+  <xs:redefine id="core-plexil-draft" schemaLocation= 'core-plexil.xsd'>
 
   <!-- This adds Duration as a new kind of numeric expression.  Clearly this is
        very simple and rather liberal way to support durations, but affords a
        simple schema change.  Note that a Duration is in essence a numeric
        expression: it reduces to a real number (seconds). -->
 
-    <xsd:simpleType name="TypeValues">
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="Integer"/>
-        <xsd:enumeration value="Real"/>
-        <xsd:enumeration value="Boolean"/>
-        <xsd:enumeration value="String"/>
-        <xsd:enumeration value="Array"/>
-        <xsd:enumeration value="Duration"/>
-      </xsd:restriction>
-    </xsd:simpleType>
+    <xs:simpleType name="TypeValues">
+      <xs:restriction base="xs:NMTOKEN">
+        <xs:enumeration value="Integer"/>
+        <xs:enumeration value="Real"/>
+        <xs:enumeration value="Boolean"/>
+        <xs:enumeration value="String"/>
+        <xs:enumeration value="Array"/>
+        <xs:enumeration value="Duration"/>
+      </xs:restriction>
+    </xs:simpleType>
 
-    <xsd:group name="NumericExpression">
-      <xsd:choice>
-        <xsd:element ref="ADD"/>
-        <xsd:element ref="SUB"/>
-        <xsd:element ref="MUL"/>
-        <xsd:element ref="DIV"/>
-        <xsd:element ref="SQRT"/>
-        <xsd:element ref="ABS"/>
-        <xsd:element ref="IntegerVariable"/>
-        <xsd:element ref="RealVariable"/>
-        <xsd:element ref="IntegerValue"/>
-        <xsd:element ref="RealValue"/>
-        <xsd:group ref="LookupGroup"/>
+    <xs:group name="NumericExpression">
+      <xs:choice>
+        <xs:element ref="ADD"/>
+        <xs:element ref="SUB"/>
+        <xs:element ref="MUL"/>
+        <xs:element ref="DIV"/>
+        <xs:element ref="SQRT"/>
+        <xs:element ref="ABS"/>
+        <xs:element ref="IntegerVariable"/>
+        <xs:element ref="RealVariable"/>
+        <xs:element ref="IntegerValue"/>
+        <xs:element ref="RealValue"/>
+        <xs:group ref="LookupGroup"/>
         <!-- only for lookups that return ONE value -->
-        <xsd:element ref="NodeTimepointValue"/>
+        <xs:element ref="NodeTimepointValue"/>
         <!-- read operations for arrays-->
-        <xsd:element name="ArraySize" type="xsd:NCName"/>
-        <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
-        <xsd:element ref="ArrayElement"/>
-        <xsd:element ref="Duration"/>
-      </xsd:choice>
-    </xsd:group>
+        <xs:element name="ArraySize" type="xs:NCName"/>
+        <xs:element name="ArrayMaxSize" type="xs:NCName"/>
+        <xs:element ref="ArrayElement"/>
+        <xs:element ref="Duration"/>
+      </xs:choice>
+    </xs:group>
 
-  </xsd:redefine>
+  </xs:redefine>
 
   <!-- Date, Time, Duration (based on ISO 8601 -->
   <!-- Note that only Duration is incorporated into Core Plexil for now. -->
 
-   <xsd:element name="Date">  <!-- Gregorian calendar -->
-     <xsd:complexType>
-       <xsd:all>
-         <xsd:element name="Year" type="xsd:integer"/>
-         <xsd:element name="Month" type="xsd:integer"/> <!-- [1,12] -->
-         <xsd:element name="Day" type="xsd:integer"/> <!-- [1,31] -->
-       </xsd:all>
-     </xsd:complexType>
-   </xsd:element>
+   <xs:element name="Date">  <!-- Gregorian calendar -->
+     <xs:complexType>
+       <xs:all>
+         <xs:element name="Year" type="xs:integer"/>
+         <xs:element name="Month" type="xs:integer"/> <!-- [1,12] -->
+         <xs:element name="Day" type="xs:integer"/> <!-- [1,31] -->
+       </xs:all>
+     </xs:complexType>
+   </xs:element>
 
-   <xsd:element name="Time">  <!--24-hour clock -->
-     <xsd:complexType>
-       <xsd:all>
+   <xs:element name="Time">  <!--24-hour clock -->
+     <xs:complexType>
+       <xs:all>
          <!-- [0,24], with 24 used only to indicate midnight at the end
               of a calendar day -->
-         <xsd:element name="Hour" type="xsd:integer"/>
+         <xs:element name="Hour" type="xs:integer"/>
 
          <!-- [0,59] -->
-         <xsd:element name="Minute" type="xsd:integer"/> 
+         <xs:element name="Minute" type="xs:integer"/> 
 
          <!-- [0,60], with 60 only for leap second -->
-         <xsd:element name="Second" type="xsd:float"/> 
+         <xs:element name="Second" type="xs:float"/> 
 
          <!-- Offset in hours (+/-) from UTC; default is 0 -->
-         <xsd:element name="Offset" type="xsd:integer"/> 
-       </xsd:all>
-     </xsd:complexType>
-   </xsd:element>
+         <xs:element name="Offset" type="xs:integer"/> 
+       </xs:all>
+     </xs:complexType>
+   </xs:element>
 
-   <xsd:element name="TimePoint"> 
-     <xsd:complexType>
-       <xsd:all>
-         <xsd:element ref="Date"/>
-         <xsd:element ref="Time"/> 
-       </xsd:all>
-     </xsd:complexType>
-   </xsd:element>
+   <xs:element name="TimePoint"> 
+     <xs:complexType>
+       <xs:all>
+         <xs:element ref="Date"/>
+         <xs:element ref="Time"/> 
+       </xs:all>
+     </xs:complexType>
+   </xs:element>
 
-   <xsd:element name="Duration">
-     <xsd:complexType>
-       <xsd:all>
-         <xsd:element name="Days" type="xsd:integer"/>
-         <xsd:element name="Hours" type="xsd:integer"/>
-         <xsd:element name="Minutes" type="xsd:integer"/>
+   <xs:element name="Duration">
+     <xs:complexType>
+       <xs:all>
+         <xs:element name="Days" type="xs:integer"/>
+         <xs:element name="Hours" type="xs:integer"/>
+         <xs:element name="Minutes" type="xs:integer"/>
          <!-- [0, 60) up to microsecond precision -->
-         <xsd:element name="Seconds" type="xsd:float"/>
-       </xsd:all>
-     </xsd:complexType>
-   </xsd:element>
+         <xs:element name="Seconds" type="xs:float"/>
+       </xs:all>
+     </xs:complexType>
+   </xs:element>
 
-   <xsd:element name="TimeInterval">
+   <xs:element name="TimeInterval">
      <!--
          Valid time interval is one of the following:
           - start/end
@@ -137,31 +139,31 @@
           - duration/end
           - duration only
      -->
-     <xsd:complexType>
-       <xsd:all>
-         <xsd:element name="Start">
-           <xsd:complexType>
-             <xsd:all>
-               <xsd:element ref="TimePoint"/>
-             </xsd:all>
-           </xsd:complexType>
-         </xsd:element>
-         <xsd:element name="End">
-           <xsd:complexType>
-             <xsd:all>
-               <xsd:element ref="TimePoint"/>
-             </xsd:all>
-           </xsd:complexType>
-         </xsd:element>
-         <xsd:element name="Duration">
-           <xsd:complexType>
-             <xsd:all>
-               <xsd:element ref="Duration"/>
-             </xsd:all>
-           </xsd:complexType>
-         </xsd:element>
-       </xsd:all>
-     </xsd:complexType>
-   </xsd:element> 
+     <xs:complexType>
+       <xs:all>
+         <xs:element name="Start">
+           <xs:complexType>
+             <xs:all>
+               <xs:element ref="TimePoint"/>
+             </xs:all>
+           </xs:complexType>
+         </xs:element>
+         <xs:element name="End">
+           <xs:complexType>
+             <xs:all>
+               <xs:element ref="TimePoint"/>
+             </xs:all>
+           </xs:complexType>
+         </xs:element>
+         <xs:element name="Duration">
+           <xs:complexType>
+             <xs:all>
+               <xs:element ref="Duration"/>
+             </xs:all>
+           </xs:complexType>
+         </xs:element>
+       </xs:all>
+     </xs:complexType>
+   </xs:element> 
 
-</xsd:schema>
+</xs:schema>
