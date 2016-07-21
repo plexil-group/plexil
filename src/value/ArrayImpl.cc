@@ -29,7 +29,8 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#include <memory> // std::move()
+#include <cstring> // memcpy()
+#include <memory>  // std::move()
 
 namespace PLEXIL
 {

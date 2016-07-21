@@ -143,34 +143,34 @@ namespace PLEXIL
  
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg) const
+  bool OperatorImpl<Integer>::calc(Real &result, Expression const *arg) const
   {
-    int32_t temp;
+    Integer temp;
     if (!this->calc(temp, arg))
       return false;
-    result = (double) temp;
+    result = (Real) temp;
     return true;
   }
 
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg0, Expression const *arg1) const
+  bool OperatorImpl<Integer>::calc(Real &result, Expression const *arg0, Expression const *arg1) const
   {
-    int32_t temp;
+    Integer temp;
     if (!this->calc(temp, arg0, arg1))
       return false;
-    result = (double) temp;
+    result = (Real) temp;
     return true;
   }
 
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, ExprVec const &args) const
+  bool OperatorImpl<Integer>::calc(Real &result, ExprVec const &args) const
   {
-    int32_t temp;
+    Integer temp;
     if (!this->calc(temp, args))
       return false;
-    result = (double) temp;
+    result = (Real) temp;
     return true;
   }
 
@@ -178,11 +178,10 @@ namespace PLEXIL
   // Explicit instantiations
   //
 
-  template class OperatorImpl<double>;
-  template class OperatorImpl<int32_t>;
-  // template class OperatorImpl<uint16_t>;
-  template class OperatorImpl<bool>;
-  template class OperatorImpl<std::string>;
+  template class OperatorImpl<Real>;
+  template class OperatorImpl<Integer>;
+  template class OperatorImpl<Boolean>;
+  template class OperatorImpl<String>;
 
   // later?
   // template class OperatorImpl<BooleanArray>;

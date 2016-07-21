@@ -98,11 +98,17 @@ namespace PLEXIL
   // Comparisons
   ENSURE_FUNCTION_FACTORY(Equal<bool>);
   ENSURE_FUNCTION_FACTORY(Equal<std::string>);
-  ENSURE_FUNCTION_FACTORY(Equal<uint16_t>);
+  ENSURE_FUNCTION_FACTORY(Equal<CommandHandleValue>);
+  ENSURE_FUNCTION_FACTORY(Equal<NodeState>);
+  ENSURE_FUNCTION_FACTORY(Equal<NodeOutcome>);
+  ENSURE_FUNCTION_FACTORY(Equal<FailureType>);
 
   ENSURE_FUNCTION_FACTORY(NotEqual<bool>);
   ENSURE_FUNCTION_FACTORY(NotEqual<std::string>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<uint16_t>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<CommandHandleValue>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<NodeState>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<NodeOutcome>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<FailureType>);
 
   // Not currently in the schema
   // ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>);

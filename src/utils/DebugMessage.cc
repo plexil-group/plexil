@@ -122,7 +122,7 @@ static void ensureDebugInited()
 // Patterns
 //
 
-static std::vector<std::string const> allDebugPatterns;
+static std::vector<std::string> allDebugPatterns;
 
 static bool markerMatches(std::string const &marker, std::string const &pattern) 
 {

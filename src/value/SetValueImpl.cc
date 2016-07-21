@@ -304,7 +304,6 @@ namespace PLEXIL
 
   template class SetValueImpl<StringArray>;
   template void SetValueImpl<StringArray>::setValueImpl(Boolean const &);
-  template void SetValueImpl<StringArray>::setValueImpl(uint16_t const &);
   template void SetValueImpl<StringArray>::setValueImpl(Integer const &);
   template void SetValueImpl<StringArray>::setValueImpl(Real const &);
   template void SetValueImpl<StringArray>::setValueImpl(String const &);
