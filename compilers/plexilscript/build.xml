@@ -59,10 +59,12 @@
     <javac srcdir="${dir.generated}/plexilscript"
 	   destdir="${dir.classes}/plexilscript"
 	   classpathref="plexilscript.classpath"
-	   sourcepathref="plexilscript.sourcepath"/>
+	   sourcepathref="plexilscript.sourcepath"
+	   includeantruntime = "false"/>
     <javac srcdir="${dir.java}/plexilscript"
 	   destdir="${dir.classes}/plexilscript"
-	   classpathref="plexilscript.classpath"/>
+	   classpathref="plexilscript.classpath"
+	   includeantruntime = "false"/>
   </target>
 
   <target name="plexilscript-jar" depends="plexilscript-compile">
