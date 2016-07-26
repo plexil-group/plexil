@@ -61,7 +61,7 @@ EMPTY_SCRIPT_VALID_TESTS='AssignToParentInvariant AssignToParentExit
  InactiveAncestorInvariantTest NonLocalExit'
 
 # Tests of library calls
-LIBRARY_TESTS='LibraryCallWithArray'
+LIBRARY_TESTS='LibraryCall6 LibraryCallWithArray'
 
 # Tests which run to success and require a script of the same name
 SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 AtomicAssignment
