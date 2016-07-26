@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,11 +58,14 @@ public class LibraryCallNode extends PlexilTreeNode
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
+        // Add library node as child so conditions can reference it
+        String libName = this.getChild(0).getText();
+        context.addChildNodeId(this.getChild(0)); // for effect
+        
         // Be sure variables ref'd in aliases are set up
         earlyCheckChildren(context, state);
 
         // Check that library node is declared
-        String libName = this.getChild(0).getText();
         GlobalDeclaration libDecl =
             GlobalContext.getGlobalContext().getLibraryNodeDeclaration(libName);
         if (libDecl == null) {

@@ -41,6 +41,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
               LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 \
               library-call1 LibraryCallWithArray \
+              CallWithPostCondition \
               library-node1 literal-format-test \
               if2 if3 if4 test-recv test-send \
               lookup2 LookupWithComputedStateName \
