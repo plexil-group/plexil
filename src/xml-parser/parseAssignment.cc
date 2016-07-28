@@ -123,6 +123,8 @@ namespace PLEXIL
     }
     assertTrue_2(rhs, "finalizeAssignment: Internal error: null RHS expression");
     if (!areTypesCompatible(var->valueType(), rhs->valueType())) {
+      String const &rhsType = valueTypeName(rhs->valueType());
+      String const &varType = valueTypeName(var->valueType());
       if (varGarbage)
         delete var;
       if (rhsGarbage)
@@ -130,7 +132,10 @@ namespace PLEXIL
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        temp,
                                        "Assignment Node " << anode->getNodeId()
-                                       << ": Expression type mismatch with assignment variable");
+                                       << ": RHS expression type "
+                                       << rhsType
+                                       << " incompatible with variable of type"
+                                       << varType);
     }
     assign->setVariable(var, varGarbage);
     assign->setExpression(rhs, rhsGarbage);
