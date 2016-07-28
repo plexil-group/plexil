@@ -138,31 +138,31 @@ namespace PLEXIL
   bool StateCacheEntry::integerUpdateThresholds(State const &s)
   {
     bool hasThresholds = false;
-    double ihi, ilo;
-    double newihi, newilo;
+    Integer ihi, ilo;
+    Integer newihi, newilo;
     for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
-	 it != m_lookups.end();
-	 ++it) {
+         it != m_lookups.end();
+         ++it) {
       if ((*it)->getThresholds(newihi, newilo)) {
-	if (!hasThresholds) {
-	  hasThresholds = true;
-	  ilo = newilo;
-	  ihi = newihi;
-	}
-	else {
-	  if (newilo > ilo)
-	    ilo = newilo;
-	  if (newihi < ihi)
-	    ihi = newihi;
-	}
+        if (!hasThresholds) {
+          hasThresholds = true;
+          ilo = newilo;
+          ihi = newihi;
+        }
+        else {
+          if (newilo > ilo)
+            ilo = newilo;
+          if (newihi < ihi)
+            ihi = newihi;
+        }
       }
     }
     if (hasThresholds) {
       debugMsg("StateCacheEntry:updateThresholds",
-	       ' ' << s << " resetting thresholds " << ilo << ", " << ihi);
+               ' ' << s << " resetting thresholds " << ilo << ", " << ihi);
       if (!m_lowThreshold) {
-	m_lowThreshold = CachedValueFactory(INTEGER_TYPE);
-	m_highThreshold = CachedValueFactory(INTEGER_TYPE);
+        m_lowThreshold = CachedValueFactory(INTEGER_TYPE);
+        m_highThreshold = CachedValueFactory(INTEGER_TYPE);
       }
       unsigned int timestamp = g_interface->getCycleCount();
       m_lowThreshold->update(timestamp, ilo);
