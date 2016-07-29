@@ -94,7 +94,7 @@ at the top of the script."
                 << debugConfig << std::endl;
     }
     else {
-      setDebugOutputStream(std::cerr);
+      PLEXIL::setDebugOutputStream(std::cerr);
       if (!PLEXIL::readDebugConfigStream(dc)) {
         std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
         return -1;
