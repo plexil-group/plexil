@@ -64,8 +64,8 @@ namespace PLEXIL
     }
 #ifdef PLEXIL_WITH_THREADS
     m_mutex->unlock();
-#endif
     delete m_mutex;
+#endif
   }
 
   bool SerializedInputQueue::isEmpty() const
