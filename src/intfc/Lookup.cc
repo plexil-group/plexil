@@ -41,10 +41,12 @@ namespace PLEXIL
 {
   Lookup::Lookup(Expression *stateName,
                  bool stateNameIsGarbage,
+                 ValueType declaredType,
                  ExprVec *paramVec)
     : m_stateName(stateName),
       m_paramVec(paramVec),
       m_entry(NULL),
+      m_declaredType(declaredType),
       m_known(false),
       m_stateKnown(false),
       m_stateIsConstant(true),
@@ -62,8 +64,8 @@ namespace PLEXIL
         if (!(*m_paramVec)[i]->isConstant())
           parmsAreConstant = false;
       if (!parmsAreConstant) {
-	m_paramVec->addListener(this);
-	m_stateIsConstant = false;
+        m_paramVec->addListener(this);
+        m_stateIsConstant = false;
       }
     }
     
@@ -222,7 +224,7 @@ namespace PLEXIL
   const ValueType Lookup::valueType() const
   {
     if (!m_entry)
-      return UNKNOWN_TYPE;
+      return m_declaredType;
     else
       return m_entry->valueType();
   }
@@ -582,10 +584,11 @@ namespace PLEXIL
 
   LookupOnChange::LookupOnChange(Expression *stateName,
                                  bool stateNameIsGarbage,
+                                 ValueType declaredType,
                                  Expression *tolerance,
                                  bool toleranceIsGarbage,
                                  ExprVec *paramVec)
-    : Lookup(stateName, stateNameIsGarbage, paramVec),
+    : Lookup(stateName, stateNameIsGarbage, declaredType, paramVec),
       m_thresholds(NULL),
       m_cachedValue(NULL),
       m_tolerance(tolerance),

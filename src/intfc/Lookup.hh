@@ -67,6 +67,7 @@ namespace PLEXIL
   public:
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
+           ValueType declaredType,
            ExprVec *paramVec = NULL);
 
     virtual ~Lookup();
@@ -86,9 +87,10 @@ namespace PLEXIL
     //
     // Value access
     //
-    // These are delegated to the StateCacheEntry in every case
-    //
+
     const ValueType valueType() const;
+
+    // Delegated to the StateCacheEntry in every case
     bool isKnown() const;
 
     /**
@@ -166,6 +168,7 @@ namespace PLEXIL
     Expression *m_stateName;
     ExprVec *m_paramVec;
     StateCacheEntry* m_entry; // TODO opportunity to use refcounted ptr?
+    ValueType m_declaredType;
     bool m_known;
     bool m_stateKnown;
     bool m_stateIsConstant; // allows early caching of state value
@@ -178,6 +181,7 @@ namespace PLEXIL
   public:
     LookupOnChange(Expression *stateName,
                    bool stateNameIsGarbage,
+                   ValueType declaredType,
                    Expression *tolerance,
                    bool toleranceIsGarbage = false,
                    ExprVec *paramVec = NULL);

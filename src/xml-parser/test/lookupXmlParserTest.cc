@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "ExpressionFactory.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "Lookup.hh"
+#include "SymbolTable.hh"
 #include "TestSupport.hh"
 
 #include "pugixml.hpp"
@@ -46,48 +47,63 @@ static bool testBasics()
   bool wasCreated = false;
 
   xml_document doc;
+  g_symbolTable = makeSymbolTable();
 
-  // Basics
-  {
-    xml_node test1Xml = doc.append_child("LookupNow");
-    test1Xml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
+  try {
 
-    Expression *lookup1 = createExpression(test1Xml, &conn, wasCreated);
-    assertTrue_1(lookup1);
-    assertTrue_1(wasCreated);
-    assertTrue_1(0 == strcmp(lookup1->exprName(), "LookupNow"));
-    delete lookup1;
+    // Basics
+    {
+      xml_node test1Xml = doc.append_child("LookupNow");
+      test1Xml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
+
+      Expression *lookup1 = createExpression(test1Xml, &conn, wasCreated);
+      assertTrue_1(lookup1);
+      assertTrue_1(wasCreated);
+      assertTrue_1(0 == strcmp(lookup1->exprName(), "LookupNow"));
+      delete lookup1;
+    }
+
+    {
+      xml_node test2Xml = doc.append_child("LookupOnChange");
+      test2Xml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("bar");
+      test2Xml.append_child("Tolerance").append_child("RealValue").append_child(node_pcdata).set_value("0.5");
+      test2Xml.append_child("Arguments").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+
+      wasCreated = false;
+      Expression *lookup2 = createExpression(test2Xml, &conn, wasCreated);
+      assertTrue_1(lookup2);
+      assertTrue_1(wasCreated);
+      assertTrue_1(0 == strcmp(lookup2->exprName(), "LookupOnChange"));
+      delete lookup2;
+    }
+
+    {
+      xml_node test3Xml = doc.append_child("LookupOnChange");
+      test3Xml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("baz");
+      xml_node argsXml = test3Xml.append_child("Arguments");
+      argsXml.append_child("IntegerValue").append_child(node_pcdata).set_value("1");
+      argsXml.append_child("RealValue").append_child(node_pcdata).set_value("1.5");
+      argsXml.append_child("StringValue").append_child(node_pcdata).set_value("too");
+
+      wasCreated = false;
+      Expression *lookup3 = createExpression(test3Xml, &conn, wasCreated);
+      assertTrue_1(lookup3);
+      assertTrue_1(wasCreated);
+      assertTrue_1(0 == strcmp(lookup3->exprName(), "LookupNow"));
+      delete lookup3;
+    }
+
+    // TODO Type checking tests
+
+  }
+  catch (ParserException &e) {
+    delete g_symbolTable;
+    g_symbolTable = NULL;
+    throw;
   }
 
-  {
-    xml_node test2Xml = doc.append_child("LookupOnChange");
-    test2Xml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("bar");
-    test2Xml.append_child("Tolerance").append_child("RealValue").append_child(node_pcdata).set_value("0.5");
-    test2Xml.append_child("Arguments").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-
-    wasCreated = false;
-    Expression *lookup2 = createExpression(test2Xml, &conn, wasCreated);
-    assertTrue_1(lookup2);
-    assertTrue_1(wasCreated);
-    assertTrue_1(0 == strcmp(lookup2->exprName(), "LookupOnChange"));
-    delete lookup2;
-  }
-
-  {
-    xml_node test3Xml = doc.append_child("LookupOnChange");
-    test3Xml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("baz");
-    xml_node argsXml = test3Xml.append_child("Arguments");
-    argsXml.append_child("IntegerValue").append_child(node_pcdata).set_value("1");
-    argsXml.append_child("RealValue").append_child(node_pcdata).set_value("1.5");
-    argsXml.append_child("StringValue").append_child(node_pcdata).set_value("too");
-
-    wasCreated = false;
-    Expression *lookup3 = createExpression(test3Xml, &conn, wasCreated);
-    assertTrue_1(lookup3);
-    assertTrue_1(wasCreated);
-    assertTrue_1(0 == strcmp(lookup3->exprName(), "LookupNow"));
-    delete lookup3;
-  }
+  delete g_symbolTable;
+  g_symbolTable = NULL;
 
   return true;
 }

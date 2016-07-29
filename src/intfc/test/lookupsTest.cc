@@ -231,10 +231,10 @@ static bool testLookupNow()
 
   StringVariable test4("test1");
 
-  Expression *l1 = new Lookup(&test1, false);
-  Expression *l2 = new Lookup(&test2, false, makeExprVec(test2Args, test2garbage));
-  Expression *l3 = new Lookup(&test2, false, makeExprVec(test3Args, test2garbage));
-  Expression *l4 = new Lookup(&test4, false);
+  Expression *l1 = new Lookup(&test1, false, UNKNOWN_TYPE);
+  Expression *l2 = new Lookup(&test2, false, UNKNOWN_TYPE, makeExprVec(test2Args, test2garbage));
+  Expression *l3 = new Lookup(&test2, false, UNKNOWN_TYPE, makeExprVec(test3Args, test2garbage));
+  Expression *l4 = new Lookup(&test4, false, UNKNOWN_TYPE);
 
   bool l1changed = false;
   bool l2changed = false;
@@ -335,8 +335,8 @@ static bool testLookupOnChange()
   RealVariable tolerance(0.5);
   double temp;
 
-  Lookup l1(&changeTest, false);
-  LookupOnChange l2(&changeWithToleranceTest, false,
+  Lookup l1(&changeTest, false, UNKNOWN_TYPE);
+  LookupOnChange l2(&changeWithToleranceTest, false, UNKNOWN_TYPE,
                     &tolerance, false);
 
   bool changeNotified = false;
@@ -511,9 +511,9 @@ static bool testThresholdUpdate()
   RealVariable tolerance3(0.75);
   double temp, hi, lo;
 
-  LookupOnChange l2(&thresholdTest, false,
+  LookupOnChange l2(&thresholdTest, false, UNKNOWN_TYPE,
                     &tolerance2, false);
-  LookupOnChange l3(&thresholdTest, false,
+  LookupOnChange l3(&thresholdTest, false, UNKNOWN_TYPE,
                     &tolerance3, false);
   
   bool l2Notified = false;
