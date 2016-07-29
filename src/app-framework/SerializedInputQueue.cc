@@ -38,14 +38,19 @@ namespace PLEXIL
     : InputQueue(),
       m_queueGet(NULL),
       m_queuePut(NULL),
-      m_freeList(NULL),
+      m_freeList(NULL)
+#ifdef PLEXIL_WITH_THREADS
+                      ,
       m_mutex(new ThreadMutex())
+#endif
   {
   }
 
   SerializedInputQueue::~SerializedInputQueue()
   {
+#ifdef PLEXIL_WITH_THREADS
     m_mutex->lock();
+#endif
     m_queuePut = NULL;
     while (m_queueGet) {
       QueueEntry *temp = m_queueGet;
@@ -57,19 +62,25 @@ namespace PLEXIL
       m_freeList = temp->next;
       delete temp;
     }
+#ifdef PLEXIL_WITH_THREADS
     m_mutex->unlock();
+#endif
     delete m_mutex;
   }
 
   bool SerializedInputQueue::isEmpty() const
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     return m_queueGet == NULL;
   }
 
   QueueEntry *SerializedInputQueue::allocate()
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntry* result = m_freeList;
     if (result)
       m_freeList = result->next;
@@ -81,7 +92,9 @@ namespace PLEXIL
   void SerializedInputQueue::release(QueueEntry *entry)
   {
     assertTrue_1(entry);
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     entry->reset(); // ??
     entry->next = m_freeList;
     m_freeList = entry;
@@ -90,7 +103,9 @@ namespace PLEXIL
   void SerializedInputQueue::put(QueueEntry *entry)
   {
     assertTrue_1(entry);
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     entry->next = NULL;
     if (m_queuePut)
       m_queuePut->next = entry;
@@ -101,7 +116,9 @@ namespace PLEXIL
 
   QueueEntry *SerializedInputQueue::get()
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     if (!m_queueGet)
       return NULL; // empty
     QueueEntry *result = m_queueGet;
@@ -115,7 +132,9 @@ namespace PLEXIL
 
   void SerializedInputQueue::flush()
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntry *temp;
     while ((temp = m_queueGet)) {
       m_queueGet = temp->next;

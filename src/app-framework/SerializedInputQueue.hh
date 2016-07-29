@@ -27,6 +27,8 @@
 #ifndef PLEXIL_SERIALIZED_INPUT_QUEUE_HH
 #define PLEXIL_SERIALIZED_INPUT_QUEUE_HH
 
+#include "plexil-config.h"
+
 #include "InputQueue.hh"
 
 namespace PLEXIL
@@ -78,7 +80,9 @@ namespace PLEXIL
     QueueEntry *m_queueGet;
     QueueEntry *m_queuePut;
     QueueEntry *m_freeList;
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutex *m_mutex;
+#endif
   };
 
 }
