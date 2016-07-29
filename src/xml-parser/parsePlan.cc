@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,17 @@
 */
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "Node.hh"
+#include "parseGlobalDeclarations.hh"
 #include "parseNode.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
+#include "SymbolTable.hh"
 
 #include "pugixml.hpp"
+
+#include <stack>
 
 using pugi::xml_document;
 using pugi::xml_node;
@@ -61,34 +66,66 @@ namespace PLEXIL
     return doc;
   }
 
-  static void parseGlobalDeclarations(xml_node declXml)
+  static std::stack<SymbolTable *> sl_symtabStack;
+
+  static void pushSymbolTable()
   {
-    // TODO
+    if (g_symbolTable)
+      sl_symtabStack.push(g_symbolTable);
+    g_symbolTable = makeSymbolTable();
+  }
+
+  static void popSymbolTable()
+  {
+    delete g_symbolTable;
+    if (sl_symtabStack.empty()) {
+      // Back at top level
+      g_symbolTable = NULL;
+      return;
+    }
+    else {
+      g_symbolTable = sl_symtabStack.top();
+      sl_symtabStack.pop();
+    }
   }
 
   Node *parsePlan(xml_node const xml)
-    throw(ParserException)
+    throw (ParserException)
   {
     checkTag(PLEXIL_PLAN_TAG, xml);
     checkHasChildElement(xml);
 
-    xml_node elt = xml.first_child();
-
-    // Handle global declarations
-    if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
-      parseGlobalDeclarations(elt);
-      elt = elt.next_sibling();
-    }
-
-    checkTag(NODE_TAG, elt);
-    Node *result = parseNode(elt, NULL);
+    // Construct a symbol table for this plan
+    pushSymbolTable();
+    Node *result = NULL;
     try {
-      finalizeNode(result, elt);
+      xml_node elt = xml.first_child();
+
+      // Handle global declarations
+      if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
+        parseGlobalDeclarations(elt);
+        elt = elt.next_sibling();
+      }
+
+      checkTag(NODE_TAG, elt);
+      result = parseNode(elt, NULL);
+      try {
+        finalizeNode(result, elt);
+      }
+      catch (ParserException &e) {
+        delete result;
+        result = NULL;
+        throw;
+      }
     }
     catch (ParserException &e) {
-      delete result;
+      popSymbolTable();
       throw;
     }
+
+    popSymbolTable();
+
+    // Normal return
     return result;
   }
 

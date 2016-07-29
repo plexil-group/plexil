@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,9 @@ libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
  ArrayLiteralFactory.cc ArrayVariableFactory.cc ArrayVariableReferenceFactory.cc \
  ConcreteExpressionFactory.cc commandXmlParser.cc ExpressionFactory.cc \
  Expressions.cc FunctionFactory.cc InternalExpressionFactories.cc \
- LookupFactory.cc parseAssignment.cc parseLibraryCall.cc parseNode.cc \
- parsePlan.cc parser-utils.cc planLibrary.cc PlexilSchema.cc updateXmlParser.cc \
- UserVariableFactory.cc
+ LookupFactory.cc parseAssignment.cc parseGlobalDeclarations.cc \
+ parseLibraryCall.cc parseNode.cc parsePlan.cc parser-utils.cc planLibrary.cc \
+ PlexilSchema.cc SymbolTable.cc updateXmlParser.cc UserVariableFactory.cc
 
 bin_PROGRAMS = analyzePlan
 

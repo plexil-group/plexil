@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,13 @@ namespace PLEXIL
   extern char const *COL_NO_ATTR;
 
   extern char const *GLOBAL_DECLARATIONS_TAG;
+  extern char const *COMMAND_DECLARATION_TAG;
+  extern char const *RETURN_TAG;
+  extern char const *PARAMETER_TAG;
+  extern char const *RESOURCE_LIST_TAG;
+  extern char const *STATE_DECLARATION_TAG;
+  extern char const *LIBRARY_NODE_DECLARATION_TAG;
+
   extern char const *NODE_TAG;
   extern char const *NODETYPE_ATTR;
   extern char const *NODEID_TAG;
