@@ -78,7 +78,7 @@ jint Java_gov_nasa_plexil_android_ExecModuleTest_run(JNIEnv *env, jobject /* jav
   stateTransitionTests();
   delete logName;
   delete logDir;
-  runFinalizers();
+  plexilRunFinalizers();
   return 0;
 }
 

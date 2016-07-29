@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,9 @@ extern "C" {
  */
 typedef void (*lc_operator)() ;
 
-void addFinalizer(lc_operator op);
+void plexilAddFinalizer(lc_operator op);
 
-void runFinalizers();
+void plexilRunFinalizers();
 
 #ifdef __cplusplus
 }

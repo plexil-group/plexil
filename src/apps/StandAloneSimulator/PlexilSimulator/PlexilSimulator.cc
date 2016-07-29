@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ at the top of the script."
     }
     else {
       setDebugOutputStream(std::cerr);
-      if (!readDebugConfigStream(dc)) {
+      if (!PLEXIL::readDebugConfigStream(dc)) {
         std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
         return -1;
       }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,8 @@
 #define SHOW(thing)
 #define MARK
 
+namespace PLEXIL {
+
 // Dummies
 inline bool setDebugOutputStream(std::ostream & /* os */)
 {
@@ -88,6 +90,8 @@ inline void disableAllDebugMessages()
 inline void enableMatchingDebugMessages(char const * /* file */,
                                         char const * /* marker */)
 {
+}
+
 }
 
 #else
@@ -185,86 +189,90 @@ inline void enableMatchingDebugMessages(char const * /* file */,
 // Public API
 // 
 
-// These are needed for initialization, so must be available
-// whether or not debugging is defined to be on.
-
-extern bool setDebugOutputStream(std::ostream &os);
-extern bool readDebugConfigStream(std::istream &is);
-extern bool allDebugMessagesEnabled();
-extern void enableAllDebugMessages();
-extern void disableAllDebugMessages();
-extern void enableMatchingDebugMessages(char const *file,
-                                        char const *marker);
-
-// Forward references
-struct DebugMessage;
-
-//
-// Internal to macros
-//
-extern std::ostream &getDebugOutputStream();
-
-extern DebugMessage *addDebugMessage(char const *file,
-                                     char const *marker);
-
-/**
- * @struct DebugMessage
- * @brief Represents one debug marker in a source file.
- */
-
-struct DebugMessage 
+namespace PLEXIL
 {
+
+  // These are needed for initialization, so must be available
+  // whether or not debugging is defined to be on.
+
+  extern bool setDebugOutputStream(std::ostream &os);
+  extern bool readDebugConfigStream(std::istream &is);
+  extern bool allDebugMessagesEnabled();
+  extern void enableAllDebugMessages();
+  extern void disableAllDebugMessages();
+  extern void enableMatchingDebugMessages(char const *file,
+                                          char const *marker);
+
+  // Forward references
+  struct DebugMessage;
+
+  //
+  // Internal to macros
+  //
+  extern std::ostream &getDebugOutputStream();
+
+  extern DebugMessage *addDebugMessage(char const *file,
+                                       char const *marker);
+
   /**
-   * @brief Pointer to next (previous) message in list.
+   * @struct DebugMessage
+   * @brief Represents one debug marker in a source file.
    */
-  DebugMessage *next;
 
-  /**
-    @brief File given when this instance was created.
-  */
-  char const *file;
+  struct DebugMessage 
+  {
+    /**
+     * @brief Pointer to next (previous) message in list.
+     */
+    DebugMessage *next;
 
-  /**
-    @brief Marker given when this instance was created.
-  */
-  char const *marker;
+    /**
+       @brief File given when this instance was created.
+    */
+    char const *file;
 
-  /**
-    @brief Whether this instance is 'enabled' or not.
-  */
-  bool enabled;
+    /**
+       @brief Marker given when this instance was created.
+    */
+    char const *marker;
 
-  /**
-   * @brief Construct a DebugMessage.
-   * @param file File containing the debug message instance.
-   * @param marker Name for the particular instance (not required to be unique within the process).
-   * @note Only constructor that should be used.
-   * @note Should only be called from static member functions.
-   */
-  DebugMessage(char const *f,
-               char const *m);
+    /**
+       @brief Whether this instance is 'enabled' or not.
+    */
+    bool enabled;
 
-  /**
-   * @brief Destroy a DebugMessage.
-   * @note Should only be called by purgePatternsAndMessages().
-   */
-  ~DebugMessage();
+    /**
+     * @brief Construct a DebugMessage.
+     * @param file File containing the debug message instance.
+     * @param marker Name for the particular instance (not required to be unique within the process).
+     * @note Only constructor that should be used.
+     * @note Should only be called from static member functions.
+     */
+    DebugMessage(char const *f,
+                 char const *m);
 
-  /**
-    @brief Print the data members of the debug message in a format
-    that Emacs can use to display the corresponding source code.
-    @param os
-   */
-  void print(std::ostream &os) const;
+    /**
+     * @brief Destroy a DebugMessage.
+     * @note Should only be called by purgePatternsAndMessages().
+     */
+    ~DebugMessage();
 
-private:
-  // Not implemented
-  DebugMessage();
-  DebugMessage(const DebugMessage&);
-  DebugMessage& operator=(const DebugMessage&);
-};
+    /**
+       @brief Print the data members of the debug message in a format
+       that Emacs can use to display the corresponding source code.
+       @param os
+    */
+    void print(std::ostream &os) const;
 
-std::ostream &operator<<(std::ostream &os, const DebugMessage &dm);
+  private:
+    // Not implemented
+    DebugMessage();
+    DebugMessage(const DebugMessage&);
+    DebugMessage& operator=(const DebugMessage&);
+  };
+
+  std::ostream &operator<<(std::ostream &os, const DebugMessage &dm);
+}
 
 #endif /* NO_DEBUG_MESSAGE_SUPPORT */
 

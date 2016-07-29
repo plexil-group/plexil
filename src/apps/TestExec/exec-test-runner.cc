@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ using namespace PLEXIL;
 int main (int argc, char** argv)
 {
   int result = ExecTestRunner::run(argc, argv);
-  runFinalizers();
+  plexilRunFinalizers();
   return result;
 }
 

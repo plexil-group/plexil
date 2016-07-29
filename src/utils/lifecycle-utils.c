@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,45 +45,45 @@
  */
 
 /* Each bucket should fit in a CPU cache line */
-#define OPSTACK_BUCKET_SIZE 7
+#define PLEXIL_OPSTACK_BUCKET_SIZE 7
 
-struct opstack_bucket {
-  struct opstack_bucket *prev;
-  lc_operator ops[OPSTACK_BUCKET_SIZE];
+struct plexil_opstack_bucket {
+  struct plexil_opstack_bucket *prev;
+  lc_operator ops[PLEXIL_OPSTACK_BUCKET_SIZE];
 };
 
-struct opstack {
-  struct opstack_bucket *head; /* pointer to most recent bucket */
-  size_t insert_idx;           /* index of first open slot in bucket; range 1 - OPSTACK_BUCKET_SIZE */
+struct plexil_opstack {
+  struct plexil_opstack_bucket *head; /* pointer to most recent bucket */
+  size_t insert_idx;           /* index of first open slot in bucket; range 1 - PLEXIL_OPSTACK_BUCKET_SIZE */
 #ifdef LIFECYCLE_DEBUG
   size_t n_buckets;           /* total # of buckets */
 #endif
 };
 
 /* Allocate and initialize a bucket */
-static struct opstack_bucket *new_opstack_bucket()
+static struct plexil_opstack_bucket *new_plexil_opstack_bucket()
 {
-  struct opstack_bucket *result = 
-    (struct opstack_bucket *) malloc(sizeof(struct opstack_bucket));
-  memset((void *) result, 0, sizeof(struct opstack_bucket));
+  struct plexil_opstack_bucket *result = 
+    (struct plexil_opstack_bucket *) malloc(sizeof(struct plexil_opstack_bucket));
+  memset((void *) result, 0, sizeof(struct plexil_opstack_bucket));
   return result;
 }
 
-static void opstack_push(struct opstack *list, lc_operator op)
+static void plexil_opstack_push(struct plexil_opstack *list, lc_operator op)
 {
-  struct opstack_bucket *head;
+  struct plexil_opstack_bucket *head;
   /* Ensure there is space for the new entry */
   if ((head = list->head) == NULL) {
-    head = list->head = new_opstack_bucket();
+    head = list->head = new_plexil_opstack_bucket();
     list->insert_idx = 0;
 #ifdef LIFECYCLE_DEBUG
     list->n_buckets = 1;
 #endif
   }
-  else if (list->insert_idx == OPSTACK_BUCKET_SIZE) {
+  else if (list->insert_idx == PLEXIL_OPSTACK_BUCKET_SIZE) {
     /* Bucket full, allocate new bucket */
-    struct opstack_bucket *old_head = list->head;
-    head = new_opstack_bucket();
+    struct plexil_opstack_bucket *old_head = list->head;
+    head = new_plexil_opstack_bucket();
     head->prev = old_head;
     list->head = head;
     list->insert_idx = 0;
@@ -96,21 +96,21 @@ static void opstack_push(struct opstack *list, lc_operator op)
   head->ops[list->insert_idx++] = op;
 }
 
-static void opstack_run(struct opstack *list)
+static void plexil_opstack_run(struct plexil_opstack *list)
 {
 #ifdef LIFECYCLE_DEBUG
   if (!list->head)
-    puts("opstack_run, empty list\n");
+    puts("plexil_opstack_run, empty list\n");
   else 
-    printf("opstack_run, list has %u entries\n",
-           list->n_buckets * OPSTACK_BUCKET_SIZE + list->insert_idx - 1);
+    printf("plexil_opstack_run, list has %u entries\n",
+           list->n_buckets * PLEXIL_OPSTACK_BUCKET_SIZE + list->insert_idx - 1);
 #endif
-  struct opstack_bucket *head = list->head;
+  struct plexil_opstack_bucket *head = list->head;
   size_t i = list->insert_idx;
   while (head != NULL) {
 #ifdef LIFECYCLE_DEBUG
     if (i == 0) {
-      puts("opstack_run: ERROR: insert_idx is 0 at top of loop\n");
+      puts("plexil_opstack_run: ERROR: insert_idx is 0 at top of loop\n");
     }
 #endif
     while (i > 0) {
@@ -121,30 +121,30 @@ static void opstack_run(struct opstack *list)
     list->head = head->prev;
     free(head);
     head = list->head;
-    i = OPSTACK_BUCKET_SIZE;
+    i = PLEXIL_OPSTACK_BUCKET_SIZE;
   }
   /* At end */
   list->head = NULL;
   list->insert_idx = 0;
 #ifdef LIFECYCLE_DEBUG
   list->n_buckets = 0;
-  puts("opstack_run finished\n");
+  puts("plexil_opstack_run finished\n");
 #endif
 }
 
-static struct opstack s_finalizers = {NULL,
+static struct plexil_opstack s_finalizers = {NULL,
                                       0
 #ifdef LIFECYCLE_DEBUG
                                       , 0
 #endif                             
 };
 
-void addFinalizer(lc_operator op)
+void plexilAddFinalizer(lc_operator op)
 {
-  opstack_push(&s_finalizers, op);
+  plexil_opstack_push(&s_finalizers, op);
 }
 
-void runFinalizers()
+void plexilRunFinalizers()
 {
-  opstack_run(&s_finalizers);
+  plexil_opstack_run(&s_finalizers);
 }

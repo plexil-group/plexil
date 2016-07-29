@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,7 +139,7 @@ void Logging::set_log_file_name(const char * fname)
     delete oldFileName;
     // If this is a first-time allocation, make sure it gets cleaned up.
     if (!sl_allocated) {
-      addFinalizer(&purge);
+      plexilAddFinalizer(&purge);
       sl_allocated = true;
     }
   }

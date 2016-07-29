@@ -89,7 +89,7 @@ namespace PLEXIL
 
   static void initializeNodeFactories()
   {
-    addFinalizer(&purgeNodeFactories);
+    plexilAddFinalizer(&purgeNodeFactories);
     // Ensure entire map is correctly initialized
     s_nodeFactories[NodeType_uninitialized] = NULL;
     s_nodeFactories[NodeType_NodeList] = new ConcreteNodeFactory<ListNode>();

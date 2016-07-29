@@ -56,7 +56,7 @@ namespace PLEXIL
   {
     static bool sl_inited = false;
     if (!sl_inited) {
-      addFinalizer(&purgeExpressionFactories);
+      plexilAddFinalizer(&purgeExpressionFactories);
 
       //
       // IMPORTANT! Please sort these in alpha order by expression name,
