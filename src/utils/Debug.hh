@@ -144,11 +144,11 @@ inline void enableMatchingDebugMessages(char const * /* file */,
   @see DebugMessage
 */
 #define condDebugMsg(cond, marker, data) { \
-  static DebugMessage *dmPtr = NULL; \
+  static PLEXIL::DebugMessage *dmPtr = NULL;  \
   if (!dmPtr) \
-     dmPtr = addDebugMessage(__FILE__, marker); \
+    dmPtr = PLEXIL::addDebugMessage(__FILE__, marker);  \
   if (dmPtr->enabled && (cond)) { \
-    getDebugOutputStream() << "[" << marker << "]" << data << std::endl; \
+    PLEXIL::getDebugOutputStream() << "[" << marker << "]" << data << std::endl; \
   } \
 }
 
@@ -177,9 +177,9 @@ inline void enableMatchingDebugMessages(char const * /* file */,
   @see DebugMessage
 */
 #define condDebugStmt(cond, marker, stmt) { \
-  static DebugMessage *dmPtr = NULL; \
+  static PLEXIL::DebugMessage *dmPtr = NULL;  \
   if (!dmPtr) \
-     dmPtr = addDebugMessage(__FILE__, marker); \
+    dmPtr = PLEXIL::addDebugMessage(__FILE__, marker);  \
   if (dmPtr->enabled && (cond)) { \
     stmt ; \
   } \
