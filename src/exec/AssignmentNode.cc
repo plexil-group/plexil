@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,12 @@ namespace PLEXIL
   AssignmentNode::~AssignmentNode()
   {
     cleanUpConditions();
-    cleanUpNodeBody();
+
+    if (m_assignment) {
+      debugMsg("AssignmentNode:~AssignmentNode", "<" << m_nodeId << "> Removing assignment.");
+      delete m_assignment;
+      m_assignment = NULL;
+    }
   }
 
   void AssignmentNode::setAssignment(Assignment *assn)
@@ -332,15 +337,6 @@ namespace PLEXIL
   {
     if (m_assignment)
       m_assignment->deactivate();
-  }
-
-  void AssignmentNode::cleanUpNodeBody()
-  {
-    if (m_assignment) {
-      debugMsg("AssignmentNode:cleanUpNodeBody", "<" << m_nodeId << "> Removing assignment.");
-      delete m_assignment;
-      m_assignment = NULL;
-    }
   }
 
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -138,17 +138,9 @@ namespace PLEXIL
     // MUST be called first, here. Yes, it's redundant with base class.
     cleanUpConditions();
 
-    cleanUpNodeBody();
-  }
-
-  // Not useful if called from base class destructor!
-  // Can be called redundantly, e.g. from ListNode::cleanUpChildConditions().
-  void CommandNode::cleanUpNodeBody()
-  {
-    debugMsg("CommandNode:cleanUpNodeBody", " for " << m_nodeId);
-
+    // Delete command last
     if (m_command) {
-      debugMsg("CommandNode:cleanUpNodeBody", "<" << m_nodeId << "> Removing command.");
+      debugMsg("CommandNode:~CommandNode", "<" << m_nodeId << "> Removing command.");
       delete m_command;
       m_command = NULL;
     }
@@ -158,8 +150,6 @@ namespace PLEXIL
   {
     assertTrue_1(cmd);
     m_command = cmd;
-    // Should no longer be needed
-    // m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
 
     // Construct action-complete condition
     Expression *actionComplete =
