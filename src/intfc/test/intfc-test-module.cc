@@ -42,7 +42,7 @@ void runTests()
   runTestSuite(lookupsTest);
   runTestSuite(serializeTest);
 
-  runFinalizers();
+  plexilRunFinalizers();
 
   std::cout << "Finished" << std::endl;
 }
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
   
   std::ifstream config(debugConfig.c_str());
   if (config.good()) {
-     readDebugConfigStream(config);
+    PLEXIL::readDebugConfigStream(config);
      std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";
   }
   else

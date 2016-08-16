@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -103,9 +103,6 @@ namespace PLEXIL
     virtual void transitionFromExecuting();
     virtual void transitionFromFinishing();
     virtual void transitionFromFailing();
-
-    // These are not useful if called from base class destructor!
-    virtual void cleanUpNodeBody();
 
     virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
 

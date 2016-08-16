@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
+#include "SymbolTable.hh"
 
 #include <cstring>
 
@@ -77,34 +78,79 @@ namespace PLEXIL
     checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
                          "createExpression: Lookup name must be a string expression");
 
-    // Count args, then build ExprVec of appropriate size
-    ExprVec *argVec = NULL;
-    size_t nargs = 0;
-    pugi::xml_node arg;
-    for (arg = argsXml.first_child(); arg; arg = arg.next_sibling())
-      ++nargs;
-    if (nargs) {
-      argVec = makeExprVec(nargs);
-      size_t i = 0;
-      for (arg = argsXml.first_child(); arg; arg = arg.next_sibling(), ++i) {
-        bool garbage = false;
-        Expression *expr = createExpression(arg, node, garbage);
-        argVec->setArgument(i, expr, garbage);
+    // Type checking support
+    Symbol const *lkup = NULL;
+    ValueType returnType = UNKNOWN_TYPE;
+    if (stateName->isConstant()) {
+      // Check whether it's known
+      std::string const *nameStr;
+      if (stateName->getValuePointer(nameStr)) {
+        // Check whether it's declared
+        lkup = g_symbolTable->getLookup(nameStr->c_str());
+        if (lkup)
+          returnType = lkup->returnType();
       }
     }
-    wasCreated = true;
-    if (tolXml) {
-      bool tolGarbage = false;
-      Expression *tol = createExpression(tolXml.first_child(), node, tolGarbage);
-      ValueType tolType = tol->valueType();
-      checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
-                           "createExpression: LookupOnChange tolerance expression must be numeric");
-      return new LookupOnChange(stateName, stateNameGarbage,
-                                tol, tolGarbage,
-                                argVec);
+
+    // TODO Warn if undeclared (future)
+
+    // Count args, then build ExprVec of appropriate size
+    ExprVec *argVec = NULL;
+    try {
+      size_t nargs = 0;
+      pugi::xml_node arg;
+      for (arg = argsXml.first_child(); arg; arg = arg.next_sibling())
+        ++nargs;
+      if (nargs) {
+        argVec = makeExprVec(nargs);
+        size_t i = 0;
+        for (arg = argsXml.first_child(); arg; arg = arg.next_sibling(), ++i) {
+          bool garbage = false;
+          Expression *expr = createExpression(arg, node, garbage);
+          argVec->setArgument(i, expr, garbage);
+
+          // Check number and type of parameters against declaration
+          if (lkup) {
+            ValueType actual = expr->valueType();
+            ValueType expected = lkup->parameterType(i);
+            if (expected == UNKNOWN_TYPE) {
+              // TODO Issue error message (future)
+            }
+            else if (actual != UNKNOWN_TYPE && expected != actual) {
+              checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                               arg,
+                                               "Parameter " << i << " to " << lkup->name()
+                                               << " has type " << valueTypeName(actual)
+                                               << ", should be " << valueTypeName(expected));
+            }
+          }
+        }
+      }
+      wasCreated = true;
+      if (tolXml) {
+        bool tolGarbage = false;
+        Expression *tol = createExpression(tolXml.first_child(), node, tolGarbage);
+        try {
+          ValueType tolType = tol->valueType();
+          checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
+                               "createExpression: LookupOnChange tolerance expression must be numeric");
+          return new LookupOnChange(stateName, stateNameGarbage, returnType,
+                                    tol, tolGarbage,
+                                    argVec);
+        }
+        catch (ParserException &e) {
+          if (tolGarbage)
+            delete tol;
+          throw;
+        }
+      }
+      else
+        return new Lookup(stateName, stateNameGarbage, returnType, argVec);
     }
-    else
-      return new Lookup(stateName, stateNameGarbage, argVec);
+    catch (ParserException &e) {
+      delete argVec;
+      throw;
+    }
   }
 
 } // namespace PLEXIL

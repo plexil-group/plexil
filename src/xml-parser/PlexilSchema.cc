@@ -32,6 +32,13 @@ namespace PLEXIL
   char const *COL_NO_ATTR = "ColNo";
 
   char const *GLOBAL_DECLARATIONS_TAG = "GlobalDeclarations";
+  char const *COMMAND_DECLARATION_TAG = "CommandDeclaration";
+  char const *RETURN_TAG = "Return";
+  char const *PARAMETER_TAG = "Parameter";
+  char const *RESOURCE_LIST_TAG = "ResourceList";
+  char const *STATE_DECLARATION_TAG = "StateDeclaration";
+  char const *LIBRARY_NODE_DECLARATION_TAG = "LibraryNodeDeclaration";
+
   char const *NODE_TAG = "Node";
   char const *NODETYPE_ATTR = "NodeType";
   char const *NODEID_TAG = "NodeId";

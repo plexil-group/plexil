@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ namespace PLEXIL
   {
     static bool sl_inited = false;
     if (!sl_inited) {
-      addFinalizer(&cleanLibraryMap);
+      plexilAddFinalizer(&cleanLibraryMap);
       sl_inited = true;
     }
     assertTrue_2(doc, "addLibraryNode: Null document");

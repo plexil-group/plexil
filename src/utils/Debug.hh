@@ -55,21 +55,21 @@
 
 // Dummies
 
-#define SHOW(thing)
-#define MARK
 #define debugMsg(marker, data)
 #define condDebugMsg(cond, marker, data)
 #define debugStmt(marker, stmt)
 #define condDebugStmt(cond, marker, stmt)
+#define SHOW(thing)
+#define MARK
+
+namespace PLEXIL
+{
 
 inline bool setDebugOutputStream(std::ostream & /* os */)
 {
   return true;
 }
 
-inline bool readDebugConfigStream(std::istream & /* is */)
-{
-  return true;
 }
 
 #else
@@ -124,9 +124,9 @@ inline bool readDebugConfigStream(std::istream & /* is */)
   @see DebugMessage
 */
 #define condDebugMsg(cond, marker, data) { \
-  static DebugMessage dm(marker); \
+  static PLEXIL::DebugMessage dm(marker);     \
   if (dm.enabled && (cond)) { \
-    getDebugOutputStream() << "[" << marker << "]" << data << std::endl; \
+    PLEXIL::getDebugOutputStream() << "[" << marker << "]" << data << std::endl; \
   } \
 }
 
@@ -155,7 +155,7 @@ inline bool readDebugConfigStream(std::istream & /* is */)
   @see DebugMessage
 */
 #define condDebugStmt(cond, marker, stmt) { \
-  static DebugMessage dm(marker);	    \
+  static PLEXIL::DebugMessage dm(marker); \
   if (dm.enabled && (cond)) { \
     stmt ; \
   } \

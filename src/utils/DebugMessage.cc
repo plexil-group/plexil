@@ -31,165 +31,176 @@
 #include <iostream>
 #include <vector>
 
-// Forward declaration
-static bool matchesPatterns(std::string const &marker);
-
-//
-// Errors specific to debug message facility
-//
-
-class DebugErr
+namespace PLEXIL
 {
-public:
-  DECLARE_ERROR(DebugConfigError);
-  DECLARE_ERROR(DebugInternalError);
-  DECLARE_ERROR(DebugMessageError); // not used?
-};
 
-//
-// DebugMessage
-//
+  // Forward declaration
+  static bool matchesPatterns(std::string const &marker);
 
-static DebugMessage *allDebugMessages = nullptr;
+  //
+  // Errors specific to debug message facility
+  //
 
-DebugMessage::DebugMessage(std::string const &mrkr)
-  : marker(mrkr),
-    next(allDebugMessages),
-    enabled(matchesPatterns(marker))
-{
-  allDebugMessages = this;
-}
+  class DebugErr
+  {
+  public:
+    DECLARE_ERROR(DebugConfigError);
+    DECLARE_ERROR(DebugInternalError);
+    DECLARE_ERROR(DebugMessageError); // not used?
+    DECLARE_ERROR(DebugMemoryError);
+  };
 
-DebugMessage::DebugMessage(std::string &&mrkr)
-  : marker(std::move(mrkr)),
-    next(allDebugMessages),
-    enabled(matchesPatterns(marker))
-{
-  allDebugMessages = this;
-}
+  //
+  // DebugMessage
+  //
 
-std::ostream &operator<<(std::ostream &os, DebugMessage const &dm)
-{
-  try {
-    os.exceptions(std::ostream::badbit);
-    os << dm.marker << " ("
-       << (dm.enabled ? "en" : "dis") << "abled)";
+  static DebugMessage *allDebugMessages = nullptr;
+
+  DebugMessage::DebugMessage(std::string const &mrkr)
+    : marker(mrkr),
+      next(allDebugMessages),
+      enabled(matchesPatterns(marker))
+  {
+    allDebugMessages = this;
   }
-  catch (std::ios_base::failure& exc) {
-    check_error_2(ALWAYS_FAIL, exc.what());
-    throw;
+
+  DebugMessage::DebugMessage(std::string &&mrkr)
+    : marker(std::move(mrkr)),
+      next(allDebugMessages),
+      enabled(matchesPatterns(marker))
+  {
+    allDebugMessages = this;
   }
-  return os;
-}
 
-//
-// Debug stream
-//
+  std::ostream &operator<<(std::ostream &os, DebugMessage const &dm)
+  {
+    try {
+      os.exceptions(std::ostream::badbit);
+      os << dm.marker << " ("
+         << (dm.enabled ? "en" : "dis") << "abled)";
+    }
+    catch (std::ios_base::failure& exc) {
+      check_error_2(ALWAYS_FAIL, exc.what());
+      throw;
+    }
+    return os;
+  }
 
-/**
- * @brief The debug output stream.
- */
-static std::ostream *debugStream = nullptr;
+  //
+  // Debug stream
+  //
 
-std::ostream &getDebugOutputStream()
-{
-  assertTrue_3(debugStream != nullptr && debugStream->good(),
-               "Null or invalid debug output stream",
-               DebugErr::DebugInternalError());
-  return *debugStream;
-}
+  /**
+   * @brief The debug output stream.
+   */
+  static std::ostream *debugStream = nullptr;
 
-bool setDebugOutputStream(std::ostream &os)
-{
-  if (!os.good())
+  std::ostream &getDebugOutputStream()
+  {
+    assertTrue_3(debugStream != nullptr && debugStream->good(),
+                 "Null or invalid debug output stream",
+                 DebugErr::DebugInternalError());
+    return *debugStream;
+  }
+
+  bool setDebugOutputStream(std::ostream &os)
+  {
+    if (!os.good())
+      return false;
+    debugStream = &os;
+    return true;
+  }
+
+  static void ensureDebugInited()
+  {
+    static bool debugInited = false;
+    if (debugInited)
+      return;
+
+    // Default value for debug stream
+    debugStream = &std::cout;
+    debugInited = true;
+  }
+
+  //
+  // Patterns
+  //
+
+  static std::vector<std::string> allDebugPatterns;
+
+  /**
+   *  @brief Whether the given marker string matches the pattern string.
+   *  Exists solely to ensure the same method is always used to check
+   *  for a match.
+   */
+  static bool markerMatches(std::string const &marker, std::string const &pattern) 
+  {
+    return std::string::npos != marker.find(pattern);
+  }
+
+  static bool matchesPatterns(std::string const &m)
+  {
+    for (std::string const pat : allDebugPatterns)
+      if (markerMatches(m, pat))
+        return true;
     return false;
-  debugStream = &os;
-  return true;
-}
-
-static void ensureDebugInited()
-{
-  static bool debugInited = false;
-  if (debugInited)
-    return;
-
-  // Default value for debug stream
-  debugStream = &std::cout;
-  debugInited = true;
-}
-
-//
-// Patterns
-//
-
-static std::vector<std::string> allDebugPatterns;
-
-static bool markerMatches(std::string const &marker, std::string const &pattern) 
-{
-  return std::string::npos != marker.find(pattern);
-}
-
-static bool matchesPatterns(std::string const &m)
-{
-  for (std::string const pat : allDebugPatterns)
-    if (markerMatches(m, pat))
-      return true;
-  return false;
-}
-
-void enableMatchingDebugMessages(std::string &&pattern)
-{
-  // Enable any existing messages that match
-  for (DebugMessage *m = allDebugMessages; m != nullptr; m = m->next)
-    if (!m->enabled
-        && markerMatches(m->marker, pattern))
-      m->enabled = true;
-
-  // Add pattern for messages added in the future
-  allDebugPatterns.push_back(std::move(pattern));
-}
-
-bool readDebugConfigStream(std::istream& is)
-{
-  static const char *sl_whitespace = " \f\n\r\t\v";
-  static const char *sl_comment = "#/";
-
-  ensureDebugInited();
-
-  assertTrue_3(is.good(),
-               "Cannot read debug configuration from invalid/error'd stream",
-               DebugErr::DebugConfigError());
-
-  while (is.good() && !is.eof()) {
-    std::string input;
-    getline(is, input);
-    if (input.empty())
-      continue;
-
-    // Find leftmost non-blank character
-    std::string::size_type left = input.find_first_not_of(sl_whitespace);
-    if (left == std::string::npos)
-      continue; // line is all whitespace
-
-    // Find trailing comment, if any
-    std::string::size_type comment = input.find_first_of(sl_comment, left);
-    if (comment == left)
-      continue; // line is a comment
-
-    // Trim whitespace before comment
-    if (comment != std::string::npos)
-      comment--; // start search just before comment
-    std::string::size_type right = input.find_last_not_of(sl_whitespace, comment);
-    right++; // point just past last non-blank char
-
-    // Trim leading colon for backwards compatibility
-    if (input[left] == ':')
-      ++left;
-    enableMatchingDebugMessages(input.substr(left, right - left));
   }
 
-  assertTrue_3(is.eof(),
-               "I/O error while reading debug configuration file",
-               DebugErr::DebugConfigError());
-  return is.eof();
-}
+  void enableMatchingDebugMessages(std::string &&pattern)
+  {
+    // Enable any existing messages that match
+    for (DebugMessage *m = allDebugMessages; m != nullptr; m = m->next)
+      if (!m->enabled
+          && markerMatches(m->marker, pattern))
+        m->enabled = true;
+
+    // Add pattern for messages added in the future
+    allDebugPatterns.push_back(std::move(pattern));
+  }
+
+  bool readDebugConfigStream(std::istream& is)
+  {
+    static const char *sl_whitespace = " \f\n\r\t\v";
+    static const char *sl_comment = "#/";
+
+    ensureDebugInited();
+
+    assertTrue_3(is.good(),
+                 "Cannot read debug configuration from invalid/error'd stream",
+                 DebugErr::DebugConfigError());
+
+    while (is.good() && !is.eof()) {
+      std::string input;
+      getline(is, input);
+      if (input.empty())
+        continue;
+
+      // Find leftmost non-blank character
+      std::string::size_type left = input.find_first_not_of(sl_whitespace);
+      if (left == std::string::npos)
+        continue; // line is all whitespace
+
+      // Find trailing comment, if any
+      std::string::size_type comment = input.find_first_of(sl_comment, left);
+      if (comment == left)
+        continue; // line is a comment
+
+      // Trim whitespace before comment
+      if (comment != std::string::npos)
+        comment--; // start search just before comment
+      std::string::size_type right = input.find_last_not_of(sl_whitespace, comment);
+      right++; // point just past last non-blank char
+
+      // Trim leading colon for backwards compatibility
+      if (input[left] == ':')
+        ++left;
+      enableMatchingDebugMessages(input.substr(left, right - left));
+    }
+
+    assertTrue_3(is.eof(),
+                 "I/O error while reading debug configuration file",
+                 DebugErr::DebugConfigError());
+    return is.eof();
+  }
+
+} // namespace PLEXIL

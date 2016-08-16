@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,67 +24,20 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_SERIALIZED_INPUT_QUEUE_HH
-#define PLEXIL_SERIALIZED_INPUT_QUEUE_HH
+#ifndef PLEXIL_PARSE_GLOBAL_DECLARATIONS_HH
+#define PLEXIL_PARSE_GLOBAL_DECLARATIONS_HH
 
-#include "plexil-config.h"
+#include "ParserException.hh"
 
-#include "InputQueue.hh"
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
-  // Forward reference
-  class ThreadMutex;
-
-  /**
-   * @class SerializedInputQueue
-   * @brief A simple implementation of the InputQueue API.
-   */
-  class SerializedInputQueue : public InputQueue
-  {
-  public:
-    SerializedInputQueue();
-    virtual ~SerializedInputQueue();
-
-    // Serialized query
-    bool isEmpty() const;
-
-    //
-    // Reader side
-    //
-
-    // Get the head of the queue. If empty, returns NULL.
-    virtual QueueEntry *get();
-
-    // Flush the queue without examining it.
-    virtual void flush();
-
-    // Return an entry to the free list after use.
-    virtual void release(QueueEntry *entry);
-
-    //
-    // Writer side
-    //
-
-    // Get an entry for insertion. Will allocate if none on the free list.
-    virtual QueueEntry *allocate();
-
-    // Insert an entry on the queue.
-    virtual void put(QueueEntry *entry);
-
-  private:
-    // Disallow copy, assign
-    SerializedInputQueue(SerializedInputQueue const &);
-    SerializedInputQueue &operator=(SerializedInputQueue const &);
-
-    QueueEntry *m_queueGet;
-    QueueEntry *m_queuePut;
-    QueueEntry *m_freeList;
-#ifdef PLEXIL_WITH_THREADS
-    ThreadMutex *m_mutex;
-#endif
-  };
-
+  extern void parseGlobalDeclarations(pugi::xml_node const &declsXml)
+    throw (ParserException);
 }
 
-#endif // PLEXIL_SERIALIZED_INPUT_QUEUE_HH
+#endif // PLEXIL_PARSE_GLOBAL_DECLARATIONS_HH

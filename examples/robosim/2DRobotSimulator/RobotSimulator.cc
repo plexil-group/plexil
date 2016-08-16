@@ -253,7 +253,7 @@ int main(int argc, char** argv)
 
   std::ifstream config(debugConfig.c_str());
   if (config.good())
-    readDebugConfigStream(config);
+    PLEXIL::readDebugConfigStream(config);
 
   ipcAdapter = new IpcRobotAdapter(centralhost);
 

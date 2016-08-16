@@ -30,58 +30,62 @@
 #include <iosfwd> // redundant with #include <iostream> in Debug.hh
 #include <string>
 
-// C++ sucks at information hiding.
-void enableMatchingDebugMessages(std::string &&pattern);
-
-struct DebugMessage final 
+namespace PLEXIL
 {
-  friend void enableMatchingDebugMessages(std::string &&);
+  // C++ sucks at information hiding.
+  void enableMatchingDebugMessages(std::string &&pattern);
 
- public:
-  /**
-   * @brief Construct a DebugMessage.
-   * @param file File containing the debug message instance.
-   * @param marker Name for the particular instance (not required to be unique within the process).
-   */
-  DebugMessage(std::string const &mrkr);
-  DebugMessage(std::string &&mrkr);
+  struct DebugMessage final 
+  {
+    friend void enableMatchingDebugMessages(std::string &&);
 
-  ~DebugMessage() = default;
+  public:
+    /**
+     * @brief Construct a DebugMessage.
+     * @param file File containing the debug message instance.
+     * @param marker Name for the particular instance (not required to be unique within the process).
+     */
+    DebugMessage(std::string const &mrkr);
+    DebugMessage(std::string &&mrkr);
 
-  /**
-    @brief Marker given when this instance was created.
-  */
-  std::string const marker;
+    ~DebugMessage() = default;
 
- private:
+    /**
+       @brief Marker given when this instance was created.
+    */
+    std::string const marker;
 
-  /**
-   * @brief Pointer to next (previous) message in list.
-   */
-  DebugMessage *next;
+  private:
 
- public:
+    /**
+     * @brief Pointer to next (previous) message in list.
+     */
+    DebugMessage *next;
+
+  public:
   
-  /**
-    @brief Whether this instance is 'enabled' or not.
-  */
-  bool enabled;
+    /**
+       @brief Whether this instance is 'enabled' or not.
+    */
+    bool enabled;
 
- private:
+  private:
 
-  // Not implemented
-  DebugMessage() = delete;
-  DebugMessage(DebugMessage const &) = delete;
-  DebugMessage(DebugMessage &&) = delete;
-  DebugMessage& operator=(DebugMessage const &) = delete;
-  DebugMessage& operator=(DebugMessage &&) = delete;
-};
+    // Not implemented
+    DebugMessage() = delete;
+    DebugMessage(DebugMessage const &) = delete;
+    DebugMessage(DebugMessage &&) = delete;
+    DebugMessage& operator=(DebugMessage const &) = delete;
+    DebugMessage& operator=(DebugMessage &&) = delete;
+  };
 
-std::ostream &operator<<(std::ostream &os, DebugMessage const &dm);
+  std::ostream &operator<<(std::ostream &os, DebugMessage const &dm);
 
-extern std::ostream &getDebugOutputStream();
-extern bool setDebugOutputStream(std::ostream &os);
+  extern std::ostream &getDebugOutputStream();
+  extern bool setDebugOutputStream(std::ostream &os);
 
-extern bool readDebugConfigStream(std::istream &is);
+  extern bool readDebugConfigStream(std::istream &is);
+
+} // namespace PLEXIL
 
 #endif // PLEXIL_DEBUG_MESSAGE_HH

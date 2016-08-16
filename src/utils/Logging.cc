@@ -139,7 +139,7 @@ void Logging::set_log_file_name(const char * fname)
     delete oldFileName;
     // If this is a first-time allocation, make sure it gets cleaned up.
     if (!sl_allocated) {
-      addFinalizer(&purge);
+      plexilAddFinalizer(&purge);
       sl_allocated = true;
     }
   }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -250,8 +250,8 @@ private:
     setDebugOutputStream(debugOutput);
     std::ifstream debugStream(cfgFile.c_str());
     assertTrue_2(debugStream.good(), "could not open debug config file");
-    if (!readDebugConfigStream(debugStream))
-      handle_error(!readDebugConfigStream(debugStream),
+    if (!PLEXIL::readDebugConfigStream(debugStream))
+      handle_error(!PLEXIL::readDebugConfigStream(debugStream),
                    "problems reading debug config file");
     debugMsg("main1", "done opening files");
     condDebugMsg(std::cout.good(), "main1a", "std::cout is good");
@@ -546,7 +546,7 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(LinkedQueueTest);
 
   // Do cleanup
-  runFinalizers();
+  plexilRunFinalizers();
 
   std::cout << "Finished" << std::endl;
 }
