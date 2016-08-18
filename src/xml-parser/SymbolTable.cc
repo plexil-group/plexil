@@ -36,7 +36,8 @@ namespace PLEXIL
     : m_name(),
       m_paramTypes(),
       m_symbolType(NO_SYMBOL_TYPE),
-      m_returnType(UNKNOWN_TYPE)
+      m_returnType(UNKNOWN_TYPE),
+      m_anyParams(false)
   {
   }
 
@@ -44,7 +45,8 @@ namespace PLEXIL
     : m_name(orig.m_name),
       m_paramTypes(orig.m_paramTypes),
       m_symbolType(orig.m_symbolType),
-      m_returnType(orig.m_returnType)
+      m_returnType(orig.m_returnType),
+      m_anyParams(orig.m_anyParams)
   {
   }
 
@@ -52,7 +54,8 @@ namespace PLEXIL
     : m_name(name),
       m_paramTypes(),
       m_symbolType(t),
-      m_returnType(UNKNOWN_TYPE)
+      m_returnType(UNKNOWN_TYPE),
+      m_anyParams(false)
   {
   }
 
@@ -66,6 +69,7 @@ namespace PLEXIL
     m_paramTypes = orig.m_paramTypes;
     m_symbolType = orig.m_symbolType;
     m_returnType = orig.m_returnType;
+    m_anyParams = orig.m_anyParams;
     return *this;
   }
 
@@ -96,9 +100,24 @@ namespace PLEXIL
     m_returnType = (uint8_t) t;
   }
 
+  void Symbol::setAnyParameters()
+  {
+    m_anyParams = true;
+  }
+
+  bool Symbol::anyParameters() const
+  {
+    return m_anyParams;
+  }
+
   void Symbol::addParameterType(ValueType t)
   {
     m_paramTypes.push_back((uint8_t) t);
+  }
+
+  size_t Symbol::parameterCount() const
+  {
+    return m_paramTypes.size();
   }
 
   //

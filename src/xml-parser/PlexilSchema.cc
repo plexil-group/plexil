@@ -35,6 +35,7 @@ namespace PLEXIL
   char const *COMMAND_DECLARATION_TAG = "CommandDeclaration";
   char const *RETURN_TAG = "Return";
   char const *PARAMETER_TAG = "Parameter";
+  char const *ANY_PARAMETERS_TAG = "AnyParameters";
   char const *RESOURCE_LIST_TAG = "ResourceList";
   char const *STATE_DECLARATION_TAG = "StateDeclaration";
   char const *LIBRARY_NODE_DECLARATION_TAG = "LibraryNodeDeclaration";
@@ -52,6 +53,7 @@ namespace PLEXIL
   char const *INITIALVAL_TAG = "InitialValue";
   char const *DECL_ARRAY_TAG = "DeclareArray";
   char const *MAX_SIZE_TAG = "MaxSize";
+  char const *ANY_VAL = "Any";
 
   char const *INTERFACE_TAG = "Interface";
   char const *IN_TAG = "In";
@@ -101,5 +103,6 @@ namespace PLEXIL
   char const *INDEX_TAG = "Index";
 
   char const *ARRAY_VAL_TAG = "ArrayValue";
+  char const *VAR_SUFFIX = "Variable";
 
 }

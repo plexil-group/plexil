@@ -66,8 +66,15 @@ namespace PLEXIL
     void setReturnType(ValueType t);
     ValueType returnType() const;
 
+    // A Symbol may have 0 or more required, typed parameters.
     void addParameterType(ValueType t);
     ValueType parameterType(size_t n) const;
+    size_t parameterCount() const;
+
+    // A Symbol may also have an unlimited number of parameters of any type
+    // following the required parameters.
+    void setAnyParameters();
+    bool anyParameters() const;
 
   private:
 
@@ -75,6 +82,7 @@ namespace PLEXIL
     std::vector<uint8_t> m_paramTypes;
     uint8_t m_symbolType;
     uint8_t m_returnType;
+    bool m_anyParams;
   };
 
   class LibraryNodeSymbol

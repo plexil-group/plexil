@@ -259,6 +259,9 @@ namespace PLEXIL
 
   bool areTypesCompatible(ValueType dest, ValueType src)
   {
+    if (dest == UNKNOWN_TYPE) // e.g. parameters declared Any
+      return true;
+
     if (src == UNKNOWN_TYPE) // e.g. undeclared or computed lookups, commands
       return true;
 

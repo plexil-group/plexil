@@ -50,10 +50,13 @@ namespace PLEXIL
                                      typeElt,
                                      elt.name() << " with empty " << TYPE_TAG << " element");
 
+    // Allow "Any" type
     ValueType typ = parseValueType(typnam);
-    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
-                                     typeElt,
-                                     elt.name() << " has invalid type name " << typnam);
+    if (typ == UNKNOWN_TYPE) {
+      checkParserExceptionWithLocation(!strcmp(typnam, ANY_VAL),
+                                       typeElt,
+                                       elt.name() << " has invalid type name " << typnam);
+    }
 
     // Is it an array?
     xml_node maxElt = elt.child(MAX_SIZE_TAG);
@@ -89,20 +92,21 @@ namespace PLEXIL
     if (testTag(RETURN_TAG, elt)) {
       cmd->setReturnType(parseValueDeclaration(elt));
       elt = elt.next_sibling();
-      if (!elt)
-        return; // no more
     }
 
-    while (testTag(PARAMETER_TAG, elt)) {
+    while (elt && testTag(PARAMETER_TAG, elt)) {
       cmd->addParameterType(parseValueDeclaration(elt));
       elt = elt.next_sibling();
-      if (!elt)
-        return; // fini
     }
 
-    // If we are here we must have a ResourceList
-    checkTag(RESOURCE_LIST_TAG, elt);
-    // TODO parse ResourceList
+    if (elt && testTag(ANY_PARAMETERS_TAG, elt)) {
+      cmd->setAnyParameters();
+      elt = elt.next_sibling();
+    }
+
+    if (elt && testTag(RESOURCE_LIST_TAG, elt)) {
+      // TODO parse ResourceList
+    }
   }
 
   static void parseStateDeclaration(xml_node const declXml)
@@ -125,14 +129,14 @@ namespace PLEXIL
     checkTag(RETURN_TAG, elt);
     state->setReturnType(parseValueDeclaration(elt));
     elt = elt.next_sibling();
-    if (!elt)
-      return; // no more
 
-    while (testTag(PARAMETER_TAG, elt)) {
+    while (elt && testTag(PARAMETER_TAG, elt)) {
       state->addParameterType(parseValueDeclaration(elt));
       elt = elt.next_sibling();
-      if (!elt)
-        return; // fini
+    }
+
+    if (elt && testTag(ANY_PARAMETERS_TAG, elt)) {
+      state->setAnyParameters();
     }
   }
 

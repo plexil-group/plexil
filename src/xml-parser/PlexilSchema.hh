@@ -38,6 +38,7 @@ namespace PLEXIL
   extern char const *COMMAND_DECLARATION_TAG;
   extern char const *RETURN_TAG;
   extern char const *PARAMETER_TAG;
+  extern char const *ANY_PARAMETERS_TAG;
   extern char const *RESOURCE_LIST_TAG;
   extern char const *STATE_DECLARATION_TAG;
   extern char const *LIBRARY_NODE_DECLARATION_TAG;
@@ -55,6 +56,7 @@ namespace PLEXIL
   extern char const *INITIALVAL_TAG;
   extern char const *DECL_ARRAY_TAG;
   extern char const *MAX_SIZE_TAG;
+  extern char const *ANY_VAL;
 
   extern char const *INTERFACE_TAG;
   extern char const *IN_TAG;
@@ -105,6 +107,7 @@ namespace PLEXIL
   extern char const *INDEX_TAG;
 
   extern char const *ARRAY_VAL_TAG;
+  extern char const *VAR_SUFFIX;
 
 } // namespace PLEXIL
 

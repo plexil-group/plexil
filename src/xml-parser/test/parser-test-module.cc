@@ -27,6 +27,7 @@
 #include "Debug.hh"
 #include "Expressions.hh"
 #include "lifecycle-utils.h"
+#include "SymbolTable.hh"
 #include "TestSupport.hh"
 
 #include <cstring>
@@ -42,10 +43,15 @@ extern bool lookupXmlParserTest();
 extern bool updateXmlParserTest();
 extern bool nodeXmlParserTest();
 
+using PLEXIL::g_symbolTable;
+
 void runTests()
 {
   // Initialize factories
   PLEXIL::initializeExpressions();
+
+  // Construct symbol table
+  g_symbolTable = PLEXIL::makeSymbolTable();
 
   // Initialize infrastructure
   Error::doThrowExceptions();
@@ -63,6 +69,10 @@ void runTests()
 
   // Nodes
   runTestSuite(nodeXmlParserTest);
+
+  // Clean up
+  delete g_symbolTable;
+  g_symbolTable = NULL;
 
   plexilRunFinalizers();
 

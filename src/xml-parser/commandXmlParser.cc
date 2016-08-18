@@ -31,6 +31,7 @@
 #include "ExprVec.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
+#include "SymbolTable.hh"
 #include "resource-tags.hh"
 
 #include "pugixml.hpp"
@@ -75,8 +76,8 @@ namespace PLEXIL
     }
 
     // Optional destination expression
-    if (!testTag(NAME_TAG, temp)) {
-      // TODO: ensure it's a user variable reference or ArrayElement
+    // Ensure it's a user variable reference or ArrayElement
+    if (testTagSuffix(VAR_SUFFIX, temp) || testTag(ARRAYELEMENT_TAG, temp)) {
       temp = temp.next_sibling();
     }
 
@@ -221,17 +222,21 @@ namespace PLEXIL
     }
 
     // Optional destination expression
+    xml_node destXml;
+    Assignable *dest = NULL;
     if (!testTag(NAME_TAG, temp)) {
+      destXml = temp;
       bool destIsGarbage = false;
-      Assignable *dest = createAssignable(temp, node, destIsGarbage);
+      dest = createAssignable(temp, node, destIsGarbage);
       cmd->setDestination(dest, destIsGarbage);
       temp = temp.next_sibling();
     }
 
     // Required command name expression
     checkTag(NAME_TAG, temp); // belt-and-suspenders check
+    xml_node nameElt = temp.first_child();
     bool nameIsGarbage = false;
-    Expression *nameExpr = createExpression(temp.first_child(), node, nameIsGarbage);
+    Expression *nameExpr = createExpression(nameElt, node, nameIsGarbage);
     ValueType nameType = nameExpr->valueType();
     if (nameType != STRING_TYPE && nameType != UNKNOWN_TYPE) {
       if (nameIsGarbage)
@@ -240,7 +245,25 @@ namespace PLEXIL
                                        temp,
                                        "Command Name must be a String expression");
     }
+
     cmd->setNameExpr(nameExpr, nameIsGarbage);
+
+    // Get symbol table entry, if name is constant and declared as command
+    Symbol const *cmdSym = NULL;
+    if (nameExpr->isConstant() && nameType == STRING_TYPE) {
+      std::string cmdName = nameExpr->valueString();
+      cmdSym = g_symbolTable->getCommand(cmdName.c_str());
+    }
+
+    if (cmdSym && dest) {
+      // Check destination consistency with command declaration
+      checkParserExceptionWithLocation(areTypesCompatible(dest->valueType(),
+                                                          cmdSym->returnType()),
+                                       destXml,
+                                       "Command " << cmdSym->name() << " returns type "
+                                       << cmdSym->returnType() << ", but result variable has type "
+                                       << dest->valueType());
+    }
 
     // Optional arguments
     temp = temp.next_sibling();
@@ -249,15 +272,39 @@ namespace PLEXIL
       xml_node arg;
       for (arg = temp.first_child(); arg; arg = arg.next_sibling())
         ++n;
+      if (cmdSym) {
+        // Check argument count against command declaration
+        checkParserExceptionWithLocation(n == cmdSym->parameterCount()
+                                         || (cmdSym->anyParameters() && n > cmdSym->parameterCount()),
+                                         temp,
+                                         "Command " << cmdSym->name() << " expects "
+                                         << (cmdSym->anyParameters() ? "at least " : "")
+                                         << cmdSym->parameterCount() << " arguments, but was supplied "
+                                         << n);
+      }
       if (n) {
         ExprVec *argVec = makeExprVec(n);
+        cmd->setArgumentVector(argVec);
+
         size_t i = 0;
         for (arg = temp.first_child(); arg; arg = arg.next_sibling(), ++i) {
           bool wasCreated = false;
           Expression *thisArg = createExpression(arg, node, wasCreated);
           argVec->setArgument(i, thisArg, wasCreated);
+
+          if (cmdSym && i < cmdSym->parameterCount()) {
+            // Check argument type against declaration
+            ValueType actual = thisArg->valueType();
+            ValueType expected = cmdSym->parameterType(i);
+            checkParserExceptionWithLocation(areTypesCompatible(expected, actual),
+                                             arg,
+                                             "Parameter " << i << " to command "
+                                             << cmdSym->name() << " should be of type "
+                                             << valueTypeName(expected)
+                                             << ", but has type "
+                                             << valueTypeName(actual));
+          }
         }
-        cmd->setArgumentVector(argVec);
       }
     }
   }
