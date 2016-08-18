@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,10 @@
 
 package plexil;
 
+// XML
+import net.n3.nanoxml.IXMLElement;
+import net.n3.nanoxml.XMLElement;
+
 public class WildcardVariableName extends VariableName
 {
     public static final String s_wildcardName = "_WILD_PARAMETERS_";
@@ -32,6 +36,11 @@ public class WildcardVariableName extends VariableName
     public WildcardVariableName(PlexilTreeNode decl)
     {
         super(decl, s_wildcardName, PlexilDataType.ANY_TYPE);
+    }
+
+    public IXMLElement makeGlobalDeclarationElement(String ignoredElementType)
+    {
+        return new XMLElement("AnyParameters");
     }
 
 }

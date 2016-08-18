@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -106,10 +106,8 @@ public class LookupDeclarationNode extends PlexilTreeNode
         ((ReturnSpecNode) this.getChild(1)).constructReturnXML(m_xml);
 
         // Add parameter spec(s) if provided
-        // Skip it if any of the parameters is an Any or wildcard,
-        // as there's no legal way to represent them in Plexil XML
         ParameterSpecNode parametersSpec = (ParameterSpecNode) this.getChild(2);
-        if (parametersSpec != null && !parametersSpec.containsAnyType()) 
+        if (parametersSpec != null) 
             parametersSpec.constructParameterXML(m_xml);
     }
 

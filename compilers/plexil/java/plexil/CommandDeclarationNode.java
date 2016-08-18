@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -113,12 +113,9 @@ public class CommandDeclarationNode extends PlexilTreeNode
             }
 
             // Add parameter spec(s) if provided
-            // Skip it if any of the parameters is an Any or wildcard,
-            // as there's no legal way to represent them in Plexil XML
             ParameterSpecNode parametersSpec = getParameters();
-            if (parametersSpec != null && !parametersSpec.containsAnyType()) {
+            if (parametersSpec != null)
                 parametersSpec.constructParameterXML(m_xml);
-            }
 
             // TODO: add resource list if provided
             PlexilTreeNode resourceList = getResourceList();

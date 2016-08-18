@@ -361,7 +361,7 @@ paramsSpec :
  ;
 
 paramsSpecGuts :
-      ( paramSpec ( COMMA! paramSpec )* )
+      ( paramSpec ( COMMA! paramSpec )* ( COMMA! ELLIPSIS )? )
       | ELLIPSIS
  ;
 
