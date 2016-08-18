@@ -27,6 +27,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
+<!-- This stylesheet requires XSLT 2.0 because the unordered mode is unnamed -->
+
 <xsl:transform version="2.0"
                xmlns:tr="extended-plexil-translator"
                xmlns:xs="http://www.w3.org/2001/XMLSchema"

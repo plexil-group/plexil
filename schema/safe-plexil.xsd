@@ -49,4 +49,7 @@
       <xs:enumeration value="String"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="ParameterTypeValues">
+    <xs:restriction base="AtomicTypeValues" />
+  </xs:simpleType>
 </xs:schema>
