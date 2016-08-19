@@ -701,11 +701,12 @@ namespace PLEXIL
       checkParserExceptionWithLocation(initXml,
                                        inOutXml,
                                        "InOut variable " << name << " not found and no default InitialValue provided");
-      bool garbage;
-      Expression *initExp = createExpression(initXml.first_child(), node, garbage);
+      bool garbage, initGarbage;
+      Expression *initExp =
+        createExpression(initXml.first_child(), node, initGarbage);
       ValueType initExpType = initExp->valueType(); 
       if (!areTypesCompatible(typ, initExpType)) {
-        if (garbage)
+        if (initGarbage)
           delete initExp;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          initXml,
@@ -723,7 +724,7 @@ namespace PLEXIL
                                          "InOut interface variable " << name
                                          << " shadows local variable of same name");
       }
-      var->setInitializer(initExp, garbage);
+      var->setInitializer(initExp, initGarbage);
     }
   }
 
