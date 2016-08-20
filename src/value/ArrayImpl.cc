@@ -143,7 +143,11 @@ namespace PLEXIL
   template <typename U>
   bool ArrayImpl<T>::getElementImpl(size_t index, U & /* result */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Array::getElement: type error");
+    assertTrueMsg(ALWAYS_FAIL,
+                  "Array::getElement: type error: array elements are of type "
+                  << valueTypeName(PlexilValueType<T>::value)
+                  << " but result variable is of type "
+                  << valueTypeName(PlexilValueType<U>::value));
     return false;
   }
 

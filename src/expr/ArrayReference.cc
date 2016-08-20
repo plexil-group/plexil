@@ -146,7 +146,9 @@ namespace PLEXIL
       return false; // array unknown or invalid
     std::vector<bool> const &kv = valuePtr->getKnownVector();
     if (idx >= kv.size()) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Array index " << idx
+                    << " exceeds array size " << kv.size());
       return false; // unallocated implies unknown
     }
     return kv[idx];
