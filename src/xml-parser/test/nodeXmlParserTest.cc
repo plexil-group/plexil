@@ -106,7 +106,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(minimalNode->getType() == NodeType_Empty);
     assertTrue_1(minimalNode->getChildren().empty());
     finalizeNode(minimalNode, minimal);
-    assertTrue_1(minimalNode->getLocalVariables().empty());
+    assertTrue_1(!minimalNode->getLocalVariables());
     delete minimalNode;
   }
 
@@ -118,7 +118,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(commentNode->getType() == NodeType_Empty);
     assertTrue_1(commentNode->getChildren().empty());
     finalizeNode(commentNode, comment);
-    assertTrue_1(commentNode->getLocalVariables().empty());
+    assertTrue_1(!commentNode->getLocalVariables());
     delete commentNode;
   }
 
@@ -135,7 +135,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(preCondNode->getType() == NodeType_Empty);
     assertTrue_1(preCondNode->getChildren().empty());
     finalizeNode(preCondNode, preCond);
-    assertTrue_1(preCondNode->getLocalVariables().empty());
+    assertTrue_1(!preCondNode->getLocalVariables());
     Expression *sc = preCondNode->getPreCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -155,7 +155,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(endCondNode->getType() == NodeType_Empty);
     assertTrue_1(endCondNode->getChildren().empty());
     finalizeNode(endCondNode, endCond);
-    assertTrue_1(endCondNode->getLocalVariables().empty());
+    assertTrue_1(!endCondNode->getLocalVariables());
     Expression *sc = endCondNode->getEndCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -175,7 +175,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(exitCondNode->getType() == NodeType_Empty);
     assertTrue_1(exitCondNode->getChildren().empty());
     finalizeNode(exitCondNode, exitCond);
-    assertTrue_1(exitCondNode->getLocalVariables().empty());
+    assertTrue_1(!exitCondNode->getLocalVariables());
     Expression *sc = exitCondNode->getExitCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -195,7 +195,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(postCondNode->getType() == NodeType_Empty);
     assertTrue_1(postCondNode->getChildren().empty());
     finalizeNode(postCondNode, postCond);
-    assertTrue_1(postCondNode->getLocalVariables().empty());
+    assertTrue_1(!postCondNode->getLocalVariables());
     Expression *sc = postCondNode->getPostCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -215,7 +215,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(skipCondNode->getType() == NodeType_Empty);
     assertTrue_1(skipCondNode->getChildren().empty());
     finalizeNode(skipCondNode, skipCond);
-    assertTrue_1(skipCondNode->getLocalVariables().empty());
+    assertTrue_1(!skipCondNode->getLocalVariables());
     Expression *sc = skipCondNode->getSkipCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -235,7 +235,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(startCondNode->getType() == NodeType_Empty);
     assertTrue_1(startCondNode->getChildren().empty());
     finalizeNode(startCondNode, startCond);
-    assertTrue_1(startCondNode->getLocalVariables().empty());
+    assertTrue_1(!startCondNode->getLocalVariables());
     Expression *sc = startCondNode->getStartCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -255,7 +255,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(repeatCondNode->getType() == NodeType_Empty);
     assertTrue_1(repeatCondNode->getChildren().empty());
     finalizeNode(repeatCondNode, repeatCond);
-    assertTrue_1(repeatCondNode->getLocalVariables().empty());
+    assertTrue_1(!repeatCondNode->getLocalVariables());
     Expression *sc = repeatCondNode->getRepeatCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -275,7 +275,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(invariantCondNode->getType() == NodeType_Empty);
     assertTrue_1(invariantCondNode->getChildren().empty());
     finalizeNode(invariantCondNode, invariantCond);
-    assertTrue_1(invariantCondNode->getLocalVariables().empty());
+    assertTrue_1(!invariantCondNode->getLocalVariables());
     Expression *sc = invariantCondNode->getInvariantCondition();
     assertTrue_1(sc);
     assertTrue_1(sc->isConstant());
@@ -296,7 +296,8 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(simpleVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(simpleVarDeclNode->getChildren().empty());
     finalizeNode(simpleVarDeclNode, simpleVarDecl);
-    assertTrue_1(!simpleVarDeclNode->getLocalVariables().empty());
+    assertTrue_1(simpleVarDeclNode->getLocalVariables()
+                 && !simpleVarDeclNode->getLocalVariables()->empty());
     Expression *simpleVar = simpleVarDeclNode->findLocalVariable("b");
     assertTrue_1(simpleVar);
     assertTrue_1(simpleVar->valueType() == BOOLEAN_TYPE);
@@ -320,7 +321,8 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(initedVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(initedVarDeclNode->getChildren().empty());
     finalizeNode(initedVarDeclNode, initedVarDecl);
-    assertTrue_1(!initedVarDeclNode->getLocalVariables().empty());
+    assertTrue_1(initedVarDeclNode->getLocalVariables()
+                 && !initedVarDeclNode->getLocalVariables()->empty());
     Expression *initedVar = initedVarDeclNode->findLocalVariable("b");
     assertTrue_1(initedVar);
     assertTrue_1(initedVar->valueType() == BOOLEAN_TYPE);
@@ -347,7 +349,8 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(simpleArrayVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(simpleArrayVarDeclNode->getChildren().empty());
     finalizeNode(simpleArrayVarDeclNode, simpleArrayVarDecl);
-    assertTrue_1(!simpleArrayVarDeclNode->getLocalVariables().empty());
+    assertTrue_1(simpleArrayVarDeclNode->getLocalVariables()
+                 && !simpleArrayVarDeclNode->getLocalVariables()->empty());
     Expression *simpleArrayVar = simpleArrayVarDeclNode->findLocalVariable("ba");
     assertTrue_1(simpleArrayVar);
     assertTrue_1(simpleArrayVar->valueType() == BOOLEAN_ARRAY_TYPE);
@@ -373,7 +376,8 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(initedArrayVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(initedArrayVarDeclNode->getChildren().empty());
     finalizeNode(initedArrayVarDeclNode, initedArrayVarDecl);
-    assertTrue_1(!initedArrayVarDeclNode->getLocalVariables().empty());
+    assertTrue_1(initedArrayVarDeclNode->getLocalVariables()
+                 && !initedArrayVarDeclNode->getLocalVariables()->empty());
     Expression *initedArrayVar = initedArrayVarDeclNode->findLocalVariable("iba");
     assertTrue_1(initedArrayVar);
     assertTrue_1(initedArrayVar->valueType() == BOOLEAN_ARRAY_TYPE);
@@ -413,7 +417,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(emptyList->getNodeId() == "basicList");
     finalizeNode(emptyList, basicListXml);
     assertTrue_1(emptyList->getChildren().empty());
-    assertTrue_1(emptyList->getLocalVariables().empty());
+    assertTrue_1(!emptyList->getLocalVariables());
     delete emptyList;
   }
 
@@ -435,8 +439,8 @@ static bool listNodeXmlParserTest()
     assertTrue_1(kid->getNodeId() == "oneListKid");
     assertTrue_1(kid->getChildren().empty());
     finalizeNode(oneList, oneListXml);
-    assertTrue_1(oneList->getLocalVariables().empty());
-    assertTrue_1(kid->getLocalVariables().empty());
+    assertTrue_1(!oneList->getLocalVariables());
+    assertTrue_1(!kid->getLocalVariables());
     delete oneList;
   }
 
@@ -464,9 +468,9 @@ static bool listNodeXmlParserTest()
     assertTrue_1(kid1->getNodeId() == "anotherListKid1");
     assertTrue_1(kid1->getChildren().empty());
     finalizeNode(anotherList, anotherListXml);
-    assertTrue_1(anotherList->getLocalVariables().empty());
-    assertTrue_1(kid0->getLocalVariables().empty());
-    assertTrue_1(kid1->getLocalVariables().empty());
+    assertTrue_1(!anotherList->getLocalVariables());
+    assertTrue_1(!kid0->getLocalVariables());
+    assertTrue_1(!kid1->getLocalVariables());
     delete anotherList;
   }
 
@@ -498,18 +502,20 @@ static bool listNodeXmlParserTest()
     assertTrue_1(kid->getNodeId() == "varAccessListKid");
     assertTrue_1(kid->getChildren().empty());
     finalizeNode(varAccessList, varAccessListXml);
-    assertTrue_1(!varAccessList->getLocalVariables().empty());
-    assertTrue_1(varAccessList->getLocalVariables().size() == 1);
-    Assignable *rootVar = varAccessList->getLocalVariables().front()->asAssignable();
+    assertTrue_1(varAccessList->getLocalVariables()
+                 && !varAccessList->getLocalVariables()->empty());
+    assertTrue_1(varAccessList->getLocalVariables()->size() == 1);
+    Assignable *rootVar = varAccessList->getLocalVariables()->front()->asAssignable();
     assertTrue_1(rootVar);
     assertTrue_1(rootVar->valueType() == INTEGER_TYPE);
     assertTrue_1(rootVar->getNode() == varAccessList);
     assertTrue_1(rootVar == varAccessList->findVariable("foo"));
     assertTrue_1(!varAccessList->findVariable("bar"));
 
-    assertTrue_1(!kid->getLocalVariables().empty());
-    assertTrue_1(kid->getLocalVariables().size() == 1);
-    Assignable *kidVar = kid->getLocalVariables().front()->asAssignable();
+    assertTrue_1(kid->getLocalVariables()
+                 && !kid->getLocalVariables()->empty());
+    assertTrue_1(kid->getLocalVariables()->size() == 1);
+    Assignable *kidVar = kid->getLocalVariables()->front()->asAssignable();
     assertTrue_1(kidVar);
     assertTrue_1(kidVar->valueType() == INTEGER_TYPE);
     assertTrue_1(kidVar->getNode() == kid);
@@ -545,8 +551,8 @@ static bool listNodeXmlParserTest()
     assertTrue_1(kid->getNodeId() == "nodeRefTestKid");
     assertTrue_1(kid->getChildren().empty());
     finalizeNode(nodeRefTest, nodeRefTestXml);
-    assertTrue_1(nodeRefTest->getLocalVariables().empty());
-    assertTrue_1(kid->getLocalVariables().empty());
+    assertTrue_1(!nodeRefTest->getLocalVariables());
+    assertTrue_1(!kid->getLocalVariables());
     assertTrue_1(nodeRefTest->getExitCondition());
     assertTrue_1(nodeRefTest->getExitCondition()->valueType() == BOOLEAN_TYPE);
     assertTrue_1(kid->getInvariantCondition());
@@ -578,14 +584,15 @@ static bool assignmentNodeXmlParserTest()
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
     assertTrue_1(listNode->getChildren().size() == 1);
-    assertTrue_1(!listNode->getLocalVariables().empty());
-    assertTrue_1(listNode->getLocalVariables().size() == 1);
+    assertTrue_1(listNode->getLocalVariables()
+                 && !listNode->getLocalVariables()->empty());
+    assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
     Node *basicAssn = listNode->getChildren().front();
     assertTrue_1(basicAssn);
     assertTrue_1(basicAssn->getType() == NodeType_Assignment);
     assertTrue_1(basicAssn->getChildren().empty());
-    assertTrue_1(basicAssn->getLocalVariables().empty());
+    assertTrue_1(!basicAssn->getLocalVariables());
 
     finalizeNode(listNode, listNodeXml);
     AssignmentNode *anode = dynamic_cast<AssignmentNode *>(basicAssn);
@@ -619,14 +626,15 @@ static bool assignmentNodeXmlParserTest()
     assertTrue_1(listNode1->getType() == NodeType_NodeList);
     assertTrue_1(!listNode1->getChildren().empty());
     assertTrue_1(listNode1->getChildren().size() == 1);
-    assertTrue_1(!listNode1->getLocalVariables().empty());
-    assertTrue_1(listNode1->getLocalVariables().size() == 1);
+    assertTrue_1(listNode1->getLocalVariables()
+                 && !listNode1->getLocalVariables()->empty());
+    assertTrue_1(listNode1->getLocalVariables()->size() == 1);
 
     Node *basicAssn = listNode1->getChildren().front();
     assertTrue_1(basicAssn);
     assertTrue_1(basicAssn->getType() == NodeType_Assignment);
     assertTrue_1(basicAssn->getChildren().empty());
-    assertTrue_1(basicAssn->getLocalVariables().empty());
+    assertTrue_1(!basicAssn->getLocalVariables());
 
     finalizeNode(listNode1, listNode1Xml);
     AssignmentNode *anode = dynamic_cast<AssignmentNode *>(basicAssn);
@@ -663,14 +671,15 @@ static bool assignmentNodeXmlParserTest()
     assertTrue_1(listNode2->getType() == NodeType_NodeList);
     assertTrue_1(!listNode2->getChildren().empty());
     assertTrue_1(listNode2->getChildren().size() == 1);
-    assertTrue_1(!listNode2->getLocalVariables().empty());
-    assertTrue_1(listNode2->getLocalVariables().size() == 1);
+    assertTrue_1(listNode2->getLocalVariables()
+                 && !listNode2->getLocalVariables()->empty());
+    assertTrue_1(listNode2->getLocalVariables()->size() == 1);
 
     Node *arrayAssn = listNode2->getChildren().front();
     assertTrue_1(arrayAssn);
     assertTrue_1(arrayAssn->getType() == NodeType_Assignment);
     assertTrue_1(arrayAssn->getChildren().empty());
-    assertTrue_1(arrayAssn->getLocalVariables().empty());
+    assertTrue_1(!arrayAssn->getLocalVariables());
 
     finalizeNode(listNode2, listNode2Xml);
     AssignmentNode *aanode = dynamic_cast<AssignmentNode *>(arrayAssn);
@@ -705,14 +714,15 @@ static bool assignmentNodeXmlParserTest()
     assertTrue_1(listNode3->getType() == NodeType_NodeList);
     assertTrue_1(!listNode3->getChildren().empty());
     assertTrue_1(listNode3->getChildren().size() == 1);
-    assertTrue_1(!listNode3->getLocalVariables().empty());
-    assertTrue_1(listNode3->getLocalVariables().size() == 1);
+    assertTrue_1(listNode3->getLocalVariables()
+                 && !listNode3->getLocalVariables()->empty());
+    assertTrue_1(listNode3->getLocalVariables()->size() == 1);
 
     Node *arrayAssn = listNode3->getChildren().front();
     assertTrue_1(arrayAssn);
     assertTrue_1(arrayAssn->getType() == NodeType_Assignment);
     assertTrue_1(arrayAssn->getChildren().empty());
-    assertTrue_1(arrayAssn->getLocalVariables().empty());
+    assertTrue_1(!arrayAssn->getLocalVariables());
 
     finalizeNode(listNode3, listNode3Xml);
     AssignmentNode *aanode = dynamic_cast<AssignmentNode *>(arrayAssn);
@@ -759,7 +769,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(basicCmd->getType() == NodeType_Command);
     assertTrue_1(basicCmd->getNodeId() == "basicCmd");
     assertTrue_1(basicCmd->getChildren().empty());
-    assertTrue_1(basicCmd->getLocalVariables().empty());
+    assertTrue_1(!basicCmd->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(basicCmd);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -797,7 +807,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(cmdWithResources->getType() == NodeType_Command);
     assertTrue_1(cmdWithResources->getNodeId() == "cmdWithResources");
     assertTrue_1(cmdWithResources->getChildren().empty());
-    assertTrue_1(cmdWithResources->getLocalVariables().empty());
+    assertTrue_1(!cmdWithResources->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithResources);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -846,7 +856,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(cmdWithArgs->getType() == NodeType_Command);
     assertTrue_1(cmdWithArgs->getNodeId() == "cmdWithArgs");
     assertTrue_1(cmdWithArgs->getChildren().empty());
-    assertTrue_1(cmdWithArgs->getLocalVariables().empty());
+    assertTrue_1(!cmdWithArgs->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithArgs);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -889,15 +899,16 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
     assertTrue_1(listNode->getChildren().size() == 1);
-    assertTrue_1(!listNode->getLocalVariables().empty());
-    assertTrue_1(listNode->getLocalVariables().size() == 1);
+    assertTrue_1(listNode->getLocalVariables()
+                 && !listNode->getLocalVariables()->empty());
+    assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
     Node *cmdWithReturn = listNode->getChildren().front();
     assertTrue_1(cmdWithReturn);
     assertTrue_1(cmdWithReturn->getType() == NodeType_Command);
     assertTrue_1(cmdWithReturn->getNodeId() == "cmdWithReturn");
     assertTrue_1(cmdWithReturn->getChildren().empty());
-    assertTrue_1(cmdWithReturn->getLocalVariables().empty());
+    assertTrue_1(!cmdWithReturn->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithReturn);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -941,15 +952,16 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
     assertTrue_1(listNode->getChildren().size() == 1);
-    assertTrue_1(!listNode->getLocalVariables().empty());
-    assertTrue_1(listNode->getLocalVariables().size() == 1);
+    assertTrue_1(listNode->getLocalVariables()
+                 && !listNode->getLocalVariables()->empty());
+    assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
     Node *cmdWithReturn = listNode->getChildren().front();
     assertTrue_1(cmdWithReturn);
     assertTrue_1(cmdWithReturn->getType() == NodeType_Command);
     assertTrue_1(cmdWithReturn->getNodeId() == "cmdWithReturn");
     assertTrue_1(cmdWithReturn->getChildren().empty());
-    assertTrue_1(cmdWithReturn->getLocalVariables().empty());
+    assertTrue_1(!cmdWithReturn->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithReturn);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -1003,15 +1015,16 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
     assertTrue_1(listNode->getChildren().size() == 1);
-    assertTrue_1(!listNode->getLocalVariables().empty());
-    assertTrue_1(listNode->getLocalVariables().size() == 1);
+    assertTrue_1(listNode->getLocalVariables()
+                 && !listNode->getLocalVariables()->empty());
+    assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
     Node *cmdRetRes = listNode->getChildren().front();
     assertTrue_1(cmdRetRes);
     assertTrue_1(cmdRetRes->getType() == NodeType_Command);
     assertTrue_1(cmdRetRes->getNodeId() == "cmdRetRes");
     assertTrue_1(cmdRetRes->getChildren().empty());
-    assertTrue_1(cmdRetRes->getLocalVariables().empty());
+    assertTrue_1(!cmdRetRes->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdRetRes);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -1079,15 +1092,16 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
     assertTrue_1(listNode->getChildren().size() == 1);
-    assertTrue_1(!listNode->getLocalVariables().empty());
-    assertTrue_1(listNode->getLocalVariables().size() == 1);
+    assertTrue_1(listNode->getLocalVariables()
+                 && !listNode->getLocalVariables()->empty());
+    assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
     Node *kitchenSink = listNode->getChildren().front();
     assertTrue_1(kitchenSink);
     assertTrue_1(kitchenSink->getType() == NodeType_Command);
     assertTrue_1(kitchenSink->getNodeId() == "kitchenSink");
     assertTrue_1(kitchenSink->getChildren().empty());
-    assertTrue_1(kitchenSink->getLocalVariables().empty());
+    assertTrue_1(!kitchenSink->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(kitchenSink);
     assertTrue_1(cnode);
     Command *cmd = cnode->getCommand();
@@ -1230,9 +1244,9 @@ static bool updateNodeXmlParserTest()
     std::vector<Node *> const &nodeList = listNode->getChildren();
     assertTrue_1(!nodeList.empty());
     assertTrue_1(nodeList.size() == 1);
-    std::vector<Expression *> vars = listNode->getLocalVariables();
-    assertTrue_1(!vars.empty());
-    assertTrue_1(vars.size() == 2);
+    std::vector<Expression *> const *vars = listNode->getLocalVariables();
+    assertTrue_1(vars && !vars->empty());
+    assertTrue_1(vars->size() == 2);
     Expression *ivar = listNode->findLocalVariable("i");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
@@ -1367,7 +1381,8 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getNodeId() == "defaultedInVar");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
-    assertTrue_1(!dummy->getLocalVariables().empty());
+    assertTrue_1(dummy->getLocalVariables()
+                 && !dummy->getLocalVariables()->empty());
     Expression *divar = dummy->findVariable("defInInt");
     assertTrue_1(divar);
     assertTrue_1(divar->valueType() == INTEGER_TYPE);
@@ -1400,7 +1415,8 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getNodeId() == "withInVar");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
-    assertTrue_1(dummy->getLocalVariables().empty());
+    assertTrue_1(!dummy->getLocalVariables()
+                 || dummy->getLocalVariables()->empty());
     Expression *ivar = dummy->findVariable("inInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
@@ -1433,7 +1449,8 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getNodeId() == "defaultedInVar");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
-    assertTrue_1(dummy->getLocalVariables().empty());
+    assertTrue_1(!dummy->getLocalVariables()
+                 || dummy->getLocalVariables()->empty());
     Expression *divar = dummy->findVariable("defInInt");
     assertTrue_1(divar);
     assertTrue_1(divar->valueType() == INTEGER_TYPE);
@@ -1473,7 +1490,8 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getNodeId() == "inOutVar");
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
-    assertTrue_1(dummy->getLocalVariables().empty());
+    assertTrue_1(!dummy->getLocalVariables()
+                 || dummy->getLocalVariables()->empty());
     Expression *ivar = dummy->findVariable("inOutInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
@@ -1504,13 +1522,14 @@ static bool libraryCallNodeXmlParserTest()
     finalizeNode(defInOutCall, defInOutCallXml);
     assertTrue_1(!defInOutCall->getChildren().empty());
     assertTrue_1(defInOutCall->getChildren().size() == 1);
-    assertTrue_1(defInOutCall->getLocalVariables().empty());
+    assertTrue_1(!defInOutCall->getLocalVariables());
 
     Node *dummy = defInOutCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "defInOutVar");
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
-    assertTrue_1(!dummy->getLocalVariables().empty());
+    assertTrue_1(dummy->getLocalVariables()
+                 && !dummy->getLocalVariables()->empty());
     Expression *ivar = dummy->findVariable("defInOutInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
@@ -1542,7 +1561,8 @@ static bool libraryCallNodeXmlParserTest()
     finalizeNode(nonDefInOutCall, nonDefInOutCallXml);
     assertTrue_1(!nonDefInOutCall->getChildren().empty());
     assertTrue_1(nonDefInOutCall->getChildren().size() == 1);
-    assertTrue_1(!nonDefInOutCall->getLocalVariables().empty());
+    assertTrue_1(nonDefInOutCall->getLocalVariables()
+                 && !nonDefInOutCall->getLocalVariables()->empty());
     Expression *avar = nonDefInOutCall->findLocalVariable("aliasedInOut");
     assertTrue_1(avar);
     assertTrue_1(avar->valueType() == INTEGER_TYPE);
@@ -1551,7 +1571,8 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getNodeId() == "defInOutVar");
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
-    assertTrue_1(dummy->getLocalVariables().empty());
+    assertTrue_1(!dummy->getLocalVariables()
+                 || dummy->getLocalVariables()->empty());
     Expression *ivar = dummy->findVariable("defInOutInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
