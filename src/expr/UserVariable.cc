@@ -288,12 +288,12 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::printSpecialized(std::ostream &s) const
   {
-    s << m_name << ' ';
+    s << getName() << ' ';
   }
 
   void UserVariable<std::string>::printSpecialized(std::ostream &s) const
   {
-    s << m_name << ' ';
+    s << getName() << ' ';
   }
 
   template <typename T>

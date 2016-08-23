@@ -188,7 +188,7 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::printSpecialized(std::ostream &s) const
   {
-    s << m_name << ' ';
+    s << getName() << ' ';
     if (m_size)
       s << "size = " << m_maxSize << ' ';
   }
