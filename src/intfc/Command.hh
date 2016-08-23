@@ -118,6 +118,8 @@ namespace PLEXIL
     void fixValues();
     void fixResourceValues();
 
+    void cleanUp();
+
   private:
     // Deliberately not implemented
     Command();
@@ -134,7 +136,7 @@ namespace PLEXIL
     Assignable *m_dest;
     ExprVec *m_argVec;
     uint16_t m_commandHandle; // accessed by CommandHandleVariable
-    bool m_fixed, m_resourceFixed, m_active;
+    bool m_fixed, m_resourceFixed, m_active, m_cleaned;
   };
 
 }

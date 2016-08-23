@@ -74,7 +74,8 @@ namespace PLEXIL
       m_commandHandle(NO_COMMAND_HANDLE),
       m_fixed(false),
       m_resourceFixed(false),
-      m_active(false)
+      m_active(false),
+      m_cleaned(false)
   {
     m_ack.setName(nodeName + " commandHandle");
     m_abortComplete.setName(nodeName + " abortComplete");
@@ -82,12 +83,28 @@ namespace PLEXIL
 
   Command::~Command() 
   {
+    cleanUp();
+  }
+
+  void Command::cleanUp()
+  {
+    if (m_cleaned)
+      return;
+
+    delete m_argVec;
+    m_argVec = NULL;
+    m_nameExpr = NULL;
+    m_dest = NULL;
+
+    // TODO: Resource specs
+
     for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
          it != m_garbage.end();
          ++it)
       delete (*it);
-    if (m_argVec)
-      delete m_argVec;
+    m_garbage.clear();
+
+    m_cleaned = true;
   }
 
   void Command::setDestination(Assignable *dest, bool isGarbage)
