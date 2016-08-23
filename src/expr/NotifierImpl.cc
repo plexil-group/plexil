@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,11 @@
 */
 
 #include "NotifierImpl.hh"
+
+#ifdef EXPRESSION_DEBUG
+#include "Debug.hh"
+#include <typeinfo>
+#endif
 
 #include "Error.hh"
 #include "ExpressionListener.hh"
@@ -58,8 +63,25 @@ namespace PLEXIL {
 
   NotifierImpl::~NotifierImpl()
   {
+
+#ifdef EXPRESSION_DEBUG
+    if (!m_outgoingListeners.empty()) {
+      std::cerr << m_outgoingListeners.size() << " OUTGOING LISTENERS: ";
+      for (std::vector<ExpressionListener const *>::const_iterator it = m_outgoingListeners.begin();
+           it != m_outgoingListeners.end();
+           ++it) {
+        std::ostringstream s;
+        if (dynamic_cast<Expression const *>(*it))
+          dynamic_cast<Expression const *>(*it)->print(s);
+        std::cerr << ' ' << typeid(**it).name() << ' ' << *it << ' ' << s.str() << ' ';
+      }
+      std::cerr << std::endl;
+    }
+#endif
+
     assertTrue_2(m_outgoingListeners.empty(),
                  "Error: Expression still has outgoing listeners.");
+
 #ifdef RECORD_EXPRESSION_STATS
     // Delete this from instance list
     if (m_prev)
@@ -129,10 +151,18 @@ namespace PLEXIL {
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
     if (it != m_outgoingListeners.end()) {
 #ifdef EXPRESSION_DEBUG
-      debugMsg("NotifierImpl:addListener", " listener " << (uintptr) ptr << " already present");
+      debugMsg("NotifierImpl:addListener", " listener " << ptr << " already present");
 #endif
         return;
     }
+#ifdef EXPRESSION_DEBUG
+    {
+      std::ostringstream s;
+      if (dynamic_cast<Expression const *>(ptr))
+        dynamic_cast<Expression const *>(ptr)->print(s);
+      debugMsg("NotifierImpl:addListener", ' ' << typeid(*ptr).name() << ' ' << ptr << ' ' << s.str());
+    }
+#endif
     m_outgoingListeners.push_back(ptr);
   }
 
@@ -142,10 +172,13 @@ namespace PLEXIL {
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
     if (it == m_outgoingListeners.end()) {
 #ifdef EXPRESSION_DEBUG
-      debugMsg("NotifierImpl:removeListener", " listener " << (uintptr) ptr << " not found");
+      debugMsg("NotifierImpl:removeListener", " listener " << ptr << " not found");
 #endif
         return;
     }
+#ifdef EXPRESSION_DEBUG
+    debugMsg("NotifierImpl:removeListener", ' ' << ptr);
+#endif
     m_outgoingListeners.erase(it);
   }
 
