@@ -89,11 +89,24 @@ namespace PLEXIL
     // MUST be called first, here. Yes, it's redundant with base class.
     cleanUpConditions();
 
+    cleanUpNodeBody();
+
     if (m_update) {
-      debugMsg("UpdateNode:~UpdateNode", " removing update for " << m_nodeId);
+      debugMsg("UpdateNode:~UpdateNode", '<' << m_nodeId << '>');
       delete m_update;
       m_update = NULL;
     }
+  }
+
+  void UpdateNode::cleanUpNodeBody()
+  {
+    if (m_cleanedBody)
+      return;
+
+    debugMsg("UpdateNode:cleanUpNodeBody", '<' << m_nodeId << '>');
+    if (m_update)
+      m_update->cleanUp();
+    m_cleanedBody = true;
   }
 
   void UpdateNode::setUpdate(Update *upd)

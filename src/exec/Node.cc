@@ -124,7 +124,8 @@ namespace PLEXIL {
       m_traceIdx(0),
       m_garbageConditions(),
       m_cleanedConditions(false),
-      m_cleanedVars(false)
+      m_cleanedVars(false),
+      m_cleanedBody(false)
   {
     debugMsg("Node:node", " Constructor for \"" << m_nodeId << "\"");
     commonInit();
@@ -158,7 +159,8 @@ namespace PLEXIL {
       m_traceIdx(0),
       m_garbageConditions(),
       m_cleanedConditions(false), 
-      m_cleanedVars(false)
+      m_cleanedVars(false),
+      m_cleanedBody(false)
   {
     commonInit();
 

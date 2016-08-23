@@ -138,12 +138,25 @@ namespace PLEXIL
     // MUST be called first, here. Yes, it's redundant with base class.
     cleanUpConditions();
 
+    cleanUpNodeBody();
+
     // Delete command last
     if (m_command) {
-      debugMsg("CommandNode:~CommandNode", "<" << m_nodeId << "> Removing command.");
+      debugMsg("CommandNode:~CommandNode", '<' << m_nodeId << "> Removing command.");
       delete m_command;
       m_command = NULL;
     }
+  }
+
+  void CommandNode::cleanUpNodeBody()
+  {
+    if (m_cleanedBody)
+      return;
+
+    debugMsg("CommandNode:cleanUpNodeBody", '<' << m_nodeId << "> entered");
+    if (m_command)
+      m_command->cleanUp();
+    m_cleanedBody = true;
   }
 
   void CommandNode::setCommand(Command *cmd)

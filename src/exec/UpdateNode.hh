@@ -99,6 +99,8 @@ namespace PLEXIL
 
     virtual void abort();
 
+    virtual void cleanUpNodeBody();
+
     // Node state limit
     virtual NodeState nodeStateMax() const { return FAILING_STATE; }
 

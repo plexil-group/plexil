@@ -56,6 +56,8 @@ namespace PLEXIL
      */
     virtual ~LibraryCallNode();
 
+    virtual void cleanUpNodeBody();
+
     /**
      * @brief Gets the type of this node.
      * @return The type of this node.

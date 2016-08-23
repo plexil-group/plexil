@@ -527,7 +527,7 @@ namespace PLEXIL {
 
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
-    bool m_cleanedConditions, m_cleanedVars;
+    bool m_cleanedConditions, m_cleanedVars, m_cleanedBody;
 
   private:
 

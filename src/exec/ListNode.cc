@@ -338,12 +338,16 @@ namespace PLEXIL
 
   void ListNode::cleanUpNodeBody()
   {
+    if (m_cleanedBody)
+      return;
+
     debugMsg("ListNode:cleanUpNodeBody", " for " << m_nodeId);
 
     // Delete children
     for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       delete (Node*) (*it);
     m_children.clear();
+    m_cleanedBody = true;
   }
 
   void ListNode::cleanUpChildConditions()

@@ -59,12 +59,21 @@ namespace PLEXIL
    */
   LibraryCallNode::~LibraryCallNode()
   {
-    debugMsg("LibraryCallNode:~LibraryCallNode", " destructor for " << m_nodeId);
+    debugMsg("LibraryCallNode:~LibraryCallNode", '<' << m_nodeId << '>');
 
     cleanUpConditions();
     cleanUpNodeBody();
-    delete m_aliasMap;
     cleanUpVars();
+  }
+
+  void LibraryCallNode::cleanUpNodeBody()
+  {
+    if (m_cleanedBody)
+      return;
+
+    ListNode::cleanUpNodeBody();
+
+    delete m_aliasMap;
   }
 
   void LibraryCallNode::allocateAliasMap(size_t n)
