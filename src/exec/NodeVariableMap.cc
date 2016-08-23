@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   typedef SimpleMap<char const *, Expression *, CStringComparator> BaseMap;
 
-  NodeVariableMap::NodeVariableMap(NodeVariableMap *parentMap)
+  NodeVariableMap::NodeVariableMap(NodeVariableMap const *parentMap)
     : BaseMap(),
       m_parentMap(parentMap)
   {
@@ -42,18 +42,6 @@ namespace PLEXIL
   NodeVariableMap::~NodeVariableMap()
   {
     clear();
-  }
-
-  void NodeVariableMap::setParentMap(NodeVariableMap *parent)
-  {
-    m_parentMap = parent;
-  }
-
-  // Empty ancestor maps can be skipped over.
-  void NodeVariableMap::optimizeParentMap()
-  {
-    if (m_parentMap && !m_parentMap->capacity())
-      m_parentMap = m_parentMap->m_parentMap;
   }
 
   void NodeVariableMap::clear()
@@ -67,13 +55,13 @@ namespace PLEXIL
     }
   }
 
-  Expression *NodeVariableMap::findVariable(char const *name)
+  Expression *NodeVariableMap::findVariable(char const *name) const
   {
-    iterator it = find(name);
+    const_iterator it = find(name);
     if (it != end())
       return it->second;
     // Iteratively search ancestors for this name
-    for (NodeVariableMap *ancestor = m_parentMap;
+    for (NodeVariableMap const *ancestor = m_parentMap;
          ancestor;
          ancestor = ancestor->m_parentMap) {
       it = ancestor->find(name);

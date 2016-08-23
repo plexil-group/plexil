@@ -109,9 +109,7 @@ namespace PLEXIL
       checkAlias(node, temp);
       ++nAliases;
     }
-    NodeVariableMap *map = node->getChildVariableMap();
-    assertTrue_2(map, "Internal error: no alias map for LibraryNodeCall node");
-    map->grow(nAliases);
+    node->allocateAliasMap(nAliases);
   }
 
   void constructLibraryCall(LibraryCallNode *node, xml_node const callXml)

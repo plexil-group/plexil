@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,15 @@
 #include "LinkedQueue.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
-#include "NodeVariableMap.hh"
 #include "PlexilNodeType.hh"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
 
 namespace PLEXIL {
+
+  // Forward reference
+  class NodeVariableMap;
 
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.
@@ -234,12 +236,18 @@ namespace PLEXIL {
      */
     double getCurrentStateStartTime() const;
 
-    // Used by GanttListener, plan parser
-    NodeVariableMap& getVariableMap() { return m_variablesByName; }
-    const std::vector<Expression *> & getLocalVariables() { return m_localVariables; }
+    // Used by plan parser
+
+    // May return NULL.
+    const std::vector<Expression *> *getLocalVariables() const { return m_localVariables; }
+    // May return NULL.
+    NodeVariableMap const *getVariableMap() const { return m_variablesByName; }
+
+    // Pre-allocate local variable vector, variable map.
+    void allocateVariables(size_t n);
 
     // For plan parser and initialization purposes.
-    virtual NodeVariableMap *getChildVariableMap();
+    virtual NodeVariableMap const *getChildVariableMap() const;
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
@@ -342,14 +350,6 @@ namespace PLEXIL {
     //
     // Utilities for plan parsers
     //
-
-    /**
-     * @brief Add a named "variable" to the node.
-     * @param name The name
-     * @param var The expression to associate with the name.
-     * @return true if successful, false if name is a duplicate
-     */
-    bool addVariable(char const *name, Expression *var);
 
     /**
      * @brief Add a named "variable" to the node, to be deleted with the node.
@@ -508,18 +508,22 @@ namespace PLEXIL {
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
  
-    std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
+    std::vector<Expression *> *m_localVariables; /*!< Variables created in this node. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
-    NodeVariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
+    NodeVariableMap *m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
 
+  private:
+    
     // Node transition history trace
     // Records the state and the time it was entered
     double m_transitionTimes[NODE_STATE_MAX]; /*!< The times of each node transition since activation. */
-    uint16_t m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
-    uint16_t m_traceIdx; /*!< The index of the next entry into the transition history tables. */
+    uint8_t m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
+    uint8_t m_traceIdx; /*!< The index of the next entry into the transition history tables. */
+
+  protected:
 
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */

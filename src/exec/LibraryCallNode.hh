@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -67,14 +67,16 @@ namespace PLEXIL
 
     // For plan parser
     bool addAlias(char const *name, Expression *exp, bool isGarbage);
+
     // For parser and initialization purposes.
-    virtual NodeVariableMap *getChildVariableMap();
+    virtual NodeVariableMap const *getChildVariableMap() const;
+
+    void allocateAliasMap(size_t n);
 
   private:
-    NodeVariableMap m_aliasVariables;
+    NodeVariableMap *m_aliasMap;
   };
 
 }
 
 #endif // LIBRARY_CALL_NODE_HH
-

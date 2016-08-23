@@ -187,9 +187,20 @@ namespace PLEXIL
     }
   }
 
-  NodeVariableMap *ListNode::getChildVariableMap()
+  NodeVariableMap const *ListNode::getChildVariableMap() const
   {
-    return &m_variablesByName;
+    if (m_variablesByName)
+      return m_variablesByName;
+
+    // Search ancestors for first in chain
+    Node *n = m_parent;
+    NodeVariableMap const *map = NULL;
+    while (n && !map) {
+      map = n->getVariableMap();
+      if (!map)
+        n = n->m_parent;
+    }
+    return map;
   }
 
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children

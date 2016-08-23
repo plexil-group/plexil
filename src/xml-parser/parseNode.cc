@@ -410,7 +410,6 @@ namespace PLEXIL
     xml_node const varDecls = xml.child(VAR_DECLS_TAG);
     xml_node const iface = xml.child(INTERFACE_TAG);
 
-    // Symbol table optimization part 1
     // By now we have an upper bound on how many entries are required.
     // Reserve space for them. 
     // This saves us from reallocating and copying the whole table as it grows.
@@ -420,13 +419,8 @@ namespace PLEXIL
         nVariables = estimateVariableSpace(varDecls);
       if (iface)
         nVariables += estimateInterfaceSpace(xml.child(INTERFACE_TAG));
-      node->getVariableMap().grow(nVariables);
+      node->allocateVariables(nVariables);
     }
-
-    // Symbol table optimization part 2
-    // Our parent (if any) has already had its capacity established (see above).
-    // If it has no local variables or interfaces, skip over it when searching.
-    node->getVariableMap().optimizeParentMap();
 
     // Populate local variables
     if (varDecls) {

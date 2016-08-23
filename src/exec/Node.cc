@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include "ExternalInterface.hh"
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"
+#include "NodeVariableMap.hh"
 #include "SimpleMap.hh"
 #include "UserVariable.hh"
 #include "lifecycle-utils.h"
@@ -112,9 +113,11 @@ namespace PLEXIL {
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
+      m_localVariables(NULL),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
+      m_variablesByName(NULL),
       m_nodeId(nodeId),
       m_transitionTimes(),
       m_transitionStates(),
@@ -144,9 +147,11 @@ namespace PLEXIL {
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
+      m_localVariables(NULL),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
+      m_variablesByName(NULL),
       m_nodeId(name),
       m_transitionTimes(),
       m_transitionStates(),
@@ -221,31 +226,35 @@ namespace PLEXIL {
   // N.B.: called from base class constructor
   void Node::commonInit() {
     debugMsg("Node:node", " common initialization");
-    if (m_parent)
-      m_variablesByName.setParentMap(m_parent->getChildVariableMap());
 
     // Initialize transition trace
     logTransition(g_interface->currentTime(), (NodeState) m_state);
   }
 
-  NodeVariableMap *Node::getChildVariableMap()
+  void Node::allocateVariables(size_t n)
   {
-    return NULL;
+    assertTrue_1(!m_localVariables); // illegal to call this twice
+    m_localVariables = new std::vector<Expression *>();
+    m_localVariables->reserve(n);
+    m_variablesByName =
+      new NodeVariableMap(m_parent ? m_parent->getChildVariableMap() : NULL);
+    m_variablesByName->grow(n);
   }
 
-  bool Node::addVariable(char const *name, Expression *var)
+  // Default method.
+  NodeVariableMap const *Node::getChildVariableMap() const
   {
-    if (m_variablesByName.find(name) != m_variablesByName.end())
-      return false; // duplicate
-    m_variablesByName[name] = var;
-    return true;
+    return NULL; // this node has no children
   }
 
   bool Node::addLocalVariable(char const *name, Expression *var)
   {
-    if (!addVariable(name, var))
-      return false;
-    m_localVariables.push_back(var);
+    assertTrueMsg(m_localVariables && m_variablesByName,
+                  "Internal error: failed to allocate variables");
+    if (m_variablesByName->find(name) != m_variablesByName->end())
+      return false; // duplicate
+    (*m_variablesByName)[name] = var;
+    m_localVariables->push_back(var);
     return true;
   }
 
@@ -359,21 +368,26 @@ namespace PLEXIL {
   {
     if (m_cleanedVars)
       return;
+
     checkError(m_cleanedConditions,
                "Have to clean up variables before conditions can be cleaned.");
 
     debugMsg("Node:cleanUpVars", " for " << m_nodeId);
 
-    // Clear map
-    m_variablesByName.clear();
+    // Delete map
+    delete m_variablesByName;
 
     // Delete user-spec'd variables
-    for (std::vector<Expression *>::iterator it = m_localVariables.begin(); it != m_localVariables.end(); ++it) {
-      debugMsg("Node:cleanUpVars",
-               "<" << m_nodeId << "> Removing " << **it);
-      delete (Expression *) (*it);
+    if (m_localVariables) {
+      for (std::vector<Expression *>::iterator it = m_localVariables->begin();
+           it != m_localVariables->end();
+           ++it) {
+        debugMsg("Node:cleanUpVars",
+                 "<" << m_nodeId << "> Removing " << **it);
+        delete (Expression *) (*it);
+      }
+      delete m_localVariables;
     }
-    m_localVariables.clear();
 
     // Delete internal variables
     m_cleanedVars = true;
@@ -1283,21 +1297,46 @@ namespace PLEXIL {
   Expression *Node::findVariable(char const *name)
   {
     debugMsg("Node:findVariable",
-             " for node '" << m_nodeId
-             << "', searching by name for \"" << name << "\"");
-    Expression *result = m_variablesByName.findVariable(name);
-    if (result) {
-      debugMsg("Node:findVariable",
-               " Returning " << result->toString());
+             " node " << m_nodeId << ", for " << name);
+    Expression *result = NULL;
+    if (m_variablesByName) {
+      result = m_variablesByName->findVariable(name); // searches ancestor maps
+      condDebugMsg(result,
+                   "Node:findVariable",
+                   " node " << m_nodeId << " returning " << result->toString());
+      condDebugMsg(!result,
+                   "Node:findVariable",
+                   " node " << m_nodeId << " not found in local map");
       return result;
     }
+    else if (m_parent) {
+      NodeVariableMap const *map = m_parent->getChildVariableMap();
+      if (map) {
+        result = map->findVariable(name);
+        condDebugMsg(result,
+                     "Node:findVariable",
+                     " node " << m_nodeId
+                     << " returning " << result->toString() << " from ancestor map");
+        condDebugMsg(!result,
+                     "Node:findVariable",
+                     " node " << m_nodeId  << " not found in ancestor map");
+        return result;
+      }
+    }
+    // else fall through
+    debugMsg("Node:findVariable",
+             " node " << m_nodeId
+             << " not found, no local map and no ancestor map");
     return NULL;
   }
 
   Expression *Node::findLocalVariable(char const *name)
   {
-    NodeVariableMap::const_iterator it = m_variablesByName.find(name);
-    if (it != m_variablesByName.end()) {
+    if (!m_variablesByName)
+      return NULL;
+
+    NodeVariableMap::const_iterator it = m_variablesByName->find(name);
+    if (it != m_variablesByName->end()) {
       debugMsg("Node:findLocalVariable",
                " " << m_nodeId << " Returning " << it->second->toString());
       return it->second;
@@ -1462,10 +1501,12 @@ namespace PLEXIL {
     debugMsg("Node:execute", "Executing node " << m_nodeId);
 
     // Activate local variables
-    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
-         vit != m_localVariables.end();
-         ++vit)
-      (*vit)->activate();
+    if (m_localVariables) {
+      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
+           vit != m_localVariables->end();
+           ++vit)
+        (*vit)->activate();
+    }
 
     // legacy message for unit test
     debugMsg("PlexilExec:handleNeedsExecution",
@@ -1489,11 +1530,13 @@ namespace PLEXIL {
     m_outcome = NO_OUTCOME;
     m_failureType = NO_FAILURE;
 
-    for (std::vector<Expression *>::const_iterator it = m_localVariables.begin();
-         it != m_localVariables.end();
-         ++it)
-      if ((*it)->isAssignable())
-        (*it)->asAssignable()->reset();
+    if (m_localVariables) {
+      for (std::vector<Expression *>::const_iterator it = m_localVariables->begin();
+           it != m_localVariables->end();
+           ++it)
+        if ((*it)->isAssignable())
+          (*it)->asAssignable()->reset();
+    }
 
     specializedReset();
   }
@@ -1512,11 +1555,13 @@ namespace PLEXIL {
   void Node::deactivateExecutable() 
   {
     specializedDeactivateExecutable();
-    // Deactivate local variables
-    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
-         vit != m_localVariables.end();
-         ++vit)
-      (*vit)->deactivate();
+
+    if (m_localVariables) {
+      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
+           vit != m_localVariables->end();
+           ++vit)
+        (*vit)->deactivate();
+    }
   }
 
   // Default method
@@ -1579,9 +1624,12 @@ namespace PLEXIL {
   // Print variables
   void Node::printVariables(std::ostream& stream, const unsigned int indent) const
   {
+    if (!m_variablesByName)
+      return;
+    
     std::string indentStr(indent, ' ');
-    for (NodeVariableMap::const_iterator it = m_variablesByName.begin();
-         it != m_variablesByName.end();
+    for (NodeVariableMap::const_iterator it = m_variablesByName->begin();
+         it != m_variablesByName->end();
          ++it) {
       stream << indentStr << " " << it->first << ": " <<
         *(it->second) << '\n';

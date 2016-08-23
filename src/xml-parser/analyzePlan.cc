@@ -173,7 +173,8 @@ static void getNodeStatistics(Node const *node)
   ++g_nodeTypeCounts[typ];
 
   // Count variables
-  incrementNodeVariableCount(const_cast<Node *>(node)->getLocalVariables().size());
+  if (node->getLocalVariables())
+    incrementNodeVariableCount(node->getLocalVariables()->size());
 
   getConditionStatistics(node);
 

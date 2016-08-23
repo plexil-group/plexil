@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,14 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecConnector.hh"
+#include "NodeVariableMap.hh"
 
 namespace PLEXIL
 {
 
   LibraryCallNode::LibraryCallNode(char const *nodeId, Node *parent)
-    : ListNode(nodeId, parent)
+    : ListNode(nodeId, parent),
+      m_aliasMap(NULL)
   {
   }
 
@@ -45,7 +47,8 @@ namespace PLEXIL
                                    const std::string& name, 
                                    NodeState state,
                                    Node *parent)
-    : ListNode(type, name, state, parent)
+    : ListNode(type, name, state, parent),
+      m_aliasMap(NULL)
   {
     checkError(type == LIBRARYNODECALL,
                "Invalid node type \"" << type << "\" for a LibraryCallNode");
@@ -60,23 +63,36 @@ namespace PLEXIL
 
     cleanUpConditions();
     cleanUpNodeBody();
-    cleanUpVars(); // flush alias vars
+    delete m_aliasMap;
+    cleanUpVars();
+  }
+
+  void LibraryCallNode::allocateAliasMap(size_t n)
+  {
+    assertTrue_1(!m_aliasMap);
+    m_aliasMap = new NodeVariableMap(NULL);
+    m_aliasMap->grow(n);
   }
 
   // For plan parser.
   bool LibraryCallNode::addAlias(char const *name, Expression *exp, bool isGarbage)
   {
-    if (m_aliasVariables.find(name) != m_aliasVariables.end())
-      return false; // alias by same name already exists
-    m_aliasVariables[name] = exp;
-    if (isGarbage)
-      m_localVariables.push_back(exp);
+    assertTrue_1(m_aliasMap);
+    if (m_aliasMap->find(name) != m_aliasMap->end())
+      return false; // duplicate
+    (*m_aliasMap)[name] = exp;
+    if (isGarbage) {
+      if (!m_localVariables)
+        m_localVariables = new std::vector<Expression *>();
+      m_localVariables->push_back(exp);
+    }
     return true;
   }
 
-  NodeVariableMap *LibraryCallNode::getChildVariableMap()
+  // LibraryCall nodes don't allow children to refer to ancestor environment
+  NodeVariableMap const *LibraryCallNode::getChildVariableMap() const
   {
-    return &m_aliasVariables;
+    return m_aliasMap;
   }
 
 }

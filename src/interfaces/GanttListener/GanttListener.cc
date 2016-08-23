@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include "ExecListenerFactory.hh"
 #include "Expression.hh"
 #include "Node.hh"
+#include "NodeVariableMap.hh"
 
 #include <fstream>
 #include <cmath>
@@ -285,14 +286,14 @@ namespace PLEXIL
    static string getLocalVarInExecStateFromMap(Node *nodeId, 
                                                vector<string>& myLocalVariableMapValues)
    {
-      NodeVariableMap const &tempLocalVariablesMap = nodeId->getVariableMap();
-      if (tempLocalVariablesMap.empty())
+      NodeVariableMap const *tempLocalVariablesMap = nodeId->getVariableMap();
+      if (!tempLocalVariablesMap || tempLocalVariablesMap->empty())
       {
          return std::string();
       }
       std::ostringstream myLocalVars;
-      for (NodeVariableMap::const_iterator it = tempLocalVariablesMap.begin();
-         it != tempLocalVariablesMap.end(); ++it) 
+      for (NodeVariableMap::const_iterator it = tempLocalVariablesMap->begin();
+         it != tempLocalVariablesMap->end(); ++it) 
       {
          const string& tempNameString = it->first;
          string tempValueString = it->second->valueString();
@@ -446,7 +447,7 @@ namespace PLEXIL
 
    void GanttListener::getFinalLocalVar(Node *nodeId)
    {
-      NodeVariableMap const &tempLocalVariableMapAfter = nodeId->getVariableMap();
+      NodeVariableMap const *tempLocalVariableMapAfter = nodeId->getVariableMap();
       vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
       vector<string> thisLocalVarsVectorKeys;
       vector<string> thisLocalVarsVectorValues;
@@ -454,18 +455,20 @@ namespace PLEXIL
       if(!m_nodes[m_index].localvariables.empty() &&
          m_nodes[m_index].localvarsvector.size() > 0) 
       {
-         if (tempLocalVariableMapAfter.empty())
+         if (!tempLocalVariableMapAfter || tempLocalVariableMapAfter->empty())
          {
             m_nodes[m_index].localvariables = "";
          }
-         for (NodeVariableMap::const_iterator it = tempLocalVariableMapAfter.begin(); 
-            it != tempLocalVariableMapAfter.end(); it++) 
-         {
-            thisLocalVarsVectorKeys.push_back(it->first);
-            thisLocalVarsVectorValues.push_back(it->second->valueString());
+         else {
+           for (NodeVariableMap::const_iterator it = tempLocalVariableMapAfter->begin(); 
+                it != tempLocalVariableMapAfter->end(); it++) 
+             {
+               thisLocalVarsVectorKeys.push_back(it->first);
+               thisLocalVarsVectorValues.push_back(it->second->valueString());
+             }
          }
          processLocalVar(prevLocalVarsVector, thisLocalVarsVectorValues, 
-            thisLocalVarsVectorKeys);
+                         thisLocalVarsVectorKeys);
       }
       else 
       {
