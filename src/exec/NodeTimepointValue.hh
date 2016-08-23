@@ -51,7 +51,6 @@ namespace PLEXIL
 
     bool getValueImpl(double &result) const; // FIXME
 
-    void print(std::ostream &s) const;
     void printValue(std::ostream &s) const;
 
   protected:

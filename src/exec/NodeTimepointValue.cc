@@ -83,11 +83,6 @@ namespace PLEXIL
     return m_node->getStateTransitionTime(m_state, m_end, result);
   }
 
-  void NodeTimepointValue::print(std::ostream &s) const
-  {
-    // TODO
-  }
-
   void NodeTimepointValue::printValue(std::ostream &s) const
   {
     double tym;
