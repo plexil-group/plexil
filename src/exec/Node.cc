@@ -33,6 +33,7 @@
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "NodeConstants.hh"
+#include "NodeTimepointValue.hh"
 #include "PlexilExec.hh"
 #include "NodeVariableMap.hh"
 #include "SimpleMap.hh"
@@ -119,9 +120,8 @@ namespace PLEXIL {
       m_failureTypeVariable(*this),
       m_variablesByName(NULL),
       m_nodeId(nodeId),
-      m_transitionTimes(),
-      m_transitionStates(),
-      m_traceIdx(0),
+      m_currentStateStartTime(0.0),
+      m_timepoints(NULL),
       m_garbageConditions(),
       m_cleanedConditions(false),
       m_cleanedVars(false),
@@ -154,9 +154,8 @@ namespace PLEXIL {
       m_failureTypeVariable(*this),
       m_variablesByName(NULL),
       m_nodeId(name),
-      m_transitionTimes(),
-      m_transitionStates(),
-      m_traceIdx(0),
+      m_currentStateStartTime(0.0),
+      m_timepoints(NULL),
       m_garbageConditions(),
       m_cleanedConditions(false), 
       m_cleanedVars(false),
@@ -328,6 +327,14 @@ namespace PLEXIL {
 
     // Now safe to delete variables
     cleanUpVars();
+
+    // Delete timepoints, if any
+    NodeTimepointValue *temp = m_timepoints;
+    while (temp) {
+      m_timepoints = temp->next();
+      delete temp;
+      temp = m_timepoints;
+    }
   }
 
   void Node::cleanUpConditions() 
@@ -1209,8 +1216,8 @@ namespace PLEXIL {
       return;
     checkError(newValue <= nodeStateMax(),
                "Attempted to set an invalid NodeState value for this node");
-    m_state = newValue;
     logTransition(tym, newValue);
+    m_state = newValue;
     m_stateVariable.changed();
     if (m_state == FINISHED_STATE && !m_parent)
       // Mark this node as ready to be deleted -
@@ -1226,47 +1233,32 @@ namespace PLEXIL {
 
   void Node::logTransition(double tym, NodeState newState)
   {
-    if (newState == INACTIVE_STATE)
-      // either just constructed or parent repeating; clear history
-      m_traceIdx = 0;
-    else if (newState == WAITING_STATE && m_traceIdx > 1)
-      // this node is repeating
-      m_traceIdx = 1;
-    else {
-      assertTrue_2(m_traceIdx < NODE_STATE_MAX,
-                   "Node transition trace is full");
-    }
-    m_transitionTimes[m_traceIdx] = tym;
-    m_transitionStates[m_traceIdx] = newState;
-    ++m_traceIdx;
-  }
+    m_currentStateStartTime = tym;
+    if (!m_timepoints)
+      return;
 
-  bool Node::getStateTransitionTime(NodeState state,
-                                    bool isEnd,
-                                    double &result) const
-  {
-    if (!m_traceIdx)
-      return false; // buffer is empty
-    size_t i = 0;
-    // Find the entry for that state (i.e. start time)
-    for (; i < m_traceIdx; ++i)
-      if (m_transitionStates[i] == state)
-        break;
-    if (i == m_traceIdx)
-      return false; // state not found
-    if (isEnd) {
-      if (++i == m_traceIdx)
-        return false; // current state, hasn't ended yet
+    NodeTimepointValue *tp = m_timepoints;
+    if (newState == INACTIVE_STATE) {
+      // Reset timepoints
+      while (tp) {
+        tp->reset();
+        tp = tp->next();
+      }
+      tp = m_timepoints;
     }
-    result = m_transitionTimes[i];
-    return true;
+
+    // Update relevant timepoints
+    while (tp) {
+      if ((tp->state() == m_state && tp->isEnd())
+          || (tp->state() == newState && !tp->isEnd()))
+        tp->setValue(tym);
+      tp = tp->next();
+    }
   }
 
   double Node::getCurrentStateStartTime() const
   {
-    if (!m_traceIdx)
-      return -DBL_MAX; // buffer empty
-    return m_transitionTimes[m_traceIdx - 1];
+    return m_currentStateStartTime;
   }
 
   void Node::setNodeOutcome(NodeOutcome o)
@@ -1293,6 +1285,22 @@ namespace PLEXIL {
   FailureType Node::getFailureType() const
   {
     return (FailureType) m_failureType;
+  }
+
+  Expression *Node::ensureTimepoint(NodeState st, bool isEnd)
+  {
+    NodeTimepointValue *result = m_timepoints;
+    while (result) {
+      if (st == result->state() && isEnd == result->isEnd())
+        return result;
+      result = result->next();
+    }
+
+    // Not found, create it
+    result = new NodeTimepointValue(this, st, isEnd);
+    result->setNext(m_timepoints);
+    m_timepoints = result;
+    return result;
   }
 
   // Searches ancestors' maps when required

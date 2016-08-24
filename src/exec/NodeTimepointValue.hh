@@ -44,18 +44,23 @@ namespace PLEXIL
                        bool isEnd);
     ~NodeTimepointValue();
 
-    char const *getName() const;
-    char const *exprName() const;
-    ValueType const valueType() const;
-    bool isKnown() const;
+    NodeState state() const;
+    bool isEnd() const;
 
-    bool getValueImpl(double &result) const; // FIXME
+    // Expression API
+    virtual char const *getName() const;
+    virtual char const *exprName() const;
+    virtual ValueType const valueType() const;
+    virtual bool isKnown() const;
+    virtual bool getValueImpl(double &result) const; // FIXME
+    virtual void printValue(std::ostream &s) const;
+    virtual void printSpecialized(std::ostream &s) const;
 
-    void printValue(std::ostream &s) const;
+    void setValue(double newval); // FIXME
+    void reset(); 
 
-  protected:
-    // Default method is adequate for now
-    // void handleChange(Expression const *src);
+    NodeTimepointValue *next() const;
+    void setNext(NodeTimepointValue *);
 
   private:
     // not implemented
@@ -63,9 +68,12 @@ namespace PLEXIL
     NodeTimepointValue(NodeTimepointValue const &);
     NodeTimepointValue &operator=(NodeTimepointValue const &);
 
+    double m_time;
+    NodeTimepointValue *m_next;
     Node *m_node;
-    NodeState m_state;
-    bool m_end;
+    NodeState const m_state; // only set at constructor time
+    bool const m_end;        // only set at constructor time
+    bool m_known;
   };
 
 } // namespace PLEXIL

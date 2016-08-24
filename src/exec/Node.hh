@@ -39,7 +39,8 @@
 
 namespace PLEXIL {
 
-  // Forward reference
+  // Forward references
+  class NodeTimepointValue;
   class NodeVariableMap;
 
   /**
@@ -221,18 +222,9 @@ namespace PLEXIL {
     void setNodeFailureType(FailureType f);
 
     /**
-     * @brief Get the time of the named transition.
-     * @param state The state.
-     * @param isEnd True if requesting end time of state, false for start.
-     * @param result Place to store the requested time.
-     * @return True if requested time is known, false otherwise.
-     * @note If unknown, result is not modified.
-     */
-    bool getStateTransitionTime(NodeState state, bool isEnd, double &result) const; // FIXME
-
-    /**
      * @brief Gets the time at which this node entered its current state.
      * @return Time value as a double.
+     * @note Used by GanttListener and PlanDebugListener.
      */
     double getCurrentStateStartTime() const;
 
@@ -263,6 +255,9 @@ namespace PLEXIL {
 
     FailureType getFailureType() const;
     Expression *getFailureTypeVariable() { return &m_failureTypeVariable; }
+
+    // For use of plan parser.
+    Expression *ensureTimepoint(NodeState st, bool isEnd);
 
     /**
      * @brief Accessor for an assignment node's assigned variable.
@@ -518,10 +513,8 @@ namespace PLEXIL {
   private:
     
     // Node transition history trace
-    // Records the state and the time it was entered
-    double m_transitionTimes[NODE_STATE_MAX]; /*!< The times of each node transition since activation. */
-    uint8_t m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
-    uint8_t m_traceIdx; /*!< The index of the next entry into the transition history tables. */
+    double m_currentStateStartTime;
+    NodeTimepointValue *m_timepoints;
 
   protected:
 

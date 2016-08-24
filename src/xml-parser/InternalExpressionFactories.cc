@@ -238,8 +238,8 @@ namespace PLEXIL
                                        << whichStr << "\"");
       return NULL;
     }
-    wasCreated = true;
-    return new NodeTimepointValue(refNode, state, isEnd);
+    wasCreated = false;
+    return refNode->ensureTimepoint(state, isEnd);
   }
 
   //
