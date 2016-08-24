@@ -35,6 +35,7 @@
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
+#include <cstring>
 
 using pugi::xml_node;
 using pugi::node_element;

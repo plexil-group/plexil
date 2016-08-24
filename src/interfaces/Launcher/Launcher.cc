@@ -39,6 +39,8 @@
 #include "State.hh"
 #include "StateCacheEntry.hh"
 
+#include <algorithm>
+
 namespace PLEXIL
 {
 
