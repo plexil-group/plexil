@@ -455,14 +455,13 @@ namespace PLEXIL
     // Delegate to InterfaceManager
     try {
       g_manager->handleAddPlan(planXml->document_element());
+      debugMsg("ExecApplication:addPlan", " successful");
+      return true;
     }
     catch (const ParserException& e) {
       std::cerr << "ExecApplication::addPlan: Plan parser error: \n" << e.what() << std::endl;
       return false;
     }
-    debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
-    g_manager->notifyOfExternalEvent();
-    return true;
   }
 
 #ifdef PLEXIL_WITH_THREADS
