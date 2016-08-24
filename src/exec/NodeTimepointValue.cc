@@ -52,12 +52,10 @@ namespace PLEXIL
       m_end(isEnd),
       m_known(false)
   {
-    m_node->getStateVariable()->addListener(this);
   }
 
   NodeTimepointValue::~NodeTimepointValue()
   {
-    m_node->getStateVariable()->removeListener(this);
   }
 
 
