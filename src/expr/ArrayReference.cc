@@ -148,7 +148,7 @@ namespace PLEXIL
     if (idx >= kv.size()) {
       assertTrueMsg(ALWAYS_FAIL,
                     "Array index " << idx
-                    << " exceeds array size " << kv.size());
+                    << " equals or exceeds array size " << kv.size());
       return false; // unallocated implies unknown
     }
     return kv[idx];
@@ -275,7 +275,9 @@ namespace PLEXIL
     if (!m_mutableArray->getMutableValuePointer(valuePtr))
       return false; // array unknown
     if (idx >= valuePtr->size()) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
+      assertTrueMsg(ALWAYS_FAIL,
+                    "ArrayReference: Array index " << idx
+                    << " equals or exceeds array size " << valuePtr->size());
       return false;
     }
     return true;
