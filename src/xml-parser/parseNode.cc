@@ -571,6 +571,24 @@ namespace PLEXIL
                                          << varName << ", variable is " << valueTypeName(varType)
                                          << ", initializer is " << valueTypeName(initType));
       }
+      if (isArrayType(varType)) {
+        // Check whether initial value is larger than declared size
+        int sizeSpec = decl.child(MAX_SIZE_TAG).text().as_int(-1);
+        if (sizeSpec >= 0) {
+          Array const *initArray = NULL;
+          assertTrueMsg(init->getValuePointer(initArray),
+                        "Internal error: array initial value is unknown");
+          if (initArray->size() > (size_t) sizeSpec) {
+            if (garbage)
+              delete init;
+            checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                             decl,
+                                             "Node " << node->getNodeId()
+                                             << ": initial value for array variable "
+                                             << varName << " exceeds declared array size");
+          }
+        }
+      }
       var->asAssignable()->setInitializer(init, garbage);
     }
   }
