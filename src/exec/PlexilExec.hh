@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -164,7 +164,7 @@ namespace PLEXIL
     /**
      * @brief Resolve conflicts for this variable.
      */
-    void resolveVariableConflicts(Assignable *var);
+    void resolveVariableConflicts(VariableConflictSet *conflictNodes);
 
     /**
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
@@ -178,6 +178,10 @@ namespace PLEXIL
      * @param node The assignment node.
      */
     void removeFromResourceContention(Node *node);
+
+    VariableConflictSet *getConflictSet(Assignable *);
+
+    VariableConflictSet *ensureConflictSet(Assignable *);
 
     //
     // Internal queue management
@@ -217,7 +221,7 @@ namespace PLEXIL
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
-    std::vector<Assignable *> m_resourceConflicts; /*<! List of variables to consider for resource contention. */
+    VariableConflictSet *m_resourceConflicts; /*<! Linked list of variable assignment contention sets. */
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };

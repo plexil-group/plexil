@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ namespace PLEXIL
       m_stateChangeQueue(),
       m_finishedRootNodes(),
       m_listener(NULL),
+      m_resourceConflicts(NULL),
       m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {}
@@ -79,6 +80,12 @@ namespace PLEXIL
     m_finishedRootNodes.clear();
     for (std::list<Node *>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
+
+    while (m_resourceConflicts) {
+      VariableConflictSet *temp = m_resourceConflicts;
+      m_resourceConflicts = m_resourceConflicts->next();
+      delete temp;
+    }
   }
 
   /**
@@ -255,6 +262,38 @@ namespace PLEXIL
     m_assignmentsToRetract.push_back(assign);
   }
 
+  //
+  // Variable conflict sets
+  //
+
+  VariableConflictSet *PlexilExec::getConflictSet(Assignable *a)
+  {
+    VariableConflictSet *result = m_resourceConflicts;
+    while (result) {
+      if (result->getVariable() == a)
+        return result;
+      result = result->next();
+    }
+    return NULL;
+  }
+
+  VariableConflictSet *PlexilExec::ensureConflictSet(Assignable *a)
+  {
+    VariableConflictSet *result = m_resourceConflicts;
+    while (result) {
+      if (result->getVariable() == a)
+        return result; // found it
+      result = result->next();
+    }
+
+    // Not found
+    result = VariableConflictSet::allocate();
+    result->setNext(m_resourceConflicts);
+    result->setVariable(a);
+    m_resourceConflicts = result;
+    return result;
+  }
+
   // Assumes node is a valid ID and points to an Assignment node
   void PlexilExec::removeFromResourceContention(Node *node) 
   {
@@ -266,16 +305,33 @@ namespace PLEXIL
     assertTrue_1(exp);
 
     // Remove node from the variable's conflict set.
-    VariableConflictSet &conflictNodes = exp->getConflictSet();
-    conflictNodes.remove(node);
+    VariableConflictSet *conflictNodes = getConflictSet(exp);
+    if (!conflictNodes)
+      return; // not found
+
+    conflictNodes->remove(node);
 
     // If deleted node was only one in conflict set,
-    // remove variable from variable set.
-    if (conflictNodes.empty()) {
-      std::vector<Assignable *>::iterator varIt =
-        std::find(m_resourceConflicts.begin(), m_resourceConflicts.end(), exp);
-      if (varIt != m_resourceConflicts.end())
-        m_resourceConflicts.erase(varIt);
+    // remove variable from conflicts list.
+    if (conflictNodes->empty()) {
+      if (m_resourceConflicts == conflictNodes)
+        // First on list, just point past it
+        m_resourceConflicts = m_resourceConflicts->next();
+      else {
+        // Delete from middle or end
+        VariableConflictSet *prev = m_resourceConflicts;
+        VariableConflictSet *curr = prev->next();
+        while (curr) {
+          if (curr == conflictNodes) {
+            prev->setNext(curr->next());
+            break;
+          }
+        }
+        // didn't find it
+        assertTrueMsg(curr, "Internal error: Active conflict set not on active list");
+      }
+      // give it back
+      VariableConflictSet::release(conflictNodes);
     }
   }
 
@@ -291,11 +347,8 @@ namespace PLEXIL
 
     debugMsg("PlexilExec:addToResourceContention",
              "Adding node '" << node->getNodeId() << "' to resource contention.");
-    VariableConflictSet &conflictNodes = exp->getConflictSet();
-    if (conflictNodes.empty())
-      // add variable to list of conflicts
-      m_resourceConflicts.push_back(exp);
-    conflictNodes.push(node);
+    VariableConflictSet *conflict = ensureConflictSet(exp);
+    conflict->push(node);
   }
 
   void PlexilExec::step(double startTime) 
@@ -417,21 +470,23 @@ namespace PLEXIL
 
   void PlexilExec::resolveResourceConflicts()
   {
-    for (std::vector<Assignable *>::iterator it = m_resourceConflicts.begin();
-         it != m_resourceConflicts.end();
-         ++it)
-      resolveVariableConflicts(*it);
+    VariableConflictSet *c = m_resourceConflicts;
+    while (c) {
+      resolveVariableConflicts(c);
+      c = c->next();
+    }
   }
 
   /**
    * @brief Resolve conflicts for this variable.
    * @note Subroutine of resolveResourceConflicts() above.
    */
-  void PlexilExec::resolveVariableConflicts(Assignable *var)
+  void PlexilExec::resolveVariableConflicts(VariableConflictSet *conflict)
   {
-    VariableConflictSet &conflictNodes = var->getConflictSet();
-    checkError(!conflictNodes.empty(),
-               "Resource conflict set for " << var->toString() << " is empty.");
+    Assignable const *var = conflict->getVariable();
+    assertTrue_1(var);
+    checkError(!conflict->empty(),
+               "Resource conflict set for " << conflict->getVariable()->toString() << " is empty.");
 
     // Ignore any variables pending retraction
     for (std::vector<Assignable *>::const_iterator vit = m_variablesToRetract.begin();
@@ -445,21 +500,21 @@ namespace PLEXIL
       }
     }
 
-    //we only have to look at all the nodes with the highest priority
+    // Only look at nodes with the highest priority
     Node *nodeToExecute = NULL;
     NodeState destState = NO_NODE_STATE;
-    size_t count = conflictNodes.front_count(); // # of nodes with same priority as top
+    size_t count = conflict->front_count(); // # of nodes with same priority as top
     if (count == 1) {
       // Usual case (we hope) - make it simple
-      nodeToExecute = dynamic_cast<Node *>(conflictNodes.front());
+      nodeToExecute = conflict->front();
       destState = nodeToExecute->getNextState();
     }
 
     else {
-      VariableConflictSet::iterator conflictIt = conflictNodes.begin(); 
+      VariableConflictSet::const_iterator conflictIt = conflict->begin(); 
       // Look at the destination states of all the nodes with equal priority
       for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
-        Node *node = dynamic_cast<Node *>(*conflictIt);
+        Node *node = *conflictIt;
         NodeState dest = node->getNextState();
 
         // Found one that is scheduled for execution

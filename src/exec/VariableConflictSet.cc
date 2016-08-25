@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,8 @@
 
 #include "VariableConflictSet.hh"
 
-#include "NodeConnector.hh"
+#include "Node.hh"
+#include "lifecycle-utils.h"
 
 #include <algorithm> // std::find()
 
@@ -34,12 +35,34 @@ namespace PLEXIL
 {
 
   VariableConflictSet::VariableConflictSet()
+    : m_next(NULL),
+      m_variable(NULL)
   {
     m_nodes.reserve(1);
   }
 
   VariableConflictSet::~VariableConflictSet()
   {
+  }
+
+  Assignable const *VariableConflictSet::getVariable() const
+  {
+    return m_variable;
+  }
+
+  void VariableConflictSet::setVariable(Assignable *a)
+  {
+    m_variable = a;
+  }
+
+  VariableConflictSet *VariableConflictSet::next() const
+  {
+    return m_next;
+  }
+
+  void VariableConflictSet::setNext(VariableConflictSet *nxt)
+  {
+    m_next = nxt;
   }
 
   size_t VariableConflictSet::size() const
@@ -52,7 +75,7 @@ namespace PLEXIL
     return m_nodes.empty();
   }
 
-  void VariableConflictSet::push(NodeConnector *node)
+  void VariableConflictSet::push(Node *node)
   {
     // Most common case first
     if (m_nodes.empty()) {
@@ -60,7 +83,7 @@ namespace PLEXIL
       return;
     }
     int32_t prio = node->getPriority();
-    for (std::vector<NodeConnector *>::iterator it = m_nodes.begin(); it != m_nodes.end(); ++it) {
+    for (std::vector<Node *>::iterator it = m_nodes.begin(); it != m_nodes.end(); ++it) {
       if (node == *it)
         return;
       if (prio < (*it)->getPriority()) {
@@ -72,30 +95,16 @@ namespace PLEXIL
     m_nodes.push_back(node);
   }
 
-  NodeConnector const *VariableConflictSet::front() const
+  Node *VariableConflictSet::front()
   {
     if (m_nodes.empty())
       return NULL;
     return m_nodes.front();
   }
 
-  NodeConnector *VariableConflictSet::front()
+  void VariableConflictSet::remove(Node *node)
   {
-    if (m_nodes.empty())
-      return NULL;
-    return m_nodes.front();
-  }
-
-  void VariableConflictSet::pop()
-  {
-    if (m_nodes.empty())
-      return;
-    m_nodes.erase(m_nodes.begin());
-  }
-
-  void VariableConflictSet::remove(NodeConnector *node)
-  {
-    std::vector<NodeConnector *>::iterator it = 
+    std::vector<Node *>::iterator it = 
       std::find(m_nodes.begin(), m_nodes.end(), node);
     if (it != m_nodes.end())
       m_nodes.erase(it);
@@ -122,19 +131,54 @@ namespace PLEXIL
     return m_nodes.begin();
   }
 
-  VariableConflictSet::iterator VariableConflictSet::begin()
-  {
-    return m_nodes.begin();
-  }
-
   VariableConflictSet::const_iterator VariableConflictSet::end() const
   {
     return m_nodes.end();
   }
 
-  VariableConflictSet::iterator VariableConflictSet::end()
+  //
+  // Homegrown allocator
+  //
+
+  static VariableConflictSet *s_freeList = NULL;
+
+  VariableConflictSet *VariableConflictSet::allocate()
   {
-    return m_nodes.end();
+    if (s_freeList) {
+      VariableConflictSet *result = s_freeList;
+      s_freeList = s_freeList->m_next;
+      // Wipe clean
+      result->m_next = NULL;
+      result->m_variable = NULL;
+      result->m_nodes.clear();
+      return result;
+    }
+    else {
+      return new VariableConflictSet();
+    }
+  }
+
+  extern "C"
+  void cleanupVariableConflictSets()
+  {
+    while (s_freeList) {
+      VariableConflictSet *temp = s_freeList;
+      s_freeList = s_freeList->next();
+      delete temp;
+    }
+  }
+
+  void VariableConflictSet::release(VariableConflictSet *v)
+  {
+    static bool sl_cleanupInstalled = false;
+
+    v->m_next = s_freeList;
+    s_freeList = v;
+    if (sl_cleanupInstalled)
+      return;
+
+    plexilAddFinalizer(&cleanupVariableConflictSets);
+    sl_cleanupInstalled = true;
   }
 
 } // namespace PLEXIL

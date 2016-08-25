@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
 
 #include "AssignableImpl.hh"
 #include "ExpressionImpl.hh"
-#include "VariableConflictSet.hh"
 
 namespace PLEXIL
 {
@@ -132,8 +131,6 @@ namespace PLEXIL
      */
     void setInitializer(Expression *expr, bool garbage);
 
-    VariableConflictSet &getConflictSet();
-
     void handleActivate();
 
     void handleDeactivate();
@@ -154,8 +151,6 @@ namespace PLEXIL
     Expression *m_initializer;
     char const *m_name;
     size_t m_maxSize;
-
-    VariableConflictSet m_conflicts;
     
     // Only used by LuvListener at present. Eliminate?
     NodeConnector *m_node;

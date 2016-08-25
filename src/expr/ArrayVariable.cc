@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -298,12 +298,6 @@ namespace PLEXIL
                    "Array variable initial value is larger than declared array size");
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
-  }
-
-  template <typename T>
-  VariableConflictSet &ArrayVariable<T>::getConflictSet()
-  {
-    return m_conflicts;
   }
 
   template <typename T>
