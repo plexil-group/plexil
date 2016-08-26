@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #define PLEXIL_EXPR_VEC_HH
 
 #include "ArrayFwd.hh"
+#include "ValueType.hh"
 
 #include <vector>
 
@@ -52,6 +53,8 @@ namespace PLEXIL
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
     virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
+
+    virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
 
     // These are in critical path of exec inner loop, 
     // so should be optimized for each representation

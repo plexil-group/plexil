@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,12 @@ namespace PLEXIL
     return count == 1;
   }
 
+  bool ArraySize::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return isArrayType(ty) || ty == UNKNOWN_TYPE;
+  }
+
   bool ArraySize::operator()(int32_t &result, Expression const *arg) const
   {
     Array const *ary;
@@ -72,6 +78,12 @@ namespace PLEXIL
   bool ArrayMaxSize::checkArgCount(size_t count) const
   {
     return count == 1;
+  }
+
+  bool ArrayMaxSize::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return isArrayType(ty) || ty == UNKNOWN_TYPE;
   }
 
   bool ArrayMaxSize::operator()(int32_t &result, Expression const *arg) const
@@ -102,6 +114,12 @@ namespace PLEXIL
     return count == 1;
   }
 
+  bool AllElementsKnown::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return isArrayType(ty) || ty == UNKNOWN_TYPE;
+  }
+
   bool AllElementsKnown::operator()(bool &result, Expression const *arg) const
   {
     Array const *ary;
@@ -127,6 +145,12 @@ namespace PLEXIL
   bool AnyElementsKnown::checkArgCount(size_t count) const
   {
     return count == 1;
+  }
+
+  bool AnyElementsKnown::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return isArrayType(ty) || ty == UNKNOWN_TYPE;
   }
 
   bool AnyElementsKnown::operator()(bool &result, Expression const *arg) const

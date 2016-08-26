@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -174,6 +174,7 @@ namespace PLEXIL
     SquareRoot();
     ~SquareRoot();
     bool checkArgCount(size_t count) const;
+    bool checkArgTypes(ExprVec const *ev) const;
     bool calc(NUM &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(SquareRoot<NUM>, NUM);
 
@@ -256,6 +257,7 @@ namespace PLEXIL
     RealToInteger();
     ~RealToInteger();
     bool checkArgCount(size_t count) const;
+    bool checkArgTypes(ExprVec const *ev) const;
     bool calc(int32_t &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, int32_t);
 

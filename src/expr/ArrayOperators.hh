@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(int32_t &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(ArraySize, int32_t);
@@ -57,6 +59,8 @@ namespace PLEXIL
     ~ArrayMaxSize();
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(int32_t &result, Expression const *arg) const;
 
@@ -76,6 +80,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(bool &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AllElementsKnown, bool);
@@ -93,6 +99,8 @@ namespace PLEXIL
     ~AnyElementsKnown();
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
 

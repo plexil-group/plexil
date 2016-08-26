@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "Comparisons.hh"
 #include "Expression.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -75,6 +76,24 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool Equal<T>::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+  }
+
+  template <>
+  bool Equal<uint16_t>::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType vta = (*ev)[0]->valueType();
+    if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
+      return false;
+    ValueType vtb = (*ev)[1]->valueType();
+    if (vta != vtb && vtb != UNKNOWN_TYPE)
+      return false;
+    return true;
+  }
+
+  template <typename T>
   bool Equal<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
@@ -116,6 +135,24 @@ namespace PLEXIL
   bool NotEqual<T>::checkArgCount(size_t count) const
   {
     return count == 2;
+  }
+
+  template <typename T>
+  bool NotEqual<T>::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+  }
+
+  template <>
+  bool NotEqual<uint16_t>::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType vta = (*ev)[0]->valueType();
+    if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
+      return false;
+    ValueType vtb = (*ev)[1]->valueType();
+    if (vta != vtb && vtb != UNKNOWN_TYPE)
+      return false;
+    return true;
   }
 
   template <typename T>
@@ -163,6 +200,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool GreaterThan<T>::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+  }
+
+  template <typename T>
   bool GreaterThan<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
@@ -191,6 +234,12 @@ namespace PLEXIL
   bool GreaterEqual<T>::checkArgCount(size_t count) const
   {
     return count == 2;
+  }
+
+  template <typename T>
+  bool GreaterEqual<T>::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <typename T>
@@ -225,6 +274,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool LessThan<T>::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+  }
+
+  template <typename T>
   bool LessThan<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
@@ -253,6 +308,12 @@ namespace PLEXIL
   bool LessEqual<T>::checkArgCount(size_t count) const
   {
     return count == 2;
+  }
+
+  template <typename T>
+  bool LessEqual<T>::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <typename T>
@@ -285,18 +346,18 @@ namespace PLEXIL
 
   template class GreaterThan<int32_t>;
   template class GreaterThan<double>;
-  template class GreaterThan<std::string>;
+  // template class GreaterThan<std::string>;
 
   template class GreaterEqual<int32_t>;
   template class GreaterEqual<double>;
-  template class GreaterEqual<std::string>;
+  // template class GreaterEqual<std::string>;
 
   template class LessThan<int32_t>;
   template class LessThan<double>;
-  template class LessThan<std::string>;
+  // template class LessThan<std::string>;
 
   template class LessEqual<int32_t>;
   template class LessEqual<double>;
-  template class LessEqual<std::string>;
+  // template class LessEqual<std::string>;
 
 }

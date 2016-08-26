@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,11 @@ namespace PLEXIL
   bool StringConcat::checkArgCount(size_t /* count */) const
   {
     return true;
+  }
+
+  bool StringConcat::checkArgTypes(ExprVec const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(STRING_TYPE);
   }
 
   bool StringConcat::operator()(std::string &result) const
@@ -105,6 +110,12 @@ namespace PLEXIL
   bool StringLength::checkArgCount(size_t count) const
   {
     return count == 1;
+  }
+
+  bool StringLength::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return ty == STRING_TYPE || ty == UNKNOWN_TYPE;
   }
 
   bool StringLength::operator()(int32_t &result, Expression const *arg) const

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,10 @@ namespace PLEXIL
     // Delegated to each individual operator.
     // Default method returns false.
     virtual bool checkArgCount(size_t count) const { return false; }
+
+    // Delegated to each individual operator.
+    // Default method returns true.
+    virtual bool checkArgTypes(ExprVec const *ev) const { return true; }
 
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;

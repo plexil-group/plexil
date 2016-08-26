@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(bool &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanNot, bool)
@@ -56,6 +58,8 @@ namespace PLEXIL
     ~BooleanOr();
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
@@ -76,6 +80,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(bool &result, Expression const *arg) const;
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
     bool operator()(bool &result, ExprVec const &args) const;
@@ -94,6 +100,8 @@ namespace PLEXIL
     ~BooleanXor();
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;

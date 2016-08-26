@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -132,6 +132,11 @@ namespace PLEXIL
       assertTrue_2(ALWAYS_FAIL, "setArgument(): no arguments to set in NullExprVec");
     }
 
+    bool allSameTypeOrUnknown(ValueType /* vt */) const
+    {
+      return true;
+    }
+
     void activate()
     {
     }
@@ -183,13 +188,6 @@ namespace PLEXIL
         garbage[i] = false;
     }
 
-    void setArgument(size_t i, Expression *exp, bool isGarbage)
-    {
-      assertTrue_2(i < N, "setArgument(): too many args");
-      exprs[i] = exp;
-      garbage[i] = isGarbage;
-    }
-
     ~FixedExprVec()
     {
       for (size_t i = 0; i < N; ++i)
@@ -200,6 +198,17 @@ namespace PLEXIL
     size_t size() const 
     {
       return N; 
+    }
+
+    // General case
+    bool allSameTypeOrUnknown(ValueType vt) const
+    {
+      for (size_t i = 0; i < N; ++i) {
+        ValueType vti = exprs[i]->valueType();
+        if (vti != vt && vti != UNKNOWN_TYPE)
+          return false;
+      }
+      return true;
     }
 
     Expression const *operator[](size_t n) const
@@ -214,6 +223,13 @@ namespace PLEXIL
       return exprs[n]; 
     }
 
+    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    {
+      assertTrue_2(i < N, "setArgument(): too many args");
+      exprs[i] = exp;
+      garbage[i] = isGarbage;
+    }
+
     void activate()
     {
       for (size_t i = 0; i < N; ++i)
@@ -226,7 +242,6 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    // General case defers to base class for many of these operations
     void addListener(ExpressionListener * ptr) 
     {
       ExprVec::addListener(ptr);
@@ -314,6 +329,13 @@ namespace PLEXIL
   {
     if (garbage[0])
       delete exprs[0];
+  }
+
+  template <>
+  bool FixedExprVec<1>::allSameTypeOrUnknown(ValueType vt) const
+  {
+    ValueType vti = exprs[0]->valueType();
+    return (vti == vt || vti == UNKNOWN_TYPE);
   }
 
   template <>
@@ -423,6 +445,18 @@ namespace PLEXIL
       delete exprs[0];
     if (garbage[1])
       delete exprs[1];
+  }
+
+  template <>
+  bool FixedExprVec<2>::allSameTypeOrUnknown(ValueType vt) const
+  {
+    ValueType vti = exprs[0]->valueType();
+    if (vti != vt && vti != UNKNOWN_TYPE)
+      return false;
+    vti = exprs[1]->valueType();
+    if (vti != vt && vti != UNKNOWN_TYPE)
+      return false;
+    return true;
   }
 
   template <>
@@ -566,6 +600,16 @@ namespace PLEXIL
       assertTrue_2(i < m_size, "setArgument(): too many args");
       exprs[i] = exp;
       garbage[i] = isGarbage;
+    }
+
+    bool allSameTypeOrUnknown(ValueType vt) const
+    {
+      for (size_t i = 0; i < m_size; ++i) {
+        ValueType vti = exprs[i]->valueType();
+        if (vti != vt && vti != UNKNOWN_TYPE)
+          return false;
+      }
+      return true;
     }
 
     void activate()
