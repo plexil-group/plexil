@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
 namespace PLEXIL
 {
   // Common case logic
-  ValueType arithmeticCommonType(ExprVec const *exprs)
+  static ValueType arithmeticCommonType(ExprVec const *exprs)
   {
     size_t len = exprs->size();
     assertTrue_1(len > 0);
@@ -102,7 +102,7 @@ namespace PLEXIL
                                      expr,
                                      "Arithmetic function " << expr.name() << " has no arguments");
     ExprVec *exprVec = this->constructExprVec(expr, node, n);
-    ValueType type = this->commonType(exprVec);
+    ValueType type = arithmeticCommonType(exprVec);
     if (type == UNKNOWN_TYPE) {
       delete exprVec;
       checkParserExceptionWithLocation(ALWAYS_FAIL,
@@ -110,7 +110,7 @@ namespace PLEXIL
                                        "Type inconsistency or indeterminacy in arithmetic expression");
     }
     Operator const *oper = this->selectOperator(type);
-    if (!oper->checkArgCount(exprVec->size())) {
+    if (!oper->checkArgCount(n)) {
       delete exprVec;
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr,
