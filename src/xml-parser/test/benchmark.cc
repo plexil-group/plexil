@@ -36,11 +36,12 @@
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
 
+#include <cstring>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <cstring>
 
 #include <unistd.h>
 
