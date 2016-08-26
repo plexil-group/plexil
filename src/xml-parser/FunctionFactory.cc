@@ -58,6 +58,13 @@ namespace PLEXIL
                                      << oper->getName());
 
     ExprVec *exprVec = constructExprVec(expr, node, n);
+    if (!oper->checkArgTypes(exprVec)) {
+      delete exprVec;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr,
+                                       "Operand type mismatch or unimplemented type for "
+                                       << oper->getName());
+    }
 
     wasCreated = true;
     return new Function(oper, exprVec);
