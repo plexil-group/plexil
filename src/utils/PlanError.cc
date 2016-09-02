@@ -24,57 +24,72 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
-#include "Error.hh"
-#include "TestSupport.hh"
-#include "lifecycle-utils.h"
+#include "PlanError.hh"
 
-#include <cstring> // for strcmp()
-#include <fstream>
+#include "Logging.hh"
 
-using PLEXIL::Error;
+#include <cassert>
 
-extern bool valueTypeTest();
-extern bool arrayTest();
-extern bool valueTest();
-extern bool serializeTest();
-
-static void runValueTests()
+namespace PLEXIL
 {
-  Error::doThrowExceptions();
 
-  runTestSuite(valueTypeTest);
-  runTestSuite(arrayTest);
-  runTestSuite(valueTest);
-  runTestSuite(serializeTest);
+  bool PlanError::s_throw = false;
 
-  std::cout << "Finished" << std::endl;
-}
+  //
+  // Static member functions
+  //
 
-int main(int argc, char *argv[])
-{
+  void PlanError::doThrowExceptions()
   {
-    std::string debugConfig("Debug.cfg");
-  
-    for (int i = 1; i < argc; ++i) {
-      if (strcmp(argv[i], "-d") == 0)
-	debugConfig = std::string(argv[++i]);
-    }
-  
-    std::ifstream config(debugConfig.c_str());
-  
-    if (config.good()) {
-      PLEXIL::readDebugConfigStream(config);
-      std::cout << "Reading configuration file " << debugConfig.c_str() << "\n";
-    }
-    else
-      std::cout << "Warning: unable to read configuration file " << debugConfig.c_str() << "\n";
+    s_throw = true;
   }
-  
-  runValueTests();
 
-  // clean up
-  plexilRunFinalizers();
+  void PlanError::doNotThrowExceptions()
+  {
+    s_throw = false;
+  }
 
-  return 0;
+  bool PlanError::throwEnabled()
+  {
+    return s_throw;
+  }
+
+  PlanError::PlanError(const std::string& condition,
+              const std::string& msg,
+              const std::string& file,
+              const int& line)
+    : Error(condition, msg, file, line)
+  {
+  }
+    
+  PlanError::PlanError(const PlanError &orig)
+    : Error(orig)
+  {
+  }
+
+  PlanError &PlanError::operator=(const PlanError &other)
+  {
+    Error::operator=(other);
+    return *this;
+  }
+
+  PlanError::~PlanError()
+    throw ()
+  {
+  }
+
+  bool PlanError::operator==(const PlanError &other)
+  {
+    return Error::operator==(other);
+  }
+
+  void PlanError::report()
+  {
+    Logging::handle_message(Logging::LOG_ERROR, m_file.c_str(), m_line, m_msg.c_str());
+    if (throwEnabled())
+      throw *this;
+    else
+      assert(false);
+  }
+
 }

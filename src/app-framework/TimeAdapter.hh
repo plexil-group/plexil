@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #define TIME_ADAPTER_H
 
 #include "InterfaceAdapter.hh"
+#include "InterfaceError.hh"
 
 #include <unistd.h>
 #if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
@@ -81,7 +82,7 @@ namespace PLEXIL
      * @return A double representing the current time.
      * @note Implemented by derived classes.
      */
-    virtual double getCurrentTime() = 0;
+    virtual double getCurrentTime() throw (InterfaceError) = 0;
 
   private:
 

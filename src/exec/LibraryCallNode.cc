@@ -78,7 +78,6 @@ namespace PLEXIL
 
   void LibraryCallNode::allocateAliasMap(size_t n)
   {
-    assertTrue_1(!m_aliasMap);
     m_aliasMap = new NodeVariableMap(NULL);
     m_aliasMap->grow(n);
   }

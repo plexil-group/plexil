@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,9 +25,10 @@
 */
 
 #include "Command.hh"
-#include "Error.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh"
+#include "InterfaceError.hh"
+#include "PlanError.hh"
 #include "ResourceArbiterInterface.hh"
 
 namespace PLEXIL
@@ -109,7 +110,6 @@ namespace PLEXIL
 
   void Command::setDestination(Assignable *dest, bool isGarbage)
   {
-    assertTrue_1(dest);
     m_dest = dest;
     if (isGarbage)
       m_garbage.push_back(dest);
@@ -117,8 +117,6 @@ namespace PLEXIL
 
   void Command::setNameExpr(Expression *nameExpr, bool isGarbage)
   {
-    assertTrue_1(!m_nameExpr);
-    assertTrue_1(nameExpr);
     m_nameExpr = nameExpr;
     if (isGarbage)
       m_garbage.push_back(nameExpr);
@@ -199,28 +197,28 @@ namespace PLEXIL
     for (size_t i = 0; i < n; ++i) {
       ResourceSpec const &spec = m_resourceList[i];
       ResourceValue &resValue = m_resourceValueList[i];
-      assertTrue_2(spec.nameExp->getValue(resValue.name),
-                   "Resource name expression has unknown or invalid value");
-      assertTrue_2(spec.priorityExp->getValue(resValue.priority),
-                   "Resource priority expression has unknown or invalid value");
+      checkPlanError(spec.nameExp->getValue(resValue.name),
+                     "Command resource name expression has unknown or invalid value");
+      checkPlanError(spec.priorityExp->getValue(resValue.priority),
+                     "Command resource priority expression has unknown or invalid value");
 
       if (spec.lowerBoundExp) {
-        assertTrue_2(spec.lowerBoundExp->getValue(resValue.lowerBound),
-                     "Resource lower bound expression has unknown or invalid value");
+        checkPlanError(spec.lowerBoundExp->getValue(resValue.lowerBound),
+                       "Command resource lower bound expression has unknown or invalid value");
       }
       else
         resValue.lowerBound = 1.0;
 
       if (spec.upperBoundExp) {
-        assertTrue_2(spec.upperBoundExp->getValue(resValue.upperBound),
-                     "Resource upper bound expression has unknown or invalid value");
+        checkPlanError(spec.upperBoundExp->getValue(resValue.upperBound),
+                       "Command resource upper bound expression has unknown or invalid value");
       }
       else 
         resValue.upperBound = 1.0;
 
       if (spec.releaseAtTermExp) {
-        assertTrue_2(spec.releaseAtTermExp->getValue(resValue.releaseAtTermination),
-                     "Resource lower bound expression has unknown or invalid value");
+        checkPlanError(spec.releaseAtTermExp->getValue(resValue.releaseAtTermination),
+                       "Command resource lower bound expression has unknown or invalid value");
       }
       else
         resValue.releaseAtTermination = true;
@@ -231,8 +229,8 @@ namespace PLEXIL
   // more error checking here
   void Command::activate()
   {
-    assertTrue_1(!m_active);
-    assertTrue_1(m_nameExpr);
+    check_error_1(!m_active);
+    check_error_1(m_nameExpr);
     m_nameExpr->activate();
     m_ack.activate();
     m_abortComplete.activate();
@@ -249,7 +247,7 @@ namespace PLEXIL
 
   void Command::execute()
   {
-    assertTrue_1(m_active);
+    check_error_1(m_active);
     fixValues();
     fixResourceValues();
     g_interface->enqueueCommand(this);
@@ -259,7 +257,8 @@ namespace PLEXIL
   {
     if (!m_active)
       return;
-    assertTrue_1(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX);
+    checkInterfaceError(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX,
+                        "Invalid command handle value");
     m_commandHandle = handle;
     m_ack.valueChanged();
   }
@@ -273,7 +272,7 @@ namespace PLEXIL
 
   void Command::abort()
   {
-    assertTrue_1(m_active);
+    check_error_1(m_active);
     // Handle stupid unit test
     if (g_interface) {
       g_interface->abortCommand(this);
@@ -290,7 +289,7 @@ namespace PLEXIL
 
   void Command::deactivate() 
   {
-    assertTrue_1(m_active);
+    check_error_1(m_active);
     m_active = false;
     if (m_commandHandle != COMMAND_DENIED)
       g_interface->getResourceArbiter()->releaseResourcesForCommand(this);

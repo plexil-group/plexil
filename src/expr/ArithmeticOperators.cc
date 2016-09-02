@@ -25,7 +25,7 @@
 */
 
 #include "ArithmeticOperators.hh"
-// #include "Error.hh" // included by OperatorImpl.hh
+// #include "PlanError.hh" // included by OperatorImpl.hh
 #include "Expression.hh"
 #include "ExprVec.hh"
 
@@ -141,7 +141,8 @@ namespace PLEXIL
   bool Subtraction<NUM>::calc(NUM &result,
                               ExprVec const &args) const
   {
-    assertTrue_1(args.size() > 0); // must be at least one
+    checkPlanError(args.size() > 0,
+                   this->getName() << " requires at least one operand");
     NUM temp;
     if (!args[0]->getValue(temp))
       return false;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "ArrayReference.hh"
 #include "Array.hh"
-#include "Error.hh"
+#include "PlanError.hh"
 #include "UserVariable.hh"
 
 namespace PLEXIL
@@ -42,11 +42,6 @@ namespace PLEXIL
       m_indexIsGarbage(idxIsGarbage),
       m_namePtr(new std::string())
   {
-    assertTrue_2(ary && idx,
-                 "ArrayReference constructor: Null subexpression");
-
-    // TODO:
-    // Check type of array, index
     m_array->addListener(this);
     m_index->addListener(this);
   }
@@ -137,20 +132,14 @@ namespace PLEXIL
     int32_t idxTemp;
     if (!m_index->getValue(idxTemp))
       return false; // index is unknown
-    if (idxTemp < 0) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index is negative");
-      return false;
-    }
+    checkPlanError(idxTemp >= 0, "Array index " << idxTemp << " is negative");
     idx = (size_t) idxTemp;
     if (!m_array->getValuePointer(valuePtr))
       return false; // array unknown or invalid
     std::vector<bool> const &kv = valuePtr->getKnownVector();
-    if (idx >= kv.size()) {
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Array index " << idx
-                    << " equals or exceeds array size " << kv.size());
-      return false; // unallocated implies unknown
-    }
+    checkPlanError(idx < kv.size(),
+                   "Array index " << idx
+                   << " equals or exceeds array size " << kv.size());
     return kv[idx];
   }
 
@@ -234,8 +223,8 @@ namespace PLEXIL
       m_mutableArray(ary->asAssignable()),
       m_saved(false)
   {
-    assertTrue_2(ary->isAssignable(),
-                 "MutableArrayReference: Not a writable array");
+    checkPlanError(ary->isAssignable(),
+                   "Can't create a writeable array reference on an In array");
   }
 
   MutableArrayReference::~MutableArrayReference()
@@ -267,19 +256,14 @@ namespace PLEXIL
     int32_t idxTemp;
     if (!ArrayReference::m_index->getValue(idxTemp))
       return false; // index is unknown
-    if (idxTemp < 0) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index is negative");
-      return false;
-    }
+    checkPlanError(idxTemp >= 0,
+                   "Array index " << idxTemp << " is negative");
     idx = (size_t) idxTemp;
     if (!m_mutableArray->getMutableValuePointer(valuePtr))
       return false; // array unknown
-    if (idx >= valuePtr->size()) {
-      assertTrueMsg(ALWAYS_FAIL,
-                    "ArrayReference: Array index " << idx
-                    << " equals or exceeds array size " << valuePtr->size());
-      return false;
-    }
+    checkPlanError(idx < valuePtr->size(),
+                   "Array index " << idx
+                   << " equals or exceeds array size " << valuePtr->size());
     return true;
   }
 
@@ -331,7 +315,9 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue(Integer): array type error");
+      checkPlanError(ALWAYS_FAIL,
+                     "Can't assign an Integer value to element of a "
+                     << valueTypeName(m_array->valueType()));
       return;
     }
     if (changed) {
@@ -399,22 +385,26 @@ namespace PLEXIL
 
   void MutableArrayReference::setValue(BooleanArray const &value)
   {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a BooleanArray to an array element");
   }
 
   void MutableArrayReference::setValue(IntegerArray const &value)
   {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign an IntegerArray to an array element");
   }
 
   void MutableArrayReference::setValue(RealArray const &value)
   {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a RealArray to an array element");
   }
 
   void MutableArrayReference::setValue(StringArray const &value)
   {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a StringArray to an array element");
   }
 
   void MutableArrayReference::setUnknown()

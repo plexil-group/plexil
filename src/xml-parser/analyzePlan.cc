@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 
   try {
     // Initialize infrastructure
-    Error::doThrowExceptions();
+    PLEXIL::Error::doThrowExceptions();
     PLEXIL::initializeExpressions();
     PLEXIL::TransitionExternalInterface intfc;
     PLEXIL::g_interface = &intfc;
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
     std::cout << "Aborted." << std::endl;
     return 1;
   }
-  catch (Error const &e) {
+  catch (PLEXIL::Error const &e) {
     std::cerr << "Aborting due to error:\n" << e << std::endl;
     std::cout << "Aborted." << std::endl;
     return 1;

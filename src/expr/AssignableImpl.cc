@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,8 @@
 */
 
 #include "AssignableImpl.hh"
-#include "Error.hh"
+#include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -113,20 +114,28 @@ namespace PLEXIL
   template <typename U>
   void AssignableImpl<T>::setValueImpl(U const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a " << valueTypeName(PlexilValueType<U>::value)
+                   << " value to a " << valueTypeName(PlexilValueType<T>::value)
+                   << " expression");
   }
 
   template <typename U>
   void AssignableImpl<std::string>::setValueImpl(U const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a " << valueTypeName(PlexilValueType<U>::value)
+                   << " value to a String expression");
   }
 
   template <typename T>
   template <typename U>
   void AssignableImpl<ArrayImpl<T> >::setValueImpl(U const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a " << valueTypeName(PlexilValueType<U>::value)
+                   << " value to a " << valueTypeName(PlexilValueType<T>::arrayValue)
+                   << " expression");
   }
 
   // Conversions
@@ -147,13 +156,19 @@ namespace PLEXIL
   template <typename T>
   void AssignableImpl<T>::setValueImpl(char const * /* val */)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a character string value to a "
+                   << valueTypeName(PlexilValueType<T>::value)
+                   << " expression");
   }
 
   template <typename T>
   void AssignableImpl<ArrayImpl<T> >::setValueImpl(char const * /* val */)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't assign a character string value to a "
+                   << valueTypeName(PlexilValueType<T>::arrayValue)
+                   << " expression");
   }
 
   //
@@ -164,14 +179,22 @@ namespace PLEXIL
   template <typename U>
   bool AssignableImpl<T>::getMutableValuePointerImpl(U *& ptr)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   this->getName() << ": Attempt to get "
+                   << valueTypeName(PlexilValueType<U>::value)
+                   << " reference from a "
+                   << valueTypeName(PlexilValueType<T>::value)
+                   << " expression");
     return false;
   }
 
   template <typename U>
   bool AssignableImpl<std::string>::getMutableValuePointerImpl(U *& ptr)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   this->getName() << ": Attempt to get "
+                   << valueTypeName(PlexilValueType<U>::value)
+                   << " reference from a String expression");
     return false;
   }
 
@@ -179,7 +202,12 @@ namespace PLEXIL
   template <typename U>
   bool AssignableImpl<ArrayImpl<T> >::getMutableValuePointerImpl(U *& ptr)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   this->getName() << ": Attempt to get "
+                   << valueTypeName(PlexilValueType<U>::value)
+                   << " reference from a "
+                   << valueTypeName(PlexilValueType<T>::arrayValue)
+                   << " expression");
     return false;
   }
 

@@ -54,7 +54,7 @@ void runTests()
   g_symbolTable = PLEXIL::makeSymbolTable();
 
   // Initialize infrastructure
-  Error::doThrowExceptions();
+  PLEXIL::PlanError::doThrowExceptions();
 
   // Expressions
   runTestSuite(constantXmlParserTest);

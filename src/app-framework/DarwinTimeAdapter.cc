@@ -36,7 +36,7 @@
 #include "DarwinTimeAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
-#include "Error.hh"
+#include "InterfaceError.hh"
 #include "TimeAdapter.hh"
 #include "timeval-utils.hh"
 #include <cerrno>
@@ -80,11 +80,12 @@ namespace PLEXIL
    * @return A double representing the current time.
    */
   double DarwinTimeAdapter::getCurrentTime()
+    throw (InterfaceError)
   {
     timeval tv;
     int status = gettimeofday(&tv, NULL);
-    assertTrueMsg(status == 0,
-                  "TimeAdapter:getCurrentTime: gettimeofday() failed, errno = " << errno);
+    checkInterfaceError(status == 0,
+                        "getCurrentTime: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
@@ -124,6 +125,7 @@ namespace PLEXIL
    * @return True if the timer was set, false if clock time had already passed the wakeup time.
    */
   bool DarwinTimeAdapter::setTimer(double date)
+    throw (InterfaceError)
   {
     // Convert to timeval
     timeval dateval = doubleToTimeval(date);
@@ -131,8 +133,8 @@ namespace PLEXIL
     // Get the current time
     timeval now;
     int status = gettimeofday(&now, NULL);
-    assertTrueMsg(status == 0,
-                  "TimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
+    checkInterfaceError(status == 0,
+                        "TimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
 
     // Compute the interval
     itimerval myItimerval = {{0, 0}, {0, 0}};
@@ -145,8 +147,8 @@ namespace PLEXIL
     }
 
     // Set the timer 
-    assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
-                  "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
+    checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
+                        "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
              " timer set for " << std::setprecision(15) << date);
     return true;

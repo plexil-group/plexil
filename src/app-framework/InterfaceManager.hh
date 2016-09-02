@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -241,13 +241,17 @@ namespace PLEXIL
      */
     void handleValueChange(const State& state, const Value& value);
 
-    void handleCommandReturn(Command * cmd, Value const& value);
+    void handleCommandReturn(Command * cmd, Value const& value)
+      throw (InterfaceError);
 
-    void handleCommandAck(Command * cmd, CommandHandleValue value);
+    void handleCommandAck(Command * cmd, CommandHandleValue value)
+      throw (InterfaceError);
 
-    void handleCommandAbortAck(Command * cmd, bool ack);
+    void handleCommandAbortAck(Command * cmd, bool ack)
+      throw (InterfaceError);
 
-    void handleUpdateAck(Update * upd, bool ack);
+    void handleUpdateAck(Update * upd, bool ack)
+      throw (InterfaceError);
 
     /**
      * @brief Notify the executive of a new plan.

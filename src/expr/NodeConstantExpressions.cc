@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ namespace PLEXIL
   NodeStateConstant::NodeStateConstant(NodeState value)
     : Constant<uint16_t>((uint16_t) value)
   {
-    assertTrue_2(isNodeStateValid(value), "NodeStateConstant constuctor: Invalid NodeState value");
   }
 
   NodeStateConstant::~NodeStateConstant()
@@ -73,7 +72,6 @@ namespace PLEXIL
   NodeOutcomeConstant::NodeOutcomeConstant(NodeOutcome value)
     : Constant<uint16_t>((uint16_t) value)
   {
-    assertTrue_2(isNodeOutcomeValid(value), "NodeOutcomeConstant constuctor: Invalid NodeOutcome value");
   }
 
   NodeOutcomeConstant::~NodeOutcomeConstant()
@@ -104,7 +102,6 @@ namespace PLEXIL
   FailureTypeConstant::FailureTypeConstant(FailureType value)
     : Constant<uint16_t>((uint16_t) value)
   {
-    assertTrue_2(isFailureTypeValid(value), "FailureTypeConstant constuctor: Invalid FailureType value");
   }
 
   FailureTypeConstant::~FailureTypeConstant()

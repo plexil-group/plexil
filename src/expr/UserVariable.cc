@@ -31,8 +31,9 @@
 #include "UserVariable.hh"
 
 #include "Constant.hh"
-#include "Error.hh"
 #include "ExpressionConstants.hh"
+#include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 #include <cstdlib> // free()
@@ -452,9 +453,11 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::setInitializer(Expression *expr, bool garbage)
   {
-    assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
-    assertTrue_2(expr->valueType() == this->valueType() || expr->valueType() == UNKNOWN_TYPE,
-                 "Initializer type differs from variable's");
+    checkPlanError(expr->valueType() == PlexilValueType<T>::value
+                   || expr->valueType() == UNKNOWN_TYPE,
+                   "Variable " << this->getName()
+                   << " of type " << valueTypeName(PlexilValueType<T>::value)
+                   << " cannot have initializer of type " << valueTypeName(expr->valueType()));
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
   }
@@ -462,20 +465,22 @@ namespace PLEXIL {
   template <>
   void UserVariable<double>::setInitializer(Expression *expr, bool garbage)
   {
-    assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
-    assertTrue_2(expr->valueType() == REAL_TYPE
-                 || expr->valueType() == INTEGER_TYPE
-                 || expr->valueType() == UNKNOWN_TYPE,
-                 "Initializer type differs from variable's");
+    checkPlanError(expr->valueType() == REAL_TYPE
+                   || expr->valueType() == INTEGER_TYPE
+                   || expr->valueType() == UNKNOWN_TYPE,
+                   "Variable " << this->getName()
+                   << " of type Real cannot have initializer of type "
+                   << valueTypeName(expr->valueType()));
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
   }
 
   void UserVariable<std::string>::setInitializer(Expression *expr, bool garbage)
   {
-    assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
-    assertTrue_2(expr->valueType() == STRING_TYPE || expr->valueType() == UNKNOWN_TYPE,
-                 "Initializer type differs from variable's");
+    checkPlanError(expr->valueType() == STRING_TYPE || expr->valueType() == UNKNOWN_TYPE,
+                   "Variable " << this->getName()
+                   << " of type String cannot have initializer of type "
+                   << valueTypeName(expr->valueType()));
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
   }

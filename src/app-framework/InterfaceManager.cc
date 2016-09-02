@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
 #include "CachedValue.hh"
 #include "Command.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecListenerHub.hh"
 #include "InputQueue.hh"
@@ -198,7 +197,7 @@ namespace PLEXIL
           // FIXME: assumes time is a double
           double newValue;
           bool known = entry->value.getValue(newValue);
-          assertTrue_2(known, "Time cannot be unknown");
+          checkInterfaceError(known, "Time cannot be unknown");
 #if PARANOID_ABOUT_TIME_DIRECTION
           assertTrue_2(newValue >= m_currentTime, "Time is going backwards!");
 #endif
@@ -342,15 +341,19 @@ namespace PLEXIL
     // update internal idea of time if required
     if (state == State::timeState()) {
       CachedValue const *val = cacheEntry.cachedValue();
-      assertTrue_2(val, "Time is unknown");
+      assertTrue_2(val, "Internal error: No cached value for 'time' state");
       double newTime; // FIXME
-      assertTrue_2(val->getValue(newTime), "Time is unknown");
+      if (!val->getValue(newTime)) {
+        checkInterfaceError(ALWAYS_FAIL, "Time is unknown");
+      }
+      else {
 #if PARANOID_ABOUT_TIME_DIRECTION
-      assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
+        assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
 #endif
-      debugMsg("InterfaceManager:lookupNow",
-               " setting current time to " << std::setprecision(15) << newTime);
-      m_currentTime = newTime;
+        debugMsg("InterfaceManager:lookupNow",
+                 " setting current time to " << std::setprecision(15) << newTime);
+        m_currentTime = newTime;
+      }
     }
   }
 
@@ -515,10 +518,13 @@ namespace PLEXIL
 
   void
   InterfaceManager::handleCommandAck(Command * cmd, CommandHandleValue value)
+    throw (InterfaceError)
   {
-    assertTrue_1(cmd);
-    assertTrue_1(value > NO_COMMAND_HANDLE && value < COMMAND_HANDLE_MAX);
     assertTrue_1(m_inputQueue);
+    checkInterfaceError(cmd,
+                        "handleCommandAck: null command");
+    checkInterfaceError(value > NO_COMMAND_HANDLE && value < COMMAND_HANDLE_MAX,
+                        "handleCommandAck: invalid command handle value");
     debugMsg("InterfaceManager:handleCommandAck",
              " for command " << cmd->getCommand()
              << ", handle = " << commandHandleValueName(value));
@@ -530,9 +536,11 @@ namespace PLEXIL
 
   void
   InterfaceManager::handleCommandReturn(Command * cmd, Value const &value)
+    throw (InterfaceError)
   {
-    assertTrue_1(cmd);
     assertTrue_1(m_inputQueue);
+    checkInterfaceError(cmd,
+                        "handleCommandReturn: null command");
     debugMsg("InterfaceManager:handleCommandReturn",
              " for command " << cmd->getCommand()
              << ", value = " << value);
@@ -544,9 +552,11 @@ namespace PLEXIL
 
   void
   InterfaceManager::handleCommandAbortAck(Command * cmd, bool ack)
+    throw (InterfaceError)
   {
-    assertTrue_1(cmd);
     assertTrue_1(m_inputQueue);
+    checkInterfaceError(cmd,
+                        "handleCommandAbortAck: null command");
     debugMsg("InterfaceManager:handleCommandAbortAck",
              " for command " << cmd->getCommand()
              << ", ack = " << (ack ? "true" : "false"));
@@ -558,9 +568,11 @@ namespace PLEXIL
 
   void
   InterfaceManager::handleUpdateAck(Update * upd, bool ack)
+    throw (InterfaceError)
   {
-    assertTrue_1(upd);
     assertTrue_1(m_inputQueue);
+    checkInterfaceError(upd,
+                        "handleUpdateAck: null update");
     debugMsg("InterfaceManager:handleUpdateAck",
              " for node " << upd->getSource()->getNodeId()
              << ", ack = " << (ack ? "true" : "false"));

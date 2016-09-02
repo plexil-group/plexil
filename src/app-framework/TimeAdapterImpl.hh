@@ -138,7 +138,7 @@ namespace PLEXIL
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    virtual bool setTimer(double date) = 0;
+    virtual bool setTimer(double date) throw (InterfaceError) = 0;
 
     /**
      * @brief Stop the timer.

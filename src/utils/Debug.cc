@@ -95,19 +95,6 @@ namespace PLEXIL
   static bool debugInited = false;
 
   //
-  // Errors specific to debug message facility
-  //
-
-  class DebugErr
-  {
-  public:
-    DECLARE_ERROR(DebugConfigError);
-    DECLARE_ERROR(DebugInternalError);
-    DECLARE_ERROR(DebugMessageError);
-    DECLARE_ERROR(DebugMemoryError);
-  };
-
-  //
   // Structure definitions
   //
 
@@ -143,9 +130,8 @@ namespace PLEXIL
         pattern(strdup(m)),
         next(NULL)
     {
-      assertTrue_3(file && pattern,
-                   "DebugPattern constructor: not enough memory to copy argument strings",
-                   DebugErr::DebugMemoryError());
+      assertTrue_2(file && pattern,
+                   "DebugPattern constructor: not enough memory to copy argument strings");
     }
 
     /**
@@ -239,10 +225,10 @@ namespace PLEXIL
    */
   static bool markerMatches(char const *marker, char const *pattern) 
   {
-    assertTrue_3(marker, "markerMatches: Null marker", DebugErr::DebugInternalError());
+    assertTrue_2(marker, "markerMatches: Null marker");
     if (!*marker)
       return true;
-    assertTrue_3(pattern, "markerMatches: Null pattern", DebugErr::DebugInternalError());
+    assertTrue_2(pattern, "markerMatches: Null pattern");
     if (!*pattern)
       return true;
     char const *result = strstr(marker, pattern);
@@ -280,9 +266,8 @@ namespace PLEXIL
 
     ensureDebugInited();
 
-    assertTrue_3(is.good(),
-                 "Cannot read debug configuration from invalid/error'd stream",
-                 DebugErr::DebugConfigError());
+    assertTrue_2(is.good(),
+                 "Cannot read debug configuration from invalid/error'd stream");
 
     while (is.good() && !is.eof()) {
       string input;
@@ -319,9 +304,8 @@ namespace PLEXIL
       enableMatchingDebugMessages(content.c_str(), pattern.c_str());
     }
 
-    assertTrue_3(is.eof(),
-                 "I/O error while reading debug configuration file",
-                 DebugErr::DebugConfigError());
+    assertTrue_2(is.eof(),
+                 "I/O error while reading debug configuration file");
     return is.eof();
   }
 
@@ -349,8 +333,8 @@ namespace PLEXIL
   void enableMatchingDebugMessages(char const *file,
                                    char const *pattern)
   {
-    assertTrue_3(file, "enableMatchingDebugMessages: Null file string", DebugErr::DebugInternalError());
-    assertTrue_3(pattern, "enableMatchingDebugMessages: Null marker string", DebugErr::DebugInternalError());
+    assertTrue_2(file, "enableMatchingDebugMessages: Null file string");
+    assertTrue_2(pattern, "enableMatchingDebugMessages: Null marker string");
     if (allEnabled)
       return; // nothing to do
 
@@ -373,20 +357,17 @@ namespace PLEXIL
 
   std::ostream &getDebugOutputStream()
   {
-    assertTrue_3(debugStream && debugStream->good(),
-                 "Null or invalid debug output stream",
-                 DebugErr::DebugInternalError());
+    assertTrue_2(debugStream && debugStream->good(),
+                 "Null or invalid debug output stream");
     return *debugStream;
   }
 
   DebugMessage *addDebugMessage(char const *file, char const *marker)
   {
-    assertTrue_3(file && *file,
-                 "addDebugMessage: Null or empty file string",
-                 DebugErr::DebugInternalError());
-    assertTrue_3(marker && *marker,
-                 "addDebugMessage: Null or empty marker string",
-                 DebugErr::DebugInternalError());
+    assertTrue_2(file && *file,
+                 "addDebugMessage: Null or empty file string");
+    assertTrue_2(marker && *marker,
+                 "addDebugMessage: Null or empty marker string");
 
     ensureDebugInited();
     DebugMessage *result = findDebugMessage(file, marker);

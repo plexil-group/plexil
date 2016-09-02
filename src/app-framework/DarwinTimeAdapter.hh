@@ -29,6 +29,8 @@
 
 #include "TimeAdapterImpl.hh"
 
+#include "InterfaceError.hh"
+
 namespace PLEXIL
 {
 
@@ -63,7 +65,7 @@ namespace PLEXIL
      * @brief Get the current time from the operating system.
      * @return A double representing the current time.
      */
-    double getCurrentTime();
+    double getCurrentTime() throw (InterfaceError);
 
   protected:
 
@@ -84,7 +86,7 @@ namespace PLEXIL
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    virtual bool setTimer(double date);
+    virtual bool setTimer(double date) throw (InterfaceError);
 
     /**
      * @brief Stop the timer.

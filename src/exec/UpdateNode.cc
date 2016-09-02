@@ -111,7 +111,6 @@ namespace PLEXIL
 
   void UpdateNode::setUpdate(Update *upd)
   {
-    assertTrue_1(upd);
     m_update = upd;
 
     // Get action-complete condition
@@ -333,7 +332,6 @@ namespace PLEXIL
 
   void UpdateNode::specializedDeactivateExecutable()
   {
-    assertTrue_1(m_update);
     m_update->deactivate();
   }
 

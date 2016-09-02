@@ -28,6 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -57,54 +58,24 @@ namespace PLEXIL
   template <typename T>
   const ValueType ExpressionImpl<T>::valueType() const
   {
-    return UNKNOWN_TYPE;
+    return PlexilValueType<T>::value;
+  }
+
+  template <typename T>
+  const ValueType ExpressionImpl<ArrayImpl<T> >::valueType() const
+  {
+    return PlexilValueType<T>::arrayValue;
   }
 
   template <>
-  const ValueType ExpressionImpl<bool>::valueType() const
+  const ValueType ExpressionImpl<uint16_t>::valueType() const
   {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  const ValueType ExpressionImpl<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  const ValueType ExpressionImpl<double>::valueType() const
-  {
-    return REAL_TYPE;
+    return UNKNOWN_TYPE; // multiple possibilities
   }
 
   const ValueType ExpressionImpl<std::string>::valueType() const
   {
     return STRING_TYPE;
-  }
-
-  template <>
-  const ValueType ExpressionImpl<BooleanArray>::valueType() const
-  {
-    return BOOLEAN_ARRAY_TYPE;
-  }
-
-  template <>
-  const ValueType ExpressionImpl<IntegerArray>::valueType() const
-  {
-    return INTEGER_ARRAY_TYPE;
-  }
-
-  template <>
-  const ValueType ExpressionImpl<RealArray>::valueType() const
-  {
-    return REAL_ARRAY_TYPE;
-  }
-
-  template <>
-  const ValueType ExpressionImpl<StringArray>::valueType() const
-  {
-    return STRING_ARRAY_TYPE;
   }
 
   /**

@@ -26,7 +26,7 @@
 
 #include "ArrayVariable.hh"
 #include "Constant.hh"
-#include "Error.hh"
+#include "PlanError.hh"
 
 #include <cstdlib> // free()
 #include <cstring> // strdup()
@@ -97,6 +97,7 @@ namespace PLEXIL
     if (m_sizeIsGarbage)
       delete m_size;
   }
+
   //
   // Essential Expression API
   //
@@ -149,7 +150,8 @@ namespace PLEXIL
     if (m_size) {
       int32_t specSize;
       if (m_size->getValue(specSize)) {
-        assertTrue_2(specSize >= 0, "Array initialization: Negative array size illegal");
+        checkPlanError(specSize >= 0,
+                       "Negative array size " << specSize << " for array " << this->getName());
         m_maxSize = (size_t) specSize;
       }
     }
@@ -160,12 +162,14 @@ namespace PLEXIL
         // Else use the length of the initializer
         size_t size = valuePtr->size();
         if (m_size) {
-          assertTrueMsg(size <= m_maxSize, "Array initialization: Initial value is larger than max size");
+          checkPlanError(size <= m_maxSize,
+                         "Initial value for " << this->getName()
+                         << " is larger than declared max size " << m_size);
         }
         m_value = *valuePtr;
+        m_known = true;
         if (m_size && size < m_maxSize)
           m_value.resize(m_maxSize);
-        m_known = true;
       }
     }
     else {
@@ -198,8 +202,9 @@ namespace PLEXIL
   {
     bool changed = !m_known || value != m_value;
     size_t newSize = value.size();
-    assertTrue_2(!m_size || newSize <= m_maxSize,
-                 "ArrayVariable::setValue: New value is bigger than array declared size");
+    checkPlanError(!m_size || newSize <= m_maxSize,
+                   "New value of array variable " << this->getName()
+                   << " is bigger than max size " << m_maxSize);
     m_value = value;
     m_known = true;
     // TODO: find more efficient way to handle arrays smaller than max
@@ -287,15 +292,21 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::setInitializer(Expression *expr, bool garbage)
   {
-    assertTrue_2(!m_initializer, "setInitializer() called on an array variable that already has an initializer");
-    assertTrueMsg(expr->valueType() == this->valueType() || expr->valueType() == UNKNOWN_TYPE,
-                  "Array variable type, " << valueTypeName(this->valueType())
-                  << ", differs from initializer's type, " << valueTypeName(expr->valueType()));
+    // is check really needed?
+    assertTrue_2(!m_initializer,
+                 "setInitializer() called on an array variable that already has an initializer");
+    checkPlanError(expr->valueType() == this->valueType()
+                   || expr->valueType() == UNKNOWN_TYPE,
+                   "Type of array variable " << this->getName()
+                   << ", " << valueTypeName(this->valueType())
+                   << ", differs from initializer's type, "
+                   << valueTypeName(expr->valueType()));
     int32_t size;
     ArrayImpl<T> const *temp;
     if (m_size && m_size->getValue(size) && expr->getValuePointer(temp))
-      assertTrue_2(size >= temp->size(),
-                   "Array variable initial value is larger than declared array size");
+      checkPlanError(size >= temp->size(),
+                     "Array variable " << this->getName()
+                     << " initial value is larger than declared array size " << size);
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
   }

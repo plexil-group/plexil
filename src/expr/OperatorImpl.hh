@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,9 @@
 
 #include "Operator.hh"
 
-#include "Error.hh"
 #include "ExprVec.hh"
+#include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -208,21 +209,36 @@ namespace PLEXIL
     template <typename U>
     bool calc(U & /* result */, Expression const */* arg */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     this->getName() << ": Attempt to get "
+                     << valueTypeName(PlexilValueType<U>::value)
+                     << " result from a "
+                     << valueTypeName(PlexilValueType<R>::value)
+                     << " expression");
       return false;
     }
 
     template <typename U>
     bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     this->getName() << ": Attempt to get "
+                     << valueTypeName(PlexilValueType<U>::value)
+                     << " result from a "
+                     << valueTypeName(PlexilValueType<R>::value)
+                     << " expression");
       return false;
     }
 
     template <typename U>
     bool calc(U & /* result */, ExprVec const & /* args */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     this->getName() << ": Attempt to get "
+                     << valueTypeName(PlexilValueType<U>::value)
+                     << " result from a "
+                     << valueTypeName(PlexilValueType<R>::value)
+                     << " expression");
       return false;
     }
 
@@ -285,21 +301,36 @@ namespace PLEXIL
     template <typename U>
     bool calc(U & /* result */, Expression const */* arg */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     this->getName() << ": Attempt to get "
+                     << valueTypeName(PlexilValueType<U>::value)
+                     << " result from "
+                     << valueTypeName(PlexilValueType<R>::arrayValue)
+                     << " expression");
       return false;
     }
 
     template <typename U>
     bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     this->getName() << ": Attempt to get "
+                     << valueTypeName(PlexilValueType<U>::value)
+                     << " result from "
+                     << valueTypeName(PlexilValueType<R>::arrayValue)
+                     << " expression");
       return false;
     }
 
     template <typename U>
     bool calc(U & /* result */, ExprVec const & /* args */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     this->getName() << ": Attempt to get "
+                     << valueTypeName(PlexilValueType<U>::value)
+                     << " result from "
+                     << valueTypeName(PlexilValueType<R>::arrayValue)
+                     << " expression");
       return false;
     }
 

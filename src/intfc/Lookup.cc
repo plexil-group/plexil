@@ -29,9 +29,9 @@
 #include "ArrayImpl.hh"
 #include "CachedValue.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh" // for timestamp access
+#include "PlanError.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 
@@ -53,7 +53,6 @@ namespace PLEXIL
       m_stateNameIsGarbage(stateNameIsGarbage),
       m_isRegistered(false)
   {
-    assertTrue_2(stateName, "Lookup constructor: Null state name expression");
     if (!m_stateName->isConstant()) {
       m_stateName->addListener(this);
       m_stateIsConstant = false;
@@ -71,12 +70,9 @@ namespace PLEXIL
     
     // If all expressions are constants, cache state now
     if (m_stateIsConstant) {
-      if (getState(m_cachedState))
-        m_stateKnown = true;
-      else {
-        // This is a plan error, don't assert
-        warn("Lookup: State is constant but state name or some parameter is unknown");
-      }
+      checkPlanError(getState(m_cachedState),
+                     "Error in Lookup: State is constant but state name or some parameter is unknown");
+      m_stateKnown = true;
     }
   }
 
@@ -595,11 +591,6 @@ namespace PLEXIL
       m_toleranceIsGarbage(toleranceIsGarbage)
   {
     debugMsg("LookupOnChange", " constructor");
-    // Check that tolerance is of compatible type
-    assertTrue_2(tolerance,
-                 "LookupOnChange constructor: no tolerance expression supplied");
-    assertTrue_2(isNumericType(tolerance->valueType()),
-                 "LookupOnChange constructor: tolerance expression is not numeric");
     if (!m_tolerance->isConstant())
       m_tolerance->addListener(this);
   }

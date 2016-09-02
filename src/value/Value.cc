@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,8 @@
 
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
-#include "Error.hh"
 #include "NodeConstants.hh"
+#include "PlanError.hh"
 
 namespace PLEXIL
 {
@@ -177,16 +177,17 @@ namespace PLEXIL
       else if (eltType == INTEGER_TYPE && itype == REAL_TYPE)
         eltType = itype; // promote int to real
       else if (eltType != itype) {
-        assertTrue_2(ALWAYS_FAIL, "Value constructor: Inconsistent value types in vector");
+        checkPlanError(ALWAYS_FAIL,
+                       "Value constructor: Inconsistent value types in vector");
         m_known = false;
       }
       // else type is consistent
     }
 
-    assertTrue_2(eltType != UNKNOWN_TYPE,
-                 "Value constructor: Can't make array of all unknowns");
-    assertTrue_2(eltType < SCALAR_TYPE_MAX,
-                 "Value constructor: Can't make array of arrays");
+    checkPlanError(eltType != UNKNOWN_TYPE,
+                   "Value constructor: Can't make array of all unknowns");
+    checkPlanError(eltType < SCALAR_TYPE_MAX,
+                   "Value constructor: Can't make array of arrays");
 
     // Construct array value
     switch (eltType) {
@@ -440,10 +441,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != BOOLEAN_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
-      return false;
-    }
+    checkPlanError(m_type == BOOLEAN_TYPE,
+                   "Attempt to get Boolean value of a "
+                   << valueTypeName(m_type) << " Value");
     result = m_value.booleanValue;
     return true;
   }
@@ -462,7 +462,9 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      checkPlanError(ALWAYS_FAIL,
+                     "Attempt to get a PLEXIL internal value from a "
+                     << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -471,10 +473,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != INTEGER_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
-      return false;
-    }
+    checkPlanError(m_type == INTEGER_TYPE,
+                   "Attempt to get an Integer value from a "
+                   << valueTypeName(m_type) << " Value");
     result = m_value.integerValue;
     return true;
   }
@@ -493,7 +494,9 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      checkPlanError(ALWAYS_FAIL,
+                     "Attempt to get a Real value from a "
+                     << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -502,10 +505,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != STRING_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
-      return false;
-    }
+    checkPlanError(m_type == STRING_TYPE,
+                   "Attempt to get a String value from a "
+                   << valueTypeName(m_type) << " Value");
     result = *m_value.stringValue;
     return true;
   }
@@ -514,10 +516,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != STRING_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
-      return false;
-    }
+    checkPlanError(m_type == STRING_TYPE,
+                   "Attempt to get a String value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = m_value.stringValue;
     return true;
   }
@@ -535,7 +536,9 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
+      checkPlanError(ALWAYS_FAIL,
+                     "Attempt to get an Array value from a "
+                     << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -544,10 +547,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != BOOLEAN_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
-      return false;
-    }
+    checkPlanError(m_type == BOOLEAN_ARRAY_TYPE,
+                   "Attempt to get a BooleanArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<BooleanArray const *>(m_value.arrayValue);
     assertTrue_1(ptr);
     return true;
@@ -557,10 +559,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != INTEGER_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
-      return false;
-    }
+    checkPlanError(m_type == INTEGER_ARRAY_TYPE,
+                   "Attempt to get a IntegerArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<IntegerArray const *>(m_value.arrayValue);
     assertTrue_1(ptr);
     return true;
@@ -570,10 +571,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != REAL_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
-      return false;
-    }
+    checkPlanError(m_type == REAL_ARRAY_TYPE,
+                   "Attempt to get a RealArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<RealArray const *>(m_value.arrayValue);
     assertTrue_1(ptr);
     return true;
@@ -583,10 +583,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != STRING_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
-      return false;
-    }
+    checkPlanError(m_type == STRING_ARRAY_TYPE,
+                   "Attempt to get a StringArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<StringArray const *>(m_value.arrayValue);
     assertTrue_1(ptr);
     return true;

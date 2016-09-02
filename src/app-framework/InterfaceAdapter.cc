@@ -30,7 +30,6 @@
 #include "Command.hh"
 #include "Update.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "StateCacheEntry.hh"
 
 namespace PLEXIL
@@ -64,52 +63,47 @@ namespace PLEXIL
 
   //
   // Default methods for InterfaceManager API
+  // All are no-ops
   //
 
   void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry &cacheEntry)
   {
-    warn("InterfaceAdapter::lookupNow: default method called for state " << state);
-    cacheEntry.setUnknown();
+    debugMsg("InterfaceAdapter:lookupNow", " default method called for state " << state);
   }
 
-  void InterfaceAdapter::subscribe(const State& /* state */)
+  void InterfaceAdapter::subscribe(const State& state)
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "InterfaceAdapter::subscribe: default method called!");
+    debugMsg("InterfaceAdapter:subscribe", " default method called for state " << state);
   }
 
-  void InterfaceAdapter::unsubscribe(const State& /* state */)
+  void InterfaceAdapter::unsubscribe(const State& state)
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "InterfaceAdapter::unsubscribe: default method called!");
+    debugMsg("InterfaceAdapter:unsubscribe", " default method called for state " << state);
   }
 
-  void InterfaceAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
+  void InterfaceAdapter::setThresholds(const State& state, double /* hi */, double /* lo */)
   {
-    debugMsg("InterfaceAdapter:setThresholds", " default method called");
+    debugMsg("InterfaceAdapter:setThresholds", " default method called for state " << state);
   }
 
-  void InterfaceAdapter::setThresholds(const State& /* state */, int32_t /* hi */, int32_t /* lo */)
+  void InterfaceAdapter::setThresholds(const State& state, int32_t /* hi */, int32_t /* lo */)
   {
     debugMsg("InterfaceAdapter:setThresholds", " default method called");
   }
 
   void InterfaceAdapter::sendPlannerUpdate(Update * /* upd */)
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "InterfaceAdapter::updatePlanner: default method called!");
+    debugMsg("InterfaceAdapter:sendPlannerUpdate", " default method called");
   }
 
   void InterfaceAdapter::executeCommand(Command * /* cmd */)
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "InterfaceAdapter::executeCommand: default method called!");
+    debugMsg("InterfaceAdapter:executeCommand", " default method called");
   }
 
   void InterfaceAdapter::invokeAbort(Command * /* cmd */)
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "InterfaceAdapter::invokeAbort: default method called!");
+    debugMsg("InterfaceAdapter:invokeAbort", " default method called");
   }
 
   /**

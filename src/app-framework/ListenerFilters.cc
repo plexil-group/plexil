@@ -25,7 +25,7 @@
 */
 
 #include "ListenerFilters.hh"
-#include "Error.hh"
+#include "InterfaceError.hh"
 #include "InterfaceSchema.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
@@ -56,8 +56,8 @@ namespace PLEXIL
     }
     states = xml.child_value(IGNORED_STATES_TAG);
     if (*states) {
-      assertTrue_2(!hasStates,
-                   "NodeStateFilter constructor: configuration error: both <States> and <IgnoredStates> provided");
+      checkInterfaceError(!hasStates,
+                          "NodeStateFilter configuration error: both <States> and <IgnoredStates> provided");
       hasIgnoredStates = true;
       // Default is report
       for (size_t i = 0; i < NODE_STATE_MAX; ++i)

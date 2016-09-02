@@ -28,8 +28,9 @@
 
 #include "ArrayImpl.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExternalInterface.hh"
+#include "InterfaceError.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 #include <iomanip>
@@ -297,7 +298,10 @@ namespace PLEXIL
   {
     CachedValueImpl<T> const *otherPtr = 
       dynamic_cast<CachedValueImpl<T> const * > (&other);
-    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    checkInterfaceError(otherPtr,
+                        "Attempt to assign CachedValue of type "
+                        << valueTypeName(PlexilValueType<T>::value)
+                        << " from another of type " << valueTypeName(other.valueType()));
     return static_cast<CachedValue &>(operator=(*otherPtr));
   }
 
@@ -305,7 +309,9 @@ namespace PLEXIL
   {
     CachedValueImpl<std::string> const *otherPtr = 
       dynamic_cast<CachedValueImpl<std::string> const * > (&other);
-    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    checkInterfaceError(otherPtr,
+                        "Attempt to assign CachedValue of type String from another of type "
+                        << valueTypeName(other.valueType()));
     return static_cast<CachedValue &>(operator=(*otherPtr));
   }
 
@@ -314,7 +320,10 @@ namespace PLEXIL
   {
     CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
       dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
-    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    checkInterfaceError(otherPtr,
+                        "Attempt to assign CachedValue of type "
+                        << valueTypeName(PlexilValueType<T>::arrayValue)
+                        << " from another of type " << valueTypeName(other.valueType()));
     return static_cast<CachedValue &>(operator=(*otherPtr));
   }
 
@@ -344,22 +353,10 @@ namespace PLEXIL
     return *this;
   }
 
-  template <>
-  const ValueType CachedValueImpl<bool>::valueType() const
+  template <typename T>
+  const ValueType CachedValueImpl<T>::valueType() const
   {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  const ValueType CachedValueImpl<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  const ValueType CachedValueImpl<double>::valueType() const
-  {
-    return REAL_TYPE;
+    return PlexilValueType<T>::value;;
   }
 
   const ValueType CachedValueImpl<std::string>::valueType() const
@@ -367,28 +364,10 @@ namespace PLEXIL
     return STRING_TYPE;
   }
 
-  template <>
-  const ValueType CachedValueImpl<ArrayImpl<bool> >::valueType() const
+  template <typename T>
+  const ValueType CachedValueImpl<ArrayImpl<T> >::valueType() const
   {
-    return BOOLEAN_ARRAY_TYPE;
-  }
-
-  template <>
-  const ValueType CachedValueImpl<ArrayImpl<int32_t> >::valueType() const
-  {
-    return INTEGER_ARRAY_TYPE;
-  }
-
-  template <>
-  const ValueType CachedValueImpl<ArrayImpl<double> >::valueType() const
-  {
-    return REAL_ARRAY_TYPE;
-  }
-
-  template <>
-  const ValueType CachedValueImpl<ArrayImpl<std::string> >::valueType() const
-  {
-    return STRING_ARRAY_TYPE;
+    return PlexilValueType<T>::arrayValue;
   }
 
   template <typename T>
@@ -541,14 +520,18 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   template <typename U>
   bool CachedValueImpl<T>::updateImpl(unsigned int timestamp, U const & /* val */)
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::update: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::value)
+                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
     return false;
   }
 
   template <typename U>
   bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, U const & /* val */)
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::update: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to update a String CachedValue with a "
+                        << valueTypeName(PlexilValueType<U>::value)); 
     return false;
   }
 
@@ -556,7 +539,9 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   template <typename U>
   bool CachedValueImpl<ArrayImpl<T> >::updateImpl(unsigned int timestamp, U const & /* val */)
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::update: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::arrayValue)
+                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
     return false;
   }
 
@@ -579,7 +564,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for "
-               << valueTypeName(valueType()) << " lookup");
+               << valueTypeName(PlexilValueType<T>::value) << " lookup");
       return setUnknown(timestamp);
     }
   }
@@ -607,7 +592,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for "
-               << valueTypeName(valueType()) << " lookup");
+               << valueTypeName(PlexilValueType<T>::arrayValue) << " lookup");
       return setUnknown(timestamp);
     }
   }
@@ -644,14 +629,18 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename U>
   bool CachedValueImpl<T>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::value)
+                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
     return false;
   }
 
   template <typename U>
   bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to update a String CachedValue with a "
+                        << valueTypeName(PlexilValueType<U>::value)); 
     return false;
   }
 
@@ -659,7 +648,9 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename U>
   bool CachedValueImpl<ArrayImpl<T> >::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::arrayValue)
+                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
     return false;
   }
 
@@ -687,14 +678,19 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename U>
   bool CachedValueImpl<T>::getValueImpl(U & /* result */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
+                        << " value from a " << valueTypeName(PlexilValueType<T>::value)
+                        << " valued Lookup"); 
     return false;
   }
 
   template <typename U>
   bool CachedValueImpl<std::string>::getValueImpl(U & /* result */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
+                        << " value from a String valued lookup"); 
     return false;
   }
 
@@ -702,7 +698,10 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename U>
   bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(U & /* result */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
+                        << " value from a " << valueTypeName(PlexilValueType<T>::arrayValue)
+                        << " valued Lookup"); 
     return false;
   }
 
@@ -737,14 +736,19 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename U>
   bool CachedValueImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
+                        << " value from a " << valueTypeName(PlexilValueType<T>::value)
+                        << " valued Lookup"); 
     return false;
   }
 
   template <typename U>
   bool CachedValueImpl<std::string>::getValuePointerImpl(U const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
+                        << " value from a String valued lookup"); 
     return false;
   }
 
@@ -752,7 +756,10 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename U>
   bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(U const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    checkInterfaceError(ALWAYS_FAIL,
+                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
+                        << " value from a " << valueTypeName(PlexilValueType<T>::arrayValue)
+                        << " valued Lookup"); 
     return false;
   }
 

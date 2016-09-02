@@ -106,12 +106,10 @@ namespace PLEXIL
   // Unit test variant of above
   void AssignmentNode::createDummyAssignment() 
   {
-    m_assignment =
-      new Assignment((new BooleanVariable(false))->asAssignable(),
-                     TRUE_EXP(),
-                     true,
-                     false,
-                     m_nodeId);
+    m_assignment = new Assignment(m_nodeId);
+    m_assignment->setVariable((new BooleanVariable(false))->asAssignable(),
+                              true);
+    m_assignment->setExpression(TRUE_EXP(), false);
   }
 
   Assignable *AssignmentNode::getAssignmentVariable() const

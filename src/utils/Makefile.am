@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,13 +29,14 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS =
 
-include_HEADERS = ConstantMacros.hh Debug.hh Error.hh LinkedQueue.hh Logging.hh \
- ParserException.hh SimpleMap.hh TestSupport.hh lifecycle-utils.h map-utils.hh \
+include_HEADERS = ConstantMacros.hh Debug.hh Error.hh LinkedQueue.hh \
+ Logging.hh ParserException.hh PlanError.hh SimpleMap.hh TestSupport.hh \
+ lifecycle-utils.h map-utils.hh \
  stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc Logging.cc \
- ParserException.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
- timeval-utils.cc
+ ParserException.cc PlanError.cc \
+ lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc
 
 if JNI_OPT
   include_HEADERS += JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh

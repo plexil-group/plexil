@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -142,16 +142,18 @@ namespace PLEXIL
   template <typename R>
   bool NodeOperatorImpl<R>::calc(R &result, Node const * /* node */) const
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Operator " << this->getName() << " not implemented for this return type");
+    checkPlanError(ALWAYS_FAIL,
+                   "Operator " << this->getName() << " not implemented for return type "
+                   << valueTypeName(PlexilValueType<R>::value));
     return false;
   }
 
   template <typename R>
   bool NodeOperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Node const * /* node */) const
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Operator " << this->getName() << " not implemented for this return type");
+    checkPlanError(ALWAYS_FAIL,
+                   "Operator " << this->getName() << " not implemented for return type "
+                   << valueTypeName(PlexilValueType<R>::arrayValue));
     return false;
   }
 

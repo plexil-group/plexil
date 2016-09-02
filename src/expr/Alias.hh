@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,14 +50,6 @@ namespace PLEXIL
           bool garbage = false);
     virtual ~Alias();
 
-    /**
-     * @brief Set the expression to which the Alias points.
-     * @param exp The target expression.
-     * @param garbage Whether the expression should be deleted with the Alias.
-     * @return False if the Alias already has a target expression, true otherwise.
-     */
-    virtual bool setTarget(Expression *exp, bool garbage = false);
-
     //
     // Expression API
     //
@@ -104,32 +96,22 @@ namespace PLEXIL
 
   protected:
 
-    //
-    // Notification API
-    //
-    // N.B. Alias should never publish changes to its original expression.
-    // It can pass on change notifications from the original.
-    //
-    void handleActivate();
-    void handleDeactivate();
-
     // The expression being aliased.
     Expression *m_exp;
-  
-  private:
-    // Disallow default, copy, assign
-    Alias();
-    Alias(const Alias &);
-    Alias &operator=(const Alias &);
-
-  protected:
     // Parent node
     NodeConnector *m_node;
     // Name in the parent node
     char const *m_name;
 
   private:
+
     bool m_garbage;
+
+    // Disallow default, copy, assign
+    Alias();
+    Alias(const Alias &);
+    Alias &operator=(const Alias &);
+
   };
 
 } // namespace PLEXIL

@@ -76,7 +76,8 @@ namespace PLEXIL {
    */
   void Assignable::setInitializer(Expression * /* expr */, bool /* garbage */)
   {
-    assertTrue_2(ALWAYS_FAIL, "setInitializer() called on object that doesn't have an initializer");
+    assertTrue_2(ALWAYS_FAIL,
+                 "setInitializer() called on Assignable that doesn't have an initializer");
   }
 
 } // namespace PLEXIL

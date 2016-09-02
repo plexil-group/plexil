@@ -35,7 +35,7 @@
 #include "PosixTimeAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
-#include "Error.hh"
+#include "InterfaceError.hh"
 #include "TimeAdapter.hh"
 #include "timespec-utils.hh"
 
@@ -86,10 +86,11 @@ namespace PLEXIL
    * @return A double representing the current time.
    */
   double PosixTimeAdapter::getCurrentTime()
+    throw (InterfaceError)
   {
     timespec ts;
-    assertTrueMsg(!clock_gettime(CLOCK_REALTIME, &ts),
-                  "TimeAdapter::getCurrentTime:: clock_gettime() failed, errno = " << errno);
+    checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &ts),
+                        "getCurrentTime: clock_gettime() failed, errno = " << errno);
     double tym = timespecToDouble(ts);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
@@ -142,6 +143,7 @@ namespace PLEXIL
    * @return True if the timer was set, false if clock time had already passed the wakeup time.
    */
   bool PosixTimeAdapter::setTimer(double date)
+    throw (InterfaceError)
   {
     // Get the current time
     timespec now;
@@ -161,11 +163,11 @@ namespace PLEXIL
     }
 
     tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 0; // no repeats
-    assertTrueMsg(0 == timer_settime(m_timer,
-                                     0, // flags: ~TIMER_ABSTIME
-                                     &tymrSpec,
-                                     NULL),
-                  "TimeAdapter::setTimer: timer_settime failed, errno = " << errno);
+    checkInterfaceError(0 == timer_settime(m_timer,
+                                           0, // flags: ~TIMER_ABSTIME
+                                           &tymrSpec,
+                                           NULL),
+                        "TimeAdapter::setTimer: timer_settime failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
              " timer set for " << std::setprecision(15) << date
              << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);

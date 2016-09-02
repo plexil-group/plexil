@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -55,30 +55,36 @@ namespace PLEXIL
   {
     if (!xml.empty()) {
       pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
-      if (!filterSpec.empty()) {
-        // Construct specified event filter
+      if (filterSpec.empty())
+        return;
               
-        pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
-        assertTrueMsg(!filterTypeAttr.empty(),
-                      "ExecListener constructor: invalid XML: <"
-                      << InterfaceSchema::FILTER_TAG()
-                      << "> element missing a "
-                      << InterfaceSchema::FILTER_TYPE_ATTR()
-                      << " attribute");
-        const char* filterType = filterTypeAttr.value();
-        assertTrueMsg(*filterType != '\0',
-                      "ExecListener constructor: invalid XML: <"
-                      << InterfaceSchema::FILTER_TAG()
-                      << "> element's "
-                      << InterfaceSchema::FILTER_TYPE_ATTR()
-                      << " attribute is empty");
-        ExecListenerFilter *f = 
-          ExecListenerFilterFactory::createInstance(std::string(filterType),
-                                                    filterSpec);
-        assertTrue_2(f,
-                     "ExecListener constructor: failed to construct filter");
-        m_filter = f;
+      // Construct specified event filter
+      pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+      if (filterTypeAttr.empty()) {
+        warn("ExecListener constructor: invalid XML: <"
+             << InterfaceSchema::FILTER_TAG()
+             << "> element missing a "
+             << InterfaceSchema::FILTER_TYPE_ATTR()
+             << " attribute");
+        return;
       }
+
+      const char* filterType = filterTypeAttr.value();
+      if (!*filterType) {
+        warn("ExecListener constructor: invalid XML: <"
+             << InterfaceSchema::FILTER_TAG()
+             << "> element's "
+             << InterfaceSchema::FILTER_TYPE_ATTR()
+             << " attribute is empty");
+        return;
+      }
+
+      ExecListenerFilter *f = 
+        ExecListenerFilterFactory::createInstance(std::string(filterType),
+                                                  filterSpec);
+      assertTrue_2(f,
+                   "ExecListener constructor: failed to construct filter");
+      m_filter = f;
     }
   }
 

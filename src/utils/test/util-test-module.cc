@@ -188,19 +188,6 @@ private:
       Error::doDisplayErrors();
       __z__(e, Error("var == 2", "check_error_1(var == 2)", __FILE__, __LINE__ - 5), success);
     }
-    try {
-      Error::doNotDisplayErrors();
-      check_error_3(var == 2, "check_error_3(var == 2)", TestError::BadThing());
-      __y__("check_error_3(var == 2, TestError::BadThing()) did not throw an exception");
-      success = false;
-    }
-    catch (Error &e) {
-      Error::doDisplayErrors();
-      //!!Should, perhaps, be:
-      //__z__(e, Error(TestError::BadThing(), __FILE__, __LINE__ - 7), success);
-      // ... but is actually:
-      __z__(e, Error("var == 2", "check_error_3(var == 2)", __FILE__, __LINE__ - 9), success);
-    }
 #endif
     return(success);
   }

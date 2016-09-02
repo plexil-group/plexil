@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -126,20 +126,20 @@ namespace PLEXIL
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
      * @return The current value for the state.
-     * @note Adapters should provide their own methods.  The default method raises an assertion.
+     * @note Adapters should provide their own methods. The default method does nothing.
      */
     virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
      * @param state The state.
-     * @note Adapters should provide their own methods.  The default method raises an assertion.
+     * @note Adapters should provide their own methods.
      */
     virtual void subscribe(const State& state);
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
-     * @note Adapters should provide their own methods.  The default method raises an assertion.
+     * @note Adapters should provide their own methods.
      */
     virtual void unsubscribe(const State& state);
 

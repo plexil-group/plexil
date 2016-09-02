@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,7 @@
 
 #include "Expression.hh"
 
-#include "Error.hh"
-
-#include <iostream>
-#include <sstream>
+#include "PlanError.hh"
 
 namespace PLEXIL 
 {
@@ -142,67 +139,78 @@ namespace PLEXIL
 
   bool Expression::getValue(bool &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Boolean for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a Boolean value from " << this->getName());
     return false;
   }
 
   bool Expression::getValue(uint16_t &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for internal types for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a PLEXIL internal value from " << this->getName());
     return false;
   }
 
   bool Expression::getValue(int32_t &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Integer for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get an Integer value from " << this->getName());
     return false;
   }
 
   bool Expression::getValue(double &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Real for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a Real value from " << this->getName());
     return false;
   }
 
   bool Expression::getValue(std::string &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for String for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a String value from " << this->getName());
     return false;
   }
 
   bool Expression::getValuePointer(std::string const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for String for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a String value from " << this->getName());
     return false;
   }
 
   bool Expression::getValuePointer(Array const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for Array for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get an Array value from " << this->getName());
     return false;
   }
 
   bool Expression::getValuePointer(BooleanArray const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for BooleanArray for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a BooleanArray value from " << this->getName());
     return false;
   }
 
   bool Expression::getValuePointer(IntegerArray const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for IntegerArray for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get an IntegerArray value from " << this->getName());
     return false;
   }
 
   bool Expression::getValuePointer(RealArray const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for RealArray for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a RealArray value from " << this->getName());
     return false;
   }
 
   bool Expression::getValuePointer(StringArray const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for StringArray for this expression");
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get a StringArray value from " << this->getName());
     return false;
   }
     

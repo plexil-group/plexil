@@ -138,25 +138,21 @@ namespace PLEXIL
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)
   {
-    assertTrue_1(cmd);
     cmd->returnValue(value);
   }
 
   void ExternalInterface::commandHandleReturn(Command *cmd, CommandHandleValue val)
   {
-    assertTrue_1(cmd);
     cmd->setCommandHandle(val);
   }
 
   void ExternalInterface::commandAbortAcknowledge(Command *cmd, bool ack)
   {
-    assertTrue_1(cmd);
     cmd->acknowledgeAbort(ack);
   }
 
   void ExternalInterface::acknowledgeUpdate(Update *upd, bool val)
   {
-    assertTrue_1(upd);
     upd->acknowledge(val);
   }
 
