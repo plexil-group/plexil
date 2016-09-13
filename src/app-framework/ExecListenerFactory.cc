@@ -57,11 +57,13 @@ namespace PLEXIL
     // Get the kind of listener to make
     const char* listenerType = 
       xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value();
-    checkError(*listenerType != '\0',
-               "ExecListenerFactory::createInstance: no "
-               << InterfaceSchema::LISTENER_TYPE_ATTR()
-               << " attribute for listener XML:\n"
-               << *xml);
+    if (!*listenerType) {
+      warn("ExecListenerFactory: no "
+           << InterfaceSchema::LISTENER_TYPE_ATTR()
+           << " attribute for listener XML:\n"
+           << *xml);
+      return NULL;
+    }
 
     // Make it
     return createInstance(std::string(listenerType), xml);
@@ -89,7 +91,7 @@ namespace PLEXIL
       const char* libCPath =
         xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-        warn("ExecListenerFactory:createInstance: unable to load module for listener type \""
+        warn("ExecListenerFactory: Unable to load module for listener type \""
              << name.c_str() << "\"");
         return NULL;
       }
@@ -99,7 +101,7 @@ namespace PLEXIL
 #endif
 
     if (it == factoryMap().end()) {
-      warn("ExecListenerFactory:createInstance: No exec listener factory registered for name \""
+      warn("ExecListenerFactory No factory registered for listener type \""
            << name.c_str() << "\"");
       return NULL;
     }

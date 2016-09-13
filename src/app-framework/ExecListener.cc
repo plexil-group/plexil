@@ -42,7 +42,7 @@ namespace PLEXIL
    */
   ExecListener::ExecListener()
     : PlexilListener(),
-      m_filter()
+      m_filter(NULL)
   {
   }
 
@@ -51,41 +51,8 @@ namespace PLEXIL
    */
   ExecListener::ExecListener(pugi::xml_node const xml)
     : PlexilListener(),
-      m_filter()
+      m_filter(NULL)
   {
-    if (!xml.empty()) {
-      pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
-      if (filterSpec.empty())
-        return;
-              
-      // Construct specified event filter
-      pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
-      if (filterTypeAttr.empty()) {
-        warn("ExecListener constructor: invalid XML: <"
-             << InterfaceSchema::FILTER_TAG()
-             << "> element missing a "
-             << InterfaceSchema::FILTER_TYPE_ATTR()
-             << " attribute");
-        return;
-      }
-
-      const char* filterType = filterTypeAttr.value();
-      if (!*filterType) {
-        warn("ExecListener constructor: invalid XML: <"
-             << InterfaceSchema::FILTER_TAG()
-             << "> element's "
-             << InterfaceSchema::FILTER_TYPE_ATTR()
-             << " attribute is empty");
-        return;
-      }
-
-      ExecListenerFilter *f = 
-        ExecListenerFilterFactory::createInstance(std::string(filterType),
-                                                  filterSpec);
-      assertTrue_2(f,
-                   "ExecListener constructor: failed to construct filter");
-      m_filter = f;
-    }
   }
 
   /**
@@ -148,12 +115,68 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Construct the ExecListenerFilter specified by this listener's configuration XML.
+   * @return True if successful, false otherwise.
+   */
+  bool ExecListener::constructFilter()
+  {
+    if (m_xml.empty())
+      return true; // nothing to do
+    if (m_filter)
+      return true; // already initialized
+
+    pugi::xml_node filterSpec = m_xml.child(InterfaceSchema::FILTER_TAG());
+    if (filterSpec.empty())
+      return true;
+              
+    // Construct specified event filter
+    pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+    if (filterTypeAttr.empty()) {
+      warn("ExecListener:constructFilter: invalid XML: <"
+           << InterfaceSchema::FILTER_TAG()
+           << "> element missing a "
+           << InterfaceSchema::FILTER_TYPE_ATTR()
+           << " attribute");
+      return false;
+    }
+
+    const char* filterType = filterTypeAttr.value();
+    if (!*filterType) {
+      warn("ExecListener:constructFilter: invalid XML: <"
+           << InterfaceSchema::FILTER_TAG()
+           << "> element's "
+           << InterfaceSchema::FILTER_TYPE_ATTR()
+           << " attribute is empty");
+      return false;
+    }
+
+    ExecListenerFilter *f = 
+      ExecListenerFilterFactory::createInstance(std::string(filterType),
+                                                filterSpec);
+    if (!f) {
+      warn("ExecListener:constructFilter: failed to construct exec listener filter "
+           << filterType);
+      return false;
+    }
+
+    if (!f->initialize()) {
+      warn("ExecListener:constructFilter: error initializing listener filter " << filterType);
+      delete f;
+      return false;
+    }
+    m_filter = f;
+    return true;
+  }
+
+  /**
    * @brief Perform listener-specific initialization.
    * @return true if successful, false otherwise.
    * @note Default method provided as a convenience for backward compatibility.
    */
   bool ExecListener::initialize()
   {
+    if (!constructFilter())
+      return false;
     return true; 
   }
 

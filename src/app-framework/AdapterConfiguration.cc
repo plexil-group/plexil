@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -82,8 +82,8 @@ namespace PLEXIL {
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 #endif
-    // Every application has access to the NodeState filter
-    REGISTER_EXEC_LISTENER_FILTER(NodeStateFilter, "NodeState")
+
+    registerExecListenerFilters();
 
 #if HAVE_DEBUG_LISTENER
       // Every application should have access to the Plan Debug Listener
