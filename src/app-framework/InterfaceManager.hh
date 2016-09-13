@@ -241,17 +241,11 @@ namespace PLEXIL
      */
     void handleValueChange(const State& state, const Value& value);
 
-    void handleCommandReturn(Command * cmd, Value const& value)
-      throw (InterfaceError);
+    void handleCommandReturn(Command * cmd, Value const& value);
+    void handleCommandAck(Command * cmd, CommandHandleValue value);
+    void handleCommandAbortAck(Command * cmd, bool ack);
 
-    void handleCommandAck(Command * cmd, CommandHandleValue value)
-      throw (InterfaceError);
-
-    void handleCommandAbortAck(Command * cmd, bool ack)
-      throw (InterfaceError);
-
-    void handleUpdateAck(Update * upd, bool ack)
-      throw (InterfaceError);
+    void handleUpdateAck(Update * upd, bool ack);
 
     /**
      * @brief Notify the executive of a new plan.
