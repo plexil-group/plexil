@@ -116,6 +116,7 @@ static bool testCommandHandleSerDes()
   CommandHandleValue const fal = COMMAND_FAILED;
   CommandHandleValue const den = COMMAND_DENIED;
   CommandHandleValue const suc = COMMAND_SUCCESS;
+  CommandHandleValue const err = COMMAND_INTERFACE_ERROR;
 
   bufptr = serialize(sts, bufptr);
   assertTrueMsg(bufptr, "serialize returned NULL");
@@ -161,6 +162,14 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(bufptr, "serialize returned NULL");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(suc);
+  assertTrueMsg(bufptr == offset + (char *) buffer,
+		"serialize didn't increment pointer by expected number");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(err, bufptr);
+  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
+  offset += serialSize(err);
   assertTrueMsg(bufptr == offset + (char *) buffer,
 		"serialize didn't increment pointer by expected number");
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
@@ -215,6 +224,14 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(chRead == suc, "deserialize didn't set result equal to source");
   assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
   offset += serialSize(suc);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
+
+  oldcbufptr = cbufptr;
+  cbufptr = deserialize(chRead, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
+  assertTrueMsg(chRead == err, "deserialize didn't set result equal to source");
+  assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
+  offset += serialSize(err);
   assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
 
   // test reading past end
