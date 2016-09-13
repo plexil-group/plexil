@@ -89,9 +89,8 @@ namespace PLEXIL
       const char* libCPath =
         xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-        debugMsg("ExecListenerFactory:createInstance", 
-                 " unable to load module for listener type \""
-                 << name.c_str() << "\"");
+        warn("ExecListenerFactory:createInstance: unable to load module for listener type \""
+             << name.c_str() << "\"");
         return NULL;
       }
       // See if it's registered now
@@ -100,8 +99,8 @@ namespace PLEXIL
 #endif
 
     if (it == factoryMap().end()) {
-      debugMsg("ExecListenerFactory:createInstance", 
-               " No exec listener factory registered for name \"" << name.c_str() << "\"");
+      warn("ExecListenerFactory:createInstance: No exec listener factory registered for name \""
+           << name.c_str() << "\"");
       return NULL;
     }
     ExecListener *retval = it->second->create(xml);
@@ -140,14 +139,13 @@ namespace PLEXIL
   void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
     assertTrue_1(factory != NULL);
-    if (factoryMap().find(name) != factoryMap().end())
-      {
-        warn("Attempted to register an exec listener factory for name \""
-             << name.c_str()
-             << "\" twice, ignoring.");
-        delete factory;
-        return;
-      }
+    if (factoryMap().find(name) != factoryMap().end()) {
+      warn("Attempted to register an exec listener factory for name \""
+           << name.c_str()
+           << "\" twice, ignoring.");
+      delete factory;
+      return;
+    }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFactory:registerFactory",
              " Registered exec listener factory for name \"" << name.c_str() << "\"");
