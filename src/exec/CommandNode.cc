@@ -64,12 +64,21 @@ namespace PLEXIL
     {
       uint16_t val;
       if (!arg->getValue(val)) // unknown
-        return false;
-      if (val == COMMAND_DENIED || val == COMMAND_FAILED)
+        return false; // result is unknown
+
+      switch (val) {
+        // Cases in which node is terminated early
+      case COMMAND_DENIED:          // Insufficient resources
+      case COMMAND_FAILED:          // Couldn't be sent/performed
+      case COMMAND_INTERFACE_ERROR: // Error in interface code
         result = true;
-      else
+        break;
+
+      default:
         result = false;
-      return true;
+        break;
+      }
+      return true; // result is known
     }
 
     DECLARE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, bool)
