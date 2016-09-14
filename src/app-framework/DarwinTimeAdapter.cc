@@ -99,14 +99,23 @@ namespace PLEXIL
   {
     // block SIGALRM and SIGUSR1 for the process as a whole
     sigset_t processSigset, originalSigset;
-    assertTrueMsg(0 == sigemptyset(&processSigset),
-                  "DarwinTimeAdapter::configureSignalHandling: sigemptyset failed!");
+    if (0 != sigemptyset(&processSigset)) {
+      warn("DarwinTimeAdapter: sigemptyset failed!");
+      return false;
+    }
+
     int errnum = sigaddset(&processSigset, SIGALRM);
     errnum = errnum | sigaddset(&processSigset, SIGUSR1);
-    assertTrueMsg(errnum == 0,
-                  "DarwinTimeAdapter::configureSignalHandling: sigaddset failed!");
-    assertTrueMsg(0 == sigprocmask(SIG_BLOCK, &processSigset, &originalSigset),
-                  "DarwinTimeAdapter::configureSignalHandling: sigprocmask failed, errno = " << errno);
+    if (errnum != 0) {
+      warn("DarwinTimeAdapter: sigaddset failed!");
+      return false;
+    }
+
+    if (0 != sigprocmask(SIG_BLOCK, &processSigset, &originalSigset)) {
+      warn("DarwinTimeAdapter: sigprocmask failed!, errno = " << errno);
+      return false;
+    }
+
     return true;
   }
 
@@ -183,15 +192,20 @@ namespace PLEXIL
    */
   bool DarwinTimeAdapter::configureWaitThreadSigmask(sigset_t* mask)
   {
-    assertTrue_2(0 == sigemptyset(mask),
-                 "DarwinTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
+    if (0 != sigemptyset(mask)) {
+      warn("DarwinTimeAdapter: sigemptyset failed!");
+      return false;
+    }
+
     int errnum = sigaddset(mask, SIGINT);
     errnum = errnum | sigaddset(mask, SIGHUP);
     errnum = errnum | sigaddset(mask, SIGQUIT);
     errnum = errnum | sigaddset(mask, SIGTERM);
     errnum = errnum | sigaddset(mask, SIGUSR2);
-    assertTrue_2(errnum == 0,
-                 "DarwinTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
+    if (errnum != 0) {
+      warn("DarwinTimeAdapter: sigaddset failed!");
+    }
+
     return errnum == 0;
   }
 
@@ -203,13 +217,17 @@ namespace PLEXIL
   bool DarwinTimeAdapter::initializeSigwaitMask(sigset_t* mask)
   {
     // listen for SIGALRM and SIGUSR1
-    assertTrue_2(0 == sigemptyset(mask),
-                 "DarwinTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
+    if (0 != sigemptyset(mask)) {
+      warn("DarwinTimeAdapter: sigemptyset failed!");
+      return false;
+    }
+
     int status = sigaddset(mask, SIGUSR1);
     status = status | sigaddset(mask, SIGALRM);
-    assertTrue_2(0 == status,
-                 "DarwinTimeAdapter::initializeSigwaitMask: sigaddset failed!");
-    return true;
+    if (0 != status) {
+      warn("DarwinTimeAdapter: sigaddset failed!");
+    }
+    return 0 == status;
   }
 
 

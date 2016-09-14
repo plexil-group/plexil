@@ -246,14 +246,16 @@ namespace PLEXIL
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
     // Set up signal handling in main thread
-    assertTrue_2(initializeMainSignalHandling(),
-                 "ExecApplication::run: failed to initialize main thread signal handling");
+    if (!initializeMainSignalHandling()) {
+      warn("ExecApplication: failed to initialize main thread signal handling");
+      return false;
+    }
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     // Start the event listener thread
     return spawnExecThread();
 #else // !defined(PLEXIL_WITH_THREADS)
-    warn("ExecApplication::run: threads must be enabled in the build");
+    warn("ExecApplication: Can't run background thread; threads not enabled in the build");
     return false;
 #endif // PLEXIL_WITH_THREADS
   }
@@ -313,22 +315,24 @@ namespace PLEXIL
       debugMsg("ExecApplication:stop", " Halting top level thread");
       m_stop = true;
       int status = m_sem.post();
-      assertTrueMsg(status == 0,
-                    "ExecApplication::stop: semaphore post failed, status = "
-                    << status);
+      if (status) {
+        warn("ExecApplication: semaphore post failed, status = " << status);
+        return false;
+      }
       sleep(1);
 
       if (m_stop) {
         // Exec thread failed to acknowledge stop - resort to stronger measures
         status = pthread_kill(m_execThread, SIGUSR2);
-        assertTrueMsg(status == 0,
-                      "ExecApplication::stop: pthread_kill failed, status = "
-                      << status);
+        if (status) {
+          warn("ExecApplication: pthread_kill failed, status = " << status);
+          return false;
+        }
         sleep(1);
       }
 
       status = pthread_join(m_execThread, NULL);
-      if (status != 0) {
+      if (status) {
         debugMsg("ExecApplication:stop", 
                  " pthread_join() failed, error = " << status);
         return false;
@@ -336,9 +340,10 @@ namespace PLEXIL
       debugMsg("ExecApplication:stop", " Top level thread halted");
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-      // Restore signal handling
-      assertTrueMsg(restoreMainSignalHandling(),
-                    "ExecApplication::stop: failed to restore signal handling for main thread");
+      if (!restoreMainSignalHandling()) {
+        warn("ExecApplication: failed to restore signal handling for main thread");
+        return false;
+      }
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
     }
 #endif // PLEXIL_WITH_THREADS
@@ -497,8 +502,10 @@ namespace PLEXIL
     debugMsg("ExecApplication:runInternal", " Thread started");
 
     // set up signal handling environment for this thread
-    assertTrueMsg(initializeWorkerSignalHandling(),
-                  "ExecApplication::runInternal: Fatal error: signal handling initialization failed."); 
+    if (!initializeWorkerSignalHandling()) {
+      warn("ExecApplication: Worker signal handling initialization failed.");
+      return;
+    }
 
     // must step exec once to initialize time
     runExec(true);
@@ -569,8 +576,10 @@ namespace PLEXIL
   bool ExecApplication::waitForExternalEvent()
   {
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-    assertTrueMsg(m_nBlockedSignals != 0,
-                  "ExecApplication::waitForExternalEvent: fatal error: signal handling not initialized.:");
+    if (m_nBlockedSignals == 0) {
+      warn("ExecApplication: signal handling not initialized.");
+      return false;
+    }
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     debugMsg("ExecApplication:wait", " waiting for external event");
@@ -612,7 +621,7 @@ namespace PLEXIL
         finished = g_exec->allPlansFinished();
       }
 #else // !defined(PLEXIL_WITH_THREADS)
-    warn("ExecApplication:waitForPlanFinished: threads must be enabled in build");
+    warn("waitForPlanFinished: threads not enabled in build");
 #endif // PLEXIL_WITH_THREADS
   }
 
@@ -630,7 +639,7 @@ namespace PLEXIL
     if (waitStatus == 0)
       m_shutdownSem.post(); // pass it on to the next, if any
 #else // !defined(PLEXIL_WITH_THREADS)
-    warn("ExecApplication:waitForShutdown: threads must be enabled in build");
+    warn("waitForShutdown: threads not enabled in build");
 #endif // PLEXIL_WITH_THREADS
   }
 
@@ -976,11 +985,12 @@ namespace PLEXIL
       // runExec() could notice, or not.
       // Post to semaphore to ensure event is not lost.
       int status = m_sem.post();
-      assertTrueMsg(status == 0,
-                    "notifyExec: semaphore post failed, status = "
-                    << status);
-      debugMsg("ExecApplication:notify",
-               "released semaphore");
+      if (status) {
+        warn("notifyExec: semaphore post failed, status = " << status);
+      }
+      else {
+        debugMsg("ExecApplication:notify", "released semaphore");
+      }
       return;
     }
     // Exec is idle, so run it
@@ -1007,7 +1017,7 @@ namespace PLEXIL
       m_markSem.post(); // in case it's not our mark and we got there first
     }
 #else // !defined(PLEXIL_WITH_THREADS)
-    warn("ExecApplication::notifyAndWaitForCompletion: threads must be enabled in build");
+    warn("notifyAndWaitForCompletion: threads not enabled in build");
 #endif // PLEXIL_WITH_THREADS
   }
 
