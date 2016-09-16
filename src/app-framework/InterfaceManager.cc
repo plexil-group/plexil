@@ -144,11 +144,7 @@ namespace PLEXIL
   bool InterfaceManager::shutdown()
   {
     assertTrue_1(g_configuration);
-    bool success = g_configuration->stop();
-
-    // Clean up
-    // *** NYI ***
-
+    bool success = g_configuration->shutdown();
     debugMsg("InterfaceManager:shutdown", " completed");
     return success;
   }
