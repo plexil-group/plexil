@@ -58,9 +58,9 @@ namespace PLEXIL
     const char* listenerType = 
       xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value();
     if (!*listenerType) {
-      warn("ExecListenerFactory: no "
+      warn("ExecListenerFactory: missing "
            << InterfaceSchema::LISTENER_TYPE_ATTR()
-           << " attribute for listener XML:\n"
+           << " attribute in listener XML:\n"
            << *xml);
       return NULL;
     }
@@ -101,7 +101,7 @@ namespace PLEXIL
 #endif
 
     if (it == factoryMap().end()) {
-      warn("ExecListenerFactory No factory registered for listener type \""
+      warn("ExecListenerFactory: No factory registered for listener type \""
            << name.c_str() << "\"");
       return NULL;
     }
@@ -141,6 +141,7 @@ namespace PLEXIL
   void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
     assertTrue_1(factory != NULL);
+    // FIXME: Assert, or replace old factory?
     if (factoryMap().find(name) != factoryMap().end()) {
       warn("Attempted to register an exec listener factory for name \""
            << name.c_str()
