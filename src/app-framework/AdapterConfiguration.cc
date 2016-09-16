@@ -148,10 +148,9 @@ namespace PLEXIL {
           AdapterFactory::createInstance(element,
                                          *static_cast<AdapterExecInterface *>(g_manager));
         if (!adapter) {
-          debugMsg("AdapterConfiguration:constructInterfaces",
-                   " failed to construct adapter type \""
-                   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-                   << "\"");
+          warn("constructInterfaces: failed to construct adapter type \""
+               << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+               << "\"");
           return false;
         }
         m_adapters.insert(adapter);
@@ -161,12 +160,13 @@ namespace PLEXIL {
         debugMsg("AdapterConfiguration:constructInterfaces",
                  " constructing listener type \""
                  << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
-                 << "\"");
+                 << '"');
         ExecListener *listener = 
           ExecListenerFactory::createInstance(element);
         if (!listener) {
-          debugMsg("AdapterConfiguration:constructInterfaces",
-                   " failed to construct listener from XML");
+          warn("constructInterfaces: failed to construct listener type \""
+               << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
+               << '"');
           return false;
         }
         m_listenerHub->addListener(listener);
@@ -222,10 +222,9 @@ namespace PLEXIL {
       InterfaceAdapter *a = *it;
       success = a->initialize();
       if (!success) {
-        debugMsg("AdapterConfiguration:initialize",
-                 " adapter initialization failed for type \""
+        warn("initialize: failed for adapter type \""
 		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-		 << "\", returning false");
+		 << '"');
         m_adapters.erase(it);
         delete a;
         return false;
@@ -233,7 +232,7 @@ namespace PLEXIL {
     }
     success = m_listenerHub->initialize();
     if (!success) {
-      debugMsg("AdapterConfiguration:initialize", " failed to initialize all Exec listeners, returning false");
+      warn("initialize: failed to initialize Exec listener(s)");
       return false;
     }
 
@@ -253,17 +252,17 @@ namespace PLEXIL {
          ++it) {
       success = (*it)->start();
       if (!success) {
-        debugMsg("AdapterConfiguration:initialize",
-                 " adapter start failed for type \""
-                 << (*it)->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-                 << "\", returning false");
+        warn("start: start failed for adapter type \""
+             << (*it)->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+             << '"');
         return false;
       }
     }
 
     success = m_listenerHub->start();
-    condDebugMsg(!success, 
-                 "AdapterConfiguration:start", " failed to start all Exec listeners, returning false");
+    if (!success) {
+      warn("start: failed to start Exec listener(s)");
+    }
     return success;
   }
 
