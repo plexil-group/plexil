@@ -550,12 +550,12 @@ namespace PLEXIL
     else {
       g_manager->processQueue(); // for effect
       do {
-	double now = g_manager->queryTime(); // update time before attempting to step
-	while (g_exec->needsStep()) {
-	  debugMsg("ExecApplication:runExec", " Stepping exec");
-	  g_exec->step(now);
-	  now = g_manager->queryTime(); // update time before stepping again
-	}
+        double now = g_manager->queryTime(); // update time before attempting to step
+        while (g_exec->needsStep()) {
+          debugMsg("ExecApplication:runExec", " Stepping exec");
+          g_exec->step(now);
+          now = g_manager->queryTime(); // update time before stepping again
+        }
       } while (g_manager->processQueue());
       debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
     }
@@ -589,7 +589,7 @@ namespace PLEXIL
       if (status == 0) {
         condDebugMsg(!m_suspended, 
                      "ExecApplication:wait",
-                     "acquired semaphore, processing external event");
+                     " acquired semaphore, processing external event");
         condDebugMsg(m_suspended, 
                      "ExecApplication:wait",
                      " Application is suspended, ignoring external event");
@@ -989,7 +989,7 @@ namespace PLEXIL
         warn("notifyExec: semaphore post failed, status = " << status);
       }
       else {
-        debugMsg("ExecApplication:notify", "released semaphore");
+        debugMsg("ExecApplication:notify", " released semaphore");
       }
       return;
     }
