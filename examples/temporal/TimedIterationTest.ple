@@ -5,24 +5,29 @@ TimedIterationTest:
 {
   Date startTime;
   Duration initialWait = Duration("PT10S");
-  Duration timeTolerance = Duration("PT0.1S");
-  Duration iterationInterval = Duration("PT1S");
-  Integer repeatCount = 10;
-  Integer i = 0;
 
   startTime = TimedIterationTest.EXECUTING.START + initialWait;
   pprint("Run to start at", startTime);
 
- Iterate:
+ AfterPause:
   {
-    Start Lookup(time, timeTolerance) >= startTime;
-    RepeatCondition i < repeatCount;
-    EndCondition Lookup(time, timeTolerance) >= Iterate.EXECUTING.START + iterationInterval;
-      
-    i = i + 1;
-    pprint("Iteration", i, "at", Iterate.EXECUTING.START);
-  }
+    Integer repeatCount = 10;
+    Integer i = 0;
+
+    Start Lookup(time, initialWait) >= startTime;
+
+  Iterate:
+    {
+      Duration iterationInterval = Duration("PT1S");
+
+      RepeatCondition i < repeatCount;
+      EndCondition Lookup(time, iterationInterval) >= Iterate.EXECUTING.START + iterationInterval;
+
+      pprint("Iteration", i, "at", Iterate.EXECUTING.START);
+      i = i + 1;
+    }
   
-  pprint("Iteration completed at", Iterate.EXECUTING.END);
+    pprint("Iteration", i, "complete at", Iterate.EXECUTING.END);
+  }
 }
 
