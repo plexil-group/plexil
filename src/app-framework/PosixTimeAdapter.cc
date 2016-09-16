@@ -104,13 +104,20 @@ namespace PLEXIL
   {
     // Mask SIGUSR1 at the process level
     sigset_t mask;
-    assertTrue_2(0 == sigemptyset(&mask),
-                 "PosixTimeAdapter::configureSignalHandling: sigemptyset failed!");
-    assertTrue_2(0 == sigaddset(&mask, SIGUSR1),
-                 "PosixTimeAdapter::configureSignalHandling: sigaddset failed!");
-    assertTrueMsg(0 == sigprocmask(SIG_BLOCK, &mask, NULL),
-                  "PosixTimeAdapter::configureSignalHandling: sigprocmask failed, errno = "
-                  << errno);
+    if (sigemptyset(&mask)) {
+      warn("PosixTimeAdapter: sigemptyset failed!");
+      return false;
+    }
+    
+    if (sigaddset(&mask, SIGUSR1)) {
+      warn("PosixTimeAdapter: sigaddset failed!");
+      return false;
+    }
+    
+    if (sigprocmask(SIG_BLOCK, &mask, NULL)) {
+      warn ("PosixTimeAdapter: sigprocmask failed, errno = " << errno);
+      return false;
+    }
     return true;
   }
 
@@ -131,7 +138,7 @@ namespace PLEXIL
     if (timer_create(CLOCK_REALTIME,
                      &m_sigevent,
                      &m_timer)) {
-      debugMsg("TimeAdapter:start", " timer_create failed, errno = " << errno);
+      warn("PosixTimeAdapter: timer_create failed, errno = " << errno);
       return false;
     }
     return true;
@@ -148,7 +155,7 @@ namespace PLEXIL
     // Get the current time
     timespec now;
     if (0 != clock_gettime(CLOCK_REALTIME, &now)) {
-      debugMsg("TimeAdapter:setTimer", " clock_gettime() failed, errno = " << errno);
+      warn("PosixTimeAdapter: clock_gettime() failed, errno = " << errno);
       return false;
     }
 
@@ -184,9 +191,9 @@ namespace PLEXIL
                                0,
                                &sl_tymrDisable,
                                NULL);
-    condDebugMsg(0 != status,
-                 "TimeAdapter:stopTimer",
-                 " timer_settime failed, errno = " << errno);
+    if (status) {
+      warn("PosixTimeAdapter: timer_settime failed, errno = " << errno);
+    }
     return status == 0;
   }
 
@@ -197,9 +204,9 @@ namespace PLEXIL
   bool PosixTimeAdapter::deleteTimer()
   {
     int status = timer_delete(m_timer);
-    condDebugMsg(status != 0,
-                 "TimeAdapter:deleteTimer",
-                 " timer_delete failed, errno = " << errno);
+    if (status) {
+      warn("PosixTimeAdapter: timer_delete failed, errno = " << errno);
+    }
     return status == 0;
   }
 
@@ -209,16 +216,20 @@ namespace PLEXIL
    */
   bool PosixTimeAdapter::configureWaitThreadSigmask(sigset_t* mask)
   {
-    assertTrue_2(0 == sigemptyset(mask),
-                 "PosixTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
+    if (sigemptyset(mask)) {
+      warn("PosixTimeAdapter: sigemptyset failed!");
+      return false;
+    }
+
     int errnum = sigaddset(mask, SIGALRM);
     errnum = errnum | sigaddset(mask, SIGINT);
     errnum = errnum | sigaddset(mask, SIGHUP);
     errnum = errnum | sigaddset(mask, SIGQUIT);
     errnum = errnum | sigaddset(mask, SIGTERM);
     errnum = errnum | sigaddset(mask, SIGUSR2);
-    assertTrue_2(errnum == 0,
-                 "PosixTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
+    if (errnum) {
+      warn("PosixTimeAdapter: sigaddset failed!");
+    }
     return errnum == 0;
   }
 
@@ -230,10 +241,14 @@ namespace PLEXIL
   bool PosixTimeAdapter::initializeSigwaitMask(sigset_t* mask)
   {
     // listen only for SIGUSR1
-    assertTrue_2(0 == sigemptyset(mask),
-                 "PosixTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
-    assertTrue_2(0 == sigaddset(mask, SIGUSR1),
-                 "PosixTimeAdapter::initializeSigwaitMask: sigaddset failed!");
+    if (sigemptyset(mask)) {
+      warn("PosixTimeAdapter: sigemptyset failed!");
+      return false;
+    }
+    if (sigaddset(mask, SIGUSR1)) {
+      warn("PosixTimeAdapter: sigaddset failed!");
+      return false;
+    }
     return true;
   }
 
