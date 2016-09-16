@@ -93,10 +93,6 @@ namespace PLEXIL
       debugMsg("TimeAdapter:stop", " stopTimer() failed");
     }
 
-    if (!deleteTimer()) {
-      debugMsg("TimeAdapter:stop", " deleteTimer() failed");
-    }
-
     // N.B. on Linux SIGUSR1 does double duty as both terminate and timer wakeup,
     // so we need the stopping flag to figure out which is which.
 #ifdef PLEXIL_WITH_THREADS
@@ -116,6 +112,11 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::shutdown()
   {
+    if (!deleteTimer()) {
+      debugMsg("TimeAdapter:shutdown", " deleteTimer() failed");
+      return false;
+    }
+    debugMsg("TimeAdapter:shutdown", " complete");
     return true;
   }
 
@@ -124,10 +125,11 @@ namespace PLEXIL
     if (state != State::timeState()) {
       warn("TimeAdapter does not implement lookups for state " << state);
       cacheEntry.setUnknown();
+      return;
     }
-    else {
-      cacheEntry.update(getCurrentTime());
-    }
+
+    debugMsg("TimeAdapter:lookupNow", " called");
+    cacheEntry.update(getCurrentTime());
   }
 
   void TimeAdapterImpl::subscribe(const State& state)
