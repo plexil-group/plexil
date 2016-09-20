@@ -112,6 +112,15 @@ public class NodeContext
         return false;
     }
 
+    public boolean isLocalNodeId(String name)
+    {
+        if (name == null)
+            return false;
+        if (m_nodeName.equals(name))
+            return true;
+        return m_childIds.containsKey(name);
+    }
+
     public boolean isSiblingNodeId(String name)
     {
         if (m_parentContext == null)
@@ -172,12 +181,19 @@ public class NodeContext
     }
 
     // Meant to be called from a node reference.
+    // Should implement same rules as parseNodeId() function
+    // in src/xml-parser/InternalExpressionFactories.cc.
     public boolean isNodeIdReachable(String name)
     {
-        return name.equals(m_nodeName)
-            || isAncestorNodeId(name)
-            || isChildNodeId(name)
-            || isSiblingNodeId(name);
+        if (isLocalNodeId(name))
+            return true;
+        NodeContext parent = m_parentContext;
+        while (parent != null) {
+            if (parent.isLocalNodeId(name))
+                return true;
+            parent = parent.getParentContext();
+        }
+        return false;
     }
 
     // Meant to be called from a node reference.
