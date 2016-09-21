@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -83,8 +83,9 @@ namespace PLEXIL {
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
+     * @note May be overridden (or wrapped) by derived classes.
      */
-    void addListener(ExpressionListener *ptr);
+    virtual void addListener(ExpressionListener *ptr);
 
     /**
      * @brief Remove a listener from this Expression.
@@ -97,7 +98,10 @@ namespace PLEXIL {
      */
     void notifyChanged(Expression const *src);
 
-    size_t getListenerCount() const;
+    /**
+     * @brief Determine whether or not expression has any listeners.
+     */
+    bool hasListeners() const;
 
 #ifdef RECORD_EXPRESSION_STATS    
     /**
@@ -109,6 +113,11 @@ namespace PLEXIL {
      * @brief Get next in instance list
      */
     NotifierImpl const *next() const;
+
+    /**
+     * @brief Get number of listeners for this expression
+     */
+    size_t getListenerCount() const;
 #endif
 
   protected:

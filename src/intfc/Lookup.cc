@@ -53,19 +53,16 @@ namespace PLEXIL
       m_stateNameIsGarbage(stateNameIsGarbage),
       m_isRegistered(false)
   {
-    if (!m_stateName->isConstant()) {
-      m_stateName->addListener(this);
+    if (!m_stateName->isConstant())
       m_stateIsConstant = false;
-    }
+
     if (m_paramVec) {
       bool parmsAreConstant = true;
       for (size_t i = 0; i < m_paramVec->size(); ++i)
         if (!(*m_paramVec)[i]->isConstant())
           parmsAreConstant = false;
-      if (!parmsAreConstant) {
-        m_paramVec->addListener(this);
+      if (!parmsAreConstant)
         m_stateIsConstant = false;
-      }
     }
     
     // If all expressions are constants, cache state now
@@ -82,12 +79,12 @@ namespace PLEXIL
       unregister();
       m_entry = NULL;
     }
-    if (m_paramVec) {
-      m_paramVec->removeListener(this);
-      delete m_paramVec;
-    }
-    if (!m_stateName->isConstant())
+    if (!m_stateIsConstant) {
+      if (m_paramVec)
+        m_paramVec->removeListener(this);
       m_stateName->removeListener(this);
+    }
+    delete m_paramVec;
     if (m_stateNameIsGarbage)
       delete m_stateName;
   }
@@ -122,6 +119,17 @@ namespace PLEXIL
         s << ' ' << *(*m_paramVec)[i];
     }
     s << ' ';
+  }
+
+  void Lookup::addListener(ExpressionListener *l)
+  {
+    if (!hasListeners() && !m_stateIsConstant) {
+      if (!m_stateName->isConstant())
+        m_stateName->addListener(this);
+      if (m_paramVec)
+        m_paramVec->addListener(this);
+    }
+    NotifierImpl::addListener(l);
   }
 
   void Lookup::handleActivate()
@@ -590,9 +598,6 @@ namespace PLEXIL
       m_tolerance(tolerance),
       m_toleranceIsGarbage(toleranceIsGarbage)
   {
-    debugMsg("LookupOnChange", " constructor");
-    if (!m_tolerance->isConstant())
-      m_tolerance->addListener(this);
   }
 
   LookupOnChange::~LookupOnChange()
@@ -619,6 +624,13 @@ namespace PLEXIL
     updateInternal(true);     // may cause redundant notifications
     if (this->isKnown())
       this->publishChange(this);
+  }
+
+  void LookupOnChange::addListener(ExpressionListener *l)
+  {
+    if (!hasListeners() && !m_tolerance->isConstant())
+      m_tolerance->addListener(this);
+    Lookup::addListener(l);
   }
 
   // TODO: Optimization opportunity if state is known to be constant

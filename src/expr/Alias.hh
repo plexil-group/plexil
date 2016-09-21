@@ -94,6 +94,9 @@ namespace PLEXIL
      */
     Value toValue() const;
 
+    // Wrap NotifierImpl method
+    virtual void addListener(ExpressionListener *l);
+
   protected:
 
     // The expression being aliased.

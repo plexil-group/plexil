@@ -79,6 +79,9 @@ namespace PLEXIL
     void printValue(std::ostream &s) const;
     void printSubexpressions(std::ostream &s) const;
 
+    // Wrap NotifierImpl method
+    virtual void addListener(ExpressionListener *l);
+
     // Common behavior required by NotifierImpl
     void handleActivate();
     void handleDeactivate();
@@ -214,6 +217,9 @@ namespace PLEXIL
      * @return The Value instance.
      */
     Value toValue() const;
+
+    // Wrap NotifierImpl method
+    virtual void addListener(ExpressionListener *l);
 
   private:
     // Prohibit default, copy, assign

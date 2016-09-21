@@ -39,7 +39,6 @@ namespace PLEXIL
       m_exprVec(exprs),
       m_valueCache(op->allocateCache())
   {
-    m_exprVec->addListener(this);
   }
 
   Function::Function(Operator const *op,
@@ -51,7 +50,6 @@ namespace PLEXIL
       m_valueCache(op->allocateCache())
   {
     m_exprVec->setArgument(0, expr, garbage);
-    m_exprVec->addListener(this);
   }
 
   Function::Function(Operator const *op,
@@ -64,7 +62,6 @@ namespace PLEXIL
   {
     m_exprVec->setArgument(0, expr1, garbage1);
     m_exprVec->setArgument(1, expr2, garbage2);
-    m_exprVec->addListener(this);
   }
 
   Function::~Function()
@@ -82,6 +79,13 @@ namespace PLEXIL
   const ValueType Function::valueType() const
   {
     return m_op->valueType();
+  }
+
+  void Function::addListener(ExpressionListener *ptr)
+  {
+    if (!this->hasListeners())
+      m_exprVec->addListener(this);
+    NotifierImpl::addListener(ptr);
   }
 
   void Function::handleActivate()

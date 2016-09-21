@@ -129,6 +129,14 @@ namespace PLEXIL {
   {
   }
 
+  /**
+   * @brief Determine whether or not expression has any listeners.
+   */
+  bool NotifierImpl::hasListeners() const
+  {
+    return !m_outgoingListeners.empty();
+  }
+
   void NotifierImpl::notifyChanged(Expression const *src)
   {
     if (isActive()) {
@@ -191,11 +199,6 @@ namespace PLEXIL {
         (*it)->notifyChanged(src);
   }
 
-  size_t NotifierImpl::getListenerCount() const
-  {
-    return m_outgoingListeners.size();
-  }
-
 #ifdef RECORD_EXPRESSION_STATS
   NotifierImpl const *NotifierImpl::next() const
   {
@@ -205,6 +208,11 @@ namespace PLEXIL {
   NotifierImpl const *NotifierImpl::getInstanceList()
   {
     return s_instanceList;
+  }
+
+  size_t NotifierImpl::getListenerCount() const
+  {
+    return m_outgoingListeners.size();
   }
 #endif
 

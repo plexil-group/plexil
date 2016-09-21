@@ -47,7 +47,6 @@ namespace PLEXIL
       m_name(strdup(name)),
       m_garbage(garbage)
   {
-    m_exp->addListener(this);
   }
 
   Alias::~Alias()
@@ -56,6 +55,13 @@ namespace PLEXIL
     if (m_garbage)
       delete m_exp;
     free((void *)m_name);
+  }
+
+  void Alias::addListener(ExpressionListener *l)
+  {
+    if (!hasListeners())
+      m_exp->addListener(this);
+    NotifierImpl::addListener(l);
   }
 
   char const *Alias::getName() const

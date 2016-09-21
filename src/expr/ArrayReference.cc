@@ -198,6 +198,15 @@ namespace PLEXIL
       return ary->getElementValue(idx);
   }
   
+  void ArrayReference::addListener(ExpressionListener *l)
+  {
+    if (!hasListeners()) {
+      m_array->addListener(this);
+      m_index->addListener(this);
+    }
+    NotifierImpl::addListener(l);
+  }
+
   void ArrayReference::handleActivate()
   {
     m_array->activate();
