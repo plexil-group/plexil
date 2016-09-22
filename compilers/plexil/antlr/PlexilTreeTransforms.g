@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ options
     filter = true;
 	rewrite = true;
     backtrack = true;
+    k = 2; // this is essential!
 }
 
 @header
@@ -70,6 +71,16 @@ import plexil.*;
 													 getErrorHeader(e) + " " + getErrorMessage(e, tokenNames),
 													 Severity.ERROR);
 	}
+
+    // Debugging aid.
+//    public void reportTransformation(Object oldTree, Object newTree)
+//    {
+//        System.out.println("Optimizer: transforming\n  "
+//                           + ((PlexilTreeNode) oldTree).toStringTree()
+//                           + "\n to\n  "
+//                           + ((PlexilTreeNode) newTree).toStringTree());
+//    }
+
 }
 
 ////////////////////////////////////////
@@ -77,17 +88,22 @@ import plexil.*;
 ////////////////////////////////////////
 
 topdown:
-        enterContext ;
+        enterContext
+    ;
 
 bottomup:
-        exitContext
-    |   leftAssociativeReduction
+        trivialReduction    
+    |   booleanIdentityElision
+    |   integerIdentityElision
+    |   realIdentityElision
+    |   booleanEqualityNegation
     |   rightAssociativeReduction
-    |   identityElision
-    |   booleanEqualityReduction
-    |   trivialReduction    
+    |   leftAssociativeReduction
     |   flattenTrivialBlocks
+    |   flattenTrivialSequences
+    |   flattenTrivialUncheckedSequences
     |   flattenTrivialConcurrences
+    |   exitContext
     ;
 
 //
@@ -98,7 +114,7 @@ enterContext:
         bindingContextNode
         {
             m_context = $bindingContextNode.start.getContext();
-            // System.out.println("Enter context " + m_context.getNodeName()); // DEBUG
+//            System.out.println("Enter context " + m_context.getNodeName()); // DEBUG
         } ;
 
 //
@@ -108,9 +124,9 @@ enterContext:
 exitContext:
         bindingContextNode
         {
-            // System.out.println("Exit context " + m_context.getNodeName()); // DEBUG
+//            System.out.println("Exit context " + m_context.getNodeName()); // DEBUG
             m_context = m_context.getParentContext();
-            // System.out.println("Restore context " + m_context.getNodeName()); // DEBUG
+//            System.out.println("Restore context " + m_context.getNodeName()); // DEBUG
         } ;
 
 //
@@ -119,26 +135,26 @@ exitContext:
 
 // Combine instances of same binary operator when appropriate
 
-leftAssociativeReduction:
-        ^(AND_KYWD ^(AND_KYWD (args+=.)+) args+=.) -> ^(AND_KYWD $args+)
-    |   ^(OR_KYWD ^(OR_KYWD (args+=.)+) args+=.)   -> ^(OR_KYWD $args+)
-    |   ^(PLUS ^(PLUS (args+=.)+) args+=.)         -> ^(PLUS $args+)
-    |   ^(MINUS ^(MINUS args+=. (args+=.)+) args+=.)       -> ^(MINUS $args+)
-    |   ^(ASTERISK ^(ASTERISK (args+=.)+) args+=.) -> ^(ASTERISK $args+)
-    |   ^(SLASH ^(SLASH args+=. (args+=.)+) args+=.) -> ^(ASTERISK $args+)
-    |   ^(MAX_KYWD ^(MAX_KYWD (args+=.)+) args+=.) -> ^(MAX_KYWD $args+)
-    |   ^(MIN_KYWD ^(MIN_KYWD (args+=.)+) args+=.) -> ^(MIN_KYWD $args+)
-    ;
-
 rightAssociativeReduction:
-        ^(AND_KYWD (args+=.)+ ^(AND_KYWD (args+=.)+) ) -> ^(AND_KYWD $args+)
-    |   ^(OR_KYWD (args+=.)+ ^(OR_KYWD (args+=.)+))   -> ^(OR_KYWD $args+)
-    |   ^(PLUS (args+=.)+ ^(PLUS (args+=.)+))         -> ^(PLUS $args+)
-    |   ^(ASTERISK (args+=.)+ ^(ASTERISK (args+=.)+)) -> ^(ASTERISK $args+)
-    |   ^(MAX_KYWD (args+=.)+ ^(MAX_KYWD (args+=.)+)) -> ^(MAX_KYWD $args+)
-    |   ^(MIN_KYWD (args+=.)+ ^(MIN_KYWD (args+=.)+)) -> ^(MIN_KYWD $args+)
+        ^(AND_KYWD args+=. ^(AND_KYWD (args+=.)+) ) -> ^(AND_KYWD $args+)
+    |   ^(OR_KYWD args+=. ^(OR_KYWD (args+=.)+))   -> ^(OR_KYWD $args+)
+    |   ^(PLUS args+=. ^(PLUS (args+=.)+))         -> ^(PLUS $args+)
+    |   ^(ASTERISK args+=. ^(ASTERISK (args+=.)+)) -> ^(ASTERISK $args+)
+    |   ^(MAX_KYWD args+=. ^(MAX_KYWD (args+=.)+)) -> ^(MAX_KYWD $args+)
+    |   ^(MIN_KYWD args+=. ^(MIN_KYWD (args+=.)+)) -> ^(MIN_KYWD $args+)
     ;
 
+leftAssociativeReduction:
+        ^(AND_KYWD ^(AND_KYWD (args+=.)+) (args+=.)+ )   -> ^(AND_KYWD $args+)
+    |   ^(OR_KYWD ^(OR_KYWD (args+=.)+) (args+=.)+ )     -> ^(OR_KYWD $args+)
+    |   ^(PLUS ^(PLUS (args+=.)+) (args+=.)+ )           -> ^(PLUS $args+)
+    |   ^(MINUS ^(MINUS args+=. (args+=.)+) (args+=.)+ ) -> ^(MINUS $args+)
+    |   ^(ASTERISK ^(ASTERISK (args+=.)+) (args+=.)+ )   -> ^(ASTERISK $args+)
+    |   ^(MAX_KYWD ^(MAX_KYWD (args+=.)+) (args+=.)+ )   -> ^(MAX_KYWD $args+)
+    |   ^(MIN_KYWD ^(MIN_KYWD (args+=.)+) (args+=.)+ ) -> ^(MIN_KYWD $args+)
+    ;
+
+// I don't think the grammar generates these, but the reductions above might.
 trivialReduction:
         ^(AND_KYWD arg=.) -> $arg
     |   ^(OR_KYWD arg=.) -> $arg
@@ -154,30 +170,42 @@ trivialReduction:
 // Constant propagation
 //
 
-identityElision:
-        ^(AND_KYWD (args+=.)* TRUE_KYWD (args+=.)*) -> ^(AND_KYWD $args*)
-    |   ^(OR_KYWD (args+=.)* FALSE_KYWD (args+=.)*) -> ^(OR_KYWD $args*)
-    |   ^(PLUS (args+=.)* i=INT (args+=.)* {Integer.valueOf($i.text) == 0}?) -> ^(PLUS $args*)
-    |   ^(PLUS (args+=.)* d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 0}?) -> ^(PLUS $args*)
-    |   ^(MINUS (args+=.)+ i=INT (args+=.)* {Integer.valueOf($i.text) == 0}?) -> ^(MINUS $args*)
-    |   ^(MINUS (args+=.)+ d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 0}?) -> ^(MINUS $args*)
-    |   ^(ASTERISK (args+=.)* i=INT (args+=.)* {Integer.valueOf($i.text) == 1}?) -> ^(ASTERISK $args*)
-    |   ^(ASTERISK (args+=.)* d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 1}?) -> ^(ASTERISK $args*)
-    |   ^(SLASH (args+=.)+ i=INT (args+=.)* {Integer.valueOf($i.text) == 1}?) -> ^(SLASH $args*)
-    |   ^(SLASH (args+=.)+ d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 1}?) -> ^(SLASH $args*)
-    ;
-
-booleanEqualityReduction:
-        ^(DEQUALS arg=. TRUE_KYWD) -> $arg
+booleanIdentityElision:
+        ^(AND_KYWD TRUE_KYWD arg=.) -> $arg
+    |   ^(AND_KYWD arg=. TRUE_KYWD) -> $arg
+    |   ^(OR_KYWD FALSE_KYWD arg=.) -> $arg
+    |   ^(OR_KYWD arg=. FALSE_KYWD) -> $arg
     |   ^(DEQUALS TRUE_KYWD arg=.) -> $arg
-    |   ^(DEQUALS arg=. FALSE_KYWD) -> ^(NOT_KYWD $arg)
-    |   ^(DEQUALS FALSE_KYWD arg=.) -> ^(NOT_KYWD $arg)
-    |   ^(NEQUALS arg=. FALSE_KYWD) -> $arg
+    |   ^(DEQUALS arg=. TRUE_KYWD) -> $arg
     |   ^(NEQUALS FALSE_KYWD arg=.) -> $arg
-    |   ^(NEQUALS arg=. TRUE_KYWD) -> ^(NOT_KYWD $arg)
-    |   ^(NEQUALS TRUE_KYWD arg=.) -> ^(NOT_KYWD $arg)
+    |   ^(NEQUALS arg=. FALSE_KYWD) -> $arg
+    ;
+    
+integerIdentityElision:
+        ^(PLUS i=INT arg=. {Integer.valueOf($i.text) == 0}?) -> $arg
+    |   ^(PLUS arg=. i=INT {Integer.valueOf($i.text) == 0}?) -> $arg
+    |   ^(MINUS arg=. i=INT {Integer.valueOf($i.text) == 0}?) -> $arg
+    |   ^(ASTERISK i=INT arg=. {Integer.valueOf($i.text) == 1}?) -> $arg
+    |   ^(ASTERISK arg=. i=INT {Integer.valueOf($i.text) == 1}?) -> $arg
+    |   ^(SLASH arg=. i=INT {Integer.valueOf($i.text) == 1}?) -> $arg
     ;
 
+realIdentityElision:
+        ^(PLUS i=DOUBLE arg=. {Double.valueOf($i.text) == 0.0}?) -> $arg
+    |   ^(PLUS arg=. i=DOUBLE {Double.valueOf($i.text) == 0.0}?) -> $arg
+    |   ^(MINUS arg=. i=DOUBLE {Double.valueOf($i.text) == 0.0}?) -> $arg
+    |   ^(ASTERISK i=DOUBLE arg=. {Double.valueOf($i.text) == 1.0}?) -> $arg
+    |   ^(ASTERISK arg=. i=DOUBLE {Double.valueOf($i.text) == 1.0}?) -> $arg
+    |   ^(SLASH arg=. i=DOUBLE {Double.valueOf($i.text) == 1.0}?) -> $arg
+    ;
+
+booleanEqualityNegation:
+        ^(DEQUALS FALSE_KYWD arg=.) -> ^(NOT_KYWD $arg)
+    |   ^(DEQUALS arg=. FALSE_KYWD) -> ^(NOT_KYWD $arg)
+    |   ^(NEQUALS TRUE_KYWD arg=.)  -> ^(NOT_KYWD $arg)
+    |   ^(NEQUALS arg=. TRUE_KYWD)  -> ^(NOT_KYWD $arg)
+    ;
+        
 // Block flattening
 
 flattenTrivialBlocks:
@@ -185,7 +213,28 @@ flattenTrivialBlocks:
         -> $innerUnnamed
     |   ^(ACTION ^(BLOCK innerNamed=namedAction))
         -> $innerNamed
+    |   ^(ACTION NCNAME ^(BLOCK namedAction)) // no transform
     |   ^(ACTION outerId=NCNAME ^(BLOCK ^(ACTION body=.)))
+        -> ^(ACTION $outerId $body)
+    ;
+
+flattenTrivialSequences:
+        ^(ACTION ^(SEQUENCE_KYWD innerUnnamed=unnamedAction))
+        -> $innerUnnamed
+    |   ^(ACTION ^(SEQUENCE_KYWD innerNamed=namedAction))
+        -> $innerNamed
+    |   ^(ACTION NCNAME ^(SEQUENCE_KYWD namedAction)) // no transform
+    |   ^(ACTION outerId=NCNAME ^(SEQUENCE_KYWD ^(ACTION body=.)))
+        -> ^(ACTION $outerId $body)
+    ;
+
+flattenTrivialUncheckedSequences:
+        ^(ACTION ^(UNCHECKED_SEQUENCE_KYWD innerUnnamed=unnamedAction))
+        -> $innerUnnamed
+    |   ^(ACTION ^(UNCHECKED_SEQUENCE_KYWD innerNamed=namedAction))
+        -> $innerNamed
+    |   ^(ACTION NCNAME ^(UNCHECKED_SEQUENCE_KYWD namedAction)) // no transform
+    |   ^(ACTION outerId=NCNAME ^(UNCHECKED_SEQUENCE_KYWD ^(ACTION body=.)))
         -> ^(ACTION $outerId $body)
     ;
 
@@ -194,6 +243,7 @@ flattenTrivialConcurrences:
         -> $innerUnnamed
     |   ^(ACTION ^(CONCURRENCE_KYWD innerNamed=namedAction))
         -> $innerNamed
+    |   ^(ACTION NCNAME ^(CONCURRENCE_KYWD namedAction)) // no transform
     |   ^(ACTION outerId=NCNAME ^(CONCURRENCE_KYWD ^(ACTION body=.)))
         -> ^(ACTION $outerId $body)
     ;
