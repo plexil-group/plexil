@@ -42,27 +42,27 @@ InactiveAncestorInvariantTest{
 [PlexilExec:step][1:3] State change queue: TheParent 
 [PlexilExec:step][1:3:0] Transitioning node TheParent from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node InactiveAncestorInvariantTest
-[PlexilExec:notifyNodeConditionChanged] for node TheChild
 [PlexilExec:notifyNodeConditionChanged] for node TheParent
+[PlexilExec:notifyNodeConditionChanged] for node TheChild
 [PlexilExec:handleNeedsExecution]Storing action for node 'TheParent' of type 'NodeList' to be executed.
-[PlexilExec:step][1:4] Check queue: InactiveAncestorInvariantTest TheChild TheParent 
+[PlexilExec:step][1:4] Check queue: InactiveAncestorInvariantTest TheParent TheChild 
 [PlexilExec:handleConditionsChanged]Node InactiveAncestorInvariantTest had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'InactiveAncestorInvariantTest' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'InactiveAncestorInvariantTest' on the state change queue in position 5
-[PlexilExec:handleConditionsChanged]Node TheChild had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'TheChild' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TheChild' on the state change queue in position 6
 [PlexilExec:handleConditionsChanged]Node TheParent had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'TheParent' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TheParent' on the state change queue in position 7
-[PlexilExec:step][1:4] State change queue: InactiveAncestorInvariantTest TheChild TheParent 
+[PlexilExec:handleConditionsChanged]Placing node 'TheParent' on the state change queue in position 6
+[PlexilExec:handleConditionsChanged]Node TheChild had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TheChild' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TheChild' on the state change queue in position 7
+[PlexilExec:step][1:4] State change queue: InactiveAncestorInvariantTest TheParent TheChild 
 [PlexilExec:step][1:4:0] Transitioning node InactiveAncestorInvariantTest from EXECUTING to FAILING
 [PlexilExec:notifyNodeConditionChanged] for node InactiveAncestorInvariantTest
-[PlexilExec:step][1:4:1] Transitioning node TheChild from INACTIVE to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node TheChild
+[PlexilExec:step][1:4:1] Transitioning node TheParent from EXECUTING to FAILING
 [PlexilExec:notifyNodeConditionChanged] for node TheParent
-[PlexilExec:step][1:4:2] Transitioning node TheParent from EXECUTING to FAILING
-[PlexilExec:step][1:5] Check queue: InactiveAncestorInvariantTest TheChild TheParent 
+[PlexilExec:notifyNodeConditionChanged] for node TheChild
+[PlexilExec:step][1:4:2] Transitioning node TheChild from INACTIVE to FINISHED
+[PlexilExec:step][1:5] Check queue: InactiveAncestorInvariantTest TheParent TheChild 
 [PlexilExec:handleConditionsChanged]Node TheParent had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'TheParent' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'TheParent' on the state change queue in position 8
