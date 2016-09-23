@@ -25,35 +25,39 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
-              command0 command1 command2 command3 command4 command5 ComputedCommandName \
-              sequence0 sequence1 sequence2 sequence3 \
-              assignment0 assignment1 assignment2 ArglistArithmeticType \
-              comment1 concurrence0 concurrence1 concurrence2 concurrence3 \
-              Fibs Fib PrintFib FibTest \
-              CopyReals on-command1 on-command2 isKnown1 for1 for2 \
-              on-message1 on-message2 concat1 nodeState1 nodeState2 \
-              nodeOutcome1 command-handle1 interface-test interface-test1 \
-              DriveToSchool SafeDrive CruiseControl sync-cmd-test sync-cmd-test1 \
-              simpleIf simpleIfThenElse simpleAssignment while1 AddArray ArrayLookup \
-              Decrement Increment Sum RoboSimSimple2 SimpleDrive \
-              array-add array-complex array-copy basic-wait-test boolean1 \
-              duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
-              LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 \
-              library-call1 LibraryCallWithArray \
-              CallWithPostCondition \
-              library-node1 literal-format-test \
-              if2 if3 if4 test-recv test-send \
-              lookup2 LookupWithComputedStateName \
-              maxTest minTest mod1 expr1 expr3 expr4 \
-              try1 update1 update2 update3 \
-              resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
-              invariantFail1 succeeded1 waiting1 executing1 executing2 \
-              finished1 failed1 skipped1 \
-              iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 \
-              inactive1 wait1 date1 \
-              time-lookup-test time-lookup-test1 time_tolerance_test timed-iteration \
-              strlen_test array_size_test
+SMALL_TESTS = AddArray ArglistArithmeticType ArrayLookup \
+ array-add array-complex array-copy array_size_test \
+ assignment0 assignment1 assignment2 \
+ basic-wait-test boolean1 boolean2 boolean3 boolean4 boolean5 \
+ CallWithPostCondition \
+ command0 command1 command2 command3 command4 command5 command-handle1 \
+ comment1 ComputedCommandName concat1 concurrence0 concurrence1 concurrence2 \
+ concurrence3 CopyReals CruiseControl \
+ date1 Decrement DriveToSchool DriveToTarget duplicate-node-name \
+ empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
+ Exchange executing1 executing2 expr1 expr3 expr4 \
+ failed1 Fibs Fib PrintFib FibTest finished1 for1 for2 \
+ if2 if3 if4 ifWithClauseIds inactive1 Increment interface-test interface-test1 \
+ invariantFail1 isKnown1 \
+ iterationEnded1 iterationFailed1 iterationSucceeded1 \
+ LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 library-call1 \
+ LibraryCallWithArray library-node1 literal-format-test \
+ lookup2 LookupWithComputedStateName \
+ maxTest minTest mod1 \
+ NestedBlocks1 NestedBlocks2 NestedBlocks3 NestedBlocks4 NestedBlocks5 \
+ NestedBlocks6 NestedBlocks7 nodeOutcome1 nodeState1 nodeState2 \
+ on-command1 on-command2 on-message1 on-message2 \
+ preconditionFailed1 \
+ resource0 Resource1 Resource2 Resource3 Resource4 RoboSimSimple2 \
+ SafeDrive sequence0 sequence1 sequence2 sequence3 \
+ simpleIf SimpleDrive simpleIfThenElse simpleAssignment skipped1 \
+ StringConcat1 StringConcat2 StringConcat3 StringConcat4 StringConcat5 \
+ StringConcat6 StringConcat7 StringConcat8 strlen_test \
+ succeeded1 Sum sync-cmd-test sync-cmd-test1 \
+ test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
+ timed-iteration tolerance1 try1 \
+ update1 update2 update3 \
+ wait1 waiting1 while1
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
@@ -81,32 +85,46 @@ DIFF = /tmp/plexil-$$$$
 test: | setup output
 	@ echo Translating Standard Plexil tests...
 	@ failure=0;\
-	echo '--- Begin validation tests ---' ; \
+	echo '--- Begin validation and verification tests ---' ; \
 	for i in $(TESTS); do \
+		thisFailure=0; \
 		../PlexilCompiler --epx-only -o output/$$i.epx input/$$i.ple ; \
-		xmllint --noout --schema $(EPX_SCHEMA) output/$$i.epx 2>>tempRegressionResults 1>&2 ; \
 		if [ $$? -ne 0 ] ; then \
-			echo "*** Validation of $$i.epx failed" >> tempRegressionResults ; \
-			echo "*** Validation of $$i.epx failed" ; \
-			failure=1 ; \
+			echo "*** Compilation of $$i.ple failed ***" >> tempRegressionResults; \
+			echo "*** Compilation of $$i.ple failed ***"; \
+			thisFailure=1; failure=1; \
+        fi; \
+		if [ $${thisFailure} -eq 0 ]; then \
+			xmllint --noout --schema $(EPX_SCHEMA) output/$$i.epx 2>>tempRegressionResults 1>&2 ; \
+			if [ $$? -ne 0 ] ; then \
+				echo "*** Validation of $$i.epx failed ***" >> tempRegressionResults ; \
+				echo "*** Validation of $$i.epx failed ***" ; \
+				thisFailure=1; failure=1 ; \
+			fi ; \
 		fi ; \
-		diff output/$$i.epx valid/valid-$$i.epx > $(DIFF) ; \
-		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
-		if [ $$diffsize -eq 0 ] ; then \
-		  echo "Verified $$i.epx" >> tempRegressionResults ; \
-		  echo "Verified $$i.epx" ; \
-		else \
-			cat $(DIFF) >> tempRegressionResults ; \
-			echo "*** Verification of $$i.epx failed ***" >> tempRegressionResults ; \
-			echo "*** Verification of $$i.epx failed ***" ; \
-			failure=1 ; \
+		if [ $${thisFailure} -eq 0 ]; then \
+			if [ -f valid/valid-$$i.epx ] ; then \
+				diff output/$$i.epx valid/valid-$$i.epx > $(DIFF) ; \
+				diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
+				if [ $$diffsize -eq 0 ] ; then \
+					echo "Verified $$i.epx" >> tempRegressionResults ; \
+					echo "Verified $$i.epx" ; \
+				else \
+					cat $(DIFF) >> tempRegressionResults ; \
+					echo "*** Verification of $$i.epx failed ***" >> tempRegressionResults ; \
+					echo "*** Verification of $$i.epx failed ***" ; \
+					thisFailure=1; failure=1 ; \
+				fi ; \
+			else \
+				echo "Validated $$i.epx; no valid file, skipping verification" ; \
+			fi ; \
 		fi ; \
 	done ; \
     if [ $${failure} -ne 0 ] ; then \
 		echo '*** Validation tests failed ***' ; \
 		exit $${failure} ; \
 	fi ; \
-	echo '--- Validation tests complete ---'
+	echo '--- Validation and verification tests complete ---'
 
 # For developers: Check the current output agains the benchmarks.
 checkall:
