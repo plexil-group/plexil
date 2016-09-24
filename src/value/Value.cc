@@ -28,8 +28,8 @@
 
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
-#include "Error.hh"
 #include "NodeConstants.hh"
+#include "PlanError.hh"
 
 namespace PLEXIL
 {
@@ -315,16 +315,17 @@ namespace PLEXIL
       else if (eltType == INTEGER_TYPE && itype == REAL_TYPE)
         eltType = itype; // promote int to real
       else if (eltType != itype) {
-        assertTrue_2(ALWAYS_FAIL, "Value constructor: Inconsistent value types in vector");
+        checkPlanError(ALWAYS_FAIL,
+                       "Value constructor: Inconsistent value types in vector");
         m_known = false;
       }
       // else type is consistent
     }
 
-    assertTrue_2(eltType != UNKNOWN_TYPE,
-                 "Value constructor: Can't make array of all unknowns");
-    assertTrue_2(eltType < SCALAR_TYPE_MAX,
-                 "Value constructor: Can't make array of arrays");
+    checkPlanError(eltType != UNKNOWN_TYPE,
+                   "Value constructor: Can't make array of all unknowns");
+    checkPlanError(eltType < SCALAR_TYPE_MAX,
+                   "Value constructor: Can't make array of arrays");
 
     // Construct array value
     switch (eltType) {
@@ -756,10 +757,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != BOOLEAN_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a Boolean value");
-      return false;
-    }
+    checkPlanError(m_type == BOOLEAN_TYPE,
+                   "Attempt to get Boolean value of a "
+                   << valueTypeName(m_type) << " Value");
     result = booleanValue;
     return true;
   }
@@ -768,11 +768,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != NODE_STATE_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeState value");
-      return false;
-    }
-
+    checkPlanError(m_type == NODE_STATE_TYPE,
+                   "Attempt to get a NodeState value from a "
+                   << valueTypeName(m_type) << " Value");
     result = stateValue;
     return true;
   }
@@ -781,11 +779,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != OUTCOME_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a NodeOutcome value");
-      return false;
-    }
-
+    checkPlanError(m_type == OUTCOME_TYPE,
+                   "Attempt to get a NodeOutcome value from a "
+                   << valueTypeName(m_type) << " Value");
     result = outcomeValue;
     return true;
   }
@@ -794,11 +790,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != FAILURE_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a FailureType value");
-      return false;
-    }
-
+    checkPlanError(m_type == FAILURE_TYPE,
+                   "Attempt to get a FailureType value from a "
+                   << valueTypeName(m_type) << " Value");
     result = failureValue;
     return true;
   }
@@ -807,11 +801,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != COMMAND_HANDLE_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a CommandHandle value");
-      return false;
-    }
-
+    checkPlanError(m_type == COMMAND_HANDLE_TYPE,
+                   "Attempt to get a CommandHandle value from a "
+                   << valueTypeName(m_type) << " Value");
     result = commandHandleValue;
     return true;
   }
@@ -820,10 +812,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != INTEGER_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not an Integer value");
-      return false;
-    }
+    checkPlanError(m_type == INTEGER_TYPE,
+                   "Attempt to get an Integer value from a "
+                   << valueTypeName(m_type) << " Value");
     result = integerValue;
     return true;
   }
@@ -842,7 +833,9 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a Real or Integer value");
+      checkPlanError(ALWAYS_FAIL,
+                     "Attempt to get a Real value from a "
+                     << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -851,10 +844,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != STRING_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValue: not a String value");
-      return false;
-    }
+    checkPlanError(m_type == STRING_TYPE,
+                   "Attempt to get a String value from a "
+                   << valueTypeName(m_type) << " Value");
     result = *stringValue;
     return true;
   }
@@ -863,10 +855,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != STRING_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a String value");
-      return false;
-    }
+    checkPlanError(m_type == STRING_TYPE,
+                   "Attempt to get a String value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = stringValue.get();
     return true;
   }
@@ -884,7 +875,9 @@ namespace PLEXIL
       return true;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not an Array value");
+      checkPlanError(ALWAYS_FAIL,
+                     "Attempt to get an Array value from a "
+                     << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -893,10 +886,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != BOOLEAN_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a BooleanArray value");
-      return false;
-    }
+    checkPlanError(m_type == BOOLEAN_ARRAY_TYPE,
+                   "Attempt to get a BooleanArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<BooleanArray const *>(arrayValue.get());
     assertTrue_1(ptr);
     return true;
@@ -906,10 +898,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != INTEGER_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not an IntegerArray value");
-      return false;
-    }
+    checkPlanError(m_type == INTEGER_ARRAY_TYPE,
+                   "Attempt to get a IntegerArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<IntegerArray const *>(arrayValue.get());
     assertTrue_1(ptr);
     return true;
@@ -919,10 +910,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != REAL_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a RealArray value");
-      return false;
-    }
+    checkPlanError(m_type == REAL_ARRAY_TYPE,
+                   "Attempt to get a RealArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<RealArray const *>(arrayValue.get());
     assertTrue_1(ptr);
     return true;
@@ -932,10 +922,9 @@ namespace PLEXIL
   {
     if (!m_known)
       return false;
-    if (m_type != STRING_ARRAY_TYPE) {
-      assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: not a StringArray value");
-      return false;
-    }
+    checkPlanError(m_type == STRING_ARRAY_TYPE,
+                   "Attempt to get a StringArray value from a "
+                   << valueTypeName(m_type) << " Value");
     ptr = dynamic_cast<StringArray const *>(arrayValue.get());
     assertTrue_1(ptr);
     return true;

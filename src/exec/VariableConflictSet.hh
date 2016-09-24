@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,8 @@
 namespace PLEXIL
 {
   // Forward references
-  class NodeConnector;
+  class Assignable;
+  class Node;
 
   /**
    * @class VariableConflictSet
@@ -46,30 +47,42 @@ namespace PLEXIL
   class VariableConflictSet
   {
   public:
-    typedef std::vector<NodeConnector *>::const_iterator const_iterator;
-    typedef std::vector<NodeConnector *>::iterator iterator;
+    typedef std::vector<Node *>::const_iterator const_iterator;
+    typedef std::vector<Node *>::iterator iterator;
 
     VariableConflictSet();
     ~VariableConflictSet();
 
+    Assignable const *getVariable() const;
+    void setVariable(Assignable *);
+
+    VariableConflictSet *next() const;
+    void setNext(VariableConflictSet *);
+
     size_t size() const; // self-explanatory
     bool empty() const;  // self-explanatory
 
-    void push(NodeConnector *);          // insert unique in (weakly) sorted order
-    NodeConnector *front();              // access the element with lowest priority which was inserted first
-    NodeConnector const *front() const;  // access the element with lowest priority which was inserted first
-    void pop();                          // delete the front element
-    void remove(NodeConnector *);        // delete the indicated element (no error if not there)
-    size_t front_count() const;          // how many have same priority as front element
+    void push(Node *);            // insert unique in (weakly) sorted order
+    Node *front();                // access the element with lowest priority which was inserted first
+    void remove(Node *);          // delete the indicated element (no error if not there)
+    size_t front_count() const;   // how many have same priority as front element
 
     const_iterator begin() const;
-    iterator begin();
-
     const_iterator end() const;
-    iterator end();
+
+    // Managing pool of instances
+    static VariableConflictSet *allocate();
+    static void release(VariableConflictSet *);
 
   private:
-    std::vector<NodeConnector *> m_nodes;
+
+    // Not implemented
+    VariableConflictSet(VariableConflictSet const &);
+    VariableConflictSet &operator=(VariableConflictSet const &);
+
+    VariableConflictSet *m_next;
+    Assignable *m_variable;
+    std::vector<Node *> m_nodes;
   };
 
 } // namespace PLEXIL

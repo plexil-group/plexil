@@ -32,6 +32,8 @@
 #include <cstring> // for strcmp()
 #include <fstream>
 
+using PLEXIL::Error;
+
 extern bool aliasTest();
 extern bool arithmeticTest();
 extern bool arrayConstantTest();

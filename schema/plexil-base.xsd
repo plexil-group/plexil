@@ -111,8 +111,8 @@ element.  It is used as an included schema only.
       <xs:sequence>
         <xs:element name="Name" type="xs:NCName"/>
         <xs:element ref="Return" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
+        <xs:group ref="ParameterSpec" minOccurs="0" />
+        <xs:element ref="ResourceList" minOccurs="0" />
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -123,7 +123,7 @@ element.  It is used as an included schema only.
       <xs:sequence>      
         <xs:element name="Name" type="xs:NCName"/>
         <xs:element ref="Return"/>
-        <xs:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:group ref="ParameterSpec" minOccurs="0" />
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -139,11 +139,18 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <xs:group name="ParameterSpec">
+    <xs:sequence>
+      <xs:element ref="Parameter" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="AnyParameters" minOccurs="0" />
+    </xs:sequence>
+  </xs:group>
+
   <xs:element name="Parameter">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="Name" type="xs:NCName" minOccurs="0" />
-        <xs:element name="Type" type="AtomicTypeValues"/>
+        <xs:element name="Type" type="ParameterTypeValues"/>
 		<!-- MaxSize indicates an array value, Type is the element type -->
         <xs:element name="MaxSize" type="xs:nonNegativeInteger" minOccurs="0" />
       </xs:sequence>

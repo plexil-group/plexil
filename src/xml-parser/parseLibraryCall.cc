@@ -35,6 +35,7 @@
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
+#include <cstring>
 
 using pugi::xml_node;
 using pugi::node_element;
@@ -109,9 +110,7 @@ namespace PLEXIL
       checkAlias(node, temp);
       ++nAliases;
     }
-    NodeVariableMap *map = node->getChildVariableMap();
-    assertTrue_2(map, "Internal error: no alias map for LibraryNodeCall node");
-    map->grow(nAliases);
+    node->allocateAliasMap(nAliases);
   }
 
   void constructLibraryCall(LibraryCallNode *node, xml_node const callXml)

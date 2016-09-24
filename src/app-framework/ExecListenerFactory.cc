@@ -57,11 +57,13 @@ namespace PLEXIL
     // Get the kind of listener to make
     const char* listenerType = 
       xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value();
-    checkError(*listenerType != '\0',
-               "ExecListenerFactory::createInstance: no "
-               << InterfaceSchema::LISTENER_TYPE_ATTR()
-               << " attribute for listener XML:\n"
-               << *xml);
+    if (!*listenerType) {
+      warn("ExecListenerFactory: missing "
+           << InterfaceSchema::LISTENER_TYPE_ATTR()
+           << " attribute in listener XML:\n"
+           << *xml);
+      return NULL;
+    }
 
     // Make it
     return createInstance(std::string(listenerType), xml);
@@ -89,9 +91,8 @@ namespace PLEXIL
       const char* libCPath =
         xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-        debugMsg("ExecListenerFactory:createInstance", 
-                 " unable to load module for listener type \""
-                 << name.c_str() << "\"");
+        warn("ExecListenerFactory: Unable to load module for listener type \""
+             << name.c_str() << "\"");
         return NULL;
       }
       // See if it's registered now
@@ -100,8 +101,8 @@ namespace PLEXIL
 #endif
 
     if (it == factoryMap().end()) {
-      debugMsg("ExecListenerFactory:createInstance", 
-               " No exec listener factory registered for name \"" << name.c_str() << "\"");
+      warn("ExecListenerFactory: No factory registered for listener type \""
+           << name.c_str() << "\"");
       return NULL;
     }
     ExecListener *retval = it->second->create(xml);
@@ -140,14 +141,14 @@ namespace PLEXIL
   void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
     assertTrue_1(factory != NULL);
-    if (factoryMap().find(name) != factoryMap().end())
-      {
-        warn("Attempted to register an exec listener factory for name \""
-             << name.c_str()
-             << "\" twice, ignoring.");
-        delete factory;
-        return;
-      }
+    // FIXME: Assert, or replace old factory?
+    if (factoryMap().find(name) != factoryMap().end()) {
+      warn("Attempted to register an exec listener factory for name \""
+           << name.c_str()
+           << "\" twice, ignoring.");
+      delete factory;
+      return;
+    }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFactory:registerFactory",
              " Registered exec listener factory for name \"" << name.c_str() << "\"");

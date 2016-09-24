@@ -36,13 +36,6 @@ namespace PLEXIL
   class Assignment 
   {
   public:
-    Assignment(Assignable *lhs,
-               Expression *rhs, 
-               const bool deleteLhs, 
-               const bool deleteRhs,
-               const std::string &nodeId);
-
-    // For use by plan parser
     Assignment(std::string const &nodeId);
 
     ~Assignment();

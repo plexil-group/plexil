@@ -47,7 +47,6 @@ namespace PLEXIL
       m_name(strdup(name)),
       m_garbage(garbage)
   {
-    m_exp->addListener(this);
   }
 
   Alias::~Alias()
@@ -58,20 +57,11 @@ namespace PLEXIL
     free((void *)m_name);
   }
 
-  /**
-   * @brief Set the expression to which the Alias points.
-   * @param exp The target expression.
-   * @param garbage Whether the expression should be deleted with the Alias.
-   * @return False if the Alias already has a target expression, true otherwise.
-   */
-  bool Alias::setTarget(Expression *exp, bool garbage)
+  void Alias::addListener(ExpressionListener *l)
   {
-    assertTrue_1(exp);
-    if (m_exp)
-      return false;
-    m_exp = exp;
-    m_garbage = garbage;
-    return true;
+    if (!hasListeners())
+      m_exp->addListener(this);
+    NotifierImpl::addListener(l);
   }
 
   char const *Alias::getName() const
@@ -225,15 +215,6 @@ namespace PLEXIL
       return Value(0, m_exp->valueType());
     else
       return m_exp->toValue();
-  }
-
-  void Alias::handleActivate()
-  {
-    assertTrue_1(m_exp);
-  }
-
-  void Alias::handleDeactivate()
-  {
   }
 
 } // namespace PLEXIL

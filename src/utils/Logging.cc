@@ -42,6 +42,8 @@
 #include <execinfo.h>
 #endif
 
+using PLEXIL::Error;
+
 int Logging::ENABLE_LOGGING  = 0; // if != 0, enable messages to log file
 int Logging::ENABLE_E_PROMPT = 0; // if != 0, enable error prompt messages
 int Logging::ENABLE_W_PROMPT = 0; // if != 0, enable warning prompt messages

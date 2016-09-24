@@ -25,7 +25,7 @@
 */
 
 #include "ArrayImpl.hh"
-#include "Error.hh"
+#include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
@@ -166,7 +166,11 @@ namespace PLEXIL
   template <typename U>
   bool ArrayImpl<T>::getElementImpl(size_t index, U & /* result */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Array::getElement: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Array indexing type error: array elements are of type "
+                   << valueTypeName(PlexilValueType<T>::value)
+                   << " but result variable is of type "
+                   << valueTypeName(PlexilValueType<U>::value));
     return false;
   }
 
@@ -225,7 +229,7 @@ namespace PLEXIL
   template <typename T>
   bool ArrayImpl<T>::getMutableElementPointer(size_t index, String *&result)
   {
-    assertTrue_2(ALWAYS_FAIL, "Array:getMutableElementPointer: type error");
+    assertTrue_2(ALWAYS_FAIL, "Array:getMutableElementPointer not implemented for numeric arrays");
     return false;
   }
 
@@ -245,7 +249,11 @@ namespace PLEXIL
   template <typename U>
   bool ArrayImpl<T>::getElementPointerImpl(size_t index, U const *& /* result */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Array::getElementPointer: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Array indexing type error: array elements are of type "
+                   << valueTypeName(PlexilValueType<T>::value)
+                   << " but result variable is of type "
+                   << valueTypeName(PlexilValueType<U>::value));
     return false;
   }
 
@@ -260,6 +268,7 @@ namespace PLEXIL
   template <typename U>
   void ArrayImpl<T>::getContentsVectorImpl(std::vector<U> const *&result) const
   {
+    // I _think_ this is only an internal error.
     assertTrue_2(ALWAYS_FAIL, "Array::getContentsVector: type error");
   }
 
@@ -289,7 +298,11 @@ namespace PLEXIL
   template <typename U>
   void ArrayImpl<T>::setElementImpl(size_t index, U const &newval)
   {
-    assertTrue_2(ALWAYS_FAIL, "Array::setElement: type error");
+    checkPlanError(ALWAYS_FAIL,
+                   "Array element type error: array elements are of type "
+                   << valueTypeName(PlexilValueType<T>::value)
+                   << " but new value is of type "
+                   << valueTypeName(PlexilValueType<U>::value));
   }
 
   // Conversion

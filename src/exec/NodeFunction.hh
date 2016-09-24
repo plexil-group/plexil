@@ -87,12 +87,6 @@ namespace PLEXIL
 
   protected:
 
-    //
-    // NotifierImpl API
-    //
-    virtual void handleActivate();
-    virtual void handleDeactivate();
-
     NodeOperator const *m_op;
 
   private:

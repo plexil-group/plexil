@@ -57,11 +57,12 @@ namespace PLEXIL
     // Get the kind of adapter to make
     const char* adapterType = 
       xml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();
-    checkError(*adapterType != '\0',
-               "AdapterFactory::createInstance: no "
-               << InterfaceSchema::ADAPTER_TYPE_ATTR()
-               << " attribute for adapter XML:\n"
-               << *xml);
+    if (!*adapterType) {
+      warn("AdapterFactory: missing "
+           << InterfaceSchema::ADAPTER_TYPE_ATTR()
+           << " attribute in adapter XML:\n" << *xml);
+      return NULL;
+    }
 
     // Make it
     bool dummy;
@@ -113,9 +114,8 @@ namespace PLEXIL
       const char* libCPath =
         xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-        debugMsg("AdapterFactory::createInstance",
-                 " unable to load module for adapter type \""
-                 << name.c_str() << "\"");
+        warn("AdapterFactory: unable to load module for adapter type \""
+             << name.c_str() << "\"");
         wasCreated = false;
         return NULL;
       }
@@ -126,8 +126,9 @@ namespace PLEXIL
 #endif
 
     if (it == factoryMap().end()) {
-      debugMsg("AdapterFactory:createInstance", 
-               " No adapter factory registered for name \"" << name.c_str() << "\".");
+      warn("AdapterFactory: No factory registered for adapter type \""
+           << name.c_str()
+           << "\".");
       wasCreated = false;
       return NULL;
     }

@@ -268,8 +268,10 @@ int main_internal(int argc, char** argv)
 	}
   }
 
-  if (!error)
+  if (!error) {
+    _app.notifyExec();
 	_app.waitForPlanFinished();
+  }
 
   // clean up
   if (!_app.stop()) {

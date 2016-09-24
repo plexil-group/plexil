@@ -33,26 +33,6 @@
 namespace PLEXIL
 {
 
-  Assignment::Assignment(Assignable *lhs, 
-                         Expression *rhs,
-                         const bool deleteLhs, 
-                         const bool deleteRhs,
-                         const std::string &nodeId)
-    : m_ack(),
-      m_abortComplete(),
-      m_rhs(rhs),
-      m_dest(lhs),
-      m_value(),
-      m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
-  {
-    assertTrue_1(lhs != NULL);
-    assertTrue_1(rhs != NULL);
-
-    // Make ack variable pretty
-    m_ack.setName(nodeId + " ack");
-    m_abortComplete.setName(nodeId + " abortComplete");
-  }
-
   Assignment::Assignment(const std::string &nodeId)
     : m_ack(),
       m_abortComplete(),
@@ -77,16 +57,12 @@ namespace PLEXIL
 
   void Assignment::setVariable(Assignable *lhs, bool garbage)
   {
-    assertTrue_1(lhs);
-    assertTrue_2(!m_dest, "setVariable() on an Assignment with a variable");
     m_dest = lhs;
     m_deleteLhs = garbage;
   }
 
   void Assignment::setExpression(Expression *rhs, bool garbage)
   {
-    assertTrue_1(rhs);
-    assertTrue_2(!m_rhs, "setExpression() on an Assignment with an expression");
     m_rhs = rhs;
     m_deleteRhs = garbage;
   }

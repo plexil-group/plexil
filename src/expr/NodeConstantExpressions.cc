@@ -40,7 +40,6 @@ namespace PLEXIL
   NodeStateConstant::NodeStateConstant(NodeState value)
     : Constant<NodeState>(value)
   {
-    assertTrue_2(isNodeStateValid(value), "NodeStateConstant constuctor: Invalid NodeState value");
   }
 
   NodeStateConstant::~NodeStateConstant()
@@ -68,7 +67,6 @@ namespace PLEXIL
   NodeOutcomeConstant::NodeOutcomeConstant(NodeOutcome value)
     : Constant<NodeOutcome>(value)
   {
-    assertTrue_2(isNodeOutcomeValid(value), "NodeOutcomeConstant constuctor: Invalid NodeOutcome value");
   }
 
   NodeOutcomeConstant::~NodeOutcomeConstant()
@@ -94,7 +92,6 @@ namespace PLEXIL
   FailureTypeConstant::FailureTypeConstant(FailureType value)
     : Constant<FailureType>(value)
   {
-    assertTrue_2(isFailureTypeValid(value), "FailureTypeConstant constuctor: Invalid FailureType value");
   }
 
   FailureTypeConstant::~FailureTypeConstant()

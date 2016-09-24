@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, bool)
@@ -81,6 +83,8 @@ namespace PLEXIL
     ~NotEqual() = default;
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -141,6 +145,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, bool)
@@ -160,6 +166,8 @@ namespace PLEXIL
     ~GreaterEqual();
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -181,6 +189,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool checkArgTypes(ExprVec const *ev) const;
+
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, bool)
@@ -200,6 +210,8 @@ namespace PLEXIL
     ~LessEqual();
 
     bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(ExprVec const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 

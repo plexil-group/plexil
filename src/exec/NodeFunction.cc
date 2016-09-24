@@ -55,14 +55,6 @@ namespace PLEXIL
     return m_op->valueType();
   }
 
-  void NodeFunction::handleActivate()
-  {
-  }
-
-  void NodeFunction::handleDeactivate()
-  {
-  }
-
   bool NodeFunction::isKnown() const
   {
     if (!isActive())

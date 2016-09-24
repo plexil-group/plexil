@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 */
 
 #include "ArithmeticOperators.hh"
-// #include "Error.hh" // included by OperatorImpl.hh
+// #include "PlanError.hh" // included by OperatorImpl.hh
 #include "Expression.hh"
 #include "ExprVec.hh"
 
@@ -141,7 +141,8 @@ namespace PLEXIL
   bool Subtraction<NUM>::calc(NUM &result,
                               ExprVec const &args) const
   {
-    assertTrue_1(args.size() > 0); // must be at least one
+    checkPlanError(args.size() > 0,
+                   this->getName() << " requires at least one operand");
     NUM temp;
     if (!args[0]->getValue(temp))
       return false;
@@ -459,6 +460,13 @@ namespace PLEXIL
     return count == 1;
   }
 
+  template <typename NUM>
+  bool SquareRoot<NUM>::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return isNumericType(ty) || ty == UNKNOWN_TYPE;
+  }
+
   template <>
   bool SquareRoot<double>::calc(double &result,
                                 Expression const *arg) const
@@ -666,6 +674,12 @@ namespace PLEXIL
   bool RealToInteger::checkArgCount(size_t count) const
   {
     return count == 1;
+  }
+
+  bool RealToInteger::checkArgTypes(ExprVec const *ev) const
+  {
+    ValueType ty = (*ev)[0]->valueType();
+    return isNumericType(ty) || ty == UNKNOWN_TYPE;
   }
 
   bool RealToInteger::calc(int32_t & result,

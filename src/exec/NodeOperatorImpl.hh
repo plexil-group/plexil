@@ -29,7 +29,8 @@
 
 #include "NodeOperator.hh"
 
-#include "Error.hh"
+#include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -90,7 +91,9 @@ namespace PLEXIL
     template <typename U>
     bool calc(U & /* result */, Node const */* arg */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     "Operator " << this->getName() << " not implemented for return type "
+                     << valueTypeName(PlexilValueType<U>::value));
       return false;
     }
 
@@ -141,7 +144,9 @@ namespace PLEXIL
     template <typename U>
     bool calc(U & /* result */, Node const */* arg */) const
     {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      checkPlanError(ALWAYS_FAIL,
+                     "Operator " << this->getName() << " not implemented for return type "
+                     << valueTypeName(PlexilValueType<U>::arrayValue));
       return false;
     }
 

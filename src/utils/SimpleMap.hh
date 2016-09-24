@@ -31,9 +31,6 @@
 #include <vector>
 #include <utility>
 
-// *** TEMP ***
-#include <iostream>
-
 namespace PLEXIL
 {
   /**

@@ -63,10 +63,12 @@ static size_t g_conditionCountListNodes[Node::conditionIndexMax];
 static std::vector<size_t> g_nodeChildCounts(16, 0);
 static std::vector<size_t> g_nodeVariableCounts(16, 0);
 #ifdef RECORD_EXPRESSION_STATS
-static std::vector<size_t> g_expressionListenerCounts(256, 0);
+static std::map<size_t, size_t> g_expressionListenerCounts;
+static std::map<size_t, std::vector<NotifierImpl const *> > g_expressions;
 static size_t g_expressionCount = 0;
 static size_t g_listenerHighWater = 0;
 static NotifierImpl const *g_highWaterExpression = NULL;
+static bool g_expressionDetailedReport = false;
 #endif
 
 typedef std::map<std::string, size_t> LibraryCallMap;
@@ -90,17 +92,6 @@ static void incrementNodeVariableCount(size_t nVars)
   ++g_nodeVariableCounts[nVars];
 }
 
-#ifdef RECORD_EXPRESSION_STATS
-
-static void incrementExpressionListenerCount(size_t nVars)
-{
-  if (nVars >= g_expressionListenerCounts.size())
-    g_expressionListenerCounts.resize(nVars * 2, 0); // grow rapidly to minimize resizing
-  ++g_expressionListenerCounts[nVars];
-}
-
-#endif
-
 static void incrementLibraryCallCount(std::string const &name)
 {
   LibraryCallMap::iterator it = g_calledLibs.find(name);
@@ -121,6 +112,7 @@ static void initializeStatistics()
 #ifdef RECORD_EXPRESSION_STATS
   g_expressionCount = 0;
   g_expressionListenerCounts.clear();
+  g_expressions.clear();
 #endif
   for (size_t i = 0; i < Node::conditionIndexMax; ++i)
     g_conditionCounts[i] = 0;
@@ -173,7 +165,8 @@ static void getNodeStatistics(Node const *node)
   ++g_nodeTypeCounts[typ];
 
   // Count variables
-  incrementNodeVariableCount(const_cast<Node *>(node)->getLocalVariables().size());
+  if (node->getLocalVariables())
+    incrementNodeVariableCount(node->getLocalVariables()->size());
 
   getConditionStatistics(node);
 
@@ -204,17 +197,23 @@ static void getNodeStatistics(Node const *node)
 }
 
 #ifdef RECORD_EXPRESSION_STATS
+static void recordExpression(NotifierImpl const *exp)
+{
+  ++g_expressionCount;
+  size_t nListeners = exp->getListenerCount();
+  if (nListeners > g_listenerHighWater) {
+    g_listenerHighWater = nListeners;
+    g_highWaterExpression = exp;
+  }
+  ++g_expressionListenerCounts[nListeners];
+  if (g_expressionDetailedReport)
+    g_expressions[nListeners].push_back(exp);
+}
+
 static void getExpressionStatistics()
 {
-  for (NotifierImpl const *it = NotifierImpl::getInstanceList(); it; it = it->next()) {
-    ++g_expressionCount;
-    size_t listeners = it->getListenerCount();
-    if (listeners > g_listenerHighWater) {
-      g_listenerHighWater = listeners;
-      g_highWaterExpression = it;
-    }
-    incrementExpressionListenerCount(listeners);
-  }
+  for (NotifierImpl const *exp = NotifierImpl::getInstanceList(); exp; exp = exp->next())
+    recordExpression(exp);
 }
 #endif
 
@@ -231,7 +230,10 @@ static void reportLibraryStatistics()
     for (LibraryCallMap::const_iterator it = g_calledLibs.begin();
          it != g_calledLibs.end();
          ++it)
-      std::cout << it->first << " called " << it->second << " times\n";
+      std::cout << it->first << " called "
+                << it->second << " time"
+                << (it->second == 1 ? "" : "s")
+                << '\n';
     std::cout << '\n';
   }
 }
@@ -243,10 +245,23 @@ static void reportExpressionStatistics()
   std::cout << g_expressionCount << " expressions with listeners\n\n";
   std::cout << "Expression " << *g_highWaterExpression
             << "\n has largest count of listeners, " << g_listenerHighWater << "\n\n";
-  size_t ncounts = g_expressionListenerCounts.size();
-  for (size_t i = 0; i < ncounts; ++i)
-    if (g_expressionListenerCounts[i])
-      std::cout << g_expressionListenerCounts[i] << " expressions with " << i << " listeners\n";
+
+  for (std::map<size_t, size_t>::const_iterator it = g_expressionListenerCounts.begin();
+       it != g_expressionListenerCounts.end();
+       ++it) {
+    std::cout << it->second << " expression"
+              << (it->second == 1 ? "" : "s")
+              << " with " << it->first << " listener"
+              << (it->first == 1 ? "" : "s")
+              << '\n';
+    if (g_expressionDetailedReport) {
+      std::vector<NotifierImpl const *> &exprs = g_expressions[it->first];
+      for (size_t j = 0; j < exprs.size(); ++j) {
+        std::cout << "  " << *exprs[j] << '\n';
+      }
+      std::cout << '\n';
+    }
+  }
   std::cout << '\n';
 }
 #endif
@@ -331,9 +346,12 @@ static void usage()
 {
   std::cout << "Usage: analyzePlan [options] <plan file>\n"
             << " Options:\n"
-            << "  -L <dir>         Add <dir> to library path\n"
             << "  -h               Display this message and exit\n"
             << "  -d <debug file>  Use debug-file as debug message config (default Debug.cfg)\n"
+#ifdef RECORD_EXPRESSION_STATS
+            << "  -D               Display detailed expression statistics\n"
+#endif
+            << "  -L <dir>         Add <dir> to library path\n"
             << std::endl;
 }
 
@@ -353,6 +371,11 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "-L")) {
       PLEXIL::appendLibraryPath(argv[++i]);
     }
+#ifdef RECORD_EXPRESSION_STATS
+    else if (!strcmp(argv[i], "-D")) {
+      g_expressionDetailedReport = true;
+    }
+#endif
     else {
       if (!planFile.empty()) {
         std::cerr << "Multiple plan files specified" << std::endl;
@@ -379,7 +402,7 @@ int main(int argc, char *argv[])
 
   try {
     // Initialize infrastructure
-    Error::doThrowExceptions();
+    PLEXIL::Error::doThrowExceptions();
     PLEXIL::initializeExpressions();
     PLEXIL::TransitionExternalInterface intfc;
     PLEXIL::g_interface = &intfc;
@@ -394,7 +417,7 @@ int main(int argc, char *argv[])
     std::cout << "Aborted." << std::endl;
     return 1;
   }
-  catch (Error const &e) {
+  catch (PLEXIL::Error const &e) {
     std::cerr << "Aborting due to error:\n" << e << std::endl;
     std::cout << "Aborted." << std::endl;
     return 1;

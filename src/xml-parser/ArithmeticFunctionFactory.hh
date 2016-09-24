@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 
 namespace PLEXIL
 {
-  extern ValueType arithmeticCommonType(ExprVec const *exprs);
 
   /**
    * @class ArithmeticFunctionFactory
@@ -55,7 +54,6 @@ namespace PLEXIL
 
     // Delegate to derived classes
     virtual Operator const *selectOperator(ValueType type) const = 0;
-    virtual ValueType commonType(ExprVec const *exprs) const = 0;
 
   private:
     // Not implemented
@@ -97,11 +95,6 @@ namespace PLEXIL
                              << " for operator " << this->m_name);
         return NULL;
       }
-    }
-
-    ValueType commonType(ExprVec const *exprs) const
-    {
-      return arithmeticCommonType(exprs);
     }
 
   private:

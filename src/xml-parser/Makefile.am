@@ -41,7 +41,7 @@ libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
  Expressions.cc FunctionFactory.cc InternalExpressionFactories.cc \
  LookupFactory.cc parseAssignment.cc parseGlobalDeclarations.cc \
  parseLibraryCall.cc parseNode.cc parsePlan.cc parser-utils.cc planLibrary.cc \
- PlexilSchema.cc SymbolTable.cc updateXmlParser.cc UserVariableFactory.cc
+ SymbolTable.cc updateXmlParser.cc UserVariableFactory.cc
 
 bin_PROGRAMS = analyzePlan
 

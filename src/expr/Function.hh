@@ -91,6 +91,9 @@ namespace PLEXIL
 
     bool getValuePointer(Array const *&ptr) const;
 
+    // Override to NotifierImpl method
+    virtual void addListener(ExpressionListener *ptr);
+
   protected:
 
     //

@@ -97,7 +97,7 @@ namespace PLEXIL
     void reserveChildren(size_t n);
 
     // For initialization and parsing.
-    virtual NodeVariableMap *getChildVariableMap();
+    virtual NodeVariableMap const *getChildVariableMap() const;
 
     /**
      * @brief Sets the state variable to the new state.

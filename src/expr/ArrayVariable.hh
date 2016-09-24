@@ -31,7 +31,6 @@
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
 #include "SetValueImpl.hh"
-#include "VariableConflictSet.hh"
 
 namespace PLEXIL
 {
@@ -140,8 +139,6 @@ namespace PLEXIL
      */
     void setInitializer(Expression *expr, bool garbage);
 
-    VariableConflictSet &getConflictSet();
-
     void handleActivate();
 
     void handleDeactivate();
@@ -162,8 +159,6 @@ namespace PLEXIL
     Expression *m_initializer;
     char const *m_name;
     size_t m_maxSize;
-
-    VariableConflictSet m_conflicts;
     
     // Only used by LuvListener at present. Eliminate?
     NodeConnector *m_node;

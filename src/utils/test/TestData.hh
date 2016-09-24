@@ -143,7 +143,7 @@ public:
   /**
      @brief Record a failed test in that an exception was generated where none was expected.
   */
-  static void unexpectedException(const std::string& macro, const Error& exception,
+  static void unexpectedException(const std::string& macro, const PLEXIL::Error& exception,
                                   const std::string& file, const int& line);
 
   /**
@@ -155,15 +155,15 @@ public:
   /**
      @brief Record a failed test in that an exception should have been generated but wasn't.
   */
-  static void missingException(const std::string& macro, const Error& exception,
+  static void missingException(const std::string& macro, const PLEXIL::Error& exception,
                                const std::string& file, const int& line);
 
   /**
      @brief Record a failed test in that the wrong exception was thrown.
   */
   static void wrongException(const std::string& macro,
-                             const Error& caughtException,
-                             const Error& expectedException,
+                             const PLEXIL::Error& caughtException,
+                             const PLEXIL::Error& expectedException,
                              const std::string& file, const int& line);
 
   /**
@@ -177,7 +177,7 @@ public:
      @brief Record a successful test in that an expected exception was thrown.
   */
   static void correctException(const std::string& macro,
-                               const Error& caughtException);
+                               const PLEXIL::Error& caughtException);
 };
 
 #endif /* _NO_ERROR_EXCEPTIONS */

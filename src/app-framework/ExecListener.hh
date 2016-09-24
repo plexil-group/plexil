@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ namespace PLEXIL
   protected:
 
     //
-    // API to be implemented by subclasses
+    // API to be implemented by derived classes
     //
 
     /**
@@ -196,9 +196,16 @@ namespace PLEXIL
                                            std::string const & /* destName */,
                                            Value const & /* value */) const;
 
+
     //
-    // Features for derived classes to use
+    // Shared API made available to derived classes
     //
+
+    /**
+     * @brief Construct the ExecListenerFilter specified by this listener's configuration XML.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool constructFilter();
 
     pugi::xml_node const getXml() const
     {

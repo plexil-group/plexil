@@ -130,11 +130,11 @@ namespace PLEXIL
       if (rhsGarbage)
         delete rhs;
       checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       temp,
+                                       assn,
                                        "Assignment Node " << anode->getNodeId()
                                        << ": RHS expression type "
                                        << rhsType
-                                       << " incompatible with variable of type"
+                                       << " incompatible with variable of type "
                                        << varType);
     }
     assign->setVariable(var, varGarbage);

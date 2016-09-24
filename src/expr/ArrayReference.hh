@@ -104,6 +104,9 @@ namespace PLEXIL {
 
     Value toValue() const;
 
+    // Wrapper for NotifierImpl method
+    virtual void addListener(ExpressionListener *l);
+
     //
     // NotifierImpl API
     //

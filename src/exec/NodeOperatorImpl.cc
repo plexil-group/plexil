@@ -94,16 +94,18 @@ namespace PLEXIL
   template <typename R>
   bool NodeOperatorImpl<R>::calc(R &result, Node const * /* node */) const
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Operator " << this->getName() << " not implemented for this return type");
+    checkPlanError(ALWAYS_FAIL,
+                   "Operator " << this->getName() << " not implemented for return type "
+                   << valueTypeName(PlexilValueType<R>::value));
     return false;
   }
 
   template <typename R>
   bool NodeOperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Node const * /* node */) const
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Operator " << this->getName() << " not implemented for this return type");
+    checkPlanError(ALWAYS_FAIL,
+                   "Operator " << this->getName() << " not implemented for return type "
+                   << valueTypeName(PlexilValueType<R>::arrayValue));
     return false;
   }
 

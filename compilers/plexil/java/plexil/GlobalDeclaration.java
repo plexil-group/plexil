@@ -74,7 +74,7 @@ public class GlobalDeclaration extends PlexilName
     // returns vector of return variables, or null
     public Vector<VariableName> getReturnVariables() { return m_returnSpecs;}
 
-    // returns vector of return variables, or null
+    // returns return variable, or null
     public VariableName getReturnVariable()
     {
         if (m_returnSpecs != null && m_returnSpecs.size() != 0)

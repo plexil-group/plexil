@@ -29,9 +29,9 @@
 #include "ArrayImpl.hh"
 #include "CachedValue.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh" // for timestamp access
+#include "PlanError.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 
@@ -53,30 +53,23 @@ namespace PLEXIL
       m_stateNameIsGarbage(stateNameIsGarbage),
       m_isRegistered(false)
   {
-    assertTrue_2(stateName, "Lookup constructor: Null state name expression");
-    if (!m_stateName->isConstant()) {
-      m_stateName->addListener(this);
+    if (!m_stateName->isConstant())
       m_stateIsConstant = false;
-    }
+
     if (m_paramVec) {
       bool parmsAreConstant = true;
       for (size_t i = 0; i < m_paramVec->size(); ++i)
         if (!(*m_paramVec)[i]->isConstant())
           parmsAreConstant = false;
-      if (!parmsAreConstant) {
-        m_paramVec->addListener(this);
+      if (!parmsAreConstant)
         m_stateIsConstant = false;
-      }
     }
     
     // If all expressions are constants, cache state now
     if (m_stateIsConstant) {
-      if (getState(m_cachedState))
-	m_stateKnown = true;
-      else {
-	// This is a plan error, don't assert
-	warn("Lookup: State is constant but state name or some parameter is unknown");
-      }
+      checkPlanError(getState(m_cachedState),
+                     "Error in Lookup: State is constant but state name or some parameter is unknown");
+      m_stateKnown = true;
     }
   }
 
@@ -86,12 +79,12 @@ namespace PLEXIL
       unregister();
       m_entry = NULL;
     }
-    if (m_paramVec) {
-      m_paramVec->removeListener(this);
-      delete m_paramVec;
-    }
-    if (!m_stateName->isConstant())
+    if (!m_stateIsConstant) {
+      if (m_paramVec)
+        m_paramVec->removeListener(this);
       m_stateName->removeListener(this);
+    }
+    delete m_paramVec;
     if (m_stateNameIsGarbage)
       delete m_stateName;
   }
@@ -128,6 +121,17 @@ namespace PLEXIL
     s << ' ';
   }
 
+  void Lookup::addListener(ExpressionListener *l)
+  {
+    if (!hasListeners() && !m_stateIsConstant) {
+      if (!m_stateName->isConstant())
+        m_stateName->addListener(this);
+      if (m_paramVec)
+        m_paramVec->addListener(this);
+    }
+    NotifierImpl::addListener(l);
+  }
+
   void Lookup::handleActivate()
   {
     debugMsg("Lookup:handleActivate", " called");
@@ -140,9 +144,9 @@ namespace PLEXIL
     if (!m_stateIsConstant)
       m_stateKnown = getState(m_cachedState);
     if (!m_entry && m_stateKnown) {
-        m_entry =
-          StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
-        assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
+      m_entry =
+        StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
+      assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
     }
     if (m_entry)
       ensureRegistered();
@@ -181,11 +185,11 @@ namespace PLEXIL
     if (!m_stateKnown) {
       if (oldKnown)
         // state used to be known, isn't any longer
-	this->invalidateOldState();
+        this->invalidateOldState();
     }
     else { // state known
       if (oldKnown && newState != m_cachedState) {
-	this->invalidateOldState();
+        this->invalidateOldState();
         stateChanged = true;
       }
       m_cachedState = newState;
@@ -223,10 +227,10 @@ namespace PLEXIL
 
   ValueType Lookup::valueType() const
   {
-    if (!m_entry)
-      return m_declaredType;
-    else
+    if (m_entry && m_entry->valueType() != UNKNOWN_TYPE)
       return m_entry->valueType();
+    else
+      return m_declaredType;
   }
 
   bool Lookup::getState(State &result) const
@@ -490,7 +494,7 @@ namespace PLEXIL
     check_error_1(value); // paranoid check
     Real currentValue;
     assertTrue_2(value->getValue(currentValue),
-		 "LookupOnChange: internal error: lookup value unknown");
+                 "LookupOnChange: internal error: lookup value unknown");
     if ((currentValue >= m_high) || (currentValue <= m_low))
       return true;
 
@@ -542,14 +546,6 @@ namespace PLEXIL
       m_tolerance(tolerance),
       m_toleranceIsGarbage(toleranceIsGarbage)
   {
-    debugMsg("LookupOnChange", " constructor");
-    // Check that tolerance is of compatible type
-    assertTrue_2(tolerance,
-                 "LookupOnChange constructor: no tolerance expression supplied");
-    assertTrue_2(isNumericType(tolerance->valueType()),
-                 "LookupOnChange constructor: tolerance expression is not numeric");
-    if (!m_tolerance->isConstant())
-      m_tolerance->addListener(this);
   }
 
   LookupOnChange::~LookupOnChange()
@@ -576,6 +572,13 @@ namespace PLEXIL
     updateInternal(true);     // may cause redundant notifications
     if (this->isKnown())
       this->publishChange(this);
+  }
+
+  void LookupOnChange::addListener(ExpressionListener *l)
+  {
+    if (!hasListeners() && !m_tolerance->isConstant())
+      m_tolerance->addListener(this);
+    Lookup::addListener(l);
   }
 
   // TODO: Optimization opportunity if state is known to be constant
@@ -632,7 +635,7 @@ namespace PLEXIL
     if (!m_thresholds)
       return false;
     assertTrueMsg(valueType() == INTEGER_TYPE,
-		  "getThresholds: calling Integer method on non-Integer lookup");
+                  "getThresholds: calling Integer method on non-Integer lookup");
     m_thresholds->getThresholds(high, low);
     return true;
   }
@@ -642,7 +645,7 @@ namespace PLEXIL
     if (!m_thresholds)
       return false;
     assertTrueMsg(valueType() == REAL_TYPE,
-		  "getThresholds: calling Real method on non-Real lookup");
+                  "getThresholds: calling Real method on non-Real lookup");
     m_thresholds->getThresholds(high, low);
     return true;
   }
@@ -659,14 +662,14 @@ namespace PLEXIL
       // Therefore state is known, and cache entry valid
 
       if (!m_tolerance->isKnown()) {
-	debugMsg("LookupOnChange:update",
-		 ' ' << this->m_cachedState << " tolerance no longer known, deleting thresholds");
-	delete m_thresholds;
-	m_thresholds = NULL;
-	delete m_cachedValue;
-	m_cachedValue = NULL;
-	// Tell the cache entry about it
-	m_entry->updateThresholds(m_cachedState);
+        debugMsg("LookupOnChange:update",
+                 ' ' << this->m_cachedState << " tolerance no longer known, deleting thresholds");
+        delete m_thresholds;
+        m_thresholds = NULL;
+        delete m_cachedValue;
+        m_cachedValue = NULL;
+        // Tell the cache entry about it
+        m_entry->updateThresholds(m_cachedState);
       }
       else {
         // Check whether the thresholds have changed
@@ -674,29 +677,29 @@ namespace PLEXIL
           m_thresholds->setThresholds(m_cachedValue, m_tolerance);
 
         // Has the (possibly updated) threshold been exceeded?
-	CachedValue const *val = this->m_entry->cachedValue();
+        CachedValue const *val = this->m_entry->cachedValue();
         if (m_thresholds->thresholdsExceeded(val)) {
           // TODO? Check that value hasn't changed type
           *m_cachedValue = *val;
-	  debugMsg("LookupOnChange:update",
-		   ' ' << this->m_cachedState
-		   << " threshold exceeded, propagating value and updating thresholds");
+          debugMsg("LookupOnChange:update",
+                   ' ' << this->m_cachedState
+                   << " threshold exceeded, propagating value and updating thresholds");
           m_thresholds->setThresholds(val, m_tolerance);
           m_entry->updateThresholds(m_cachedState);
           return true;
         }
         else {
-	  debugMsg("LookupOnChange:update",
-		   ' ' << this->m_cachedState << " value changed but within tolerances");
+          debugMsg("LookupOnChange:update",
+                   ' ' << this->m_cachedState << " value changed but within tolerances");
           return false; // value or threshold updated, but value within tolerances
-	}
+        }
       }
     }
     else if (this->m_entry && this->m_entry->isKnown() && m_tolerance->isKnown()) {
       // No thresholds yet, so cache current value and establish them
       CachedValue const *val = this->m_entry->cachedValue();
       debugMsg("LookupOnChange:update",
-	       ' ' << this->m_cachedState << " constructing initial threshold");
+               ' ' << this->m_cachedState << " constructing initial threshold");
       m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
       m_cachedValue = val->clone();
       m_thresholds->setThresholds(val, m_tolerance);

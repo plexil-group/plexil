@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -238,8 +238,8 @@ namespace PLEXIL
                                        << whichStr << "\"");
       return NULL;
     }
-    wasCreated = true;
-    return new NodeTimepointValue(refNode, state, isEnd);
+    wasCreated = false;
+    return refNode->ensureTimepoint(state, isEnd);
   }
 
   //

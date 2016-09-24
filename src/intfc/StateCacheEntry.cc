@@ -46,13 +46,11 @@ namespace PLEXIL
   }
 
   // Copy constructor, used ONLY by StateCacheMap
-  // Will throw an exception if called with an entry which has a value or lookups
   StateCacheEntry::StateCacheEntry(StateCacheEntry const &orig)
     : m_value(NULL),
       m_lowThreshold(NULL),
       m_highThreshold(NULL)
   {
-    assertTrue_1(!orig.m_value && orig.m_lookups.empty());
   }
 
   StateCacheEntry::~StateCacheEntry()

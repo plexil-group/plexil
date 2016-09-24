@@ -101,6 +101,16 @@ namespace PLEXIL
       pugi::xml_node arg;
       for (arg = argsXml.first_child(); arg; arg = arg.next_sibling())
         ++nargs;
+      if (lkup) {
+        // Check argument count against command declaration
+        checkParserExceptionWithLocation(nargs == lkup->parameterCount()
+                                         || (lkup->anyParameters() && nargs > lkup->parameterCount()),
+                                         expr,
+                                         "Lookup " << lkup->name() << " expects "
+                                         << (lkup->anyParameters() ? "at least " : "")
+                                         << lkup->parameterCount() << " arguments, but was supplied "
+                                         << nargs);
+      }
       if (nargs) {
         argVec = makeExprVec(nargs);
         size_t i = 0;
@@ -109,20 +119,15 @@ namespace PLEXIL
           Expression *expr = createExpression(arg, node, garbage);
           argVec->setArgument(i, expr, garbage);
 
-          // Check number and type of parameters against declaration
-          if (lkup) {
+          // Check parameter type against declaration
+          if (lkup && i < lkup->parameterCount()) {
             ValueType actual = expr->valueType();
             ValueType expected = lkup->parameterType(i);
-            if (expected == UNKNOWN_TYPE) {
-              // TODO Issue error message (future)
-            }
-            else if (actual != UNKNOWN_TYPE && expected != actual) {
-              checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                               arg,
-                                               "Parameter " << i << " to " << lkup->name()
-                                               << " has type " << valueTypeName(actual)
-                                               << ", should be " << valueTypeName(expected));
-            }
+            checkParserExceptionWithLocation(areTypesCompatible(expected, actual),
+                                             arg,
+                                             "Parameter " << i << " to lookup " << lkup->name()
+                                             << " should be of type " << valueTypeName(expected)
+                                             << ", but has type " << valueTypeName(actual));
           }
         }
       }

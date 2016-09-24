@@ -46,18 +46,28 @@ namespace PLEXIL
   NodeTimepointValue::NodeTimepointValue(Node *node,
                                          NodeState state,
                                          bool isEnd)
-    : GetValueImpl<double>(), // FIXME
-    NotifierImpl(),
-    m_node(node),
-    m_state(state),
-    m_end(isEnd)
+    : m_time(0.0),
+      m_next(NULL),
+      m_node(node),
+      m_state(state),
+      m_end(isEnd),
+      m_known(false)
   {
-    m_node->getStateVariable()->addListener(this);
   }
 
   NodeTimepointValue::~NodeTimepointValue()
   {
-    m_node->getStateVariable()->removeListener(this);
+  }
+
+
+  NodeState NodeTimepointValue::state() const
+  {
+    return m_state;
+  }
+
+  bool NodeTimepointValue::isEnd() const
+  {
+    return m_end;
   }
 
   char const *NodeTimepointValue::getName() const
@@ -77,18 +87,14 @@ namespace PLEXIL
 
   bool NodeTimepointValue::isKnown() const
   {
-    double dummy;
-    return m_node->getStateTransitionTime(m_state, m_end, dummy);
+    return m_known;
   }
 
   bool NodeTimepointValue::getValueImpl(double &result) const // FIXME
   {
-    return m_node->getStateTransitionTime(m_state, m_end, result);
-  }
-
-  void NodeTimepointValue::print(std::ostream &s) const
-  {
-    // TODO
+    if (m_known)
+      result = m_time;
+    return m_known;
   }
 
   void NodeTimepointValue::printValue(std::ostream &s) const
@@ -100,10 +106,34 @@ namespace PLEXIL
       s << UNKNOWN_STR;
   }
 
-  // Default method is adequate for now.
-  // void NodeTimepointValue::handleChange(Expression const *src)
-  // {
-  //   // TODO
-  // }
+  void NodeTimepointValue::printSpecialized(std::ostream &s) const
+  {
+    if (m_node)
+      s << m_node->getNodeId() << '.';
+    s << timepointName[m_state][m_end ? 1 : 0];
+  }
+
+  void NodeTimepointValue::setValue(double newval) // FIXME
+  {
+    m_time = newval;
+    m_known = true;
+    publishChange(this);
+  }
+
+  void NodeTimepointValue::reset()
+  {
+    m_known = false;
+    publishChange(this);
+  }
+
+  NodeTimepointValue *NodeTimepointValue::next() const
+  {
+    return m_next;
+  }
+
+  void NodeTimepointValue::setNext(NodeTimepointValue *nxt)
+  {
+    m_next = nxt;
+  }
 
 } // namespace PLEXIL

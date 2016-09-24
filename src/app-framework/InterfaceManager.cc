@@ -37,11 +37,11 @@
 #include "CachedValue.hh"
 #include "Command.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecListenerHub.hh"
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
+#include "InterfaceError.hh"
 #include "Node.hh"
 #include "parsePlan.hh"
 #include "parser-utils.hh"
@@ -144,11 +144,7 @@ namespace PLEXIL
   bool InterfaceManager::shutdown()
   {
     assertTrue_1(g_configuration);
-    bool success = g_configuration->stop();
-
-    // Clean up
-    // *** NYI ***
-
+    bool success = g_configuration->shutdown();
     debugMsg("InterfaceManager:shutdown", " completed");
     return success;
   }
@@ -190,6 +186,7 @@ namespace PLEXIL
 
       case Q_LOOKUP:
         assertTrue_1(entry->state);
+
         debugMsg("InterfaceManager:processQueue",
                  " Received new value " << entry->value << " for " << *(entry->state));
 
@@ -197,14 +194,18 @@ namespace PLEXIL
         if (*(entry->state) == State::timeState()) {
           // FIXME: assumes time is a double
           double newValue;
-          bool known = entry->value.getValue(newValue);
-          assertTrue_2(known, "Time cannot be unknown");
+          if (!entry->value.getValue(newValue)) {
+            warn("processQueue: time is unknown");
+            m_currentTime = 0.0;
+          }
+          else {
 #if PARANOID_ABOUT_TIME_DIRECTION
-          assertTrue_2(newValue >= m_currentTime, "Time is going backwards!");
+            assertTrue_2(newValue >= m_currentTime, "Time is going backwards!");
 #endif
-          debugMsg("InterfaceManager:processQueue",
-                   " setting current time to " << std::setprecision(15) << newValue);
-          m_currentTime = newValue;
+            debugMsg("InterfaceManager:processQueue",
+                     " setting current time to " << std::setprecision(15) << newValue);
+            m_currentTime = newValue;
+          }
         }
 
         g_interface->lookupReturn(*(entry->state), entry->value);
@@ -213,13 +214,11 @@ namespace PLEXIL
 
       case Q_COMMAND_ACK:
         assertTrue_1(entry->command);
-        assertTrue_1(entry->value.valueType() == COMMAND_HANDLE_TYPE);
-        {
-          CommandHandleValue handle;
-          bool known = entry->value.getValue(handle);
-          assertTrue_1(known);
-          assertTrue_1(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX);
 
+        {
+          CommandHandleValue handle = NO_COMMAND_HANDLE;
+          entry->value.getValue(handle);
+          assertTrue_1(handle != NO_COMMAND_HANDLE);
           debugMsg("InterfaceManager:processQueue",
                    " received command handle value "
                    << commandHandleValueName((CommandHandleValue) handle)
@@ -240,6 +239,7 @@ namespace PLEXIL
 
       case Q_COMMAND_ABORT:
         assertTrue_1(entry->command);
+
         {
           bool ack;
           bool known = entry->value.getValue(ack);
@@ -264,10 +264,9 @@ namespace PLEXIL
                    << entry->update->getSource()->getNodeId());
           g_interface->acknowledgeUpdate(entry->update, ack);
         }
+        break;
 
       case Q_ADD_PLAN:
-        // Plan -- add the plan
-        assertTrue_1(entry->plan);
         {
           Node *pid = entry->plan;
           assertTrue_1(pid);
@@ -280,7 +279,7 @@ namespace PLEXIL
         break;
 
       default:
-        // error
+        // Internal error
         checkError(ALWAYS_FAIL,
                    "InterfaceManager:processQueue: Invalid entry type "
                    << entry->type);
@@ -316,18 +315,26 @@ namespace PLEXIL
       debugStmt("InterfaceManager:lookupNow", {
 	  CachedValue const *cv = cacheEntry.cachedValue();
 	  if (cv) {
-	  debugMsg("InterfaceManager:lookupNow", " state " << state
+	  debugMsg("InterfaceManager:lookupNow", " lookup " << state
 		   << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
 	  }
 	  else {
-	    debugMsg("InterfaceManager:lookupNow", " state " << state
+	    debugMsg("InterfaceManager:lookupNow", " lookup " << state
 		     << " is telemetry only, no cached value, so is UNKNOWN");
 	  }
 	});
       return;
     }
 
-    adapter->lookupNow(state, cacheEntry);
+    try {
+      adapter->lookupNow(state, cacheEntry);
+    }
+    catch (InterfaceError &e) {
+      warn("lookupNow: Error in interface adapter for lookup " << state << ":\n"
+           << e.what() << "\n Returning UNKNOWN");
+      cacheEntry.setUnknown();
+    }
+
     debugStmt("InterfaceManager:lookupNow", {
 	CachedValue const *cv = cacheEntry.cachedValue();
 	if (cv) {
@@ -342,15 +349,20 @@ namespace PLEXIL
     // update internal idea of time if required
     if (state == State::timeState()) {
       CachedValue const *val = cacheEntry.cachedValue();
-      assertTrue_2(val, "Time is unknown");
+      assertTrue_2(val, "Internal error: No cached value for 'time' state");
       double newTime; // FIXME
-      assertTrue_2(val->getValue(newTime), "Time is unknown");
+      if (!val->getValue(newTime)) {
+        warn("lookupNow: time is unknown!");
+        m_currentTime = 0.0;
+      }
+      else {
 #if PARANOID_ABOUT_TIME_DIRECTION
-      assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
+        assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
 #endif
-      debugMsg("InterfaceManager:lookupNow",
-               " setting current time to " << std::setprecision(15) << newTime);
-      m_currentTime = newTime;
+        debugMsg("InterfaceManager:lookupNow",
+                 " setting current time to " << std::setprecision(15) << newTime);
+        m_currentTime = newTime;
+      }
     }
   }
 
@@ -423,6 +435,7 @@ namespace PLEXIL
     InterfaceAdapter *intf = g_configuration->getPlannerUpdateInterface();
     if (!intf) {
       // Fake the ack
+      warn("executeUpdate: no interface adapter for updates");
       g_interface->acknowledgeUpdate(update, true);
       return;
     }
@@ -445,9 +458,9 @@ namespace PLEXIL
       intf->executeCommand(cmd);
     }
     else {
-      // return failed status
-      warn("executeCommand: null interface adapter for command " << cmd->getName());
-      g_interface->commandHandleReturn(cmd, COMMAND_FAILED);
+      // return error status
+      warn("executeCommand: no interface adapter for command " << cmd->getName());
+      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
     }
   }
 
@@ -504,68 +517,116 @@ namespace PLEXIL
   void
   InterfaceManager::handleValueChange(const State& state, const Value& value)
   {
-    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleValueChange",
              " for state " << state << ", new value = " << value);
+
+    assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     entry->initForLookup(state, value);
     m_inputQueue->put(entry);
   }
 
+  /**
+   * @brief Notify of the availability of a command handle value for a command.
+   * @param cmd Pointer to the Command instance.
+   * @param value The new value.
+   */
   void
   InterfaceManager::handleCommandAck(Command * cmd, CommandHandleValue value)
   {
-    assertTrue_1(cmd);
-    assertTrue_1(value > NO_COMMAND_HANDLE && value < COMMAND_HANDLE_MAX);
-    assertTrue_1(m_inputQueue);
+    if (!cmd) {
+      warn("handleCommandAck: null command");
+      return;
+    }
+
+    if (value <= NO_COMMAND_HANDLE || value >= COMMAND_HANDLE_MAX) {
+      warn("handleCommandAck: invalid command handle value");
+      value = COMMAND_INTERFACE_ERROR;
+    }
     debugMsg("InterfaceManager:handleCommandAck",
              " for command " << cmd->getCommand()
              << ", handle = " << commandHandleValueName(value));
+
+    assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     entry->initForCommandAck(cmd, value);
     m_inputQueue->put(entry);
   }
 
+  /**
+   * @brief Notify of the availability of a return value for a command.
+   * @param cmd Pointer to the Command instance.
+   * @param value The new value.
+   */
   void
   InterfaceManager::handleCommandReturn(Command * cmd, Value const &value)
   {
-    assertTrue_1(cmd);
-    assertTrue_1(m_inputQueue);
+    if (!cmd) {
+      warn("handleCommandReturn: null command");
+      return;
+    }
     debugMsg("InterfaceManager:handleCommandReturn",
              " for command " << cmd->getCommand()
              << ", value = " << value);
+
+    assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     entry->initForCommandReturn(cmd, value);
     m_inputQueue->put(entry);
   }
 
+  /**
+   * @brief Notify of the availability of a command abort acknowledgment.
+   * @param cmd Pointer to the Command instance.
+   * @param ack The acknowledgment value.
+   */
   void
   InterfaceManager::handleCommandAbortAck(Command * cmd, bool ack)
   {
-    assertTrue_1(cmd);
-    assertTrue_1(m_inputQueue);
+    if (!cmd) {
+      warn("handleCommandAbortAck: null command");
+      return;
+    }
+
     debugMsg("InterfaceManager:handleCommandAbortAck",
              " for command " << cmd->getCommand()
              << ", ack = " << (ack ? "true" : "false"));
+
+    assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     entry->initForCommandAbort(cmd, ack);
     m_inputQueue->put(entry);
   }
 
+  /**
+   * @brief Notify of the availability of a planner update acknowledgment.
+   * @param upd Pointer to the Update instance.
+   * @param ack The acknowledgment value.
+   */
   void
   InterfaceManager::handleUpdateAck(Update * upd, bool ack)
   {
-    assertTrue_1(upd);
-    assertTrue_1(m_inputQueue);
+    if (!upd) {
+      warn("handleUpdateAck: null update");
+      return;
+    }
+    
     debugMsg("InterfaceManager:handleUpdateAck",
              " for node " << upd->getSource()->getNodeId()
              << ", ack = " << (ack ? "true" : "false"));
+
+    assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     entry->initForUpdateAck(upd, ack);
     m_inputQueue->put(entry);
   }
@@ -575,6 +636,7 @@ namespace PLEXIL
     assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     unsigned int sequence = ++m_markCount;
     entry->initForMark(sequence);
     m_inputQueue->put(entry);
@@ -591,12 +653,11 @@ namespace PLEXIL
   InterfaceManager::handleAddPlan(pugi::xml_node const planXml)
     throw (ParserException)
   {
-    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleAddPlan", " entered");
 
     // check that the plan actually *has* a Node element!
     // Assumes we are starting from the PlexilPlan element.
-    checkParserException(planXml && hasChildElement(planXml),
+    checkParserException(planXml && planXml.child(NODE_TAG),
                          "Plan is empty or malformed");
     checkParserExceptionWithLocation(testTag(PLEXIL_PLAN_TAG, planXml),
                                      planXml,
@@ -605,8 +666,10 @@ namespace PLEXIL
     // parse the plan
     Node *root = parsePlan(planXml); // can also throw ParserException
 
+    assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
+
     entry->initForAddPlan(root);
     m_inputQueue->put(entry);
     if (g_configuration->getListenerHub())

@@ -28,6 +28,7 @@
 #define TIME_ADAPTER_H
 
 #include "InterfaceAdapter.hh"
+#include "InterfaceError.hh"
 #include "ValueType.hh"
 
 #include <unistd.h>
@@ -82,7 +83,7 @@ namespace PLEXIL
      * @return A double representing the current time.
      * @note Implemented by derived classes.
      */
-    virtual Real getCurrentTime() = 0;
+    virtual Real getCurrentTime() throw (InterfaceError) = 0;
 
   private:
 

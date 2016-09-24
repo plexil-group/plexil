@@ -28,7 +28,6 @@
 #include "LuvFormat.hh"
 
 #include "Debug.hh"
-#include "Error.hh"
 #include "Expression.hh"
 #include "Node.hh"
 

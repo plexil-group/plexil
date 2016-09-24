@@ -410,7 +410,6 @@ namespace PLEXIL
     xml_node const varDecls = xml.child(VAR_DECLS_TAG);
     xml_node const iface = xml.child(INTERFACE_TAG);
 
-    // Symbol table optimization part 1
     // By now we have an upper bound on how many entries are required.
     // Reserve space for them. 
     // This saves us from reallocating and copying the whole table as it grows.
@@ -420,13 +419,8 @@ namespace PLEXIL
         nVariables = estimateVariableSpace(varDecls);
       if (iface)
         nVariables += estimateInterfaceSpace(xml.child(INTERFACE_TAG));
-      node->getVariableMap().grow(nVariables);
+      node->allocateVariables(nVariables);
     }
-
-    // Symbol table optimization part 2
-    // Our parent (if any) has already had its capacity established (see above).
-    // If it has no local variables or interfaces, skip over it when searching.
-    node->getVariableMap().optimizeParentMap();
 
     // Populate local variables
     if (varDecls) {
@@ -577,6 +571,24 @@ namespace PLEXIL
                                          << varName << ", variable is " << valueTypeName(varType)
                                          << ", initializer is " << valueTypeName(initType));
       }
+      if (isArrayType(varType)) {
+        // Check whether initial value is larger than declared size
+        int sizeSpec = decl.child(MAX_SIZE_TAG).text().as_int(-1);
+        if (sizeSpec >= 0) {
+          Array const *initArray = NULL;
+          assertTrueMsg(init->getValuePointer(initArray),
+                        "Internal error: array initial value is unknown");
+          if (initArray->size() > (size_t) sizeSpec) {
+            if (garbage)
+              delete init;
+            checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                             decl,
+                                             "Node " << node->getNodeId()
+                                             << ": initial value for array variable "
+                                             << varName << " exceeds declared array size");
+          }
+        }
+      }
       var->asAssignable()->setInitializer(init, garbage);
     }
   }
@@ -701,11 +713,12 @@ namespace PLEXIL
       checkParserExceptionWithLocation(initXml,
                                        inOutXml,
                                        "InOut variable " << name << " not found and no default InitialValue provided");
-      bool garbage;
-      Expression *initExp = createExpression(initXml.first_child(), node, garbage);
+      bool garbage, initGarbage;
+      Expression *initExp =
+        createExpression(initXml.first_child(), node, initGarbage);
       ValueType initExpType = initExp->valueType(); 
       if (!areTypesCompatible(typ, initExpType)) {
-        if (garbage)
+        if (initGarbage)
           delete initExp;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          initXml,
@@ -723,7 +736,7 @@ namespace PLEXIL
                                          "InOut interface variable " << name
                                          << " shadows local variable of same name");
       }
-      var->setInitializer(initExp, garbage);
+      var->setInitializer(initExp, initGarbage);
     }
   }
 

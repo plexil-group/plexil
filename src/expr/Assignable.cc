@@ -26,7 +26,6 @@
 
 #include "Assignable.hh"
 #include "Error.hh"
-#include "VariableConflictSet.hh"
 
 namespace PLEXIL {
 
@@ -73,20 +72,8 @@ namespace PLEXIL {
    */
   void Assignable::setInitializer(Expression * /* expr */, bool /* garbage */)
   {
-    assertTrue_2(ALWAYS_FAIL, "setInitializer() called on object that doesn't have an initializer");
-  }
-
-
-  /**
-   * @brief Get the conflict set of nodes assigning to this object.
-   * @return Pointer to conflict set, if any.
-   * @note Default method.
-   */
-  VariableConflictSet &Assignable::getConflictSet()
-  {
-    assertTrue_2(ALWAYS_FAIL, "getConflictSet() called on object that doesn't have a conflict set");
-    static VariableConflictSet sl_emptySet;
-    return sl_emptySet;
+    assertTrue_2(ALWAYS_FAIL,
+                 "setInitializer() called on Assignable that doesn't have an initializer");
   }
 
 } // namespace PLEXIL

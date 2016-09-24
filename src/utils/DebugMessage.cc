@@ -38,19 +38,6 @@ namespace PLEXIL
   static bool matchesPatterns(std::string const &marker);
 
   //
-  // Errors specific to debug message facility
-  //
-
-  class DebugErr
-  {
-  public:
-    DECLARE_ERROR(DebugConfigError);
-    DECLARE_ERROR(DebugInternalError);
-    DECLARE_ERROR(DebugMessageError); // not used?
-    DECLARE_ERROR(DebugMemoryError);
-  };
-
-  //
   // DebugMessage
   //
 
@@ -97,9 +84,8 @@ namespace PLEXIL
 
   std::ostream &getDebugOutputStream()
   {
-    assertTrue_3(debugStream != nullptr && debugStream->good(),
-                 "Null or invalid debug output stream",
-                 DebugErr::DebugInternalError());
+    assertTrue_2(debugStream != nullptr && debugStream->good(),
+                 "Null or invalid debug output stream");
     return *debugStream;
   }
 
@@ -165,9 +151,8 @@ namespace PLEXIL
 
     ensureDebugInited();
 
-    assertTrue_3(is.good(),
-                 "Cannot read debug configuration from invalid/error'd stream",
-                 DebugErr::DebugConfigError());
+    assertTrue_2(is.good(),
+                 "Cannot read debug configuration from invalid/error'd stream");
 
     while (is.good() && !is.eof()) {
       std::string input;
@@ -197,9 +182,8 @@ namespace PLEXIL
       enableMatchingDebugMessages(input.substr(left, right - left));
     }
 
-    assertTrue_3(is.eof(),
-                 "I/O error while reading debug configuration file",
-                 DebugErr::DebugConfigError());
+    assertTrue_2(is.eof(),
+                 "I/O error while reading debug configuration file");
     return is.eof();
   }
 

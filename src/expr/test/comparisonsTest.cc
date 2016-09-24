@@ -238,33 +238,34 @@ static bool testString()
   Function strNeq5(NotEqual<std::string>::instance(), makeExprVec(v5, garbage2));
   Function strNeq6(NotEqual<std::string>::instance(), makeExprVec(v6, garbage2));
 
-  Function strGt1(GreaterThan<std::string>::instance(), makeExprVec(v1, garbage2));
-  Function strGt2(GreaterThan<std::string>::instance(), makeExprVec(v2, garbage2));
-  Function strGt3(GreaterThan<std::string>::instance(), makeExprVec(v3, garbage2));
-  Function strGt4(GreaterThan<std::string>::instance(), makeExprVec(v4, garbage2));
-  Function strGt5(GreaterThan<std::string>::instance(), makeExprVec(v5, garbage2));
-  Function strGt6(GreaterThan<std::string>::instance(), makeExprVec(v6, garbage2));
+  // Not yet
+  // Function strGt1(GreaterThan<std::string>::instance(), makeExprVec(v1, garbage2));
+  // Function strGt2(GreaterThan<std::string>::instance(), makeExprVec(v2, garbage2));
+  // Function strGt3(GreaterThan<std::string>::instance(), makeExprVec(v3, garbage2));
+  // Function strGt4(GreaterThan<std::string>::instance(), makeExprVec(v4, garbage2));
+  // Function strGt5(GreaterThan<std::string>::instance(), makeExprVec(v5, garbage2));
+  // Function strGt6(GreaterThan<std::string>::instance(), makeExprVec(v6, garbage2));
 
-  Function strGe1(GreaterEqual<std::string>::instance(), makeExprVec(v1, garbage2));
-  Function strGe2(GreaterEqual<std::string>::instance(), makeExprVec(v2, garbage2));
-  Function strGe3(GreaterEqual<std::string>::instance(), makeExprVec(v3, garbage2));
-  Function strGe4(GreaterEqual<std::string>::instance(), makeExprVec(v4, garbage2));
-  Function strGe5(GreaterEqual<std::string>::instance(), makeExprVec(v5, garbage2));
-  Function strGe6(GreaterEqual<std::string>::instance(), makeExprVec(v6, garbage2));
+  // Function strGe1(GreaterEqual<std::string>::instance(), makeExprVec(v1, garbage2));
+  // Function strGe2(GreaterEqual<std::string>::instance(), makeExprVec(v2, garbage2));
+  // Function strGe3(GreaterEqual<std::string>::instance(), makeExprVec(v3, garbage2));
+  // Function strGe4(GreaterEqual<std::string>::instance(), makeExprVec(v4, garbage2));
+  // Function strGe5(GreaterEqual<std::string>::instance(), makeExprVec(v5, garbage2));
+  // Function strGe6(GreaterEqual<std::string>::instance(), makeExprVec(v6, garbage2));
 
-  Function strLt1(LessThan<std::string>::instance(), makeExprVec(v1, garbage2));
-  Function strLt2(LessThan<std::string>::instance(), makeExprVec(v2, garbage2));
-  Function strLt3(LessThan<std::string>::instance(), makeExprVec(v3, garbage2));
-  Function strLt4(LessThan<std::string>::instance(), makeExprVec(v4, garbage2));
-  Function strLt5(LessThan<std::string>::instance(), makeExprVec(v5, garbage2));
-  Function strLt6(LessThan<std::string>::instance(), makeExprVec(v6, garbage2));
+  // Function strLt1(LessThan<std::string>::instance(), makeExprVec(v1, garbage2));
+  // Function strLt2(LessThan<std::string>::instance(), makeExprVec(v2, garbage2));
+  // Function strLt3(LessThan<std::string>::instance(), makeExprVec(v3, garbage2));
+  // Function strLt4(LessThan<std::string>::instance(), makeExprVec(v4, garbage2));
+  // Function strLt5(LessThan<std::string>::instance(), makeExprVec(v5, garbage2));
+  // Function strLt6(LessThan<std::string>::instance(), makeExprVec(v6, garbage2));
 
-  Function strLe1(LessEqual<std::string>::instance(), makeExprVec(v1, garbage2));
-  Function strLe2(LessEqual<std::string>::instance(), makeExprVec(v2, garbage2));
-  Function strLe3(LessEqual<std::string>::instance(), makeExprVec(v3, garbage2));
-  Function strLe4(LessEqual<std::string>::instance(), makeExprVec(v4, garbage2));
-  Function strLe5(LessEqual<std::string>::instance(), makeExprVec(v5, garbage2));
-  Function strLe6(LessEqual<std::string>::instance(), makeExprVec(v6, garbage2));
+  // Function strLe1(LessEqual<std::string>::instance(), makeExprVec(v1, garbage2));
+  // Function strLe2(LessEqual<std::string>::instance(), makeExprVec(v2, garbage2));
+  // Function strLe3(LessEqual<std::string>::instance(), makeExprVec(v3, garbage2));
+  // Function strLe4(LessEqual<std::string>::instance(), makeExprVec(v4, garbage2));
+  // Function strLe5(LessEqual<std::string>::instance(), makeExprVec(v5, garbage2));
+  // Function strLe6(LessEqual<std::string>::instance(), makeExprVec(v6, garbage2));
 
   strEq1.activate();
   strEq2.activate();
@@ -278,101 +279,103 @@ static bool testString()
   strNeq4.activate();
   strNeq5.activate();
   strNeq6.activate();
-  strGt1.activate();
-  strGt2.activate();
-  strGt3.activate();
-  strGt4.activate();
-  strGt5.activate();
-  strGt6.activate();
-  strGe1.activate();
-  strGe2.activate();
-  strGe3.activate();
-  strGe4.activate();
-  strGe5.activate();
-  strGe6.activate();
-  strLt1.activate();
-  strLt2.activate();
-  strLt3.activate();
-  strLt4.activate();
-  strLt5.activate();
-  strLt6.activate();
-  strLe1.activate();
-  strLe2.activate();
-  strLe3.activate();
-  strLe4.activate();
-  strLe5.activate();
-  strLe6.activate();
+
+  // Not yet
+  // strGt1.activate();
+  // strGt2.activate();
+  // strGt3.activate();
+  // strGt4.activate();
+  // strGt5.activate();
+  // strGt6.activate();
+  // strGe1.activate();
+  // strGe2.activate();
+  // strGe3.activate();
+  // strGe4.activate();
+  // strGe5.activate();
+  // strGe6.activate();
+  // strLt1.activate();
+  // strLt2.activate();
+  // strLt3.activate();
+  // strLt4.activate();
+  // strLt5.activate();
+  // strLt6.activate();
+  // strLe1.activate();
+  // strLe2.activate();
+  // strLe3.activate();
+  // strLe4.activate();
+  // strLe5.activate();
+  // strLe6.activate();
 
   // "Yo!" ? "Yo!"
   assertTrue_1(strEq1.getValue(tempb));
   assertTrue_1(tempb);
   assertTrue_1(strNeq1.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(strGt1.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strGe1.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt1.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe1.getValue(tempb));
-  assertTrue_1(tempb);
+  // assertTrue_1(strGt1.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strGe1.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt1.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe1.getValue(tempb));
+  // assertTrue_1(tempb);
 
   // "Mama" ? "Mama"
   assertTrue_1(strEq2.getValue(tempb));
   assertTrue_1(tempb);
   assertTrue_1(strNeq2.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(strGt2.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strGe2.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt2.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe2.getValue(tempb));
-  assertTrue_1(tempb);
+  // assertTrue_1(strGt2.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strGe2.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt2.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe2.getValue(tempb));
+  // assertTrue_1(tempb);
 
   // "Yo!" ? "Mama"
   assertTrue_1(strEq3.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(strNeq3.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strGt3.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strGe3.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt3.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe3.getValue(tempb));
-  assertTrue_1(!tempb);
+  // assertTrue_1(strGt3.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strGe3.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt3.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe3.getValue(tempb));
+  // assertTrue_1(!tempb);
 
   // "Mama" ? "Yo!"
   assertTrue_1(strEq4.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(strNeq4.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strGt4.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strGe4.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLt4.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLe4.getValue(tempb));
-  assertTrue_1(tempb);
+  // assertTrue_1(strGt4.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strGe4.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLt4.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLe4.getValue(tempb));
+  // assertTrue_1(tempb);
 
   // These should be unknown because vars is uninitialized
   assertTrue_1(!strEq5.getValue(tempb));
   assertTrue_1(!strNeq5.getValue(tempb));
-  assertTrue_1(!strGt5.getValue(tempb));
-  assertTrue_1(!strGe5.getValue(tempb));
-  assertTrue_1(!strLt5.getValue(tempb));
-  assertTrue_1(!strLe5.getValue(tempb));
+  // assertTrue_1(!strGt5.getValue(tempb));
+  // assertTrue_1(!strGe5.getValue(tempb));
+  // assertTrue_1(!strLt5.getValue(tempb));
+  // assertTrue_1(!strLe5.getValue(tempb));
 
   assertTrue_1(!strEq6.getValue(tempb));
   assertTrue_1(!strNeq6.getValue(tempb));
-  assertTrue_1(!strGt6.getValue(tempb));
-  assertTrue_1(!strGe6.getValue(tempb));
-  assertTrue_1(!strLt6.getValue(tempb));
-  assertTrue_1(!strLe6.getValue(tempb));
+  // assertTrue_1(!strGt6.getValue(tempb));
+  // assertTrue_1(!strGe6.getValue(tempb));
+  // assertTrue_1(!strLt6.getValue(tempb));
+  // assertTrue_1(!strLe6.getValue(tempb));
 
   // Set vars and try again
   vars.setValue(std::string("Mama"));
@@ -382,28 +385,28 @@ static bool testString()
   assertTrue_1(!tempb);
   assertTrue_1(strNeq5.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strGt5.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strGe5.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt5.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe5.getValue(tempb));
-  assertTrue_1(!tempb);
+  // assertTrue_1(strGt5.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strGe5.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt5.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe5.getValue(tempb));
+  // assertTrue_1(!tempb);
 
   // "Mama" ? "Mama"
   assertTrue_1(strEq6.getValue(tempb));
   assertTrue_1(tempb);
   assertTrue_1(strNeq6.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(strGt6.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strGe6.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt6.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe6.getValue(tempb));
-  assertTrue_1(tempb);
+  // assertTrue_1(strGt6.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strGe6.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt6.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe6.getValue(tempb));
+  // assertTrue_1(tempb);
 
   vars.setValue(std::string("Yo!"));
   // "Yo!" ? "Yo!"
@@ -411,28 +414,28 @@ static bool testString()
   assertTrue_1(tempb);
   assertTrue_1(strNeq5.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(strGt5.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strGe5.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt5.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe5.getValue(tempb));
-  assertTrue_1(tempb);
+  // assertTrue_1(strGt5.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strGe5.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt5.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe5.getValue(tempb));
+  // assertTrue_1(tempb);
 
   // "Yo!" ? "Mama"
   assertTrue_1(strEq6.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(strNeq6.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strGt6.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strGe6.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt6.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe6.getValue(tempb));
-  assertTrue_1(!tempb);
+  // assertTrue_1(strGt6.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strGe6.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt6.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe6.getValue(tempb));
+  // assertTrue_1(!tempb);
 
   vars.setValue(std::string("Yo Mama!"));
   // "Yo!" ? "Yo mama!"
@@ -440,28 +443,28 @@ static bool testString()
   assertTrue_1(!tempb);
   assertTrue_1(strNeq5.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strGt5.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strGe5.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt5.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe5.getValue(tempb));
-  assertTrue_1(!tempb);
+  // assertTrue_1(strGt5.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strGe5.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt5.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe5.getValue(tempb));
+  // assertTrue_1(!tempb);
 
   // "Yo mama!" ? "Mama"
   assertTrue_1(strEq6.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(strNeq6.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strGt6.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strGe6.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strLt6.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strLe6.getValue(tempb));
-  assertTrue_1(!tempb);
+  // assertTrue_1(strGt6.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strGe6.getValue(tempb));
+  // assertTrue_1(tempb);
+  // assertTrue_1(strLt6.getValue(tempb));
+  // assertTrue_1(!tempb);
+  // assertTrue_1(strLe6.getValue(tempb));
+  // assertTrue_1(!tempb);
 
   return true;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,42 +27,13 @@
 #ifndef LISTENER_FILTERS_HH
 #define LISTENER_FILTERS_HH
 
-#include "ExecListenerFilter.hh"
-
 namespace PLEXIL
 {
 
   /**
-   * @class NodeStateFilter
-   * @brief Limits reporting of node state transitions to a subset of node states.
+   * @brief Register the standard exec listener filters.
    */
-  class NodeStateFilter : public ExecListenerFilter
-  {
-  public:
-    NodeStateFilter(pugi::xml_node const xml);
-
-    virtual ~NodeStateFilter();
-
-    /**
-     * @brief Determine whether this node transition event should be reported.
-     * @param prevState The node's previous state.
-     * @param node Smart pointer to the node that changed state.
-     * @return true to notify on this event, false to ignore it.
-     * @note The default method simply returns true.
-     */
-    bool reportNodeTransition(NodeState prevState, Node *node);
-
-  private:
-
-    //
-    // Deliberately unimplemented
-    //
-    NodeStateFilter();
-    NodeStateFilter(const NodeStateFilter&);
-    NodeStateFilter& operator=(const NodeStateFilter&);
-
-    bool m_stateEnabled[NODE_STATE_MAX];
-  };
+  extern void registerExecListenerFilters();
 
 }
 

@@ -27,84 +27,86 @@
 #ifndef PLEXIL_SCHEMA_HH
 #define PLEXIL_SCHEMA_HH
 
+#include "resource-tags.hh"
+
 namespace PLEXIL
 {
-  extern char const *PLEXIL_PLAN_TAG;
-  extern char const *FILE_NAME_ATTR;
-  extern char const *LINE_NO_ATTR;
-  extern char const *COL_NO_ATTR;
+  constexpr char const *PLEXIL_PLAN_TAG = "PlexilPlan";
+  constexpr char const *FILE_NAME_ATTR = "FileName";
+  constexpr char const *LINE_NO_ATTR = "LineNo";
+  constexpr char const *COL_NO_ATTR = "ColNo";
 
-  extern char const *GLOBAL_DECLARATIONS_TAG;
-  extern char const *COMMAND_DECLARATION_TAG;
-  extern char const *RETURN_TAG;
-  extern char const *PARAMETER_TAG;
-  extern char const *RESOURCE_LIST_TAG;
-  extern char const *STATE_DECLARATION_TAG;
-  extern char const *LIBRARY_NODE_DECLARATION_TAG;
+  constexpr char const *GLOBAL_DECLARATIONS_TAG = "GlobalDeclarations";
+  constexpr char const *COMMAND_DECLARATION_TAG = "CommandDeclaration";
+  constexpr char const *RETURN_TAG = "Return";
+  constexpr char const *PARAMETER_TAG = "Parameter";
+  constexpr char const *ANY_PARAMETERS_TAG = "AnyParameters";
+  constexpr char const *STATE_DECLARATION_TAG = "StateDeclaration";
+  constexpr char const *LIBRARY_NODE_DECLARATION_TAG = "LibraryNodeDeclaration";
 
-  extern char const *NODE_TAG;
-  extern char const *NODETYPE_ATTR;
-  extern char const *NODEID_TAG;
-  extern char const *COMMENT_TAG;
-  extern char const *PRIORITY_TAG;
+  constexpr char const *NODE_TAG = "Node";
+  constexpr char const *NODETYPE_ATTR = "NodeType";
+  constexpr char const *NODEID_TAG = "NodeId";
+  constexpr char const *COMMENT_TAG = "Comment";
+  constexpr char const *PRIORITY_TAG = "Priority";
 
-  extern char const *VAR_DECLS_TAG;
-  extern char const *DECL_VAR_TAG;
-  extern char const *NAME_TAG;
-  extern char const *TYPE_TAG;
-  extern char const *INITIALVAL_TAG;
-  extern char const *DECL_ARRAY_TAG;
-  extern char const *MAX_SIZE_TAG;
+  constexpr char const *VAR_DECLS_TAG = "VariableDeclarations";
+  constexpr char const *DECL_VAR_TAG = "DeclareVariable";
+  constexpr char const *NAME_TAG = "Name";
+  constexpr char const *TYPE_TAG = "Type";
+  constexpr char const *INITIALVAL_TAG = "InitialValue";
+  constexpr char const *DECL_ARRAY_TAG = "DeclareArray";
+  constexpr char const *MAX_SIZE_TAG = "MaxSize";
+  constexpr char const *ANY_VAL = "Any";
 
-  extern char const *INTERFACE_TAG;
-  extern char const *IN_TAG;
-  extern char const *INOUT_TAG;
+  constexpr char const *INTERFACE_TAG = "Interface";
+  constexpr char const *IN_TAG = "In";
+  constexpr char const *INOUT_TAG = "InOut";
 
-  extern char const *BODY_TAG;
-  extern char const *ASSN_TAG;
-  extern char const *RHS_TAG;
-  extern char const *LIBRARYNODECALL_TAG;
-  extern char const *ALIAS_TAG;
-  extern char const *NODE_PARAMETER_TAG;
-  extern char const *NODELIST_TAG;
+  constexpr char const *BODY_TAG = "NodeBody";
+  constexpr char const *ASSN_TAG = "Assignment";
+  constexpr char const *RHS_TAG = "RHS";
+  constexpr char const *LIBRARYNODECALL_TAG = "LibraryNodeCall";
+  constexpr char const *ALIAS_TAG = "Alias";
+  constexpr char const *NODE_PARAMETER_TAG = "NodeParameter";
+  constexpr char const *NODELIST_TAG = "NodeList";
 
   // condition names
-  extern char const *CONDITION_SUFFIX;
-  extern char const *START_CONDITION_TAG;
-  extern char const *REPEAT_CONDITION_TAG;
-  extern char const *PRE_CONDITION_TAG;
-  extern char const *POST_CONDITION_TAG;
-  extern char const *INVARIANT_CONDITION_TAG;
-  extern char const *END_CONDITION_TAG;
-  extern char const *EXIT_CONDITION_TAG;
-  extern char const *SKIP_CONDITION_TAG;
+  constexpr char const *CONDITION_SUFFIX = "Condition";
+  constexpr char const *START_CONDITION_TAG = "StartCondition";
+  constexpr char const *REPEAT_CONDITION_TAG = "RepeatCondition";
+  constexpr char const *PRE_CONDITION_TAG = "PreCondition";
+  constexpr char const *POST_CONDITION_TAG = "PostCondition";
+  constexpr char const *INVARIANT_CONDITION_TAG = "InvariantCondition";
+  constexpr char const *END_CONDITION_TAG = "EndCondition";
+  constexpr char const *EXIT_CONDITION_TAG = "ExitCondition";
+  constexpr char const *SKIP_CONDITION_TAG = "SkipCondition";
 
-  extern char const *NODEREF_TAG;
-  extern char const *DIR_ATTR;
-  extern char const *PARENT_VAL;
-  extern char const *CHILD_VAL;
-  extern char const *SIBLING_VAL;
-  extern char const *SELF_VAL;
+  constexpr char const *NODEREF_TAG = "NodeRef";
+  constexpr char const *DIR_ATTR = "dir";
+  constexpr char const *PARENT_VAL = "parent";
+  constexpr char const *CHILD_VAL = "child";
+  constexpr char const *SIBLING_VAL = "sibling";
+  constexpr char const *SELF_VAL = "self";
 
-  extern char const *STATEVAL_TAG;
+  constexpr char const *STATEVAL_TAG = "NodeStateValue";
 
-  extern char const *TIMEPOINT_TAG;
-  extern char const *START_VAL;
-  extern char const *END_VAL;
+  constexpr char const *TIMEPOINT_TAG = "Timepoint";
+  constexpr char const *START_VAL = "START";
+  constexpr char const *END_VAL = "END";
 
-  // Interface tags
-  extern char const *ARGS_TAG;
-  extern char const *CMD_TAG;
-  extern char const *LOOKUPNOW_TAG;
-  extern char const *LOOKUPCHANGE_TAG;
-  extern char const *PAIR_TAG;
-  extern char const *TOLERANCE_TAG;
-  extern char const *UPDATE_TAG;
+  constexpr char const *ARGS_TAG = "Arguments";
+  constexpr char const *CMD_TAG = "Command";
+  constexpr char const *LOOKUPNOW_TAG = "LookupNow";
+  constexpr char const *LOOKUPCHANGE_TAG = "LookupOnChange";
+  constexpr char const *PAIR_TAG = "Pair";
+  constexpr char const *TOLERANCE_TAG = "Tolerance";
+  constexpr char const *UPDATE_TAG = "Update";
 
-  extern char const *ARRAYELEMENT_TAG;
-  extern char const *INDEX_TAG;
+  constexpr char const *ARRAYELEMENT_TAG = "ArrayElement";
+  constexpr char const *INDEX_TAG = "Index";
 
-  extern char const *ARRAY_VAL_TAG;
+  constexpr char const *ARRAY_VAL_TAG = "ArrayValue";
 
 } // namespace PLEXIL
 

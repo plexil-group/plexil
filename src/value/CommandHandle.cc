@@ -40,7 +40,8 @@ namespace PLEXIL
    "COMMAND_RCVD_BY_SYSTEM",
    "COMMAND_FAILED",
    "COMMAND_DENIED",
-   "COMMAND_SUCCESS"
+   "COMMAND_SUCCESS",
+   "COMMAND_INTERFACE_ERROR"
   };
 
   CommandHandleValue parseCommandHandleValue(std::string const &name)

@@ -36,11 +36,12 @@
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
 
+#include <cstring>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <cstring>
 
 #include <unistd.h>
 
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
 
   try {
     // Initialize infrastructure
-    Error::doThrowExceptions();
+    PLEXIL::Error::doThrowExceptions();
     PLEXIL::initializeExpressions();
     PLEXIL::TransitionExternalInterface intfc;
     PLEXIL::g_interface = &intfc;
@@ -162,7 +163,7 @@ int main(int argc, char *argv[])
     std::cout << "Aborted." << std::endl;
     return 1;
   }
-  catch (Error const &e) {
+  catch (PLEXIL::Error const &e) {
     std::cerr << "Aborting benchmark due to error:\n" << e << std::endl;
     std::cout << "Aborted." << std::endl;
     return 1;

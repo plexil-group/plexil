@@ -26,10 +26,7 @@
 
 #include "Expression.hh"
 
-#include "Error.hh"
-
-#include <iostream>
-#include <sstream>
+#include "PlanError.hh"
 
 namespace PLEXIL 
 {

@@ -93,10 +93,6 @@ namespace PLEXIL
       debugMsg("TimeAdapter:stop", " stopTimer() failed");
     }
 
-    if (!deleteTimer()) {
-      debugMsg("TimeAdapter:stop", " deleteTimer() failed");
-    }
-
     // N.B. on Linux SIGUSR1 does double duty as both terminate and timer wakeup,
     // so we need the stopping flag to figure out which is which.
 #ifdef PLEXIL_WITH_THREADS
@@ -116,13 +112,23 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::shutdown()
   {
+    if (!deleteTimer()) {
+      debugMsg("TimeAdapter:shutdown", " deleteTimer() failed");
+      return false;
+    }
+    debugMsg("TimeAdapter:shutdown", " complete");
     return true;
   }
 
   void TimeAdapterImpl::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
-    assertTrueMsg(state == State::timeState(),
-                  "TimeAdapter does not implement lookups for state " << state);
+    if (state != State::timeState()) {
+      warn("TimeAdapter does not implement lookups for state " << state);
+      cacheEntry.setUnknown();
+      return;
+    }
+
+    debugMsg("TimeAdapter:lookupNow", " called");
     cacheEntry.update(getCurrentTime());
   }
 
@@ -139,8 +145,10 @@ namespace PLEXIL
 
   void TimeAdapterImpl::setThresholds(const State& state, Real hi, Real lo)
   {
-    assertTrueMsg(state == State::timeState(),
-                  "TimeAdapter does not implement lookups for state " << state);
+    if (state != State::timeState()) {
+      warn("TimeAdapter does not implement lookups for state " << state);
+      return;
+    }
 
     debugMsg("TimeAdapter:setThresholds", " setting wakeup at " << std::setprecision(15) << hi);
     if (setTimer(hi)) {
@@ -156,6 +164,7 @@ namespace PLEXIL
 
   void TimeAdapterImpl::setThresholds(const State& state, Integer hi, Integer lo)
   {
+    // This is an internal error, shouldn't be reachable from a plan
     assertTrue_2(ALWAYS_FAIL, "setThresholds of integer thresholds not implemented");
   }
 
@@ -180,28 +189,41 @@ namespace PLEXIL
   {
     // block most common signals for this thread
     sigset_t threadSigset;
-    assertTrue_2(configureWaitThreadSigmask(&threadSigset),
-                 "TimeAdapterImpl::timerWaitThreadImpl: signal mask initialization failed");
-    int errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
-    assertTrueMsg(0 == errnum,
-                  "TimeAdapterImpl::timerWaitThreadImpl: pthread_sigmask failed, result = " << errnum);
+    if (!configureWaitThreadSigmask(&threadSigset)) {
+      warn("TimeAdapter: signal mask initialization failed, unable to start timer thread");
+      return (void *) 0;
+    }
+    int errnum;
+    if ((errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL))) {
+      warn ("TimeAdapter: pthread_sigmask failed, result = " << errnum
+            << "; unable to start timer thread");
+      return (void *) 0;
+    }
 
     sigset_t waitSigset;
-    assertTrue_2(initializeSigwaitMask(&waitSigset),
-                 "TimeAdapterImpl::timerWaitThreadImpl: signal mask initialization failed");
+    if (!initializeSigwaitMask(&waitSigset)) {
+      warn("TimeAdapter: signal mask initialization failed, unable to start timer thread");
+      return (void *) 0;
+    }
 
     //
     // The wait loop
     //
     while (true) {
       int signalReceived = 0;
+
       int errnum = sigwait(&waitSigset, &signalReceived);
-      assertTrueMsg(errnum == 0, 
-                    "Fatal Error: sigwait failed, result = " << errnum);
+      if (errnum) {
+        warn("TimeAdapter: sigwait failed, result = " << errnum
+             << "; exiting timer thread");
+        return (void *) 0;
+      }
+      
       if (m_stopping) {
         debugMsg("TimeAdapter:timerWaitThread", " exiting on signal " << signalReceived);
         break;
       }
+      
       // wake up the Exec
       timerTimeout();
     }

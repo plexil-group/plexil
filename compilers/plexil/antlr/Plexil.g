@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -361,7 +361,7 @@ paramsSpec :
  ;
 
 paramsSpecGuts :
-      ( paramSpec ( COMMA! paramSpec )* )
+      ( paramSpec ( COMMA! paramSpec )* ( COMMA! ELLIPSIS )? )
       | ELLIPSIS
  ;
 

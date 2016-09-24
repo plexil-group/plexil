@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,16 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
  NodeTimepointValue.hh NodeTransition.hh \
  NodeVariableMap.hh NodeVariables.hh \
- PlexilExec.hh PlexilNodeType.hh UpdateNode.hh plan-utils.hh
+ PlexilExec.hh PlexilNodeType.hh VariableConflictSet.hh UpdateNode.hh \
+ plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc \
  NodeFunction.cc NodeOperatorImpl.cc \
  NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
- PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
+ PlexilExec.cc PlexilNodeType.cc UpdateNode.cc VariableConflictSet.cc \
+ plan-utils.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
