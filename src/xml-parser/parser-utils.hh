@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #ifndef PLEXIL_PARSER_UTILS_HH
 #define PLEXIL_PARSER_UTILS_HH
 
+#include "Error.hh" // PLEXIL_NORETURN macro
 #include "ParserException.hh"
 
 //
@@ -60,10 +61,22 @@ namespace PLEXIL
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
   // Helper for checkParserExceptionWithLocation
-  extern bool reportParserException(std::string const &msg, pugi::xml_node location)
-    throw (ParserException);
+  extern void reportParserException(std::string const &msg, pugi::xml_node location)
+    throw (ParserException) PLEXIL_NORETURN;
 
 } // namespace PLEXIL
+
+/**
+ * @def reportParserExceptionWithLocation
+ * @brief Throw a ParserException unconditionally
+ * @param loc A pugi::xml_node with the location of the exception
+ * @param msg An expression which writes the required message to a stream
+ */
+#define reportParserExceptionWithLocation(loc, msg) { \
+  std::ostringstream whatstr; \
+  whatstr << msg; \
+  reportParserException(whatstr.str().c_str(), loc); \
+}
 
 /**
  * @def checkParserExceptionWithLocation
@@ -74,10 +87,8 @@ namespace PLEXIL
  */
 #define checkParserExceptionWithLocation(cond, loc, msg) { \
   if (!(cond)) { \
-      std::ostringstream whatstr; \
-      whatstr << msg; \
-      reportParserException(whatstr.str().c_str(), loc); \
-    } \
+    reportParserExceptionWithLocation(loc, msg); \
+  } \
 }
 
 #endif // PLEXIL_PARSER_UTILS_HH
