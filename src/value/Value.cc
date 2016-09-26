@@ -884,8 +884,8 @@ namespace PLEXIL
       return PLEXIL::deserialize(m_value.realValue, b);
 
     case STRING_TYPE:
-      if (m_type != STRING_TYPE)
-	m_value.stringValue = new String();
+      if (m_type != STRING_TYPE || !m_value.stringValue)
+        m_value.stringValue = new String();
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*m_value.stringValue, b);
@@ -897,29 +897,29 @@ namespace PLEXIL
       return b;
 
     case BOOLEAN_ARRAY_TYPE:
-      if (m_type != BOOLEAN_ARRAY_TYPE)
-	m_value.arrayValue = new BooleanArray();
+      if (m_type != BOOLEAN_ARRAY_TYPE || !m_value.arrayValue)
+        m_value.arrayValue = new BooleanArray();
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*(BooleanArray *)m_value.arrayValue, b);
 
     case INTEGER_ARRAY_TYPE:
-      if (m_type != INTEGER_ARRAY_TYPE)
-	m_value.arrayValue = new IntegerArray();
+      if (m_type != INTEGER_ARRAY_TYPE || !m_value.arrayValue)
+        m_value.arrayValue = new IntegerArray();
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*(IntegerArray *) m_value.arrayValue, b);
 
     case REAL_ARRAY_TYPE:
-      if (m_type != REAL_ARRAY_TYPE)
-	m_value.arrayValue = new RealArray();
+      if (m_type != REAL_ARRAY_TYPE || !m_value.arrayValue)
+        m_value.arrayValue = new RealArray();
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*(RealArray *) m_value.arrayValue, b);
 
     case STRING_ARRAY_TYPE:
-      if (m_type != STRING_ARRAY_TYPE)
-	m_value.arrayValue = new StringArray();
+      if (m_type != STRING_ARRAY_TYPE || !m_value.arrayValue)
+        m_value.arrayValue = new StringArray();
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*(StringArray *) m_value.arrayValue, b);

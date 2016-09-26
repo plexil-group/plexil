@@ -735,11 +735,14 @@ namespace PLEXIL
   template <typename T>
   char *ArrayImpl<T>::serializeImpl(char *b) const
   {
+    size_t s = this->size();
+    if (s > 0xFFFFFF)
+      return NULL; // too big to serialize
+
     // Write type code
     *b++ = (char) PlexilValueType<T>::arrayValue;
 
     // Write 3 bytes of size
-    size_t s = this->size();
     *b++ = (char) (0xFF & (s >> 16));
     *b++ = (char) (0xFF & (s >> 8));
     *b++ = (char) (0xFF & s);
@@ -748,19 +751,25 @@ namespace PLEXIL
     b = serializeBoolVector(this->m_known, b);
 
     // Write array contents
-    for (size_t i = 0; i < s; ++i)
+    for (size_t i = 0; i < s; ++i) {
       b = serializeElement(m_contents[i], b);
+      if (!b)
+        return NULL; // serializeElement failed
+    }
     return b;
   }
 
   template <>
   char *ArrayImpl<Boolean>::serializeImpl(char *b) const
   {
+    size_t s = this->size();
+    if (s > 0xFFFFFF)
+      return NULL; // too big to serialize
+
     // Write type code
     *b++ = BOOLEAN_ARRAY_TYPE;
 
     // Write 3 bytes of size
-    size_t s = this->size();
     *b++ = (char) (0xFF & (s >> 16));
     *b++ = (char) (0xFF & (s >> 8));
     *b++ = (char) (0xFF & s);
