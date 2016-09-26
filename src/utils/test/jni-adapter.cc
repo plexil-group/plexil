@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,14 +69,18 @@ jint Java_gov_nasa_plexil_android_UtilsModuleTest_run(JNIEnv *env, jobject /* ja
   // Route cout and cerr to a log file.
   std::string* logName = logFileName(logDir);
   std::ofstream log(logName->c_str());
-  if (log.fail())
+  if (log.fail()) {
+
+    delete logName;
+    delete[] logdir;
 	return -1;
+  }
   PLEXIL::ScopedOstreamRedirect coutRedirect(std::cout, log);
   PLEXIL::ScopedOstreamRedirect cerrRedirect(std::cerr, log);
 
   UtilModuleTests::runTests(*logName);
   delete logName;
-  delete logDir;
+  delete[] logDir;
   return 0;
 }
 

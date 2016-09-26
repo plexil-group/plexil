@@ -43,6 +43,7 @@ jint PlexilTestExec(JNIEnv *env, jobject /* java_this */, jobjectArray java_argv
   for (unsigned int i = 0; i < argc; i++) {
 	jstring java_string = (jstring) env->GetObjectArrayElement(java_argv, i);
 	if (java_string == NULL) {
+      delete[] argv;
 	  return -1;
 	}
 	jsize utflen = env->GetStringUTFLength(java_string);
@@ -63,7 +64,7 @@ jint PlexilTestExec(JNIEnv *env, jobject /* java_this */, jobjectArray java_argv
 	  delete argv[i];
 	  argv[i] = NULL;
 	}
-  delete argv;
+  delete[] argv;
 
   // Return result
   return result;
