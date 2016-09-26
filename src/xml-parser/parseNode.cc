@@ -185,10 +185,9 @@ namespace PLEXIL
           checkInOutDecl(node, decl, isCall);
       }
       else
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         elt,
-                                         "Node " << node->getNodeId()
-                                         << ": Illegal " << name << " element inside " << INTERFACE_TAG);
+        reportParserExceptionWithLocation(elt,
+                                          "Node " << node->getNodeId()
+                                          << ": Illegal " << name << " element inside " << INTERFACE_TAG);
     }
   }
 
@@ -286,9 +285,8 @@ namespace PLEXIL
         if (!strcmp(END_CONDITION_TAG, tag)
             || !strcmp(EXIT_CONDITION_TAG, tag))
           break;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp,
-                                         "Illegal element \"" << tag << "\" in Node");
+        reportParserExceptionWithLocation(temp,
+                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
       case 'I': // Interface, InvariantCondition
@@ -301,9 +299,8 @@ namespace PLEXIL
           hasIface = true;
           break;
         }
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
+        reportParserExceptionWithLocation(temp, 
+                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
 
@@ -321,9 +318,8 @@ namespace PLEXIL
           hasBody = true;
         }
         else {
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           temp,
-                                           "Illegal element \"" << tag << "\" in Node");
+          reportParserExceptionWithLocation(temp,
+                                            "Illegal element \"" << tag << "\" in Node");
         }
         break;
 
@@ -341,9 +337,8 @@ namespace PLEXIL
           hasPrio = true;
           break;
         }
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp,
-                                         "Illegal element \"" << tag << "\" in Node");
+        reportParserExceptionWithLocation(temp,
+                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
       case 'R': // RepeatCondition
@@ -356,9 +351,8 @@ namespace PLEXIL
         if (!strcmp(START_CONDITION_TAG, tag)
             || !strcmp(SKIP_CONDITION_TAG, tag))
           break;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp,
-                                         "Illegal element \"" << tag << "\" in Node");
+        reportParserExceptionWithLocation(temp,
+                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
       case 'V': // VariableDeclarations
@@ -372,9 +366,8 @@ namespace PLEXIL
         // else fall thru to parser error
 
       default:
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp,
-                                         "Illegal element \"" << tag << "\" in Node");
+        reportParserExceptionWithLocation(temp,
+                                          "Illegal element \"" << tag << "\" in Node");
         break;
       }
     }
@@ -548,10 +541,9 @@ namespace PLEXIL
           break;
 
         default:
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           initXml,
-                                           "Can't parse initial value for unimplemented or illegal type "
-                                           << valueTypeName(varType));
+          reportParserExceptionWithLocation(initXml,
+                                            "Can't parse initial value for unimplemented or illegal type "
+                                            << valueTypeName(varType));
           return;
         }
       }
@@ -564,12 +556,12 @@ namespace PLEXIL
       if (!areTypesCompatible(varType, initType)) {
         if (garbage)
           delete init;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         initXml,
-                                         "Node " << node->getNodeId()
-                                         << ": Initialization type mismatch for variable "
-                                         << varName << ", variable is " << valueTypeName(varType)
-                                         << ", initializer is " << valueTypeName(initType));
+        reportParserExceptionWithLocation(initXml,
+                                          "Node " << node->getNodeId()
+                                          << ": Initialization type mismatch for variable "
+                                          << varName << ", variable is " << valueTypeName(varType)
+                                          << ", initializer is " << valueTypeName(initType));
+        return; // make cppcheck happy
       }
       if (isArrayType(varType)) {
         // Check whether initial value is larger than declared size
@@ -581,11 +573,11 @@ namespace PLEXIL
           if (initArray->size() > (size_t) sizeSpec) {
             if (garbage)
               delete init;
-            checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                             decl,
-                                             "Node " << node->getNodeId()
-                                             << ": initial value for array variable "
-                                             << varName << " exceeds declared array size");
+            reportParserExceptionWithLocation(decl,
+                                              "Node " << node->getNodeId()
+                                              << ": initial value for array variable "
+                                              << varName << " exceeds declared array size");
+            return; // make cppcheck happy
           }
         }
       }
@@ -638,10 +630,9 @@ namespace PLEXIL
         Expression *alias = new Alias(node, name, exp, false);
         if (!node->addLocalVariable(name, alias)) {
           delete alias;
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           inXml,
-                                           "In interface variable " << name
-                                           << " shadows existing local variable of same name");
+          reportParserExceptionWithLocation(inXml,
+                                            "In interface variable " << name
+                                            << " shadows existing local variable of same name");
         }
         
         // else nothing to do - "variable" already accessible and read-only
@@ -663,12 +654,12 @@ namespace PLEXIL
         ValueType expType = exp->valueType();
         if (garbage)
           delete exp;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         initXml,
-                                         "In interface variable " << name
-                                         << " has type " << valueTypeName(typ)
-                                         << " but default InitialValue is of incompatible type "
-                                         << valueTypeName(expType));
+        reportParserExceptionWithLocation(initXml,
+                                          "In interface variable " << name
+                                          << " has type " << valueTypeName(typ)
+                                          << " but default InitialValue is of incompatible type "
+                                          << valueTypeName(expType));
+        return; // make cppcheck happy
       }
       // If exp is writable or is not something we can delete, 
       // wrap it in an Alias
@@ -678,10 +669,10 @@ namespace PLEXIL
       }
       if (!node->addLocalVariable(name, exp)) {
         delete exp;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         inXml,
-                                         "In interface variable " << name
-                                         << " shadows local variable of same name");
+        reportParserExceptionWithLocation(inXml,
+                                          "In interface variable " << name
+                                          << " shadows local variable of same name");
+        return; // make cppcheck happy
       }
     }
   }
@@ -720,21 +711,19 @@ namespace PLEXIL
       if (!areTypesCompatible(typ, initExpType)) {
         if (initGarbage)
           delete initExp;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         initXml,
-                                         "InOut variable " << name
-                                         << " has type " << valueTypeName(typ)
-                                         << " but default InitialValue is of incompatible type "
-                                         << valueTypeName(initExpType));
+        reportParserExceptionWithLocation(initXml,
+                                          "InOut variable " << name
+                                          << " has type " << valueTypeName(typ)
+                                          << " but default InitialValue is of incompatible type "
+                                          << valueTypeName(initExpType));
       }
       Assignable *var = createAssignable(inOutXml, node, garbage);
       assertTrue_1(garbage); // better be something we can delete!
       if (!node->addLocalVariable(name, var)) {
         delete var;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         inOutXml,
-                                         "InOut interface variable " << name
-                                         << " shadows local variable of same name");
+        reportParserExceptionWithLocation(inOutXml,
+                                          "InOut interface variable " << name
+                                          << " shadows local variable of same name");
       }
       var->setInitializer(initExp, initGarbage);
     }
@@ -785,10 +774,9 @@ namespace PLEXIL
         if (condType != BOOLEAN_TYPE && condType != UNKNOWN_TYPE) {
           if (garbage)
             delete cond;
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           elt.first_child(),
-                                           "Node " << node->getNodeId() << ": "
-                                           << tag << " expression is not Boolean");
+          reportParserExceptionWithLocation(elt.first_child(),
+                                            "Node " << node->getNodeId() << ": "
+                                            << tag << " expression is not Boolean");
         }
         node->addUserCondition(which, cond, garbage);
       }

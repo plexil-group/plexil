@@ -213,10 +213,9 @@ namespace PLEXIL
       else if (testTag(DECL_ARRAY_TAG, decl))
         parseInterfaceArrayVariable(decl, false, lib);
       else {
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         decl,
-                                         LIBRARY_NODE_DECLARATION_TAG << " " << lib->name()
-                                         << ": Junk in " << inDecl.name() << " element");
+        reportParserExceptionWithLocation(decl,
+                                          LIBRARY_NODE_DECLARATION_TAG << " " << lib->name()
+                                          << ": Junk in " << inDecl.name() << " element");
       }
     }
   }
@@ -230,10 +229,9 @@ namespace PLEXIL
       else if (testTag(DECL_ARRAY_TAG, decl))
         parseInterfaceArrayVariable(decl, true, lib);
       else {
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         decl,
-                                         LIBRARY_NODE_DECLARATION_TAG << " " << lib->name()
-                                         << ": Junk in " << inOutDecl.name() << " element");
+        reportParserExceptionWithLocation(decl,
+                                          LIBRARY_NODE_DECLARATION_TAG << " " << lib->name()
+                                          << ": Junk in " << inOutDecl.name() << " element");
       }
     }
   }
@@ -265,11 +263,10 @@ namespace PLEXIL
         else if (testTag(INOUT_TAG, child))
           parseInOutDeclaration(child, lib);
         else {
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           child,
-                                           declXml.name() << " " << name
-                                           << ": illegal element " << child.name()
-                                           << " in " << INTERFACE_TAG);
+          reportParserExceptionWithLocation(child,
+                                            declXml.name() << " " << name
+                                            << ": illegal element " << child.name()
+                                            << " in " << INTERFACE_TAG);
         }
       }
     }

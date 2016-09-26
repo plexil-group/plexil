@@ -105,17 +105,15 @@ namespace PLEXIL
     ValueType type = arithmeticCommonType(exprVec);
     if (type == UNKNOWN_TYPE) {
       delete exprVec;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr,
-                                       "Type inconsistency or indeterminacy in arithmetic expression");
+      reportParserExceptionWithLocation(expr,
+                                        "Type inconsistency or indeterminacy in arithmetic expression");
     }
     Operator const *oper = this->selectOperator(type);
     if (!oper->checkArgCount(n)) {
       delete exprVec;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr,
-                                       "Wrong number of operands for operator "
-                                       << oper->getName());
+      reportParserExceptionWithLocation(expr,
+                                        "Wrong number of operands for operator "
+                                        << oper->getName());
     }
 
     wasCreated = true;

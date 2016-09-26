@@ -87,10 +87,9 @@ namespace PLEXIL
       return result;
     }
     else {
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       nodeRef,
-                                       "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
-                                       << dirValue << "\"");
+      reportParserExceptionWithLocation(nodeRef,
+                                        "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
+                                        << dirValue << "\"");
       return NULL;
     }
   }
@@ -125,11 +124,10 @@ namespace PLEXIL
         return result;
       parent = parent->getParent();
     }
-    checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                     nodeRef.first_child(),
-                                     "createExpression: No node named "
-                                     << name
-                                     << " reachable from node " << node->getNodeId());
+    reportParserExceptionWithLocation(nodeRef.first_child(),
+                                      "createExpression: No node named "
+                                      << name
+                                      << " reachable from node " << node->getNodeId());
     return NULL;
   }
 
@@ -143,9 +141,8 @@ namespace PLEXIL
       return parseNodeRef(nodeRef, node);
     else if (0 == strcmp(tag, NODEID_TAG))
       return parseNodeId(nodeRef, node);
-    checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                     nodeRef,
-                                     "createExpression: Invalid node reference");
+    reportParserExceptionWithLocation(nodeRef,
+                                      "createExpression: Invalid node reference");
     return NULL;
   }
   
@@ -232,10 +229,9 @@ namespace PLEXIL
     else if (0 == strcmp(END_VAL, whichStr))
       isEnd = true;
     else {
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       which,
-                                       "createExpression: Invalid Timepoint value \""
-                                       << whichStr << "\"");
+      reportParserExceptionWithLocation(which,
+                                        "createExpression: Invalid Timepoint value \""
+                                        << whichStr << "\"");
       return NULL;
     }
     wasCreated = false;
@@ -276,9 +272,8 @@ namespace PLEXIL
       return FINISHING_CONSTANT();
 
     default:
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr.first_child(),
-                                       "createExpression: Invalid NodeStateValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr.first_child(),
+                                        "createExpression: Invalid NodeStateValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }
@@ -304,9 +299,8 @@ namespace PLEXIL
       return INTERRUPTED_CONSTANT();
 
     default:
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr.first_child(),
-                                       "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr.first_child(),
+                                        "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }
@@ -338,9 +332,8 @@ namespace PLEXIL
       return PARENT_EXITED_CONSTANT();
 
     default:
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr.first_child(),
-                                       "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr.first_child(),
+                                        "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }
@@ -372,9 +365,8 @@ namespace PLEXIL
       return COMMAND_SUCCESS_CONSTANT();
 
     default:
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr.first_child(),
-                                       "createExpression: Invalid CommandHandleValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr.first_child(),
+                                        "createExpression: Invalid CommandHandleValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }

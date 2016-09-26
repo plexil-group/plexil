@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -119,16 +119,14 @@ namespace PLEXIL
     else if (!strcmp(ARRAYELEMENT_TAG, name))
       resultExpr = createMutableArrayReference(expr, node, wasCreated);
     else
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr,
-                                       "Invalid Assignment or InOut alias target");
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid Assignment or InOut alias target");
     assertTrue_2(resultExpr, "createAssignable: Internal error: Null expression");
     if (!resultExpr->isAssignable()) {
       if (wasCreated)
         delete resultExpr;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr,
-                                       "Expression is not assignable");
+      reportParserExceptionWithLocation(expr,
+                                        "Expression is not assignable");
     }
     return resultExpr->asAssignable();
   }
