@@ -63,8 +63,6 @@ namespace PLEXIL
     bool initialize()
     {
       bool hasStates = false;
-      bool hasIgnoredStates = false;
-
       const char* states = this->getXml().child_value(STATES_TAG);
       if (*states) {
         hasStates = true;
@@ -91,7 +89,6 @@ namespace PLEXIL
           warn("NodeStateFilter configuration error: both <States> and <IgnoredStates> provided");
           return false;
         }
-        hasIgnoredStates = true;
         // Default is report
         for (size_t i = 0; i < NODE_STATE_MAX; ++i)
           m_stateEnabled[i] = true;
