@@ -127,6 +127,14 @@
               <MaxSize>20</MaxSize>
             </DeclareArray>
           </VariableDeclarations>
+          <StartCondition>
+            <EQInternal>
+              <NodeStateVariable>
+                <NodeRef dir="sibling">A</NodeRef>
+              </NodeStateVariable>
+              <NodeStateValue>FINISHED</NodeStateValue>
+            </EQInternal>
+          </StartCondition>
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
