@@ -252,8 +252,8 @@ bool Socket::connect (const std::string host, const uint16_t port)
    m_addr.sin_port = htons (port);
    
    int status = inet_pton (AF_INET, host.c_str(), &m_addr.sin_addr);
-   
-   if (errno == EAFNOSUPPORT) return false;
+   if (status != 1 || errno == EAFNOSUPPORT)
+     return false;
    
    status = ::connect (m_sock, (sockaddr *) &m_addr, sizeof (m_addr));
    
