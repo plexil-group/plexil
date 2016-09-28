@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(atroo->isConstant() == troo->isConstant());
     assertTrue_1(atroo->valueType() == troo->valueType());
     assertTrue_1(!atroo->isActive());
-    assertTrue_1(!atroo->isKnown());
+    assertTrue_1(atroo->isKnown());
     atroo->activate();
     assertTrue_1(atroo->isActive());
     assertTrue_1(atroo->isKnown());
@@ -65,7 +65,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(atree->isConstant() == tree->isConstant());
     assertTrue_1(atree->valueType() == tree->valueType());
     assertTrue_1(!atree->isActive());
-    assertTrue_1(!atree->isKnown());
+    assertTrue_1(atree->isKnown());
     atree->activate();
     assertTrue_1(atree->isActive());
     assertTrue_1(atree->isKnown());
@@ -86,7 +86,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(apie->isConstant()   == pie->isConstant());
     assertTrue_1(apie->valueType()   == pie->valueType());
     assertTrue_1(!apie->isActive());
-    assertTrue_1(!apie->isKnown());
+    assertTrue_1(apie->isKnown());
     apie->activate();
     assertTrue_1(apie->isActive());
     assertTrue_1(apie->isKnown());
@@ -107,7 +107,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(afore->isConstant() == fore->isConstant());
     assertTrue_1(afore->valueType() == fore->valueType());
     assertTrue_1(!afore->isActive());
-    assertTrue_1(!afore->isKnown());
+    assertTrue_1(afore->isKnown());
     afore->activate();
     assertTrue_1(afore->isActive());
     assertTrue_1(afore->isKnown());
@@ -141,7 +141,7 @@ static bool testAliasToArrayConstant()
     assertTrue_1(abc->isConstant() == bc->isConstant());
     assertTrue_1(abc->valueType() == bc->valueType());
     assertTrue_1(!abc->isActive());
-    assertTrue_1(!abc->isKnown());
+    assertTrue_1(abc->isKnown());
 
     abc->activate();
     assertTrue_1(abc->isActive());
@@ -167,7 +167,7 @@ static bool testAliasToArrayConstant()
     assertTrue_1(aic->isConstant() == ic->isConstant());
     assertTrue_1(aic->valueType() == ic->valueType());
     assertTrue_1(!aic->isActive());
-    assertTrue_1(!aic->isKnown());
+    assertTrue_1(aic->isKnown());
     aic->activate();
     assertTrue_1(aic->isActive());
     assertTrue_1(aic->isKnown());
@@ -192,7 +192,7 @@ static bool testAliasToArrayConstant()
     assertTrue_1(adc->isConstant() == dc->isConstant());
     assertTrue_1(adc->valueType() == dc->valueType());
     assertTrue_1(!adc->isActive());
-    assertTrue_1(!adc->isKnown());
+    assertTrue_1(adc->isKnown());
     adc->activate();
     assertTrue_1(adc->isActive());
     assertTrue_1(adc->isKnown());
@@ -217,7 +217,7 @@ static bool testAliasToArrayConstant()
     assertTrue_1(asc->isConstant() == sc->isConstant());
     assertTrue_1(asc->valueType() == sc->valueType());
     assertTrue_1(!asc->isActive());
-    assertTrue_1(!asc->isKnown());
+    assertTrue_1(asc->isKnown());
     asc->activate();
     assertTrue_1(asc->isActive());
     assertTrue_1(asc->isKnown());
@@ -532,8 +532,8 @@ static bool testAliasToArrayReference()
     ix->setValue((int32_t) 1);
     assertTrue_1(!abar->isActive());
     assertTrue_1(!awbar->isActive());
-    assertTrue_1(!abar->isKnown());
-    assertTrue_1(!awbar->isKnown());
+    assertTrue_1(abar->isKnown());
+    assertTrue_1(awbar->isKnown());
 
     abar->activate();
     awbar->activate();
@@ -589,8 +589,8 @@ static bool testAliasToArrayReference()
     ix->setValue((int32_t) 1);
     assertTrue_1(!aiar->isActive());
     assertTrue_1(!awiar->isActive());
-    assertTrue_1(!aiar->isKnown());
-    assertTrue_1(!awiar->isKnown());
+    assertTrue_1(aiar->isKnown());
+    assertTrue_1(awiar->isKnown());
 
     aiar->activate();
     awiar->activate();
@@ -646,8 +646,8 @@ static bool testAliasToArrayReference()
     ix->setValue((int32_t) 1);
     assertTrue_1(!adar->isActive());
     assertTrue_1(!awdar->isActive());
-    assertTrue_1(!adar->isKnown());
-    assertTrue_1(!awdar->isKnown());
+    assertTrue_1(adar->isKnown());
+    assertTrue_1(awdar->isKnown());
 
     adar->activate();
     awdar->activate();
@@ -704,8 +704,8 @@ static bool testAliasToArrayReference()
     ix->setValue((int32_t) 1);
     assertTrue_1(!asar->isActive());
     assertTrue_1(!awsar->isActive());
-    assertTrue_1(!asar->isKnown());
-    assertTrue_1(!awsar->isKnown());
+    assertTrue_1(asar->isKnown());
+    assertTrue_1(awsar->isKnown());
 
     asar->activate();
     awsar->activate();

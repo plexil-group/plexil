@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ static bool testArrayConstantReferenceXmlParser()
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
       assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
-      assertTrue_1(!bar0->isKnown());
+      assertTrue_1(bar0->isKnown());
 
       bar0->activate();
       assertTrue_1(bar0->getValue(pb));
@@ -97,7 +97,7 @@ static bool testArrayConstantReferenceXmlParser()
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", barv0->exprName()));
       assertTrue_1(barv0->valueType() == BOOLEAN_TYPE);
-      assertTrue_1(!barv0->isKnown());
+      assertTrue_1(barv0->isKnown());
 
       barv0->activate();
       assertTrue_1(barv0->getValue(pb));
@@ -195,7 +195,7 @@ static bool testArrayConstantReferenceXmlParser()
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
       assertTrue_1(iar0->valueType() == INTEGER_TYPE);
-      assertTrue_1(!iar0->isKnown());
+      assertTrue_1(iar0->isKnown());
 
       iar0->activate();
       assertTrue_1(iar0->getValue(pi));
@@ -252,7 +252,7 @@ static bool testArrayConstantReferenceXmlParser()
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
     assertTrue_1(dar0->valueType() == REAL_TYPE);
-    assertTrue_1(!dar0->isKnown());
+    assertTrue_1(dar0->isKnown());
   
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
@@ -306,7 +306,7 @@ static bool testArrayConstantReferenceXmlParser()
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
     assertTrue_1(sar0->valueType() == STRING_TYPE);
-    assertTrue_1(!sar0->isKnown());
+    assertTrue_1(sar0->isKnown());
   
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
@@ -604,7 +604,7 @@ static bool testArrayAliasReferenceXmlParser()
     assertTrue_1(!bari->isKnown());
 
     bav->activate();
-    assertTrue_1(!bar0->isKnown());
+    assertTrue_1(bar0->isKnown());
     assertTrue_1(!bari->isKnown());
 
     bool pb;
@@ -662,7 +662,7 @@ static bool testArrayAliasReferenceXmlParser()
     assertTrue_1(!iari->isKnown());
 
     iav->activate();
-    assertTrue_1(!iar0->isKnown());
+    assertTrue_1(iar0->isKnown());
     assertTrue_1(!iari->isKnown());
 
     int32_t pi;
@@ -720,7 +720,7 @@ static bool testArrayAliasReferenceXmlParser()
     assertTrue_1(!dari->isKnown());
 
     dav->activate();
-    assertTrue_1(!dar0->isKnown());
+    assertTrue_1(dar0->isKnown());
     assertTrue_1(!dari->isKnown());
 
     double pd;
@@ -778,7 +778,7 @@ static bool testArrayAliasReferenceXmlParser()
     assertTrue_1(!sari->isKnown());
 
     sav->activate();
-    assertTrue_1(!sar0->isKnown());
+    assertTrue_1(sar0->isKnown());
     assertTrue_1(!sari->isKnown());
 
     std::string ps;

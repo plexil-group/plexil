@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,11 @@ static bool testUninitializedSBV()
   // Test that it is created inactive
   assertTrue_1(!vub.isActive());
 
-  // Test that it is unknown while inactive
-  assertTrue_1(!vub.isKnown());
+  // Test that it is known and false while inactive
+  assertTrue_1(vub.isKnown());
   bool foob;
-  assertTrue_1(!vub.getValue(foob));
+  assertTrue_1(vub.getValue(foob));
+  assertTrue_1(!foob);
 
   // Activate and confirm it is known and false
   vub.activate();
@@ -99,17 +100,21 @@ static bool testAssignablePointerSBV()
   // Test that it is created inactive
   assertTrue_1(!eb->isActive());
 
-  // Test that value is unknown while inactive
-  assertTrue_1(!eb->isKnown());
-
-  // Activate
-  eb->activate();
-
-  // Test that it is now known
+  // Test that value is known while inactive
   assertTrue_1(eb->isKnown());
 
   // Check value
   bool foob;
+  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(!foob);
+
+  // Activate
+  eb->activate();
+
+  // Test that it is still known
+  assertTrue_1(eb->isKnown());
+
+  // Check value again
   assertTrue_1(eb->getValue(foob));
   assertTrue_1(!foob);
 

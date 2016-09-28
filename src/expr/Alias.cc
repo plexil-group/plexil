@@ -81,8 +81,6 @@ namespace PLEXIL
   
   bool Alias::isKnown() const
   {
-    if (!isActive())
-      return false;
     return m_exp->isKnown();
   }
   
@@ -113,108 +111,77 @@ namespace PLEXIL
 
   bool Alias::getValue(Boolean &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(Integer &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(Real &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(NodeState &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(NodeOutcome &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(FailureType &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(CommandHandleValue &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValue(String &var) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValue(var);
   }
 
   bool Alias::getValuePointer(String const *&ptr) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValuePointer(ptr);
   }
 
   bool Alias::getValuePointer(Array const *&ptr) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValuePointer(ptr);
   }
 
   bool Alias::getValuePointer(BooleanArray const *&ptr) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValuePointer(ptr);
   }
 
   bool Alias::getValuePointer(IntegerArray const *&ptr) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValuePointer(ptr);
   }
 
   bool Alias::getValuePointer(RealArray const *&ptr) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValuePointer(ptr);
   }
 
   bool Alias::getValuePointer(StringArray const *&ptr) const
   {
-    if (!isActive())
-      return false;
     return m_exp->getValuePointer(ptr);
   }
 
   Value Alias::toValue() const
   {
-    if (!isActive())
-      return Value(0, m_exp->valueType());
-    else
-      return m_exp->toValue();
+    return m_exp->toValue();
   }
 
 } // namespace PLEXIL

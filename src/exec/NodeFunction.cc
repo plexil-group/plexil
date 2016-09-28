@@ -57,18 +57,12 @@ namespace PLEXIL
 
   bool NodeFunction::isKnown() const
   {
-    if (!isActive())
-      return false;
     // Delegate to operator
     return m_op->calcNative(m_valueCache, m_node);
   }
 
   void NodeFunction::printValue(std::ostream &s) const
   {
-    if (!isActive()) {
-      s << "[unknown_value]";
-      return;
-    }
     m_op->printValue(s, m_valueCache, m_node);
   }
 
@@ -85,8 +79,6 @@ namespace PLEXIL
 #define DEFINE_NODE_FUNC_GET_VALUE_METHOD(_rtype) \
   bool NodeFunction::getValue(_rtype &result) const \
   { \
-    if (!isActive()) \
-      return false; \
     return (*m_op)(result, m_node); \
   }
 
@@ -104,8 +96,6 @@ namespace PLEXIL
 #define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
   bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
   { \
-    if (!isActive()) \
-      return false; \
     bool result = (*m_op)(*static_cast<_rtype *>(m_valueCache), m_node); \
     if (result) \
       ptr = static_cast<_rtype const *>(m_valueCache); /* trust me */ \

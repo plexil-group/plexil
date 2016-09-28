@@ -42,21 +42,21 @@ simple-closedloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fd1c2c07110 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7feb41d003b8 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-closedloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fd1c2c07680 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd1c2c075e0 [i]([unknown_value]))
- retTestFunction: (Variable Integer retTestFunction 0x7fd1c2c07110 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7feb41d00880 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7feb41d007e0 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7feb41d003b8 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fd1c2c079e0 [a]([unknown_value]) (Interruptible Boolean 0x7fd1c2c07a30 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a]([unknown_value]))) (EQ Boolean 0x7fd1c2c078e0 [a](0) (Constant Integer 0x7fd1c2c078d0 [a](10)) (Variable Integer retTestFunction 0x7fd1c2c07110 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fd1c2c07970 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10923ecd8 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd1c2c07540 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a]([unknown_value])))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fd1c2c07418 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a]([unknown_value]))
+   EndCondition: (OR Boolean 0x7feb41d00bc0 [a]([unknown_value]) (Interruptible Boolean 0x7feb41d00c10 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a]([unknown_value]))) (EQ Boolean 0x7feb41d00ae0 [a](0) (Constant Integer 0x7feb41d00ac8 [a](10)) (Variable Integer retTestFunction 0x7feb41d003b8 [a](-1))))
+   PostCondition: (EQ Boolean 0x7feb41d00b60 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x106796670 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7feb41d00750 [i](0) (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7feb41d00628 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a]([unknown_value]))
   }
 }
 
@@ -68,16 +68,16 @@ simple-closedloop-command-a1{
 [PlexilExec:printPlan]
 simple-closedloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fd1c2c07680 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd1c2c075e0 [i]([unknown_value]))
- retTestFunction: (Variable Integer retTestFunction 0x7fd1c2c07110 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7feb41d00880 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7feb41d007e0 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7feb41d003b8 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fd1c2c079e0 [a](0) (Interruptible Boolean 0x7fd1c2c07a30 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7fd1c2c078e0 [a](0) (Constant Integer 0x7fd1c2c078d0 [a](10)) (Variable Integer retTestFunction 0x7fd1c2c07110 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fd1c2c07970 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10923ecd8 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd1c2c07540 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a](COMMAND_SENT_TO_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fd1c2c07418 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [a](COMMAND_SENT_TO_SYSTEM))
+   EndCondition: (OR Boolean 0x7feb41d00bc0 [a](0) (Interruptible Boolean 0x7feb41d00c10 [a](0) (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7feb41d00ae0 [a](0) (Constant Integer 0x7feb41d00ac8 [a](10)) (Variable Integer retTestFunction 0x7feb41d003b8 [a](-1))))
+   PostCondition: (EQ Boolean 0x7feb41d00b60 [i](1) (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x106796670 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7feb41d00750 [i](1) (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7feb41d00628 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [a](COMMAND_SENT_TO_SYSTEM))
   }
 }
 
@@ -134,11 +134,11 @@ simple-closedloop-command-a1{
 simple-closedloop-command-a1{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7fd1c2c07110 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7feb41d003b8 [i]([unknown_value]))
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd1c2c073c0 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7feb41d005d8 [i]([unknown_value]))
   }
 }
 

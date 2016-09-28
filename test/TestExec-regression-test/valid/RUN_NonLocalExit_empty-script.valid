@@ -53,28 +53,28 @@ NonLocalExit{
 [PlexilExec:notifyNodeConditionChanged] for node theLoop
 [PlexilExec:handleNeedsExecution]Storing action for node 'theLoop' of type 'Assignment' to be executed.
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Integer loopCount 0x7ff77ac06ef0 [a](0)) to 1
+[Test:testOutput]Assigning (Variable Integer loopCount 0x7f8f235003b8 [a](0)) to 1
 [PlexilExec:notifyNodeConditionChanged] for node theSpoiler
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 NonLocalExit{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7ff77ac07670 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff77ac075e0 [i]([unknown_value]))
- loopCount: (Variable Integer loopCount 0x7ff77ac06ef0 [a](1))
- quitLooping: (Variable Boolean quitLooping 0x7ff77ac06e60 [a](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8f23500a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8f235009e0 [i](0))
+ loopCount: (Variable Integer loopCount 0x7f8f235003b8 [a](1))
+ quitLooping: (Variable Boolean quitLooping 0x7f8f23500328 [a](0))
   theLoop{
    State: EXECUTING (0)
-   ExitCondition: (Variable Boolean quitLooping 0x7ff77ac06e60 [a](0))
-   RepeatCondition: (LT Boolean 0x7ff77ac078d0 [i]([unknown_value]) (Variable Integer loopCount 0x7ff77ac06ef0 [a](1)) (Constant Integer 0x7ff77ac078c0 [a](5)))
-   ActionCompleteCondition: (InternalVariable Boolean theLoop ack 0x7ff77ac071c0 [a](1))
-   AbortCompleteCondition: (InternalVariable Boolean theLoop abortComplete 0x7ff77ac07208 [i]([unknown_value]))
+   ExitCondition: (Variable Boolean quitLooping 0x7f8f23500328 [a](0))
+   RepeatCondition: (LT Boolean 0x7f8f23500cc0 [i](1) (Variable Integer loopCount 0x7f8f235003b8 [a](1)) (Constant Integer 0x7f8f23500ca8 [a](5)))
+   ActionCompleteCondition: (InternalVariable Boolean theLoop ack 0x7f8f235005e0 [a](1))
+   AbortCompleteCondition: (InternalVariable Boolean theLoop abortComplete 0x7f8f23500638 [i](0))
   }
   theSpoiler{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7ff77ac07a10 [a](0) (Variable Integer loopCount 0x7ff77ac06ef0 [a](1)) (Constant Integer 0x7ff77ac07920 [a](2)))
-   ActionCompleteCondition: (InternalVariable Boolean theSpoiler ack 0x7ff77ac07490 [i]([unknown_value]))
-   AbortCompleteCondition: (InternalVariable Boolean theSpoiler abortComplete 0x7ff77ac074d8 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f8f23500e30 [a](0) (Variable Integer loopCount 0x7f8f235003b8 [a](1)) (Constant Integer 0x7f8f23500e18 [a](2)))
+   ActionCompleteCondition: (InternalVariable Boolean theSpoiler ack 0x7f8f235008a0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean theSpoiler abortComplete 0x7f8f235008f8 [i](0))
   }
 }
 
@@ -108,28 +108,28 @@ NonLocalExit{
 [PlexilExec:notifyNodeConditionChanged] for node theLoop
 [PlexilExec:handleNeedsExecution]Storing action for node 'theLoop' of type 'Assignment' to be executed.
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Integer loopCount 0x7ff77ac06ef0 [a](1)) to 2
+[Test:testOutput]Assigning (Variable Integer loopCount 0x7f8f235003b8 [a](1)) to 2
 [PlexilExec:notifyNodeConditionChanged] for node theSpoiler
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 NonLocalExit{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7ff77ac07670 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff77ac075e0 [i]([unknown_value]))
- loopCount: (Variable Integer loopCount 0x7ff77ac06ef0 [a](2))
- quitLooping: (Variable Boolean quitLooping 0x7ff77ac06e60 [a](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8f23500a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8f235009e0 [i](0))
+ loopCount: (Variable Integer loopCount 0x7f8f235003b8 [a](2))
+ quitLooping: (Variable Boolean quitLooping 0x7f8f23500328 [a](0))
   theLoop{
    State: EXECUTING (0)
-   ExitCondition: (Variable Boolean quitLooping 0x7ff77ac06e60 [a](0))
-   RepeatCondition: (LT Boolean 0x7ff77ac078d0 [i]([unknown_value]) (Variable Integer loopCount 0x7ff77ac06ef0 [a](2)) (Constant Integer 0x7ff77ac078c0 [a](5)))
-   ActionCompleteCondition: (InternalVariable Boolean theLoop ack 0x7ff77ac071c0 [a](1))
-   AbortCompleteCondition: (InternalVariable Boolean theLoop abortComplete 0x7ff77ac07208 [i]([unknown_value]))
+   ExitCondition: (Variable Boolean quitLooping 0x7f8f23500328 [a](0))
+   RepeatCondition: (LT Boolean 0x7f8f23500cc0 [i](1) (Variable Integer loopCount 0x7f8f235003b8 [a](2)) (Constant Integer 0x7f8f23500ca8 [a](5)))
+   ActionCompleteCondition: (InternalVariable Boolean theLoop ack 0x7f8f235005e0 [a](1))
+   AbortCompleteCondition: (InternalVariable Boolean theLoop abortComplete 0x7f8f23500638 [i](0))
   }
   theSpoiler{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7ff77ac07a10 [a](1) (Variable Integer loopCount 0x7ff77ac06ef0 [a](2)) (Constant Integer 0x7ff77ac07920 [a](2)))
-   ActionCompleteCondition: (InternalVariable Boolean theSpoiler ack 0x7ff77ac07490 [i]([unknown_value]))
-   AbortCompleteCondition: (InternalVariable Boolean theSpoiler abortComplete 0x7ff77ac074d8 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f8f23500e30 [a](1) (Variable Integer loopCount 0x7f8f235003b8 [a](2)) (Constant Integer 0x7f8f23500e18 [a](2)))
+   ActionCompleteCondition: (InternalVariable Boolean theSpoiler ack 0x7f8f235008a0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean theSpoiler abortComplete 0x7f8f235008f8 [i](0))
   }
 }
 
@@ -152,27 +152,27 @@ NonLocalExit{
 [PlexilExec:notifyNodeConditionChanged] for node theSpoiler
 [PlexilExec:handleNeedsExecution]Storing action for node 'theSpoiler' of type 'Assignment' to be executed.
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Boolean quitLooping 0x7ff77ac06e60 [a](0)) to 1
+[Test:testOutput]Assigning (Variable Boolean quitLooping 0x7f8f23500328 [a](0)) to 1
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 NonLocalExit{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7ff77ac07670 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff77ac075e0 [i]([unknown_value]))
- loopCount: (Variable Integer loopCount 0x7ff77ac06ef0 [a](2))
- quitLooping: (Variable Boolean quitLooping 0x7ff77ac06e60 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8f23500a60 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8f235009e0 [i](0))
+ loopCount: (Variable Integer loopCount 0x7f8f235003b8 [a](2))
+ quitLooping: (Variable Boolean quitLooping 0x7f8f23500328 [a](1))
   theLoop{
    State: ITERATION_ENDED (0)
-   ExitCondition: (Variable Boolean quitLooping 0x7ff77ac06e60 [a](1))
-   RepeatCondition: (LT Boolean 0x7ff77ac078d0 [a](1) (Variable Integer loopCount 0x7ff77ac06ef0 [a](2)) (Constant Integer 0x7ff77ac078c0 [a](5)))
-   ActionCompleteCondition: (InternalVariable Boolean theLoop ack 0x7ff77ac071c0 [i]([unknown_value]))
-   AbortCompleteCondition: (InternalVariable Boolean theLoop abortComplete 0x7ff77ac07208 [i]([unknown_value]))
+   ExitCondition: (Variable Boolean quitLooping 0x7f8f23500328 [a](1))
+   RepeatCondition: (LT Boolean 0x7f8f23500cc0 [a](1) (Variable Integer loopCount 0x7f8f235003b8 [a](2)) (Constant Integer 0x7f8f23500ca8 [a](5)))
+   ActionCompleteCondition: (InternalVariable Boolean theLoop ack 0x7f8f235005e0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean theLoop abortComplete 0x7f8f23500638 [i](0))
   }
   theSpoiler{
    State: EXECUTING (0)
-   StartCondition: (EQ Boolean 0x7ff77ac07a10 [i]([unknown_value]) (Variable Integer loopCount 0x7ff77ac06ef0 [a](2)) (Constant Integer 0x7ff77ac07920 [a](2)))
-   ActionCompleteCondition: (InternalVariable Boolean theSpoiler ack 0x7ff77ac07490 [a](1))
-   AbortCompleteCondition: (InternalVariable Boolean theSpoiler abortComplete 0x7ff77ac074d8 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f8f23500e30 [i](1) (Variable Integer loopCount 0x7f8f235003b8 [a](2)) (Constant Integer 0x7f8f23500e18 [a](2)))
+   ActionCompleteCondition: (InternalVariable Boolean theSpoiler ack 0x7f8f235008a0 [a](1))
+   AbortCompleteCondition: (InternalVariable Boolean theSpoiler abortComplete 0x7f8f235008f8 [i](0))
   }
 }
 
@@ -231,8 +231,8 @@ NonLocalExit{
 NonLocalExit{
  State: FINISHED (0)
  Outcome: SUCCESS
- loopCount: (Variable Integer loopCount 0x7ff77ac06ef0 [i]([unknown_value]))
- quitLooping: (Variable Boolean quitLooping 0x7ff77ac06e60 [i]([unknown_value]))
+ loopCount: (Variable Integer loopCount 0x7f8f235003b8 [i]([unknown_value]))
+ quitLooping: (Variable Boolean quitLooping 0x7f8f23500328 [i]([unknown_value]))
   theLoop{
    State: FINISHED (0)
    Outcome: SKIPPED

@@ -100,18 +100,12 @@ namespace PLEXIL
 
   bool Function::isKnown() const
   {
-    if (!isActive())
-      return false;
     // Delegate to operator
     return m_op->calcNative(m_valueCache, *m_exprVec);
   }
 
   void Function::printValue(std::ostream &s) const
   {
-    if (!isActive()) {
-      s << "[unknown_value]";
-      return;
-    }
     m_op->printValue(s, m_valueCache, *m_exprVec);
   }
 
@@ -129,8 +123,6 @@ namespace PLEXIL
 #define DEFINE_FUNC_GET_VALUE_METHOD(_type) \
   bool Function::getValue(_type &result) const \
   { \
-    if (!isActive()) \
-      return false; \
     return m_exprVec->apply(m_op, result); \
   }
 
@@ -148,8 +140,6 @@ namespace PLEXIL
 #define DEFINE_FUNC_GET_VALUE_PTR_METHOD(_type) \
   bool Function::getValuePointer(_type const *&ptr) const \
   { \
-    if (!isActive()) \
-      return false; \
     bool result = m_exprVec->apply(m_op, *static_cast<_type *>(m_valueCache)); \
     if (result) \
       ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \

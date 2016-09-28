@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ static bool testUnaryBasics()
     ExprVec *vecb = makeExprVec(1);
     vecb->setArgument(0, &treu, false);
     Function boule(&ptb, vecb);
-    assertTrue_1(!boule.isKnown());
+    assertTrue_1(boule.isKnown());
     boule.activate();
     bool tempb;
     assertTrue_1(boule.getValue(tempb));
@@ -91,7 +91,7 @@ static bool testUnaryBasics()
       ExprVec *veci = makeExprVec(1);
       veci->setArgument(0, &fortytwo, false);
       Function inty(&pti, veci);
-      assertTrue_1(!inty.isKnown());
+      assertTrue_1(inty.isKnown());
       inty.activate();
       int32_t tempi;
       assertTrue_1(inty.getValue(tempi));
@@ -102,7 +102,7 @@ static bool testUnaryBasics()
       ExprVec *vecdi = makeExprVec(1);
       vecdi->setArgument(0, &fortytwo, false);
       Function intd(&ptd, vecdi);
-      assertTrue_1(!intd.isKnown());
+      assertTrue_1(intd.isKnown());
       intd.activate();
       double tempdi;
       assertTrue_1(intd.getValue(tempdi));
@@ -115,7 +115,7 @@ static bool testUnaryBasics()
     ExprVec *vecd = makeExprVec(1);
     vecd->setArgument(0, &pie, false);
     Function dub(&ptd, vecd);
-    assertTrue_1(!dub.isKnown());
+    assertTrue_1(dub.isKnown());
     dub.activate();
     double tempd;
     assertTrue_1(dub.getValue(tempd));
@@ -127,7 +127,7 @@ static bool testUnaryBasics()
     ExprVec *vecs = makeExprVec(1);
     vecs->setArgument(0, &fou, false);
     Function str(&pts, vecs);
-    assertTrue_1(!str.isKnown());
+    assertTrue_1(str.isKnown());
     str.activate();
     std::string temps;
     assertTrue_1(str.getValue(temps));

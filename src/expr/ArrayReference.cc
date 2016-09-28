@@ -129,8 +129,6 @@ namespace PLEXIL
   bool ArrayReference::selfCheck(Array const *&valuePtr,
                                  size_t &idx) const
   {
-    if (!(this->isActive() && m_array->isActive() && m_index->isActive()))
-      return false;
     int32_t idxTemp;
     if (!m_index->getValue(idxTemp))
       return false; // index is unknown
@@ -254,10 +252,6 @@ namespace PLEXIL
   bool MutableArrayReference::mutableSelfCheck(Array *&valuePtr,
                                                size_t &idx)
   {
-    if (!(this->isActive()
-          && ArrayReference::m_array->isActive()
-          && ArrayReference::m_index->isActive()))
-      return false;
     int32_t idxTemp;
     if (!ArrayReference::m_index->getValue(idxTemp))
       return false; // index is unknown

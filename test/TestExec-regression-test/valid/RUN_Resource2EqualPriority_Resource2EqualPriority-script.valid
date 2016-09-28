@@ -57,31 +57,31 @@ Resource2EqualPriority{
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing pickup_object(20) into (Variable Integer returnValue 0x7fafa3501610 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a]([unknown_value]))
+[Test:testOutput]Executing pickup_object(20) into (Variable Integer returnValue 0x7f8461c06ab8 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a]([unknown_value]))
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Resource2EqualPriority{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fafa3501f20 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fafa3501e90 [i]([unknown_value]))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8461c07390 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8461c072f0 [i](0))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fafa3502290 [a]([unknown_value]) (Interruptible Boolean 0x7fafa35022d0 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a]([unknown_value]))) (EQ Boolean 0x7fafa35021b0 [a](0) (Constant Integer 0x7fafa3502180 [a](10)) (Variable Integer returnValue 0x7fafa3501610 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fafa3502230 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10794b958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fafa3501920 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a]([unknown_value])))
-   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7fafa35017b0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a]([unknown_value]))
-   priority20: (Variable Integer priority20 0x7fafa35016b0 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fafa3501610 [a](-1))
+   EndCondition: (OR Boolean 0x7f8461c076f0 [a]([unknown_value]) (Interruptible Boolean 0x7f8461c07740 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a]([unknown_value]))) (EQ Boolean 0x7f8461c07610 [a](0) (Constant Integer 0x7f8461c075f8 [a](10)) (Variable Integer returnValue 0x7f8461c06ab8 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f8461c07690 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x100c34670 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8461c06d90 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a]([unknown_value])))
+   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7f8461c06bf8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a]([unknown_value]))
+   priority20: (Variable Integer priority20 0x7f8461c06b48 [a](20))
+   returnValue: (Variable Integer returnValue 0x7f8461c06ab8 [a](-1))
   }
   ProcessImage{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fafa3502530 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501c40 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10794b9b8 [a](COMMAND_DENIED)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fafa3501df0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501c40 [a](COMMAND_DENIED)))
-   AbortCompleteCondition: (InternalVariable Boolean ProcessImage abortComplete 0x7fafa3501c80 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fafa3501c40 [a](COMMAND_DENIED))
-   mem_priority2: (Variable Integer mem_priority2 0x7fafa3501b80 [a](20))
+   PostCondition: (EQ Boolean 0x7f8461c07a60 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f8461c070a8 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x100c34710 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8461c07270 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f8461c070a8 [a](COMMAND_DENIED)))
+   AbortCompleteCondition: (InternalVariable Boolean ProcessImage abortComplete 0x7f8461c070f8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8461c070a8 [a](COMMAND_DENIED))
+   mem_priority2: (Variable Integer mem_priority2 0x7f8461c07048 [a](20))
   }
 }
 
@@ -117,23 +117,23 @@ Resource2EqualPriority{
 [PlexilExec:printPlan]
 Resource2EqualPriority{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fafa3501f20 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fafa3501e90 [i]([unknown_value]))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8461c07390 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8461c072f0 [i](0))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fafa3502290 [a](0) (Interruptible Boolean 0x7fafa35022d0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7fafa35021b0 [a](0) (Constant Integer 0x7fafa3502180 [a](10)) (Variable Integer returnValue 0x7fafa3501610 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fafa3502230 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10794b958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fafa3501920 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a](COMMAND_SENT_TO_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7fafa35017b0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [a](COMMAND_SENT_TO_SYSTEM))
-   priority20: (Variable Integer priority20 0x7fafa35016b0 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fafa3501610 [a](-1))
+   EndCondition: (OR Boolean 0x7f8461c076f0 [a](0) (Interruptible Boolean 0x7f8461c07740 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f8461c07610 [a](0) (Constant Integer 0x7f8461c075f8 [a](10)) (Variable Integer returnValue 0x7f8461c06ab8 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f8461c07690 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x100c34670 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8461c06d90 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7f8461c06bf8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [a](COMMAND_SENT_TO_SYSTEM))
+   priority20: (Variable Integer priority20 0x7f8461c06b48 [a](20))
+   returnValue: (Variable Integer returnValue 0x7f8461c06ab8 [a](-1))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fafa3501c40 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fafa3501b80 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8461c070a8 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f8461c07048 [i]([unknown_value]))
   }
 }
 
@@ -193,15 +193,15 @@ Resource2EqualPriority{
   PickupObject{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fafa3501770 [i]([unknown_value]))
-   priority20: (Variable Integer priority20 0x7fafa35016b0 [i]([unknown_value]))
-   returnValue: (Variable Integer returnValue 0x7fafa3501610 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8461c06ba8 [i]([unknown_value]))
+   priority20: (Variable Integer priority20 0x7f8461c06b48 [i]([unknown_value]))
+   returnValue: (Variable Integer returnValue 0x7f8461c06ab8 [i]([unknown_value]))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fafa3501c40 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fafa3501b80 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8461c070a8 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f8461c07048 [i]([unknown_value]))
   }
 }
 

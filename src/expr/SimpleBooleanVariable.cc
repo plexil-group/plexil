@@ -91,16 +91,13 @@ namespace PLEXIL
   // A SimpleBooleanVariable's value is known whenever it is active.
   bool SimpleBooleanVariable::isKnown() const
   {
-    return this->isActive();
+    return true;
   }
 
   bool SimpleBooleanVariable::getValueImpl(bool &result) const
   {
-    if (this->isActive()) {
-      result = m_value;
-      return true;
-    }
-    return false;
+    result = m_value;
+    return true;
   }
 
   //
