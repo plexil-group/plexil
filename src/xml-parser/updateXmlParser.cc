@@ -88,9 +88,8 @@ namespace PLEXIL
       if (!update->addPair(pairName, exp, wasCreated)) {
         if (wasCreated)
           delete exp;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         pr,
-                                         "Duplicate Update pair name " << pairName);
+        reportParserExceptionWithLocation(pr,
+                                          "Duplicate Update pair name " << pairName);
       }
       pr = pr.next_sibling();
     }

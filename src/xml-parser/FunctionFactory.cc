@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -60,10 +60,9 @@ namespace PLEXIL
     ExprVec *exprVec = constructExprVec(expr, node, n);
     if (!oper->checkArgTypes(exprVec)) {
       delete exprVec;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr,
-                                       "Operand type mismatch or unimplemented type for "
-                                       << oper->getName());
+      reportParserExceptionWithLocation(expr,
+                                        "Operand type mismatch or unimplemented type for "
+                                        << oper->getName());
     }
 
     wasCreated = true;

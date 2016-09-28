@@ -1240,8 +1240,8 @@ namespace PLEXIL
       return PLEXIL::deserialize(realValue, b);
 
     case STRING_TYPE:
-      if (m_type != STRING_TYPE)
-	stringValue = std::unique_ptr<String>(new String());
+      if (m_type != STRING_TYPE || !stringValue)
+        stringValue = std::unique_ptr<String>(new String());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*stringValue, b);
@@ -1253,29 +1253,29 @@ namespace PLEXIL
       return b;
 
     case BOOLEAN_ARRAY_TYPE:
-      if (m_type != BOOLEAN_ARRAY_TYPE)
-	arrayValue = std::unique_ptr<Array>(new BooleanArray());
+      if (m_type != BOOLEAN_ARRAY_TYPE || !arrayValue)
+        arrayValue = std::unique_ptr<Array>(new BooleanArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((BooleanArray &) *arrayValue, b);
 
     case INTEGER_ARRAY_TYPE:
-      if (m_type != INTEGER_ARRAY_TYPE)
-	arrayValue = std::unique_ptr<Array>(new IntegerArray());
+      if (m_type != INTEGER_ARRAY_TYPE || !arrayValue)
+        arrayValue = std::unique_ptr<Array>(new IntegerArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((IntegerArray &) *arrayValue, b);
 
     case REAL_ARRAY_TYPE:
-      if (m_type != REAL_ARRAY_TYPE)
-	arrayValue = std::unique_ptr<Array>(new RealArray());
+      if (m_type != REAL_ARRAY_TYPE || !arrayValue)
+        arrayValue = std::unique_ptr<Array>(new RealArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((RealArray &) *arrayValue, b);
 
     case STRING_ARRAY_TYPE:
-      if (m_type != STRING_ARRAY_TYPE)
-	arrayValue = std::unique_ptr<Array>(new StringArray());
+      if (m_type != STRING_ARRAY_TYPE || !arrayValue)
+        arrayValue = std::unique_ptr<Array>(new StringArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((StringArray &) *arrayValue, b);

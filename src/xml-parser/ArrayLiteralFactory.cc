@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -148,9 +148,9 @@ namespace PLEXIL
       return createArrayLiteral<std::string>(valueType, expr);
 
     default:
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr, // should be attribute
-                                       "Invalid or unimplemented array element Type value \"" << valueType << "\"");
+      reportParserExceptionWithLocation(expr, // should be attribute
+                                        "Invalid or unimplemented array element Type value \""
+                                        << valueType << "\"");
       return NULL;
     }
   }

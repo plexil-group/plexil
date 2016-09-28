@@ -54,9 +54,9 @@ namespace PLEXIL
 	  m_ignoreConnectFailure(true)
   {
     // Parse XML
-    char const *hostname = strdup(xml.attribute(LUV_HOSTNAME_ATTR()).value());
+    char const *hostname = xml.attribute(LUV_HOSTNAME_ATTR()).value();
     if (hostname && *hostname)
-      m_host = hostname;
+      m_host = strdup(hostname);
     else
       m_host = strdup(LUV_DEFAULT_HOSTNAME());
 

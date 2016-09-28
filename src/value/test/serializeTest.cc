@@ -235,7 +235,6 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
 
   // test reading past end
-  oldcbufptr = cbufptr;
   chRead = NO_COMMAND_HANDLE;
   cbufptr = deserialize(chRead, cbufptr);
   assertTrueMsg(!cbufptr, "deserialize failed to return null buffer pointer on bogus input");
@@ -966,7 +965,6 @@ static bool testBooleanValueSerDes()
   assertTrueMsg(boolRead == true, "deserialize didn't set result equal to source");
 
   // test reading past end
-  oldcbufptr = cbufptr;
   cbufptr = deserialize(boolRead, cbufptr);
   assertTrueMsg(!cbufptr, "deserialize failed to return null buffer pointer on bogus input");
 
@@ -1161,7 +1159,6 @@ static bool testCommandHandleValueSerDes()
   assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
   
   // test reading past end
-  oldcbufptr = cbufptr;
   vRead.setUnknown();
   cbufptr = deserialize(vRead, cbufptr);
   assertTrueMsg(!cbufptr, "deserialize failed to return null buffer pointer on bogus input");

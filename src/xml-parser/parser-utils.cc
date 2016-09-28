@@ -270,7 +270,7 @@ namespace PLEXIL
     return (lineSeen || colSeen);
   }
 
-  bool reportParserException(std::string const &msg, xml_node location)
+  void reportParserException(std::string const &msg, xml_node location)
     throw (ParserException)
   {
     char const *sourcefile = NULL;

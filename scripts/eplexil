@@ -52,4 +52,4 @@ then
     JAVA=$JAVA_HOME/bin/java
 fi
 
-exec $JAVA -jar $PLEXIL_HOME/jars/saxon9he.jar -o $output_file $input_file $PLEXIL_HOME/schema/translate-plexil.xsl
+exec $JAVA -jar $PLEXIL_HOME/jars/saxon9he.jar -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file"

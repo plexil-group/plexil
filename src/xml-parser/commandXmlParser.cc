@@ -241,9 +241,8 @@ namespace PLEXIL
     if (nameType != STRING_TYPE && nameType != UNKNOWN_TYPE) {
       if (nameIsGarbage)
         delete nameExpr;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       temp,
-                                       "Command Name must be a String expression");
+      reportParserExceptionWithLocation(temp,
+                                        "Command Name must be a String expression");
     }
 
     cmd->setNameExpr(nameExpr, nameIsGarbage);
