@@ -309,7 +309,7 @@ namespace PLEXIL
     int32_t size;
     ArrayImpl<T> const *temp;
     if (m_size && m_size->getValue(size) && expr->getValuePointer(temp))
-      checkPlanError(size >= temp->size(),
+      checkPlanError(temp->size() <= (size_t) size,
                      "Array variable " << this->getName()
                      << " initial value is larger than declared array size " << size);
     m_initializer = expr;
