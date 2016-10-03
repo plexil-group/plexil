@@ -413,18 +413,18 @@ namespace PLEXIL
       if (iface)
         nVariables += estimateInterfaceSpace(xml.child(INTERFACE_TAG));
       node->allocateVariables(nVariables);
-    }
 
-    // Populate local variables
-    if (varDecls) {
-      debugMsg("parseNode", " parsing variable declarations");
-      parseVariableDeclarations(node, varDecls);
-    }
+      // Check interface variables
+      if (iface) {
+        debugMsg("parseNode", " parsing interface declarations");
+        parseInterface(node, iface);
+      }
 
-    // Check interface variables
-    if (iface) {
-      debugMsg("parseNode", " parsing interface declarations");
-      parseInterface(node, iface);
+      // Populate local variables
+      if (varDecls) {
+        debugMsg("parseNode", " parsing variable declarations");
+        parseVariableDeclarations(node, varDecls);
+      }
     }
   }
 
@@ -804,8 +804,8 @@ namespace PLEXIL
   {
     debugMsg("finalizeNode", " node " << node->getNodeId());
 
-    constructVariableInitializers(node, xml);
     linkAndInitializeInterfaceVars(node, xml);
+    constructVariableInitializers(node, xml);
     createConditions(node, xml);
 
     // Process body
