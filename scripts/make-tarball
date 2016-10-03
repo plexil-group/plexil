@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,13 @@
 
 # Run this script in an empty temp directory
 
+# Exit on any error
+set -e
+
 usage()
 {
     echo "usage: $0 release-id [svn-rev]"
 }
-
 
 if [ -z "$1" ]
 then
@@ -47,12 +49,20 @@ then
     rev=$2
 fi
 
-svn export -r $rev https://svn.code.sf.net/p/plexil/code/branches/plexil-4 $relid
-cd $relid
-export PLEXIL_HOME=$PWD
-make src/configure
+echo "Checking out revision $rev into temporary directory $relid"
+svn export -r $rev https://svn.code.sf.net/p/plexil/code/branches/plexil-x "$relid"
+
+echo "Installing autotools files and building configure script"
+cd "$relid"
+PLEXIL_HOME="$PWD" make src/configure
 cd ..
-tar czf ${relid}.tar.gz $relid
-rm -rf $relid
+
+echo "Generating tar file ${relid}.tar.gz"
+tar czf "${relid}.tar.gz" "$relid"
+
+echo "Deleting temporary directory $relid"
+rm -rf "$relid"
+
+echo "Done"
 
 exit 0
