@@ -1,21 +1,26 @@
 NonLocalExit:
-Concurrence
 {
   Boolean quitLooping = false;
-  Integer loopCount = 0;
+  PostCondition Test.outcome == INTERRUPTED
+    && Test.failure == EXITED;
 
-theLoop:
+ Test:
+  Concurrence
   {
-    Repeat loopCount < 5;
-    Exit quitLooping;
-    loopCount = loopCount + 1;
-  }
+    Integer loopCount = 0;
+    ExitCondition quitLooping;
 
-theSpoiler:
-  {
-    Start loopCount == 2;
-    quitLooping = true;
-  }
+  theLoop:
+    {
+      Repeat loopCount < 5;
+      loopCount = loopCount + 1;
+    }
 
+  theSpoiler:
+    {
+      StartCondition loopCount == 2;
+      quitLooping = true;
+    }
+  }
 }
     

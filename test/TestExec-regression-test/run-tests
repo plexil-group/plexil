@@ -46,7 +46,7 @@ EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9 ArrayInLoo
  FailureType1 FailureType2 FailureType3 FailureType4
  GrandparentAccess
  interface1 IterationEnded1 invariant1 isKnown1
- maxTest minTest modulo1
+ maxTest minTest modulo1 NonLocalExit
  repeat1 repeat3 repeat4
  SimpleAssignment skip1 skip2
  TestAbsSqrt TestNodeNameScope TestNodeNameScopeHack
@@ -58,7 +58,7 @@ EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9 ArrayInLoo
 # Tests requiring no external interaction, 
 # whose execution traces are compared against a "gold standard"
 EMPTY_SCRIPT_VALID_TESTS='AssignToParentInvariant AssignToParentExit
- InactiveAncestorInvariantTest NonLocalExit'
+ InactiveAncestorInvariantTest'
 
 # Tests of library calls
 LIBRARY_TESTS='LibraryCall6 LibraryCallWithArray'

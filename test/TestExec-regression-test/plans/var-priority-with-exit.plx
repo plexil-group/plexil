@@ -22,7 +22,7 @@
     <PostCondition>
       <EQInternal>
         <NodeOutcomeVariable><NodeId>set-to-2</NodeId></NodeOutcomeVariable>
-        <NodeOutcomeValue>SKIPPED</NodeOutcomeValue>
+        <NodeOutcomeValue>INTERRUPTED</NodeOutcomeValue>
       </EQInternal>
     </PostCondition>
     <NodeBody>
