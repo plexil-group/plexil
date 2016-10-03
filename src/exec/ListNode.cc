@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -153,9 +153,6 @@ namespace PLEXIL
                      Node *parent)
     : Node(type, name, state, parent)
   {
-    checkError(type == LIST || type == LIBRARYNODECALL,
-               "Invalid node type \"" << type << "\" for a ListNode");
-
     switch (m_state) {
     case EXECUTING_STATE:
       deactivatePostCondition();
@@ -433,8 +430,10 @@ namespace PLEXIL
 
   void ListNode::transitionToExecuting()
   {
-    // From WAITING, AncestorExit, AncestorInvariant, Exit are active
+    activateLocalVariables();
+
     activateInvariantCondition();
+    activateExitCondition();
     activateEndCondition();
 
     // These conditions are for the children.
@@ -451,8 +450,10 @@ namespace PLEXIL
     Expression *cond;
     bool temp;
     if ((cond = getAncestorExitCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Ancestor exit for " << m_nodeId << " is inactive.");
+#endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
@@ -464,8 +465,10 @@ namespace PLEXIL
     }
 
     if ((cond = getExitCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Exit condition for " << m_nodeId << " is inactive.");
+#endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and EXIT_CONDITION true.");
@@ -477,8 +480,10 @@ namespace PLEXIL
     }
 
     if ((cond = getAncestorInvariantCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Ancestor invariant for " << getNodeId() << " is inactive.");
+#endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
@@ -490,8 +495,10 @@ namespace PLEXIL
     }
 
     if ((cond = getInvariantCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Invariant for " << getNodeId() << " is inactive.");
+#endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and INVARIANT_CONDITION false.");
@@ -503,8 +510,10 @@ namespace PLEXIL
     }
 
     if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "End for " << getNodeId() << " is inactive.");
+#endif
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: no state.");
       return false;
@@ -519,19 +528,25 @@ namespace PLEXIL
   void ListNode::transitionFromExecuting()
   {
     deactivateEndCondition();
-
-    if (m_nextState == FAILING_STATE) {
+    switch (m_nextState) {
+      
+    case FAILING_STATE:
       deactivateAncestorExitInvariantConditions(); 
       deactivateExitCondition();
       deactivateInvariantCondition();
-    }
-    else 
-      checkError(m_nextState == FINISHING_STATE,
-                 "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
+      // fall through
 
-    // Both successor states will need this
-    activateActionCompleteCondition();
+    case FINISHING_STATE:
+      // Both successor states will need this
+      activateActionCompleteCondition();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
+    }
   }
 
   //
@@ -553,8 +568,10 @@ namespace PLEXIL
     Expression *cond;
     bool temp;
     if ((cond = getAncestorExitCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Ancestor exit for " << m_nodeId << " is inactive.");
+#endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
@@ -566,8 +583,10 @@ namespace PLEXIL
     }
 
     if ((cond = getExitCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Exit condition for " << m_nodeId << " is inactive.");
+#endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and EXIT_CONDITION true.");
@@ -579,8 +598,10 @@ namespace PLEXIL
     }
 
     if ((cond = getAncestorInvariantCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Ancestor invariant for " << getNodeId() << " is inactive.");
+#endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
@@ -592,8 +613,10 @@ namespace PLEXIL
     }
 
     if ((cond = getInvariantCondition())) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
                  "Invariant for " << getNodeId() << " is inactive.");
+#endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. List node and INVARIANT_CONDITION false.");
@@ -605,19 +628,22 @@ namespace PLEXIL
     }
 
     cond = getActionCompleteCondition();
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
     checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId() <<
                " is inactive.");
-    checkError(cond->getValue(temp),
-               "getDestStateFromFinishing: AllWaitingOrFinished condition is unknown");
+#endif
+    cond->getValue(temp); // cannot be unknown, see above
     if (temp) {
       m_nextState = ITERATION_ENDED_STATE;
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: ITERATION_ENDED. List node " <<
                "and ALL_CHILDREN_WAITING_OR_FINISHED true.");
       if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) {
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
         checkError(cond->isActive(),
                    "ListNode::getDestStateFromFinishing: Post for " << m_nodeId << " is inactive.");
+#endif
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = POST_CONDITION_FAILED;
       }
@@ -637,7 +663,9 @@ namespace PLEXIL
     deactivateInvariantCondition();
     deactivatePostCondition();
 
-    if (m_nextState == ITERATION_ENDED_STATE) {
+    switch (m_nextState) {
+
+    case ITERATION_ENDED_STATE:
       // N.B. These are conditions for the children.
       if (m_conditions[ancestorExitIdx])
         m_conditions[ancestorExitIdx]->deactivate();
@@ -649,14 +677,17 @@ namespace PLEXIL
       deactivateActionCompleteCondition();
       deactivateExecutable();
       activateAncestorEndCondition();
-    }
-    else if (m_nextState == FAILING_STATE) {
+      break;
+
+    case FAILING_STATE:
       deactivateAncestorExitInvariantConditions();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition List node from FINISHING to invalid state "
+                    << nodeStateName(m_nextState));
     }
-    else 
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition List node from FINISHING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -677,14 +708,13 @@ namespace PLEXIL
   bool ListNode::getDestStateFromFailing()
   {
     Expression *cond = getActionCompleteCondition();
+#ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
     checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId() <<
                " is inactive.");
-
+#endif
     bool tempb;
-    checkError(cond->getValue(tempb),
-               "getDestStateFromFailing: action-complete condition is unknown");
-
+    cond->getValue(tempb); // AllWaitingOrFinished is always known
     if (tempb) {
       if (this->getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
@@ -727,14 +757,23 @@ namespace PLEXIL
     deactivateActionCompleteCondition();
     deactivateExecutable();
 
-    if (m_nextState == ITERATION_ENDED_STATE) {
+    switch (m_nextState) {
+
+    case ITERATION_ENDED_STATE:
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
+      break;
+
+    case FINISHED_STATE:
+      // nothing to do
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else 
-      checkError(m_nextState == FINISHED_STATE,
-                 "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
 

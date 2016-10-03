@@ -50,8 +50,6 @@ namespace PLEXIL
     : ListNode(type, name, state, parent),
       m_aliasMap(NULL)
   {
-    checkError(type == LIBRARYNODECALL,
-               "Invalid node type \"" << type << "\" for a LibraryCallNode");
   }
 
   /**

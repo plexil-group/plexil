@@ -37,6 +37,10 @@
 // Take care of annoying VxWorks macro
 #undef UPDATE
 
+// *** For debug use only ***
+// Uncomment this if we don't trust the condition activation/deactivation logic
+// #define PARANOID_ABOUT_CONDITION_ACTIVATION 1
+
 namespace PLEXIL {
 
   // Forward references
@@ -395,7 +399,11 @@ namespace PLEXIL {
     void execute();
     void reset();
     virtual void abort();
-    virtual void deactivateExecutable();
+    void deactivateExecutable();
+
+    // Variables
+    void activateLocalVariables();
+    void deactivateLocalVariables();
 
     // Activate conditions
 
