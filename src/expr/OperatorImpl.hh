@@ -29,7 +29,7 @@
 
 #include "Operator.hh"
 
-#include "ExprVec.hh"
+#include "Function.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
@@ -62,7 +62,7 @@ namespace PLEXIL
     bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const \
     {return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);} \
  \
-    bool operator()(_rtype_ &result, ExprVec const &args) const \
+    bool operator()(_rtype_ &result, Function const &args) const \
     {return static_cast<IMPL const *>(this)->calc(result, args);}
 
     DEFINE_OPERATOR_SHIM_METHODS(Boolean)
@@ -94,15 +94,15 @@ namespace PLEXIL
     void *allocateCache() const { return static_cast<void *>(new R); }
     void deleteCache(void *ptr) const { delete static_cast<R *>(ptr); }
 
-    bool calcNative(void *cache, ExprVec const &exprs) const;
-    void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const;
-    Value toValue(void *cache, ExprVec const &exprs) const;
+    bool calcNative(void *cache, Function const &exprs) const;
+    void printValue(std::ostream &s, void *cache, Function const &exprs) const;
+    Value toValue(void *cache, Function const &exprs) const;
 
     // Delegated to derived classes
     // Default methods issue "wrong argument count" error
     virtual bool calc(R &result, Expression const *arg) const;
     virtual bool calc(R &result, Expression const *arg0, Expression const *arg1) const;
-    virtual bool calc(R &result, ExprVec const &args) const;
+    virtual bool calc(R &result, Function const &args) const;
 
     // Conversion or type error
     // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
@@ -131,7 +131,7 @@ namespace PLEXIL
     }
 
     template <typename U>
-    bool calc(U & /* result */, ExprVec const & /* args */) const
+    bool calc(U & /* result */, Function const & /* args */) const
     {
       checkPlanError(ALWAYS_FAIL,
                      this->getName() << ": Attempt to get "
@@ -171,7 +171,7 @@ namespace PLEXIL
 
   template <>
   template <>
-  bool OperatorImpl<Integer>::calc(Real &result, ExprVec const &args) const;
+  bool OperatorImpl<Integer>::calc(Real &result, Function const &args) const;
 
   template <typename R>
   class OperatorImpl<ArrayImpl<R> >
@@ -185,19 +185,19 @@ namespace PLEXIL
     void *allocateCache() const { return static_cast<void *>(new ArrayImpl<R>); }
     void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
 
-    bool calcNative(void *cache, ExprVec const &exprs) const;
-    void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const;
-    Value toValue(void *cache, ExprVec const &exprs) const;
+    bool calcNative(void *cache, Function const &exprs) const;
+    void printValue(std::ostream &s, void *cache, Function const &exprs) const;
+    Value toValue(void *cache, Function const &exprs) const;
 
     // Delegated to derived classes
     virtual bool calc(ArrayImpl<R> &result, Expression const *arg) const = 0;
     virtual bool calc(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool calc(ArrayImpl<R> &result, ExprVec const &args) const = 0;
+    virtual bool calc(ArrayImpl<R> &result, Function const &args) const = 0;
 
     // Downcast to Array base
     virtual bool calc(Array &result, Expression const *arg) const = 0;
     virtual bool calc(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool calc(Array &result, ExprVec const &args) const = 0;
+    virtual bool calc(Array &result, Function const &args) const = 0;
 
     // Conversion or type error
     // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
@@ -226,7 +226,7 @@ namespace PLEXIL
     }
 
     template <typename U>
-    bool calc(U & /* result */, ExprVec const & /* args */) const
+    bool calc(U & /* result */, Function const & /* args */) const
     {
       checkPlanError(ALWAYS_FAIL,
                      this->getName() << ": Attempt to get "

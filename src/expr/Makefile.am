@@ -30,14 +30,14 @@ lib_LTLIBRARIES = libPlexilExpr.la
 libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh \
- Constant.hh Expression.hh ExpressionConstants.hh ExpressionListener.hh ExprVec.hh \
+ Constant.hh Expression.hh ExpressionConstants.hh ExpressionListener.hh \
  Function.hh NodeConnector.hh NodeConstantExpressions.hh NotifierImpl.hh \
  Operator.hh SimpleBooleanVariable.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
  Assignable.cc BooleanOperators.cc Comparisons.cc Constant.cc \
- Expression.cc ExpressionConstants.cc ExprVec.cc Function.cc \
+ Expression.cc ExpressionConstants.cc Function.cc \
  NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
  SimpleBooleanVariable.cc StringOperators.cc \
  UserVariable.cc

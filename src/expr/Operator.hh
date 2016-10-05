@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class Expression;
-  class ExprVec;
+  class Function;
   class Value;
 
   // TODO:
@@ -56,7 +56,7 @@ namespace PLEXIL
 
     // Delegated to each individual operator.
     // Default method returns true.
-    virtual bool checkArgTypes(ExprVec const *ev) const { return true; }
+    virtual bool checkArgTypes(Function const *ev) const { return true; }
 
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;
@@ -67,16 +67,18 @@ namespace PLEXIL
 #define DECLARE_OPERATOR_METHODS(_rtype_) \
     virtual bool operator()(_rtype_ &result, Expression const *arg) const = 0; \
     virtual bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const = 0; \
-    virtual bool operator()(_rtype_ &result, ExprVec const &args) const = 0; \
+    virtual bool operator()(_rtype_ &result, Function const &args) const = 0; \
 
     DECLARE_OPERATOR_METHODS(Boolean)
+    DECLARE_OPERATOR_METHODS(Integer)
+    DECLARE_OPERATOR_METHODS(Real)
+    DECLARE_OPERATOR_METHODS(String)
+
     DECLARE_OPERATOR_METHODS(NodeState)
     DECLARE_OPERATOR_METHODS(NodeOutcome)
     DECLARE_OPERATOR_METHODS(FailureType)
     DECLARE_OPERATOR_METHODS(CommandHandleValue)
-    DECLARE_OPERATOR_METHODS(Integer)
-    DECLARE_OPERATOR_METHODS(Real)
-    DECLARE_OPERATOR_METHODS(String)
+
     DECLARE_OPERATOR_METHODS(Array)
     DECLARE_OPERATOR_METHODS(BooleanArray)
     DECLARE_OPERATOR_METHODS(IntegerArray)
@@ -85,9 +87,9 @@ namespace PLEXIL
 
 #undef DECLARE_OPERATOR_METHODS
 
-    virtual bool calcNative(void *cache, ExprVec const &exprs) const = 0;
-    virtual void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const = 0;
-    virtual Value toValue(void *cache, ExprVec const &exprs) const = 0;
+    virtual bool calcNative(void *cache, Function const &exprs) const = 0;
+    virtual void printValue(std::ostream &s, void *cache, Function const &exprs) const = 0;
+    virtual Value toValue(void *cache, Function const &exprs) const = 0;
 
   protected:
     Operator(std::string const &name)

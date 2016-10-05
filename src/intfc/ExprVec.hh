@@ -36,7 +36,6 @@ namespace PLEXIL
 {
   class Expression;
   class ExpressionListener;
-  class Operator;
 
   /**
    * @class ExprVec
@@ -47,14 +46,12 @@ namespace PLEXIL
   class ExprVec
   {
   public:
-    virtual ~ExprVec();
+    virtual ~ExprVec() = default;
 
     virtual size_t size() const = 0;
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
     virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
-
-    virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
 
     // These are in critical path of exec inner loop, 
     // so should be optimized for each representation
@@ -67,26 +64,22 @@ namespace PLEXIL
 
     virtual void print(std::ostream &s) const = 0;
 
-    virtual bool apply(Operator const *op, Boolean &result) const;
-    virtual bool apply(Operator const *op, NodeState &result) const;
-    virtual bool apply(Operator const *op, NodeOutcome &result) const;
-    virtual bool apply(Operator const *op, FailureType &result) const;
-    virtual bool apply(Operator const *op, CommandHandleValue &result) const;
-    virtual bool apply(Operator const *op, Integer &result) const;
-    virtual bool apply(Operator const *op, Real &result) const;
-    virtual bool apply(Operator const *op, String &result) const;
-    virtual bool apply(Operator const *op, Array &result) const;
-    virtual bool apply(Operator const *op, BooleanArray &result) const;
-    virtual bool apply(Operator const *op, IntegerArray &result) const;
-    virtual bool apply(Operator const *op, RealArray &result) const;
-    virtual bool apply(Operator const *op, StringArray &result) const;
+  protected:
+
+    // Only available to derived classes
+    ExprVec() = default;
+
+  private:
+
+    // Not implemented
+    ExprVec(ExprVec const &) = delete;
+    ExprVec(ExprVec &&) = delete;
+    ExprVec &operator=(ExprVec const &) = delete;
+    ExprVec &operator=(ExprVec &&) = delete;
+
   };
 
   // Factory function
-  extern ExprVec *makeExprVec(std::vector<Expression *> const &exprs,
-                              std::vector<bool> const &garbage);
-
-  // Alternate form
   extern ExprVec *makeExprVec(size_t nargs);
 
 } // namespace PLEXIL

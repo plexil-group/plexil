@@ -25,7 +25,6 @@
 */
 
 #include "BooleanOperators.hh"
-#include "Expression.hh"
 
 namespace PLEXIL
 {
@@ -43,7 +42,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool BooleanNot::checkArgTypes(ExprVec const *ev) const
+  bool BooleanNot::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return ty == BOOLEAN_TYPE || ty == UNKNOWN_TYPE;
@@ -72,7 +71,7 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanOr::checkArgTypes(ExprVec const *ev) const
+  bool BooleanOr::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
@@ -104,7 +103,7 @@ namespace PLEXIL
     return false;
   }
 
-  bool BooleanOr::operator()(bool &result, ExprVec const &args) const
+  bool BooleanOr::operator()(bool &result, Function const &args) const
   {
     bool anyKnown = false;
     for (size_t i = 0; i < args.size(); ++i) {
@@ -141,7 +140,7 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanAnd::checkArgTypes(ExprVec const *ev) const
+  bool BooleanAnd::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
@@ -174,7 +173,7 @@ namespace PLEXIL
     return false; // cannot be known
   }
 
-  bool BooleanAnd::operator()(bool &result, ExprVec const &args) const
+  bool BooleanAnd::operator()(bool &result, Function const &args) const
   {
     bool allKnown = true;
     for (size_t i = 0; i < args.size(); ++i) {
@@ -208,7 +207,7 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanXor::checkArgTypes(ExprVec const *ev) const
+  bool BooleanXor::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
@@ -229,7 +228,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool BooleanXor::operator()(bool &result, ExprVec const &args) const
+  bool BooleanXor::operator()(bool &result, Function const &args) const
   {
     bool temp1 = false;
     for (size_t i = 0; i < args.size(); ++i) {

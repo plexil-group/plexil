@@ -40,7 +40,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
 
@@ -59,11 +59,11 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-    bool operator()(bool &result, ExprVec const &args) const;
+    bool operator()(bool &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanOr, bool)
 
@@ -80,11 +80,11 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-    bool operator()(bool &result, ExprVec const &args) const;
+    bool operator()(bool &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanAnd, bool)
 
@@ -101,11 +101,11 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-    bool operator()(bool &result, ExprVec const &args) const;
+    bool operator()(bool &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanXor, bool)
 

@@ -45,7 +45,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool StringConcat::checkArgTypes(ExprVec const *ev) const
+  bool StringConcat::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(STRING_TYPE);
   }
@@ -77,7 +77,7 @@ namespace PLEXIL
   }
 
   bool StringConcat::operator()(std::string &result, 
-                                ExprVec const &args) const
+                                Function const &args) const
   {
     size_t nargs = args.size();
     std::string const *vals[nargs];
@@ -112,7 +112,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool StringLength::checkArgTypes(ExprVec const *ev) const
+  bool StringLength::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return ty == STRING_TYPE || ty == UNKNOWN_TYPE;

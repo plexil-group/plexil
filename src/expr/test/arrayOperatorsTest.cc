@@ -44,35 +44,29 @@ static bool testArraySize()
 
   ArraySize lop;
 
-  std::vector<bool> garbage1(1, false);
-  std::vector<Expression *> bexp(1, &bav);
-  std::vector<Expression *> iexp(1, &iav);
-  std::vector<Expression *> rexp(1, &rav);
-  std::vector<Expression *> sexp(1, &sav);
-  
-  Function bl(&lop, makeExprVec(bexp, garbage1));
-  Function il(&lop, makeExprVec(iexp, garbage1));
-  Function rl(&lop, makeExprVec(rexp, garbage1));
-  Function sl(&lop, makeExprVec(sexp, garbage1));
+  Function *bl = makeFunction(&lop, &bav, false);
+  Function *il = makeFunction(&lop, &iav, false);
+  Function *rl = makeFunction(&lop, &rav, false);
+  Function *sl = makeFunction(&lop, &sav, false);
 
   int32_t len;
 
   // test inactive
-  assertTrue_1(!bl.getValue(len));
-  assertTrue_1(!il.getValue(len));
-  assertTrue_1(!rl.getValue(len));
-  assertTrue_1(!sl.getValue(len));
+  assertTrue_1(!bl->getValue(len));
+  assertTrue_1(!il->getValue(len));
+  assertTrue_1(!rl->getValue(len));
+  assertTrue_1(!sl->getValue(len));
 
-  bl.activate();
-  il.activate();
-  rl.activate();
-  sl.activate();
+  bl->activate();
+  il->activate();
+  rl->activate();
+  sl->activate();
 
   // test uninitialized
-  assertTrue_1(!bl.getValue(len));
-  assertTrue_1(!il.getValue(len));
-  assertTrue_1(!rl.getValue(len));
-  assertTrue_1(!sl.getValue(len));
+  assertTrue_1(!bl->getValue(len));
+  assertTrue_1(!il->getValue(len));
+  assertTrue_1(!rl->getValue(len));
+  assertTrue_1(!sl->getValue(len));
 
   // Assign empty arrays
   BooleanArrayConstant emptybac(0);
@@ -85,13 +79,13 @@ static bool testArraySize()
   rav.setValue(emptyrac);
   sav.setValue(emptysac);
 
-  assertTrue_1(bl.getValue(len));
+  assertTrue_1(bl->getValue(len));
   assertTrue_1(len == 0);
-  assertTrue_1(il.getValue(len));
+  assertTrue_1(il->getValue(len));
   assertTrue_1(len == 0);
-  assertTrue_1(rl.getValue(len));
+  assertTrue_1(rl->getValue(len));
   assertTrue_1(len == 0);
-  assertTrue_1(sl.getValue(len));
+  assertTrue_1(sl->getValue(len));
   assertTrue_1(len == 0);
 
   // Assign short (but uninited) arrays
@@ -105,39 +99,39 @@ static bool testArraySize()
   rav.setValue(shortrac);
   sav.setValue(shortsac);
 
-  assertTrue_1(bl.getValue(len));
+  assertTrue_1(bl->getValue(len));
   assertTrue_1(len == 8);
-  assertTrue_1(il.getValue(len));
+  assertTrue_1(il->getValue(len));
   assertTrue_1(len == 8);
-  assertTrue_1(rl.getValue(len));
+  assertTrue_1(rl->getValue(len));
   assertTrue_1(len == 8);
-  assertTrue_1(sl.getValue(len));
+  assertTrue_1(sl->getValue(len));
   assertTrue_1(len == 8);
 
   // Deactivate and try again
-  bl.deactivate();
-  il.deactivate();
-  rl.deactivate();
-  sl.deactivate();
+  bl->deactivate();
+  il->deactivate();
+  rl->deactivate();
+  sl->deactivate();
 
-  assertTrue_1(!bl.getValue(len));
-  assertTrue_1(!il.getValue(len));
-  assertTrue_1(!rl.getValue(len));
-  assertTrue_1(!sl.getValue(len));
+  assertTrue_1(!bl->getValue(len));
+  assertTrue_1(!il->getValue(len));
+  assertTrue_1(!rl->getValue(len));
+  assertTrue_1(!sl->getValue(len));
 
   // Reactivate
-  bl.activate();
-  il.activate();
-  rl.activate();
-  sl.activate();
+  bl->activate();
+  il->activate();
+  rl->activate();
+  sl->activate();
 
-  assertTrue_1(bl.getValue(len));
+  assertTrue_1(bl->getValue(len));
   assertTrue_1(len == 8);
-  assertTrue_1(il.getValue(len));
+  assertTrue_1(il->getValue(len));
   assertTrue_1(len == 8);
-  assertTrue_1(rl.getValue(len));
+  assertTrue_1(rl->getValue(len));
   assertTrue_1(len == 8);
-  assertTrue_1(sl.getValue(len));
+  assertTrue_1(sl->getValue(len));
   assertTrue_1(len == 8);
 
   // Assign unknown arrays
@@ -151,10 +145,15 @@ static bool testArraySize()
   rav.setValue(unknownrac);
   sav.setValue(unknownsac);
 
-  assertTrue_1(!bl.getValue(len));
-  assertTrue_1(!il.getValue(len));
-  assertTrue_1(!rl.getValue(len));
-  assertTrue_1(!sl.getValue(len));
+  assertTrue_1(!bl->getValue(len));
+  assertTrue_1(!il->getValue(len));
+  assertTrue_1(!rl->getValue(len));
+  assertTrue_1(!sl->getValue(len));
+
+  delete sl;
+  delete rl;
+  delete il;
+  delete bl;
 
   return true;
 }
@@ -167,36 +166,30 @@ static bool testAllElementsKnown()
   StringArrayVariable sav;
 
   AllElementsKnown op;
-
-  std::vector<bool> garbage1(1, false);
-  std::vector<Expression *> bexp(1, &bav);
-  std::vector<Expression *> iexp(1, &iav);
-  std::vector<Expression *> rexp(1, &rav);
-  std::vector<Expression *> sexp(1, &sav);
   
-  Function bl(&op, makeExprVec(bexp, garbage1));
-  Function il(&op, makeExprVec(iexp, garbage1));
-  Function rl(&op, makeExprVec(rexp, garbage1));
-  Function sl(&op, makeExprVec(sexp, garbage1));
+  Function *bl = makeFunction(&op, &bav, false);
+  Function *il = makeFunction(&op, &iav, false);
+  Function *rl = makeFunction(&op, &rav, false);
+  Function *sl = makeFunction(&op, &sav, false);
 
   bool temp;
 
   // test inactive
-  assertTrue_1(!bl.getValue(temp));
-  assertTrue_1(!il.getValue(temp));
-  assertTrue_1(!rl.getValue(temp));
-  assertTrue_1(!sl.getValue(temp));
+  assertTrue_1(!bl->getValue(temp));
+  assertTrue_1(!il->getValue(temp));
+  assertTrue_1(!rl->getValue(temp));
+  assertTrue_1(!sl->getValue(temp));
 
-  bl.activate();
-  il.activate();
-  rl.activate();
-  sl.activate();
+  bl->activate();
+  il->activate();
+  rl->activate();
+  sl->activate();
 
   // test uninitialized
-  assertTrue_1(!bl.getValue(temp));
-  assertTrue_1(!il.getValue(temp));
-  assertTrue_1(!rl.getValue(temp));
-  assertTrue_1(!sl.getValue(temp));
+  assertTrue_1(!bl->getValue(temp));
+  assertTrue_1(!il->getValue(temp));
+  assertTrue_1(!rl->getValue(temp));
+  assertTrue_1(!sl->getValue(temp));
 
   // Assign empty arrays
   BooleanArrayConstant emptybac(0);
@@ -210,13 +203,13 @@ static bool testAllElementsKnown()
   sav.setValue(emptysac);
 
   // *** Boundary case -- see Array.cc ***
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(temp);
 
   // Assign short (but uninited) arrays
@@ -230,13 +223,13 @@ static bool testAllElementsKnown()
   rav.setValue(shortrac);
   sav.setValue(shortsac);
 
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(!temp);
 
   // Assign elements and try again
@@ -256,13 +249,13 @@ static bool testAllElementsKnown()
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(!temp);
 
   // Set other element and try again
@@ -272,13 +265,13 @@ static bool testAllElementsKnown()
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(temp);
 
   // Assign unknown arrays
@@ -292,10 +285,15 @@ static bool testAllElementsKnown()
   rav.setValue(unknownrac);
   sav.setValue(unknownsac);
 
-  assertTrue_1(!bl.getValue(temp));
-  assertTrue_1(!il.getValue(temp));
-  assertTrue_1(!rl.getValue(temp));
-  assertTrue_1(!sl.getValue(temp));
+  assertTrue_1(!bl->getValue(temp));
+  assertTrue_1(!il->getValue(temp));
+  assertTrue_1(!rl->getValue(temp));
+  assertTrue_1(!sl->getValue(temp));
+
+  delete sl;
+  delete rl;
+  delete il;
+  delete bl;
 
   return true;
 }
@@ -311,35 +309,29 @@ static bool testAnyElementsKnown()
 
   AnyElementsKnown op;
 
-  std::vector<bool> garbage1(1, false);
-  std::vector<Expression *> bexp(1, &bav);
-  std::vector<Expression *> iexp(1, &iav);
-  std::vector<Expression *> rexp(1, &rav);
-  std::vector<Expression *> sexp(1, &sav);
-  
-  Function bl(&op, makeExprVec(bexp, garbage1));
-  Function il(&op, makeExprVec(iexp, garbage1));
-  Function rl(&op, makeExprVec(rexp, garbage1));
-  Function sl(&op, makeExprVec(sexp, garbage1));
+  Function *bl = makeFunction(&op, &bav, false);
+  Function *il = makeFunction(&op, &iav, false);
+  Function *rl = makeFunction(&op, &rav, false);
+  Function *sl = makeFunction(&op, &sav, false);
 
   bool temp;
 
   // test inactive
-  assertTrue_1(!bl.getValue(temp));
-  assertTrue_1(!il.getValue(temp));
-  assertTrue_1(!rl.getValue(temp));
-  assertTrue_1(!sl.getValue(temp));
+  assertTrue_1(!bl->getValue(temp));
+  assertTrue_1(!il->getValue(temp));
+  assertTrue_1(!rl->getValue(temp));
+  assertTrue_1(!sl->getValue(temp));
 
-  bl.activate();
-  il.activate();
-  rl.activate();
-  sl.activate();
+  bl->activate();
+  il->activate();
+  rl->activate();
+  sl->activate();
 
   // test uninitialized
-  assertTrue_1(!bl.getValue(temp));
-  assertTrue_1(!il.getValue(temp));
-  assertTrue_1(!rl.getValue(temp));
-  assertTrue_1(!sl.getValue(temp));
+  assertTrue_1(!bl->getValue(temp));
+  assertTrue_1(!il->getValue(temp));
+  assertTrue_1(!rl->getValue(temp));
+  assertTrue_1(!sl->getValue(temp));
 
   // Assign empty arrays
   BooleanArrayConstant emptybac(0);
@@ -353,13 +345,13 @@ static bool testAnyElementsKnown()
   sav.setValue(emptysac);
 
   // *** Boundary case -- see Array.cc ***
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(!temp);
 
   // Assign short (but uninited) arrays
@@ -373,13 +365,13 @@ static bool testAnyElementsKnown()
   rav.setValue(shortrac);
   sav.setValue(shortsac);
 
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(!temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(!temp);
 
   // Assign elements and try again
@@ -399,13 +391,13 @@ static bool testAnyElementsKnown()
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(temp);
 
   // Set other element and try again
@@ -415,13 +407,13 @@ static bool testAnyElementsKnown()
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
-  assertTrue_1(bl.getValue(temp));
+  assertTrue_1(bl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(il.getValue(temp));
+  assertTrue_1(il->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(rl.getValue(temp));
+  assertTrue_1(rl->getValue(temp));
   assertTrue_1(temp);
-  assertTrue_1(sl.getValue(temp));
+  assertTrue_1(sl->getValue(temp));
   assertTrue_1(temp);
 
   // Assign unknown arrays
@@ -435,10 +427,15 @@ static bool testAnyElementsKnown()
   rav.setValue(unknownrac);
   sav.setValue(unknownsac);
 
-  assertTrue_1(!bl.getValue(temp));
-  assertTrue_1(!il.getValue(temp));
-  assertTrue_1(!rl.getValue(temp));
-  assertTrue_1(!sl.getValue(temp));
+  assertTrue_1(!bl->getValue(temp));
+  assertTrue_1(!il->getValue(temp));
+  assertTrue_1(!rl->getValue(temp));
+  assertTrue_1(!sl->getValue(temp));
+
+  delete sl;
+  delete rl;
+  delete il;
+  delete bl;
 
   return true;
 }

@@ -222,18 +222,23 @@ static TestInterface *theInterface = NULL;
 static bool testLookupNow() 
 {
   StringConstant test1("test1");
-
   StringConstant test2("test2");
-  std::vector<Expression *> test2Args(1, new StringConstant("high"));
-  std::vector<bool> test2garbage(1, false);
 
-  std::vector<Expression *> test3Args(1, new StringConstant("low"));
+  StringConstant high("high");
+  StringConstant low("low");
 
   StringVariable test4("test1");
 
   Expression *l1 = new Lookup(&test1, false, UNKNOWN_TYPE);
-  Expression *l2 = new Lookup(&test2, false, UNKNOWN_TYPE, makeExprVec(test2Args, test2garbage));
-  Expression *l3 = new Lookup(&test2, false, UNKNOWN_TYPE, makeExprVec(test3Args, test2garbage));
+
+  ExprVec *t2vec = makeExprVec(1);
+  t2vec->setArgument(0, &high, false);
+  Expression *l2 = new Lookup(&test2, false, UNKNOWN_TYPE, t2vec);
+
+  ExprVec *t3vec = makeExprVec(1);
+  t3vec->setArgument(0, &low, false);
+  Expression *l3 = new Lookup(&test2, false, UNKNOWN_TYPE, t3vec);
+
   Expression *l4 = new Lookup(&test4, false, UNKNOWN_TYPE);
 
   bool l1changed = false;
@@ -313,9 +318,6 @@ static bool testLookupNow()
   delete l3;
   delete l2;
   delete l1;
-
-  delete test2Args[0];
-  delete test3Args[0];
 
   return true;
 }

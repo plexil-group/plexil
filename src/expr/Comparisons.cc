@@ -25,7 +25,7 @@
 */
 
 #include "Comparisons.hh"
-#include "Expression.hh"
+
 #include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
@@ -71,13 +71,13 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool Equal<T>::checkArgTypes(ExprVec const *ev) const
+  bool Equal<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <>
-  bool Equal<uint16_t>::checkArgTypes(ExprVec const *ev) const
+  bool Equal<uint16_t>::checkArgTypes(Function const *ev) const
   {
     ValueType vta = (*ev)[0]->valueType();
     if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
@@ -115,13 +115,13 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool NotEqual<T>::checkArgTypes(ExprVec const *ev) const
+  bool NotEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <>
-  bool NotEqual<uint16_t>::checkArgTypes(ExprVec const *ev) const
+  bool NotEqual<uint16_t>::checkArgTypes(Function const *ev) const
   {
     ValueType vta = (*ev)[0]->valueType();
     if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
@@ -276,7 +276,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterThan<T>::checkArgTypes(ExprVec const *ev) const
+  bool GreaterThan<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -313,7 +313,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterEqual<T>::checkArgTypes(ExprVec const *ev) const
+  bool GreaterEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -350,7 +350,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessThan<T>::checkArgTypes(ExprVec const *ev) const
+  bool LessThan<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -387,7 +387,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessEqual<T>::checkArgTypes(ExprVec const *ev) const
+  bool LessEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }

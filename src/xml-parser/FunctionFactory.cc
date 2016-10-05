@@ -56,30 +56,11 @@ namespace PLEXIL
                                      expr,
                                      "Wrong number of operands for operator "
                                      << oper->getName());
-
-    ExprVec *exprVec = constructExprVec(expr, node, n);
-    if (!oper->checkArgTypes(exprVec)) {
-      delete exprVec;
-      reportParserExceptionWithLocation(expr,
-                                        "Operand type mismatch or unimplemented type for "
-                                        << oper->getName());
-    }
-
-    wasCreated = true;
-    return new Function(oper, exprVec);
-  }
-
-  ExprVec *
-  FunctionFactory::constructExprVec(pugi::xml_node const expr,
-                                    NodeConnector *node,
-                                    size_t nargs) const
-  {
-    ExprVec *result = makeExprVec(nargs);
-    
+    Function *result = makeFunction(oper, n);
     try {
       size_t i = 0;
       for (pugi::xml_node subexp = expr.first_child();
-           subexp && i < nargs;
+           subexp && i < n;
            subexp = subexp.next_sibling(), ++i) {
         bool created;
         Expression *arg = createExpression(subexp, node, created);
@@ -91,6 +72,14 @@ namespace PLEXIL
       throw;
     }
 
+    if (!oper->checkArgTypes(result)) {
+      delete result;
+      reportParserExceptionWithLocation(expr,
+                                        "Operand type mismatch or unimplemented type for "
+                                        << oper->getName());
+    }
+
+    wasCreated = true;
     return result;
   }
 

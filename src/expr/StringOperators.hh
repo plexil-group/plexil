@@ -39,7 +39,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(std::string &result) const;
 
@@ -49,7 +49,7 @@ namespace PLEXIL
                     Expression const *argA,
                     Expression const *argB) const;
 
-    bool operator()(std::string &result, ExprVec const &args) const;
+    bool operator()(std::string &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(StringConcat, std::string);
 
@@ -68,7 +68,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(int32_t &result, Expression const *arg) const;
 

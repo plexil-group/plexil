@@ -26,8 +26,6 @@
 
 #include "ArithmeticOperators.hh"
 // #include "PlanError.hh" // included by OperatorImpl.hh
-#include "Expression.hh"
-#include "ExprVec.hh"
 
 #include <cmath>
 #include <limits>
@@ -79,7 +77,7 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Addition<NUM>::calc(NUM &result,
-                           ExprVec const &args) const
+                           Function const &args) const
   {
     NUM workingResult = 0;
     for (size_t i = 0; i < args.size(); ++i) {
@@ -139,7 +137,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Subtraction<NUM>::calc(NUM &result,
-                              ExprVec const &args) const
+                              Function const &args) const
   {
     checkPlanError(args.size() > 0,
                    this->getName() << " requires at least one operand");
@@ -203,7 +201,7 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Multiplication<NUM>::calc(NUM &result,
-                                 ExprVec const &args) const
+                                 Function const &args) const
   {
     NUM workingResult, temp;
     if (!args[0]->getValue(workingResult))
@@ -334,7 +332,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Minimum<NUM>::calc(NUM &result,
-                          ExprVec const &args) const
+                          Function const &args) const
   {
     NUM workingResult;
     if (!args[0]->getValue(workingResult))
@@ -389,7 +387,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Maximum<NUM>::calc(NUM &result,
-                          ExprVec const &args) const
+                          Function const &args) const
   {
     NUM workingResult;
     if (!args[0]->getValue(workingResult))
@@ -461,7 +459,7 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool SquareRoot<NUM>::checkArgTypes(ExprVec const *ev) const
+  bool SquareRoot<NUM>::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isNumericType(ty) || ty == UNKNOWN_TYPE;
@@ -676,7 +674,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool RealToInteger::checkArgTypes(ExprVec const *ev) const
+  bool RealToInteger::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isNumericType(ty) || ty == UNKNOWN_TYPE;

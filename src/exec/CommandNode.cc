@@ -172,7 +172,7 @@ namespace PLEXIL
 
     // Construct action-complete condition
     Expression *actionComplete =
-      new Function(IsKnown::instance(), m_command->getAck(), false);
+      makeFunction(IsKnown::instance(), m_command->getAck(), false);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
 
@@ -188,8 +188,8 @@ namespace PLEXIL
     if (m_conditions[endIdx] && m_conditions[endIdx] != TRUE_EXP()) {
       // Construct real end condition by wrapping existing
       m_conditions[endIdx] = 
-        new Function(BooleanOr::instance(),
-                     new Function(CommandHandleInterruptible::instance(),
+        makeFunction(BooleanOr::instance(),
+                     makeFunction(CommandHandleInterruptible::instance(),
                                   m_command->getAck(),
                                   false),
                      m_conditions[endIdx],

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,19 +41,19 @@ namespace PLEXIL
   // Convenience methods
 
   template <typename R>
-  bool OperatorImpl<R>::calcNative(void *cache, ExprVec const &exprs) const
+  bool OperatorImpl<R>::calcNative(void *cache, Function const &f) const
   {
-    return exprs.apply(this, *(static_cast<R *>(cache)));
+    return f.getValue(*(static_cast<R *>(cache)));
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, ExprVec const &exprs) const
+  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Function const &f) const
   {
-    return exprs.apply(*(static_cast<ArrayImpl<R> *>(cache)), this);
+    return f.apply(this, *(static_cast<Array *>(cache)));
   }
 
   template <typename R>
-  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
+  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, Function const &exprs) const
   {
     if (calcNative(cache, exprs))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
@@ -62,7 +62,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
+  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Function const &exprs) const
   {
     if (calcNative(cache, exprs))
       PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
@@ -71,7 +71,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value OperatorImpl<R>::toValue(void *cache, ExprVec const &exprs) const
+  Value OperatorImpl<R>::toValue(void *cache, Function const &exprs) const
   {
     bool known = calcNative(cache, exprs);
     if (known)
@@ -81,7 +81,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, ExprVec const &exprs) const
+  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, Function const &exprs) const
   {
     bool known = calcNative(cache, exprs);
     if (known)
@@ -108,7 +108,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<R>::calc(R &result, ExprVec const &args) const
+  bool OperatorImpl<R>::calc(R &result, Function const &args) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for three or more arg case");
@@ -132,7 +132,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, ExprVec const &args) const
+  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Function const &args) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for three or more arg case");
@@ -165,7 +165,7 @@ namespace PLEXIL
 
   template <>
   template <>
-  bool OperatorImpl<Integer>::calc(Real &result, ExprVec const &args) const
+  bool OperatorImpl<Integer>::calc(Real &result, Function const &args) const
   {
     Integer temp;
     if (!this->calc(temp, args))

@@ -62,7 +62,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -84,7 +84,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -145,7 +145,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -167,7 +167,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -189,7 +189,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -211,7 +211,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 

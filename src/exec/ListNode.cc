@@ -221,7 +221,7 @@ namespace PLEXIL
       if (getExitCondition()) {
         if (getAncestorExitCondition()) {
           m_conditions[ancestorExitIdx] =
-            new Function(BooleanOr::instance(),
+            makeFunction(BooleanOr::instance(),
                          getExitCondition(),
                          getAncestorExitCondition(),
                          false,
@@ -237,7 +237,7 @@ namespace PLEXIL
       if (getInvariantCondition()) {
         if (getAncestorInvariantCondition()) {
           m_conditions[ancestorInvariantIdx] =
-            new Function(BooleanAnd::instance(),
+            makeFunction(BooleanAnd::instance(),
                          getInvariantCondition(),
                          getAncestorInvariantCondition(), // from parent
                          false,
@@ -254,7 +254,7 @@ namespace PLEXIL
       if (getEndCondition()) {
         if (getAncestorEndCondition()) {
           m_conditions[ancestorEndIdx] =
-            new Function(BooleanOr::instance(),
+            makeFunction(BooleanOr::instance(),
                          getEndCondition(),
                          getAncestorEndCondition(), // from parent
                          false,

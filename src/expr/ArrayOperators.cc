@@ -27,7 +27,6 @@
 #include "ArrayOperators.hh"
 
 #include "Array.hh"
-#include "Expression.hh"
 
 namespace PLEXIL
 {
@@ -49,7 +48,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArraySize::checkArgTypes(ExprVec const *ev) const
+  bool ArraySize::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isArrayType(ty) || ty == UNKNOWN_TYPE;
@@ -82,7 +81,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArrayMaxSize::checkArgTypes(ExprVec const *ev) const
+  bool ArrayMaxSize::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isArrayType(ty) || ty == UNKNOWN_TYPE;
@@ -116,7 +115,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AllElementsKnown::checkArgTypes(ExprVec const *ev) const
+  bool AllElementsKnown::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isArrayType(ty) || ty == UNKNOWN_TYPE;
@@ -149,7 +148,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AnyElementsKnown::checkArgTypes(ExprVec const *ev) const
+  bool AnyElementsKnown::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isArrayType(ty) || ty == UNKNOWN_TYPE;
