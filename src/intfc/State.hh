@@ -41,6 +41,7 @@ namespace PLEXIL
   public:
     State();
     State(State const &orig);
+    State(State &&orig);
     State(char const *name, size_t n = 0);
     State(std::string const &name, size_t n = 0);
 
@@ -50,6 +51,7 @@ namespace PLEXIL
     ~State();
 
     State &operator=(State const &other);
+    State &operator=(State &&other);
     std::string const &name() const;
     std::vector<Value> const &parameters() const;
 
@@ -73,6 +75,9 @@ namespace PLEXIL
     size_t serialSize() const;
 
   private:
+
+    friend bool operator<(State const &, State const &);
+
     std::string m_name;
     std::vector<Value> m_parameters;
   };
