@@ -35,38 +35,73 @@
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "Function.hh"
+#include "NodeFunction.hh"
+#include "NodeOperatorImpl.hh"
 
 namespace PLEXIL
 {
   /**
-   * @class CommandHandleInterruptible
-   * @brief An Operator that returns true if the command handle is interruptible, false if not.
+   * @class CommandHandleKnown
+   * @brief A NodeOperator that returns true if the command handle is known, false otherwise.
    */
 
-  class CommandHandleInterruptible : public OperatorImpl<bool>
+  class CommandHandleKnown : public NodeOperatorImpl<Boolean>
   {
   public:
-    CommandHandleInterruptible()
-      : OperatorImpl<bool>("Interruptible")
+    ~CommandHandleKnown()
+    {
+    }
+    
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown, Boolean)
+
+    bool checkArgCount(size_t count) const
+    {
+      return true;
+    }
+
+    bool operator()(Boolean &result, Node const *node) const
+    {
+      result =
+        (NO_COMMAND_HANDLE !=
+         ((CommandNode const *) node)->getCommand()->getCommandHandle());
+      return true;
+    }
+
+  private:
+
+    CommandHandleKnown()
+      : NodeOperatorImpl<Boolean>("CommandHandleKnown")
     {
     }
 
+    // Disallow copy, assign
+    CommandHandleKnown(CommandHandleKnown const &) = delete;
+    CommandHandleKnown(CommandHandleKnown &&) = delete;
+    CommandHandleKnown &operator=(CommandHandleKnown const &) = delete;
+    CommandHandleKnown &operator=(CommandHandleKnown &&) = delete;
+
+  };
+
+  /**
+   * @class CommandHandleInterruptible
+   * @brief A NodeOperator that returns true if the command handle is interruptible, false if not.
+   */
+
+  class CommandHandleInterruptible : public NodeOperatorImpl<Boolean>
+  {
+  public:
     ~CommandHandleInterruptible()
     {
     }
 
     bool checkArgCount(size_t count) const
     {
-      return count == 1;
+      return true;
     }
 
-    bool operator()(bool &result, Expression const *arg) const
+    bool operator()(bool &result, Node const *node) const
     {
-      CommandHandleValue val;
-      if (!arg->getValue(val)) // unknown
-        return false; // result is unknown
-
-      switch (val) {
+      switch (((CommandNode const *) node)->getCommand()->getCommandHandle()) {
         // Cases in which node is terminated early
       case COMMAND_DENIED:          // Insufficient resources
       case COMMAND_FAILED:          // Couldn't be sent/performed
@@ -74,19 +109,29 @@ namespace PLEXIL
         result = true;
         break;
 
+      case NO_COMMAND_HANDLE:       // Unknown
       default:
         result = false;
         break;
       }
-      return true; // result is known
+      return true;
     }
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, bool)
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, Boolean)
 
     private:
+
+    CommandHandleInterruptible()
+      : NodeOperatorImpl<bool>("Interruptible")
+    {
+    }
+
     // Not implemented
-    CommandHandleInterruptible(const CommandHandleInterruptible &);
-    CommandHandleInterruptible &operator=(const CommandHandleInterruptible &);
+    CommandHandleInterruptible(CommandHandleInterruptible const &) = delete;
+    CommandHandleInterruptible(CommandHandleInterruptible &&) = delete;
+    CommandHandleInterruptible &operator=(CommandHandleInterruptible const &) = delete;
+    CommandHandleInterruptible &operator=(CommandHandleInterruptible &&) = delete;
+
   };
 
   CommandNode::CommandNode(char const *nodeId, Node *parent)
@@ -160,8 +205,10 @@ namespace PLEXIL
       return;
 
     debugMsg("CommandNode:cleanUpNodeBody", '<' << m_nodeId << "> entered");
-    if (m_command)
+    if (m_command) {
+      m_command->getAck()->removeListener(this);
       m_command->cleanUp();
+    }
     m_cleanedBody = true;
   }
 
@@ -171,14 +218,12 @@ namespace PLEXIL
     m_command = cmd;
 
     // Construct action-complete condition
-    Expression *actionComplete =
-      makeFunction(IsKnown::instance(), m_command->getAck(), false);
-    m_conditions[actionCompleteIdx] = actionComplete;
+    m_conditions[actionCompleteIdx] =
+      new NodeFunction(CommandHandleKnown::instance(), this);
     m_garbageConditions[actionCompleteIdx] = true;
 
     // Construct command-aborted condition
-    Expression *commandAbort = m_command->getAbortComplete();
-    m_conditions[abortCompleteIdx] = commandAbort;
+    m_conditions[abortCompleteIdx] = m_command->getAbortComplete();
     m_garbageConditions[abortCompleteIdx] = false;
   }
 
@@ -189,14 +234,15 @@ namespace PLEXIL
       // Construct real end condition by wrapping existing
       m_conditions[endIdx] = 
         makeFunction(BooleanOr::instance(),
-                     makeFunction(CommandHandleInterruptible::instance(),
-                                  m_command->getAck(),
-                                  false),
+                     new NodeFunction(CommandHandleInterruptible::instance(), this),
                      m_conditions[endIdx],
                      true,
                      m_garbageConditions[endIdx]);
       m_garbageConditions[endIdx] = true;
     }
+
+    // Add node as listener on command handle variable
+    m_command->getAck()->addListener(this);
   }
 
   //
