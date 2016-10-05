@@ -41,10 +41,27 @@ namespace PLEXIL
   class NodeOperatorShim : public NodeOperator
   {
   protected:
-    NodeOperatorShim(std::string const &name) : NodeOperator(name) {}
+
+    // Only accessible to derived classes
+    NodeOperatorShim(std::string const &name)
+      : NodeOperator(name)
+    {
+    }
+
+  private:
+
+    // unimplemented
+    NodeOperatorShim() = delete;
+    NodeOperatorShim(NodeOperatorShim const &) = delete;
+    NodeOperatorShim(NodeOperatorShim &&) = delete;
+    NodeOperatorShim &operator=(NodeOperatorShim const &) = delete;
+    NodeOperatorShim &operator=(NodeOperatorShim &&) = delete;
 
   public:
-    virtual ~NodeOperatorShim() {}
+
+    virtual ~NodeOperatorShim()
+    {
+    }
 
 #define DEFINE_NODE_OPERATOR_SHIM_OPERATOR_METHOD(_rtype_) \
     virtual bool operator()(_rtype_ &result, Node const *node) const \
@@ -72,12 +89,22 @@ namespace PLEXIL
   class NodeOperatorImpl : public NodeOperatorShim<NodeOperatorImpl<R> >
   {
   public:
-    virtual ~NodeOperatorImpl() {}
+    virtual ~NodeOperatorImpl()
+    {
+    }
 
     // Default methods, based on R
     ValueType valueType() const;
-    void *allocateCache() const { return static_cast<void *>(new R); }
-    void deleteCache(void *ptr) const { delete static_cast<R *>(ptr); }
+
+    void *allocateCache() const
+    {
+      return static_cast<void *>(new R);
+    }
+
+    void deleteCache(void *ptr) const
+    {
+      delete static_cast<R *>(ptr);
+    }
 
     bool calcNative(void *cache, Node const *node) const;
     void printValue(std::ostream &s, void *cache, Node const *node) const;
@@ -98,6 +125,7 @@ namespace PLEXIL
     }
 
   protected:
+
     // Base class shouldn't be instantiated by itself
     NodeOperatorImpl(std::string const &name)
       : NodeOperatorShim<NodeOperatorImpl<R> >(name)
@@ -105,64 +133,72 @@ namespace PLEXIL
     }
 
   private:
+
     // Unimplemented
-    NodeOperatorImpl();
-    NodeOperatorImpl(NodeOperatorImpl const &);
-    NodeOperatorImpl &operator=(NodeOperatorImpl const &);
+    NodeOperatorImpl() = delete;
+    NodeOperatorImpl(NodeOperatorImpl const &) = delete;
+    NodeOperatorImpl(NodeOperatorImpl &&) = delete;
+    NodeOperatorImpl &operator=(NodeOperatorImpl const &) = delete;
+    NodeOperatorImpl &operator=(NodeOperatorImpl &&) = delete;
+
   };
 
+  // Not currently used
   // Specialized conversions for Integer operator to Real
   // *** Must be declared here for OS X 10.9 ***
-  template <>
-  template <>
-  bool NodeOperatorImpl<int32_t>::calc(double &result, Node const *node) const;
+  // template <>
+  // template <>
+  // bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const;
 
-  template <typename R>
-  class NodeOperatorImpl<ArrayImpl<R> >
-    : public NodeOperatorShim<NodeOperatorImpl<ArrayImpl<R> > >
-  {
-  public:
-    virtual ~NodeOperatorImpl() {}
+  // Maybe later
+  // template <typename R>
+  // class NodeOperatorImpl<ArrayImpl<R> >
+  //   : public NodeOperatorShim<NodeOperatorImpl<ArrayImpl<R> > >
+  // {
+  // public:
+  //   virtual ~NodeOperatorImpl() {}
 
-    // Default methods, based on R
-    ValueType valueType() const;
-    void *allocateCache() const { return static_cast<void *>(new ArrayImpl<R>); }
-    void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
+  //   // Default methods, based on R
+  //   ValueType valueType() const;
+  //   void *allocateCache() const { return static_cast<void *>(new ArrayImpl<R>); }
+  //   void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
 
-    bool calcNative(void *cache, Node const *node) const;
-    void printValue(std::ostream &s, void *cache, Node const *node) const;
-    Value toValue(void *cache, Node const *node) const;
+  //   bool calcNative(void *cache, Node const *node) const;
+  //   void printValue(std::ostream &s, void *cache, Node const *node) const;
+  //   Value toValue(void *cache, Node const *node) const;
 
-    // Delegated to derived classes
-    virtual bool calc(ArrayImpl<R> &result, Node const *node) const = 0;
+  //   // Delegated to derived classes
+  //   virtual bool calc(ArrayImpl<R> &result, Node const *node) const = 0;
 
-    // Downcast to Array base
-    virtual bool calc(Array &result, Node const *node) const = 0;
+  //   // Downcast to Array base
+  //   virtual bool calc(Array &result, Node const *node) const = 0;
 
-    // Conversion or type error
-    // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
-    template <typename U>
-    bool calc(U & /* result */, Node const */* arg */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     "Operator " << this->getName() << " not implemented for return type "
-                     << valueTypeName(PlexilValueType<U>::arrayValue));
-      return false;
-    }
+  //   // Conversion or type error
+  //   // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
+  //   template <typename U>
+  //   bool calc(U & /* result */, Node const */* arg */) const
+  //   {
+  //     checkPlanError(ALWAYS_FAIL,
+  //                    "Operator " << this->getName() << " not implemented for return type "
+  //                    << valueTypeName(PlexilValueType<U>::arrayValue));
+  //     return false;
+  //   }
 
-  protected:
-    // Base class shouldn't be instantiated by itself
-    NodeOperatorImpl(std::string const &name)
-      : NodeOperatorShim<NodeOperatorImpl<R> >(name)
-    {
-    }
+  // protected:
+  //   // Base class shouldn't be instantiated by itself
+  //   NodeOperatorImpl(std::string const &name)
+  //     : NodeOperatorShim<NodeOperatorImpl<R> >(name)
+  //   {
+  //   }
 
-  private:
-    // Unimplemented
-    NodeOperatorImpl();
-    NodeOperatorImpl(NodeOperatorImpl const &);
-    NodeOperatorImpl &operator=(NodeOperatorImpl const &);
-  };
+  // private:
+  //   // Unimplemented
+  //   NodeOperatorImpl() = delete;
+  //   NodeOperatorImpl(NodeOperatorImpl const &) = delete;
+  //   NodeOperatorImpl(NodeOperatorImpl &&) = delete;
+  //   NodeOperatorImpl &operator=(NodeOperatorImpl const &) = delete;
+  //   NodeOperatorImpl &operator=(NodeOperatorImpl &&) = delete;
+  // };
 
 } // namespace PLEXIL
 
