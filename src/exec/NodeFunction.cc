@@ -27,7 +27,9 @@
 #include "NodeFunction.hh"
 
 #include "ArrayImpl.hh"
+#include "Error.hh"
 #include "NodeOperator.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -103,13 +105,24 @@ namespace PLEXIL
   }
 
   DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(Array)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(BooleanArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(IntegerArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(RealArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(StringArray)
   
 #undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
 
+#define DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(_rtype) \
+  bool NodeFunction::getValuePointer(_rtype const *& /* ptr */) const   \
+  { \
+    checkError(ALWAYS_FAIL, \
+               "NodeFunction::getValuePointer not implemented for " \
+               << PlexilValueType<_rtype>::typeName); \
+    return false; \
+  }
+
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(Array)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(BooleanArray)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(IntegerArray)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(RealArray)
+  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(StringArray)
+  
+#undef DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB
 
 } // namespace PLEXIL

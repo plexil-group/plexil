@@ -38,7 +38,7 @@ namespace PLEXIL
   /**
    * @class NodeFunction
    * @brief An abstract base class.
-   * Represents a function whose value depends on the value(s) of one or more subexpressions.
+   * Represents a function whose value depends on some property of a node or its neighbors.
    */
 
   class NodeFunction : public NotifierImpl
@@ -91,9 +91,11 @@ namespace PLEXIL
 
   private:
     // Not implemented
-    NodeFunction();
-    NodeFunction(const NodeFunction &);
-    NodeFunction& operator=(const NodeFunction &);
+    NodeFunction() = delete;
+    NodeFunction(NodeFunction const &) = delete;
+    NodeFunction(NodeFunction &&) = delete;
+    NodeFunction &operator=(NodeFunction const &) = delete;
+    NodeFunction &operator=(NodeFunction &&) = delete;
 
     Node *m_node;
 
