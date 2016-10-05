@@ -83,8 +83,11 @@ namespace PLEXIL
     }
 
     // Disallow copy, assign
-    AllFinished(AllFinished const &);
-    AllFinished &operator=(AllFinished const &);
+    AllFinished(AllFinished const &) = delete;
+    AllFinished(AllFinished &&) = delete;
+    AllFinished &operator=(AllFinished const &) = delete;
+    AllFinished &operator=(AllFinished &&) = delete;
+
   };
 
   class AllWaitingOrFinished : public NodeOperatorImpl<Boolean>
