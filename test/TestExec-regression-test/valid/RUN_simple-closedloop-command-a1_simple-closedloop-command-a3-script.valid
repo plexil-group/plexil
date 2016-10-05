@@ -42,21 +42,21 @@ simple-closedloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7f9ef8c06878 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fc68cc045d8 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fc68cc047f8 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-closedloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f9ef8c06d40 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f9ef8c06ca0 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9ef8c06878 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7fc68cc04a80 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc68cc049e0 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc68cc045d8 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9ef8c07080 [a]([unknown_value]) (Interruptible Boolean 0x7f9ef8c070d0 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [a]([unknown_value]))) (EQ Boolean 0x7f9ef8c06fa0 [a](0) (Constant Integer 0x7f9ef8c06f88 [a](10)) (Variable Integer retTestFunction 0x7f9ef8c06878 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9ef8c07020 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x102fa7670 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9ef8c06c10 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [a]([unknown_value])))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f9ef8c06ae8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [a]([unknown_value]))
+   EndCondition: (OR Boolean 0x7fc68cc04e00 [a](0) (Interruptible Boolean 0x7fc68cc04da0 [a](0)) (EQ Boolean 0x7fc68cc04cc0 [a](0) (Constant Integer 0x7fc68cc04ca8 [a](10)) (Variable Integer retTestFunction 0x7fc68cc045d8 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fc68cc04d30 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fc68cc047f8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x100efa2d8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fc68cc04970 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fc68cc04848 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc68cc047f8 [a]([unknown_value]))
   }
 }
 
@@ -112,12 +112,12 @@ simple-closedloop-command-a1{
 simple-closedloop-command-a1{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7f9ef8c06878 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc68cc045d8 [i]([unknown_value]))
   Drive{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc68cc047f8 [i]([unknown_value]))
   }
 }
 
@@ -130,12 +130,12 @@ simple-closedloop-command-a1{
 simple-closedloop-command-a1{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7f9ef8c06878 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc68cc045d8 [i]([unknown_value]))
   Drive{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9ef8c06a98 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc68cc047f8 [i]([unknown_value]))
   }
 }
 

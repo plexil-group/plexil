@@ -42,19 +42,19 @@ simple-openloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fab23500858 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe3bd404a78 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fab23500b00 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fab23500a60 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe3bd404d00 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe3bd404c60 [i](0))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fab23500d40 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fab23500858 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x1041bf670 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fab235009d0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fab23500858 [a]([unknown_value])))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fab235008a8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab23500858 [a]([unknown_value]))
+   PostCondition: (EQ Boolean 0x7fe3bd404f20 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe3bd404a78 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x101d192d8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3bd404bf0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fe3bd404ac8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3bd404a78 [a]([unknown_value]))
   }
 }
 
@@ -113,7 +113,7 @@ simple-openloop-command-a1{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab23500858 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3bd404a78 [i]([unknown_value]))
   }
 }
 

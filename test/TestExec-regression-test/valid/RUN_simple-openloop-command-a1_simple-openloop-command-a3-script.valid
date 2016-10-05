@@ -42,19 +42,19 @@ simple-openloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f8d21406d18 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f8ca8c04a78 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f8d21406fc0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d21406f20 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8ca8c04d00 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8ca8c04c60 [i](0))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7f8d21407200 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f8d21406d18 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10c92f670 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f8d21406e90 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f8d21406d18 [a]([unknown_value])))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8d21406d68 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d21406d18 [a]([unknown_value]))
+   PostCondition: (EQ Boolean 0x7f8ca8c04f20 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f8ca8c04a78 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10cf212d8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f8ca8c04bf0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7f8ca8c04ac8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8ca8c04a78 [a]([unknown_value]))
   }
 }
 
@@ -114,7 +114,7 @@ simple-openloop-command-a1{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d21406d18 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8ca8c04a78 [i]([unknown_value]))
   }
 }
 
