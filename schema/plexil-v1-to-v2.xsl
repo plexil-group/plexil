@@ -184,7 +184,8 @@
     </xsl:attribute>
     <xsl:copy-of select="@epx|@FileName|@LineNo|@ColNo" />
     <xsl:copy-of select="Comment" />
-    <xsl:for-each select="key('Conditions', *)">
+    <xsl:for-each select="EndCondition|ExitCondition|InvariantCondition|PostCondition|
+                          PreCondition|RepeatCondition|SkipCondition|StartCondition">
       <xsl:element name="{name()}">
         <xsl:apply-templates select="*" />
         <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
@@ -227,7 +228,8 @@
   <xsl:template match="Command">
     <Command>
       <xsl:apply-templates select="ResourceList" />
-      <xsl:apply-templates select="key('DeclaredVariable', .)" />
+      <xsl:apply-templates select="ArrayElement|ArrayVariable|BooleanVariable|
+                                   IntegerVariable|RealVariable|StringVariable" />
       <Name>
         <xsl:apply-templates select="Name/*" />
       </Name>
