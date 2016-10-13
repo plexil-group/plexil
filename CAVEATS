@@ -16,12 +16,13 @@ Build:
    You should be able to re-run 'configure' and 'make' successfully at
    this point.
 
- * The following subsystems are built by default: 
+ * The following subsystems in the src directory are built by default: 
+     - the Universal Executive
      - the Test Executive
-     - Gantt viewer support
-     - IPC and modules which depend on it: Plexil Simulator, Robosim,
-     IPC adapter, et al
-     - the UDP adapter
+     - IPC and IPC Adapter
+     - UDP Adapter
+     - GANTT listener
+     - Plexil Simulator
 
    The following are not built by default:
      - module tests
@@ -66,16 +67,10 @@ Standard Plexil language:
 
 Plexil Viewer: 
 
- * Multiple actions with the same name (Node ID) will not show correct
-   status and outcome.  The viewer does not seem to distinguish the
-   actions.
-
- * The viewer may fail to display the plan if it uses more than one
-   library node.
-
- * When started from a script via the '-v' option, the viewer does not
-   distinguish between "normal" and Core Plexil plan view, always
-   showing the latter.
+ * The Plexil Viewer has been completely reimplemented for release
+   4.5. Many old bugs have been squashed, but it is likely many new
+   ones have been introduced. We encourage users to report any
+   problems to plexil-support@sourceforge.net.
 
 Plexil compiler ('plexilc'): 
 
