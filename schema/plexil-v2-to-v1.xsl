@@ -95,16 +95,7 @@
         <xsl:value-of select="@Name" />
       </Name>
       <xsl:if test="@Type">
-        <Return>
-          <Type>
-            <xsl:value-of select="@Type" />
-          </Type>
-          <xsl:if test="@MaxSize">
-            <MaxSize>
-              <xsl:value-of select="@MaxSize" />
-            </MaxSize>
-          </xsl:if>
-        </Return>
+        <xsl:call-template name="Return" />
       </xsl:if>
       <xsl:apply-templates select="Parameter" />
       <xsl:apply-templates select="AnyParameters" />
@@ -117,26 +108,39 @@
       <Name>
         <xsl:value-of select="@Name" />
       </Name>
-      <Return>
-        <Type>
-          <xsl:choose>
-            <xsl:when test="@MaxSize">
-              <xsl:text>Array</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="@Type" />
-            </xsl:otherwise>
-        </xsl:choose>
-        </Type>
-        <xsl:if test="@MaxSize">
-          <MaxSize>
-            <xsl:value-of select="@MaxSize" />
-          </MaxSize>
-        </xsl:if>
-      </Return>
+      <xsl:call-template name="Return" />
       <xsl:apply-templates select="Parameter"/>
       <xsl:apply-templates select="AnyParameters" />
     </StateDeclaration>
+  </xsl:template>
+
+  <xsl:template name="Return">
+    <xsl:variable name="isArrayType"
+                  select="fn:ends-with(@Type, 'Array')" />
+    <Return>
+      <Type>
+        <xsl:choose>
+          <xsl:when test="$isArrayType">
+            <xsl:value-of select="fn:substring-before(@Type, 'Array')" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@Type" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </Type>
+      <xsl:if test="$isArrayType">
+        <MaxSize>
+          <xsl:choose>
+            <xsl:when test="@MaxSize">
+              <xsl:value-of select="@MaxSize" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>1000</xsl:text> <!-- pick a random default value -->
+            </xsl:otherwise>
+          </xsl:choose>
+        </MaxSize>
+      </xsl:if>
+    </Return>
   </xsl:template>
 
   <xsl:template match="LibraryNode">
@@ -146,9 +150,7 @@
       </Name>
       <xsl:if test="In|InOut">
         <Interface>
-          <xsl:for-each select="In|InOut">
-            <xsl:apply-templates />
-          </xsl:for-each>
+          <xsl:apply-templates select="In|InOut" />
         </Interface>
       </xsl:if>
     </LibraryNodeDeclaration>
@@ -186,14 +188,16 @@
       </xsl:element>
     </xsl:for-each> 
     <xsl:if test="In|InOut">
-      <xsl:for-each select="In|InOut">
-        <xsl:element name="{name()}">
-          <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
-          <xsl:for-each select=".">
-            <xsl:apply-templates />
-          </xsl:for-each>
-        </xsl:element>
-      </xsl:for-each>
+      <Interface>
+        <xsl:for-each select="In|InOut">
+          <xsl:element name="{name()}">
+            <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+            <xsl:for-each select=".">
+              <xsl:apply-templates />
+            </xsl:for-each>
+          </xsl:element>
+        </xsl:for-each>
+      </Interface>
     </xsl:if>
     <xsl:if test="DeclareVariable|DeclareArray">
       <VariableDeclarations>
@@ -209,13 +213,6 @@
   </xsl:template>
 
   <xsl:template match="Assignment">
-    <xsl:variable name="var" as="element()"> <!-- XSL 2.0 feature -->
-      <xsl:apply-templates select="(ArrayElement|ArrayVariable|BooleanVariable|
-                                   IntegerVariable|RealVariable|StringVariable)[1]" />
-    </xsl:variable>
-    <xsl:variable name="expr">
-      <xsl:apply-templates select="*[fn:position() = fn:last()]" />
-    </xsl:variable>
     <Node NodeType="Assignment">
       <xsl:call-template name="NodeCommon" />
       <xsl:if test="@Priority">
@@ -225,38 +222,60 @@
       </xsl:if>
       <NodeBody>
         <Assignment>
+          <xsl:variable name="var" as="element()"> <!-- XSL 2.0 feature -->
+            <xsl:apply-templates select="(ArrayElement|ArrayVariable|BooleanVariable|
+                                         IntegerVariable|RealVariable|StringVariable)[1]" />
+          </xsl:variable>
+          <xsl:variable name="expr">
+            <xsl:apply-templates select="*[fn:last()]" />
+          </xsl:variable>
           <xsl:copy-of select="$var" />
           <xsl:choose>
-            <xsl:when test="fn:name($var) = 'ArrayVariable'">
-              <ArrayRHS>
+            <xsl:when test="fn:ends-with(fn:name($var), 'Variable')">
+              <xsl:variable name="rhsElt" as="xs:string">
+                <xsl:call-template name="rhsName">
+                  <xsl:with-param name="typeString" select="fn:name($var)" />
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:element name="{$rhsElt}">
                 <xsl:copy-of select="$expr" />
-              </ArrayRHS>
-            </xsl:when>
-            <xsl:when test="fn:name($var) = 'BooleanVariable'">
-              <BooleanRHS>
-                <xsl:copy-of select="$expr" />
-              </BooleanRHS>
-            </xsl:when>
-            <xsl:when test="fn:name($var) = 'IntegerVariable'">
-              <NumericRHS>
-                <xsl:copy-of select="$expr" />
-              </NumericRHS>
-            </xsl:when>
-            <xsl:when test="fn:name($var) = 'RealVariable'">
-              <NumericRHS>
-                <xsl:copy-of select="$expr" />
-              </NumericRHS>
-            </xsl:when>
-            <xsl:when test="fn:name($var) = 'StringVariable'">
-              <StringRHS>
-                <xsl:copy-of select="$expr" />
-              </StringRHS>
+              </xsl:element>
             </xsl:when>
             <xsl:when test="fn:name($var) = 'ArrayElement'">
-              <!-- TODO: search up tree for variable declaration -->
-              <GenericRHS>
-                <xsl:copy-of select="$expr" />
-              </GenericRHS>
+              <xsl:choose>
+                <!-- If array is var ref, try to find declaration to extract type -->
+                <xsl:when test="ArrayElement/ArrayVariable">
+                  <xsl:variable name="decl" as="element()?">
+                    <xsl:call-template name="findArrayDeclaration">
+                      <xsl:with-param name="varName">
+                        <xsl:value-of select="ArrayElement/ArrayVariable/@Name" />
+                      </xsl:with-param>
+                      <xsl:with-param name="context" select="."/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:choose>
+                    <xsl:when test="$decl/@ElementType">
+                      <xsl:variable name="rhsElt" as="xs:string">
+                        <xsl:call-template name="rhsName">
+                          <xsl:with-param name="typeString" select="$decl/@ElementType" />
+                        </xsl:call-template>
+                      </xsl:variable>
+                      <xsl:element name="{$rhsElt}">
+                        <xsl:copy-of select="$expr" />
+                      </xsl:element>
+                    </xsl:when>
+                    <!-- DEBUG -->
+                    <xsl:otherwise>
+                      <xsl:copy-of select="$decl"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:when>
+                <xsl:otherwise>
+                  <GenericRHS>
+                    <xsl:copy-of select="$expr" />
+                  </GenericRHS>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
               <!-- No idea, punt -->
@@ -282,9 +301,7 @@
       <Command>
         <xsl:if test="Resource">
           <ResourceList>
-            <xsl:for-each select="Resource">
-              <xsl:apply-templates />
-            </xsl:for-each>
+            <xsl:apply-templates select="Resource" />
           </ResourceList>
         </xsl:if>
         <xsl:apply-templates select="(ArrayElement|ArrayVariable|BooleanVariable|
@@ -331,14 +348,14 @@
   <xsl:template match="LibraryCall">
     <Node NodeType="LibraryNodeCall">
       <xsl:call-template name="NodeCommon" />
-      <LibraryNodeCall>
-        <NodeId>
-          <xsl:value-of select="Library" />
-        </NodeId>
-        <xsl:for-each select="Alias">
-          <xsl:apply-templates />
-        </xsl:for-each>
-      </LibraryNodeCall>
+      <NodeBody>
+        <LibraryNodeCall>
+          <NodeId>
+            <xsl:value-of select="Library" />
+          </NodeId>
+          <xsl:apply-templates select="Alias" />
+        </LibraryNodeCall>
+      </NodeBody>
     </Node>
   </xsl:template>
 
@@ -461,7 +478,9 @@
           <xsl:apply-templates select="*[1]" />
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:apply-templates select="Index/*" />
+      <Index>
+        <xsl:apply-templates select="*[2]" />
+      </Index>
     </ArrayElement>
   </xsl:template>
 
@@ -556,6 +575,77 @@
     <NodeFailureValue>
       <xsl:value-of select="@value" />
     </NodeFailureValue>
+  </xsl:template>
+
+  <!-- Utility -->
+
+  <xsl:template name="findArrayDeclaration">
+    <xsl:param name="varName" as="xs:string" />
+    <xsl:param name="context" as="element()" /> <!-- Should be PLEXIL Node containing the ArrayElement -->
+    <xsl:variable name="localVarDecl"
+                  select="$context/DeclareArray[@Name=$varName]" />
+    <xsl:choose>
+      <xsl:when test="$localVarDecl">
+        <xsl:copy-of select="$localVarDecl" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="localIntfcDecl"
+                      select="$context/(In|InOut)/DeclareArray[@Name=$varName]"
+                      />
+        <xsl:choose>
+          <xsl:when test="$localIntfcDecl">
+            <xsl:copy-of select="$localIntfcDecl" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:variable name="parent"
+                          select="$context/.." />
+            <xsl:choose>
+              <xsl:when test="$parent">
+                <xsl:call-template name="findArrayDeclaration">
+                  <xsl:with-param name="varName" select="$varName"/>
+                  <xsl:with-param name="context" select="$parent" />
+                </xsl:call-template>
+              </xsl:when>
+              <!-- debug -->
+              <xsl:otherwise>
+                <NotFound>
+                  <xsl:attribute name="varName" select="$varName" />
+                  <Context>
+                    <xsl:element name="{name($context)}">
+                      <xsl:copy-of select="$context/@*" />
+                    </xsl:element>
+                  </Context>
+                </NotFound>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="rhsName">
+    <xsl:param name="typeString" as="xs:string?" />
+    <xsl:choose>
+      <xsl:when test="fn:starts-with($typeString, 'Array')">
+        <xsl:text>ArrayRHS</xsl:text>
+      </xsl:when>
+      <xsl:when test="fn:starts-with($typeString, 'Boolean')">
+        <xsl:text>BooleanRHS</xsl:text>
+      </xsl:when>
+      <xsl:when test="fn:starts-with($typeString, 'Integer')">
+        <xsl:text>NumericRHS</xsl:text>
+      </xsl:when>
+      <xsl:when test="fn:starts-with($typeString, 'Real')">
+        <xsl:text>NumericRHS</xsl:text>
+      </xsl:when>
+      <xsl:when test="fn:starts-with($typeString, 'String')">
+        <xsl:text>StringRHS</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>UnknownRHS</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
