@@ -34,7 +34,7 @@
                xmlns:tr="extended-plexil-translator"
                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-               exclude-result-prefixes="xs">
+               exclude-result-prefixes="xs xsl tr">
 
   <xsl:output method="xml" indent="no"/>
 
