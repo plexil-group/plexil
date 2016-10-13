@@ -39,14 +39,33 @@ mkdir -p "${outdir}"
 
 for f in `ls -f ${PLEXIL_HOME}/test/TestExec-regression-test/plans/*.plx`
 do
-    outfile="${outdir}/`basename -s .plx ${f}`.px2"
-    echo "${outfile}"
-    rm -f "${outfile}"
-    ${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v1-to-v2.xsl" "${f}" "${outfile}"
-    if [ -r "${outdir}" ]
+    px1file="${outdir}/`basename -s .plx ${f}`.px1"
+    px2file="${outdir}/`basename -s .plx ${f}`.px2"
+    echo "${px2file}"
+    rm -f "${px2file}" "${px1file}"
+    ${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v1-to-v2.xsl" "${f}" "${px2file}"
+    if [ $? -ne 0 ]
     then
-        xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil-v2.xsd" "${outfile}"
-    else
-        echo '***' Translation of `basename "${f}"` to `basename "${outfile}"` failed '***'
+        echo '***' Translation error converting `basename "${f}"` to `basename "${px2file}"` '***'
+        continue
+    fi
+    xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil-v2.xsd" "${px2file}"
+    if [ $? -ne 0 ]
+    then
+        echo '***' `basename "${px2file}"` fails to validate '***'
+        continue
+    fi
+
+    echo Converting back to "${px1file}"
+    ${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v2-to-v1.xsl" "${px2file}" "${px1file}"
+    if [ $? -ne 0 ]
+    then
+        echo '***' Translation error converting `basename "${f}"` to `basename "${px2file}"` '***'
+        continue
+    fi
+    xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil.xsd" "${px1file}"
+    if [ $? -ne 0 ]
+    then
+        echo '***' `basename "${px1file}"` fails to validate '***'
     fi
 done
