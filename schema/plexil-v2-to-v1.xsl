@@ -100,7 +100,6 @@
   </xsl:template>
 
   <xsl:template name="Return">
-    <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
     <xsl:variable name="isArrayType"
                   select="fn:ends-with(@Type, 'Array')" />
     <Return>
