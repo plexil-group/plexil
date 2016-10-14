@@ -1,0 +1,90 @@
+#! /usr/bin/env bash
+
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Check environment variables and UE executable
+if [ -z "$PLEXIL_HOME" ]
+  then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    exit 1
+fi
+
+if [ $# != 1 ]
+then
+    echo 'Usage: check-plexil-1-2-translation file.plx'
+    exit 1
+fi
+
+outdir="${PLEXIL_HOME}/schema/test/output"
+
+mkdir -p "${outdir}"
+
+px1file="${outdir}/`basename -s .plx $1`.px1"
+px2file="${outdir}/`basename -s .plx $1`.px2"
+rm -f "${px2file}" "${px1file}"
+${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v1-to-v2.xsl" "$1" "${px2file}"
+if [ $? -ne 0 ]
+then
+    echo '***' Translation error converting `basename "$1"` to `basename "${px2file}"` '***'
+    echo
+    exit 1
+fi
+xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil-v2.xsd" "${px2file}"
+if [ $? -ne 0 ]
+then
+    echo '***' `basename "${px2file}"` fails to validate '***'
+    echo
+    exit 1
+fi
+
+${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v2-to-v1.xsl" "${px2file}" "${px1file}"
+if [ $? -ne 0 ]
+then
+    echo '***' Translation error converting `basename "$1"` to `basename "${px2file}"` '***'
+    echo
+    exit 1
+fi
+xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil.xsd" "${px1file}"
+if [ $? -ne 0 ]
+then
+    echo '***' `basename "${px1file}"` fails to validate '***'
+    echo
+    exit 1
+fi
+
+canonical_before="${outdir}/`basename -s .plx $1`.canonical.plx"
+canonical_after="${outdir}/`basename -s .plx $1`.canonical.px1"
+
+${PLEXIL_HOME}/schema/test/canonicalize "$1" "${canonical_before}"
+${PLEXIL_HOME}/schema/test/canonicalize "${px1file}" "${canonical_after}"
+diff "${canonical_before}" "${canonical_after}"
+if [ $? = 1 ]
+then
+    echo '***' Files `basename "${canonical_before}"` and `basename "${canonical_after}"` differ '***'
+    echo
+    exit 1
+fi
