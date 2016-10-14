@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -96,12 +96,12 @@ $(PARSER_CLASSES): $(CLASSES_DIR)/plexil/%.class : $(PARSER_JAVA_SRC_DIR)/%.java
              -sourcepath "$(PARSER_JAVA_DIR):$(JAVA_SRCPATH)" \
              -d $(CLASSES_DIR) $(JAVAC_OPTIONS) $<
 
+test: $(PLEXILC_JAR)
+	$(MAKE) -C test all
+
 clean: localclean
 
 localclean::
 	$(RM) $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
 
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-
-# Override the Makedepend target
-Makedepend:
+.PHONY: all plexil-default clean localclean test
