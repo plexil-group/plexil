@@ -59,7 +59,7 @@
 
   <!-- Entry point -->
   <xsl:template match="PlexilPlan">
-    <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <PlexilPlan>
       <xsl:copy-of select="@FileName" />
       <!-- 0 or 1 expected -->
       <xsl:copy-of select="GlobalDeclarations"/>
