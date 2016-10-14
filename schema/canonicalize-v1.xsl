@@ -35,11 +35,9 @@ canonicalized plan to determine if they are equivalent. -->
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fn="http://www.w3.org/2005/xpath-functions"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                xmlns:tr="extended-plexil-translator"
-                xsi:noNamespaceSchemaLocation="https://svn.code.sf.net/p/plexil/code/branches/plexil-x/schema/core-plexil.xsd"
-                exclude-result-prefixes="fn tr xsi xsl"
+                exclude-result-prefixes="fn xsi xsl"
                 >
-
+  <!-- xmlns="https://svn.code.sf.net/p/plexil/code/branches/plexil-x/schema/core-plexil.xsd" -->
   <xsl:output method="xml" indent="yes"/>
 
   <xsl:preserve-space elements="StringValue" />
@@ -69,7 +67,8 @@ canonicalized plan to determine if they are equivalent. -->
   <!-- Generic element template -->
   <xsl:template match="element()">
     <xsl:element name="{name()}" namespace="{namespace-uri()}">
-      <xsl:copy-of select="namespace::*[not(. = 'http://www.w3.org/2001/XMLSchema-instance')]" />
+      <xsl:copy-of select="namespace::*[not(. = 'http://www.w3.org/2001/XMLSchema-instance')
+                           and not(. = 'extended-plexil-translator') ]" />
 
       <!-- Put attributes in sorted order -->
       <xsl:perform-sort> <!-- XSLT 2.0 feature -->
@@ -147,7 +146,7 @@ canonicalized plan to determine if they are equivalent. -->
       <xsl:if test="InitialValue">
         <xsl:choose>
           <xsl:when test="InitialValue/ArrayValue">
-            <xsl:copy-of select="InitialValue" copy-namespaces="no" />
+            <xsl:apply-templates select="InitialValue" />
           </xsl:when>
           
           <!-- Old style initial value -->
@@ -158,7 +157,7 @@ canonicalized plan to determine if they are equivalent. -->
                 <xsl:attribute name="Type">
                   <xsl:value-of select="Type" />
                 </xsl:attribute>
-                <xsl:copy-of select="InitialValue/*" copy-namespaces="no" />
+                <xsl:apply-templates select="InitialValue/*" />
               </ArrayValue>
             </InitialValue>
           </xsl:otherwise>
@@ -166,6 +165,30 @@ canonicalized plan to determine if they are equivalent. -->
       </xsl:if>
 
     </DeclareArray>
+  </xsl:template>
+
+  <!-- Put children of Resource element into a specific order -->
+  <xsl:template match="Resource">
+    <Resource>
+      <!-- Put attributes in sorted order -->
+      <xsl:perform-sort> <!-- XSLT 2.0 feature -->
+        <xsl:sort select="fn:name(.)" />
+        <xsl:apply-templates select="@* "/>
+      </xsl:perform-sort>
+      <xsl:apply-templates select="ResourceName" />
+      <xsl:apply-templates select="ResourcePriority" />
+      <xsl:apply-templates select="ResourceLowerBound" />
+      <xsl:apply-templates select="ResourceUpperBound" />
+      <xsl:apply-templates select="ResourceReleaseAtTermination" />
+    </Resource>
+  </xsl:template>
+
+  <!-- Strip Name element from Return, as it is ignored -->
+  <xsl:template match="Return">
+    <Return>
+      <xsl:copy-of select="Type" copy-namespaces="no" />
+      <xsl:copy-of select="maxSize" copy-namespaces="no" />
+    </Return>
   </xsl:template>
 
 </xsl:stylesheet>
