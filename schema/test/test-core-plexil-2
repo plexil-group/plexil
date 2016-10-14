@@ -47,12 +47,14 @@ do
     if [ $? -ne 0 ]
     then
         echo '***' Translation error converting `basename "${f}"` to `basename "${px2file}"` '***'
+        echo
         continue
     fi
     xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil-v2.xsd" "${px2file}"
     if [ $? -ne 0 ]
     then
         echo '***' `basename "${px2file}"` fails to validate '***'
+        echo
         continue
     fi
 
@@ -61,11 +63,28 @@ do
     if [ $? -ne 0 ]
     then
         echo '***' Translation error converting `basename "${f}"` to `basename "${px2file}"` '***'
+        echo
         continue
     fi
     xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil.xsd" "${px1file}"
     if [ $? -ne 0 ]
     then
         echo '***' `basename "${px1file}"` fails to validate '***'
+        echo
+        continue
     fi
+
+    canonical_before="${outdir}/`basename -s .plx ${f}`.canonical.plx"
+    canonical_after="${outdir}/`basename -s .plx ${f}`.canonical.px1"
+
+    echo Checking against original
+    ${PLEXIL_HOME}/schema/test/canonicalize "${f}" "${canonical_before}"
+    ${PLEXIL_HOME}/schema/test/canonicalize "${px1file}" "${canonical_after}"
+    diff -q "${canonical_before}" "${canonical_after}"
+    if [ $? = 1 ]
+    then
+        echo '***' Files `basename "${canonical_before}"` and `basename "${canonical_after}"` differ '***'
+        echo
+    fi
+
 done
