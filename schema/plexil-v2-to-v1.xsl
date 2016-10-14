@@ -32,29 +32,13 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:fn="http://www.w3.org/2005/xpath-functions"
+                xmlns:tr="translate-plexil.xsl"
+                exclude-result-prefixes="fn tr xs xsl"
                 >
 
   <xsl:output method="xml" indent="yes"/> <!-- indent="no" when debugged -->
 
   <!-- Selector keys -->
-
-  <xsl:key name="NodeTypes"
-           match="EmptyNode|Assignment|CommandNode|LibraryCall|ListNode|UpdateNode"
-           use="." />
-
-  <xsl:key name="Conditions"
-           match="EndCondition|ExitCondition|InvariantCondition|PostCondition|
-                  PreCondition|RepeatCondition|SkipCondition|StartCondition"
-           use="." />
-
-  <xsl:key name="DeclaredVariable"
-           match="ArrayElement|ArrayVariable|BooleanVariable|
-                  IntegerVariable|RealVariable|StringVariable"
-           use="." />
-
-  <xsl:key name="LiteralValue"
-           match="BooleanValue|IntegerValue|RealValue|StringValue"
-           use="." />
 
   <xsl:key name="SourceLocators"
            match="@FileName|@LineNo|@ColNo"
@@ -65,8 +49,7 @@
        elements that are not explicitly handled elsewhere. -->
 
   <xsl:template match="@* | node()">
-    <xsl:copy
-        copy-namespaces="no"> <!-- XSLT 2.0 feature -->
+    <xsl:copy copy-namespaces="no"> <!-- XSLT 2.0 feature -->
       <xsl:apply-templates select="@* | node()"/>
     </xsl:copy>
   </xsl:template>
@@ -84,13 +67,14 @@
 
   <xsl:template match="GlobalDeclarations">
     <GlobalDeclarations>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:apply-templates />
     </GlobalDeclarations>
   </xsl:template>
 
   <xsl:template match="CommandDeclaration">
     <CommandDeclaration>
-      <xsl:copy-of select="key('SourceLocators', .)" />
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <Name>
         <xsl:value-of select="@Name" />
       </Name>
@@ -105,6 +89,7 @@
 
   <xsl:template match="StateDeclaration">
     <StateDeclaration>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <Name>
         <xsl:value-of select="@Name" />
       </Name>
@@ -115,6 +100,7 @@
   </xsl:template>
 
   <xsl:template name="Return">
+    <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
     <xsl:variable name="isArrayType"
                   select="fn:ends-with(@Type, 'Array')" />
     <Return>
@@ -145,6 +131,7 @@
 
   <xsl:template match="LibraryNode">
     <LibraryNodeDeclaration>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <Name>
         <xsl:value-of select="@Name" />
       </Name>
@@ -158,6 +145,7 @@
 
   <xsl:template match="Parameter">
     <Parameter>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:if test="@Name">
         <Name>
           <xsl:value-of select="@Name" />
@@ -232,7 +220,7 @@
           <xsl:copy-of select="$var" />
           <xsl:choose>
             <xsl:when test="fn:ends-with(fn:name($var), 'Variable')">
-              <xsl:variable name="rhsElt" as="xs:string">
+              <xsl:variable name="rhsElt" as="xs:string"> <!-- XSL 2.0 feature -->
                 <xsl:call-template name="rhsName">
                   <xsl:with-param name="typeString" select="fn:name($var)" />
                 </xsl:call-template>
@@ -245,7 +233,7 @@
               <xsl:choose>
                 <!-- If array is var ref, try to find declaration to extract type -->
                 <xsl:when test="ArrayElement/ArrayVariable">
-                  <xsl:variable name="decl" as="element()?">
+                  <xsl:variable name="decl" as="element()?"> <!-- XSL 2.0 feature -->
                     <xsl:call-template name="findArrayDeclaration">
                       <xsl:with-param name="varName">
                         <xsl:value-of select="ArrayElement/ArrayVariable/@Name" />
@@ -255,7 +243,7 @@
                   </xsl:variable>
                   <xsl:choose>
                     <xsl:when test="$decl/@ElementType">
-                      <xsl:variable name="rhsElt" as="xs:string">
+                      <xsl:variable name="rhsElt" as="xs:string"> <!-- XSL 2.0 feature -->
                         <xsl:call-template name="rhsName">
                           <xsl:with-param name="typeString" select="$decl/@ElementType" />
                         </xsl:call-template>
@@ -580,7 +568,7 @@
   <!-- Utility -->
 
   <xsl:template name="findArrayDeclaration">
-    <xsl:param name="varName" as="xs:string" />
+    <xsl:param name="varName" as="xs:string" /> <!-- XSL 2.0 feature -->
     <xsl:param name="context" as="element()" /> <!-- Should be PLEXIL Node containing the ArrayElement -->
     <xsl:variable name="localVarDecl"
                   select="$context/DeclareArray[@Name=$varName]" />
@@ -625,7 +613,7 @@
   </xsl:template>
 
   <xsl:template name="rhsName">
-    <xsl:param name="typeString" as="xs:string?" />
+    <xsl:param name="typeString" as="xs:string?" /> <!-- XSL 2.0 feature -->
     <xsl:choose>
       <xsl:when test="fn:starts-with($typeString, 'Array')">
         <xsl:text>ArrayRHS</xsl:text>

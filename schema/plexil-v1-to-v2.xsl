@@ -30,6 +30,10 @@
 
 <xsl:stylesheet version="2.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:fn="http://www.w3.org/2005/xpath-functions"
+                xmlns:tr="translate-plexil.xsl"
+                exclude-result-prefixes="fn tr xs xsl"
                 >
 
   <xsl:output method="xml" indent="yes"/> <!-- indent="no" when debugged -->
@@ -74,12 +78,14 @@
 
   <xsl:template match="GlobalDeclarations">
     <GlobalDeclarations>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:apply-templates />
     </GlobalDeclarations>
   </xsl:template>
 
   <xsl:template match="CommandDeclaration">
     <CommandDeclaration>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:attribute name="Name">
         <xsl:value-of select="Name" />
       </xsl:attribute>
@@ -104,6 +110,7 @@
 
   <xsl:template match="StateDeclaration">
     <StateDeclaration>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:attribute name="Name">
         <xsl:value-of select="Name" />
       </xsl:attribute>
@@ -125,6 +132,7 @@
 
   <xsl:template match="LibraryNodeDeclaration">
     <LibraryNode>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:attribute name="Name">
         <xsl:value-of select="Name" />
       </xsl:attribute>
@@ -136,6 +144,7 @@
 
   <xsl:template match="Parameter">
     <Parameter>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:if test="Name">
         <xsl:attribute name="Name">
           <xsl:value-of select="Name" />
