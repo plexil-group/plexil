@@ -192,7 +192,7 @@
       <xsl:value-of select="NodeId" />
     </xsl:attribute>
     <xsl:copy-of select="@epx|@FileName|@LineNo|@ColNo" />
-    <xsl:copy-of select="Comment" />
+    <xsl:apply-templates select="Comment" />
     <xsl:for-each select="EndCondition|ExitCondition|InvariantCondition|PostCondition|
                           PreCondition|RepeatCondition|SkipCondition|StartCondition">
       <xsl:element name="{name()}">
@@ -436,7 +436,7 @@
         <xsl:value-of select="Timepoint" />
       </xsl:attribute>
       <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
-      <xsl:copy-of select="NodeId|NodeRef" />
+      <xsl:apply-templates select="NodeId|NodeRef"/>
     </NodeTimepoint>
   </xsl:template>
 
