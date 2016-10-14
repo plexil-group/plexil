@@ -187,7 +187,7 @@ canonicalized plan to determine if they are equivalent. -->
   <xsl:template match="Return">
     <Return>
       <xsl:copy-of select="Type" copy-namespaces="no" />
-      <xsl:copy-of select="maxSize" copy-namespaces="no" />
+      <xsl:copy-of select="MaxSize" copy-namespaces="no" />
     </Return>
   </xsl:template>
 
