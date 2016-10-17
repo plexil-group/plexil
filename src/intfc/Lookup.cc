@@ -473,7 +473,8 @@ namespace PLEXIL
   {
   public:
     ThresholdCacheImpl()
-      : ThresholdCacheShim<ThresholdCacheImpl<NUM> >()
+      : ThresholdCacheShim<ThresholdCacheImpl<NUM> >(),
+      m_wasKnown(false)
     {
     }
 
@@ -485,11 +486,14 @@ namespace PLEXIL
     {
       check_error_1(tolerance); // paranoid check
       NUM newTol;
-      assertTrue_2(tolerance->getValue(newTol),
-                   "LookupOnChange: internal error: tolerance unknown");
-      if (newTol < 0)
-        newTol = -newTol;
-      return newTol != m_tolerance;
+      if (tolerance->getValue(newTol)) {
+        if (newTol < 0)
+          newTol = -newTol;
+        return newTol != m_tolerance;
+      }
+      // Tolerance is unknown, default to 0
+      newTol = 0;
+      return true;
     }
 
     // This implementation is appropriate for integers.
@@ -498,9 +502,10 @@ namespace PLEXIL
     {
       check_error_1(value); // paranoid check
       NUM currentValue;
-      assertTrue_2(value->getValue(currentValue),
-                   "LookupOnChange: internal error: lookup value unknown");
-      return (currentValue >= m_high) || (currentValue <= m_low);
+      if (value->getValue(currentValue))
+        return (currentValue >= m_high) || (currentValue <= m_low);
+      // Current value is unknown
+      return m_wasKnown; 
     }
 
     void setImpl(CachedValue const *value, Expression const *tolerance)
@@ -509,15 +514,21 @@ namespace PLEXIL
       check_error_1(value); // paranoid check
       check_error_1(tolerance); // paranoid check
       NUM base, tol;
-      assertTrue_2(value->getValue(base),
-                   "LookupOnChange: internal error: lookup value unknown");
-      assertTrue_2(tolerance->getValue(tol),
-                   "LookupOnChange: internal error: tolerance unknown");
-      if (tol < 0)
-        tol = -tol;
-      m_tolerance = tol;
-      m_low = base - tol;
-      m_high = base + tol;
+      if (tolerance->getValue(tol)) {
+        if (tol < 0)
+          tol = -tol;
+      }
+      else {
+        tol = 0;
+      }
+      if (value->getValue(base)) {
+        m_tolerance = tol;
+        m_low = base - tol;
+        m_high = base + tol;
+      }
+      else {
+        m_wasKnown = false;
+      }
     }
 
     void getImpl(NUM &high, NUM &low)
@@ -536,6 +547,7 @@ namespace PLEXIL
     NUM m_low;
     NUM m_high;
     NUM m_tolerance;
+    bool m_wasKnown;
   };
 
   // Separate check for double-valued lookups
@@ -545,8 +557,14 @@ namespace PLEXIL
   {
     check_error_1(value); // paranoid check
     double currentValue;
-    assertTrue_2(value->getValue(currentValue),
-                 "LookupOnChange: internal error: lookup value unknown");
+    if (!(value->getValue(currentValue)))
+      // now unknown, was it last time?
+      return m_wasKnown;
+         
+    // Is known from here down
+    if (!m_wasKnown)
+      return true; // was unknown
+
     if ((currentValue >= m_high) || (currentValue <= m_low))
       return true;
 
