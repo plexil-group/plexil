@@ -38,6 +38,9 @@
 
   <xsl:output method="xml" indent="yes"/> <!-- indent="no" when debugged -->
 
+  <xsl:preserve-space elements="StringValue" />
+  <xsl:strip-space elements="*" />
+
   <!-- Selector keys -->
 
   <xsl:key name="Conditions"

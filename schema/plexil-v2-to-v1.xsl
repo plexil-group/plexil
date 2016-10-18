@@ -38,6 +38,9 @@
 
   <xsl:output method="xml" indent="yes"/> <!-- indent="no" when debugged -->
 
+  <xsl:preserve-space elements="String" />
+  <xsl:strip-space elements="*" />
+
   <!-- Selector keys -->
 
   <xsl:key name="SourceLocators"
@@ -216,7 +219,7 @@
           <xsl:variable name="expr">
             <xsl:apply-templates select="*[fn:last()]" />
           </xsl:variable>
-          <xsl:copy-of select="$var" />
+          <xsl:sequence select="$var" />
           <xsl:choose>
             <xsl:when test="fn:ends-with(fn:name($var), 'Variable')">
               <xsl:variable name="rhsElt" as="xs:string"> <!-- XSL 2.0 feature -->
@@ -225,7 +228,7 @@
                 </xsl:call-template>
               </xsl:variable>
               <xsl:element name="{$rhsElt}">
-                <xsl:copy-of select="$expr" />
+                <xsl:sequence select="$expr" />
               </xsl:element>
             </xsl:when>
             <xsl:when test="fn:name($var) = 'ArrayElement'">
@@ -237,7 +240,6 @@
                       <xsl:with-param name="varName">
                         <xsl:value-of select="ArrayElement/ArrayVariable/@Name" />
                       </xsl:with-param>
-                      <xsl:with-param name="context" select="."/>
                     </xsl:call-template>
                   </xsl:variable>
                   <xsl:choose>
@@ -248,26 +250,38 @@
                         </xsl:call-template>
                       </xsl:variable>
                       <xsl:element name="{$rhsElt}">
-                        <xsl:copy-of select="$expr" />
+                        <xsl:sequence select="$expr" />
                       </xsl:element>
                     </xsl:when>
-                    <!-- DEBUG -->
                     <xsl:otherwise>
-                      <xsl:copy-of select="$decl"/>
+                      <GenericRHS>
+                        <xsl:sequence select="$expr" />
+                      </GenericRHS>
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:when>
+                <!-- anything else is invalid -->
                 <xsl:otherwise>
+                  <xsl:message terminate="yes">
+*** Error: Invalid variable expression
+<xsl:sequence select="$var" />
+in assignment node <xsl:value-of select="@NodeId" />
+                    </xsl:message>
                   <GenericRHS>
-                    <xsl:copy-of select="$expr" />
+                    <xsl:sequence select="$expr" />
                   </GenericRHS>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-              <!-- No idea, punt -->
+              <!-- No idea, issue message -->
+              <xsl:message>
+*** Error: Unable to determine type of variable expression
+<xsl:sequence select="$var" />
+in assignment node <xsl:value-of select="@NodeId" />
+              </xsl:message>
               <GenericRHS>
-                <xsl:copy-of select="$expr" />
+                <xsl:sequence select="$expr" />
               </GenericRHS>
             </xsl:otherwise>
           </xsl:choose>
@@ -568,12 +582,14 @@
 
   <xsl:template name="findArrayDeclaration">
     <xsl:param name="varName" as="xs:string" /> <!-- XSL 2.0 feature -->
-    <xsl:param name="context" as="element()" /> <!-- Should be PLEXIL Node containing the ArrayElement -->
+    <!-- 2nd parameter for recursive calls -->
+    <xsl:param name="context" as="element()" required="no" select="." />
     <xsl:variable name="localVarDecl"
-                  select="$context/DeclareArray[@Name=$varName]" />
+                  select="$context/DeclareArray[@Name=$varName]"
+                  as="element()?" />
     <xsl:choose>
       <xsl:when test="$localVarDecl">
-        <xsl:copy-of select="$localVarDecl" />
+        <xsl:sequence select="$localVarDecl" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="localIntfcDecl"
@@ -581,28 +597,33 @@
                       />
         <xsl:choose>
           <xsl:when test="$localIntfcDecl">
-            <xsl:copy-of select="$localIntfcDecl" />
+            <xsl:sequence select="$localIntfcDecl" />
           </xsl:when>
           <xsl:otherwise>
             <xsl:variable name="parent"
                           select="$context/.." />
             <xsl:choose>
-              <xsl:when test="$parent">
-                <xsl:call-template name="findArrayDeclaration">
-                  <xsl:with-param name="varName" select="$varName"/>
-                  <xsl:with-param name="context" select="$parent" />
-                </xsl:call-template>
+              <xsl:when test="$parent and not ($parent is /)">
+                <xsl:variable name="result" as="element()?">
+                  <xsl:call-template name="findArrayDeclaration">
+                    <xsl:with-param name="varName" select="$varName"/>
+                    <xsl:with-param name="context" select="$parent" />
+                  </xsl:call-template>
+                </xsl:variable>
+                <xsl:choose>
+                  <xsl:when test="$result">
+                    <xsl:sequence select="$result" />
+                  </xsl:when>
+                  <xsl:when test="$context is .">
+                    <xsl:message>
+*** Error: Unable to find declaration of array variable "<xsl:value-of select="$varName" />" in Assignment node <xsl:value-of select="$context/@NodeId" />
+                    </xsl:message>
+                  </xsl:when>
+                  <!-- else do nothing -->
+                  <xsl:otherwise />
+                </xsl:choose>
               </xsl:when>
-              <!-- debug -->
               <xsl:otherwise>
-                <NotFound>
-                  <xsl:attribute name="varName" select="$varName" />
-                  <Context>
-                    <xsl:element name="{name($context)}">
-                      <xsl:copy-of select="$context/@*" />
-                    </xsl:element>
-                  </Context>
-                </NotFound>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:otherwise>
@@ -629,8 +650,13 @@
       <xsl:when test="fn:starts-with($typeString, 'String')">
         <xsl:text>StringRHS</xsl:text>
       </xsl:when>
+      <!-- this is an error -->
       <xsl:otherwise>
-        <xsl:text>UnknownRHS</xsl:text>
+        <xsl:message>
+*** Error: cannot determine assignment RHS element for type "<xsl:value-of select="$typeString" />"
+
+        </xsl:message>
+        <xsl:text>GenericRHS</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
