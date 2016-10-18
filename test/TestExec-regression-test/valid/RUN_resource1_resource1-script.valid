@@ -72,44 +72,43 @@ resource1{
 [PlexilExec:notifyNodeConditionChanged] for node TakePicture
 [PlexilExec:handleNeedsExecution]Storing action for node 'TakePicture' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing pickup_object(20) into (Variable Integer returnValue 0x7f9859c07060 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](UNKNOWN))
+[Test:testOutput]Executing pickup_object(20) into (Variable Integer returnValue 0x7fb353c06b10 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN))
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
-[Test:testOutput]Executing take_picture() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN))
+[Test:testOutput]Executing take_picture() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 resource1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f9859c07e60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f9859c07dd0 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fb353c07950 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb353c078b0 [i](UNKNOWN))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9859c081d0 [a](UNKNOWN) (Interruptible Boolean 0x7f9859c08210 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](UNKNOWN))) (EQ Boolean 0x7f9859c080f0 [a](0) (Constant Integer 0x7f9859c080c0 [a](10)) (Variable Integer returnValue 0x7f9859c07060 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9859c08170 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10e8ac958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9859c07360 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7f9859c071f0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](UNKNOWN))
-   priority10: (Variable Integer priority10 0x7f9859c070f0 [a](10))
-   returnValue: (Variable Integer returnValue 0x7f9859c07060 [a](-1))
+   EndCondition: (OR Boolean 0x7fb353c07cd0 [a](UNKNOWN) (Interruptible Boolean 0x7fb353c07d20 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN))) (EQ Boolean 0x7fb353c07bf0 [a](0) (Constant Integer 0x7fb353c07bc0 [a](10)) (Variable Integer returnValue 0x7fb353c06b10 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb353c07c70 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c06e20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7fb353c06c80 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN))
+   priority10: (Variable Integer priority10 0x7fb353c06ba0 [a](10))
+   returnValue: (Variable Integer returnValue 0x7fb353c06b10 [a](-1))
   }
   ProcessImage{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7f9859c08470 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c07680 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10e8ac958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9859c07830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c07680 [a](COMMAND_DENIED)))
-   AbortCompleteCondition: (InternalVariable Boolean ProcessImage abortComplete 0x7f9859c076c0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07680 [a](COMMAND_DENIED))
-   priority30: (Variable Integer priority30 0x7f9859c075c0 [a](30))
+   PostCondition: (EQ Boolean 0x7fb353c07fb0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c07310 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [a](COMMAND_DENIED)))
+   AbortCompleteCondition: (InternalVariable Boolean ProcessImage abortComplete 0x7fb353c07190 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [a](COMMAND_DENIED))
+   priority30: (Variable Integer priority30 0x7fb353c070b0 [a](30))
   }
   TakePicture{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7f9859c085e0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10e8ac958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9859c07d20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean TakePicture abortComplete 0x7f9859c07bb0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN))
-   v_priority: (Variable Integer v_priority 0x7f9859c07ab0 [a](10))
+   PostCondition: (EQ Boolean 0x7fb353c08140 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c07800 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean TakePicture abortComplete 0x7fb353c07680 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN))
+   v_priority: (Variable Integer v_priority 0x7fb353c075a0 [a](10))
   }
 }
 
-[Test:testOutput]Sending command ACK pickup_object(20) = (string)COMMAND_SENT_TO_SYSTEM
 [PlexilExec:cycle]==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: PickupObject resource1 ProcessImage TakePicture 
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
@@ -146,136 +145,174 @@ resource1{
 [PlexilExec:printPlan]
 resource1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f9859c07e60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f9859c07dd0 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fb353c07950 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb353c078b0 [i](UNKNOWN))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9859c081d0 [a](0) (Interruptible Boolean 0x7f9859c08210 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f9859c080f0 [a](0) (Constant Integer 0x7f9859c080c0 [a](10)) (Variable Integer returnValue 0x7f9859c07060 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9859c08170 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10e8ac958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9859c07360 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7f9859c071f0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM))
-   priority10: (Variable Integer priority10 0x7f9859c070f0 [a](10))
-   returnValue: (Variable Integer returnValue 0x7f9859c07060 [a](-1))
+   EndCondition: (OR Boolean 0x7fb353c07cd0 [a](UNKNOWN) (Interruptible Boolean 0x7fb353c07d20 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN))) (EQ Boolean 0x7fb353c07bf0 [a](0) (Constant Integer 0x7fb353c07bc0 [a](10)) (Variable Integer returnValue 0x7fb353c06b10 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb353c07c70 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c06e20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7fb353c06c80 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](UNKNOWN))
+   priority10: (Variable Integer priority10 0x7fb353c06ba0 [a](10))
+   returnValue: (Variable Integer returnValue 0x7fb353c06b10 [a](-1))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07680 [i](UNKNOWN))
-   priority30: (Variable Integer priority30 0x7f9859c075c0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [i](UNKNOWN))
+   priority30: (Variable Integer priority30 0x7fb353c070b0 [i](UNKNOWN))
   }
   TakePicture{
    State: FINISHING (0)
-   PostCondition: (EQ Boolean 0x7f9859c085e0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10e8ac958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9859c07d20 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean TakePicture abortComplete 0x7f9859c07bb0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [a](UNKNOWN))
-   v_priority: (Variable Integer v_priority 0x7f9859c07ab0 [a](10))
+   PostCondition: (EQ Boolean 0x7fb353c08140 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c07800 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean TakePicture abortComplete 0x7fb353c07680 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN))
+   v_priority: (Variable Integer v_priority 0x7fb353c075a0 [a](10))
   }
 }
 
-[Test:testOutput]Sending command ACK take_picture() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node TakePicture
+[Test:testOutput]Sending command ACK pickup_object(20) = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:cycle]==>Start cycle 3
-[PlexilExec:step][3:0] Check queue: TakePicture 
-[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 13
-[PlexilExec:step][3:0] State change queue: TakePicture 
-[PlexilExec:step][3:0:0] Transitioning node TakePicture from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node resource1
-[PlexilExec:notifyNodeConditionChanged] for node TakePicture
-[PlexilExec:step][3:1] Check queue: resource1 TakePicture 
-[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 14
-[PlexilExec:step][3:1] State change queue: TakePicture 
-[PlexilExec:step][3:1:0] Transitioning node TakePicture from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node resource1
-[PlexilExec:notifyNodeConditionChanged] for node TakePicture
-[PlexilExec:step][3:2] Check queue: resource1 TakePicture 
+[PlexilExec:step][3:0] Check queue: PickupObject 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 resource1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7f9859c07e60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f9859c07dd0 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fb353c07950 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb353c078b0 [i](UNKNOWN))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9859c081d0 [a](0) (Interruptible Boolean 0x7f9859c08210 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f9859c080f0 [a](0) (Constant Integer 0x7f9859c080c0 [a](10)) (Variable Integer returnValue 0x7f9859c07060 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9859c08170 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10e8ac958 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7f9859c07360 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM)))
-   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7f9859c071f0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [a](COMMAND_SENT_TO_SYSTEM))
-   priority10: (Variable Integer priority10 0x7f9859c070f0 [a](10))
-   returnValue: (Variable Integer returnValue 0x7f9859c07060 [a](-1))
+   EndCondition: (OR Boolean 0x7fb353c07cd0 [a](0) (Interruptible Boolean 0x7fb353c07d20 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7fb353c07bf0 [a](0) (Constant Integer 0x7fb353c07bc0 [a](10)) (Variable Integer returnValue 0x7fb353c06b10 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb353c07c70 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c06e20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7fb353c06c80 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM))
+   priority10: (Variable Integer priority10 0x7fb353c06ba0 [a](10))
+   returnValue: (Variable Integer returnValue 0x7fb353c06b10 [a](-1))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07680 [i](UNKNOWN))
-   priority30: (Variable Integer priority30 0x7f9859c075c0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [i](UNKNOWN))
+   priority30: (Variable Integer priority30 0x7fb353c070b0 [i](UNKNOWN))
+  }
+  TakePicture{
+   State: FINISHING (0)
+   PostCondition: (EQ Boolean 0x7fb353c08140 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c07800 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean TakePicture abortComplete 0x7fb353c07680 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [a](UNKNOWN))
+   v_priority: (Variable Integer v_priority 0x7fb353c075a0 [a](10))
+  }
+}
+
+[Test:testOutput]Sending command ACK take_picture() = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:notifyNodeConditionChanged] for node TakePicture
+[PlexilExec:cycle]==>Start cycle 4
+[PlexilExec:step][4:0] Check queue: TakePicture 
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 13
+[PlexilExec:step][4:0] State change queue: TakePicture 
+[PlexilExec:step][4:0:0] Transitioning node TakePicture from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node resource1
+[PlexilExec:notifyNodeConditionChanged] for node TakePicture
+[PlexilExec:step][4:1] Check queue: resource1 TakePicture 
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 14
+[PlexilExec:step][4:1] State change queue: TakePicture 
+[PlexilExec:step][4:1:0] Transitioning node TakePicture from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node resource1
+[PlexilExec:notifyNodeConditionChanged] for node TakePicture
+[PlexilExec:step][4:2] Check queue: resource1 TakePicture 
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
+[PlexilExec:cycle]==>End cycle 4
+[PlexilExec:printPlan]
+resource1{
+ State: EXECUTING (0)
+ EndCondition: (AllChildrenFinished Boolean 0x7fb353c07950 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb353c078b0 [i](UNKNOWN))
+  PickupObject{
+   State: EXECUTING (0)
+   EndCondition: (OR Boolean 0x7fb353c07cd0 [a](0) (Interruptible Boolean 0x7fb353c07d20 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7fb353c07bf0 [a](0) (Constant Integer 0x7fb353c07bc0 [a](10)) (Variable Integer returnValue 0x7fb353c06b10 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb353c07c70 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x101258728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fb353c06e20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (InternalVariable Boolean PickupObject abortComplete 0x7fb353c06c80 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [a](COMMAND_SENT_TO_SYSTEM))
+   priority10: (Variable Integer priority10 0x7fb353c06ba0 [a](10))
+   returnValue: (Variable Integer returnValue 0x7fb353c06b10 [a](-1))
+  }
+  ProcessImage{
+   State: FINISHED (0)
+   Outcome: FAILURE
+   Failure type: POST_CONDITION_FAILED
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [i](UNKNOWN))
+   priority30: (Variable Integer priority30 0x7fb353c070b0 [i](UNKNOWN))
   }
   TakePicture{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [i](UNKNOWN))
-   v_priority: (Variable Integer v_priority 0x7f9859c07ab0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [i](UNKNOWN))
+   v_priority: (Variable Integer v_priority 0x7fb353c075a0 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command result pickup_object(20) = 10
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:cycle]==>Start cycle 4
-[PlexilExec:step][4:0] Check queue: PickupObject 
+[PlexilExec:cycle]==>Start cycle 5
+[PlexilExec:step][5:0] Check queue: PickupObject 
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 15
-[PlexilExec:step][4:0] State change queue: PickupObject 
-[PlexilExec:step][4:0:0] Transitioning node PickupObject from EXECUTING to FINISHING
+[PlexilExec:step][5:0] State change queue: PickupObject 
+[PlexilExec:step][5:0:0] Transitioning node PickupObject from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node resource1
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][4:1] Check queue: resource1 PickupObject 
+[PlexilExec:step][5:1] Check queue: resource1 PickupObject 
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 16
-[PlexilExec:step][4:1] State change queue: PickupObject 
-[PlexilExec:step][4:1:0] Transitioning node PickupObject from FINISHING to ITERATION_ENDED
+[PlexilExec:step][5:1] State change queue: PickupObject 
+[PlexilExec:step][5:1:0] Transitioning node PickupObject from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node resource1
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][4:2] Check queue: resource1 PickupObject 
+[PlexilExec:step][5:2] Check queue: resource1 PickupObject 
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 17
-[PlexilExec:step][4:2] State change queue: PickupObject 
-[PlexilExec:step][4:2:0] Transitioning node PickupObject from ITERATION_ENDED to FINISHED
+[PlexilExec:step][5:2] State change queue: PickupObject 
+[PlexilExec:step][5:2:0] Transitioning node PickupObject from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node resource1
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][4:3] Check queue: resource1 PickupObject 
+[PlexilExec:step][5:3] Check queue: resource1 PickupObject 
 [PlexilExec:handleConditionsChanged]Node resource1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'resource1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'resource1' on the state change queue in position 18
-[PlexilExec:step][4:3] State change queue: resource1 
-[PlexilExec:step][4:3:0] Transitioning node resource1 from EXECUTING to FINISHING
+[PlexilExec:step][5:3] State change queue: resource1 
+[PlexilExec:step][5:3:0] Transitioning node resource1 from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node resource1
-[PlexilExec:step][4:4] Check queue: resource1 
+[PlexilExec:step][5:4] Check queue: resource1 
 [PlexilExec:handleConditionsChanged]Node resource1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'resource1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'resource1' on the state change queue in position 19
-[PlexilExec:step][4:4] State change queue: resource1 
-[PlexilExec:step][4:4:0] Transitioning node resource1 from FINISHING to ITERATION_ENDED
+[PlexilExec:step][5:4] State change queue: resource1 
+[PlexilExec:step][5:4:0] Transitioning node resource1 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node resource1
-[PlexilExec:step][4:5] Check queue: resource1 
+[PlexilExec:step][5:5] Check queue: resource1 
 [PlexilExec:handleConditionsChanged]Node resource1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'resource1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'resource1' on the state change queue in position 20
-[PlexilExec:step][4:5] State change queue: resource1 
-[PlexilExec:step][4:5:0] Transitioning node resource1 from ITERATION_ENDED to FINISHED
+[PlexilExec:step][5:5] State change queue: resource1 
+[PlexilExec:step][5:5:0] Transitioning node resource1 from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 4
+[PlexilExec:cycle]==>End cycle 5
 [PlexilExec:printPlan]
 resource1{
  State: FINISHED (0)
@@ -283,22 +320,22 @@ resource1{
   PickupObject{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c071b0 [i](UNKNOWN))
-   priority10: (Variable Integer priority10 0x7f9859c070f0 [i](UNKNOWN))
-   returnValue: (Variable Integer returnValue 0x7f9859c07060 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c06c30 [i](UNKNOWN))
+   priority10: (Variable Integer priority10 0x7fb353c06ba0 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7fb353c06b10 [i](UNKNOWN))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07680 [i](UNKNOWN))
-   priority30: (Variable Integer priority30 0x7f9859c075c0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07140 [i](UNKNOWN))
+   priority30: (Variable Integer priority30 0x7fb353c070b0 [i](UNKNOWN))
   }
   TakePicture{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9859c07b70 [i](UNKNOWN))
-   v_priority: (Variable Integer v_priority 0x7f9859c07ab0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb353c07630 [i](UNKNOWN))
+   v_priority: (Variable Integer v_priority 0x7fb353c075a0 [i](UNKNOWN))
   }
 }
 

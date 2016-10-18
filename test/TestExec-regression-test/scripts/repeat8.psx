@@ -14,9 +14,6 @@
       <Value>1</Value>
     </State>
     <State name="continue" type="bool">
-      <Value>1</Value>
-    </State>
-    <State name="continue" type="bool">
       <Value>0</Value>
     </State>
   </Script>
