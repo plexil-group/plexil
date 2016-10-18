@@ -77,7 +77,11 @@ namespace PLEXIL
     throw(ParserException)
   {
     checkError(g_exec, "Attempted to run a script without an executive.");
+
     handleInitialState(input);
+    // Step the Exec once to acknowledge initial state
+    g_exec->step(currentTime());
+    
     pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");
     pugi::xml_node scriptElement = script.first_child();
@@ -139,6 +143,7 @@ namespace PLEXIL
 
       scriptElement = scriptElement.next_sibling();
     }
+    // Script is complete
     // Continue stepping the Exec til quiescent
     while (g_exec->needsStep()) {
       g_exec->step(currentTime());

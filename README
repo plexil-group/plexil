@@ -38,10 +38,10 @@ autotools (autoconf, automake, and libtool) are required.
 How to build PLEXIL - Simple version
 ------------------------------------
 
-To build the PLEXIL distribution, including the examples, on Linux or
-Mac OS X, simply change to this top level directory and type:
+To build the PLEXIL distribution on Linux, Mac OS X, or FreeBSD,
+simply change to this top level directory and type:
 
- make
+ make all
 
 To build the tool suite without the example applications:
 
@@ -66,13 +66,13 @@ is not appropriate for a specific application.
 
 1. Change to the build directory.
 
-  cd ~/plexil-4/src
+  cd plexil-4/src
 
 2. If you are building from a fresh SVN checkout, you will need to
 run the GNU autotools first. This step is unnecessary if you
-downloaded a source tarball.
+downloaded a release tarball.
 
-  autoreconf -f -i
+  autoreconf -fi
 
 3. Configure the build using the standard 'configure' script. To get a
 listing of the various options, type:

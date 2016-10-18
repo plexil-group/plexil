@@ -42,22 +42,21 @@ simple-openloop-command-nopost{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7ff0bc404948 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fb010c06ba8 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-nopost{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7ff0bc404bd0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff0bc404b30 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7fb010c06e30 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb010c06d90 [i](0))
   Drive{
    State: EXECUTING (0)
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff0bc404ac0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7ff0bc404998 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff0bc404948 [a]([unknown_value]))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb010c06d20 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fb010c06bf8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb010c06ba8 [a]([unknown_value]))
   }
 }
 
-[Test:testOutput]Sending command ACK drive() = (string)COMMAND_DENIED
 [PlexilExec:cycle]==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: simple-openloop-command-nopost Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
@@ -68,43 +67,62 @@ simple-openloop-command-nopost{
 [PlexilExec:notifyNodeConditionChanged] for node simple-openloop-command-nopost
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:step][2:1] Check queue: simple-openloop-command-nopost Drive 
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
+[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:printPlan]
+simple-openloop-command-nopost{
+ State: EXECUTING (0)
+ EndCondition: (AllChildrenFinished Boolean 0x7fb010c06e30 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb010c06d90 [i](0))
+  Drive{
+   State: FINISHING (0)
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb010c06d20 [a](0))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fb010c06bf8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb010c06ba8 [a]([unknown_value]))
+  }
+}
+
+[Test:testOutput]Sending command ACK drive() = (string)COMMAND_DENIED
+[PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:cycle]==>Start cycle 3
+[PlexilExec:step][3:0] Check queue: Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 6
-[PlexilExec:step][2:1] State change queue: Drive 
-[PlexilExec:step][2:1:0] Transitioning node Drive from FINISHING to ITERATION_ENDED
+[PlexilExec:step][3:0] State change queue: Drive 
+[PlexilExec:step][3:0:0] Transitioning node Drive from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node simple-openloop-command-nopost
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][2:2] Check queue: simple-openloop-command-nopost Drive 
+[PlexilExec:step][3:1] Check queue: simple-openloop-command-nopost Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 7
-[PlexilExec:step][2:2] State change queue: Drive 
-[PlexilExec:step][2:2:0] Transitioning node Drive from ITERATION_ENDED to FINISHED
+[PlexilExec:step][3:1] State change queue: Drive 
+[PlexilExec:step][3:1:0] Transitioning node Drive from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node simple-openloop-command-nopost
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][2:3] Check queue: simple-openloop-command-nopost Drive 
+[PlexilExec:step][3:2] Check queue: simple-openloop-command-nopost Drive 
 [PlexilExec:handleConditionsChanged]Node simple-openloop-command-nopost had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'simple-openloop-command-nopost' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'simple-openloop-command-nopost' on the state change queue in position 8
-[PlexilExec:step][2:3] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][2:3:0] Transitioning node simple-openloop-command-nopost from EXECUTING to FINISHING
+[PlexilExec:step][3:2] State change queue: simple-openloop-command-nopost 
+[PlexilExec:step][3:2:0] Transitioning node simple-openloop-command-nopost from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node simple-openloop-command-nopost
-[PlexilExec:step][2:4] Check queue: simple-openloop-command-nopost 
+[PlexilExec:step][3:3] Check queue: simple-openloop-command-nopost 
 [PlexilExec:handleConditionsChanged]Node simple-openloop-command-nopost had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'simple-openloop-command-nopost' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'simple-openloop-command-nopost' on the state change queue in position 9
-[PlexilExec:step][2:4] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][2:4:0] Transitioning node simple-openloop-command-nopost from FINISHING to ITERATION_ENDED
+[PlexilExec:step][3:3] State change queue: simple-openloop-command-nopost 
+[PlexilExec:step][3:3:0] Transitioning node simple-openloop-command-nopost from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node simple-openloop-command-nopost
-[PlexilExec:step][2:5] Check queue: simple-openloop-command-nopost 
+[PlexilExec:step][3:4] Check queue: simple-openloop-command-nopost 
 [PlexilExec:handleConditionsChanged]Node simple-openloop-command-nopost had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'simple-openloop-command-nopost' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'simple-openloop-command-nopost' on the state change queue in position 10
-[PlexilExec:step][2:5] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][2:5:0] Transitioning node simple-openloop-command-nopost from ITERATION_ENDED to FINISHED
+[PlexilExec:step][3:4] State change queue: simple-openloop-command-nopost 
+[PlexilExec:step][3:4:0] Transitioning node simple-openloop-command-nopost from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 simple-openloop-command-nopost{
  State: FINISHED (0)
@@ -112,7 +130,7 @@ simple-openloop-command-nopost{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff0bc404948 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb010c06ba8 [i]([unknown_value]))
   }
 }
 

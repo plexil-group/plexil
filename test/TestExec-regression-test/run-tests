@@ -72,7 +72,7 @@ SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 AtomicAssignment
  repeat2 repeat5 repeat7 repeat8
  SiteSurveyWithEOF
  TestEndCondition TestTimepoint
- UpdateLookupTest UpdateTest
+ unknown_lookup UpdateLookupTest UpdateTest
  AssignmentMain'
 
 # Resource arbitration tests, which require comparing the output with a known standard

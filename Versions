@@ -1,5 +1,129 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
+4.5 (in progress, plexil-4 branch)
+
+ This is a major evolutionary update, featuring improvements and fixes
+ throughout.
+
+Packaging:
+
+ - Top-level Makefile's 'all' target builds most of what the default
+   target did previously. New target 'essentials' builds only
+   executables, translators, standard adapters and listeners, Plexil
+   Simulator, and Checker. New target 'tools' builds executables,
+   translators, adapters and listeners, Plexil Simulator, checker, and
+   Plexil Viewer. Default target is now 'tools'.
+
+ - Top-level Makefile no longer assumes gcc and g++ are the C and C++
+   compilers. Like most Makefile-based packages, the values of
+   environment variables CC and CXX are used. If these are not bound,
+   'cc' and 'c++' are used by default. The development team routinely
+   builds PLEXIL with a variety of gcc and clang (llvm) versions.
+
+ - Most, if not all, GNU autotools-generated files have been removed
+   from the Subversion repository. Likewise, most .plx files have been
+   deleted from the examples directories. Both are easily regenerated
+   when needed.
+
+ - This release incorporates pugixml version 1.7 and saxon9he release
+   9.7.0.8.
+
+Core PLEXIL (XML) language and schema:
+
+ - New Any type, optional AnyParameters element in command and state
+   declarations
+
+ - New command handle value COMMAND_INTERFACE_ERROR, returned when an
+   interface adapter causes an error while processing a command
+
+ - Schema files now have DTD
+
+Extended PLEXIL (XML) language and translator:
+
+ - Tolerance for the Wait operator now defaults to the requested delay
+   time (was 1 second)
+
+ - Translator now generates Core PLEXIL XML output without additional
+   formatting. This dramatically reduces the bulk of large plans. The
+   'xmllint' utility on most platforms generates formatted output
+   should it be required:
+
+    xmllint --format myPlan.plx > myPlan-formatted.plx
+
+Standard PLEXIL (C-like) language and compiler:
+
+ - Node-reachable semantics made consistent with executive's
+
+ - Optimization phase performs more optimizations 
+
+Executive core and Universal Executive:
+
+ - More potential "crasher" bugs and memory leaks fixed
+
+ - Many non-fatal errors that used to halt the executive now warn
+
+ - Run-time type errors now reported with "expected type X, but got
+   type Y" messages
+
+ - More plan errors detected at plan load time, so they won't crash
+   the executive
+
+ - Executive now parses and checks against global command and state
+   declarations at plan load time
+
+ - LibraryNodeCall nodes can now reference the called node in
+   conditions
+
+ - Executive working memory and plan parser stack usage reduced
+
+Standard interfaces:
+
+ - Commanding via UdpAdapter made more robust
+
+ - Native time adapter made more robust - fixes missed-wakeup bug on
+   macOS
+
+ - New Launcher adapter allows plans to load and run other plans,
+   query their status
+
+Executive internals and user-defined interfaces:
+
+ - LookupNames interface configuration element adds TelemetryOnly
+   attribute; LookupNow for these names will not call the adapter's
+   lookupNow() method, but instead get values from the state cache.
+
+ - State cache now stores all values received via
+   InterfaceManager::handleValueChange(), whether or not the supplied
+   state has ever been looked up before. This helps support
+   TelemetryOnly.
+
+ - Typedefs Boolean, Integer, Real, and String have been defined in
+   the PLEXIL namespace. Interface code should use these in preference
+   to bool, int, int32_t, double, and std::string.
+
+ - Serialization and deserialization for PLEXIL data types has been
+   implemented. This will be the basis of a new inter-application
+   communication package in the next major release.
+
+Other tools:
+
+ - There is a new 'analyzePlan' command line executable. It reads in a
+   plan file (and any referenced libraries), and prints a number of
+   statistics about that plan.
+
+Plexil Viewer:
+
+ - The Viewer has been rewritten to support multiple plan windows at
+   once, consistent with the Universal Exec's ability to run multiple
+   plans simultaneously. As this is a work-in-progress, we appreciate
+   any reports of problems in the Viewer.
+
+Examples:
+
+ - New Launcher adapter example in examples/launcher
+
+ - The RoboSim GoalSearch1 plan now actually reaches its goal!
+
 4.0.1 (17 June 2015; SVN revision 4357 of the plexil-4 branch)
 
  - The PLEXIL suite now builds "out of the box" on FreeBSD. Most tools
