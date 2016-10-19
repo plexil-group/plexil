@@ -37,7 +37,7 @@ namespace PLEXIL
    * @brief Stateless abstract base class representing the essential value-setting API for PLEXIL objects.
    */
 
-  class SetValue : virtual public GetValue
+  class SetValue
   {
   public:
     SetValue() = default;
