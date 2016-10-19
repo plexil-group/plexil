@@ -42,18 +42,16 @@ namespace PLEXIL
   public:
     /**
      * @brief Construct a DebugMessage.
-     * @param file File containing the debug message instance.
      * @param marker Name for the particular instance (not required to be unique within the process).
      */
-    DebugMessage(std::string const &mrkr);
-    DebugMessage(std::string &&mrkr);
+    DebugMessage(char const *mrkr);
 
     ~DebugMessage() = default;
 
     /**
        @brief Marker given when this instance was created.
     */
-    std::string const marker;
+    char const * const marker;
 
   private:
 

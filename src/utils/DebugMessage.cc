@@ -28,6 +28,7 @@
 
 #include "Error.hh"
 
+#include <cstring> // strstr()
 #include <iostream>
 #include <vector>
 
@@ -35,7 +36,7 @@ namespace PLEXIL
 {
 
   // Forward declaration
-  static bool matchesPatterns(std::string const &marker);
+  static bool matchesPatterns(char const *marker);
 
   //
   // DebugMessage
@@ -43,16 +44,8 @@ namespace PLEXIL
 
   static DebugMessage *allDebugMessages = nullptr;
 
-  DebugMessage::DebugMessage(std::string const &mrkr)
+  DebugMessage::DebugMessage(char const *mrkr)
     : marker(mrkr),
-      next(allDebugMessages),
-      enabled(matchesPatterns(marker))
-  {
-    allDebugMessages = this;
-  }
-
-  DebugMessage::DebugMessage(std::string &&mrkr)
-    : marker(std::move(mrkr)),
       next(allDebugMessages),
       enabled(matchesPatterns(marker))
   {
@@ -119,12 +112,12 @@ namespace PLEXIL
    *  Exists solely to ensure the same method is always used to check
    *  for a match.
    */
-  static bool markerMatches(std::string const &marker, std::string const &pattern) 
+  static bool markerMatches(char const *marker, std::string const &pattern)
   {
-    return std::string::npos != marker.find(pattern);
+    return NULL != strstr(marker, pattern.c_str());
   }
 
-  static bool matchesPatterns(std::string const &m)
+  static bool matchesPatterns(char const *m)
   {
     for (std::string const pat : allDebugPatterns)
       if (markerMatches(m, pat))
