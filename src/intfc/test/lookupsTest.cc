@@ -172,8 +172,10 @@ protected:
   // API for unit test
   //
 
-  void notifyChanged(Expression const *expression)
+  void notifyChanged(Notifier const *n)
   {
+    Expression const *expression = dynamic_cast<Expression const *>(n);
+    assertTrue_1(expression);
     std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second);
@@ -192,7 +194,7 @@ private:
     {
     }
 
-    void notifyChanged(Expression const *src)
+    void notifyChanged(Notifier const *src)
     {
       m_intf.notifyChanged(src);
     }

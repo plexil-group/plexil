@@ -29,6 +29,7 @@
 // ExpressionListener tests
 //
 
+#include "Expression.hh"
 #include "Error.hh"
 #include "NotifierImpl.hh"
 #include "TestSupport.hh"
@@ -40,24 +41,26 @@ using namespace PLEXIL;
 class PropagatingListener : public PLEXIL::ExpressionListener
 {
 public:
-  PropagatingListener(PLEXIL::Expression &owner)
+  PropagatingListener(PLEXIL::ExpressionListener &owner)
   : PLEXIL::ExpressionListener(),
     m_owner(owner)
   {
   }
 
 protected:
-  void notifyChanged(PLEXIL::Expression const *src)
+  void notifyChanged(PLEXIL::Notifier const *src)
   {
     m_owner.notifyChanged(src);
   }
 
 private:
-  PLEXIL::Expression &m_owner;
+  PLEXIL::ExpressionListener &m_owner;
 };
 
 
-class TrivialExpression : public PLEXIL::NotifierImpl
+class TrivialExpression :
+  public PLEXIL::NotifierImpl,
+  public PLEXIL::Expression
 {
 public:
   TrivialExpression()
@@ -90,7 +93,7 @@ public:
 #undef DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD
 
   // Only ever called when active
-  void handleChange(PLEXIL::Expression const * src)
+  void handleChange(PLEXIL::Notifier const * src)
   {
     changed = true;
     publishChange(src);

@@ -24,40 +24,72 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_EXPRESSION_LISTENER_HH
-#define PLEXIL_EXPRESSION_LISTENER_HH
+#ifndef PLEXIL_NOTIFIER_HH
+#define PLEXIL_NOTIFIER_HH
 
 namespace PLEXIL
 {
+
   //
-  // Forward declarations
+  // Forward references
   //
-  class Notifier;
+
+  class ExpressionListener;
 
   /**
-   * @brief Stateless abstract base class for listeners in the expression notification graph.
-   * An expression listener may listen to multiple expressions.
+   * @class Notifier
+   * @brief Abstract base class defining API for notification graph participants.
    */
-  class ExpressionListener
+  class Notifier
   {
-  public:
-    ExpressionListener() = default;
-    virtual ~ExpressionListener() = default;
+  private:
+    // Unimplmented
+    Notifier(Notifier const &) = delete;
+    Notifier(Notifier &&) = delete;
+    Notifier &operator=(Notifier const &) = delete;
+    Notifier &operator=(Notifier &&) = delete;
 
-    // Not implemented, should never be referenced
-    ExpressionListener(ExpressionListener const &) = delete;
-    ExpressionListener(ExpressionListener &&) = delete;
-    ExpressionListener &operator=(ExpressionListener const &) = delete;
-    ExpressionListener &operator=(ExpressionListener &&) = delete;
-    
+  public:
+    Notifier() = default;
+    virtual ~Notifier() = default;
+
+    //
+    // Expression notification graph API
+    //
+
     /**
-     * @brief Virtual function for notification that an expression's value has changed.
-     * @param src The source of the notification, so that recipients can check for circularity.
-     *            (e.g. an array reference modifying its array)
+     * @brief Parts of the notification graph may be inactive, which mans that value change
+     *        notifications won't propagate through them.  The isActive method controls this.
+     * @return true if this Expression is active, false if it is not.
      */
-    virtual void notifyChanged(Notifier const *src) = 0;
+    virtual bool isActive() const = 0;
+
+    /**
+     * @brief Make this expression active.  It will publish value changes and it will accept
+     *        incoming change notifications.
+     */
+    virtual void activate() = 0;
+
+    /**
+     * @brief Make this listener inactive.  It will not publish value changes, nor will it
+     *        accept incoming change notifications.
+     */
+    virtual void deactivate() = 0;
+
+    /**
+     * @brief Add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     */
+    virtual void addListener(ExpressionListener *ptr) = 0;
+
+    /**
+     * @brief Remove a listener from this Expression.
+     * @param ptr The pointer to the listener to remove.
+     */
+    virtual void removeListener(ExpressionListener *ptr) = 0;
+
   };
 
 }
 
-#endif // PLEXIL_EXPRESSION_LISTENER_HH
+#endif // PLEXIL_NOTIFIER_HH

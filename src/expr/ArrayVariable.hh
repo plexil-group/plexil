@@ -42,11 +42,12 @@ namespace PLEXIL
    */
 
   template <typename T>
-  class ArrayVariable :
-    public GetValueImpl<ArrayImpl<T> >,
+  class ArrayVariable final :
     public SetValueImpl<ArrayImpl<T> >,
+    public GetValueImpl<ArrayImpl<T> >,
     public NotifierImpl,
-    public Assignable
+    public Assignable,
+    virtual public Expression
   {
   public:
 
@@ -144,6 +145,10 @@ namespace PLEXIL
     void handleDeactivate();
 
     void printSpecialized(std::ostream &s) const;
+
+    // *** KLUDGE ***
+    // Override for ambiguity in base classes
+    virtual void notifyChanged(Notifier const *src);
 
   private:
 

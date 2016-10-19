@@ -28,6 +28,7 @@
 
 #include "ArrayFwd.hh"
 #include "Expression.hh"
+#include "Function.hh"
 #include "PlexilTypeTraits.hh"
 
 namespace PLEXIL

@@ -25,6 +25,7 @@
 */
 
 #include "ArithmeticOperators.hh"
+#include "Function.hh"
 // #include "PlanError.hh" // included by OperatorImpl.hh
 
 #include <cmath>

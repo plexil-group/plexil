@@ -101,39 +101,33 @@ namespace PLEXIL {
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    bool isActive() const;
+    virtual bool isActive() const;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    void activate();
+    virtual void activate();
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    void deactivate();
+    virtual void deactivate();
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note No-op for constants.
      */
-    void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    void removeListener(ExpressionListener * /* ptr */);
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @note No-op for constants.
-     */
-    void notifyChanged(Expression const * /* src */);
+    virtual void removeListener(ExpressionListener * /* ptr */);
 
   protected:
 
@@ -248,7 +242,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged(Expression const * /* src */);
+    void notifyChanged(Notifier const * /* src */);
 
   protected:
 
@@ -350,7 +344,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged(Expression const * /* src */);
+    void notifyChanged(Notifier const * /* src */);
 
   protected:
 

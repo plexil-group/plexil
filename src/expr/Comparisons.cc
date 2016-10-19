@@ -26,6 +26,7 @@
 
 #include "Comparisons.hh"
 
+#include "Function.hh"
 #include "PlexilTypeTraits.hh"
 
 namespace PLEXIL

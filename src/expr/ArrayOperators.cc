@@ -27,6 +27,7 @@
 #include "ArrayOperators.hh"
 
 #include "Array.hh"
+#include "Function.hh"
 
 namespace PLEXIL
 {

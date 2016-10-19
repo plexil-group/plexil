@@ -29,7 +29,7 @@
 
 #include "Operator.hh"
 
-#include "Function.hh"
+// #include "Function.hh" // ???
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"

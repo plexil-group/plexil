@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #define PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 
 #include "Assignable.hh"
+#include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
 #include "SetValueImpl.hh"
@@ -39,20 +40,16 @@ namespace PLEXIL {
    * @brief A Boolean variable tailored to the requirements of internal flags.
    */
 
-  class SimpleBooleanVariable :
+  class SimpleBooleanVariable final :
     public GetValueImpl<bool>,
     public SetValueImpl<bool>,
     public NotifierImpl,
-    public Assignable
+    public Assignable,
+    public virtual Expression
   {
   public:
     SimpleBooleanVariable();
     ~SimpleBooleanVariable();
-
-    //
-    // NotifierImpl API - overrides to default behavior
-    //
-    virtual void notifyChanged(Expression const * /* src */);
 
     //
     // Essential Expression API

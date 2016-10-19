@@ -28,7 +28,10 @@
 #define PLEXIL_FUNCTION_HH
 
 #include "ArrayFwd.hh"
+#include "Expression.hh"
 #include "NotifierImpl.hh"
+#include "Value.hh"
+#include "ValueType.hh"
 
 namespace PLEXIL
 {
@@ -41,7 +44,8 @@ namespace PLEXIL
    * Represents a function whose value depends on the value(s) of one or more subexpressions.
    */
 
-  class Function : public NotifierImpl
+  class Function : public NotifierImpl,
+                   public Expression
   {
   public:
     virtual ~Function();

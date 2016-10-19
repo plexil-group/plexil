@@ -342,24 +342,6 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Notify this expression that a subexpression's value has changed.
-   * @note No-op for constants.
-   */
-  template <typename T>
-  void Constant<T>::notifyChanged(Expression const * /* src */)
-  {
-  }
-
-  void Constant<String>::notifyChanged(Expression const * /* src */)
-  {
-  }
-
-  template <typename T>
-  void Constant<ArrayImpl<T> >::notifyChanged(Expression const * /* src */)
-  {
-  }
-
   //
   // Explicit instantiations
   //

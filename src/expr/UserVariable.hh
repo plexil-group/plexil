@@ -42,11 +42,12 @@ namespace PLEXIL
 
   // Scalar case
   template <typename T>
-  class UserVariable :
-    virtual public GetValueImpl<T>,
-    virtual public SetValueImpl<T>,
-    virtual public NotifierImpl,
-    virtual public Assignable
+  class UserVariable final :
+    public SetValueImpl<T>,
+    public GetValueImpl<T>,
+    public NotifierImpl,
+    public Assignable,
+    virtual public Expression
   {
   public:
 
@@ -139,6 +140,10 @@ namespace PLEXIL
 
     void printSpecialized(std::ostream &s) const;
 
+    // *** KLUDGE ***
+    // Override for ambiguity in base classes
+    virtual void notifyChanged(Notifier const *src);
+
   private:
 
     // N.B. Ordering is suboptimal for bool because of required padding;
@@ -160,11 +165,12 @@ namespace PLEXIL
 
   // String case
   template <>
-  class UserVariable<String> :
-    virtual public GetValueImpl<String>,
-    virtual public SetValueImpl<String>,
-    virtual public NotifierImpl,
-    virtual public Assignable
+  class UserVariable<String> final :
+    public SetValueImpl<String>,
+    public GetValueImpl<String>,
+    public NotifierImpl,
+    public Assignable,
+    virtual public Expression
   {
   public:
 
@@ -268,6 +274,10 @@ namespace PLEXIL
     void handleDeactivate();
 
     void printSpecialized(std::ostream &s) const;
+
+    // *** KLUDGE ***
+    // Override for ambiguity in base classes
+    virtual void notifyChanged(Notifier const *src);
 
   private:
 

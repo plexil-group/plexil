@@ -27,6 +27,7 @@
 #ifndef PLEXIL_NODE_TIMEPOINT_VALUE_HH
 #define PLEXIL_NODE_TIMEPOINT_VALUE_HH
 
+#include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
 #include "NotifierImpl.hh"
@@ -36,8 +37,9 @@ namespace PLEXIL
   class Node;
 
   class NodeTimepointValue :
-    public GetValueImpl<double>, // FIXME
-    public NotifierImpl
+    public GetValueImpl<Real>, // FIXME
+    public NotifierImpl,
+    virtual public Expression
   {
   public:
     NodeTimepointValue(Node *node,
@@ -53,11 +55,11 @@ namespace PLEXIL
     virtual char const *exprName() const;
     virtual ValueType valueType() const;
     virtual bool isKnown() const;
-    virtual bool getValueImpl(double &result) const; // FIXME
+    virtual bool getValueImpl(Real &result) const; // FIXME
     virtual void printValue(std::ostream &s) const;
     virtual void printSpecialized(std::ostream &s) const;
 
-    void setValue(double newval); // FIXME
+    void setValue(Real newval); // FIXME
     void reset(); 
 
     NodeTimepointValue *next() const;
@@ -69,7 +71,7 @@ namespace PLEXIL
     NodeTimepointValue(NodeTimepointValue const &);
     NodeTimepointValue &operator=(NodeTimepointValue const &);
 
-    double m_time;
+    Real m_time; // FIXME
     NodeTimepointValue *m_next;
     Node *m_node;
     NodeState const m_state; // only set at constructor time

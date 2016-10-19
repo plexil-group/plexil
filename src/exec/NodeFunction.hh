@@ -28,6 +28,7 @@
 #define PLEXIL_NODE_FUNCTION_HH
 
 #include "ArrayFwd.hh"
+#include "Expression.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL
@@ -41,7 +42,9 @@ namespace PLEXIL
    * Represents a function whose value depends on some property of a node or its neighbors.
    */
 
-  class NodeFunction : public NotifierImpl
+  class NodeFunction
+    : public NotifierImpl,
+      virtual public Expression
   {
   public:
     NodeFunction(NodeOperator const *op, Node *exprs);

@@ -36,9 +36,7 @@ namespace PLEXIL
 {
 
   SimpleBooleanVariable::SimpleBooleanVariable()
-    : SetValueImpl<bool>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_name(NULL),
     m_value(false)
   {
@@ -138,15 +136,6 @@ namespace PLEXIL
   {
     assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
     return Value();
-  }
-  
-  //
-  // NotifierImpl API
-  // 
-
-  // SimpleBooleanVariable doesn't depend on anything else.
-  void SimpleBooleanVariable::notifyChanged(Expression const * /* src */)
-  {
   }
 
 } // namespace PLEXIL

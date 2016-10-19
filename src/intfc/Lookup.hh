@@ -27,6 +27,7 @@
 #ifndef PLEXIL_LOOKUP_HH
 #define PLEXIL_LOOKUP_HH
 
+#include "Expression.hh"
 #include "NotifierImpl.hh"
 #include "State.hh"
 
@@ -61,7 +62,8 @@ namespace PLEXIL
   //  - frequently active for many Exec cycles
   //
 
-  class Lookup : public NotifierImpl
+  class Lookup : public NotifierImpl,
+                 virtual public Expression
   {
   public:
     Lookup(Expression *stateName,
@@ -84,7 +86,7 @@ namespace PLEXIL
     // Common behavior required by NotifierImpl
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Expression const *src);
+    void handleChange(Notifier const *src);
 
     //
     // Value access
@@ -177,7 +179,7 @@ namespace PLEXIL
     virtual void invalidateOldState(); // called before updating state to new value
 
     // Shared behavior needed by LookupOnChange
-    bool handleChangeInternal(Expression const *src);
+    bool handleChangeInternal(Notifier const *src);
     void ensureRegistered();
     void unregister();
     
@@ -223,7 +225,7 @@ namespace PLEXIL
     // Wrappers around Lookup methods
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Expression const *exp);
+    void handleChange(Notifier const *exp);
     void valueChanged();
 
     bool getThresholds(Integer &high, Integer &low);

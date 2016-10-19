@@ -36,7 +36,7 @@ TrivialListener::~TrivialListener()
 {
 }
 
-void TrivialListener::notifyChanged(PLEXIL::Expression const * /* src */)
+void TrivialListener::notifyChanged(PLEXIL::Notifier const * /* src */)
 {
   m_changed = true;
 }

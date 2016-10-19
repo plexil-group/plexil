@@ -168,7 +168,7 @@ namespace PLEXIL
   }
 
   // Called whenever state name or parameter changes
-  void Lookup::handleChange(Expression const *src)
+  void Lookup::handleChange(Notifier const *src)
   {
     debugMsg("Lookup:handleChange", ' ' << src);
     if (handleChangeInternal(src))
@@ -176,7 +176,7 @@ namespace PLEXIL
   }
 
   // Return true if state changed, false otherwise
-  bool Lookup::handleChangeInternal(Expression const *src)
+  bool Lookup::handleChangeInternal(Notifier const *src)
   {
     State newState;
     bool oldKnown = m_stateKnown;
@@ -617,7 +617,7 @@ namespace PLEXIL
 
   // Consider possibility that tolerance has changed.
   // Consider possibility lookup may not be fully activated yet.
-  void LookupOnChange::handleChange(Expression const *src)
+  void LookupOnChange::handleChange(Notifier const *src)
   {
     if (updateInternal(Lookup::handleChangeInternal(src)))
       this->publishChange(src);

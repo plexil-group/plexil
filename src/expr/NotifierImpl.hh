@@ -27,7 +27,8 @@
 #ifndef PLEXIL_NOTIFIER_IMPL_HH
 #define PLEXIL_NOTIFIER_IMPL_HH
 
-#include "Expression.hh"
+#include "ExpressionListener.hh"
+#include "Notifier.hh"
 
 #include <vector>
 #include <cstddef> // size_t
@@ -36,16 +37,23 @@
 // Not intended for production use.
 // #define RECORD_EXPRESSION_STATS 1
 
-namespace PLEXIL {
+namespace PLEXIL
+{
+
+  //
+  // Forward references
+  //
+
+  class Expression;
 
   /**
    * @class NotifierImpl
-   * @brief Mixin class for expressions whose value may change. Implements expression listener notification.
-   * @note Values need not be stored in the instance; e.g. node state and timepoint variables,
-   *       aliases for other variables or expressions.
+   * @brief Mixin class for expressions whose value may change. Implements expression graph notification.
    */
 
-  class NotifierImpl : virtual public Expression
+  class NotifierImpl
+    : virtual public Notifier,
+      virtual public ExpressionListener
   {
   public:
 
@@ -62,7 +70,7 @@ namespace PLEXIL {
      * @brief Determine whether this expression is active.
      * @return true if active, false if not.
      */
-    bool isActive() const;
+    virtual bool isActive() const;
 
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept
@@ -70,7 +78,7 @@ namespace PLEXIL {
      * @note Default method. Calls handleActivate() if previously inactive.
      * @see handleActivate()
      */
-    void activate();
+    virtual void activate();
 
     /**
      * @brief Make this Expression inactive.  It will not publish value changes, nor will it
@@ -78,7 +86,7 @@ namespace PLEXIL {
      * @note Default method. Calls handleDeactivate() if transitioning from active to inactive.
      * @see handleDeactivate()
      */
-    void deactivate();
+    virtual void deactivate();
 
     /**
      * @brief Add a listener for changes to this Expression's value.
@@ -91,12 +99,12 @@ namespace PLEXIL {
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      */
-    void removeListener(ExpressionListener *ptr);
+    virtual void removeListener(ExpressionListener *ptr);
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
      */
-    void notifyChanged(Expression const *src);
+    virtual void notifyChanged(Notifier const *src);
 
     /**
      * @brief Determine whether or not expression has any listeners.
@@ -146,17 +154,19 @@ namespace PLEXIL {
      * @brief Called by notifyChanged() when the expression is active.
      * @note Default method calls publishChange().
      */
-    virtual void handleChange(Expression const *src);
+    virtual void handleChange(Notifier const *src);
 
     /**
      * @brief Notify all listeners that this expression's value has changed.
      */
-    void publishChange(Expression const *src);
+    void publishChange(Notifier const *src);
 
   private:
     // Not implemented
-    NotifierImpl(const NotifierImpl &);
-    NotifierImpl &operator=(const NotifierImpl &);
+    NotifierImpl(NotifierImpl const &) = delete;
+    NotifierImpl(NotifierImpl &&) = delete;
+    NotifierImpl &operator=(NotifierImpl const &) = delete;
+    NotifierImpl &operator=(NotifierImpl &&) = delete;
 
     // Essential member variables
     size_t m_activeCount; // align to word size

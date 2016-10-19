@@ -26,6 +26,8 @@
 
 #include "BooleanOperators.hh"
 
+#include "Function.hh"
+
 namespace PLEXIL
 {
   BooleanNot::BooleanNot()

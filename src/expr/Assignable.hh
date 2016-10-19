@@ -28,6 +28,7 @@
 #define PLEXIL_ASSIGNABLE_HH
 
 #include "Expression.hh"
+#include "ExpressionListener.hh"
 #include "SetValue.hh"
 
 namespace PLEXIL {
@@ -44,16 +45,12 @@ namespace PLEXIL {
    */
   class Assignable :
     virtual public SetValue,
-    virtual public Expression
+    virtual public Expression,
+    virtual public ExpressionListener
   {
   public:
     Assignable() = default;
     virtual ~Assignable() = default;
-
-    Assignable(Assignable const &) = delete;
-    Assignable(Assignable &&) = delete;
-    Assignable &operator=(Assignable const &) = delete;
-    Assignable &operator=(Assignable &&) = delete;
 
     /**
      * @brief Destructor.
@@ -128,6 +125,13 @@ namespace PLEXIL {
      * @note Default method throws an exception.
      */
     virtual void setInitializer(Expression *expr, bool garbage);
+
+  private:
+    // Not implemented
+    Assignable(Assignable const &) = delete;
+    Assignable(Assignable &&) = delete;
+    Assignable &operator=(Assignable const &) = delete;
+    Assignable &operator=(Assignable &&) = delete;
   };
 
 } // namespace PLEXIL

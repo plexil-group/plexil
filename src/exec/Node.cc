@@ -468,7 +468,7 @@ namespace PLEXIL {
    * @brief Notifies the node that one of its conditions has changed.
    * @note Renamed from conditionChanged.
    */
-  void Node::notifyChanged(Expression const * /* src */)
+  void Node::notifyChanged(Notifier const * /* src */)
   {
     g_exec->notifyNodeConditionChanged(this);
   }

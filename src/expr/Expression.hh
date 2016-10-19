@@ -27,8 +27,8 @@
 #ifndef PLEXIL_EXPRESSION_HH
 #define PLEXIL_EXPRESSION_HH
 
-#include "ExpressionListener.hh"
 #include "GetValue.hh"
+#include "Notifier.hh"
 
 //
 // Virtual base classes for the expression system
@@ -45,12 +45,15 @@ namespace PLEXIL
 
   /**
    * @class Expression
-   * @brief Abstract base class for expressions.
+   * @brief Abstract base class for expressions providing base functionality.
    */
   class Expression :
-    virtual public GetValue,
-    virtual public ExpressionListener
+    virtual public Notifier,
+    virtual public GetValue
   {
+  protected:
+    Expression() = default;
+
   private:
     // Unimplmented
     Expression(Expression const &) = delete;
@@ -59,7 +62,6 @@ namespace PLEXIL
     Expression &operator=(Expression &&) = delete;
 
   public:
-    Expression() = default;
     virtual ~Expression() = default;
 
     //
@@ -142,48 +144,6 @@ namespace PLEXIL
      * @return The string representation.
      */
     virtual std::string valueString() const;
-
-    //
-    // Expression notification graph API
-    //
-
-    /**
-     * @brief Parts of the notification graph may be inactive, which mans that value change
-     *        notifications won't propagate through them.  The isActive method controls this.
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const = 0;
-
-    /**
-     * @brief Make this expression active.  It will publish value changes and it will accept
-     *        incoming change notifications.
-     */
-    virtual void activate() = 0;
-
-    /**
-     * @brief Make this listener inactive.  It will not publish value changes, nor will it
-     *        accept incoming change notifications.
-     */
-    virtual void deactivate() = 0;
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     */
-    virtual void addListener(ExpressionListener *ptr) = 0;
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param ptr The pointer to the listener to remove.
-     */
-    virtual void removeListener(ExpressionListener *ptr) = 0;
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @note The default method does nothing.
-     * @note Overrides method of same name on ExpressionListener.
-     */
-    virtual void notifyChanged(Expression const *src);
 
   };
 

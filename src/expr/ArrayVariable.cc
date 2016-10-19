@@ -38,37 +38,35 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : GetValueImpl<ArrayImpl<T> >(),
-      SetValueImpl<ArrayImpl<T> >(),
-      NotifierImpl(),
-      Assignable(),
-      m_size(NULL),
-      m_initializer(NULL),
-      m_name(NULL),
-      m_maxSize(0),
-      m_node(NULL),
-      m_known(false),
-      m_savedKnown(false),
-      m_sizeIsGarbage(false),
-      m_initializerIsGarbage(false)
+    : SetValueImpl<ArrayImpl<T> >(),
+    GetValueImpl<ArrayImpl<T> >(),
+    NotifierImpl(),
+    m_size(NULL),
+    m_initializer(NULL),
+    m_name(NULL),
+    m_maxSize(0),
+    m_node(NULL),
+    m_known(false),
+    m_savedKnown(false),
+    m_sizeIsGarbage(false),
+    m_initializerIsGarbage(false)
   {
   }
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : GetValueImpl<ArrayImpl<T> >(),
-      SetValueImpl<ArrayImpl<T> >(),
-      NotifierImpl(),
-      Assignable(),
-      m_size(NULL),
-      m_initializer(new Constant<ArrayImpl<T> >(initVal)),
-      m_name(NULL),
-      m_maxSize(0),
-      m_node(NULL),
-      m_known(false),
-      m_savedKnown(false),
-      m_sizeIsGarbage(false),
-      m_initializerIsGarbage(true)
+    : SetValueImpl<ArrayImpl<T> >(),
+    GetValueImpl<ArrayImpl<T> >(),
+    NotifierImpl(),
+    m_size(NULL),
+    m_initializer(new Constant<ArrayImpl<T> >(initVal)),
+    m_name(NULL),
+    m_maxSize(0),
+    m_node(NULL),
+    m_known(false),
+    m_savedKnown(false),
+    m_sizeIsGarbage(false),
+    m_initializerIsGarbage(true)
   {
   }
 
@@ -77,19 +75,16 @@ namespace PLEXIL
                                   char const *name,
                                   Expression *size,
                                   bool sizeIsGarbage)
-    : GetValueImpl<ArrayImpl<T> >(),
-      SetValueImpl<ArrayImpl<T> >(),
-      NotifierImpl(),
-      Assignable(),
-      m_size(size),
-      m_initializer(NULL),
-      m_name(strdup(name)),
-      m_maxSize(0),
-      m_node(node),
-      m_known(false),
-      m_savedKnown(false),
-      m_sizeIsGarbage(sizeIsGarbage),
-      m_initializerIsGarbage(false)
+    : NotifierImpl(),
+    m_size(size),
+    m_initializer(NULL),
+    m_name(strdup(name)),
+    m_maxSize(0),
+    m_node(node),
+    m_known(false),
+    m_savedKnown(false),
+    m_sizeIsGarbage(sizeIsGarbage),
+    m_initializerIsGarbage(false)
   {
   }
 
@@ -323,6 +318,13 @@ namespace PLEXIL
       m_value.resize(m_maxSize);
       m_known = true; // array is known, not its contents
     }
+  }
+
+  // *** KLUDGE ***
+  template <typename T>
+  void ArrayVariable<T>::notifyChanged(Notifier const * src)
+  {
+    NotifierImpl::notifyChanged(src);
   }
   
   //

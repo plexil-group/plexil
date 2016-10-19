@@ -28,6 +28,7 @@
 #define PLEXIL_ALIAS_HH
 
 #include "Assignable.hh"
+#include "Expression.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL
@@ -41,7 +42,9 @@ namespace PLEXIL
    * @note Most commonly used in library nodes, but also anywhere
    *       read-only access to a mutable expression is needed.
    */
-  class Alias : public NotifierImpl
+  class Alias :
+    public NotifierImpl,
+    public Expression
   {
   public:
     Alias(NodeConnector *node, // *** is this needed?? ***
@@ -114,9 +117,11 @@ namespace PLEXIL
     bool m_garbage;
 
     // Disallow default, copy, assign
-    Alias();
-    Alias(const Alias &);
-    Alias &operator=(const Alias &);
+    Alias() = delete;
+    Alias(Alias const &) = delete;
+    Alias(Alias &&) = delete; 
+    Alias &operator=(Alias const &) = delete;
+    Alias &operator=(Alias &&) = delete;
 
   };
 

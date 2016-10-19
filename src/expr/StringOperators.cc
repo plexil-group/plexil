@@ -26,6 +26,8 @@
 
 #include "StringOperators.hh"
 
+#include "Function.hh"
+
 namespace PLEXIL
 {
   //

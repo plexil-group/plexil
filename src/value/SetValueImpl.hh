@@ -36,8 +36,17 @@ namespace PLEXIL
   template <class IMPL>
   class SetValueShim : virtual public SetValue
   {
-  public:
+  protected:
     SetValueShim() = default;
+
+  private:
+    // Not implemented
+    SetValueShim(SetValueShim const &) = delete;
+    SetValueShim(SetValueShim &&) = delete;
+    SetValueShim &operator=(SetValueShim const &) = delete;
+    SetValueShim &operator=(SetValueShim &&) = delete;
+
+  public:
     ~SetValueShim() = default;
 
     //
@@ -102,8 +111,17 @@ namespace PLEXIL
   class SetValueImpl :
     public SetValueShim<SetValueImpl<T> >
   {
-  public:
+  protected:
     SetValueImpl() = default;
+
+  private:
+    // Not implemented
+    SetValueImpl(SetValueImpl const &) = delete;
+    SetValueImpl(SetValueImpl &&) = delete;
+    SetValueImpl &operator=(SetValueImpl const &) = delete;
+    SetValueImpl &operator=(SetValueImpl &&) = delete;
+
+  public:
     virtual ~SetValueImpl() = default;
 
     // Default method.
@@ -119,16 +137,25 @@ namespace PLEXIL
     // Error for scalar types
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
+
   };
 
   // Special case for string
   template <>
   class SetValueImpl<String> :
-    virtual public GetValueImpl<String>,
     public SetValueShim<SetValueImpl<String> >
   {
-  public:
+  protected:
     SetValueImpl() = default;
+
+  private:
+    // Not implemented
+    SetValueImpl(SetValueImpl const &) = delete;
+    SetValueImpl(SetValueImpl &&) = delete;
+    SetValueImpl &operator=(SetValueImpl const &) = delete;
+    SetValueImpl &operator=(SetValueImpl &&) = delete;
+
+  public:
     virtual ~SetValueImpl() = default;
 
     // Default method.
@@ -146,6 +173,7 @@ namespace PLEXIL
     // Type mismatch
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
+
   };
 
   // Array variant
@@ -153,8 +181,17 @@ namespace PLEXIL
   class SetValueImpl<ArrayImpl<T> > :
     public SetValueShim<SetValueImpl<ArrayImpl<T> > >
   {
-  public:
+  protected:
     SetValueImpl() = default;
+
+  private:
+    // Not implemented
+    SetValueImpl(SetValueImpl const &) = delete;
+    SetValueImpl(SetValueImpl &&) = delete;
+    SetValueImpl &operator=(SetValueImpl const &) = delete;
+    SetValueImpl &operator=(SetValueImpl &&) = delete;
+
+  public:
     virtual ~SetValueImpl() = default;
 
     // Default method.
@@ -176,6 +213,7 @@ namespace PLEXIL
     // Type mismatch
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
+
   };
 
 } // namespace PLEXIL

@@ -44,10 +44,7 @@ namespace PLEXIL
 
   template <typename T>
   UserVariable<T>::UserVariable()
-    : GetValueImpl<T>(),
-    SetValueImpl<T>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -57,10 +54,7 @@ namespace PLEXIL
   }
 
   UserVariable<String>::UserVariable()
-    : GetValueImpl<String>(),
-    SetValueImpl<String>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -71,10 +65,7 @@ namespace PLEXIL
 
   template <typename T>
   UserVariable<T>::UserVariable(T const &initVal)
-    : GetValueImpl<T>(),
-    SetValueImpl<T>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(new Constant<T>(initVal)),
     m_name(NULL),
     m_node(NULL),
@@ -85,10 +76,7 @@ namespace PLEXIL
   }
 
   UserVariable<String>::UserVariable(std::string const &initVal)
-    : GetValueImpl<String>(),
-    SetValueImpl<String>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(new Constant<String>(initVal)),
     m_name(NULL),
     m_node(NULL),
@@ -101,10 +89,7 @@ namespace PLEXIL
   // Only two possible constant initializers for BooleanVariable
   template <>
   UserVariable<bool>::UserVariable(const bool &initVal)
-    : GetValueImpl<bool>(),
-    SetValueImpl<bool>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
     m_name(NULL),
     m_node(NULL),
@@ -117,10 +102,7 @@ namespace PLEXIL
   template <typename T>
   UserVariable<T>::UserVariable(NodeConnector *node,
                                 char const *name)
-    : GetValueImpl<T>(),
-    SetValueImpl<T>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),
@@ -132,10 +114,7 @@ namespace PLEXIL
 
   UserVariable<String>::UserVariable(NodeConnector *node,
                                      char const *name)
-    : GetValueImpl<String>(),
-    SetValueImpl<String>(),
-    NotifierImpl(),
-    Assignable(),
+    : NotifierImpl(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),
@@ -491,6 +470,16 @@ namespace PLEXIL
                    << valueTypeName(expr->valueType()));
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
+  }
+
+  // *** KLUDGE ***
+  template <typename T>
+  void UserVariable<T>::notifyChanged(Notifier const * /* src */)
+  {
+  }
+
+  void UserVariable<String>::notifyChanged(Notifier const * /* src */)
+  {
   }
   
   //

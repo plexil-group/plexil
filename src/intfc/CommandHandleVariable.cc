@@ -39,8 +39,7 @@ namespace PLEXIL
   //
 
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
-    : GetValueImpl<CommandHandleValue>(),
-    NotifierImpl(),
+    : NotifierImpl(),
     m_command(cmd),
     m_name(NULL)
   {

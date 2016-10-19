@@ -794,7 +794,7 @@ static bool testVariableAliasPropagation()
   atreeChanged = false;
 
   // Test change propagation from origin to/through alias
-  tree->notifyChanged(&dummy);
+  tree->setValue((Integer) 1);
   assertTrue_1(treeChanged);
   assertTrue_1(atreeChanged);
 
@@ -938,17 +938,17 @@ static bool testArrayRefAliasPropagation()
   assertTrue_1(arefChanged);
   aryChanged = refChanged = arefChanged = false;
 
-  tree->notifyChanged(&dummy);
+  tree->setValue((Integer) 2);
   assertTrue_1(atreeChanged);
   assertTrue_1(!aryChanged);
   assertTrue_1(refChanged);
   assertTrue_1(arefChanged);
   atreeChanged = refChanged = arefChanged = false;
 
-  ref->notifyChanged(&dummy);
+  ref->setValue((Integer) 7);
   assertTrue_1(refChanged);
   assertTrue_1(arefChanged);
-  assertTrue_1(!aryChanged);
+  assertTrue_1(aryChanged);
   assertTrue_1(!atreeChanged);
 
   // Clean up

@@ -27,8 +27,6 @@
 #ifndef PLEXIL_SET_VALUE_HH
 #define PLEXIL_SET_VALUE_HH
 
-#include "GetValue.hh"
-
 namespace PLEXIL
 {
 
@@ -84,6 +82,11 @@ namespace PLEXIL
     virtual bool getMutableValuePointer(IntegerArray *&ptr) = 0;
     virtual bool getMutableValuePointer(RealArray *&ptr) = 0;
     virtual bool getMutableValuePointer(StringArray *&ptr) = 0;
+
+  private:
+    // Not implemented
+    SetValue(SetValue const &) = delete;
+    SetValue(SetValue &&) = delete;
 
   };
 

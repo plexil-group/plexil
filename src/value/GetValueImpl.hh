@@ -38,7 +38,16 @@ namespace PLEXIL
   template <class IMPL>
   class GetValueShim : public virtual GetValue
   {
+  protected:
+    GetValueShim() = default;
+  
+  private:
+    // not implemented
+    GetValueShim(GetValueShim const &) = delete;
+    GetValueShim(GetValueShim &&) = delete;
+
   public:
+    ~GetValueShim() = default;
 
     // Local macro
 #define DEFINE_GET_VALUE_METHOD_SHIM(_type_) \
@@ -78,7 +87,17 @@ namespace PLEXIL
   template <typename T>
   class GetValueImpl : public GetValueShim<GetValueImpl<T> >
   {
+  protected:
+    GetValueImpl() = default;
+
+  private:
+    // Not implemented
+    GetValueImpl(GetValueImpl const &) = delete;
+    GetValueImpl(GetValueImpl &&) = delete;
+
   public:
+    ~GetValueImpl() = default;
+
     /**
      * @brief Return the value type.
      * @return A constant enumeration.
@@ -123,13 +142,24 @@ namespace PLEXIL
     bool getValuePointerImpl(U const *&) const;
 
     void printValue(std::ostream &s) const;
+
   };
 
   // Specialization for string
   template <>
   class GetValueImpl<String> : public GetValueShim<GetValueImpl<String> >
   {
+  protected:
+    GetValueImpl() = default;
+
+  private:
+    // Not implemented
+    GetValueImpl(GetValueImpl const &) = delete;
+    GetValueImpl(GetValueImpl &&) = delete;
+
   public:
+    ~GetValueImpl() = default;
+
     /**
      * @brief Return the value type.
      * @return A constant enumeration.
@@ -179,7 +209,17 @@ namespace PLEXIL
   template <typename T>
   class GetValueImpl<ArrayImpl<T> > : public GetValueShim<GetValueImpl<ArrayImpl<T> > >
   {
+  protected:
+    GetValueImpl() = default;
+
+  private:
+    // Not implemented
+    GetValueImpl(GetValueImpl const &) = delete;
+    GetValueImpl(GetValueImpl &&) = delete;
+
   public:
+    ~GetValueImpl() = default;
+
     /**
      * @brief Return the value type.
      * @return A constant enumeration.
@@ -220,6 +260,7 @@ namespace PLEXIL
     bool getValuePointerImpl(U const *&) const;
 
     void printValue(std::ostream &s) const;
+
   };
 
 }

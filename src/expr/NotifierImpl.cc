@@ -32,7 +32,7 @@
 #endif
 
 #include "Error.hh"
-#include "ExpressionListener.hh"
+#include "Expression.hh"
 
 #include <algorithm> // for std::find()
 
@@ -48,8 +48,7 @@ namespace PLEXIL {
 #endif
 
   NotifierImpl::NotifierImpl()
-    : Expression(),
-      m_activeCount(0),
+    : m_activeCount(0),
       m_outgoingListeners()
   {
 #ifdef RECORD_EXPRESSION_STATS
@@ -137,7 +136,7 @@ namespace PLEXIL {
     return !m_outgoingListeners.empty();
   }
 
-  void NotifierImpl::notifyChanged(Expression const *src)
+  void NotifierImpl::notifyChanged(Notifier const *src)
   {
     if (isActive()) {
       if (src == this)
@@ -147,7 +146,7 @@ namespace PLEXIL {
   }
 
   // Default method.
-  void NotifierImpl::handleChange(Expression const *src)
+  void NotifierImpl::handleChange(Notifier const *src)
   {
     this->publishChange(src);
   }
@@ -190,7 +189,7 @@ namespace PLEXIL {
     m_outgoingListeners.erase(it);
   }
 
-  void NotifierImpl::publishChange(Expression const *src)
+  void NotifierImpl::publishChange(Notifier const *src)
   {
     if (isActive())
       for (std::vector<ExpressionListener *>::iterator it = m_outgoingListeners.begin();

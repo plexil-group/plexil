@@ -93,7 +93,7 @@ namespace PLEXIL
 #define DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD(_type) \
   bool Function::getValuePointer(_type const *&ptr) const \
   { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), this);    \
+    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), *this);    \
     if (result) \
       ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
     return result; \
@@ -111,7 +111,7 @@ namespace PLEXIL
   // Default method
   bool Function::apply(Operator const *op, Array &result) const
   {
-    return (*op)(result, this);
+    return (*op)(result, *this);
   }
 
   //

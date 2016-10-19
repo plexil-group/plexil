@@ -499,7 +499,7 @@ namespace PLEXIL
     if (m_savedValue != ary->getElementValue(idx)) {
       ary->setElementValue(idx, m_savedValue);
       NotifierImpl::publishChange(this);
-      m_mutableArray->notifyChanged(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this);
     }
     m_saved = false;
   }

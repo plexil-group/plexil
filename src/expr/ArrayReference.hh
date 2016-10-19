@@ -36,7 +36,8 @@ namespace PLEXIL {
   // Forward reference
   class Value;
 
-  class ArrayReference : public NotifierImpl
+  class ArrayReference : public NotifierImpl,
+                         virtual public Expression
   {
   public:
     ArrayReference(Expression *ary,
