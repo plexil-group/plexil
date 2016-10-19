@@ -448,7 +448,6 @@ namespace PLEXIL
     // See below for floating point types.
     bool checkImpl(CachedValue const *value) const
     {
-      check_error_1(value); // paranoid check
       NUM currentValue;
       if (value->getValue(currentValue))
         return (currentValue >= m_high) || (currentValue <= m_low);
@@ -460,7 +459,6 @@ namespace PLEXIL
     {
       debugMsg("LookupOnChange:setThresholds", " entered");
       check_error_1(value); // paranoid check
-      check_error_1(tolerance); // paranoid check
       NUM base, tol;
       if (tolerance->getValue(tol)) {
         if (tol < 0)
@@ -473,6 +471,7 @@ namespace PLEXIL
         m_tolerance = tol;
         m_low = base - tol;
         m_high = base + tol;
+        m_wasKnown = true;
       }
       else {
         m_wasKnown = false;
@@ -508,7 +507,7 @@ namespace PLEXIL
     if (!(value->getValue(currentValue)))
       // now unknown, was it last time?
       return m_wasKnown;
-         
+
     // Is known from here down
     if (!m_wasKnown)
       return true; // was unknown
@@ -583,6 +582,7 @@ namespace PLEXIL
 
   void LookupOnChange::handleActivate()
   {
+    check_error_1(m_tolerance); // paranoid check
     debugMsg("LookupOnChange:handleActivate", " called");
     Lookup::handleActivate(); // may register lookup if state known,
                               // may cause calls to handleChange(), valueChanged()
@@ -594,8 +594,10 @@ namespace PLEXIL
 
   void LookupOnChange::addListener(ExpressionListener *l)
   {
-    if (!hasListeners() && !m_tolerance->isConstant())
+    if (!hasListeners()) {
+      check_error_1(m_tolerance); // paranoid check
       m_tolerance->addListener(this);
+    }
     Lookup::addListener(l);
   }
 
@@ -607,9 +609,9 @@ namespace PLEXIL
     m_tolerance->deactivate();
     if (m_thresholds) {
       delete m_thresholds;
-      m_thresholds = NULL;
+      m_thresholds = nullptr;
       delete m_cachedValue;
-      m_cachedValue = NULL;
+      m_cachedValue = nullptr;
     }
   }
 
@@ -673,7 +675,7 @@ namespace PLEXIL
   // Updated state and cache entry should be valid if state is known.
   bool LookupOnChange::updateInternal(bool valueChanged)
   {
-    debugMsg("LookupOnChange:update", " valueChanged = " << valueChanged);
+    debugMsg("LookupOnChange:update", ' ' << this->m_cachedState << ", valueChanged = " << valueChanged);
 
     if (m_thresholds) {
       // Thresholds would have been deleted already if state had changed.
