@@ -48,9 +48,7 @@ namespace PLEXIL
                                         NodeConnector *node,
                                         bool &wasCreated) const
   {
-    size_t n = 0;
-    for (pugi::xml_node subexp = expr.first_child(); subexp; subexp = subexp.next_sibling())
-      ++n;
+    size_t n = std::distance(expr.begin(), expr.end());
     Operator const *oper = this->getOperator();
     checkParserExceptionWithLocation(oper->checkArgCount(n),
                                      expr,

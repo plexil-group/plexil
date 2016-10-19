@@ -63,10 +63,7 @@ namespace PLEXIL
   // Don't do any parsing, just count
   static size_t estimateVariableSpace(xml_node const decls)
   {
-    size_t n = 0;
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling())
-      ++n;
-    return n;
+    return std::distance(decls.begin(), decls.end());
   }
 
   static char const *getVarDeclName(xml_node const decl)
@@ -108,8 +105,7 @@ namespace PLEXIL
   {
     size_t n = 0;
     for (xml_node elt = iface.first_child(); elt; elt = elt.next_sibling())
-      for (xml_node decl = elt.first_child(); decl; decl = decl.next_sibling())
-        ++n;
+      n += std::distance(elt.begin(), elt.end());
     return n;
   }
 

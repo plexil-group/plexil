@@ -97,10 +97,7 @@ namespace PLEXIL
     // Count args, then build ExprVec of appropriate size
     ExprVec *argVec = NULL;
     try {
-      size_t nargs = 0;
-      pugi::xml_node arg;
-      for (arg = argsXml.first_child(); arg; arg = arg.next_sibling())
-        ++nargs;
+      size_t nargs = std::distance(argsXml.begin(), argsXml.end());
       if (lkup) {
         // Check argument count against command declaration
         checkParserExceptionWithLocation(nargs == lkup->parameterCount()
@@ -114,7 +111,9 @@ namespace PLEXIL
       if (nargs) {
         argVec = makeExprVec(nargs);
         size_t i = 0;
-        for (arg = argsXml.first_child(); arg; arg = arg.next_sibling(), ++i) {
+        for (pugi::xml_node arg = argsXml.first_child();
+             arg;
+             arg = arg.next_sibling(), ++i) {
           bool garbage = false;
           Expression *expr = createExpression(arg, node, garbage);
           argVec->setArgument(i, expr, garbage);
