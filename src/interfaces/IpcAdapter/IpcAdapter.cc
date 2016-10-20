@@ -30,6 +30,7 @@
 
 #include "AdapterExecInterface.hh"
 #include "AdapterConfiguration.hh"
+#include "ArrayImpl.hh"
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"

@@ -38,8 +38,7 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : SetValueImpl<ArrayImpl<T> >(),
-    GetValueImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
     NotifierImpl(),
     m_size(NULL),
     m_initializer(NULL),
@@ -55,8 +54,7 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : SetValueImpl<ArrayImpl<T> >(),
-    GetValueImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
     NotifierImpl(),
     m_size(NULL),
     m_initializer(new Constant<ArrayImpl<T> >(initVal)),
@@ -134,7 +132,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool ArrayVariable<T>::getMutableValuePointerImpl(ArrayImpl<T> *&ptr)
+  bool ArrayVariable<T>::getMutableValuePointer(Array *&ptr)
   {
     if (!this->isActive())
       return false;
@@ -195,6 +193,26 @@ namespace PLEXIL
     s << getName() << ' ';
     if (m_size)
       s << "size = " << m_maxSize << ' ';
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setValue(Value const &val)
+  {
+    ArrayImpl<T> const *ptr;
+    if (val.getValuePointer(ptr))
+      this->setValueImpl(*ptr);
+    else
+      this->setUnknown();
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setValue(GetValue const &val)
+  {
+    ArrayImpl<T> const *ptr;
+    if (val.getValuePointer(ptr))
+      this->setValueImpl(*ptr);
+    else
+      this->setUnknown();
   }
 
   template <typename T>

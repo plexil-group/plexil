@@ -30,7 +30,6 @@
 #include "Assignable.hh"
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
-#include "SetValueImpl.hh"
 
 namespace PLEXIL
 {
@@ -43,7 +42,6 @@ namespace PLEXIL
 
   template <typename T>
   class ArrayVariable final :
-    public SetValueImpl<ArrayImpl<T> >,
     public GetValueImpl<ArrayImpl<T> >,
     public NotifierImpl,
     public Assignable,
@@ -90,26 +88,6 @@ namespace PLEXIL
     bool isKnown() const;
 
     /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown.
-     */
-    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
-
-    /**
-     * @brief Retrieve a pointer to the (modifiable) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     */
-    bool getMutableValuePointerImpl(ArrayImpl<T> *&ptr);
-
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     */
-    void setValueImpl(ArrayImpl<T> const &value);
-
-    /**
      * @brief Set the current value unknown.
      */
     void setUnknown();
@@ -143,33 +121,21 @@ namespace PLEXIL
     /**
      * @brief Set the value for this object.
      * @param val The new value for this object.
-     * @note Delegate to SetValueImpl
      */
-    virtual void setValue(Value const &val)
-    {
-      SetValueImpl<ArrayImpl<T> >::setValue(val);
-    }
+    virtual void setValue(Value const &val);
 
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
-     * @note Delegate to SetValueImpl
      */
-    virtual void setValue(GetValue const &val)
-    {
-      SetValueImpl<ArrayImpl<T> >::setValue(val);
-    }
+    virtual void setValue(GetValue const &val);
 
     /**
      * @brief Retrieve a pointer to the non-const value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
-     * @note Delegate to SetValueImpl
      */
-    virtual bool getMutableValuePointer(Array *&ptr)
-    {
-      return SetValueImpl<ArrayImpl<T> >::getMutableValuePointer(ptr);
-    }
+    virtual bool getMutableValuePointer(Array *&ptr);
 
     void handleActivate();
 
@@ -180,6 +146,21 @@ namespace PLEXIL
     // *** KLUDGE ***
     // Override for ambiguity in base classes
     virtual void notifyChanged(Notifier const *src);
+
+  protected:
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValueImpl(ArrayImpl<T> const &value);
+    
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
 
   private:
 

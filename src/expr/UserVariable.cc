@@ -221,13 +221,21 @@ namespace PLEXIL
     return false;
   }
 
-  bool UserVariable<String>::getMutableValuePointerImpl(std::string *&ptr)
+  template <typename T>
+  bool UserVariable<T>::getMutableValuePointer(Array *&ptr)
   {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
+    assertTrueMsg(ALWAYS_FAIL,
+                  "Can't get writable array pointer from "
+                  << PlexilValueType<T>::typeName
+                  << " variable");
+    return false;
+  }
+
+  bool UserVariable<String>::getMutableValuePointer(Array *&ptr)
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "Can't get writable array pointer from String variable");
+    return false;
   }
 
   // A variable takes its initial value when first activated,
@@ -285,7 +293,45 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void UserVariable<T>::setValueImpl(const T &value)
+  void UserVariable<T>::setValue(Value const &val)
+  {
+    T temp;
+    if (val.getValue(temp))
+      setValueImpl(temp);
+    else
+      this->setUnknown();
+  }
+
+  void UserVariable<String>::setValue(Value const &val)
+  {
+    String temp;
+    if (val.getValue(temp))
+      setValueImpl(temp);
+    else
+      this->setUnknown();
+  }
+
+  template <typename T>
+  void UserVariable<T>::setValue(GetValue const &val)
+  {
+    T temp;
+    if (val.getValue(temp))
+      setValueImpl(temp);
+    else
+      this->setUnknown();
+  }
+
+  void UserVariable<String>::setValue(GetValue const &val)
+  {
+    String temp;
+    if (val.getValue(temp))
+      setValueImpl(temp);
+    else
+      this->setUnknown();
+  }
+
+  template <typename T>
+  void UserVariable<T>::setValueImpl(T const &value)
   {
     bool changed = !m_known || value != m_value;
     m_value = value;

@@ -30,7 +30,6 @@
 #include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
-#include "SetValueImpl.hh"
 
 namespace PLEXIL {
 

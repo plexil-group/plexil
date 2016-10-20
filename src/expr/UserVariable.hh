@@ -30,7 +30,6 @@
 #include "Assignable.hh"
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
-#include "SetValueImpl.hh"
 
 namespace PLEXIL 
 {
@@ -43,7 +42,6 @@ namespace PLEXIL
   // Scalar case
   template <typename T>
   class UserVariable final :
-    public SetValueImpl<T>,
     public GetValueImpl<T>,
     public NotifierImpl,
     public Assignable,
@@ -84,7 +82,7 @@ namespace PLEXIL
     char const *exprName() const;
 
     //
-    // GetValueImpl, SetValueImpl API
+    // GetValueImpl API
     //
 
     bool isKnown() const;
@@ -96,23 +94,14 @@ namespace PLEXIL
      */
     bool getValueImpl(T &result) const;
 
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
-     */
-    void setValueImpl(T const &value);
+    //
+    // Assignable API
+    //
 
     /**
      * @brief Set the current value unknown.
      */
     void setUnknown();
-
-    //
-    // Assignable API
-    //
-    
-    
 
     /**
      * @brief Reset to initial status.
@@ -143,33 +132,22 @@ namespace PLEXIL
     /**
      * @brief Set the value for this object.
      * @param val The new value for this object.
-     * @note Delegate to SetValueImpl
      */
-    virtual void setValue(Value const &val)
-    {
-      SetValueImpl<T>::setValue(val);
-    }
+    virtual void setValue(Value const &val);
 
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
-     * @note Delegate to SetValueImpl
      */
-    virtual void setValue(GetValue const &val)
-    {
-      SetValueImpl<T>::setValue(val);
-    }
+    virtual void setValue(GetValue const &val);
 
     /**
      * @brief Retrieve a pointer to the non-const value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
-     * @note Delegate to SetValueImpl
+     * @note An error for this object
      */
-    virtual bool getMutableValuePointer(Array *&ptr)
-    {
-      return SetValueImpl<T>::getMutableValuePointer(ptr);
-    }
+    virtual bool getMutableValuePointer(Array *&ptr);
 
     void handleActivate();
 
@@ -180,6 +158,14 @@ namespace PLEXIL
     // *** KLUDGE ***
     // Override for ambiguity in base classes
     virtual void notifyChanged(Notifier const *src);
+
+  protected:
+    
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValueImpl(T const &value);
 
   private:
 
@@ -203,7 +189,6 @@ namespace PLEXIL
   // String case
   template <>
   class UserVariable<String> final :
-    public SetValueImpl<String>,
     public GetValueImpl<String>,
     public NotifierImpl,
     public Assignable,
@@ -309,33 +294,22 @@ namespace PLEXIL
     /**
      * @brief Set the value for this object.
      * @param val The new value for this object.
-     * @note Delegate to SetValueImpl
      */
-    virtual void setValue(Value const &val)
-    {
-      SetValueImpl<String>::setValue(val);
-    }
+    virtual void setValue(Value const &val);
 
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
-     * @note Delegate to SetValueImpl
      */
-    virtual void setValue(GetValue const &val)
-    {
-      SetValueImpl<String>::setValue(val);
-    }
+    virtual void setValue(GetValue const &val);
 
     /**
      * @brief Retrieve a pointer to the non-const value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
-     * @note Delegate to SetValueImpl
+     * @note An error for this object
      */
-    virtual bool getMutableValuePointer(Array *&ptr)
-    {
-      return SetValueImpl<String>::getMutableValuePointer(ptr);
-    }
+    virtual bool getMutableValuePointer(Array *&ptr);
 
     void handleActivate();
 
