@@ -42,7 +42,7 @@ namespace PLEXIL {
   // Forward references
   class Node;
 
-  class StateVariable :
+  class StateVariable final :
     public GetValueImpl<NodeState>,
     public NotifierImpl,
     virtual public Expression
@@ -110,7 +110,7 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class OutcomeVariable :
+  class OutcomeVariable final :
     public GetValueImpl<NodeOutcome>,
     public NotifierImpl,
     virtual public Expression
@@ -176,7 +176,7 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class FailureVariable :
+  class FailureVariable final :
     public GetValueImpl<FailureType>,
     public NotifierImpl,
     virtual public Expression

@@ -36,7 +36,7 @@ namespace PLEXIL
    * @brief Represents the ground values at a particular instant
    *        of the name and arguments of a Lookup or Command. 
    */
-  class State
+  class State final
   {
   public:
     State();

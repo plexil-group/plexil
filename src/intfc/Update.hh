@@ -38,7 +38,7 @@ namespace PLEXIL
   class NodeConnector;
   class PlexilUpdate;
 
-  class Update 
+  class Update final
   {
   public:
     typedef SimpleMap<std::string, Expression *> PairExpressionMap;

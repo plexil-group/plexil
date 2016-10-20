@@ -122,7 +122,7 @@ namespace PLEXIL
   // NullaryFunction is a function which takes no arguments.
   //
 
-  class NullaryFunction : public Function
+  class NullaryFunction final : public Function
   {
   public:
     NullaryFunction(Operator const *op)
@@ -190,7 +190,7 @@ namespace PLEXIL
    */
 
   template <unsigned N>
-  class FixedSizeFunction : public Function
+  class FixedSizeFunction final : public Function
   {
   public:
     FixedSizeFunction(Operator const *op)
@@ -500,7 +500,7 @@ namespace PLEXIL
    * @class NaryFunction
    * @brief Concrete variable-length variant of Function which uses dynamically allocated arrays.
    */
-  class NaryFunction : public Function
+  class NaryFunction final : public Function
   {
   public:
     NaryFunction(Operator const *op, size_t n)

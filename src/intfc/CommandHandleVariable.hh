@@ -37,7 +37,7 @@ namespace PLEXIL
   // Forward reference
   class Command;
 
-  class CommandHandleVariable :
+  class CommandHandleVariable final :
     public GetValueImpl<CommandHandleValue>,
     public NotifierImpl,
     virtual public Expression

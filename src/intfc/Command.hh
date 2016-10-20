@@ -71,7 +71,7 @@ namespace PLEXIL
 
   typedef std::vector<ResourceValue> ResourceValueList;
 
-  class Command 
+  class Command final
   {
     friend class CommandHandleVariable;
 

@@ -34,7 +34,7 @@ namespace PLEXIL
 {
 
   // Placeholder object
-  class VoidCachedValue : public CachedValue
+  class VoidCachedValue final : public CachedValue
   {
   public:
     VoidCachedValue();
@@ -182,7 +182,7 @@ namespace PLEXIL
 
   // Scalar types
   template <typename T>
-  class CachedValueImpl :
+  class CachedValueImpl final :
     public GetValueImpl<T>,
     public CachedValueShim<CachedValueImpl<T> >
   {

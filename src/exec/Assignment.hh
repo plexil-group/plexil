@@ -33,7 +33,7 @@
 namespace PLEXIL
 {
 
-  class Assignment 
+  class Assignment final
   {
   public:
     Assignment(std::string const &nodeId);

@@ -34,7 +34,7 @@ namespace PLEXIL
   // Forward references
   class Assignment;
 
-  class AssignmentNode : public Node
+  class AssignmentNode final : public Node
   {
   public:
 
