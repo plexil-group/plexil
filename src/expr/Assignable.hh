@@ -29,7 +29,6 @@
 
 #include "Expression.hh"
 #include "ExpressionListener.hh"
-#include "SetValue.hh"
 
 namespace PLEXIL {
   
@@ -44,7 +43,6 @@ namespace PLEXIL {
    * @note This class has no state of its own.
    */
   class Assignable :
-    virtual public SetValue,
     virtual public Expression,
     virtual public ExpressionListener
   {
@@ -125,6 +123,34 @@ namespace PLEXIL {
      * @note Default method throws an exception.
      */
     virtual void setInitializer(Expression *expr, bool garbage);
+
+    //
+    // SetValue API subset actually used in Exec and test suites
+    //
+
+    /**
+     * @brief Set the value of this expression to unknown.
+     */
+    virtual void setUnknown() = 0;
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     */
+    virtual void setValue(Value const &val) = 0;
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     */
+    virtual void setValue(GetValue const &val) = 0;
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     */
+    virtual bool getMutableValuePointer(Array *&ptr) = 0;
 
   private:
     // Not implemented

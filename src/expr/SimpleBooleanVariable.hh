@@ -27,7 +27,6 @@
 #ifndef PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 #define PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 
-#include "Assignable.hh"
 #include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
@@ -42,9 +41,7 @@ namespace PLEXIL {
 
   class SimpleBooleanVariable final :
     public GetValueImpl<bool>,
-    public SetValueImpl<bool>,
     public NotifierImpl,
-    public Assignable,
     public virtual Expression
   {
   public:
@@ -74,30 +71,21 @@ namespace PLEXIL {
     bool getValueImpl(bool &result) const;
 
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
      */
-    void setValueImpl(bool const &value);
+    void setValue(Boolean const &val);
 
     /**
-     * @brief Set the current value unknown.
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
      */
-    virtual void setUnknown();
+    virtual void setValue(Value const &val);
 
     /**
      * @brief Reset to initial status.
      */
     virtual void reset();
-
-    // These member functions are not supported.
-    // They throw an exception when called.
-    virtual void saveCurrentValue();
-    virtual void restoreSavedValue();
-    Value getSavedValue() const;
-
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
 
   private:
 

@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Assignable.hh"
 #include "Command.hh"
 #include "CommandNode.hh"
 #include "Error.hh"

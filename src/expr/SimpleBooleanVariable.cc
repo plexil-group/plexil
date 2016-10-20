@@ -72,16 +72,6 @@ namespace PLEXIL
     s << m_name << ' ';
   }
 
-  Assignable *SimpleBooleanVariable::getBaseVariable()
-  {
-    return static_cast<Assignable *>(this);
-  }
-
-  Assignable const *SimpleBooleanVariable::getBaseVariable() const
-  {
-    return static_cast<Assignable const *>(this);
-  }
-
   //
   // GetValue API
   //
@@ -102,40 +92,30 @@ namespace PLEXIL
   // SetValue API
   //
 
-  void SimpleBooleanVariable::setValueImpl(bool const &value)
+  void SimpleBooleanVariable::setValue(Boolean const &val)
   {
     if (this->isActive()) {
-      if (m_value != value) {
-        m_value = value;
+      if (m_value != val) {
+        m_value = val;
         this->publishChange(this);
       }
     }
   }
 
-  void SimpleBooleanVariable::setUnknown()
+  void SimpleBooleanVariable::setValue(Value const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
+    assertTrueMsg(val.valueType() == BOOLEAN_TYPE,
+                  "setValue: can't assign a " << valueTypeName(val.valueType())
+                  << " value to a SimpleBooleanVariable");
+    bool bval;
+    assertTrueMsg(val.getValue(bval),
+                  "setValue: can't assign UNKNOWN to a SimpleBooleanVariable");
+    setValue(bval);
   }
 
   void SimpleBooleanVariable::reset()
   {
     m_value = false;
-  }
-
-  void SimpleBooleanVariable::saveCurrentValue()
-  {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
-  }
-
-  void SimpleBooleanVariable::restoreSavedValue()
-  {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
-  }
-
-  Value SimpleBooleanVariable::getSavedValue() const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
-    return Value();
   }
 
 } // namespace PLEXIL

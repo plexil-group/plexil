@@ -28,9 +28,73 @@
 
 #include "Error.hh"
 #include "PlexilTypeTraits.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
+
+  // Default methods
+  template <typename T>
+  void SetValueImpl<T>::setValueImpl(Value const &val)
+  {
+    if (val.isKnown()) {
+      assertTrueMsg(val.valueType() == PlexilValueType<T>::value,
+		    "setValue: can't assign a " << valueTypeName(val.valueType())
+		    << " value to a " << PlexilValueType<T>::typeName
+		    << " object");
+      T temp;
+      val.getValue(temp); // for effect
+      this->setValueImpl(temp);
+    }
+    else
+      this->setUnknown();
+  }
+
+  template <>
+  void SetValueImpl<Real>::setValueImpl(Value const &val)
+  {
+    if (val.isKnown()) {
+      assertTrueMsg(val.valueType() == REAL_TYPE
+		    || val.valueType() == INTEGER_TYPE,
+		    "setValue: can't assign a " << valueTypeName(val.valueType())
+		    << " value to a Real object");
+      Real temp;
+      val.getValue(temp);
+      this->setValueImpl(temp);
+    }
+    else
+      this->setUnknown();
+  }
+
+  void SetValueImpl<String>::setValueImpl(Value const &val)
+  {
+    if (val.isKnown()) {
+      assertTrueMsg(val.valueType() == STRING_TYPE,
+		    "setValue: can't assign a " << valueTypeName(val.valueType())
+		    << " value to a String object");
+      String const *ptr;
+      val.getValuePointer(ptr);
+      this->setValueImpl(*ptr);
+    }
+    else
+      this->setUnknown();
+  }
+
+  template <typename T>
+  void SetValueImpl<ArrayImpl<T> >::setValueImpl(Value const &val)
+  {
+    if (val.isKnown()) {
+      assertTrueMsg(val.valueType() == PlexilValueType<ArrayImpl<T> >::value,
+		    "setValue: can't assign a " << valueTypeName(val.valueType())
+		    << " value to a " << PlexilValueType<ArrayImpl<T> >::typeName
+		    << " object");
+      ArrayImpl<T> const *ptr;
+      val.getValuePointer(ptr);
+      this->setValueImpl(*ptr);
+    }
+    else
+      this->setUnknown();
+  }
 
   // Default methods
   template <typename T>

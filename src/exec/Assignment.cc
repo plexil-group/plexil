@@ -25,6 +25,8 @@
 */
 
 #include "Assignment.hh"
+
+#include "Assignable.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerBase.hh"
@@ -54,6 +56,22 @@ namespace PLEXIL
     if (m_deleteRhs)
       delete m_rhs;
   }
+
+  Expression *Assignment::getDest()
+  {
+    return m_dest;
+  }
+  
+  Expression *Assignment::getAck()
+  {
+    return &m_ack;
+  }
+
+  Expression *Assignment::getAbortComplete()
+  {
+    return &m_abortComplete;
+  }
+
 
   void Assignment::setVariable(Assignable *lhs, bool garbage)
   {

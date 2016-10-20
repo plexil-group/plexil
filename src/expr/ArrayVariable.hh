@@ -140,6 +140,37 @@ namespace PLEXIL
      */
     void setInitializer(Expression *expr, bool garbage);
 
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     * @note Delegate to SetValueImpl
+     */
+    virtual void setValue(Value const &val)
+    {
+      SetValueImpl<ArrayImpl<T> >::setValue(val);
+    }
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     * @note Delegate to SetValueImpl
+     */
+    virtual void setValue(GetValue const &val)
+    {
+      SetValueImpl<ArrayImpl<T> >::setValue(val);
+    }
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Delegate to SetValueImpl
+     */
+    virtual bool getMutableValuePointer(Array *&ptr)
+    {
+      return SetValueImpl<ArrayImpl<T> >::getMutableValuePointer(ptr);
+    }
+
     void handleActivate();
 
     void handleDeactivate();

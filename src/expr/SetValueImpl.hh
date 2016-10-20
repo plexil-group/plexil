@@ -29,12 +29,11 @@
 
 #include "ArrayImpl.hh"
 #include "GetValueImpl.hh"
-#include "SetValue.hh"
 
 namespace PLEXIL
 {
   template <class IMPL>
-  class SetValueShim : virtual public SetValue
+  class SetValueShim
   {
   protected:
     SetValueShim() = default;
@@ -48,6 +47,12 @@ namespace PLEXIL
 
   public:
     ~SetValueShim() = default;
+
+    /**
+     * @brief Set the current value of this variable to "unknown".
+     * @note May cause change notifications to occur.
+     */
+    virtual void setUnknown() = 0;
 
     //
     // setValue
@@ -76,6 +81,8 @@ namespace PLEXIL
     DEFINE_SET_VALUE_METHOD(IntegerArray)
     DEFINE_SET_VALUE_METHOD(RealArray)
     DEFINE_SET_VALUE_METHOD(StringArray)
+
+    DEFINE_SET_VALUE_METHOD(Value)
 
     DEFINE_SET_VALUE_METHOD(GetValue)
 
@@ -125,6 +132,9 @@ namespace PLEXIL
     virtual ~SetValueImpl() = default;
 
     // Default method.
+    void setValueImpl(Value const &v);
+
+    // Default method.
     void setValueImpl(GetValue const &v);
 
     // To be defined by derived classes.
@@ -157,6 +167,9 @@ namespace PLEXIL
 
   public:
     virtual ~SetValueImpl() = default;
+
+    // Default method.
+    void setValueImpl(Value const &v);
 
     // Default method.
     void setValueImpl(GetValue const &v);
@@ -193,6 +206,9 @@ namespace PLEXIL
 
   public:
     virtual ~SetValueImpl() = default;
+
+    // Default method.
+    void setValueImpl(Value const &v);
 
     // Default method.
     void setValueImpl(GetValue const &v);

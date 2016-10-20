@@ -108,6 +108,12 @@ namespace PLEXIL
      */
     void setUnknown();
 
+    //
+    // Assignable API
+    //
+    
+    
+
     /**
      * @brief Reset to initial status.
      */
@@ -132,7 +138,38 @@ namespace PLEXIL
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
-    void setInitializer(Expression *expr, bool garbage);
+    virtual void setInitializer(Expression *expr, bool garbage);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     * @note Delegate to SetValueImpl
+     */
+    virtual void setValue(Value const &val)
+    {
+      SetValueImpl<T>::setValue(val);
+    }
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     * @note Delegate to SetValueImpl
+     */
+    virtual void setValue(GetValue const &val)
+    {
+      SetValueImpl<T>::setValue(val);
+    }
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Delegate to SetValueImpl
+     */
+    virtual bool getMutableValuePointer(Array *&ptr)
+    {
+      return SetValueImpl<T>::getMutableValuePointer(ptr);
+    }
 
     void handleActivate();
 
@@ -268,6 +305,37 @@ namespace PLEXIL
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
     void setInitializer(Expression *expr, bool garbage);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     * @note Delegate to SetValueImpl
+     */
+    virtual void setValue(Value const &val)
+    {
+      SetValueImpl<String>::setValue(val);
+    }
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     * @note Delegate to SetValueImpl
+     */
+    virtual void setValue(GetValue const &val)
+    {
+      SetValueImpl<String>::setValue(val);
+    }
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Delegate to SetValueImpl
+     */
+    virtual bool getMutableValuePointer(Array *&ptr)
+    {
+      return SetValueImpl<String>::getMutableValuePointer(ptr);
+    }
 
     void handleActivate();
 

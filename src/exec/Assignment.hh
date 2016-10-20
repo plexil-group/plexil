@@ -40,9 +40,9 @@ namespace PLEXIL
 
     ~Assignment();
 
-    Expression *getDest() {return m_dest;}
-    Expression *getAck() {return &m_ack;}
-    Expression *getAbortComplete() {return &m_abortComplete;}
+    Expression *getDest();
+    Expression *getAck();
+    Expression *getAbortComplete();
 
     // For use by plan parser
     void setVariable(Assignable *lhs, bool garbage);
