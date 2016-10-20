@@ -43,6 +43,13 @@ namespace PLEXIL
   //       as well as statically typed objects.
   class GetValue
   {
+  protected:
+    GetValue() = default;
+
+  private:
+    GetValue(GetValue const &) = delete;
+    GetValue(GetValue &&) = delete;
+
   public:
     virtual ~GetValue() = default;
     
