@@ -28,7 +28,6 @@
 #define PLEXIL_CACHED_VALUE_IMPL_HH
 
 #include "CachedValue.hh"
-#include "GetValueImpl.hh"
 
 namespace PLEXIL
 {
@@ -149,6 +148,40 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->cloneImpl();
     }
 
+    //
+    // Stolen from GetValueShim
+    //
+    
+    // Local macro
+#define DEFINE_GET_VALUE_METHOD_SHIM(_type_) \
+  bool getValue(_type_ &result) const \
+  { return static_cast<IMPL const *>(this)->getValueImpl(result); }
+
+    DEFINE_GET_VALUE_METHOD_SHIM(Boolean)
+    DEFINE_GET_VALUE_METHOD_SHIM(NodeState)
+    DEFINE_GET_VALUE_METHOD_SHIM(NodeOutcome)
+    DEFINE_GET_VALUE_METHOD_SHIM(FailureType)
+    DEFINE_GET_VALUE_METHOD_SHIM(CommandHandleValue)
+    DEFINE_GET_VALUE_METHOD_SHIM(Integer)
+    DEFINE_GET_VALUE_METHOD_SHIM(Real)
+    DEFINE_GET_VALUE_METHOD_SHIM(String)
+
+#undef DEFINE_GET_VALUE_METHOD_SHIM
+
+    // Local macro
+#define DEFINE_GET_VALUE_POINTER_METHOD_SHIM(_type_) \
+  bool getValuePointer(_type_ const *&ptr) const \
+  { return static_cast<IMPL const *>(this)->getValuePointerImpl(ptr); }
+
+    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(String)
+    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(Array)
+    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(BooleanArray)
+    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(IntegerArray)
+    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(RealArray)
+    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(StringArray)
+
+#undef DEFINE_GET_VALUE_POINTER_METHOD_SHIM
+
     // Local macro
 #define DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(_type_) \
     bool update(unsigned int timestamp, _type_ const &val) \
@@ -183,7 +216,6 @@ namespace PLEXIL
   // Scalar types
   template <typename T>
   class CachedValueImpl final :
-    public GetValueImpl<T>,
     public CachedValueShim<CachedValueImpl<T> >
   {
   public:
@@ -202,11 +234,59 @@ namespace PLEXIL
 
     bool operator==(CachedValue const &) const;
 
+    //
+    // GetValueImpl API
+    //
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    ValueType valueType() const;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
     bool isKnown() const;
 
-    bool getValueImpl(T &result) const;
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
 
+    /**
+     * @brief Retrieve the value of this object in its native type.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValueImpl(T &result) const;
+
+    // Conversion wrapper, error if particular conversion not supported
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
+    /**
+     * @brief Retrieve the value of this object as a pointer to const.
+     * @param ptr Reference to the pointer variable.
+     * @return True if known, false if unknown.
+     * @note These are errors for Boolean and numeric expressions.
+     */
+
+    // Error for scalar types
+    bool getValuePointerImpl(T const *&) const;
+    template <typename U>
+    bool getValuePointerImpl(U const *&) const;
+
+    void printValue(std::ostream &s) const;
+
+    //
     // API to external interface
+    //
+    
     bool setUnknown(unsigned int timestamp);
 
     virtual bool updateImpl(unsigned int timestamp, T const &val);
@@ -229,7 +309,6 @@ namespace PLEXIL
   // String is special
   template <>
   class CachedValueImpl<String> :
-    public GetValueImpl<String>,
     public CachedValueShim<CachedValueImpl<String> >
   {
   public:
@@ -244,14 +323,57 @@ namespace PLEXIL
     CachedValueImpl<String> &operator=(CachedValueImpl<String> const &);
     CachedValueImpl<String> &operator=(CachedValueImpl<String> &&);
 
-    bool isKnown() const;
-
     CachedValue *cloneImpl() const;
 
     bool operator==(CachedValue const &) const;
 
-    bool getValueImpl(String &result) const;
-    bool getValuePointerImpl(String const *&ptr) const;
+    //
+    // GetValueImpl API
+    //
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    ValueType valueType() const;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    bool isKnown() const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
+    /**
+     * @brief Retrieve the value of this object in its native type.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValueImpl(String &result) const;
+
+    // Conversion wrapper, error if particular conversion not supported
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
+    /**
+     * @brief Retrieve the value of this object as a pointer to const.
+     * @param ptr Reference to the pointer variable.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValuePointerImpl(String const *&) const;
+
+    // Type error
+    template <typename U>
+    bool getValuePointerImpl(U const *&) const;
+
+    void printValue(std::ostream &s) const;
 
     // API to external interface
     bool setUnknown(unsigned int timestamp);
@@ -278,7 +400,6 @@ namespace PLEXIL
   // Specialized for arrays
   template <typename T>
   class CachedValueImpl<ArrayImpl<T> > :
-    public GetValueImpl<ArrayImpl<T> >,
     public CachedValueShim<CachedValueImpl<ArrayImpl<T> > >
   {
   public:
@@ -293,18 +414,59 @@ namespace PLEXIL
     CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > const &);
     CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > &&);
 
-    bool isKnown() const;
-
     CachedValue *cloneImpl() const;
 
     bool operator==(CachedValue const &) const;
+    
+    //
+    // GetValueImpl API
+    //
 
-    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    ValueType valueType() const;
 
-    // Conversion to array base
-    bool getValuePointerImpl(Array const *&ptr) const;
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    bool isKnown() const;
 
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
+    // Not implemented - no implicit copying allowed
+    bool getValueImpl(ArrayImpl<T> &result) const;
+
+    // Type mismatches
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
+    /**
+     * @brief Retrieve the value of this object as a pointer to const.
+     * @param ptr Reference to the pointer variable.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValuePointerImpl(ArrayImpl<T> const *&) const;
+    bool getValuePointerImpl(Array const *& ptr) const;
+
+    // Error for type mismatch
+    template <typename U>
+    bool getValuePointerImpl(U const *&) const;
+
+    void printValue(std::ostream &s) const;
+
+    //
     // API to external interface
+    //
+    
     bool setUnknown(unsigned int timestamp);
 
     template <typename U>

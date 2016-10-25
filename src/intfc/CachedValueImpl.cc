@@ -88,7 +88,7 @@ namespace PLEXIL
 
   void VoidCachedValue::printValue(std::ostream &s) const
   {
-      s << "[unknown_value]"; 
+    s << "[unknown_value]"; 
   }
 
   /**
@@ -98,11 +98,11 @@ namespace PLEXIL
    * @note The caller is responsible for deleting the object pointed to upon return.
    */
 
-#define DEFINE_UPDATE_METHOD(_type_) \
+#define DEFINE_UPDATE_METHOD(_type_)                                    \
   bool VoidCachedValue::update(unsigned int /* timestamp */, _type_ const & /* val */) \
-  { \
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue"); \
-    return false; \
+  {                                                                     \
+    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");        \
+    return false;                                                       \
   }
 
   DEFINE_UPDATE_METHOD(Boolean)
@@ -116,18 +116,18 @@ namespace PLEXIL
 
 #undef DEFINE_UPDATE_METHOD
 
-#define DEFINE_UPDATE_PTR_METHOD(_type_) \
+#define DEFINE_UPDATE_PTR_METHOD(_type_)                                \
   bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, _type_ const * /* valPtr */) \
-  { \
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue"); \
-    return false; \
+  {                                                                     \
+    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");        \
+    return false;                                                       \
   }
 
   DEFINE_UPDATE_PTR_METHOD(String)
   DEFINE_UPDATE_PTR_METHOD(BooleanArray)
   DEFINE_UPDATE_PTR_METHOD(IntegerArray)
   DEFINE_UPDATE_PTR_METHOD(RealArray)
-  DEFINE_UPDATE_PTR_METHOD(StringArray)
+    DEFINE_UPDATE_PTR_METHOD(StringArray)
 
 #undef DEFINE_UPDATE_PTR_METHOD
   
@@ -148,24 +148,21 @@ namespace PLEXIL
   
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl()
-    : GetValueImpl<T>(),
-      CachedValueShim<CachedValueImpl<T> >(),
-      m_known(false)
+    : CachedValueShim<CachedValueImpl<T> >(),
+    m_known(false)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl()
-    : GetValueImpl<String>(),
-      CachedValueShim<CachedValueImpl<String> >(),
-      m_known(false)
+    : CachedValueShim<CachedValueImpl<String> >(),
+    m_known(false)
   {
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl()
-    : GetValueImpl<ArrayImpl<T> >(),
-      CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
-      m_known(false)
+    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
+    m_known(false)
   {
   }
 
@@ -175,27 +172,24 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> const &orig)
-    : GetValueImpl<T>(),
-      CachedValueShim<CachedValueImpl<T> >(orig),
-      m_value(orig.m_value),
-      m_known(orig.m_known)
+    : CachedValueShim<CachedValueImpl<T> >(orig),
+    m_value(orig.m_value),
+    m_known(orig.m_known)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> const &orig)
-    : GetValueImpl<String>(),
-      CachedValueShim<CachedValueImpl<String> >(orig),
-      m_value(orig.m_value),
-      m_known(orig.m_known)
+    : CachedValueShim<CachedValueImpl<String> >(orig),
+    m_value(orig.m_value),
+    m_known(orig.m_known)
   {
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &orig)
-    : GetValueImpl<ArrayImpl<T> >(),
-      CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
-      m_value(orig.m_value),
-      m_known(orig.m_known)
+    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
+    m_value(orig.m_value),
+    m_known(orig.m_known)
   {
   }
 
@@ -205,27 +199,24 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> &&orig)
-    : GetValueImpl<T>(),
-      CachedValueShim<CachedValueImpl<T> >(orig),
-      m_value(orig.m_value),
-      m_known(orig.m_known)
+    : CachedValueShim<CachedValueImpl<T> >(orig),
+    m_value(orig.m_value),
+    m_known(orig.m_known)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> &&orig)
-    : GetValueImpl<String>(),
-      CachedValueShim<CachedValueImpl<String> >(orig),
-      m_value(orig.m_value),
-      m_known(orig.m_known)
+    : CachedValueShim<CachedValueImpl<String> >(orig),
+    m_value(orig.m_value),
+    m_known(orig.m_known)
   {
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > &&orig)
-    : GetValueImpl<ArrayImpl<T> >(),
-      CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
-      m_value(orig.m_value),
-      m_known(orig.m_known)
+    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(orig),
+    m_value(orig.m_value),
+    m_known(orig.m_known)
   {
   }
 
@@ -368,8 +359,25 @@ namespace PLEXIL
   }
 
   //
-  // Accessors
+  // GetValue API
   //
+
+  template <typename T>
+  ValueType CachedValueImpl<T>::valueType() const
+  {
+    return PlexilValueType<T>::value;
+  }
+
+  ValueType CachedValueImpl<String>::valueType() const
+  {
+    return PlexilValueType<String>::value;
+  }
+
+  template <typename T>
+  ValueType CachedValueImpl<ArrayImpl<T> >::valueType() const
+  {
+    return PlexilValueType<ArrayImpl<T> >::value;
+  }
 
   template <typename T>
   bool CachedValueImpl<T>::isKnown() const
@@ -386,6 +394,183 @@ namespace PLEXIL
   bool CachedValueImpl<ArrayImpl<T> >::isKnown() const
   {
     return m_known;
+  }
+
+  template <typename T>
+  Value CachedValueImpl<T>::toValue() const
+  {
+    T temp;
+    bool known = this->getValueImpl(temp);
+    if (known)
+      return Value(temp);
+    else
+      return Value(0, this->valueType());
+  }
+
+  Value CachedValueImpl<String>::toValue() const
+  {
+    std::string const *ptr;
+    bool known = this->getValuePointerImpl(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <typename T>
+  Value CachedValueImpl<ArrayImpl<T> >::toValue() const
+  {
+    ArrayImpl<T> const *ptr;
+    bool known = this->getValuePointerImpl(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <typename T>
+  bool CachedValueImpl<T>::getValueImpl(T &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool CachedValueImpl<T>::getValueImpl(U &result) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValue: trying to get a " << PlexilValueType<U>::typeName
+                  << " value from a " << PlexilValueType<T>::typeName << " typed object");
+    return false;
+  }
+
+  // More conversions can be added as required.
+  template <>
+  template <>
+  bool CachedValueImpl<Integer>::getValueImpl(Real &result) const
+  {
+    if (m_known)
+      result = (Real) m_value;
+    return m_known;
+  }
+
+  bool CachedValueImpl<String>::getValueImpl(std::string &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  template <typename U>
+  bool CachedValueImpl<String>::getValueImpl(U &result) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValue: trying to get a " << PlexilValueType<U>::typeName
+                  << " value from a " << PlexilValueType<String>::typeName << " typed object");
+    return false;
+  }
+
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(ArrayImpl<T> &result) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValue: not implemented for "
+                  << PlexilValueType<ArrayImpl<T> >::typeName
+                  << " typed objects");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(U &result) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValue: trying to get a " << PlexilValueType<U>::typeName
+                  << " value from a " << PlexilValueType<ArrayImpl<T> >::typeName << " typed object");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool CachedValueImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValuePointer: trying to get a " << PlexilValueType<U>::typeName
+                  << " pointer value from a " << PlexilValueType<T>::typeName << " typed object");
+    return false;
+  }
+
+  bool CachedValueImpl<String>::getValuePointerImpl(std::string const *&ptr) const
+  {
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  // Report error for string types
+  template <typename U>
+  bool CachedValueImpl<String>::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValuePointer: trying to get a " << PlexilValueType<U>::typeName
+                  << " pointer value from a " << PlexilValueType<String>::typeName << " typed object");
+    return false;
+  }
+
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
+  {
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  // Conversion method
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(Array const *& ptr) const
+  {
+    if (m_known)
+      ptr = dynamic_cast<Array const *>(&m_value);
+    return m_known;
+  }
+
+  // Report error for type mismatch
+  template <typename T>
+  template <typename U>
+  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL,
+                  "getValuePointer: trying to get a " << PlexilValueType<U>::typeName
+                  << " pointer value from a " << PlexilValueType<ArrayImpl<T> >::typeName << " typed object");
+    return false;
+  }
+
+  template <typename T>
+  void CachedValueImpl<T>::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "[unknown_value]"; 
+  }
+
+  void CachedValueImpl<String>::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "[unknown_value]"; 
+  }
+
+  template <typename T>
+  void CachedValueImpl<ArrayImpl<T> >::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "[unknown_value]"; 
   }
 
   template <typename T>
@@ -414,49 +599,49 @@ namespace PLEXIL
     return wasKnown;
   }
 
-template <typename T>
-bool CachedValueImpl<T>::operator==(CachedValue const &other) const
-{
-  if (!m_known && other.isKnown())
+  template <typename T>
+  bool CachedValueImpl<T>::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<T> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<T> const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
     return true;
-  CachedValueImpl<T> const *otherPtr = 
-    dynamic_cast<CachedValueImpl<T> const *>(&other);
-  if (!otherPtr)
-    return false; // different type
-  if (m_known != otherPtr->m_known
-      || m_value != otherPtr->m_value)
-    return false; // different value
-  return true;
-}
+  }
 
-bool CachedValueImpl<String>::operator==(CachedValue const &other) const
-{
-  if (!m_known && other.isKnown())
+  bool CachedValueImpl<String>::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<String> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<String> const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
     return true;
-  CachedValueImpl<String> const *otherPtr = 
-    dynamic_cast<CachedValueImpl<String> const *>(&other);
-  if (!otherPtr)
-    return false; // different type
-  if (m_known != otherPtr->m_known
-      || m_value != otherPtr->m_value)
-    return false; // different value
-  return true;
-}
+  }
 
-template <typename T>
-bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
-{
-  if (!m_known && other.isKnown())
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
+      dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
     return true;
-  CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
-    dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
-  if (!otherPtr)
-    return false; // different type
-  if (m_known != otherPtr->m_known
-      || m_value != otherPtr->m_value)
-    return false; // different value
-  return true;
-}
+  }
 
   template <typename T>
   CachedValue *CachedValueImpl<T>::cloneImpl() const
@@ -598,11 +783,11 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     }
   }
 
-//
-// updatePtrImpl
-//
+  //
+  // updatePtrImpl
+  //
 
-bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string const *ptr)
+  bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string const *ptr)
   {
     if (!m_known || m_value != *ptr) {
       m_value = *ptr;
@@ -659,46 +844,6 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string 
   // getValue() and friends
   //
 
-  template <typename T>
-  bool CachedValueImpl<T>::getValueImpl(T &result) const
-  {
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
-  bool CachedValueImpl<String>::getValueImpl(std::string &result) const
-  {
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
-
-  bool CachedValueImpl<String>::getValuePointerImpl(std::string const *&ptr) const
-  {
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
-  }
-
-  template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
-  {
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
-  }
-
-  // Conversion method
-  template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(Array const *& ptr) const
-  {
-    if (m_known)
-      ptr = dynamic_cast<Array const *>(&m_value);
-    return m_known;
-  }
-
   //
   // Factory
   //
@@ -746,12 +891,141 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, std::string 
   //
 
   template class CachedValueImpl<Boolean>;
+
+  template bool CachedValueImpl<Boolean>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<Boolean>::getValueImpl(Real &) const;
+  template bool CachedValueImpl<Boolean>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<Boolean>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<Boolean>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<Boolean>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<Boolean>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<Boolean>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<Boolean>::getValuePointerImpl(Array const *&) const;
+  template bool CachedValueImpl<Boolean>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<Boolean>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<Boolean>::getValuePointerImpl(RealArray const *&) const;
+  template bool CachedValueImpl<Boolean>::getValuePointerImpl(StringArray const *&) const;
+
   template class CachedValueImpl<Integer>;
+
+  template bool CachedValueImpl<Integer>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<Integer>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<Integer>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<Integer>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<Integer>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<Integer>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<Integer>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<Integer>::getValuePointerImpl(Array const *&) const;
+  template bool CachedValueImpl<Integer>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<Integer>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<Integer>::getValuePointerImpl(RealArray const *&) const;
+  template bool CachedValueImpl<Integer>::getValuePointerImpl(StringArray const *&) const;
+
   template class CachedValueImpl<Real>;
-// template class CachedValueImpl<String>; // redundant
+
+  template bool CachedValueImpl<Real>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<Real>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<Real>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<Real>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<Real>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<Real>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<Real>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<Real>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<Real>::getValuePointerImpl(Array const *&) const;
+  template bool CachedValueImpl<Real>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<Real>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<Real>::getValuePointerImpl(RealArray const *&) const;
+  template bool CachedValueImpl<Real>::getValuePointerImpl(StringArray const *&) const;
+
+  // template class CachedValueImpl<String>; // redundant
+
+  template bool CachedValueImpl<String>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<String>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<String>::getValueImpl(Real &) const;
+
+  template bool CachedValueImpl<String>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<String>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<String>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<String>::getValueImpl(CommandHandleValue &) const;
+  
+  template bool CachedValueImpl<String>::getValuePointerImpl(Array const *&) const;
+  template bool CachedValueImpl<String>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<String>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<String>::getValuePointerImpl(RealArray const *&) const;
+  template bool CachedValueImpl<String>::getValuePointerImpl(StringArray const *&) const;
+
   template class CachedValueImpl<BooleanArray>;
+
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(Real &) const;
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<BooleanArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<BooleanArray>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<BooleanArray>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<BooleanArray>::getValuePointerImpl(RealArray const *&) const;
+  template bool CachedValueImpl<BooleanArray>::getValuePointerImpl(StringArray const *&) const;
+
   template class CachedValueImpl<IntegerArray>;
+
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(Real &) const;
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<IntegerArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<IntegerArray>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<IntegerArray>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<IntegerArray>::getValuePointerImpl(RealArray const *&) const;
+  template bool CachedValueImpl<IntegerArray>::getValuePointerImpl(StringArray const *&) const;
+
   template class CachedValueImpl<RealArray>;
+
+  template bool CachedValueImpl<RealArray>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<RealArray>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<RealArray>::getValueImpl(Real &) const;
+  template bool CachedValueImpl<RealArray>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<RealArray>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<RealArray>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<RealArray>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<RealArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<RealArray>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<RealArray>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<RealArray>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<RealArray>::getValuePointerImpl(StringArray const *&) const;
+
   template class CachedValueImpl<StringArray>;
+
+  template bool CachedValueImpl<StringArray>::getValueImpl(Boolean &) const;
+  template bool CachedValueImpl<StringArray>::getValueImpl(Integer &) const;
+  template bool CachedValueImpl<StringArray>::getValueImpl(Real &) const;
+  template bool CachedValueImpl<StringArray>::getValueImpl(String &) const;
+
+  template bool CachedValueImpl<StringArray>::getValueImpl(NodeState &) const;
+  template bool CachedValueImpl<StringArray>::getValueImpl(NodeOutcome &) const;
+  template bool CachedValueImpl<StringArray>::getValueImpl(FailureType &) const;
+  template bool CachedValueImpl<StringArray>::getValueImpl(CommandHandleValue &) const;
+
+  template bool CachedValueImpl<StringArray>::getValuePointerImpl(String const *&) const;
+  template bool CachedValueImpl<StringArray>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool CachedValueImpl<StringArray>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool CachedValueImpl<StringArray>::getValuePointerImpl(RealArray const *&) const;
 
 } // namespace PLEXIL

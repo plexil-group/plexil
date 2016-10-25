@@ -27,7 +27,9 @@
 #ifndef PLEXIL_CACHED_VALUE_HH
 #define PLEXIL_CACHED_VALUE_HH
 
-#include "GetValue.hh"
+#include "ValueType.hh"
+
+#include <iostream>
 
 namespace PLEXIL
 {
@@ -36,7 +38,7 @@ namespace PLEXIL
   /**
    * Pure virtual base class for storing state cache values
    */
-  class CachedValue : virtual public GetValue
+  class CachedValue
   {
   public:
     CachedValue() : m_timestamp(0) {}
@@ -61,6 +63,74 @@ namespace PLEXIL
      * @return True if changed, false otherwise.
      */
     virtual bool setUnknown(unsigned int timestamp) = 0;
+
+    //
+    // GetValue API
+    //
+    // Include here instead of inheriting, because inheritance adds bulk to instances
+    // in some compilers.
+    //
+    
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    virtual ValueType valueType() const = 0;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    virtual bool isKnown() const = 0;
+
+    /**
+     * @brief Get the value of this object as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const = 0;
+
+    /**
+     * @brief Print the object's value to the given stream.
+     * @param s The output stream.
+     */
+    virtual void printValue(std::ostream& s) const = 0;
+
+    /**
+     * @brief Retrieve the value of this object.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The value is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValue(Boolean &result) const = 0;
+    virtual bool getValue(NodeState &result) const = 0;
+    virtual bool getValue(NodeOutcome &result) const = 0;
+    virtual bool getValue(FailureType &result) const = 0;
+    virtual bool getValue(CommandHandleValue &result) const = 0;
+    virtual bool getValue(Integer &result) const = 0;
+    virtual bool getValue(Real &result) const = 0;
+
+    virtual bool getValue(String &result) const = 0;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this object.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The pointer is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValuePointer(String const *&ptr) const = 0;
+
+    virtual bool getValuePointer(Array const *&ptr) const = 0;
+
+    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
+    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
+    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
 
     /**
      * @brief Update the cache entry with the given new value.
