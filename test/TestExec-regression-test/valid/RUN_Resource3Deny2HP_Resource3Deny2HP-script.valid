@@ -74,40 +74,41 @@ Resource3Deny2HP{
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Permission to execute c1 has been denied by the resource arbiter.
 [Test:testOutput]Permission to execute c2 has been denied by the resource arbiter.
-[Test:testOutput]Executing c3() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN))
+[Test:testOutput]Executing c3() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe220c076d0 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Resource3Deny2HP{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fd553c078b0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd553c07810 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe220c079f0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe220c07950 [i](UNKNOWN))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fd553c07c30 [a](1) (Interruptible Boolean 0x7fd553c07c80 [a](1) (CommandHandleVariable NodeCommandHandle 0x7fd553c06c90 [a](COMMAND_DENIED))) (EQ Boolean 0x7fd553c07b50 [a](0) (Constant Integer 0x7fd553c07b20 [a](10)) (Variable Integer returnValue 0x7fd553c06b70 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fd553c07bd0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c06c90 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10ce8e728 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd553c06e40 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c06c90 [a](COMMAND_DENIED)))
-   AbortCompleteCondition: (InternalVariable Boolean C1 abortComplete 0x7fd553c06ce0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c06c90 [a](COMMAND_DENIED))
-   mem_priority: (Variable Integer mem_priority 0x7fd553c06c00 [a](5))
-   returnValue: (Variable Integer returnValue 0x7fd553c06b70 [a](-1))
+   EndCondition: (OR Boolean 0x7fe220c07d70 [a](1) (Interruptible Boolean 0x7fe220c07dc0 [a](1) (CommandHandleVariable NodeCommandHandle 0x7fe220c06dd0 [a](COMMAND_DENIED))) (EQ Boolean 0x7fe220c07c90 [a](0) (Constant Integer 0x7fe220c07c60 [a](10)) (Variable Integer returnValue 0x7fe220c06cb0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fe220c07d10 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe220c06dd0 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x101873728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fe220c06f80 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe220c06dd0 [a](COMMAND_DENIED)))
+   AbortCompleteCondition: (InternalVariable Boolean C1 abortComplete 0x7fe220c06e20 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe220c06dd0 [a](COMMAND_DENIED))
+   mem_priority: (Variable Integer mem_priority 0x7fe220c06d40 [a](5))
+   returnValue: (Variable Integer returnValue 0x7fe220c06cb0 [a](-1))
   }
   C2{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fd553c07ec0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c07180 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10ce8e728 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd553c07350 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c07180 [a](COMMAND_DENIED)))
-   AbortCompleteCondition: (InternalVariable Boolean C2 abortComplete 0x7fd553c071d0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c07180 [a](COMMAND_DENIED))
-   mem_priority2: (Variable Integer mem_priority2 0x7fd553c070f0 [a](10))
+   PostCondition: (EQ Boolean 0x7fe220c08000 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe220c072c0 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x101873728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fe220c07490 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe220c072c0 [a](COMMAND_DENIED)))
+   AbortCompleteCondition: (InternalVariable Boolean C2 abortComplete 0x7fe220c07310 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe220c072c0 [a](COMMAND_DENIED))
+   mem_priority2: (Variable Integer mem_priority2 0x7fe220c07230 [a](10))
   }
   C3{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fd553c080f0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10ce8e728 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd553c07740 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean C3 abortComplete 0x7fd553c075e0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN))
+   PostCondition: (EQ Boolean 0x7fe220c08230 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe220c076d0 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x101873728 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fe220c07880 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe220c076d0 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean C3 abortComplete 0x7fe220c07720 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe220c076d0 [a](UNKNOWN))
   }
 }
 
+[Test:testOutput]Sending command ACK c3() = (string)COMMAND_SENT_TO_SYSTEM
 [PlexilExec:cycle]==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: C1 Resource3Deny2HP C2 C3 
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
@@ -134,98 +135,57 @@ Resource3Deny2HP{
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 13
-[PlexilExec:step][2:1] State change queue: C1 C2 
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 14
+[PlexilExec:step][2:1] State change queue: C1 C2 C3 
 [PlexilExec:step][2:1:0] Transitioning node C1 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node Resource3Deny2HP
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:step][2:1:1] Transitioning node C2 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][2:2] Check queue: Resource3Deny2HP C1 C2 
+[PlexilExec:step][2:1:2] Transitioning node C3 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node C3
+[PlexilExec:step][2:2] Check queue: Resource3Deny2HP C1 C2 C3 
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 14
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 15
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 15
-[PlexilExec:step][2:2] State change queue: C1 C2 
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 16
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 17
+[PlexilExec:step][2:2] State change queue: C1 C2 C3 
 [PlexilExec:step][2:2:0] Transitioning node C1 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node Resource3Deny2HP
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:step][2:2:1] Transitioning node C2 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][2:3] Check queue: Resource3Deny2HP C1 C2 
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 2
-[PlexilExec:printPlan]
-Resource3Deny2HP{
- State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fd553c078b0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd553c07810 [i](UNKNOWN))
-  C1{
-   State: FINISHED (0)
-   Outcome: FAILURE
-   Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c06c90 [i](UNKNOWN))
-   mem_priority: (Variable Integer mem_priority 0x7fd553c06c00 [i](UNKNOWN))
-   returnValue: (Variable Integer returnValue 0x7fd553c06b70 [i](UNKNOWN))
-  }
-  C2{
-   State: FINISHED (0)
-   Outcome: FAILURE
-   Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c07180 [i](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fd553c070f0 [i](UNKNOWN))
-  }
-  C3{
-   State: FINISHING (0)
-   PostCondition: (EQ Boolean 0x7fd553c080f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10ce8e728 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd553c07740 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean C3 abortComplete 0x7fd553c075e0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [a](UNKNOWN))
-  }
-}
-
-[Test:testOutput]Sending command ACK c3() = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:step][2:2:2] Transitioning node C3 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:cycle]==>Start cycle 3
-[PlexilExec:step][3:0] Check queue: C3 
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 16
-[PlexilExec:step][3:0] State change queue: C3 
-[PlexilExec:step][3:0:0] Transitioning node C3 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node Resource3Deny2HP
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:step][3:1] Check queue: Resource3Deny2HP C3 
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 17
-[PlexilExec:step][3:1] State change queue: C3 
-[PlexilExec:step][3:1:0] Transitioning node C3 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node Resource3Deny2HP
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:step][3:2] Check queue: Resource3Deny2HP C3 
+[PlexilExec:step][2:3] Check queue: Resource3Deny2HP C1 C2 C3 
 [PlexilExec:handleConditionsChanged]Node Resource3Deny2HP had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Resource3Deny2HP' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Resource3Deny2HP' on the state change queue in position 18
-[PlexilExec:step][3:2] State change queue: Resource3Deny2HP 
-[PlexilExec:step][3:2:0] Transitioning node Resource3Deny2HP from EXECUTING to FINISHING
+[PlexilExec:step][2:3] State change queue: Resource3Deny2HP 
+[PlexilExec:step][2:3:0] Transitioning node Resource3Deny2HP from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node Resource3Deny2HP
-[PlexilExec:step][3:3] Check queue: Resource3Deny2HP 
+[PlexilExec:step][2:4] Check queue: Resource3Deny2HP 
 [PlexilExec:handleConditionsChanged]Node Resource3Deny2HP had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Resource3Deny2HP' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Resource3Deny2HP' on the state change queue in position 19
-[PlexilExec:step][3:3] State change queue: Resource3Deny2HP 
-[PlexilExec:step][3:3:0] Transitioning node Resource3Deny2HP from FINISHING to ITERATION_ENDED
+[PlexilExec:step][2:4] State change queue: Resource3Deny2HP 
+[PlexilExec:step][2:4:0] Transitioning node Resource3Deny2HP from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node Resource3Deny2HP
-[PlexilExec:step][3:4] Check queue: Resource3Deny2HP 
+[PlexilExec:step][2:5] Check queue: Resource3Deny2HP 
 [PlexilExec:handleConditionsChanged]Node Resource3Deny2HP had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Resource3Deny2HP' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Resource3Deny2HP' on the state change queue in position 20
-[PlexilExec:step][3:4] State change queue: Resource3Deny2HP 
-[PlexilExec:step][3:4:0] Transitioning node Resource3Deny2HP from ITERATION_ENDED to FINISHED
+[PlexilExec:step][2:5] State change queue: Resource3Deny2HP 
+[PlexilExec:step][2:5:0] Transitioning node Resource3Deny2HP from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 3
+[PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 Resource3Deny2HP{
  State: FINISHED (0)
@@ -234,21 +194,21 @@ Resource3Deny2HP{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c06c90 [i](UNKNOWN))
-   mem_priority: (Variable Integer mem_priority 0x7fd553c06c00 [i](UNKNOWN))
-   returnValue: (Variable Integer returnValue 0x7fd553c06b70 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe220c06dd0 [i](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7fe220c06d40 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7fe220c06cb0 [i](UNKNOWN))
   }
   C2{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c07180 [i](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fd553c070f0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe220c072c0 [i](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7fe220c07230 [i](UNKNOWN))
   }
   C3{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd553c07590 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe220c076d0 [i](UNKNOWN))
   }
 }
 
