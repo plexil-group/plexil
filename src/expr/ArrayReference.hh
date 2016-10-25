@@ -36,8 +36,7 @@ namespace PLEXIL {
   // Forward reference
   class Value;
 
-  class ArrayReference : public NotifierImpl,
-                         virtual public Expression
+  class ArrayReference : public NotifierImpl
   {
   public:
     ArrayReference(Expression *ary,
@@ -218,7 +217,7 @@ namespace PLEXIL {
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    virtual void setValue(GetValue const &valex);
+    virtual void setValue(Expression const &valex);
 
     /**
      * @brief Set the value for this expression from a generic Value.
@@ -254,15 +253,21 @@ namespace PLEXIL {
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;
 
+  protected:
+
+    // Wrap NotifierImpl method
+    virtual void publishChange(Expression const *src);
+
   private:
     // Default, copy, assignment disallowed
     MutableArrayReference();
     MutableArrayReference(const MutableArrayReference &);
     MutableArrayReference &operator=(const MutableArrayReference &);
 
-    // Internal function
+    // Internal functions
     bool mutableSelfCheck(Array *&ary, size_t &idx);
 
+    // FIXME: make this a pointer to ArrayVariable
     Assignable *m_mutableArray;
     Value m_savedValue;
     bool m_saved;

@@ -43,8 +43,7 @@ namespace PLEXIL {
 
   class StateVariable final :
     public GetValueImpl<NodeState>,
-    public NotifierImpl,
-    virtual public Expression
+    public NotifierImpl
   {
   public:
     /**
@@ -111,8 +110,7 @@ namespace PLEXIL {
 
   class OutcomeVariable final :
     public GetValueImpl<NodeOutcome>,
-    public NotifierImpl,
-    virtual public Expression
+    public NotifierImpl
   {
   public:
     /**
@@ -177,8 +175,7 @@ namespace PLEXIL {
 
   class FailureVariable final :
     public GetValueImpl<FailureType>,
-    public NotifierImpl,
-    virtual public Expression
+    public NotifierImpl
   {
   public:
     /**

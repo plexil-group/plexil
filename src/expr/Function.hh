@@ -44,8 +44,7 @@ namespace PLEXIL
    * Represents a function whose value depends on the value(s) of one or more subexpressions.
    */
 
-  class Function : public NotifierImpl,
-                   public Expression
+  class Function : public NotifierImpl
   {
   public:
     virtual ~Function();

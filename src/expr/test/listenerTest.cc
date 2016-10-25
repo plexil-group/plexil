@@ -48,7 +48,7 @@ public:
   }
 
 protected:
-  void notifyChanged(PLEXIL::Notifier const *src)
+  void notifyChanged(PLEXIL::Expression const *src)
   {
     m_owner.notifyChanged(src);
   }
@@ -59,8 +59,7 @@ private:
 
 
 class TrivialExpression :
-  public PLEXIL::NotifierImpl,
-  public PLEXIL::Expression
+  public PLEXIL::NotifierImpl
 {
 public:
   TrivialExpression()
@@ -93,7 +92,7 @@ public:
 #undef DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD
 
   // Only ever called when active
-  void handleChange(PLEXIL::Notifier const * src)
+  void handleChange(PLEXIL::Expression const * src)
   {
     changed = true;
     publishChange(src);

@@ -41,14 +41,12 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant()
     : GetValueImpl<T>(),
-    Expression(),
     m_known(false)
   {
   }
 
   Constant<String>::Constant()
     : GetValueImpl<String>(),
-    Expression(),
     m_known(false)
   {
   }
@@ -56,7 +54,6 @@ namespace PLEXIL
   template <typename T>
   Constant<ArrayImpl<T> >::Constant()
     : GetValueImpl<ArrayImpl<T> >(),
-    Expression(),
     m_known(false)
   {
   }
@@ -67,7 +64,6 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const Constant &other)
     : GetValueImpl<T>(),
-    Expression(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -75,7 +71,6 @@ namespace PLEXIL
 
   Constant<String>::Constant(const Constant &other)
     : GetValueImpl<String>(),
-    Expression(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -84,7 +79,6 @@ namespace PLEXIL
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const Constant &other)
     : GetValueImpl<ArrayImpl<T> >(),
-    Expression(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -96,7 +90,6 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const T &value)
     : GetValueImpl<T>(),
-    Expression(),
     m_value(value),
     m_known(true)
   {
@@ -104,7 +97,6 @@ namespace PLEXIL
 
   Constant<String>::Constant(const std::string &value)
   : GetValueImpl<String>(),
-    Expression(),
     m_value(value),
     m_known(true)
   {
@@ -113,7 +105,6 @@ namespace PLEXIL
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const ArrayImpl<T> &value)
     : GetValueImpl<ArrayImpl<T> >(),
-    Expression(),
     m_value(value),
     m_known(true)
   {
@@ -126,7 +117,6 @@ namespace PLEXIL
   // *** TODO: More types ***
   Constant<String>::Constant(const char *value)
     : GetValueImpl<String>(),
-    Expression(),
     m_value(value),
     m_known(true)
   {

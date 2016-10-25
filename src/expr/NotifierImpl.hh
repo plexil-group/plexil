@@ -27,8 +27,8 @@
 #ifndef PLEXIL_NOTIFIER_IMPL_HH
 #define PLEXIL_NOTIFIER_IMPL_HH
 
+#include "Expression.hh"
 #include "ExpressionListener.hh"
-#include "Notifier.hh"
 
 #include <vector>
 #include <cstddef> // size_t
@@ -52,7 +52,7 @@ namespace PLEXIL
    */
 
   class NotifierImpl
-    : virtual public Notifier,
+    : virtual public Expression,
       virtual public ExpressionListener
   {
   public:
@@ -64,6 +64,10 @@ namespace PLEXIL
 
     //
     // Core NotifierImpl behavior
+    //
+
+    //
+    // Expression notification graph API
     //
 
     /**
@@ -104,7 +108,7 @@ namespace PLEXIL
     /**
      * @brief Notify this expression that a subexpression's value has changed.
      */
-    virtual void notifyChanged(Notifier const *src);
+    virtual void notifyChanged(Expression const *src);
 
     /**
      * @brief Determine whether or not expression has any listeners.
@@ -154,12 +158,12 @@ namespace PLEXIL
      * @brief Called by notifyChanged() when the expression is active.
      * @note Default method calls publishChange().
      */
-    virtual void handleChange(Notifier const *src);
+    virtual void handleChange(Expression const *src);
 
     /**
      * @brief Notify all listeners that this expression's value has changed.
      */
-    void publishChange(Notifier const *src);
+    void publishChange(Expression const *src);
 
   private:
     // Not implemented

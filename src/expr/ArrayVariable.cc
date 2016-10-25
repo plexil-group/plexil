@@ -206,7 +206,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayVariable<T>::setValue(GetValue const &val)
+  void ArrayVariable<T>::setValue(Expression const &val)
   {
     ArrayImpl<T> const *ptr;
     if (val.getValuePointer(ptr))
@@ -336,13 +336,6 @@ namespace PLEXIL
       m_value.resize(m_maxSize);
       m_known = true; // array is known, not its contents
     }
-  }
-
-  // *** KLUDGE ***
-  template <typename T>
-  void ArrayVariable<T>::notifyChanged(Notifier const * src)
-  {
-    NotifierImpl::notifyChanged(src);
   }
   
   //

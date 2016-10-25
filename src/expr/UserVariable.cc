@@ -312,7 +312,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void UserVariable<T>::setValue(GetValue const &val)
+  void UserVariable<T>::setValue(Expression const &val)
   {
     T temp;
     if (val.getValue(temp))
@@ -321,7 +321,7 @@ namespace PLEXIL
       this->setUnknown();
   }
 
-  void UserVariable<String>::setValue(GetValue const &val)
+  void UserVariable<String>::setValue(Expression const &val)
   {
     String temp;
     if (val.getValue(temp))
@@ -516,16 +516,6 @@ namespace PLEXIL
                    << valueTypeName(expr->valueType()));
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
-  }
-
-  // *** KLUDGE ***
-  template <typename T>
-  void UserVariable<T>::notifyChanged(Notifier const * /* src */)
-  {
-  }
-
-  void UserVariable<String>::notifyChanged(Notifier const * /* src */)
-  {
   }
   
   //

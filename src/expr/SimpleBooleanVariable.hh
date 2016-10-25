@@ -40,8 +40,7 @@ namespace PLEXIL {
 
   class SimpleBooleanVariable final :
     public GetValueImpl<bool>,
-    public NotifierImpl,
-    public virtual Expression
+    public NotifierImpl
   {
   public:
     SimpleBooleanVariable();

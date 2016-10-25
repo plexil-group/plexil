@@ -27,8 +27,7 @@
 #ifndef PLEXIL_EXPRESSION_HH
 #define PLEXIL_EXPRESSION_HH
 
-#include "GetValue.hh"
-#include "Notifier.hh"
+#include "ValueType.hh"
 
 //
 // Virtual base classes for the expression system
@@ -42,14 +41,14 @@ namespace PLEXIL
   //
 
   class Assignable;
+  class ExpressionListener;
+  class Value;
 
   /**
    * @class Expression
-   * @brief Abstract base class for expressions providing base functionality.
+   * @brief Abstract base class for expressions.
    */
-  class Expression :
-    virtual public Notifier,
-    virtual public GetValue
+  class Expression
   {
   protected:
     Expression() = default;
@@ -144,6 +143,118 @@ namespace PLEXIL
      * @return The string representation.
      */
     virtual std::string valueString() const;
+
+    //
+    // GetValue API
+    //
+        /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    virtual ValueType valueType() const = 0;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    virtual bool isKnown() const = 0;
+
+    /**
+     * @brief Get the value of this object as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const = 0;
+
+    /**
+     * @brief Print the object's value to the given stream.
+     * @param s The output stream.
+     */
+    virtual void printValue(std::ostream& s) const = 0;
+
+    //
+    // The base class has to explicitly name all the potential types;
+    // we can't use a template to declare pure virtual member functions
+    // with a default method.
+    //
+
+    // 
+    // If the above weren't bad enough, to maintain type consistency,
+    // we have to use an out parameter instead of a return value for getValue()
+    // because a return value might be implicitly promoted to the wrong type.
+    // C++ sucks at polymorphism.
+    //
+
+    /**
+     * @brief Retrieve the value of this object.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The value is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValue(Boolean &result) const = 0;
+    virtual bool getValue(NodeState &result) const = 0;
+    virtual bool getValue(NodeOutcome &result) const = 0;
+    virtual bool getValue(FailureType &result) const = 0;
+    virtual bool getValue(CommandHandleValue &result) const = 0;
+    virtual bool getValue(Integer &result) const = 0;
+    virtual bool getValue(Real &result) const = 0;
+
+    virtual bool getValue(String &result) const = 0;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this object.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The pointer is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValuePointer(String const *&ptr) const = 0;
+
+    virtual bool getValuePointer(Array const *&ptr) const = 0;
+
+    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
+    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
+    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
+
+    //
+    // Expression notification graph API
+    //
+
+    /**
+     * @brief Parts of the notification graph may be inactive, which mans that value change
+     *        notifications won't propagate through them.  The isActive method controls this.
+     * @return true if this Expression is active, false if it is not.
+     */
+    virtual bool isActive() const = 0;
+
+    /**
+     * @brief Make this expression active.  It will publish value changes and it will accept
+     *        incoming change notifications.
+     */
+    virtual void activate() = 0;
+
+    /**
+     * @brief Make this listener inactive.  It will not publish value changes, nor will it
+     *        accept incoming change notifications.
+     */
+    virtual void deactivate() = 0;
+
+    /**
+     * @brief Add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     */
+    virtual void addListener(ExpressionListener *ptr) = 0;
+
+    /**
+     * @brief Remove a listener from this Expression.
+     * @param ptr The pointer to the listener to remove.
+     */
+    virtual void removeListener(ExpressionListener *ptr) = 0;
 
   };
 

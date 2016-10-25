@@ -172,7 +172,7 @@ protected:
   // API for unit test
   //
 
-  void notifyChanged(Notifier const *n)
+  void notifyChanged(Expression const *n)
   {
     Expression const *expression = dynamic_cast<Expression const *>(n);
     assertTrue_1(expression);
@@ -194,7 +194,7 @@ private:
     {
     }
 
-    void notifyChanged(Notifier const *src)
+    void notifyChanged(Expression const *src)
     {
       m_intf.notifyChanged(src);
     }

@@ -43,8 +43,7 @@ namespace PLEXIL
    *       read-only access to a mutable expression is needed.
    */
   class Alias :
-    public NotifierImpl,
-    public Expression
+    public NotifierImpl
   {
   public:
     Alias(NodeConnector *node, // *** is this needed?? ***

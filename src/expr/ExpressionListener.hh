@@ -32,7 +32,7 @@ namespace PLEXIL
   //
   // Forward declarations
   //
-  class Notifier;
+  class Expression;
 
   /**
    * @brief Stateless abstract base class for listeners in the expression notification graph.
@@ -55,7 +55,7 @@ namespace PLEXIL
      * @param src The source of the notification, so that recipients can check for circularity.
      *            (e.g. an array reference modifying its array)
      */
-    virtual void notifyChanged(Notifier const *src) = 0;
+    virtual void notifyChanged(Expression const *src) = 0;
   };
 
 }

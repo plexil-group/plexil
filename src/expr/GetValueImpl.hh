@@ -27,16 +27,16 @@
 #ifndef PLEXIL_GET_VALUE_IMPL_HH
 #define PLEXIL_GET_VALUE_IMPL_HH
 
-#include "GetValue.hh"
+#include "Expression.hh"
 
 namespace PLEXIL
 {
   //*
   // @class GetValueShim
-  // @brief CRTP template adapter for templatized GetValue derived classes
+  // @brief CRTP template adapter for strongly typed Expression classes
 
   template <class IMPL>
-  class GetValueShim : public virtual GetValue
+  class GetValueShim : public virtual Expression
   {
   protected:
     GetValueShim() = default;

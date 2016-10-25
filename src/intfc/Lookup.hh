@@ -27,7 +27,6 @@
 #ifndef PLEXIL_LOOKUP_HH
 #define PLEXIL_LOOKUP_HH
 
-#include "Expression.hh"
 #include "NotifierImpl.hh"
 #include "State.hh"
 
@@ -62,9 +61,15 @@ namespace PLEXIL
   //  - frequently active for many Exec cycles
   //
 
-  class Lookup : public NotifierImpl,
-                 virtual public Expression
+  class Lookup : public NotifierImpl
   {
+  protected:    
+    template <typename R>
+    bool getValueImpl(R &) const;
+
+    template <typename R>
+    bool getValuePointerImpl(R const *&) const;
+
   public:
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
@@ -86,7 +91,7 @@ namespace PLEXIL
     // Common behavior required by NotifierImpl
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Notifier const *src);
+    void handleChange(Expression const *src);
 
     //
     // Value access
@@ -179,15 +184,9 @@ namespace PLEXIL
     virtual void invalidateOldState(); // called before updating state to new value
 
     // Shared behavior needed by LookupOnChange
-    bool handleChangeInternal(Notifier const *src);
+    bool handleChangeInternal(Expression const *src);
     void ensureRegistered();
     void unregister();
-    
-    template <typename R>
-    bool getValueImpl(R &) const;
-
-    template <typename R>
-    bool getValuePointerImpl(R const *&) const;
 
     // Member variables shared with implementation classes
     State m_cachedState;
@@ -225,7 +224,7 @@ namespace PLEXIL
     // Wrappers around Lookup methods
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Notifier const *exp);
+    void handleChange(Expression const *exp);
     void valueChanged();
 
     bool getThresholds(Integer &high, Integer &low);

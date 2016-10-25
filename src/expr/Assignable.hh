@@ -143,7 +143,7 @@ namespace PLEXIL {
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(GetValue const &val) = 0;
+    virtual void setValue(Expression const &val) = 0;
 
     /**
      * @brief Retrieve a pointer to the non-const value.

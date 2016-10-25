@@ -28,7 +28,6 @@
 #define PLEXIL_CONSTANT_HH
 
 #include "ArrayImpl.hh"
-#include "Expression.hh"
 #include "GetValueImpl.hh"
 
 namespace PLEXIL {
@@ -41,8 +40,7 @@ namespace PLEXIL {
 
   template <typename T>
   class Constant :
-    public GetValueImpl<T>,
-    public Expression
+    public GetValueImpl<T>
   {
   public:
 
@@ -143,8 +141,7 @@ namespace PLEXIL {
   // String is different
   template <>
   class Constant<String> :
-    public GetValueImpl<String>,
-    public Expression
+    public GetValueImpl<String>
   {
   public:
 
@@ -242,7 +239,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged(Notifier const * /* src */);
+    void notifyChanged(Expression const * /* src */);
 
   protected:
 
@@ -258,8 +255,7 @@ namespace PLEXIL {
   // Array types
   template <typename T>
   class Constant<ArrayImpl<T> > :
-    public GetValueImpl<ArrayImpl<T> >,
-    public Expression
+    public GetValueImpl<ArrayImpl<T> >
   {
   public:
 
@@ -344,7 +340,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged(Notifier const * /* src */);
+    void notifyChanged(Expression const * /* src */);
 
   protected:
 

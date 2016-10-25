@@ -38,8 +38,7 @@ namespace PLEXIL
 
   class NodeTimepointValue :
     public GetValueImpl<Real>, // FIXME
-    public NotifierImpl,
-    virtual public Expression
+    public NotifierImpl
   {
   public:
     NodeTimepointValue(Node *node,

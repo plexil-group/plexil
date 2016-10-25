@@ -44,8 +44,7 @@ namespace PLEXIL
   class UserVariable final :
     public GetValueImpl<T>,
     public NotifierImpl,
-    public Assignable,
-    virtual public Expression
+    public Assignable
   {
   public:
 
@@ -139,7 +138,7 @@ namespace PLEXIL
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
      */
-    virtual void setValue(GetValue const &val);
+    virtual void setValue(Expression const &val);
 
     /**
      * @brief Retrieve a pointer to the non-const value.
@@ -154,10 +153,6 @@ namespace PLEXIL
     void handleDeactivate();
 
     void printSpecialized(std::ostream &s) const;
-
-    // *** KLUDGE ***
-    // Override for ambiguity in base classes
-    virtual void notifyChanged(Notifier const *src);
 
   protected:
     
@@ -191,8 +186,7 @@ namespace PLEXIL
   class UserVariable<String> final :
     public GetValueImpl<String>,
     public NotifierImpl,
-    public Assignable,
-    virtual public Expression
+    public Assignable
   {
   public:
 
@@ -301,7 +295,7 @@ namespace PLEXIL
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
      */
-    virtual void setValue(GetValue const &val);
+    virtual void setValue(Expression const &val);
 
     /**
      * @brief Retrieve a pointer to the non-const value.
@@ -316,10 +310,6 @@ namespace PLEXIL
     void handleDeactivate();
 
     void printSpecialized(std::ostream &s) const;
-
-    // *** KLUDGE ***
-    // Override for ambiguity in base classes
-    virtual void notifyChanged(Notifier const *src);
 
   private:
 

@@ -39,8 +39,7 @@ namespace PLEXIL
 
   class CommandHandleVariable final :
     public GetValueImpl<CommandHandleValue>,
-    public NotifierImpl,
-    virtual public Expression
+    public NotifierImpl
   {
   public:
     /**

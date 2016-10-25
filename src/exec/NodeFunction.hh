@@ -43,8 +43,7 @@ namespace PLEXIL
    */
 
   class NodeFunction
-    : public NotifierImpl,
-      virtual public Expression
+    : public NotifierImpl
   {
   public:
     NodeFunction(NodeOperator const *op, Node *exprs);

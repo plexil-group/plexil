@@ -183,7 +183,7 @@ namespace PLEXIL {
     // ExpressionListener API
     //
 
-    virtual void notifyChanged(Notifier const *src);
+    virtual void notifyChanged(Expression const *src);
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.

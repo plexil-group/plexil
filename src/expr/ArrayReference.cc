@@ -177,8 +177,8 @@ namespace PLEXIL
   bool ArrayReference::getValuePointerImpl(T const *&ptr) const
   {
     assertTrueMsg(ALWAYS_FAIL,
-		  "getValuePointer: trying to get a " << PlexilValueType<T>::typeName
-		  << " pointer value from an ArrayReference");
+                  "getValuePointer: trying to get a " << PlexilValueType<T>::typeName
+                  << " pointer value from an ArrayReference");
     return false;
   }
 
@@ -278,8 +278,7 @@ namespace PLEXIL
     bool changed = (!known || (val != oldValue));
     if (changed) {
       ary->setElement(idx, val);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
+      publishChange(this);
     }
   }
 
@@ -332,10 +331,8 @@ namespace PLEXIL
                      << valueTypeName(m_array->valueType()));
       return;
     }
-    if (changed) {
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+    if (changed)
+      publishChange(this);
   }
 
   void MutableArrayReference::setValue(NodeState const &)
@@ -363,43 +360,43 @@ namespace PLEXIL
     setValue(String(value));
   }
 
-  void MutableArrayReference::setValue(GetValue const &valex)
+  void MutableArrayReference::setValue(Expression const &valex)
   {
     if (valex.isKnown())
       switch (valex.valueType()) {
       case BOOLEAN_TYPE: {
-	Boolean b;
-	valex.getValue(b);
-	this->setValue(b);
+        Boolean b;
+        valex.getValue(b);
+        this->setValue(b);
       }
-	break;
+        break;
 	
       case INTEGER_TYPE: {
-	Integer i;
-	valex.getValue(i);
-	this->setValue(i);
+        Integer i;
+        valex.getValue(i);
+        this->setValue(i);
       }
-	break;
+        break;
 
       case REAL_TYPE: {
-	Real r;
-	valex.getValue(r);
-	this->setValue(r);
+        Real r;
+        valex.getValue(r);
+        this->setValue(r);
       }
-	break;
+        break;
 
       case STRING_TYPE: {
-	String const *ptr;
-	valex.getValuePointer(ptr);
-	this->setValue(*ptr);
+        String const *ptr;
+        valex.getValuePointer(ptr);
+        this->setValue(*ptr);
       }
-	break;
+        break;
 
       default:
-	assertTrueMsg(ALWAYS_FAIL,
-		      "ArrayReference:setValue: illegal or unimplemented type "
-		      << valueTypeName(valex.valueType()));
-	break;
+        assertTrueMsg(ALWAYS_FAIL,
+                      "ArrayReference:setValue: illegal or unimplemented type "
+                      << valueTypeName(valex.valueType()));
+        break;
       }
     else
       setUnknown();
@@ -414,8 +411,7 @@ namespace PLEXIL
     Value oldValue = ary->getElementValue(idx);
     if (value != oldValue) {
       ary->setElementValue(idx, value);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
+      publishChange(this);
     }
   }
 
@@ -427,10 +423,8 @@ namespace PLEXIL
       return;
     bool changed = ary->elementKnown(idx);
     ary->setElementUnknown(idx);
-    if (changed) {
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+    if (changed)
+      publishChange(this);
   }
 
   bool MutableArrayReference::getMutableValuePointer(std::string *&ptr)
@@ -498,8 +492,7 @@ namespace PLEXIL
       return;
     if (m_savedValue != ary->getElementValue(idx)) {
       ary->setElementValue(idx, m_savedValue);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this);
+      publishChange(this);
     }
     m_saved = false;
   }
@@ -527,6 +520,15 @@ namespace PLEXIL
   Assignable const *MutableArrayReference::getBaseVariable() const
   {
     return m_mutableArray->getBaseVariable();
+  }
+
+  void MutableArrayReference::publishChange(Expression const *src)
+  {
+    NotifierImpl::publishChange(src);
+    // FIXME: move check to initialization/expression finalization
+    Assignable *base = m_mutableArray->getBaseVariable()->asAssignable();
+    check_error_2(base, "ArrayReference: array variable is not assignable");
+    base->notifyChanged(src);
   }
 
 } // namespace PLEXIL
