@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"
 #include "StateCacheEntry.hh"
-#include "StateCacheMap.hh"
 #include "Update.hh"
 #include "parsePlan.hh"
 #include "plan-utils.hh"
@@ -162,7 +161,8 @@ namespace PLEXIL
           Value value = parseStateValue(state);
           debugMsg("Test:testOutput",
                    "Creating initial state " << getText(st, value));
-          m_states.insert(std::pair<State, Value>(st, value));
+          m_states[st] = value;
+          this->lookupReturn(st, value);
           state = state.next_sibling();
         }
       }
@@ -174,11 +174,10 @@ namespace PLEXIL
   {
     State st = parseState(elt);
     Value value = parseStateValue(elt);
-    m_states[st] = value;
     debugMsg("Test:testOutput",
              "Processing event: " << st << " = " << value);
-    // FIXME: call this->lookupReturn() instead?
-    StateCacheMap::instance().ensureStateCacheEntry(st)->update(value);
+    m_states[st] = value;
+    this->lookupReturn(st, value);
   }
 
   void TestExternalInterface::handleCommand(pugi::xml_node const elt)
