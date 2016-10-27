@@ -1,0 +1,578 @@
+#! /usr/bin/env bash
+# Run all TestExec regression tests on both original and doubly converted plans
+
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo "$0: Environment variable PLEXIL_HOME not set"
+    exit 1
+fi
+
+. ${PLEXIL_HOME}/test/TestExec-regression-test/test-env.sh
+
+schema_dir="${PLEXIL_HOME}/schema"
+export PATH=${TEST_DIR}:${PATH}:${schema_dir}/test
+
+conversion_dir=/tmp/plexil/plans
+
+original_planfile()
+{
+    echo "${TEST_DIR}/plans/$1.plx"
+}
+
+v1_planfile()
+{
+    echo "${conversion_dir}/$1.px1"
+}
+
+v2_planfile()
+{
+    echo "${conversion_dir}/$1.px2"
+}
+
+script_file()
+{
+    echo "${TEST_DIR}/scripts/$1.psx"
+}
+
+original_outfile()
+{
+    echo "${TEST_DIR}/output/$1.out"
+}
+
+converted_outfile()
+{
+    echo "${TEST_DIR}/output/$1.converted.out"
+}
+
+empty_script_valid_file()
+{
+    echo "valid/RUN_$1_empty-script.valid"
+}
+
+convert()
+{
+    mkdir -p "${conversion_dir}"
+    v2=`v2_planfile $1`
+    saxon "${schema_dir}/plexil-v1-to-v2.xsl" `original_planfile $1` "${v2}"
+    if [ ! -r "${v2}" ]
+    then
+        echo '***' Conversion of plan $1 to PLEXIL V2 failed
+        return 1
+    fi
+    
+    v1=`v1_planfile $1`
+    saxon "${schema_dir}/plexil-v2-to-v1.xsl" "${v2}" "${v1}"
+    if [ ! -r "${v1}" ]
+    then
+        echo '***' Conversion of plan $1 from PLEXIL V2 back to PLEXIL V1 failed
+        return 1
+    fi
+
+    return 0
+}
+
+# Shamelessly copied from script file of same name
+run_empty_script_test()
+{
+    PLAN_FILE=`original_planfile "$1"`
+    if [ ! -r $PLAN_FILE ]
+    then
+        echo "$0: Plan file $PLAN_FILE not found"
+        return 1
+    fi
+
+    OUT_FILE=`original_outfile "$1"`
+
+    echo $1 >> tempConversionResults
+    $EXEC_PROG -L plans -d $TEST_DEBUG_CFG -p $PLAN_FILE -s $EMPTY_SCRIPT > $OUT_FILE 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE
+}
+
+compare_empty_script_test()
+{
+    OUT_FILE_BEFORE=`original_outfile "$1"`
+    OUT_FILE_AFTER=`converted_outfile "$1"`
+
+    PLAN_FILE_AFTER=`v1_planfile "$1"`
+
+    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $EMPTY_SCRIPT > $OUT_FILE_AFTER 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE_AFTER $OUT_FILE_BEFORE
+}
+
+compare_empty_script_valid_test()
+{
+    VALID_FILE_BEFORE=`empty_script_valid_file "$1"`
+    OUT_FILE_AFTER=`converted_outfile "$1"`
+
+    PLAN_FILE_AFTER=`v1_planfile "$1"`
+
+    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $EMPTY_SCRIPT > $OUT_FILE_AFTER 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE_AFTER $VALID_FILE_BEFORE
+}
+
+# Shamelessly copied from script file of same name
+run_same_name_script_test()
+{
+    PLAN_FILE=`original_planfile "$1"`
+    if [ ! -r $PLAN_FILE ]
+    then
+        echo "$0: Plan file $PLAN_FILE not found"
+        return 1
+    fi
+
+    scriptfile=`script_file "$1"`
+    if [ ! -r $scriptfile ]
+    then
+        echo "$0: Script file $scriptfile not found"
+        return 1
+    fi
+
+    OUT_FILE=output/$1.out
+
+    echo $1 >> tempConversionResults
+    $EXEC_PROG -L plans -d $TEST_DEBUG_CFG -p $PLAN_FILE -s $scriptfile > $OUT_FILE 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE
+}
+
+compare_same_name_script_test()
+{
+    OUT_FILE_BEFORE=`original_outfile "$1"`
+    OUT_FILE_AFTER=`converted_outfile "$1"`
+
+    PLAN_FILE_AFTER=`v1_planfile "$1"`
+    scriptfile=`script_file "$1"`
+
+    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $scriptfile > $OUT_FILE_AFTER 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE_AFTER $OUT_FILE_BEFORE
+}
+
+# Shamelessly copied from script file of same name
+run_simple_drive_test()
+{
+    scriptfile=`script_file "$1"`
+    if [ ! -r $scriptfile ]
+    then
+        echo "$0: Script file $scriptfile not found"
+        return 1
+    fi
+
+    PLAN_FILE=`original_planfile SimpleDrive`
+    if [ ! -r $PLAN_FILE ]
+    then
+        echo "$0: Plan file $PLAN_FILE not found"
+        return 1
+    fi
+
+    OUT_FILE=output/$1.out
+
+    echo $1 >> tempConversionResults
+    $EXEC_PROG -L plans -d $TEST_DEBUG_CFG -p $PLAN_FILE -s $scriptfile > $OUT_FILE 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE
+}
+
+compare_simple_drive_test()
+{
+    PLAN_FILE_AFTER=`v1_planfile SimpleDrive`
+    if [ ! -r $PLAN_FILE_AFTER ]
+    then
+        echo "$0: Plan file $PLAN_FILE_AFTER not found"
+        exit 1
+    fi
+
+    scriptfile=`script_file "$1"`
+    if [ ! -r $scriptfile ]
+    then
+        echo "$0: Script file $scriptfile not found"
+        exit 1
+    fi
+
+    OUT_FILE_BEFORE=`original_outfile "$1"`
+    OUT_FILE_AFTER=`converted_outfile "$1"`
+
+    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $scriptfile > $OUT_FILE_AFTER 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    else 
+        perl $REGRESSION_PL $OUT_FILE_AFTER $OUT_FILE_BEFORE
+    fi
+}
+
+compare_scripted_valid_test()
+{
+    PLAN_FILE_AFTER=`v1_planfile "$1"`
+    if [ ! -r $PLAN_FILE_AFTER ]
+    then
+        echo "$0: Plan file $PLAN_FILE_AFTER not found"
+        exit 1
+    fi
+
+    scriptfile=`script_file "$2"`
+    if [ ! -r $scriptfile ]
+    then
+        echo "$0: Script file $scriptfile not found"
+        exit 1
+    fi
+
+    VALID_FILE="${TEST_DIR}/valid/RUN_$1_$2-script.valid"
+    if [ ! -r $VALID_FILE ]
+    then
+        echo "$0: Valid file $VALID_FILE not found"
+        exit 1
+    fi
+
+    OUT_FILE_AFTER=output/$1_$2-script.converted.out
+
+    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $scriptfile > $OUT_FILE_AFTER 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE_AFTER $VALID_FILE
+}
+
+compare_same_name_script_valid_test()
+{
+    PLAN_FILE_AFTER=`v1_planfile "$1"`
+    if [ ! -r "$PLAN_FILE_AFTER" ]
+    then
+        echo "$0: Plan file $PLAN_FILE_AFTER not found"
+        return 1
+    fi
+
+    scriptfile=`script_file "$1"`
+    if [ ! -r "$scriptfile" ]
+    then
+        echo "$0: Script file $scriptfile not found"
+        return 1
+    fi
+
+    VALID_FILE="${TEST_DIR}/valid/RUN_$1_$1-script.valid"
+    if [ ! -r "$VALID_FILE" ]
+    then
+        echo "$0: Valid file $VALID_FILE not found"
+        return 1
+    fi
+
+    OUT_FILE_AFTER=`converted_outfile "$1"`
+
+    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $scriptfile > $OUT_FILE_AFTER 2>> tempConversionResults
+    declare -i execstatus=$?
+    if [ $execstatus -gt 128 ]
+    then
+        declare -i sig=$execstatus-128
+        echo '***' Test $1 exited on signal $sig >> ConversionResults
+        echo '***' Test $1 exited on signal $sig
+    elif [ $execstatus -ne 0 ]
+    then
+        echo '***' Test $1 exited with status $execstatus >> ConversionResults
+        echo '***' Test $1 exited with status $execstatus
+    fi
+
+    perl $REGRESSION_PL $OUT_FILE_AFTER $VALID_FILE
+}
+
+# Tests requiring no external interaction, for which root node success is sufficient
+EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9 ArrayInLoop
+ ArrayAssignmentWithFailure AssignmentFailureTest AssignFailureWithConflict
+ concat1 contention1 contention3
+ DoubleInvariantAssignment
+ empty1 empty2 empty3 empty4 EmptyString1
+ FailureType1 FailureType2 FailureType3 FailureType4
+ GrandparentAccess
+ interface1 IterationEnded1 invariant1 isKnown1
+ maxTest minTest modulo1 NonLocalExit
+ repeat1 repeat3 repeat4
+ SimpleAssignment skip1 skip2
+ TestAbsSqrt TestNodeNameScope TestNodeNameScopeHack
+ TestRepeatCondition TimepointVariableConstructionOrder
+ UninitializedAssignment
+ var-priority-with-exit var-priority-with-skip variables1
+ whitespace1'
+
+# Tests requiring no external interaction, 
+# whose execution traces are compared against a "gold standard"
+EMPTY_SCRIPT_VALID_TESTS='AssignToParentInvariant AssignToParentExit
+ InactiveAncestorInvariantTest'
+
+# Tests of library calls
+LIBRARY_TESTS='LibraryCall6 LibraryCallWithArray'
+
+LIBRARY_FILES='library6 DoValue GetValue LibraryNodeWithArray'
+
+# Tests which run to success and require a script of the same name
+SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 AtomicAssignment
+ boolean1
+ ChangeLookupTest command1 command2 command3 command4 command5 CommandCleanupTest
+ concat2 conjuncts conjuncts1
+ lookup1 lookup2 lookup3
+ repeat2 repeat5 repeat7 repeat8
+ SiteSurveyWithEOF
+ TestEndCondition TestTimepoint
+ unknown_lookup UpdateLookupTest UpdateTest
+ AssignmentMain'
+
+# Resource arbitration tests, which require comparing the output with a known standard
+RESOURCE_ARBITRATION_TESTS='resource1 Resource1RepeatCond
+ Resource2EqualPriority
+ Resource3AckRel Resource3DenyHP Resource3Deny2HP
+ Resource4Hvm Resource4HvmRepeatCond
+ ResourceRenewable1
+ NonUnaryResources'
+
+# Simple-drive tests
+SIMPLE_DRIVE_SCRIPTS='single-drive double-drive'
+
+cd ${TEST_DIR}
+
+# Cleanup results of previous runs
+cleanup-test-files
+rm -f ConversionResults tempConversionResults
+rm -rf ${conversion_dir}
+
+# Make temp directories if needed
+mkdir -p output ${conversion_dir}
+
+# Output date to log file
+date > ConversionResults
+
+# Output header to console
+echo
+echo --------------------- SUMMARY OF FAILED TESTS ---------------------
+echo
+
+# Convert library files before they are called
+echo Converting library files ${LIBRARY_FILES}
+for lib in $LIBRARY_FILES
+do
+    convert "${lib}"
+    mv `v1_planfile "${lib}"` "${conversion_dir}/${lib}.plx"
+done
+
+for test in $EMPTY_SCRIPT_TESTS $LIBRARY_TESTS
+do
+    echo "${test}"
+    if (run_empty_script_test "${test}")
+    then
+        convert "${test}"
+        if [ -r `v1_planfile "$test"` ]
+        then
+            compare_empty_script_test "${test}"
+        else
+            echo '***' Conversion failed for ${test}
+            echo '***' Conversion failed for ${test} >> ConversionTestResults
+        fi
+    else
+        echo '***' Original plan ${test} failed
+        echo '***' Original plan ${test} failed >> ConversionTestResults
+    fi
+done
+
+for test in $EMPTY_SCRIPT_VALID_TESTS
+do
+    echo "${test}"
+    convert "${test}"
+    if [ -r `v1_planfile "$test"` ]
+    then
+        compare_empty_script_valid_test "${test}"
+    else
+        echo "*** Conversion failed for ${test} ***"
+        echo "*** Conversion failed for ${test} ***" >> ConversionTestResults
+    fi
+done
+
+for test in $SAME_NAME_SCRIPT_TESTS
+do
+    echo "${test}"
+    if (run_same_name_script_test "${test}")
+    then
+        convert "${test}"
+        if [ -r `v1_planfile "$test"` ]
+        then
+            compare_same_name_script_test "${test}"
+        else
+            echo "*** Conversion failed for ${test} ***"
+            echo "*** Conversion failed for ${test} ***" >> ConversionTestResults
+        fi
+    else
+        echo "*** Original plan ${test} failed ***"
+        echo "*** Original plan ${test} failed ***" >> ConversionTestResults
+    fi
+done
+
+convert SimpleDrive
+if [ -r `v1_planfile SimpleDrive` ]
+then
+    for script in $SIMPLE_DRIVE_SCRIPTS
+    do
+        echo "${script}"
+        if (run_simple_drive_test "${script}")
+        then
+            compare_simple_drive_test "${script}"
+        else
+            echo "*** Original SimpleDrive script ${script} failed ***"
+            echo "*** Original SimpleDrive script ${script} failed ***" >> ConversionTestResults
+        fi
+    done
+else
+    echo "*** Conversion failed for SimpleDrive ***"
+    echo "*** Conversion failed for SimpleDrive ***" >> ConversionTestResults
+fi
+
+# Command handles tests
+for openclosed in open closed
+do
+    for plan_scenario in a1 a3
+    do
+        for script_scenario in a1 a3
+        do
+            plan=simple-${openclosed}loop-command-${plan_scenario}
+            script=simple-${openclosed}loop-command-${script_scenario}
+            echo "${plan}_${script}-script"
+            convert "${plan}"
+            if [ -r `v1_planfile "${plan}"` ]
+            then
+                compare_scripted_valid_test "${plan}" "${script}"
+            else
+                echo "*** Conversion failed for ${plan} ***"
+                echo "*** Conversion failed for ${plan} ***" >> ConversionTestResults
+            fi
+        done
+    done
+done
+
+
+echo "simple-openloop-command-nopost_simple-openloop-command-a3-script"
+convert "simple-openloop-command-nopost"
+if [ -r `v1_planfile "simple-openloop-command-nopost"` ]
+then
+    compare_scripted_valid_test simple-openloop-command-nopost simple-openloop-command-a3
+else
+    echo "*** Conversion failed for simple-openloop-command-nopost ***"
+    echo "*** Conversion failed for simple-openloop-command-nopost ***" >> ConversionTestResults
+fi
+
+for test in "simple-closedloop-command-multipleAck" $RESOURCE_ARBITRATION_TESTS
+do
+    echo "${test}"
+    convert "${test}"
+    if [ -r `v1_planfile "$test"` ]
+    then
+        compare_same_name_script_valid_test "${test}"
+    else
+        echo "*** Conversion failed for ${test} ***"
+        echo "*** Conversion failed for ${test} ***" >> ConversionTestResults
+    fi
+done
