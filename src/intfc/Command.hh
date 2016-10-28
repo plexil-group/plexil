@@ -41,16 +41,45 @@ namespace PLEXIL
   // Used only in Command class, but exposed to parser
   //
 
-  struct ResourceSpec
+  class ResourceSpec
   {
+  public:
+    ResourceSpec() = default;
+    ResourceSpec(ResourceSpec &&) = default;
+    ResourceSpec &operator=(ResourceSpec &&) = default;
+
+    ~ResourceSpec();
+
     void activate();
     void deactivate();
+
+    //
+    // Plan reader access
+    //
+    void setNameExpression(Expression *e, bool isGarbage);
+    void setPriorityExpression(Expression *e, bool isGarbage);
+    void setLowerBoundExpression(Expression *e, bool isGarbage);
+    void setUpperBoundExpression(Expression *e, bool isGarbage);
+    void setReleaseAtTerminationExpression(Expression *e, bool isGarbage);
+
+    // Copy, assign not implemented
+    ResourceSpec(ResourceSpec const &) = delete;
+    ResourceSpec &operator=(ResourceSpec const &) = delete;
+
+    void cleanUp();
 
     Expression *nameExp;
     Expression *priorityExp;
     Expression *lowerBoundExp;
     Expression *upperBoundExp;
     Expression *releaseAtTermExp;
+
+  private:
+    bool nameIsGarbage;
+    bool priorityIsGarbage;
+    bool lowerBoundIsGarbage;
+    bool upperBoundIsGarbage;
+    bool releaseIsGarbage;
   };
 
   typedef std::vector<ResourceSpec> ResourceList;
@@ -95,7 +124,6 @@ namespace PLEXIL
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void setArgumentVector(ExprVec *vec);
     ResourceList &getResourceList();
-    void addGarbageExpression(Expression *exp);
 
     // Interface to CommandNode
     void activate();
@@ -129,14 +157,13 @@ namespace PLEXIL
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     State m_command;
-    std::vector<Expression *> m_garbage;
     ResourceList m_resourceList;
     ResourceValueList m_resourceValueList;
     Expression *m_nameExpr;
     Assignable *m_dest;
     ExprVec *m_argVec;
     CommandHandleValue m_commandHandle; // accessed by CommandHandleVariable
-    bool m_fixed, m_resourceFixed, m_active, m_cleaned;
+    bool m_fixed, m_resourceFixed, m_active, m_cleaned, m_nameIsGarbage, m_destIsGarbage;
   };
 
 }

@@ -138,9 +138,7 @@ namespace PLEXIL
           checkParserExceptionWithLocation(exp->valueType() == STRING_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                            rtemp.first_child(),
                                            RESOURCE_NAME_TAG << " expression is not String valued in Command Resource");
-          rspec.nameExp = exp;
-          if (isGarbage)
-            cmd->addGarbageExpression(exp);
+          rspec.setNameExpression(exp, isGarbage);
           break;
 
         case 16: // ResourcePriority
@@ -154,9 +152,7 @@ namespace PLEXIL
           checkParserExceptionWithLocation(exp->valueType() == INTEGER_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                            rtemp.first_child(),
                                            RESOURCE_PRIORITY_TAG << " expression is not Integer valued in Command Resource");
-          rspec.priorityExp = exp;
-          if (isGarbage)
-            cmd->addGarbageExpression(exp);
+          rspec.setPriorityExpression(exp, isGarbage);
           break;
 
         case 18: // ResourceLowerBound, ResourceUpperBound
@@ -168,9 +164,7 @@ namespace PLEXIL
             checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
                                              RESOURCE_LOWER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
-            rspec.lowerBoundExp = exp;
-            if (isGarbage)
-              cmd->addGarbageExpression(exp);
+            rspec.setLowerBoundExpression(exp, isGarbage);
           }
           else {
             checkParserExceptionWithLocation(0 == strcmp(RESOURCE_UPPER_BOUND_TAG, tag),
@@ -183,9 +177,7 @@ namespace PLEXIL
             checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
                                              RESOURCE_UPPER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
-            rspec.upperBoundExp = exp;
-            if (isGarbage)
-              cmd->addGarbageExpression(exp);
+            rspec.setUpperBoundExpression(exp, isGarbage);
           }
           break;
 
@@ -200,9 +192,7 @@ namespace PLEXIL
           checkParserExceptionWithLocation(exp->valueType() == BOOLEAN_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                            rtemp.first_child(),
                                            RESOURCE_RELEASE_AT_TERMINATION_TAG << " expression is not a Boolean expression in Command");
-          rspec.releaseAtTermExp = exp;
-          if (isGarbage)
-            cmd->addGarbageExpression(exp);
+          rspec.setReleaseAtTerminationExpression(exp, isGarbage);
           break;
         }
       }

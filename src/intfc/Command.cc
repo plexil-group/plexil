@@ -36,8 +36,66 @@ namespace PLEXIL
 {
 
   //
-  // ResourceSpec member functions
+  // ResourceSpec implementation
   //
+
+  void ResourceSpec::setNameExpression(Expression *e, bool isGarbage)
+  {
+    nameExp = e;
+    nameIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setPriorityExpression(Expression *e, bool isGarbage)
+  {
+    priorityExp = e;
+    priorityIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setLowerBoundExpression(Expression *e, bool isGarbage)
+  {
+    lowerBoundExp = e;
+    lowerBoundIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setUpperBoundExpression(Expression *e, bool isGarbage)
+  {
+    upperBoundExp = e;
+    upperBoundIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setReleaseAtTerminationExpression(Expression *e, bool isGarbage)
+  {
+    releaseAtTermExp = e;
+    releaseIsGarbage = isGarbage;
+  }
+
+  ResourceSpec::~ResourceSpec()
+  {
+    cleanUp();
+  }
+
+  void ResourceSpec::cleanUp()
+  {
+    if (nameIsGarbage)
+      delete nameExp;
+    nameExp = nullptr;
+
+    if (priorityIsGarbage)
+      delete priorityExp;
+    priorityExp = nullptr;
+
+    if (lowerBoundIsGarbage)
+      delete lowerBoundExp;
+    lowerBoundExp = nullptr;
+
+    if (upperBoundIsGarbage)
+      delete upperBoundExp;
+    upperBoundExp = nullptr;
+
+    if (releaseIsGarbage)
+      delete releaseAtTermExp;
+    releaseAtTermExp = nullptr;
+  }
 
   void ResourceSpec::activate()
   {
@@ -67,7 +125,6 @@ namespace PLEXIL
     : m_ack(*this),
       m_abortComplete(),
       m_command(),
-      m_garbage(),
       m_resourceList(),
       m_resourceValueList(),
       m_nameExpr(NULL),
@@ -77,7 +134,9 @@ namespace PLEXIL
       m_fixed(false),
       m_resourceFixed(false),
       m_active(false),
-      m_cleaned(false)
+      m_cleaned(false),
+      m_nameIsGarbage(false),
+      m_destIsGarbage(false)
   {
     m_ack.setName(nodeName + " commandHandle");
     m_abortComplete.setName(nodeName + " abortComplete");
@@ -94,17 +153,16 @@ namespace PLEXIL
       return;
 
     delete m_argVec;
-    m_argVec = NULL;
-    m_nameExpr = NULL;
-    m_dest = NULL;
+    m_argVec = nullptr;
+    if (m_nameIsGarbage)
+      delete m_nameExpr;
+    m_nameExpr = nullptr;
+    if (m_destIsGarbage)
+      delete m_dest;
+    m_dest = nullptr;
 
-    // TODO: Resource specs
-
-    for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
-         it != m_garbage.end();
-         ++it)
-      delete (*it);
-    m_garbage.clear();
+    for (ResourceSpec &s : m_resourceList)
+      s.cleanUp();
 
     m_cleaned = true;
   }
@@ -112,25 +170,18 @@ namespace PLEXIL
   void Command::setDestination(Assignable *dest, bool isGarbage)
   {
     m_dest = dest;
-    if (isGarbage)
-      m_garbage.push_back(dest);
+    m_destIsGarbage = isGarbage;
   }
 
   void Command::setNameExpr(Expression *nameExpr, bool isGarbage)
   {
     m_nameExpr = nameExpr;
-    if (isGarbage)
-      m_garbage.push_back(nameExpr);
+    m_nameIsGarbage = isGarbage;
   }
 
   ResourceList &Command::getResourceList()
   {
     return m_resourceList;
-  }
-
-  void Command::addGarbageExpression(Expression *exp)
-  {
-    m_garbage.push_back(exp);
   }
 
   void Command::setArgumentVector(ExprVec *vec)
