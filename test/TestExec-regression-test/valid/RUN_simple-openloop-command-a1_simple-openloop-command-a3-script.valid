@@ -42,19 +42,19 @@ simple-openloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fab70c06cd8 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fab43406d80 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fab70c06f60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fab70c06ec0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7fab43406fb0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fab43406f20 [i](0))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fab70c07180 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fab70c06cd8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10785ba70 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fab70c06e50 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fab70c06d28 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab70c06cd8 [a]([unknown_value]))
+   PostCondition: (EQ Boolean 0x7fab434071b0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fab43406d80 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x102fc4d78 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fab43406eb0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fab43406dc8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab43406d80 [a]([unknown_value]))
   }
 }
 
@@ -73,14 +73,14 @@ simple-openloop-command-a1{
 [PlexilExec:printPlan]
 simple-openloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fab70c06f60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fab70c06ec0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7fab43406fb0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fab43406f20 [i](0))
   Drive{
    State: FINISHING (0)
-   PostCondition: (EQ Boolean 0x7fab70c07180 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fab70c06cd8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10785ba70 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fab70c06e50 [a](0))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fab70c06d28 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab70c06cd8 [a]([unknown_value]))
+   PostCondition: (EQ Boolean 0x7fab434071b0 [a]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fab43406d80 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x102fc4d78 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fab43406eb0 [a](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fab43406dc8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab43406d80 [a]([unknown_value]))
   }
 }
 
@@ -133,7 +133,7 @@ simple-openloop-command-a1{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab70c06cd8 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fab43406d80 [i]([unknown_value]))
   }
 }
 

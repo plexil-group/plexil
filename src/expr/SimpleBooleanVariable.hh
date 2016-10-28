@@ -44,6 +44,9 @@ namespace PLEXIL {
   {
   public:
     SimpleBooleanVariable();
+    // N.B. Name pointer is copied and retained.
+    // String it points to must not be deleted before the variable is.
+    SimpleBooleanVariable(char const *name);
     ~SimpleBooleanVariable();
 
     //
@@ -52,7 +55,6 @@ namespace PLEXIL {
 
     virtual char const *getName() const;
     virtual char const *exprName() const;
-    void setName(std::string const &name);
     void printSpecialized(std::ostream &s) const;
 
     virtual bool isKnown() const;
@@ -87,9 +89,11 @@ namespace PLEXIL {
 
   private:
 
-    // Copy, assign prohibited
-    SimpleBooleanVariable(SimpleBooleanVariable const &);
-    SimpleBooleanVariable &operator=(SimpleBooleanVariable const &);
+    // Default, copy constructors, assign, moves prohibited
+    SimpleBooleanVariable(SimpleBooleanVariable const &) = delete;
+    SimpleBooleanVariable(SimpleBooleanVariable &&) = delete;
+    SimpleBooleanVariable &operator=(SimpleBooleanVariable const &) = delete;
+    SimpleBooleanVariable &operator=(SimpleBooleanVariable &&) = delete;
 
     char const *m_name;
     bool m_value;

@@ -29,9 +29,6 @@
 #include "Error.hh"
 #include "Value.hh"
 
-#include <cstdlib> // free()
-#include <cstring> // strdup()
-
 namespace PLEXIL
 {
 
@@ -42,9 +39,16 @@ namespace PLEXIL
   {
   }
 
+  SimpleBooleanVariable::SimpleBooleanVariable(char const *name)
+    : NotifierImpl(),
+    m_name(name),
+    m_value(false)
+  {
+  }
+
+  // Don't delete m_name as it is a pointer to a constant string.
   SimpleBooleanVariable::~SimpleBooleanVariable()
   {
-    free((void *) m_name);
   }
 
   char const *SimpleBooleanVariable::exprName() const
@@ -60,16 +64,9 @@ namespace PLEXIL
     return sl_dummy;
   }
 
-  void SimpleBooleanVariable::setName(std::string const &name)
-  {
-    if (m_name)
-      delete m_name;
-    m_name = strdup(name.c_str());
-  }
-
   void SimpleBooleanVariable::printSpecialized(std::ostream &s) const
   {
-    s << m_name << ' ';
+    s << getName() << ' ';
   }
 
   //
