@@ -77,7 +77,7 @@ namespace PLEXIL
                                char const * const &k,
                                Expression * const &v)
   {
-    return BaseMap::m_store.insert(it, BaseMap::MAP_ENTRY_TYPE(strdup(k), v));
+    return BaseMap::m_store.emplace(it, BaseMap::MAP_ENTRY_TYPE(strdup(k), v));
   }
 
 
