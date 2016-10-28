@@ -425,21 +425,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void UserVariable<T>::setName(const std::string &name)
-  {
-    if (m_name)
-      free((void *) m_name);
-    m_name = strdup(name.c_str());
-  }
-
-  void UserVariable<String>::setName(const std::string &name)
-  {
-    if (m_name)
-      delete m_name;
-    m_name = strdup(name.c_str());
-  }
-
-  template <typename T>
   NodeConnector *UserVariable<T>::getNode()
   {
     return m_node;

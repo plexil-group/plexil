@@ -276,14 +276,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayVariable<T>::setName(const std::string &name)
-  {
-    if (m_name)
-      delete m_name;
-    m_name = strdup(name.c_str());
-  }
-
-  template <typename T>
   NodeConnector const *ArrayVariable<T>::getNode() const
   {
     return m_node;
