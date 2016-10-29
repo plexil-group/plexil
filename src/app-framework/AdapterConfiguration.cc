@@ -126,9 +126,9 @@ namespace PLEXIL {
 
     debugMsg("AdapterConfiguration:verboseConstructInterfaces", " parsing configuration XML");
     const char* elementType = configXml.name();
-    if (strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) != 0) {
+    if (strcmp(elementType, InterfaceSchema::INTERFACES_TAG) != 0) {
       debugMsg("AdapterConfiguration:constructInterfaces",
-               " invalid configuration XML: no " << InterfaceSchema::INTERFACES_TAG() << " element");
+               " invalid configuration XML: no " << InterfaceSchema::INTERFACES_TAG << " element");
       return false;
     }
 
@@ -138,40 +138,40 @@ namespace PLEXIL {
     while (!element.empty()) {
       debugMsg("AdapterConfiguration:verboseConstructInterfaces", " found element " << element.name());
       const char* elementType = element.name();
-      if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
+      if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG) == 0) {
         // Construct the adapter
         debugMsg("AdapterConfiguration:constructInterfaces",
                  " constructing adapter type \""
-                 << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+                 << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
                  << "\"");
         InterfaceAdapter *adapter = 
           AdapterFactory::createInstance(element,
                                          *static_cast<AdapterExecInterface *>(g_manager));
         if (!adapter) {
           warn("constructInterfaces: failed to construct adapter type \""
-               << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+               << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
                << "\"");
           return false;
         }
         m_adapters.insert(adapter);
       }
-      else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG) == 0) {
         // Construct an ExecListener instance and attach it to the Exec
         debugMsg("AdapterConfiguration:constructInterfaces",
                  " constructing listener type \""
-                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
+                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
                  << '"');
         ExecListener *listener = 
           ExecListenerFactory::createInstance(element);
         if (!listener) {
           warn("constructInterfaces: failed to construct listener type \""
-               << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
+               << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
                << '"');
           return false;
         }
         m_listenerHub->addListener(listener);
       }
-      else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG) == 0) {
         // Add to library path
         const char* pathstring = element.child_value();
         if (*pathstring != '\0') {
@@ -183,7 +183,7 @@ namespace PLEXIL {
           delete path;
         }
       }
-      else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG) == 0) {
         // Add to plan path
         const char* pathstring = element.child_value();
         if (*pathstring != '\0') {
@@ -223,7 +223,7 @@ namespace PLEXIL {
       success = a->initialize();
       if (!success) {
         warn("initialize: failed for adapter type \""
-		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
 		 << '"');
         m_adapters.erase(it);
         delete a;
@@ -253,7 +253,7 @@ namespace PLEXIL {
       success = (*it)->start();
       if (!success) {
         warn("start: start failed for adapter type \""
-             << (*it)->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+             << (*it)->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
              << '"');
         return false;
       }
@@ -438,43 +438,43 @@ namespace PLEXIL {
     pugi::xml_node element = adapter->getXml().first_child();
     while (!element.empty()) {
       const char* elementType = element.name();
-      if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0) {
+      if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG) == 0) {
         setDefaultInterface(adapter);
       } 
-      else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG) == 0) {
         setDefaultCommandInterface(adapter);
       }
-      else if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG) == 0) {
         setDefaultLookupInterface(adapter);
       }
-      else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG) == 0) {
         registerPlannerUpdateInterface(adapter);
       }
-      else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG) == 0) {
         const pugi::xml_node firstChild = element.first_child();
         const char* text = NULL;
         if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
           text = firstChild.value();
         checkError(text && *text != '\0',
                    "registerAdapter: Invalid configuration XML: "
-                   << InterfaceSchema::COMMAND_NAMES_TAG()
+                   << InterfaceSchema::COMMAND_NAMES_TAG
                    << " requires one or more comma-separated command names");
         std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
         for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); ++it)
           registerCommandInterface(*it, adapter);
         delete cmdNames;
       } 
-      else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
+      else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG) == 0) {
         const pugi::xml_node firstChild = element.first_child();
         const char* text = NULL;
         if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
           text = firstChild.value();
         checkError(text && *text != '\0',
                    "registerAdapter: Invalid configuration XML: "
-                   << InterfaceSchema::LOOKUP_NAMES_TAG()
+                   << InterfaceSchema::LOOKUP_NAMES_TAG
                    << " requires one or more comma-separated lookup names");
         std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
-        bool telemOnly = element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR()).as_bool();
+        bool telemOnly = element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR).as_bool();
         for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
           registerLookupInterface(*it, adapter, telemOnly);
         delete lookupNames;

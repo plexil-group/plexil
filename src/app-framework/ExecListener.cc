@@ -125,17 +125,17 @@ namespace PLEXIL
     if (m_filter)
       return true; // already initialized
 
-    pugi::xml_node filterSpec = m_xml.child(InterfaceSchema::FILTER_TAG());
+    pugi::xml_node filterSpec = m_xml.child(InterfaceSchema::FILTER_TAG);
     if (filterSpec.empty())
       return true;
               
     // Construct specified event filter
-    pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+    pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR);
     if (filterTypeAttr.empty()) {
       warn("ExecListener:constructFilter: invalid XML: <"
-           << InterfaceSchema::FILTER_TAG()
+           << InterfaceSchema::FILTER_TAG
            << "> element missing a "
-           << InterfaceSchema::FILTER_TYPE_ATTR()
+           << InterfaceSchema::FILTER_TYPE_ATTR
            << " attribute");
       return false;
     }
@@ -143,9 +143,9 @@ namespace PLEXIL
     const char* filterType = filterTypeAttr.value();
     if (!*filterType) {
       warn("ExecListener:constructFilter: invalid XML: <"
-           << InterfaceSchema::FILTER_TAG()
+           << InterfaceSchema::FILTER_TAG
            << "> element's "
-           << InterfaceSchema::FILTER_TYPE_ATTR()
+           << InterfaceSchema::FILTER_TYPE_ATTR
            << " attribute is empty");
       return false;
     }

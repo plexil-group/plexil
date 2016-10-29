@@ -173,15 +173,15 @@ int main_internal(int argc, char** argv)
   pugi::xml_node configElt;
   if (configDoc.empty()) {
 	// Construct default interface XML
-	configElt = configDoc.append_child(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+	configElt = configDoc.append_child(PLEXIL::InterfaceSchema::INTERFACES_TAG);
 	// Add a time adapter
-	pugi::xml_node timeElt = configElt.append_child(PLEXIL::InterfaceSchema::ADAPTER_TAG());
+	pugi::xml_node timeElt = configElt.append_child(PLEXIL::InterfaceSchema::ADAPTER_TAG);
 	timeElt.append_attribute("AdapterType").set_value("OSNativeTime");
   }
   else {
-	configElt = configDoc.child(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+	configElt = configDoc.child(PLEXIL::InterfaceSchema::INTERFACES_TAG);
 	if (configElt.empty()) {
-      std::cout << "ERROR: configuration XML lacks \"" << PLEXIL::InterfaceSchema::INTERFACES_TAG()
+      std::cout << "ERROR: configuration XML lacks \"" << PLEXIL::InterfaceSchema::INTERFACES_TAG
 				<< "\" element; unable to initialize application"
                 << std::endl;
       return -1;
@@ -193,8 +193,8 @@ int main_internal(int argc, char** argv)
   // command line arguments must override config file
   if (luvRequest) {
     pugi::xml_node existing =
-      configElt.find_child_by_attribute(InterfaceSchema::LISTENER_TAG(),
-                                        InterfaceSchema::LISTENER_TYPE_ATTR(),
+      configElt.find_child_by_attribute(InterfaceSchema::LISTENER_TAG,
+                                        InterfaceSchema::LISTENER_TYPE_ATTR,
                                         "LuvListener");
     if (existing)
       configElt.remove_child(existing);

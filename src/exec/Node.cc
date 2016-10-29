@@ -43,60 +43,43 @@
 
 #include <algorithm> // for std::sort
 #include <cfloat>    // for DBL_MAX
+#include <cstring>   // strcmp()
 #include <iomanip>   // for std::setprecision
 #include <sstream>
 
-namespace PLEXIL {
+namespace PLEXIL
+{
 
-  // Initialize static variable
-  static std::vector<std::string> s_allConditions;
+  //
+  // Static members
+  //
 
-  static void initAllConditions()
+  char const * const Node::ALL_CONDITIONS[] =
+    {
+      "AncestorExitCondition",
+      "AncestorInvariantCondition",
+      "AncestorEndCondition",
+      "SkipCondition",
+      "StartCondition",
+      "PreCondition",
+      "ExitCondition",
+      "InvariantCondition",
+      "EndCondition",
+      "PostCondition",
+      "RepeatCondition",
+      "ActionCompleteCondition",
+      "AbortCompleteCondition"
+    };
+  
+  char const *Node::getConditionName(size_t idx)
   {
-    check_error_1(s_allConditions.empty()); // cheap sanity check
-    s_allConditions.reserve(Node::conditionIndexMax);
-
-    // *** N.B.: Order MUST agree with enum ConditionIndex!
-    // Conditions on parent
-    s_allConditions.push_back(Node::ANCESTOR_EXIT_CONDITION());
-    s_allConditions.push_back(Node::ANCESTOR_INVARIANT_CONDITION());
-    s_allConditions.push_back(Node::ANCESTOR_END_CONDITION());
-    // User specified conditions
-    s_allConditions.push_back(Node::SKIP_CONDITION());
-    s_allConditions.push_back(Node::START_CONDITION());
-    s_allConditions.push_back(Node::PRE_CONDITION());
-    s_allConditions.push_back(Node::EXIT_CONDITION());
-    s_allConditions.push_back(Node::INVARIANT_CONDITION());
-    s_allConditions.push_back(Node::END_CONDITION());
-    s_allConditions.push_back(Node::POST_CONDITION());
-    s_allConditions.push_back(Node::REPEAT_CONDITION());
-    // For all but Empty nodes
-    s_allConditions.push_back(Node::ACTION_COMPLETE());
-    // For all but Empty and Update nodes
-    s_allConditions.push_back(Node::ABORT_COMPLETE());
-
-    // inexpensive sanity check
-    assertTrue_2(s_allConditions.size() == Node::conditionIndexMax,
-                 "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
-  }
-
-  const std::vector<std::string>& Node::ALL_CONDITIONS()
-  {
-    if (s_allConditions.empty())
-      initAllConditions();
-    return s_allConditions;
-  }
-
-  const std::string& Node::getConditionName(size_t idx)
-  {
-    return ALL_CONDITIONS()[idx];
+    return ALL_CONDITIONS[idx];
   }
   
   Node::ConditionIndex Node::getConditionIndex(char const *cName)
   {
-    std::vector<std::string> const &allConds = Node::ALL_CONDITIONS();
-    for (size_t i = 0; i < allConds.size(); ++i)
-      if (allConds[i] == cName)
+    for (size_t i = 0; i < conditionIndexMax; ++i)
+      if (!strcmp(ALL_CONDITIONS[i], cName))
         return (Node::ConditionIndex) i;
     return conditionIndexMax;
   }
@@ -167,7 +150,7 @@ namespace PLEXIL {
       Expression *expr = new BooleanVariable(false);
       debugMsg("Node:node",
                " Created internal variable "
-               << ALL_CONDITIONS()[i] <<
+               << ALL_CONDITIONS[i] <<
                " with value FALSE for node " << m_nodeId);
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;

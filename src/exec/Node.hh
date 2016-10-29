@@ -27,7 +27,6 @@
 #ifndef _H_Node
 #define _H_Node
 
-#include "ConstantMacros.hh"
 #include "Expression.hh"
 #include "LinkedQueue.hh"
 #include "NodeConnector.hh"
@@ -61,28 +60,9 @@ namespace PLEXIL {
     public QueueItem<Node>
   {
   public:
-    //condition names
-    DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION, "StartCondition"); /*!< The name for the node's start condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION, "EndCondition"); /*!< The name for the node's end condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, EXIT_CONDITION, "ExitCondition"); /*!< The name for the node's exit condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION, "InvariantCondition"); /*!< The name for the node's invariant condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, PRE_CONDITION, "PreCondition"); /*!< The name for the node's pre-condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, REPEAT_CONDITION, "RepeatCondition"); /*!< The name for the node's repeat condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
-                                                                                                        condition (parent.invariant && parent.ancestor-invariant).*/
-    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*!< The name for the ancestor-end condition
-                                                                                            (parent.end || parent.ancestor-end). */
-    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
-                                                                                            (parent.exit || parent.ancestor-exit). */
+    static char const * const ALL_CONDITIONS[];
 
-    DECLARE_STATIC_CLASS_CONST(std::string, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
-
-    static const std::vector<std::string>& ALL_CONDITIONS();
-
-    // N.B.: These need to match the order of ALL_CONDITIONS()
+    // N.B.: These need to match the order of ALL_CONDITIONS above
     enum ConditionIndex {
       // Conditions on parent
       // N.B. Ancestor end/exit/invariant MUST come before
@@ -107,12 +87,6 @@ namespace PLEXIL {
 
       conditionIndexMax
     };
-
-    //in-built variable names
-    DECLARE_STATIC_CLASS_CONST(std::string, STATE, "state");
-    DECLARE_STATIC_CLASS_CONST(std::string, OUTCOME, "outcome");
-    DECLARE_STATIC_CLASS_CONST(std::string, FAILURE_TYPE, "failure_type");
-    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_HANDLE, "command_handle");
 
     /**
      * @brief The constructor.
@@ -377,7 +351,7 @@ namespace PLEXIL {
     //
     
     static ConditionIndex getConditionIndex(char const *cName);
-    static const std::string& getConditionName(size_t idx);
+    static char const *getConditionName(size_t idx);
 
   protected:
     friend class LibraryCallNode;

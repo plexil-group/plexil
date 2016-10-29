@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ConstantMacros.hh"
 #include <string>
 #include <vector>
 
@@ -43,30 +42,30 @@ namespace PLEXIL
     // XML tags
     //
 
-    DECLARE_STATIC_CLASS_CONST(char*, ADAPTER_TAG, "Adapter");
-    DECLARE_STATIC_CLASS_CONST(char*, COMMAND_NAMES_TAG, "CommandNames");
-    DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_ADAPTER_TAG, "DefaultAdapter");
-    DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_COMMAND_ADAPTER_TAG, "DefaultCommandAdapter");
-    DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_LOOKUP_ADAPTER_TAG, "DefaultLookupAdapter");
-    DECLARE_STATIC_CLASS_CONST(char*, FILTER_TAG, "Filter");
-    DECLARE_STATIC_CLASS_CONST(char*, INTERFACES_TAG, "Interfaces");
-    DECLARE_STATIC_CLASS_CONST(char*, LIBRARY_NODE_PATH_TAG, "LibraryNodePath");
-    DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TAG, "Listener");
-    DECLARE_STATIC_CLASS_CONST(char*, LOOKUP_NAMES_TAG, "LookupNames");
-    DECLARE_STATIC_CLASS_CONST(char*, PLAN_PATH_TAG, "PlanPath");
-    DECLARE_STATIC_CLASS_CONST(char*, PLANNER_UPDATE_TAG, "PlannerUpdate");
-    DECLARE_STATIC_CLASS_CONST(char*, IP_ADDRESS_TAG, "IpAddress");
-    DECLARE_STATIC_CLASS_CONST(char*, PORT_NUMBER_TAG, "PortNumber");
+    static constexpr char const *ADAPTER_TAG = "Adapter";
+    static constexpr char const *COMMAND_NAMES_TAG = "CommandNames";
+    static constexpr char const *DEFAULT_ADAPTER_TAG = "DefaultAdapter";
+    static constexpr char const *DEFAULT_COMMAND_ADAPTER_TAG = "DefaultCommandAdapter";
+    static constexpr char const *DEFAULT_LOOKUP_ADAPTER_TAG = "DefaultLookupAdapter";
+    static constexpr char const *FILTER_TAG = "Filter";
+    static constexpr char const *INTERFACES_TAG = "Interfaces";
+    static constexpr char const *LIBRARY_NODE_PATH_TAG = "LibraryNodePath";
+    static constexpr char const *LISTENER_TAG = "Listener";
+    static constexpr char const *LOOKUP_NAMES_TAG = "LookupNames";
+    static constexpr char const *PLAN_PATH_TAG = "PlanPath";
+    static constexpr char const *PLANNER_UPDATE_TAG = "PlannerUpdate";
+    static constexpr char const *IP_ADDRESS_TAG = "IpAddress";
+    static constexpr char const *PORT_NUMBER_TAG = "PortNumber";
 
     //
     // Attributes
     //
 
-    DECLARE_STATIC_CLASS_CONST(char*, ADAPTER_TYPE_ATTR, "AdapterType");
-    DECLARE_STATIC_CLASS_CONST(char*, LIB_PATH_ATTR, "LibPath");
-    DECLARE_STATIC_CLASS_CONST(char*, FILTER_TYPE_ATTR, "FilterType");
-    DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TYPE_ATTR, "ListenerType");
-    DECLARE_STATIC_CLASS_CONST(char*, TELEMETRY_ONLY_ATTR, "TelemetryOnly");
+    static constexpr char const *ADAPTER_TYPE_ATTR = "AdapterType";
+    static constexpr char const *LIB_PATH_ATTR = "LibPath";
+    static constexpr char const *FILTER_TYPE_ATTR = "FilterType";
+    static constexpr char const *LISTENER_TYPE_ATTR = "ListenerType";
+    static constexpr char const *TELEMETRY_ONLY_ATTR = "TelemetryOnly";
 
     /**
      * Extract comma separated arguments from a character string.

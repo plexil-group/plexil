@@ -56,10 +56,10 @@ namespace PLEXIL
 
     // Get the kind of listener to make
     const char* listenerType = 
-      xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value();
+      xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value();
     if (!*listenerType) {
       warn("ExecListenerFactory: missing "
-           << InterfaceSchema::LISTENER_TYPE_ATTR()
+           << InterfaceSchema::LISTENER_TYPE_ATTR
            << " attribute in listener XML:\n"
            << *xml);
       return NULL;
@@ -89,7 +89,7 @@ namespace PLEXIL
                << name.c_str() << "\"");
       // Attempt to dynamically load library
       const char* libCPath =
-        xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+        xml.attribute(InterfaceSchema::LIB_PATH_ATTR).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
         warn("ExecListenerFactory: Unable to load module for listener type \""
              << name.c_str() << "\"");

@@ -50,15 +50,15 @@ namespace PLEXIL
 				  "ExecListenerFilterFactory::createInstance: null configuration XML");
 
     // Get the kind of filter to make
-	pugi::xml_attribute filterTypeAttr = xml.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+	pugi::xml_attribute filterTypeAttr = xml.attribute(InterfaceSchema::FILTER_TYPE_ATTR);
     checkError(!filterTypeAttr.empty(),
 			   "ExecListenerFilterFactory::createInstance: no "
-			   << InterfaceSchema::FILTER_TYPE_ATTR()
+			   << InterfaceSchema::FILTER_TYPE_ATTR
 			   << " attribute for filter XML");
     const char* filterType = filterTypeAttr.value();
     checkError(*filterType != '\0',
 			   "ExecListenerFilterFactory::createInstance: "
-			   << InterfaceSchema::FILTER_TYPE_ATTR()
+			   << InterfaceSchema::FILTER_TYPE_ATTR
 			   << " attribute for filter XML is empty");
 
     // Make it
@@ -87,7 +87,7 @@ namespace PLEXIL
 			   << name.c_str() << "\"");
 	  // Attempt to dynamically load library
 	  const char* libCPath =
-		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+		xml.attribute(InterfaceSchema::LIB_PATH_ATTR).value();
 	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
 		debugMsg("ExecListenerFilterFactory:createInstance",
 				 " unable to load module for filter type \""

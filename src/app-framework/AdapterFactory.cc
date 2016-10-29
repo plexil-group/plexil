@@ -56,10 +56,10 @@ namespace PLEXIL
 
     // Get the kind of adapter to make
     const char* adapterType = 
-      xml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();
+      xml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value();
     if (!*adapterType) {
       warn("AdapterFactory: missing "
-           << InterfaceSchema::ADAPTER_TYPE_ATTR()
+           << InterfaceSchema::ADAPTER_TYPE_ATTR
            << " attribute in adapter XML:\n" << *xml);
       return NULL;
     }
@@ -112,7 +112,7 @@ namespace PLEXIL
                << name.c_str() << "\"");
       // Attempt to dynamically load library
       const char* libCPath =
-        xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+        xml.attribute(InterfaceSchema::LIB_PATH_ATTR).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
         warn("AdapterFactory: unable to load module for adapter type \""
              << name.c_str() << "\"");

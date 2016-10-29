@@ -94,13 +94,12 @@ namespace PLEXIL {
   {
     simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
-    const std::vector<std::string>& allConditions = node->ALL_CONDITIONS();
-    for (size_t i = 0; i < allConditions.size(); ++i) {
+    for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
       Expression const *cond = node->getCondition(i);
       if (cond) {
         std::string const valueStr = cond->valueString();
         simpleTextElement(s, 
-                          allConditions[i].c_str(), 
+                          Node::ALL_CONDITIONS[i], 
                           valueStr.c_str());
       }
     }
