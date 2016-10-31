@@ -296,27 +296,6 @@ namespace PLEXIL {
     Expression *getActionCompleteCondition()            { return m_conditions[actionCompleteIdx]; }
     Expression *getAbortCompleteCondition()             { return m_conditions[abortCompleteIdx]; }
 
-    // Test whether a condition is active
-    // These are public only to appease the module test
-
-    // These are special because parent owns the condition expression
-    bool isAncestorEndConditionActive()               { return getAncestorEndCondition()->isActive(); }
-    bool isAncestorExitConditionActive()              { return getAncestorExitCondition()->isActive(); }
-    bool isAncestorInvariantConditionActive()         { return getAncestorInvariantCondition()->isActive(); }
-
-    // User conditions
-    bool isSkipConditionActive()                      { return m_conditions[skipIdx]->isActive(); }
-    bool isStartConditionActive()                     { return m_conditions[startIdx]->isActive(); }
-    bool isEndConditionActive()                       { return m_conditions[endIdx]->isActive(); }
-    bool isExitConditionActive()                      { return m_conditions[exitIdx]->isActive(); }
-    bool isInvariantConditionActive()                 { return m_conditions[invariantIdx]->isActive(); }
-    bool isPreConditionActive()                       { return m_conditions[preIdx]->isActive(); }
-    bool isPostConditionActive()                      { return m_conditions[postIdx]->isActive(); }
-    bool isRepeatConditionActive()                    { return m_conditions[repeatIdx]->isActive(); }
-    // These are for specialized node types
-    bool isActionCompleteConditionActive()            { return m_conditions[actionCompleteIdx]->isActive(); }
-    bool isAbortCompleteConditionActive()             { return m_conditions[abortCompleteIdx]->isActive(); }
-
     // Used internally, also by LuvListener. Non-const variant is protected.
     Expression const *getCondition(size_t idx) const;
 
