@@ -29,66 +29,23 @@
 
 namespace PLEXIL
 {
-  // Forward declaration
-  template <typename T> class LinkedQueue; 
-
   //*
-  // @class QueueItem
-  // @brief Class template to be used as a base class for entries in a LinkedQueue.
+  // @class LinkedQueue
+  // @brief Simple unidirectional linked-list queue implementation.
+  //        Participant classes must only provide two member functions:
+  //        T *next() const and T **nextPtr()
   //
 
-  template <typename T> class QueueItem
-  {
-    friend class LinkedQueue<T>;
-    
-  public:
-    QueueItem()
-      : m_next(nullptr)
-    {
-    }
-    
-    virtual ~QueueItem()
-    {
-    }
-
-    T *next() const
-    {
-      return static_cast<T *>(getNext());
-    }
-
-  private:
-
-    // Not implemented
-    QueueItem(QueueItem<T> const &) = delete;
-    QueueItem(QueueItem<T> &&) = delete;
-    QueueItem& operator=(QueueItem<T> const &) = delete;
-    QueueItem& operator=(QueueItem<T> &&) = delete;
-
-    // These member functions should only be called by LinkedQueue methods
-
-    void setNext(QueueItem<T> *item)
-    {
-      m_next = item;
-    }
-
-    QueueItem<T> *getNext() const
-    {
-      return m_next;
-    }
-
-    QueueItem<T> *m_next;
-  };
-
-  template <typename T> class LinkedQueue :
-    public QueueItem<T>
+  template <typename T> class LinkedQueue
   {
   private:
-    QueueItem<T> *m_tail;
+    T *m_head;
+    T *m_tail;
     size_t m_count;
 
   public:
     LinkedQueue()
-      : QueueItem<T>(),
+      : m_head(nullptr),
         m_tail(nullptr),
         m_count(0)
     {
@@ -100,7 +57,7 @@ namespace PLEXIL
 
     T *front() const
     {
-      return this->next(); // may be null
+      return m_head; // may be null
     }
 
     size_t size() const
@@ -110,7 +67,7 @@ namespace PLEXIL
 
     bool empty() const
     {
-      return (this->getNext() == nullptr);
+      return (m_head == nullptr);
     }
 
     void pop()
@@ -118,52 +75,53 @@ namespace PLEXIL
       if (empty())
         return; // empty, nothing to do
 
-      if (this->getNext() == m_tail)
+      if (m_head == m_tail)
         // Exactly one item was in queue, is now empty
-        this->setNext((m_tail = nullptr));
+        m_head = m_tail = nullptr;
       else
-        this->setNext(this->getNext()->getNext());
+        m_head = m_head->next();
+
       --m_count; // better be 0 if empty!
     }
 
-    void push(T *item_as_T)
+    void push(T *item)
     {
-      QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      item->setNext(nullptr); // mark as end of queue
+      *(item->nextPtr()) = nullptr; // mark as end of queue
       if (empty())
         // Was empty
-        this->setNext(item);
+        m_head = item;
       else
-        m_tail->setNext(item);
+        *(m_tail->nextPtr()) = item;
       m_tail = item;
       ++m_count;
     }
 
-    void remove(T *item_as_T)
+    void remove(T *item)
     {
-      if (empty() || item_as_T == nullptr)
+      if (empty() || item == nullptr)
         return;
-      QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      QueueItem<T> *ptr  = static_cast<QueueItem<T> *>(this);
-      QueueItem<T> *nxt  = nullptr;
-      while (nullptr != (nxt = ptr->getNext())) {
+      T **ptr  = &m_head;
+      T *nxt  = m_head;
+      while (nullptr != nxt) {
         if (item == nxt) {
           // unlink it
-          ptr->setNext(nxt->getNext());
+          *ptr = item->next();
+          *(item->nextPtr()) = nullptr;
           if (empty())
             // Removed only item in queue
             m_tail = nullptr;
           --m_count;
           return;
         }
-        ptr = ptr->getNext();
+        ptr = nxt->nextPtr();
+        nxt = *ptr;
       }
       // Can fall through to here without finding item
     }
 
     void clear()
     {
-      this->setNext((m_tail = nullptr));
+      m_head = m_tail = nullptr;
       m_count = 0;
     }
 

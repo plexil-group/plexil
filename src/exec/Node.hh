@@ -28,7 +28,6 @@
 #define _H_Node
 
 #include "Expression.hh"
-#include "LinkedQueue.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
@@ -56,8 +55,7 @@ namespace PLEXIL {
    */
   class Node :
     public NodeConnector,
-    public ExpressionListener,
-    public QueueItem<Node>
+    public ExpressionListener
   {
   public:
     static char const * const ALL_CONDITIONS[];
@@ -107,6 +105,20 @@ namespace PLEXIL {
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~Node();
+
+    //
+    // LinkedQueue API
+    //
+
+    Node *next() const
+    {
+      return m_next;
+    }
+
+    Node **nextPtr()
+    {
+      return &m_next;
+    }
 
     //
     // NodeConnector API to expressions
@@ -177,12 +189,6 @@ namespace PLEXIL {
     }
 
     /**
-     * @brief Gets the name of the current state of this node.
-     * @return the current node state name as a const reference to string.
-     */
-    std::string const &getStateName() const;
-
-    /**
      * @brief Gets the current state of this node.
      * @return the current node state as a NodeState (enum) value.
      */
@@ -209,15 +215,15 @@ namespace PLEXIL {
     // Used by plan parser
 
     // May return NULL.
+    // Used by plan analyzer and plan parser module test only.
     const std::vector<Expression *> *getLocalVariables() const { return m_localVariables; }
+
     // May return NULL.
+    // Used by GanttListener.
     NodeVariableMap const *getVariableMap() const { return m_variablesByName; }
 
     // Pre-allocate local variable vector, variable map.
     void allocateVariables(size_t n);
-
-    // For plan parser and initialization purposes.
-    virtual NodeVariableMap const *getChildVariableMap() const;
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
@@ -300,7 +306,7 @@ namespace PLEXIL {
     Expression const *getCondition(size_t idx) const;
 
     //
-    // Utilities for plan parsers
+    // Utilities for plan parser and analyzer
     //
 
     /**
@@ -314,22 +320,18 @@ namespace PLEXIL {
 
     /**
      * @brief Add a condition expression to the node.
-     * @param which The index of the condition.
+     * @param cname The name of the condition.
      * @param cond The expression.
      * @param isGarbage True if the expression should be deleted with the node.
      */
-    void addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage);
+    void addUserCondition(char const *cname, Expression *cond, bool isGarbage);
 
     /**
      * @brief Construct any internal conditions now that the node is complete.
      */
     void finalizeConditions();
-
-    //
-    // Utility
-    //
     
-    static ConditionIndex getConditionIndex(char const *cName);
+    // Public only for plan analyzer
     static char const *getConditionName(size_t idx);
 
   protected:
@@ -345,6 +347,11 @@ namespace PLEXIL {
 
     // Abstracts out the issue of where the condition comes from.
     Expression *getCondition(size_t idx);
+
+    static ConditionIndex getConditionIndex(char const *cName);
+
+    // Only used by Node, ListNode, LibraryCallNode.
+    virtual NodeVariableMap const *getChildVariableMap() const;
 
     void commonInit();
 
@@ -451,6 +458,7 @@ namespace PLEXIL {
     // Common state
     //
 
+    Node       *m_next;                /*!< For LinkedQueue<Node> */
     uint8_t     m_queueStatus;         /*!< Which exec queue the node is in, if any. */
     NodeState   m_state;               /*!< The current state of the node. */
     NodeOutcome m_outcome;             /*!< The current outcome. */

@@ -134,7 +134,7 @@ namespace PLEXIL {
     simpleStartTag(s, NODE_STATE_UPDATE_TAG());
 
     // add state
-    simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
+    simpleTextElement(s, NODE_STATE_TAG(), nodeStateName(node->getState()).c_str());
 
     // add outcome
     if (node->getOutcome() != NO_OUTCOME)

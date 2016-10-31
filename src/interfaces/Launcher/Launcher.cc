@@ -74,7 +74,7 @@ namespace PLEXIL
         return;
       Value const nodeIdValue(node->getNodeId());
       g_manager->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
-                                   Value(node->getStateName()));
+                                   Value(nodeStateName(node->getState())));
       NodeOutcome o = node->getOutcome();
       if (o != NO_OUTCOME) {
         g_manager->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),

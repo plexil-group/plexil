@@ -87,7 +87,7 @@ namespace PLEXIL
   Node::Node(char const *nodeId, Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      QueueItem<Node>(),
+      m_next(nullptr),
       m_queueStatus(0),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
@@ -121,7 +121,7 @@ namespace PLEXIL
              Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      QueueItem<Node>(),
+      m_next(nullptr),
       m_queueStatus(0),
       m_state(state),
       m_outcome(NO_OUTCOME),
@@ -283,12 +283,14 @@ namespace PLEXIL
     }
   }
 
-  void Node::addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage)
+  void Node::addUserCondition(char const *cname, Expression *cond, bool isGarbage)
   {
-    assertTrue_2(which >= skipIdx && which <= repeatIdx,
-                 "Invalid condition index for user condition");
+    assertTrue_2(cname, "Null condition name");
+    ConditionIndex which = getConditionIndex(cname);
+    checkParserException(which >= skipIdx && which <= repeatIdx,
+                         "Invalid condition name \"" << cname << "\" for user condition");
     checkParserException(!m_conditions[which],
-                         "Duplicate " << getConditionName(which) << " for Node \"" << m_nodeId << "\"");
+                         "Duplicate " << cname << " for Node \"" << m_nodeId << "\"");
     m_conditions[which] = cond;
     m_garbageConditions[which] = isGarbage;
   }
@@ -465,7 +467,7 @@ namespace PLEXIL
   {
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId << " from state " <<
-             getStateName());
+             nodeStateName(m_state));
 
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;
@@ -1214,10 +1216,6 @@ namespace PLEXIL
   // *** END NODE STATE LOGIC ***
   // ***
 
-  std::string const &Node::getStateName() const {
-    return nodeStateName(m_state);
-  }
-
   NodeState Node::getState() const {
     return m_state;
   }
@@ -1603,7 +1601,7 @@ namespace PLEXIL
     std::string indentStr(indent, ' ');
 
     stream << indentStr << m_nodeId << "{\n";
-    stream << indentStr << " State: " << getStateName() <<
+    stream << indentStr << " State: " << nodeStateName(m_state) <<
       " (" << getCurrentStateStartTime() << ")\n";
     if (m_state == FINISHED_STATE) {
       stream << indentStr << " Outcome: " << outcomeName(m_outcome) << '\n';

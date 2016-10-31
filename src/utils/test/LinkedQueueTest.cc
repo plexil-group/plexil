@@ -29,12 +29,33 @@
 
 using namespace PLEXIL;
 
-class QueueTest : public QueueItem<QueueTest>
+struct QueueTest
 {
+private:
+  QueueTest *nxt;
+
 public:
+
   int value;
 
-  QueueTest(int n) : value(n) {}
+  QueueTest(int n) :
+    nxt(nullptr),
+    value(n)
+  {
+  }
+
+  ~QueueTest() = default;
+
+  QueueTest *next() const
+  {
+    return nxt;
+  }
+
+  QueueTest **nextPtr()
+  {
+    return &nxt;
+  }
+
 };
 
 bool LinkedQueueTest()

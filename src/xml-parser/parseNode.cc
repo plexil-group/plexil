@@ -759,11 +759,6 @@ namespace PLEXIL
       char const *tag = elt.name();
       if (testSuffix(CONDITION_SUFFIX, tag)) {
         debugMsg("finalizeNode", " processing condition " << tag);
-        // Check that condition name is valid, get index
-        Node::ConditionIndex which = Node::getConditionIndex(tag);
-        // Bogus condition names should have been caught in first pass
-        assertTrueMsg(which >= Node::skipIdx && which <= Node::repeatIdx,
-                      "Internal error: Invalid condition name \"" << tag << "\"");
         bool garbage;
         Expression *cond = createExpression(elt.first_child(), node, garbage);
         ValueType condType = cond->valueType();
@@ -774,7 +769,7 @@ namespace PLEXIL
                                             "Node " << node->getNodeId() << ": "
                                             << tag << " expression is not Boolean");
         }
-        node->addUserCondition(which, cond, garbage);
+        node->addUserCondition(tag, cond, garbage);
       }
     }
 

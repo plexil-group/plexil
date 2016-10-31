@@ -407,7 +407,7 @@ namespace PLEXIL
         debugMsg("PlexilExec:step",
                  "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                  "] Transitioning node " << node->getNodeId()
-                 << " from " << node->getStateName()
+                 << " from " << nodeStateName(node->getState())
                  << " to " << nodeStateName(node->getNextState()));
         NodeState oldState = node->getState();
         node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
