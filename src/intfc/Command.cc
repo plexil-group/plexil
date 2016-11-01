@@ -122,7 +122,8 @@ namespace PLEXIL
   }
 
   Command::Command(std::string const &nodeName)
-    : m_ack(*this),
+    : m_next(nullptr),
+      m_ack(*this),
       m_abortComplete("abortComplete"),
       m_command(),
       m_resourceList(),

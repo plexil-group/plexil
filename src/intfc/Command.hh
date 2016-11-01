@@ -148,12 +148,24 @@ namespace PLEXIL
 
     void cleanUp();
 
+    // LinkedQueue item API
+    Command *next() const
+    {
+      return m_next;
+    }
+
+    Command **nextPtr()
+    {
+      return &m_next;
+    }
+
   private:
     // Deliberately not implemented
     Command();
     Command(const Command&);
     Command& operator=(const Command&);
 
+    Command *m_next;
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     State m_command;
