@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ namespace PLEXIL
     void setVariable(Assignable *lhs, bool garbage);
     void setExpression(Expression *rhs, bool garbage);
 
+    // For use by Exec
     void activate();
     void deactivate();
     void fixValue();
@@ -55,12 +56,24 @@ namespace PLEXIL
     void retract();
     void reset();
 
+    // LinkedQueue participant API
+    Assignment *next() const
+    {
+      return m_next;
+    }
+
+    Assignment **nextPtr()
+    {
+      return &m_next;
+    }
+
   private:
     // Explicitly not implemented
     Assignment();
     Assignment(const Assignment&);
     Assignment& operator=(const Assignment&);
 
+    Assignment *m_next; // for LinkedQueue
     SimpleBooleanVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     Expression *m_rhs;

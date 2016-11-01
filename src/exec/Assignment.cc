@@ -36,10 +36,11 @@ namespace PLEXIL
 {
 
   Assignment::Assignment(const std::string &nodeId)
-    : m_ack("ack"),
+    : m_next(nullptr),
+      m_ack("ack"),
       m_abortComplete("abortComplete"),
-      m_rhs(NULL),
-      m_dest(NULL),
+      m_rhs(nullptr),
+      m_dest(nullptr),
       m_value(),
       m_deleteLhs(false),
       m_deleteRhs(false)
