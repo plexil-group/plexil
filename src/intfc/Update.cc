@@ -61,7 +61,8 @@ namespace PLEXIL
   };
 
   Update::Update(NodeConnector *node)
-    : m_source(node),
+    : m_next(nullptr),
+      m_source(node),
       m_ack("ack"),
       m_pairs(nullptr)
   {

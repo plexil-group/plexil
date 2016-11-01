@@ -71,12 +71,24 @@ namespace PLEXIL
     // Made public for parser unit test
     void fixValues();
 
+    // LinkedQueue item API
+    Update *next() const
+    {
+      return m_next;
+    }
+
+    Update **nextPtr()
+    {
+      return &m_next;
+    }
+
   private:
     // Deliberately unimplemented
     Update();
     Update(const Update&);
     Update& operator=(const Update&);
 
+    Update *m_next;
     NodeConnector *m_source;
     SimpleBooleanVariable m_ack;
     Pair *m_pairs;
