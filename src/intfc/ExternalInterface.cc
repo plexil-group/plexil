@@ -77,7 +77,7 @@ namespace PLEXIL
    */
   void ExternalInterface::enqueueCommand(Command *cmd)
   {
-    m_commandsToExecute.push_back(cmd);
+    m_commandsToExecute.push(cmd);
   }
 
 
@@ -103,24 +103,38 @@ namespace PLEXIL
   void ExternalInterface::executeOutboundQueue()
   {
     if (!m_commandsToExecute.empty()) {
-      std::vector<Command *> acceptCmds;
-      m_raInterface->arbitrateCommands(m_commandsToExecute, acceptCmds);
-      for (std::vector<Command *>::iterator cit = m_commandsToExecute.begin();
-           cit != m_commandsToExecute.end();
-           ++cit) {
-        assertTrue_1(*cit);
-        Command *cmd = *cit;
-        if (std::find(acceptCmds.begin(), acceptCmds.end(), cmd) != acceptCmds.end())
-          this->executeCommand(*cit);
+      LinkedQueue<Command> resourceCmds;
+      while (Command *cmd = m_commandsToExecute.front()) {
+        m_commandsToExecute.pop();
+        if (cmd->getResourceValues().empty()) {
+          // Execute it now
+          debugMsg("ResourceArbiterInterface:partitionCommands",
+                   " accepting " << cmd->getName() << " with no resource requests"); // legacy msg
+          this->executeCommand(cmd);
+        }
         else {
+          // Queue it for arbitration
+          resourceCmds.push(cmd);
+        }
+      }
+
+      if (!resourceCmds.empty()) {
+        LinkedQueue<Command> acceptCmds, rejectCmds;
+        m_raInterface->arbitrateCommands(resourceCmds, acceptCmds, rejectCmds);
+        while (Command *cmd = acceptCmds.front()) {
+          acceptCmds.pop();
+          this->executeCommand(cmd);
+        }
+        while (Command *cmd = rejectCmds.front()) {
+          rejectCmds.pop();
           debugMsg("Test:testOutput", 
                    "Permission to execute " << cmd->getName()
                    << " has been denied by the resource arbiter.");
           reportCommandArbitrationFailure(cmd);
         }
       }
-      m_commandsToExecute.clear();
     }
+
     while (!m_updatesToExecute.empty()) {
       this->executeUpdate(m_updatesToExecute.front());
       m_updatesToExecute.pop();

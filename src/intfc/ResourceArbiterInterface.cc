@@ -28,7 +28,8 @@
 
 #include "Command.hh"
 #include "Debug.hh"
-#include "Error.hh"
+//#include "Error.hh"
+#include "LinkedQueue.hh" // includes Error.hh
 
 #include <algorithm> // std::stable_sort()
 #include <cctype>
@@ -49,35 +50,66 @@ namespace PLEXIL
     }
   };
 
-  struct ChildResourceNode
+  struct ChildResourceNode final
   {
     ChildResourceNode(const double _weight,
                       const std::string& _name,
                       const bool _release = true)
-      : weight(_weight),
-        name(_name),
+      : name(_name),
+        weight(_weight),
         release(_release)
     {}
 
-    double weight;
+    // The rest should only be used by container templates.
+    ChildResourceNode()
+      : name(),
+        weight(0.0),
+        release(false)
+    {
+    }
+
+    ChildResourceNode(ChildResourceNode const &) = default;
+    ChildResourceNode(ChildResourceNode &&) = default;
+    ChildResourceNode &operator=(ChildResourceNode const &) = default;
+    ChildResourceNode &operator=(ChildResourceNode &&) = default;
+
+    ~ChildResourceNode() = default;
+
     std::string name;
+    double weight;
     bool release;
   };
 
-  struct ResourceNode 
+  struct ResourceNode final
   {
-    ResourceNode()
-      : maxConsumableValue(0.0)
-    {}
-
     ResourceNode(const double _maxConsumableValue, 
                  const std::vector<ChildResourceNode>& _children)
-      : maxConsumableValue(_maxConsumableValue),
-        children(_children)
-    {}
+      : children(_children),
+      maxConsumableValue(_maxConsumableValue)
+      {
+      }
 
-    double maxConsumableValue;
+    ResourceNode(const double _maxConsumableValue, 
+                 std::vector<ChildResourceNode> &&_children)
+      : children(std::move(_children)),
+      maxConsumableValue(_maxConsumableValue)
+      {
+      }
+
+    // These should only be used by container templates
+    ResourceNode()
+      : maxConsumableValue(0.0)
+      {}
+
+    ResourceNode(ResourceNode const &) = default;
+    ResourceNode(ResourceNode &&) = default;
+    ResourceNode &operator=(ResourceNode const &) = default;
+    ResourceNode &operator=(ResourceNode &&) = default;
+
+    ~ResourceNode() = default;
+
     std::vector<ChildResourceNode> children;
+    double maxConsumableValue;
   };
 
   typedef std::set<ChildResourceNode, NameComparator<ChildResourceNode> > ResourceSet;
@@ -85,15 +117,20 @@ namespace PLEXIL
   struct CommandPriorityEntry
   {
     CommandPriorityEntry(int32_t prio, Command *cmd)
-      : priority(prio),
+      : resources(),
         command(cmd),
-        resources()
+        priority(prio)
     {
     }
 
-    int32_t priority;
-    Command *command;
+    CommandPriorityEntry(CommandPriorityEntry const &) = default;
+    CommandPriorityEntry(CommandPriorityEntry &&) = default;
+    CommandPriorityEntry &operator=(CommandPriorityEntry const &) = default;
+    CommandPriorityEntry &operator=(CommandPriorityEntry &&) = default;
+
     ResourceSet resources;
+    Command *command;
+    int32_t priority;
   };
 
   // Used internally by optimalResourceAllocation() method.
@@ -151,7 +188,7 @@ namespace PLEXIL
     for (std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
          cIter != children.end();
          ++cIter) {
-      flattenedRes.push_back(ChildResourceNode(cIter->weight, cIter->name, release));
+      flattenedRes.emplace_back(ChildResourceNode(cIter->weight, cIter->name, release));
       determineChildResources(cIter->name, release, resourceHierarchy, flattenedRes);
     }
   }
@@ -165,7 +202,7 @@ namespace PLEXIL
     std::vector<ChildResourceNode> flattenedRes;
     std::string const &resName = res.name;
     bool release = res.releaseAtTermination;
-    flattenedRes.push_back(ChildResourceNode(res.upperBound, resName, release));
+    flattenedRes.emplace_back(ChildResourceNode(res.upperBound, resName, release));
     determineChildResources(resName, release, resourceHierarchy, flattenedRes);
 
     //loop through each hierarchy element in the flattened structure
@@ -295,7 +332,7 @@ namespace PLEXIL
           debugMsg("ResourceArbiterInterface:readResourceHierarchy",
                    " got dependent resource value " << d << ", name " << cName);
           
-          children.push_back(ChildResourceNode(d, cName));
+          children.emplace_back(ChildResourceNode(d, cName));
 
           len -= ws;
           data += ws;
@@ -315,21 +352,20 @@ namespace PLEXIL
       return true;
     }
     
-    virtual void arbitrateCommands(const std::vector<Command *>& cmds,
-                                   std::vector<Command *>& acceptCmds)
+    virtual void arbitrateCommands(LinkedQueue<Command> &cmds,
+                                   LinkedQueue<Command> &acceptCmds,
+                                   LinkedQueue<Command> &rejectCmds)
     {
       debugMsg("ResourceArbiterInterface:arbitrateCommands",
                " processing " << cmds.size() << " commands");
 
       CommandPriorityList sortedCommands;
-      partitionCommands(cmds, acceptCmds, sortedCommands);
+      partitionCommands(cmds, sortedCommands); // consumes cmds
 
-      if (!sortedCommands.empty()) {
-        debugStmt("ResourceArbiterInterface:printSortedCommands",
-                  printSortedCommands(sortedCommands));
+      debugStmt("ResourceArbiterInterface:printSortedCommands",
+                printSortedCommands(sortedCommands));
 
-        optimalResourceArbitration(acceptCmds, sortedCommands);
-      }
+      optimalResourceArbitration(acceptCmds, rejectCmds, sortedCommands);
     
       debugStmt("ResourceArbiterInterface:printAcceptedCommands",
                 printAcceptedCommands(acceptCmds));
@@ -362,30 +398,20 @@ namespace PLEXIL
 
   private:
     
-    void partitionCommands(std::vector<Command *> const &cmds,
-                           std::vector<Command *> &acceptCmds,
+    // Consumes cmds
+    void partitionCommands(LinkedQueue<Command> &cmds,
                            CommandPriorityList &sortedCommands)
     {
-      for (std::vector<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
-        Command *cmd = *it;
-        assertTrue_1(cmd);
+      while (Command *cmd = cmds.front()) {
+        cmds.pop();
         const ResourceValueList& resList = cmd->getResourceValues();
+        sortedCommands.emplace_back(CommandPriorityEntry(resList.front().priority, cmd));
 
-        if (resList.empty()) {
-          debugMsg("ResourceArbiterInterface:partitionCommands",
-                   " accepting " << cmd->getName() << " with no resource requests");
-          acceptCmds.push_back(cmd); // no arbitration required
-        }
-        else {
-          sortedCommands.push_back(CommandPriorityEntry(resList.front().priority,
-                                                        cmd));
-
-          ResourceSet &resources = sortedCommands.back().resources;
-          for (ResourceValueList::const_iterator resListIter = resList.begin();
-               resListIter != resList.end();
-               ++resListIter)
-            determineAllChildResources(*resListIter, m_resourceHierarchy, resources);
-        }
+        ResourceSet &resources = sortedCommands.back().resources;
+        for (ResourceValueList::const_iterator resListIter = resList.begin();
+             resListIter != resList.end();
+             ++resListIter)
+          determineAllChildResources(*resListIter, m_resourceHierarchy, resources);
       }
 
       // Sort the resulting list by priority
@@ -395,20 +421,18 @@ namespace PLEXIL
                          CommandPriorityComparator());
     }
 
-    void optimalResourceArbitration(std::vector<Command *> &acceptCmds,
+    // Populates acceptCmds, rejectCmds
+    void optimalResourceArbitration(LinkedQueue<Command> &acceptCmds,
+                                    LinkedQueue<Command> &rejectCmds,
                                     CommandPriorityList const &sortedCommands)
     {
       EstimateMap estimates;
 
       // Prepare estimate map and ensure entries in allocated map based on requests
-      for (CommandPriorityList::const_iterator cmdIt = sortedCommands.begin();
-           cmdIt != sortedCommands.end();
-           ++cmdIt) {
-        ResourceSet const &resources = cmdIt->resources;
-        for (ResourceSet::const_iterator rit = resources.begin();
-             rit != resources.end();
-             ++rit) {
-          std::string const &resName = rit->name;
+      for (CommandPriorityEntry const entry : sortedCommands) {
+        ResourceSet const &requests = entry.resources;
+        for (ChildResourceNode res : requests) {
+          std::string const &resName = res.name;
           double value = 0.0;
           if (m_allocated.find(resName) == m_allocated.end())
             m_allocated[resName] = 0.0; // ensure entry in allocation map
@@ -418,65 +442,61 @@ namespace PLEXIL
         }
       }
 
-      for (CommandPriorityList::const_iterator cmdIt = sortedCommands.begin();
-           cmdIt != sortedCommands.end();
-           ++cmdIt) {
+      for (CommandPriorityEntry const entry : sortedCommands) {
         EstimateMap savedEstimates = estimates;
-        Command *cmd = cmdIt->command;
-        ResourceSet const &requests = cmdIt->resources;
+        Command *cmd = entry.command;
+        ResourceSet const &requests = entry.resources;
         bool invalid = false;
         
         debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                  " considering " << cmd->getName());
 
-        for (ResourceSet::const_iterator iter = requests.begin();
-             (iter != requests.end()) && !invalid;
-             ++iter) {
-          std::string const &resName = iter->name;
-          double resValue = iter->weight;
-          ResourceEstimate &est = estimates[resName];
+        for (ChildResourceNode res : requests) {
+          ResourceEstimate &est = estimates[res.name];
 
           debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                   "  " << cmd->getName() << " requires " << resValue << " of " << resName);
+                   "  " << cmd->getName() << " requires " << res.weight << " of " << res.name);
 
-          if (resValue < 0.0)
-            est.renewable += resValue;
+          if (res.weight < 0.0)
+            est.renewable += res.weight;
           else
-            est.consumable += resValue;
+            est.consumable += res.weight;
 
           // Make sure that each of the individual resource usage does not exceed
           // the permitted maximum. This handles the worst case resource usage 
           // behavior of both types of resources.
-          double resMax = maxConsumableResourceValue(resName);
+          double resMax = maxConsumableResourceValue(res.name);
           if (est.renewable < 0.0 || est.renewable > resMax) {
             invalid = true;
             debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                      " rejecting " << cmd->getName()
-                     << " because renewable usage of " << resName << " exceeds limits");
+                     << " because renewable usage of " << res.name << " exceeds limits");
+            break; // from inner loop
           }
           else if (est.consumable < 0 || est.consumable > resMax) {
             invalid = true;
             debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                      " rejecting " << cmd->getName()
-                     << " because consumable usage of " << resName << " exceeds limits");
+                     << " because consumable usage of " << res.name << " exceeds limits");
+            break; // from inner loop
           }
         }
         
         if (invalid) {
           // Back out effects of rejected command
           estimates = savedEstimates;
+          rejectCmds.push(cmd);
         }
         else {
           debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                    " accepting " << cmd->getName());
 
-          acceptCmds.push_back(cmd);
+          acceptCmds.push(cmd);
           m_cmdResMap[cmd] = requests;
 
           // Update the allocated resource map to include the chosen command
-          for (ResourceSet::const_iterator resIter = requests.begin();
-               resIter != requests.end(); ++resIter)
-            m_allocated[resIter->name] += resIter->weight;
+          for (ChildResourceNode res : requests)
+            m_allocated[res.name] += res.weight;
         }
       }
     }
@@ -511,13 +531,11 @@ namespace PLEXIL
         debugMsg("ResourceArbiterInterface:printAllocatedResources", ' ' << it->first << " = " << it->second);
     }
 
-    void printAcceptedCommands(const std::vector<Command *>& acceptCmds)
+    void printAcceptedCommands(LinkedQueue<Command> const &acceptCmds)
     {
       // Print accepted commands and the resources they consume.
-      for (std::vector<Command *>::const_iterator it = acceptCmds.begin(); 
-           it != acceptCmds.end();
-           ++it) {
-        Command *cmd = *it;
+      Command *cmd = acceptCmds.front();
+      while (cmd) {
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
                  " Accepted command: " << cmd->getName()
                  << " uses resources:");
@@ -526,6 +544,7 @@ namespace PLEXIL
              resIter != res.end();
              ++resIter)
           debugMsg("ResourceArbiterInterface:printAcceptedCommands", "  " << resIter->name);
+        cmd = cmd->next();
       }
     }
 

@@ -221,7 +221,7 @@ namespace PLEXIL {
     ExternalInterface &operator=(ExternalInterface const &);
 
     LinkedQueue<Update> m_updatesToExecute;
-    std::vector<Command *> m_commandsToExecute;
+    LinkedQueue<Command> m_commandsToExecute;
     ResourceArbiterInterface *m_raInterface;
     unsigned int m_cycleCount;
   };
