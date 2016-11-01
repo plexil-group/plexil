@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 
 #include "CommandHandle.hh"
 #include "Expression.hh"
+#include "LinkedQueue.hh"
 #include "State.hh"
 
 #include <list>
@@ -102,20 +103,22 @@ namespace PLEXIL {
     // API to Node classes
     //
 
+    // Made virtual for convenience of module tests
+
     /**
      * @brief Schedule this command for execution.
      */
-    void enqueueCommand(Command *cmd);
+    virtual void enqueueCommand(Command *cmd);
 
     /**
      * @brief Abort the pending command.
      */
-    void abortCommand(Command *cmd);
+    virtual void abortCommand(Command *cmd);
 
     /**
      * @brief Schedule this update for execution.
      */
-    void enqueueUpdate(Update *update);
+    virtual void enqueueUpdate(Update *update);
 
     //
     // API to Exec
@@ -124,7 +127,7 @@ namespace PLEXIL {
     /**
      * @brief Send all pending commands and updates to the external system(s).
      */
-    void executeOutboundQueue();
+    virtual void executeOutboundQueue();
 
     /**
      * @brief See if the command and update queues are empty.
@@ -217,9 +220,9 @@ namespace PLEXIL {
     ExternalInterface(ExternalInterface const &);
     ExternalInterface &operator=(ExternalInterface const &);
 
-    ResourceArbiterInterface *m_raInterface;
+    LinkedQueue<Update> m_updatesToExecute;
     std::vector<Command *> m_commandsToExecute;
-    std::vector<Update *> m_updatesToExecute;
+    ResourceArbiterInterface *m_raInterface;
     unsigned int m_cycleCount;
   };
 

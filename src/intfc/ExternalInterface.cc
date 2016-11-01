@@ -42,7 +42,9 @@ namespace PLEXIL
   ExternalInterface *g_interface = NULL;
 
   ExternalInterface::ExternalInterface()
-    : m_raInterface(makeResourceArbiter()),
+    : m_updatesToExecute(),
+      m_commandsToExecute(),
+      m_raInterface(makeResourceArbiter()),
       m_cycleCount(1)
   {
   }
@@ -92,7 +94,7 @@ namespace PLEXIL
    */
   void ExternalInterface::enqueueUpdate(Update *update)
   {
-    m_updatesToExecute.push_back(update);
+    m_updatesToExecute.push(update);
   }
 
   /**
@@ -119,11 +121,10 @@ namespace PLEXIL
       }
       m_commandsToExecute.clear();
     }
-    for (std::vector<Update *>::iterator uit = m_updatesToExecute.begin();
-         uit != m_updatesToExecute.end();
-         ++uit)
-      this->executeUpdate(*uit);
-    m_updatesToExecute.clear();
+    while (!m_updatesToExecute.empty()) {
+      this->executeUpdate(m_updatesToExecute.front());
+      m_updatesToExecute.pop();
+    }
   }
 
   bool ExternalInterface::outboundQueueEmpty() const
