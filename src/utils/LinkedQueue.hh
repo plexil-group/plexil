@@ -27,6 +27,10 @@
 #ifndef LINKED_QUEUE_HH
 #define LINKED_QUEUE_HH
 
+#include "Error.hh"
+
+#include <cstddef> // size_t
+
 namespace PLEXIL
 {
   //*
@@ -42,6 +46,11 @@ namespace PLEXIL
     T *m_head;
     T *m_tail;
     size_t m_count;
+
+    LinkedQueue(LinkedQueue const &) = delete;
+    LinkedQueue(LinkedQueue &&) = delete;
+    LinkedQueue &operator=(LinkedQueue const &) = delete;
+    LinkedQueue &operator=(LinkedQueue &&) = delete;
 
   public:
     LinkedQueue()
@@ -73,22 +82,31 @@ namespace PLEXIL
     void pop()
     {
       if (empty())
-        return; // empty, nothing to do
+        return;
 
-      if (m_head == m_tail)
+      T *oldHead = m_head; // temp? see below
+      if (m_head == m_tail) {
         // Exactly one item was in queue, is now empty
         m_head = m_tail = nullptr;
-      else
+      }
+      else {
         m_head = m_head->next();
+        assertTrue_1(m_head); // temp?
+      }
+
+      // temp? Ensure queue item's next ptr is null when dequeuing
+      *(oldHead->nextPtr()) = nullptr;
 
       --m_count; // better be 0 if empty!
     }
 
     void push(T *item)
     {
+      assertTrue_1(item);
+      assertTrue_1(!item->next()); // temp?
+
       *(item->nextPtr()) = nullptr; // mark as end of queue
       if (empty())
-        // Was empty
         m_head = item;
       else
         *(m_tail->nextPtr()) = item;
@@ -98,25 +116,28 @@ namespace PLEXIL
 
     void remove(T *item)
     {
-      if (empty() || item == nullptr)
+      if (item == nullptr || empty())
         return;
-      T **ptr  = &m_head;
-      T *nxt  = m_head;
-      while (nullptr != nxt) {
-        if (item == nxt) {
-          // unlink it
-          *ptr = item->next();
-          *(item->nextPtr()) = nullptr;
-          if (empty())
-            // Removed only item in queue
-            m_tail = nullptr;
-          --m_count;
-          return;
+
+      T *prev = nullptr; // last entry we looked at
+      T **prevNextPtr = &m_head; // pointer to last entry's "next" pointer
+      T *cur = m_head; // the item being compared
+      while (cur) {
+        if (item == cur) {
+          *(prevNextPtr) = cur->next();
+          if (cur == m_tail)
+            m_tail = prev;
+          break;
         }
-        ptr = nxt->nextPtr();
-        nxt = *ptr;
+        prev = cur;
+        prevNextPtr = prev->nextPtr();
+        cur = cur->next();
       }
-      // Can fall through to here without finding item
+      if (!cur)
+        return; // not found
+
+      *(item->nextPtr()) = nullptr; // temp?
+      --m_count;
     }
 
     void clear()

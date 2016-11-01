@@ -60,6 +60,8 @@ public:
 
 bool LinkedQueueTest()
 {
+  Error::doThrowExceptions();
+
   LinkedQueue<QueueTest> testq;
 
   // Basics
@@ -141,6 +143,21 @@ bool LinkedQueueTest()
     assertTrue_1(testq.front() != nullptr);
   }
 
+  // Pop and delete all the items
+  while (!testq.empty()) {
+    QueueTest *item = testq.front();
+    testq.pop();
+    delete item;
+  }
+  
+  // Push a bunch of items again
+  for (int i = 1; i <= n; ++i) {
+    testq.push(new QueueTest(i));
+    assertTrue_1(!testq.empty());
+    assertTrue_1(testq.size() == i);
+    assertTrue_1(testq.front() != nullptr);
+  }
+
   // Step through the queue
   QueueTest *item = testq.front();
   for (int i = 1; i <= n; ++i) {
@@ -181,6 +198,13 @@ bool LinkedQueueTest()
   assertTrue_1(testq.size() == n - 3);
   delete item;
 
+  // Try to "remove" a nonexistent item
+  item = new QueueTest(42);
+  testq.remove(item);
+  assertTrue_1(!testq.empty());
+  assertTrue_1(testq.size() == n - 3);
+  delete item;
+
   // Pop and delete remaining
   while (!testq.empty()) {
     assertTrue_1(testq.front() != nullptr);
@@ -192,6 +216,7 @@ bool LinkedQueueTest()
 
   assertTrue_1(testq.empty());
   assertTrue_1(testq.size() == 0);
+  assertTrue_1(testq.front() == nullptr);
 
   return true;
 }
