@@ -29,7 +29,6 @@
 #include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "NodeConstants.hh"
