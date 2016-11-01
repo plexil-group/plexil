@@ -69,6 +69,10 @@ namespace PLEXIL
       m_candidateQueue(),
       m_stateChangeQueue(),
       m_finishedRootNodes(),
+      m_assignmentsToExecute(),
+      m_assignmentsToRetract(),
+      m_plan(),
+      m_variablesToRetract(),
       m_listener(NULL),
       m_resourceConflicts(NULL),
       m_queuePos(0),
@@ -252,7 +256,7 @@ namespace PLEXIL
    */
   void PlexilExec::enqueueAssignment(Assignment *assign)
   {
-    m_assignmentsToExecute.push_back(assign);
+    m_assignmentsToExecute.push(assign);
   }
 
   /**
@@ -260,7 +264,7 @@ namespace PLEXIL
    */
   void PlexilExec::enqueueAssignmentForRetraction(Assignment *assign)
   {
-    m_assignmentsToRetract.push_back(assign);
+    m_assignmentsToRetract.push(assign);
   }
 
   //
@@ -450,22 +454,16 @@ namespace PLEXIL
     debugMsg("PlexilExec:performAssignments",
              " performing " << m_assignmentsToExecute.size() <<  " assignments and "
              << m_assignmentsToRetract.size() << " retractions");
-    for (std::vector<Assignment *>::iterator it = m_assignmentsToExecute.begin();
-         it != m_assignmentsToExecute.end();
-         ++it) {
-      Assignment *assn = *it;
-      check_error_1(assn);
+    while (!m_assignmentsToExecute.empty()) {
+      Assignment *assn = m_assignmentsToExecute.front();
+      m_assignmentsToExecute.pop();
       assn->execute();
     }
-    m_assignmentsToExecute.clear();
-    for (std::vector<Assignment *>::iterator it = m_assignmentsToRetract.begin();
-         it != m_assignmentsToRetract.end();
-         ++it) {
-      Assignment *assn = *it;
-      check_error_1(assn);
+    while (!m_assignmentsToRetract.empty()) {
+      Assignment *assn = m_assignmentsToRetract.front();
+      m_assignmentsToRetract.pop();
       assn->retract();
     }
-    m_assignmentsToRetract.clear();
     m_variablesToRetract.clear();
   }
 
