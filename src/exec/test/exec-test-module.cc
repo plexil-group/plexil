@@ -353,6 +353,8 @@ static bool waitingTransTest()
                         if (types[i] == ASSIGNMENT) {
                           assertTrue_1(node->getActionCompleteCondition()->isActive());
                         }
+                        // Clear queues
+                        tif.executeOutboundQueue();
                       }
                       else {
                         assertTrue_1(state == ITERATION_ENDED_STATE);
