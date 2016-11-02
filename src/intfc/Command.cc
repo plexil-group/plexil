@@ -126,11 +126,11 @@ namespace PLEXIL
       m_ack(*this),
       m_abortComplete("abortComplete"),
       m_command(),
-      m_resourceList(),
-      m_resourceValueList(),
-      m_nameExpr(NULL),
-      m_dest(NULL),
-      m_argVec(NULL),
+      m_nameExpr(nullptr),
+      m_dest(nullptr),
+      m_argVec(nullptr),
+      m_resourceList(nullptr),
+      m_resourceValueList(nullptr),
       m_commandHandle(NO_COMMAND_HANDLE),
       m_fixed(false),
       m_resourceFixed(false),
@@ -161,8 +161,14 @@ namespace PLEXIL
       delete m_dest;
     m_dest = nullptr;
 
-    for (ResourceSpec &s : m_resourceList)
-      s.cleanUp();
+    if (m_resourceList) {
+      for (ResourceSpec &s : *m_resourceList)
+        s.cleanUp();
+      delete m_resourceList;
+      m_resourceList = nullptr;
+    }
+
+    delete m_resourceValueList;
 
     m_cleaned = true;
   }
@@ -179,9 +185,11 @@ namespace PLEXIL
     m_nameIsGarbage = isGarbage;
   }
 
-  ResourceList &Command::getResourceList()
+  void Command::setResourceList(ResourceList *l)
   {
-    return m_resourceList;
+    if (m_resourceList && m_resourceList != l) // unlikely, but...
+      delete m_resourceList;
+    m_resourceList = l;
   }
 
   void Command::setArgumentVector(ExprVec *vec)
@@ -211,8 +219,12 @@ namespace PLEXIL
 
   const ResourceValueList &Command::getResourceValues() const
   {
+    static ResourceValueList const sl_emptyList;
     assertTrue_1(m_resourceFixed);
-    return m_resourceValueList;
+    if (!m_resourceList)
+      return sl_emptyList;
+    else
+      return *m_resourceValueList;
   }
 
   Expression *Command::getDest()
@@ -242,13 +254,19 @@ namespace PLEXIL
 
   void Command::fixResourceValues()
   {
-    assertTrue_1(m_active && !m_resourceFixed);
-    m_resourceValueList.clear();
-    size_t n = m_resourceList.size();
-    m_resourceValueList.resize(n);
+    check_error_1(m_active && !m_resourceFixed);
+    if (!m_resourceList) {
+      m_resourceFixed = true;
+      return;
+    }
+    
+    size_t n = m_resourceList->size();
+    if (!m_resourceValueList)
+      m_resourceValueList = new ResourceValueList(n);
+
     for (size_t i = 0; i < n; ++i) {
-      ResourceSpec const &spec = m_resourceList[i];
-      ResourceValue &resValue = m_resourceValueList[i];
+      ResourceSpec const &spec = (*m_resourceList)[i];
+      ResourceValue &resValue = (*m_resourceValueList)[i];
       checkPlanError(spec.nameExp->getValue(resValue.name),
                      "Command resource name expression has unknown or invalid value");
       checkPlanError(spec.priorityExp->getValue(resValue.priority),
@@ -290,10 +308,9 @@ namespace PLEXIL
       m_dest->activate();
     if (m_argVec)
       m_argVec->activate();
-    for (ResourceList::iterator resListIter = m_resourceList.begin();
-         resListIter != m_resourceList.end();
-         ++resListIter)
-      resListIter->activate();
+    if (m_resourceList)
+      for (ResourceSpec &res : *m_resourceList)
+        res.activate();
     m_active = true;
   }
 
@@ -345,10 +362,9 @@ namespace PLEXIL
     m_active = false;
     if (m_commandHandle != COMMAND_DENIED)
       g_interface->getResourceArbiter()->releaseResourcesForCommand(this);
-    for (ResourceList::iterator resListIter = m_resourceList.begin();
-         resListIter != m_resourceList.end();
-         ++resListIter)
-      resListIter->deactivate();
+    if (m_resourceList)
+      for (ResourceSpec &res : *m_resourceList)
+        res.deactivate();
     if (m_argVec)
       m_argVec->deactivate();
     if (m_dest)

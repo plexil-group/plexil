@@ -51,11 +51,10 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(cmdXml);
-    ResourceList resources;
+    // ResourceList resources; // not used?
     xml_node temp = cmdXml.first_child();
 
     // Optional ResourceList
-    size_t n_resources = 0;
     if (testTag(RESOURCE_LIST_TAG, temp)) {
       // Process resource list
       for (xml_node resourceElt = temp.first_child(); 
@@ -70,7 +69,6 @@ namespace PLEXIL
                                          resourceElt,
                                          "No " << RESOURCE_PRIORITY_TAG << " element for resource");
         // save rest for 2nd pass
-        ++n_resources;
       }
 
       temp = temp.next_sibling();
@@ -92,8 +90,6 @@ namespace PLEXIL
       checkTag(ARGS_TAG, temp);
 
     Command *result = new Command(node->getNodeId());
-    if (n_resources)
-      result->getResourceList().resize(n_resources);
     return result;
   }
 
@@ -111,92 +107,101 @@ namespace PLEXIL
                                    xml_node const rlist)
     throw (ParserException)
   {
-    ResourceList &resources = cmd->getResourceList();
+    ResourceList *resources =
+      new ResourceList(std::distance(rlist.begin(), rlist.end()));
     size_t n = 0;
-    for (xml_node resourceElt = rlist.first_child(); 
-         resourceElt;
-         resourceElt = resourceElt.next_sibling()) {
-      checkTag(RESOURCE_TAG, resourceElt);
-      // Update ResourceSpec in place
-      ResourceSpec &rspec = resources[n++];
-      for (xml_node rtemp = resourceElt.first_child();
-           rtemp;
-           rtemp = rtemp.next_sibling()) {
-        char const* tag = rtemp.name();
-        size_t taglen = strlen(tag);
-        bool isGarbage = false;
-        Expression *exp = NULL;
-        switch (taglen) {
-        case 12: // ResourceName
-          checkParserExceptionWithLocation(0 == strcmp(RESOURCE_NAME_TAG, tag),
-                                           rtemp,
-                                           "Invalid " << tag << " element in Command Resource");
-          checkParserExceptionWithLocation(rspec.nameExp == NULL,
-                                           rtemp,
-                                           "Duplicate " << RESOURCE_NAME_TAG << " element in Command Resource");
-          exp = createExpression(rtemp.first_child(), node, isGarbage);
-          checkParserExceptionWithLocation(exp->valueType() == STRING_TYPE || exp->valueType() == UNKNOWN_TYPE,
-                                           rtemp.first_child(),
-                                           RESOURCE_NAME_TAG << " expression is not String valued in Command Resource");
-          rspec.setNameExpression(exp, isGarbage);
-          break;
-
-        case 16: // ResourcePriority
-          checkParserExceptionWithLocation(0 == strcmp(RESOURCE_PRIORITY_TAG, tag),
-                                           rtemp,
-                                           "Invalid " << tag << " element in Command Resource");
-          checkParserExceptionWithLocation(rspec.priorityExp == NULL,
-                                           rtemp,
-                                           "Duplicate " << RESOURCE_PRIORITY_TAG << " element in Command Resource");
-          exp = createExpression(rtemp.first_child(), node, isGarbage);
-          checkParserExceptionWithLocation(exp->valueType() == INTEGER_TYPE || exp->valueType() == UNKNOWN_TYPE,
-                                           rtemp.first_child(),
-                                           RESOURCE_PRIORITY_TAG << " expression is not Integer valued in Command Resource");
-          rspec.setPriorityExpression(exp, isGarbage);
-          break;
-
-        case 18: // ResourceLowerBound, ResourceUpperBound
-          if (0 == strcmp(RESOURCE_LOWER_BOUND_TAG, tag)) {
-            checkParserExceptionWithLocation(rspec.lowerBoundExp == NULL,
-                                             rtemp,
-                                             "Duplicate " << RESOURCE_LOWER_BOUND_TAG << " element in Command Resource");
-            exp = createExpression(rtemp.first_child(), node, isGarbage);
-            checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
-                                             rtemp.first_child(),
-                                             RESOURCE_LOWER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
-            rspec.setLowerBoundExpression(exp, isGarbage);
-          }
-          else {
-            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_UPPER_BOUND_TAG, tag),
+    try {
+      for (xml_node resourceElt = rlist.first_child(); 
+           resourceElt;
+           resourceElt = resourceElt.next_sibling()) {
+        checkTag(RESOURCE_TAG, resourceElt);
+        // Update ResourceSpec in place
+        ResourceSpec &rspec = (*resources)[n++];
+        for (xml_node rtemp = resourceElt.first_child();
+             rtemp;
+             rtemp = rtemp.next_sibling()) {
+          char const* tag = rtemp.name();
+          size_t taglen = strlen(tag);
+          bool isGarbage = false;
+          Expression *exp = NULL;
+          switch (taglen) {
+          case 12: // ResourceName
+            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_NAME_TAG, tag),
                                              rtemp,
                                              "Invalid " << tag << " element in Command Resource");
-            checkParserExceptionWithLocation(rspec.upperBoundExp == NULL,
+            checkParserExceptionWithLocation(rspec.nameExp == NULL,
                                              rtemp,
-                                             "Duplicate " << RESOURCE_UPPER_BOUND_TAG << " element in Command Resource");
+                                             "Duplicate " << RESOURCE_NAME_TAG << " element in Command Resource");
             exp = createExpression(rtemp.first_child(), node, isGarbage);
-            checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
+            checkParserExceptionWithLocation(exp->valueType() == STRING_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
-                                             RESOURCE_UPPER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
-            rspec.setUpperBoundExpression(exp, isGarbage);
-          }
-          break;
+                                             RESOURCE_NAME_TAG << " expression is not String valued in Command Resource");
+            rspec.setNameExpression(exp, isGarbage);
+            break;
 
-        default:
-          checkParserExceptionWithLocation(0 == strcmp(RESOURCE_RELEASE_AT_TERMINATION_TAG, tag),
-                                           rtemp,
-                                           "Invalid " << tag << " element in Command Resource");
-          checkParserExceptionWithLocation(rspec.releaseAtTermExp == NULL,
-                                           rtemp,
-                                           "Duplicate " << RESOURCE_RELEASE_AT_TERMINATION_TAG << " element in Command Resource");
-          exp = createExpression(rtemp.first_child(), node, isGarbage);
-          checkParserExceptionWithLocation(exp->valueType() == BOOLEAN_TYPE || exp->valueType() == UNKNOWN_TYPE,
-                                           rtemp.first_child(),
-                                           RESOURCE_RELEASE_AT_TERMINATION_TAG << " expression is not a Boolean expression in Command");
-          rspec.setReleaseAtTerminationExpression(exp, isGarbage);
-          break;
+          case 16: // ResourcePriority
+            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_PRIORITY_TAG, tag),
+                                             rtemp,
+                                             "Invalid " << tag << " element in Command Resource");
+            checkParserExceptionWithLocation(rspec.priorityExp == NULL,
+                                             rtemp,
+                                             "Duplicate " << RESOURCE_PRIORITY_TAG << " element in Command Resource");
+            exp = createExpression(rtemp.first_child(), node, isGarbage);
+            checkParserExceptionWithLocation(exp->valueType() == INTEGER_TYPE || exp->valueType() == UNKNOWN_TYPE,
+                                             rtemp.first_child(),
+                                             RESOURCE_PRIORITY_TAG << " expression is not Integer valued in Command Resource");
+            rspec.setPriorityExpression(exp, isGarbage);
+            break;
+
+          case 18: // ResourceLowerBound, ResourceUpperBound
+            if (0 == strcmp(RESOURCE_LOWER_BOUND_TAG, tag)) {
+              checkParserExceptionWithLocation(rspec.lowerBoundExp == NULL,
+                                               rtemp,
+                                               "Duplicate " << RESOURCE_LOWER_BOUND_TAG << " element in Command Resource");
+              exp = createExpression(rtemp.first_child(), node, isGarbage);
+              checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
+                                               rtemp.first_child(),
+                                               RESOURCE_LOWER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
+              rspec.setLowerBoundExpression(exp, isGarbage);
+            }
+            else {
+              checkParserExceptionWithLocation(0 == strcmp(RESOURCE_UPPER_BOUND_TAG, tag),
+                                               rtemp,
+                                               "Invalid " << tag << " element in Command Resource");
+              checkParserExceptionWithLocation(rspec.upperBoundExp == NULL,
+                                               rtemp,
+                                               "Duplicate " << RESOURCE_UPPER_BOUND_TAG << " element in Command Resource");
+              exp = createExpression(rtemp.first_child(), node, isGarbage);
+              checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
+                                               rtemp.first_child(),
+                                               RESOURCE_UPPER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
+              rspec.setUpperBoundExpression(exp, isGarbage);
+            }
+            break;
+
+          default:
+            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_RELEASE_AT_TERMINATION_TAG, tag),
+                                             rtemp,
+                                             "Invalid " << tag << " element in Command Resource");
+            checkParserExceptionWithLocation(rspec.releaseAtTermExp == NULL,
+                                             rtemp,
+                                             "Duplicate " << RESOURCE_RELEASE_AT_TERMINATION_TAG << " element in Command Resource");
+            exp = createExpression(rtemp.first_child(), node, isGarbage);
+            checkParserExceptionWithLocation(exp->valueType() == BOOLEAN_TYPE || exp->valueType() == UNKNOWN_TYPE,
+                                             rtemp.first_child(),
+                                             RESOURCE_RELEASE_AT_TERMINATION_TAG << " expression is not a Boolean expression in Command");
+            rspec.setReleaseAtTerminationExpression(exp, isGarbage);
+            break;
+          }
         }
       }
     }
+    catch (ParserException const &e) {
+      delete resources;
+      throw;
+    }
+
+    cmd->setResourceList(resources);
   }
 
   // Entry point from unit test and wrapper below

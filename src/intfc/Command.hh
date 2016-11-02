@@ -41,7 +41,7 @@ namespace PLEXIL
   // Used only in Command class, but exposed to parser
   //
 
-  class ResourceSpec
+  class ResourceSpec final
   {
   public:
     ResourceSpec() = default;
@@ -89,11 +89,11 @@ namespace PLEXIL
    *        Used by Command and ResourceArbiterInterface.
    */
 
-  struct ResourceValue
+  struct ResourceValue final
   {
+    std::string name;
     double lowerBound;
     double upperBound;
-    std::string name;
     int32_t priority;
     bool releaseAtTermination;
   };
@@ -123,7 +123,7 @@ namespace PLEXIL
     void setDestination(Assignable *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void setArgumentVector(ExprVec *vec);
-    ResourceList &getResourceList();
+    void setResourceList(ResourceList *l);
 
     // Interface to CommandNode
     void activate();
@@ -169,11 +169,11 @@ namespace PLEXIL
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     State m_command;
-    ResourceList m_resourceList;
-    ResourceValueList m_resourceValueList;
     Expression *m_nameExpr;
     Assignable *m_dest;
     ExprVec *m_argVec;
+    ResourceList *m_resourceList;
+    ResourceValueList *m_resourceValueList;
     CommandHandleValue m_commandHandle; // accessed by CommandHandleVariable
     bool m_fixed, m_resourceFixed, m_active, m_cleaned, m_nameIsGarbage, m_destIsGarbage;
   };
