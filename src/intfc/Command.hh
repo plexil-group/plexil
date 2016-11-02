@@ -133,6 +133,8 @@ namespace PLEXIL
     void execute();
     void abort();
 
+    void cleanUp();
+
     // Interface to ExternalInterface
 
     // Delegates to m_dest
@@ -145,8 +147,6 @@ namespace PLEXIL
     // Public only for testing
     void fixValues();
     void fixResourceValues();
-
-    void cleanUp();
 
     // LinkedQueue item API
     Command *next() const
@@ -165,6 +165,10 @@ namespace PLEXIL
     Command(const Command&);
     Command& operator=(const Command&);
 
+    // Helpers
+    bool isCommandConstant() const;
+    bool areResourcesConstant() const;
+
     Command *m_next;
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
@@ -175,7 +179,11 @@ namespace PLEXIL
     ResourceList *m_resourceList;
     ResourceValueList *m_resourceValueList;
     CommandHandleValue m_commandHandle; // accessed by CommandHandleVariable
-    bool m_fixed, m_resourceFixed, m_active, m_cleaned, m_nameIsGarbage, m_destIsGarbage;
+    bool m_active;
+    bool m_commandFixed, m_commandIsConstant;
+    bool m_resourcesFixed, m_resourcesAreConstant;
+    bool m_nameIsGarbage, m_destIsGarbage;
+    bool m_checkedConstant;
   };
 
 }
