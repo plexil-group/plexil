@@ -42,24 +42,25 @@ simple-closedloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a]([unknown_value]))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fe1ca500370 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fe1ca5005b8 [a]([unknown_value]))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-closedloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fc0f0c06d10 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc0f0c06c70 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe1ca5007d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe1ca500730 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fe1ca500370 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fc0f0c07080 [a](0) (Interruptible Boolean 0x7fc0f0c07020 [a](0)) (EQ Boolean 0x7fc0f0c06f40 [a](0) (Constant Integer 0x7fc0f0c06f30 [a](10)) (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fc0f0c06fb0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x101f4fd78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fc0f0c06c00 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fc0f0c06b18 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a]([unknown_value]))
+   EndCondition: (OR Boolean 0x7fe1ca5009a0 [a](0) (Interruptible Boolean 0x7fe1ca500940 [a](0)) (EQ Boolean 0x7fe1ca500860 [a](0) (Constant Integer 0x7fe1ca500850 [a](10)) (Variable Integer retTestFunction 0x7fe1ca500370 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fe1ca5008d0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe1ca5005b8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108db3d78 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe1ca5006c0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe1ca500600 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe1ca5005b8 [a]([unknown_value]))
   }
 }
 
+[Test:testOutput]Sending command ACK drive() = (string)COMMAND_SENT_TO_SYSTEM
 [PlexilExec:cycle]==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: simple-closedloop-command-a1 Drive 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
@@ -67,99 +68,77 @@ simple-closedloop-command-a1{
 [PlexilExec:printPlan]
 simple-closedloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fc0f0c06d10 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc0f0c06c70 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe1ca5007d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe1ca500730 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fe1ca500370 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fc0f0c07080 [a](0) (Interruptible Boolean 0x7fc0f0c07020 [a](0)) (EQ Boolean 0x7fc0f0c06f40 [a](0) (Constant Integer 0x7fc0f0c06f30 [a](10)) (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fc0f0c06fb0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x101f4fd78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fc0f0c06c00 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fc0f0c06b18 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a]([unknown_value]))
-  }
-}
-
-[Test:testOutput]Sending command ACK drive() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:cycle]==>Start cycle 3
-[PlexilExec:step][3:0] Check queue: Drive 
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 3
-[PlexilExec:printPlan]
-simple-closedloop-command-a1{
- State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fc0f0c06d10 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc0f0c06c70 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1))
-  Drive{
-   State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fc0f0c07080 [a](0) (Interruptible Boolean 0x7fc0f0c07020 [a](0)) (EQ Boolean 0x7fc0f0c06f40 [a](0) (Constant Integer 0x7fc0f0c06f30 [a](10)) (Variable Integer retTestFunction 0x7fc0f0c06880 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fc0f0c06fb0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x101f4fd78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fc0f0c06c00 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fc0f0c06b18 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [a](COMMAND_SENT_TO_SYSTEM))
+   EndCondition: (OR Boolean 0x7fe1ca5009a0 [a](0) (Interruptible Boolean 0x7fe1ca500940 [a](0)) (EQ Boolean 0x7fe1ca500860 [a](0) (Constant Integer 0x7fe1ca500850 [a](10)) (Variable Integer retTestFunction 0x7fe1ca500370 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fe1ca5008d0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fe1ca5005b8 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x108db3d78 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe1ca5006c0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe1ca500600 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe1ca5005b8 [a](COMMAND_SENT_TO_SYSTEM))
   }
 }
 
 [Test:testOutput]Sending command result drive() = 10
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:cycle]==>Start cycle 4
-[PlexilExec:step][4:0] Check queue: Drive 
+[PlexilExec:cycle]==>Start cycle 3
+[PlexilExec:step][3:0] Check queue: Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 5
-[PlexilExec:step][4:0] State change queue: Drive 
-[PlexilExec:step][4:0:0] Transitioning node Drive from EXECUTING to FINISHING
+[PlexilExec:step][3:0] State change queue: Drive 
+[PlexilExec:step][3:0:0] Transitioning node Drive from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-a1
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][4:1] Check queue: simple-closedloop-command-a1 Drive 
+[PlexilExec:step][3:1] Check queue: simple-closedloop-command-a1 Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 6
-[PlexilExec:step][4:1] State change queue: Drive 
-[PlexilExec:step][4:1:0] Transitioning node Drive from FINISHING to ITERATION_ENDED
+[PlexilExec:step][3:1] State change queue: Drive 
+[PlexilExec:step][3:1:0] Transitioning node Drive from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-a1
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][4:2] Check queue: simple-closedloop-command-a1 Drive 
+[PlexilExec:step][3:2] Check queue: simple-closedloop-command-a1 Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 7
-[PlexilExec:step][4:2] State change queue: Drive 
-[PlexilExec:step][4:2:0] Transitioning node Drive from ITERATION_ENDED to FINISHED
+[PlexilExec:step][3:2] State change queue: Drive 
+[PlexilExec:step][3:2:0] Transitioning node Drive from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-a1
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:step][4:3] Check queue: simple-closedloop-command-a1 Drive 
+[PlexilExec:step][3:3] Check queue: simple-closedloop-command-a1 Drive 
 [PlexilExec:handleConditionsChanged]Node simple-closedloop-command-a1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-a1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-a1' on the state change queue in position 8
-[PlexilExec:step][4:3] State change queue: simple-closedloop-command-a1 
-[PlexilExec:step][4:3:0] Transitioning node simple-closedloop-command-a1 from EXECUTING to FINISHING
+[PlexilExec:step][3:3] State change queue: simple-closedloop-command-a1 
+[PlexilExec:step][3:3:0] Transitioning node simple-closedloop-command-a1 from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-a1
-[PlexilExec:step][4:4] Check queue: simple-closedloop-command-a1 
+[PlexilExec:step][3:4] Check queue: simple-closedloop-command-a1 
 [PlexilExec:handleConditionsChanged]Node simple-closedloop-command-a1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-a1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-a1' on the state change queue in position 9
-[PlexilExec:step][4:4] State change queue: simple-closedloop-command-a1 
-[PlexilExec:step][4:4:0] Transitioning node simple-closedloop-command-a1 from FINISHING to ITERATION_ENDED
+[PlexilExec:step][3:4] State change queue: simple-closedloop-command-a1 
+[PlexilExec:step][3:4:0] Transitioning node simple-closedloop-command-a1 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-a1
-[PlexilExec:step][4:5] Check queue: simple-closedloop-command-a1 
+[PlexilExec:step][3:5] Check queue: simple-closedloop-command-a1 
 [PlexilExec:handleConditionsChanged]Node simple-closedloop-command-a1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'simple-closedloop-command-a1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'simple-closedloop-command-a1' on the state change queue in position 10
-[PlexilExec:step][4:5] State change queue: simple-closedloop-command-a1 
-[PlexilExec:step][4:5:0] Transitioning node simple-closedloop-command-a1 from ITERATION_ENDED to FINISHED
+[PlexilExec:step][3:5] State change queue: simple-closedloop-command-a1 
+[PlexilExec:step][3:5:0] Transitioning node simple-closedloop-command-a1 from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 4
+[PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 simple-closedloop-command-a1{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7fc0f0c06880 [i]([unknown_value]))
+ retTestFunction: (Variable Integer retTestFunction 0x7fe1ca500370 [i]([unknown_value]))
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc0f0c06ad0 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe1ca5005b8 [i]([unknown_value]))
   }
 }
 

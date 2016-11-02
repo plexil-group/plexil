@@ -64,7 +64,8 @@ SAXON_JAR			:= $(THIRD_PARTY_JAR_DIR)/saxon.jar
 JAVAC_CLASSPATH	:= $(ANTLR3_RUNTIME_JAR):$(NANOXML_JAR):$(SAXON_JAR):$(CLASSES_DIR)
 
 # Java compiler options
-JAVAC_OPTIONS	:= -g
+# Support ancient Java versions
+JAVAC_OPTIONS	:= -source 1.6 -target 1.6
 
 plexil-default: $(PLEXILC_JAR)
 

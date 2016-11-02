@@ -23,7 +23,8 @@ Packaging:
  - Most, if not all, GNU autotools-generated files have been removed
    from the Subversion repository. Likewise, most .plx files have been
    deleted from the examples directories. Both are easily regenerated
-   when needed.
+   when needed. Distribution tarballs will include the required
+   autotools files.
 
  - This release incorporates pugixml version 1.7 and saxon9he release
    9.7.0.8.
@@ -51,6 +52,13 @@ Extended PLEXIL (XML) language and translator:
     xmllint --format myPlan.plx > myPlan-formatted.plx
 
 Standard PLEXIL (C-like) language and compiler:
+
+ - The compiler itself is now compiled to Java 1.6 bytecodes, to allow
+   use on legacy platforms
+
+ - Output now incorporates the <Any> type and <AnyParameters>
+   declarations added to the schema. We recommend you recompile any
+   Standard Plexil plans.
 
  - Node-reachable semantics made consistent with executive's
 
@@ -84,7 +92,13 @@ Standard interfaces:
    macOS
 
  - New Launcher adapter allows plans to load and run other plans,
-   query their status
+   and query their status. See examples/launcher for a simple
+   demonstration.
+
+TestExec:
+
+ - Initial states are no longer ignored when a LookupOnChange
+   references them.
 
 Executive internals and user-defined interfaces:
 
