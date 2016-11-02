@@ -43,7 +43,7 @@ Custom builds:
    executables under the GNU autotools is /usr/local. The installation
    locations can be specified with the '--prefix=', '--bindir=',
    '--libdir=', and '--includedir=' options to 'configure'. We
-   recommend installing these files in the PLEXIL installation
+   suggest installing these files in the PLEXIL installation
    directory itself. E.g.:
 
  cd $PLEXIL_HOME/src

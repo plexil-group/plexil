@@ -69,7 +69,7 @@ is not appropriate for a specific application.
   cd plexil-4/src
 
 2. If you are building from a fresh SVN checkout, you will need to
-run the GNU autotools first. This step is unnecessary if you
+run the GNU autotools first. This step should be unnecessary if you
 downloaded a release tarball.
 
   autoreconf -fi
