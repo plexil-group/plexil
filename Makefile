@@ -180,7 +180,10 @@ src/Makefile: src/configure src/Makefile.am makeinclude/standard-defs.make makei
 # Bootstrapping autobuild files
 #
 
-src/configure: src/configure.ac Makefile
+src/m4:
+	cd src && $(LIBTOOLIZE) -fc
+
+src/configure: src/m4 src/configure.ac Makefile
 	cd ./src && $(AUTORECONF) -f -i
 
 #
