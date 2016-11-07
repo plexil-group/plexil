@@ -18,21 +18,43 @@ and Mac OS X. It builds on FreeBSD as well, and most of the suite
 works out of the box; however, IPC is not yet working, nor is anything
 dependent on it (i.e. many of the example apps).
 
+-- This version of PLEXIL requires a C++11 compliant compiler --
+
+This release depends on the feature set introduced in the C++11
+language standard. GCC releases before 4.7 and LLVM (clang) releases
+before 3.3 are not supported.
+
 Building the PLEXIL tool suite requires the following software to be
 installed:
 
- GNU Make
- GNU Bash
- gcc/g++ (default), clang/clang++, or other C99 and C++03 compliant compilers
- OpenJDK 8 or Oracle Java SDK 8 (development package, not just runtime)
- Apache ant, including the antlr module
+ * GNU Make
+ * GNU Bash
+ * gcc/g++, clang/clang++, or other C11 and C++11 compliant compilers
+ * Java 6 or newer JDK (JRE plus development tools)
+ * Apache ant, including the antlr module
 
-The robosim example program also requires:
+The Plexilisp translator requires:
 
- X11 libraries freeglut, libxi, libxmu and their header files
+ * GNU Emacs (X Window System support not required)
 
-In addition, if you are building from an SVN checkout, the GNU
-autotools (autoconf, automake, and libtool) are required.
+The Plexil Viewer requires:
+
+ * Java 8 or newer JDK
+ 
+If you are building from a fresh SVN checkout, Subversion and the GNU
+autotools are also required:
+
+ * autoconf
+ * automake
+ * libtool
+ * subversion (svn)
+
+The robosim example program additionally requires these X11 window
+system libraries and their header files:
+
+ * freeglut
+ * libxi
+ * libxmu
 
 
 How to build PLEXIL - Simple version
