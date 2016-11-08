@@ -29,12 +29,12 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS =
 
-include_HEADERS = ConstantMacros.hh Debug.hh DebugMessage.hh Error.hh \
- LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh SimpleMap.hh \
- TestSupport.hh lifecycle-utils.h map-utils.hh \
+include_HEADERS = bitsetUtils.hh ConstantMacros.hh Debug.hh DebugMessage.hh \
+ Error.hh LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh \
+ SimpleMap.hh TestSupport.hh lifecycle-utils.h map-utils.hh \
  stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
-libPlexilUtils_la_SOURCES = DebugMessage.cc Error.cc Logging.cc \
+libPlexilUtils_la_SOURCES = bitsetUtils.cc DebugMessage.cc Error.cc Logging.cc \
  ParserException.cc PlanError.cc \
  lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc
 
@@ -58,8 +58,8 @@ endif
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/utils-module-tests
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
-  test_utils_module_tests_SOURCES = test/LinkedQueueTest.cc test/SimpleMapTest.cc \
- test/TestData.cc test/util-test-module.cc test/module-tests.cc
+  test_utils_module_tests_SOURCES = test/bitsetUtilsTest.cc test/LinkedQueueTest.cc \
+ test/SimpleMapTest.cc test/TestData.cc test/util-test-module.cc test/module-tests.cc
   test_utils_module_tests_LDADD = libPlexilUtils.la
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
