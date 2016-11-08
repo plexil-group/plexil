@@ -91,8 +91,8 @@ namespace PLEXIL
 
     // Default methods, based on R
     ValueType valueType() const;
-    void *allocateCache() const { return static_cast<void *>(new R); }
-    void deleteCache(void *ptr) const { delete static_cast<R *>(ptr); }
+    void *allocateCache() const;
+    void deleteCache(void *ptr) const;
 
     bool calcNative(void *cache, Function const &exprs) const;
     void printValue(std::ostream &s, void *cache, Function const &exprs) const;
@@ -182,8 +182,8 @@ namespace PLEXIL
 
     // Default methods, based on R
     ValueType valueType() const;
-    void *allocateCache() const { return static_cast<void *>(new ArrayImpl<R>); }
-    void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
+    void *allocateCache() const;
+    void deleteCache(void *ptr) const;
 
     bool calcNative(void *cache, Function const &exprs) const;
     void printValue(std::ostream &s, void *cache, Function const &exprs) const;

@@ -39,6 +39,37 @@ namespace PLEXIL
     return PlexilValueType<R>::value;
   }
 
+  template <typename R>
+  ValueType OperatorImpl<ArrayImpl<R> >::valueType() const
+  {
+    return PlexilValueType<R>::arrayValue;
+  }
+
+  // TODO: Allocate small caches from a pool per type
+  template <typename R>
+  void *OperatorImpl<R>::allocateCache() const
+  {
+    return static_cast<void *>(new R);
+  }
+
+  template <typename R>
+  void OperatorImpl<R>::deleteCache(void *ptr) const
+  {
+    delete static_cast<R *>(ptr);
+  }
+
+  template <typename R>
+  void *OperatorImpl<ArrayImpl<R> >::allocateCache() const
+  {
+    return static_cast<void *>(new ArrayImpl<R>);
+  }
+
+  template <typename R>
+  void OperatorImpl<ArrayImpl<R> >::deleteCache(void *ptr) const
+  {
+    delete static_cast<ArrayImpl<R> *>(ptr);
+  }
+
   // Convenience methods
 
   template <typename R>
