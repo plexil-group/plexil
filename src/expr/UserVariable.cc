@@ -148,6 +148,40 @@ namespace PLEXIL
   //
 
   template <typename T>
+  bool UserVariable<T>::isAssignable() const
+  {
+    return true;
+  }
+
+  bool UserVariable<String>::isAssignable() const
+  {
+    return true;
+  }
+
+  template <typename T>
+  Assignable const *UserVariable<T>::asAssignable() const
+  {
+    return static_cast<Assignable const *>(this);
+  }
+
+  Assignable const *UserVariable<String>::asAssignable() const
+  {
+    return static_cast<Assignable const *>(this);
+  }
+
+  template <typename T>
+  Assignable *UserVariable<T>::asAssignable()
+  {
+    return static_cast<Assignable *>(this);
+  }
+
+  Assignable *UserVariable<String>::asAssignable()
+  {
+    return static_cast<Assignable *>(this);
+  }
+
+
+  template <typename T>
   char const *UserVariable<T>::getName() const
   {
     if (m_name)
@@ -447,25 +481,25 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Assignable *UserVariable<T>::getBaseVariable()
+  Expression *UserVariable<T>::getBaseVariable()
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
-  Assignable *UserVariable<String>::getBaseVariable()
+  Expression *UserVariable<String>::getBaseVariable()
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
   template <typename T>
-  Assignable const *UserVariable<T>::getBaseVariable() const
+  Expression const *UserVariable<T>::getBaseVariable() const
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
-  Assignable const *UserVariable<String>::getBaseVariable() const
+  Expression const *UserVariable<String>::getBaseVariable() const
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
   template <typename T>

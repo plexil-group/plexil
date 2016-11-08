@@ -246,7 +246,7 @@ namespace PLEXIL {
     /**
      * @brief Accessor for an assignment node's assigned variable.
      */
-    virtual Assignable *getAssignmentVariable() const 
+    virtual Expression *getAssignmentVariable() const 
     {
       return NULL;
     }

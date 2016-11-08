@@ -1104,39 +1104,39 @@ static bool testAssignablePointer()
   assertTrue_1(esa != NULL);
 
   // Test that they are assignable and not constant
-  assertTrue_1(eba->isAssignable());
-  assertTrue_1(eia->isAssignable());
-  assertTrue_1(eda->isAssignable());
-  assertTrue_1(esa->isAssignable());
+  assertTrue_1(vba.isAssignable());
+  assertTrue_1(via.isAssignable());
+  assertTrue_1(vda.isAssignable());
+  assertTrue_1(vsa.isAssignable());
 
-  assertTrue_1(!eba->isConstant());
-  assertTrue_1(!eia->isConstant());
-  assertTrue_1(!eda->isConstant());
-  assertTrue_1(!esa->isConstant());
+  assertTrue_1(!vba.isConstant());
+  assertTrue_1(!via.isConstant());
+  assertTrue_1(!vda.isConstant());
+  assertTrue_1(!vsa.isConstant());
 
   // Test that they are created inactive
-  assertTrue_1(!eba->isActive());
-  assertTrue_1(!eia->isActive());
-  assertTrue_1(!eda->isActive());
-  assertTrue_1(!esa->isActive());
+  assertTrue_1(!vba.isActive());
+  assertTrue_1(!via.isActive());
+  assertTrue_1(!vda.isActive());
+  assertTrue_1(!vsa.isActive());
 
   // Test that values are unknown while inactive
-  assertTrue_1(!eba->isKnown());
-  assertTrue_1(!eia->isKnown());
-  assertTrue_1(!eda->isKnown());
-  assertTrue_1(!esa->isKnown());
+  assertTrue_1(!vba.isKnown());
+  assertTrue_1(!via.isKnown());
+  assertTrue_1(!vda.isKnown());
+  assertTrue_1(!vsa.isKnown());
 
   // Activate
-  eba->activate();
-  eia->activate();
-  eda->activate();
-  esa->activate();
+  vba.activate();
+  via.activate();
+  vda.activate();
+  vsa.activate();
 
   // Test that they are now known
-  assertTrue_1(eba->isKnown());
-  assertTrue_1(eia->isKnown());
-  assertTrue_1(eda->isKnown());
-  assertTrue_1(esa->isKnown());
+  assertTrue_1(vba.isKnown());
+  assertTrue_1(via.isKnown());
+  assertTrue_1(vda.isKnown());
+  assertTrue_1(vsa.isKnown());
 
   // Check values
   BooleanArray const *pfooba = NULL;
@@ -1149,28 +1149,28 @@ static bool testAssignablePointer()
   std::vector<Real> const *pvd;
   std::vector<String> const *pvs;
 
-  assertTrue_1(eba->getValuePointer(pfooba));
+  assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
   assertTrue_1(pfooba->allElementsKnown());
   pfooba->getContentsVector(pvb);
   assertTrue_1(pvb != NULL);
   assertTrue_1(bv == *pvb);
 
-  assertTrue_1(eia->getValuePointer(pfooia));
+  assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
   assertTrue_1(pfooia->allElementsKnown());
   pfooia->getContentsVector(pvi);
   assertTrue_1(pvi != NULL);
   assertTrue_1(iv == *pvi);
 
-  assertTrue_1(eda->getValuePointer(pfooda));
+  assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
   assertTrue_1(pfooda->allElementsKnown());
   pfooda->getContentsVector(pvd);
   assertTrue_1(pvd != NULL);
   assertTrue_1(dv == *pvd);
 
-  assertTrue_1(esa->getValuePointer(pfoosa));
+  assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
   assertTrue_1(pfoosa->allElementsKnown());
   pfoosa->getContentsVector(pvs);
@@ -1194,28 +1194,28 @@ static bool testAssignablePointer()
   eda->setValue(dac);
   esa->setValue(sac);
 
-  assertTrue_1(eba->getValuePointer(pfooba));
+  assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
   assertTrue_1(pfooba->allElementsKnown());
   pfooba->getContentsVector(pvb);
   assertTrue_1(pvb != NULL);
   assertTrue_1(bv2 == *pvb);
 
-  assertTrue_1(eia->getValuePointer(pfooia));
+  assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
   assertTrue_1(pfooia->allElementsKnown());
   pfooia->getContentsVector(pvi);
   assertTrue_1(pvi != NULL);
   assertTrue_1(iv2 == *pvi);
 
-  assertTrue_1(eda->getValuePointer(pfooda));
+  assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
   assertTrue_1(pfooda->allElementsKnown());
   pfooda->getContentsVector(pvd);
   assertTrue_1(pvi != NULL);
   assertTrue_1(dv2 == *pvd);
 
-  assertTrue_1(esa->getValuePointer(pfoosa));
+  assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
   assertTrue_1(pfoosa->allElementsKnown());
   pfoosa->getContentsVector(pvs);
@@ -1235,26 +1235,26 @@ static bool testAssignablePointer()
   esa->setUnknown();
 
   // Test that values are now unknown
-  assertTrue_1(!eba->isKnown());
-  assertTrue_1(!eia->isKnown());
-  assertTrue_1(!eda->isKnown());
-  assertTrue_1(!esa->isKnown());
+  assertTrue_1(!vba.isKnown());
+  assertTrue_1(!via.isKnown());
+  assertTrue_1(!vda.isKnown());
+  assertTrue_1(!vsa.isKnown());
 
   pfooba = NULL;
   pfooia = NULL;
   pfooda = NULL;
   pfoosa = NULL;
 
-  assertTrue_1(!eba->getValuePointer(pfooba));
+  assertTrue_1(!vba.getValuePointer(pfooba));
   assertTrue_1(pfooba == NULL);
 
-  assertTrue_1(!eia->getValuePointer(pfooia));
+  assertTrue_1(!via.getValuePointer(pfooia));
   assertTrue_1(pfooia == NULL);
 
-  assertTrue_1(!eda->getValuePointer(pfooda));
+  assertTrue_1(!vda.getValuePointer(pfooda));
   assertTrue_1(pfooda == NULL);
 
-  assertTrue_1(!esa->getValuePointer(pfoosa));
+  assertTrue_1(!vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa == NULL);
 
   // Restore
@@ -1264,33 +1264,33 @@ static bool testAssignablePointer()
   esa->restoreSavedValue();
 
   // Check that saved values are restored
-  assertTrue_1(eba->isKnown());
-  assertTrue_1(eia->isKnown());
-  assertTrue_1(eda->isKnown());
-  assertTrue_1(esa->isKnown());
+  assertTrue_1(vba.isKnown());
+  assertTrue_1(via.isKnown());
+  assertTrue_1(vda.isKnown());
+  assertTrue_1(vsa.isKnown());
 
-  assertTrue_1(eba->getValuePointer(pfooba));
+  assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
   assertTrue_1(pfooba->allElementsKnown());
   pfooba->getContentsVector(pvb);
   assertTrue_1(pvb != NULL);
   assertTrue_1(bv2 == *pvb);
 
-  assertTrue_1(eia->getValuePointer(pfooia));
+  assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
   assertTrue_1(pfooia->allElementsKnown());
   pfooia->getContentsVector(pvi);
   assertTrue_1(pvi != NULL);
   assertTrue_1(iv2 == *pvi);
 
-  assertTrue_1(eda->getValuePointer(pfooda));
+  assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
   assertTrue_1(pfooda->allElementsKnown());
   pfooda->getContentsVector(pvd);
   assertTrue_1(pvd != NULL);
   assertTrue_1(dv2 == *pvd);
 
-  assertTrue_1(esa->getValuePointer(pfoosa));
+  assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
   assertTrue_1(pfoosa->allElementsKnown());
   pfoosa->getContentsVector(pvs);
@@ -1298,20 +1298,20 @@ static bool testAssignablePointer()
   assertTrue_1(sv2 == *pvs);
 
   // Reset
-  eba->deactivate();
-  eia->deactivate();
-  eda->deactivate();
-  esa->deactivate();
+  vba.deactivate();
+  via.deactivate();
+  vda.deactivate();
+  vsa.deactivate();
 
-  eba->reset();
-  eia->reset();
-  eda->reset();
-  esa->reset();
+  vba.reset();
+  via.reset();
+  vda.reset();
+  vsa.reset();
 
-  eba->activate();
-  eia->activate();
-  eda->activate();
-  esa->activate();
+  vba.activate();
+  via.activate();
+  vda.activate();
+  vsa.activate();
 
   // Check initial values are restored
   pfooba = NULL;
@@ -1319,33 +1319,33 @@ static bool testAssignablePointer()
   pfooda = NULL;
   pfoosa = NULL;
 
-  assertTrue_1(eba->isKnown());
-  assertTrue_1(eia->isKnown());
-  assertTrue_1(eda->isKnown());
-  assertTrue_1(esa->isKnown());
+  assertTrue_1(vba.isKnown());
+  assertTrue_1(via.isKnown());
+  assertTrue_1(vda.isKnown());
+  assertTrue_1(vsa.isKnown());
 
-  assertTrue_1(eba->getValuePointer(pfooba));
+  assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
   assertTrue_1(pfooba->allElementsKnown());
   pfooba->getContentsVector(pvb);
   assertTrue_1(pvb != NULL);
   assertTrue_1(bv == *pvb);
 
-  assertTrue_1(eia->getValuePointer(pfooia));
+  assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
   assertTrue_1(pfooia->allElementsKnown());
   pfooia->getContentsVector(pvi);
   assertTrue_1(pvi != NULL);
   assertTrue_1(iv == *pvi);
 
-  assertTrue_1(eda->getValuePointer(pfooda));
+  assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
   assertTrue_1(pfooda->allElementsKnown());
   pfooda->getContentsVector(pvd);
   assertTrue_1(pvd != NULL);
   assertTrue_1(dv == *pvd);
 
-  assertTrue_1(esa->getValuePointer(pfoosa));
+  assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
   assertTrue_1(pfoosa->allElementsKnown());
   pfoosa->getContentsVector(pvs);

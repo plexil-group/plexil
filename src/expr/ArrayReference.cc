@@ -226,8 +226,6 @@ namespace PLEXIL
       m_mutableArray(ary->asAssignable()),
       m_saved(false)
   {
-    checkPlanError(ary->isAssignable(),
-                   "Can't create a writeable array reference on an In array");
   }
 
   MutableArrayReference::~MutableArrayReference()
@@ -504,20 +502,20 @@ namespace PLEXIL
 
   NodeConnector const *MutableArrayReference::getNode() const
   {
-    return getBaseVariable()->getNode();
+    return getBaseVariable()->asAssignable()->getNode();
   }
 
   NodeConnector *MutableArrayReference::getNode()
   {
-    return getBaseVariable()->getNode();
+    return getBaseVariable()->asAssignable()->getNode();
   }
 
-  Assignable *MutableArrayReference::getBaseVariable() 
+  Expression *MutableArrayReference::getBaseVariable() 
   {
     return m_mutableArray->getBaseVariable();
   }
 
-  Assignable const *MutableArrayReference::getBaseVariable() const
+  Expression const *MutableArrayReference::getBaseVariable() const
   {
     return m_mutableArray->getBaseVariable();
   }
@@ -525,10 +523,7 @@ namespace PLEXIL
   void MutableArrayReference::publishChange(Expression const *src)
   {
     NotifierImpl::publishChange(src);
-    // FIXME: move check to initialization/expression finalization
-    Assignable *base = m_mutableArray->getBaseVariable()->asAssignable();
-    check_error_2(base, "ArrayReference: array variable is not assignable");
-    base->notifyChanged(src);
+    m_array->notifyChanged(src);
   }
 
 } // namespace PLEXIL

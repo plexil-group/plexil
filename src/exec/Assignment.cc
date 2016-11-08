@@ -71,7 +71,7 @@ namespace PLEXIL
   }
 
 
-  void Assignment::setVariable(Assignable *lhs, bool garbage)
+  void Assignment::setVariable(Expression *lhs, bool garbage)
   {
     m_dest = lhs;
     m_deleteLhs = garbage;
@@ -85,7 +85,7 @@ namespace PLEXIL
 
   void Assignment::fixValue() 
   {
-    m_dest->saveCurrentValue();
+    m_dest->asAssignable()->saveCurrentValue();
     m_value = m_rhs->toValue();
   }
 
@@ -107,7 +107,7 @@ namespace PLEXIL
   void Assignment::execute()
   {
     debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
-    m_dest->setValue(m_value);
+    m_dest->asAssignable()->setValue(m_value);
     m_ack.setValue(true);
     ExecListenerBase *l = g_exec->getExecListener();
     if (l)
@@ -118,11 +118,11 @@ namespace PLEXIL
   {
     debugMsg("Test:testOutput",
              "Restoring previous value of " << m_dest->toString());
-    m_dest->restoreSavedValue();
+    m_dest->asAssignable()->restoreSavedValue();
     m_abortComplete.setValue(true);
     ExecListenerBase *l = g_exec->getExecListener();
     if (l)
-      l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->getSavedValue());
+      l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->asAssignable()->getSavedValue());
   }
 
   void Assignment::reset()

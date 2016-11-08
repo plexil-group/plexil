@@ -235,12 +235,6 @@ namespace PLEXIL {
      */
     void removeListener(ExpressionListener * /* ptr */);
 
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @note No-op for constants.
-     */
-    void notifyChanged(Expression const * /* src */);
-
   protected:
 
     String m_value;
@@ -335,12 +329,6 @@ namespace PLEXIL {
      * @note No-op for constants.
      */
     void removeListener(ExpressionListener * /* ptr */);
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @note No-op for constants.
-     */
-    void notifyChanged(Expression const * /* src */);
 
   protected:
 

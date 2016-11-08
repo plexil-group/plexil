@@ -39,7 +39,7 @@
 namespace PLEXIL 
 {
   // Forward references
-  class Assignable;
+  class Expression;
   class ExecListenerBase;
 
   struct NodeConflictComparator;
@@ -179,9 +179,9 @@ namespace PLEXIL
      */
     void removeFromResourceContention(Node *node);
 
-    VariableConflictSet *getConflictSet(Assignable *);
+    VariableConflictSet *getConflictSet(Expression *);
 
-    VariableConflictSet *ensureConflictSet(Assignable *);
+    VariableConflictSet *ensureConflictSet(Expression *);
 
     //
     // Internal queue management
@@ -219,7 +219,7 @@ namespace PLEXIL
     LinkedQueue<Assignment> m_assignmentsToRetract;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
-    std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
+    std::vector<Expression *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     ExecListenerBase *m_listener;
     VariableConflictSet *m_resourceConflicts; /*<! Linked list of variable assignment contention sets. */
     unsigned int m_queuePos;

@@ -667,39 +667,39 @@ static bool testAssignablePointer()
   assertTrue_1(es != NULL);
 
   // Test that they are assignable and not constant
-  assertTrue_1(eb->isAssignable());
-  assertTrue_1(ei->isAssignable());
-  assertTrue_1(ed->isAssignable());
-  assertTrue_1(es->isAssignable());
+  assertTrue_1(vb.isAssignable());
+  assertTrue_1(vi.isAssignable());
+  assertTrue_1(vd.isAssignable());
+  assertTrue_1(vs.isAssignable());
 
-  assertTrue_1(!eb->isConstant());
-  assertTrue_1(!ei->isConstant());
-  assertTrue_1(!ed->isConstant());
-  assertTrue_1(!es->isConstant());
+  assertTrue_1(!vb.isConstant());
+  assertTrue_1(!vi.isConstant());
+  assertTrue_1(!vd.isConstant());
+  assertTrue_1(!vs.isConstant());
 
   // Test that they are created inactive
-  assertTrue_1(!eb->isActive());
-  assertTrue_1(!ei->isActive());
-  assertTrue_1(!ed->isActive());
-  assertTrue_1(!es->isActive());
+  assertTrue_1(!vb.isActive());
+  assertTrue_1(!vi.isActive());
+  assertTrue_1(!vd.isActive());
+  assertTrue_1(!vs.isActive());
 
   // Test that values are unknown while inactive
-  assertTrue_1(!eb->isKnown());
-  assertTrue_1(!ei->isKnown());
-  assertTrue_1(!ed->isKnown());
-  assertTrue_1(!es->isKnown());
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
 
   // Activate
-  eb->activate();
-  ei->activate();
-  ed->activate();
-  es->activate();
+  vb.activate();
+  vi.activate();
+  vd.activate();
+  vs.activate();
 
   // Test that they are now known
-  assertTrue_1(eb->isKnown());
-  assertTrue_1(ei->isKnown());
-  assertTrue_1(ed->isKnown());
-  assertTrue_1(es->isKnown());
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
 
   // Check values
   Real food;
@@ -707,16 +707,16 @@ static bool testAssignablePointer()
   Integer fooi;
   bool foob;
     
-  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(vb.getValue(foob));
   assertTrue_1(foob == false);
-  assertTrue_1(ei->getValue(fooi));
+  assertTrue_1(vi.getValue(fooi));
   assertTrue_1(fooi == 69);
-  assertTrue_1(ed->getValue(food));
+  assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
-  assertTrue_1(es->getValue(foos));
+  assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(ei->getValue(food));
+  assertTrue_1(vi.getValue(food));
   assertTrue_1(food == 69);
 
   // Set values
@@ -725,13 +725,13 @@ static bool testAssignablePointer()
   ed->setValue(Value(3.14));
   es->setValue(Value("yoohoo"));
 
-  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(vb.getValue(foob));
   assertTrue_1(foob == true);
-  assertTrue_1(ei->getValue(fooi));
+  assertTrue_1(vi.getValue(fooi));
   assertTrue_1(fooi == 42);
-  assertTrue_1(ed->getValue(food));
+  assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 3.14);
-  assertTrue_1(es->getValue(foos));
+  assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yoohoo"));
 
   // Save
@@ -747,15 +747,15 @@ static bool testAssignablePointer()
   es->setUnknown();
 
   // Test that values are now unknown
-  assertTrue_1(!eb->isKnown());
-  assertTrue_1(!ei->isKnown());
-  assertTrue_1(!ed->isKnown());
-  assertTrue_1(!es->isKnown());
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
 
-  assertTrue_1(!eb->getValue(foob));
-  assertTrue_1(!ei->getValue(fooi));
-  assertTrue_1(!ed->getValue(food));
-  assertTrue_1(!es->getValue(foos));
+  assertTrue_1(!vb.getValue(foob));
+  assertTrue_1(!vi.getValue(fooi));
+  assertTrue_1(!vd.getValue(food));
+  assertTrue_1(!vs.getValue(foos));
 
   // Restore
   eb->restoreSavedValue();
@@ -764,44 +764,44 @@ static bool testAssignablePointer()
   es->restoreSavedValue();
 
   // Check that saved values are restored
-  assertTrue_1(eb->isKnown());
-  assertTrue_1(ei->isKnown());
-  assertTrue_1(ed->isKnown());
-  assertTrue_1(es->isKnown());
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
 
-  assertTrue_1(eb->getValue(foob));
-  assertTrue_1(ei->getValue(fooi));
-  assertTrue_1(ed->getValue(food));
-  assertTrue_1(es->getValue(foos));
+  assertTrue_1(vb.getValue(foob));
+  assertTrue_1(vi.getValue(fooi));
+  assertTrue_1(vd.getValue(food));
+  assertTrue_1(vs.getValue(foos));
   assertTrue_1(foob == true);
   assertTrue_1(fooi == 42);
   assertTrue_1(food == 3.14);
   assertTrue_1(foos == String("yoohoo"));
 
   // Reset
-  eb->deactivate();
-  ei->deactivate();
-  ed->deactivate();
-  es->deactivate();
+  vb.deactivate();
+  vi.deactivate();
+  vd.deactivate();
+  vs.deactivate();
 
-  eb->reset();
-  ei->reset();
-  ed->reset();
-  es->reset();
+  vb.reset();
+  vi.reset();
+  vd.reset();
+  vs.reset();
     
-  eb->activate();
-  ei->activate();
-  ed->activate();
-  es->activate();
+  vb.activate();
+  vi.activate();
+  vd.activate();
+  vs.activate();
 
   // Check initial values are restored
-  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(vb.getValue(foob));
   assertTrue_1(foob == false);
-  assertTrue_1(ei->getValue(fooi));
+  assertTrue_1(vi.getValue(fooi));
   assertTrue_1(fooi == 69);
-  assertTrue_1(ed->getValue(food));
+  assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
-  assertTrue_1(es->getValue(foos));
+  assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
 
   return true;

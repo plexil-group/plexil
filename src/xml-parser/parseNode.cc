@@ -713,7 +713,7 @@ namespace PLEXIL
                                           << " but default InitialValue is of incompatible type "
                                           << valueTypeName(initExpType));
       }
-      Assignable *var = createAssignable(inOutXml, node, garbage);
+      Expression *var = createAssignable(inOutXml, node, garbage);
       assertTrue_1(garbage); // better be something we can delete!
       if (!node->addLocalVariable(name, var)) {
         delete var;
@@ -721,7 +721,7 @@ namespace PLEXIL
                                           "InOut interface variable " << name
                                           << " shadows local variable of same name");
       }
-      var->setInitializer(initExp, initGarbage);
+      var->asAssignable()->setInitializer(initExp, initGarbage);
     }
   }
 

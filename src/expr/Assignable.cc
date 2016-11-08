@@ -33,21 +33,6 @@ namespace PLEXIL {
   // Assignable
   //
 
-  bool Assignable::isAssignable() const
-  {
-    return true;
-  }
-
-  Assignable *Assignable::asAssignable()
-  {
-    return this;
-  }
-
-  Assignable const *Assignable::asAssignable() const
-  {
-    return this;
-  }
-
   /**
    * @brief Get the node that owns this expression.
    * @return The parent node; may be NULL.

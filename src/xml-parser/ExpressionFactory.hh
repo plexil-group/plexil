@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ namespace PLEXIL
   {
   public:
     ExpressionFactory(const std::string& name);
-    virtual ~ExpressionFactory();
+    virtual ~ExpressionFactory() = default;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
@@ -59,9 +59,11 @@ namespace PLEXIL
 
   private:
     // Default, copy, assign all prohibited
-    ExpressionFactory();
-    ExpressionFactory(const ExpressionFactory &);
-    ExpressionFactory &operator=(const ExpressionFactory &);
+    ExpressionFactory() = delete;
+    ExpressionFactory(ExpressionFactory const &) = delete;
+    ExpressionFactory(ExpressionFactory &&) = delete;
+    ExpressionFactory &operator=(ExpressionFactory const &) = delete;
+    ExpressionFactory &operator=(ExpressionFactory &&) = delete;
 
   protected:
     const std::string m_name; /*!< Name used for lookup and error reporting */
@@ -96,7 +98,7 @@ namespace PLEXIL
     throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
-  extern Assignable *createAssignable(pugi::xml_node const expr,
+  extern Expression *createAssignable(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);

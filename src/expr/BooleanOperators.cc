@@ -107,8 +107,9 @@ namespace PLEXIL
 
   bool BooleanOr::operator()(bool &result, Function const &args) const
   {
+    size_t const n = args.size();
     bool anyKnown = false;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (size_t i = 0; i < n; ++i) {
       bool temp;
       if (args[i]->getValue(temp)) {
         // Return if any arg is known and true
@@ -177,8 +178,9 @@ namespace PLEXIL
 
   bool BooleanAnd::operator()(bool &result, Function const &args) const
   {
+    size_t const n = args.size();
     bool allKnown = true;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (size_t i = 0; i < n; ++i) {
       bool temp;
       if (args[i]->getValue(temp)) {
         if (!temp) {
@@ -232,8 +234,9 @@ namespace PLEXIL
 
   bool BooleanXor::operator()(bool &result, Function const &args) const
   {
+    size_t const n = args.size();
     bool temp1 = false;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (size_t i = 0; i < n; ++i) {
       bool temp2;
       // Return unknown if any arg is unknown
       if (args[i]->getValue(temp2))

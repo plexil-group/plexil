@@ -42,9 +42,9 @@ namespace PLEXIL
   // Scalar case
   template <typename T>
   class UserVariable final :
+    public Assignable,
     public GetValueImpl<T>,
-    public NotifierImpl,
-    public Assignable
+    public NotifierImpl
   {
   public:
 
@@ -75,6 +75,11 @@ namespace PLEXIL
     //
     // Essential Expression API
     //
+
+    bool isAssignable() const override;
+
+    Assignable const *asAssignable() const override;
+    Assignable *asAssignable() override;
 
     char const *getName() const;
 
@@ -116,8 +121,8 @@ namespace PLEXIL
     NodeConnector *getNode();
     NodeConnector const *getNode() const;
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -182,9 +187,9 @@ namespace PLEXIL
   // String case
   template <>
   class UserVariable<String> final :
+    public Assignable,
     public GetValueImpl<String>,
-    public NotifierImpl,
-    public Assignable
+    public NotifierImpl
   {
   public:
 
@@ -215,6 +220,11 @@ namespace PLEXIL
     //
     // Essential Expression API
     //
+
+    bool isAssignable() const override;
+
+    Assignable const *asAssignable() const override;
+    Assignable *asAssignable() override;
 
     char const *getName() const;
 
@@ -271,8 +281,8 @@ namespace PLEXIL
     NodeConnector *getNode();
     NodeConnector const *getNode() const;
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.

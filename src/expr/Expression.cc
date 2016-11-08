@@ -115,4 +115,9 @@ namespace PLEXIL
     return s.str();
   }
 
+  // Default method does nothing
+  void Expression::notifyChanged(Expression const * /* src */)
+  {
+  }
+
 } // namespace PLEXIL

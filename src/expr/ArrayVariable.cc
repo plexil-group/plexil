@@ -101,6 +101,24 @@ namespace PLEXIL
   //
 
   template <typename T>
+  bool ArrayVariable<T>::isAssignable() const
+  {
+    return true;
+  }
+
+  template <typename T>
+  Assignable const *ArrayVariable<T>::asAssignable() const
+  {
+    return static_cast<Assignable const *>(this);
+  }
+
+  template <typename T>
+  Assignable *ArrayVariable<T>::asAssignable()
+  {
+    return static_cast<Assignable *>(this);
+  }
+
+  template <typename T>
   char const *ArrayVariable<T>::getName() const
   {
     if (m_name)
@@ -288,15 +306,15 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Assignable *ArrayVariable<T>::getBaseVariable()
+  Expression *ArrayVariable<T>::getBaseVariable()
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
   template <typename T>
-  Assignable const *ArrayVariable<T>::getBaseVariable() const
+  Expression const *ArrayVariable<T>::getBaseVariable() const
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
   template <typename T>

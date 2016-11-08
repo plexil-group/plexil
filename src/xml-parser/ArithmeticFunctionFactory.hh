@@ -42,7 +42,7 @@ namespace PLEXIL
   {
   public:
     ArithmeticFunctionFactory(std::string const &name);
-    ~ArithmeticFunctionFactory();
+    ~ArithmeticFunctionFactory() = default;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -57,9 +57,11 @@ namespace PLEXIL
 
   private:
     // Not implemented
-    ArithmeticFunctionFactory();
-    ArithmeticFunctionFactory(ArithmeticFunctionFactory const &);
-    ArithmeticFunctionFactory &operator=(ArithmeticFunctionFactory const &);
+    ArithmeticFunctionFactory() = delete;
+    ArithmeticFunctionFactory(ArithmeticFunctionFactory const &) = delete;
+    ArithmeticFunctionFactory(ArithmeticFunctionFactory &&) = delete;
+    ArithmeticFunctionFactory &operator=(ArithmeticFunctionFactory const &) = delete;
+    ArithmeticFunctionFactory &operator=(ArithmeticFunctionFactory &&) = delete;
   };
 
   template <template <typename NUM> class OP>
@@ -72,9 +74,7 @@ namespace PLEXIL
     {
     }
 
-    ~ArithmeticFunctionFactoryImpl()
-    {
-    }
+    ~ArithmeticFunctionFactoryImpl() = default;
 
   protected:
 
@@ -100,9 +100,11 @@ namespace PLEXIL
   private:
 
     // Not implemented
-    ArithmeticFunctionFactoryImpl();
-    ArithmeticFunctionFactoryImpl(ArithmeticFunctionFactoryImpl const &);
-    ArithmeticFunctionFactoryImpl &operator=(ArithmeticFunctionFactoryImpl const &);
+    ArithmeticFunctionFactoryImpl() = delete;
+    ArithmeticFunctionFactoryImpl(ArithmeticFunctionFactoryImpl const &) = delete;
+    ArithmeticFunctionFactoryImpl(ArithmeticFunctionFactoryImpl &&) = delete;
+    ArithmeticFunctionFactoryImpl &operator=(ArithmeticFunctionFactoryImpl const &) = delete;
+    ArithmeticFunctionFactoryImpl &operator=(ArithmeticFunctionFactoryImpl &&) = delete;
   };
 
 } // namespace PLEXIL

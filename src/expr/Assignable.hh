@@ -27,12 +27,11 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
-#include "Expression.hh"
-#include "ExpressionListener.hh"
-
 namespace PLEXIL {
   
   // Forward declarations
+  class Array;
+  class Expression;
   class NodeConnector;
   class Value;
 
@@ -42,33 +41,11 @@ namespace PLEXIL {
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    * @note This class has no state of its own.
    */
-  class Assignable :
-    virtual public Expression,
-    virtual public ExpressionListener
+  class Assignable
   {
   public:
     Assignable() = default;
     virtual ~Assignable() = default;
-
-    /**
-     * @brief Destructor.
-     */
-
-    /**
-     * @brief Query whether this expression is assignable.
-     * @return True if assignable, false otherwise.
-     * @note This method returns true.
-     * @note Any object which returns true must be derived from Assignable.
-     */
-    virtual bool isAssignable() const;
-
-    /**
-     * @brief Get a pointer to this expression as an Assignable instance.
-     * @return The pointer. NULL if not an instance of Assignable.
-     * @note Only objects derived from Assignable should return a pointer.
-     */
-    virtual Assignable *asAssignable();
-    virtual Assignable const *asAssignable() const;
 
     //
     // Core Assignable API
@@ -110,11 +87,11 @@ namespace PLEXIL {
 
     /**
      * @brief Get the real variable for which this may be a proxy.
-     * @return Pointer to the base variable as an Assignable.
+     * @return Pointer to the base variable.
      * @note Used by the assignment node conflict resolution logic.
      */
-    virtual Assignable *getBaseVariable() = 0;
-    virtual Assignable const *getBaseVariable() const = 0;
+    virtual Expression *getBaseVariable() = 0;
+    virtual Expression const *getBaseVariable() const = 0;
 
     /**
      * @brief Set the expression from which this object gets its initial value.

@@ -28,7 +28,6 @@
 #define PLEXIL_NOTIFIER_IMPL_HH
 
 #include "Expression.hh"
-#include "ExpressionListener.hh"
 
 #include <vector>
 #include <cstddef> // size_t
@@ -51,9 +50,7 @@ namespace PLEXIL
    * @brief Mixin class for expressions whose value may change. Implements expression graph notification.
    */
 
-  class NotifierImpl
-    : virtual public Expression,
-      virtual public ExpressionListener
+  class NotifierImpl : virtual public Expression
   {
   public:
 
@@ -107,8 +104,10 @@ namespace PLEXIL
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
+     * @param src The Expression which initiated the change.
+     * @note This method overrides the one on Expression.
      */
-    virtual void notifyChanged(Expression const *src);
+    virtual void notifyChanged(Expression const *src) override;
 
     /**
      * @brief Determine whether or not expression has any listeners.
@@ -156,6 +155,7 @@ namespace PLEXIL
 
     /**
      * @brief Called by notifyChanged() when the expression is active.
+     * @param src The Expression which initiated the change.
      * @note Default method calls publishChange().
      */
     virtual void handleChange(Expression const *src);

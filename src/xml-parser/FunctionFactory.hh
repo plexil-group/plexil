@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
   {
   public:
     FunctionFactory(std::string const &name);
-    virtual ~FunctionFactory();
+    virtual ~FunctionFactory() = default;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -52,9 +52,11 @@ namespace PLEXIL
 
   private:
     // Unimplemented
-    FunctionFactory();
-    FunctionFactory(FunctionFactory const &);
-    FunctionFactory &operator=(FunctionFactory const &);
+    FunctionFactory() = delete;
+    FunctionFactory(FunctionFactory const &) = delete;
+    FunctionFactory(FunctionFactory &&) = delete;
+    FunctionFactory &operator=(FunctionFactory const &) = delete;
+    FunctionFactory &operator=(FunctionFactory &&) = delete;
   };
 
   template <class OP>
@@ -66,9 +68,7 @@ namespace PLEXIL
     {
     }
 
-    ~FunctionFactoryImpl()
-    {
-    }
+    ~FunctionFactoryImpl() = default;
 
   protected:
     Operator const *getOperator() const
@@ -78,9 +78,11 @@ namespace PLEXIL
 
   private:
     // Unimplemented
-    FunctionFactoryImpl();
-    FunctionFactoryImpl(FunctionFactoryImpl const &);
-    FunctionFactoryImpl &operator=(FunctionFactoryImpl const &);
+    FunctionFactoryImpl() = delete;
+    FunctionFactoryImpl(FunctionFactoryImpl const &) = delete;
+    FunctionFactoryImpl(FunctionFactoryImpl &&) = delete;
+    FunctionFactoryImpl &operator=(FunctionFactoryImpl const &) = delete;
+    FunctionFactoryImpl &operator=(FunctionFactoryImpl &&) = delete;
   };
 
 } // namespace PLEXIL

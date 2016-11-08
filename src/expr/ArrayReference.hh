@@ -149,8 +149,8 @@ namespace PLEXIL {
    */
 
   class MutableArrayReference :
-    public ArrayReference,
-    public Assignable
+    public Assignable,
+    public ArrayReference
   {
   public:
     MutableArrayReference(Expression *ary,
@@ -160,10 +160,10 @@ namespace PLEXIL {
 
     ~MutableArrayReference();
 
-    bool isAssignable() const;
+    bool isAssignable() const override;
 
-    Assignable const *asAssignable() const;
-    Assignable *asAssignable();
+    Assignable const *asAssignable() const override;
+    Assignable *asAssignable() override;
 
     /**
      * @brief Reset the expression.
@@ -250,8 +250,8 @@ namespace PLEXIL {
     NodeConnector const *getNode() const;
     NodeConnector *getNode();
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
   protected:
 

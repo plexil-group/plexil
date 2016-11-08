@@ -35,7 +35,7 @@
 namespace PLEXIL
 {
   // Forward references
-  class Assignable;
+  class Expression;
   class Node;
 
   /**
@@ -53,8 +53,8 @@ namespace PLEXIL
     VariableConflictSet();
     ~VariableConflictSet();
 
-    Assignable const *getVariable() const;
-    void setVariable(Assignable *);
+    Expression const *getVariable() const;
+    void setVariable(Expression *);
 
     VariableConflictSet *next() const;
     void setNext(VariableConflictSet *);
@@ -81,7 +81,7 @@ namespace PLEXIL
     VariableConflictSet &operator=(VariableConflictSet const &);
 
     VariableConflictSet *m_next;
-    Assignable *m_variable;
+    Expression *m_variable;
     std::vector<Node *> m_nodes;
   };
 

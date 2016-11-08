@@ -42,9 +42,9 @@ namespace PLEXIL
 
   template <typename T>
   class ArrayVariable final :
+    public Assignable,
     public GetValueImpl<ArrayImpl<T> >,
-    public NotifierImpl,
-    public Assignable
+    public NotifierImpl
   {
   public:
 
@@ -80,6 +80,11 @@ namespace PLEXIL
       return NotifierImpl::isActive();
     }
 
+    bool isAssignable() const override;
+
+    Assignable const *asAssignable() const override;
+    Assignable *asAssignable() override;
+
     char const *getName() const;
 
     char const *exprName() const;
@@ -105,8 +110,8 @@ namespace PLEXIL
     NodeConnector const *getNode() const;
     NodeConnector *getNode();
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.

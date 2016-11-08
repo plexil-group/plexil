@@ -85,10 +85,6 @@ namespace PLEXIL
   {
   }
 
-  ArithmeticFunctionFactory::~ArithmeticFunctionFactory()
-  {
-  }
-
   Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const expr,
                                                   NodeConnector *node,
                                                   bool & wasCreated) const

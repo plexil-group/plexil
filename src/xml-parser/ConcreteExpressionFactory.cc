@@ -229,6 +229,9 @@ namespace PLEXIL
     bool indexCreated = false;
     
     parseArrayElement(expr, node, arrayExpr, indexExpr, arrayCreated, indexCreated);
+    checkParserExceptionWithLocation(arrayExpr->isAssignable(),
+                                     expr,
+                                     "Can't create a writeable array reference on a read-only array expression");
 
     wasCreated = true;
     return new MutableArrayReference(arrayExpr, indexExpr, arrayCreated, indexCreated);

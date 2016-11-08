@@ -176,7 +176,7 @@ namespace PLEXIL
     }
   }
 
-  void Command::setDestination(Assignable *dest, bool isGarbage)
+  void Command::setDestination(Expression *dest, bool isGarbage)
   {
     m_dest = dest;
     m_destIsGarbage = isGarbage;
@@ -387,7 +387,7 @@ namespace PLEXIL
   {
     if (!m_active || !m_dest)
       return;
-    m_dest->setValue(val);
+    m_dest->asAssignable()->setValue(val);
   }
 
   void Command::abort()

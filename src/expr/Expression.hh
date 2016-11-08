@@ -28,6 +28,7 @@
 #define PLEXIL_EXPRESSION_HH
 
 #include "ValueType.hh"
+#include "ExpressionListener.hh"
 
 //
 // Virtual base classes for the expression system
@@ -41,14 +42,13 @@ namespace PLEXIL
   //
 
   class Assignable;
-  class ExpressionListener;
   class Value;
 
   /**
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression
+  class Expression : public ExpressionListener
   {
   protected:
     Expression() = default;
@@ -255,6 +255,17 @@ namespace PLEXIL
      * @param ptr The pointer to the listener to remove.
      */
     virtual void removeListener(ExpressionListener *ptr) = 0;
+
+    //
+    // ExpressionListener API
+    //
+
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @param src The Expression which initiated the change.
+     * @note This default method does nothing.
+     */
+    virtual void notifyChanged(Expression const *src);
 
   };
 
