@@ -144,6 +144,8 @@ static bool testBitset()
   std::bitset<64> bs24 = ~(1UL << 40);
   assertTrue_1(findFirstZero(bs24) == 40);
 
+#endif
+ 
   std::bitset<128> bs30;
   bs30.set();
   assertTrue_1(findFirstZero(bs30) == -1);
@@ -173,9 +175,6 @@ static bool testBitset()
   bs35.reset(2994);
   assertTrue_1(findFirstZero(bs35) == 2994);
 
-
-#endif
- 
   return true;
 
 }
