@@ -221,8 +221,8 @@ namespace PLEXIL
                                                Expression *idx,
                                                bool aryIsGarbage,
                                                bool idxIsGarbage)
-    : ArrayReference(ary, idx, aryIsGarbage, idxIsGarbage),
-      Assignable(),
+    : Assignable(),
+      ArrayReference(ary, idx, aryIsGarbage, idxIsGarbage),
       m_mutableArray(ary->asAssignable()),
       m_saved(false)
   {
