@@ -53,6 +53,25 @@ static bool testUnsignedLong()
 
 #endif
 
+  unsigned long ul10 = ULONG_MAX;
+  assertTrue_1(findFirstZero(ul10) == -1);
+
+  unsigned long ul11 = ~1UL;
+  assertTrue_1(findFirstZero(ul11) == 0);
+
+  unsigned long ul12 = ULONG_MAX - 4;
+  assertTrue_1(findFirstZero(ul12) == 2);
+
+  unsigned long ul13 = ~(1UL << 20);
+  assertTrue_1(findFirstZero(ul13) == 20);
+
+#if (ULONG_MAX > UINT32_MAX)
+
+  unsigned long ul14 = ~(1UL << 40);
+  assertTrue_1(findFirstZero(ul14) == 40);
+
+#endif
+
   return true;
 }
 
@@ -102,8 +121,63 @@ static bool testBitset()
   std::bitset<3095> bs15;
   bs15.set(2994);
   assertTrue_1(findFirstOne(bs15) == 2994);
+
+  // findFirstZero
+
+  std::bitset<32> bs20 = ULONG_MAX;
+  assertTrue_1(findFirstZero(bs20) == -1);
+
+  std::bitset<32> bs21 = ~1UL;
+  assertTrue_1(findFirstZero(bs21) == 0);
+
+  std::bitset<32> bs22 = ULONG_MAX - 4;
+  assertTrue_1(findFirstZero(bs22) == 2);
+
+  std::bitset<32> bs23 = ~(1UL << 20);
+  assertTrue_1(findFirstZero(bs23) == 20);
+
+#if (ULONG_MAX > UINT32_MAX)
+
+  std::bitset<64> bs23a = ~(1UL << 20);
+  assertTrue_1(findFirstZero(bs23a) == 20);
+
+  std::bitset<64> bs24 = ~(1UL << 40);
+  assertTrue_1(findFirstZero(bs24) == 40);
+
+  std::bitset<128> bs30;
+  bs30.set();
+  assertTrue_1(findFirstZero(bs30) == -1);
+  
+  std::bitset<128> bs31;
+  bs31.set();
+  bs31.reset(33);
+  assertTrue_1(findFirstZero(bs31) == 33);
+
+  std::bitset<128> bs32;
+  bs32.set();
+  bs32.reset(77);
+  assertTrue_1(findFirstZero(bs32) == 77);
+
+  std::bitset<1024> bs33;
+  bs33.set();
+  bs33.reset(197);
+  assertTrue_1(findFirstZero(bs33) == 197);
+
+  std::bitset<1024> bs34;
+  bs34.set();
+  bs34.reset(995);
+  assertTrue_1(findFirstZero(bs34) == 995);
+
+  std::bitset<3095> bs35;
+  bs35.set();
+  bs35.reset(2994);
+  assertTrue_1(findFirstZero(bs35) == 2994);
+
+
+#endif
  
   return true;
+
 }
 
 bool bitsetUtilsTest()

@@ -35,6 +35,8 @@ namespace PLEXIL
   // O(1) via binary search
   extern int findFirstOne(unsigned long const b);
 
+  extern int findFirstZero(unsigned long const b);
+
   // O(n) via iterative search
   template <size_t N_ENTRIES>
   int findFirstOne(std::bitset<N_ENTRIES> const &b)
@@ -60,6 +62,34 @@ namespace PLEXIL
 
     // better not happen after debugged
     check_error_2(ALWAYS_FAIL, "findFirstOne: bitset all zeroes");
+    return -1;
+  }
+
+  // O(n) via iterative search
+  template <size_t N_ENTRIES>
+  int findFirstZero(std::bitset<N_ENTRIES> const &b)
+  {
+    if (b.all())
+      return -1;
+
+    // There must be at least one 0 bit
+
+    // Find first word with a 0
+    size_t const constexpr WORD_SIZE = sizeof(unsigned long);
+    
+    std::bitset<N_ENTRIES> const constexpr mask(ULONG_MAX);
+    std::bitset<N_ENTRIES> tmp = b;
+    for (size_t n = 0;
+         n < N_ENTRIES;
+         n += WORD_SIZE,
+           tmp >>= WORD_SIZE) {
+      unsigned long tmp2 = (tmp & mask).to_ulong();
+      if (~tmp2)
+        return n + findFirstZero(tmp2);
+    }
+
+    // better not happen after debugged
+    check_error_2(ALWAYS_FAIL, "findFirstZero: bitset all ones");
     return -1;
   }
 

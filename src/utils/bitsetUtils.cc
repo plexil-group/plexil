@@ -80,4 +80,9 @@ namespace PLEXIL
       return n + 1;
   }
 
+  int findFirstZero(unsigned long const b)
+  {
+    return findFirstOne(~b);
+  }
+
 }
