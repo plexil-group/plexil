@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,19 +69,23 @@ int ExecTestRunner::run(int argc, char** argv)
   vector<string> libraryNames;
   vector<string> libraryPaths;
   string
-    usage(
-          "Usage: exec-test-runner -s <script> -p <plan>\n\
-                        [-l <library>]*\n\
-                        [-L <library-dir>]*\n\
-                        [-d <debug_config_file>]\n");
+    usage("Usage: exec-test-runner -s <script> -p <plan>\n\
+                        [-l <library-file>]*     (no default)\n\
+                        [-L <library-dir>]*      (default .)\n\
+                        [-d <debug_config_file>] (default ./Debug.cfg)\n\
+                        [+d]                     (disable debug messages)\n");
 
 #if HAVE_LUV_LISTENER
-  bool luvRequest = false;
   string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = LuvListener::LUV_DEFAULT_PORT();
+  bool luvRequest = false;
   bool luvBlock = false;
-  usage += "[-v [-h <hostname>] [-n <portnumber>] [-b] ]";
+  usage += "                        [-v [-h <viewer-hostname>] [-n <viewer-portnumber>] [-b] ]\n";
 #endif
+
+  bool debugConfigSupplied = false;
+  bool useDebugConfig = true;
+
 
   // if not enough parameters, print usage
 
@@ -130,12 +134,33 @@ int ExecTestRunner::run(int argc, char** argv)
       libraryPaths.push_back(argv[i]);
     }
     else if (strcmp(argv[i], "-d") == 0) {
-      if (argc == (++i)) {
+      if (!useDebugConfig) {
+        warn("Both -d and +d options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (debugConfigSupplied) {
+        warn("Multiple -d options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
         return 2;
       }
       debugConfig = string(argv[i]);
+      useDebugConfig = true;
+      debugConfigSupplied = true;
+    }
+    else if (strcmp(argv[i], "+d") == 0) {
+      if (debugConfigSupplied) {
+        warn("Both -d and +d options specified.\n"
+             << usage);
+        return 2;
+      }
+      debugConfig.clear();
+      useDebugConfig = false;
     }
 #if HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
@@ -206,9 +231,12 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // basic initialization
 
-  std::ifstream config(debugConfig.c_str());
-  if (config.good())
-    readDebugConfigStream(config);
+  // initialize debug messaging first
+  if (useDebugConfig) {
+    std::ifstream config(debugConfig.c_str());
+    if (config.good())
+      readDebugConfigStream(config);
+  }
 
   initializeExpressions();
   setLibraryPaths(libraryPaths);
