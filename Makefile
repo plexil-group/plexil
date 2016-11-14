@@ -52,8 +52,9 @@ CONF_BUILD_OPTS := --enable-debug-listener
 # TODO figure out what to do with these
 CONF_MODULE_OPTS := --enable-udp --enable-ipc --enable-sas --enable-test-exec
 
-# For developer use only
-#CONF_MODULE_OPTS += --enable-module-tests
+# For developer use
+# Comment out when released
+CONF_MODULE_OPTS += --enable-module-tests
 
 ifneq ($(PLEXIL_SHARED),)
 CONF_BUILD_OPTS += --enable-shared --disable-static
