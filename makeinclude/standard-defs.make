@@ -90,8 +90,10 @@ INCLUDES	= $(addprefix -I,$(INC_DIRS)) $(addprefix -isystem,$(SYSTEM_INC_DIRS))
 CPPFLAGS	= $(DEFINES) $(INCLUDES)
 
 ## Common compiler flags
-STANDARD_CFLAGS		:= --std=c11
-STANDARD_CXXFLAGS	:= --std=c++11
+# C11 doesn't seem to benefit us yet
+#STANDARD_CFLAGS		:= --std=c11
+STANDARD_CFLAGS		:=
+STANDARD_CXXFLAGS	:= -std=c++11
 MKDEP_FLAGS		= -MM -MP -MT $@
 
 # Compiler flags for shared libraries
