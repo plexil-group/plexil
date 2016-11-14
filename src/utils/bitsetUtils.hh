@@ -47,7 +47,7 @@ namespace PLEXIL
     // There must be at least one 1 bit
 
     // Find first word with a 1
-    size_t const constexpr WORD_SIZE = sizeof(unsigned long);
+    size_t const constexpr WORD_SIZE = sizeof(unsigned long) * 8;
     
     std::bitset<N_ENTRIES> const constexpr mask(ULONG_MAX);
     std::bitset<N_ENTRIES> tmp = b;
@@ -75,7 +75,7 @@ namespace PLEXIL
     // There must be at least one 0 bit
 
     // Find first word with a 0
-    size_t const constexpr WORD_SIZE = sizeof(unsigned long);
+    size_t const constexpr WORD_SIZE = sizeof(unsigned long) * 8;
     
     std::bitset<N_ENTRIES> const constexpr mask(ULONG_MAX);
     std::bitset<N_ENTRIES> tmp = b;
