@@ -35,6 +35,7 @@
 using PLEXIL::Error;
 
 extern bool aliasTest();
+extern bool allocatorTest();
 extern bool arithmeticTest();
 extern bool arrayConstantTest();
 extern bool arrayOperatorsTest();
@@ -55,6 +56,7 @@ static void runExprTests()
 
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
+  runTestSuite(allocatorTest);
   runTestSuite(simpleBooleanVariableTest);
   runTestSuite(variablesTest);
   runTestSuite(arrayConstantTest);

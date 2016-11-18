@@ -26,6 +26,7 @@
 
 #include "OperatorImpl.hh"
 
+#include "allocateCache.hh"
 #include "ArrayFwd.hh"
 #include "Expression.hh"
 #include "Function.hh"
@@ -45,17 +46,17 @@ namespace PLEXIL
     return PlexilValueType<R>::arrayValue;
   }
 
-  // TODO: Allocate small caches from a pool per type
+  // Allocate small objects from a pool per type
   template <typename R>
   void *OperatorImpl<R>::allocateCache() const
   {
-    return static_cast<void *>(new R);
+    return static_cast<void *>(PLEXIL::allocateCache<R>());
   }
 
   template <typename R>
   void OperatorImpl<R>::deleteCache(void *ptr) const
   {
-    delete static_cast<R *>(ptr);
+    PLEXIL::deallocateCache(static_cast<R *>(ptr));
   }
 
   template <typename R>
