@@ -312,16 +312,18 @@ namespace PLEXIL
   template String *allocateCache<String>();
   template void deallocateCache<String>(String *);
 
-  template ArrayImpl<Boolean> *allocateCache<ArrayImpl<Boolean> >();
-  template void deallocateCache<ArrayImpl<Boolean> >(ArrayImpl<Boolean> *);
+  // Not yet
 
-  template ArrayImpl<Integer> *allocateCache<ArrayImpl<Integer> >();
-  template void deallocateCache<ArrayImpl<Integer> >(ArrayImpl<Integer> *);
+  // template ArrayImpl<Boolean> *allocateCache<ArrayImpl<Boolean> >();
+  // template void deallocateCache<ArrayImpl<Boolean> >(ArrayImpl<Boolean> *);
 
-  template ArrayImpl<Real> *allocateCache<ArrayImpl<Real> >();
-  template void deallocateCache<ArrayImpl<Real> >(ArrayImpl<Real> *);
+  // template ArrayImpl<Integer> *allocateCache<ArrayImpl<Integer> >();
+  // template void deallocateCache<ArrayImpl<Integer> >(ArrayImpl<Integer> *);
 
-  template ArrayImpl<String> *allocateCache<ArrayImpl<String> >();
-  template void deallocateCache<ArrayImpl<String> >(ArrayImpl<String> *);
+  // template ArrayImpl<Real> *allocateCache<ArrayImpl<Real> >();
+  // template void deallocateCache<ArrayImpl<Real> >(ArrayImpl<Real> *);
+
+  // template ArrayImpl<String> *allocateCache<ArrayImpl<String> >();
+  // template void deallocateCache<ArrayImpl<String> >(ArrayImpl<String> *);
   
 }
