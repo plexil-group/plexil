@@ -29,6 +29,7 @@
 
 #include "NodeOperator.hh"
 
+#include "allocateCache.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
@@ -98,12 +99,12 @@ namespace PLEXIL
 
     void *allocateCache() const
     {
-      return static_cast<void *>(new R);
+      return static_cast<void *>(PLEXIL::allocateCache<R>());
     }
 
     void deleteCache(void *ptr) const
     {
-      delete static_cast<R *>(ptr);
+      PLEXIL::deallocateCache<R>(static_cast<R *>(ptr));
     }
 
     bool calcNative(void *cache, Node const *node) const;
