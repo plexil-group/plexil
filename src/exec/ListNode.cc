@@ -29,7 +29,6 @@
 #include "BooleanOperators.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExprVec.hh"
 #include "Function.hh"
 #include "NodeFunction.hh"
