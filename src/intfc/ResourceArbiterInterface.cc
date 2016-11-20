@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #include <cmath>
 #include <cstdlib> // strtod()
 #include <cstring> // strspn(), strcspn() et al
-#include <fstream>
 #include <map>
 #include <set>
 
@@ -233,35 +232,41 @@ namespace PLEXIL
 
     // Set at initialization
     ResourceHierarchyMap m_resourceHierarchy;
-    bool m_resourceFileRead;
     
   public:
     ResourceArbiterImpl()
-      : m_resourceFileRead(false)
     {
       // TODO: Move this call out to application
-      readResourceHierarchy("resource.data");
+      // readResourceHierarchy("resource.data");
     }
 
     virtual ~ResourceArbiterImpl()
     {
     }
 
-    virtual bool readResourceHierarchy(const std::string& fName)
+    virtual bool readResourceHierarchyFile(const std::string& fName)
     {
-      m_resourceFileRead = false;
-      std::ifstream myFile;
-      myFile.open(fName.c_str());
-      if (!myFile.is_open()) {
-        debugMsg("ResourceArbiterInterface:readResourceHierarchy", "The file: " 
-                 << fName << " does not exist. No resources read.");
+      std::ifstream myFile(fName);
+      if (!myFile.is_open() || !myFile.good()) {
+        debugMsg("ResourceArbiterInterface:readResourceHierarchyFile",
+                 " Unable to open file " << fName << ". No resources read.");
         return false;
       }
-
+      bool result = readResourceHierarchy(myFile);
+      myFile.close();
+      condDebugMsg(result,
+                   "ResourceArbiterInterface:readResourceHierarchyFile",
+                   " successfully read " << fName);
+      return result;
+    }
+      
+    virtual bool readResourceHierarchy(std::ifstream &s)
+    {
+      m_resourceHierarchy.clear();
       static char const *WHITESPACE = " \t\n\r\v\f";
-      while (!myFile.eof()) {
+      while (!s.eof()) {
         std::string dataStr;
-        std::getline(myFile, dataStr);
+        std::getline(s, dataStr);
         if (dataStr.empty())
           continue;
 
@@ -290,7 +295,6 @@ namespace PLEXIL
         if (!maxCons && endptr == data) {
           std::cerr << "Error reading second element (consumable amount) of resource file: \n"
                     << dataStr << std::endl;
-          myFile.close();
           return false;
         }
 
@@ -309,7 +313,6 @@ namespace PLEXIL
           if (!d && endptr == data) {
             std::cerr << "Error reading child resource weight of resource file: \n"
                       << dataStr << std::endl;
-            myFile.close();
             return false;
           }
 
@@ -321,7 +324,6 @@ namespace PLEXIL
           if (!len || !*data) {
             std::cerr << "Error reading child resource name of resource file: \n"
                       << dataStr << std::endl;
-            myFile.close();
             return false;
           }
 
@@ -346,9 +348,6 @@ namespace PLEXIL
         m_resourceHierarchy[pName] = ResourceNode(maxCons, children);
 
       }
-      debugMsg("ResourceArbiterInterface:readResourceHierarchy",
-               " successfully read " << fName);
-      m_resourceFileRead = true;
       return true;
     }
     
@@ -509,7 +508,7 @@ namespace PLEXIL
 
     double maxConsumableResourceValue(const std::string& resName) const
     {
-      if (m_resourceFileRead && (m_resourceHierarchy.find(resName) != m_resourceHierarchy.end()))
+      if (m_resourceHierarchy.find(resName) != m_resourceHierarchy.end())
         return m_resourceHierarchy.find(resName)->second.maxConsumableValue;
       return 1.0;
     }

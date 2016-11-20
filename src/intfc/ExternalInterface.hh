@@ -51,11 +51,6 @@ namespace PLEXIL {
 
     virtual ~ExternalInterface();
 
-    ResourceArbiterInterface *getResourceArbiter()
-    {
-      return m_raInterface;
-    }
-
     //
     // API to Lookup and StateCacheEntry
     //
@@ -121,6 +116,15 @@ namespace PLEXIL {
     virtual void enqueueUpdate(Update *update);
 
     //
+    // API to Command
+    //
+    
+    /**
+     * @brief Release resources in use by the command.
+     */
+    void releaseResourcesForCommand(Command *cmd);
+
+    //
     // API to Exec
     //
 
@@ -183,6 +187,18 @@ namespace PLEXIL {
      * @param value The ack value.
      */
     void acknowledgeUpdate(Update *upd, bool val);
+
+    //
+    // API to application
+    //
+    
+    /**
+     * @brief Read command resource hierarchy from the named file.
+     * @param fname File name.
+     * @return True if successful, false otherwise.
+     */
+
+    bool readResourceFile(std::string const &fname);
 
   protected:
 

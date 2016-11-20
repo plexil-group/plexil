@@ -30,7 +30,6 @@
 #include "ExternalInterface.hh"
 #include "InterfaceError.hh"
 #include "PlanError.hh"
-#include "ResourceArbiterInterface.hh"
 
 namespace PLEXIL
 {
@@ -413,7 +412,7 @@ namespace PLEXIL
     m_active = false;
 
     if (m_commandHandle != COMMAND_DENIED)
-      g_interface->getResourceArbiter()->releaseResourcesForCommand(this);
+      g_interface->releaseResourcesForCommand(this);
 
     m_abortComplete.deactivate();
     m_ack.deactivate();

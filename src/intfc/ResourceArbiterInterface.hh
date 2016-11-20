@@ -35,6 +35,7 @@
 #include <vxWorks.h>
 #endif
 
+#include <fstream>
 #include <string>
 
 namespace PLEXIL 
@@ -51,7 +52,9 @@ namespace PLEXIL
     }
 
     // Public API
-    virtual bool readResourceHierarchy(const std::string& fName) = 0;
+    virtual bool readResourceHierarchyFile(const std::string& fName) = 0;
+
+    virtual bool readResourceHierarchy(std::ifstream& s) = 0;
 
     //*
     // @brief Partition the list of commands into accepted and rejected requests

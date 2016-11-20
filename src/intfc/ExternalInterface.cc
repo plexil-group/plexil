@@ -47,11 +47,24 @@ namespace PLEXIL
       m_raInterface(makeResourceArbiter()),
       m_cycleCount(1)
   {
+    // TODO Move to application
+    readResourceFile("resource.data");
   }
 
   ExternalInterface::~ExternalInterface()
   {
     delete m_raInterface;
+  }
+    
+  /**
+   * @brief Read command resource hierarchy from the named file.
+   * @param fname File name.
+   * @return True if successful, false otherwise.
+   */
+
+  bool ExternalInterface::readResourceFile(std::string const &fname)
+  {
+    return m_raInterface->readResourceHierarchyFile(fname);
   }
 
   /**
@@ -80,13 +93,21 @@ namespace PLEXIL
     m_commandsToExecute.push(cmd);
   }
 
-
   /**
    * @brief Abort the pending command.
    */
   void ExternalInterface::abortCommand(Command *cmd)
   {
     this->invokeAbort(cmd);
+  }
+
+  /**
+   * @brief Release resources in use by the command.
+   */
+
+  void ExternalInterface::releaseResourcesForCommand(Command *cmd)
+  {
+    m_raInterface->releaseResourcesForCommand(cmd);
   }
 
   /**
