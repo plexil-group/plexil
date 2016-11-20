@@ -160,20 +160,20 @@ namespace PLEXIL {
 
     ~MutableArrayReference();
 
-    bool isAssignable() const override;
+    virtual bool isAssignable() const override;
 
-    Assignable const *asAssignable() const override;
-    Assignable *asAssignable() override;
+    virtual Assignable const *asAssignable() const override;
+    virtual Assignable *asAssignable() override;
 
     /**
      * @brief Reset the expression.
      */
-    void reset();
+    virtual void reset() override;
 
     /**
      * @brief Assign the current value to UNKNOWN.
      */
-    void setUnknown();
+    virtual void setUnknown() override;
 
     /**
      * @brief Assign a new value.
@@ -217,14 +217,14 @@ namespace PLEXIL {
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    virtual void setValue(Expression const &valex);
+    virtual void setValue(Expression const &valex) override;
 
     /**
      * @brief Set the value for this expression from a generic Value.
      * @param val The Value.
      * @note May cause change notifications to occur.
      */
-    virtual void setValue(Value const &value);
+    virtual void setValue(Value const &value) override;
 
     using Assignable::setValue;
 
@@ -237,26 +237,26 @@ namespace PLEXIL {
     bool getMutableValuePointer(std::string *& ptr);
 
     // These will throw an exception
-    bool getMutableValuePointer(Array *& ptr);
+    virtual bool getMutableValuePointer(Array *& ptr) override;
     bool getMutableValuePointer(BooleanArray *& ptr);
     bool getMutableValuePointer(IntegerArray *& ptr);
     bool getMutableValuePointer(RealArray *& ptr);
     bool getMutableValuePointer(StringArray *& ptr);
 
-    void saveCurrentValue();
-    void restoreSavedValue();
-    Value getSavedValue() const;
+    virtual void saveCurrentValue() override;
+    virtual void restoreSavedValue() override;
+    virtual Value getSavedValue() const override;
 
-    NodeConnector const *getNode() const;
-    NodeConnector *getNode();
+    virtual NodeConnector const *getNode() const override;
+    virtual NodeConnector *getNode() override;
 
-    Expression *getBaseVariable();
-    Expression const *getBaseVariable() const;
+    virtual Expression *getBaseVariable() override;
+    virtual Expression const *getBaseVariable() const override;
 
   protected:
 
     // Wrap NotifierImpl method
-    virtual void publishChange(Expression const *src);
+    void publishChange(Expression const *src);
 
   private:
     // Default, copy, assignment disallowed

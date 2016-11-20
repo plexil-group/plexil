@@ -71,7 +71,7 @@ namespace PLEXIL
      * @brief Determine whether this expression is active.
      * @return true if active, false if not.
      */
-    virtual bool isActive() const;
+    virtual bool isActive() const override;
 
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept
@@ -79,7 +79,7 @@ namespace PLEXIL
      * @note Default method. Calls handleActivate() if previously inactive.
      * @see handleActivate()
      */
-    virtual void activate();
+    virtual void activate() override;
 
     /**
      * @brief Make this Expression inactive.  It will not publish value changes, nor will it
@@ -87,20 +87,20 @@ namespace PLEXIL
      * @note Default method. Calls handleDeactivate() if transitioning from active to inactive.
      * @see handleDeactivate()
      */
-    virtual void deactivate();
+    virtual void deactivate() override;
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note May be overridden (or wrapped) by derived classes.
      */
-    virtual void addListener(ExpressionListener *ptr);
+    virtual void addListener(ExpressionListener *ptr) override;
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      */
-    virtual void removeListener(ExpressionListener *ptr);
+    virtual void removeListener(ExpressionListener *ptr) override;
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.

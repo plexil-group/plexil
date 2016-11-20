@@ -81,22 +81,22 @@ namespace PLEXIL
     Assignable const *asAssignable() const override;
     Assignable *asAssignable() override;
 
-    char const *getName() const;
+    char const *getName() const override;
 
-    char const *exprName() const;
+    char const *exprName() const override;
 
     //
     // GetValueImpl API
     //
 
-    bool isKnown() const;
+    bool isKnown() const override;
 
     /**
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(T &result) const;
+    bool getValueImpl(T &result) const override;
 
     //
     // Assignable API
@@ -105,43 +105,43 @@ namespace PLEXIL
     /**
      * @brief Set the current value unknown.
      */
-    void setUnknown();
+    void setUnknown() override;
 
     /**
      * @brief Reset to initial status.
      */
-    void reset();
+    void reset() override;
 
-    void saveCurrentValue();
+    void saveCurrentValue() override;
 
-    void restoreSavedValue();
+    void restoreSavedValue() override;
 
-    Value getSavedValue() const;
+    Value getSavedValue() const override;
 
-    NodeConnector *getNode();
-    NodeConnector const *getNode() const;
+    NodeConnector *getNode() override;
+    NodeConnector const *getNode() const override;
 
-    Expression *getBaseVariable();
-    Expression const *getBaseVariable() const;
+    Expression *getBaseVariable() override;
+    Expression const *getBaseVariable() const override;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
-    virtual void setInitializer(Expression *expr, bool garbage);
+    virtual void setInitializer(Expression *expr, bool garbage) override;
 
     /**
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(Value const &val);
+    virtual void setValue(Value const &val) override;
 
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
      */
-    virtual void setValue(Expression const &val);
+    virtual void setValue(Expression const &val) override;
 
     /**
      * @brief Retrieve a pointer to the non-const value.
@@ -149,13 +149,13 @@ namespace PLEXIL
      * @return True if the value is known, false if unknown or invalid.
      * @note An error for this object
      */
-    virtual bool getMutableValuePointer(Array *&ptr);
+    virtual bool getMutableValuePointer(Array *&ptr) override;
 
-    void handleActivate();
+    void handleActivate() override;
 
-    void handleDeactivate();
+    void handleDeactivate() override;
 
-    void printSpecialized(std::ostream &s) const;
+    void printSpecialized(std::ostream &s) const override;
 
   protected:
     
@@ -226,25 +226,25 @@ namespace PLEXIL
     Assignable const *asAssignable() const override;
     Assignable *asAssignable() override;
 
-    char const *getName() const;
+    char const *getName() const override;
 
-    char const *exprName() const;
+    char const *exprName() const override;
 
-    bool isKnown() const;
+    bool isKnown() const override;
 
     /**
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(String &result) const;
+    bool getValueImpl(String &result) const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(String const *&ptr) const;
+    bool getValuePointerImpl(String const *&ptr) const override;
     template <typename U>
     bool getValuePointerImpl(U const *&ptr) const;
 
@@ -265,43 +265,43 @@ namespace PLEXIL
     /**
      * @brief Set the current value unknown.
      */
-    void setUnknown();
+    void setUnknown() override;
 
     /**
      * @brief Reset to initial status.
      */
-    void reset();
+    void reset() override;
 
-    void saveCurrentValue();
+    void saveCurrentValue() override;
 
-    void restoreSavedValue();
+    void restoreSavedValue() override;
 
-    Value getSavedValue() const;
+    Value getSavedValue() const override;
 
-    NodeConnector *getNode();
-    NodeConnector const *getNode() const;
+    NodeConnector *getNode() override;
+    NodeConnector const *getNode() const override;
 
-    Expression *getBaseVariable();
-    Expression const *getBaseVariable() const;
+    Expression *getBaseVariable() override;
+    Expression const *getBaseVariable() const override;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
-    void setInitializer(Expression *expr, bool garbage);
+    void setInitializer(Expression *expr, bool garbage) override;
 
     /**
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(Value const &val);
+    virtual void setValue(Value const &val) override;
 
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
      */
-    virtual void setValue(Expression const &val);
+    virtual void setValue(Expression const &val) override;
 
     /**
      * @brief Retrieve a pointer to the non-const value.
@@ -309,13 +309,13 @@ namespace PLEXIL
      * @return True if the value is known, false if unknown or invalid.
      * @note An error for this object
      */
-    virtual bool getMutableValuePointer(Array *&ptr);
+    virtual bool getMutableValuePointer(Array *&ptr) override;
 
-    void handleActivate();
+    void handleActivate() override;
 
-    void handleDeactivate();
+    void handleDeactivate() override;
 
-    void printSpecialized(std::ostream &s) const;
+    void printSpecialized(std::ostream &s) const override;
 
   private:
 
