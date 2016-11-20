@@ -29,7 +29,6 @@
 #include "Array.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
-#include "UserVariable.hh"
 
 namespace PLEXIL
 {
