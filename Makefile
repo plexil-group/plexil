@@ -41,10 +41,22 @@ include makeinclude/standard-defs.make
 #
 
 # TODO? test for existence
-AUTOCONF := autoconf
-AUTOMAKE := automake
-AUTORECONF := autoreconf
+AUTOCONF ?= autoconf
+AUTOMAKE ?= automake
+AUTORECONF ?= autoreconf
+ifeq ($(LIBTOOLIZE),)
+# Check whether libtoolize or glibtoolize is installed
+ifneq ($(shell which libtoolize),)
 LIBTOOLIZE := libtoolize
+else
+ifneq ($(shell which glibtoolize),)
+LIBTOOLIZE := glibtoolize
+else
+$(error Unable to locate GNU 'libtoolize' utility)
+endif
+endif
+endif
+
 
 # Configuration options for src/configure
 CONF_BUILD_OPTS := --enable-debug-listener
