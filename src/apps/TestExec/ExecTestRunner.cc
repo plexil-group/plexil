@@ -66,6 +66,7 @@ int ExecTestRunner::run(int argc, char** argv)
   string scriptName("error");
   string planName("error");
   string debugConfig("Debug.cfg");
+  string resourceFile("resource.data");
   vector<string> libraryNames;
   vector<string> libraryPaths;
   string
@@ -73,7 +74,9 @@ int ExecTestRunner::run(int argc, char** argv)
                         [-l <library-file>]*     (no default)\n\
                         [-L <library-dir>]*      (default .)\n\
                         [-d <debug_config_file>] (default ./Debug.cfg)\n\
-                        [+d]                     (disable debug messages)\n");
+                        [+d]                     (disable debug messages)\n\
+                        [-r <resource_file>]     (default ./resource.data)\n\
+                        [+r]                     (don't read resource data)\n");
 
 #if HAVE_LUV_LISTENER
   string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
@@ -85,7 +88,8 @@ int ExecTestRunner::run(int argc, char** argv)
 
   bool debugConfigSupplied = false;
   bool useDebugConfig = true;
-
+  bool resourceFileSupplied = false;
+  bool useResourceFile = true;
 
   // if not enough parameters, print usage
 
@@ -161,6 +165,35 @@ int ExecTestRunner::run(int argc, char** argv)
       }
       debugConfig.clear();
       useDebugConfig = false;
+    }
+    else if (strcmp(argv[i], "-r") == 0) {
+      if (!useResourceFile) {
+        warn("Both -r and +r options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (resourceFileSupplied) {
+        warn("Multiple -r options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return 2;
+      }
+      resourceFile = string(argv[i]);
+      useResourceFile = true;
+      resourceFileSupplied = true;
+    }
+    else if (strcmp(argv[i], "+r") == 0) {
+      if (resourceFileSupplied) {
+        warn("Both -r and +r options specified.\n"
+             << usage);
+        return 2;
+      }
+      resourceFile.clear();
+      useResourceFile = false;
     }
 #if HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
@@ -241,10 +274,16 @@ int ExecTestRunner::run(int argc, char** argv)
   initializeExpressions();
   setLibraryPaths(libraryPaths);
 
-  // create the exec
+  // create external interface
 
   TestExternalInterface intf;
   g_interface = &intf;
+  if (useResourceFile) {
+    g_interface->readResourceFile(resourceFile);
+  }
+
+  // create the exec
+
   g_exec = new PlexilExec();
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);

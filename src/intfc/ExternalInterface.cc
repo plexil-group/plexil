@@ -47,8 +47,6 @@ namespace PLEXIL
       m_raInterface(makeResourceArbiter()),
       m_cycleCount(1)
   {
-    // TODO Move to application
-    readResourceFile("resource.data");
   }
 
   ExternalInterface::~ExternalInterface()
