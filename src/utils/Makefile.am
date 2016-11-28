@@ -29,12 +29,12 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS =
 
-include_HEADERS = bitsetUtils.hh ConstantMacros.hh Debug.hh DebugMessage.hh \
+include_HEADERS = bitsetUtils.hh ConstantMacros.hh Debug.hh \
  Error.hh LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh \
  SimpleMap.hh TestSupport.hh lifecycle-utils.h map-utils.hh \
  stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
-libPlexilUtils_la_SOURCES = bitsetUtils.cc DebugMessage.cc Error.cc Logging.cc \
+libPlexilUtils_la_SOURCES = bitsetUtils.cc Error.cc Logging.cc \
  ParserException.cc PlanError.cc \
  lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc
 
@@ -53,6 +53,11 @@ endif
 if PLEXIL_DLFCN_H
   include_HEADERS += DynamicLoader.hh
   libPlexilUtils_la_SOURCES += DynamicLoader.cc
+endif
+
+if DEBUG_LOGGING_OPT
+  include_HEADERS += DebugMessage.hh
+  libPlexilUtils_la_SOURCES += DebugMessage.cc
 endif
 
 if MODULE_TESTS_OPT
