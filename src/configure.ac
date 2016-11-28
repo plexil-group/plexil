@@ -68,6 +68,7 @@ AC_ARG_ENABLE([universal-exec],
 
 # Conditionals for makefiles
 # These default to enabled (with)
+AM_CONDITIONAL([DEBUG_LOGGING_OPT], [test "x$enable_debug_logging" != "xno"])
 AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
