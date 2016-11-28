@@ -252,8 +252,8 @@ namespace PLEXIL
     // Not implemented
     SimpleMap(SimpleMap const &) = delete;
     SimpleMap(SimpleMap &&) = delete;
-    SimpleMap &operator=(SimpleMap const &);
-    SimpleMap &operator=(SimpleMap &&);
+    SimpleMap &operator=(SimpleMap const &) = delete;
+    SimpleMap &operator=(SimpleMap &&) = delete;
 
     // Wrap a used-defined comparator class for map entries
 
