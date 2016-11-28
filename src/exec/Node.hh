@@ -53,8 +53,7 @@ namespace PLEXIL {
    */
   class Node :
     public NodeConnector,
-    public ExpressionListener,
-    public QueueItem<Node>
+    public ExpressionListener
   {
   public:
     //condition names
@@ -129,6 +128,20 @@ namespace PLEXIL {
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~Node();
+
+    //
+    // LinkedQueue API
+    //
+
+    Node *next() const
+    {
+      return m_next;
+    }
+
+    Node **nextPtr()
+    {
+      return &m_next;
+    }
 
     //
     // NodeConnector API to expressions
@@ -490,6 +503,7 @@ namespace PLEXIL {
     // Common state
     //
 
+    Node   *m_next;                /*!< For LinkedQueue<Node> */
     uint8_t m_queueStatus;         /*!< Which exec queue the node is in, if any. */
     uint8_t m_state;               /*!< The current state of the node. */
     uint8_t m_outcome;             /*!< The current outcome. */

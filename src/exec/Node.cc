@@ -104,7 +104,7 @@ namespace PLEXIL {
   Node::Node(char const *nodeId, Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      QueueItem<Node>(),
+      m_next(NULL),
       m_queueStatus(0),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
@@ -138,7 +138,7 @@ namespace PLEXIL {
              Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      QueueItem<Node>(),
+      m_next(NULL),
       m_queueStatus(0),
       m_state(state),
       m_outcome(NO_OUTCOME),

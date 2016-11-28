@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,46 +27,32 @@
 #ifndef LINKED_QUEUE_HH
 #define LINKED_QUEUE_HH
 
-#include <stddef.h>
+#include "Error.hh"
+
+#include <cstddef> // size_t
 
 namespace PLEXIL
 {
-  // Forward declaration
-  template <typename T> class LinkedQueue; 
+  //*
+  // @class LinkedQueue
+  // @brief Simple unidirectional linked-list queue implementation.
+  //        Participant classes must only provide two member functions:
+  //        T *next() const and T **nextPtr()
+  //
 
-  template <typename T> class QueueItem
-  {
-    friend class LinkedQueue<T>;
-    
-  public:
-    QueueItem()
-      : m_next(NULL)
-    {
-    }
-    
-    virtual ~QueueItem()
-    {
-    }
-
-    T *next() const
-    {
-      return static_cast<T *>(m_next);
-    }
-
-  private:
-    QueueItem<T> *m_next;
-  };
-
-  template <typename T> class LinkedQueue :
-    public QueueItem<T>
+  template <typename T> class LinkedQueue
   {
   private:
-    QueueItem<T> *m_tail;
+    T *m_head;
+    T *m_tail;
     size_t m_count;
+
+    LinkedQueue(LinkedQueue const &);
+    LinkedQueue &operator=(LinkedQueue const &);
 
   public:
     LinkedQueue()
-      : QueueItem<T>(),
+      : m_head(NULL),
         m_tail(NULL),
         m_count(0)
     {
@@ -78,7 +64,7 @@ namespace PLEXIL
 
     T *front() const
     {
-      return static_cast<T *>(this->m_next); // may be null
+      return m_head; // may be null
     }
 
     size_t size() const
@@ -88,61 +74,73 @@ namespace PLEXIL
 
     bool empty() const
     {
-      return (this->m_next == NULL);
+      return (m_head == NULL);
     }
 
     void pop()
     {
-      if (!this->m_next)
-        return; // empty, nothing to do
+      if (empty())
+        return;
 
-      if (this->m_next == m_tail)
+      T *oldHead = m_head; // temp? see below
+      if (m_head == m_tail) {
         // Exactly one item was in queue, is now empty
-        this->m_next = m_tail = NULL;
-      else
-        this->m_next = this->m_next->m_next;
+        m_head = m_tail = NULL;
+      }
+      else {
+        m_head = m_head->next();
+        assertTrue_1(m_head); // temp?
+      }
+
+      // temp? Ensure queue item's next ptr is null when dequeuing
+      *(oldHead->nextPtr()) = NULL;
+
       --m_count; // better be 0 if empty!
     }
 
-    void push(T *item_as_T)
+    void push(T *item)
     {
-      QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      item->m_next = NULL; // mark as end of queue
-      if (!this->m_next)
-        // Was empty
-        this->m_next = item;
+      assertTrue_1(item);
+      assertTrue_1(!item->next()); // temp?
+
+      *(item->nextPtr()) = NULL; // mark as end of queue
+      if (empty())
+        m_head = item;
       else
-        m_tail->m_next = item;
+        *(m_tail->nextPtr()) = item;
       m_tail = item;
       ++m_count;
     }
 
-    void remove(T *item_as_T)
+    void remove(T *item)
     {
-      if (!item_as_T || !this->m_next)
+      if (item == NULL || empty())
         return;
-      QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      QueueItem<T> *ptr =  static_cast<QueueItem<T> *>(this);
-      while (ptr->m_next) {
-        QueueItem<T> *nxt = ptr->m_next;
-        if (item == nxt) {
-          // unlink it
-          ptr->m_next = nxt->m_next;
-          if (this->m_next == NULL)
-            // Deleted only item in queue
-            m_tail = NULL;
-          --m_count;
-          return;
+
+      T *prev = NULL; // last entry we looked at
+      T **prevNextPtr = &m_head; // pointer to last entry's "next" pointer
+      T *cur = m_head; // the item being compared
+      while (cur) {
+        if (item == cur) {
+          *(prevNextPtr) = cur->next();
+          if (cur == m_tail)
+            m_tail = prev;
+          break;
         }
-        ptr = ptr->m_next;
+        prev = cur;
+        prevNextPtr = prev->nextPtr();
+        cur = cur->next();
       }
-      // Can fall through to here without finding item
+      if (!cur)
+        return; // not found
+
+      *(item->nextPtr()) = NULL; // temp?
+      --m_count;
     }
 
-    // TODO: null out links of items?
     void clear()
     {
-      this->m_next = m_tail = NULL;
+      m_head = m_tail = NULL;
       m_count = 0;
     }
 

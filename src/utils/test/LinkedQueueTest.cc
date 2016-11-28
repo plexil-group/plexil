@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,41 @@
 
 using namespace PLEXIL;
 
-class QueueTest : public QueueItem<QueueTest>
+struct QueueTest
 {
+private:
+  QueueTest *nxt;
+
 public:
+
   int value;
 
-  QueueTest(int n) : value(n) {}
+  QueueTest(int n) :
+    nxt(NULL),
+    value(n)
+  {
+  }
+
+  ~QueueTest()
+  {
+  }
+
+  QueueTest *next() const
+  {
+    return nxt;
+  }
+
+  QueueTest **nextPtr()
+  {
+    return &nxt;
+  }
+
 };
 
 bool LinkedQueueTest()
 {
+  Error::doThrowExceptions();
+
   LinkedQueue<QueueTest> testq;
 
   // Basics
@@ -120,6 +145,21 @@ bool LinkedQueueTest()
     assertTrue_1(testq.front() != NULL);
   }
 
+  // Pop and delete all the items
+  while (!testq.empty()) {
+    QueueTest *item = testq.front();
+    testq.pop();
+    delete item;
+  }
+  
+  // Push a bunch of items again
+  for (int i = 1; i <= n; ++i) {
+    testq.push(new QueueTest(i));
+    assertTrue_1(!testq.empty());
+    assertTrue_1(testq.size() == i);
+    assertTrue_1(testq.front() != NULL);
+  }
+
   // Step through the queue
   QueueTest *item = testq.front();
   for (int i = 1; i <= n; ++i) {
@@ -160,6 +200,13 @@ bool LinkedQueueTest()
   assertTrue_1(testq.size() == n - 3);
   delete item;
 
+  // Try to "remove" a nonexistent item
+  item = new QueueTest(42);
+  testq.remove(item);
+  assertTrue_1(!testq.empty());
+  assertTrue_1(testq.size() == n - 3);
+  delete item;
+
   // Pop and delete remaining
   while (!testq.empty()) {
     assertTrue_1(testq.front() != NULL);
@@ -171,6 +218,7 @@ bool LinkedQueueTest()
 
   assertTrue_1(testq.empty());
   assertTrue_1(testq.size() == 0);
+  assertTrue_1(testq.front() == NULL);
 
   return true;
 }
