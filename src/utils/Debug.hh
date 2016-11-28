@@ -70,6 +70,11 @@ inline bool setDebugOutputStream(std::ostream & /* os */)
   return true;
 }
 
+inline bool readDebugConfigStream(std::istream & /* is */)
+{
+  return true;
+}
+
 }
 
 #else
