@@ -74,27 +74,11 @@ inline bool readDebugConfigStream(std::istream & /* is */)
   return true;
 }
 
-inline bool allDebugMessagesEnabled()
-{
-  return false;
-}
-
-inline void enableAllDebugMessages() 
-{
-}
-
-inline void disableAllDebugMessages()
-{
-}
-
-inline void enableMatchingDebugMessages(char const * /* file */,
-                                        char const * /* marker */)
-{
-}
-
 }
 
 #else
+
+#include "DebugMessage.hh"
 
 /**
    @brief The SHOW() macro is intended as a convenience debugging tool
@@ -144,10 +128,8 @@ inline void enableMatchingDebugMessages(char const * /* file */,
   @see DebugMessage
 */
 #define condDebugMsg(cond, marker, data) { \
-  static PLEXIL::DebugMessage *dmPtr = NULL;  \
-  if (!dmPtr) \
-    dmPtr = PLEXIL::addDebugMessage(__FILE__, marker);  \
-  if (dmPtr->enabled && (cond)) { \
+  static PLEXIL::DebugMessage dm(marker);     \
+  if (dm.enabled && (cond)) { \
     PLEXIL::getDebugOutputStream() << "[" << marker << "]" << data << std::endl; \
   } \
 }
@@ -177,101 +159,10 @@ inline void enableMatchingDebugMessages(char const * /* file */,
   @see DebugMessage
 */
 #define condDebugStmt(cond, marker, stmt) { \
-  static PLEXIL::DebugMessage *dmPtr = NULL;  \
-  if (!dmPtr) \
-    dmPtr = PLEXIL::addDebugMessage(__FILE__, marker);  \
-  if (dmPtr->enabled && (cond)) { \
+  static PLEXIL::DebugMessage dm(marker); \
+  if (dm.enabled && (cond)) { \
     stmt ; \
   } \
-}
-
-//
-// Public API
-// 
-
-namespace PLEXIL
-{
-
-  // These are needed for initialization, so must be available
-  // whether or not debugging is defined to be on.
-
-  extern bool setDebugOutputStream(std::ostream &os);
-  extern bool readDebugConfigStream(std::istream &is);
-  extern bool allDebugMessagesEnabled();
-  extern void enableAllDebugMessages();
-  extern void disableAllDebugMessages();
-  extern void enableMatchingDebugMessages(char const *file,
-                                          char const *marker);
-
-  // Forward references
-  struct DebugMessage;
-
-  //
-  // Internal to macros
-  //
-  extern std::ostream &getDebugOutputStream();
-
-  extern DebugMessage *addDebugMessage(char const *file,
-                                       char const *marker);
-
-  /**
-   * @struct DebugMessage
-   * @brief Represents one debug marker in a source file.
-   */
-
-  struct DebugMessage 
-  {
-    /**
-     * @brief Pointer to next (previous) message in list.
-     */
-    DebugMessage *next;
-
-    /**
-       @brief File given when this instance was created.
-    */
-    char const *file;
-
-    /**
-       @brief Marker given when this instance was created.
-    */
-    char const *marker;
-
-    /**
-       @brief Whether this instance is 'enabled' or not.
-    */
-    bool enabled;
-
-    /**
-     * @brief Construct a DebugMessage.
-     * @param file File containing the debug message instance.
-     * @param marker Name for the particular instance (not required to be unique within the process).
-     * @note Only constructor that should be used.
-     * @note Should only be called from static member functions.
-     */
-    DebugMessage(char const *f,
-                 char const *m);
-
-    /**
-     * @brief Destroy a DebugMessage.
-     * @note Should only be called by purgePatternsAndMessages().
-     */
-    ~DebugMessage();
-
-    /**
-       @brief Print the data members of the debug message in a format
-       that Emacs can use to display the corresponding source code.
-       @param os
-    */
-    void print(std::ostream &os) const;
-
-  private:
-    // Not implemented
-    DebugMessage();
-    DebugMessage(const DebugMessage&);
-    DebugMessage& operator=(const DebugMessage&);
-  };
-
-  std::ostream &operator<<(std::ostream &os, const DebugMessage &dm);
 }
 
 #endif /* NO_DEBUG_MESSAGE_SUPPORT */
