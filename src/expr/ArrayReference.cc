@@ -154,13 +154,22 @@ namespace PLEXIL
 
   // getValueImpl explicit instantiations
   template bool ArrayReference::getValueImpl(Boolean &) const;
-  template bool ArrayReference::getValueImpl(NodeState &) const;
-  template bool ArrayReference::getValueImpl(NodeOutcome &) const;
-  template bool ArrayReference::getValueImpl(FailureType &) const;
-  template bool ArrayReference::getValueImpl(CommandHandleValue &) const;
   template bool ArrayReference::getValueImpl(Integer &) const;
   template bool ArrayReference::getValueImpl(Real &) const;
   template bool ArrayReference::getValueImpl(String &) const;
+
+#define DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(_type_) \
+  bool ArrayReference::getValue(_type_ &result) const   \
+    { checkPlanError(ALWAYS_FAIL, \
+                     "Array references not implemented for return type " \
+                     << PlexilValueType<_type_>::typeName); }
+     
+    DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(NodeState)
+    DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(NodeOutcome)
+    DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(FailureType)
+    DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(CommandHandleValue)
+
+#undef DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD
 
   bool ArrayReference::getValuePointer(String const *&ptr) const
   {

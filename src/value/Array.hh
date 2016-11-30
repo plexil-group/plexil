@@ -89,10 +89,6 @@ namespace PLEXIL
 
     // Typed accessors
     virtual bool getElement(size_t index, Boolean &result) const = 0;
-    virtual bool getElement(size_t index, NodeState &result) const = 0;
-    virtual bool getElement(size_t index, NodeOutcome &result) const = 0;
-    virtual bool getElement(size_t index, FailureType &result) const = 0;
-    virtual bool getElement(size_t index, CommandHandleValue &result) const = 0;
     virtual bool getElement(size_t index, Integer &result) const = 0;
     virtual bool getElement(size_t index, Real &result) const = 0;
     virtual bool getElement(size_t index, String &result) const = 0;

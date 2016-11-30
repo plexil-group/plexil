@@ -914,10 +914,6 @@ namespace PLEXIL
   //
   template class ArrayImpl<Boolean>;
 
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, NodeState &) const;
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, NodeOutcome &) const;
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, FailureType &) const;
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, CommandHandleValue &) const;
   template bool ArrayImpl<Boolean>::getElementImpl(size_t, Integer &) const;
   template bool ArrayImpl<Boolean>::getElementImpl(size_t, Real &) const;
   template bool ArrayImpl<Boolean>::getElementImpl(size_t, String &) const;
@@ -925,29 +921,17 @@ namespace PLEXIL
   template class ArrayImpl<Integer>;
 
   template bool ArrayImpl<Integer>::getElementImpl(size_t, Boolean &) const;
-  template bool ArrayImpl<Integer>::getElementImpl(size_t, NodeState &) const;
-  template bool ArrayImpl<Integer>::getElementImpl(size_t, NodeOutcome &) const;
-  template bool ArrayImpl<Integer>::getElementImpl(size_t, FailureType &) const;
-  template bool ArrayImpl<Integer>::getElementImpl(size_t, CommandHandleValue &) const;
   template bool ArrayImpl<Integer>::getElementImpl(size_t, String &) const;
 
   template class ArrayImpl<Real>;
 
   template bool ArrayImpl<Real>::getElementImpl(size_t, Boolean &) const;
-  template bool ArrayImpl<Real>::getElementImpl(size_t, NodeState &) const;
-  template bool ArrayImpl<Real>::getElementImpl(size_t, NodeOutcome &) const;
-  template bool ArrayImpl<Real>::getElementImpl(size_t, FailureType &) const;
-  template bool ArrayImpl<Real>::getElementImpl(size_t, CommandHandleValue &) const;
   template bool ArrayImpl<Real>::getElementImpl(size_t, Integer &) const;
   template bool ArrayImpl<Real>::getElementImpl(size_t, String &) const;
 
   template class ArrayImpl<String>;
 
   template bool ArrayImpl<String>::getElementImpl(size_t, Boolean &) const;
-  template bool ArrayImpl<String>::getElementImpl(size_t, NodeState &) const;
-  template bool ArrayImpl<String>::getElementImpl(size_t, NodeOutcome &) const;
-  template bool ArrayImpl<String>::getElementImpl(size_t, FailureType &) const;
-  template bool ArrayImpl<String>::getElementImpl(size_t, CommandHandleValue &) const;
   template bool ArrayImpl<String>::getElementImpl(size_t, Integer &) const;
   template bool ArrayImpl<String>::getElementImpl(size_t, Real &) const;
 

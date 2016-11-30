@@ -29,6 +29,7 @@
 
 #include "Assignable.hh"
 #include "NotifierImpl.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL {
@@ -73,15 +74,17 @@ namespace PLEXIL {
     { return getValueImpl(result); }
 
     DEFINE_AREF_GET_VALUE_METHOD_SHIM(Boolean)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(NodeState)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(NodeOutcome)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(FailureType)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(CommandHandleValue)
     DEFINE_AREF_GET_VALUE_METHOD_SHIM(Integer)
     DEFINE_AREF_GET_VALUE_METHOD_SHIM(Real)
     DEFINE_AREF_GET_VALUE_METHOD_SHIM(String)
 
 #undef DEFINE_AREF_GET_VALUE_METHOD_SHIM
+
+    // These issue a PlanError
+    bool getValue(NodeState &result) const;
+    bool getValue(NodeOutcome &result) const;
+    bool getValue(FailureType &result) const;
+    bool getValue(CommandHandleValue &result) const;
 
     /**
      * @brief Get a pointer to the expression's value.

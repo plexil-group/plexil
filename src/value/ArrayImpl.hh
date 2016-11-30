@@ -50,10 +50,6 @@ namespace PLEXIL
     {return static_cast<const IMPL *>(this)->getElementImpl(index, result);}
 
     DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Boolean)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(NodeState)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(NodeOutcome)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(FailureType)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(CommandHandleValue)
     DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Integer)
     DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Real)
     DEFINE_AA_GET_ELEMENT_METHOD_SHIM(String)
