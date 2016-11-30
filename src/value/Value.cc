@@ -264,43 +264,44 @@ namespace PLEXIL
     if (this == &other)
       return *this; // assigning to self, nothing to do
 
-    cleanup();
-    m_type = other.m_type;
-    m_known = other.m_known;
-    if (m_known) {
-      switch (m_type) {
-        // Unknown - do nothing
-      case UNKNOWN_TYPE:
-        break;
-
-        // Immediate data - just copy the union
-      case BOOLEAN_TYPE:
-      case INTEGER_TYPE:
-      case REAL_TYPE:
-      case NODE_STATE_TYPE:
-      case OUTCOME_TYPE:
-      case FAILURE_TYPE:
-      case COMMAND_HANDLE_TYPE:
-        m_value = other.m_value;
-        break;
-
-        // Copy the actual value
-      case STRING_TYPE:
-        m_value.stringValue = new std::string(*other.m_value.stringValue);
-        break;
-
-      case BOOLEAN_ARRAY_TYPE:
-      case INTEGER_ARRAY_TYPE:
-      case REAL_ARRAY_TYPE:
-      case STRING_ARRAY_TYPE:
-        m_value.arrayValue = other.m_value.arrayValue->clone();
-        break;
-
-      default:
-        assertTrue_2(ALWAYS_FAIL, "Value copy constructor: unknown type");
-        break;
-      }
+    if (!other.m_known) {
+      cleanup();
+      m_type = other.m_type;
+      return *this;
     }
+
+    switch (other.m_type) {
+      // Copy the original's value
+    case BOOLEAN_TYPE:
+    case INTEGER_TYPE:
+    case REAL_TYPE:
+    case NODE_STATE_TYPE:
+    case OUTCOME_TYPE:
+    case FAILURE_TYPE:
+    case COMMAND_HANDLE_TYPE:
+      cleanup();
+      m_value = other.m_value;
+      break;
+
+    case STRING_TYPE:
+      cleanupForString();
+      m_value.stringValue = new String(*other.m_value.stringValue);
+      break;
+
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      cleanupForArray();
+      m_value.arrayValue = other.m_value.arrayValue->clone();
+      break;
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "Value copy assignment: invalid or unknown type");
+      break;
+    }
+    m_known = true;
+    m_type = other.m_type;
     return *this;
   }
 
@@ -344,7 +345,7 @@ namespace PLEXIL
 
   Value &Value::operator=(std::string const &val)
   {
-    cleanup();
+    cleanupForString();
     m_value.stringValue = new std::string(val);
     m_type = STRING_TYPE;
     m_known = true;
@@ -353,7 +354,7 @@ namespace PLEXIL
 
   Value &Value::operator=(char const *val)
   {
-    cleanup();
+    cleanupForString();
     m_value.stringValue = new std::string(val);
     m_type = STRING_TYPE;
     m_known = true;
@@ -362,7 +363,7 @@ namespace PLEXIL
 
   Value &Value::operator=(BooleanArray const &val)
   {
-    cleanup();
+    cleanupForArray();
     m_value.arrayValue = val.clone();
     m_type = BOOLEAN_ARRAY_TYPE;
     m_known = true;
@@ -371,7 +372,7 @@ namespace PLEXIL
 
   Value &Value::operator=(IntegerArray const &val)
   {
-    cleanup();
+    cleanupForArray();
     m_value.arrayValue = val.clone();
     m_type = INTEGER_ARRAY_TYPE;
     m_known = true;
@@ -380,7 +381,7 @@ namespace PLEXIL
 
   Value &Value::operator=(RealArray const &val)
   {
-    cleanup();
+    cleanupForArray();
     m_value.arrayValue = val.clone();
     m_type = REAL_ARRAY_TYPE;
     m_known = true;
@@ -389,7 +390,7 @@ namespace PLEXIL
 
   Value &Value::operator=(StringArray const &val)
   {
-    cleanup();
+    cleanupForArray();
     m_value.arrayValue = val.clone();
     m_type = STRING_ARRAY_TYPE;
     m_known = true;
@@ -398,7 +399,6 @@ namespace PLEXIL
 
   void Value::setUnknown()
   {
-    m_known = false;
     cleanup();
   }
 
@@ -424,6 +424,52 @@ namespace PLEXIL
 
     default:
       break;
+    }
+    m_known = false;
+    m_type = UNKNOWN_TYPE;
+  }
+
+  void Value::cleanupForString()
+  {
+    switch (m_type) {
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      // Delete the old value
+      delete m_value.arrayValue;
+      m_value.arrayValue = NULL;
+      return;
+
+    case STRING_TYPE:
+      delete m_value.stringValue;
+      // and fall through...
+
+    default:
+      m_value.stringValue = NULL;
+      return;
+    }
+  }
+
+  void Value::cleanupForArray()
+  {
+    switch (m_type) {
+    case STRING_TYPE:
+      // Delete old value
+      delete m_value.stringValue;
+      m_value.stringValue = NULL;
+      return;
+      
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      delete m_value.arrayValue;
+      // and fall through...
+
+    default:
+      m_value.arrayValue = NULL;
+      return;
     }
   }
 

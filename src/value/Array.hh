@@ -86,25 +86,25 @@ namespace PLEXIL
     virtual void reset();
 
     // Typed accessors
-    virtual bool getElement(size_t index, bool &result) const = 0;
-    virtual bool getElement(size_t index, int32_t &result) const = 0;
-    virtual bool getElement(size_t index, double &result) const = 0;
-    virtual bool getElement(size_t index, std::string &result) const = 0;
+    virtual bool getElement(size_t index, Boolean &result) const = 0;
+    virtual bool getElement(size_t index, Integer &result) const = 0;
+    virtual bool getElement(size_t index, Real &result) const = 0;
+    virtual bool getElement(size_t index, String &result) const = 0;
 
-    virtual bool getElementPointer(size_t index, std::string const *&result) const = 0;
+    virtual bool getElementPointer(size_t index, String const *&result) const = 0;
 
-    virtual bool getMutableElementPointer(size_t index, std::string *&result) = 0;
+    virtual bool getMutableElementPointer(size_t index, String *&result) = 0;
 
-    virtual void getContentsVector(std::vector<bool> const *&result) const = 0;
-    virtual void getContentsVector(std::vector<int32_t> const *&result) const = 0;
-    virtual void getContentsVector(std::vector<double> const *&result) const = 0;
-    virtual void getContentsVector(std::vector<std::string> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<Boolean> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<Integer> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<Real> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<String> const *&result) const = 0;
 
     // Typed setters
-    virtual void setElement(size_t index, bool const &newVal) = 0;
-    virtual void setElement(size_t index, int32_t const &newVal) = 0;
-    virtual void setElement(size_t index, double const &newVal) = 0;
-    virtual void setElement(size_t index, std::string const &newVal) = 0;
+    virtual void setElement(size_t index, Boolean const &newVal) = 0;
+    virtual void setElement(size_t index, Integer const &newVal) = 0;
+    virtual void setElement(size_t index, Real const &newVal) = 0;
+    virtual void setElement(size_t index, String const &newVal) = 0;
 
     // Utility
     virtual void print(std::ostream &s) const = 0;

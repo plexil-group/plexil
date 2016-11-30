@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,14 @@ namespace PLEXIL {
    * @brief Node state enumeration.
    */
   enum NodeState {
-    INACTIVE_STATE = 0,
+    NO_NODE_STATE = 0,
+    INACTIVE_STATE,
     WAITING_STATE,
     EXECUTING_STATE,
     ITERATION_ENDED_STATE,
     FINISHED_STATE,
     FAILING_STATE,           // All but empty nodes
     FINISHING_STATE,         // Command, List/LibraryCall only
-    NO_NODE_STATE,           // Used internally in state transition logic
     NODE_STATE_MAX
   };
 
@@ -109,7 +109,7 @@ namespace PLEXIL {
 
   /**
    * @brief Get the name of this outcome.
-   * @return Pointer to one of the outcome names.
+   * @return Const reference to one of the outcome names.
    */
   extern std::string const &outcomeName(unsigned int o);
 

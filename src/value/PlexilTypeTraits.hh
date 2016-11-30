@@ -40,14 +40,19 @@ namespace PLEXIL
   {
     static const ValueType value = UNKNOWN_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = UNKNOWN_STR;
     static const bool isPlexilType = false;
   };
+
+  template <typename T>
+  char const * const PlexilValueType<T>::typeName = "UNKNOWN";
 
   template <>
   struct PlexilValueType<Boolean>
   {
     static const ValueType value = BOOLEAN_TYPE;
     static const ValueType arrayValue = BOOLEAN_ARRAY_TYPE;
+    static char const * const typeName; // = BOOLEAN_STR;
     static const bool isPlexilType = true;
   };
 
@@ -56,6 +61,7 @@ namespace PLEXIL
   {
     static const ValueType value = NODE_STATE_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = NODE_STATE_STR;
     static const bool isPlexilType = true;
   };
 
@@ -64,6 +70,7 @@ namespace PLEXIL
   {
     static const ValueType value = OUTCOME_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = NODE_OUTCOME_STR;
     static const bool isPlexilType = true;
   };
 
@@ -72,6 +79,7 @@ namespace PLEXIL
   {
     static const ValueType value = FAILURE_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = NODE_FAILURE_STR;
     static const bool isPlexilType = true;
   };
 
@@ -80,6 +88,7 @@ namespace PLEXIL
   {
     static const ValueType value = COMMAND_HANDLE_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = NODE_COMMAND_HANDLE_STR;
     static const bool isPlexilType = true;
   };
 
@@ -88,6 +97,7 @@ namespace PLEXIL
   {
     static const ValueType value = INTEGER_TYPE;
     static const ValueType arrayValue = INTEGER_ARRAY_TYPE;
+    static char const * const typeName; // = INTEGER_STR;
     static const bool isPlexilType = true;
   };
 
@@ -96,6 +106,7 @@ namespace PLEXIL
   {
     static const ValueType value = REAL_TYPE;
     static const ValueType arrayValue = REAL_ARRAY_TYPE;
+    static char const * const typeName; // = REAL_STR;
     static const bool isPlexilType = true;
   };
 
@@ -104,6 +115,7 @@ namespace PLEXIL
   {
     static const ValueType value = STRING_TYPE;
     static const ValueType arrayValue = STRING_ARRAY_TYPE;
+    static char const * const typeName; // = STRING_STR;
     static const bool isPlexilType = true;
   };
 
@@ -113,6 +125,7 @@ namespace PLEXIL
   {
     static const ValueType value = ARRAY_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = ARRAY_STR;
     static const bool isPlexilType = true;
   };
 
@@ -121,6 +134,7 @@ namespace PLEXIL
   {
     static const ValueType value = BOOLEAN_ARRAY_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = BOOLEAN_ARRAY_STR;
     static const bool isPlexilType = true;
   };
 
@@ -129,6 +143,7 @@ namespace PLEXIL
   {
     static const ValueType value = INTEGER_ARRAY_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = INTEGER_ARRAY_STR;
     static const bool isPlexilType = true;
   };
 
@@ -137,6 +152,7 @@ namespace PLEXIL
   {
     static const ValueType value = REAL_ARRAY_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = REAL_ARRAY_STR;
     static const bool isPlexilType = true;
   };
 
@@ -145,6 +161,7 @@ namespace PLEXIL
   {
     static const ValueType value = STRING_ARRAY_TYPE;
     static const ValueType arrayValue = UNKNOWN_TYPE;
+    static char const * const typeName; // = STRING_ARRAY_STR;
     static const bool isPlexilType = true;
   };
 

@@ -45,67 +45,58 @@ namespace PLEXIL
     {
     }
 
-    bool getElement(size_t index, bool &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
+#define DEFINE_AA_GET_ELEMENT_METHOD_SHIM(_type) \
+    bool getElement(size_t index, _type &result) const \
+    {return static_cast<const IMPL *>(this)->getElementImpl(index, result);}
 
-    bool getElement(size_t index, int32_t &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Boolean)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Integer)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Real)
+    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(String)
 
-    bool getElement(size_t index, double &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
+#undef DEFINE_AA_GET_ELEMENT_METHOD_SHIM
 
-    bool getElement(size_t index, std::string &result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementImpl(index, result);
-    }
-
-    bool getElementPointer(size_t index, std::string const *&result) const
+    bool getElementPointer(size_t index, String const *&result) const
     {
       return static_cast<const IMPL *>(this)->getElementPointerImpl(index, result);
     }
 
-    void setElement(size_t index, bool const &newVal)
+    void setElement(size_t index, Boolean const &newVal)
     {
       static_cast<IMPL *>(this)->setElementImpl(index, newVal);
     }
 
-    void setElement(size_t index, int32_t const &newVal)
+    void setElement(size_t index, Integer const &newVal)
     {
       static_cast<IMPL *>(this)->setElementImpl(index, newVal);
     }
 
-    void setElement(size_t index, double const &newVal)
+    void setElement(size_t index, Real const &newVal)
     {
       static_cast<IMPL *>(this)->setElementImpl(index, newVal);
     }
 
-    void setElement(size_t index, std::string const &newVal)
+    void setElement(size_t index, String const &newVal)
     {
       static_cast<IMPL *>(this)->setElementImpl(index, newVal);
     }
 
-    void getContentsVector(std::vector<bool> const *& result) const
+    void getContentsVector(std::vector<Boolean> const *& result) const
     {
       static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
     }
 
-    void getContentsVector(std::vector<int32_t> const *& result) const
+    void getContentsVector(std::vector<Integer> const *& result) const
     {
       static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
     }
 
-    void getContentsVector(std::vector<double> const *& result) const
+    void getContentsVector(std::vector<Real> const *& result) const
     {
       static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
     }
 
-    void getContentsVector(std::vector<std::string> const *& result) const
+    void getContentsVector(std::vector<String> const *& result) const
     {
       static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
     }
@@ -194,7 +185,7 @@ namespace PLEXIL
     template <typename U>
     void setElementImpl(size_t index, U const &newVal);
 
-    bool getMutableElementPointer(size_t index, std::string *&result);
+    bool getMutableElementPointer(size_t index, String *&result);
 
     void print(std::ostream &s) const;
 
