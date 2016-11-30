@@ -80,7 +80,7 @@ namespace PLEXIL
     }
   }
 
-  Value::Value(bool val)
+  Value::Value(Boolean val)
     : m_type(BOOLEAN_TYPE),
       m_known(true)
   {
@@ -105,21 +105,21 @@ namespace PLEXIL
     }
   }
       
-  Value::Value(int32_t val)
+  Value::Value(Integer val)
     : m_type(INTEGER_TYPE),
       m_known(true)
   {
     m_value.integerValue = val;
   }
 
-  Value::Value(double val)
+  Value::Value(Real val)
     : m_type(REAL_TYPE),
       m_known(true)
   {
     m_value.realValue = val;
   }
 
-  Value::Value(std::string const &val)
+  Value::Value(String const &val)
     : m_type(STRING_TYPE),
       m_known(true)
   {
@@ -196,7 +196,7 @@ namespace PLEXIL
       BooleanArray *ary = new BooleanArray(len);
       m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
-        bool temp;
+        Boolean temp;
         if (vals[i].getValue(temp))
           ary->setElement(i, temp);
         else
@@ -210,7 +210,7 @@ namespace PLEXIL
       IntegerArray *ary = new IntegerArray(len);
       m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
-        int32_t temp;
+        Integer temp;
         if (vals[i].getValue(temp))
           ary->setElement(i, temp);
         else
@@ -226,7 +226,7 @@ namespace PLEXIL
       RealArray *ary = new RealArray(len);
       m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
-        double temp;
+        Real temp;
         if (vals[i].getValue(temp))
           ary->setElement(i, temp);
         else
@@ -240,7 +240,7 @@ namespace PLEXIL
       StringArray *ary = new StringArray(len);
       m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
-        std::string const *temp;
+        String const *temp;
         if (vals[i].getValuePointer(temp))
           ary->setElement(i, *temp);
         else
@@ -305,7 +305,7 @@ namespace PLEXIL
     return *this;
   }
 
-  Value &Value::operator=(bool val)
+  Value &Value::operator=(Boolean val)
   {
     cleanup();
     m_value.booleanValue = val;
@@ -325,7 +325,7 @@ namespace PLEXIL
     return *this;
   }
 
-  Value &Value::operator=(int32_t val)
+  Value &Value::operator=(Integer val)
   {
     cleanup();
     m_value.integerValue = val;
@@ -334,7 +334,7 @@ namespace PLEXIL
     return *this;
   }
 
-  Value &Value::operator=(double val)
+  Value &Value::operator=(Real val)
   {
     cleanup();
     m_value.realValue = val;
@@ -343,7 +343,7 @@ namespace PLEXIL
     return *this;
   }
 
-  Value &Value::operator=(std::string const &val)
+  Value &Value::operator=(String const &val)
   {
     cleanupForString();
     m_value.stringValue = new std::string(val);
@@ -483,7 +483,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool Value::getValue(bool &result) const
+  bool Value::getValue(Boolean &result) const
   {
     if (!m_known)
       return false;
@@ -515,7 +515,7 @@ namespace PLEXIL
     }
   }
 
-  bool Value::getValue(int32_t &result) const
+  bool Value::getValue(Integer &result) const
   {
     if (!m_known)
       return false;
@@ -526,7 +526,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValue(double &result) const
+  bool Value::getValue(Real &result) const
   {
     if (!m_known)
       return false;
@@ -536,7 +536,7 @@ namespace PLEXIL
       return true;
 
     case INTEGER_TYPE:
-      result = (double) m_value.integerValue;
+      result = (Real) m_value.integerValue;
       return true;
 
     default:
@@ -547,7 +547,7 @@ namespace PLEXIL
     }
   }
 
-  bool Value::getValue(std::string &result) const
+  bool Value::getValue(String &result) const
   {
     if (!m_known)
       return false;
@@ -558,7 +558,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValuePointer(std::string const *&ptr) const
+  bool Value::getValuePointer(String const *&ptr) const
   {
     if (!m_known)
       return false;
@@ -645,35 +645,35 @@ namespace PLEXIL
     }
     switch (m_type) {
     case BOOLEAN_TYPE:
-      printValue<bool>(m_value.booleanValue, s);
+      printValue<Boolean>(m_value.booleanValue, s);
       break;
 
     case INTEGER_TYPE:
-      printValue<int32_t>(m_value.integerValue, s);
+      printValue<Integer>(m_value.integerValue, s);
       break;
 
     case REAL_TYPE:
-      printValue<double>(m_value.realValue, s);
+      printValue<Real>(m_value.realValue, s);
       break;
 
     case STRING_TYPE:
-      printValue<std::string>(*m_value.stringValue, s);
+      printValue<String>(*m_value.stringValue, s);
       break;
 
     case BOOLEAN_ARRAY_TYPE:
-      printValue<bool>(*dynamic_cast<BooleanArray const *>(m_value.arrayValue), s);
+      printValue<Boolean>(*dynamic_cast<BooleanArray const *>(m_value.arrayValue), s);
       break;
 
     case INTEGER_ARRAY_TYPE:
-      printValue<int32_t>(*dynamic_cast<IntegerArray const *>(m_value.arrayValue), s);
+      printValue<Integer>(*dynamic_cast<IntegerArray const *>(m_value.arrayValue), s);
       break;
 
     case REAL_ARRAY_TYPE:
-      printValue<double>(*dynamic_cast<RealArray const *>(m_value.arrayValue), s);
+      printValue<Real>(*dynamic_cast<RealArray const *>(m_value.arrayValue), s);
       break;
 
     case STRING_ARRAY_TYPE:
-      printValue<std::string>(*dynamic_cast<StringArray const *>(m_value.arrayValue), s);
+      printValue<String>(*dynamic_cast<StringArray const *>(m_value.arrayValue), s);
       break;
 
     case NODE_STATE_TYPE:
@@ -728,7 +728,7 @@ namespace PLEXIL
       else if (other.m_type == REAL_TYPE) {
         if (!m_known)
           return true;
-        return other.m_value.realValue == (double) m_value.integerValue;
+        return other.m_value.realValue == (Real) m_value.integerValue;
       }
       else
         return false; // type mismatch
@@ -742,7 +742,7 @@ namespace PLEXIL
       else if (other.m_type == INTEGER_TYPE) {
         if (!m_known)
           return true;
-        return m_value.realValue == (double) other.m_value.integerValue;
+        return m_value.realValue == (Real) other.m_value.integerValue;
       }
       else
         return false; // type mismatch
@@ -796,7 +796,7 @@ namespace PLEXIL
       }
       else if (REAL_TYPE == other.m_type) {
         if (m_known)
-          return ((double) m_value.integerValue) < other.m_value.realValue;
+          return ((Real) m_value.integerValue) < other.m_value.realValue;
         else 
           return true; // real unknown > int unknown
       }
@@ -812,7 +812,7 @@ namespace PLEXIL
       }
       else if (INTEGER_TYPE == other.m_type) {
         if (m_known)
-          return m_value.realValue < (double) other.m_value.integerValue;
+          return m_value.realValue < (Real) other.m_value.integerValue;
         else
           return false; // real unknown > int unknown
       }

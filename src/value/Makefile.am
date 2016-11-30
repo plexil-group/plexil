@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
  NodeConstants.hh PlexilTypeTraits.hh Value.hh ValueType.hh
 
 libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
- NodeConstants.cc Value.cc ValueType.cc
+ NodeConstants.cc PlexilTypeTraits.cc Value.cc ValueType.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/value-module-tests
