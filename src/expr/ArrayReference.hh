@@ -34,9 +34,6 @@
 
 namespace PLEXIL {
 
-  // Forward reference
-  class Value;
-
   class ArrayReference : public NotifierImpl
   {
   public:
@@ -68,23 +65,16 @@ namespace PLEXIL {
      * @note Unimplemented conversions will cause a link time error.
      */
 
-    // Local macro
-#define DEFINE_AREF_GET_VALUE_METHOD_SHIM(_type_)	\
-    bool getValue(_type_ &result) const			\
-    { return getValueImpl(result); }
-
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(Boolean)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(Integer)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(Real)
-    DEFINE_AREF_GET_VALUE_METHOD_SHIM(String)
-
-#undef DEFINE_AREF_GET_VALUE_METHOD_SHIM
+    virtual bool getValue(Boolean &result) const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
+    virtual bool getValue(String &result) const;
 
     // These issue a PlanError
-    bool getValue(NodeState &result) const;
-    bool getValue(NodeOutcome &result) const;
-    bool getValue(FailureType &result) const;
-    bool getValue(CommandHandleValue &result) const;
+    virtual bool getValue(NodeState &result) const;
+    virtual bool getValue(NodeOutcome &result) const;
+    virtual bool getValue(FailureType &result) const;
+    virtual bool getValue(CommandHandleValue &result) const;
 
     /**
      * @brief Get a pointer to the expression's value.
@@ -93,17 +83,11 @@ namespace PLEXIL {
      */
     virtual bool getValuePointer(String const *&ptr) const;
 
-    // Local macro
-#define DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(_type_) \
-    bool getValuePointer(_type_ const *&ptr) const \
-    { return getValuePointerImpl(ptr); }
-
-    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(Array)
-    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(BooleanArray)
-    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(IntegerArray)
-    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(RealArray)
-    DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM(StringArray)
-#undef DEFINE_AREF_GET_VALUE_PTR_METHOD_SHIM
+    virtual bool getValuePointer(Array const *&ptr) const;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
     Value toValue() const;
 
@@ -137,13 +121,6 @@ namespace PLEXIL {
     // Internal function
     bool selfCheck(Array const *&valuePtr,
                    size_t &idx) const;
-
-    // Internal template functions
-    template <typename R>
-    bool getValueImpl(R &) const;
-
-    template <typename T>
-    bool getValuePointerImpl(T const *&) const;
   };
 
   /**
@@ -182,41 +159,13 @@ namespace PLEXIL {
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    template <typename V>
-    void setValueImpl(V const &);
-
-    template <typename V>
-    void setValueImpl(ArrayImpl<V> const &);
-
-    // Instantiations of above
-    virtual void setValue(Boolean const &val)
-    { setValueImpl(val); }
-    virtual void setValue(Real const &val)
-    { setValueImpl(val); }
-    virtual void setValue(String const &val)
-    { setValueImpl(val); }
-
-    virtual void setValue(BooleanArray const &val)
-    { setValueImpl(val); }
-    virtual void setValue(IntegerArray const &val)
-    { setValueImpl(val); }
-    virtual void setValue(RealArray const &val)
-    { setValueImpl(val); }
-    virtual void setValue(StringArray const &val)
-    { setValueImpl(val); }
-
-    // Specialized
+    virtual void setValue(Boolean const &val);
     virtual void setValue(Integer const &);
-    virtual void setValue(char const *val);
-
-    // Not implemented (will assert)
-    virtual void setValue(NodeState const &);
-    virtual void setValue(NodeOutcome const &);
-    virtual void setValue(FailureType const &);
-    virtual void setValue(CommandHandleValue const &);
+    virtual void setValue(Real const &val);
+    virtual void setValue(String const &val);
 
     /**
-     * @brief Set the value for this expression from another GetValue object.
+     * @brief Set the value for this expression from another Expression.
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
@@ -232,19 +181,15 @@ namespace PLEXIL {
     using Assignable::setValue;
 
     /**
-     * @brief Retrieve a writable ponter to the value.
+     * @brief Retrieve a writable pointer to the value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
      * @note Default method returns false and reports a type error.
      */
-    bool getMutableValuePointer(std::string *& ptr);
+    bool getMutableValuePointer(String *& ptr);
 
-    // These will throw an exception
+    // Throws an exception
     virtual bool getMutableValuePointer(Array *& ptr) override;
-    bool getMutableValuePointer(BooleanArray *& ptr);
-    bool getMutableValuePointer(IntegerArray *& ptr);
-    bool getMutableValuePointer(RealArray *& ptr);
-    bool getMutableValuePointer(StringArray *& ptr);
 
     virtual void saveCurrentValue() override;
     virtual void restoreSavedValue() override;
@@ -259,7 +204,7 @@ namespace PLEXIL {
   protected:
 
     // Wrap NotifierImpl method
-    void publishChange(Expression const *src);
+    void publishChange(Expression const *src); // N.B.: NOT VIRTUAL!!!
 
   private:
     // Default, copy, assignment disallowed

@@ -142,21 +142,24 @@ namespace PLEXIL
     return kv[idx];
   }
 
-  template <typename R>
-  bool ArrayReference::getValueImpl(R &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
+  // Local macro
+#define DEFINE_AREF_GET_VALUE_METHOD(_type_) \
+  bool ArrayReference::getValue(_type_ &result) const \
+  { \
+    Array const *ary; \
+    size_t idx; \
+    if (!selfCheck(ary, idx)) \
+      return false; \
+    return ary->getElement(idx, result); \
   }
 
-  // getValueImpl explicit instantiations
-  template bool ArrayReference::getValueImpl(Boolean &) const;
-  template bool ArrayReference::getValueImpl(Integer &) const;
-  template bool ArrayReference::getValueImpl(Real &) const;
-  template bool ArrayReference::getValueImpl(String &) const;
+  // getValue explicit instantiations
+  DEFINE_AREF_GET_VALUE_METHOD(Boolean)
+  DEFINE_AREF_GET_VALUE_METHOD(Integer)
+  DEFINE_AREF_GET_VALUE_METHOD(Real)
+  DEFINE_AREF_GET_VALUE_METHOD(String)
+
+#undef DEFINE_AREF_GET_VALUE_METHOD
 
 #define DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(_type_) \
   bool ArrayReference::getValue(_type_ &result) const   \
@@ -181,14 +184,22 @@ namespace PLEXIL
   }
 
   // Error for arrays and any other types we can think of.
-  template <typename T>
-  bool ArrayReference::getValuePointerImpl(T const *&ptr) const
-  {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "getValuePointer: trying to get a " << PlexilValueType<T>::typeName
-                  << " pointer value from an ArrayReference");
-    return false;
+#define DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(_type_) \
+  bool ArrayReference::getValuePointer(_type_ const *&ptr) const \
+  { \
+    assertTrueMsg(ALWAYS_FAIL, \
+                  "getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
+                  << " pointer value from an ArrayReference"); \
+    return false; \
   }
+
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(Array)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(BooleanArray)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(IntegerArray)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(RealArray)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(StringArray)
+
+#undef DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD
 
   Value ArrayReference::toValue() const
   {
@@ -272,37 +283,28 @@ namespace PLEXIL
     return true;
   }
 
-  template <typename V>
-  void MutableArrayReference::setValueImpl(V const &val)
-  {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    V oldValue;
-    bool known = ary->getElement(idx, oldValue); // error here if wrong type
-    bool changed = (!known || (val != oldValue));
-    if (changed) {
-      ary->setElement(idx, val);
-      publishChange(this);
-    }
-  }
-
-  template <typename V>
-  void MutableArrayReference::setValueImpl(ArrayImpl<V> const & /* value */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: array types not implemented");
+#define DEFINE_MAREF_SET_VALUE_METHOD(_type_) \
+  void MutableArrayReference::setValue(_type_ const &val) \
+  { \
+    Array *ary; \
+    size_t idx; \
+    if (!mutableSelfCheck(ary, idx)) \
+      return; \
+    _type_ oldValue; \
+    bool known = ary->getElement(idx, oldValue); /* error here if wrong type */ \
+    bool changed = (!known || (val != oldValue)); \
+    if (changed) { \
+      ary->setElement(idx, val); \
+      publishChange(this); \
+    } \
   }
 
   // Instantiations of the above
-  template void MutableArrayReference::setValueImpl(Boolean const &);
-  template void MutableArrayReference::setValueImpl(Real const &);
-  template void MutableArrayReference::setValueImpl(String const &);
+  DEFINE_MAREF_SET_VALUE_METHOD(Boolean)
+  DEFINE_MAREF_SET_VALUE_METHOD(Real)
+  DEFINE_MAREF_SET_VALUE_METHOD(String)
 
-  template void MutableArrayReference::setValueImpl(BooleanArray const &);
-  template void MutableArrayReference::setValueImpl(IntegerArray const &value);
-  template void MutableArrayReference::setValueImpl(RealArray const &value);
-  template void MutableArrayReference::setValueImpl(StringArray const &value);
+#undef DEFINE_MAREF_SET_VALUE_METHOD
 
   // Specialized for Integer
   void MutableArrayReference::setValue(Integer const &value)
@@ -339,31 +341,6 @@ namespace PLEXIL
     }
     if (changed)
       publishChange(this);
-  }
-
-  void MutableArrayReference::setValue(NodeState const &)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
-  }
-
-  void MutableArrayReference::setValue(NodeOutcome const &)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
-  }
-
-  void MutableArrayReference::setValue(FailureType const &)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
-  }
-
-  void MutableArrayReference::setValue(CommandHandleValue const &)
-  {
-    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: NodeState not implemented");
-  }
-
-  void MutableArrayReference::setValue(char const *value)
-  {
-    setValue(String(value));
   }
 
   void MutableArrayReference::setValue(Expression const &valex)
@@ -433,7 +410,7 @@ namespace PLEXIL
       publishChange(this);
   }
 
-  bool MutableArrayReference::getMutableValuePointer(std::string *&ptr)
+  bool MutableArrayReference::getMutableValuePointer(String *&ptr)
   {
     Array *ary;
     size_t idx;
@@ -443,30 +420,6 @@ namespace PLEXIL
   }
 
   bool MutableArrayReference::getMutableValuePointer(Array *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(BooleanArray *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(IntegerArray *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(RealArray *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(StringArray *&ptr)
   {
     check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
     return false;
