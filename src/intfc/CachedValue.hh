@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL
   {
   public:
     CachedValue() : m_timestamp(0) {}
-    CachedValue(CachedValue const &) : m_timestamp(0) {}
+    CachedValue(CachedValue const &orig) : m_timestamp(orig.m_timestamp) {}
     virtual ~CachedValue() {}
 
     unsigned int getTimestamp() const
@@ -50,41 +50,9 @@ namespace PLEXIL
     }
 
     // Delegated to derived classes.
-    virtual ValueType const valueType() const = 0;
-    virtual bool isKnown() const = 0;
     virtual CachedValue &operator=(CachedValue const &) = 0;
     virtual CachedValue *clone() const = 0;
     virtual bool operator==(CachedValue const &) const = 0;
-
-    /**
-     * @brief Retrieve the cached value.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate methods.
-     */
-
-    virtual bool getValue(bool &) const = 0;        // Boolean
-    virtual bool getValue(double &) const = 0;      // Real
-    virtual bool getValue(uint16_t &) const = 0;    // not implemented
-    virtual bool getValue(int32_t &) const = 0;     // Integer
-    virtual bool getValue(std::string &) const = 0; // String
-
-    /**
-     * @brief Retrieve a pointer to the (const) cached value.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @note The pointer is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate method.
-     * @note Default methods return an error in every case.
-     */
-    virtual bool getValuePointer(std::string const *&ptr) const = 0;
-    virtual bool getValuePointer(Array const *&ptr) const = 0; // generic
-    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0; // specific
-    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0; //
-    virtual bool getValuePointer(RealArray const *&ptr) const = 0;    //
-    virtual bool getValuePointer(StringArray const *&ptr) const = 0;  //
-
-    virtual Value toValue() const = 0;
 
     /**
      * @brief Set the state to unknown.
@@ -92,6 +60,56 @@ namespace PLEXIL
      * @return True if changed, false otherwise.
      */
     virtual bool setUnknown(unsigned int timestamp) = 0;
+    
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    virtual ValueType valueType() const = 0;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    virtual bool isKnown() const = 0;
+
+    /**
+     * @brief Get the value of this object as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const = 0;
+
+    /**
+     * @brief Retrieve the value of this object.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The value is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValue(Boolean &result) const = 0;
+    virtual bool getValue(Integer &result) const = 0;
+    virtual bool getValue(Real &result) const = 0;
+    virtual bool getValue(String &result) const = 0;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this object.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The pointer is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValuePointer(String const *&ptr) const = 0;
+
+    virtual bool getValuePointer(Array const *&ptr) const = 0;
+
+    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
+    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
+    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
 
     /**
      * @brief Update the cache entry with the given new value.
@@ -100,11 +118,11 @@ namespace PLEXIL
      * @return True if changed, false otherwise.
      * @note The caller is responsible for deleting the object pointed to upon return.
      */
-    virtual bool update(unsigned int timestamp, bool const &val) = 0;
-    virtual bool update(unsigned int timestamp, int32_t const &val) = 0;
-    virtual bool update(unsigned int timestamp, double const &val) = 0;
-    virtual bool update(unsigned int timestamp, std::string const &val) = 0;
-    virtual bool updatePtr(unsigned int timestamp, std::string const *valPtr) = 0;
+    virtual bool update(unsigned int timestamp, Boolean const &val) = 0;
+    virtual bool update(unsigned int timestamp, Integer const &val) = 0;
+    virtual bool update(unsigned int timestamp, Real const &val) = 0;
+    virtual bool update(unsigned int timestamp, String const &val) = 0;
+    virtual bool updatePtr(unsigned int timestamp, String const *valPtr) = 0;
     virtual bool updatePtr(unsigned int timestamp, BooleanArray const *valPtr) = 0;
     virtual bool updatePtr(unsigned int timestamp, IntegerArray const *valPtr) = 0;
     virtual bool updatePtr(unsigned int timestamp, RealArray const *valPtr) = 0;
