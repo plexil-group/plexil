@@ -126,10 +126,8 @@ namespace PLEXIL
 
   private:
     
-    void cleanup();
-
     // Prepare to be assigned a new value
-    void cleanupForImmediate();
+    void cleanup();
     void cleanupForString();
     void cleanupForArray();
     
