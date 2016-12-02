@@ -28,7 +28,6 @@
 #define PLEXIL_ALIAS_HH
 
 #include "Assignable.hh"
-#include "Expression.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL

@@ -39,12 +39,6 @@
 namespace PLEXIL
 {
 
-  //
-  // Forward references
-  //
-
-  class Expression;
-
   /**
    * @class NotifierImpl
    * @brief Mixin class for expressions whose value may change. Implements expression graph notification.

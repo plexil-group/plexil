@@ -147,17 +147,16 @@ namespace PLEXIL
     //
     // GetValue API
     //
-        /**
+
+    /**
      * @brief Return the value type.
      * @return A constant enumeration.
-     * @note May be overridden by derived classes.
      */
     virtual ValueType valueType() const = 0;
 
     /**
      * @brief Determine whether the value is known or unknown.
      * @return True if known, false otherwise.
-     * @note May be overridden by derived classes.
      */
     virtual bool isKnown() const = 0;
 
