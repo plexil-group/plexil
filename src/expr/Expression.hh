@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,23 +27,11 @@
 #ifndef PLEXIL_EXPRESSION_HH
 #define PLEXIL_EXPRESSION_HH
 
-#include "Array.hh"
+#include "ValueType.hh"
 #include "ExpressionListener.hh" 
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
 
 //
 // Virtual base classes for the expression system
-//
-
-//
-// TODO:
-//  - Move dependency on ExpressionListener somewhere else
-//    Some expressions (e.g. Constant) don't need it.
 //
 
 namespace PLEXIL
@@ -62,11 +50,15 @@ namespace PLEXIL
    */
   class Expression : public ExpressionListener
   {
-  public:
+  protected:
     Expression();
+
+  private:
+    // Unimplemented
     Expression(Expression const &);
     Expression &operator=(Expression const &);
 
+  public:
     virtual ~Expression();
 
     //
@@ -85,18 +77,6 @@ namespace PLEXIL
      * @return A constant character string.
      */
     virtual char const *exprName() const = 0;
-
-    /**
-     * @brief Return the value type.
-     * @return A constant enumeration.
-     */
-    virtual const ValueType valueType() const = 0;
-
-    /**
-     * @brief Query whether the expression's value is known.
-     * @return True if known, false otherwise.
-     */
-    virtual bool isKnown() const = 0;
 
     /**
      * @brief Query whether this expression is assignable.
@@ -146,12 +126,6 @@ namespace PLEXIL
      */
     virtual void printSubexpressions(std::ostream &s) const;
 
-	/**
-	 * @brief Print the expression's value to the given stream.
-	 * @param s The output stream.
-	 */
-    virtual void printValue(std::ostream& s) const = 0;
-
     //
     // Convenience methods which may be overridden or extended
     //
@@ -160,13 +134,86 @@ namespace PLEXIL
      * @brief Get a string representation of this Expression.
      * @return The string representation.
      */
-	virtual std::string toString() const;
+    virtual std::string toString() const;
 
     /**
      * @brief Get a string representation of the value of this Expression.
      * @return The string representation.
      */
     virtual std::string valueString() const;
+
+    //
+    // GetValue API
+    //
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     */
+    virtual ValueType valueType() const = 0;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     */
+    virtual bool isKnown() const = 0;
+
+    /**
+     * @brief Get the value of this object as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const = 0;
+
+    /**
+     * @brief Print the object's value to the given stream.
+     * @param s The output stream.
+     */
+    virtual void printValue(std::ostream& s) const = 0;
+
+    //
+    // The base class has to explicitly name all the potential types;
+    // we can't use a template to declare pure virtual member functions
+    // with a default method.
+    //
+
+    // 
+    // If the above weren't bad enough, to maintain type consistency,
+    // we have to use an out parameter instead of a return value for getValue()
+    // because a return value might be implicitly promoted to the wrong type.
+    // C++ sucks at polymorphism.
+    //
+
+    /**
+     * @brief Retrieve the value of this object.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The value is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValue(Boolean &result) const = 0;
+    virtual bool getValue(uint16_t &result) const = 0;
+    virtual bool getValue(Integer &result) const = 0;
+    virtual bool getValue(Real &result) const = 0;
+
+    virtual bool getValue(String &result) const = 0;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this object.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The pointer is not copied if the return value is false.
+     * @note Derived classes should implement only the appropriate methods.
+     */
+
+    virtual bool getValuePointer(String const *&ptr) const = 0;
+
+    virtual bool getValuePointer(Array const *&ptr) const = 0;
+
+    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
+    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
+    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
 
     //
     // Expression notification graph API
@@ -203,65 +250,17 @@ namespace PLEXIL
      */
     virtual void removeListener(ExpressionListener *ptr) = 0;
 
+    //
+    // ExpressionListener API
+    //
+
     /**
      * @brief Notify this expression that a subexpression's value has changed.
-     * @note The default method does nothing.
-     * @note Overrides method of same name on ExpressionListener.
+     * @param src The Expression which initiated the change.
+     * @note This default method does nothing.
      */
     virtual void notifyChanged(Expression const *src);
 
-    //
-    // Value API
-    //
-
-    //
-    // The base class has to explicitly name all the potential types;
-    // we can't use a template to declare pure virtual member functions
-    // with a default method.
-    //
-
-    // 
-    // If the above weren't bad enough, to maintain type consistency,
-    // we have to use an out parameter instead of a return value for getValue()
-    // because a return value might be implicitly promoted to the wrong type.
-    // C++ sucks at polymorphism.
-    //
-
-    /**
-     * @brief Retrieve the value of this Expression.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate methods.
-     * @note Default methods return an error in every case.
-     */
-
-    virtual bool getValue(bool &) const;        // Boolean
-    virtual bool getValue(double &) const;      // Real
-    virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(int32_t &) const;     // Integer
-    virtual bool getValue(std::string &) const; // String
-
-    /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The pointer is not copied if the return value is false.
-     * @note Derived classes should implement only the appropriate method.
-     * @note Default methods return an error in every case.
-     */
-    virtual bool getValuePointer(std::string const *&ptr) const;
-    virtual bool getValuePointer(Array const *&ptr) const; // generic
-    virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
-    virtual bool getValuePointer(IntegerArray const *&ptr) const; //
-    virtual bool getValuePointer(RealArray const *&ptr) const;    //
-    virtual bool getValuePointer(StringArray const *&ptr) const;  //
-
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
-    virtual Value toValue() const = 0;
   };
 
   // Stream-style print operator

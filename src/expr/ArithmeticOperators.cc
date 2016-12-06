@@ -25,9 +25,8 @@
 */
 
 #include "ArithmeticOperators.hh"
+#include "Function.hh"
 // #include "PlanError.hh" // included by OperatorImpl.hh
-#include "Expression.hh"
-#include "ExprVec.hh"
 
 #include <cmath>
 #include <limits>
@@ -79,7 +78,7 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Addition<NUM>::calc(NUM &result,
-                           ExprVec const &args) const
+                           Function const &args) const
   {
     NUM workingResult = 0;
     for (size_t i = 0; i < args.size(); ++i) {
@@ -139,7 +138,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Subtraction<NUM>::calc(NUM &result,
-                              ExprVec const &args) const
+                              Function const &args) const
   {
     checkPlanError(args.size() > 0,
                    this->getName() << " requires at least one operand");
@@ -203,7 +202,7 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Multiplication<NUM>::calc(NUM &result,
-                                 ExprVec const &args) const
+                                 Function const &args) const
   {
     NUM workingResult, temp;
     if (!args[0]->getValue(workingResult))
@@ -273,9 +272,9 @@ namespace PLEXIL
 
   // Integer implementation
   template <>
-  bool Modulo<int32_t>::calc(int32_t &result, Expression const *arg0, Expression const *arg1) const
+  bool Modulo<Integer>::calc(Integer &result, Expression const *arg0, Expression const *arg1) const
   {
-    int32_t temp0, temp1;
+    Integer temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1))
         || temp1 == 0)
       return false;
@@ -285,9 +284,9 @@ namespace PLEXIL
 
   // Real implementation
   template <>
-  bool Modulo<double>::calc(double &result, Expression const *arg0, Expression const *arg1) const
+  bool Modulo<Real>::calc(Real &result, Expression const *arg0, Expression const *arg1) const
   {
-    double temp0, temp1;
+    Real temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1))
         || temp1 == 0)
       return false;
@@ -334,7 +333,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Minimum<NUM>::calc(NUM &result,
-                          ExprVec const &args) const
+                          Function const &args) const
   {
     NUM workingResult;
     if (!args[0]->getValue(workingResult))
@@ -389,7 +388,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Maximum<NUM>::calc(NUM &result,
-                          ExprVec const &args) const
+                          Function const &args) const
   {
     NUM workingResult;
     if (!args[0]->getValue(workingResult))
@@ -461,17 +460,17 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool SquareRoot<NUM>::checkArgTypes(ExprVec const *ev) const
+  bool SquareRoot<NUM>::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isNumericType(ty) || ty == UNKNOWN_TYPE;
   }
 
   template <>
-  bool SquareRoot<double>::calc(double &result,
+  bool SquareRoot<Real>::calc(Real &result,
                                 Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp)
         || temp < 0) // imaginary result
       return false;
@@ -480,21 +479,21 @@ namespace PLEXIL
   }
 
   //
-  // Helper function for double -> int conversions
+  // Helper function for Real -> int conversions
   // Returns true if conversion successful,
   // false if x is out of range or not an integer.
   //
-  static bool doubleToInt(double x, int32_t &result)
+  static bool RealToInt(Real x, Integer &result)
   {
-    double tempInt;
+    Real tempInt;
     x = modf(x, &tempInt);
     // TODO: allow fraction to be +/- epsilon
     if (x != 0)
       return false; // not an integer
-    if (tempInt < std::numeric_limits<int32_t>::min()
-        || tempInt > std::numeric_limits<int32_t>::max())
+    if (tempInt < std::numeric_limits<Integer>::min()
+        || tempInt > std::numeric_limits<Integer>::max())
       return false; // out of range
-    result = (int32_t) tempInt;
+    result = (Integer) tempInt;
     return true;
   }
 
@@ -520,10 +519,10 @@ namespace PLEXIL
   }
 
   template <>
-  bool Ceiling<double>::calc(double &result,
+  bool Ceiling<Real>::calc(Real &result,
                              Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
     result = ceil(temp);
@@ -531,13 +530,13 @@ namespace PLEXIL
   }
 
   template <>
-  bool Ceiling<int32_t>::calc(int32_t &result,
+  bool Ceiling<Integer>::calc(Integer &result,
                               Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
-    return doubleToInt(ceil(temp), result);
+    return RealToInt(ceil(temp), result);
   }
 
   template <typename NUM>
@@ -558,10 +557,10 @@ namespace PLEXIL
   }
 
   template <>
-  bool Floor<double>::calc(double &result,
+  bool Floor<Real>::calc(Real &result,
                            Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
     result = floor(temp);
@@ -569,13 +568,13 @@ namespace PLEXIL
   }
 
   template <>
-  bool Floor<int32_t>::calc(int32_t &result,
+  bool Floor<Integer>::calc(Integer &result,
                             Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
-    return doubleToInt(floor(temp), result);
+    return RealToInt(floor(temp), result);
   }
 
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
@@ -599,10 +598,10 @@ namespace PLEXIL
   }
 
   template <>
-  bool Round<double>::calc(double &result,
+  bool Round<Real>::calc(Real &result,
                            Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
     result = round(temp);
@@ -610,13 +609,13 @@ namespace PLEXIL
   }
 
   template <>
-  bool Round<int32_t>::calc(int32_t &result,
+  bool Round<Integer>::calc(Integer &result,
                             Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
-    return doubleToInt(round(temp), result);
+    return RealToInt(round(temp), result);
   }
 
   template <typename NUM>
@@ -637,10 +636,10 @@ namespace PLEXIL
   }
 
   template <>
-  bool Truncate<double>::calc(double &result,
+  bool Truncate<Real>::calc(Real &result,
                               Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
     result = trunc(temp);
@@ -648,13 +647,13 @@ namespace PLEXIL
   }
 
   template <>
-  bool Truncate<int32_t>::calc(int32_t &result,
+  bool Truncate<Integer>::calc(Integer &result,
                                Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false;
-    return doubleToInt(trunc(temp), result);
+    return RealToInt(trunc(temp), result);
   }
 #endif // !defined(__VXWORKS__)
 
@@ -663,7 +662,7 @@ namespace PLEXIL
   //
 
   RealToInteger::RealToInteger()
-    : OperatorImpl<int32_t>("REAL_TO_INT")
+    : OperatorImpl<Integer>("REAL_TO_INT")
   {
   }
 
@@ -676,53 +675,53 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool RealToInteger::checkArgTypes(ExprVec const *ev) const
+  bool RealToInteger::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return isNumericType(ty) || ty == UNKNOWN_TYPE;
   }
 
-  bool RealToInteger::calc(int32_t & result,
+  bool RealToInteger::calc(Integer & result,
                            Expression const *arg) const
   {
-    double temp;
+    Real temp;
     if (!arg->getValue(temp))
       return false; // unknown/invalid
-    return doubleToInt(temp, result);
+    return RealToInt(temp, result);
   }
 
 
   //
   // Explicit instantiations
   //
-  template class Addition<double>;
-  template class Addition<int32_t>;
-  template class Subtraction<double>;
-  template class Subtraction<int32_t>;
-  template class Multiplication<double>;
-  template class Multiplication<int32_t>;
-  template class Division<double>;
-  template class Division<int32_t>;
-  template class Modulo<int32_t>;
-  template class Modulo<double>;
-  template class Minimum<double>;
-  template class Minimum<int32_t>;
-  template class Maximum<double>;
-  template class Maximum<int32_t>;
-  template class AbsoluteValue<double>;
-  template class AbsoluteValue<int32_t>;
+  template class Addition<Real>;
+  template class Addition<Integer>;
+  template class Subtraction<Real>;
+  template class Subtraction<Integer>;
+  template class Multiplication<Real>;
+  template class Multiplication<Integer>;
+  template class Division<Real>;
+  template class Division<Integer>;
+  template class Modulo<Integer>;
+  template class Modulo<Real>;
+  template class Minimum<Real>;
+  template class Minimum<Integer>;
+  template class Maximum<Real>;
+  template class Maximum<Integer>;
+  template class AbsoluteValue<Real>;
+  template class AbsoluteValue<Integer>;
   // Only implemented for floating point types
-  template class SquareRoot<double>;
-  template class Ceiling<double>;
-  template class Ceiling<int32_t>;
-  template class Floor<double>;
-  template class Floor<int32_t>;
+  template class SquareRoot<Real>;
+  template class Ceiling<Real>;
+  template class Ceiling<Integer>;
+  template class Floor<Real>;
+  template class Floor<Integer>;
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
 #if !defined(__VXWORKS__)
-  template class Round<double>;
-  template class Round<int32_t>;
-  template class Truncate<double>;
-  template class Truncate<int32_t>;
+  template class Round<Real>;
+  template class Round<Integer>;
+  template class Truncate<Real>;
+  template class Truncate<Integer>;
 #endif // !defined(__VXWORKS__)
 
 } // namespace PLEXIL

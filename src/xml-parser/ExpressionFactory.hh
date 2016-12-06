@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ namespace pugi
 namespace PLEXIL
 {
   // Forward declarations
-  class Assignable;
   class NodeConnector;
 
   /**
@@ -96,7 +95,7 @@ namespace PLEXIL
     throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
-  extern Assignable *createAssignable(pugi::xml_node const expr,
+  extern Expression *createAssignable(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);

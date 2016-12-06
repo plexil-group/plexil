@@ -27,11 +27,11 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
-#include "NotifierImpl.hh"
-
 namespace PLEXIL {
   
   // Forward declarations
+  class Array;
+  class Expression;
   class NodeConnector;
   class Value;
 
@@ -41,30 +41,13 @@ namespace PLEXIL {
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    * @note This class has no state of its own.
    */
-  class Assignable : public virtual Expression
+  class Assignable
   {
+  protected:
+    Assignable();
+
   public:
-
-    /**
-     * @brief Destructor.
-     */
     virtual ~Assignable();
-
-    /**
-     * @brief Query whether this expression is assignable.
-     * @return True if assignable, false otherwise.
-     * @note This method returns true.
-     * @note Any object which returns true must be derived from Assignable.
-     */
-    virtual bool isAssignable() const;
-
-    /**
-     * @brief Get a pointer to this expression as an Assignable instance.
-     * @return The pointer. NULL if not an instance of Assignable.
-     * @note Only objects derived from Assignable should return a pointer.
-     */
-    virtual Assignable *asAssignable();
-    virtual Assignable const *asAssignable() const;
 
     //
     // Core Assignable API
@@ -76,55 +59,6 @@ namespace PLEXIL {
      *        created.
      */
     virtual void reset() = 0;
-
-    /**
-     * @brief Set the current value of this variable to "unknown".
-     * @note May cause change notifications to occur.
-     */
-    virtual void setUnknown() = 0;
-
-    /**
-     * @brief Set the value for this expression.
-     * @param val The new value for this expression.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(double const &val) = 0;
-    virtual void setValue(int32_t const &val) = 0;
-    virtual void setValue(uint16_t const &val) = 0;
-    virtual void setValue(bool const &val) = 0;
-    virtual void setValue(std::string const &val) = 0;
-    virtual void setValue(char const *val) = 0;
-
-    virtual void setValue(BooleanArray const &val) = 0;
-    virtual void setValue(IntegerArray const &val) = 0;
-    virtual void setValue(RealArray const &val) = 0;
-    virtual void setValue(StringArray const &val) = 0;
-
-    /**
-     * @brief Set the value for this expression from another expression.
-     * @param valex The expression from which to obtain the new value.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Expression const *valex) = 0;
-
-    /**
-     * @brief Set the value for this expression from a generic Value.
-     * @param val The Value.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Value const &value) = 0;
-
-    /**
-     * @brief Retrieve a writable ponter to the value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    virtual bool getMutableValuePointer(std::string *&ptr) = 0;
-    virtual bool getMutableValuePointer(Array *&ptr) = 0;
-    virtual bool getMutableValuePointer(BooleanArray *&ptr) = 0;
-    virtual bool getMutableValuePointer(IntegerArray *&ptr) = 0;
-    virtual bool getMutableValuePointer(RealArray *&ptr) = 0;
-    virtual bool getMutableValuePointer(StringArray *&ptr) = 0;
 
     /**
      * @brief Temporarily stores the previous value of this variable.
@@ -155,11 +89,11 @@ namespace PLEXIL {
 
     /**
      * @brief Get the real variable for which this may be a proxy.
-     * @return Pointer to the base variable as an Assignable.
+     * @return Pointer to the base variable.
      * @note Used by the assignment node conflict resolution logic.
      */
-    virtual Assignable *getBaseVariable() = 0;
-    virtual Assignable const *getBaseVariable() const = 0;
+    virtual Expression *getBaseVariable() = 0;
+    virtual Expression const *getBaseVariable() const = 0;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -168,6 +102,39 @@ namespace PLEXIL {
      * @note Default method throws an exception.
      */
     virtual void setInitializer(Expression *expr, bool garbage);
+
+    //
+    // SetValue API subset actually used in Exec and test suites
+    //
+
+    /**
+     * @brief Set the value of this expression to unknown.
+     */
+    virtual void setUnknown() = 0;
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value.
+     */
+    virtual void setValue(Value const &val) = 0;
+
+    /**
+     * @brief Set the value for this object from another expression.
+     * @param valex The expression from which to obtain the new value.
+     */
+    virtual void setValue(Expression const &valex) = 0;
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     */
+    virtual bool getMutableValuePointer(Array *&ptr) = 0;
+
+  private:
+    // Not implemented
+    Assignable(Assignable const &);
+    Assignable &operator=(Assignable const &);
   };
 
 } // namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #ifndef PLEXIL_LOOKUP_HH
 #define PLEXIL_LOOKUP_HH
 
-#include "ExpressionImpl.hh"
 #include "NotifierImpl.hh"
 #include "State.hh"
 
@@ -64,6 +63,13 @@ namespace PLEXIL
 
   class Lookup : public NotifierImpl
   {
+  protected:    
+    template <typename R>
+    bool getValueImpl(R &) const;
+
+    template <typename R>
+    bool getValuePointerImpl(R const *&) const;
+
   public:
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
@@ -91,7 +97,7 @@ namespace PLEXIL
     // Value access
     //
 
-    const ValueType valueType() const;
+    ValueType valueType() const;
 
     // Delegated to the StateCacheEntry in every case
     bool isKnown() const;
@@ -103,11 +109,20 @@ namespace PLEXIL
      * @note The expression value is not copied if the return value is false.
      */
 
-    virtual bool getValue(bool &) const;        // Boolean
-    virtual bool getValue(double &) const;      // Real
-    virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(int32_t &) const;     // Integer
-    virtual bool getValue(std::string &) const; // String
+    // Local macro
+#define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
+    virtual bool getValue(_rtype_ &result) const \
+    { return getValueImpl(result); }
+
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Boolean)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Real)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(String)
+
+#undef DEFINE_LOOKUP_GET_VALUE_METHOD
+
+    // Type error
+    virtual bool getValue(uint16_t &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -115,12 +130,20 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      * @note The pointer is not copied if the return value is false.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const;
-    virtual bool getValuePointer(Array const *&ptr) const; // generic
-    virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
-    virtual bool getValuePointer(IntegerArray const *&ptr) const; //
-    virtual bool getValuePointer(RealArray const *&ptr) const;    //
-    virtual bool getValuePointer(StringArray const *&ptr) const;  //
+
+    // Local macro
+#define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
+    virtual bool getValuePointer(_rtype_ const *&ptr) const \
+    { return getValuePointerImpl(ptr); }
+
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
+    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
+
+#undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
@@ -144,8 +167,8 @@ namespace PLEXIL
      * @return True if this lookup has active thresholds, false otherwise.
      * @note The base class method always returns false.
      */
-    virtual bool getThresholds(int32_t &high, int32_t &low);
-    virtual bool getThresholds(double &high, double &low);
+    virtual bool getThresholds(Integer &high, Integer &low);
+    virtual bool getThresholds(Real &high, Real &low);
 
     // Utility
 
@@ -177,6 +200,12 @@ namespace PLEXIL
     bool m_stateIsConstant; // allows early caching of state value
     bool m_stateNameIsGarbage;
     bool m_isRegistered;
+
+  private:
+    // Unimplemented
+    Lookup();
+    Lookup(Lookup const &);
+    Lookup &operator=(Lookup const &);
   };
 
   class LookupOnChange : public Lookup
@@ -199,8 +228,8 @@ namespace PLEXIL
     void handleChange(Expression const *exp);
     void valueChanged();
 
-    bool getThresholds(int32_t &high, int32_t &low);
-    bool getThresholds(double &high, double &low);
+    bool getThresholds(Integer &high, Integer &low);
+    bool getThresholds(Real &high, Real &low);
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -209,8 +238,15 @@ namespace PLEXIL
      * @note The expression value is not copied if the return value is false.
      */
 
-    bool getValue(int32_t &) const;     // Integer
-    bool getValue(double &) const;      // Real
+    // Local macro
+#define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
+    virtual bool getValue(_rtype_ &result) const \
+    { return getValueImpl(result); }
+
+    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
+
+#undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
@@ -232,6 +268,9 @@ namespace PLEXIL
 
     // Internal helper
     bool updateInternal(bool valueChanged);
+
+    template <typename R>
+    bool getValueImpl(R &) const;
 
     // Unique member data
     ThresholdCache *m_thresholds;

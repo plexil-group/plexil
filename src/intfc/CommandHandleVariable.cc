@@ -40,7 +40,6 @@ namespace PLEXIL
 
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
     : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
     m_command(cmd),
     m_name(NULL)
   {

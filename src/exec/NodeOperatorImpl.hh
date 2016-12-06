@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,22 +46,27 @@ namespace PLEXIL
   public:
     virtual ~NodeOperatorShim() {}
 
-    inline bool operator()(bool &result, Node const *node) const
+    inline bool operator()(Boolean &result, Node const *node) const
     {
       return static_cast<IMPL const *>(this)->calc(result, node);
     }
 
-    inline bool operator()(int32_t &result, Node const *node) const
+    inline bool operator()(uint16_t &result, Node const *node) const
     {
       return static_cast<IMPL const *>(this)->calc(result, node);
     }
 
-    inline bool operator()(double &result, Node const *node) const
+    inline bool operator()(Integer &result, Node const *node) const
     {
       return static_cast<IMPL const *>(this)->calc(result, node);
     }
 
-    inline bool operator()(std::string &result, Node const *node) const
+    inline bool operator()(Real &result, Node const *node) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, node);
+    }
+
+    inline bool operator()(String &result, Node const *node) const
     {
       return static_cast<IMPL const *>(this)->calc(result, node);
     }
@@ -140,7 +145,7 @@ namespace PLEXIL
   // *** Must be declared here for OS X 10.9 ***
   template <>
   template <>
-  bool NodeOperatorImpl<int32_t>::calc(double &result, Node const *node) const;
+  bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const;
 
   template <typename R>
   class NodeOperatorImpl<ArrayImpl<R> >

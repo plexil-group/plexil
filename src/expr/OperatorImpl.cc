@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,11 @@
 */
 
 #include "OperatorImpl.hh"
-#include "Expression.hh"
+
 #include "ArrayFwd.hh"
+#include "Expression.hh"
+#include "Function.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -89,39 +92,39 @@ namespace PLEXIL
   // Convenience methods
 
   template <typename R>
-  bool OperatorImpl<R>::calcNative(void *cache, ExprVec const &exprs) const
+  bool OperatorImpl<R>::calcNative(void *cache, Function const &f) const
   {
-    return exprs.apply(this, *(static_cast<R *>(cache)));
+    return f.getValue(*(static_cast<R *>(cache)));
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, ExprVec const &exprs) const
+  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Function const &f) const
   {
-    return exprs.apply(*(static_cast<ArrayImpl<R> *>(cache)), this);
+    return f.apply(this, *(static_cast<Array *>(cache)));
   }
 
   template <typename R>
-  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
+  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, Function const &f) const
   {
-    if (calcNative(cache, exprs))
+    if (calcNative(cache, f))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
     else
       s << "UNKNOWN";
   }
 
   template <typename R>
-  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
+  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Function const &f) const
   {
-    if (calcNative(cache, exprs))
+    if (calcNative(cache, f))
       PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
     else
       s << "UNKNOWN";
   }
 
   template <typename R>
-  Value OperatorImpl<R>::toValue(void *cache, ExprVec const &exprs) const
+  Value OperatorImpl<R>::toValue(void *cache, Function const &f) const
   {
-    bool known = calcNative(cache, exprs);
+    bool known = calcNative(cache, f);
     if (known)
       return Value(*(static_cast<R const *>(cache)));
     else
@@ -129,9 +132,9 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, ExprVec const &exprs) const
+  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, Function const &f) const
   {
-    bool known = calcNative(cache, exprs);
+    bool known = calcNative(cache, f);
     if (known)
       return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
     else
@@ -156,7 +159,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<R>::calc(R &result, ExprVec const &args) const
+  bool OperatorImpl<R>::calc(R &result, Function const &args) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for three or more arg case");
@@ -180,7 +183,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, ExprVec const &args) const
+  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Function const &args) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for three or more arg case");
@@ -213,7 +216,7 @@ namespace PLEXIL
 
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, ExprVec const &args) const
+  bool OperatorImpl<int32_t>::calc(double &result, Function const &args) const
   {
     int32_t temp;
     if (!this->calc(temp, args))
@@ -226,13 +229,13 @@ namespace PLEXIL
   // Explicit instantiations
   //
 
-  template class OperatorImpl<double>;
-  template class OperatorImpl<int32_t>;
-  // template class OperatorImpl<uint16_t>;
-  template class OperatorImpl<bool>;
-  template class OperatorImpl<std::string>;
+  template class OperatorImpl<Real>;
+  template class OperatorImpl<Integer>;
+  template class OperatorImpl<Boolean>;
+  template class OperatorImpl<String>;
 
   // later?
+  // template class OperatorImpl<uint16_t>;
   // template class OperatorImpl<BooleanArray>;
   // template class OperatorImpl<IntegerArray>;
   // template class OperatorImpl<RealArray>;

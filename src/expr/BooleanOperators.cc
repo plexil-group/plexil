@@ -25,7 +25,8 @@
 */
 
 #include "BooleanOperators.hh"
-#include "Expression.hh"
+
+#include "Function.hh"
 
 namespace PLEXIL
 {
@@ -43,7 +44,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool BooleanNot::checkArgTypes(ExprVec const *ev) const
+  bool BooleanNot::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return ty == BOOLEAN_TYPE || ty == UNKNOWN_TYPE;
@@ -72,7 +73,7 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanOr::checkArgTypes(ExprVec const *ev) const
+  bool BooleanOr::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
@@ -104,10 +105,11 @@ namespace PLEXIL
     return false;
   }
 
-  bool BooleanOr::operator()(bool &result, ExprVec const &args) const
+  bool BooleanOr::operator()(bool &result, Function const &args) const
   {
+    size_t const n = args.size();
     bool anyKnown = false;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (size_t i = 0; i < n; ++i) {
       bool temp;
       if (args[i]->getValue(temp)) {
         // Return if any arg is known and true
@@ -141,7 +143,7 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanAnd::checkArgTypes(ExprVec const *ev) const
+  bool BooleanAnd::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
@@ -174,10 +176,11 @@ namespace PLEXIL
     return false; // cannot be known
   }
 
-  bool BooleanAnd::operator()(bool &result, ExprVec const &args) const
+  bool BooleanAnd::operator()(bool &result, Function const &args) const
   {
+    size_t const n = args.size();
     bool allKnown = true;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (size_t i = 0; i < n; ++i) {
       bool temp;
       if (args[i]->getValue(temp)) {
         if (!temp) {
@@ -208,7 +211,7 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanXor::checkArgTypes(ExprVec const *ev) const
+  bool BooleanXor::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
@@ -229,10 +232,11 @@ namespace PLEXIL
     return true;
   }
 
-  bool BooleanXor::operator()(bool &result, ExprVec const &args) const
+  bool BooleanXor::operator()(bool &result, Function const &args) const
   {
+    size_t const n = args.size();
     bool temp1 = false;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (size_t i = 0; i < n; ++i) {
       bool temp2;
       // Return unknown if any arg is unknown
       if (args[i]->getValue(temp2))

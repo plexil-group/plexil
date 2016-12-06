@@ -27,7 +27,7 @@
 #ifndef PLEXIL_EXPR_VEC_HH
 #define PLEXIL_EXPR_VEC_HH
 
-#include "ArrayFwd.hh"
+#include "ValueType.hh"
 #include "ValueType.hh"
 
 #include <vector>
@@ -36,7 +36,6 @@ namespace PLEXIL
 {
   class Expression;
   class ExpressionListener;
-  class Operator;
 
   /**
    * @class ExprVec
@@ -47,14 +46,12 @@ namespace PLEXIL
   class ExprVec
   {
   public:
-    virtual ~ExprVec();
+    virtual ~ExprVec() {}
 
     virtual size_t size() const = 0;
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
     virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
-
-    virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
 
     // These are in critical path of exec inner loop, 
     // so should be optimized for each representation
@@ -67,22 +64,20 @@ namespace PLEXIL
 
     virtual void print(std::ostream &s) const = 0;
 
-    virtual bool apply(Operator const *op, bool &result) const;
-    virtual bool apply(Operator const *op, int32_t &result) const;
-    virtual bool apply(Operator const *op, double &result) const;
-    virtual bool apply(Operator const *op, std::string &result) const;
-    virtual bool apply(Operator const *op, Array &result) const;
-    virtual bool apply(Operator const *op, BooleanArray &result) const;
-    virtual bool apply(Operator const *op, IntegerArray &result) const;
-    virtual bool apply(Operator const *op, RealArray &result) const;
-    virtual bool apply(Operator const *op, StringArray &result) const;
+  protected:
+
+    // Only available to derived classes
+    ExprVec() {}
+
+  private:
+
+    // Not implemented
+    ExprVec(ExprVec const &);
+    ExprVec &operator=(ExprVec const &);
+
   };
 
   // Factory function
-  extern ExprVec *makeExprVec(std::vector<Expression *> const &exprs,
-                              std::vector<bool> const &garbage);
-
-  // Alternate form
   extern ExprVec *makeExprVec(size_t nargs);
 
 } // namespace PLEXIL

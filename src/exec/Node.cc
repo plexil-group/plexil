@@ -889,6 +889,8 @@ namespace PLEXIL {
   // Default method
   void Node::transitionToExecuting()
   {
+    activateLocalVariables();
+
     activateInvariantCondition();
     activateEndCondition();
     activatePostCondition();
@@ -1502,6 +1504,26 @@ namespace PLEXIL {
     m_conditions[abortCompleteIdx]->deactivate();
   }
 
+  void Node::activateLocalVariables()
+  {
+    if (m_localVariables) {
+      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
+           vit != m_localVariables->end();
+           ++vit)
+        (*vit)->activate();
+    }
+  }
+
+  void Node::deactivateLocalVariables()
+  {
+    if (m_localVariables) {
+      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
+           vit != m_localVariables->end();
+           ++vit)
+        (*vit)->deactivate();
+    }
+  }
+
   void Node::execute() 
   {
     checkError(m_state == EXECUTING_STATE,
@@ -1509,14 +1531,6 @@ namespace PLEXIL {
                << "\" told to handle execution, but it's in state '" <<
                getStateName() << "'");
     debugMsg("Node:execute", "Executing node " << m_nodeId);
-
-    // Activate local variables
-    if (m_localVariables) {
-      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
-           vit != m_localVariables->end();
-           ++vit)
-        (*vit)->activate();
-    }
 
     // legacy message for unit test
     debugMsg("PlexilExec:handleNeedsExecution",
@@ -1565,13 +1579,7 @@ namespace PLEXIL {
   void Node::deactivateExecutable() 
   {
     specializedDeactivateExecutable();
-
-    if (m_localVariables) {
-      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
-           vit != m_localVariables->end();
-           ++vit)
-        (*vit)->deactivate();
-    }
+    deactivateLocalVariables();
   }
 
   // Default method

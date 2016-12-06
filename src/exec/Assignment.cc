@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,8 @@
 */
 
 #include "Assignment.hh"
+
+#include "Assignable.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerBase.hh"
@@ -34,17 +36,14 @@ namespace PLEXIL
 {
 
   Assignment::Assignment(const std::string &nodeId)
-    : m_ack(),
-      m_abortComplete(),
+    : m_ack("ack"),
+      m_abortComplete("abortComplete"),
       m_rhs(NULL),
       m_dest(NULL),
       m_value(),
       m_deleteLhs(false),
       m_deleteRhs(false)
   {
-    // Make ack variable pretty
-    m_ack.setName(nodeId + " ack");
-    m_abortComplete.setName(nodeId + " abortComplete");
   }
 
   Assignment::~Assignment() 
@@ -55,7 +54,7 @@ namespace PLEXIL
       delete m_rhs;
   }
 
-  void Assignment::setVariable(Assignable *lhs, bool garbage)
+  void Assignment::setVariable(Expression *lhs, bool garbage)
   {
     m_dest = lhs;
     m_deleteLhs = garbage;
@@ -69,7 +68,7 @@ namespace PLEXIL
 
   void Assignment::fixValue() 
   {
-    m_dest->saveCurrentValue();
+    m_dest->asAssignable()->saveCurrentValue();
     m_value = m_rhs->toValue();
   }
 
@@ -91,7 +90,7 @@ namespace PLEXIL
   void Assignment::execute()
   {
     debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
-    m_dest->setValue(m_value);
+    m_dest->asAssignable()->setValue(m_value);
     m_ack.setValue(true);
     ExecListenerBase *l = g_exec->getExecListener();
     if (l)
@@ -102,11 +101,11 @@ namespace PLEXIL
   {
     debugMsg("Test:testOutput",
              "Restoring previous value of " << m_dest->toString());
-    m_dest->restoreSavedValue();
+    m_dest->asAssignable()->restoreSavedValue();
     m_abortComplete.setValue(true);
     ExecListenerBase *l = g_exec->getExecListener();
     if (l)
-      l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->getSavedValue());
+      l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->asAssignable()->getSavedValue());
   }
 
   void Assignment::reset()

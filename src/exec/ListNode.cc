@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,21 +45,21 @@ namespace PLEXIL
   // Condition operators only used by ListNode
   //
 
-  class AllFinished : public NodeOperatorImpl<bool>
+  class AllFinished : public NodeOperatorImpl<Boolean>
   {
   public:
     ~AllFinished()
     {
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished, bool);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished, Boolean);
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    bool operator()(bool &result, Node const *node) const
+    bool operator()(Boolean &result, Node const *node) const
     {
       std::vector<Node *> const &kids = node->getChildren();
       size_t total = kids.size();
@@ -78,7 +78,7 @@ namespace PLEXIL
   private:
 
     AllFinished()
-      : NodeOperatorImpl<bool>("AllChildrenFinished")
+      : NodeOperatorImpl<Boolean>("AllChildrenFinished")
     {
     }
 
@@ -87,21 +87,21 @@ namespace PLEXIL
     AllFinished &operator=(AllFinished const &);
   };
 
-  class AllWaitingOrFinished : public NodeOperatorImpl<bool>
+  class AllWaitingOrFinished : public NodeOperatorImpl<Boolean>
   {
   public:
     ~AllWaitingOrFinished()
     {
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, bool);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, Boolean);
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    bool operator()(bool &result, Node const *node) const
+    bool operator()(Boolean &result, Node const *node) const
     {
       std::vector<Node *> const &kids = node->getChildren();
       size_t total = kids.size();
@@ -224,7 +224,7 @@ namespace PLEXIL
       if (getExitCondition()) {
         if (getAncestorExitCondition()) {
           m_conditions[ancestorExitIdx] =
-            new Function(BooleanOr::instance(),
+            makeFunction(BooleanOr::instance(),
                          getExitCondition(),
                          getAncestorExitCondition(),
                          false,
@@ -240,7 +240,7 @@ namespace PLEXIL
       if (getInvariantCondition()) {
         if (getAncestorInvariantCondition()) {
           m_conditions[ancestorInvariantIdx] =
-            new Function(BooleanAnd::instance(),
+            makeFunction(BooleanAnd::instance(),
                          getInvariantCondition(),
                          getAncestorInvariantCondition(), // from parent
                          false,
@@ -257,7 +257,7 @@ namespace PLEXIL
       if (getEndCondition()) {
         if (getAncestorEndCondition()) {
           m_conditions[ancestorEndIdx] =
-            new Function(BooleanOr::instance(),
+            makeFunction(BooleanOr::instance(),
                          getEndCondition(),
                          getAncestorEndCondition(), // from parent
                          false,
@@ -434,6 +434,8 @@ namespace PLEXIL
   void ListNode::transitionToExecuting()
   {
     // From WAITING, AncestorExit, AncestorInvariant, Exit are active
+    activateLocalVariables();
+
     activateInvariantCondition();
     activateEndCondition();
 
@@ -519,19 +521,25 @@ namespace PLEXIL
   void ListNode::transitionFromExecuting()
   {
     deactivateEndCondition();
-
-    if (m_nextState == FAILING_STATE) {
+    switch (m_nextState) {
+      
+    case FAILING_STATE:
       deactivateAncestorExitInvariantConditions(); 
       deactivateExitCondition();
       deactivateInvariantCondition();
-    }
-    else 
-      checkError(m_nextState == FINISHING_STATE,
-                 "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
+      // fall through
 
-    // Both successor states will need this
-    activateActionCompleteCondition();
+    case FINISHING_STATE:
+      // Both successor states will need this
+      activateActionCompleteCondition();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
+    }
   }
 
   //
@@ -637,7 +645,9 @@ namespace PLEXIL
     deactivateInvariantCondition();
     deactivatePostCondition();
 
-    if (m_nextState == ITERATION_ENDED_STATE) {
+    switch (m_nextState) {
+
+    case ITERATION_ENDED_STATE:
       // N.B. These are conditions for the children.
       if (m_conditions[ancestorExitIdx])
         m_conditions[ancestorExitIdx]->deactivate();
@@ -649,14 +659,17 @@ namespace PLEXIL
       deactivateActionCompleteCondition();
       deactivateExecutable();
       activateAncestorEndCondition();
-    }
-    else if (m_nextState == FAILING_STATE) {
+      break;
+
+    case FAILING_STATE:
       deactivateAncestorExitInvariantConditions();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition List node from FINISHING to invalid state "
+                    << nodeStateName(m_nextState));
     }
-    else 
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition List node from FINISHING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -727,14 +740,23 @@ namespace PLEXIL
     deactivateActionCompleteCondition();
     deactivateExecutable();
 
-    if (m_nextState == ITERATION_ENDED_STATE) {
+    switch (m_nextState) {
+
+    case ITERATION_ENDED_STATE:
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
+      break;
+
+    case FINISHED_STATE:
+      // nothing to do
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else 
-      checkError(m_nextState == FINISHED_STATE,
-                 "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
 

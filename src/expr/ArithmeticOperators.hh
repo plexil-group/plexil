@@ -41,7 +41,7 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
-    bool calc(NUM &result, ExprVec const &args) const;
+    bool calc(NUM &result, Function const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Addition<NUM>, NUM);
 
   private:
@@ -58,7 +58,7 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
-    bool calc(NUM &result, ExprVec const &args) const;
+    bool calc(NUM &result, Function const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Subtraction<NUM>, NUM);
 
   private:
@@ -75,7 +75,7 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
-    bool calc(NUM &result, ExprVec const &args) const;
+    bool calc(NUM &result, Function const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Multiplication<NUM>, NUM);
 
   private:
@@ -122,7 +122,7 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
-    bool calc(NUM &result, ExprVec const &args) const;
+    bool calc(NUM &result, Function const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Minimum<NUM>, NUM);
 
   private:
@@ -139,7 +139,7 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
-    bool calc(NUM &result, ExprVec const &args) const;
+    bool calc(NUM &result, Function const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Maximum<NUM>, NUM);
 
   private:
@@ -174,7 +174,7 @@ namespace PLEXIL
     SquareRoot();
     ~SquareRoot();
     bool checkArgCount(size_t count) const;
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
     bool calc(NUM &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(SquareRoot<NUM>, NUM);
 
@@ -251,15 +251,15 @@ namespace PLEXIL
   };
 #endif // !defined(__VXWORKS__)
 
-  class RealToInteger : public OperatorImpl<int32_t>
+  class RealToInteger : public OperatorImpl<Integer>
   {
   public:
     RealToInteger();
     ~RealToInteger();
     bool checkArgCount(size_t count) const;
-    bool checkArgTypes(ExprVec const *ev) const;
-    bool calc(int32_t &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, int32_t);
+    bool checkArgTypes(Function const *ev) const;
+    bool calc(Integer &result, Expression const *arg) const;
+    DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, Integer);
 
   private:
     RealToInteger(const RealToInteger &);

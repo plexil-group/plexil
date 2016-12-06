@@ -45,12 +45,12 @@ namespace PLEXIL
   {
   }
 
-  Assignable const *VariableConflictSet::getVariable() const
+  Expression const *VariableConflictSet::getVariable() const
   {
     return m_variable;
   }
 
-  void VariableConflictSet::setVariable(Assignable *a)
+  void VariableConflictSet::setVariable(Expression *a)
   {
     m_variable = a;
   }

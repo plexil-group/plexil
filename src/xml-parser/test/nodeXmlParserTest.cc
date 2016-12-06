@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Assignable.hh"
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
 #include "Command.hh"
@@ -305,7 +306,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(simpleVar->isAssignable());
     Assignable *simpleVarA = simpleVar->asAssignable();
     assertTrue_1(simpleVarA);
-    assertTrue_1(simpleVarA->getBaseVariable() == simpleVarA);
+    assertTrue_1(simpleVarA->getBaseVariable() == simpleVar);
     assertTrue_1(simpleVarA->getNode() == simpleVarDeclNode);
     delete simpleVarDeclNode;
   }
@@ -334,7 +335,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(!initedVal);
     Assignable *initedVarA = initedVar->asAssignable();
     assertTrue_1(initedVarA);
-    assertTrue_1(initedVarA->getBaseVariable() == initedVarA);
+    assertTrue_1(initedVarA->getBaseVariable() == initedVar);
     assertTrue_1(initedVarA->getNode() == initedVarDeclNode);
     delete initedVarDeclNode;
   }
@@ -358,7 +359,7 @@ static bool emptyNodeXmlParserTest()
     assertTrue_1(simpleArrayVar->isAssignable());
     Assignable *simpleArrayVarA = simpleArrayVar->asAssignable();
     assertTrue_1(simpleArrayVarA);
-    assertTrue_1(simpleArrayVarA->getBaseVariable() == simpleArrayVarA);
+    assertTrue_1(simpleArrayVarA->getBaseVariable() == simpleArrayVar);
     assertTrue_1(simpleArrayVarA->getNode() == simpleArrayVarDeclNode);
     delete simpleArrayVarDeclNode;
   }
@@ -395,7 +396,7 @@ static bool emptyNodeXmlParserTest()
 
     Assignable *initedArrayVarA = initedArrayVar->asAssignable();
     assertTrue_1(initedArrayVarA);
-    assertTrue_1(initedArrayVarA->getBaseVariable() == initedArrayVarA);
+    assertTrue_1(initedArrayVarA->getBaseVariable() == initedArrayVar);
     assertTrue_1(initedArrayVarA->getNode() == initedArrayVarDeclNode);
     delete initedArrayVarDeclNode;
   }
@@ -505,20 +506,20 @@ static bool listNodeXmlParserTest()
     assertTrue_1(varAccessList->getLocalVariables()
                  && !varAccessList->getLocalVariables()->empty());
     assertTrue_1(varAccessList->getLocalVariables()->size() == 1);
-    Assignable *rootVar = varAccessList->getLocalVariables()->front()->asAssignable();
+    Expression *rootVar = varAccessList->getLocalVariables()->front();
     assertTrue_1(rootVar);
     assertTrue_1(rootVar->valueType() == INTEGER_TYPE);
-    assertTrue_1(rootVar->getNode() == varAccessList);
+    assertTrue_1(rootVar->asAssignable()->getNode() == varAccessList);
     assertTrue_1(rootVar == varAccessList->findVariable("foo"));
     assertTrue_1(!varAccessList->findVariable("bar"));
 
     assertTrue_1(kid->getLocalVariables()
                  && !kid->getLocalVariables()->empty());
     assertTrue_1(kid->getLocalVariables()->size() == 1);
-    Assignable *kidVar = kid->getLocalVariables()->front()->asAssignable();
+    Expression *kidVar = kid->getLocalVariables()->front();
     assertTrue_1(kidVar);
     assertTrue_1(kidVar->valueType() == INTEGER_TYPE);
-    assertTrue_1(kidVar->getNode() == kid);
+    assertTrue_1(kidVar->asAssignable()->getNode() == kid);
     assertTrue_1(rootVar == kid->findVariable("foo"));
     assertTrue_1(kidVar == kid->findVariable("bar"));
 
@@ -600,7 +601,7 @@ static bool assignmentNodeXmlParserTest()
     Assignment *assn = anode->getAssignment();
     assertTrue_1(assn);
 
-    Assignable *fooVar = listNode->findLocalVariable("foo")->asAssignable();
+    Expression *fooVar = listNode->findLocalVariable("foo");
     assertTrue_1(fooVar);
     assertTrue_1(fooVar->valueType() == INTEGER_TYPE);
     assertTrue_1(assn->getDest() == fooVar);
@@ -643,7 +644,7 @@ static bool assignmentNodeXmlParserTest()
     Assignment *assn = anode->getAssignment();
     assertTrue_1(assn);
 
-    Assignable *fooVar = listNode1->findLocalVariable("foo")->asAssignable();
+    Expression *fooVar = listNode1->findLocalVariable("foo");
     assertTrue_1(fooVar);
     assertTrue_1(fooVar->valueType() == INTEGER_TYPE);
     assertTrue_1(assn->getDest() == fooVar);
@@ -687,7 +688,7 @@ static bool assignmentNodeXmlParserTest()
     Assignment *aassn = aanode->getAssignment();
     assertTrue_1(aassn);
 
-    Assignable *barVar = listNode2->findLocalVariable("bar")->asAssignable();
+    Expression *barVar = listNode2->findLocalVariable("bar");
     assertTrue_1(barVar);
     assertTrue_1(barVar->valueType() == INTEGER_ARRAY_TYPE);
     assertTrue_1(aassn->getDest() == barVar);
@@ -730,7 +731,7 @@ static bool assignmentNodeXmlParserTest()
     Assignment *aassn = aanode->getAssignment();
     assertTrue_1(aassn);
 
-    Assignable *bazVar = listNode3->findLocalVariable("baz")->asAssignable();
+    Expression *bazVar = listNode3->findLocalVariable("baz");
     assertTrue_1(bazVar);
     assertTrue_1(bazVar->valueType() == INTEGER_ARRAY_TYPE);
     assertTrue_1(aassn->getDest()->valueType() == INTEGER_TYPE);

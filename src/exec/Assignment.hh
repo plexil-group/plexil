@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ namespace PLEXIL
     Expression *getAbortComplete() {return &m_abortComplete;}
 
     // For use by plan parser
-    void setVariable(Assignable *lhs, bool garbage);
+    void setVariable(Expression *lhs, bool garbage);
     void setExpression(Expression *rhs, bool garbage);
 
     void activate();
@@ -64,7 +64,7 @@ namespace PLEXIL
     SimpleBooleanVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     Expression *m_rhs;
-    Assignable *m_dest;
+    Expression *m_dest;
     Value m_value; // TODO: templatize by assignable type?
     bool m_deleteLhs, m_deleteRhs;
   };

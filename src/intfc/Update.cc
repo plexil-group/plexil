@@ -35,12 +35,10 @@ namespace PLEXIL
 
   Update::Update(NodeConnector *node)
     : m_source(node),
-      m_ack(),
+      m_ack("ack"),
       m_garbage(),
       m_pairs()
   {
-    // Make ack variable pretty
-    m_ack.setName(node->getNodeId() + " ack");
   }
 
   Update::~Update() 

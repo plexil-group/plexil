@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "UserVariable.hh"
 #include "Constant.hh"
 #include "TestSupport.hh"
+#include "Value.hh"
 #include "test/TrivialListener.hh"
 
 using namespace PLEXIL;
@@ -67,9 +68,9 @@ static bool testUninitialized()
   assertTrue_1(!vus.isKnown());
 
   bool foob;
-  int32_t fooi;
-  double food;
-  std::string foos;
+  Integer fooi;
+  Real food;
+  String foos;
 
   assertTrue_1(!vub.getValue(foob));
   assertTrue_1(!vui.getValue(fooi));
@@ -97,10 +98,10 @@ static bool testUninitialized()
   assertTrue_1(!vui.getValue(food));
 
   // Assign and check result
-  vub.setValue(true);
-  vui.setValue((int32_t) 42);
-  vud.setValue(3.14);
-  vus.setValue(std::string("yoohoo"));
+  vub.setValue(Value(true));
+  vui.setValue(Value((Integer) 42));
+  vud.setValue(Value(3.14));
+  vus.setValue(Value("yoohoo"));
 
   assertTrue_1(vub.isKnown());
   assertTrue_1(vui.isKnown());
@@ -114,20 +115,20 @@ static bool testUninitialized()
   assertTrue_1(vud.getValue(food));
   assertTrue_1(food == 3.14);
   assertTrue_1(vus.getValue(foos));
-  assertTrue_1(foos == std::string("yoohoo"));
+  assertTrue_1(foos == String("yoohoo"));
   // Test getValue type conversion
   assertTrue_1(vui.getValue(food));
   assertTrue_1(food == 42);
 
   // Arrays
   // Test setValue type conversion
-  const int32_t fiftySeven = 57;
-  vud.setValue(fiftySeven);
+  const Integer fiftySeven = 57;
+  vud.setValue(Value(fiftySeven));
   assertTrue_1(vud.getValue(food));
   assertTrue_1(food == 57);
-  vus.setValue("yoho");
+  vus.setValue(Value("yoho"));
   assertTrue_1(vus.getValue(foos));
-  assertTrue_1(foos == std::string("yoho"));
+  assertTrue_1(foos == String("yoho"));
 
   // Reset and check that value is now unknown
   // Can't reset while active
@@ -157,10 +158,10 @@ static bool testUninitialized()
   assertTrue_1(!vus.getValue(foos));
 
   // Set value and check result
-  vub.setValue(true);
-  vui.setValue((int32_t) 42);
-  vud.setValue(3.14);
-  vus.setValue(std::string("yoohoo"));
+  vub.setValue(Value(true));
+  vui.setValue(Value((Integer) 42));
+  vud.setValue(Value(3.14));
+  vus.setValue(Value("yoohoo"));
 
   assertTrue_1(vub.isKnown());
   assertTrue_1(vui.isKnown());
@@ -174,13 +175,13 @@ static bool testUninitialized()
   assertTrue_1(vud.getValue(food));
   assertTrue_1(food == 3.14);
   assertTrue_1(vus.getValue(foos));
-  assertTrue_1(foos == std::string("yoohoo"));
+  assertTrue_1(foos == String("yoohoo"));
 
   // Set values and check that they changed
-  vub.setValue(false);
-  vui.setValue((int32_t) 69);
-  vud.setValue(1.414);
-  vus.setValue(std::string("yo"));
+  vub.setValue(Value(false));
+  vui.setValue(Value((Integer) 69));
+  vud.setValue(Value(1.414));
+  vus.setValue(Value("yo"));
 
   assertTrue_1(vub.isKnown());
   assertTrue_1(vui.isKnown());
@@ -194,7 +195,7 @@ static bool testUninitialized()
   assertTrue_1(vud.getValue(food));
   assertTrue_1(food == 1.414);
   assertTrue_1(vus.getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(foos == String("yo"));
   // Arrays
 
   return true;
@@ -206,7 +207,7 @@ static bool testInitialValue()
   BooleanVariable vb(false);
   IntegerVariable vi(69);
   RealVariable vd(1.414);
-  StringVariable vs(std::string("yo"));
+  StringVariable vs(String("yo"));
 
   // Test that they are assignable and not constant
   assertTrue_1(vb.isAssignable());
@@ -243,9 +244,9 @@ static bool testInitialValue()
   assertTrue_1(vs.isKnown());
 
   // Check values
-  double food;
-  std::string foos;
-  int32_t fooi;
+  Real food;
+  String foos;
+  Integer fooi;
   bool foob;
     
   assertTrue_1(vb.getValue(foob));
@@ -255,7 +256,7 @@ static bool testInitialValue()
   assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
   assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(foos == String("yo"));
   // Numeric conversion
   assertTrue_1(vi.getValue(food));
   assertTrue_1(food == 69);
@@ -311,13 +312,13 @@ static bool testInitialValue()
   assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
   assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(foos == String("yo"));
 
   // Set values and check
-  vb.setValue(true);
-  vi.setValue((int32_t) 42);
-  vd.setValue(2.718);
-  vs.setValue(std::string("mama"));
+  vb.setValue(Value(true));
+  vi.setValue(Value((Integer) 42));
+  vd.setValue(Value(2.718));
+  vs.setValue(Value("mama"));
 
   assertTrue_1(vb.isKnown());
   assertTrue_1(vi.isKnown());
@@ -330,7 +331,7 @@ static bool testInitialValue()
   assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 2.718);
   assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == std::string("mama"));
+  assertTrue_1(foos == String("mama"));
 
   return true;
 }
@@ -390,9 +391,9 @@ static bool testInitializers()
   assertTrue_1(vs.isKnown());
 
   // Check values
-  double food;
-  std::string foos;
-  int32_t fooi;
+  Real food;
+  String foos;
+  Integer fooi;
   bool foob;
     
   assertTrue_1(vb.getValue(foob));
@@ -402,7 +403,7 @@ static bool testInitializers()
   assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
   assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(foos == String("yo"));
   // Numeric conversion
   assertTrue_1(vi.getValue(food));
   assertTrue_1(food == 69);
@@ -458,13 +459,13 @@ static bool testInitializers()
   assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
   assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(foos == String("yo"));
 
   // Set values and check
-  vb.setValue(true);
-  vi.setValue((int32_t) 42);
-  vd.setValue(2.718);
-  vs.setValue(std::string("mama"));
+  vb.setValue(Value(true));
+  vi.setValue(Value((Integer) 42));
+  vd.setValue(Value(2.718));
+  vs.setValue(Value("mama"));
 
   assertTrue_1(vb.isKnown());
   assertTrue_1(vi.isKnown());
@@ -477,7 +478,7 @@ static bool testInitializers()
   assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 2.718);
   assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == std::string("mama"));
+  assertTrue_1(foos == String("mama"));
 
   return true;
 }
@@ -489,9 +490,9 @@ static bool testSavedValue()
   RealVariable vud;
   StringVariable vus;
 
-  double food;
-  std::string foos;
-  int32_t fooi;
+  Real food;
+  String foos;
+  Integer fooi;
   bool foob;
 
   // Activate
@@ -518,10 +519,10 @@ static bool testSavedValue()
   vus.saveCurrentValue();
 
   // Assign and check result
-  vub.setValue(true);
-  vui.setValue((int32_t) 42);
-  vud.setValue(3.14);
-  vus.setValue("yoohoo");
+  vub.setValue(Value(true));
+  vui.setValue(Value((Integer) 42));
+  vud.setValue(Value(3.14));
+  vus.setValue(Value("yoohoo"));
 
   assertTrue_1(vub.isKnown());
   assertTrue_1(vui.isKnown());
@@ -535,7 +536,7 @@ static bool testSavedValue()
   assertTrue_1(foob == true);
   assertTrue_1(fooi == 42);
   assertTrue_1(food == 3.14);
-  assertTrue_1(foos == std::string("yoohoo"));
+  assertTrue_1(foos == String("yoohoo"));
 
   // Restore saved value and check result
   vub.restoreSavedValue();
@@ -554,10 +555,10 @@ static bool testSavedValue()
   assertTrue_1(!vus.getValue(foos));
 
   // Assign again
-  vub.setValue(true);
-  vui.setValue((int32_t) 42);
-  vud.setValue(3.14);
-  vus.setValue("yoohoo");
+  vub.setValue(Value(true));
+  vui.setValue(Value((Integer) 42));
+  vud.setValue(Value(3.14));
+  vus.setValue(Value("yoohoo"));
 
   assertTrue_1(vub.isKnown());
   assertTrue_1(vui.isKnown());
@@ -571,7 +572,7 @@ static bool testSavedValue()
   assertTrue_1(foob == true);
   assertTrue_1(fooi == 42);
   assertTrue_1(food == 3.14);
-  assertTrue_1(foos == std::string("yoohoo"));
+  assertTrue_1(foos == String("yoohoo"));
 
   // Save current value
   vub.saveCurrentValue();
@@ -614,7 +615,7 @@ static bool testSavedValue()
   assertTrue_1(foob == true);
   assertTrue_1(fooi == 42);
   assertTrue_1(food == 3.14);
-  assertTrue_1(foos == std::string("yoohoo"));
+  assertTrue_1(foos == String("yoohoo"));
 
   // Reset
   vub.deactivate();
@@ -652,7 +653,7 @@ static bool testAssignablePointer()
   BooleanVariable vb(false);
   IntegerVariable vi(69);
   RealVariable vd(1.414);
-  StringVariable vs(std::string("yo"));
+  StringVariable vs(String("yo"));
 
   Assignable *eb(vb.asAssignable());
   Assignable *ei(vi.asAssignable());
@@ -666,76 +667,72 @@ static bool testAssignablePointer()
   assertTrue_1(es != NULL);
 
   // Test that they are assignable and not constant
-  assertTrue_1(eb->isAssignable());
-  assertTrue_1(ei->isAssignable());
-  assertTrue_1(ed->isAssignable());
-  assertTrue_1(es->isAssignable());
+  assertTrue_1(vb.isAssignable());
+  assertTrue_1(vi.isAssignable());
+  assertTrue_1(vd.isAssignable());
+  assertTrue_1(vs.isAssignable());
 
-  assertTrue_1(!eb->isConstant());
-  assertTrue_1(!ei->isConstant());
-  assertTrue_1(!ed->isConstant());
-  assertTrue_1(!es->isConstant());
+  assertTrue_1(!vb.isConstant());
+  assertTrue_1(!vi.isConstant());
+  assertTrue_1(!vd.isConstant());
+  assertTrue_1(!vs.isConstant());
 
   // Test that they are created inactive
-  assertTrue_1(!eb->isActive());
-  assertTrue_1(!ei->isActive());
-  assertTrue_1(!ed->isActive());
-  assertTrue_1(!es->isActive());
+  assertTrue_1(!vb.isActive());
+  assertTrue_1(!vi.isActive());
+  assertTrue_1(!vd.isActive());
+  assertTrue_1(!vs.isActive());
 
   // Test that values are unknown while inactive
-  assertTrue_1(!eb->isKnown());
-  assertTrue_1(!ei->isKnown());
-  assertTrue_1(!ed->isKnown());
-  assertTrue_1(!es->isKnown());
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
 
   // Activate
-  eb->activate();
-  ei->activate();
-  ed->activate();
-  es->activate();
+  vb.activate();
+  vi.activate();
+  vd.activate();
+  vs.activate();
 
   // Test that they are now known
-  assertTrue_1(eb->isKnown());
-  assertTrue_1(ei->isKnown());
-  assertTrue_1(ed->isKnown());
-  assertTrue_1(es->isKnown());
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
 
   // Check values
-  double food;
-  std::string foos;
-  int32_t fooi;
+  Real food;
+  String foos;
+  Integer fooi;
   bool foob;
     
-  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(vb.getValue(foob));
   assertTrue_1(foob == false);
-  assertTrue_1(ei->getValue(fooi));
+  assertTrue_1(vi.getValue(fooi));
   assertTrue_1(fooi == 69);
-  assertTrue_1(ed->getValue(food));
+  assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
-  assertTrue_1(es->getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(vs.getValue(foos));
+  assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(ei->getValue(food));
+  assertTrue_1(vi.getValue(food));
   assertTrue_1(food == 69);
 
   // Set values
-  eb->setValue(true);
-  ei->setValue((int32_t) 42);
-  ed->setValue(3.14);
-  es->setValue(std::string("yoohoo"));
+  eb->setValue(Value(true));
+  ei->setValue(Value((Integer) 42));
+  ed->setValue(Value(3.14));
+  es->setValue(Value("yoohoo"));
 
-  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(vb.getValue(foob));
   assertTrue_1(foob == true);
-  assertTrue_1(ei->getValue(fooi));
+  assertTrue_1(vi.getValue(fooi));
   assertTrue_1(fooi == 42);
-  assertTrue_1(ed->getValue(food));
+  assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 3.14);
-  assertTrue_1(es->getValue(foos));
-  assertTrue_1(foos == std::string("yoohoo"));
-  // Test setValue type conversions
-  es->setValue("yoyo");
-  assertTrue_1(es->getValue(foos));
-  assertTrue_1(foos == std::string("yoyo"));
+  assertTrue_1(vs.getValue(foos));
+  assertTrue_1(foos == String("yoohoo"));
 
   // Save
   eb->saveCurrentValue();
@@ -750,15 +747,15 @@ static bool testAssignablePointer()
   es->setUnknown();
 
   // Test that values are now unknown
-  assertTrue_1(!eb->isKnown());
-  assertTrue_1(!ei->isKnown());
-  assertTrue_1(!ed->isKnown());
-  assertTrue_1(!es->isKnown());
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
 
-  assertTrue_1(!eb->getValue(foob));
-  assertTrue_1(!ei->getValue(fooi));
-  assertTrue_1(!ed->getValue(food));
-  assertTrue_1(!es->getValue(foos));
+  assertTrue_1(!vb.getValue(foob));
+  assertTrue_1(!vi.getValue(fooi));
+  assertTrue_1(!vd.getValue(food));
+  assertTrue_1(!vs.getValue(foos));
 
   // Restore
   eb->restoreSavedValue();
@@ -767,45 +764,45 @@ static bool testAssignablePointer()
   es->restoreSavedValue();
 
   // Check that saved values are restored
-  assertTrue_1(eb->isKnown());
-  assertTrue_1(ei->isKnown());
-  assertTrue_1(ed->isKnown());
-  assertTrue_1(es->isKnown());
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
 
-  assertTrue_1(eb->getValue(foob));
-  assertTrue_1(ei->getValue(fooi));
-  assertTrue_1(ed->getValue(food));
-  assertTrue_1(es->getValue(foos));
+  assertTrue_1(vb.getValue(foob));
+  assertTrue_1(vi.getValue(fooi));
+  assertTrue_1(vd.getValue(food));
+  assertTrue_1(vs.getValue(foos));
   assertTrue_1(foob == true);
   assertTrue_1(fooi == 42);
   assertTrue_1(food == 3.14);
-  assertTrue_1(foos == std::string("yoyo"));
+  assertTrue_1(foos == String("yoohoo"));
 
   // Reset
-  eb->deactivate();
-  ei->deactivate();
-  ed->deactivate();
-  es->deactivate();
+  vb.deactivate();
+  vi.deactivate();
+  vd.deactivate();
+  vs.deactivate();
 
-  eb->reset();
-  ei->reset();
-  ed->reset();
-  es->reset();
+  vb.reset();
+  vi.reset();
+  vd.reset();
+  vs.reset();
     
-  eb->activate();
-  ei->activate();
-  ed->activate();
-  es->activate();
+  vb.activate();
+  vi.activate();
+  vd.activate();
+  vs.activate();
 
   // Check initial values are restored
-  assertTrue_1(eb->getValue(foob));
+  assertTrue_1(vb.getValue(foob));
   assertTrue_1(foob == false);
-  assertTrue_1(ei->getValue(fooi));
+  assertTrue_1(vi.getValue(fooi));
   assertTrue_1(fooi == 69);
-  assertTrue_1(ed->getValue(food));
+  assertTrue_1(vd.getValue(food));
   assertTrue_1(food == 1.414);
-  assertTrue_1(es->getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
+  assertTrue_1(vs.getValue(foos));
+  assertTrue_1(foos == String("yo"));
 
   return true;
 }
@@ -865,10 +862,10 @@ static bool testNotification()
   assertTrue_1(!schanged);
 
   // Assign should notify this time
-  vub.setValue(false);
-  vui.setValue((int32_t) 69);
-  vud.setValue(1.414);
-  vus.setValue(std::string("jojo"));
+  vub.setValue(Value(false));
+  vui.setValue(Value((Integer) 69));
+  vud.setValue(Value(1.414));
+  vus.setValue(Value("jojo"));
 
   assertTrue_1(bchanged);
   assertTrue_1(ichanged);

@@ -27,8 +27,9 @@
 #ifndef PLEXIL_ARRAY_VARIABLE_HH
 #define PLEXIL_ARRAY_VARIABLE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
+#include "GetValueImpl.hh"
+#include "NotifierImpl.hh"
 
 namespace PLEXIL
 {
@@ -41,9 +42,9 @@ namespace PLEXIL
 
   template <typename T>
   class ArrayVariable :
-    public NotifierImpl,
-    public ExpressionImpl<ArrayImpl<T> >,
-    public AssignableImpl<ArrayImpl<T> >
+    public Assignable,
+    public GetValueImpl<ArrayImpl<T> >,
+    public NotifierImpl
   {
   public:
 
@@ -74,31 +75,16 @@ namespace PLEXIL
     // Essential Expression API
     //
 
+    bool isAssignable() const;
+
+    Assignable const *asAssignable() const;
+    Assignable *asAssignable();
+
     char const *getName() const;
 
     char const *exprName() const;
 
     bool isKnown() const;
-
-    /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown.
-     */
-    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
-
-    /**
-     * @brief Retrieve a pointer to the (modifiable) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     */
-    bool getMutableValuePointerImpl(ArrayImpl<T> *&ptr);
-
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     */
-    void setValueImpl(ArrayImpl<T> const &value);
 
     /**
      * @brief Set the current value unknown.
@@ -116,13 +102,11 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    void setName(const std::string &);
-
     NodeConnector const *getNode() const;
     NodeConnector *getNode();
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -131,11 +115,45 @@ namespace PLEXIL
      */
     void setInitializer(Expression *expr, bool garbage);
 
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     */
+    virtual void setValue(Value const &val);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     */
+    virtual void setValue(Expression const &val);
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     */
+    virtual bool getMutableValuePointer(Array *&ptr);
+
     void handleActivate();
 
     void handleDeactivate();
 
     void printSpecialized(std::ostream &s) const;
+
+  protected:
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValueImpl(ArrayImpl<T> const &value);
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
 
   private:
 

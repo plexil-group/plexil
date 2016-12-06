@@ -26,13 +26,15 @@
 
 #include "StringOperators.hh"
 
+#include "Function.hh"
+
 namespace PLEXIL
 {
   //
   // StringConcat
   //
   StringConcat::StringConcat()
-    : OperatorImpl<std::string>("CONCAT")
+    : OperatorImpl<String>("CONCAT")
   {
   }
   
@@ -45,28 +47,28 @@ namespace PLEXIL
     return true;
   }
 
-  bool StringConcat::checkArgTypes(ExprVec const *ev) const
+  bool StringConcat::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(STRING_TYPE);
   }
 
-  bool StringConcat::operator()(std::string &result) const
+  bool StringConcat::operator()(String &result) const
   {
     result.clear();
     return true;
   }
 
-  bool StringConcat::operator()(std::string &result,
+  bool StringConcat::operator()(String &result,
                                 Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool StringConcat::operator()(std::string &result,
+  bool StringConcat::operator()(String &result,
                                 Expression const *argA,
                                 Expression const *argB) const
   {
-    std::string const *stringA, *stringB;
+    String const *stringA, *stringB;
     if (!argA->getValuePointer(stringA)
         || !argB->getValuePointer(stringB))
       return false;
@@ -76,13 +78,13 @@ namespace PLEXIL
     return true;
   }
 
-  bool StringConcat::operator()(std::string &result, 
-                                ExprVec const &args) const
+  bool StringConcat::operator()(String &result, 
+                                Function const &f) const
   {
-    size_t nargs = args.size();
-    std::string const *vals[nargs];
+    size_t nargs = f.size();
+    String const *vals[nargs];
     for (size_t i = 0; i < nargs; ++i) {
-      if (!args[i]->getValuePointer(vals[i]))
+      if (!f[i]->getValuePointer(vals[i]))
         return false;
     }
     size_t len = 0;
@@ -99,7 +101,7 @@ namespace PLEXIL
   // StringLength
   //
   StringLength::StringLength()
-    : OperatorImpl<int32_t>("STRLEN")
+    : OperatorImpl<Integer>("STRLEN")
   {
   }
 
@@ -112,15 +114,15 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool StringLength::checkArgTypes(ExprVec const *ev) const
+  bool StringLength::checkArgTypes(Function const *ev) const
   {
     ValueType ty = (*ev)[0]->valueType();
     return ty == STRING_TYPE || ty == UNKNOWN_TYPE;
   }
 
-  bool StringLength::operator()(int32_t &result, Expression const *arg) const
+  bool StringLength::operator()(Integer &result, Expression const *arg) const
   {
-    std::string const *str;
+    String const *str;
     if (!arg->getValuePointer(str))
       return false;
     result = str->size();

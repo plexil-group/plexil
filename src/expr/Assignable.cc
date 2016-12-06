@@ -33,23 +33,12 @@ namespace PLEXIL {
   // Assignable
   //
 
+  Assignable::Assignable()
+  {
+  }
+
   Assignable::~Assignable()
   {
-  }
-
-  bool Assignable::isAssignable() const
-  {
-    return true;
-  }
-
-  Assignable *Assignable::asAssignable()
-  {
-    return this;
-  }
-
-  Assignable const *Assignable::asAssignable() const
-  {
-    return this;
   }
 
   /**

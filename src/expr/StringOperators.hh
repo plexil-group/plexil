@@ -32,26 +32,26 @@
 
 namespace PLEXIL
 {
-  class StringConcat : public OperatorImpl<std::string>
+  class StringConcat : public OperatorImpl<String>
   {
   public:
     ~StringConcat();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
-    bool operator()(std::string &result) const;
+    bool operator()(String &result) const;
 
-    bool operator()(std::string &result, Expression const *arg) const;
+    bool operator()(String &result, Expression const *arg) const;
 
-    bool operator()(std::string &result,
+    bool operator()(String &result,
                     Expression const *argA,
                     Expression const *argB) const;
 
-    bool operator()(std::string &result, ExprVec const &args) const;
+    bool operator()(String &result, Function const &f) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(StringConcat, std::string);
+    DECLARE_OPERATOR_STATIC_INSTANCE(StringConcat, String);
 
   private:
     StringConcat();
@@ -61,18 +61,18 @@ namespace PLEXIL
     StringConcat &operator=(const StringConcat& other);
   };
 
-  class StringLength : public OperatorImpl<int32_t>
+  class StringLength : public OperatorImpl<Integer>
   {
   public:
     ~StringLength();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
-    bool operator()(int32_t &result, Expression const *arg) const;
+    bool operator()(Integer &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(StringLength, int32_t);
+    DECLARE_OPERATOR_STATIC_INSTANCE(StringLength, Integer);
 
   private:
     StringLength();

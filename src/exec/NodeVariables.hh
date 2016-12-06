@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
 // Plan-visible expressions derived from node internal state
 //
 
+#include "GetValueImpl.hh"
 #include "NodeConstants.hh"
-#include "ExpressionImpl.hh"
 #include "NotifierImpl.hh"
 //#include "UserVariable.hh" // includes both of the above
 
@@ -41,7 +41,9 @@ namespace PLEXIL {
   // Forward references
   class Node;
 
-  class StateVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class StateVariable :
+    public GetValueImpl<uint16_t>,
+    public NotifierImpl
   {
   public:
     /**
@@ -62,7 +64,7 @@ namespace PLEXIL {
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return NODE_STATE_TYPE;
     }
@@ -106,7 +108,9 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class OutcomeVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class OutcomeVariable :
+    public GetValueImpl<uint16_t>,
+    public NotifierImpl
   {
   public:
     /**
@@ -127,7 +131,7 @@ namespace PLEXIL {
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return OUTCOME_TYPE;
     }
@@ -169,7 +173,9 @@ namespace PLEXIL {
     Node const &m_node;
   };
 
-  class FailureVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
+  class FailureVariable :
+    public GetValueImpl<uint16_t>,
+    public NotifierImpl
   {
   public:
     /**
@@ -190,7 +196,7 @@ namespace PLEXIL {
     /**
      * @brief Get the type of the expression's value.
      */
-    const ValueType valueType() const
+    ValueType valueType() const
     {
       return FAILURE_TYPE;
     }

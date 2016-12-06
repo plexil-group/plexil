@@ -223,7 +223,7 @@ namespace PLEXIL
 
     // Optional destination expression
     xml_node destXml;
-    Assignable *dest = NULL;
+    Expression *dest = NULL;
     if (!testTag(NAME_TAG, temp)) {
       destXml = temp;
       bool destIsGarbage = false;

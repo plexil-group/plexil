@@ -105,7 +105,7 @@ namespace PLEXIL
   // createAssignable
   //
 
-  Assignable *createAssignable(pugi::xml_node const expr,
+  Expression *createAssignable(pugi::xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
@@ -128,7 +128,7 @@ namespace PLEXIL
       reportParserExceptionWithLocation(expr,
                                         "Expression is not assignable");
     }
-    return resultExpr->asAssignable();
+    return resultExpr;
   }
 
   void purgeExpressionFactories()

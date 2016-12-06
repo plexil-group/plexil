@@ -25,6 +25,8 @@
 */
 
 #include "Command.hh"
+
+#include "Assignable.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh"
 #include "InterfaceError.hh"
@@ -64,7 +66,7 @@ namespace PLEXIL
 
   Command::Command(std::string const &nodeName)
     : m_ack(*this),
-      m_abortComplete(),
+      m_abortComplete("abortComplete"),
       m_command(),
       m_garbage(),
       m_resourceList(),
@@ -78,8 +80,7 @@ namespace PLEXIL
       m_active(false),
       m_cleaned(false)
   {
-    m_ack.setName(nodeName + " commandHandle");
-    m_abortComplete.setName(nodeName + " abortComplete");
+    m_ack.setName(nodeName);
   }
 
   Command::~Command() 
@@ -108,7 +109,7 @@ namespace PLEXIL
     m_cleaned = true;
   }
 
-  void Command::setDestination(Assignable *dest, bool isGarbage)
+  void Command::setDestination(Expression *dest, bool isGarbage)
   {
     m_dest = dest;
     if (isGarbage)
@@ -267,7 +268,7 @@ namespace PLEXIL
   {
     if (!m_active || !m_dest)
       return;
-    m_dest->setValue(val);
+    m_dest->asAssignable()->setValue(val);
   }
 
   void Command::abort()

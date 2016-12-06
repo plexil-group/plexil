@@ -36,12 +36,11 @@
 namespace PLEXIL
 {
   // Common case logic
-  static ValueType arithmeticCommonType(ExprVec const *exprs)
+  static ValueType arithmeticCommonType(Expression **exprs, size_t len)
   {
-    size_t len = exprs->size();
-    assertTrue_1(len > 0);
+    assertTrue_1(len > 0); // must have at least one operand
     ValueType result = UNKNOWN_TYPE;
-    switch ((*exprs)[0]->valueType()) {
+    switch (exprs[0]->valueType()) {
     case REAL_TYPE:
     case DATE_TYPE:
     case DURATION_TYPE:
@@ -58,7 +57,7 @@ namespace PLEXIL
     }
 
     for (size_t i = 1; i < len; ++i) {
-      switch ((*exprs)[i]->valueType()) {
+      switch (exprs[i]->valueType()) {
       case REAL_TYPE:
       case DATE_TYPE:
       case DURATION_TYPE:
@@ -95,29 +94,55 @@ namespace PLEXIL
                                                   bool & wasCreated) const
   {
     // Count subexpressions
-    size_t n = 0;
-    for (pugi::xml_node subexp = expr.first_child(); subexp; subexp = subexp.next_sibling())
-      ++n;
+    size_t n = std::distance(expr.begin(), expr.end());
     checkParserExceptionWithLocation(n,
                                      expr,
                                      "Arithmetic function " << expr.name() << " has no arguments");
-    ExprVec *exprVec = this->constructExprVec(expr, node, n);
-    ValueType type = arithmeticCommonType(exprVec);
+    
+    // Need to check operands to determine operator type
+    Expression *exprs[n];
+    bool garbage[n];
+    size_t i = 0;
+    try {
+      for (pugi::xml_node subexp = expr.first_child();
+           subexp && i < n;
+           subexp = subexp.next_sibling(), ++i)
+        exprs[i] = createExpression(subexp, node, garbage[i]);
+    }
+    catch (ParserException & /* e */) {
+      // Clean up expressions we successfully constructed
+      for (size_t j = 0; j < i; ++j)
+        if (garbage[j])
+          delete exprs[j];
+      throw;
+    }
+
+    ValueType type = arithmeticCommonType(exprs, n);
     if (type == UNKNOWN_TYPE) {
-      delete exprVec;
+      // Clean up before throwing
+      for (i = 0; i < n; ++i)
+        if (garbage[i])
+          delete exprs[i];
       reportParserExceptionWithLocation(expr,
                                         "Type inconsistency or indeterminacy in arithmetic expression");
     }
     Operator const *oper = this->selectOperator(type);
     if (!oper->checkArgCount(n)) {
-      delete exprVec;
+      // Clean up before throwing
+      for (i = 0; i < n; ++i)
+        if (garbage[i])
+          delete exprs[i];
       reportParserExceptionWithLocation(expr,
                                         "Wrong number of operands for operator "
                                         << oper->getName());
     }
 
+    Function *result = makeFunction(oper, n);
+    for (i = 0; i < n; ++i)
+      result->setArgument(i, exprs[i], garbage[i]);
+
     wasCreated = true;
-    return new Function(oper, exprVec);
+    return result;
   }
 
   // Convenience macro

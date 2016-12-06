@@ -40,7 +40,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(int32_t &result, Expression const *arg) const;
 
@@ -60,7 +60,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(int32_t &result, Expression const *arg) const;
 
@@ -80,7 +80,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
 
@@ -100,7 +100,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *arg) const;
 

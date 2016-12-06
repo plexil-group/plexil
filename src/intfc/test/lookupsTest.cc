@@ -61,7 +61,7 @@ public:
   void lookupNow(const State& state, StateCacheEntry &entry) 
   {
     if (state.name() == "test1") {
-      entry.update((double) 2.0);
+      entry.update((Real) 2.0);
       return;
     }
     else if (state.name() == "test2") {
@@ -69,17 +69,17 @@ public:
       std::string const *param = NULL;
       state.parameters()[0].getValuePointer(param);
       if (*param == "high") {
-        entry.update((double) 1.0);
+        entry.update((Real) 1.0);
         return;
       }
       else if (*param == "low") {
-        entry.update((double) -1.0);
+        entry.update((Real) -1.0);
         return;
       }
       assertTrue_2(ALWAYS_FAIL, "ERROR: no matching param for TestInterface::lookupNow, state name = \"test2\"");
     }
     else if (state.name() == "time") {
-      entry.update((double) 0.0);
+      entry.update((Real) 0.0);
       return;
     }
     else {
@@ -87,7 +87,7 @@ public:
       return;
     }
     assertTrue_2(ALWAYS_FAIL, "ERROR: reached end of TestInterface::lookupNow()");
-    entry.update((double) 0.0);
+    entry.update((Real) 0.0);
   }
 
   void subscribe(const State& /* state */)
@@ -100,17 +100,17 @@ public:
     m_thresholds.erase(state.name());
   }
 
-  void setThresholds(State const &state, double hi, double lo)
+  void setThresholds(State const &state, Real hi, Real lo)
   {
     m_thresholds[state.name()] = std::make_pair(hi, lo);
   }
 
-  void setThresholds(const State& /* state */, int32_t /* hi */, int32_t /* lo */)
+  void setThresholds(const State& /* state */, Integer /* hi */, Integer /* lo */)
   {
     // TODO
   }
 
-  double currentTime()
+  Real currentTime()
   {
     return 0.0;
   }
@@ -141,7 +141,7 @@ public:
     m_exprsToStateName.erase(expr);
   }
 
-  bool getThresholds(std::string const &stateName, double &hi, double &lo)
+  bool getThresholds(std::string const &stateName, Real &hi, Real &lo)
   {
     ThresholdMap::const_iterator it = m_thresholds.find(stateName);
     if (it == m_thresholds.end())
@@ -172,8 +172,10 @@ protected:
   // API for unit test
   //
 
-  void notifyChanged(Expression const *expression)
+  void notifyChanged(Expression const *n)
   {
+    Expression const *expression = dynamic_cast<Expression const *>(n);
+    assertTrue_1(expression);
     std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second);
@@ -201,14 +203,14 @@ private:
     TestInterface& m_intf;
   };
 
-  typedef std::map<std::string, std::pair<double, double > > ThresholdMap; 
+  typedef std::map<std::string, std::pair<Real, Real > > ThresholdMap; 
 
   std::set<Expression *> m_exprs;
   std::map<std::string, Expression *> m_changingExprs; //map of names to expressions being watched
   ThresholdMap m_thresholds;
   std::multimap<Expression const *, std::string> m_exprsToStateName; //make of watched expressions to their state names
   std::multimap<Expression const *, Expression *> m_listeningExprs; //map of changing expressions to listening expressions
-  std::map<Expression const *, double> m_tolerances; //map of dest expressions to tolerances
+  std::map<Expression const *, Real> m_tolerances; //map of dest expressions to tolerances
   std::map<Expression const *, Value> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
   ChangeListener m_listener;
 };
@@ -222,18 +224,23 @@ static TestInterface *theInterface = NULL;
 static bool testLookupNow() 
 {
   StringConstant test1("test1");
-
   StringConstant test2("test2");
-  std::vector<Expression *> test2Args(1, new StringConstant("high"));
-  std::vector<bool> test2garbage(1, false);
 
-  std::vector<Expression *> test3Args(1, new StringConstant("low"));
+  StringConstant high("high");
+  StringConstant low("low");
 
   StringVariable test4("test1");
 
   Expression *l1 = new Lookup(&test1, false, UNKNOWN_TYPE);
-  Expression *l2 = new Lookup(&test2, false, UNKNOWN_TYPE, makeExprVec(test2Args, test2garbage));
-  Expression *l3 = new Lookup(&test2, false, UNKNOWN_TYPE, makeExprVec(test3Args, test2garbage));
+
+  ExprVec *t2vec = makeExprVec(1);
+  t2vec->setArgument(0, &high, false);
+  Expression *l2 = new Lookup(&test2, false, UNKNOWN_TYPE, t2vec);
+
+  ExprVec *t3vec = makeExprVec(1);
+  t3vec->setArgument(0, &low, false);
+  Expression *l3 = new Lookup(&test2, false, UNKNOWN_TYPE, t3vec);
+
   Expression *l4 = new Lookup(&test4, false, UNKNOWN_TYPE);
 
   bool l1changed = false;
@@ -264,7 +271,7 @@ static bool testLookupNow()
   assertTrue_1(l4changed);
   assertTrue_1(test4.isActive());
 
-  double temp;
+  Real temp;
   assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 2.0);
   assertTrue_1(l2->getValue(temp));
@@ -314,9 +321,6 @@ static bool testLookupNow()
   delete l2;
   delete l1;
 
-  delete test2Args[0];
-  delete test3Args[0];
-
   return true;
 }
 
@@ -333,7 +337,7 @@ static bool testLookupOnChange()
   theInterface->watch("changeWithToleranceTest", &watchVar);
 
   RealVariable tolerance(0.5);
-  double temp;
+  Real temp;
 
   Lookup l1(&changeTest, false, UNKNOWN_TYPE);
   LookupOnChange l2(&changeWithToleranceTest, false, UNKNOWN_TYPE,
@@ -509,7 +513,7 @@ static bool testThresholdUpdate()
 
   RealVariable tolerance2(0.5);
   RealVariable tolerance3(0.75);
-  double temp, hi, lo;
+  Real temp, hi, lo;
 
   LookupOnChange l2(&thresholdTest, false, UNKNOWN_TYPE,
                     &tolerance2, false);

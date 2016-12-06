@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ namespace PLEXIL
     bool isActive() const { return m_active; }
 
     // Interface to plan parser
-    void setDestination(Assignable *dest, bool isGarbage);
+    void setDestination(Expression *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void setArgumentVector(ExprVec *vec);
     ResourceList &getResourceList();
@@ -133,7 +133,7 @@ namespace PLEXIL
     ResourceList m_resourceList;
     ResourceValueList m_resourceValueList;
     Expression *m_nameExpr;
-    Assignable *m_dest;
+    Expression *m_dest;
     ExprVec *m_argVec;
     uint16_t m_commandHandle; // accessed by CommandHandleVariable
     bool m_fixed, m_resourceFixed, m_active, m_cleaned;

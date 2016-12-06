@@ -640,7 +640,7 @@ namespace PLEXIL
   void Value::print(std::ostream &s) const
   {
     if (!m_known) {
-      s << "[unknown_value]"; 
+      s << "UNKNOWN"; 
       return;
     }
     switch (m_type) {

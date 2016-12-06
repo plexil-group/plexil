@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,10 @@ using namespace PLEXIL;
 static bool testArrayConstantReference()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -135,10 +135,10 @@ static bool testArrayConstantReference()
 static bool testArrayVariableReference()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -247,10 +247,10 @@ static bool testArrayVariableReference()
 bool testMutableArrayReference()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -481,10 +481,10 @@ bool testMutableArrayReference()
 bool testAssignablePointer()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -509,21 +509,16 @@ bool testAssignablePointer()
   RealArrayVariable    dv(vd);
   StringArrayVariable  sv(vs);
 
-  Assignable *bvp = bv.asAssignable();
-  Assignable *ivp = iv.asAssignable();
-  Assignable *dvp = dv.asAssignable();
-  Assignable *svp = sv.asAssignable();
-
-  bool        pb;
-  int32_t     pi;
-  double      pd;
-  std::string ps;
+  Boolean  pb;
+  Integer  pi;
+  Real     pd;
+  String   ps;
   
   IntegerVariable ivar;
-  MutableArrayReference bar(bvp, &ivar);
-  MutableArrayReference iar(ivp, &ivar);
-  MutableArrayReference dar(dvp, &ivar);
-  MutableArrayReference sar(svp, &ivar);
+  MutableArrayReference bar(&bv, &ivar);
+  MutableArrayReference iar(&iv, &ivar);
+  MutableArrayReference dar(&dv, &ivar);
+  MutableArrayReference sar(&sv, &ivar);
 
   Assignable *barp = bar.asAssignable();
   Assignable *iarp = iar.asAssignable();
@@ -531,69 +526,69 @@ bool testAssignablePointer()
   Assignable *sarp = sar.asAssignable();
 
   // Check that array ref values are unknown while inactive
-  assertTrue_1(!barp->isKnown());
-  assertTrue_1(!iarp->isKnown());
-  assertTrue_1(!darp->isKnown());
-  assertTrue_1(!sarp->isKnown());
+  assertTrue_1(!bar.isKnown());
+  assertTrue_1(!iar.isKnown());
+  assertTrue_1(!dar.isKnown());
+  assertTrue_1(!sar.isKnown());
 
   // Check that arrays are inactive
-  assertTrue_1(!bvp->isActive());
-  assertTrue_1(!ivp->isActive());
-  assertTrue_1(!dvp->isActive());
-  assertTrue_1(!svp->isActive());
+  assertTrue_1(!bv.isActive());
+  assertTrue_1(!iv.isActive());
+  assertTrue_1(!dv.isActive());
+  assertTrue_1(!sv.isActive());
 
   // Check that index variable is inactive
   assertTrue_1(!ivar.isActive());
 
-  int32_t n;
+  Integer n;
 
   // Read tests
 
   // Check boolean
-  barp->activate();
-  assertTrue_1(bvp->isActive());
+  bar.activate();
+  assertTrue_1(bv.isActive());
   assertTrue_1(ivar.isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(barp->getValue(pb));
+    assertTrue_1(bar.getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
 
   // Check integer
-  iarp->activate();
-  assertTrue_1(ivp->isActive());
+  iar.activate();
+  assertTrue_1(iv.isActive());
   assertTrue_1(ivar.isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(iarp->getValue(pi));
+    assertTrue_1(iar.getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
 
   // Check double
-  darp->activate();
-  assertTrue_1(dvp->isActive());
+  dar.activate();
+  assertTrue_1(dv.isActive());
   assertTrue_1(ivar.isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(darp->getValue(pd));
+    assertTrue_1(dar.getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
 
   // Check string
-  sarp->activate();
-  assertTrue_1(svp->isActive());
+  sar.activate();
+  assertTrue_1(sv.isActive());
   assertTrue_1(ivar.isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(sarp->getValue(ps));
+    assertTrue_1(sar.getValue(ps));
     assertTrue_1(ps == vs[i]);
   }
 
@@ -604,10 +599,10 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(barp->getValue(pb));
+    assertTrue_1(bar.getValue(pb));
     assertTrue_1(pb == vb[i]);
     barp->setValue(!pb);
-    assertTrue_1(barp->getValue(pb));
+    assertTrue_1(bar.getValue(pb));
     assertTrue_1(pb == !vb[i]);
   }
   
@@ -616,11 +611,11 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(iarp->getValue(pi));
+    assertTrue_1(iar.getValue(pi));
     assertTrue_1(pi == vi[i]);
     iarp->setValue(-pi);
     pi = 0;
-    assertTrue_1(iarp->getValue(pi));
+    assertTrue_1(iar.getValue(pi));
     assertTrue_1(pi == -vi[i]);
   }
 
@@ -629,11 +624,11 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(darp->getValue(pd));
+    assertTrue_1(dar.getValue(pd));
     assertTrue_1(pd == vd[i]);
     darp->setValue(-pd);
     pd = 0;
-    assertTrue_1(darp->getValue(pd));
+    assertTrue_1(dar.getValue(pd));
     assertTrue_1(pd == -vd[i]);
   }
 
@@ -642,42 +637,42 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(sarp->getValue(ps));
+    assertTrue_1(sar.getValue(ps));
     assertTrue_1(ps == vs[i]);
     ps.push_back('x');
     sarp->setValue(ps);
     ps.clear();
-    assertTrue_1(sarp->getValue(ps));
+    assertTrue_1(sar.getValue(ps));
     assertTrue_1(ps != vs[i]);
     assertTrue_1(ps.substr(0, ps.size() -1) == vs[i]);
   }
 
   // setUnknown tests
   // First, reset arrays
-  bvp->deactivate();
-  ivp->deactivate();
-  dvp->deactivate();
-  svp->deactivate();
-  bvp->reset();
-  ivp->reset();
-  dvp->reset();
-  svp->reset();
-  bvp->activate();
-  ivp->activate();
-  dvp->activate();
-  svp->activate();
+  bv.deactivate();
+  iv.deactivate();
+  dv.deactivate();
+  sv.deactivate();
+  bv.reset();
+  iv.reset();
+  dv.reset();
+  sv.reset();
+  bv.activate();
+  iv.activate();
+  dv.activate();
+  sv.activate();
 
   // Boolean
   for (int32_t i = 0; i < vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(barp->getValue(pb));
+    assertTrue_1(bar.getValue(pb));
     assertTrue_1(pb == vb[i]);
     barp->setUnknown();
-    assertTrue_1(!barp->isKnown());
-    assertTrue_1(!barp->getValue(pb));
-    assertTrue_1(bvp->isKnown());
+    assertTrue_1(!bar.isKnown());
+    assertTrue_1(!bar.getValue(pb));
+    assertTrue_1(bv.isKnown());
   }
   
   // Integer
@@ -685,12 +680,12 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(iarp->getValue(pi));
+    assertTrue_1(iar.getValue(pi));
     assertTrue_1(pi == vi[i]);
     iarp->setUnknown();
-    assertTrue_1(!iarp->isKnown());
-    assertTrue_1(!iarp->getValue(pi));
-    assertTrue_1(ivp->isKnown());
+    assertTrue_1(!iar.isKnown());
+    assertTrue_1(!iar.getValue(pi));
+    assertTrue_1(iv.isKnown());
   }
 
   // Real
@@ -698,12 +693,12 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(darp->getValue(pd));
+    assertTrue_1(dar.getValue(pd));
     assertTrue_1(pd == vd[i]);
     darp->setUnknown();
-    assertTrue_1(!darp->isKnown());
-    assertTrue_1(!darp->getValue(pd));
-    assertTrue_1(dvp->isKnown());
+    assertTrue_1(!dar.isKnown());
+    assertTrue_1(!dar.getValue(pd));
+    assertTrue_1(dv.isKnown());
   }
 
   // String
@@ -711,12 +706,12 @@ bool testAssignablePointer()
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
-    assertTrue_1(sarp->getValue(ps));
+    assertTrue_1(sar.getValue(ps));
     assertTrue_1(ps == vs[i]);
     sarp->setUnknown();
-    assertTrue_1(!sarp->isKnown());
-    assertTrue_1(!sarp->getValue(ps));
-    assertTrue_1(svp->isKnown());
+    assertTrue_1(!sar.isKnown());
+    assertTrue_1(!sar.getValue(ps));
+    assertTrue_1(sv.isKnown());
   }
 
   return true;
@@ -725,10 +720,10 @@ bool testAssignablePointer()
 bool testArrayRefNotification()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -793,7 +788,7 @@ bool testArrayRefNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
 
-  Constant<bool> dummy;
+  Constant<Boolean> dummy;
 
   // Check that nothing propagates while inactive
   ivar.notifyChanged(&dummy);
@@ -931,10 +926,10 @@ bool testArrayRefNotification()
 bool testMutableNotification()
 {
   // Set up test data
-  std::vector<bool>        vb(2);
-  std::vector<int32_t>     vi(4);
-  std::vector<double>      vd(4);
-  std::vector<std::string> vs(4);
+  std::vector<Boolean>        vb(2);
+  std::vector<Integer>     vi(4);
+  std::vector<Real>      vd(4);
+  std::vector<String> vs(4);
 
   vb[0] = false;
   vb[1] = true;
@@ -999,7 +994,7 @@ bool testMutableNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
 
-  Constant<bool> dummy;
+  Constant<Boolean> dummy;
 
   // Check that nothing propagates while inactive
   ivar.notifyChanged(&dummy);

@@ -25,8 +25,10 @@
 */
 
 #include "ArrayVariable.hh"
+
 #include "Constant.hh"
 #include "PlanError.hh"
+#include "Value.hh"
 
 #include <cstdlib> // free()
 #include <cstring> // strdup()
@@ -36,9 +38,8 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : NotifierImpl(),
-      ExpressionImpl<ArrayImpl<T> >(),
-      AssignableImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      NotifierImpl(),
       m_size(NULL),
       m_initializer(NULL),
       m_name(NULL),
@@ -53,9 +54,8 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : NotifierImpl(),
-      ExpressionImpl<ArrayImpl<T> >(),
-      AssignableImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      NotifierImpl(),
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name(NULL),
@@ -73,9 +73,8 @@ namespace PLEXIL
                                   char const *name,
                                   Expression *size,
                                   bool sizeIsGarbage)
-    : NotifierImpl(),
-      ExpressionImpl<ArrayImpl<T> >(),
-      AssignableImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
+      NotifierImpl(),
       m_size(size),
       m_initializer(NULL),
       m_name(strdup(name)),
@@ -101,6 +100,24 @@ namespace PLEXIL
   //
   // Essential Expression API
   //
+
+  template <typename T>
+  bool ArrayVariable<T>::isAssignable() const
+  {
+    return true;
+  }
+
+  template <typename T>
+  Assignable const *ArrayVariable<T>::asAssignable() const
+  {
+    return static_cast<Assignable const *>(this);
+  }
+
+  template <typename T>
+  Assignable *ArrayVariable<T>::asAssignable()
+  {
+    return static_cast<Assignable *>(this);
+  }
 
   template <typename T>
   char const *ArrayVariable<T>::getName() const
@@ -134,7 +151,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool ArrayVariable<T>::getMutableValuePointerImpl(ArrayImpl<T> *&ptr)
+  bool ArrayVariable<T>::getMutableValuePointer(Array *&ptr)
   {
     if (!this->isActive())
       return false;
@@ -198,6 +215,26 @@ namespace PLEXIL
   }
 
   template <typename T>
+  void ArrayVariable<T>::setValue(Value const &val)
+  {
+    ArrayImpl<T> const *ptr;
+    if (val.getValuePointer(ptr))
+      this->setValueImpl(*ptr);
+    else
+      this->setUnknown();
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setValue(Expression const &val)
+  {
+    ArrayImpl<T> const *ptr;
+    if (val.getValuePointer(ptr))
+      this->setValueImpl(*ptr);
+    else
+      this->setUnknown();
+  }
+
+  template <typename T>
   void ArrayVariable<T>::setValueImpl(ArrayImpl<T> const &value)
   {
     bool changed = !m_known || value != m_value;
@@ -258,14 +295,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayVariable<T>::setName(const std::string &name)
-  {
-    if (m_name)
-      delete m_name;
-    m_name = strdup(name.c_str());
-  }
-
-  template <typename T>
   NodeConnector const *ArrayVariable<T>::getNode() const
   {
     return m_node;
@@ -278,15 +307,15 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Assignable *ArrayVariable<T>::getBaseVariable()
+  Expression *ArrayVariable<T>::getBaseVariable()
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
   template <typename T>
-  Assignable const *ArrayVariable<T>::getBaseVariable() const
+  Expression const *ArrayVariable<T>::getBaseVariable() const
   {
-    return Assignable::asAssignable();
+    return this;
   }
 
   template <typename T>

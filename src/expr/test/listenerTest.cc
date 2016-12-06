@@ -29,16 +29,19 @@
 // ExpressionListener tests
 //
 
+#include "Expression.hh"
 #include "Error.hh"
 #include "NotifierImpl.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
 #include "Value.hh"
 
+using namespace PLEXIL;
+
 class PropagatingListener : public PLEXIL::ExpressionListener
 {
 public:
-  PropagatingListener(PLEXIL::Expression &owner)
+  PropagatingListener(PLEXIL::ExpressionListener &owner)
   : PLEXIL::ExpressionListener(),
     m_owner(owner)
   {
@@ -51,11 +54,12 @@ protected:
   }
 
 private:
-  PLEXIL::Expression &m_owner;
+  PLEXIL::ExpressionListener &m_owner;
 };
 
 
-class TrivialExpression : public PLEXIL::NotifierImpl
+class TrivialExpression :
+  public PLEXIL::NotifierImpl
 {
 public:
   TrivialExpression()
@@ -63,6 +67,26 @@ public:
       changed(false)
   {
   }
+
+#define DEFINE_TRIVIAL_GET_VALUE_METHOD(_rtype)  bool getValue(_rtype &) const { return false; }
+
+  DEFINE_TRIVIAL_GET_VALUE_METHOD(Boolean)
+  DEFINE_TRIVIAL_GET_VALUE_METHOD(uint16_t)
+  DEFINE_TRIVIAL_GET_VALUE_METHOD(Integer)
+  DEFINE_TRIVIAL_GET_VALUE_METHOD(Real)
+  DEFINE_TRIVIAL_GET_VALUE_METHOD(String)
+
+#undef DEFINE_TRIVIAL_GET_VALUE_METHOD
+
+#define DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(_rtype)  bool getValuePointer(_rtype const *&) const { return false; }
+  DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(String)
+  DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(Array)
+  DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(BooleanArray)
+  DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(IntegerArray)
+  DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(RealArray)
+  DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD(StringArray)
+
+#undef DEFINE_TRIVIAL_GET_VALUE_PTR_METHOD
 
   // Only ever called when active
   void handleChange(PLEXIL::Expression const * src)
@@ -72,7 +96,7 @@ public:
   }
 
   const char *exprName() const { return "trivial"; }
-  const PLEXIL::ValueType valueType() const { return PLEXIL::UNKNOWN_TYPE; }
+  PLEXIL::ValueType valueType() const { return PLEXIL::UNKNOWN_TYPE; }
 
   void print(std::ostream& s) const {}
   void printValue(std::ostream& s) const {}

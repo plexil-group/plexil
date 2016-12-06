@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -827,7 +827,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bart0Xml = doc.append_child("ArrayElement");
       bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Assignable *bar0 = createAssignable(bart0Xml, nc, wasCreated);
+      Expression *bar0 = createAssignable(bart0Xml, nc, wasCreated);
       assertTrue_1(bar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
@@ -846,7 +846,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bartiXml = doc.append_child("ArrayElement");
       bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *bari = createAssignable(bartiXml, nc, wasCreated);
+      Expression *bari = createAssignable(bartiXml, nc, wasCreated);
       assertTrue_1(bari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
@@ -872,7 +872,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(n == i);
         assertTrue_1(bari->getValue(pb));
         assertTrue_1(pb == vb[i]);
-        bari->setValue(!pb);
+        bari->asAssignable()->setValue(!pb);
         assertTrue_1(bari->getValue(pb));
         assertTrue_1(pb == !vb[i]);
       }
@@ -887,7 +887,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bartvXml = doc.append_child("ArrayElement");
       bartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *barv = createAssignable(bartvXml, nc, wasCreated);
+      Expression *barv = createAssignable(bartvXml, nc, wasCreated);
       assertTrue_1(barv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", barv->exprName()));
@@ -913,7 +913,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(n == i);
         assertTrue_1(barv->getValue(pb));
         assertTrue_1(pb == vb[i]);
-        barv->setValue(!pb);
+        barv->asAssignable()->setValue(!pb);
         assertTrue_1(barv->getValue(pb));
         assertTrue_1(pb == !vb[i]);
       }
@@ -941,7 +941,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iart0Xml = doc.append_child("ArrayElement");
       iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
       iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Assignable *iar0 = createAssignable(iart0Xml, nc, wasCreated);
+      Expression *iar0 = createAssignable(iart0Xml, nc, wasCreated);
       assertTrue_1(iar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
@@ -960,7 +960,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iartiXml = doc.append_child("ArrayElement");
       iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
       iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *iari = createAssignable(iartiXml, nc, wasCreated);
+      Expression *iari = createAssignable(iartiXml, nc, wasCreated);
       assertTrue_1(iari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
@@ -986,7 +986,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(n == i);
         assertTrue_1(iari->getValue(pi));
         assertTrue_1(pi == vi[i]);
-        iari->setValue(-pi);
+        iari->asAssignable()->setValue(-pi);
         pi = 0;
         assertTrue_1(iari->getValue(pi));
         assertTrue_1(pi == -vi[i]);
@@ -1002,7 +1002,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iartvXml = doc.append_child("ArrayElement");
       iartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("int");
       iartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *iarv = createAssignable(iartvXml, nc, wasCreated);
+      Expression *iarv = createAssignable(iartvXml, nc, wasCreated);
       assertTrue_1(iarv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iarv->exprName()));
@@ -1028,7 +1028,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(n == i);
         assertTrue_1(iarv->getValue(pi));
         assertTrue_1(pi == vi[i]);
-        iarv->setValue(-pi);
+        iarv->asAssignable()->setValue(-pi);
         pi = 0;
         assertTrue_1(iarv->getValue(pi));
         assertTrue_1(pi == -vi[i]);
@@ -1057,7 +1057,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dart0Xml = doc.append_child("ArrayElement");
       dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Assignable *dar0 = createAssignable(dart0Xml, nc, wasCreated);
+      Expression *dar0 = createAssignable(dart0Xml, nc, wasCreated);
       assertTrue_1(dar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
@@ -1076,7 +1076,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dartiXml = doc.append_child("ArrayElement");
       dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *dari = createAssignable(dartiXml, nc, wasCreated);
+      Expression *dari = createAssignable(dartiXml, nc, wasCreated);
       assertTrue_1(dari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
@@ -1102,7 +1102,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(n == i);
         assertTrue_1(dari->getValue(pd));
         assertTrue_1(pd == vd[i]);
-        dari->setValue(-pd);
+        dari->asAssignable()->setValue(-pd);
         pd = 0;
         assertTrue_1(dari->getValue(pd));
         assertTrue_1(pd == -vd[i]);
@@ -1116,7 +1116,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dartvXml = doc.append_child("ArrayElement");
       dartvXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *darv = createAssignable(dartvXml, nc, wasCreated);
+      Expression *darv = createAssignable(dartvXml, nc, wasCreated);
       assertTrue_1(darv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", darv->exprName()));
@@ -1142,7 +1142,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(n == i);
         assertTrue_1(darv->getValue(pd));
         assertTrue_1(pd == vd[i]);
-        darv->setValue(-pd);
+        darv->asAssignable()->setValue(-pd);
         pd = 0;
         assertTrue_1(darv->getValue(pd));
         assertTrue_1(pd == -vd[i]);
@@ -1171,7 +1171,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sart0Xml = doc.append_child("ArrayElement");
       sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
       sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Assignable *sar0 = createAssignable(sart0Xml, nc, wasCreated);
+      Expression *sar0 = createAssignable(sart0Xml, nc, wasCreated);
       assertTrue_1(sar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
@@ -1190,7 +1190,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sartiXml = doc.append_child("ArrayElement");
       sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
       sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *sari = createAssignable(sartiXml, nc, wasCreated);
+      Expression *sari = createAssignable(sartiXml, nc, wasCreated);
       assertTrue_1(sari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -1214,7 +1214,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(sari->getValue(ps));
         assertTrue_1(ps == vs[i]);
         ps.push_back('x');
-        sari->setValue(ps);
+        sari->asAssignable()->setValue(ps);
         ps.clear();
         assertTrue_1(sari->getValue(ps));
         assertTrue_1(ps != vs[i]);
@@ -1231,7 +1231,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sartvXml = doc.append_child("ArrayElement");
       sartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("str");
       sartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Assignable *sarv = createAssignable(sartvXml, nc, wasCreated);
+      Expression *sarv = createAssignable(sartvXml, nc, wasCreated);
       assertTrue_1(sarv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", sarv->exprName()));
@@ -1255,7 +1255,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(sarv->getValue(ps));
         assertTrue_1(ps == vs[i]);
         ps.push_back('x');
-        sarv->setValue(ps);
+        sarv->asAssignable()->setValue(ps);
         ps.clear();
         assertTrue_1(sarv->getValue(ps));
         assertTrue_1(ps != vs[i]);

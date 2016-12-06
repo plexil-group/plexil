@@ -39,25 +39,25 @@ namespace PLEXIL
 
   // Specific types
   template <>
-  ValueType NodeOperatorImpl<double>::valueType() const
+  ValueType NodeOperatorImpl<Real>::valueType() const
   {
     return REAL_TYPE;
   }
 
   template <>
-  ValueType NodeOperatorImpl<int32_t>::valueType() const
+  ValueType NodeOperatorImpl<Integer>::valueType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  ValueType NodeOperatorImpl<bool>::valueType() const
+  ValueType NodeOperatorImpl<Boolean>::valueType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  ValueType NodeOperatorImpl<std::string>::valueType() const
+  ValueType NodeOperatorImpl<String>::valueType() const
   {
     return STRING_TYPE;
   }
@@ -161,7 +161,7 @@ namespace PLEXIL
  
   template <>
   template <>
-  bool NodeOperatorImpl<int32_t>::calc(double &result, Node const *node) const
+  bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const
   {
     int32_t temp;
     if (!this->calc(temp, node))
@@ -174,11 +174,11 @@ namespace PLEXIL
   // Explicit instantiations
   //
 
-  template class NodeOperatorImpl<double>;
-  template class NodeOperatorImpl<int32_t>;
+  template class NodeOperatorImpl<Real>;
+  template class NodeOperatorImpl<Integer>;
   // template class NodeOperatorImpl<uint16_t>;
-  template class NodeOperatorImpl<bool>;
-  template class NodeOperatorImpl<std::string>;
+  template class NodeOperatorImpl<Boolean>;
+  template class NodeOperatorImpl<String>;
 
   // later?
   // template class NodeOperatorImpl<BooleanArray>;

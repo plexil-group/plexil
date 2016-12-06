@@ -129,7 +129,7 @@ namespace PLEXIL
     else {
       // Wrap user-provided condition
       m_conditions[endIdx] =
-        new Function(BooleanAnd::instance(),
+        makeFunction(BooleanAnd::instance(),
                      ack,
                      m_conditions[endIdx],
                      false,

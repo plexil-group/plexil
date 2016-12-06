@@ -27,14 +27,12 @@
 #ifndef PLEXIL_ARRAY_REFERENCE_HH
 #define PLEXIL_ARRAY_REFERENCE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
+#include "NotifierImpl.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL {
-
-  // Forward reference
-  class Value;
 
   class ArrayReference : public NotifierImpl
   {
@@ -52,7 +50,7 @@ namespace PLEXIL {
 
     char const *getName() const;
     char const *exprName() const;
-    const ValueType valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
     bool isConstant() const;
     bool isAssignable() const;
@@ -64,21 +62,29 @@ namespace PLEXIL {
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
-     * @note Limited type conversions supported.
      * @note Unimplemented conversions will cause a link time error.
      */
-    virtual bool getValue(bool &) const;        // Boolean
-    virtual bool getValue(double &) const;      // Real
-    //virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(int32_t &) const;     // Integer
-    virtual bool getValue(std::string &) const; // String
+
+    virtual bool getValue(Boolean &result) const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
+    virtual bool getValue(String &result) const;
+
+    // This issues a PlanError
+    virtual bool getValue(uint16_t &result) const;
 
     /**
      * @brief Get a pointer to the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const;
+    virtual bool getValuePointer(String const *&ptr) const;
+
+    virtual bool getValuePointer(Array const *&ptr) const;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
     Value toValue() const;
 
@@ -112,7 +118,6 @@ namespace PLEXIL {
     // Internal function
     bool selfCheck(Array const *&valuePtr,
                    size_t &idx) const;
-
   };
 
   /**
@@ -120,7 +125,9 @@ namespace PLEXIL {
    * @brief Expression class that represents a modifiable location in an array.
    */
 
-  class MutableArrayReference : public ArrayReference, public Assignable
+  class MutableArrayReference :
+    public Assignable,
+    public ArrayReference
   {
   public:
     MutableArrayReference(Expression *ary,
@@ -130,76 +137,71 @@ namespace PLEXIL {
 
     ~MutableArrayReference();
 
-    bool isAssignable() const;
+    virtual bool isAssignable() const;
 
-    Assignable const *asAssignable() const;
-    Assignable *asAssignable();
+    virtual Assignable const *asAssignable() const;
+    virtual Assignable *asAssignable();
 
     /**
      * @brief Reset the expression.
      */
-    void reset();
+    virtual void reset();
 
     /**
      * @brief Assign the current value to UNKNOWN.
      */
-    void setUnknown();
+    virtual void setUnknown();
 
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    void setValue(double const &val);
-    void setValue(int32_t const &val);
-    void setValue(uint16_t const &val);
-    void setValue(bool const &val);
-    void setValue(std::string const &val);
-    void setValue(char const *val);
-
-    // These will throw an exception
-    void setValue(BooleanArray const &val);
-    void setValue(IntegerArray const &val);
-    void setValue(RealArray const &val);
-    void setValue(StringArray const &val);
+    virtual void setValue(Boolean const &val);
+    virtual void setValue(Integer const &val);
+    virtual void setValue(Real const &val);
+    virtual void setValue(String const &val);
 
     /**
-     * @brief Set the value for this expression from another expression.
+     * @brief Set the value for this expression from another Expression.
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    void setValue(Expression const *valex);
+    virtual void setValue(Expression const &valex);
 
     /**
      * @brief Set the value for this expression from a generic Value.
      * @param val The Value.
      * @note May cause change notifications to occur.
      */
-    void setValue(Value const &value);
+    virtual void setValue(Value const &value);
+
+    using Assignable::setValue;
 
     /**
-     * @brief Retrieve a writable ponter to the value.
+     * @brief Retrieve a writable pointer to the value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
      * @note Default method returns false and reports a type error.
      */
     bool getMutableValuePointer(std::string *& ptr);
 
-    // These will throw an exception
-    bool getMutableValuePointer(Array *& ptr);
-    bool getMutableValuePointer(BooleanArray *& ptr);
-    bool getMutableValuePointer(IntegerArray *& ptr);
-    bool getMutableValuePointer(RealArray *& ptr);
-    bool getMutableValuePointer(StringArray *& ptr);
+    // Throws an exception
+    virtual bool getMutableValuePointer(Array *& ptr);
 
-    void saveCurrentValue();
-    void restoreSavedValue();
-    Value getSavedValue() const;
+    virtual void saveCurrentValue();
+    virtual void restoreSavedValue();
+    virtual Value getSavedValue() const;
 
-    NodeConnector const *getNode() const;
-    NodeConnector *getNode();
+    virtual NodeConnector const *getNode() const;
+    virtual NodeConnector *getNode();
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    virtual Expression *getBaseVariable();
+    virtual Expression const *getBaseVariable() const;
+
+  protected:
+
+    // Wrap NotifierImpl method
+    void publishChange(Expression const *src); // N.B.: NOT VIRTUAL!!!
 
   private:
     // Default, copy, assignment disallowed
@@ -210,6 +212,7 @@ namespace PLEXIL {
     // Internal function
     bool mutableSelfCheck(Array *&ary, size_t &idx);
 
+    // FIXME: make this a pointer to ArrayVariable
     Assignable *m_mutableArray;
     Value m_savedValue;
     bool m_saved;

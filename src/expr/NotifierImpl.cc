@@ -32,7 +32,6 @@
 #endif
 
 #include "Error.hh"
-#include "ExpressionListener.hh"
 
 #include <algorithm> // for std::find()
 
@@ -48,8 +47,7 @@ namespace PLEXIL {
 #endif
 
   NotifierImpl::NotifierImpl()
-    : Expression(),
-      m_activeCount(0),
+    : m_activeCount(0),
       m_outgoingListeners()
   {
 #ifdef RECORD_EXPRESSION_STATS
@@ -103,12 +101,14 @@ namespace PLEXIL {
   {
     bool changed = (!m_activeCount);
     ++m_activeCount;
-    if (changed)
+    if (changed) {
       this->handleActivate();
-    else
+    }
+    else {
       // Check for counter wrap only if active at entry
       assertTrue_2(m_activeCount,
                    "NotifierImpl::activate: Active counter overflowed.");
+    }
   }
 
   // No-op default method.

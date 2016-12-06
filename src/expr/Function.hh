@@ -28,12 +28,15 @@
 #define PLEXIL_FUNCTION_HH
 
 #include "ArrayFwd.hh"
+#include "Expression.hh"
 #include "NotifierImpl.hh"
-#include "Operator.hh"
+#include "Value.hh"
+#include "ValueType.hh"
 
 namespace PLEXIL
 {
-  class ExprVec;
+  // Forward reference
+  class Operator;
 
   /**
    * @class Function
@@ -44,13 +47,6 @@ namespace PLEXIL
   class Function : public NotifierImpl
   {
   public:
-    Function(Operator const *op, ExprVec *exprs);
-    // Convenience constructors for Node classes 
-    Function(Operator const *op, Expression *expr, bool garbage);
-    Function(Operator const *op, 
-             Expression *expr1, Expression *expr2,
-             bool garbage1, bool garbage2);
-
     virtual ~Function();
 
     //
@@ -58,61 +54,91 @@ namespace PLEXIL
     //
 
     const char *exprName() const;
-    const ValueType valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
     void printValue(std::ostream &s) const;
-    void printSubexpressions(std::ostream &s) const;
     Value toValue() const;
+
+    // Delegated to implementation classes
+
+    // Argument accessors
+
+    virtual size_t size() const = 0;
+    virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
+    virtual void printSubexpressions(std::ostream &s) const = 0;
+    virtual void setArgument(size_t i, Expression *expr, bool garbage) = 0;
+    virtual Expression const *operator[](size_t n) const = 0;
 
     /**
      * @brief Retrieve the value of this Expression in its native form.
      * @param The appropriately typed place to put the result.
      * @return True if result known, false if unknown.
+     * @note Derived classes may override the default methods for performance.
      */
-    bool getValue(bool &result) const;
-    bool getValue(int32_t &result) const;
-    bool getValue(double &result) const;
-    bool getValue(std::string &result) const;
+    virtual bool getValue(Boolean &result) const;
+    virtual bool getValue(uint16_t &result) const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
+    virtual bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
+     * @note Derived classes may override the default methods for performance.
      */
-    bool getValuePointer(std::string const *&ptr) const;
-    bool getValuePointer(BooleanArray const *&ptr) const;
-    bool getValuePointer(IntegerArray const *&ptr) const;
-    bool getValuePointer(RealArray const *&ptr) const;
-    bool getValuePointer(StringArray const *&ptr) const;
+    virtual bool getValuePointer(String const *&ptr) const;
 
-    bool getValuePointer(Array const *&ptr) const;
+    // Maybe later?
+    virtual bool getValuePointer(Array const *&ptr) const;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
-    // Override to NotifierImpl method
-    virtual void addListener(ExpressionListener *ptr);
+    // Needed by Operator::calcNative for array types
+    virtual bool apply(Operator const *op, Array &result) const;
 
   protected:
+
+    // Constructor only available to derived classes
+    Function(Operator const *op);
 
     //
     // NotifierImpl API
     //
-    virtual void handleActivate();
-    virtual void handleDeactivate();
+    virtual void handleActivate() = 0;
+    virtual void handleDeactivate() = 0;
 
     Operator const *m_op;
+
+    // For implementing getValuePointer().
+    // Must be a pointer to preserve const-ness.
+    // Cache is allocated and deleted by the operator, which knows its size.
+
+    void *m_valueCache;
 
   private:
     // Not implemented
     Function();
     Function(const Function &);
     Function& operator=(const Function &);
-
-    ExprVec *m_exprVec;
-
-    // For implementing getValuePointer().
-    // Must be a pointer to preserve const-ness.
-    // Cache is allocated and deleted by the operator, which knows its size.
-    void *m_valueCache;
   };
+
+  // Factory functions
+  extern Function *makeFunction(Operator const *op,
+                                size_t nargs);
+
+  // Convenience wrappers for Node classes and unit test
+  extern Function *makeFunction(Operator const *op,
+                                Expression *expr,
+                                bool garbage);
+
+  extern Function *makeFunction(Operator const *op, 
+                                Expression *expr1,
+                                Expression *expr2,
+                                bool garbage1,
+                                bool garbage2);
 
 } // namespace PLEXIL
 

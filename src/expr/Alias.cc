@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ namespace PLEXIL
     return "InAlias";
   }
    
-  const ValueType Alias::valueType() const
+  ValueType Alias::valueType() const
   {
     return m_exp->valueType();
   }
@@ -111,14 +111,7 @@ namespace PLEXIL
     m_exp->printValue(s);
   }
 
-  bool Alias::getValue(bool &var) const
-  {
-    if (!isActive())
-      return false;
-    return m_exp->getValue(var);
-  }
-
-  bool Alias::getValue(double &var) const
+  bool Alias::getValue(Boolean &var) const
   {
     if (!isActive())
       return false;
@@ -132,21 +125,28 @@ namespace PLEXIL
     return m_exp->getValue(var);
   }
 
-  bool Alias::getValue(int32_t &var) const
+  bool Alias::getValue(Integer &var) const
   {
     if (!isActive())
       return false;
     return m_exp->getValue(var);
   }
 
-  bool Alias::getValue(std::string &var) const
+  bool Alias::getValue(Real &var) const
   {
     if (!isActive())
       return false;
     return m_exp->getValue(var);
   }
 
-  bool Alias::getValuePointer(std::string const *&ptr) const
+  bool Alias::getValue(String &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
+
+  bool Alias::getValuePointer(String const *&ptr) const
   {
     if (!isActive())
       return false;
@@ -192,8 +192,7 @@ namespace PLEXIL
   {
     if (!isActive())
       return Value(0, m_exp->valueType());
-    else
-      return m_exp->toValue();
+    return m_exp->toValue();
   }
 
 } // namespace PLEXIL

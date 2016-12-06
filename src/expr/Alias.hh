@@ -41,7 +41,8 @@ namespace PLEXIL
    * @note Most commonly used in library nodes, but also anywhere
    *       read-only access to a mutable expression is needed.
    */
-  class Alias : public NotifierImpl
+  class Alias :
+    public NotifierImpl
   {
   public:
     Alias(NodeConnector *node, // *** is this needed?? ***
@@ -56,7 +57,7 @@ namespace PLEXIL
 
     char const *getName() const;
     char const *exprName() const;
-    const ValueType valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
     virtual bool isAssignable() const;
     bool isConstant() const;
@@ -70,18 +71,18 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getValue(bool &var) const;
-    bool getValue(double &var) const;
+    bool getValue(Boolean &var) const;
     bool getValue(uint16_t &var) const;
-    bool getValue(int32_t &var) const;
-    bool getValue(std::string &var) const;
+    bool getValue(Integer &var) const;
+    bool getValue(Real &var) const;
+    bool getValue(String &var) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(String const *&ptr) const;
     bool getValuePointer(Array const *&ptr) const;
     bool getValuePointer(BooleanArray const *&ptr) const;
     bool getValuePointer(IntegerArray const *&ptr) const;

@@ -31,16 +31,8 @@
 namespace PLEXIL 
 {
   Expression::Expression()
+    : ExpressionListener()
   {
-  }
-
-  Expression::Expression(Expression const &)
-  {
-  }
-
-  Expression &Expression::operator=(Expression const &)
-  {
-    return *this;
   }
 
   Expression::~Expression()
@@ -132,87 +124,9 @@ namespace PLEXIL
     return s.str();
   }
 
-  // Default method, does nothing.
+  // Default method does nothing.
   void Expression::notifyChanged(Expression const * /* src */)
   {
   }
-
-  bool Expression::getValue(bool &) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a Boolean value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValue(uint16_t &) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a PLEXIL internal value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValue(int32_t &) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get an Integer value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValue(double &) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a Real value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValue(std::string &) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a String value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValuePointer(std::string const *& /* ptr */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a String value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValuePointer(Array const *& /* ptr */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get an Array value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValuePointer(BooleanArray const *& /* ptr */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a BooleanArray value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValuePointer(IntegerArray const *& /* ptr */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get an IntegerArray value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValuePointer(RealArray const *& /* ptr */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a RealArray value from " << this->getName());
-    return false;
-  }
-
-  bool Expression::getValuePointer(StringArray const *& /* ptr */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get a StringArray value from " << this->getName());
-    return false;
-  }
-    
 
 } // namespace PLEXIL

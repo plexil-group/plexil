@@ -275,7 +275,7 @@ namespace PLEXIL {
     /**
      * @brief Accessor for an assignment node's assigned variable.
      */
-    virtual Assignable *getAssignmentVariable() const 
+    virtual Expression *getAssignmentVariable() const 
     {
       return NULL;
     }
@@ -409,6 +409,10 @@ namespace PLEXIL {
     void reset();
     virtual void abort();
     virtual void deactivateExecutable();
+
+    // Variables
+    void activateLocalVariables();
+    void deactivateLocalVariables();
 
     // Activate conditions
 

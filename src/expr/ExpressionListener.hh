@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL
   class ExpressionListener
   {
   public:
-
+    ExpressionListener() {}
     virtual ~ExpressionListener() {}
 
     /**
@@ -50,6 +50,11 @@ namespace PLEXIL
      *            (e.g. an array reference modifying its array)
      */
     virtual void notifyChanged(Expression const *src) = 0;
+
+  private:
+    // Not implemented
+    ExpressionListener(ExpressionListener const &);
+    ExpressionListener &operator=(ExpressionListener const &);
   };
 
 }

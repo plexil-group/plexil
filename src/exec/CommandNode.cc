@@ -35,38 +35,70 @@
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "Function.hh"
+#include "NodeFunction.hh"
+#include "NodeOperatorImpl.hh"
 
 namespace PLEXIL
 {
   /**
-   * @class CommandHandleInterruptible
-   * @brief An Operator that returns true if the command handle is interruptible, false if not.
+   * @class CommandHandleKnown
+   * @brief A NodeOperator that returns true if the command handle is known, false otherwise.
    */
 
-  class CommandHandleInterruptible : public OperatorImpl<bool>
+  class CommandHandleKnown : public NodeOperatorImpl<Boolean>
   {
   public:
-    CommandHandleInterruptible()
-      : OperatorImpl<bool>("Interruptible")
+    ~CommandHandleKnown()
+    {
+    }
+    
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown, Boolean)
+
+    bool checkArgCount(size_t count) const
+    {
+      return true;
+    }
+
+    bool operator()(Boolean &result, Node const *node) const
+    {
+      result =
+        (NO_COMMAND_HANDLE !=
+         ((CommandNode const *) node)->getCommand()->getCommandHandle());
+      return true;
+    }
+
+  private:
+
+    CommandHandleKnown()
+      : NodeOperatorImpl<Boolean>("CommandHandleKnown")
     {
     }
 
+    // Disallow copy, assign
+    CommandHandleKnown(CommandHandleKnown const &);
+    CommandHandleKnown &operator=(CommandHandleKnown const &);
+  };
+
+  /**
+   * @class CommandHandleInterruptible
+   * @brief A NodeOperator that returns true if the command handle is interruptible, false if not.
+   */
+
+  class CommandHandleInterruptible : public NodeOperatorImpl<Boolean>
+  {
+  public:
     ~CommandHandleInterruptible()
     {
     }
 
     bool checkArgCount(size_t count) const
     {
-      return count == 1;
+      return true;
     }
 
-    bool operator()(bool &result, Expression const *arg) const
+    bool operator()(Boolean &result, Node const *node) const
     {
-      uint16_t val;
-      if (!arg->getValue(val)) // unknown
-        return false; // result is unknown
-
-      switch (val) {
+      switch (((CommandNode const *) node)->getCommand()->getCommandHandle()) {
         // Cases in which node is terminated early
       case COMMAND_DENIED:          // Insufficient resources
       case COMMAND_FAILED:          // Couldn't be sent/performed
@@ -74,16 +106,23 @@ namespace PLEXIL
         result = true;
         break;
 
+      case NO_COMMAND_HANDLE:       // Unknown
       default:
         result = false;
         break;
       }
-      return true; // result is known
+      return true;
     }
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, bool)
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, Boolean)
 
-    private:
+  private:
+
+    CommandHandleInterruptible()
+      : NodeOperatorImpl<Boolean>("Interruptible")
+    {
+    }
+
     // Not implemented
     CommandHandleInterruptible(const CommandHandleInterruptible &);
     CommandHandleInterruptible &operator=(const CommandHandleInterruptible &);
@@ -105,9 +144,6 @@ namespace PLEXIL
     : Node(type, name, state, parent),
       m_command(NULL)
   {
-    checkError(type == COMMAND,
-               "Invalid node type \"" << type << "\" for a CommandNode");
-
     // Create dummy command for unit test
     createDummyCommand();
 
@@ -163,8 +199,10 @@ namespace PLEXIL
       return;
 
     debugMsg("CommandNode:cleanUpNodeBody", '<' << m_nodeId << "> entered");
-    if (m_command)
+    if (m_command) {
+      m_command->getAck()->removeListener(this);
       m_command->cleanUp();
+    }
     m_cleanedBody = true;
   }
 
@@ -174,14 +212,12 @@ namespace PLEXIL
     m_command = cmd;
 
     // Construct action-complete condition
-    Expression *actionComplete =
-      new Function(IsKnown::instance(), m_command->getAck(), false);
-    m_conditions[actionCompleteIdx] = actionComplete;
+    m_conditions[actionCompleteIdx] =
+      new NodeFunction(CommandHandleKnown::instance(), this);
     m_garbageConditions[actionCompleteIdx] = true;
 
     // Construct command-aborted condition
-    Expression *commandAbort = m_command->getAbortComplete();
-    m_conditions[abortCompleteIdx] = commandAbort;
+    m_conditions[abortCompleteIdx] = m_command->getAbortComplete();
     m_garbageConditions[abortCompleteIdx] = false;
   }
 
@@ -191,15 +227,16 @@ namespace PLEXIL
     if (m_conditions[endIdx] && m_conditions[endIdx] != TRUE_EXP()) {
       // Construct real end condition by wrapping existing
       m_conditions[endIdx] = 
-        new Function(BooleanOr::instance(),
-                     new Function(CommandHandleInterruptible::instance(),
-                                  m_command->getAck(),
-                                  false),
+        makeFunction(BooleanOr::instance(),
+                     new NodeFunction(CommandHandleInterruptible::instance(), this),
                      m_conditions[endIdx],
                      true,
                      m_garbageConditions[endIdx]);
       m_garbageConditions[endIdx] = true;
     }
+
+    // Add node as listener on command handle variable
+    m_command->getAck()->addListener(this);
   }
 
   //
@@ -215,7 +252,10 @@ namespace PLEXIL
 
   void CommandNode::transitionToExecuting()
   {
+    activateLocalVariables();
+
     activateInvariantCondition();
+    activateExitCondition();
     activateEndCondition();
   }
 
@@ -297,17 +337,24 @@ namespace PLEXIL
 
   void CommandNode::transitionFromExecuting()
   {
-    if (m_nextState == FAILING_STATE) {
+    switch (m_nextState) {
+
+    case FAILING_STATE:
       deactivateAncestorExitInvariantConditions();
       deactivateExitCondition();
       deactivateInvariantCondition();
-    }
-    else
-      checkError(m_nextState == FINISHING_STATE,
-                 "Attempting to transition Command node from EXECUTING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
+      // fall through
 
-    deactivateEndCondition();
+    case FINISHING_STATE:
+      deactivateEndCondition();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition Command node from EXECUTING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
+    }
   }
 
   //
@@ -421,9 +468,9 @@ namespace PLEXIL
       break;
 
     default:
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition Command node from FINISHING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition Command node from FINISHING to invalid state "
+                    << nodeStateName(m_nextState));
       break;
     }
 
@@ -489,14 +536,23 @@ namespace PLEXIL
     deactivateAbortCompleteCondition();
     deactivateExecutable();
 
-    if (m_nextState == ITERATION_ENDED_STATE) {
+    switch (m_nextState) {
+
+    case ITERATION_ENDED_STATE:
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
+      break;
+
+    case FINISHED_STATE:
+      // all done
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition Command node from FAILING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else 
-      checkError(m_nextState == FINISHED_STATE,
-                 "Attempting to transition Command node from FAILING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
   void CommandNode::specializedHandleExecution()

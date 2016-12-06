@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,25 +27,28 @@
 #include "SimpleBooleanVariable.hh"
 
 #include "Error.hh"
-
-#include <cstdlib> // free()
-#include <cstring> // strdup()
+#include "Value.hh"
 
 namespace PLEXIL
 {
 
   SimpleBooleanVariable::SimpleBooleanVariable()
     : NotifierImpl(),
-      ExpressionImpl<bool>(),
-    AssignableImpl<bool>(),
     m_name(NULL),
     m_value(false)
   {
   }
 
+  SimpleBooleanVariable::SimpleBooleanVariable(char const *name)
+    : NotifierImpl(),
+    m_name(name),
+    m_value(false)
+  {
+  }
+
+  // Don't delete m_name as it is a pointer to a constant string.
   SimpleBooleanVariable::~SimpleBooleanVariable()
   {
-    free((void *) m_name);
   }
 
   char const *SimpleBooleanVariable::exprName() const
@@ -61,90 +64,55 @@ namespace PLEXIL
     return sl_dummy;
   }
 
-  void SimpleBooleanVariable::setName(std::string const &name)
-  {
-    if (m_name)
-      delete m_name;
-    m_name = strdup(name.c_str());
-  }
-
   void SimpleBooleanVariable::printSpecialized(std::ostream &s) const
   {
-    s << m_name << ' ';
-  }
-
-  Assignable *SimpleBooleanVariable::getBaseVariable()
-  {
-    return static_cast<Assignable *>(this);
-  }
-
-  Assignable const *SimpleBooleanVariable::getBaseVariable() const
-  {
-    return static_cast<Assignable const *>(this);
+    s << getName() << ' ';
   }
 
   //
-  // Value API
+  // GetValue API
   //
   
   // A SimpleBooleanVariable's value is known whenever it is active.
   bool SimpleBooleanVariable::isKnown() const
   {
-    return this->isActive();
+    return true;
   }
 
-  bool SimpleBooleanVariable::getValueImpl(bool &result) const
+  bool SimpleBooleanVariable::getValueImpl(Boolean &result) const
   {
-    if (this->isActive()) {
-      result = m_value;
-      return true;
-    }
-    return false;
+    result = m_value;
+    return true;
   }
 
-  void SimpleBooleanVariable::setValueImpl(bool const &value)
+  //
+  // SetValue API
+  //
+
+  void SimpleBooleanVariable::setValue(Boolean const &val)
   {
     if (this->isActive()) {
-      if (m_value != value) {
-        m_value = value;
+      if (m_value != val) {
+        m_value = val;
         this->publishChange(this);
       }
     }
   }
 
-  void SimpleBooleanVariable::setUnknown()
+  void SimpleBooleanVariable::setValue(Value const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
+    assertTrueMsg(val.valueType() == BOOLEAN_TYPE,
+                  "setValue: can't assign a " << valueTypeName(val.valueType())
+                  << " value to a SimpleBooleanVariable");
+    bool bval;
+    assertTrueMsg(val.getValue(bval),
+                  "setValue: can't assign UNKNOWN to a SimpleBooleanVariable");
+    setValue(bval);
   }
 
   void SimpleBooleanVariable::reset()
   {
     m_value = false;
-  }
-
-  void SimpleBooleanVariable::saveCurrentValue()
-  {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
-  }
-
-  void SimpleBooleanVariable::restoreSavedValue()
-  {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
-  }
-
-  Value SimpleBooleanVariable::getSavedValue() const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Not implemented for this class");
-    return Value();
-  }
-  
-  //
-  // NotifierImpl API
-  // 
-
-  // SimpleBooleanVariable doesn't depend on anything else.
-  void SimpleBooleanVariable::notifyChanged(Expression const * /* src */)
-  {
   }
 
 } // namespace PLEXIL

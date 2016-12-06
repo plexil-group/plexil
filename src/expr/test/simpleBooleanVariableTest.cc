@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "SimpleBooleanVariable.hh"
 #include "TestSupport.hh"
+#include "Value.hh"
 #include "test/TrivialListener.hh"
 
 using namespace PLEXIL;
@@ -35,17 +36,17 @@ static bool testUninitializedSBV()
 {
   SimpleBooleanVariable vub;
 
-  // Test that it is assignable and not constant
-  assertTrue_1(vub.isAssignable());
+  // Test that it is not constant
   assertTrue_1(!vub.isConstant());
 
   // Test that it is created inactive
   assertTrue_1(!vub.isActive());
 
-  // Test that it is unknown while inactive
-  assertTrue_1(!vub.isKnown());
+  // Test that it is known and false while inactive
+  assertTrue_1(vub.isKnown());
   bool foob;
-  assertTrue_1(!vub.getValue(foob));
+  assertTrue_1(vub.getValue(foob));
+  assertTrue_1(!foob);
 
   // Activate and confirm it is known and false
   vub.activate();
@@ -78,54 +79,6 @@ static bool testUninitializedSBV()
   assertTrue_1(vub.isKnown());
   assertTrue_1(vub.getValue(foob));
   assertTrue_1(foob == false);
-
-  return true;
-}
-
-// Confirm that we can do all the Assignable operations
-// through an Assignable * pointer.
-static bool testAssignablePointerSBV()
-{
-  SimpleBooleanVariable vb;
-  Assignable *eb(vb.asAssignable());
-
-  // Confirm that we actually got a pointer
-  assertTrue_1(eb);
-
-  // Test that it is assignable and not constant
-  assertTrue_1(eb->isAssignable());
-  assertTrue_1(!eb->isConstant());
-
-  // Test that it is created inactive
-  assertTrue_1(!eb->isActive());
-
-  // Test that value is unknown while inactive
-  assertTrue_1(!eb->isKnown());
-
-  // Activate
-  eb->activate();
-
-  // Test that it is now known
-  assertTrue_1(eb->isKnown());
-
-  // Check value
-  bool foob;
-  assertTrue_1(eb->getValue(foob));
-  assertTrue_1(!foob);
-
-  // Set value and check
-  eb->setValue(true);
-  assertTrue_1(eb->getValue(foob));
-  assertTrue_1(foob);
-
-  // Reset
-  eb->deactivate();
-  eb->reset();
-  eb->activate();
-
-  // Check initial value is restored
-  assertTrue_1(eb->getValue(foob));
-  assertTrue_1(!foob);
 
   return true;
 }
@@ -169,7 +122,6 @@ static bool testNotificationSBV()
 bool simpleBooleanVariableTest()
 {
   runTest(testUninitializedSBV);
-  runTest(testAssignablePointerSBV);
   runTest(testNotificationSBV);
 
   return true;

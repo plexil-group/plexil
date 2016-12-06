@@ -38,10 +38,11 @@ namespace PLEXIL
   /**
    * @class NodeFunction
    * @brief An abstract base class.
-   * Represents a function whose value depends on the value(s) of one or more subexpressions.
+   * Represents a function whose value depends on some property of a node or its neighbors.
    */
 
-  class NodeFunction : public NotifierImpl
+  class NodeFunction
+    : public NotifierImpl
   {
   public:
     NodeFunction(NodeOperator const *op, Node *exprs);
@@ -52,7 +53,7 @@ namespace PLEXIL
     //
 
     const char *exprName() const;
-    const ValueType valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
     void printValue(std::ostream &s) const;
     void printSubexpressions(std::ostream &s) const;
@@ -63,17 +64,18 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if result known, false if unknown.
      */
-    bool getValue(bool &result) const;
-    bool getValue(int32_t &result) const;
-    bool getValue(double &result) const;
-    bool getValue(std::string &result) const;
+    bool getValue(Boolean &result) const;
+    bool getValue(uint16_t &result) const;
+    bool getValue(Integer &result) const;
+    bool getValue(Real &result) const;
+    bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(String const *&ptr) const;
     bool getValuePointer(BooleanArray const *&ptr) const;
     bool getValuePointer(IntegerArray const *&ptr) const;
     bool getValuePointer(RealArray const *&ptr) const;

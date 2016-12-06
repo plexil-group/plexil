@@ -70,7 +70,7 @@ namespace PLEXIL
     /**
      * @brief Accessor for the assigned variable.
      */
-    Assignable *getAssignmentVariable() const;
+    Expression *getAssignmentVariable() const;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.

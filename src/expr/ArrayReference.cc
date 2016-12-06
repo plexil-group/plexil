@@ -25,9 +25,10 @@
 */
 
 #include "ArrayReference.hh"
+
 #include "Array.hh"
 #include "PlanError.hh"
-#include "UserVariable.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -75,7 +76,7 @@ namespace PLEXIL
     return "ArrayReference";
   }
 
-  const ValueType ArrayReference::valueType() const
+  ValueType ArrayReference::valueType() const
   {
     ValueType aryType = m_array->valueType();
     if (!isArrayType(aryType))
@@ -143,43 +144,33 @@ namespace PLEXIL
     return kv[idx];
   }
 
-  bool ArrayReference::getValue(bool &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
+  // Local macro
+#define DEFINE_AREF_GET_VALUE_METHOD(_type_) \
+  bool ArrayReference::getValue(_type_ &result) const \
+  { \
+    Array const *ary; \
+    size_t idx; \
+    if (!selfCheck(ary, idx)) \
+      return false; \
+    return ary->getElement(idx, result); \
   }
 
-  bool ArrayReference::getValue(int32_t &result) const
+  // getValue explicit instantiations
+  DEFINE_AREF_GET_VALUE_METHOD(Boolean)
+  DEFINE_AREF_GET_VALUE_METHOD(Integer)
+  DEFINE_AREF_GET_VALUE_METHOD(Real)
+  DEFINE_AREF_GET_VALUE_METHOD(String)
+
+#undef DEFINE_AREF_GET_VALUE_METHOD
+
+  bool ArrayReference::getValue(uint16_t &result) const
   {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
+    checkPlanError(ALWAYS_FAIL,
+                   "Array references not implemented for internal values");
+    return false;
   }
 
-  bool ArrayReference::getValue(double &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
-  }
-
-  bool ArrayReference::getValue(std::string &result) const
-  {
-    Array const *ary;
-    size_t idx;
-    if (!selfCheck(ary, idx))
-      return false;
-    return ary->getElement(idx, result);
-  }
-
-  bool ArrayReference::getValuePointer(std::string const *&ptr) const
+  bool ArrayReference::getValuePointer(String const *&ptr) const
   {
     Array const *ary;
     size_t idx;
@@ -187,6 +178,24 @@ namespace PLEXIL
       return false;
     return ary->getElementPointer(idx, ptr);
   }
+
+  // Error for arrays and any other types we can think of.
+#define DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(_type_) \
+  bool ArrayReference::getValuePointer(_type_ const *&ptr) const \
+  { \
+    assertTrueMsg(ALWAYS_FAIL, \
+                  "getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
+                  << " pointer value from an ArrayReference"); \
+    return false; \
+  }
+
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(Array)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(BooleanArray)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(IntegerArray)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(RealArray)
+  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(StringArray)
+
+#undef DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD
 
   Value ArrayReference::toValue() const
   {
@@ -227,13 +236,11 @@ namespace PLEXIL
                                                Expression *idx,
                                                bool aryIsGarbage,
                                                bool idxIsGarbage)
-    : ArrayReference(ary, idx, aryIsGarbage, idxIsGarbage),
-      Assignable(),
+    : Assignable(),
+      ArrayReference(ary, idx, aryIsGarbage, idxIsGarbage),
       m_mutableArray(ary->asAssignable()),
       m_saved(false)
   {
-    checkPlanError(ary->isAssignable(),
-                   "Can't create a writeable array reference on an In array");
   }
 
   MutableArrayReference::~MutableArrayReference()
@@ -276,28 +283,31 @@ namespace PLEXIL
     return true;
   }
 
-  void MutableArrayReference::setValue(bool const &value)
-  {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    bool oldValue;
-    bool known = ary->getElement(idx, oldValue); // error here if wrong type
-    bool changed = (!known || (value != oldValue));
-    if (changed) {
-      ary->setElement(idx, value);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+#define DEFINE_MAREF_SET_VALUE_METHOD(_type_) \
+  void MutableArrayReference::setValue(_type_ const &val) \
+  { \
+    Array *ary; \
+    size_t idx; \
+    if (!mutableSelfCheck(ary, idx)) \
+      return; \
+    _type_ oldValue; \
+    bool known = ary->getElement(idx, oldValue); /* error here if wrong type */ \
+    bool changed = (!known || (val != oldValue)); \
+    if (changed) { \
+      ary->setElement(idx, val); \
+      publishChange(this); \
+    } \
   }
 
-  void MutableArrayReference::setValue(uint16_t const &value)
-  {
-    setValue((int32_t) value);
-  }
+  // Instantiations of the above
+  DEFINE_MAREF_SET_VALUE_METHOD(Boolean)
+  DEFINE_MAREF_SET_VALUE_METHOD(Real)
+  DEFINE_MAREF_SET_VALUE_METHOD(String)
 
-  void MutableArrayReference::setValue(int32_t const &value)
+#undef DEFINE_MAREF_SET_VALUE_METHOD
+
+  // Specialized for Integer
+  void MutableArrayReference::setValue(Integer const &value)
   {
     Array *ary;
     size_t idx;
@@ -329,53 +339,50 @@ namespace PLEXIL
                      << valueTypeName(m_array->valueType()));
       return;
     }
-    if (changed) {
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+    if (changed)
+      publishChange(this);
   }
 
-  void MutableArrayReference::setValue(double const &value)
+  void MutableArrayReference::setValue(Expression const &valex)
   {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    double oldValue;
-    bool known = ary->getElement(idx, oldValue);
-    bool changed = (!known || (value != oldValue));
-    if (changed) {
-      ary->setElement(idx, value); // error here if wrong type
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
-  }
+    if (valex.isKnown())
+      switch (valex.valueType()) {
+      case BOOLEAN_TYPE: {
+        Boolean b;
+        valex.getValue(b);
+        this->setValue(b);
+      }
+        break;
+	
+      case INTEGER_TYPE: {
+        Integer i;
+        valex.getValue(i);
+        this->setValue(i);
+      }
+        break;
 
-  void MutableArrayReference::setValue(std::string const &value)
-  {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    std::string const *oldValue;
-    bool known = ary->getElementPointer(idx, oldValue); // error here if wrong type
-    bool changed = (!known || (value != *oldValue));
-    if (changed) {
-      ary->setElement(idx, value);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
-  }
+      case REAL_TYPE: {
+        Real r;
+        valex.getValue(r);
+        this->setValue(r);
+      }
+        break;
 
-  void MutableArrayReference::setValue(char const *value)
-  {
-    setValue(std::string(value));
-  }
+      case STRING_TYPE: {
+        String const *ptr;
+        valex.getValuePointer(ptr);
+        this->setValue(*ptr);
+      }
+        break;
 
-  // TODO: optimize
-  void MutableArrayReference::setValue(Expression const *valex)
-  {
-    setValue(valex->toValue());
+      default:
+        assertTrueMsg(ALWAYS_FAIL,
+                      "ArrayReference:setValue: illegal or unimplemented type "
+                      << valueTypeName(valex.valueType()));
+        break;
+      }
+    else
+      setUnknown();
   }
 
   void MutableArrayReference::setValue(Value const &value)
@@ -387,33 +394,8 @@ namespace PLEXIL
     Value oldValue = ary->getElementValue(idx);
     if (value != oldValue) {
       ary->setElementValue(idx, value);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
+      publishChange(this);
     }
-  }
-
-  void MutableArrayReference::setValue(BooleanArray const &value)
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't assign a BooleanArray to an array element");
-  }
-
-  void MutableArrayReference::setValue(IntegerArray const &value)
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't assign an IntegerArray to an array element");
-  }
-
-  void MutableArrayReference::setValue(RealArray const &value)
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't assign a RealArray to an array element");
-  }
-
-  void MutableArrayReference::setValue(StringArray const &value)
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't assign a StringArray to an array element");
   }
 
   void MutableArrayReference::setUnknown()
@@ -424,13 +406,11 @@ namespace PLEXIL
       return;
     bool changed = ary->elementKnown(idx);
     ary->setElementUnknown(idx);
-    if (changed) {
-      NotifierImpl::publishChange(this);
-      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
-    }
+    if (changed)
+      publishChange(this);
   }
 
-  bool MutableArrayReference::getMutableValuePointer(std::string *&ptr)
+  bool MutableArrayReference::getMutableValuePointer(String *&ptr)
   {
     Array *ary;
     size_t idx;
@@ -440,30 +420,6 @@ namespace PLEXIL
   }
 
   bool MutableArrayReference::getMutableValuePointer(Array *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(BooleanArray *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(IntegerArray *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(RealArray *&ptr)
-  {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
-    return false;
-  }
-
-  bool MutableArrayReference::getMutableValuePointer(StringArray *&ptr)
   {
     check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
     return false;
@@ -495,8 +451,7 @@ namespace PLEXIL
       return;
     if (m_savedValue != ary->getElementValue(idx)) {
       ary->setElementValue(idx, m_savedValue);
-      NotifierImpl::publishChange(this);
-      m_mutableArray->notifyChanged(this);
+      publishChange(this);
     }
     m_saved = false;
   }
@@ -508,22 +463,28 @@ namespace PLEXIL
 
   NodeConnector const *MutableArrayReference::getNode() const
   {
-    return getBaseVariable()->getNode();
+    return getBaseVariable()->asAssignable()->getNode();
   }
 
   NodeConnector *MutableArrayReference::getNode()
   {
-    return getBaseVariable()->getNode();
+    return getBaseVariable()->asAssignable()->getNode();
   }
 
-  Assignable *MutableArrayReference::getBaseVariable() 
+  Expression *MutableArrayReference::getBaseVariable() 
   {
     return m_mutableArray->getBaseVariable();
   }
 
-  Assignable const *MutableArrayReference::getBaseVariable() const
+  Expression const *MutableArrayReference::getBaseVariable() const
   {
     return m_mutableArray->getBaseVariable();
+  }
+
+  void MutableArrayReference::publishChange(Expression const *src)
+  {
+    NotifierImpl::publishChange(src);
+    m_array->notifyChanged(src);
   }
 
 } // namespace PLEXIL

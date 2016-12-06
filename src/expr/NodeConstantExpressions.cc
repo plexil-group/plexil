@@ -46,7 +46,7 @@ namespace PLEXIL
   {
   }
 
-  const ValueType NodeStateConstant::valueType() const
+  ValueType NodeStateConstant::valueType() const
   {
     return NODE_STATE_TYPE;
   }
@@ -78,7 +78,7 @@ namespace PLEXIL
   {
   }
 
-  const ValueType NodeOutcomeConstant::valueType() const
+  ValueType NodeOutcomeConstant::valueType() const
   {
     return OUTCOME_TYPE;
   }
@@ -108,7 +108,7 @@ namespace PLEXIL
   {
   }
 
-  const ValueType FailureTypeConstant::valueType() const
+  ValueType FailureTypeConstant::valueType() const
   {
     return FAILURE_TYPE;
   }
@@ -140,7 +140,7 @@ namespace PLEXIL
   {
   }
 
-  const ValueType CommandHandleConstant::valueType() const
+  ValueType CommandHandleConstant::valueType() const
   {
     return COMMAND_HANDLE_TYPE;
   }

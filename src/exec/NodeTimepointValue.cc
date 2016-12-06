@@ -46,7 +46,8 @@ namespace PLEXIL
   NodeTimepointValue::NodeTimepointValue(Node *node,
                                          NodeState state,
                                          bool isEnd)
-    : m_time(0.0),
+    : NotifierImpl(),
+      m_time(0.0),
       m_next(NULL),
       m_node(node),
       m_state(state),
@@ -80,7 +81,7 @@ namespace PLEXIL
     return "NodeTimepointValue";
   }
 
-  ValueType const NodeTimepointValue::valueType() const
+  ValueType NodeTimepointValue::valueType() const
   {
     return DATE_TYPE;
   }
@@ -90,7 +91,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool NodeTimepointValue::getValueImpl(double &result) const // FIXME
+  bool NodeTimepointValue::getValueImpl(Real &result) const // FIXME
   {
     if (m_known)
       result = m_time;
@@ -113,7 +114,7 @@ namespace PLEXIL
     s << timepointName[m_state][m_end ? 1 : 0];
   }
 
-  void NodeTimepointValue::setValue(double newval) // FIXME
+  void NodeTimepointValue::setValue(Real newval) // FIXME
   {
     m_time = newval;
     m_known = true;

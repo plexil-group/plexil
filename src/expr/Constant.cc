@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,23 +40,20 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant()
-    : Expression(),
-      ExpressionImpl<T>(),
+    : GetValueImpl<T>(),
       m_known(false)
   {
   }
 
-  Constant<std::string>::Constant()
-    : Expression(),
-      ExpressionImpl<std::string>(),
+  Constant<String>::Constant()
+    : GetValueImpl<String>(),
       m_known(false)
   {
   }
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant()
-    : Expression(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
       m_known(false)
   {
   }
@@ -66,16 +63,14 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant(const Constant &other)
-  : Expression(),
-    ExpressionImpl<T>(),
+  : GetValueImpl<T>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
   }
 
-  Constant<std::string>::Constant(const Constant &other)
-  : Expression(),
-    ExpressionImpl<std::string>(),
+  Constant<String>::Constant(const Constant &other)
+  : GetValueImpl<String>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -83,8 +78,7 @@ namespace PLEXIL
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const Constant &other)
-    : Expression(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -95,16 +89,14 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant(const T &value)
-  : Expression(),
-    ExpressionImpl<T>(),
+  : GetValueImpl<T>(),
     m_value(value),
     m_known(true)
   {
   }
 
-  Constant<std::string>::Constant(const std::string &value)
-  : Expression(),
-    ExpressionImpl<std::string>(),
+  Constant<String>::Constant(const String &value)
+  : GetValueImpl<String>(),
     m_value(value),
     m_known(true)
   {
@@ -112,8 +104,7 @@ namespace PLEXIL
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const ArrayImpl<T> &value)
-    : Expression(),
-      ExpressionImpl<ArrayImpl<T> >(),
+    : GetValueImpl<ArrayImpl<T> >(),
     m_value(value),
     m_known(true)
   {
@@ -124,9 +115,8 @@ namespace PLEXIL
    */
 
   // *** TODO: More types ***
-  Constant<std::string>::Constant(const char *value)
-  : Expression(),
-    ExpressionImpl<std::string>(),
+  Constant<String>::Constant(const char *value)
+  : GetValueImpl<String>(),
     m_value(value),
     m_known(true)
   {
@@ -140,7 +130,7 @@ namespace PLEXIL
   {
   }
 
-  Constant<std::string>::~Constant()
+  Constant<String>::~Constant()
   {
   }
 
@@ -159,7 +149,7 @@ namespace PLEXIL
     return "Constant";
   }
 
-  const char *Constant<std::string>::exprName() const
+  const char *Constant<String>::exprName() const
   {
     return "Constant";
   }
@@ -183,7 +173,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool Constant<std::string>::getValueImpl(std::string& result) const
+  bool Constant<String>::getValueImpl(String& result) const
   {
     if (m_known)
       result = m_value;
@@ -195,7 +185,7 @@ namespace PLEXIL
    * @param ptr Reference to the pointer variable to receive the result.
    * @return True if known, false if unknown.
    */
-  bool Constant<std::string>::getValuePointerImpl(std::string const *&ptr) const
+  bool Constant<String>::getValuePointerImpl(String const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -220,7 +210,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool Constant<std::string>::isKnown() const
+  bool Constant<String>::isKnown() const
   {
     return m_known;
   }
@@ -241,7 +231,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Constant<std::string>::isConstant() const
+  bool Constant<String>::isConstant() const
   {
     return true;
   }
@@ -262,7 +252,7 @@ namespace PLEXIL
     return true; // constants are always active
   }
  
-  bool Constant<std::string>::isActive() const
+  bool Constant<String>::isActive() const
   {
     return true; // constants are always active
   }
@@ -282,7 +272,7 @@ namespace PLEXIL
   {
   }
 
-  void Constant<std::string>::activate()
+  void Constant<String>::activate()
   {
   }
 
@@ -300,7 +290,7 @@ namespace PLEXIL
   {
   }
 
-  void Constant<std::string>::deactivate()
+  void Constant<String>::deactivate()
   {
   }
 
@@ -319,7 +309,7 @@ namespace PLEXIL
   {
   }
 
-  void Constant<std::string>::addListener(ExpressionListener * /* ptr */)
+  void Constant<String>::addListener(ExpressionListener * /* ptr */)
   {
   }
 
@@ -333,7 +323,7 @@ namespace PLEXIL
   {
   }
 
-  void Constant<std::string>::removeListener(ExpressionListener * /* ptr */)
+  void Constant<String>::removeListener(ExpressionListener * /* ptr */)
   {
   }
 
@@ -342,32 +332,14 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Notify this expression that a subexpression's value has changed.
-   * @note No-op for constants.
-   */
-  template <typename T>
-  void Constant<T>::notifyChanged(Expression const * /* src */)
-  {
-  }
-
-  void Constant<std::string>::notifyChanged(Expression const * /* src */)
-  {
-  }
-
-  template <typename T>
-  void Constant<ArrayImpl<T> >::notifyChanged(Expression const * /* src */)
-  {
-  }
-
   //
   // Explicit instantiations
   //
-  template class Constant<bool>;
+  template class Constant<Boolean>;
   template class Constant<uint16_t>; // for internal node constants
-  template class Constant<int32_t>;
-  template class Constant<double>;
-  // template class Constant<std::string>; redundant
+  template class Constant<Integer>;
+  template class Constant<Real>;
+  // template class Constant<String>; redundant
 
   template class Constant<BooleanArray>;
   template class Constant<IntegerArray>;

@@ -35,7 +35,7 @@ namespace PLEXIL
   // TODO:
   // - Handle mixed type numeric operands
 
-  class IsKnown : public OperatorImpl<bool>
+  class IsKnown : public OperatorImpl<Boolean>
   {
   public:
     ~IsKnown();
@@ -44,7 +44,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, Boolean)
 
   private:
     IsKnown();
@@ -55,18 +55,18 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class Equal : public OperatorImpl<bool>
+  class Equal : public OperatorImpl<Boolean>
   {
   public:
     ~Equal();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, Boolean)
 
   private:
     Equal();
@@ -77,18 +77,18 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class NotEqual : public OperatorImpl<bool>
+  class NotEqual : public OperatorImpl<Boolean>
   {
   public:
     ~NotEqual();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, Boolean)
 
   private:
     NotEqual();
@@ -98,19 +98,58 @@ namespace PLEXIL
     NotEqual &operator=(const NotEqual<T> &);
   };
 
+  // Special cases for internal values
+  class EqualInternal : public OperatorImpl<Boolean>
+  {
+  public:
+    ~EqualInternal();
+
+    bool checkArgCount(size_t count) const;
+
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(EqualInternal, Boolean)
+
+  private:
+    EqualInternal();
+
+    // Disallow copy, assignment
+    EqualInternal(const EqualInternal &);
+    EqualInternal &operator=(const EqualInternal &);
+  };
+
+  class NotEqualInternal : public OperatorImpl<Boolean>
+  {
+  public:
+    ~NotEqualInternal();
+
+    bool checkArgCount(size_t count) const;
+
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqualInternal, Boolean)
+
+  private:
+    NotEqualInternal();
+
+    // Disallow copy, assignment
+    NotEqualInternal(const NotEqualInternal &);
+    NotEqualInternal &operator=(const NotEqualInternal &);
+  };
+
   template <typename T>
-  class GreaterThan : public OperatorImpl<bool>
+  class GreaterThan : public OperatorImpl<Boolean>
   {
   public:
     ~GreaterThan();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, Boolean)
 
   private:
     GreaterThan();
@@ -121,18 +160,18 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class GreaterEqual : public OperatorImpl<bool>
+  class GreaterEqual : public OperatorImpl<Boolean>
   {
   public:
     ~GreaterEqual();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, Boolean)
 
   private:
     GreaterEqual();
@@ -143,18 +182,18 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class LessThan : public OperatorImpl<bool>
+  class LessThan : public OperatorImpl<Boolean>
   {
   public:
     ~LessThan();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, Boolean)
 
   private:
     LessThan();
@@ -165,18 +204,18 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class LessEqual : public OperatorImpl<bool>
+  class LessEqual : public OperatorImpl<Boolean>
   {
   public:
     ~LessEqual();
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(ExprVec const *ev) const;
+    bool checkArgTypes(Function const *ev) const;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(LessEqual<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(LessEqual<T>, Boolean)
 
   private:
     LessEqual();

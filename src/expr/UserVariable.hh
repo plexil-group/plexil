@@ -27,8 +27,9 @@
 #ifndef PLEXIL_USER_VARIABLE_HH
 #define PLEXIL_USER_VARIABLE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Assignable.hh"
+#include "GetValueImpl.hh"
+#include "NotifierImpl.hh"
 
 namespace PLEXIL 
 {
@@ -41,9 +42,9 @@ namespace PLEXIL
   // Scalar case
   template <typename T>
   class UserVariable :
-    public NotifierImpl,
-    public ExpressionImpl<T>,
-    public AssignableImpl<T>
+    public Assignable,
+    public GetValueImpl<T>,
+    public NotifierImpl
   {
   public:
 
@@ -75,15 +76,20 @@ namespace PLEXIL
     // Essential Expression API
     //
 
+    bool isAssignable() const;
+
+    Assignable const *asAssignable() const;
+    Assignable *asAssignable();
+
     char const *getName() const;
 
     char const *exprName() const;
 
-    bool isKnown() const;
+    //
+    // GetValueImpl API
+    //
 
-    //
-    // Assignable and AssignableImpl API
-    //
+    bool isKnown() const;
 
     /**
      * @brief Get the expression's value.
@@ -92,12 +98,9 @@ namespace PLEXIL
      */
     bool getValueImpl(T &result) const;
 
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
-     */
-    void setValueImpl(T const &value);
+    //
+    // Assignable API
+    //
 
     /**
      * @brief Set the current value unknown.
@@ -115,20 +118,38 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    void setName(const std::string &);
-
     NodeConnector *getNode();
     NodeConnector const *getNode() const;
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
-    void setInitializer(Expression *expr, bool garbage);
+    virtual void setInitializer(Expression *expr, bool garbage);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     */
+    virtual void setValue(Value const &val);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     */
+    virtual void setValue(Expression const &val);
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note An error for this object
+     */
+    virtual bool getMutableValuePointer(Array *&ptr);
 
     void handleActivate();
 
@@ -136,10 +157,18 @@ namespace PLEXIL
 
     void printSpecialized(std::ostream &s) const;
 
+  protected:
+    
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValueImpl(T const &value);
+
   private:
 
     // N.B. Ordering is suboptimal for bool because of required padding;
-    // fine for int32_t and double
+    // fine for Integer and Real
     T m_value;
     T m_savedValue;   // for undoing assignment 
 
@@ -157,10 +186,10 @@ namespace PLEXIL
 
   // String case
   template <>
-  class UserVariable<std::string> :
-    public NotifierImpl,
-    public ExpressionImpl<std::string>,
-    public AssignableImpl<std::string>
+  class UserVariable<String> :
+    public Assignable,
+    public GetValueImpl<String>,
+    public NotifierImpl
   {
   public:
 
@@ -173,7 +202,7 @@ namespace PLEXIL
      * @brief Constructor with initial value.
      * @param val The initial value.
      */
-    UserVariable(std::string const &initVal);
+    UserVariable(String const &initVal);
 
     /**
      * @brief Constructor for plan loading.
@@ -192,6 +221,11 @@ namespace PLEXIL
     // Essential Expression API
     //
 
+    bool isAssignable() const;
+
+    Assignable const *asAssignable() const;
+    Assignable *asAssignable();
+
     char const *getName() const;
 
     char const *exprName() const;
@@ -203,14 +237,14 @@ namespace PLEXIL
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(std::string &result) const;
+    bool getValueImpl(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(std::string const *&ptr) const;
+    bool getValuePointerImpl(String const *&ptr) const;
     template <typename U>
     bool getValuePointerImpl(U const *&ptr) const;
 
@@ -219,14 +253,14 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getMutableValuePointerImpl(std::string *&ptr);
+    bool getMutableValuePointerImpl(String *&ptr);
 
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
      * @note Type conversions must go on derived classes.
      */
-    void setValueImpl(std::string const &value);
+    void setValueImpl(String const &value);
 
     /**
      * @brief Set the current value unknown.
@@ -244,13 +278,11 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    void setName(const std::string &);
-
     NodeConnector *getNode();
     NodeConnector const *getNode() const;
 
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
+    Expression *getBaseVariable();
+    Expression const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -258,6 +290,26 @@ namespace PLEXIL
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
     void setInitializer(Expression *expr, bool garbage);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     */
+    virtual void setValue(Value const &val);
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     */
+    virtual void setValue(Expression const &val);
+
+    /**
+     * @brief Retrieve a pointer to the non-const value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note An error for this object
+     */
+    virtual bool getMutableValuePointer(Array *&ptr);
 
     void handleActivate();
 
@@ -267,8 +319,8 @@ namespace PLEXIL
 
   private:
 
-    std::string m_value;
-    std::string m_savedValue;   // for undoing assignment 
+    String m_value;
+    String m_savedValue;   // for undoing assignment 
 
     Expression *m_initializer;
     char const *m_name;
@@ -286,10 +338,10 @@ namespace PLEXIL
   // Convenience typedefs 
   //
 
-  typedef UserVariable<bool>        BooleanVariable;
-  typedef UserVariable<int32_t>     IntegerVariable;
-  typedef UserVariable<double>      RealVariable;
-  typedef UserVariable<std::string> StringVariable;
+  typedef UserVariable<Boolean>     BooleanVariable;
+  typedef UserVariable<Integer>     IntegerVariable;
+  typedef UserVariable<Real>        RealVariable;
+  typedef UserVariable<String>      StringVariable;
 
 } // namespace PLEXIL
 

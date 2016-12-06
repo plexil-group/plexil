@@ -26,6 +26,7 @@
 
 #include "PlexilExec.hh"
 
+#include "Assignable.hh"
 #include "Assignment.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -266,7 +267,7 @@ namespace PLEXIL
   // Variable conflict sets
   //
 
-  VariableConflictSet *PlexilExec::getConflictSet(Assignable *a)
+  VariableConflictSet *PlexilExec::getConflictSet(Expression *a)
   {
     VariableConflictSet *result = m_resourceConflicts;
     while (result) {
@@ -277,7 +278,7 @@ namespace PLEXIL
     return NULL;
   }
 
-  VariableConflictSet *PlexilExec::ensureConflictSet(Assignable *a)
+  VariableConflictSet *PlexilExec::ensureConflictSet(Expression *a)
   {
     VariableConflictSet *result = m_resourceConflicts;
     while (result) {
@@ -297,11 +298,9 @@ namespace PLEXIL
   // Assumes node is a valid ID and points to an Assignment node
   void PlexilExec::removeFromResourceContention(Node *node) 
   {
-    Assignable *lhs = node->getAssignmentVariable();
-    assertTrue_1(lhs);
-    Assignable *exp = lhs->asAssignable();
+    Expression *exp = node->getAssignmentVariable();
     assertTrue_1(exp);
-    exp = exp->getBaseVariable();
+    exp = exp->asAssignable()->getBaseVariable();
     assertTrue_1(exp);
 
     // Remove node from the variable's conflict set.
@@ -338,11 +337,9 @@ namespace PLEXIL
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
   void PlexilExec::addToResourceContention(Node *node)
   {
-    Assignable *lhs = node->getAssignmentVariable();
-    assertTrue_1(lhs);
-    Assignable *exp = lhs->asAssignable();
+    Expression *exp = node->getAssignmentVariable();
     assertTrue_1(exp);
-    exp = exp->getBaseVariable();
+    exp = exp->asAssignable()->getBaseVariable();
     assertTrue_1(exp);
 
     debugMsg("PlexilExec:addToResourceContention",
@@ -483,16 +480,16 @@ namespace PLEXIL
    */
   void PlexilExec::resolveVariableConflicts(VariableConflictSet *conflict)
   {
-    Assignable const *var = conflict->getVariable();
+    Expression const *var = conflict->getVariable();
     assertTrue_1(var);
     checkError(!conflict->empty(),
                "Resource conflict set for " << conflict->getVariable()->toString() << " is empty.");
 
     // Ignore any variables pending retraction
-    for (std::vector<Assignable *>::const_iterator vit = m_variablesToRetract.begin();
+    for (std::vector<Expression *>::const_iterator vit = m_variablesToRetract.begin();
          vit != m_variablesToRetract.end();
          ++vit) {
-      if ((*vit)->getBaseVariable() == var) { // compare base variables for (e.g.) aliases, array refs
+      if ((*vit)->asAssignable()->getBaseVariable() == var->asAssignable()->getBaseVariable()) { // compare base variables for (e.g.) aliases, array refs
         debugMsg("PlexilExec:resolveResourceConflicts",
                  " Ignoring Assignments for variable '" << var->getName()
                  << "', which has a retraction pending");

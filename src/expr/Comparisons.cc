@@ -25,7 +25,8 @@
 */
 
 #include "Comparisons.hh"
-#include "Expression.hh"
+
+#include "Function.hh"
 #include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
@@ -35,7 +36,7 @@ namespace PLEXIL
   // IsKnown
   //
   IsKnown::IsKnown()
-    : OperatorImpl<bool>("IsKnown")
+    : OperatorImpl<Boolean>("IsKnown")
   {
   }
 
@@ -60,7 +61,7 @@ namespace PLEXIL
 
   template <typename T>
   Equal<T>::Equal()
-    : OperatorImpl<bool>("EQ")
+    : OperatorImpl<Boolean>("EQ")
   {
   }
 
@@ -76,13 +77,13 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool Equal<T>::checkArgTypes(ExprVec const *ev) const
+  bool Equal<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <>
-  bool Equal<uint16_t>::checkArgTypes(ExprVec const *ev) const
+  bool Equal<uint16_t>::checkArgTypes(Function const *ev) const
   {
     ValueType vta = (*ev)[0]->valueType();
     if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
@@ -122,7 +123,7 @@ namespace PLEXIL
 
   template <typename T>
   NotEqual<T>::NotEqual()
-    : OperatorImpl<bool>("NEQ")
+    : OperatorImpl<Boolean>("NEQ")
   {
   }
 
@@ -138,13 +139,13 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool NotEqual<T>::checkArgTypes(ExprVec const *ev) const
+  bool NotEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <>
-  bool NotEqual<uint16_t>::checkArgTypes(ExprVec const *ev) const
+  bool NotEqual<uint16_t>::checkArgTypes(Function const *ev) const
   {
     ValueType vta = (*ev)[0]->valueType();
     if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
@@ -184,7 +185,7 @@ namespace PLEXIL
 
   template <typename T>
   GreaterThan<T>::GreaterThan()
-    : OperatorImpl<bool>("GT")
+    : OperatorImpl<Boolean>("GT")
   {
   }
 
@@ -200,7 +201,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterThan<T>::checkArgTypes(ExprVec const *ev) const
+  bool GreaterThan<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -221,7 +222,7 @@ namespace PLEXIL
 
   template <typename T>
   GreaterEqual<T>::GreaterEqual()
-    : OperatorImpl<bool>("GEQ")
+    : OperatorImpl<Boolean>("GEQ")
   {
   }
 
@@ -237,7 +238,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterEqual<T>::checkArgTypes(ExprVec const *ev) const
+  bool GreaterEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -258,7 +259,7 @@ namespace PLEXIL
 
   template <typename T>
   LessThan<T>::LessThan()
-    : OperatorImpl<bool>("LT")
+    : OperatorImpl<Boolean>("LT")
   {
   }
 
@@ -274,7 +275,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessThan<T>::checkArgTypes(ExprVec const *ev) const
+  bool LessThan<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -295,7 +296,7 @@ namespace PLEXIL
 
   template <typename T>
   LessEqual<T>::LessEqual()
-    : OperatorImpl<bool>("LEQ")
+    : OperatorImpl<Boolean>("LEQ")
   {
   }
 
@@ -311,7 +312,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessEqual<T>::checkArgTypes(ExprVec const *ev) const
+  bool LessEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
@@ -330,34 +331,34 @@ namespace PLEXIL
   // Explicit instantiations of template classes
   //
 
-  template class Equal<bool>;
+  template class Equal<Boolean>;
   template class Equal<uint16_t>;
-  template class Equal<int32_t>;
-  template class Equal<double>;
-  template class Equal<std::string>;
+  template class Equal<Integer>;
+  template class Equal<Real>;
+  template class Equal<String>;
 
-  template class NotEqual<bool>;
+  template class NotEqual<Boolean>;
   template class NotEqual<uint16_t>;
-  template class NotEqual<int32_t>;
-  template class NotEqual<double>;
-  template class NotEqual<std::string>;
+  template class NotEqual<Integer>;
+  template class NotEqual<Real>;
+  template class NotEqual<String>;
 
   // Comparisons below don't make sense for Booleans
 
-  template class GreaterThan<int32_t>;
-  template class GreaterThan<double>;
-  // template class GreaterThan<std::string>;
+  template class GreaterThan<Integer>;
+  template class GreaterThan<Real>;
+  template class GreaterThan<String>;
 
-  template class GreaterEqual<int32_t>;
-  template class GreaterEqual<double>;
-  // template class GreaterEqual<std::string>;
+  template class GreaterEqual<Integer>;
+  template class GreaterEqual<Real>;
+  template class GreaterEqual<String>;
 
-  template class LessThan<int32_t>;
-  template class LessThan<double>;
-  // template class LessThan<std::string>;
+  template class LessThan<Integer>;
+  template class LessThan<Real>;
+  template class LessThan<String>;
 
-  template class LessEqual<int32_t>;
-  template class LessEqual<double>;
-  // template class LessEqual<std::string>;
+  template class LessEqual<Integer>;
+  template class LessEqual<Real>;
+  template class LessEqual<String>;
 
 }

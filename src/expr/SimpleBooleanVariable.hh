@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,9 @@
 #ifndef PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 #define PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 
-#include "AssignableImpl.hh"
-#include "ExpressionImpl.hh"
+#include "Expression.hh"
+#include "GetValueImpl.hh"
+#include "NotifierImpl.hh"
 
 namespace PLEXIL {
 
@@ -38,18 +39,14 @@ namespace PLEXIL {
    */
 
   class SimpleBooleanVariable :
-    public NotifierImpl,
-    public ExpressionImpl<bool>,
-    public AssignableImpl<bool>
+    public GetValueImpl<Boolean>,
+    public NotifierImpl
   {
   public:
     SimpleBooleanVariable();
+    // N.B. Name is owned by some other code (usually a literal value).
+    SimpleBooleanVariable(char const *name);
     ~SimpleBooleanVariable();
-
-    //
-    // NotifierImpl API - overrides to default behavior
-    //
-    virtual void notifyChanged(Expression const * /* src */);
 
     //
     // Essential Expression API
@@ -57,7 +54,6 @@ namespace PLEXIL {
 
     virtual char const *getName() const;
     virtual char const *exprName() const;
-    void setName(std::string const &name);
     void printSpecialized(std::ostream &s) const;
 
     virtual bool isKnown() const;
@@ -71,33 +67,24 @@ namespace PLEXIL {
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(bool &result) const;
+    bool getValueImpl(Boolean &result) const;
 
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
      */
-    void setValueImpl(bool const &value);
+    void setValue(Boolean const &val);
 
     /**
-     * @brief Set the current value unknown.
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
      */
-    virtual void setUnknown();
+    virtual void setValue(Value const &val);
 
     /**
      * @brief Reset to initial status.
      */
     virtual void reset();
-
-    // These member functions are not supported.
-    // They throw an exception when called.
-    virtual void saveCurrentValue();
-    virtual void restoreSavedValue();
-    Value getSavedValue() const;
-
-    Assignable *getBaseVariable();
-    Assignable const *getBaseVariable() const;
 
   private:
 

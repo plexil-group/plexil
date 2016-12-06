@@ -27,14 +27,13 @@
 #ifndef PLEXIL_OPERATOR_HH
 #define PLEXIL_OPERATOR_HH
 
-#include "ArrayFwd.hh"
 #include "ValueType.hh"
 
 namespace PLEXIL
 {
   // Forward references
   class Expression;
-  class ExprVec;
+  class Function;
   class Value;
 
   // TODO:
@@ -59,52 +58,37 @@ namespace PLEXIL
 
     // Delegated to each individual operator.
     // Default method returns true.
-    virtual bool checkArgTypes(ExprVec const *ev) const { return true; }
+    virtual bool checkArgTypes(Function const *ev) const { return true; }
 
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;
     virtual void *allocateCache() const = 0;
     virtual void deleteCache(void *Ptr) const = 0;
 
-    virtual bool operator()(bool &result, Expression const *arg) const = 0;
-    virtual bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(bool &result, ExprVec const &args) const = 0;
+    // Local macro to generate a truckload of boilerplate
+#define DECLARE_OPERATOR_METHODS(_rtype_) \
+    virtual bool operator()(_rtype_ &result, Expression const *arg) const = 0; \
+    virtual bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const = 0; \
+    virtual bool operator()(_rtype_ &result, Function const &args) const = 0; \
 
-    virtual bool operator()(int32_t &result, Expression const *arg) const = 0;
-    virtual bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(int32_t &result, ExprVec const &args) const = 0;
+    DECLARE_OPERATOR_METHODS(Boolean)
+    DECLARE_OPERATOR_METHODS(Integer)
+    DECLARE_OPERATOR_METHODS(Real)
+    DECLARE_OPERATOR_METHODS(String)
 
-    virtual bool operator()(double &result, Expression const *arg) const = 0;
-    virtual bool operator()(double &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(double &result, ExprVec const &args) const = 0;
+    DECLARE_OPERATOR_METHODS(uint16_t)
 
-    virtual bool operator()(std::string &result, Expression const *arg) const = 0;
-    virtual bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(std::string &result, ExprVec const &args) const = 0;
+    DECLARE_OPERATOR_METHODS(Array)
+    DECLARE_OPERATOR_METHODS(BooleanArray)
+    DECLARE_OPERATOR_METHODS(IntegerArray)
+    DECLARE_OPERATOR_METHODS(RealArray)
+    DECLARE_OPERATOR_METHODS(StringArray)
 
-    virtual bool operator()(Array &result, Expression const *arg) const = 0;
-    virtual bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(Array &result, ExprVec const &args) const = 0;
+#undef DECLARE_OPERATOR_METHODS
 
-    virtual bool operator()(BooleanArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(BooleanArray &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(IntegerArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(IntegerArray &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(RealArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(RealArray &result, ExprVec const &args) const = 0;
-
-    virtual bool operator()(StringArray &result, Expression const *arg) const = 0;
-    virtual bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool operator()(StringArray &result, ExprVec const &args) const = 0;
-
-    virtual bool calcNative(void *cache, ExprVec const &exprs) const = 0;
-    virtual void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const = 0;
-    virtual Value toValue(void *cache, ExprVec const &exprs) const = 0;
+    virtual bool calcNative(void *cache, Function const &exprs) const = 0;
+    virtual void printValue(std::ostream &s, void *cache, Function const &exprs) const = 0;
+    virtual Value toValue(void *cache, Function const &exprs) const = 0;
 
   protected:
     Operator(std::string const &name)

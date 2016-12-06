@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,26 +35,27 @@ using namespace PLEXIL;
 static bool testStringLength()
 {
   StringVariable var; // initially unknown
-  std::vector<bool> garbage(1, false);
-  std::vector<Expression *> varv(1, &var);
 
-  Function strlen(StringLength::instance(), makeExprVec(varv, garbage));
-  int32_t result;
+  Function *strlen =
+    makeFunction(StringLength::instance(), &var, false);
+  Integer result;
 
-  strlen.activate(); // will also activate var
+  strlen->activate(); // will also activate var
 
   // unknown
-  assertTrue_1(!strlen.getValue(result));
+  assertTrue_1(!strlen->getValue(result));
 
   // empty
   var.setValue("");
-  assertTrue_1(strlen.getValue(result));
+  assertTrue_1(strlen->getValue(result));
   assertTrue_1(result == 0);
 
   // arbitrary contents
   var.setValue("now is the time");
-  assertTrue_1(strlen.getValue(result));
+  assertTrue_1(strlen->getValue(result));
   assertTrue_1(result == 15);
+
+  delete strlen;
 
   return true;
 }
@@ -65,65 +66,75 @@ static bool testStringConcat()
   StringVariable bar, baz, bletch;
   std::string result, result2;
 
-  // Unary function of constant
-  std::vector<bool> garbage1(1, false);
-  std::vector<Expression *> foov(1, &foo);
-  Function fooConc(StringConcat::instance(), makeExprVec(foov, garbage1));
-  fooConc.activate();
-  assertTrue_1(fooConc.getValue(result));
-  assertTrue_1(foo.getValue(result2));
-  assertTrue_1(result == result2);
+  {
+    // Unary function of constant
+    Function *fooConc = makeFunction(StringConcat::instance(),
+                                     &foo, false);
+    fooConc->activate();
+    assertTrue_1(fooConc->getValue(result));
+    assertTrue_1(foo.getValue(result2));
+    assertTrue_1(result == result2);
 
-  // Unary of unint'ed variable
-  std::vector<Expression *> barv(1, &bar);
-  Function barConc(StringConcat::instance(), makeExprVec(barv, garbage1));
-  barConc.activate();
-  assertTrue_1(!barConc.getValue(result));
+    delete fooConc;
+  }
 
-  // Set variable
-  bar.setValue(std::string(" bar?"));
-  assertTrue_1(barConc.getValue(result));
-  assertTrue_1(bar.getValue(result2));
-  assertTrue_1(result == result2);
+  {
+    // Unary of unint'ed variable
+    Function *barConc = makeFunction(StringConcat::instance(),
+                                     &bar, false);
+    barConc->activate();
+    assertTrue_1(!barConc->getValue(result));
 
-  // Binary of constant, variable
-  std::vector<bool> garbage2(2, false);
-  std::vector<Expression *> foobazv;
-  foobazv.push_back(&foo);
-  foobazv.push_back(&baz);
-  Function fooBazConc(StringConcat::instance(), makeExprVec(foobazv, garbage2));
-  fooBazConc.activate();
-  assertTrue_1(!fooBazConc.getValue(result));
+    // Set variable
+    bar.setValue(std::string(" bar?"));
+    assertTrue_1(barConc->getValue(result));
+    assertTrue_1(bar.getValue(result2));
+    assertTrue_1(result == result2);
 
-  // Set baz to empty string
-  baz.setValue(std::string(""));
-  assertTrue_1(fooBazConc.getValue(result));
-  assertTrue_1(foo.getValue(result2));
-  assertTrue_1(result == result2);
+    delete barConc;
+  }
+  
+  {
+    // Binary of constant, variable
+    Function *fooBazConc = makeFunction(StringConcat::instance(),
+                                        &foo, &baz,
+                                        false, false);
+    fooBazConc->activate();
+    assertTrue_1(!fooBazConc->getValue(result));
 
-  // Set baz non-empty
-  baz.setValue(std::string(" bazzz"));
-  assertTrue_1(fooBazConc.getValue(result));
-  assertTrue_1(result == std::string("foo! bazzz"));
+    // Set baz to empty string
+    baz.setValue(std::string(""));
+    assertTrue_1(fooBazConc->getValue(result));
+    assertTrue_1(foo.getValue(result2));
+    assertTrue_1(result == result2);
 
-  // N-ary
-  std::vector<Expression *> args(4);
-  args[0] = &foo;
-  args[1] = &bar;
-  args[2] = &baz;
-  args[3] = &bletch;
-  std::vector<bool> garbage4(4, false);
-  Function nConc(StringConcat::instance(), makeExprVec(args, garbage4));
-  nConc.activate();
+    // Set baz non-empty
+    baz.setValue(std::string(" bazzz"));
+    assertTrue_1(fooBazConc->getValue(result));
+    assertTrue_1(result == std::string("foo! bazzz"));
 
-  // bletch unknown
-  assertTrue_1(!nConc.getValue(result));
+    delete fooBazConc;
+  }
 
-  // set bletch
-  bletch.setValue(std::string(" BLETCH."));
-  assertTrue_1(nConc.getValue(result));
-  assertTrue_1(result == std::string("foo! bar? bazzz BLETCH."));
+  {
+    // N-ary
+    Function *nConc = makeFunction(StringConcat::instance(), 4);
+    nConc->setArgument(0, &foo, false);
+    nConc->setArgument(1, &bar, false);
+    nConc->setArgument(2, &baz, false);
+    nConc->setArgument(3, &bletch, false);
+    nConc->activate();
 
+    // bletch unknown
+    assertTrue_1(!nConc->getValue(result));
+
+    // set bletch
+    bletch.setValue(std::string(" BLETCH."));
+    assertTrue_1(nConc->getValue(result));
+    assertTrue_1(result == std::string("foo! bar? bazzz BLETCH."));
+
+    delete nConc;
+  }
   return true;
 }
 

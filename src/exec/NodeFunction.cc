@@ -50,7 +50,7 @@ namespace PLEXIL
     return m_op->getName().c_str();
   }
 
-  const ValueType NodeFunction::valueType() const
+  ValueType NodeFunction::valueType() const
   {
     return m_op->valueType();
   }
@@ -82,41 +82,48 @@ namespace PLEXIL
     return m_op->toValue(m_valueCache, m_node);
   }
 
-  bool NodeFunction::getValue(bool &result) const
+  bool NodeFunction::getValue(Boolean &result) const
   {
     if (!isActive())
       return false;
     return (*m_op)(result, m_node);
   }
 
-  bool NodeFunction::getValue(int32_t &result) const
+  bool NodeFunction::getValue(uint16_t &result) const
   {
     if (!isActive())
       return false;
     return (*m_op)(result, m_node);
   }
 
-  bool NodeFunction::getValue(double &result) const
+  bool NodeFunction::getValue(Integer &result) const
   {
     if (!isActive())
       return false;
     return (*m_op)(result, m_node);
   }
 
-  bool NodeFunction::getValue(std::string &result) const
+  bool NodeFunction::getValue(Real &result) const
   {
     if (!isActive())
       return false;
     return (*m_op)(result, m_node);
   }
 
-  bool NodeFunction::getValuePointer(std::string const *&ptr) const
+  bool NodeFunction::getValue(String &result) const
   {
     if (!isActive())
       return false;
-    bool result = (*m_op)(*static_cast<std::string *>(m_valueCache), m_node);
+    return (*m_op)(result, m_node);
+  }
+
+  bool NodeFunction::getValuePointer(String const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (*m_op)(*static_cast<String *>(m_valueCache), m_node);
     if (result)
-      ptr = static_cast<std::string const *>(m_valueCache); // trust me
+      ptr = static_cast<String const *>(m_valueCache); // trust me
     return result;
   }
 
