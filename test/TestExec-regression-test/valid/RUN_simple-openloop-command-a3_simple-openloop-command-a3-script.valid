@@ -42,19 +42,19 @@ simple-openloop-command-a3{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fd39b406eb0 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f9e63c06d40 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-a3{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fd39b407170 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd39b4070e0 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7f9e63c06f50 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f9e63c06ed0 [i](UNKNOWN))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fd39b4073b0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd39b406eb0 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x107f9e788 [a](COMMAND_DENIED)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd39b407030 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd39b406eb0 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fd39b406f00 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd39b406eb0 [a](UNKNOWN))
+   PostCondition: (EQ Boolean 0x7f9e63c07140 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9e63c06d40 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10d1c53c8 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9e63c06e70 [i](UNKNOWN))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9e63c06d80 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9e63c06d40 [a](UNKNOWN))
   }
 }
 
@@ -113,7 +113,7 @@ simple-openloop-command-a3{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd39b406eb0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9e63c06d40 [i](UNKNOWN))
   }
 }
 
