@@ -39,7 +39,7 @@ namespace PLEXIL
     Pair(std::string const &nam,
          Expression *exp,
          bool isGarbage)
-      : next(nullptr),
+      : next(NULL),
         name(nam),
         expr(exp),
         garbage(isGarbage)
@@ -76,7 +76,7 @@ namespace PLEXIL
   void Update::cleanUp()
   {
     Pair *next = m_pairs;
-    m_pairs = nullptr;
+    m_pairs = NULL;
     while (next) {
       Pair *tmp = next->next;
       delete next;
