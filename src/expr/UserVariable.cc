@@ -180,7 +180,6 @@ namespace PLEXIL
     return static_cast<Assignable *>(this);
   }
 
-
   template <typename T>
   char const *UserVariable<T>::getName() const
   {

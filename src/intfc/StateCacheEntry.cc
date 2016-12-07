@@ -290,7 +290,7 @@ namespace PLEXIL
     }
   }
 
-  void StateCacheEntry::update(bool const &val)
+  void StateCacheEntry::update(Boolean const &val)
   {
     if (!ensureCachedValue(BOOLEAN_TYPE))
       return;

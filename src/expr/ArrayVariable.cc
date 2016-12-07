@@ -73,7 +73,8 @@ namespace PLEXIL
                                   char const *name,
                                   Expression *size,
                                   bool sizeIsGarbage)
-    : NotifierImpl(),
+    : GetValueImpl<ArrayImpl<T> >(),
+    NotifierImpl(),
     m_size(size),
     m_initializer(NULL),
     m_name(strdup(name)),

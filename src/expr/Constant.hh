@@ -135,7 +135,8 @@ namespace PLEXIL {
   private:
 
     // Disallow assignment
-    Constant &operator=(const Constant &);
+    Constant &operator=(const Constant &) = delete;
+    Constant &operator=(Constant &&) = delete;
   };
 
   // String is different
@@ -207,33 +208,33 @@ namespace PLEXIL {
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    bool isActive() const;
+    virtual bool isActive() const;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    void activate();
+    virtual void activate();
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    void deactivate();
+    virtual void deactivate();
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note No-op for constants.
      */
-    void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    void removeListener(ExpressionListener * /* ptr */);
+    virtual void removeListener(ExpressionListener * /* ptr */);
 
   protected:
 
@@ -243,7 +244,8 @@ namespace PLEXIL {
   private:
 
     // Disallow assignment
-    Constant &operator=(const Constant &);
+    Constant &operator=(const Constant &) = delete;
+    Constant &operator=(Constant &&) = delete;
   };
 
   // Array types
@@ -302,33 +304,33 @@ namespace PLEXIL {
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    bool isActive() const;
+    virtual bool isActive() const;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    void activate();
+    virtual void activate();
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    void deactivate();
+    virtual void deactivate();
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to notify.
      * @note No-op for constants.
      */
-    void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    void removeListener(ExpressionListener * /* ptr */);
+    virtual void removeListener(ExpressionListener * /* ptr */);
 
   protected:
 
@@ -338,7 +340,8 @@ namespace PLEXIL {
   private:
 
     // Disallow assignment
-    Constant &operator=(const Constant &);
+    Constant &operator=(const Constant &) = delete;
+    Constant &operator=(Constant &&) = delete;
   };
 
 

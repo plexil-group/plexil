@@ -161,9 +161,9 @@ namespace PLEXIL
 
   private:
     // Deliberately not implemented
-    Command();
-    Command(const Command&);
-    Command& operator=(const Command&);
+    Command() = delete;
+    Command(const Command&) = delete;
+    Command& operator=(const Command&) = delete;
 
     // Helpers
     bool isCommandConstant() const;

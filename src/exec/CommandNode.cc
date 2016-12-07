@@ -121,7 +121,7 @@ namespace PLEXIL
     private:
 
     CommandHandleInterruptible()
-      : NodeOperatorImpl<bool>("Interruptible")
+      : NodeOperatorImpl<Boolean>("Interruptible")
     {
     }
 

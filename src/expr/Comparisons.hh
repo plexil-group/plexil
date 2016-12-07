@@ -35,7 +35,7 @@ namespace PLEXIL
   // TODO:
   // - Handle mixed type numeric operands
 
-  class IsKnown : public OperatorImpl<bool>
+  class IsKnown : public OperatorImpl<Boolean>
   {
   public:
     ~IsKnown();
@@ -44,7 +44,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, Boolean)
 
   private:
     IsKnown();
@@ -55,7 +55,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class Equal : public OperatorImpl<bool>
+  class Equal : public OperatorImpl<Boolean>
   {
   public:
     ~Equal() = default;
@@ -66,7 +66,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, Boolean)
 
   private:
     Equal();
@@ -77,7 +77,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class NotEqual : public OperatorImpl<bool>
+  class NotEqual : public OperatorImpl<Boolean>
   {
   public:
     ~NotEqual() = default;
@@ -88,7 +88,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, Boolean)
 
   private:
     NotEqual();
@@ -99,7 +99,7 @@ namespace PLEXIL
   };
 
   // Special cases for internal values
-  class EqualInternal : public OperatorImpl<bool>
+  class EqualInternal : public OperatorImpl<Boolean>
   {
   public:
     ~EqualInternal() = default;
@@ -108,7 +108,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(EqualInternal, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(EqualInternal, Boolean)
 
   private:
     EqualInternal();
@@ -138,7 +138,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class GreaterThan : public OperatorImpl<bool>
+  class GreaterThan : public OperatorImpl<Boolean>
   {
   public:
     ~GreaterThan();
@@ -149,7 +149,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, Boolean)
 
   private:
     GreaterThan();
@@ -160,7 +160,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class GreaterEqual : public OperatorImpl<bool>
+  class GreaterEqual : public OperatorImpl<Boolean>
   {
   public:
     ~GreaterEqual();
@@ -171,7 +171,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, Boolean)
 
   private:
     GreaterEqual();
@@ -182,7 +182,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class LessThan : public OperatorImpl<bool>
+  class LessThan : public OperatorImpl<Boolean>
   {
   public:
     ~LessThan();
@@ -193,7 +193,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, Boolean)
 
   private:
     LessThan();
@@ -204,7 +204,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class LessEqual : public OperatorImpl<bool>
+  class LessEqual : public OperatorImpl<Boolean>
   {
   public:
     ~LessEqual();
@@ -215,7 +215,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(LessEqual<T>, bool)
+    DECLARE_OPERATOR_STATIC_INSTANCE(LessEqual<T>, Boolean)
 
   private:
     LessEqual();

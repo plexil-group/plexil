@@ -79,7 +79,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool SimpleBooleanVariable::getValueImpl(bool &result) const
+  bool SimpleBooleanVariable::getValueImpl(Boolean &result) const
   {
     result = m_value;
     return true;

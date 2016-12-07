@@ -28,7 +28,6 @@
 #define PLEXIL_COMMAND_HANDLE_VARIABLE_HH
 
 #include "CommandHandle.hh"
-#include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
 

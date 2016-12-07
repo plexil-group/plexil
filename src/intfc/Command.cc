@@ -24,8 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Assignable.hh"
 #include "Command.hh"
+
+#include "Assignable.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh"
 #include "InterfaceError.hh"

@@ -84,9 +84,11 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    Update();
-    Update(const Update&);
-    Update& operator=(const Update&);
+    Update() = delete;
+    Update(Update const &) = delete;
+    Update(Update &&) = delete;
+    Update& operator=(Update const &) = delete;
+    Update& operator=(Update &&) = delete;
 
     Update *m_next;
     NodeConnector *m_source;

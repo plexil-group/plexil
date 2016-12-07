@@ -144,6 +144,8 @@ namespace PLEXIL
     DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
     DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
 
+#undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
+
     /**
      * @brief Get the value of this expression as a Value instance.
      * @return The Value instance.
@@ -199,6 +201,8 @@ namespace PLEXIL
     bool m_stateIsConstant; // allows early caching of state value
     bool m_stateNameIsGarbage;
     bool m_isRegistered;
+
+  private:
     // Unimplemented
     Lookup() = delete;
     Lookup(Lookup const &) = delete;

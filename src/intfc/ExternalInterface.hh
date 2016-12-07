@@ -32,8 +32,6 @@
 #include "LinkedQueue.hh"
 #include "State.hh"
 
-#include <list>
-
 namespace PLEXIL {
   // Forward declarations
   class Command;

@@ -86,9 +86,9 @@ namespace PLEXIL
   }
 
   template <typename R>
-  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, Function const &exprs) const
+  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, Function const &f) const
   {
-    if (calcNative(cache, exprs))
+    if (calcNative(cache, f))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
     else
       s << "[unknown_value]";
@@ -104,9 +104,9 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value OperatorImpl<R>::toValue(void *cache, Function const &exprs) const
+  Value OperatorImpl<R>::toValue(void *cache, Function const &f) const
   {
-    bool known = calcNative(cache, exprs);
+    bool known = calcNative(cache, f);
     if (known)
       return Value(*(static_cast<R const *>(cache)));
     else
@@ -114,9 +114,9 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, Function const &exprs) const
+  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, Function const &f) const
   {
-    bool known = calcNative(cache, exprs);
+    bool known = calcNative(cache, f);
     if (known)
       return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
     else

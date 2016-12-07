@@ -236,8 +236,6 @@ namespace PLEXIL
   public:
     ResourceArbiterImpl()
     {
-      // TODO: Move this call out to application
-      // readResourceHierarchy("resource.data");
     }
 
     virtual ~ResourceArbiterImpl()
@@ -262,8 +260,9 @@ namespace PLEXIL
       
     virtual bool readResourceHierarchy(std::ifstream &s)
     {
-      m_resourceHierarchy.clear();
       static char const *WHITESPACE = " \t\n\r\v\f";
+
+      m_resourceHierarchy.clear();
       while (!s.eof()) {
         std::string dataStr;
         std::getline(s, dataStr);

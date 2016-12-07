@@ -39,13 +39,12 @@ namespace PLEXIL {
    */
 
   class SimpleBooleanVariable final :
-    public GetValueImpl<bool>,
+    public GetValueImpl<Boolean>,
     public NotifierImpl
   {
   public:
     SimpleBooleanVariable();
-    // N.B. Name pointer is copied and retained.
-    // String it points to must not be deleted before the variable is.
+    // N.B. Name is owned by some other code (usually a literal value).
     SimpleBooleanVariable(char const *name);
     ~SimpleBooleanVariable();
 
@@ -68,7 +67,7 @@ namespace PLEXIL {
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(bool &result) const;
+    bool getValueImpl(Boolean &result) const;
 
     /**
      * @brief Set the value for this object.
@@ -89,7 +88,7 @@ namespace PLEXIL {
 
   private:
 
-    // Default, copy constructors, assign, moves prohibited
+    // Copy constructor, assign, moves prohibited
     SimpleBooleanVariable(SimpleBooleanVariable const &) = delete;
     SimpleBooleanVariable(SimpleBooleanVariable &&) = delete;
     SimpleBooleanVariable &operator=(SimpleBooleanVariable const &) = delete;

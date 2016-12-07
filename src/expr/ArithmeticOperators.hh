@@ -251,15 +251,15 @@ namespace PLEXIL
   };
 #endif // !defined(__VXWORKS__)
 
-  class RealToInteger : public OperatorImpl<int32_t>
+  class RealToInteger : public OperatorImpl<Integer>
   {
   public:
     RealToInteger();
     ~RealToInteger();
     bool checkArgCount(size_t count) const;
     bool checkArgTypes(Function const *ev) const;
-    bool calc(int32_t &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, int32_t);
+    bool calc(Integer &result, Expression const *arg) const;
+    DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, Integer);
 
   private:
     RealToInteger(const RealToInteger &);

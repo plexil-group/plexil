@@ -51,7 +51,6 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(cmdXml);
-    // ResourceList resources; // not used?
     xml_node temp = cmdXml.first_child();
 
     // Optional ResourceList
