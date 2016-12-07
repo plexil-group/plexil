@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,14 @@
 #include <vxWorks.h>
 #endif
 
+#include <fstream>
 #include <string>
-#include <vector>
 
 namespace PLEXIL 
 {
   class Command;
+
+  template <typename T> class LinkedQueue;
 
   class ResourceArbiterInterface
   {
@@ -50,9 +52,22 @@ namespace PLEXIL
     }
 
     // Public API
-    virtual bool readResourceHierarchy(const std::string& fName) = 0;
-    virtual void arbitrateCommands(std::vector<Command *> const &cmds,
-                                   std::vector<Command *> &acceptCmds) = 0;
+    virtual bool readResourceHierarchyFile(const std::string& fName) = 0;
+
+    virtual bool readResourceHierarchy(std::ifstream& s) = 0;
+
+    //*
+    // @brief Partition the list of commands into accepted and rejected requests
+    //        by resources requested and priority.
+    // @param cmds LinkedQueue which is consumed by the function.
+    // @param acceptCmds LinkedQueue reference provided by the caller to receive accepted commands.
+    // @param rejectCmds LinkedQueue reference provided by the caller to receive rejected commands.
+    //
+
+    virtual void arbitrateCommands(LinkedQueue<Command> &cmds,
+                                   LinkedQueue<Command> &acceptCmds,
+                                   LinkedQueue<Command> &rejectCmds) = 0;
+
     virtual void releaseResourcesForCommand(Command *cmd) = 0;
   };
 

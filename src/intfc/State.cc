@@ -214,21 +214,23 @@ namespace PLEXIL
             && a.parameters() == b.parameters());
   }
 
+
   bool operator<(State const &a, State const &b)
   {
-    if (a.name() < b.name())
+    if (a.m_name < b.m_name)
       return true;
-    if (a.name() > b.name())
+    if (a.m_name > b.m_name)
       return false;
     // Same name
-    if (a.parameterCount() < b.parameterCount())
+    size_t aSize = a.m_parameters.size();
+    if (aSize < b.m_parameters.size())
       return true;
-    if (a.parameterCount() > b.parameterCount())
+    if (aSize > b.m_parameters.size())
       return false;
     // Same # params
     for (size_t i = 0; i < a.parameterCount(); ++i) {
-      Value const &av = a.parameter(i);
-      Value const &bv = b.parameter(i);
+      Value const &av = a.m_parameters[i];
+      Value const &bv = b.m_parameters[i];
       if (av < bv)
         return true;
       if (av > bv)

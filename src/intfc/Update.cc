@@ -33,11 +33,38 @@
 namespace PLEXIL
 {
 
+  // Simple linked-list entry.
+  struct Pair
+  {
+    Pair(std::string const &nam,
+         Expression *exp,
+         bool isGarbage)
+      : next(nullptr),
+        name(nam),
+        expr(exp),
+        garbage(isGarbage)
+    {
+    }
+
+    ~Pair()
+    {
+      if (garbage)
+        delete expr;
+    }
+
+    Pair *next;
+    std::string const name;
+    Expression *expr;
+
+  private:
+    bool garbage;
+  };
+
   Update::Update(NodeConnector *node)
-    : m_source(node),
+    : m_next(NULL),
+      m_source(node),
       m_ack("ack"),
-      m_garbage(),
-      m_pairs()
+      m_pairs(NULL)
   {
   }
 
@@ -48,47 +75,60 @@ namespace PLEXIL
 
   void Update::cleanUp()
   {
+    Pair *next = m_pairs;
+    m_pairs = nullptr;
+    while (next) {
+      Pair *tmp = next->next;
+      delete next;
+      next = tmp;
+    }
     m_valuePairs.clear();
-    m_pairs.clear();
-    for (std::vector<Expression *>::const_iterator it = m_garbage.begin(); 
-         it != m_garbage.end();
-         ++it)
-      delete (*it);
-    m_garbage.clear();
   }
 
   void Update::reservePairs(size_t n)
   {
-    m_pairs.grow(n);
+    // Preallocate space for value pairs
     m_valuePairs.grow(n);
   }
 
   bool Update::addPair(std::string const &name, Expression *exp, bool garbage)
   {
+    check_error_1(exp);
+
     debugMsg("Update:addPair", " name = \"" << name << "\", exp = " << *exp);
-    if (m_pairs.find(name) != m_pairs.end())
-      return false;
-    m_pairs[name] = exp;
-    if (garbage)
-      m_garbage.push_back(exp);
+    Pair **tmp = &m_pairs;
+    // Search to end of list for duplicate name
+    while (*tmp) {
+      if ((*tmp)->name == name)
+        return false;
+      tmp = &((*tmp)->next);
+    }
+
+    // tmp should now be pointing at last pointer in list
+    // (could be m_pairs)
+    *tmp = new Pair(name, exp, garbage);
     return true;
   }
 
   void Update::fixValues()
   {
-    for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      check_error_1(it->second);
-      m_valuePairs[it->first] = it->second->toValue();
+    Pair *tmp = m_pairs;
+    while (tmp) {
+      m_valuePairs[tmp->name] = tmp->expr->toValue();
       debugMsg("Update:fixValues",
-               " fixing pair \"" << it->first << "\", "
-               << *it->second << " = " << it->second->toValue());
+               " fixing pair \"" << tmp->name << "\", "
+               << tmp->expr << " = " << tmp->expr->toValue());
+      tmp = tmp->next;
     }
   }
 
   void Update::activate() 
   {
-    for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
-      it->second->activate();
+    Pair *tmp = m_pairs;
+    while (tmp) {
+      tmp->expr->activate();
+      tmp = tmp->next;
+    }
     m_ack.activate();
   }
 
@@ -108,9 +148,11 @@ namespace PLEXIL
 
   void Update::deactivate()
   {
-    assertTrue_1(m_ack.isActive());
-    for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
-      it->second->deactivate();
+    Pair *tmp = m_pairs;
+    while (tmp) {
+      tmp->expr->deactivate();
+      tmp = tmp->next;
+    }
     m_ack.deactivate();
   }
 

@@ -73,6 +73,9 @@ namespace PLEXIL
     size_t serialSize() const;
 
   private:
+
+    friend bool operator<(State const &, State const &);
+
     std::string m_name;
     std::vector<Value> m_parameters;
   };

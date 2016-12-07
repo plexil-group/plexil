@@ -36,19 +36,21 @@ namespace PLEXIL
 {
   // Forward declarations in PLEXIL namespace
   class NodeConnector;
-  class PlexilUpdate;
+  struct Pair;
 
   class Update 
   {
   public:
-    typedef SimpleMap<std::string, Expression *> PairExpressionMap;
     typedef SimpleMap<std::string, Value> PairValueMap;
 
     Update(NodeConnector *node);
 
     ~Update();
 
-    // For plan parser's use
+    //
+    // Parser API
+    //
+
     void reservePairs(size_t n);
     // Return true if OK, false if name is a duplicate
     bool addPair(std::string const &name, Expression *exp, bool garbage);
@@ -69,16 +71,27 @@ namespace PLEXIL
     // Made public for parser unit test
     void fixValues();
 
+    // LinkedQueue item API
+    Update *next() const
+    {
+      return m_next;
+    }
+
+    Update **nextPtr()
+    {
+      return &m_next;
+    }
+
   private:
     // Deliberately unimplemented
     Update();
     Update(const Update&);
     Update& operator=(const Update&);
 
+    Update *m_next;
     NodeConnector *m_source;
     SimpleBooleanVariable m_ack;
-    std::vector<Expression *> m_garbage;
-    PairExpressionMap m_pairs;
+    Pair *m_pairs;
     PairValueMap m_valuePairs;
   };
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,8 @@
 
 #include "CommandHandle.hh"
 #include "Expression.hh"
+#include "LinkedQueue.hh"
 #include "State.hh"
-
-#include <list>
 
 namespace PLEXIL {
   // Forward declarations
@@ -49,11 +48,6 @@ namespace PLEXIL {
   public:
 
     virtual ~ExternalInterface();
-
-    ResourceArbiterInterface *getResourceArbiter()
-    {
-      return m_raInterface;
-    }
 
     //
     // API to Lookup and StateCacheEntry
@@ -102,20 +96,31 @@ namespace PLEXIL {
     // API to Node classes
     //
 
+    // Made virtual for convenience of module tests
+
     /**
      * @brief Schedule this command for execution.
      */
-    void enqueueCommand(Command *cmd);
+    virtual void enqueueCommand(Command *cmd);
 
     /**
      * @brief Abort the pending command.
      */
-    void abortCommand(Command *cmd);
+    virtual void abortCommand(Command *cmd);
 
     /**
      * @brief Schedule this update for execution.
      */
-    void enqueueUpdate(Update *update);
+    virtual void enqueueUpdate(Update *update);
+
+    //
+    // API to Command
+    //
+    
+    /**
+     * @brief Release resources in use by the command.
+     */
+    void releaseResourcesForCommand(Command *cmd);
 
     //
     // API to Exec
@@ -124,7 +129,7 @@ namespace PLEXIL {
     /**
      * @brief Send all pending commands and updates to the external system(s).
      */
-    void executeOutboundQueue();
+    virtual void executeOutboundQueue();
 
     /**
      * @brief See if the command and update queues are empty.
@@ -181,6 +186,18 @@ namespace PLEXIL {
      */
     void acknowledgeUpdate(Update *upd, bool val);
 
+    //
+    // API to application
+    //
+    
+    /**
+     * @brief Read command resource hierarchy from the named file.
+     * @param fname File name.
+     * @return True if successful, false otherwise.
+     */
+
+    bool readResourceFile(std::string const &fname);
+
   protected:
 
     // Default constructor.
@@ -217,9 +234,9 @@ namespace PLEXIL {
     ExternalInterface(ExternalInterface const &);
     ExternalInterface &operator=(ExternalInterface const &);
 
+    LinkedQueue<Update> m_updatesToExecute;
+    LinkedQueue<Command> m_commandsToExecute;
     ResourceArbiterInterface *m_raInterface;
-    std::vector<Command *> m_commandsToExecute;
-    std::vector<Update *> m_updatesToExecute;
     unsigned int m_cycleCount;
   };
 

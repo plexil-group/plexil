@@ -25,6 +25,7 @@
  */
 
 #include "ExecApplication.hh"
+#include "ExternalInterface.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "TimeAdapter.hh"
@@ -47,28 +48,35 @@ int main_internal(int argc, char** argv)
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("interface-config.xml");
+  std::string resourceFile("resource.data");
   std::vector<std::string> libraryNames;
   std::vector<std::string> libraryPath;
   std::string
       usage(
           "Usage: universalExec -p <plan>\n\
-                   [-l <library>]*\n\
-                   [-L <library_directory>]*\n\
-                   [-c <interface_config_file>]\n\
-                   [-d <debug_config_file>]\n");
+                    [-l <library_file>]*         (no default)\n\
+                    [-L <library_directory>]*    (default .)\n\
+                    [-c <interface_config_file>] (default ./interface-config.xml)\n\
+                    [-d <debug_config_file>]     (default ./Debug.cfg)\n\
+                    [+d]                         (disable debug messages)\n");
   bool luvRequest = false;
 
 #if HAVE_LUV_LISTENER
   std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
   bool luvBlock = false;
-  usage += "[-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
+  usage += "                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
 #endif
+
+  bool debugConfigSupplied = false;
+  bool useDebugConfig = true;
+  bool resourceFileSupplied = false;
+  bool useResourceFile = true;
 
   // if not enough parameters, print usage
   if (argc < 2) {
     std::cout << usage << std::endl;
-    return -1;
+    return 2;
   }
 
   // parse out parameters
@@ -77,23 +85,44 @@ int main_internal(int argc, char** argv)
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       interfaceConfig = std::string(argv[i]);
 	}
     else if (strcmp(argv[i], "-d") == 0) {
-	  if (argc == (++i)) {
+      if (!useDebugConfig) {
+        warn("Both -d and +d options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (debugConfigSupplied) {
+        warn("Multiple -d options specified.\n"
+             << usage);
+        return 2;
+      }
+	  else if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       debugConfig = std::string(argv[i]);
+      useDebugConfig = true;
+      debugConfigSupplied = true;
 	}
+    else if (strcmp(argv[i], "+d") == 0) {
+      if (debugConfigSupplied) {
+        warn("Both -d and +d options specified.\n"
+             << usage);
+        return 2;
+      }
+      debugConfig.clear();
+      useDebugConfig = false;
+    }
     else if (strcmp(argv[i], "-l") == 0) {
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n" 
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       libraryNames.push_back(argv[i]);
 	}
@@ -101,7 +130,7 @@ int main_internal(int argc, char** argv)
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       libraryPath.push_back(argv[i]);
 	}
@@ -115,7 +144,7 @@ int main_internal(int argc, char** argv)
 	  else if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       luvHost = argv[i];
 #endif
@@ -124,10 +153,39 @@ int main_internal(int argc, char** argv)
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       planName = argv[i];
 	}
+    else if (strcmp(argv[i], "-r") == 0) {
+      if (!useResourceFile) {
+        warn("Both -r and +r options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (resourceFileSupplied) {
+        warn("Multiple -r options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return 2;
+      }
+      resourceFile = std::string(argv[i]);
+      useResourceFile = true;
+      resourceFileSupplied = true;
+    }
+    else if (strcmp(argv[i], "+r") == 0) {
+      if (resourceFileSupplied) {
+        warn("Both -r and +r options specified.\n"
+             << usage);
+        return 2;
+      }
+      resourceFile.clear();
+      useResourceFile = false;
+    }
 #if HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
@@ -135,7 +193,7 @@ int main_internal(int argc, char** argv)
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
-		return -1;
+		return 2;
 	  }
       std::istringstream buffer(argv[i]);
       buffer >> luvPort;
@@ -145,14 +203,16 @@ int main_internal(int argc, char** argv)
 #endif
     else {
       std::cerr << "Error: Unknown option '" << argv[i] << "'.\n" << usage << std::endl;
-      return -1;
+      return 2;
     }
   }
   // basic initialization
 
-  std::ifstream dbgConfig(debugConfig.c_str());
-  if (dbgConfig.good()) 
-    readDebugConfigStream(dbgConfig);
+  if (useDebugConfig) {
+    std::ifstream dbgConfig(debugConfig.c_str());
+    if (dbgConfig.good()) 
+      readDebugConfigStream(dbgConfig);
+  }
 
   // get interface configuration file, if provided
   pugi::xml_document configDoc;
@@ -184,7 +244,7 @@ int main_internal(int argc, char** argv)
       std::cout << "ERROR: configuration XML lacks \"" << PLEXIL::InterfaceSchema::INTERFACES_TAG()
 				<< "\" element; unable to initialize application"
                 << std::endl;
-      return -1;
+      return 1;
 	}
   }
 
@@ -213,10 +273,14 @@ int main_internal(int argc, char** argv)
 
   // initialize it
   std::cout << "Initializing application" << std::endl;
+  if (useResourceFile) {
+    g_interface->readResourceFile(resourceFile);
+  }
+
   if (!_app.initialize(configElt)) {
       std::cout << "ERROR: unable to initialize application"
                 << std::endl;
-      return -1;
+      return 1;
     }
 
   // add library path
@@ -228,14 +292,14 @@ int main_internal(int argc, char** argv)
   if (!_app.startInterfaces()) {
       std::cout << "ERROR: unable to start interfaces"
                 << std::endl;
-      return -1;
+      return 1;
     }
 
   // start the application
   std::cout << "Starting the exec" << std::endl;
   if (!_app.run()) {
 	std::cout << "ERROR: Failed to start Exec" << std::endl;
-	return -1;
+	return 1;
   }
 
   // Below this point, must be careful to shut down gracefully
@@ -276,17 +340,17 @@ int main_internal(int argc, char** argv)
   // clean up
   if (!_app.stop()) {
 	std::cout << "ERROR: failed to stop Exec" << std::endl;
-	return -1;
+	return 1;
   }
 
   if (!_app.shutdown()) {
 	std::cout << "ERROR: failed to shut down Exec" << std::endl;
-	return -1;
+	return 1;
   }
 
   std::cout << "Plan complete, Exec exited with"
             << (error ? " " : "out ") << "errors" << std::endl;
-  return (error ? -1 : 0);
+  return (error ? 1 : 0);
 }
 
 int main(int argc, char** argv)

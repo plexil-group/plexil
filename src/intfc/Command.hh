@@ -41,16 +41,44 @@ namespace PLEXIL
   // Used only in Command class, but exposed to parser
   //
 
-  struct ResourceSpec
+  class ResourceSpec
   {
+  public:
+    ResourceSpec();
+
+    // Use of ResourceSpec in vector requires these
+    // Replaced by move constructor/move assignment in C++11 and later
+    ResourceSpec(ResourceSpec const &);
+    ResourceSpec &operator=(ResourceSpec const &);
+
+    ~ResourceSpec();
+
     void activate();
     void deactivate();
+
+    //
+    // Plan reader access
+    //
+    void setNameExpression(Expression *e, bool isGarbage);
+    void setPriorityExpression(Expression *e, bool isGarbage);
+    void setLowerBoundExpression(Expression *e, bool isGarbage);
+    void setUpperBoundExpression(Expression *e, bool isGarbage);
+    void setReleaseAtTerminationExpression(Expression *e, bool isGarbage);
+
+    void cleanUp();
 
     Expression *nameExp;
     Expression *priorityExp;
     Expression *lowerBoundExp;
     Expression *upperBoundExp;
     Expression *releaseAtTermExp;
+
+  private:
+    bool nameIsGarbage;
+    bool priorityIsGarbage;
+    bool lowerBoundIsGarbage;
+    bool upperBoundIsGarbage;
+    bool releaseIsGarbage;
   };
 
   typedef std::vector<ResourceSpec> ResourceList;
@@ -62,9 +90,9 @@ namespace PLEXIL
 
   struct ResourceValue
   {
+    std::string name;
     double lowerBound;
     double upperBound;
-    std::string name;
     int32_t priority;
     bool releaseAtTermination;
   };
@@ -94,8 +122,7 @@ namespace PLEXIL
     void setDestination(Expression *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void setArgumentVector(ExprVec *vec);
-    ResourceList &getResourceList();
-    void addGarbageExpression(Expression *exp);
+    void setResourceList(ResourceList *l);
 
     // Interface to CommandNode
     void activate();
@@ -104,6 +131,8 @@ namespace PLEXIL
 
     void execute();
     void abort();
+
+    void cleanUp();
 
     // Interface to ExternalInterface
 
@@ -118,7 +147,16 @@ namespace PLEXIL
     void fixValues();
     void fixResourceValues();
 
-    void cleanUp();
+    // LinkedQueue item API
+    Command *next() const
+    {
+      return m_next;
+    }
+
+    Command **nextPtr()
+    {
+      return &m_next;
+    }
 
   private:
     // Deliberately not implemented
@@ -126,17 +164,25 @@ namespace PLEXIL
     Command(const Command&);
     Command& operator=(const Command&);
 
+    // Helpers
+    bool isCommandConstant() const;
+    bool areResourcesConstant() const;
+
+    Command *m_next;
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     State m_command;
-    std::vector<Expression *> m_garbage;
-    ResourceList m_resourceList;
-    ResourceValueList m_resourceValueList;
     Expression *m_nameExpr;
     Expression *m_dest;
     ExprVec *m_argVec;
+    ResourceList *m_resourceList;
+    ResourceValueList *m_resourceValueList;
     uint16_t m_commandHandle; // accessed by CommandHandleVariable
-    bool m_fixed, m_resourceFixed, m_active, m_cleaned;
+    bool m_active;
+    bool m_commandFixed, m_commandIsConstant;
+    bool m_resourcesFixed, m_resourcesAreConstant;
+    bool m_nameIsGarbage, m_destIsGarbage;
+    bool m_checkedConstant;
   };
 
 }

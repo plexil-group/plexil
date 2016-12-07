@@ -74,11 +74,11 @@ namespace PLEXIL
      * @note Notifies all lookups of the new value.
      * @note The caller is responsible for deleting the object pointed to upon return.
      */
-    void update(bool const &val);
-    void update(int32_t const &val);
-    void update(double const &val);
-    void update(std::string const &val);
-    void updatePtr(std::string const *valPtr);
+    void update(Boolean const &val);
+    void update(Integer const &val);
+    void update(Real const &val);
+    void update(String const &val);
+    void updatePtr(String const *valPtr);
     void updatePtr(BooleanArray const *valPtr);
     void updatePtr(IntegerArray const *valPtr);
     void updatePtr(RealArray const *valPtr);

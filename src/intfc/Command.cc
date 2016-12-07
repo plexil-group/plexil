@@ -31,14 +31,115 @@
 #include "ExternalInterface.hh"
 #include "InterfaceError.hh"
 #include "PlanError.hh"
-#include "ResourceArbiterInterface.hh"
 
 namespace PLEXIL
 {
 
   //
-  // ResourceSpec member functions
+  // ResourceSpec implementation
   //
+  
+  ResourceSpec::ResourceSpec()
+    : nameExp(NULL),
+      priorityExp(NULL),
+      lowerBoundExp(NULL),
+      upperBoundExp(NULL),
+      releaseAtTermExp(NULL),
+      nameIsGarbage(false),
+      priorityIsGarbage(false),
+      lowerBoundIsGarbage(false),
+      upperBoundIsGarbage(false),
+      releaseIsGarbage(false)
+  {
+  }
+  
+  ResourceSpec::ResourceSpec(ResourceSpec const &orig)
+    : nameExp(orig.nameExp),
+      priorityExp(orig.priorityExp),
+      lowerBoundExp(orig.lowerBoundExp),
+      upperBoundExp(orig.upperBoundExp),
+      releaseAtTermExp(orig.releaseAtTermExp),
+      nameIsGarbage(orig.nameIsGarbage),
+      priorityIsGarbage(orig.priorityIsGarbage),
+      lowerBoundIsGarbage(orig.lowerBoundIsGarbage),
+      upperBoundIsGarbage(orig.upperBoundIsGarbage),
+      releaseIsGarbage(orig.releaseIsGarbage)
+  {
+  }
+  
+  ResourceSpec &ResourceSpec::operator=(ResourceSpec const &orig)
+  {
+    nameExp = orig.nameExp;
+    priorityExp = orig.priorityExp;
+    lowerBoundExp = orig.lowerBoundExp;
+    upperBoundExp = orig.upperBoundExp;
+    releaseAtTermExp = orig.releaseAtTermExp;
+    nameIsGarbage = orig.nameIsGarbage;
+    priorityIsGarbage = orig.priorityIsGarbage;
+    lowerBoundIsGarbage = orig.lowerBoundIsGarbage;
+    upperBoundIsGarbage = orig.upperBoundIsGarbage;
+    releaseIsGarbage = orig.releaseIsGarbage;
+
+    return *this;
+  }
+
+  void ResourceSpec::setNameExpression(Expression *e, bool isGarbage)
+  {
+    nameExp = e;
+    nameIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setPriorityExpression(Expression *e, bool isGarbage)
+  {
+    priorityExp = e;
+    priorityIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setLowerBoundExpression(Expression *e, bool isGarbage)
+  {
+    lowerBoundExp = e;
+    lowerBoundIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setUpperBoundExpression(Expression *e, bool isGarbage)
+  {
+    upperBoundExp = e;
+    upperBoundIsGarbage = isGarbage;
+  }
+
+  void ResourceSpec::setReleaseAtTerminationExpression(Expression *e, bool isGarbage)
+  {
+    releaseAtTermExp = e;
+    releaseIsGarbage = isGarbage;
+  }
+
+  ResourceSpec::~ResourceSpec()
+  {
+    cleanUp();
+  }
+
+  void ResourceSpec::cleanUp()
+  {
+    if (nameIsGarbage)
+      delete nameExp;
+    nameExp = NULL;
+
+    if (priorityIsGarbage)
+      delete priorityExp;
+    priorityExp = NULL;
+
+    if (lowerBoundIsGarbage)
+      delete lowerBoundExp;
+    lowerBoundExp = NULL;
+
+    if (upperBoundIsGarbage)
+      delete upperBoundExp;
+    upperBoundExp = NULL;
+
+    if (releaseIsGarbage)
+      delete releaseAtTermExp;
+    releaseAtTermExp = NULL;
+  }
 
   void ResourceSpec::activate()
   {
@@ -65,20 +166,24 @@ namespace PLEXIL
   }
 
   Command::Command(std::string const &nodeName)
-    : m_ack(*this),
+    : m_next(NULL),
+      m_ack(*this),
       m_abortComplete("abortComplete"),
       m_command(),
-      m_garbage(),
-      m_resourceList(),
-      m_resourceValueList(),
       m_nameExpr(NULL),
       m_dest(NULL),
       m_argVec(NULL),
+      m_resourceList(NULL),
+      m_resourceValueList(NULL),
       m_commandHandle(NO_COMMAND_HANDLE),
-      m_fixed(false),
-      m_resourceFixed(false),
       m_active(false),
-      m_cleaned(false)
+      m_commandFixed(false),
+      m_commandIsConstant(false),
+      m_resourcesFixed(false),
+      m_resourcesAreConstant(false),
+      m_nameIsGarbage(false),
+      m_destIsGarbage(false),
+      m_checkedConstant(false)
   {
     m_ack.setName(nodeName);
   }
@@ -90,47 +195,52 @@ namespace PLEXIL
 
   void Command::cleanUp()
   {
-    if (m_cleaned)
-      return;
+    if (m_nameIsGarbage) {
+      delete m_nameExpr;
+      m_nameIsGarbage = false;
+    }
+    m_nameExpr = NULL;
 
     delete m_argVec;
     m_argVec = NULL;
-    m_nameExpr = NULL;
+
+    if (m_destIsGarbage) {
+      delete m_dest;
+      m_destIsGarbage = false;
+    }
     m_dest = NULL;
 
-    // TODO: Resource specs
-
-    for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
-         it != m_garbage.end();
-         ++it)
-      delete (*it);
-    m_garbage.clear();
-
-    m_cleaned = true;
+    if (m_resourceList) {
+      for (ResourceList::iterator it = m_resourceList->begin();
+           it != m_resourceList->end();
+           ++it)
+        it->cleanUp();
+      delete m_resourceList;
+      m_resourceList = NULL;
+      delete m_resourceValueList;
+      m_resourceValueList = NULL;
+    }
   }
 
   void Command::setDestination(Expression *dest, bool isGarbage)
   {
     m_dest = dest;
-    if (isGarbage)
-      m_garbage.push_back(dest);
+    m_destIsGarbage = isGarbage;
   }
 
   void Command::setNameExpr(Expression *nameExpr, bool isGarbage)
   {
     m_nameExpr = nameExpr;
-    if (isGarbage)
-      m_garbage.push_back(nameExpr);
+    m_nameIsGarbage = isGarbage;
   }
 
-  ResourceList &Command::getResourceList()
+  void Command::setResourceList(ResourceList *l)
   {
-    return m_resourceList;
-  }
+    if (m_resourceList && m_resourceList != l) // unlikely, but...
+      delete m_resourceList;
 
-  void Command::addGarbageExpression(Expression *exp)
-  {
-    m_garbage.push_back(exp);
+    m_resourceList = l;
+    m_resourcesAreConstant = false; // must check
   }
 
   void Command::setArgumentVector(ExprVec *vec)
@@ -142,26 +252,31 @@ namespace PLEXIL
 
   State const &Command::getCommand() const
   {
-    assertTrue_1(m_fixed);
+    assertTrue_1(m_commandFixed);
     return m_command;
   }
 
   std::string const &Command::getName() const
   {
-    assertTrue_1(m_fixed);
+    assertTrue_1(m_commandFixed);
     return m_command.name();
   }
 
   std::vector<Value> const &Command::getArgValues() const
   {
-    assertTrue_1(m_fixed);
+    assertTrue_1(m_commandFixed);
     return m_command.parameters();
   }
 
   const ResourceValueList &Command::getResourceValues() const
   {
-    assertTrue_1(m_resourceFixed);
-    return m_resourceValueList;
+    static ResourceValueList const sl_emptyList;
+
+    assertTrue_1(m_resourcesFixed);
+    if (!m_resourceList)
+      return sl_emptyList;
+    else
+      return *m_resourceValueList;
   }
 
   Expression *Command::getDest()
@@ -172,9 +287,39 @@ namespace PLEXIL
       return NULL;
   }
 
+  bool Command::isCommandConstant() const
+  {
+    if (!m_nameExpr->isConstant())
+      return false;
+    if (m_argVec)
+      for (size_t i = 0; i < m_argVec->size(); ++i)
+        if (!(*m_argVec)[i]->isConstant())
+          return false;
+    return true;
+  }
+
+  bool Command::areResourcesConstant() const
+  {
+    if (!m_resourceList)
+      return true;
+
+    for (ResourceList::const_iterator it = m_resourceList->begin();
+         it != m_resourceList->end();
+         ++it) {
+      if (!it->nameExp->isConstant()
+          || !it->priorityExp->isConstant()
+          || (it->lowerBoundExp && !it->lowerBoundExp->isConstant())
+          || (it->upperBoundExp && !it->upperBoundExp->isConstant())
+          || (it->releaseAtTermExp && !it->releaseAtTermExp->isConstant()))
+        return false;
+    }
+
+    return true;
+  }
+
   void Command::fixValues() 
   {
-    assertTrue_1(m_active && !m_fixed);
+    assertTrue_1(m_active);
     std::string const *name;
     m_nameExpr->getValuePointer(name);
     m_command.setName(*name);
@@ -186,18 +331,22 @@ namespace PLEXIL
         m_command.setParameter(i, (*m_argVec)[i]->toValue());
     }
 
-    m_fixed = true;
+    m_commandFixed = true;
   }
 
   void Command::fixResourceValues()
   {
-    assertTrue_1(m_active && !m_resourceFixed);
-    m_resourceValueList.clear();
-    size_t n = m_resourceList.size();
-    m_resourceValueList.resize(n);
+    check_error_1(m_active);
+    if (!m_resourceList)
+      return;
+    
+    size_t n = m_resourceList->size();
+    if (!m_resourceValueList)
+      m_resourceValueList = new ResourceValueList(n);
+
     for (size_t i = 0; i < n; ++i) {
-      ResourceSpec const &spec = m_resourceList[i];
-      ResourceValue &resValue = m_resourceValueList[i];
+      ResourceSpec const &spec = (*m_resourceList)[i];
+      ResourceValue &resValue = (*m_resourceValueList)[i];
       checkPlanError(spec.nameExp->getValue(resValue.name),
                      "Command resource name expression has unknown or invalid value");
       checkPlanError(spec.priorityExp->getValue(resValue.priority),
@@ -224,33 +373,54 @@ namespace PLEXIL
       else
         resValue.releaseAtTermination = true;
     }
-    m_resourceFixed = true;
+    m_resourcesFixed = true;
   }
 
-  // more error checking here
   void Command::activate()
   {
     check_error_1(!m_active);
     check_error_1(m_nameExpr);
-    m_nameExpr->activate();
+
     m_ack.activate();
     m_abortComplete.activate();
     if (m_dest)
       m_dest->activate();
-    if (m_argVec)
-      m_argVec->activate();
-    for (ResourceList::iterator resListIter = m_resourceList.begin();
-         resListIter != m_resourceList.end();
-         ++resListIter)
-      resListIter->activate();
+
+    // If command fixed, these are already active
+    if (!m_commandFixed) {
+      m_nameExpr->activate();
+      if (m_argVec)
+        m_argVec->activate();
+    }
+
+    // If resources fixed, they are already active
+    if (m_resourceList && !m_resourcesFixed)
+      if (m_resourceList)
+        for (ResourceList::iterator it = m_resourceList->begin();
+             it != m_resourceList->end();
+             ++it)
+          it->activate();
+
+    // Check for constancy at first activation
+    if (!m_checkedConstant) {
+      m_commandIsConstant = isCommandConstant();
+      if (m_resourceList)
+        m_resourcesAreConstant = areResourcesConstant();
+      else
+        m_resourcesAreConstant = m_resourcesFixed = true; // because there aren't any
+      m_checkedConstant = true;
+    }
+
     m_active = true;
   }
 
   void Command::execute()
   {
     check_error_1(m_active);
-    fixValues();
-    fixResourceValues();
+    if (!m_commandFixed)
+      fixValues();
+    if (!m_resourcesFixed)
+      fixResourceValues();
     g_interface->enqueueCommand(this);
   }
 
@@ -292,27 +462,47 @@ namespace PLEXIL
   {
     check_error_1(m_active);
     m_active = false;
+
     if (m_commandHandle != COMMAND_DENIED)
-      g_interface->getResourceArbiter()->releaseResourcesForCommand(this);
-    for (ResourceList::iterator resListIter = m_resourceList.begin();
-         resListIter != m_resourceList.end();
-         ++resListIter)
-      resListIter->deactivate();
-    if (m_argVec)
-      m_argVec->deactivate();
-    if (m_dest)
-      m_dest->deactivate();
+      g_interface->releaseResourcesForCommand(this);
+
     m_abortComplete.deactivate();
     m_ack.deactivate();
-    m_nameExpr->deactivate();
+
+    if (m_dest)
+      m_dest->deactivate();
+
+    // Don't deactivate if resources are constant
+    if (m_resourceList) {
+      if (!m_resourcesAreConstant) {
+        for (ResourceList::iterator it = m_resourceList->begin();
+             it != m_resourceList->end();
+             ++it)
+          it->deactivate();
+        m_resourcesFixed = false;
+      }
+    }
+
+    // Don't deactivate if command is constant
+    if (!m_commandIsConstant) {
+      m_nameExpr->deactivate();
+      if (m_argVec)
+        m_argVec->deactivate();
+      m_commandFixed = false;
+    }
   }
 
   void Command::reset()
   {
+    check_error_1(!m_active); // should never be called while active
+
     m_commandHandle = NO_COMMAND_HANDLE;
     m_abortComplete.reset();
-    // TODO: optimize in case name & args are constants (a common case)
-    m_fixed = m_resourceFixed = m_active = false;
+
+    if (!m_commandIsConstant)
+      m_commandFixed = false;
+    if (!m_resourcesAreConstant)
+      m_resourcesFixed = false;
   }
 
 }

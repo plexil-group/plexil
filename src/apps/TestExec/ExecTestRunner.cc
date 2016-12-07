@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,22 +66,30 @@ int ExecTestRunner::run(int argc, char** argv)
   string scriptName("error");
   string planName("error");
   string debugConfig("Debug.cfg");
+  string resourceFile("resource.data");
   vector<string> libraryNames;
   vector<string> libraryPaths;
   string
-    usage(
-          "Usage: exec-test-runner -s <script> -p <plan>\n\
-                        [-l <library>]*\n\
-                        [-L <library-dir>]*\n\
-                        [-d <debug_config_file>]\n");
+    usage("Usage: exec-test-runner -s <script> -p <plan>\n\
+                        [-l <library-file>]*     (no default)\n\
+                        [-L <library-dir>]*      (default .)\n\
+                        [-d <debug_config_file>] (default ./Debug.cfg)\n\
+                        [+d]                     (disable debug messages)\n\
+                        [-r <resource_file>]     (default ./resource.data)\n\
+                        [+r]                     (don't read resource data)\n");
 
 #if HAVE_LUV_LISTENER
-  bool luvRequest = false;
   string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = LuvListener::LUV_DEFAULT_PORT();
+  bool luvRequest = false;
   bool luvBlock = false;
-  usage += "[-v [-h <hostname>] [-n <portnumber>] [-b] ]";
+  usage += "                        [-v [-h <viewer-hostname>] [-n <viewer-portnumber>] [-b] ]\n";
 #endif
+
+  bool debugConfigSupplied = false;
+  bool useDebugConfig = true;
+  bool resourceFileSupplied = false;
+  bool useResourceFile = true;
 
   // if not enough parameters, print usage
 
@@ -130,12 +138,62 @@ int ExecTestRunner::run(int argc, char** argv)
       libraryPaths.push_back(argv[i]);
     }
     else if (strcmp(argv[i], "-d") == 0) {
-      if (argc == (++i)) {
+      if (!useDebugConfig) {
+        warn("Both -d and +d options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (debugConfigSupplied) {
+        warn("Multiple -d options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
         return 2;
       }
       debugConfig = string(argv[i]);
+      useDebugConfig = true;
+      debugConfigSupplied = true;
+    }
+    else if (strcmp(argv[i], "+d") == 0) {
+      if (debugConfigSupplied) {
+        warn("Both -d and +d options specified.\n"
+             << usage);
+        return 2;
+      }
+      debugConfig.clear();
+      useDebugConfig = false;
+    }
+    else if (strcmp(argv[i], "-r") == 0) {
+      if (!useResourceFile) {
+        warn("Both -r and +r options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (resourceFileSupplied) {
+        warn("Multiple -r options specified.\n"
+             << usage);
+        return 2;
+      }
+      else if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return 2;
+      }
+      resourceFile = string(argv[i]);
+      useResourceFile = true;
+      resourceFileSupplied = true;
+    }
+    else if (strcmp(argv[i], "+r") == 0) {
+      if (resourceFileSupplied) {
+        warn("Both -r and +r options specified.\n"
+             << usage);
+        return 2;
+      }
+      resourceFile.clear();
+      useResourceFile = false;
     }
 #if HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
@@ -206,17 +264,26 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // basic initialization
 
-  std::ifstream config(debugConfig.c_str());
-  if (config.good())
-    readDebugConfigStream(config);
+  // initialize debug messaging first
+  if (useDebugConfig) {
+    std::ifstream config(debugConfig.c_str());
+    if (config.good())
+      readDebugConfigStream(config);
+  }
 
   initializeExpressions();
   setLibraryPaths(libraryPaths);
 
-  // create the exec
+  // create external interface
 
   TestExternalInterface intf;
   g_interface = &intf;
+  if (useResourceFile) {
+    g_interface->readResourceFile(resourceFile);
+  }
+
+  // create the exec
+
   g_exec = new PlexilExec();
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);

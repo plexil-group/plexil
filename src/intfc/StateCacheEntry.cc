@@ -173,8 +173,8 @@ namespace PLEXIL
   bool StateCacheEntry::realUpdateThresholds(State const &s)
   {
     bool hasThresholds = false;
-    double rhi, rlo;
-    double newrhi, newrlo;
+    Real rhi, rlo;
+    Real newrhi, newrlo;
     for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
 	 it != m_lookups.end();
 	 ++it) {
@@ -219,7 +219,7 @@ namespace PLEXIL
       hasThresholds = integerUpdateThresholds(s);
       break;
 
-      // FIXME: support non-double date/duration types
+      // FIXME: support non-Real date/duration types
     case DATE_TYPE:
     case DURATION_TYPE:
 
@@ -290,7 +290,7 @@ namespace PLEXIL
     }
   }
 
-  void StateCacheEntry::update(bool const &val)
+  void StateCacheEntry::update(Boolean const &val)
   {
     if (!ensureCachedValue(BOOLEAN_TYPE))
       return;
@@ -298,7 +298,7 @@ namespace PLEXIL
       notify();
   }
 
-  void StateCacheEntry::update(int32_t const &val)
+  void StateCacheEntry::update(Integer const &val)
   {
     if (!ensureCachedValue(INTEGER_TYPE))
       return;
@@ -306,7 +306,7 @@ namespace PLEXIL
       notify();
   }
 
-  void StateCacheEntry::update(double const &val)
+  void StateCacheEntry::update(Real const &val)
   {
     if (!ensureCachedValue(REAL_TYPE))
       return;
@@ -314,7 +314,7 @@ namespace PLEXIL
       notify();
   }
 
-  void StateCacheEntry::update(std::string const &val)
+  void StateCacheEntry::update(String const &val)
   {
     if (!ensureCachedValue(STRING_TYPE))
       return;
@@ -330,7 +330,7 @@ namespace PLEXIL
       notify();
   }
 
-  void StateCacheEntry::updatePtr(std::string const *valPtr)
+  void StateCacheEntry::updatePtr(String const *valPtr)
   {
     if (!ensureCachedValue(STRING_TYPE))
       return;
