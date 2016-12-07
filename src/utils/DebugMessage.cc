@@ -140,7 +140,7 @@ namespace PLEXIL
         m->enabled = true;
 
     // Add pattern for messages added in the future
-    allDebugPatterns.push_back(std::move(pattern));
+    allDebugPatterns.push_back(pattern);
   }
 
   bool readDebugConfigStream(std::istream& is)
