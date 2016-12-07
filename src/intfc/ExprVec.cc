@@ -66,7 +66,7 @@ namespace PLEXIL
       : ExprVec()
     {
       for (size_t i = 0; i < N; ++i)
-        exprs[i] = nullptr;
+        exprs[i] = NULL;
       for (size_t i = 0; i < N; ++i)
         garbage[i] = false;
     }
@@ -236,7 +236,7 @@ namespace PLEXIL
     switch (n) {
     case 0:
       assertTrue_2(false, "makeExprVec: zero-length vector not implemented");
-      return nullptr;
+      return NULL;
       
     case 1:
       return static_cast<ExprVec *>(new FixedExprVec<1>());
