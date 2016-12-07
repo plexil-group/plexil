@@ -276,7 +276,7 @@ namespace PLEXIL
 
     virtual bool readResourceHierarchyFile(const std::string& fName)
     {
-      std::ifstream myFile(fName);
+      std::ifstream myFile(fName.c_str());
       if (!myFile.is_open() || !myFile.good()) {
         debugMsg("ResourceArbiterInterface:readResourceHierarchyFile",
                  " Unable to open file " << fName << ". No resources read.");
