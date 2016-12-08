@@ -42,19 +42,19 @@ simple-openloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fb058406d50 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fb333c06fb8 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fb058406f60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb058406ee0 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fb333c07160 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb333c070e0 [i](0))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fb058407150 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb058406d50 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10c43a368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb058406e80 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb058406d90 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb058406d50 [a](UNKNOWN))
+   PostCondition: (EQ Boolean 0x7fb333c071b0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb333c06fb8 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10c405368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb333c070a0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb333c06ff8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb333c06fb8 [a](UNKNOWN))
   }
 }
 
@@ -114,7 +114,7 @@ simple-openloop-command-a1{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb058406d50 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb333c06fb8 [i](UNKNOWN))
   }
 }
 

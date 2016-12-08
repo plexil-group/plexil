@@ -27,9 +27,7 @@
 #ifndef _H_Node
 #define _H_Node
 
-#include "ConstantMacros.hh"
 #include "Expression.hh"
-#include "LinkedQueue.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
@@ -56,28 +54,9 @@ namespace PLEXIL {
     public ExpressionListener
   {
   public:
-    //condition names
-    DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION, "StartCondition"); /*!< The name for the node's start condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION, "EndCondition"); /*!< The name for the node's end condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, EXIT_CONDITION, "ExitCondition"); /*!< The name for the node's exit condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION, "InvariantCondition"); /*!< The name for the node's invariant condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, PRE_CONDITION, "PreCondition"); /*!< The name for the node's pre-condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, REPEAT_CONDITION, "RepeatCondition"); /*!< The name for the node's repeat condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
-                                                                                                        condition (parent.invariant && parent.ancestor-invariant).*/
-    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*!< The name for the ancestor-end condition
-                                                                                            (parent.end || parent.ancestor-end). */
-    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
-                                                                                            (parent.exit || parent.ancestor-exit). */
+    static char const * const ALL_CONDITIONS[];
 
-    DECLARE_STATIC_CLASS_CONST(std::string, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
-    DECLARE_STATIC_CLASS_CONST(std::string, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
-
-    static const std::vector<std::string>& ALL_CONDITIONS();
-
-    // N.B.: These need to match the order of ALL_CONDITIONS()
+    // N.B.: These need to match the order of ALL_CONDITIONS above
     enum ConditionIndex {
       // Conditions on parent
       // N.B. Ancestor end/exit/invariant MUST come before
@@ -102,12 +81,6 @@ namespace PLEXIL {
 
       conditionIndexMax
     };
-
-    //in-built variable names
-    DECLARE_STATIC_CLASS_CONST(std::string, STATE, "state");
-    DECLARE_STATIC_CLASS_CONST(std::string, OUTCOME, "outcome");
-    DECLARE_STATIC_CLASS_CONST(std::string, FAILURE_TYPE, "failure_type");
-    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_HANDLE, "command_handle");
 
     /**
      * @brief The constructor.
@@ -212,12 +185,6 @@ namespace PLEXIL {
     }
 
     /**
-     * @brief Gets the name of the current state of this node.
-     * @return the current node state name as a const reference to string.
-     */
-    std::string const &getStateName() const;
-
-    /**
      * @brief Gets the current state of this node.
      * @return the current node state as a NodeState (enum) value.
      */
@@ -244,15 +211,15 @@ namespace PLEXIL {
     // Used by plan parser
 
     // May return NULL.
+    // Used by plan analyzer and plan parser module test only.
     const std::vector<Expression *> *getLocalVariables() const { return m_localVariables; }
+
     // May return NULL.
+    // Used by GanttListener.
     NodeVariableMap const *getVariableMap() const { return m_variablesByName; }
 
     // Pre-allocate local variable vector, variable map.
     void allocateVariables(size_t n);
-
-    // For plan parser and initialization purposes.
-    virtual NodeVariableMap const *getChildVariableMap() const;
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
@@ -331,32 +298,11 @@ namespace PLEXIL {
     Expression *getActionCompleteCondition()            { return m_conditions[actionCompleteIdx]; }
     Expression *getAbortCompleteCondition()             { return m_conditions[abortCompleteIdx]; }
 
-    // Test whether a condition is active
-    // These are public only to appease the module test
-
-    // These are special because parent owns the condition expression
-    bool isAncestorEndConditionActive()               { return getAncestorEndCondition()->isActive(); }
-    bool isAncestorExitConditionActive()              { return getAncestorExitCondition()->isActive(); }
-    bool isAncestorInvariantConditionActive()         { return getAncestorInvariantCondition()->isActive(); }
-
-    // User conditions
-    bool isSkipConditionActive()                      { return m_conditions[skipIdx]->isActive(); }
-    bool isStartConditionActive()                     { return m_conditions[startIdx]->isActive(); }
-    bool isEndConditionActive()                       { return m_conditions[endIdx]->isActive(); }
-    bool isExitConditionActive()                      { return m_conditions[exitIdx]->isActive(); }
-    bool isInvariantConditionActive()                 { return m_conditions[invariantIdx]->isActive(); }
-    bool isPreConditionActive()                       { return m_conditions[preIdx]->isActive(); }
-    bool isPostConditionActive()                      { return m_conditions[postIdx]->isActive(); }
-    bool isRepeatConditionActive()                    { return m_conditions[repeatIdx]->isActive(); }
-    // These are for specialized node types
-    bool isActionCompleteConditionActive()            { return m_conditions[actionCompleteIdx]->isActive(); }
-    bool isAbortCompleteConditionActive()             { return m_conditions[abortCompleteIdx]->isActive(); }
-
     // Used internally, also by LuvListener. Non-const variant is protected.
     Expression const *getCondition(size_t idx) const;
 
     //
-    // Utilities for plan parsers
+    // Utilities for plan parser and analyzer
     //
 
     /**
@@ -370,23 +316,19 @@ namespace PLEXIL {
 
     /**
      * @brief Add a condition expression to the node.
-     * @param which The index of the condition.
+     * @param cname The name of the condition.
      * @param cond The expression.
      * @param isGarbage True if the expression should be deleted with the node.
      */
-    void addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage);
+    void addUserCondition(char const *cname, Expression *cond, bool isGarbage);
 
     /**
      * @brief Construct any internal conditions now that the node is complete.
      */
     void finalizeConditions();
-
-    //
-    // Utility
-    //
     
-    static ConditionIndex getConditionIndex(char const *cName);
-    static const std::string& getConditionName(size_t idx);
+    // Public only for plan analyzer
+    static char const *getConditionName(size_t idx);
 
   protected:
     friend class LibraryCallNode;
@@ -402,13 +344,18 @@ namespace PLEXIL {
     // Abstracts out the issue of where the condition comes from.
     Expression *getCondition(size_t idx);
 
+    static ConditionIndex getConditionIndex(char const *cName);
+
+    // Only used by Node, ListNode, LibraryCallNode.
+    virtual NodeVariableMap const *getChildVariableMap() const;
+
     void commonInit();
 
     // Called from the transition handler
     void execute();
     void reset();
     virtual void abort();
-    virtual void deactivateExecutable();
+    void deactivateExecutable();
 
     // Variables
     void activateLocalVariables();

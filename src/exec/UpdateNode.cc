@@ -252,19 +252,25 @@ namespace PLEXIL
     deactivateEndCondition();
     deactivatePostCondition();
 
-    if (m_nextState == FAILING_STATE) {
+    switch (m_nextState) {
+
+    case FAILING_STATE:
       // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
       deactivateAncestorExitInvariantConditions();
       activateActionCompleteCondition();
-    }
-    else if (m_nextState == ITERATION_ENDED_STATE) {
+      break;
+
+    case ITERATION_ENDED_STATE:
       deactivateExecutable();
       activateAncestorEndCondition();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition Update node from EXECUTING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition Update node from EXECUTING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -319,14 +325,24 @@ namespace PLEXIL
   {
     deactivateActionCompleteCondition();
     deactivateExecutable();
-    if (m_nextState == ITERATION_ENDED_STATE) {
+
+    switch (m_nextState) {
+
+    case ITERATION_ENDED_STATE:
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
+      break;
+
+    case FINISHED_STATE:
+      // all done
+      break;
+      
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition Update node from FAILING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else 
-      checkError(m_nextState == FINISHED_STATE,
-                 "Attempting to transition Update node from FAILING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
 
 

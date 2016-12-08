@@ -215,10 +215,10 @@ namespace PLEXIL
     LinkedQueue<Node> m_candidateQueue;    /*<! Nodes whose conditions have changed and may be eligible to transition. */
     LinkedQueue<Node> m_stateChangeQueue;  /*<! Nodes awaiting state transition.*/
     LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
+    LinkedQueue<Assignment> m_assignmentsToExecute;
+    LinkedQueue<Assignment> m_assignmentsToRetract;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
-    std::vector<Assignment *> m_assignmentsToExecute;
-    std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Expression *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     ExecListenerBase *m_listener;
     VariableConflictSet *m_resourceConflicts; /*<! Linked list of variable assignment contention sets. */

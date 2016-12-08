@@ -48,9 +48,7 @@ namespace PLEXIL
                                         NodeConnector *node,
                                         bool &wasCreated) const
   {
-    size_t n = 0;
-    for (pugi::xml_node subexp = expr.first_child(); subexp; subexp = subexp.next_sibling())
-      ++n;
+    size_t n = std::distance(expr.begin(), expr.end());
     Operator const *oper = this->getOperator();
     checkParserExceptionWithLocation(oper->checkArgCount(n),
                                      expr,
@@ -81,31 +79,6 @@ namespace PLEXIL
     }
 
     wasCreated = true;
-    return result;
-  }
-
-  ExprVec *
-  FunctionFactory::constructExprVec(pugi::xml_node const expr,
-                                    NodeConnector *node,
-                                    size_t nargs) const
-  {
-    ExprVec *result = makeExprVec(nargs);
-    
-    try {
-      size_t i = 0;
-      for (pugi::xml_node subexp = expr.first_child();
-           subexp && i < nargs;
-           subexp = subexp.next_sibling(), ++i) {
-        bool created;
-        Expression *arg = createExpression(subexp, node, created);
-        result->setArgument(i, arg, created);
-      }
-    }
-    catch (ParserException & /* e */) {
-      delete result;
-      throw;
-    }
-
     return result;
   }
 

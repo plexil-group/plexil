@@ -53,6 +53,7 @@ namespace PLEXIL
   {
     // gather elements
     std::vector<T> values;
+    values.reserve(std::distance(expr.begin(), expr.end()));
 
     pugi::xml_node thisElement = expr.first_child();
     size_t i = 0;
@@ -97,6 +98,7 @@ namespace PLEXIL
   {
     // gather elements
     std::vector<std::string> values;
+    values.reserve(std::distance(expr.begin(), expr.end()));
 
     pugi::xml_node thisElement = expr.first_child();
     size_t i = 0;

@@ -27,6 +27,7 @@
 #include "ArrayFwd.hh"
 #include "Expression.hh"
 #include "NodeOperatorImpl.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -34,56 +35,7 @@ namespace PLEXIL
   template <typename R>
   ValueType NodeOperatorImpl<R>::valueType() const
   {
-    return UNKNOWN_TYPE;
-  }
-
-  // Specific types
-  template <>
-  ValueType NodeOperatorImpl<Real>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<Integer>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<Boolean>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<String>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<BooleanArray>::valueType() const
-  {
-    return BOOLEAN_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<IntegerArray>::valueType() const
-  {
-    return INTEGER_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<RealArray>::valueType() const
-  {
-    return REAL_ARRAY_TYPE;
-  }
-
-  template <>
-  ValueType NodeOperatorImpl<StringArray>::valueType() const
-  {
-    return STRING_ARRAY_TYPE;
+    return PlexilValueType<R>::value;
   }
 
   // Convenience methods
@@ -95,25 +47,10 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool NodeOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Node const *node) const
-  {
-    return (*this)(*(static_cast<ArrayImpl<R> *>(cache)), node);
-  }
-
-  template <typename R>
   void NodeOperatorImpl<R>::printValue(std::ostream &s, void *cache, Node const *node) const
   {
     if (calcNative(cache, node))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
-    else
-      s << "UNKNOWN";
-  }
-
-  template <typename R>
-  void NodeOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Node const *node) const
-  {
-    if (calcNative(cache, node))
-      PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
     else
       s << "UNKNOWN";
   }
@@ -128,15 +65,32 @@ namespace PLEXIL
       return Value();
   }
 
-  template <typename R>
-  Value NodeOperatorImpl<ArrayImpl<R> >::toValue(void *cache, Node const *node) const
-  {
-    bool known = calcNative(cache, node);
-    if (known)
-      return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
-    else
-      return Value();
-  }
+  // Array variants unlikely to be used any time soon
+
+  // template <typename R>
+  // bool NodeOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Node const *node) const
+  // {
+  //   return (*this)(*(static_cast<ArrayImpl<R> *>(cache)), node);
+  // }
+
+  // template <typename R>
+  // void NodeOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Node const *node) const
+  // {
+  //   if (calcNative(cache, node))
+  //     PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
+  //   else
+  //     s << "UNKNOWN";
+  // }
+
+  // template <typename R>
+  // Value NodeOperatorImpl<ArrayImpl<R> >::toValue(void *cache, Node const *node) const
+  // {
+  //   bool known = calcNative(cache, node);
+  //   if (known)
+  //     return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
+  //   else
+  //     return Value();
+  // }
 
   // Default methods
   template <typename R>
@@ -148,39 +102,40 @@ namespace PLEXIL
     return false;
   }
 
-  template <typename R>
-  bool NodeOperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Node const * /* node */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for return type "
-                   << valueTypeName(PlexilValueType<R>::arrayValue));
-    return false;
-  }
+  // template <typename R>
+  // bool NodeOperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Node const * /* node */) const
+  // {
+  //   checkPlanError(ALWAYS_FAIL,
+  //                  "Operator " << this->getName() << " not implemented for return type "
+  //                  << valueTypeName(PlexilValueType<R>::arrayValue));
+  //   return false;
+  // }
 
   // Conversion methods
- 
-  template <>
-  template <>
-  bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const
-  {
-    int32_t temp;
-    if (!this->calc(temp, node))
-      return false;
-    result = (double) temp;
-    return true;
-  }
+
+  // Not currently used
+  // template <>
+  // template <>
+  // bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const
+  // {
+  //   Integer temp;
+  //   if (!this->calc(temp, node))
+  //     return false;
+  //   result = (Real) temp;
+  //   return true;
+  // }
 
   //
   // Explicit instantiations
   //
 
-  template class NodeOperatorImpl<Real>;
-  template class NodeOperatorImpl<Integer>;
-  // template class NodeOperatorImpl<uint16_t>;
   template class NodeOperatorImpl<Boolean>;
-  template class NodeOperatorImpl<String>;
 
   // later?
+  // template class NodeOperatorImpl<uint16_t>;
+  // template class NodeOperatorImpl<Integer>;
+  // template class NodeOperatorImpl<Real>;
+  // template class NodeOperatorImpl<String>;
   // template class NodeOperatorImpl<BooleanArray>;
   // template class NodeOperatorImpl<IntegerArray>;
   // template class NodeOperatorImpl<RealArray>;

@@ -42,19 +42,19 @@ simple-openloop-command-a1{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7ff3b3c06d50 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f821b406c38 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-a1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7ff3b3c06f60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff3b3c06ee0 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7f821b406de0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f821b406d60 [i](0))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7ff3b3c07150 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7ff3b3c06d50 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x105bde368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff3b3c06e80 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff3b3c06d90 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff3b3c06d50 [a](UNKNOWN))
+   PostCondition: (EQ Boolean 0x7f821b406e30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f821b406c38 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10be87368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f821b406d20 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f821b406c78 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f821b406c38 [a](UNKNOWN))
   }
 }
 
@@ -113,7 +113,7 @@ simple-openloop-command-a1{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff3b3c06d50 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f821b406c38 [i](UNKNOWN))
   }
 }
 

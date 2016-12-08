@@ -100,7 +100,7 @@ namespace PLEXIL
 
   void NodeTimepointValue::printValue(std::ostream &s) const
   {
-    double tym;
+    Real tym;
     if (getValueImpl(tym))
       s << std::setprecision(15) << tym; // FIXME: needs better format
     else

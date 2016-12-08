@@ -63,10 +63,7 @@ namespace PLEXIL
   // Don't do any parsing, just count
   static size_t estimateVariableSpace(xml_node const decls)
   {
-    size_t n = 0;
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling())
-      ++n;
-    return n;
+    return std::distance(decls.begin(), decls.end());
   }
 
   static char const *getVarDeclName(xml_node const decl)
@@ -108,8 +105,7 @@ namespace PLEXIL
   {
     size_t n = 0;
     for (xml_node elt = iface.first_child(); elt; elt = elt.next_sibling())
-      for (xml_node decl = elt.first_child(); decl; decl = decl.next_sibling())
-        ++n;
+      n += std::distance(elt.begin(), elt.end());
     return n;
   }
 
@@ -415,16 +411,16 @@ namespace PLEXIL
       node->allocateVariables(nVariables);
     }
 
-    // Populate local variables
-    if (varDecls) {
-      debugMsg("parseNode", " parsing variable declarations");
-      parseVariableDeclarations(node, varDecls);
-    }
-
     // Check interface variables
     if (iface) {
       debugMsg("parseNode", " parsing interface declarations");
       parseInterface(node, iface);
+    }
+
+    // Populate local variables
+    if (varDecls) {
+      debugMsg("parseNode", " parsing variable declarations");
+      parseVariableDeclarations(node, varDecls);
     }
   }
 
@@ -763,11 +759,6 @@ namespace PLEXIL
       char const *tag = elt.name();
       if (testSuffix(CONDITION_SUFFIX, tag)) {
         debugMsg("finalizeNode", " processing condition " << tag);
-        // Check that condition name is valid, get index
-        Node::ConditionIndex which = Node::getConditionIndex(tag);
-        // Bogus condition names should have been caught in first pass
-        assertTrueMsg(which >= Node::skipIdx && which <= Node::repeatIdx,
-                      "Internal error: Invalid condition name \"" << tag << "\"");
         bool garbage;
         Expression *cond = createExpression(elt.first_child(), node, garbage);
         ValueType condType = cond->valueType();
@@ -778,7 +769,7 @@ namespace PLEXIL
                                             "Node " << node->getNodeId() << ": "
                                             << tag << " expression is not Boolean");
         }
-        node->addUserCondition(which, cond, garbage);
+        node->addUserCondition(tag, cond, garbage);
       }
     }
 
@@ -804,8 +795,8 @@ namespace PLEXIL
   {
     debugMsg("finalizeNode", " node " << node->getNodeId());
 
-    constructVariableInitializers(node, xml);
     linkAndInitializeInterfaceVars(node, xml);
+    constructVariableInitializers(node, xml);
     createConditions(node, xml);
 
     // Process body

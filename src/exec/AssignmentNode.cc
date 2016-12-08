@@ -224,8 +224,8 @@ namespace PLEXIL
   void AssignmentNode::specializedHandleExecution()
   {
     // Perform assignment
-    checkError(m_assignment,
-               "Node::execute: Assignment is invalid");
+    assertTrueMsg(m_assignment,
+                  "AssignmentNode::execute: Assignment is null");
     m_assignment->activate();
     m_assignment->fixValue();
     g_exec->enqueueAssignment(m_assignment);
@@ -239,17 +239,22 @@ namespace PLEXIL
     deactivatePostCondition();
     deactivateActionCompleteCondition();
 
-    if (m_nextState == FAILING_STATE) {
+    switch (m_nextState) {
+    case FAILING_STATE:
       deactivateAncestorExitInvariantConditions();
-    }
-    else if (m_nextState == ITERATION_ENDED_STATE) {
+      break;
+
+    case ITERATION_ENDED_STATE:
       activateAncestorEndCondition();
       deactivateExecutable();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition AssignmentNode from EXECUTING to invalid state"
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else 
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition AssignmentNode from EXECUTING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
     
   //
@@ -309,19 +314,26 @@ namespace PLEXIL
     deactivateAbortCompleteCondition();
     deactivateExecutable();
 
-    if (m_nextState == ITERATION_ENDED_STATE) {
+    switch (m_nextState) {
+    case ITERATION_ENDED_STATE:
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
+      break;
+
+    case FINISHED_STATE:
+      // nothing else to do
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition Assignment node from FAILING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else 
-      checkError(m_nextState == FINISHED_STATE,
-                 "Attempting to transition Assignment node from FAILING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
   }
     
   void AssignmentNode::abort()
   {
-    check_error_1(m_assignment);
     debugMsg("Node:abort", "Aborting node " << m_nodeId);
     g_exec->enqueueAssignmentForRetraction(m_assignment);
   }

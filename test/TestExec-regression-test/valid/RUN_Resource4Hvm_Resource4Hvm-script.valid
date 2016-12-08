@@ -72,40 +72,40 @@ Resource4Hvm{
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing c1(20) into (Variable Integer returnValue 0x7fe011c06d38 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](UNKNOWN))
-[Test:testOutput]Executing c3() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [a](UNKNOWN))
+[Test:testOutput]Executing c1(20) into (Variable Integer returnValue 0x7fe3f2500618 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](UNKNOWN))
+[Test:testOutput]Executing c3() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [a](UNKNOWN))
 [Test:testOutput]Permission to execute c2 has been denied by the resource arbiter.
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Resource4Hvm{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe011c077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe011c07740 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe3f25010c0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe3f2501030 [i](0))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fe011c07b10 [a](0) (Interruptible Boolean 0x7fe011c07ac0 [a](0)) (EQ Boolean 0x7fe011c07a00 [a](0) (Constant Integer 0x7fe011c079f0 [a](10)) (Variable Integer returnValue 0x7fe011c06d38 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fe011c07a60 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x105a48368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe011c06f20 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe011c06e68 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](UNKNOWN))
-   head_priority: (Variable Integer head_priority 0x7fe011c06da8 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fe011c06d38 [a](-1))
+   EndCondition: (OR Boolean 0x7fe3f2501260 [a](0) (Interruptible Boolean 0x7fe3f2501210 [a](0)) (EQ Boolean 0x7fe3f2501150 [a](0) (Constant Integer 0x7fe3f2501140 [a](10)) (Variable Integer returnValue 0x7fe3f2500618 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fe3f25011b0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x109fac368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3f2500810 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe3f2500758 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](UNKNOWN))
+   head_priority: (Variable Integer head_priority 0x7fe3f2500698 [a](20))
+   returnValue: (Variable Integer returnValue 0x7fe3f2500618 [a](-1))
   }
   C2{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fe011c07cd0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fe011c071f8 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x105a48368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe011c072f0 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe011c07238 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c071f8 [a](COMMAND_DENIED))
-   v_priority2: (Variable Integer v_priority2 0x7fe011c07178 [a](25))
+   PostCondition: (EQ Boolean 0x7fe3f2501400 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fe3f2500ae8 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x109fac368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3f2500be0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe3f2500b28 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500ae8 [a](COMMAND_DENIED))
+   v_priority2: (Variable Integer v_priority2 0x7fe3f2500a68 [a](25))
   }
   C3{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fe011c07e20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x105a48368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe011c076c0 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe011c07608 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [a](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe011c07548 [a](30))
+   PostCondition: (EQ Boolean 0x7fe3f2501550 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x109fac368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3f2500fb0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe3f2500ef8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [a](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7fe3f2500e38 [a](30))
   }
 }
 
@@ -146,32 +146,32 @@ Resource4Hvm{
 [PlexilExec:printPlan]
 Resource4Hvm{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe011c077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe011c07740 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe3f25010c0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe3f2501030 [i](0))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fe011c07b10 [a](0) (Interruptible Boolean 0x7fe011c07ac0 [a](0)) (EQ Boolean 0x7fe011c07a00 [a](0) (Constant Integer 0x7fe011c079f0 [a](10)) (Variable Integer returnValue 0x7fe011c06d38 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fe011c07a60 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x105a48368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe011c06f20 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe011c06e68 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](COMMAND_SENT_TO_SYSTEM))
-   head_priority: (Variable Integer head_priority 0x7fe011c06da8 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fe011c06d38 [a](-1))
+   EndCondition: (OR Boolean 0x7fe3f2501260 [a](0) (Interruptible Boolean 0x7fe3f2501210 [a](0)) (EQ Boolean 0x7fe3f2501150 [a](0) (Constant Integer 0x7fe3f2501140 [a](10)) (Variable Integer returnValue 0x7fe3f2500618 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fe3f25011b0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109fac368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3f2500810 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe3f2500758 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](COMMAND_SENT_TO_SYSTEM))
+   head_priority: (Variable Integer head_priority 0x7fe3f2500698 [a](20))
+   returnValue: (Variable Integer returnValue 0x7fe3f2500618 [a](-1))
   }
   C2{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c071f8 [i](UNKNOWN))
-   v_priority2: (Variable Integer v_priority2 0x7fe011c07178 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500ae8 [i](UNKNOWN))
+   v_priority2: (Variable Integer v_priority2 0x7fe3f2500a68 [i](UNKNOWN))
   }
   C3{
    State: FINISHING (0)
-   PostCondition: (EQ Boolean 0x7fe011c07e20 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x105a48368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe011c076c0 [a](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe011c07608 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [a](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe011c07548 [a](30))
+   PostCondition: (EQ Boolean 0x7fe3f2501550 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x109fac368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3f2500fb0 [a](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe3f2500ef8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [a](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7fe3f2500e38 [a](30))
   }
 }
 
@@ -200,30 +200,30 @@ Resource4Hvm{
 [PlexilExec:printPlan]
 Resource4Hvm{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe011c077d0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe011c07740 [i](UNKNOWN))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe3f25010c0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe3f2501030 [i](0))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fe011c07b10 [a](0) (Interruptible Boolean 0x7fe011c07ac0 [a](0)) (EQ Boolean 0x7fe011c07a00 [a](0) (Constant Integer 0x7fe011c079f0 [a](10)) (Variable Integer returnValue 0x7fe011c06d38 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fe011c07a60 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x105a48368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe011c06f20 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe011c06e68 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [a](COMMAND_SENT_TO_SYSTEM))
-   head_priority: (Variable Integer head_priority 0x7fe011c06da8 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fe011c06d38 [a](-1))
+   EndCondition: (OR Boolean 0x7fe3f2501260 [a](0) (Interruptible Boolean 0x7fe3f2501210 [a](0)) (EQ Boolean 0x7fe3f2501150 [a](0) (Constant Integer 0x7fe3f2501140 [a](10)) (Variable Integer returnValue 0x7fe3f2500618 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fe3f25011b0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109fac368 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe3f2500810 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe3f2500758 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [a](COMMAND_SENT_TO_SYSTEM))
+   head_priority: (Variable Integer head_priority 0x7fe3f2500698 [a](20))
+   returnValue: (Variable Integer returnValue 0x7fe3f2500618 [a](-1))
   }
   C2{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c071f8 [i](UNKNOWN))
-   v_priority2: (Variable Integer v_priority2 0x7fe011c07178 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500ae8 [i](UNKNOWN))
+   v_priority2: (Variable Integer v_priority2 0x7fe3f2500a68 [i](UNKNOWN))
   }
   C3{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [i](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe011c07548 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [i](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7fe3f2500e38 [i](UNKNOWN))
   }
 }
 
@@ -283,22 +283,22 @@ Resource4Hvm{
   C1{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c06e28 [i](UNKNOWN))
-   head_priority: (Variable Integer head_priority 0x7fe011c06da8 [i](UNKNOWN))
-   returnValue: (Variable Integer returnValue 0x7fe011c06d38 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500718 [i](UNKNOWN))
+   head_priority: (Variable Integer head_priority 0x7fe3f2500698 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7fe3f2500618 [i](UNKNOWN))
   }
   C2{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c071f8 [i](UNKNOWN))
-   v_priority2: (Variable Integer v_priority2 0x7fe011c07178 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500ae8 [i](UNKNOWN))
+   v_priority2: (Variable Integer v_priority2 0x7fe3f2500a68 [i](UNKNOWN))
   }
   C3{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011c075c8 [i](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe011c07548 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe3f2500eb8 [i](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7fe3f2500e38 [i](UNKNOWN))
   }
 }
 

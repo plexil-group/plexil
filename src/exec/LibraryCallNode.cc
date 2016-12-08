@@ -28,7 +28,6 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "NodeVariableMap.hh"
 
 namespace PLEXIL

@@ -29,7 +29,6 @@
 #include "BooleanOperators.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExprVec.hh"
 #include "Function.hh"
 #include "NodeFunction.hh"
@@ -125,7 +124,7 @@ namespace PLEXIL
   private:
     // Should only be called from instance() static member function
     AllWaitingOrFinished()
-      : NodeOperatorImpl<bool>("AllChildrenWaitingOrFinished")
+      : NodeOperatorImpl<Boolean>("AllChildrenWaitingOrFinished")
     {
     }
 
@@ -616,8 +615,7 @@ namespace PLEXIL
     checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId() <<
                " is inactive.");
-    checkError(cond->getValue(temp),
-               "getDestStateFromFinishing: AllWaitingOrFinished condition is unknown");
+    cond->getValue(temp); // cannot be unknown, see above
     if (temp) {
       m_nextState = ITERATION_ENDED_STATE;
       debugMsg("Node:getDestState",
@@ -695,14 +693,12 @@ namespace PLEXIL
                " is inactive.");
 
     bool tempb;
-    checkError(cond->getValue(tempb),
-               "getDestStateFromFailing: action-complete condition is unknown");
-
+    cond->getValue(tempb); // AllWaitingOrFinished is always known
     if (tempb) {
       if (this->getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FINISHED. "
-                 <<"List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
+                 << "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
         m_nextState = FINISHED_STATE;
         return true;
       }

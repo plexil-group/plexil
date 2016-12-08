@@ -370,7 +370,7 @@ namespace PLEXIL
                      -1,
                      nodeId->getNodeId(), 
                      nodeTypeString(nodeId->getType()),
-                     nodeId->getStateName(), 
+                     nodeStateName(nodeId->getState()),
                      m_parent,
                      m_actualId,
                      myLocalVars,

@@ -29,7 +29,6 @@
 #include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "NodeConstants.hh"
@@ -43,60 +42,43 @@
 
 #include <algorithm> // for std::sort
 #include <cfloat>    // for DBL_MAX
+#include <cstring>   // strcmp()
 #include <iomanip>   // for std::setprecision
 #include <sstream>
 
-namespace PLEXIL {
+namespace PLEXIL
+{
 
-  // Initialize static variable
-  static std::vector<std::string> s_allConditions;
+  //
+  // Static members
+  //
 
-  static void initAllConditions()
+  char const * const Node::ALL_CONDITIONS[] =
+    {
+      "AncestorExitCondition",
+      "AncestorInvariantCondition",
+      "AncestorEndCondition",
+      "SkipCondition",
+      "StartCondition",
+      "PreCondition",
+      "ExitCondition",
+      "InvariantCondition",
+      "EndCondition",
+      "PostCondition",
+      "RepeatCondition",
+      "ActionCompleteCondition",
+      "AbortCompleteCondition"
+    };
+
+  char const *Node::getConditionName(size_t idx)
   {
-    check_error_1(s_allConditions.empty()); // cheap sanity check
-    s_allConditions.reserve(Node::conditionIndexMax);
-
-    // *** N.B.: Order MUST agree with enum ConditionIndex!
-    // Conditions on parent
-    s_allConditions.push_back(Node::ANCESTOR_EXIT_CONDITION());
-    s_allConditions.push_back(Node::ANCESTOR_INVARIANT_CONDITION());
-    s_allConditions.push_back(Node::ANCESTOR_END_CONDITION());
-    // User specified conditions
-    s_allConditions.push_back(Node::SKIP_CONDITION());
-    s_allConditions.push_back(Node::START_CONDITION());
-    s_allConditions.push_back(Node::PRE_CONDITION());
-    s_allConditions.push_back(Node::EXIT_CONDITION());
-    s_allConditions.push_back(Node::INVARIANT_CONDITION());
-    s_allConditions.push_back(Node::END_CONDITION());
-    s_allConditions.push_back(Node::POST_CONDITION());
-    s_allConditions.push_back(Node::REPEAT_CONDITION());
-    // For all but Empty nodes
-    s_allConditions.push_back(Node::ACTION_COMPLETE());
-    // For all but Empty and Update nodes
-    s_allConditions.push_back(Node::ABORT_COMPLETE());
-
-    // inexpensive sanity check
-    assertTrue_2(s_allConditions.size() == Node::conditionIndexMax,
-                 "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
-  }
-
-  const std::vector<std::string>& Node::ALL_CONDITIONS()
-  {
-    if (s_allConditions.empty())
-      initAllConditions();
-    return s_allConditions;
-  }
-
-  const std::string& Node::getConditionName(size_t idx)
-  {
-    return ALL_CONDITIONS()[idx];
+    return ALL_CONDITIONS[idx];
   }
   
   Node::ConditionIndex Node::getConditionIndex(char const *cName)
   {
-    std::vector<std::string> const &allConds = Node::ALL_CONDITIONS();
-    for (size_t i = 0; i < allConds.size(); ++i)
-      if (allConds[i] == cName)
+    for (size_t i = 0; i < conditionIndexMax; ++i)
+      if (!strcmp(ALL_CONDITIONS[i], cName))
         return (Node::ConditionIndex) i;
     return conditionIndexMax;
   }
@@ -167,7 +149,7 @@ namespace PLEXIL {
       Expression *expr = new BooleanVariable(false);
       debugMsg("Node:node",
                " Created internal variable "
-               << ALL_CONDITIONS()[i] <<
+               << ALL_CONDITIONS[i] <<
                " with value FALSE for node " << m_nodeId);
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
@@ -300,12 +282,14 @@ namespace PLEXIL {
     }
   }
 
-  void Node::addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage)
+  void Node::addUserCondition(char const *cname, Expression *cond, bool isGarbage)
   {
-    assertTrue_2(which >= skipIdx && which <= repeatIdx,
-                 "Invalid condition index for user condition");
+    assertTrue_2(cname, "Null condition name");
+    ConditionIndex which = getConditionIndex(cname);
+    checkParserException(which >= skipIdx && which <= repeatIdx,
+                         "Invalid condition name \"" << cname << "\" for user condition");
     checkParserException(!m_conditions[which],
-                         "Duplicate " << getConditionName(which) << " for Node \"" << m_nodeId << "\"");
+                         "Duplicate " << cname << " for Node \"" << m_nodeId << "\"");
     m_conditions[which] = cond;
     m_garbageConditions[which] = isGarbage;
   }
@@ -482,7 +466,7 @@ namespace PLEXIL {
   {
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId << " from state " <<
-             getStateName());
+             nodeStateName(m_state));
 
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;
@@ -522,10 +506,9 @@ namespace PLEXIL {
 
   void Node::transition(double time) 
   {
-    checkError(m_nextState != NO_NODE_STATE
-               && m_nextState != m_state,
-               "Attempted to transition node " << m_nodeId <<
-               " when it is ineligible.");
+    // Fail silently
+    if (m_nextState == m_state)
+      return;
 
     debugMsg("Node:transition", "Transitioning '" << m_nodeId
              << "' from " << nodeStateName(m_state)
@@ -587,8 +570,8 @@ namespace PLEXIL {
       break;
 
     default:
-      checkError(ALWAYS_FAIL,
-                 "Node::transitionFrom: Invalid node state " << m_state);
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Node::transitionFrom: Invalid node state " << m_state);
     }
   }
 
@@ -625,8 +608,8 @@ namespace PLEXIL {
       break;
 
     default:
-      checkError(ALWAYS_FAIL,
-                 "Node::transitionTo: Invalid destination state " << m_nextState);
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Node::transitionTo: Invalid destination state " << m_nextState);
     }
 
     setState((NodeState) m_nextState, time);
@@ -738,9 +721,6 @@ namespace PLEXIL {
     }
     // Only other legal transition is to FINISHED,
     // in which case no action is required.
-    checkError(m_nextState == FINISHED_STATE,
-               "Attempting to transition from INACTIVE to invalid state '"
-               << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -870,9 +850,9 @@ namespace PLEXIL {
       break;
 
     default:
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition from WAITING to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition from WAITING to invalid state '"
+                    << nodeStateName(m_nextState) << "'");
       break;
     }
   }
@@ -976,22 +956,26 @@ namespace PLEXIL {
   // Empty node method
   void Node::transitionFromExecuting()
   {
-    checkError(this->getType() == NodeType_Empty,
-               "Expected empty node, got " << nodeTypeString(this->getType()));
-
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivateEndCondition();
     deactivatePostCondition();
-    if (m_nextState == FINISHED_STATE) {
+    switch (m_nextState) {
+
+    case FINISHED_STATE:
       deactivateAncestorExitInvariantConditions();
-    }
-    else if (m_nextState == ITERATION_ENDED_STATE) {
+      break;
+
+    case ITERATION_ENDED_STATE:
       activateAncestorEndCondition();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition empty node from EXECUTING to invalid state "
+                    << nodeStateName(m_nextState));
+      break;
     }
-    else checkError(ALWAYS_FAIL,
-                    "Attempting to transition empty node from EXECUTING to invalid state '"
-                    << nodeStateName(m_nextState) << "'");
 
     deactivateExecutable();
   }
@@ -1083,18 +1067,23 @@ namespace PLEXIL {
   {
     deactivateRepeatCondition();
 
-    if (m_nextState == FINISHED_STATE) {
+    switch (m_nextState) {
+
+    case FINISHED_STATE:
       deactivateAncestorExitInvariantConditions();
       deactivateAncestorEndCondition();
-    }
-    else if (m_nextState == WAITING_STATE) {
-      reset();
-    }
-    else
-      checkError(ALWAYS_FAIL,
-                 "Attempting to transition from ITERATION_ENDED to invalid state '"
-                 << nodeStateName(m_nextState) << "'");
+      return;
 
+    case WAITING_STATE:
+      reset();
+      return;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Attempting to transition from ITERATION_ENDED to invalid state "
+                    << nodeStateName(m_nextState));
+      return;
+    }
   }
 
   //
@@ -1129,9 +1118,6 @@ namespace PLEXIL {
   // Common method
   void Node::transitionFromFinished()
   {
-    checkError(m_nextState == INACTIVE_STATE,
-               "Attempting to transition from FINISHED to invalid state '"
-               << nodeStateName(m_nextState) << "'");
     reset();
   }
 
@@ -1147,24 +1133,24 @@ namespace PLEXIL {
   // Default method
   void Node::transitionToFinishing()
   {
-    checkError(ALWAYS_FAIL,
-               "No transition to FINISHING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition to FINISHING state defined for this node");
   }
 
   // Default method
   bool Node::getDestStateFromFinishing()
   {
-    checkError(ALWAYS_FAIL,
-               "Attempted to compute destination state from FINISHING for node " << m_nodeId
-               << " of type " << getType());
+    assertTrueMsg(ALWAYS_FAIL,
+                  "Attempted to compute destination state from FINISHING for node " << m_nodeId
+                  << " of type " << getType());
     return false;
   }
 
   // Default method
   void Node::transitionFromFinishing()
   {
-    checkError(ALWAYS_FAIL,
-               "No transition from FINISHING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition from FINISHING state defined for this node");
   }
 
   //
@@ -1179,33 +1165,29 @@ namespace PLEXIL {
   // Default method
   void Node::transitionToFailing()
   {
-    checkError(ALWAYS_FAIL,
-               "No transition to FAILING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition to FAILING state defined for this node");
   }
 
   // Default method
   bool Node::getDestStateFromFailing()
   {
-    checkError(ALWAYS_FAIL,
-               "Attempted to compute destination state from FAILING for node " << m_nodeId
-               << " of type " << getType());
+    assertTrueMsg(ALWAYS_FAIL,
+                  "Attempted to compute destination state from FAILING for node " << m_nodeId
+                  << " of type " << getType());
     return false;
   }
 
   // Default method
   void Node::transitionFromFailing()
   {
-    checkError(ALWAYS_FAIL,
-               "No transition from FAILING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition from FAILING state defined for this node");
   }
 
   // ***
   // *** END NODE STATE LOGIC ***
   // ***
-
-  std::string const &Node::getStateName() const {
-    return nodeStateName(m_state);
-  }
 
   NodeState Node::getState() const {
     return (NodeState) m_state;
@@ -1216,8 +1198,6 @@ namespace PLEXIL {
   {
     if (newValue == m_state)
       return;
-    checkError(newValue <= nodeStateMax(),
-               "Attempted to set an invalid NodeState value for this node");
     logTransition(tym, newValue);
     m_state = newValue;
     m_stateVariable.changed();
@@ -1265,8 +1245,6 @@ namespace PLEXIL {
 
   void Node::setNodeOutcome(NodeOutcome o)
   {
-    checkError(o >= NO_OUTCOME && o < OUTCOME_MAX,
-               "Node::setNodeOutcome: invalid outcome value");
     m_outcome = o;
     m_outcomeVariable.changed();
   }
@@ -1278,8 +1256,6 @@ namespace PLEXIL {
 
   void Node::setNodeFailureType(FailureType f)
   {
-    checkError(f >= NO_FAILURE && f < FAILURE_TYPE_MAX,
-               "Node::setNodeFailureType: invalid failureType value");
     m_failureType = f;
     m_failureTypeVariable.changed();
   }
@@ -1427,15 +1403,15 @@ namespace PLEXIL {
   // These are for specialized node types
   void Node::activateActionCompleteCondition()
   {
-    checkError(m_conditions[actionCompleteIdx],
-               "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
+    assertTrueMsg(m_conditions[actionCompleteIdx],
+                  "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
     m_conditions[actionCompleteIdx]->activate();
   }
 
   void Node::activateAbortCompleteCondition()
   {
-    checkError(m_conditions[abortCompleteIdx],
-               "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
+    assertTrueMsg(m_conditions[abortCompleteIdx],
+                  "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
     m_conditions[abortCompleteIdx]->activate();
   }
 
@@ -1492,15 +1468,11 @@ namespace PLEXIL {
   // These are for specialized node types
   void Node::deactivateActionCompleteCondition()
   {
-    checkError(m_conditions[actionCompleteIdx],
-               "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
     m_conditions[actionCompleteIdx]->deactivate();
   }
 
   void Node::deactivateAbortCompleteCondition()
   {
-    checkError(m_conditions[abortCompleteIdx],
-               "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
     m_conditions[abortCompleteIdx]->deactivate();
   }
 
@@ -1526,10 +1498,6 @@ namespace PLEXIL {
 
   void Node::execute() 
   {
-    checkError(m_state == EXECUTING_STATE,
-               "Node \"" << m_nodeId
-               << "\" told to handle execution, but it's in state '" <<
-               getStateName() << "'");
     debugMsg("Node:execute", "Executing node " << m_nodeId);
 
     // legacy message for unit test
@@ -1573,7 +1541,7 @@ namespace PLEXIL {
   // Default method
   void Node::abort() 
   {
-    checkError(ALWAYS_FAIL, "Abort illegal for node type " << getType());
+    // checkError(ALWAYS_FAIL, "Abort illegal for node type " << getType());
   }
 
   void Node::deactivateExecutable() 
@@ -1605,7 +1573,7 @@ namespace PLEXIL {
     std::string indentStr(indent, ' ');
 
     stream << indentStr << m_nodeId << "{\n";
-    stream << indentStr << " State: " << getStateName() <<
+    stream << indentStr << " State: " << nodeStateName(m_state) <<
       " (" << getCurrentStateStartTime() << ")\n";
     if (m_state == FINISHED_STATE) {
       stream << indentStr << " Outcome: " << outcomeName((NodeOutcome) m_outcome) << '\n';

@@ -34,7 +34,6 @@
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
 #include "NotifierImpl.hh"
-//#include "UserVariable.hh" // includes both of the above
 
 namespace PLEXIL {
 

@@ -57,7 +57,6 @@
 #define condDebugMsg(cond, marker, data)
 #define debugStmt(marker, stmt)
 #define condDebugStmt(cond, marker, stmt)
-#define initDebug()
 #define SHOW(thing)
 #define MARK
 

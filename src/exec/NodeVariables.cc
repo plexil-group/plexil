@@ -52,7 +52,7 @@ namespace PLEXIL
       
   void StateVariable::printValue(std::ostream& s) const
   {
-    s << m_node.getStateName();
+    s << nodeStateName(m_node.getState());
   }
 
   void StateVariable::printSpecialized(std::ostream& s) const

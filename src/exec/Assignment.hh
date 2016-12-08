@@ -40,9 +40,9 @@ namespace PLEXIL
 
     ~Assignment();
 
-    Expression *getDest() {return m_dest;}
-    Expression *getAck() {return &m_ack;}
-    Expression *getAbortComplete() {return &m_abortComplete;}
+    Expression *getDest();
+    Expression *getAck();
+    Expression *getAbortComplete();
 
     // For use by plan parser
     void setVariable(Expression *lhs, bool garbage);
@@ -55,6 +55,10 @@ namespace PLEXIL
     void retract();
     void reset();
 
+    // LinkedQueue participant API
+    Assignment *next() const;
+    Assignment **nextPtr();
+
   private:
     // Explicitly not implemented
     Assignment();
@@ -63,9 +67,10 @@ namespace PLEXIL
 
     SimpleBooleanVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
+    Value m_value; // TODO: templatize by assignable type?
+    Assignment *m_next; // for LinkedQueue
     Expression *m_rhs;
     Expression *m_dest;
-    Value m_value; // TODO: templatize by assignable type?
     bool m_deleteLhs, m_deleteRhs;
   };
 

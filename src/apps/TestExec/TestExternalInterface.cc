@@ -366,6 +366,11 @@ namespace PLEXIL
   static void parseParams(pugi::xml_node const root, 
                           std::vector<Value>& dest)
   {
+    size_t n = std::distance(root.begin(), root.end());
+    if (!n)
+      return; // no parameters
+
+    dest.reserve(n);
     pugi::xml_node param = root.child("Param");
     while (!param.empty()) {
       dest.push_back(parseParam(param));

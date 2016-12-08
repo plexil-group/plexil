@@ -42,21 +42,21 @@ simple-closedloop-command-a3{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fcd02406878 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fcd02406a90 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fc4e1e01f38 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fc4e1e02158 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 simple-closedloop-command-a3{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fcd02406cb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fcd02406c20 [i](UNKNOWN))
- retTestFunction: (Variable Integer retTestFunction 0x7fcd02406878 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7fc4e1e02340 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc4e1e022b0 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc4e1e01f38 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fcd02406fe0 [a](0) (Interruptible Boolean 0x7fcd02406f90 [a](0)) (EQ Boolean 0x7fcd02406ed0 [a](0) (Constant Integer 0x7fcd02406ec0 [a](10)) (Variable Integer retTestFunction 0x7fcd02406878 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fcd02406f30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fcd02406a90 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10c8a73c8 [a](COMMAND_DENIED)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fcd02406bc0 [i](UNKNOWN))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fcd02406ad0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fcd02406a90 [a](UNKNOWN))
+   EndCondition: (OR Boolean 0x7fc4e1e024d0 [a](0) (Interruptible Boolean 0x7fc4e1e02480 [a](0)) (EQ Boolean 0x7fc4e1e023c0 [a](0) (Constant Integer 0x7fc4e1e023b0 [a](10)) (Variable Integer retTestFunction 0x7fc4e1e01f38 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fc4e1e02420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc4e1e02158 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10e18f3c8 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fc4e1e02250 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fc4e1e02198 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc4e1e02158 [a](UNKNOWN))
   }
 }
 
@@ -112,11 +112,11 @@ simple-closedloop-command-a3{
 simple-closedloop-command-a3{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7fcd02406878 [i](UNKNOWN))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc4e1e01f38 [i](UNKNOWN))
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fcd02406a90 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc4e1e02158 [i](UNKNOWN))
   }
 }
 
@@ -129,11 +129,11 @@ simple-closedloop-command-a3{
 simple-closedloop-command-a3{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7fcd02406878 [i](UNKNOWN))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc4e1e01f38 [i](UNKNOWN))
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fcd02406a90 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc4e1e02158 [i](UNKNOWN))
   }
 }
 

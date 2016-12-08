@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,11 +46,6 @@ namespace PLEXIL
                          bool & wasCreated) const;
 
   protected:
-
-    // Base class provides this to derived
-    ExprVec *constructExprVec(pugi::xml_node const expr,
-                              NodeConnector *node,
-                              size_t nargs) const;
 
     // Delegated to derived class
     virtual Operator const *getOperator() const = 0;
