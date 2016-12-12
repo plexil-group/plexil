@@ -57,28 +57,23 @@ namespace PLEXIL
     void reset();
 
     // LinkedQueue participant API
-    Assignment *next() const
-    {
-      return m_next;
-    }
-
-    Assignment **nextPtr()
-    {
-      return &m_next;
-    }
+    Assignment *next() const;
+    Assignment **nextPtr();
 
   private:
     // Explicitly not implemented
-    Assignment();
-    Assignment(const Assignment&);
-    Assignment& operator=(const Assignment&);
+    Assignment() = delete;
+    Assignment(Assignment const &) = delete;
+    Assignment(Assignment &&) = delete;
+    Assignment& operator=(Assignment const &) = delete;
+    Assignment& operator=(Assignment &&) = delete;
 
-    Assignment *m_next; // for LinkedQueue
     SimpleBooleanVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
+    Value m_value; // TODO: templatize by assignable type?
+    Assignment *m_next; // for LinkedQueue
     Expression *m_rhs;
     Expression *m_dest;
-    Value m_value; // TODO: templatize by assignable type?
     bool m_deleteLhs, m_deleteRhs;
   };
 

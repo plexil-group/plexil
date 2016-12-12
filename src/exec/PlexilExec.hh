@@ -47,7 +47,7 @@ namespace PLEXIL
   /**
    * @brief The core PLEXIL executive.
    */
-  class PlexilExec : public ExecConnector
+  class PlexilExec final : public ExecConnector
   {
   public:
     /**

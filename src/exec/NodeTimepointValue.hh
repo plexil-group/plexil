@@ -27,7 +27,6 @@
 #ifndef PLEXIL_NODE_TIMEPOINT_VALUE_HH
 #define PLEXIL_NODE_TIMEPOINT_VALUE_HH
 
-#include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
 #include "NotifierImpl.hh"
@@ -36,7 +35,7 @@ namespace PLEXIL
 {
   class Node;
 
-  class NodeTimepointValue :
+  class NodeTimepointValue final :
     public GetValueImpl<Real>, // FIXME
     public NotifierImpl
   {

@@ -36,12 +36,12 @@ namespace PLEXIL
 {
 
   Assignment::Assignment(const std::string &nodeId)
-    : m_next(nullptr),
-      m_ack("ack"),
+    : m_ack("ack"),
       m_abortComplete("abortComplete"),
+      m_value(),
+      m_next(nullptr),
       m_rhs(nullptr),
       m_dest(nullptr),
-      m_value(),
       m_deleteLhs(false),
       m_deleteRhs(false)
   {
@@ -53,6 +53,16 @@ namespace PLEXIL
       delete m_dest;
     if (m_deleteRhs)
       delete m_rhs;
+  }
+
+  Assignment *Assignment::next() const
+  {
+    return m_next;
+  }
+
+  Assignment **Assignment::nextPtr()
+  {
+    return &m_next;
   }
 
   Expression *Assignment::getDest()
@@ -69,7 +79,6 @@ namespace PLEXIL
   {
     return &m_abortComplete;
   }
-
 
   void Assignment::setVariable(Expression *lhs, bool garbage)
   {

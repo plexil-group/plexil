@@ -46,7 +46,8 @@ namespace PLEXIL
   NodeTimepointValue::NodeTimepointValue(Node *node,
                                          NodeState state,
                                          bool isEnd)
-    : m_time(0.0),
+    : NotifierImpl(),
+      m_time(0.0),
       m_next(NULL),
       m_node(node),
       m_state(state),

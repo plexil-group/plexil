@@ -31,7 +31,6 @@
 // Plan-visible expressions derived from node internal state
 //
 
-#include "Expression.hh"
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
 #include "NotifierImpl.hh"

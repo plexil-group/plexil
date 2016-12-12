@@ -72,6 +72,7 @@ namespace PLEXIL
       m_assignmentsToExecute(),
       m_assignmentsToRetract(),
       m_plan(),
+      m_transitionsToPublish(),
       m_variablesToRetract(),
       m_listener(NULL),
       m_resourceConflicts(NULL),

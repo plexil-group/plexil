@@ -28,7 +28,6 @@
 #define PLEXIL_NODE_FUNCTION_HH
 
 #include "ArrayFwd.hh"
-#include "Expression.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL

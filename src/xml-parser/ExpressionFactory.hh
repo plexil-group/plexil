@@ -39,7 +39,6 @@ namespace pugi
 namespace PLEXIL
 {
   // Forward declarations
-  class Assignable;
   class NodeConnector;
 
   /**

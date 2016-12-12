@@ -77,7 +77,7 @@ namespace PLEXIL
   private:
 
     AllFinished()
-      : NodeOperatorImpl<bool>("AllChildrenFinished")
+      : NodeOperatorImpl<Boolean>("AllChildrenFinished")
     {
     }
 
@@ -127,7 +127,7 @@ namespace PLEXIL
   private:
     // Should only be called from instance() static member function
     AllWaitingOrFinished()
-      : NodeOperatorImpl<bool>("AllChildrenWaitingOrFinished")
+      : NodeOperatorImpl<Boolean>("AllChildrenWaitingOrFinished")
     {
     }
 
@@ -721,7 +721,7 @@ namespace PLEXIL
       if (this->getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FINISHED. "
-                 <<"List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
+                 << "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
         m_nextState = FINISHED_STATE;
         return true;
       }

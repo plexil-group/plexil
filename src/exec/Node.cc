@@ -1159,8 +1159,8 @@ namespace PLEXIL
   // Default method
   void Node::transitionToFinishing()
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "No transition to FINISHING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition to FINISHING state defined for this node");
   }
 
   // Default method
@@ -1175,8 +1175,8 @@ namespace PLEXIL
   // Default method
   void Node::transitionFromFinishing()
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "No transition from FINISHING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition from FINISHING state defined for this node");
   }
 
   //
@@ -1191,8 +1191,8 @@ namespace PLEXIL
   // Default method
   void Node::transitionToFailing()
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "No transition to FAILING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition to FAILING state defined for this node");
   }
 
   // Default method
@@ -1207,8 +1207,8 @@ namespace PLEXIL
   // Default method
   void Node::transitionFromFailing()
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "No transition from FAILING state defined for this node");
+    assertTrue_2(ALWAYS_FAIL,
+                 "No transition from FAILING state defined for this node");
   }
 
   // ***
