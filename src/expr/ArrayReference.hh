@@ -201,11 +201,6 @@ namespace PLEXIL {
     virtual Expression *getBaseVariable() override;
     virtual Expression const *getBaseVariable() const override;
 
-  protected:
-
-    // Wrap NotifierImpl method
-    void publishChange(Expression const *src); // N.B.: NOT VIRTUAL!!!
-
   private:
     // Default, copy, assignment disallowed
     MutableArrayReference();
@@ -214,6 +209,7 @@ namespace PLEXIL {
 
     // Internal functions
     bool mutableSelfCheck(Array *&ary, size_t &idx);
+    void notifyValueChanged();
 
     // FIXME: make this a pointer to ArrayVariable
     Assignable *m_mutableArray;

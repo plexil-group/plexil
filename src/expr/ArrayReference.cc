@@ -295,7 +295,7 @@ namespace PLEXIL
     bool changed = (!known || (val != oldValue)); \
     if (changed) { \
       ary->setElement(idx, val); \
-      publishChange(this); \
+      notifyValueChanged(); \
     } \
   }
 
@@ -340,7 +340,7 @@ namespace PLEXIL
       return;
     }
     if (changed)
-      publishChange(this);
+      notifyValueChanged();
   }
 
   void MutableArrayReference::setValue(Expression const &valex)
@@ -394,7 +394,7 @@ namespace PLEXIL
     Value oldValue = ary->getElementValue(idx);
     if (value != oldValue) {
       ary->setElementValue(idx, value);
-      publishChange(this);
+      notifyValueChanged();
     }
   }
 
@@ -407,7 +407,7 @@ namespace PLEXIL
     bool changed = ary->elementKnown(idx);
     ary->setElementUnknown(idx);
     if (changed)
-      publishChange(this);
+      notifyValueChanged();
   }
 
   bool MutableArrayReference::getMutableValuePointer(String *&ptr)
@@ -451,7 +451,7 @@ namespace PLEXIL
       return;
     if (m_savedValue != ary->getElementValue(idx)) {
       ary->setElementValue(idx, m_savedValue);
-      publishChange(this);
+      notifyValueChanged();
     }
     m_saved = false;
   }
@@ -481,10 +481,10 @@ namespace PLEXIL
     return m_mutableArray->getBaseVariable();
   }
 
-  void MutableArrayReference::publishChange(Expression const *src)
+  void MutableArrayReference::notifyValueChanged()
   {
-    NotifierImpl::publishChange(src);
-    m_array->notifyChanged(src);
+    publishChange(this);
+    m_array->notifyChanged(this);
   }
 
 } // namespace PLEXIL
