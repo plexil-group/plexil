@@ -186,7 +186,6 @@ namespace PLEXIL {
      * @return True if the value is known, false if unknown or invalid.
      * @note Default method returns false and reports a type error.
      */
-    bool getMutableValuePointer(String *& ptr);
 
     // Throws an exception
     virtual bool getMutableValuePointer(Array *& ptr) override;

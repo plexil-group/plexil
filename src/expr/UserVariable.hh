@@ -249,13 +249,6 @@ namespace PLEXIL
     bool getValuePointerImpl(U const *&ptr) const;
 
     /**
-     * @brief Retrieve a pointer to the (modifiable) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     */
-    bool getMutableValuePointerImpl(String *&ptr);
-
-    /**
      * @brief Assign a new value.
      * @param value The value to assign.
      * @note Type conversions must go on derived classes.

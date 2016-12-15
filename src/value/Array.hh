@@ -95,8 +95,6 @@ namespace PLEXIL
 
     virtual bool getElementPointer(size_t index, String const *&result) const = 0;
 
-    virtual bool getMutableElementPointer(size_t index, String *&result) = 0;
-
     virtual void getContentsVector(std::vector<Boolean> const *&result) const = 0;
     virtual void getContentsVector(std::vector<Integer> const *&result) const = 0;
     virtual void getContentsVector(std::vector<Real> const *&result) const = 0;

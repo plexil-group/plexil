@@ -226,24 +226,6 @@ namespace PLEXIL
     return false;
   }
 
-  template <typename T>
-  bool ArrayImpl<T>::getMutableElementPointer(size_t index, String *&result)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Array:getMutableElementPointer not implemented for numeric arrays");
-    return false;
-  }
-
-  template <>
-  bool ArrayImpl<String>::getMutableElementPointer(size_t index, String *&result)
-  {
-    if (!this->checkIndex(index))
-      return false;
-    if (!this->m_known[index])
-      return false;
-    result = &m_contents[index];
-    return true;
-  }
-
   // Default
   template <typename T>
   template <typename U>

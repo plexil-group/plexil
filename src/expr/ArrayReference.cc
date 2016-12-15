@@ -410,15 +410,6 @@ namespace PLEXIL
       notifyValueChanged();
   }
 
-  bool MutableArrayReference::getMutableValuePointer(String *&ptr)
-  {
-    Array *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return false;
-    return ary->getMutableElementPointer(idx, ptr);
-  }
-
   bool MutableArrayReference::getMutableValuePointer(Array *&ptr)
   {
     check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");

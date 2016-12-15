@@ -194,8 +194,6 @@ namespace PLEXIL
     template <typename U>
     void setElementImpl(size_t index, U const &newVal);
 
-    bool getMutableElementPointer(size_t index, String *&result);
-
     void print(std::ostream &s) const;
 
     char *serializeImpl(char *b) const; 
