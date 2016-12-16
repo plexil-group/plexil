@@ -167,6 +167,7 @@ namespace PLEXIL
 
   void ExternalInterface::lookupReturn(State const &state, Value const &value)
   {
+    debugMsg("ExternalInterface:lookupReturn", '(' << state << ", " << value << ')');
     StateCacheMap::instance().ensureStateCacheEntry(state)->update(value);
   }
 
