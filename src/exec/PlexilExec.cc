@@ -330,6 +330,7 @@ namespace PLEXIL
             prev->setNext(curr->next());
             break;
           }
+	  curr = curr->next();
         }
         // didn't find it
         assertTrueMsg(curr, "Internal error: Active conflict set not on active list");
