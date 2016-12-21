@@ -81,13 +81,13 @@ namespace PLEXIL {
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(T &result) const;
+    virtual bool getValue(T &result) const override;
 
     /**
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */
-    bool isKnown() const;
+    virtual bool isKnown() const;
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
@@ -130,6 +130,108 @@ namespace PLEXIL {
   protected:
 
     T m_value;
+    bool m_known;
+
+  private:
+
+    // Disallow assignment
+    Constant &operator=(const Constant &) = delete;
+    Constant &operator=(Constant &&) = delete;
+  };
+
+  // Base template class is explicitly specialized
+  template <>
+  class Constant<Integer> :
+    public GetValueImpl<Integer>
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    Constant();
+
+    /**
+     * @brief Copy constructor.
+     */
+    Constant(const Constant &other);
+
+    /**
+     * @brief Constructor from value type.
+     */
+    Constant(const Integer &value);
+
+    /**
+     * @brief Constructor from char *.
+     * @note Unimplemented conversions will cause a link time error.
+     */
+    Constant(const char * value);
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~Constant();
+
+    /**
+     * @brief Return a print name for the expression type.
+     * @return A constant character string.
+     */
+    const char *exprName() const;
+
+    /**
+     * @brief Retrieve the value of this Expression in its native type.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValue(Integer &result) const override;
+
+    /**
+     * @brief Query whether the expression's value is known.
+     * @return True if known, false otherwise.
+     */
+    virtual bool isKnown() const;
+
+    /**
+     * @brief Query whether this expression is constant, i.e. incapable of change.
+     * @return True if constant, false otherwise.
+     */
+    bool isConstant() const;
+
+    /**
+     * @brief Is this expression active (i.e. propagating value changes?)
+     * @return true if this Expression is active, false if it is not.
+     */
+    virtual bool isActive() const;
+
+    /**
+     * @brief Make this expression active.
+     * @note No-op for constants.
+     */
+    virtual void activate();
+
+    /**
+     * @brief Make this expression inactive.
+     * @note No-op for constants.
+     */
+    virtual void deactivate();
+
+    /**
+     * @brief Add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     * @note No-op for constants.
+     */
+    virtual void addListener(ExpressionListener * /* ptr */);
+
+    /**
+     * @brief Remove a listener from this Expression.
+     * @param ptr The pointer to the listener to remove.
+     * @note No-op for constants.
+     */
+    virtual void removeListener(ExpressionListener * /* ptr */);
+
+  protected:
+
+    Integer m_value;
     bool m_known;
 
   private:
@@ -183,14 +285,14 @@ namespace PLEXIL {
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(String &result) const;
+    virtual bool getValue(String &result) const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(String const *& ptr) const;
+    virtual bool getValuePointer(String const *& ptr) const override;
 
     /**
      * @brief Query whether the expression's value is known.
@@ -286,7 +388,7 @@ namespace PLEXIL {
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(ArrayImpl<T> const *& ptr) const;
+    virtual bool getValuePointer(ArrayImpl<T> const *& ptr) const override;
 
     /**
      * @brief Query whether the expression's value is known.

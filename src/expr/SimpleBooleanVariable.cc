@@ -79,7 +79,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool SimpleBooleanVariable::getValueImpl(Boolean &result) const
+  bool SimpleBooleanVariable::getValue(Boolean &result) const
   {
     result = m_value;
     return true;
@@ -94,7 +94,7 @@ namespace PLEXIL
     if (this->isActive()) {
       if (m_value != val) {
         m_value = val;
-        this->publishChange(this);
+        publishChange();
       }
     }
   }

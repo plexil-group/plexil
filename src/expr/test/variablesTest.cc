@@ -24,9 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "UserVariable.hh"
 #include "Constant.hh"
+#include "ExpressionConstants.hh"
 #include "TestSupport.hh"
+#include "UserVariable.hh"
 #include "Value.hh"
 #include "test/TrivialListener.hh"
 
@@ -76,8 +77,8 @@ static bool testUninitialized()
   assertTrue_1(!vui.getValue(fooi));
   assertTrue_1(!vud.getValue(food));
   assertTrue_1(!vus.getValue(foos));
-  // Numeric conversion
-  assertTrue_1(!vui.getValue(food));
+  // Numeric conversion -- C++ sucks at inheritance
+  assertTrue_1(!((Expression const &) vui).getValue(food));
 
   // Activate and confirm they are still unknown
   vub.activate();
@@ -95,7 +96,7 @@ static bool testUninitialized()
   assertTrue_1(!vud.getValue(food));
   assertTrue_1(!vus.getValue(foos));
   // Numeric conversion
-  assertTrue_1(!vui.getValue(food));
+  assertTrue_1(!((Expression const &) vui).getValue(food));
 
   // Assign and check result
   vub.setValue(Value(true));
@@ -117,7 +118,7 @@ static bool testUninitialized()
   assertTrue_1(vus.getValue(foos));
   assertTrue_1(foos == String("yoohoo"));
   // Test getValue type conversion
-  assertTrue_1(vui.getValue(food));
+  assertTrue_1(((Expression const &) vui).getValue(food));
   assertTrue_1(food == 42);
 
   // Arrays
@@ -201,141 +202,6 @@ static bool testUninitialized()
   return true;
 }
 
-// *** TODO: This test should be superseded by testInitializers() below.
-static bool testInitialValue()
-{
-  BooleanVariable vb(false);
-  IntegerVariable vi(69);
-  RealVariable vd(1.414);
-  StringVariable vs(String("yo"));
-
-  // Test that they are assignable and not constant
-  assertTrue_1(vb.isAssignable());
-  assertTrue_1(vi.isAssignable());
-  assertTrue_1(vd.isAssignable());
-  assertTrue_1(vs.isAssignable());
-
-  assertTrue_1(!vb.isConstant());
-  assertTrue_1(!vi.isConstant());
-  assertTrue_1(!vd.isConstant());
-  assertTrue_1(!vs.isConstant());
-
-  // Test that they are created inactive
-  assertTrue_1(!vb.isActive());
-  assertTrue_1(!vi.isActive());
-  assertTrue_1(!vd.isActive());
-  assertTrue_1(!vs.isActive());
-
-  // Test that they are unknown while inactive
-  assertTrue_1(!vb.isKnown());
-  assertTrue_1(!vi.isKnown());
-  assertTrue_1(!vd.isKnown());
-  assertTrue_1(!vs.isKnown());
-
-  // Activate and confirm they are known
-  vb.activate();
-  vi.activate();
-  vd.activate();
-  vs.activate();
-
-  assertTrue_1(vb.isKnown());
-  assertTrue_1(vi.isKnown());
-  assertTrue_1(vd.isKnown());
-  assertTrue_1(vs.isKnown());
-
-  // Check values
-  Real food;
-  String foos;
-  Integer fooi;
-  bool foob;
-    
-  assertTrue_1(vb.getValue(foob));
-  assertTrue_1(foob == false);
-  assertTrue_1(vi.getValue(fooi));
-  assertTrue_1(fooi == 69);
-  assertTrue_1(vd.getValue(food));
-  assertTrue_1(food == 1.414);
-  assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == String("yo"));
-  // Numeric conversion
-  assertTrue_1(vi.getValue(food));
-  assertTrue_1(food == 69);
-
-  // Set unknown
-  vb.setUnknown();
-  vi.setUnknown();
-  vd.setUnknown();
-  vs.setUnknown();
-
-  // Confirm that they are now unknown
-  assertTrue_1(!vb.isKnown());
-  assertTrue_1(!vi.isKnown());
-  assertTrue_1(!vd.isKnown());
-  assertTrue_1(!vs.isKnown());
-
-  assertTrue_1(!vb.getValue(foob));
-  assertTrue_1(!vi.getValue(fooi));
-  assertTrue_1(!vd.getValue(food));
-  assertTrue_1(!vs.getValue(foos));
-
-  // Reset and confirm unknown
-  vb.deactivate();
-  vi.deactivate();
-  vd.deactivate();
-  vs.deactivate();
-
-  vb.reset();
-  vi.reset();
-  vd.reset();
-  vs.reset();
-
-  assertTrue_1(!vb.isKnown());
-  assertTrue_1(!vi.isKnown());
-  assertTrue_1(!vd.isKnown());
-  assertTrue_1(!vs.isKnown());
-
-  // Activate and check that initial value is restored
-  vb.activate();
-  vi.activate();
-  vd.activate();
-  vs.activate();
-
-  assertTrue_1(vb.isKnown());
-  assertTrue_1(vi.isKnown());
-  assertTrue_1(vd.isKnown());
-  assertTrue_1(vs.isKnown());
-
-  assertTrue_1(vb.getValue(foob));
-  assertTrue_1(foob == false);
-  assertTrue_1(vi.getValue(fooi));
-  assertTrue_1(fooi == 69);
-  assertTrue_1(vd.getValue(food));
-  assertTrue_1(food == 1.414);
-  assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == String("yo"));
-
-  // Set values and check
-  vb.setValue(Value(true));
-  vi.setValue(Value((Integer) 42));
-  vd.setValue(Value(2.718));
-  vs.setValue(Value("mama"));
-
-  assertTrue_1(vb.isKnown());
-  assertTrue_1(vi.isKnown());
-  assertTrue_1(vd.isKnown());
-  assertTrue_1(vs.isKnown());
-  assertTrue_1(vb.getValue(foob));
-  assertTrue_1(foob == true);
-  assertTrue_1(vi.getValue(fooi));
-  assertTrue_1(fooi == 42);
-  assertTrue_1(vd.getValue(food));
-  assertTrue_1(food == 2.718);
-  assertTrue_1(vs.getValue(foos));
-  assertTrue_1(foos == String("mama"));
-
-  return true;
-}
-
 // Confirm that initializer expression is only invoked
 // on an inactive to active transition.
 static bool testInitializers()
@@ -405,7 +271,7 @@ static bool testInitializers()
   assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(vi.getValue(food));
+  assertTrue_1(((Expression const &) vi).getValue(food));
   assertTrue_1(food == 69);
 
   // Set unknown
@@ -650,10 +516,14 @@ static bool testSavedValue()
 // through an Assignable * pointer.
 static bool testAssignablePointer()
 {
-  BooleanVariable vb(false);
-  IntegerVariable vi(69);
-  RealVariable vd(1.414);
-  StringVariable vs(String("yo"));
+  BooleanVariable vb;
+  vb.setInitializer(FALSE_EXP(), false);
+  IntegerVariable vi;
+  vi.setInitializer(new IntegerConstant(69), true);
+  RealVariable vd;
+  vd.setInitializer(new RealConstant(1.414), true);
+  StringVariable vs;
+  vs.setInitializer(new StringConstant("yo"), true);
 
   Assignable *eb(vb.asAssignable());
   Assignable *ei(vi.asAssignable());
@@ -716,7 +586,7 @@ static bool testAssignablePointer()
   assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(vi.getValue(food));
+  assertTrue_1(((Expression const &) vi).getValue(food));
   assertTrue_1(food == 69);
 
   // Set values
@@ -931,7 +801,6 @@ static bool testNotification()
 bool variablesTest()
 {
   runTest(testUninitialized);
-  runTest(testInitialValue);
   runTest(testInitializers);
   runTest(testSavedValue);
   runTest(testAssignablePointer);

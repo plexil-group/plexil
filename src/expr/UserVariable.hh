@@ -42,8 +42,8 @@ namespace PLEXIL
   // Scalar case
   template <typename T>
   class UserVariable final :
-    public Assignable,
     public GetValueImpl<T>,
+    public Assignable,
     public NotifierImpl
   {
   public:
@@ -52,12 +52,6 @@ namespace PLEXIL
      * @brief Default constructor.
      */
     UserVariable();
-
-    /**
-     * @brief Constructor with initial value.
-     * @param val The initial value.
-     */
-    UserVariable(T const &initVal);
 
     /**
      * @brief Constructor for plan loading.
@@ -96,7 +90,7 @@ namespace PLEXIL
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(T &result) const override;
+    bool getValue(T &result) const override;
 
     //
     // Assignable API
@@ -137,20 +131,6 @@ namespace PLEXIL
      */
     virtual void setValue(Value const &val) override;
 
-    /**
-     * @brief Set the value for this object.
-     * @param val The expression with the new value for this object.
-     */
-    virtual void setValue(Expression const &val) override;
-
-    /**
-     * @brief Retrieve a pointer to the non-const value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     * @note An error for this object
-     */
-    virtual bool getMutableValuePointer(Array *&ptr) override;
-
     void handleActivate() override;
 
     void handleDeactivate() override;
@@ -184,11 +164,11 @@ namespace PLEXIL
 
   };
 
-  // String case
+  // Integer case - base template class is specialized
   template <>
-  class UserVariable<String> final :
+  class UserVariable<Integer> final :
+    public GetValueImpl<Integer>,
     public Assignable,
-    public GetValueImpl<String>,
     public NotifierImpl
   {
   public:
@@ -197,12 +177,6 @@ namespace PLEXIL
      * @brief Default constructor.
      */
     UserVariable();
-
-    /**
-     * @brief Constructor with initial value.
-     * @param val The initial value.
-     */
-    UserVariable(String const &initVal);
 
     /**
      * @brief Constructor for plan loading.
@@ -230,6 +204,10 @@ namespace PLEXIL
 
     char const *exprName() const override;
 
+    //
+    // GetValueImpl API
+    //
+
     bool isKnown() const override;
 
     /**
@@ -237,16 +215,137 @@ namespace PLEXIL
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(String &result) const override;
+    bool getValue(Integer &result) const override;
+
+    //
+    // Assignable API
+    //
+
+    /**
+     * @brief Set the current value unknown.
+     */
+    void setUnknown() override;
+
+    /**
+     * @brief Reset to initial status.
+     */
+    void reset() override;
+
+    void saveCurrentValue() override;
+
+    void restoreSavedValue() override;
+
+    Value getSavedValue() const override;
+
+    NodeConnector *getNode() override;
+    NodeConnector const *getNode() const override;
+
+    Expression *getBaseVariable() override;
+    Expression const *getBaseVariable() const override;
+
+    /**
+     * @brief Set the expression from which this object gets its initial value.
+     * @param expr Pointer to an Expression.
+     * @param garbage True if the expression should be deleted with this object, false otherwise.
+     */
+    virtual void setInitializer(Expression *expr, bool garbage) override;
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The new value for this object.
+     */
+    virtual void setValue(Value const &val) override;
+
+    void handleActivate() override;
+
+    void handleDeactivate() override;
+
+    void printSpecialized(std::ostream &s) const override;
+
+  protected:
+    
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValueImpl(Integer const &value);
+
+  private:
+
+    // N.B. Ordering is suboptimal for bool because of required padding;
+    // fine for int32_t and double
+    Integer m_value;
+    Integer m_savedValue;   // for undoing assignment 
+
+    Expression *m_initializer;
+    char const *m_name;
+
+    // Only used by LuvListener at present. Eliminate?
+    NodeConnector *m_node;
+
+    bool m_known;
+    bool m_savedKnown;
+    bool m_initializerIsGarbage;
+
+  };
+
+  // String case
+  template <>
+  class UserVariable<String> final :
+    public GetValueImpl<String>,
+    public Assignable,
+    public NotifierImpl
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    UserVariable();
+
+    /**
+     * @brief Constructor for plan loading.
+     * @param node The node to which this variable belongs (default none).
+     * @param name The name of this variable in the parent node.
+     */
+    UserVariable(NodeConnector *node,
+                 char const *name = "");
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~UserVariable();
+
+    //
+    // Essential Expression API
+    //
+
+    bool isAssignable() const override;
+
+    Assignable const *asAssignable() const override;
+    Assignable *asAssignable() override;
+
+    char const *getName() const override;
+
+    char const *exprName() const override;
+
+    bool isKnown() const override;
+
+    /**
+     * @brief Get the expression's value.
+     * @param result The variable where the value will be stored.
+     * @return True if known, false if unknown.
+     */
+    bool getValue(String &result) const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(String const *&ptr) const override;
+    bool getValuePointer(String const *&ptr) const override;
     template <typename U>
-    bool getValuePointerImpl(U const *&ptr) const;
+    bool getValuePointer(U const *&ptr) const;
 
     /**
      * @brief Assign a new value.
@@ -289,20 +388,6 @@ namespace PLEXIL
      * @param val The new value for this object.
      */
     virtual void setValue(Value const &val) override;
-
-    /**
-     * @brief Set the value for this object.
-     * @param val The expression with the new value for this object.
-     */
-    virtual void setValue(Expression const &val) override;
-
-    /**
-     * @brief Retrieve a pointer to the non-const value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     * @note An error for this object
-     */
-    virtual bool getMutableValuePointer(Array *&ptr) override;
 
     void handleActivate() override;
 

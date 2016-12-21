@@ -31,43 +31,24 @@
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
 
+#include <memory> // std::unique_ptr
+
 namespace PLEXIL
 {
 
   /**
    * @class ArrayVariable
-   * @brief A class similar to UserVariable, which adds accessors required
+   * @brief An abstract class similar to UserVariable, which adds accessors required
    *        by the ArrayReference and MutableArrayReference expression classes.
+   *        ArrayVariable methods implement the type-invariant operations;
+   *        type-specific operations are delegated to a derived class.
    */
 
-  template <typename T>
-  class ArrayVariable final :
+  class ArrayVariable :
     public Assignable,
-    public GetValueImpl<ArrayImpl<T> >,
     public NotifierImpl
   {
   public:
-
-    /**
-     * @brief Default constructor.
-     */
-    ArrayVariable();
-
-    /**
-     * @brief Constructor with initial value.
-     * @param initVal The initial value.
-     */
-    ArrayVariable(ArrayImpl<T> const & initVal);
-
-    /**
-     * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
-     * @param name The name of this variable in the parent node.
-     */
-    ArrayVariable(NodeConnector *node,
-                  char const *name = "",
-                  Expression *size = NULL,
-                  bool sizeIsGarbage = false);
 
     virtual ~ArrayVariable();
 
@@ -75,35 +56,38 @@ namespace PLEXIL
     // Essential Expression API
     //
 
-    bool isAssignable() const override;
+    virtual bool isAssignable() const override;
 
-    Assignable const *asAssignable() const override;
-    Assignable *asAssignable() override;
+    virtual Assignable const *asAssignable() const override;
+    virtual Assignable *asAssignable() override;
 
-    char const *getName() const override;
+    virtual char const *getName() const override;
 
-    char const *exprName() const override;
+    virtual char const *exprName() const override;
 
-    bool isKnown() const override;
+    virtual bool isKnown() const override;
 
     /**
-     * @brief Set the current value unknown.
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
      */
-    void setUnknown() override;
+    virtual bool getValuePointer(Array const *&ptr) const override;
 
     /**
      * @brief Reset to initial status.
      */
-    void reset() override;
+    virtual void reset() override;
 
-    void saveCurrentValue() override;
+    virtual void saveCurrentValue();
 
-    void restoreSavedValue() override;
+    // Provided by derived class
+    // virtual void restoreSavedValue() = 0;
 
-    Value getSavedValue() const override;
+    virtual Value getSavedValue() const override;
 
-    NodeConnector const *getNode() const override;
-    NodeConnector *getNode() override;
+    virtual NodeConnector const *getNode() const override;
+    virtual NodeConnector *getNode() override;
 
     Expression *getBaseVariable() override;
     Expression const *getBaseVariable() const override;
@@ -119,51 +103,114 @@ namespace PLEXIL
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(Value const &val) override;
+    virtual void setValue(Value const &val) = 0;
 
     /**
-     * @brief Set the value for this object.
-     * @param val The expression with the new value for this object.
+     * @brief Set the current value unknown.
      */
-    virtual void setValue(Expression const &val) override;
+    void setUnknown() override;
+
+    virtual void handleActivate() override;
+
+    virtual void handleDeactivate() override;
+
+    virtual void printSpecialized(std::ostream &s) const override;
+
+    //
+    // Access needed by ArrayReference
+    //
+
+    bool elementIsKnown(size_t idx) const;
 
     /**
-     * @brief Retrieve a pointer to the non-const value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result variable.
+     * @return True if the value is known, false otherwise.
+     * @note Default methods throw a PlanError.
      */
-    virtual bool getMutableValuePointer(Array *&ptr) override;
+    virtual bool getElement(size_t idx, Boolean &result) const; 
+    virtual bool getElement(size_t idx, Integer &result) const;
+    virtual bool getElement(size_t idx, Real &result) const;
+    virtual bool getElement(size_t idx, String &result) const;
 
-    void handleActivate() override;
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result pointer variable.
+     * @return True if the value is known, false otherwise.
+     * @note Default methods throw a PlanError.
+     */
+    virtual bool getElementPointer(size_t idx, String const *&ptr) const;
 
-    void handleDeactivate() override;
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @return The value; may be unknown.
+     */
+    virtual Value getElementValue(size_t idx) const;
 
-    void printSpecialized(std::ostream &s) const override;
+    //
+    // Access needed by MutableArrayReference
+    //
+
+    virtual void setElement(size_t idx, Value const &value) = 0;
+
+    void setElementUnknown(size_t idx);
 
   protected:
 
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     */
-    void setValueImpl(ArrayImpl<T> const &value);
-    
-    /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown.
-     */
-    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const override;
+    //
+    // API to derived classes
+    //
 
-  private:
+    /**
+     * @brief Default constructor.
+     */
+    ArrayVariable();
+
+    /**
+     * @brief Constructor for plan loading.
+     * @param node The node to which this variable belongs (default none).
+     * @param name The name of this variable in the parent node.
+     * @param size Expression whose value is the initial size of the array.
+     * @param sizeIsGarbage True if the size expression should be deleted 
+     *                      with the array variable.
+     */
+    ArrayVariable(NodeConnector *node,
+                  char const *name = "",
+                  Expression *size = nullptr,
+                  bool sizeIsGarbage = false);
 
     /**
      * @brief Pre-allocate storage based on the current value of the size expression.
      */
     void reserve();
 
-    ArrayImpl<T> m_value;
-    ArrayImpl<T> m_savedValue;   // for undoing assignment 
+    //
+    // API provided by derived classes
+    //
+
+    /**
+     * @brief Compare the given array with the current value.
+     * @return True if equal, false if not.
+     */
+
+    virtual bool equals(Array const *ary) const = 0;
+
+    /**
+     * @brief Construct an array of the appropriate type and requested size.
+     * @return Pointer to an Array.
+     */
+
+    virtual Array *makeArray(size_t n) const = 0;
+
+    //
+    // Member variables
+    //
+
+    std::unique_ptr<Array> m_value;
+    std::unique_ptr<Array> m_savedValue;   // for undoing assignment 
 
     Expression *m_size;
     Expression *m_initializer;
@@ -180,13 +227,346 @@ namespace PLEXIL
   };
 
   //
-  // Convenience typedefs 
+  // Implementation classes
   //
 
-  typedef ArrayVariable<bool>        BooleanArrayVariable;
-  typedef ArrayVariable<int32_t>     IntegerArrayVariable;
-  typedef ArrayVariable<double>      RealArrayVariable;
-  typedef ArrayVariable<std::string> StringArrayVariable;
+  template <typename T>
+  class ArrayVariableImpl final :
+    public GetValueImpl<ArrayImpl<T> >,
+    public ArrayVariable
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    ArrayVariableImpl();
+
+    /**
+     * @brief Constructor for plan loading.
+     * @param node The node to which this variable belongs (default none).
+     * @param name The name of this variable in the parent node.
+     * @param size Expression whose value is the initial size of the array.
+     * @param sizeIsGarbage True if the size expression should be deleted 
+     *                      with the array variable.
+     */
+    ArrayVariableImpl(NodeConnector *node,
+                      char const *name = "",
+                      Expression *size = nullptr,
+                      bool sizeIsGarbage = false);
+
+    virtual ~ArrayVariableImpl() = default;
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     */
+    virtual ValueType valueType() const override;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note Just defer to ArrayVariable method.
+     */
+    virtual bool isKnown() const override
+    {
+      return ArrayVariable::isKnown();
+    }
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValue(Value const &value);
+
+    virtual void restoreSavedValue() override;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     * @note Simply delegates to ArrayVariable method.
+     */
+    virtual bool getValuePointer(Array const *& ptr) const override
+    {
+      return ArrayVariable::getValuePointer(ptr);
+    }
+    
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointer(ArrayImpl<T> const *&ptr) const override;
+
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result variable.
+     * @return True if the value is known, false otherwise.
+     */
+    virtual bool getElement(size_t idx, T &result) const; 
+
+    virtual void setElement(size_t idx, Value const &value) override;
+
+    //
+    // API to base class
+    //
+
+    /**
+     * @brief Compare the given array with the current value.
+     * @return True if equal, false if not.
+     */
+
+    virtual bool equals(Array const *ary) const override;
+
+    /**
+     * @brief Construct an array of the appropriate type and requested size.
+     * @return Pointer to an Array.
+     */
+
+    virtual Array *makeArray(size_t n) const override;
+
+  private:
+
+    //
+    // Internal utilities
+    //
+
+    ArrayImpl<T> const *typedArrayPointer() const;
+    ArrayImpl<T> *typedArrayPointer();
+
+  };
+
+  template <>
+  class ArrayVariableImpl<Integer> final :
+    public GetValueImpl<ArrayImpl<Integer> >,
+    public ArrayVariable
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    ArrayVariableImpl();
+
+    /**
+     * @brief Constructor for plan loading.
+     * @param node The node to which this variable belongs (default none).
+     * @param name The name of this variable in the parent node.
+     * @param size Expression whose value is the initial size of the array.
+     * @param sizeIsGarbage True if the size expression should be deleted 
+     *                      with the array variable.
+     */
+    ArrayVariableImpl(NodeConnector *node,
+                      char const *name = "",
+                      Expression *size = nullptr,
+                      bool sizeIsGarbage = false);
+
+    virtual ~ArrayVariableImpl() = default;
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     */
+    virtual ValueType valueType() const override;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note Just defer to ArrayVariable method.
+     */
+    virtual bool isKnown() const override
+    {
+      return ArrayVariable::isKnown();
+    }
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValue(Value const &value);
+
+    virtual void restoreSavedValue() override;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     * @note Simply delegates to ArrayVariable method.
+     */
+    virtual bool getValuePointer(Array const *& ptr) const override
+    {
+      return ArrayVariable::getValuePointer(ptr);
+    }
+    
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValuePointer(ArrayImpl<Integer> const *&ptr) const override;
+
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result variable.
+     * @return True if the value is known, false otherwise.
+     */
+    virtual bool getElement(size_t idx, Integer &result) const override; 
+
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result variable.
+     * @return True if the value is known, false otherwise.
+     * @note Conversion method.
+     */
+    virtual bool getElement(size_t idx, Real &result) const override; 
+
+    virtual void setElement(size_t idx, Value const &value) override;
+
+    /**
+     * @brief Compare the given array with the current value.
+     * @return True if equal, false if not.
+     */
+
+    virtual bool equals(Array const *ary) const override;
+
+    /**
+     * @brief Construct an array of the appropriate type and requested size.
+     * @return Pointer to an Array.
+     */
+
+    virtual Array *makeArray(size_t n) const override;
+
+  private:
+
+    //
+    // Internal utilities
+    //
+
+    ArrayImpl<Integer> const *typedArrayPointer() const;
+    ArrayImpl<Integer> *typedArrayPointer();
+
+  };
+
+  template <>
+  class ArrayVariableImpl<String> final :
+    public GetValueImpl<ArrayImpl<String> >,
+    public ArrayVariable
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    ArrayVariableImpl();
+
+    /**
+     * @brief Constructor for plan loading.
+     * @param node The node to which this variable belongs (default none).
+     * @param name The name of this variable in the parent node.
+     * @param size Expression whose value is the initial size of the array.
+     * @param sizeIsGarbage True if the size expression should be deleted 
+     *                      with the array variable.
+     */
+    ArrayVariableImpl(NodeConnector *node,
+                      char const *name = "",
+                      Expression *size = nullptr,
+                      bool sizeIsGarbage = false);
+
+    virtual ~ArrayVariableImpl() = default;
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     */
+    virtual ValueType valueType() const override;
+
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note Just defer to ArrayVariable method.
+     */
+    virtual bool isKnown() const override
+    {
+      return ArrayVariable::isKnown();
+    }
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValue(Value const &value);
+
+    virtual void restoreSavedValue() override;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     * @note Simply delegates to ArrayVariable method.
+     */
+    virtual bool getValuePointer(Array const *& ptr) const override
+    {
+      return ArrayVariable::getValuePointer(ptr);
+    }
+    
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointer(ArrayImpl<String> const *&ptr) const override;
+
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result variable.
+     * @return True if the value is known, false otherwise.
+     */
+    virtual bool getElement(size_t idx, String &result) const; 
+
+    /**
+     * @brief Get the value of the element of the array.
+     * @param idx The index.
+     * @param result Reference to the result pointer variable.
+     * @return True if the value is known, false otherwise.
+     */
+    virtual bool getElementPointer(size_t idx, String const *&ptr) const override;
+
+    virtual void setElement(size_t idx, Value const &value) override;
+
+    /**
+     * @brief Compare the given array with the current value.
+     * @return True if equal, false if not.
+     */
+
+    virtual bool equals(Array const *ary) const override;
+
+    /**
+     * @brief Construct an array of the appropriate type and requested size.
+     * @return Pointer to an Array.
+     */
+
+    virtual Array *makeArray(size_t n) const override;
+
+  private:
+
+    //
+    // Internal utilities
+    //
+
+    ArrayImpl<String> const *typedArrayPointer() const;
+    ArrayImpl<String> *typedArrayPointer();
+
+  };
+
+  typedef ArrayVariableImpl<Boolean> BooleanArrayVariable;
+  typedef ArrayVariableImpl<Integer> IntegerArrayVariable;
+  typedef ArrayVariableImpl<Real>    RealArrayVariable;
+  typedef ArrayVariableImpl<String>  StringArrayVariable;
 
 } // namespace PLEXIL
 

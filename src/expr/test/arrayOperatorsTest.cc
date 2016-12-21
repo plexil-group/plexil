@@ -49,7 +49,7 @@ static bool testArraySize()
   Function *rl = makeFunction(&lop, &rav, false);
   Function *sl = makeFunction(&lop, &sav, false);
 
-  int32_t len;
+  Integer len;
 
   // test inactive
   assertTrue_1(!bl->getValue(len));
@@ -74,10 +74,10 @@ static bool testArraySize()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(emptybac);
-  iav.setValue(emptyiac);
-  rav.setValue(emptyrac);
-  sav.setValue(emptysac);
+  bav.setValue(emptybac.toValue());
+  iav.setValue(emptyiac.toValue());
+  rav.setValue(emptyrac.toValue());
+  sav.setValue(emptysac.toValue());
 
   assertTrue_1(bl->getValue(len));
   assertTrue_1(len == 0);
@@ -94,10 +94,10 @@ static bool testArraySize()
   RealArrayConstant shortrac(8);
   StringArrayConstant shortsac(8);
 
-  bav.setValue(shortbac);
-  iav.setValue(shortiac);
-  rav.setValue(shortrac);
-  sav.setValue(shortsac);
+  bav.setValue(shortbac.toValue());
+  iav.setValue(shortiac.toValue());
+  rav.setValue(shortrac.toValue());
+  sav.setValue(shortsac.toValue());
 
   assertTrue_1(bl->getValue(len));
   assertTrue_1(len == 8);
@@ -119,20 +119,16 @@ static bool testArraySize()
   assertTrue_1(!rl->getValue(len));
   assertTrue_1(!sl->getValue(len));
 
-  // Reactivate
+  // Reactivate, should revert to unknown
   bl->activate();
   il->activate();
   rl->activate();
   sl->activate();
 
-  assertTrue_1(bl->getValue(len));
-  assertTrue_1(len == 8);
-  assertTrue_1(il->getValue(len));
-  assertTrue_1(len == 8);
-  assertTrue_1(rl->getValue(len));
-  assertTrue_1(len == 8);
-  assertTrue_1(sl->getValue(len));
-  assertTrue_1(len == 8);
+  assertTrue_1(!bl->getValue(len));
+  assertTrue_1(!il->getValue(len));
+  assertTrue_1(!rl->getValue(len));
+  assertTrue_1(!sl->getValue(len));
 
   // Assign unknown arrays
   BooleanArrayConstant unknownbac;
@@ -140,10 +136,10 @@ static bool testArraySize()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(unknownbac);
-  iav.setValue(unknowniac);
-  rav.setValue(unknownrac);
-  sav.setValue(unknownsac);
+  bav.setValue(unknownbac.toValue());
+  iav.setValue(unknowniac.toValue());
+  rav.setValue(unknownrac.toValue());
+  sav.setValue(unknownsac.toValue());
 
   assertTrue_1(!bl->getValue(len));
   assertTrue_1(!il->getValue(len));
@@ -197,10 +193,10 @@ static bool testAllElementsKnown()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(emptybac);
-  iav.setValue(emptyiac);
-  rav.setValue(emptyrac);
-  sav.setValue(emptysac);
+  bav.setValue(emptybac.toValue());
+  iav.setValue(emptyiac.toValue());
+  rav.setValue(emptyrac.toValue());
+  sav.setValue(emptysac.toValue());
 
   // *** Boundary case -- see Array.cc ***
   assertTrue_1(bl->getValue(temp));
@@ -218,10 +214,10 @@ static bool testAllElementsKnown()
   RealArrayConstant shortrac(2);
   StringArrayConstant shortsac(2);
 
-  bav.setValue(shortbac);
-  iav.setValue(shortiac);
-  rav.setValue(shortrac);
-  sav.setValue(shortsac);
+  bav.setValue(shortbac.toValue());
+  iav.setValue(shortiac.toValue());
+  rav.setValue(shortrac.toValue());
+  sav.setValue(shortsac.toValue());
 
   assertTrue_1(bl->getValue(temp));
   assertTrue_1(!temp);
@@ -233,7 +229,8 @@ static bool testAllElementsKnown()
   assertTrue_1(!temp);
 
   // Assign elements and try again
-  IntegerVariable index((int32_t) 0);
+  IntegerVariable index;
+  index.setValue((Integer) 0);
   MutableArrayReference bref(&bav, &index);
   MutableArrayReference iref(&iav, &index);
   MutableArrayReference rref(&rav, &index);
@@ -245,7 +242,7 @@ static bool testAllElementsKnown()
   sref.activate();
 
   bref.setValue(false);
-  iref.setValue((int32_t) 0);
+  iref.setValue((Integer) 0);
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
@@ -259,9 +256,9 @@ static bool testAllElementsKnown()
   assertTrue_1(!temp);
 
   // Set other element and try again
-  index.setValue((int32_t) 1);
+  index.setValue((Integer) 1);
   bref.setValue(false);
-  iref.setValue((int32_t) 0);
+  iref.setValue((Integer) 0);
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
@@ -280,10 +277,10 @@ static bool testAllElementsKnown()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(unknownbac);
-  iav.setValue(unknowniac);
-  rav.setValue(unknownrac);
-  sav.setValue(unknownsac);
+  bav.setValue(unknownbac.toValue());
+  iav.setValue(unknowniac.toValue());
+  rav.setValue(unknownrac.toValue());
+  sav.setValue(unknownsac.toValue());
 
   assertTrue_1(!bl->getValue(temp));
   assertTrue_1(!il->getValue(temp));
@@ -339,10 +336,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(emptybac);
-  iav.setValue(emptyiac);
-  rav.setValue(emptyrac);
-  sav.setValue(emptysac);
+  bav.setValue(emptybac.toValue());
+  iav.setValue(emptyiac.toValue());
+  rav.setValue(emptyrac.toValue());
+  sav.setValue(emptysac.toValue());
 
   // *** Boundary case -- see Array.cc ***
   assertTrue_1(bl->getValue(temp));
@@ -360,10 +357,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant shortrac(2);
   StringArrayConstant shortsac(2);
 
-  bav.setValue(shortbac);
-  iav.setValue(shortiac);
-  rav.setValue(shortrac);
-  sav.setValue(shortsac);
+  bav.setValue(shortbac.toValue());
+  iav.setValue(shortiac.toValue());
+  rav.setValue(shortrac.toValue());
+  sav.setValue(shortsac.toValue());
 
   assertTrue_1(bl->getValue(temp));
   assertTrue_1(!temp);
@@ -375,7 +372,8 @@ static bool testAnyElementsKnown()
   assertTrue_1(!temp);
 
   // Assign elements and try again
-  IntegerVariable index((int32_t) 0);
+  IntegerVariable index;
+  index.setValue((Integer) 0);
   MutableArrayReference bref(&bav, &index);
   MutableArrayReference iref(&iav, &index);
   MutableArrayReference rref(&rav, &index);
@@ -387,7 +385,7 @@ static bool testAnyElementsKnown()
   sref.activate();
 
   bref.setValue(false);
-  iref.setValue((int32_t) 0);
+  iref.setValue((Integer) 0);
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
@@ -401,9 +399,9 @@ static bool testAnyElementsKnown()
   assertTrue_1(temp);
 
   // Set other element and try again
-  index.setValue((int32_t) 1);
+  index.setValue((Integer) 1);
   bref.setValue(false);
-  iref.setValue((int32_t) 0);
+  iref.setValue((Integer) 0);
   rref.setValue(0.0);
   sref.setValue(std::string(""));
 
@@ -422,10 +420,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(unknownbac);
-  iav.setValue(unknowniac);
-  rav.setValue(unknownrac);
-  sav.setValue(unknownsac);
+  bav.setValue(unknownbac.toValue());
+  iav.setValue(unknowniac.toValue());
+  rav.setValue(unknownrac.toValue());
+  sav.setValue(unknownsac.toValue());
 
   assertTrue_1(!bl->getValue(temp));
   assertTrue_1(!il->getValue(temp));

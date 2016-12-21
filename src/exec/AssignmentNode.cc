@@ -104,7 +104,7 @@ namespace PLEXIL
   void AssignmentNode::createDummyAssignment() 
   {
     m_assignment = new Assignment(m_nodeId);
-    m_assignment->setVariable(new BooleanVariable(false),
+    m_assignment->setVariable(new BooleanVariable(),
                               true);
     m_assignment->setExpression(TRUE_EXP(), false);
   }

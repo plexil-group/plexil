@@ -71,7 +71,7 @@ namespace PLEXIL
     /**
      * @brief Get the current value of the command handle.
      */
-    bool getValueImpl(CommandHandleValue &) const;
+    bool getValue(CommandHandleValue &) const;
 
     // Command notifies variable when value changes
     void valueChanged();

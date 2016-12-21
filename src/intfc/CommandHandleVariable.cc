@@ -70,7 +70,7 @@ namespace PLEXIL
     return NO_COMMAND_HANDLE != m_command.getCommandHandle();
   }
 
-  bool CommandHandleVariable::getValueImpl(CommandHandleValue &result) const
+  bool CommandHandleVariable::getValue(CommandHandleValue &result) const
   {
     if (!isActive())
       return false;
@@ -83,7 +83,7 @@ namespace PLEXIL
 
   void CommandHandleVariable::valueChanged()
   {
-    this->publishChange(static_cast<Expression const *>(this));
+    this->publishChange();
   }
   
   void CommandHandleVariable::printValue(std::ostream &s) const

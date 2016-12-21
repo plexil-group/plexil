@@ -32,7 +32,6 @@
 namespace PLEXIL
 {
   // Forward references
-  class MutableArrayReference;
   class Value;
 
   /**
@@ -42,8 +41,6 @@ namespace PLEXIL
    */
   class Array
   {
-    friend class MutableArrayReference;
-
   public:
     Array();
     Array(Array const &);
@@ -53,8 +50,6 @@ namespace PLEXIL
     virtual ~Array();
 
     virtual Array *clone() const = 0;
-    Array &operator=(Array const &);
-    Array &operator=(Array &&);
 
     // Generic accessors
 
@@ -115,7 +110,11 @@ namespace PLEXIL
     virtual size_t serialSize() const = 0;
 
   protected:
+
     // For use by implementation classes
+    Array &operator=(Array const &);
+    Array &operator=(Array &&);
+
     inline bool checkIndex(size_t index) const
     {
       return index < m_known.size();

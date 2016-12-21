@@ -91,7 +91,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool NodeTimepointValue::getValueImpl(Real &result) const // FIXME
+  bool NodeTimepointValue::getValue(Real &result) const // FIXME
   {
     if (m_known)
       result = m_time;
@@ -101,7 +101,7 @@ namespace PLEXIL
   void NodeTimepointValue::printValue(std::ostream &s) const
   {
     Real tym;
-    if (getValueImpl(tym))
+    if (getValue(tym))
       s << std::setprecision(15) << tym; // FIXME: needs better format
     else
       s << UNKNOWN_STR;
@@ -118,13 +118,13 @@ namespace PLEXIL
   {
     m_time = newval;
     m_known = true;
-    publishChange(this);
+    publishChange();
   }
 
   void NodeTimepointValue::reset()
   {
     m_known = false;
-    publishChange(this);
+    publishChange();
   }
 
   NodeTimepointValue *NodeTimepointValue::next() const

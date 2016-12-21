@@ -45,7 +45,7 @@ namespace PLEXIL
   {
   }
 
-  bool StateVariable::getValueImpl(NodeState &result) const
+  bool StateVariable::getValue(NodeState &result) const
   {
     result = m_node.getState();
     return true;
@@ -63,7 +63,7 @@ namespace PLEXIL
 
   void StateVariable::changed()
   {
-    this->publishChange(this);
+    publishChange();
   }
 
   //
@@ -87,7 +87,7 @@ namespace PLEXIL
     return (outcome != NO_OUTCOME);
   }
 
-  bool OutcomeVariable::getValueImpl(NodeOutcome &result) const
+  bool OutcomeVariable::getValue(NodeOutcome &result) const
   {
     NodeOutcome outcome = m_node.getOutcome();
     if (outcome == NO_OUTCOME)
@@ -112,7 +112,7 @@ namespace PLEXIL
 
   void OutcomeVariable::changed()
   {
-    this->publishChange(this);
+    publishChange();
   }
 
   //
@@ -136,7 +136,7 @@ namespace PLEXIL
     return (ftype != NO_FAILURE);
   }
 
-  bool FailureVariable::getValueImpl(FailureType &result) const
+  bool FailureVariable::getValue(FailureType &result) const
   {
     FailureType ftype = m_node.getFailureType();
     if (ftype == NO_FAILURE)
@@ -157,7 +157,7 @@ namespace PLEXIL
 
   void FailureVariable::changed()
   {
-    this->publishChange(this);
+    publishChange();
   }
 
 } // namespace PLEXIL

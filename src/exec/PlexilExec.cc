@@ -108,7 +108,7 @@ namespace PLEXIL
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
-    root->notifyChanged(NULL); // redundant?
+    root->notifyChanged(); // redundant?
     return true;
   }
 

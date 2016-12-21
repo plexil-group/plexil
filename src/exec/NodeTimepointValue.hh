@@ -53,7 +53,7 @@ namespace PLEXIL
     virtual char const *exprName() const;
     virtual ValueType valueType() const;
     virtual bool isKnown() const;
-    virtual bool getValueImpl(Real &result) const; // FIXME
+    virtual bool getValue(Real &result) const; // FIXME
     virtual void printValue(std::ostream &s) const;
     virtual void printSpecialized(std::ostream &s) const;
 

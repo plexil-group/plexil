@@ -35,71 +35,86 @@ using namespace PLEXIL;
 
 static bool testScalarConstants()
 {
-  // Default constructor check
-  BooleanConstant ub;
-  IntegerConstant ui;
-  RealConstant ud;
-  StringConstant us;
+  Boolean foob;
+  Integer fooi;
+  Real food;
+  String foos;
+  String const *pfoos = nullptr;
 
-  // Direct access
-  assertTrue_1(ub.isConstant());
-  assertTrue_1(ui.isConstant());
-  assertTrue_1(ud.isConstant());
-  assertTrue_1(us.isConstant());
-  assertTrue_1(!ub.isAssignable());
-  assertTrue_1(!ui.isAssignable());
-  assertTrue_1(!ud.isAssignable());
-  assertTrue_1(!us.isAssignable());
-  assertTrue_1(!ub.isKnown());
-  assertTrue_1(!ui.isKnown());
-  assertTrue_1(!ud.isKnown());
-  assertTrue_1(!us.isKnown());
+  {
+    // Default constructor check
+    Expression const *ub = new BooleanConstant();
+    Expression const *ui = new IntegerConstant();
+    Expression const *ud = new RealConstant();
+    Expression const *us = new StringConstant();
 
-  // getValue on unknowns
-  double food;
-  std::string foos;
-  int32_t fooi;
-  bool foob;
-  assertTrue_1(!ub.getValue(foob));
-  assertTrue_1(!ui.getValue(fooi));
-  assertTrue_1(!ud.getValue(food));
-  assertTrue_1(!us.getValue(foos));
+    // Direct access
+    assertTrue_1(ub->isConstant());
+    assertTrue_1(ui->isConstant());
+    assertTrue_1(ud->isConstant());
+    assertTrue_1(us->isConstant());
+    assertTrue_1(!ub->isAssignable());
+    assertTrue_1(!ui->isAssignable());
+    assertTrue_1(!ud->isAssignable());
+    assertTrue_1(!us->isAssignable());
+    assertTrue_1(!ub->isKnown());
+    assertTrue_1(!ui->isKnown());
+    assertTrue_1(!ud->isKnown());
+    assertTrue_1(!us->isKnown());
 
-  // getValuePointer on unknowns
-  std::string const *pfoos;
-  assertTrue_1(!us.getValuePointer(pfoos));
+    // getValue on unknowns
+    assertTrue_1(!ub->getValue(foob));
+    assertTrue_1(!ui->getValue(fooi));
+    assertTrue_1(!ud->getValue(food));
+    assertTrue_1(!us->getValue(foos));
 
+    // getValuePointer on unknowns
+    assertTrue_1(!us->getValuePointer(pfoos));
+
+    pfoos = nullptr;
+
+    delete us;
+    delete ud;
+    delete ui;
+    delete ub;
+  }
+  
   // Constants with values
-  BooleanConstant troo = true;
-  IntegerConstant too = 2;
-  RealConstant doo = 2.718;
-  StringConstant soo = std::string("Sue");
+  Expression const *troo = new BooleanConstant(true);
+  Expression const *too = new IntegerConstant(2);
+  Expression const *doo = new RealConstant(2.718);
+  Expression const *soo = new StringConstant("Sue");
 
-  assertTrue_1(troo.isConstant());
-  assertTrue_1(too.isConstant());
-  assertTrue_1(doo.isConstant());
-  assertTrue_1(soo.isConstant());
-  assertTrue_1(troo.isKnown());
-  assertTrue_1(too.isKnown());
-  assertTrue_1(doo.isKnown());
-  assertTrue_1(soo.isKnown());
+  assertTrue_1(troo->isConstant());
+  assertTrue_1(too->isConstant());
+  assertTrue_1(doo->isConstant());
+  assertTrue_1(soo->isConstant());
+  assertTrue_1(troo->isKnown());
+  assertTrue_1(too->isKnown());
+  assertTrue_1(doo->isKnown());
+  assertTrue_1(soo->isKnown());
     
   // getValue() test
-  assertTrue_1(troo.getValue(foob));
+  assertTrue_1(troo->getValue(foob));
   assertTrue_1(foob == true);
-  assertTrue_1(too.getValue(fooi));
+  assertTrue_1(too->getValue(fooi));
   assertTrue_1(fooi == 2);
-  assertTrue_1(doo.getValue(food));
+  assertTrue_1(doo->getValue(food));
   assertTrue_1(food == 2.718);
-  assertTrue_1(soo.getValue(foos));
-  assertTrue_1(foos == std::string("Sue"));
+  assertTrue_1(soo->getValue(foos));
+  assertTrue_1(foos == String("Sue"));
   // Numeric conversion
-  assertTrue_1(too.getValue(food));
+  assertTrue_1(too->getValue(food));
   assertTrue_1(food == 2);
 
   // getValuePointer() tests
-  assertTrue_1(soo.getValuePointer(pfoos));
-  assertTrue_1(*pfoos == std::string("Sue"));
+  assertTrue_1(soo->getValuePointer(pfoos));
+  assertTrue_1(*pfoos == String("Sue"));
+
+  delete soo;
+  delete doo;
+  delete too;
+  delete troo;
 
   return true;
 }

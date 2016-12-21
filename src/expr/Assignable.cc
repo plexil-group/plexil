@@ -25,7 +25,8 @@
 */
 
 #include "Assignable.hh"
-#include "Error.hh"
+#include "PlanError.hh"
+#include "ValueType.hh"
 
 namespace PLEXIL {
 

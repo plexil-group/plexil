@@ -45,6 +45,12 @@ namespace PLEXIL
   {
   }
 
+  Constant<Integer>::Constant()
+    : GetValueImpl<Integer>(),
+    m_known(false)
+  {
+  }
+
   Constant<String>::Constant()
     : GetValueImpl<String>(),
     m_known(false)
@@ -64,6 +70,13 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const Constant &other)
     : GetValueImpl<T>(),
+    m_value(other.m_value),
+    m_known(other.m_known)
+  {
+  }
+
+  Constant<Integer>::Constant(const Constant &other)
+    : GetValueImpl<Integer>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -90,6 +103,13 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const T &value)
     : GetValueImpl<T>(),
+    m_value(value),
+    m_known(true)
+  {
+  }
+
+  Constant<Integer>::Constant(const Integer &value)
+    : GetValueImpl<Integer>(),
     m_value(value),
     m_known(true)
   {
@@ -130,6 +150,10 @@ namespace PLEXIL
   {
   }
 
+  Constant<Integer>::~Constant()
+  {
+  }
+
   Constant<String>::~Constant()
   {
   }
@@ -145,6 +169,11 @@ namespace PLEXIL
    */
   template <typename T>
   const char *Constant<T>::exprName() const
+  {
+    return "Constant";
+  }
+
+  const char *Constant<Integer>::exprName() const
   {
     return "Constant";
   }
@@ -166,14 +195,21 @@ namespace PLEXIL
    * @return True if known, false if unknown.
    */
   template <typename T>
-  bool Constant<T>::getValueImpl(T& result) const
+  bool Constant<T>::getValue(T &result) const
   {
     if (m_known)
       result = m_value;
     return m_known;
   }
 
-  bool Constant<String>::getValueImpl(std::string& result) const
+  bool Constant<Integer>::getValue(Integer &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  bool Constant<String>::getValue(String &result) const
   {
     if (m_known)
       result = m_value;
@@ -185,7 +221,7 @@ namespace PLEXIL
    * @param ptr Reference to the pointer variable to receive the result.
    * @return True if known, false if unknown.
    */
-  bool Constant<String>::getValuePointerImpl(std::string const *&ptr) const
+  bool Constant<String>::getValuePointer(std::string const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -193,7 +229,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool Constant<ArrayImpl<T> >::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
+  bool Constant<ArrayImpl<T> >::getValuePointer(ArrayImpl<T> const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -206,6 +242,11 @@ namespace PLEXIL
    */
   template <typename T>
   bool Constant<T>::isKnown() const
+  {
+    return m_known;
+  }
+
+  bool Constant<Integer>::isKnown() const
   {
     return m_known;
   }
@@ -231,6 +272,11 @@ namespace PLEXIL
     return true;
   }
 
+  bool Constant<Integer>::isConstant() const
+  {
+    return true;
+  }
+
   bool Constant<String>::isConstant() const
   {
     return true;
@@ -248,6 +294,11 @@ namespace PLEXIL
    */
   template <typename T>
   bool Constant<T>::isActive() const
+  {
+    return true; // constants are always active
+  }
+ 
+  bool Constant<Integer>::isActive() const
   {
     return true; // constants are always active
   }
@@ -272,6 +323,10 @@ namespace PLEXIL
   {
   }
 
+  void Constant<Integer>::activate()
+  {
+  }
+
   void Constant<String>::activate()
   {
   }
@@ -287,6 +342,10 @@ namespace PLEXIL
    */
   template <typename T>
   void Constant<T>::deactivate()
+  {
+  }
+
+  void Constant<Integer>::deactivate()
   {
   }
 
@@ -309,6 +368,10 @@ namespace PLEXIL
   {
   }
 
+  void Constant<Integer>::addListener(ExpressionListener * /* ptr */)
+  {
+  }
+
   void Constant<String>::addListener(ExpressionListener * /* ptr */)
   {
   }
@@ -320,6 +383,10 @@ namespace PLEXIL
 
   template <typename T>
   void Constant<T>::removeListener(ExpressionListener * /* ptr */)
+  {
+  }
+
+  void Constant<Integer>::removeListener(ExpressionListener * /* ptr */)
   {
   }
 
@@ -336,14 +403,14 @@ namespace PLEXIL
   // Explicit instantiations
   //
   template class Constant<Boolean>;
-  template class Constant<Integer>;
+  //  template class Constant<Integer>;
   template class Constant<Real>;
   template class Constant<NodeState>;
   template class Constant<NodeOutcome>;
   template class Constant<FailureType>;
   template class Constant<CommandHandleValue>;
 
-  // template class Constant<String>; // explicitly specialized above
+  // template class Constant<String>;
 
   template class Constant<BooleanArray>;
   template class Constant<IntegerArray>;

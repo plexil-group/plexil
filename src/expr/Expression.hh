@@ -190,35 +190,37 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
      * @note The value is not copied if the return value is false.
+     * @note Default methods throw a PlanError.
      * @note Derived classes should implement only the appropriate methods.
      */
 
-    virtual bool getValue(Boolean &result) const = 0;
-    virtual bool getValue(NodeState &result) const = 0;
-    virtual bool getValue(NodeOutcome &result) const = 0;
-    virtual bool getValue(FailureType &result) const = 0;
-    virtual bool getValue(CommandHandleValue &result) const = 0;
-    virtual bool getValue(Integer &result) const = 0;
-    virtual bool getValue(Real &result) const = 0;
+    virtual bool getValue(Boolean &result) const;
+    virtual bool getValue(NodeState &result) const;
+    virtual bool getValue(NodeOutcome &result) const;
+    virtual bool getValue(FailureType &result) const;
+    virtual bool getValue(CommandHandleValue &result) const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
 
-    virtual bool getValue(String &result) const = 0;
+    virtual bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this object.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      * @note The pointer is not copied if the return value is false.
+     * @note Default methods throw a PlanError.
      * @note Derived classes should implement only the appropriate methods.
      */
 
-    virtual bool getValuePointer(String const *&ptr) const = 0;
+    virtual bool getValuePointer(String const *&ptr) const;
 
-    virtual bool getValuePointer(Array const *&ptr) const = 0;
+    virtual bool getValuePointer(Array const *&ptr) const;
 
-    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
-    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
-    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
-    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
     //
     // Expression notification graph API
@@ -232,14 +234,14 @@ namespace PLEXIL
     virtual bool isActive() const = 0;
 
     /**
-     * @brief Make this expression active.  It will publish value changes and it will accept
-     *        incoming change notifications.
+     * @brief Make this expression active.  It will publish value changes and it
+     *        will propagate incoming change notifications.
      */
     virtual void activate() = 0;
 
     /**
-     * @brief Make this listener inactive.  It will not publish value changes, nor will it
-     *        accept incoming change notifications.
+     * @brief Make this listener inactive.  It will not publish value changes, nor 
+     *        will it propagate incoming change notifications.
      */
     virtual void deactivate() = 0;
 
@@ -261,10 +263,9 @@ namespace PLEXIL
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
-     * @param src The Expression which initiated the change.
      * @note This default method does nothing.
      */
-    virtual void notifyChanged(Expression const *src);
+    virtual void notifyChanged();
 
   };
 

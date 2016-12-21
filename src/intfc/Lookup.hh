@@ -91,7 +91,7 @@ namespace PLEXIL
     // Common behavior required by NotifierImpl
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Expression const *src);
+    void handleChange();
 
     //
     // Value access
@@ -186,7 +186,7 @@ namespace PLEXIL
     virtual void invalidateOldState(); // called before updating state to new value
 
     // Shared behavior needed by LookupOnChange
-    bool handleChangeInternal(Expression const *src);
+    bool handleChangeInternal();
     void ensureRegistered();
     void unregister();
 
@@ -228,7 +228,7 @@ namespace PLEXIL
     // Wrappers around Lookup methods
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Expression const *exp);
+    void handleChange();
     void valueChanged();
 
     bool getThresholds(Integer &high, Integer &low);

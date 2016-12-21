@@ -146,7 +146,8 @@ namespace PLEXIL
     commonInit();
 
     for (size_t i = 0; i < conditionIndexMax; ++i) {
-      Expression *expr = new BooleanVariable(false);
+      BooleanVariable *expr = new BooleanVariable();
+      expr->setValue(false);
       debugMsg("Node:node",
                " Created internal variable "
                << ALL_CONDITIONS[i] <<
@@ -452,7 +453,7 @@ namespace PLEXIL
    * @brief Notifies the node that one of its conditions has changed.
    * @note Renamed from conditionChanged.
    */
-  void Node::notifyChanged(Expression const * /* src */)
+  void Node::notifyChanged()
   {
     g_exec->notifyNodeConditionChanged(this);
   }
@@ -1232,7 +1233,7 @@ namespace PLEXIL
       // with no parent, it cannot be reset, therefore cannot transition again.
       g_exec->markRootNodeFinished(this); // puts node on exec's finished queue
     else
-      notifyChanged(&m_stateVariable); // check for potential of additional transitions
+      notifyChanged(); // check for potential of additional transitions
   }
 
   //

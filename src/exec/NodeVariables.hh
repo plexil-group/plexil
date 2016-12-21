@@ -76,7 +76,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(NodeState &) const;
+    bool getValue(NodeState &) const;
 
     /**
      * @brief Print the expression's value to the given stream.
@@ -140,7 +140,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(NodeOutcome &) const;
+    bool getValue(NodeOutcome &) const;
 
     /**
      * @brief Print the expression's value to the given stream.
@@ -205,7 +205,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(FailureType &) const;
+    bool getValue(FailureType &) const;
 
     /**
      * @brief Print the expression's value to the given stream.

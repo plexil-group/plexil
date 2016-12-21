@@ -26,8 +26,10 @@
 
 #include "ArrayVariable.hh"
 
+#include "ArrayImpl.hh"
 #include "Constant.hh"
 #include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 #include <cstdlib> // free()
@@ -36,60 +38,45 @@
 namespace PLEXIL
 {
 
-  template <typename T>
-  ArrayVariable<T>::ArrayVariable()
-    : GetValueImpl<ArrayImpl<T> >(),
-    NotifierImpl(),
-    m_size(NULL),
-    m_initializer(NULL),
-    m_name(NULL),
-    m_maxSize(0),
-    m_node(NULL),
-    m_known(false),
-    m_savedKnown(false),
-    m_sizeIsGarbage(false),
-    m_initializerIsGarbage(false)
+  ArrayVariable::ArrayVariable()
+    : NotifierImpl(),
+      m_value(),
+      m_savedValue(),
+      m_size(nullptr),
+      m_initializer(nullptr),
+      m_name(nullptr),
+      m_maxSize(0),
+      m_node(nullptr),
+      m_known(false),
+      m_savedKnown(false),
+      m_sizeIsGarbage(false),
+      m_initializerIsGarbage(false)
   {
   }
 
-  template <typename T>
-  ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : GetValueImpl<ArrayImpl<T> >(),
-    NotifierImpl(),
-    m_size(NULL),
-    m_initializer(new Constant<ArrayImpl<T> >(initVal)),
-    m_name(NULL),
-    m_maxSize(0),
-    m_node(NULL),
-    m_known(false),
-    m_savedKnown(false),
-    m_sizeIsGarbage(false),
-    m_initializerIsGarbage(true)
+  ArrayVariable::ArrayVariable(NodeConnector *node,
+                               char const *name,
+                               Expression *size,
+                               bool sizeIsGarbage)
+    : NotifierImpl(),
+      m_value(),
+      m_savedValue(),
+      m_size(size),
+      m_initializer(nullptr),
+      m_name(strdup(name)),
+      m_maxSize(0),
+      m_node(node),
+      m_known(false),
+      m_savedKnown(false),
+      m_sizeIsGarbage(sizeIsGarbage),
+      m_initializerIsGarbage(false)
   {
   }
 
-  template <typename T>
-  ArrayVariable<T>::ArrayVariable(NodeConnector *node,
-                                  char const *name,
-                                  Expression *size,
-                                  bool sizeIsGarbage)
-    : GetValueImpl<ArrayImpl<T> >(),
-    NotifierImpl(),
-    m_size(size),
-    m_initializer(NULL),
-    m_name(strdup(name)),
-    m_maxSize(0),
-    m_node(node),
-    m_known(false),
-    m_savedKnown(false),
-    m_sizeIsGarbage(sizeIsGarbage),
-    m_initializerIsGarbage(false)
+  ArrayVariable::~ArrayVariable()
   {
-  }
-
-  template <typename T>
-  ArrayVariable<T>::~ArrayVariable()
-  {
+    m_value.reset();
+    m_savedValue.reset();
     free((void *) m_name);
     if (m_initializerIsGarbage)
       delete m_initializer;
@@ -101,26 +88,22 @@ namespace PLEXIL
   // Essential Expression API
   //
 
-  template <typename T>
-  bool ArrayVariable<T>::isAssignable() const
+  bool ArrayVariable::isAssignable() const
   {
     return true;
   }
 
-  template <typename T>
-  Assignable const *ArrayVariable<T>::asAssignable() const
+  Assignable const *ArrayVariable::asAssignable() const
   {
     return static_cast<Assignable const *>(this);
   }
 
-  template <typename T>
-  Assignable *ArrayVariable<T>::asAssignable()
+  Assignable *ArrayVariable::asAssignable()
   {
     return static_cast<Assignable *>(this);
   }
 
-  template <typename T>
-  char const *ArrayVariable<T>::getName() const
+  char const *ArrayVariable::getName() const
   {
     if (m_name)
       return m_name;
@@ -128,40 +111,17 @@ namespace PLEXIL
     return sl_anon;
   }
 
-  template <typename T>
-  const char *ArrayVariable<T>::exprName() const
+  const char *ArrayVariable::exprName() const
   {
     return "ArrayVariable";
   }
 
-  template <typename T>
-  bool ArrayVariable<T>::isKnown() const
+  bool ArrayVariable::isKnown() const
   {
     return this->isActive() && m_known;
   }
 
-  template <typename T>
-  bool ArrayVariable<T>::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
-  {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
-  }
-
-  template <typename T>
-  bool ArrayVariable<T>::getMutableValuePointer(Array *&ptr)
-  {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::handleActivate()
+  void ArrayVariable::handleActivate()
   {
     // Ensure maxSize spec is evaluated before initializer.
     if (m_size) {
@@ -173,7 +133,7 @@ namespace PLEXIL
       }
     }
     if (m_initializer) {
-      ArrayImpl<T> const *valuePtr;
+      Array const *valuePtr;
       if (m_initializer->getValuePointer(valuePtr)) {
         // If there is a max size, enforce it.
         // Else use the length of the initializer
@@ -183,155 +143,104 @@ namespace PLEXIL
                          "Initial value for " << this->getName()
                          << " is larger than declared max size " << m_size);
         }
-        m_value = *valuePtr;
+        m_value.reset(valuePtr->clone());
         m_known = true;
         if (m_size && size < m_maxSize)
-          m_value.resize(m_maxSize);
+          m_value->resize(m_maxSize);
+      }
+      else {
+        reserve();
       }
     }
     else {
       reserve();
     }
     if (m_known)
-      this->publishChange(this);
+      publishChange();
   }
 
-  template <typename T>
-  void ArrayVariable<T>::handleDeactivate()
+  void ArrayVariable::handleDeactivate()
   {
-    // Clear saved value
-    m_savedValue.resize(0);
+    // Delete arrays
+    // TODO: find less leaky way to deal with this case
+    m_value.reset();
+    m_savedValue.reset();
+    m_known = false;
     m_savedKnown = false;
     if (m_initializer)
       m_initializer->deactivate();
   }
 
-  template <typename T>
-  void ArrayVariable<T>::printSpecialized(std::ostream &s) const
+  void ArrayVariable::printSpecialized(std::ostream &s) const
   {
     s << getName() << ' ';
     if (m_size)
       s << "size = " << m_maxSize << ' ';
   }
 
-  template <typename T>
-  void ArrayVariable<T>::setValue(Value const &val)
+  void ArrayVariable::setUnknown()
   {
-    ArrayImpl<T> const *ptr;
-    if (val.getValuePointer(ptr))
-      this->setValueImpl(*ptr);
-    else
-      this->setUnknown();
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::setValue(Expression const &val)
-  {
-    ArrayImpl<T> const *ptr;
-    if (val.getValuePointer(ptr))
-      this->setValueImpl(*ptr);
-    else
-      this->setUnknown();
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::setValueImpl(ArrayImpl<T> const &value)
-  {
-    bool changed = !m_known || value != m_value;
-    size_t newSize = value.size();
-    checkPlanError(!m_size || newSize <= m_maxSize,
-                   "New value of array variable " << this->getName()
-                   << " is bigger than max size " << m_maxSize);
-    m_value = value;
-    m_known = true;
-    // TODO: find more efficient way to handle arrays smaller than max
-    if (newSize < m_maxSize)
-      m_value.resize(m_maxSize);
-    if (changed)
-      this->publishChange(this);
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::setUnknown()
-  {
-    bool changed = m_known;
+    if (!m_known)
+      return; // no change
     m_known = false;
-    if (changed)
-      this->publishChange(this);
+    publishChange();
   }
 
   // This should only be called when inactive, therefore doesn't need to report changes.
-  template <typename T>
-  void ArrayVariable<T>::reset()
+  void ArrayVariable::reset()
   {
     assertTrue_2(!this->isActive(), "ArrayVariable: reset while active");
-    m_savedKnown = m_known = false;
-    m_value.reset();
-    m_savedValue.reset();
+    // nothing to do; storage was released at deactivation
   }
 
-  template <typename T>
-  void ArrayVariable<T>::saveCurrentValue()
+  void ArrayVariable::saveCurrentValue()
   {
-    m_savedValue = m_value;
+    assertTrue_2(!m_savedValue,
+                 "Attempt to save array variable twice!");
     m_savedKnown = m_known;
+    if (m_known)
+      m_savedValue.reset(m_value->clone());
   }
 
-  // Should only be called when active.
-  template <typename T>
-  void ArrayVariable<T>::restoreSavedValue()
+  Value ArrayVariable::getSavedValue() const
   {
-    bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
-    m_value = m_savedValue;
-    m_known = m_savedKnown;
-    if (changed)
-      this->publishChange(this);
+    if (m_savedValue)
+      return Value(*m_savedValue);
+    else
+      return Value();
   }
 
-  template <typename T>
-  Value ArrayVariable<T>::getSavedValue() const
-  {
-    return Value(m_savedValue);
-  }
-
-  template <typename T>
-  NodeConnector const *ArrayVariable<T>::getNode() const
+  NodeConnector const *ArrayVariable::getNode() const
   {
     return m_node;
   }
 
-  template <typename T>
-  NodeConnector *ArrayVariable<T>::getNode()
+  NodeConnector *ArrayVariable::getNode()
   {
     return m_node;
   }
 
-  template <typename T>
-  Expression *ArrayVariable<T>::getBaseVariable()
+  Expression *ArrayVariable::getBaseVariable()
   {
     return this;
   }
 
-  template <typename T>
-  Expression const *ArrayVariable<T>::getBaseVariable() const
+  Expression const *ArrayVariable::getBaseVariable() const
   {
     return this;
   }
 
-  template <typename T>
-  void ArrayVariable<T>::setInitializer(Expression *expr, bool garbage)
+  // *** FIXME ***
+  void ArrayVariable::setInitializer(Expression *expr, bool garbage)
   {
-    // is check really needed?
-    assertTrue_2(!m_initializer,
-                 "setInitializer() called on an array variable that already has an initializer");
     checkPlanError(expr->valueType() == this->valueType()
                    || expr->valueType() == UNKNOWN_TYPE,
                    "Type of array variable " << this->getName()
                    << ", " << valueTypeName(this->valueType())
                    << ", differs from initializer's type, "
                    << valueTypeName(expr->valueType()));
-    int32_t size;
-    ArrayImpl<T> const *temp;
+    Integer size;
+    Array const *temp;
     if (m_size && m_size->getValue(size) && expr->getValuePointer(temp))
       checkPlanError(temp->size() <= (size_t) size,
                      "Array variable " << this->getName()
@@ -340,23 +249,594 @@ namespace PLEXIL
     m_initializerIsGarbage = garbage;
   }
 
-  template <typename T>
-  void ArrayVariable<T>::reserve()
+  void ArrayVariable::reserve()
   {
     if (m_size && m_maxSize) {
-      m_value.resize(m_maxSize);
+      if (m_value)
+        m_value->resize(m_maxSize);
+      else
+        m_value.reset(this->makeArray(m_maxSize)); // delegate to derived class
       m_known = true; // array is known, not its contents
     }
   }
-  
+
+  bool ArrayVariable::elementIsKnown(size_t idx) const
+  {
+    if (!this->isActive() || !m_known)
+      return false;
+    return m_value->elementKnown(idx);
+  }
+
+#define DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(_TYPE_) \
+  bool ArrayVariable::getElement(size_t /* idx */, _TYPE_ & /* result */) const \
+  { \
+    checkPlanError(ALWAYS_FAIL, \
+                   "Can't get element of type " << PlexilValueType<_TYPE_>::typeName \
+                   << " from a " << valueTypeName(arrayElementType(valueType())) << " array"); \
+    return false; \
+  }
+
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(Boolean)
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(Integer)
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(Real)
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(String)
+
+#undef DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD
+
+  bool ArrayVariable::getElementPointer(size_t /* idx */, String const *& /* ptr */) const
+  {
+    checkPlanError(ALWAYS_FAIL,
+                   "Can't get String element from a "
+                   << valueTypeName(arrayElementType(valueType())) << " array");
+    return false;
+  }
+
+  Value ArrayVariable::getElementValue(size_t idx) const
+  {
+    if (!this->isActive() || !m_known)
+      return Value();
+    return m_value->getElementValue(idx);
+  }
+
+  void ArrayVariable::setElementUnknown(size_t idx)
+  {
+    if (m_known)
+      m_value->setElementUnknown(idx);
+    // else fail silently
+  }
+
+  bool ArrayVariable::getValuePointer(Array const *&ptr) const
+  {
+    if (!this->isActive())
+      return false;
+    if (!m_known)
+      return false;
+    ptr = m_value.get();
+    return true;
+  }
+
   //
-  // Explicit instantiations
+  // Implementation classes
   //
 
-  template class ArrayVariable<bool>;
-  template class ArrayVariable<int32_t>;
-  template class ArrayVariable<double>;
-  template class ArrayVariable<std::string>;
+
+  template <typename T>
+  ArrayVariableImpl<T>::ArrayVariableImpl()
+    : GetValueImpl<ArrayImpl<T> >(),
+    ArrayVariable()
+  {
+  }
+
+  ArrayVariableImpl<Integer>::ArrayVariableImpl()
+    : GetValueImpl<ArrayImpl<Integer> >(),
+    ArrayVariable()
+  {
+  }
+
+  ArrayVariableImpl<String>::ArrayVariableImpl()
+    : GetValueImpl<ArrayImpl<String> >(),
+    ArrayVariable()
+  {
+  }
+
+  template <typename T>
+  ArrayVariableImpl<T>::ArrayVariableImpl(NodeConnector *node,
+                                          char const *name,
+                                          Expression *size,
+                                          bool sizeIsGarbage)
+    : GetValueImpl<ArrayImpl<T> >(),
+    ArrayVariable(node, name, size, sizeIsGarbage)
+  {
+  }
+
+  ArrayVariableImpl<Integer>::ArrayVariableImpl(NodeConnector *node,
+                                                char const *name,
+                                                Expression *size,
+                                                bool sizeIsGarbage)
+    : GetValueImpl<ArrayImpl<Integer> >(),
+    ArrayVariable(node, name, size, sizeIsGarbage)
+  {
+  }
+
+  ArrayVariableImpl<String>::ArrayVariableImpl(NodeConnector *node,
+                                                char const *name,
+                                                Expression *size,
+                                                bool sizeIsGarbage)
+    : GetValueImpl<ArrayImpl<String> >(),
+    ArrayVariable(node, name, size, sizeIsGarbage)
+  {
+  }
+
+  template <typename T>
+  ValueType ArrayVariableImpl<T>::valueType() const
+  {
+    return PlexilValueType<T>::arrayValue;
+  }
+
+  ValueType ArrayVariableImpl<Integer>::valueType() const
+  {
+    return PlexilValueType<Integer>::arrayValue;
+  }
+
+  ValueType ArrayVariableImpl<String>::valueType() const
+  {
+    return PlexilValueType<String>::arrayValue;
+  }
+
+  template <typename T>
+  ArrayImpl<T> const *ArrayVariableImpl<T>::typedArrayPointer() const
+  {
+    if (!m_value)
+      return nullptr;
+
+    ArrayImpl<T> const *typed_value =
+      dynamic_cast<ArrayImpl<T> const *>(m_value.get()); // static_cast?
+    assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
+
+    return typed_value;
+  }
+
+  ArrayImpl<Integer> const *ArrayVariableImpl<Integer>::typedArrayPointer() const
+  {
+    if (!m_value)
+      return nullptr;
+
+    ArrayImpl<Integer> const *typed_value =
+      dynamic_cast<ArrayImpl<Integer> const *>(m_value.get()); // static_cast?
+    assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
+
+    return typed_value;
+  }
+
+  ArrayImpl<String> const *ArrayVariableImpl<String>::typedArrayPointer() const
+  {
+    if (!m_value)
+      return nullptr;
+
+    ArrayImpl<String> const *typed_value =
+      dynamic_cast<ArrayImpl<String> const *>(m_value.get()); // static_cast?
+    assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
+
+    return typed_value;
+  }
+
+  // Non-const versions
+  template <typename T>
+  ArrayImpl<T> *ArrayVariableImpl<T>::typedArrayPointer()
+  {
+    if (!m_value)
+      return nullptr;
+
+    ArrayImpl<T> *typed_value =
+      dynamic_cast<ArrayImpl<T> *>(m_value.get()); // static_cast?
+    assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
+
+    return typed_value;
+  }
+
+  ArrayImpl<Integer> *ArrayVariableImpl<Integer>::typedArrayPointer()
+  {
+    if (!m_value)
+      return nullptr;
+
+    ArrayImpl<Integer> *typed_value =
+      dynamic_cast<ArrayImpl<Integer> *>(m_value.get()); // static_cast?
+    assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
+
+    return typed_value;
+  }
+
+  ArrayImpl<String> *ArrayVariableImpl<String>::typedArrayPointer()
+  {
+    if (!m_value)
+      return nullptr;
+
+    ArrayImpl<String> *typed_value =
+      dynamic_cast<ArrayImpl<String> *>(m_value.get()); // static_cast?
+    assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
+
+    return typed_value;
+  }
+
+  template <typename T>
+  bool ArrayVariableImpl<T>::equals(Array const *ary) const
+  {
+    // Trivial cases first
+    if (!m_known)
+      return !ary;
+    else if (!ary)
+      return false;
+
+    ArrayImpl<T> const *typed_value = typedArrayPointer();
+    ArrayImpl<T> const *typed_ary =
+      dynamic_cast<ArrayImpl<T> const *>(ary);
+    if (!typed_ary)
+      return false; // different type
+    if (m_value->getKnownVector() != ary->getKnownVector())
+      return false; // different elements known
+    std::vector<T> const *my_contents, *ary_contents;
+    typed_value->getContentsVector(my_contents);
+    typed_ary->getContentsVector(ary_contents);
+    return *my_contents == *ary_contents;
+  }
+
+  bool ArrayVariableImpl<Integer>::equals(Array const *ary) const
+  {
+    // Trivial cases first
+    if (!m_known)
+      return !ary;
+    else if (!ary)
+      return false;
+
+    ArrayImpl<Integer> const *typed_value = typedArrayPointer();
+    ArrayImpl<Integer> const *typed_ary =
+      dynamic_cast<ArrayImpl<Integer> const *>(ary);
+    if (!typed_ary)
+      return false; // different type
+    if (m_value->getKnownVector() != ary->getKnownVector())
+      return false; // different elements known
+    std::vector<Integer> const *my_contents, *ary_contents;
+    typed_value->getContentsVector(my_contents);
+    typed_ary->getContentsVector(ary_contents);
+    return *my_contents == *ary_contents;
+  }
+
+  bool ArrayVariableImpl<String>::equals(Array const *ary) const
+  {
+    // Trivial cases first
+    if (!m_known)
+      return !ary;
+    else if (!ary)
+      return false;
+
+    ArrayImpl<String> const *typed_value = typedArrayPointer();
+    ArrayImpl<String> const *typed_ary =
+      dynamic_cast<ArrayImpl<String> const *>(ary);
+    if (!typed_ary)
+      return false; // different type
+    if (m_value->getKnownVector() != ary->getKnownVector())
+      return false; // different elements known
+    std::vector<String> const *my_contents, *ary_contents;
+    typed_value->getContentsVector(my_contents);
+    typed_ary->getContentsVector(ary_contents);
+    return *my_contents == *ary_contents;
+  }
+
+  template <typename T>
+  Array *ArrayVariableImpl<T>::makeArray(size_t n) const
+  {
+    return new ArrayImpl<T>(n);
+  }
+
+  Array *ArrayVariableImpl<Integer>::makeArray(size_t n) const
+  {
+    return new ArrayImpl<Integer>(n);
+  }
+
+  Array *ArrayVariableImpl<String>::makeArray(size_t n) const
+  {
+    return new ArrayImpl<String>(n);
+  }
+
+  template <typename T>
+  bool ArrayVariableImpl<T>::getValuePointer(ArrayImpl<T> const *&ptr) const
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = dynamic_cast<ArrayImpl<T> const *>(m_value.get()); // static_cast?
+    return m_known;
+  }
+
+  bool ArrayVariableImpl<Integer>::getValuePointer(ArrayImpl<Integer> const *&ptr) const
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = dynamic_cast<ArrayImpl<Integer> const *>(m_value.get()); // static_cast?
+    return m_known;
+  }
+
+  bool ArrayVariableImpl<String>::getValuePointer(ArrayImpl<String> const *&ptr) const
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = dynamic_cast<ArrayImpl<String> const *>(m_value.get()); // static_cast?
+    return m_known;
+  }
+
+  template <typename T>
+  bool ArrayVariableImpl<T>::getElement(size_t idx, T &result) const
+  {
+    if (!this->isActive() || !m_known)
+      return false;
+    return m_value->getElement(idx, result);
+  }
+
+  bool ArrayVariableImpl<Integer>::getElement(size_t idx, Integer &result) const
+  {
+    if (!this->isActive() || !m_known)
+      return false;
+    return m_value->getElement(idx, result);
+  }
+
+  // Conversion method
+  bool ArrayVariableImpl<Integer>::getElement(size_t idx, Real &result) const
+  {
+    if (!this->isActive() || !m_known)
+      return false;
+    Integer temp;
+    if (m_value->getElement(idx, temp)) {
+      result = (Real) temp;
+      return true;
+    }
+    else
+      return false;
+  }
+
+  bool ArrayVariableImpl<String>::getElement(size_t idx, String &result) const
+  {
+    if (!this->isActive() || !m_known)
+      return false;
+    return m_value->getElement(idx, result);
+  }
+
+  bool ArrayVariableImpl<String>::getElementPointer(size_t idx, String const *&result) const
+  {
+    if (!this->isActive() || !m_known)
+      return false;
+    return m_value->getElementPointer(idx, result);
+  }
+
+  template <typename T>
+  void ArrayVariableImpl<T>::setValue(Value const &val)
+  {
+    ArrayImpl<T> const *ary;
+    if (val.getValuePointer(ary)) {
+      bool changed = false;
+      size_t newSize = ary->size();
+      checkPlanError(!m_size || newSize <= m_maxSize,
+                     "New value of array variable " << this->getName()
+                     << " is bigger than max size " << m_maxSize);
+
+      if (m_value) {
+        ArrayImpl<T> *typed_value = typedArrayPointer();
+        if (*ary != *typed_value) {
+          *typed_value = *ary;
+          changed = true;
+        }
+      }
+      else {
+        m_value.reset(ary->clone());
+        changed = true;
+      }
+      m_known = true;
+      // TODO: find more efficient way to handle arrays smaller than max
+      if (newSize < m_maxSize) {
+        m_value->resize(m_maxSize);
+      }
+      if (changed)
+        publishChange();
+    }
+    else if (m_known) {
+      this->setUnknown();
+      publishChange();
+    }
+    // else was and is unknown
+  }
+
+  void ArrayVariableImpl<Integer>::setValue(Value const &val)
+  {
+    ArrayImpl<Integer> const *ary;
+    if (val.getValuePointer(ary)) {
+      bool changed = false;
+      size_t newSize = ary->size();
+      checkPlanError(!m_size || newSize <= m_maxSize,
+                     "New value of array variable " << this->getName()
+                     << " is bigger than max size " << m_maxSize);
+
+      if (m_value) {
+        ArrayImpl<Integer> *typed_value = typedArrayPointer();
+        if (*ary != *typed_value) {
+          *typed_value = *ary;
+          changed = true;
+        }
+      }
+      else {
+        m_value.reset(ary->clone());
+        changed = true;
+      }
+      m_known = true;
+      // TODO: find more efficient way to handle arrays smaller than max
+      if (newSize < m_maxSize) {
+        m_value->resize(m_maxSize);
+      }
+      if (changed)
+        publishChange();
+    }
+    else if (m_known) {
+      this->setUnknown();
+      publishChange();
+    }
+    // else was and is unknown
+  }
+
+  void ArrayVariableImpl<String>::setValue(Value const &val)
+  {
+    ArrayImpl<String> const *ary;
+    if (val.getValuePointer(ary)) {
+      bool changed = false;
+      size_t newSize = ary->size();
+      checkPlanError(!m_size || newSize <= m_maxSize,
+                     "New value of array variable " << this->getName()
+                     << " is bigger than max size " << m_maxSize);
+
+      if (m_value) {
+        ArrayImpl<String> *typed_value = typedArrayPointer();
+        if (*ary != *typed_value) {
+          *typed_value = *ary;
+          changed = true;
+        }
+      }
+      else {
+        m_value.reset(ary->clone());
+        changed = true;
+      }
+      m_known = true;
+      // TODO: find more efficient way to handle arrays smaller than max
+      if (newSize < m_maxSize) {
+        m_value->resize(m_maxSize);
+      }
+      if (changed)
+        publishChange();
+    }
+    else if (m_known) {
+      this->setUnknown();
+      publishChange();
+    }
+    // else was and is unknown
+  }
+
+  // Should only be called when active.
+  template <typename T>
+  void ArrayVariableImpl<T>::restoreSavedValue()
+  {
+    bool changed = (m_known != m_savedKnown);
+    if (m_known && m_savedKnown
+        && !equals(m_savedValue.get())) {
+      changed = true;
+      ArrayImpl<T> const *saved =
+        dynamic_cast<ArrayImpl<T> const *>(m_savedValue.get());
+      assertTrue_2(saved, "ArrayVariable: saved value is null or wrong type!");
+      *typedArrayPointer() = *saved;
+    }
+    m_known = m_savedKnown;
+    if (changed)
+      publishChange();
+  }
+
+  void ArrayVariableImpl<Integer>::restoreSavedValue()
+  {
+    bool changed = (m_known != m_savedKnown);
+    if (m_known && m_savedKnown
+        && !equals(m_savedValue.get())) {
+      changed = true;
+      ArrayImpl<Integer> const *saved =
+        dynamic_cast<ArrayImpl<Integer> const *>(m_savedValue.get());
+      assertTrue_2(saved, "ArrayVariable: saved value is null or wrong type!");
+      *typedArrayPointer() = *saved;
+    }
+    m_known = m_savedKnown;
+    if (changed)
+      publishChange();
+  }
+
+  void ArrayVariableImpl<String>::restoreSavedValue()
+  {
+    bool changed = (m_known != m_savedKnown);
+    if (m_known && m_savedKnown
+        && !equals(m_savedValue.get())) {
+      changed = true;
+      ArrayImpl<String> const *saved =
+        dynamic_cast<ArrayImpl<String> const *>(m_savedValue.get());
+      assertTrue_2(saved, "ArrayVariable: saved value is null or wrong type!");
+      *typedArrayPointer() = *saved;
+    }
+    m_known = m_savedKnown;
+    if (changed)
+      publishChange();
+  }
+
+  template <typename T>
+  void ArrayVariableImpl<T>::setElement(size_t idx, Value const &value)
+  {
+    ArrayImpl<T> *ary = typedArrayPointer();
+    T vtemp, atemp;
+    bool vknown, aknown;
+    vknown = value.getValue(vtemp);
+    aknown = ary->getElement(idx, atemp);
+    if (vknown) {
+      if (!aknown || vtemp != atemp) {
+        ary->setElement(idx, vtemp);
+        publishChange();
+      }
+      // else unchanged
+    }
+    else if (aknown) {
+      m_value->setElementUnknown(idx);
+      publishChange();
+    }
+    // else unchanged
+  }
+
+  void ArrayVariableImpl<Integer>::setElement(size_t idx, Value const &value)
+  {
+    ArrayImpl<Integer> *ary = typedArrayPointer();
+    Integer vtemp, atemp;
+    bool vknown, aknown;
+    vknown = value.getValue(vtemp);
+    aknown = ary->getElement(idx, atemp);
+    if (vknown) {
+      if (!aknown || vtemp != atemp) {
+        ary->setElement(idx, vtemp);
+        publishChange();
+      }
+      // else unchanged
+    }
+    else if (aknown) {
+      m_value->setElementUnknown(idx);
+      publishChange();
+    }
+    // else unchanged
+  }
+
+  void ArrayVariableImpl<String>::setElement(size_t idx, Value const &value)
+  {
+    ArrayImpl<String> *ary = typedArrayPointer();
+    String const *vtemp;
+    String const *atemp;
+    bool vknown, aknown;
+    vknown = value.getValuePointer(vtemp);
+    aknown = ary->getElementPointer(idx, atemp);
+    if (vknown) {
+      if (!aknown || (*vtemp) != (*atemp)) {
+        ary->setElement(idx, *vtemp);
+        publishChange();
+      }
+      // else unchanged
+    }
+    else if (aknown) {
+      m_value->setElementUnknown(idx);
+      publishChange();
+    }
+    // else unchanged
+  }
+
+  template class ArrayVariableImpl<Boolean>;
+  // template class ArrayVariableImpl<Integer>;
+  template class ArrayVariableImpl<Real>;
+  // template class ArrayVariableImpl<String>;
 
 } // namespace PLEXIL
 

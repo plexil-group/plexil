@@ -46,10 +46,8 @@ namespace PLEXIL
     
     /**
      * @brief Virtual function for notification that an expression's value has changed.
-     * @param src The source of the notification, so that recipients can check for circularity.
-     *            (e.g. an array reference modifying its array)
      */
-    virtual void notifyChanged(Expression const *src) = 0;
+    virtual void notifyChanged() = 0;
 
   private:
     // Not implemented

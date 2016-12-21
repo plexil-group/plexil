@@ -38,33 +38,32 @@ using namespace PLEXIL;
 static bool testArrayConstantReference()
 {
   // Set up test data
-  std::vector<Boolean>        vb(2);
-  std::vector<Integer>     vi(4);
-  std::vector<Real>      vd(4);
-  std::vector<String> vs(4);
 
+  std::vector<Boolean>        vb(2);
   vb[0] = false;
   vb[1] = true;
+  BooleanArrayConstant bc = BooleanArray(vb);
 
+  std::vector<Integer>     vi(4);
   vi[0] = 0;
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
+  IntegerArrayConstant ic = IntegerArray(vi);
 
+  std::vector<Real>      vd(4);
   vd[0] = 0;
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
+  RealArrayConstant    dc = RealArray(vd);
 
+  std::vector<String> vs(4);
   vs[0] = std::string("zero");
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-
-  BooleanArrayConstant bc(vb);
-  IntegerArrayConstant ic(vi);
-  RealArrayConstant    dc(vd);
-  StringArrayConstant  sc(vs);
+  StringArrayConstant  sc = StringArray(vs);
 
   bool        pb;
   int32_t     pi;
@@ -135,33 +134,35 @@ static bool testArrayConstantReference()
 static bool testArrayVariableReference()
 {
   // Set up test data
+  BooleanArrayVariable bv;
   std::vector<Boolean>        vb(2);
-  std::vector<Integer>     vi(4);
-  std::vector<Real>      vd(4);
-  std::vector<String> vs(4);
-
   vb[0] = false;
   vb[1] = true;
+  bv.setValue(BooleanArray(vb));
 
+  IntegerArrayVariable iv;
+  std::vector<Integer>     vi(4);
   vi[0] = 0;
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
+  iv.setValue(IntegerArray(vi));
 
+  RealArrayVariable    dv;
+  std::vector<Real>      vd(4);
   vd[0] = 0;
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
+  dv.setValue(RealArray(vd));
 
+  StringArrayVariable  sv;
+  std::vector<String> vs(4);
   vs[0] = std::string("zero");
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-
-  BooleanArrayVariable bv(vb);
-  IntegerArrayVariable iv(vi);
-  RealArrayVariable    dv(vd);
-  StringArrayVariable  sv(vs);
+  sv.setValue(StringArray(vs));
 
   bool        pb;
   int32_t     pi;
@@ -247,33 +248,35 @@ static bool testArrayVariableReference()
 bool testMutableArrayReference()
 {
   // Set up test data
+  BooleanArrayVariable bv;
   std::vector<Boolean>        vb(2);
-  std::vector<Integer>     vi(4);
-  std::vector<Real>      vd(4);
-  std::vector<String> vs(4);
-
   vb[0] = false;
   vb[1] = true;
+  bv.setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
 
+  IntegerArrayVariable iv;
+  std::vector<Integer>     vi(4);
   vi[0] = 0;
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
+  iv.setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
 
+  RealArrayVariable    dv;
+  std::vector<Real>      vd(4);
   vd[0] = 0;
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
+  dv.setInitializer(new RealArrayConstant(RealArray(vd)), true);
 
+  StringArrayVariable  sv;
+  std::vector<String> vs(4);
   vs[0] = std::string("zero");
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-
-  BooleanArrayVariable bv(vb);
-  IntegerArrayVariable iv(vi);
-  RealArrayVariable    dv(vd);
-  StringArrayVariable  sv(vs);
+  sv.setInitializer(new StringArrayConstant(StringArray(vs)), true);
 
   bool        pb;
   int32_t     pi;
@@ -481,33 +484,35 @@ bool testMutableArrayReference()
 bool testAssignablePointer()
 {
   // Set up test data
+  BooleanArrayVariable bv;
   std::vector<Boolean>        vb(2);
-  std::vector<Integer>     vi(4);
-  std::vector<Real>      vd(4);
-  std::vector<String> vs(4);
-
   vb[0] = false;
   vb[1] = true;
+  bv.setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
 
+  IntegerArrayVariable iv;
+  std::vector<Integer>     vi(4);
   vi[0] = 0;
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
+  iv.setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
 
+  RealArrayVariable    dv;
+  std::vector<Real>      vd(4);
   vd[0] = 0;
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
+  dv.setInitializer(new RealArrayConstant(RealArray(vd)), true);
 
+  StringArrayVariable  sv;
+  std::vector<String> vs(4);
   vs[0] = std::string("zero");
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-
-  BooleanArrayVariable bv(vb);
-  IntegerArrayVariable iv(vi);
-  RealArrayVariable    dv(vd);
-  StringArrayVariable  sv(vs);
+  sv.setInitializer(new StringArrayConstant(StringArray(vs)), true);
 
   Boolean  pb;
   Integer  pi;
@@ -720,50 +725,53 @@ bool testAssignablePointer()
 bool testArrayRefNotification()
 {
   // Set up test data
+  BooleanArrayVariable bv;
   std::vector<Boolean>        vb(2);
-  std::vector<Integer>     vi(4);
-  std::vector<Real>      vd(4);
-  std::vector<String> vs(4);
-
   vb[0] = false;
   vb[1] = true;
+  bv.setValue(BooleanArray(vb));
 
+  IntegerArrayVariable iv;
+  std::vector<Integer>     vi(4);
   vi[0] = 0;
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
+  iv.setValue(IntegerArray(vi));
 
+  RealArrayVariable    dv;
+  std::vector<Real>      vd(4);
   vd[0] = 0;
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
+  dv.setValue(RealArray(vd));
 
+  StringArrayVariable  sv;
+  std::vector<String> vs(4);
   vs[0] = std::string("zero");
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
+  sv.setValue(StringArray(vs));
 
   IntegerVariable ivar;
   bool ivarChanged = false;
   TrivialListener ivarl(ivarChanged);
   ivar.addListener(&ivarl);
 
-  BooleanArrayVariable bv(vb);
   bool bvChanged = false;
   TrivialListener bvl(bvChanged);
   bv.addListener(&bvl);
 
-  IntegerArrayVariable iv(vi);
   bool ivChanged = false;
   TrivialListener ivl(ivChanged);
   iv.addListener(&ivl);
 
-  RealArrayVariable    dv(vd);
   bool dvChanged = false;
   TrivialListener dvl(dvChanged);
   dv.addListener(&dvl);
 
-  StringArrayVariable  sv(vs);
   bool svChanged = false;
   TrivialListener svl(svChanged);
   sv.addListener(&svl);
@@ -788,10 +796,8 @@ bool testArrayRefNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
 
-  Constant<Boolean> dummy;
-
   // Check that nothing propagates while inactive
-  ivar.notifyChanged(&dummy);
+  ivar.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -842,7 +848,7 @@ bool testArrayRefNotification()
 
   // Changing array should propagate to refs but not ivar
   ivarChanged = barChanged = iarChanged = darChanged = sarChanged = false;
-  bv.notifyChanged(&dummy);
+  bv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(bvChanged);
   assertTrue_1(!ivChanged);
@@ -854,7 +860,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   bvChanged = barChanged = false;
-  iv.notifyChanged(&dummy);
+  iv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -866,7 +872,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   ivChanged = iarChanged = false;
-  dv.notifyChanged(&dummy);
+  dv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -878,7 +884,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   dvChanged = darChanged = false;
-  sv.notifyChanged(&dummy);
+  sv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -926,50 +932,53 @@ bool testArrayRefNotification()
 bool testMutableNotification()
 {
   // Set up test data
+  BooleanArrayVariable bv;
   std::vector<Boolean>        vb(2);
-  std::vector<Integer>     vi(4);
-  std::vector<Real>      vd(4);
-  std::vector<String> vs(4);
-
   vb[0] = false;
   vb[1] = true;
+  bv.setValue(BooleanArray(vb));
 
+  IntegerArrayVariable iv;
+  std::vector<Integer>     vi(4);
   vi[0] = 0;
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
+  iv.setValue(IntegerArray(vi));
 
+  RealArrayVariable    dv;
+  std::vector<Real>      vd(4);
   vd[0] = 0;
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
+  dv.setValue(RealArray(vd));
 
+  StringArrayVariable  sv;
+  std::vector<String> vs(4);
   vs[0] = std::string("zero");
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
+  sv.setValue(StringArray(vs));
 
   IntegerVariable ivar;
   bool ivarChanged = false;
   TrivialListener ivarl(ivarChanged);
   ivar.addListener(&ivarl);
 
-  BooleanArrayVariable bv(vb);
   bool bvChanged = false;
   TrivialListener bvl(bvChanged);
   bv.addListener(&bvl);
 
-  IntegerArrayVariable iv(vi);
   bool ivChanged = false;
   TrivialListener ivl(ivChanged);
   iv.addListener(&ivl);
 
-  RealArrayVariable    dv(vd);
   bool dvChanged = false;
   TrivialListener dvl(dvChanged);
   dv.addListener(&dvl);
 
-  StringArrayVariable  sv(vs);
   bool svChanged = false;
   TrivialListener svl(svChanged);
   sv.addListener(&svl);
@@ -994,10 +1003,8 @@ bool testMutableNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
 
-  Constant<Boolean> dummy;
-
   // Check that nothing propagates while inactive
-  ivar.notifyChanged(&dummy);
+  ivar.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1048,7 +1055,7 @@ bool testMutableNotification()
 
   // Changing array should propagate to refs but not ivar
   ivarChanged = barChanged = iarChanged = darChanged = sarChanged = false;
-  bv.notifyChanged(&dummy);
+  bv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(bvChanged);
   assertTrue_1(!ivChanged);
@@ -1060,7 +1067,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   bvChanged = barChanged = false;
-  iv.notifyChanged(&dummy);
+  iv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -1072,7 +1079,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   ivChanged = iarChanged = false;
-  dv.notifyChanged(&dummy);
+  dv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1084,7 +1091,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   dvChanged = darChanged = false;
-  sv.notifyChanged(&dummy);
+  sv.notifyChanged();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);

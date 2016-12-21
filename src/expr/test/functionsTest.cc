@@ -26,6 +26,7 @@
 
 #include "ArithmeticOperators.hh"
 #include "Constant.hh"
+#include "ExpressionConstants.hh"
 #include "Function.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
@@ -140,7 +141,8 @@ static bool testUnaryBasics()
 static bool testUnaryPropagation()
 {
   {
-    BooleanVariable treu(true);
+    BooleanVariable treu;
+    treu.setValue(true);
     Function *boule = makeFunction(&ptb, 1);
     boule->setArgument(0, &treu, false);
     bool bchanged = false;
@@ -165,7 +167,8 @@ static bool testUnaryPropagation()
   }
 
   {
-    IntegerVariable fortytwo(42);
+    IntegerVariable fortytwo;
+    fortytwo.setValue((Integer) 42);
 
     {
       Function *inty = makeFunction(&pti, 1);
@@ -217,7 +220,8 @@ static bool testUnaryPropagation()
   }
 
   {
-    RealVariable pie(3.14);
+    RealVariable pie;
+    pie.setValue(3.14);
     Function *dub = makeFunction(&ptd, 1);
     dub->setArgument(0, &pie, false);
     bool rchanged = false;
@@ -242,7 +246,8 @@ static bool testUnaryPropagation()
   }
 
   {
-    StringVariable fou("Foo");
+    StringVariable fou;
+    fou.setValue("Foo");
     Function *str = makeFunction(&pts, 1);
     str->setArgument(0, &fou, false);
     bool schanged = false;
@@ -273,7 +278,8 @@ static bool testBinaryBasics()
 {
   {
     Addition<Integer> intAdd;
-    IntegerVariable won(1);
+    IntegerVariable won;
+    won.setInitializer(INT_ONE_EXP(), false);
     IntegerConstant too(2);
     Function *intFn = makeFunction(&intAdd, 2);
     intFn->setArgument(0, &won, false);
@@ -326,7 +332,8 @@ static bool testBinaryBasics()
 
   {
     Addition<Real> realAdd;
-    RealVariable tree(3);
+    RealVariable tree;
+    tree.setInitializer(new RealConstant(3), true);
     RealConstant fore(4);
     Function *realFn = makeFunction(&realAdd, 2);
     realFn->setArgument(0, &tree, false);
@@ -388,9 +395,11 @@ static bool testNaryBasics()
 
   {
     Addition<Integer> intAdd;
-    IntegerVariable won(1);
+    IntegerVariable won;
+    won.setValue((Integer) 1);
     IntegerConstant too(2);
-    IntegerVariable tree(3);
+    IntegerVariable tree;
+    tree.setInitializer(new IntegerConstant(3), true);
     Function *intFn = makeFunction(&intAdd, 3);
     intFn->setArgument(0, &won, false);
     intFn->setArgument(1, &too, false);
@@ -442,8 +451,10 @@ static bool testNaryBasics()
   {
     Addition<Real> realAdd;
     RealConstant fore(4);
-    RealVariable fivefive(5.5);
-    RealVariable sixfive(6.5);
+    RealVariable fivefive;
+    fivefive.setInitializer(new RealConstant(5.5), true);
+    RealVariable sixfive;
+    sixfive.setValue((Real) 6.5);
     Function *realFn = makeFunction(&realAdd, 3);
     realFn->setArgument(0, &fore, false);
     realFn->setArgument(1, &fivefive, false);

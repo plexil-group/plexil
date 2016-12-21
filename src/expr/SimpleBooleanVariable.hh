@@ -67,7 +67,7 @@ namespace PLEXIL {
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(Boolean &result) const;
+    bool getValue(Boolean &result) const;
 
     /**
      * @brief Set the value for this object.

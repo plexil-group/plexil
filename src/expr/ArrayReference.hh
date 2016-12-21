@@ -32,7 +32,11 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-namespace PLEXIL {
+namespace PLEXIL
+{
+
+  // Forward reference
+  class ArrayVariable;
 
   class ArrayReference : public NotifierImpl
   {
@@ -119,8 +123,7 @@ namespace PLEXIL {
     ArrayReference &operator=(const ArrayReference &);
 
     // Internal function
-    bool selfCheck(Array const *&valuePtr,
-                   size_t &idx) const;
+    bool selfCheck(Array const *&ary, size_t &idx) const;
   };
 
   /**
@@ -156,22 +159,6 @@ namespace PLEXIL {
     virtual void setUnknown() override;
 
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     */
-    virtual void setValue(Boolean const &val);
-    virtual void setValue(Integer const &);
-    virtual void setValue(Real const &val);
-    virtual void setValue(String const &val);
-
-    /**
-     * @brief Set the value for this expression from another Expression.
-     * @param valex The expression from which to obtain the new value.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Expression const &valex) override;
-
-    /**
      * @brief Set the value for this expression from a generic Value.
      * @param val The Value.
      * @note May cause change notifications to occur.
@@ -179,16 +166,6 @@ namespace PLEXIL {
     virtual void setValue(Value const &value) override;
 
     using Assignable::setValue;
-
-    /**
-     * @brief Retrieve a writable pointer to the value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     * @note Default method returns false and reports a type error.
-     */
-
-    // Throws an exception
-    virtual bool getMutableValuePointer(Array *& ptr) override;
 
     virtual void saveCurrentValue() override;
     virtual void restoreSavedValue() override;
@@ -207,11 +184,9 @@ namespace PLEXIL {
     MutableArrayReference &operator=(const MutableArrayReference &);
 
     // Internal functions
-    bool mutableSelfCheck(Array *&ary, size_t &idx);
-    void notifyValueChanged();
+    bool mutableSelfCheck(size_t &idx);
 
-    // FIXME: make this a pointer to ArrayVariable
-    Assignable *m_mutableArray;
+    ArrayVariable *m_mutableArray;
     Value m_savedValue;
     bool m_saved;
   };

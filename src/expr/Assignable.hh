@@ -27,11 +27,12 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
+#include "Expression.hh"
+
 namespace PLEXIL {
   
   // Forward declarations
   class Array;
-  class Expression;
   class NodeConnector;
   class Value;
 
@@ -41,7 +42,7 @@ namespace PLEXIL {
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    * @note This class has no state of its own.
    */
-  class Assignable
+  class Assignable : virtual public Expression
   {
   public:
     Assignable() = default;
@@ -78,9 +79,9 @@ namespace PLEXIL {
 
     /**
      * @brief Get the node that owns this expression.
-     * @return The parent node; may be NULL.
+     * @return The parent node; may be null.
      * @note Used by LuvFormat::formatAssignment().  
-     * @note Default method returns NULL.
+     * @note Default method returns nullptr.
      */
     virtual NodeConnector *getNode();
     virtual NodeConnector const *getNode() const;
@@ -115,19 +116,6 @@ namespace PLEXIL {
      * @param val The new value for this object.
      */
     virtual void setValue(Value const &val) = 0;
-
-    /**
-     * @brief Set the value for this object.
-     * @param val The new value for this object.
-     */
-    virtual void setValue(Expression const &val) = 0;
-
-    /**
-     * @brief Retrieve a pointer to the non-const value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    virtual bool getMutableValuePointer(Array *&ptr) = 0;
 
   private:
     // Not implemented
