@@ -59,6 +59,7 @@ namespace PLEXIL
     Value(String const &val);
     Value(char const *val); // for convenience
     // TODO: templatize?
+    Value(Array const &val);
     Value(BooleanArray const &val);
     Value(IntegerArray const &val);
     Value(RealArray const &val);

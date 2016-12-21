@@ -268,12 +268,18 @@ namespace PLEXIL
   {
   }
 
+  Value::Value(Array const &val)
+    : arrayValue(val.clone()),
+      m_type(arrayType(val.getElementType())),
+      m_known(true)
+  {
+  }
+
   Value::Value(BooleanArray const &val)
     : arrayValue(val.clone()),
       m_type(BOOLEAN_ARRAY_TYPE),
       m_known(true)
   {
-    
   }
 
   Value::Value(IntegerArray const &val)
@@ -288,7 +294,6 @@ namespace PLEXIL
       m_type(REAL_ARRAY_TYPE),
       m_known(true)
   {
-    
   }
 
   Value::Value(StringArray const &val)
