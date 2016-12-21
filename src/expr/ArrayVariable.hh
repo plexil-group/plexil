@@ -79,7 +79,7 @@ namespace PLEXIL
      */
     virtual void reset() override;
 
-    virtual void saveCurrentValue();
+    virtual void saveCurrentValue() override;
 
     // Provided by derived class
     // virtual void restoreSavedValue() = 0;
@@ -89,8 +89,8 @@ namespace PLEXIL
     virtual NodeConnector const *getNode() const override;
     virtual NodeConnector *getNode() override;
 
-    Expression *getBaseVariable() override;
-    Expression const *getBaseVariable() const override;
+    virtual Expression *getBaseVariable() override;
+    virtual Expression const *getBaseVariable() const override;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -103,12 +103,12 @@ namespace PLEXIL
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(Value const &val) = 0;
+    virtual void setValue(Value const &val) override = 0;
 
     /**
      * @brief Set the current value unknown.
      */
-    void setUnknown() override;
+    virtual void setUnknown() override;
 
     virtual void handleActivate() override;
 
@@ -277,7 +277,7 @@ namespace PLEXIL
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    void setValue(Value const &value);
+    virtual void setValue(Value const &value) override;
 
     virtual void restoreSavedValue() override;
 
@@ -297,7 +297,7 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(ArrayImpl<T> const *&ptr) const override;
+    virtual bool getValuePointer(ArrayImpl<T> const *&ptr) const override;
 
     /**
      * @brief Get the value of the element of the array.
@@ -305,7 +305,7 @@ namespace PLEXIL
      * @param result Reference to the result variable.
      * @return True if the value is known, false otherwise.
      */
-    virtual bool getElement(size_t idx, T &result) const; 
+    virtual bool getElement(size_t idx, T &result) const override; 
 
     virtual void setElement(size_t idx, Value const &value) override;
 
@@ -385,7 +385,7 @@ namespace PLEXIL
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    void setValue(Value const &value);
+    virtual void setValue(Value const &value) override;
 
     virtual void restoreSavedValue() override;
 
@@ -498,7 +498,7 @@ namespace PLEXIL
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    void setValue(Value const &value);
+    virtual void setValue(Value const &value) override;
 
     virtual void restoreSavedValue() override;
 
@@ -518,7 +518,7 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(ArrayImpl<String> const *&ptr) const override;
+    virtual bool getValuePointer(ArrayImpl<String> const *&ptr) const override;
 
     /**
      * @brief Get the value of the element of the array.
@@ -526,7 +526,7 @@ namespace PLEXIL
      * @param result Reference to the result variable.
      * @return True if the value is known, false otherwise.
      */
-    virtual bool getElement(size_t idx, String &result) const; 
+    virtual bool getElement(size_t idx, String &result) const override; 
 
     /**
      * @brief Get the value of the element of the array.

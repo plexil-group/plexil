@@ -73,7 +73,7 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValue(T &result) const = 0;
+    virtual bool getValue(T &result) const override = 0;
 
     virtual void printValue(std::ostream &s) const override;
 
@@ -119,7 +119,7 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValue(Integer &result) const = 0;
+    virtual bool getValue(Integer &result) const override = 0;
 
     /**
      * @brief Retrieve the value of this object as a Real.
@@ -172,14 +172,14 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValue(String &result) const = 0;
+    virtual bool getValue(String &result) const override = 0;
 
     /**
      * @brief Retrieve the value of this object as a pointer to const.
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointer(String const *&) const = 0;
+    virtual bool getValuePointer(String const *&) const override = 0;
 
     virtual void printValue(std::ostream &s) const override;
   };
@@ -224,7 +224,7 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointer(ArrayImpl<T> const *&) const = 0;
+    virtual bool getValuePointer(ArrayImpl<T> const *&) const override = 0;
     virtual bool getValuePointer(Array const *& ptr) const override;
 
     virtual void printValue(std::ostream &s) const override;

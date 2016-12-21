@@ -74,7 +74,7 @@ namespace PLEXIL {
      * @brief Return a print name for the expression type.
      * @return A constant character string.
      */
-    const char *exprName() const;
+    virtual const char *exprName() const override;
 
     /**
      * @brief Retrieve the value of this Expression in its native type.
@@ -87,45 +87,45 @@ namespace PLEXIL {
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */
-    virtual bool isKnown() const;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
      * @return True if constant, false otherwise.
      */
-    bool isConstant() const;
+    virtual bool isConstant() const override;
 
     /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    virtual bool isActive() const;
+    virtual bool isActive() const override;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    virtual void activate();
+    virtual void activate() override;
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    virtual void deactivate();
+    virtual void deactivate() override;
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note No-op for constants.
      */
-    virtual void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */) override;
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    virtual void removeListener(ExpressionListener * /* ptr */);
+    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
@@ -176,7 +176,7 @@ namespace PLEXIL {
      * @brief Return a print name for the expression type.
      * @return A constant character string.
      */
-    const char *exprName() const;
+    virtual const char *exprName() const override;
 
     /**
      * @brief Retrieve the value of this Expression in its native type.
@@ -189,45 +189,45 @@ namespace PLEXIL {
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */
-    virtual bool isKnown() const;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
      * @return True if constant, false otherwise.
      */
-    bool isConstant() const;
+    virtual bool isConstant() const override;
 
     /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    virtual bool isActive() const;
+    virtual bool isActive() const override;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    virtual void activate();
+    virtual void activate() override;
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    virtual void deactivate();
+    virtual void deactivate() override;
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note No-op for constants.
      */
-    virtual void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */) override;
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    virtual void removeListener(ExpressionListener * /* ptr */);
+    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
@@ -278,7 +278,7 @@ namespace PLEXIL {
      * @brief Return a print name for the expression type.
      * @return A constant character string.
      */
-    const char *exprName() const;
+    const char *exprName() const override;
 
     /**
      * @brief Retrieve the value of this Expression in its native type.
@@ -298,45 +298,45 @@ namespace PLEXIL {
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */
-    bool isKnown() const;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
      * @return True if constant, false otherwise.
      */
-    bool isConstant() const;
+    virtual bool isConstant() const override;
 
     /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    virtual bool isActive() const;
+    virtual bool isActive() const override;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    virtual void activate();
+    virtual void activate() override;
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    virtual void deactivate();
+    virtual void deactivate() override;
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note No-op for constants.
      */
-    virtual void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */) override;
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    virtual void removeListener(ExpressionListener * /* ptr */);
+    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
@@ -381,7 +381,7 @@ namespace PLEXIL {
      * @brief Return a print name for the expression type.
      * @return A constant character string.
      */
-    const char *exprName() const;
+    const char *exprName() const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -394,45 +394,45 @@ namespace PLEXIL {
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */
-    bool isKnown() const;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
      * @return True if constant, false otherwise.
      */
-    bool isConstant() const;
+    virtual bool isConstant() const override;
 
     /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
-    virtual bool isActive() const;
+    virtual bool isActive() const override;
 
     /**
      * @brief Make this expression active.
      * @note No-op for constants.
      */
-    virtual void activate();
+    virtual void activate() override;
 
     /**
      * @brief Make this expression inactive.
      * @note No-op for constants.
      */
-    virtual void deactivate();
+    virtual void deactivate() override;
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to notify.
      * @note No-op for constants.
      */
-    virtual void addListener(ExpressionListener * /* ptr */);
+    virtual void addListener(ExpressionListener * /* ptr */) override;
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    virtual void removeListener(ExpressionListener * /* ptr */);
+    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
