@@ -147,9 +147,6 @@ namespace PLEXIL
   extern bool areTypesCompatible(ValueType dest, ValueType src);
 
   template <typename T>
-  void printValue(ArrayImpl<T> const &val, std::ostream &s);
-
-  template <typename T>
   void printValue(T const &val, std::ostream &s);
 
   /**

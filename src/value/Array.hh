@@ -83,23 +83,20 @@ namespace PLEXIL
     virtual void reset();
 
     // Typed accessors
-    virtual bool getElement(size_t index, Boolean &result) const = 0;
-    virtual bool getElement(size_t index, Integer &result) const = 0;
-    virtual bool getElement(size_t index, Real &result) const = 0;
-    virtual bool getElement(size_t index, String &result) const = 0;
+    // Default methods throw PlanError
+    virtual bool getElement(size_t index, Boolean &result) const;
+    virtual bool getElement(size_t index, Integer &result) const;
+    virtual bool getElement(size_t index, Real &result) const;
+    virtual bool getElement(size_t index, String &result) const;
 
-    virtual bool getElementPointer(size_t index, String const *&result) const = 0;
-
-    virtual void getContentsVector(std::vector<Boolean> const *&result) const = 0;
-    virtual void getContentsVector(std::vector<Integer> const *&result) const = 0;
-    virtual void getContentsVector(std::vector<Real> const *&result) const = 0;
-    virtual void getContentsVector(std::vector<String> const *&result) const = 0;
+    virtual bool getElementPointer(size_t index, String const *&result) const;
 
     // Typed setters
-    virtual void setElement(size_t index, Boolean const &newVal) = 0;
-    virtual void setElement(size_t index, Integer const &newVal) = 0;
-    virtual void setElement(size_t index, Real const &newVal) = 0;
-    virtual void setElement(size_t index, String const &newVal) = 0;
+    // Default methods throw PlanError
+    virtual void setElement(size_t index, Boolean const &newVal);
+    virtual void setElement(size_t index, Integer const &newVal);
+    virtual void setElement(size_t index, Real const &newVal);
+    virtual void setElement(size_t index, String const &newVal);
 
     // Utility
     virtual void print(std::ostream &s) const = 0;

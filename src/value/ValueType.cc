@@ -372,11 +372,19 @@ namespace PLEXIL
       s << "<INVALID COMMAND HANDLE VALUE " << val << ">";
   }
 
-  template <typename T>
-  void printValue(ArrayImpl<T> const &val, std::ostream &s)
-  {
-    s << val;
-  }
+  // C++ sucks at partial specialization.
+
+#define DEFINE_PRINT_VALUE_ARRAY_METHOD(_ELT_TYPE_) \
+  template <> \
+  void printValue(ArrayImpl<_ELT_TYPE_> const &val, std::ostream &s) \
+  { s << val; }
+
+  DEFINE_PRINT_VALUE_ARRAY_METHOD(Boolean)
+  DEFINE_PRINT_VALUE_ARRAY_METHOD(Integer)
+  DEFINE_PRINT_VALUE_ARRAY_METHOD(Real)
+  DEFINE_PRINT_VALUE_ARRAY_METHOD(String)
+
+#undef DEFINE_PRINT_VALUE_ARRAY_METHOD
 
   /**
    * @brief Parse one value from the incoming stream.

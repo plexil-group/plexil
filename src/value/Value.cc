@@ -964,19 +964,19 @@ namespace PLEXIL
       break;
 
     case BOOLEAN_ARRAY_TYPE:
-      PLEXIL::printValue<Boolean>(*dynamic_cast<BooleanArray const *>(arrayValue.get()), s);
+      PLEXIL::printValue<BooleanArray>(*dynamic_cast<BooleanArray const *>(arrayValue.get()), s);
       break;
 
     case INTEGER_ARRAY_TYPE:
-      PLEXIL::printValue<Integer>(*dynamic_cast<IntegerArray const *>(arrayValue.get()), s);
+      PLEXIL::printValue<IntegerArray>(*dynamic_cast<IntegerArray const *>(arrayValue.get()), s);
       break;
 
     case REAL_ARRAY_TYPE:
-      PLEXIL::printValue<Real>(*dynamic_cast<RealArray const *>(arrayValue.get()), s);
+      PLEXIL::printValue<RealArray>(*dynamic_cast<RealArray const *>(arrayValue.get()), s);
       break;
 
     case STRING_ARRAY_TYPE:
-      PLEXIL::printValue<String>(*dynamic_cast<StringArray const *>(arrayValue.get()), s);
+      PLEXIL::printValue<StringArray>(*dynamic_cast<StringArray const *>(arrayValue.get()), s);
       break;
 
     case NODE_STATE_TYPE:
