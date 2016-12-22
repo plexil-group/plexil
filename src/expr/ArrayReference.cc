@@ -293,11 +293,6 @@ namespace PLEXIL
     m_mutableArray->setElementUnknown(idx);
   }
 
-  void MutableArrayReference::reset()
-  {
-    // No-op
-  }
-
   void MutableArrayReference::saveCurrentValue()
   {
     size_t idx;

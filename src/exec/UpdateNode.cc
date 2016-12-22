@@ -362,12 +362,6 @@ namespace PLEXIL
     m_update->deactivate();
   }
 
-  void UpdateNode::specializedReset()
-  {
-    assertTrue_1(m_update);
-    m_update->reset();
-  }
-
   void UpdateNode::abort()
   {
   }

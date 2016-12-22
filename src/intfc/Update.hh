@@ -61,7 +61,6 @@ namespace PLEXIL
     NodeConnector const *getSource() const {return m_source;}
     void activate();
     void deactivate();
-    void reset();
 
     void execute();
     void acknowledge(bool ack);

@@ -245,7 +245,7 @@ static bool testLookupNow()
   StringConstant low("low");
 
   StringVariable test4;
-  test4.setValue("test1");
+  test4.setInitializer(new StringConstant("test1"), true);
 
   Expression *l1 = new Lookup(&test1, false, UNKNOWN_TYPE);
 
@@ -347,15 +347,15 @@ static bool testLookupOnChange()
 {
   StringConstant changeTest("changeTest");
   StringVariable changeWithToleranceTest;
-  changeWithToleranceTest.setValue("changeWithToleranceTest");
+  changeWithToleranceTest.setInitializer(new StringConstant("changeWithToleranceTest"), true);
   RealVariable watchVar;
-  watchVar.setValue(0.0);
+  watchVar.setInitializer(new RealConstant(0.0), true);
   watchVar.activate();
   theInterface->watch("changeTest", &watchVar);
   theInterface->watch("changeWithToleranceTest", &watchVar);
 
   RealVariable tolerance;
-  tolerance.setValue(0.5);
+  tolerance.setInitializer(new RealConstant(0.5), true);
   Real temp;
 
   Lookup l1(&changeTest, false, UNKNOWN_TYPE);
@@ -379,6 +379,8 @@ static bool testLookupOnChange()
   assertTrue_1(l1.getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(changeNotified);
+
+  changeWithToleranceTest.activate();
   l2.activate();
   assertTrue_1(tolerance.isActive());
   assertTrue_1(l2.getValue(temp));

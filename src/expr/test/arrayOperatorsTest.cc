@@ -176,6 +176,11 @@ static bool testAllElementsKnown()
   assertTrue_1(!rl->getValue(temp));
   assertTrue_1(!sl->getValue(temp));
 
+  bav.activate();
+  iav.activate();
+  rav.activate();
+  sav.activate();
+
   bl->activate();
   il->activate();
   rl->activate();
@@ -230,7 +235,6 @@ static bool testAllElementsKnown()
 
   // Assign elements and try again
   IntegerVariable index;
-  index.setValue((Integer) 0);
   MutableArrayReference bref(&bav, &index);
   MutableArrayReference iref(&iav, &index);
   MutableArrayReference rref(&rav, &index);
@@ -241,6 +245,7 @@ static bool testAllElementsKnown()
   rref.activate();
   sref.activate();
 
+  index.setValue((Integer) 0);
   bref.setValue(false);
   iref.setValue((Integer) 0);
   rref.setValue(0.0);
@@ -373,7 +378,6 @@ static bool testAnyElementsKnown()
 
   // Assign elements and try again
   IntegerVariable index;
-  index.setValue((Integer) 0);
   MutableArrayReference bref(&bav, &index);
   MutableArrayReference iref(&iav, &index);
   MutableArrayReference rref(&rav, &index);
@@ -384,6 +388,7 @@ static bool testAnyElementsKnown()
   rref.activate();
   sref.activate();
 
+  index.setValue((Integer) 0);
   bref.setValue(false);
   iref.setValue((Integer) 0);
   rref.setValue(0.0);

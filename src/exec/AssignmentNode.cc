@@ -352,11 +352,6 @@ namespace PLEXIL
     g_exec->enqueueAssignmentForRetraction(m_assignment);
   }
 
-  void AssignmentNode::specializedReset()
-  {
-    m_assignment->reset();
-  }
-
   void AssignmentNode::specializedDeactivateExecutable() 
   {
     if (m_assignment)

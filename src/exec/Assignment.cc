@@ -102,15 +102,14 @@ namespace PLEXIL
   {
     assertTrue_2(m_dest && m_rhs,
                  "Attempt to activate uninitialized Assignment");
-    m_rhs->activate();
-    m_dest->activate();
+    m_rhs->activate();  // resets to false
+    m_dest->activate(); // ""     "" ""
   }
 
   void Assignment::deactivate() 
   {
     m_rhs->deactivate();
     m_dest->deactivate();
-    m_value = Value(); // make unknown
   }
 
   void Assignment::execute()
@@ -132,13 +131,6 @@ namespace PLEXIL
     ExecListenerBase *l = g_exec->getExecListener();
     if (l)
       l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->asAssignable()->getSavedValue());
-  }
-
-  void Assignment::reset()
-  {
-    m_ack.reset();
-    m_abortComplete.reset();
-    m_value = Value(); // set unknown
   }
 
 }

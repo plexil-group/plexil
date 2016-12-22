@@ -128,7 +128,6 @@ namespace PLEXIL
     // Interface to CommandNode
     void activate();
     void deactivate();
-    void reset();
 
     void execute();
     void abort();

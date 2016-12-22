@@ -138,7 +138,7 @@ static bool testArrayVariableReference()
   std::vector<Boolean>        vb(2);
   vb[0] = false;
   vb[1] = true;
-  bv.setValue(BooleanArray(vb));
+  bv.setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
 
   IntegerArrayVariable iv;
   std::vector<Integer>     vi(4);
@@ -146,7 +146,7 @@ static bool testArrayVariableReference()
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
-  iv.setValue(IntegerArray(vi));
+  iv.setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
 
   RealArrayVariable    dv;
   std::vector<Real>      vd(4);
@@ -154,7 +154,7 @@ static bool testArrayVariableReference()
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
-  dv.setValue(RealArray(vd));
+  dv.setInitializer(new RealArrayConstant(RealArray(vd)), true);
 
   StringArrayVariable  sv;
   std::vector<String> vs(4);
@@ -162,7 +162,7 @@ static bool testArrayVariableReference()
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-  sv.setValue(StringArray(vs));
+  sv.setInitializer(new StringArrayConstant(StringArray(vs)), true);
 
   bool        pb;
   int32_t     pi;
@@ -195,6 +195,7 @@ static bool testArrayVariableReference()
   // Read tests
 
   // Check boolean
+
   bar.activate();
   assertTrue_1(bv.isActive());
   assertTrue_1(ivar.isActive());
@@ -417,10 +418,6 @@ bool testMutableArrayReference()
   iv.deactivate();
   dv.deactivate();
   sv.deactivate();
-  bv.reset();
-  iv.reset();
-  dv.reset();
-  sv.reset();
   bv.activate();
   iv.activate();
   dv.activate();
@@ -658,10 +655,6 @@ bool testAssignablePointer()
   iv.deactivate();
   dv.deactivate();
   sv.deactivate();
-  bv.reset();
-  iv.reset();
-  dv.reset();
-  sv.reset();
   bv.activate();
   iv.activate();
   dv.activate();
@@ -729,7 +722,7 @@ bool testArrayRefNotification()
   std::vector<Boolean>        vb(2);
   vb[0] = false;
   vb[1] = true;
-  bv.setValue(BooleanArray(vb));
+  bv.setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
 
   IntegerArrayVariable iv;
   std::vector<Integer>     vi(4);
@@ -737,7 +730,7 @@ bool testArrayRefNotification()
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
-  iv.setValue(IntegerArray(vi));
+  iv.setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
 
   RealArrayVariable    dv;
   std::vector<Real>      vd(4);
@@ -745,7 +738,7 @@ bool testArrayRefNotification()
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
-  dv.setValue(RealArray(vd));
+  dv.setInitializer(new RealArrayConstant(RealArray(vd)), true);
 
   StringArrayVariable  sv;
   std::vector<String> vs(4);
@@ -753,7 +746,7 @@ bool testArrayRefNotification()
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-  sv.setValue(StringArray(vs));
+  sv.setInitializer(new StringArrayConstant(StringArray(vs)), true);
 
   IntegerVariable ivar;
   bool ivarChanged = false;
@@ -936,7 +929,7 @@ bool testMutableNotification()
   std::vector<Boolean>        vb(2);
   vb[0] = false;
   vb[1] = true;
-  bv.setValue(BooleanArray(vb));
+  bv.setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
 
   IntegerArrayVariable iv;
   std::vector<Integer>     vi(4);
@@ -944,7 +937,7 @@ bool testMutableNotification()
   vi[1] = 1;
   vi[2] = 2;
   vi[3] = 3;
-  iv.setValue(IntegerArray(vi));
+  iv.setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
 
   RealArrayVariable    dv;
   std::vector<Real>      vd(4);
@@ -952,7 +945,7 @@ bool testMutableNotification()
   vd[1] = 1;
   vd[2] = 2;
   vd[3] = 3;
-  dv.setValue(RealArray(vd));
+  dv.setInitializer(new RealArrayConstant(RealArray(vd)), true);
 
   StringArrayVariable  sv;
   std::vector<String> vs(4);
@@ -960,7 +953,7 @@ bool testMutableNotification()
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-  sv.setValue(StringArray(vs));
+  sv.setInitializer(new StringArrayConstant(StringArray(vs)), true);
 
   IntegerVariable ivar;
   bool ivarChanged = false;

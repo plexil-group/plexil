@@ -603,12 +603,6 @@ namespace PLEXIL
     m_command->deactivate();
   }
 
-  void CommandNode::specializedReset()
-  {
-    assertTrue_1(m_command);
-    m_command->reset();
-  }
-
   // Unit test utility
   void CommandNode::createDummyCommand() 
   {

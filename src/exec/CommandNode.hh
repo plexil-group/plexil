@@ -90,7 +90,6 @@ namespace PLEXIL
     virtual void createConditionWrappers();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
-    virtual void specializedReset();
 
     virtual bool getDestStateFromExecuting();
     virtual bool getDestStateFromFinishing();

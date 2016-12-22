@@ -50,7 +50,9 @@ namespace PLEXIL
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
-      m_initializerIsGarbage(false)
+      m_initializerIsGarbage(false),
+      m_sizeIsConstant(false),
+      m_initializerIsConstant(false)
   {
   }
 
@@ -69,7 +71,9 @@ namespace PLEXIL
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
-      m_initializerIsGarbage(false)
+      m_initializerIsGarbage(false),
+      m_sizeIsConstant(false),
+      m_initializerIsConstant(false)
   {
   }
 
@@ -125,50 +129,63 @@ namespace PLEXIL
   {
     // Ensure maxSize spec is evaluated before initializer.
     if (m_size) {
-      int32_t specSize;
-      if (m_size->getValue(specSize)) {
-        checkPlanError(specSize >= 0,
-                       "Negative array size " << specSize << " for array " << this->getName());
-        m_maxSize = (size_t) specSize;
+      m_size->activate();
+      if (!m_sizeIsConstant) { // always false on first activation
+        Integer specSize;
+        if (m_size->getValue(specSize)) {
+          checkPlanError(specSize >= 0,
+                         "Negative array size " << specSize
+                         << " for array " << this->getName());
+          m_maxSize = (size_t) specSize;
+          if (m_size->isConstant())
+            m_sizeIsConstant = true; // won't need to recalculate
+        }
       }
     }
+
     if (m_initializer) {
+      m_initializer->activate();
       Array const *valuePtr;
       if (m_initializer->getValuePointer(valuePtr)) {
-        // If there is a max size, enforce it.
-        // Else use the length of the initializer
-        size_t size = valuePtr->size();
+        // Initial value is known. If there is a max size, enforce it.
         if (m_size) {
-          checkPlanError(size <= m_maxSize,
+          checkPlanError(valuePtr->size() <= m_maxSize,
                          "Initial value for " << this->getName()
                          << " is larger than declared max size " << m_size);
         }
-        m_value.reset(valuePtr->clone());
-        m_known = true;
-        if (m_size && size < m_maxSize)
-          m_value->resize(m_maxSize);
+        m_known = false; // to ensure change is published
+        this->setValueImpl(valuePtr); // delegate
       }
       else {
-        reserve();
+        // Initial value is unknown, no need to publish change
+        // or to muck with m_value either
+        m_known = false;
       }
     }
     else {
-      reserve();
+      // No initializer, preallocate or resize as appropriate
+      if (m_size && m_maxSize) {
+        if (m_value) {
+          m_value->reset(); // to all unknown
+          if (m_value->size() < m_maxSize)
+            m_value->resize(m_maxSize);
+        }
+        else
+          m_value.reset(this->makeArray(m_maxSize)); // delegate to derived class
+        m_known = true; // array is known, not its contents
+        this->publishChange();
+      }
+      else
+        m_known = false; // no need to publish
     }
-    if (m_known)
-      publishChange();
   }
 
   void ArrayVariable::handleDeactivate()
   {
-    // Delete arrays
-    // TODO: find less leaky way to deal with this case
-    m_value.reset();
-    m_savedValue.reset();
-    m_known = false;
-    m_savedKnown = false;
     if (m_initializer)
       m_initializer->deactivate();
+    if (m_size)
+      m_size->deactivate();
   }
 
   void ArrayVariable::printSpecialized(std::ostream &s) const
@@ -184,13 +201,6 @@ namespace PLEXIL
       return; // no change
     m_known = false;
     publishChange();
-  }
-
-  // This should only be called when inactive, therefore doesn't need to report changes.
-  void ArrayVariable::reset()
-  {
-    assertTrue_2(!this->isActive(), "ArrayVariable: reset while active");
-    // nothing to do; storage was released at deactivation
   }
 
   void ArrayVariable::saveCurrentValue()
@@ -249,15 +259,13 @@ namespace PLEXIL
     m_initializerIsGarbage = garbage;
   }
 
-  void ArrayVariable::reserve()
+  void ArrayVariable::setValue(Value const &val)
   {
-    if (m_size && m_maxSize) {
-      if (m_value)
-        m_value->resize(m_maxSize);
-      else
-        m_value.reset(this->makeArray(m_maxSize)); // delegate to derived class
-      m_known = true; // array is known, not its contents
-    }
+    Array const *aryPtr;
+    if (val.getValuePointer(aryPtr))
+      this->setValueImpl(aryPtr);
+    else
+      setUnknown();
   }
 
   bool ArrayVariable::elementIsKnown(size_t idx) const
@@ -610,112 +618,104 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayVariableImpl<T>::setValue(Value const &val)
+  void ArrayVariableImpl<T>::setValueImpl(Array const *a)
   {
-    ArrayImpl<T> const *ary;
-    if (val.getValuePointer(ary)) {
-      bool changed = false;
-      size_t newSize = ary->size();
-      checkPlanError(!m_size || newSize <= m_maxSize,
-                     "New value of array variable " << this->getName()
-                     << " is bigger than max size " << m_maxSize);
+    ArrayImpl<T> const *ary = dynamic_cast<ArrayImpl<T> const *>(a);
+    checkPlanError(ary,
+                   "Assigning wrong type array to " << this->getName());
 
-      if (m_value) {
-        ArrayImpl<T> *typed_value = typedArrayPointer();
-        if (*ary != *typed_value) {
-          *typed_value = *ary;
-          changed = true;
-        }
-      }
-      else {
-        m_value.reset(ary->clone());
+    bool changed = !m_known;
+    size_t newSize = ary->size();
+    checkPlanError(!m_size || newSize <= m_maxSize,
+                   "New value of array variable " << this->getName()
+                   << " is bigger than max size " << m_maxSize);
+
+    if (m_value) {
+      // FIXME This isn't quite optimal.
+      // If there's a max size and the new value is smaller,
+      // we wind up recopying and extending the array,
+      // even if the (known) contents are identical.
+      ArrayImpl<T> *typed_value = typedArrayPointer();
+      if (*ary != *typed_value) {
+        *typed_value = *ary;
         changed = true;
       }
-      m_known = true;
-      // TODO: find more efficient way to handle arrays smaller than max
-      if (newSize < m_maxSize) {
-        m_value->resize(m_maxSize);
-      }
-      if (changed)
-        publishChange();
     }
-    else if (m_known) {
-      this->setUnknown();
+    else {
+      m_value.reset(ary->clone());
+      changed = true;
+    }
+    m_known = true;
+    // TODO: find more efficient way to handle arrays smaller than max
+    if (newSize < m_maxSize) {
+      m_value->resize(m_maxSize);
+    }
+    if (changed)
       publishChange();
-    }
-    // else was and is unknown
   }
 
-  void ArrayVariableImpl<Integer>::setValue(Value const &val)
+  void ArrayVariableImpl<Integer>::setValueImpl(Array const *a)
   {
-    ArrayImpl<Integer> const *ary;
-    if (val.getValuePointer(ary)) {
-      bool changed = false;
-      size_t newSize = ary->size();
-      checkPlanError(!m_size || newSize <= m_maxSize,
-                     "New value of array variable " << this->getName()
-                     << " is bigger than max size " << m_maxSize);
+    ArrayImpl<Integer> const *ary = dynamic_cast<ArrayImpl<Integer> const *>(a);
+    checkPlanError(ary,
+                   "Assigning wrong type array to " << this->getName());
 
-      if (m_value) {
-        ArrayImpl<Integer> *typed_value = typedArrayPointer();
-        if (*ary != *typed_value) {
-          *typed_value = *ary;
-          changed = true;
-        }
-      }
-      else {
-        m_value.reset(ary->clone());
+    bool changed = !m_known;
+    size_t newSize = ary->size();
+    checkPlanError(!m_size || newSize <= m_maxSize,
+                   "New value of array variable " << this->getName()
+                   << " is bigger than max size " << m_maxSize);
+
+    if (m_value) {
+      ArrayImpl<Integer> *typed_value = typedArrayPointer();
+      if (*ary != *typed_value) {
+        *typed_value = *ary;
         changed = true;
       }
-      m_known = true;
-      // TODO: find more efficient way to handle arrays smaller than max
-      if (newSize < m_maxSize) {
-        m_value->resize(m_maxSize);
-      }
-      if (changed)
-        publishChange();
     }
-    else if (m_known) {
-      this->setUnknown();
+    else {
+      m_value.reset(ary->clone());
+      changed = true;
+    }
+    m_known = true;
+    // TODO: find more efficient way to handle arrays smaller than max
+    if (newSize < m_maxSize) {
+      m_value->resize(m_maxSize);
+    }
+    if (changed)
       publishChange();
-    }
-    // else was and is unknown
   }
 
-  void ArrayVariableImpl<String>::setValue(Value const &val)
+  void ArrayVariableImpl<String>::setValueImpl(Array const *a)
   {
-    ArrayImpl<String> const *ary;
-    if (val.getValuePointer(ary)) {
-      bool changed = false;
-      size_t newSize = ary->size();
-      checkPlanError(!m_size || newSize <= m_maxSize,
-                     "New value of array variable " << this->getName()
-                     << " is bigger than max size " << m_maxSize);
+    ArrayImpl<String> const *ary = dynamic_cast<ArrayImpl<String> const *>(a);
+    checkPlanError(ary,
+                   "Assigning wrong type array to " << this->getName());
 
-      if (m_value) {
-        ArrayImpl<String> *typed_value = typedArrayPointer();
-        if (*ary != *typed_value) {
-          *typed_value = *ary;
-          changed = true;
-        }
-      }
-      else {
-        m_value.reset(ary->clone());
+    bool changed = !m_known;
+    size_t newSize = ary->size();
+    checkPlanError(!m_size || newSize <= m_maxSize,
+                   "New value of array variable " << this->getName()
+                   << " is bigger than max size " << m_maxSize);
+
+    if (m_value) {
+      ArrayImpl<String> *typed_value = typedArrayPointer();
+      if (*ary != *typed_value) {
+        *typed_value = *ary;
         changed = true;
       }
-      m_known = true;
-      // TODO: find more efficient way to handle arrays smaller than max
-      if (newSize < m_maxSize) {
-        m_value->resize(m_maxSize);
-      }
-      if (changed)
-        publishChange();
     }
-    else if (m_known) {
-      this->setUnknown();
+    else {
+      m_value.reset(ary->clone());
+      changed = true;
+    }
+    m_known = true;
+    // TODO: find more efficient way to handle arrays smaller than max
+    if (newSize < m_maxSize) {
+      m_value->resize(m_maxSize);
+    }
+    if (changed)
       publishChange();
-    }
-    // else was and is unknown
   }
 
   // Should only be called when active.

@@ -149,11 +149,6 @@ namespace PLEXIL
     virtual Assignable *asAssignable() override;
 
     /**
-     * @brief Reset the expression.
-     */
-    virtual void reset() override;
-
-    /**
      * @brief Assign the current value to UNKNOWN.
      */
     virtual void setUnknown() override;

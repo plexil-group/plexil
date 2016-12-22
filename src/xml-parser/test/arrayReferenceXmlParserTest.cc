@@ -52,7 +52,7 @@ static FactoryTestNodeConnector *realNc = NULL;
 static bool testArrayConstantReferenceXmlParser()
 {
   IntegerVariable *iv = new IntegerVariable;
-  realNc->storeVariable("i", iv);
+  realNc->storeVariable("i", iv); // will be deleted by node connector
   xml_document doc;
   int32_t n;
   bool wasCreated = false;
@@ -63,7 +63,7 @@ static bool testArrayConstantReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    realNc->storeVariable("bul", bc);
+    realNc->storeVariable("bul", bc); // will be deleted by node connector
 
     bool pb;
 
@@ -181,7 +181,7 @@ static bool testArrayConstantReferenceXmlParser()
     vi[3] = 3;
 
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    realNc->storeVariable("int", ic);
+    realNc->storeVariable("int", ic); // will be deleted by node connector
 
     int32_t pi;
 
@@ -241,7 +241,7 @@ static bool testArrayConstantReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    realNc->storeVariable("dbl", dc);
+    realNc->storeVariable("dbl", dc); // will be deleted by node connector
 
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
@@ -295,7 +295,7 @@ static bool testArrayConstantReferenceXmlParser()
     vs[3] = std::string("three");
 
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    realNc->storeVariable("str", sc);
+    realNc->storeVariable("str", sc); // will be deleted by node connector
 
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
@@ -344,7 +344,7 @@ static bool testArrayConstantReferenceXmlParser()
 static bool testArrayVariableReferenceXmlParser()
 {
   IntegerVariable *iv = new IntegerVariable;
-  realNc->storeVariable("i", iv);
+  realNc->storeVariable("i", iv); // will be deleted by node connector
   xml_document doc;
   int32_t n;
   bool wasCreated = false;
@@ -356,7 +356,7 @@ static bool testArrayVariableReferenceXmlParser()
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
     BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
     bav->setInitializer(bc, true);
-    realNc->storeVariable("bul", bav);
+    realNc->storeVariable("bul", bav); // will be deleted by node connector
 
     xml_node bart0Xml = doc.append_child("ArrayElement");
     bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
@@ -823,6 +823,7 @@ static bool testMutableArrayReferenceXmlParser()
 
     bool pb;
 
+
     {
       xml_node bart0Xml = doc.append_child("ArrayElement");
       bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
@@ -834,7 +835,8 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
       assertTrue_1(!bar0->isKnown());
 
-      bar0->activate();
+      bar0->activate(); // should activate bav
+      assertTrue_1(bav->isActive());
       assertTrue_1(bar0->getValue(pb));
       assertTrue_1(!pb);
   
@@ -853,7 +855,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
       assertTrue_1(!bari->isKnown());
 
-      bari->activate();
+      bari->activate(); // should activate bav, iv
       assertTrue_1(iv->isActive());
       for (int32_t i = 0; i < vb.size(); ++i) {
         iv->setValue(i);
@@ -880,8 +882,6 @@ static bool testMutableArrayReferenceXmlParser()
       bari->deactivate();
       delete bari;
     }
-
-    bav->reset();
 
     {
       xml_node bartvXml = doc.append_child("ArrayElement");
@@ -933,7 +933,7 @@ static bool testMutableArrayReferenceXmlParser()
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
     IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
     iav->setInitializer(ic, true);
-    realNc->storeVariable("int", iav);
+    realNc->storeVariable("int", iav); // will be deleted by node connector
 
     int32_t pi;
 
@@ -991,12 +991,10 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(iari->getValue(pi));
         assertTrue_1(pi == -vi[i]);
       }
-      iari->deactivate();
 
+      iari->deactivate();
       delete iari;
     }
-
-    iav->reset();
 
     {
       xml_node iartvXml = doc.append_child("ArrayElement");
@@ -1034,9 +1032,9 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(pi == -vi[i]);
       }
       iarv->deactivate();
-
       delete iarv;
     }
+
   }
 
   // Real array
@@ -1049,7 +1047,7 @@ static bool testMutableArrayReferenceXmlParser()
     RealArrayConstant *dc = new RealArrayConstant(vd);
     RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
     dav->setInitializer(dc, true);
-    realNc->storeVariable("dbl", dav);
+    realNc->storeVariable("dbl", dav); // will be deleted by node connector
 
     double pd;
 
@@ -1107,8 +1105,8 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(dari->getValue(pd));
         assertTrue_1(pd == -vd[i]);
       }
-      dari->deactivate();
 
+      dari->deactivate();
       delete dari;
     }
 
@@ -1147,8 +1145,8 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(darv->getValue(pd));
         assertTrue_1(pd == -vd[i]);
       }
-      darv->deactivate();
 
+      darv->deactivate();
       delete darv;
     }
   }
@@ -1163,7 +1161,7 @@ static bool testMutableArrayReferenceXmlParser()
     StringArrayConstant *sc = new StringArrayConstant(vs);
     StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
     sav->setInitializer(sc, true);
-    realNc->storeVariable("str", sav);
+    realNc->storeVariable("str", sav); // will be deleted by node connector
 
     std::string ps;
 
@@ -1225,8 +1223,6 @@ static bool testMutableArrayReferenceXmlParser()
       delete sari;
     }
 
-    sav->reset();
-
     {
       xml_node sartvXml = doc.append_child("ArrayElement");
       sartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("str");
@@ -1265,6 +1261,7 @@ static bool testMutableArrayReferenceXmlParser()
       sarv->deactivate();
       delete sarv;
     }
+
   }
 
   return true;

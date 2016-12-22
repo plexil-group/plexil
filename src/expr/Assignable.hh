@@ -54,12 +54,6 @@ namespace PLEXIL {
     //
 
     /**
-     * @brief Set the value of this expression back to the initial value with which it was
-     *        created.
-     */
-    virtual void reset() = 0;
-
-    /**
      * @brief Temporarily stores the previous value of this variable.
      * @note Used to implement recovery from failed Assignment nodes.
      */

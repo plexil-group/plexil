@@ -404,7 +404,6 @@ namespace PLEXIL {
     virtual void specializedActivate();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
-    virtual void specializedReset();
 
     //
     // State transition implementation methods

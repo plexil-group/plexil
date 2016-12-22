@@ -103,7 +103,6 @@ namespace PLEXIL
     // Specific behaviors for derived classes
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
-    virtual void specializedReset();
 
     virtual bool getDestStateFromExecuting();
     virtual bool getDestStateFromFailing();

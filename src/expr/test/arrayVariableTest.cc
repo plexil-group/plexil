@@ -235,16 +235,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(vs == *pvs);
 
   // Reset and check that value is now unknown
-  // Can't reset while active
   vuba.deactivate();
   vuia.deactivate();
   vuda.deactivate();
   vusa.deactivate();
-
-  vuba.reset();
-  vuia.reset();
-  vuda.reset();
-  vusa.reset();
 
   vuba.activate();
   vuia.activate();
@@ -495,11 +489,6 @@ static bool testVariableInitialValue()
   vda.deactivate();
   vsa.deactivate();
 
-  vba.reset();
-  via.reset();
-  vda.reset();
-  vsa.reset();
-
   assertTrue_1(!vba.isKnown());
   assertTrue_1(!via.isKnown());
   assertTrue_1(!vda.isKnown());
@@ -723,11 +712,6 @@ static bool testVariableInitializers()
   via.deactivate();
   vda.deactivate();
   vsa.deactivate();
-
-  vba.reset();
-  via.reset();
-  vda.reset();
-  vsa.reset();
 
   assertTrue_1(!vba.isKnown());
   assertTrue_1(!via.isKnown());
@@ -1050,11 +1034,6 @@ static bool testVariableSavedValue()
   vuda.deactivate();
   vusa.deactivate();
 
-  vuba.reset();
-  vuia.reset();
-  vuda.reset();
-  vusa.reset();
-
   vuba.activate();
   vuia.activate();
   vuda.activate();
@@ -1317,11 +1296,6 @@ static bool testAssignablePointer()
   vda.deactivate();
   vsa.deactivate();
 
-  vba.reset();
-  via.reset();
-  vda.reset();
-  vsa.reset();
-
   vba.activate();
   via.activate();
   vda.activate();
@@ -1407,11 +1381,6 @@ static bool testVariableNotification()
   vuia.deactivate();
   vuda.deactivate();
   vusa.deactivate();
-
-  vuba.reset();
-  vuia.reset();
-  vuda.reset();
-  vusa.reset();
 
   vuba.activate();
   vuia.activate();

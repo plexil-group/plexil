@@ -74,11 +74,6 @@ namespace PLEXIL
      */
     virtual bool getValuePointer(Array const *&ptr) const override;
 
-    /**
-     * @brief Reset to initial status.
-     */
-    virtual void reset() override;
-
     virtual void saveCurrentValue() override;
 
     // Provided by derived class
@@ -103,7 +98,7 @@ namespace PLEXIL
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(Value const &val) override = 0;
+    virtual void setValue(Value const &val) override;
 
     /**
      * @brief Set the current value unknown.
@@ -183,9 +178,10 @@ namespace PLEXIL
                   bool sizeIsGarbage = false);
 
     /**
-     * @brief Pre-allocate storage based on the current value of the size expression.
+     * @brief Copy from a generic array.
+     * @param a Pointer to array whose contents are to be copied.
      */
-    void reserve();
+    virtual void setValueImpl(Array const *a) = 0;
 
     //
     // API provided by derived classes
@@ -224,6 +220,8 @@ namespace PLEXIL
     bool m_savedKnown;
     bool m_sizeIsGarbage;
     bool m_initializerIsGarbage;
+    bool m_sizeIsConstant;
+    bool m_initializerIsConstant;
   };
 
   //
@@ -277,7 +275,7 @@ namespace PLEXIL
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    virtual void setValue(Value const &value) override;
+    virtual void setValueImpl(Array const *a) override;
 
     virtual void restoreSavedValue() override;
 
@@ -385,7 +383,7 @@ namespace PLEXIL
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    virtual void setValue(Value const &value) override;
+    virtual void setValueImpl(Array const *a) override;
 
     virtual void restoreSavedValue() override;
 
@@ -498,7 +496,7 @@ namespace PLEXIL
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    virtual void setValue(Value const &value) override;
+    virtual void setValueImpl(Array const *a) override;
 
     virtual void restoreSavedValue() override;
 

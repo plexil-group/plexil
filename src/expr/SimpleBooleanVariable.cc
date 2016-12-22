@@ -51,6 +51,10 @@ namespace PLEXIL
   {
   }
 
+  //
+  // Expression API
+  //
+
   char const *SimpleBooleanVariable::exprName() const
   {
     return "InternalVariable";
@@ -67,6 +71,15 @@ namespace PLEXIL
   void SimpleBooleanVariable::printSpecialized(std::ostream &s) const
   {
     s << getName() << ' ';
+  }
+
+  //
+  // NotifierImpl API
+  //
+
+  void SimpleBooleanVariable::handleActivate()
+  {
+    m_value = false;
   }
 
   //
@@ -99,20 +112,15 @@ namespace PLEXIL
     }
   }
 
-  void SimpleBooleanVariable::setValue(Value const &val)
-  {
-    assertTrueMsg(val.valueType() == BOOLEAN_TYPE,
-                  "setValue: can't assign a " << valueTypeName(val.valueType())
-                  << " value to a SimpleBooleanVariable");
-    bool bval;
-    assertTrueMsg(val.getValue(bval),
-                  "setValue: can't assign UNKNOWN to a SimpleBooleanVariable");
-    setValue(bval);
-  }
-
-  void SimpleBooleanVariable::reset()
-  {
-    m_value = false;
-  }
+  // void SimpleBooleanVariable::setValue(Value const &val)
+  // {
+  //   assertTrueMsg(val.valueType() == BOOLEAN_TYPE,
+  //                 "setValue: can't assign a " << valueTypeName(val.valueType())
+  //                 << " value to a SimpleBooleanVariable");
+  //   bool bval;
+  //   assertTrueMsg(val.getValue(bval),
+  //                 "setValue: can't assign UNKNOWN to a SimpleBooleanVariable");
+  //   setValue(bval);
+  // }
 
 } // namespace PLEXIL

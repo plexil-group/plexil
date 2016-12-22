@@ -62,7 +62,6 @@ static bool testUninitializedSBV()
 
   // Reset and check that value is now false
   vub.deactivate();
-  vub.reset();
   vub.activate();
   assertTrue_1(vub.isKnown());
   assertTrue_1(vub.getValue(foob));
@@ -96,7 +95,6 @@ static bool testNotificationSBV()
 
   // Activate after reset should not notify
   vub.deactivate();
-  vub.reset();
   vub.activate();
   assertTrue_1(!bchanged);
 

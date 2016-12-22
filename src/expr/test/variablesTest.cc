@@ -138,11 +138,6 @@ static bool testUninitialized()
   vud.deactivate();
   vus.deactivate();
 
-  vub.reset();
-  vui.reset();
-  vud.reset();
-  vus.reset();
-
   vub.activate();
   vui.activate();
   vud.activate();
@@ -296,11 +291,6 @@ static bool testInitializers()
   vi.deactivate();
   vd.deactivate();
   vs.deactivate();
-
-  vb.reset();
-  vi.reset();
-  vd.reset();
-  vs.reset();
 
   assertTrue_1(!vb.isKnown());
   assertTrue_1(!vi.isKnown());
@@ -489,11 +479,6 @@ static bool testSavedValue()
   vud.deactivate();
   vus.deactivate();
 
-  vub.reset();
-  vui.reset();
-  vud.reset();
-  vus.reset();
-
   vub.activate();
   vui.activate();
   vud.activate();
@@ -653,11 +638,6 @@ static bool testAssignablePointer()
   vi.deactivate();
   vd.deactivate();
   vs.deactivate();
-
-  vb.reset();
-  vi.reset();
-  vd.reset();
-  vs.reset();
     
   vb.activate();
   vi.activate();
@@ -715,11 +695,6 @@ static bool testNotification()
   vui.deactivate();
   vud.deactivate();
   vus.deactivate();
-
-  vub.reset();
-  vui.reset();
-  vud.reset();
-  vus.reset();
 
   vub.activate();
   vui.activate();

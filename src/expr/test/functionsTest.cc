@@ -317,7 +317,6 @@ static bool testBinaryBasics()
 
     ichanged = false;
     won.deactivate();
-    won.reset();
     won.activate();
     assertTrue_1(won.isKnown());
     assertTrue_1(won.getValue(itemp));
@@ -372,7 +371,6 @@ static bool testBinaryBasics()
 
     rchanged = false;
     tree.deactivate();
-    tree.reset();
     tree.activate();
     assertTrue_1(tree.isKnown());
     assertTrue_1(realFn->isKnown());
@@ -396,7 +394,7 @@ static bool testNaryBasics()
   {
     Addition<Integer> intAdd;
     IntegerVariable won;
-    won.setValue((Integer) 1);
+    won.setInitializer(INT_ONE_EXP(), false);
     IntegerConstant too(2);
     IntegerVariable tree;
     tree.setInitializer(new IntegerConstant(3), true);
@@ -434,7 +432,6 @@ static bool testNaryBasics()
     ichanged = false;
 
     tree.deactivate();
-    tree.reset();
     tree.activate();
     assertTrue_1(tree.isKnown());
     assertTrue_1(intFn->isKnown());
@@ -454,7 +451,7 @@ static bool testNaryBasics()
     RealVariable fivefive;
     fivefive.setInitializer(new RealConstant(5.5), true);
     RealVariable sixfive;
-    sixfive.setValue((Real) 6.5);
+    sixfive.setInitializer(new RealConstant(6.5), true);
     Function *realFn = makeFunction(&realAdd, 3);
     realFn->setArgument(0, &fore, false);
     realFn->setArgument(1, &fivefive, false);
@@ -490,7 +487,6 @@ static bool testNaryBasics()
 
     // Reset variables, check that values are known and reasonable
     fivefive.deactivate();
-    fivefive.reset();
     fivefive.activate();
     assertTrue_1(fivefive.isKnown());
     assertTrue_1(realFn->isKnown());

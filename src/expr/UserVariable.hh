@@ -101,11 +101,6 @@ namespace PLEXIL
      */
     void setUnknown() override;
 
-    /**
-     * @brief Reset to initial status.
-     */
-    void reset() override;
-
     void saveCurrentValue() override;
 
     void restoreSavedValue() override;
@@ -225,11 +220,6 @@ namespace PLEXIL
      * @brief Set the current value unknown.
      */
     void setUnknown() override;
-
-    /**
-     * @brief Reset to initial status.
-     */
-    void reset() override;
 
     void saveCurrentValue() override;
 
@@ -358,11 +348,6 @@ namespace PLEXIL
      * @brief Set the current value unknown.
      */
     void setUnknown() override;
-
-    /**
-     * @brief Reset to initial status.
-     */
-    void reset() override;
 
     void saveCurrentValue() override;
 

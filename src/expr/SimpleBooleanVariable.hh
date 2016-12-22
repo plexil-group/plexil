@@ -52,11 +52,17 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
-    virtual char const *getName() const;
-    virtual char const *exprName() const;
-    void printSpecialized(std::ostream &s) const;
+    virtual char const *getName() const override;
+    virtual char const *exprName() const override;
+    virtual void printSpecialized(std::ostream &s) const override;
 
-    virtual bool isKnown() const;
+    virtual bool isKnown() const override;
+
+    //
+    // NotifierImpl API
+    //
+
+    virtual void handleActivate() override;
 
     //
     // Assignable and AssignableImpl API
@@ -67,7 +73,7 @@ namespace PLEXIL {
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValue(Boolean &result) const;
+    virtual bool getValue(Boolean &result) const override;
 
     /**
      * @brief Set the value for this object.
@@ -79,12 +85,7 @@ namespace PLEXIL {
      * @brief Set the value for this object.
      * @param val The new value for this object.
      */
-    virtual void setValue(Value const &val);
-
-    /**
-     * @brief Reset to initial status.
-     */
-    virtual void reset();
+    // virtual void setValue(Value const &val) override;
 
   private:
 
