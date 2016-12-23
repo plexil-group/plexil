@@ -32,7 +32,7 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
- LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh \
+ LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh NodeFactory.hh \
  NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
  NodeTimepointValue.hh NodeTransition.hh \
  NodeVariableMap.hh NodeVariables.hh \
@@ -40,9 +40,8 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
- ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
- ListNode.cc Node.cc NodeFactory.cc \
- NodeFunction.cc NodeOperatorImpl.cc \
+ ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Mutex.cc \
+ Node.cc NodeFactory.cc NodeFunction.cc NodeOperatorImpl.cc \
  NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc UpdateNode.cc VariableConflictSet.cc \
  plan-utils.cc

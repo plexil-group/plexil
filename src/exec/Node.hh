@@ -42,6 +42,7 @@
 namespace PLEXIL {
 
   // Forward references
+  class Mutex;
   class NodeTimepointValue;
   class NodeVariableMap;
 
@@ -213,7 +214,7 @@ namespace PLEXIL {
     double getCurrentStateStartTime() const;
 
     // Used by plan parser
-
+    
     // May return NULL.
     // Used by plan analyzer and plan parser module test only.
     const std::vector<Expression *> *getLocalVariables() const { return m_localVariables; }
@@ -224,6 +225,14 @@ namespace PLEXIL {
 
     // Pre-allocate local variable vector, variable map.
     void allocateVariables(size_t n);
+
+    std::vector<Mutex *> const *getMutexes() const { return m_mutexes; }
+
+    // Pre-allocate mutex vector.
+    void allocateMutexes(size_t n);
+
+    // Add a mutex.
+    void addMutex(Mutex *m);
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
@@ -400,7 +409,7 @@ namespace PLEXIL {
     void deactivateAbortCompleteCondition();
 
     // Specific behaviors for derived classes
-    virtual void createConditionWrappers();
+    virtual void specializedCreateConditionWrappers();
     virtual void specializedActivate();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
@@ -472,6 +481,7 @@ namespace PLEXIL {
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
  
     std::vector<Expression *> *m_localVariables; /*!< Variables created in this node. */
+    std::vector<Mutex *> *m_mutexes; /*!< Mutexes required by this node. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
@@ -492,11 +502,16 @@ namespace PLEXIL {
 
   private:
 
+    void createConditionWrappers();
+
     // These should only be called from transition().
     void setNodeOutcome(NodeOutcome o);
     void transitionFrom();
     void transitionTo(double tym); // FIXME
     void logTransition(double time, NodeState newState);
+
+    // Subfunction of deactivateExecutable()
+    void releaseMutexes();
 
     //
     // Internal versions

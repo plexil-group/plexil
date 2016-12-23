@@ -63,13 +63,13 @@ namespace PLEXIL
      * @brief Gets the type of this node.
      * @return The type of this node.
      */
-    virtual PlexilNodeType getType() const
+    virtual PlexilNodeType getType() const override
     {
       return NodeType_Command;
     }
 
     // Called from the transition handler
-    virtual void abort();
+    virtual void abort() override;
 
     /**
      * @brief Get the node's command.
@@ -87,28 +87,28 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void createConditionWrappers();
-    virtual void specializedHandleExecution();
-    virtual void specializedDeactivateExecutable();
+    virtual void specializedCreateConditionWrappers() override;
+    virtual void specializedHandleExecution() override;
+    virtual void specializedDeactivateExecutable() override;
 
-    virtual bool getDestStateFromExecuting();
-    virtual bool getDestStateFromFinishing();
-    virtual bool getDestStateFromFailing();
+    virtual bool getDestStateFromExecuting() override;
+    virtual bool getDestStateFromFinishing() override;
+    virtual bool getDestStateFromFailing() override;
 
-    virtual void transitionToExecuting();
-    virtual void transitionToFinishing();
-    virtual void transitionToFailing();
+    virtual void transitionToExecuting() override;
+    virtual void transitionToFinishing() override;
+    virtual void transitionToFailing() override;
+    
+    virtual void transitionFromExecuting() override;
+    virtual void transitionFromFinishing() override;
+    virtual void transitionFromFailing() override;
 
-    virtual void transitionFromExecuting();
-    virtual void transitionFromFinishing();
-    virtual void transitionFromFailing();
+    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const override;
 
-    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
-
-    virtual void cleanUpNodeBody();
+    virtual void cleanUpNodeBody() override;
 
     // Node state limit
-    virtual NodeState nodeStateMax() const { return FINISHING_STATE; }
+    virtual NodeState nodeStateMax() const override { return FINISHING_STATE; }
 
   private:
 

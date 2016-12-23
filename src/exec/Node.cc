@@ -26,15 +26,19 @@
 
 #include "Node.hh"
 
-#include "Alias.hh"
+#include "BooleanOperators.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
+#include "Function.hh"
+#include "Mutex.hh"
 #include "NodeConstants.hh"
+#include "NodeFunction.hh"
+#include "NodeOperatorImpl.hh"
 #include "NodeTimepointValue.hh"
-#include "PlexilExec.hh"
 #include "NodeVariableMap.hh"
+#include "PlexilExec.hh"
 #include "SimpleMap.hh"
 #include "UserVariable.hh"
 #include "lifecycle-utils.h"
@@ -48,6 +52,59 @@
 
 namespace PLEXIL
 {
+
+  //
+  // Node operators for conditions
+  //
+
+  class TryAcquireMutexes : public NodeOperatorImpl<Boolean>
+  {
+  public:
+    ~TryAcquireMutexes() = default;
+
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(TryAcquireMutexes, Boolean);
+
+    bool checkArgCount(size_t /* count */) const
+    {
+      return true;
+    }
+
+    bool operator()(Boolean &result, Node const *node) const
+    {
+      std::vector<Mutex *> const *mutexes = node->getMutexes();
+      assertTrueMsg(mutexes,
+                    "TryAcquireMutexes called on node " << node->getNodeId()
+                    << " which has no mutexes!");
+
+      size_t i = 0;
+      for (i = 0; i < mutexes->size(); ++i) {
+        if (!(*mutexes)[i]->tryAcquire(node)) {
+          // Release any mutexes we did acquire
+          for (size_t j = 0; j < i; ++j)
+            (*mutexes)[j]->release();
+          result = false;
+          return true; 
+        }
+      }
+      // Success
+      result = true;
+      return true; 
+    }
+
+  private:
+
+    TryAcquireMutexes()
+      : NodeOperatorImpl<Boolean>("TryAcquireMutexes")
+    {
+    }
+
+    // Disallow copy, assign
+    TryAcquireMutexes(TryAcquireMutexes const &) = delete;
+    TryAcquireMutexes(TryAcquireMutexes &&) = delete;
+    TryAcquireMutexes &operator=(TryAcquireMutexes const &) = delete;
+    TryAcquireMutexes &operator=(TryAcquireMutexes &&) = delete;
+
+  };
 
   //
   // Static members
@@ -96,14 +153,15 @@ namespace PLEXIL
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_localVariables(NULL),
+      m_localVariables(nullptr),
+      m_mutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
-      m_variablesByName(NULL),
+      m_variablesByName(nullptr),
       m_nodeId(nodeId),
       m_currentStateStartTime(0.0),
-      m_timepoints(NULL),
+      m_timepoints(nullptr),
       m_garbageConditions(),
       m_cleanedConditions(false),
       m_cleanedVars(false),
@@ -130,14 +188,15 @@ namespace PLEXIL
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_localVariables(NULL),
+      m_localVariables(nullptr),
+      m_mutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
-      m_variablesByName(NULL),
+      m_variablesByName(nullptr),
       m_nodeId(name),
       m_currentStateStartTime(0.0),
-      m_timepoints(NULL),
+      m_timepoints(nullptr),
       m_garbageConditions(),
       m_cleanedConditions(false), 
       m_cleanedVars(false),
@@ -242,6 +301,19 @@ namespace PLEXIL
     return true;
   }
 
+  void Node::allocateMutexes(size_t n)
+  {
+    assertTrue_1(!m_mutexes); // illegal to call this twice
+    m_mutexes = new std::vector<Mutex *>();
+    m_mutexes->reserve(n);
+  }
+
+  void Node::addMutex(Mutex *m)
+  {
+    assertTrue_1(m_mutexes); // should have been preallocated
+    m_mutexes->push_back(m);
+  }
+
   void Node::finalizeConditions()
   {
     // Create conditions that may wrap user-defined conditions
@@ -295,8 +367,32 @@ namespace PLEXIL
     m_garbageConditions[which] = isGarbage;
   }
 
-  // Default method
   void Node::createConditionWrappers()
+  {
+    this->specializedCreateConditionWrappers();
+
+    if (m_mutexes) {
+      // Add acquisition of mutexes as final gate to start condition
+      Expression *sc =
+        new NodeFunction(TryAcquireMutexes::instance(), this);
+      if (getStartCondition())
+        sc = makeFunction(BooleanAnd::instance(),
+                          getStartCondition(),
+                          sc,
+                          m_garbageConditions[startIdx],
+                          true);
+      // else use by itself
+      m_conditions[startIdx] = sc;
+      m_garbageConditions[startIdx] = true;
+
+      // Add start condition as listener to mutexes
+      for (Mutex *m : *m_mutexes)
+        m->addListener(sc);
+    }
+  }
+
+  // Default method does nothing.
+  void Node::specializedCreateConditionWrappers()
   {
   }
 
@@ -328,6 +424,23 @@ namespace PLEXIL
       return;
 
     debugMsg("Node:cleanUpConditions", " for " << m_nodeId);
+
+    if (m_mutexes) {
+      debugMsg("Node:cleanUpConds",
+               "<" << m_nodeId << "> Deleting mutexes");
+      
+      // Remove start condition as listener from mutexes
+      Expression *sc = getStartCondition();
+      assertTrue_1(sc);
+      for (Mutex *m: *m_mutexes)
+        m->removeListener(sc);
+      
+      // Delete them
+      for (Mutex *m: *m_mutexes)
+        delete m;
+      delete m_mutexes;
+      m_mutexes = nullptr;
+    }
 
     // Remove condition listeners
     for (size_t i = 0; i < conditionIndexMax; ++i) {
@@ -1561,11 +1674,19 @@ namespace PLEXIL
   {
     specializedDeactivateExecutable();
     deactivateLocalVariables();
+    releaseMutexes();
   }
 
   // Default method
   void Node::specializedDeactivateExecutable()
   {
+  }
+
+  void Node::releaseMutexes()
+  {
+    if (m_mutexes)
+      for (Mutex *m : *m_mutexes)
+        m->release();
   }
 
   std::string Node::toString(const unsigned int indent)

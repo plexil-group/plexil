@@ -62,17 +62,17 @@ namespace PLEXIL
      * @brief Gets the type of this node.
      * @return The type of this node.
      */
-    virtual PlexilNodeType getType() const
+    virtual PlexilNodeType getType() const override
     {
       return NodeType_NodeList;
     }
 
-    virtual std::vector<Node *>& getChildren()
+    virtual std::vector<Node *>& getChildren() override
     {
       return m_children;
     }
 
-    virtual const std::vector<Node *>& getChildren() const
+    virtual const std::vector<Node *>& getChildren() const override
     {
       return m_children; 
     }
@@ -87,8 +87,8 @@ namespace PLEXIL
       m_children.push_back(node);
     }
 
-    virtual Node *findChild(char const *childName);
-    virtual Node const *findChild(char const *childName) const;
+    virtual Node *findChild(char const *childName) override; 
+    virtual Node const *findChild(char const *childName) const override;
 
     /**
      * @brief Reserve space for the given number of children.
@@ -97,41 +97,41 @@ namespace PLEXIL
     void reserveChildren(size_t n);
 
     // For initialization and parsing.
-    virtual NodeVariableMap const *getChildVariableMap() const;
+    virtual NodeVariableMap const *getChildVariableMap() const override;
 
     /**
      * @brief Sets the state variable to the new state.
      * @param newValue The new node state.
      * @note This method notifies the children of a change in the parent node's state.
      */
-    virtual void setState(NodeState newValue, double tym); // FIXME
+    virtual void setState(NodeState newValue, double tym) override; // FIXME
 
   protected:
 
-    virtual void createConditionWrappers();
-    virtual void specializedActivate();
+    virtual void specializedCreateConditionWrappers() override;
+    virtual void specializedActivate() override;
 
-    virtual void cleanUpConditions();
-    virtual void cleanUpChildConditions();
-    virtual void cleanUpNodeBody();
+    virtual void cleanUpConditions() override;
+    void cleanUpChildConditions(); // only used by ListNode
+    virtual void cleanUpNodeBody() override;
 
-    virtual bool getDestStateFromExecuting();
-    virtual bool getDestStateFromFailing();
-    virtual bool getDestStateFromFinishing();
+    virtual bool getDestStateFromExecuting() override;
+    virtual bool getDestStateFromFailing() override;
+    virtual bool getDestStateFromFinishing() override;
 
-    virtual void transitionFromExecuting();
-    virtual void transitionFromFinishing();
-    virtual void transitionFromFailing();
+    virtual void transitionFromExecuting() override;
+    virtual void transitionFromFinishing() override;
+    virtual void transitionFromFailing() override;
 
-    virtual void transitionToExecuting();
-    virtual void transitionToFinishing();
-    virtual void transitionToFailing();
+    virtual void transitionToExecuting() override;
+    virtual void transitionToFinishing() override;
+    virtual void transitionToFailing() override;
 
     // Shared with derived class LibraryCallNode
     std::vector<Node *> m_children; /*<! Vector of child nodes. */
 
     // Node state limit, shared with LibraryCallNode
-    virtual NodeState nodeStateMax() const { return FINISHING_STATE; }
+    virtual NodeState nodeStateMax() const override { return FINISHING_STATE; }
   };
 
 }

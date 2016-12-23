@@ -61,7 +61,7 @@ namespace PLEXIL
      * @brief Gets the type of this node.
      * @return The type of this node.
      */
-    virtual PlexilNodeType getType() const
+    virtual PlexilNodeType getType() const override
     {
       return NodeType_Update;
     }
@@ -84,24 +84,24 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void createConditionWrappers();
-    virtual void specializedHandleExecution();
-    virtual void specializedDeactivateExecutable();
+    virtual void specializedCreateConditionWrappers() override;
+    virtual void specializedHandleExecution() override;
+    virtual void specializedDeactivateExecutable() override;
 
-    virtual bool getDestStateFromExecuting();
-    virtual bool getDestStateFromFailing();
+    virtual bool getDestStateFromExecuting() override;
+    virtual bool getDestStateFromFailing() override;
 
-    virtual void transitionToFailing();
+    virtual void transitionToFailing() override;
 
-    virtual void transitionFromExecuting();
-    virtual void transitionFromFailing();
+    virtual void transitionFromExecuting() override;
+    virtual void transitionFromFailing() override;
 
-    virtual void abort();
+    virtual void abort() override;
 
-    virtual void cleanUpNodeBody();
+    virtual void cleanUpNodeBody() override;
 
     // Node state limit
-    virtual NodeState nodeStateMax() const { return FAILING_STATE; }
+    virtual NodeState nodeStateMax() const override { return FAILING_STATE; }
 
   private:
     void createDummyUpdate(); // for unit test
