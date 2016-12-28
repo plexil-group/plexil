@@ -1,0 +1,34 @@
+Mutex m1;
+Mutex m2;
+Command pprint(...);
+
+MutexTest:
+Concurrence
+{
+  {
+  M1:
+    {
+      Mutex m1;
+      pprint("With mutex m1 held");
+    }
+
+    {} /* empty node */
+
+  M2:
+    {
+      Mutex m2;
+      pprint("With mutex m2 held");
+    }
+  }
+
+  {
+    {} /* empty node */
+    
+  M12:
+    {
+      Mutex m1;
+      Mutex m2;
+      pprint("With mutexes m1 and m2 held");
+    }
+  }
+}

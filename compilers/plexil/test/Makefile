@@ -43,7 +43,7 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayLookup \
  LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 library-call1 \
  LibraryCallWithArray library-node1 literal-format-test \
  lookup2 LookupWithComputedStateName \
- maxTest minTest mod1 \
+ maxTest minTest mod1 MultipleMutex MutexBasics MutexTest \
  NestedBlocks1 NestedBlocks2 NestedBlocks3 NestedBlocks4 NestedBlocks5 \
  NestedBlocks6 NestedBlocks7 nodeOutcome1 nodeState1 nodeState2 \
  on-command1 on-command2 on-message1 on-message2 \
@@ -61,8 +61,10 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayLookup \
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
-SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 duplicateLookupDecl1 expr5 expr2 lookup1 \
-          LibraryCall5 LibraryCall6 on-message3 SeekGoalAndEnergy
+SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 \
+ duplicateLookupDecl1 DuplicateMutex expr5 expr2 \
+ lookup1 LibraryCall5 LibraryCall6 \
+ on-message3 SeekGoalAndEnergy UndeclaredMutex
 
 TESTS	         := $(SMALL_TESTS)
 

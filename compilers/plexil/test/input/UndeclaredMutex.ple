@@ -1,0 +1,7 @@
+Command pprint(...);
+
+UndeclaredMutex:
+{
+    Mutex m;
+    pprint("With mutex m held");
+}

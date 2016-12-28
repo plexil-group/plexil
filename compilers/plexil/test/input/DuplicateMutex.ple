@@ -1,0 +1,9 @@
+Mutex m1;
+Command pprint(...);
+
+DuplicateMutex:
+{
+    Mutex m1;
+    Mutex m1;
+    pprint("With mutexes m1 and m1 held");
+}
