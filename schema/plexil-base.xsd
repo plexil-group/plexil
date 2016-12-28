@@ -100,6 +100,7 @@ element.  It is used as an included schema only.
         <xs:element ref="CommandDeclaration" minOccurs="0"/>
         <xs:element ref="StateDeclaration" minOccurs="0"/>
         <xs:element ref="LibraryNodeDeclaration" minOccurs="0"/>
+        <xs:element ref="MutexDeclaration" minOccurs="0"/>
         <xs:element name="TimeScalingUnitsSubunits" type="xs:integer" minOccurs="0"/>
       </xs:choice>
       <xs:attributeGroup ref="SourceLocators"/>
@@ -170,6 +171,15 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="MutexDeclaration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:NCName"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:simpleType name="NCNameOrEmpty">
     <xs:union memberTypes="xs:NCName">
       <xs:simpleType>
@@ -196,6 +206,7 @@ element.  It is used as an included schema only.
         <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
         <xs:element ref="Interface" minOccurs="0"/>
         <xs:element ref="VariableDeclarations" minOccurs="0"/>
+        <xs:element ref="Mutexes" minOccurs="0"/>
         <xs:element ref="NodeBody" minOccurs="0"/>
       </xs:all>
       <xs:attribute name="NodeType" use="required">
@@ -325,6 +336,21 @@ element.  It is used as an included schema only.
         <xs:element ref="DeclareVariable"/>
         <xs:element ref="DeclareArray"/>
       </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Mutexes">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element name="Name">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="StringValue" type="xs:NCName" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>

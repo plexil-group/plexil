@@ -87,6 +87,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
+      <xsl:copy-of select="Mutexes" />
       <xsl:apply-templates select="NodeBody" />
     </Node>
   </xsl:template>
