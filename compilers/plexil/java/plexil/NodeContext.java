@@ -42,6 +42,7 @@ public class NodeContext
     protected NodeContext m_parentContext;
     protected Vector<VariableName> m_variables = new Vector<VariableName>();
     protected Vector<NodeContext> m_children = new Vector<NodeContext>();
+    protected Vector<String> m_mutexes = new Vector<String>();
     protected Map<String, PlexilTreeNode> m_childIds =
         new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
@@ -390,6 +391,35 @@ public class NodeContext
             return result;
         return findInheritedVariable(name);
     }
+
+    //
+    // Mutexes
+    //
+
+    public boolean isMutexName(String name)
+    {
+        return m_mutexes.contains(name);
+    }
+
+    public boolean isMutexInherited(String name)
+    {
+        if (m_parentContext == null
+            || m_parentContext.isGlobalContext())
+            return false;
+        if (m_parentContext.isMutexName(name))
+            return true;
+        return m_parentContext.isMutexInherited(name);
+    }
+
+    public void addMutex(String name)
+    {
+        m_mutexes.add(name);
+    }
+
+    public Vector<String> getMutexes()
+    {
+        return m_mutexes;
+    }    
 
     //
     // Simple queries w/o side effects

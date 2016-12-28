@@ -48,6 +48,7 @@ COMMENT_KYWD = 'Comment';
 // Kinds of declarations
 COMMAND_KYWD = 'Command';
 LOOKUP_KYWD =  'Lookup';
+MUTEX_KYWD =   'Mutex';
 
 RETURNS_KYWD = 'Returns';
 
@@ -321,6 +322,7 @@ options { k=5; } // handles initial ambiguity for array typed decls
     commandDeclaration
   | lookupDeclaration
   | libraryActionDeclaration
+  | mutexDeclaration
  ;
 
 // should generate ^(COMMAND_KYWD NCNAME (RETURNS_KYWD paramSpec)? (paramsSpec)?)
@@ -426,6 +428,10 @@ libraryParamSpec :
  | NCNAME
  )
  ;
+
+mutexDeclaration :
+   MUTEX_KYWD^ NCNAME SEMICOLON!
+;
 
 //
 // Actions
@@ -545,7 +551,9 @@ comment : COMMENT_KYWD^ STRING SEMICOLON! ;
 
 nodeDeclaration :
     interfaceDeclaration
-  | variableDeclaration;
+  | variableDeclaration
+  | mutexReference
+;
 
 nodeAttribute :
     nodeCondition
@@ -672,6 +680,9 @@ literalValue : literalScalarValue | literalArrayValue ;
 booleanLiteral : TRUE_KYWD | FALSE_KYWD ;
 
 realValue : DOUBLE | INT ;
+
+mutexReference :
+ MUTEX_KYWD^ NCNAME ( COMMA! NCNAME )* SEMICOLON! ;
 
 // TODO: extend to other expressions
 

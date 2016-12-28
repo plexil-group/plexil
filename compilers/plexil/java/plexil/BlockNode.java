@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -169,6 +169,7 @@ public class BlockNode extends PlexilTreeNode
                 case PlexilLexer.IN_KYWD:
                 case PlexilLexer.IN_OUT_KYWD:
                 case PlexilLexer.VARIABLE_DECLARATIONS:
+                case PlexilLexer.MUTEX_KYWD:
                     // declarations take care of themselves
                     break;
 
@@ -270,11 +271,23 @@ public class BlockNode extends PlexilTreeNode
             m_xml.addChild(n.getXML());
         }
 
+        // Add mutexes
+        if (!m_context.getMutexes().isEmpty()) {
+            IXMLElement mtx = new XMLElement("Mutexes");
+            m_xml.addChild(mtx);
+            for (String n : m_context.getMutexes()) {
+                IXMLElement nmXML = new XMLElement("Name");
+                IXMLElement valueXML = new XMLElement("StringValue");
+                valueXML.setContent(n);
+                nmXML.addChild(valueXML);
+                mtx.addChild(nmXML);
+            }
+        }
+
         // Add attributes
         for (PlexilTreeNode n : m_attributes) {
             m_xml.addChild(n.getXML());
         }
-
 
         if (isSimpleNode()) {
             // All above have been added after original body,
