@@ -435,9 +435,7 @@ namespace PLEXIL
       for (Mutex *m: *m_mutexes)
         m->removeListener(sc);
       
-      // Delete them
-      for (Mutex *m: *m_mutexes)
-        delete m;
+      // Delete vector (but not the shared mutexes)
       delete m_mutexes;
       m_mutexes = nullptr;
     }
@@ -1682,11 +1680,14 @@ namespace PLEXIL
   {
   }
 
+  // Release in reverse order of acquisition
   void Node::releaseMutexes()
   {
     if (m_mutexes)
-      for (Mutex *m : *m_mutexes)
-        m->release();
+      for (auto rit = m_mutexes->rbegin();
+           rit != m_mutexes->rend();
+           ++rit)
+        (*rit)->release();
   }
 
   std::string Node::toString(const unsigned int indent)

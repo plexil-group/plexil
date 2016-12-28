@@ -35,6 +35,7 @@
 #include "Error.hh"
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
+#include "Mutex.hh"
 #include "NodeFactory.hh"
 #include "parseAssignment.hh"
 #include "parseLibraryCall.hh"
@@ -261,6 +262,7 @@ namespace PLEXIL
     bool hasPrio = false;
     bool hasIface = false;
     bool hasVarDecls = false;
+    bool hasMutexes = false;
     bool hasBody = false;
 
     // Scan all children in order
@@ -299,6 +301,17 @@ namespace PLEXIL
                                           "Illegal element \"" << tag << "\" in Node");
         break;
 
+      case 'M': // Mutexes
+        if (!strcmp(MUTEXES_TAG, tag)) {
+          checkParserExceptionWithLocation(!hasMutexes,
+                                           temp, 
+                                           "Duplicate " << tag << " element in Node");
+          hasMutexes = true;
+          break;
+        }
+        reportParserExceptionWithLocation(temp, 
+                                          "Illegal element \"" << tag << "\" in Node");
+        break;
 
       case 'N': // NodeId, NodeBody
         if (!strcmp(NODEID_TAG, tag)) {
@@ -424,6 +437,32 @@ namespace PLEXIL
     }
   }
 
+  static void initializeNodeMutexes(Node *node, xml_node const xml)
+  {
+    // Count # of mutexes in this node
+    xml_node mtx = xml.child(MUTEXES_TAG);
+    if (!mtx)
+      return;
+
+    size_t n = std::distance(mtx.begin(), mtx.end());
+    node->allocateMutexes(n);
+    std::vector<char const *> names;
+    names.reserve(n);
+
+    // Now populate them
+    xml_node nm = mtx.child(NAME_TAG);
+    do {
+      char const *name = nm.child_value(STRING_VAL_TAG);
+      checkParserExceptionWithLocation(std::find(names.begin(), names.end(), name)
+                                       == names.end(),
+                                       mtx,
+                                       "Duplicate mutex name \"" << name << "\" in node");
+      names.push_back(name);
+      node->addMutex(ensureMutex(name));
+    }
+    while ((nm = nm.next_sibling(NAME_TAG)));
+  }
+
   Node *parseNode(xml_node const xml, Node *parent)
     throw (ParserException)
   {
@@ -440,6 +479,9 @@ namespace PLEXIL
     try {
       // Populate interface and local variables.
       initializeNodeVariables(node, xml);
+
+      // Populate mutexes
+      initializeNodeMutexes(node, xml);
 
       // Construct body
       debugMsg("parseNode", " constructing body");

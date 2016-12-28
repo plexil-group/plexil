@@ -43,6 +43,7 @@ namespace PLEXIL
     COMMAND_TYPE,
     LOOKUP_TYPE,
     LIBRARY_NODE_TYPE,
+    MUTEX_TYPE,
     // FUNCTION_TYPE, // future
       
     SYMBOL_TYPE_MAX
@@ -124,10 +125,12 @@ namespace PLEXIL
     // These return NULL if name is a duplicate.
     virtual Symbol *addCommand(char const *name) = 0;
     virtual Symbol *addLookup(char const *name) = 0;
+    virtual Symbol *addMutex(char const *name) = 0;
     virtual LibraryNodeSymbol *addLibraryNode(char const *name) = 0;
 
     virtual Symbol const *getCommand(char const *name) = 0;
     virtual Symbol const *getLookup(char const *name) = 0;
+    virtual Symbol const *getMutex(char const *name) = 0;
     virtual LibraryNodeSymbol const *getLibraryNode(char const *name) = 0;
 
   protected: 

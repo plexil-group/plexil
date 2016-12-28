@@ -27,9 +27,9 @@
 #include "Mutex.hh"
 
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExpressionListener.hh"
 #include "Node.hh" 
+#include "PlanError.hh"
 
 #include <algorithm> // std::find
 #include <map>
@@ -56,25 +56,32 @@ namespace PLEXIL
   bool Mutex::tryAcquire(Node const *acquirer)
   {
     // To be deleted; for debugging only
-    check_error_2(acquirer,
-                  "Mutex::tryAcquire: null argument!");
+    assertTrue_2(acquirer, "Mutex::tryAcquire: null argument!");
 
     if (m_holder) {
+      // Check for double acquisition
+      Node const *ancestor = acquirer;
+      do {
+        checkPlanError(m_holder != ancestor,
+                       "Error: Node " << acquirer->getNodeId()
+                       << " attempting to acquire mutex " << m_name
+                       << " already held by node's ancestor " << ancestor->getNodeId());
+      } while ((ancestor = ancestor->getParent()));
+
       debugMsg("Mutex:tryAcquire",
-               ' ' << m_name << " node " << acquirer->getNodeId() << "failed");
+               ' ' << m_name << " node " << acquirer->getNodeId() << " failed");
       return false; // sorry, Charlie
     }
 
     m_holder = acquirer;
     debugMsg("Mutex:tryAcquire",
-             ' ' << m_name << " node " << acquirer->getNodeId() << "succeeded");
+             ' ' << m_name << " node " << acquirer->getNodeId() << " succeeded");
     return true;
   }
 
   void Mutex::release()
   {
-    // Debugging only, to be deleted
-    check_error_2(m_holder, "Releasing mutex which was not held");
+    assertTrue_2(m_holder, "Releasing mutex which was not held");
     if (m_holder) {
       debugMsg("Mutex:release",' ' << m_name << " by node " << m_holder->getNodeId());
       m_holder = nullptr;
@@ -99,6 +106,7 @@ namespace PLEXIL
 
   void Mutex::notifyAvailable()
   {
+    debugMsg("Mutex:notifyAvailable", ' ' << m_name);
     for (ExpressionListener *l : m_listeners)
       l->notifyChanged();
   }
@@ -113,7 +121,7 @@ namespace PLEXIL
 
   Mutex *createMutex(char const *name)
   {
-    debugMsg("Mutex:createMutex", ' ' << name);
+    debugMsg("Mutex:ensureMutex", " constructing new mutex " << name);
     Mutex *result = new Mutex(name);
     s_mutexes.emplace(std::make_pair(std::string(name),
                                      std::unique_ptr<Mutex>(result)));
@@ -122,11 +130,13 @@ namespace PLEXIL
 
   Mutex *ensureMutex(char const *name)
   {
+    assertTrue_2(name && *name,
+                 "ensureMutex: null or empty name");
     MutexMap::const_iterator it = s_mutexes.find(name);
     if (it == s_mutexes.end())
       return createMutex(name);
-    else
-      return it->second.get();
+    debugMsg("Mutex:ensureMutex", " returning existing mutex " << name);
+    return it->second.get();
   }
 
 }

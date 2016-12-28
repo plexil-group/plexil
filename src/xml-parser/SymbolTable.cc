@@ -223,6 +223,7 @@ namespace PLEXIL
 
     SymbolMap m_commandMap;
     SymbolMap m_lookupMap;
+    SymbolMap m_mutexMap;
     // SymbolMap m_functionMap; // future
     LibraryMap m_libraryMap;
 
@@ -245,6 +246,12 @@ namespace PLEXIL
         delete it->second;
         m_lookupMap.erase(it);
         it = m_lookupMap.begin();
+      }
+      it = m_mutexMap.begin();
+      while (it != m_mutexMap.end()) {
+        delete it->second;
+        m_mutexMap.erase(it);
+        it = m_mutexMap.begin();
       }
       LibraryMap::iterator lit = m_libraryMap.begin();
       while (lit != m_libraryMap.end()) {
@@ -275,6 +282,17 @@ namespace PLEXIL
       return (m_lookupMap[namestr] = new Symbol(name, LOOKUP_TYPE));
     }
 
+    Symbol *addMutex(char const *name)
+      throw (ParserException)
+    {
+      std::string const namestr(name);
+      SymbolMap::const_iterator it =
+        m_mutexMap.find(namestr);
+      if (it != m_mutexMap.end())
+        return NULL; // duplicate
+      return (m_mutexMap[namestr] = new Symbol(name, MUTEX_TYPE));
+    }
+
     LibraryNodeSymbol *addLibraryNode(char const *name)
       throw (ParserException)
     {
@@ -302,6 +320,16 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_lookupMap.find(namestr);
       if (it == m_lookupMap.end())
+        return NULL;
+      return it->second;
+    }
+
+    Symbol const *getMutex(char const *name)
+    {
+      std::string const namestr(name);
+      SymbolMap::const_iterator it =
+        m_mutexMap.find(namestr);
+      if (it == m_mutexMap.end())
         return NULL;
       return it->second;
     }

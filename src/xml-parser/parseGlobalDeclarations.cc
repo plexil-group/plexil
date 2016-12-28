@@ -272,6 +272,23 @@ namespace PLEXIL
     }
   }
 
+  void parseMutexDeclaration(xml_node const &declXml)
+  {
+    xml_node elt = declXml.first_child();
+    checkTag(NAME_TAG, elt);
+
+    char const *name = elt.child_value();
+    checkParserExceptionWithLocation(name && *name,
+                                     elt,
+                                     declXml.name() << " " << NAME_TAG << " is empty");
+
+    Symbol *m = g_symbolTable->addMutex(name);
+    checkParserExceptionWithLocation(m,
+                                     elt,
+                                     declXml.name() << " " << name << " is already declared");
+
+  }
+
   void parseGlobalDeclarations(xml_node const &declsXml)
     throw (ParserException)
   {
@@ -284,9 +301,14 @@ namespace PLEXIL
         parseStateDeclaration(decl);
       else if (testTag(LIBRARY_NODE_DECLARATION_TAG, decl))
         parseLibraryNodeDeclaration(decl);
-      // *** DEBUG ONLY ***
-      else
-        warn("Unexpected element " << decl.name() << " found in " << GLOBAL_DECLARATIONS_TAG);
+      else if (testTag(MUTEX_DECLARATION_TAG, decl))
+        parseMutexDeclaration(decl);
+      else {
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         decl,
+                                         "Unexpected element " << decl.name()
+                                         << " found in " << GLOBAL_DECLARATIONS_TAG);
+      }
     }
   }
 
