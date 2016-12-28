@@ -1,0 +1,16 @@
+Mutex m;
+Command pprint(...);
+
+LibraryA:
+{
+  pprint("LibraryA waiting for mutex m");
+
+ HoldA:
+  {
+    Mutex m;
+    pprint("LibraryA holds mutex m");
+    Wait 2;
+  }
+  
+  pprint("LibraryA releases mutex m");
+}

@@ -1,0 +1,34 @@
+Mutex m;
+Command pprint(...);
+LibraryAction LibraryA;
+LibraryAction LibraryB;
+
+MutexExample:
+Concurrence
+{
+  {
+    pprint("MutexExample waits for mutex m");
+
+  MainHold1:
+    {
+      Mutex m;
+      pprint("MutexExample holds mutex m");
+      Wait 2;
+    }
+    pprint("MutexExample releases mutex m");
+
+    LibraryCall LibraryA;
+
+    pprint("MutexExample waits for mutex m again");
+
+  MainHold2:
+    {
+      Mutex m;
+      pprint("MutexExample holds mutex m again");
+      Wait 1;
+    }
+    pprint("MutexExample releases mutex m again");
+  }
+      
+  LibraryCall LibraryB;
+}
