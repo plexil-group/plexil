@@ -63,7 +63,7 @@ SYNTAX_ERROR_TESTS   = array-library-call
 
 SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 \
  duplicateLookupDecl1 DuplicateMutex expr5 expr2 \
- lookup1 LibraryCall5 LibraryCall6 \
+ lookup1 LibraryCall5 LibraryCall6 MutexNestingError \
  on-message3 SeekGoalAndEnergy UndeclaredMutex
 
 TESTS	         := $(SMALL_TESTS)

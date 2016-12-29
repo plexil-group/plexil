@@ -1,0 +1,11 @@
+Mutex m;
+Command pprint(...);
+
+MutexNestingError:
+{
+  Mutex m;
+  {
+    Mutex m;
+    pprint("With mutex m held");
+  }
+}
