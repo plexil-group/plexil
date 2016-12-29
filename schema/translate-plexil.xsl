@@ -100,6 +100,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
@@ -125,6 +126,7 @@
         </xsl:when>
       </xsl:choose>
       <xsl:call-template name="success-invariant-condition" />
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
@@ -208,6 +210,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="concurrent-body" />
     </Node>
   </xsl:template>
@@ -246,6 +249,7 @@
       </xsl:choose>
       <xsl:call-template name="try-end-condition" />
       <xsl:call-template name="try-post-condition" />
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
@@ -361,6 +365,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="if-body" />
     </Node>
   </xsl:template>
@@ -600,6 +605,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="while-body" />
     </Node>
   </xsl:template>
@@ -723,6 +729,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="for-body" />
     </Node>
   </xsl:template>
@@ -829,6 +836,7 @@
                                        InvariantCondition|ExitCondition" />
         </xsl:when>
       </xsl:choose>
+      <xsl:copy-of select="Mutexes" />
       <xsl:call-template name="wait-end-condition" />
     </Node>
   </xsl:template>
@@ -1159,6 +1167,7 @@
       <xsl:with-param name="context" select="$context" />
       <xsl:with-param name="mode" select="$mode" />
     </xsl:call-template>
+    <xsl:copy-of select="Mutexes" />
   </xsl:template>
 
 
@@ -1539,6 +1548,7 @@
         </DeclareVariable>
       </VariableDeclarations>
       <xsl:copy-of select="NodeId" />
+      <xsl:copy-of select="Mutexes" />
       <!-- Find parent node and set invariant, if exists -->
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
@@ -1612,6 +1622,7 @@
           <Type>String</Type>
         </DeclareVariable>
       </VariableDeclarations>
+      <xsl:copy-of select="Mutexes" />
       <!-- Handle the OnCommand node conditions -->
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode"/>
