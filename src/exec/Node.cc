@@ -83,11 +83,15 @@ namespace PLEXIL
           for (size_t j = 0; j < i; ++j)
             (*mutexes)[j]->release();
           result = false;
+          debugMsg("TryAcquireMutexes",
+                   ' ' << node->getNodeId() << " failed, returning false");
           return true; 
         }
       }
       // Success
       result = true;
+      debugMsg("TryAcquireMutexes",
+               ' ' << node->getNodeId() << " succeeded, returning true");
       return true; 
     }
 
