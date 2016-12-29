@@ -95,6 +95,23 @@ namespace PLEXIL
       return true; 
     }
 
+    // Kludge alert!
+    // Since calculating this value has side effects, look for the side effects.
+    virtual void printValue(std::ostream &s, void *cache, Node const *node) const override
+    {
+      std::vector<Mutex *> const *mutexes = node->getMutexes();
+      if (!mutexes || !mutexes->size()) {
+        s << "[unknown_value]"; // fail quietly
+        return;
+      }
+
+      assertTrueMsg((*mutexes)[0],
+                    "Internal error: Null mutex pointer in Node " << node->getNodeId());
+
+      PLEXIL::printValue((Boolean) ((*mutexes)[0]->getHolder() == node),
+                         s);
+    }
+
   private:
 
     TryAcquireMutexes()
@@ -1688,7 +1705,7 @@ namespace PLEXIL
   void Node::releaseMutexes()
   {
     if (m_mutexes)
-      for (auto rit = m_mutexes->rbegin();
+      for (std::vector<Mutex *>::const_reverse_iterator rit = m_mutexes->rbegin();
            rit != m_mutexes->rend();
            ++rit)
         (*rit)->release();

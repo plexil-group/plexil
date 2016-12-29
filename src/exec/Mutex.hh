@@ -60,6 +60,12 @@ namespace PLEXIL
     void release();
 
     /**
+     * @brief Report which node owns this mutex.
+     * @return Pointer to the node; may be null.
+     */
+    Node const *getHolder() const;
+
+    /**
      * @brief Register the listener to be notified when the mutex becomes available.
      * @param l Pointer to the listener.
      */

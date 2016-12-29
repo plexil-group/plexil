@@ -108,7 +108,7 @@ namespace PLEXIL
     }
 
     bool calcNative(void *cache, Node const *node) const;
-    void printValue(std::ostream &s, void *cache, Node const *node) const;
+    virtual void printValue(std::ostream &s, void *cache, Node const *node) const;
     Value toValue(void *cache, Node const *node) const;
 
     // Delegated to derived classes

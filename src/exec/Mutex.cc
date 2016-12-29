@@ -89,6 +89,11 @@ namespace PLEXIL
     }
   }
 
+  Node const *Mutex::getHolder() const
+  {
+    return m_holder;
+  }
+
   void Mutex::addListener(ExpressionListener *l)
   {
     if (std::find(std::begin(m_listeners), std::end(m_listeners), l)
