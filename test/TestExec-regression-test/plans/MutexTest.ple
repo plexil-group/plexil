@@ -1,0 +1,22 @@
+Mutex m;
+Command pprint(...);
+
+MutexTest:
+Concurrence
+{
+  PostCondition NodeSucceeded(Hold1) && NodeSucceeded(Hold2);
+
+ Hold1:
+  {
+    InvariantCondition !NodeExecuting(Hold2);
+    Mutex m;
+    pprint("Hold1");
+  }
+
+ Hold2:
+  {
+    InvariantCondition !NodeExecuting(Hold1);
+    Mutex m;
+    pprint("Hold2");
+  }
+}
