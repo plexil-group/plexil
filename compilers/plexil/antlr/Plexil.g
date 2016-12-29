@@ -552,13 +552,14 @@ comment : COMMENT_KYWD^ STRING SEMICOLON! ;
 nodeDeclaration :
     interfaceDeclaration
   | variableDeclaration
-  | mutexReference
 ;
 
 nodeAttribute :
     nodeCondition
+  | mutexReference
   | priority
-  | resource ;
+  | resource
+  ;
 
 nodeCondition
 @init { m_paraphrases.push("in condition"); }
