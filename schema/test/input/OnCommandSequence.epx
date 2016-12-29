@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <PlexilPlan>
     <!-- Be sure that the <StartCondition/> on Recv2 is generated -->
     <Sequence>
       <NodeId>TestSequence</NodeId>

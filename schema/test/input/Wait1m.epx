@@ -1,0 +1,20 @@
+<PlexilPlan>
+  <GlobalDeclarations>
+    <MutexDeclaration>
+      <Name>m</Name>
+    </MutexDeclaration>
+  </GlobalDeclarations>
+
+  <Wait FileName= "foo.ple" LineNo= "104" ColNo= "1">
+    <NodeId>Wait1</NodeId>
+
+    <Mutexes>
+      <Name>
+        <StringValue>m</StringValue>
+      </Name>
+    </Mutexes>
+
+    <Units><RealValue>23.9</RealValue></Units>
+    <Tolerance><RealValue>0.2</RealValue></Tolerance>
+  </Wait>
+</PlexilPlan>

@@ -1,4 +1,4 @@
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<PlexilPlan>
   <While>
     <NodeId>Root</NodeId>
     <VariableDeclarations>

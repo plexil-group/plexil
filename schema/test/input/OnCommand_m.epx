@@ -1,0 +1,31 @@
+<PlexilPlan>
+  <GlobalDeclarations>
+    <MutexDeclaration>
+      <Name>m</Name>
+    </MutexDeclaration>
+  </GlobalDeclarations>
+
+  <OnCommand>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>distance</Name>
+        <Type>Integer</Type>
+      </DeclareVariable>
+      <DeclareVariable>
+        <Name>direction</Name>
+        <Type>Real</Type>
+      </DeclareVariable>
+    </VariableDeclarations>
+
+    <Mutexes>
+      <Name>
+        <StringValue>m</StringValue>
+      </Name>
+    </Mutexes>
+
+    <Name><StringValue>moveRover</StringValue></Name>
+    <Node NodeType= "Empty">
+      <NodeId>foo</NodeId>
+    </Node>
+  </OnCommand>
+</PlexilPlan>

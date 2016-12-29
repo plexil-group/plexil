@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" FileName="Plan.ple">
-  <Node NodeType="NodeList" FileName="Plan.ple" LineNo="2" ColNo="1">
+<PlexilPlan FileName="Plan.ple">
+  <Node NodeType="NodeList" LineNo="2" ColNo="1">
     <NodeId>Interface</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
@@ -27,7 +27,7 @@
     </VariableDeclarations>
     <NodeBody>
       <NodeList>
-        <Node NodeType="NodeList" epx="Sequence" FileName="Plan.ple" LineNo="7" ColNo="22">
+        <Node NodeType="NodeList" epx="Sequence" LineNo="7" ColNo="22">
           <NodeId>One</NodeId>
           <InvariantCondition>
             <NOT>
@@ -65,7 +65,7 @@
           </InvariantCondition>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Assignment" FileName="Plan.ple" LineNo="8" ColNo="34">
+              <Node NodeType="Assignment" LineNo="8" ColNo="34">
                 <NodeId>DoFirst</NodeId>
                 <NodeBody>
                   <Assignment>
@@ -79,7 +79,7 @@
                   </Assignment>
                 </NodeBody>
               </Node>
-              <Node NodeType="Assignment" FileName="Plan.ple" LineNo="9" ColNo="35">
+              <Node NodeType="Assignment" LineNo="9" ColNo="35">
                 <NodeId>DoSecond</NodeId>
                 <StartCondition>
                   <EQInternal>
@@ -104,11 +104,11 @@
             </NodeList>
           </NodeBody>
         </Node>
-        <Node NodeType="NodeList" epx="Concurrence" FileName="Plan.ple" LineNo="11" ColNo="24">
+        <Node NodeType="NodeList" epx="Concurrence" LineNo="11" ColNo="24">
           <NodeId>Two</NodeId>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Assignment" FileName="Plan.ple" LineNo="12" ColNo="38">
+              <Node NodeType="Assignment" LineNo="12" ColNo="38">
                 <NodeId>DoFirstDiff</NodeId>
                 <NodeBody>
                   <Assignment>
@@ -122,7 +122,7 @@
                   </Assignment>
                 </NodeBody>
               </Node>
-              <Node NodeType="Assignment" FileName="Plan.ple" LineNo="13" ColNo="35">
+              <Node NodeType="Assignment" LineNo="13" ColNo="35">
                 <NodeId>DoSecond</NodeId>
                 <NodeBody>
                   <Assignment>

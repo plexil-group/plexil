@@ -1,0 +1,21 @@
+<PlexilPlan>
+  <GlobalDeclarations>
+    <MutexDeclaration>
+      <Name>m</Name>
+    </MutexDeclaration>
+  </GlobalDeclarations>
+
+  <OnMessage>
+    <Message><StringValue>moveRover</StringValue></Message>
+
+    <Mutexes>
+      <Name>
+        <StringValue>m</StringValue>
+      </Name>
+    </Mutexes>
+
+    <Node NodeType= "Empty">
+      <NodeId>foo</NodeId>
+    </Node>
+  </OnMessage>
+</PlexilPlan>

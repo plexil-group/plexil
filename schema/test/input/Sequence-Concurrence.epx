@@ -1,5 +1,5 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/extended-plexil.xsd" FileName="Plan.ple">
-      <Node FileName="Plan.ple" LineNo="2" ColNo="1" NodeType="NodeList">
+  <PlexilPlan FileName="Plan.ple">
+      <Node LineNo="2" ColNo="1" NodeType="NodeList">
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>x</Name>
@@ -26,9 +26,9 @@
           <NodeId>Interface</NodeId>
           <NodeBody>
               <NodeList>
-                  <Sequence FileName="Plan.ple" LineNo="7" ColNo="22">
+                  <Sequence LineNo="7" ColNo="22">
                       <NodeId>One</NodeId>
-                      <Node FileName="Plan.ple" LineNo="8" ColNo="34" NodeType="Assignment">
+                      <Node LineNo="8" ColNo="34" NodeType="Assignment">
                           <NodeId>DoFirst</NodeId>
                           <NodeBody>
                               <Assignment>
@@ -42,7 +42,7 @@
                               </Assignment>
                           </NodeBody>
                       </Node>
-                      <Node FileName="Plan.ple" LineNo="9" ColNo="35" NodeType="Assignment">
+                      <Node LineNo="9" ColNo="35" NodeType="Assignment">
                           <NodeId>DoSecond</NodeId>
                           <NodeBody>
                               <Assignment>
@@ -57,9 +57,9 @@
                           </NodeBody>
                       </Node>
                   </Sequence>
-                  <Concurrence FileName="Plan.ple" LineNo="11" ColNo="24">
+                  <Concurrence LineNo="11" ColNo="24">
                       <NodeId>Two</NodeId>
-                      <Node FileName="Plan.ple" LineNo="12" ColNo="38" NodeType="Assignment">
+                      <Node LineNo="12" ColNo="38" NodeType="Assignment">
                           <NodeId>DoFirstDiff</NodeId>
                           <NodeBody>
                               <Assignment>
@@ -73,7 +73,7 @@
                               </Assignment>
                           </NodeBody>
                       </Node>
-                      <Node FileName="Plan.ple" LineNo="13" ColNo="35" NodeType="Assignment">
+                      <Node LineNo="13" ColNo="35" NodeType="Assignment">
                           <NodeId>DoSecond</NodeId>
                           <NodeBody>
                               <Assignment>

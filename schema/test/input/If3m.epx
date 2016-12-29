@@ -1,0 +1,24 @@
+<PlexilPlan>
+  <GlobalDeclarations>
+    <MutexDeclaration>
+      <Name>m</Name>
+    </MutexDeclaration>
+  </GlobalDeclarations>
+
+  <If>
+    <Mutexes>
+      <Name>
+        <StringValue>m</StringValue>
+      </Name>
+    </Mutexes>
+
+    <Condition>
+      <BooleanValue>true</BooleanValue>
+    </Condition>
+    <Then>
+      <Node NodeType="Empty">
+        <NodeId>One</NodeId>
+      </Node>
+    </Then>
+  </If>
+</PlexilPlan>

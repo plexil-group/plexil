@@ -1,0 +1,35 @@
+<PlexilPlan>
+  <GlobalDeclarations>
+    <MutexDeclaration>
+      <Name>m</Name>
+    </MutexDeclaration>
+  </GlobalDeclarations>
+
+  <While>
+    <NodeId>Root</NodeId>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>foo</Name>
+        <Type>Boolean</Type>
+        <InitialValue>
+            <BooleanValue>true</BooleanValue>
+        </InitialValue>
+      </DeclareVariable>
+    </VariableDeclarations>
+
+    <Mutexes>
+      <Name>
+        <StringValue>m</StringValue>
+      </Name>
+    </Mutexes>
+
+    <Condition>
+      <BooleanVariable>foo</BooleanVariable>
+    </Condition>
+    <Action>
+      <Node NodeType="Empty">
+        <NodeId>One</NodeId>
+      </Node>
+    </Action>
+  </While>
+</PlexilPlan>

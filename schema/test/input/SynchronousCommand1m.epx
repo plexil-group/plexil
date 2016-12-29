@@ -1,0 +1,28 @@
+<PlexilPlan>
+  <GlobalDeclarations>
+    <MutexDeclaration>
+      <Name>m</Name>
+    </MutexDeclaration>
+  </GlobalDeclarations>
+
+  <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
+    <NodeId>A</NodeId>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>x</Name>
+        <Type>Integer</Type>
+      </DeclareVariable>
+    </VariableDeclarations>
+
+    <Mutexes>
+      <Name>
+        <StringValue>m</StringValue>
+      </Name>
+    </Mutexes>
+
+    <Command>
+      <IntegerVariable>x</IntegerVariable>
+      <Name><StringValue>foo</StringValue></Name>
+    </Command>
+  </SynchronousCommand>
+</PlexilPlan>

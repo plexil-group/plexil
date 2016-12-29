@@ -1,4 +1,4 @@
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<PlexilPlan>
   <Sequence>
     <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
       <NodeId>A</NodeId>

@@ -46,7 +46,11 @@ REST = UncheckedSequence1 UncheckedSequence2 \
 	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
 	Lookup1 Lookup2 Wait1 Wait2 Wait3 Interface
 
-TESTS = $(SYNCH) $(REST)
+MUTEX = Concurrence1m Concurrence2m For1m For3m If1m If3m If6m \
+ OnCommand_m OnMessage_m SynchronousCommand1m Try1m \
+ UncheckedSequence1m Wait1m While1m
+
+TESTS = $(SYNCH) $(REST) $(MUTEX)
 
 PLEXIL_HOME ?= ../..
 
