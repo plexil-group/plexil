@@ -244,6 +244,7 @@ NodeClauses =
      | element Priority { nonNegativeInteger })
   | Interface
   | VariableDeclarations
+  | Mutexes
 EQNumeric =
   notAllowed
   | element EQNumeric {

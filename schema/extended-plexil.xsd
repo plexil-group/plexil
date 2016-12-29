@@ -192,6 +192,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
       <xs:element ref="Interface" minOccurs="0"/>
       <xs:element ref="VariableDeclarations" minOccurs="0"/>
+      <xs:element ref="Mutexes" minOccurs="0"/>
     </xs:choice>
   </xs:group>
 

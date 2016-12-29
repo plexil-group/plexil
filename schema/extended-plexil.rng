@@ -397,6 +397,7 @@
             </choice>
             <ref name="Interface"/>
             <ref name="VariableDeclarations"/>
+            <ref name="Mutexes"/>
         </choice>
     </define>
     <define name="EQNumeric">
