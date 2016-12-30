@@ -29,13 +29,13 @@
 #include "Assignable.hh"
 #include "Assignment.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExecListenerBase.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
 #include "NodeFactory.hh"
+#include "PlanError.hh"
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator
@@ -44,15 +44,6 @@
 
 namespace PLEXIL 
 {
-
-  // Used internally by PlexilExec class only
-  enum QueueStatus {
-    QUEUE_NONE = 0,          // not in any queue
-    QUEUE_CHECK,             // in check-conditions queue
-    QUEUE_TRANSITION,        // in state transition queue
-    QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
-    QUEUE_DELETE             // no longer eligible to transition
-  };
 
   /**
    * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
@@ -199,7 +190,7 @@ namespace PLEXIL
 
     NodeState destState = node->getNextState();
     if (node->getType() == NodeType_Assignment) {
-      // Node can be in contention in either EXECUTING or FAILING 
+      // Node can be in contention if next state is either EXECUTING or FAILING 
       switch (destState) {
 
       case EXECUTING_STATE: {
@@ -300,7 +291,7 @@ namespace PLEXIL
     return result;
   }
 
-  // Assumes node is a valid ID and points to an Assignment node
+  // Assumes node points to an Assignment node
   void PlexilExec::removeFromResourceContention(Node *node) 
   {
     Expression *exp = node->getAssignmentVariable();
@@ -352,6 +343,8 @@ namespace PLEXIL
              "Adding node '" << node->getNodeId() << "' to resource contention.");
     VariableConflictSet *conflict = ensureConflictSet(exp);
     conflict->push(node);
+    // Remove node from queue so if its conditions change, it will be a candidate again
+    node->setQueueStatus(QUEUE_NONE);
   }
 
   void PlexilExec::step(double startTime) 
@@ -383,11 +376,26 @@ namespace PLEXIL
         Node *candidate = getCandidateNode();
         debugMsg("Node:checkConditions",
                  "Checking condition change for node " << candidate->getNodeId());
-        if (candidate->getDestState()) { // sets node's next state
-          debugMsg("Node:checkConditions",
-                   "Can (possibly) transition to " << nodeStateName(candidate->getNextState()));
-          handleConditionsChanged(candidate);
-        }
+
+        // *** FIXME *** Find a different approach to avoid side effects
+
+        // N.B. Node::getDestState() can have side effects,
+        // e.g. if a node has a mutex, is in WAITING,
+        // and the start condition succeeds (grabbing the mutex)
+        // but the precondition fails (releasing the mutex),
+        // the node will receive another notification when the mutex is released.
+        // Same can happen if a node references multiple mutexes and can't
+        // acquire all at once.
+
+        bool canTransition = candidate->getDestState(); // sets node's next state
+        condDebugMsg(canTransition,
+                     "Node:checkConditions",
+                     "Can (possibly) transition to "
+                     << nodeStateName(candidate->getNextState()));
+        if (canTransition)
+          handleConditionsChanged(candidate); // adds to state change queue
+        else
+          candidate->setQueueStatus(QUEUE_NONE); // false alarm, wait for next notification
       }
 
       // Sort Assignment nodes by priority
@@ -498,44 +506,19 @@ namespace PLEXIL
     }
 
     // Only look at nodes with the highest priority
-    Node *nodeToExecute = NULL;
-    NodeState destState = NO_NODE_STATE;
-    size_t count = conflict->front_count(); // # of nodes with same priority as top
-    if (count == 1) {
-      // Usual case (we hope) - make it simple
-      nodeToExecute = conflict->front();
-      destState = nodeToExecute->getNextState();
-    }
 
-    else {
-      VariableConflictSet::const_iterator conflictIt = conflict->begin(); 
-      // Look at the destination states of all the nodes with equal priority
-      for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
-        Node *node = *conflictIt;
-        NodeState dest = node->getNextState();
+    // *** Flush these two statements and you get rid of a source of crashes ***
+    size_t count = conflict->front_count(); // # of nodes with best priority
+    checkPlanError(count < 2,
+                   "Error: multiple Assignment nodes in contention over variable "
+                   << var->toString() << " with equal priority.");
 
-        // Found one that is scheduled for execution
-        if (dest == EXECUTING_STATE || dest == FAILING_STATE)
-          ++conflictCounter;
-        else 
-          // Internal error
-          checkError(node->getState() == EXECUTING_STATE
-                     || node->getState() == FAILING_STATE,
-                     "Error: node '" << node->getNodeId()
-                     << " is neither executing nor failing nor eligible for either, yet is in conflict map.");
-
-        // If more than one node is scheduled for execution, we have a resource contention.
-        // *** FIXME: This is a plan error. Find a non-fatal way to handle this conflict!! ***
-        checkError(conflictCounter < 2,
-                   "Error: nodes '" << node->getNodeId() << "' and '"
-                   << nodeToExecute->getNodeId() << "' are in contention over variable "
-                   << var->toString() << " and have equal priority.");
-
-        nodeToExecute = node;
-        destState = dest;
-      }
-      assertTrue_1(nodeToExecute);
-    }
+    // Only one, fortunately
+    Node *nodeToExecute = conflict->front();
+    // *** FIXME ***
+    // Rather than recomputing the next state, this takes the cached state.
+    // This could be invalid if the node has been in the conflict set across a step boundary.
+    NodeState destState = nodeToExecute->getNextState();
 
     if (destState == EXECUTING_STATE || destState == FAILING_STATE) {
       addStateChangeNode(nodeToExecute);
@@ -569,11 +552,18 @@ namespace PLEXIL
 
     case QUEUE_CHECK:             // already a candidate
     case QUEUE_TRANSITION_CHECK:  // will be a candidate after pending transition
-    case QUEUE_DELETE:            // cannot possibly be a candidate, silently ignore
       return;
 
     case QUEUE_TRANSITION:        // transition pending, defer adding to queue
       node->setQueueStatus(QUEUE_TRANSITION_CHECK);
+      return;
+
+    case QUEUE_DELETE:            // cannot possibly be a candidate
+    default:                      // bogus
+      assertTrueMsg(ALWAYS_FAIL,
+                    "PlexilExec::addCandidateNode: Invalid queue status "
+                    << node->getQueueStatus()
+                    << " for node " << node->getNodeId());
       return;
     }
   }
@@ -584,7 +574,6 @@ namespace PLEXIL
       return NULL;
 
     m_candidateQueue.pop();
-    result->setQueueStatus(QUEUE_NONE);
     return result;
   }
 
@@ -598,7 +587,7 @@ namespace PLEXIL
     if (!result)
       return NULL;
     
-    QueueStatus was = (QueueStatus) result->getQueueStatus();
+    QueueStatus was = result->getQueueStatus();
     m_stateChangeQueue.pop();
     result->setQueueStatus(QUEUE_NONE);
     if (was == QUEUE_TRANSITION_CHECK)
@@ -608,25 +597,25 @@ namespace PLEXIL
 
   void PlexilExec::addStateChangeNode(Node *node) {
     switch (node->getQueueStatus()) {
-    case QUEUE_NONE:
+    case QUEUE_NONE:    // unit test, used to be normal case
+    case QUEUE_CHECK:   // normal case
       node->setQueueStatus(QUEUE_TRANSITION);
       m_stateChangeQueue.push(node);
       return;
 
-    case QUEUE_CHECK:             // shouldn't happen
+    case QUEUE_TRANSITION:        // already in queue, shouldn't get here
+    case QUEUE_TRANSITION_CHECK:  // already in queue, shouldn't get here
       assertTrueMsg(ALWAYS_FAIL,
-                    "Cannot add node " << node->getNodeId()
-                    << " to transition queue, is still in candidate queue");
-      return;
-
-    case QUEUE_TRANSITION:        // already in queue, nothing to do
-    case QUEUE_TRANSITION_CHECK:  // already in queue, nothing to do
+                    "PlexilExec::addStateChangeNode: " << node->getNodeId()
+                    << " is already in transition queue");
       return;
 
     case QUEUE_DELETE:            // cannot possibly transition
+    default:                      // bogus value
       assertTrueMsg(ALWAYS_FAIL,
-                    "Cannot add node " << node->getNodeId()
-                    << " to transition queue, is finished root node pending deletion");
+                    "PlexilExec::addStateChangeNode: Invalid queue status "
+                    << node->getQueueStatus()
+                    << " for node " << node->getNodeId());
       return;
     }
   }
@@ -644,7 +633,7 @@ namespace PLEXIL
   void PlexilExec::addFinishedRootNode(Node *node) {
     switch (node->getQueueStatus()) {
       
-    case QUEUE_CHECK: // seems plausible
+    case QUEUE_CHECK: // seems plausible??
       m_candidateQueue.remove(node);
       // fall thru
 

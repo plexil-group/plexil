@@ -46,6 +46,21 @@ namespace PLEXIL {
   class NodeTimepointValue;
   class NodeVariableMap;
 
+  //
+  // QueueStatus - Used by PlexilExec and Node classes for queue management
+  // There are three queues: the check queue, transition queue, and deletion queue.
+  // A node can be in at most one queue at any time.
+  // A node queued for transition can be notified of a change, making it eligible
+  // for the check queue again after it has transitioned.
+  //
+  enum QueueStatus : uint8_t {
+    QUEUE_NONE = 0,          // not in any queue
+    QUEUE_CHECK,             // in check-conditions queue
+    QUEUE_TRANSITION,        // in state transition queue
+    QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
+    QUEUE_DELETE             // no longer eligible to transition
+  };
+
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.
    * There is a possible refactoring here, breaking the three node types into subclasses.  Unfortunately, the XML format doesn't
@@ -277,12 +292,12 @@ namespace PLEXIL {
     // For convenience of PlexilExec queue management
     //
 
-    uint8_t getQueueStatus() const
+    QueueStatus getQueueStatus() const
     {
       return m_queueStatus;
     }
 
-    void setQueueStatus(uint8_t newval)
+    void setQueueStatus(QueueStatus newval)
     {
       m_queueStatus = newval;
     }
@@ -466,16 +481,16 @@ namespace PLEXIL {
     // Common state
     //
 
-    Node       *m_next;                /*!< For LinkedQueue<Node> */
-    uint8_t     m_queueStatus;         /*!< Which exec queue the node is in, if any. */
-    NodeState   m_state;               /*!< The current state of the node. */
-    NodeOutcome m_outcome;             /*!< The current outcome. */
-    FailureType m_failureType;         /*!< The current failure. */
+    Node        *m_next;                /*!< For LinkedQueue<Node> */
+    QueueStatus  m_queueStatus;         /*!< Which exec queue the node is in, if any. */
+    NodeState    m_state;               /*!< The current state of the node. */
+    NodeOutcome  m_outcome;             /*!< The current outcome. */
+    FailureType  m_failureType;         /*!< The current failure. */
 
-    bool m_pad; // to ensure 8 byte alignment
-    NodeState   m_nextState;           /*!< The state returned by getDestState() the last time checkConditions() was called. */
-    NodeOutcome m_nextOutcome;         /*!< The pending outcome. */
-    FailureType m_nextFailureType;     /*!< The pending failure. */
+    bool         m_pad;                 // to ensure 8 byte alignment
+    NodeState    m_nextState;           /*!< The state calculated by getDestState() the last time checkConditions() was called. */
+    NodeOutcome  m_nextOutcome;         /*!< The pending outcome. */
+    FailureType  m_nextFailureType;     /*!< The pending failure. */
 
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */

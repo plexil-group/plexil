@@ -89,6 +89,11 @@ namespace PLEXIL
     }
   }
 
+  std::string const &Mutex::getName() const
+  {
+    return m_name;
+  }
+
   Node const *Mutex::getHolder() const
   {
     return m_holder;

@@ -60,6 +60,12 @@ namespace PLEXIL
     void release();
 
     /**
+     * @brief Get the name of this mutex.
+     * @return Const reference to the name string.
+     */
+    std::string const &getName() const;
+
+    /**
      * @brief Report which node owns this mutex.
      * @return Pointer to the node; may be null.
      */

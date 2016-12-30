@@ -79,13 +79,15 @@ namespace PLEXIL
       size_t i = 0;
       for (i = 0; i < mutexes->size(); ++i) {
         if (!(*mutexes)[i]->tryAcquire(node)) {
-          // Release any mutexes we did acquire
-          for (size_t j = 0; j < i; ++j)
-            (*mutexes)[j]->release();
-          result = false;
           debugMsg("TryAcquireMutexes",
-                   ' ' << node->getNodeId() << " failed, returning false");
-          return true; 
+                   ' ' << node->getNodeId() << " failed to acquire mutex "
+                   << (*mutexes)[i]->getName() << "; returning false");
+
+          // Release any mutexes we did acquire, in reverse order of acquisition
+          while (i > 0)
+            (*mutexes)[--i]->release();
+          result = false;
+          return true; // result is known
         }
       }
       // Success
@@ -165,7 +167,7 @@ namespace PLEXIL
     : NodeConnector(),
       ExpressionListener(),
       m_next(nullptr),
-      m_queueStatus(0),
+      m_queueStatus(QUEUE_NONE),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
@@ -200,7 +202,7 @@ namespace PLEXIL
     : NodeConnector(),
       ExpressionListener(),
       m_next(nullptr),
-      m_queueStatus(0),
+      m_queueStatus(QUEUE_NONE),
       m_state(state),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
@@ -601,9 +603,22 @@ namespace PLEXIL
              "Getting destination state for " << m_nodeId << " from state " <<
              nodeStateName(m_state));
 
+    // Temporary - shouldn't be necessary in production
+    switch (m_queueStatus) {
+    case QUEUE_NONE: // unit tests, used to be exec's normal case
+    case QUEUE_CHECK: // normal case in exec
+      break;
+
+    default: // all other cases are trouble
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Node::getDestState: Invalid queue status value "
+                    << m_queueStatus << " for node " << m_nodeId);
+      return false;
+    }
+
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;
-
+    
     switch (m_state) {
     case INACTIVE_STATE:
       return getDestStateFromInactive();
@@ -628,7 +643,8 @@ namespace PLEXIL
 
     default:
       assertTrueMsg(ALWAYS_FAIL,
-                    "Node::getDestState: invalid node state " << (uint8_t) m_state);
+                    "Node::getDestState: invalid node state " << (uint8_t) m_state
+                    << " for node " << m_nodeId);
       return false;
     }
   }
@@ -961,6 +977,7 @@ namespace PLEXIL
       m_nextState = ITERATION_ENDED_STATE;
       m_nextOutcome = FAILURE_OUTCOME;
       m_nextFailureType = PRE_CONDITION_FAILED;
+      releaseMutexes(); // in case any were acquired by executing the StartCondition
       return true;
     }
     debugMsg("Node:getDestState",
@@ -1707,8 +1724,13 @@ namespace PLEXIL
     if (m_mutexes)
       for (std::vector<Mutex *>::const_reverse_iterator rit = m_mutexes->rbegin();
            rit != m_mutexes->rend();
-           ++rit)
+           ++rit) {
+        assertTrueMsg((*rit)->getHolder() == this,
+                      "Node::releaseMutexes: node " << m_nodeId
+                      << " attempted to release mutex " << (*rit)->getName()
+                      << ", which it didn't hold"); 
         (*rit)->release();
+      }
   }
 
   std::string Node::toString(const unsigned int indent)
