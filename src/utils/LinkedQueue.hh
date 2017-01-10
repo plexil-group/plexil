@@ -138,8 +138,68 @@ namespace PLEXIL
       if (!cur)
         return; // not found
 
-      *(item->nextPtr()) = nullptr; // temp?
+      *(item->nextPtr()) = nullptr; // no dangling pointers!
       --m_count;
+    }
+ 
+    /**
+     * @brief Find an item satisfying a predicate.
+     * @param pred The predicate object. Must have an operator() method with the signature:
+     *    bool operator()(T* item)
+     * @return The first item satisfying the predicate, or null if not found.
+     */
+
+    template <typename Predicate>
+    T* find_if(Predicate const &pred)
+    {
+      T *cur = m_head; // the item being compared
+      while (cur) {
+        if (pred(cur))
+          // Found it
+          return cur;
+        // Step to next item if any
+        cur = cur->next();
+      }
+      // not found
+      return nullptr;
+    }
+ 
+    /**
+     * @brief Remove the first item satisfying the predicate.
+     * @param pred The predicate object. Must have an operator() method with the signature:
+     *    bool operator()(T* item)
+     * @return The removed queue item, or null if not found.
+     */
+
+    template <typename Predicate>
+    T* remove_if(Predicate const &pred)
+    {
+      T *result = nullptr;
+
+      T *prev = nullptr; // last entry we looked at
+      T **prevNextPtr = &m_head; // pointer to last entry's "next" pointer
+      T *cur = m_head;
+
+      while (cur) {
+        if (pred(cur)) {
+          // Found one, splice it out
+          result = cur;
+          *(prevNextPtr) = cur->next();
+          if (cur == m_tail)
+            m_tail = prev;
+          break;
+        }
+        // Step to next item if any
+        prev = cur;
+        prevNextPtr = prev->nextPtr();
+        cur = cur->next();
+      }
+
+      if (result) {
+        *(result->nextPtr()) = nullptr; // no dangling pointers!
+        --m_count;
+      }
+      return result;
     }
 
     void clear()
