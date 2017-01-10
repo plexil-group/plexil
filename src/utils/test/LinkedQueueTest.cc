@@ -304,8 +304,30 @@ static bool testPriorityQueue()
     delete won;
   }
 
+  // Insert a bunch of items in order
+  int const n = 10; // should be even, see below
+  for (int i = 1; i <= n; ++i) {
+    testpq.insert(new QueueTest(i));
+    assertTrue_1(!testpq.empty());
+    assertTrue_1(testpq.size() == i);
+    assertTrue_1(testpq.front() != nullptr);
+  }
+
+  // Pop and delete all the items,
+  // making sure we pop as many as we inserted
+  // and all are in order
+  int count = 0;
+  while (!testpq.empty()) {
+    QueueTest *item = testpq.front();
+    assertTrue_1(item);
+    ++count;
+    assertTrue_1(item->value == count);
+    testpq.pop();
+    delete item;
+  }
+  assertTrue_1(count == n);
+
   // Insert a bunch of items in reverse order
-  int const n = 10;
   for (int i = 1; i <= n; ++i) {
     testpq.insert(new QueueTest(n + 1 - i));
     assertTrue_1(!testpq.empty());
@@ -315,20 +337,24 @@ static bool testPriorityQueue()
 
   // Pop and delete all the items,
   // making sure we pop as many as we inserted
-  int count = 0;
+  // and all are in order
+  count = 0;
   while (!testpq.empty()) {
-    ++count;
     QueueTest *item = testpq.front();
+    assertTrue_1(item);
+    ++count;
+    assertTrue_1(item->value == count);
     testpq.pop();
     delete item;
   }
-  assertTrue_1(count = n);
-  
-  // Insert a bunch of items again
-  for (int i = 1; i <= n; ++i) {
+  assertTrue_1(count == n);
+
+  // Insert a bunch of items again, but in a mixed-up order
+  for (int i = 1; i <= n/2; ++i) {
     testpq.insert(new QueueTest(n + 1 - i));
+    testpq.insert(new QueueTest(n/2 + 1 - i));
     assertTrue_1(!testpq.empty());
-    assertTrue_1(testpq.size() == i);
+    assertTrue_1(testpq.size() == 2 * i);
     assertTrue_1(testpq.front() != nullptr);
   }
 
