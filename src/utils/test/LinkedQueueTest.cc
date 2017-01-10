@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "Error.hh"
 #include "LinkedQueue.hh"
+#include "TestSupport.hh"
 
 using namespace PLEXIL;
 
@@ -58,10 +59,18 @@ public:
 
 };
 
-bool LinkedQueueTest()
+template <>
+struct std::less<QueueTest>
 {
-  Error::doThrowExceptions();
+public:
+  bool operator() (QueueTest const &a, QueueTest const &b) const
+  {
+    return a.value < b.value;
+  }
+};
 
+static bool testLinkedQueue()
+{
   LinkedQueue<QueueTest> testq;
 
   // Basics
@@ -91,7 +100,7 @@ bool LinkedQueueTest()
     assertTrue_1(testq.size() == 0);
     assertTrue_1(testq.front() == nullptr);
     
-    // Test insert on empty queue
+    // Test push on empty queue
     testq.push(won);
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.size() == 1);
@@ -105,7 +114,7 @@ bool LinkedQueueTest()
     assertTrue_1(testq.size() == 0);
     assertTrue_1(testq.front() == nullptr);
 
-    // Insert again
+    // Push again
     testq.push(won);
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.size() == 1);
@@ -198,7 +207,7 @@ bool LinkedQueueTest()
   assertTrue_1(testq.size() == n - 3);
   delete item;
 
-  // Try to "remove" a nonexistent item
+  // Try to "remove" an item not in queue
   item = new QueueTest(42);
   testq.remove(item);
   assertTrue_1(!testq.empty());
@@ -218,6 +227,181 @@ bool LinkedQueueTest()
   assertTrue_1(testq.size() == 0);
   assertTrue_1(testq.front() == nullptr);
 
+  return true;
+}
+
+static bool testPriorityQueue()
+{
+  PriorityQueue<QueueTest> testpq;
+
+  // Basics
+  assertTrue_1(testpq.empty());
+  assertTrue_1(testpq.size() == 0);
+  assertTrue_1(testpq.front() == nullptr);
+
+  // Pop empty queue should be safe
+  testpq.pop();
+  assertTrue_1(testpq.empty());
+  assertTrue_1(testpq.size() == 0);
+  assertTrue_1(testpq.front() == nullptr);
+
+  // Remove of nullptr should be safe
+  testpq.remove(nullptr);
+  assertTrue_1(testpq.empty());
+  assertTrue_1(testpq.size() == 0);
+  assertTrue_1(testpq.front() == nullptr);
+
+  {
+    QueueTest *won = new QueueTest(1);
+    assertTrue_1(won->value == 1);
+
+    // Test remove of item not on (empty) queue
+    testpq.remove(won);
+    assertTrue_1(testpq.empty());
+    assertTrue_1(testpq.size() == 0);
+    assertTrue_1(testpq.front() == nullptr);
+    
+    // Test insert on empty queue
+    testpq.insert(won);
+    assertTrue_1(!testpq.empty());
+    assertTrue_1(testpq.size() == 1);
+    assertTrue_1(testpq.front() != nullptr);
+    assertTrue_1(testpq.front()->value == 1);
+    assertTrue_1(testpq.front()->next() == nullptr);
+
+    // Test pop
+    testpq.pop();
+    assertTrue_1(testpq.empty());
+    assertTrue_1(testpq.size() == 0);
+    assertTrue_1(testpq.front() == nullptr);
+
+    // Insert again
+    testpq.insert(won);
+    assertTrue_1(!testpq.empty());
+    assertTrue_1(testpq.size() == 1);
+    assertTrue_1(testpq.front() != nullptr);
+    assertTrue_1(testpq.front()->value == 1);
+    assertTrue_1(testpq.front()->next() == nullptr);
+
+    // Remove of nullptr should be safe
+    testpq.remove(nullptr);
+    assertTrue_1(!testpq.empty());
+    assertTrue_1(testpq.size() == 1);
+    assertTrue_1(testpq.front()->value == 1);
+
+    // Test removal of only item
+    testpq.remove(won);
+    assertTrue_1(testpq.empty());
+    assertTrue_1(testpq.size() == 0);
+    assertTrue_1(testpq.front() == nullptr);
+
+    // Pop empty queue should still be safe
+    testpq.pop();
+    assertTrue_1(testpq.empty());
+    assertTrue_1(testpq.size() == 0);
+    assertTrue_1(testpq.front() == nullptr);
+
+    delete won;
+  }
+
+  // Insert a bunch of items in reverse order
+  int const n = 10;
+  for (int i = 1; i <= n; ++i) {
+    testpq.insert(new QueueTest(n + 1 - i));
+    assertTrue_1(!testpq.empty());
+    assertTrue_1(testpq.size() == i);
+    assertTrue_1(testpq.front() != nullptr);
+  }
+
+  // Pop and delete all the items,
+  // making sure we pop as many as we inserted
+  int count = 0;
+  while (!testpq.empty()) {
+    ++count;
+    QueueTest *item = testpq.front();
+    testpq.pop();
+    delete item;
+  }
+  assertTrue_1(count = n);
+  
+  // Insert a bunch of items again
+  for (int i = 1; i <= n; ++i) {
+    testpq.insert(new QueueTest(n + 1 - i));
+    assertTrue_1(!testpq.empty());
+    assertTrue_1(testpq.size() == i);
+    assertTrue_1(testpq.front() != nullptr);
+  }
+
+  // Step through the queue,
+  // checking that they are now in increasing order
+  QueueTest *item = testpq.front();
+  for (int i = 1; i <= n; ++i) {
+    assertTrue_1(item != nullptr);
+    assertTrue_1(item->value == i);
+    item = item->next();
+  }
+  // Should have reached end
+  assertTrue_1(item == nullptr);
+
+  // Remove first
+  item = testpq.front();
+  assertTrue_1(item != nullptr);
+  assertTrue_1(item->value == 1);
+  QueueTest *nxt = item->next();
+  assertTrue_1(nxt != nullptr);
+  testpq.remove(item);
+  assertTrue_1(!testpq.empty());
+  assertTrue_1(testpq.size() == n - 1);
+  assertTrue_1(testpq.front() == nxt);
+  delete item;
+
+  // Remove from middle
+  item = testpq.front()->next()->next()->next();
+  assertTrue_1(item != nullptr);
+  testpq.remove(item);
+  assertTrue_1(!testpq.empty());
+  assertTrue_1(testpq.size() == n - 2);
+  delete item;
+
+  // Remove from end
+  item = testpq.front();
+  while (item->next())
+    item = item->next();
+  // item now points to last
+  testpq.remove(item);
+  assertTrue_1(!testpq.empty());
+  assertTrue_1(testpq.size() == n - 3);
+  delete item;
+
+  // Try to "remove" a nonexistent item
+  item = new QueueTest(42);
+  testpq.remove(item);
+  assertTrue_1(!testpq.empty());
+  assertTrue_1(testpq.size() == n - 3);
+  delete item;
+
+  // Pop and delete remaining
+  while (!testpq.empty()) {
+    assertTrue_1(testpq.front() != nullptr);
+    item = testpq.front();
+    testpq.pop();
+    delete item;
+  }
+  item = nullptr;
+
+  assertTrue_1(testpq.empty());
+  assertTrue_1(testpq.size() == 0);
+  assertTrue_1(testpq.front() == nullptr);
+
+  return true;
+}
+
+bool LinkedQueueTest()
+{
+  Error::doThrowExceptions();
+
+  runTest(testLinkedQueue);
+  runTest(testPriorityQueue);
   return true;
 }
 
