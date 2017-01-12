@@ -27,8 +27,6 @@
 #ifndef EXEC_CONNECTOR_HH
 #define EXEC_CONNECTOR_HH
 
-#include "NodeConstants.hh"
-
 #include <list>
 
 namespace PLEXIL
@@ -40,28 +38,16 @@ namespace PLEXIL
   class Node;
 
   /**
-   * @brief Abstract class representing the key API of the PlexilExec. Facilitates testing.
+   * @brief Stateless abstract base class declaring the public API of the PlexilExec.
+   *        Facilitates unit testing.
    */
   class ExecConnector {
   public:
-    ExecConnector() {}
-    virtual ~ExecConnector() {}
-    virtual void notifyNodeConditionChanged(Node *node) = 0;
+    virtual ~ExecConnector() = default;
 
-    /**
-     * @brief Schedule this assignment for execution.
-     */
-    virtual void enqueueAssignment(Assignment *assign) = 0;
-
-    /**
-     * @brief Schedule this assignment for execution.
-     */
-    virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
-
-    /**
-     * @brief Mark node as finished and no longer eligible for execution.
-     */
-    virtual void markRootNodeFinished(Node *node) = 0;
+    //
+    // API to ExternalInterface
+    //
 
     /**
      * @brief Add the plan under the node named by the parent.
@@ -91,13 +77,45 @@ namespace PLEXIL
      */
     virtual ExecListenerBase *getExecListener() = 0;
 
-    // Needed by ExecApplication
-
-    virtual void deleteFinishedPlans() = 0;
-
+    /**
+     * @brief Queries whether all plans are finished.
+     * @return true if all finished, false otherwise.
+     */
     virtual bool allPlansFinished() const = 0;
 
-    // Introspection
+    /**
+     * @brief Deletes any finished root nodes.
+     */
+    virtual void deleteFinishedPlans() = 0;
+
+    //
+    // API to Node classes
+    //
+
+    /**
+     * @brief Schedule this assignment for execution.
+     */
+    virtual void enqueueAssignment(Assignment *assign) = 0;
+
+    /**
+     * @brief Schedule this assignment for execution.
+     */
+    virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
+
+    /**
+     * @brief Mark node as finished and no longer eligible for execution.
+     */
+    virtual void markRootNodeFinished(Node *node) = 0;
+
+    /**
+     * @brief Place a node in the candidate queue.
+     * @param node The node which is eligible for state change.
+     */
+    virtual void addCandidateNode(Node *node) = 0; // used by Node
+
+    //
+    // Used by Launcher
+    //
     
     /**
      * @brief Get the list of active plans.

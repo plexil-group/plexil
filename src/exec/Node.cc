@@ -533,7 +533,111 @@ namespace PLEXIL
    */
   void Node::notifyChanged()
   {
-    g_exec->notifyNodeConditionChanged(this);
+    if (scheduleCheckConditions())
+      g_exec->addCandidateNode(this);
+  }
+
+  void Node::notifyMutexAvailable()
+  {
+    // Irrelevant if we're not on the pending queue
+    if (m_state != WAITING_STATE
+        || m_nextState != EXECUTING_STATE)
+      return;
+    switch (m_queueStatus) {
+    case QUEUE_PENDING_TRY:
+      // can this happen?
+      debugMsg("Node:notifyMutexAvailable",
+               " " << m_nodeId << " before mutexes evaluated, ignoring");
+      return;
+
+    case QUEUE_PENDING:
+      m_queueStatus = QUEUE_PENDING_TRY;
+      debugMsg("Node:notifyMutexAvailable",
+               " " << m_nodeId << " will retry");
+      return;
+
+    case QUEUE_PENDING_CHECK:
+      m_queueStatus = QUEUE_PENDING_TRY_CHECK;
+      debugMsg("Node:notifyMutexAvailable",
+               " " << m_nodeId << " will retry after checking conditions");
+      return;
+
+    default:
+      debugMsg("Node:notifyMutexAvailable",
+               " " << m_nodeId << " not in pending queue, ignoring");
+      return;
+    }
+  }
+
+  /**
+   * @brief Mark the node as eligible for recheck of conditions.
+   * @return true if it should be added to candidate queue, false otherwise
+   */
+  bool Node::scheduleCheckConditions()
+  {
+    switch (m_queueStatus) {
+      // Only case which should return true
+    case QUEUE_NONE:
+      // m_queueStatus = QUEUE_CHECK; exec will do this
+      return true;
+
+      // Valid cases
+
+    case QUEUE_PENDING_TRY: // just added, or just notified mutex available
+      m_queueStatus = QUEUE_PENDING_TRY_CHECK;
+      return false;
+
+    case QUEUE_PENDING:     // waiting on a mutex
+      m_queueStatus = QUEUE_PENDING_CHECK;
+      return false;
+
+    case QUEUE_TRANSITION:  // scheduled for state transition, will be checked after
+      m_queueStatus = QUEUE_TRANSITION_CHECK;
+      return false;
+
+    case QUEUE_CHECK:
+    case QUEUE_PENDING_TRY_CHECK:
+    case QUEUE_PENDING_CHECK:
+    case QUEUE_TRANSITION_CHECK:
+      // ignore, check already scheduled
+      return false;
+
+    case QUEUE_DELETE:
+      // should we ever get here?
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "scheduleCheckConditions called on ineligible node " << m_nodeId
+                    << " with queue status " << m_queueStatus);
+      return false;
+    }
+  }
+
+  /**
+   * @brief Clear the check-conditions "flag".
+   */
+  QueueStatus Node::conditionsChecked()
+  {
+    switch (m_queueStatus) {
+      // Valid cases
+    case QUEUE_CHECK:
+      return (m_queueStatus = QUEUE_NONE);
+
+    case QUEUE_PENDING_TRY_CHECK:
+      return (m_queueStatus = QUEUE_PENDING_TRY);
+
+    case QUEUE_PENDING_CHECK:
+      return (m_queueStatus = QUEUE_PENDING);
+
+    case QUEUE_TRANSITION_CHECK: // shouldn't happen
+      // return (m_queueStatus = QUEUE_NONE);
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "conditionsChecked called on ineligible node " << m_nodeId
+                    << " with queue status " << m_queueStatus);
+      return QUEUE_NONE;
+    }
   }
 
   /**
@@ -546,19 +650,6 @@ namespace PLEXIL
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId << " from state " <<
              nodeStateName(m_state));
-
-    // Temporary - shouldn't be necessary in production
-    switch (m_queueStatus) {
-    case QUEUE_NONE: // unit tests, exec's normal case
-    case QUEUE_PENDING_CHECK: // waiting on a mutex
-      break;
-
-    default: // all other cases are trouble
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Node::getDestState: Invalid queue status value "
-                    << m_queueStatus << " for node " << m_nodeId);
-      return false;
-    }
 
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;

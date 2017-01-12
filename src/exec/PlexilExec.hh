@@ -58,7 +58,7 @@ namespace PLEXIL
     ~PlexilExec();
 
     //
-    // API to ExternalInterface
+    // API to application
     //
 
     /**
@@ -66,22 +66,22 @@ namespace PLEXIL
      * @param The plan's root node.
      * @return True if succesful, false otherwise.
      */
-    bool addPlan(Node *root);
+    virtual bool addPlan(Node *root);
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
      */
-    void step(double startTime); // *** FIXME ***
+    virtual void step(double startTime); // *** FIXME: use real time type ***
 
     /**
      * @brief Returns true if the Exec needs to be stepped.
      */
-    bool needsStep() const;
+    virtual bool needsStep() const;
 
     /**
      * @brief Set the ExecListener instance.
      */
-    void setExecListener(ExecListenerBase *l)
+    virtual void setExecListener(ExecListenerBase *l)
     {
       m_listener = l;
     }
@@ -90,7 +90,7 @@ namespace PLEXIL
      * @brief Get the ExecListener instance.
      * @return The ExecListener. May be NULL.
      */
-    ExecListenerBase *getExecListener()
+    virtual ExecListenerBase *getExecListener()
     {
       return m_listener;
     }
@@ -99,12 +99,12 @@ namespace PLEXIL
      * @brief Queries whether all plans are finished.
      * @return true if all finished, false otherwise.
      */
-    bool allPlansFinished() const;
+    virtual bool allPlansFinished() const;
 
     /**
      * @brief Deletes any finished root nodes.
      */
-    void deleteFinishedPlans();
+    virtual void deleteFinishedPlans();
 
     //
     // API to Node classes
@@ -113,28 +113,32 @@ namespace PLEXIL
     /**
      * @brief Schedule this assignment for execution.
      */
-    void enqueueAssignment(Assignment *assign);
+    virtual void enqueueAssignment(Assignment *assign);
 
     /**
      * @brief Schedule this assignment for retraction.
      */
-    void enqueueAssignmentForRetraction(Assignment *assign);
+    virtual void enqueueAssignmentForRetraction(Assignment *assign);
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
-    void markRootNodeFinished(Node *node);
+    virtual void markRootNodeFinished(Node *node);
 
     /**
-     * @brief Handle the fact that a node's conditions may have changed (it is eligible for state change).
+     * @brief Place a node in the candidate queue.
      * @param node The node which is eligible for state change.
      */
-    void notifyNodeConditionChanged(Node *node);
+    virtual void addCandidateNode(Node *node); // used by Node
+
+    //
+    // Used by Launcher
+    //
 
     /**
      * @brief Get the list of active plans.
      */
-    std::list<Node *> const &getPlans() const;
+    virtual std::list<Node *> const &getPlans() const;
 
   private:
 
@@ -175,7 +179,6 @@ namespace PLEXIL
     // Internal queue management
     //
 
-    void addCandidateNode(Node *node);
     Node *getCandidateNode();
     void removeCandidateNode(Node *node);
 

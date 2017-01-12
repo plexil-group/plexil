@@ -149,11 +149,6 @@ namespace PLEXIL
     m_finishedRootNodesDeleted = true;
   }
 
-  void PlexilExec::notifyNodeConditionChanged(Node *node)
-  {
-    addCandidateNode(node);
-  }
-
   bool PlexilExec::needsStep() const
   {
     return !m_candidateQueue.empty();
@@ -263,13 +258,17 @@ namespace PLEXIL
                     << " in invalid state " << nodeStateName(n->getState()));
 
       // Do we need to recalculate node state?
-      if (n->getQueueStatus() == QUEUE_PENDING_CHECK) {
+      QueueStatus qs = n->getQueueStatus();
+      if (qs == QUEUE_PENDING_CHECK
+          || qs == QUEUE_PENDING_TRY_CHECK) {
+        qs = n->conditionsChecked();   // clear check-pending "flag" and update status
         bool canTransition = n->getDestState();
         if (n->getNextState() != EXECUTING_STATE) {
           // No longer eligible, remove from queue
           Node *temp = n;
           n = n->next();
           removePendingNode(temp);
+            
           debugMsg("PlexilExec:resolveResourceConflicts",
                    " node " << temp->getNodeId()
                    << " is no longer eligible to execute, removing from pending queue");
@@ -283,65 +282,71 @@ namespace PLEXIL
           }
           continue;
         }
-        n->setQueueStatus(QUEUE_PENDING); // has been checked now
       }
 
-      // This had better be true!
-      check_error_1(n->getNextState() == EXECUTING_STATE);
+      // Evaluate whether mutex(es) can be acquired
+      if (qs == QUEUE_PENDING_TRY) {
+        // This had better be true!
+        check_error_1(n->getNextState() == EXECUTING_STATE);
 
-      std::vector<Mutex *> const *mutexes = n->getUsingMutexes();
-      assertTrue_1(mutexes);
+        std::vector<Mutex *> const *mutexes = n->getUsingMutexes();
+        assertTrue_1(mutexes);
 
-      debugMsg("PlexilExec:resolveResourceConflicts",
-               " evaluating node '" << n->getNodeId()
-               << "' with priority " << n->getPriority());
+        debugMsg("PlexilExec:resolveResourceConflicts",
+                 " evaluating node '" << n->getNodeId()
+                 << "' with priority " << n->getPriority());
 
-      // Check whether mutexes are available
-      bool eligible = true;
-      for (Mutex const *m : *mutexes) {
-        if (m->getHolder()) {
-          // Check that holder isn't node's ancestor
-          Node const *ancestor = n;
-          Node const *holder = m->getHolder();
-          do {
-            checkPlanError(holder != ancestor,
-                           "Error: Node " << n->getNodeId()
-                           << " attempted to acquire mutex " << m->getName()
-                           << ", which is held by node's ancestor "
-                           << ancestor->getNodeId());
-          } while ((ancestor = ancestor->getParent()));
+        // Check whether mutexes are available
+        bool eligible = true;
+        for (Mutex const *m : *mutexes) {
+          if (m->getHolder()) {
+            // Check that holder isn't node's ancestor
+            Node const *ancestor = n;
+            Node const *holder = m->getHolder();
+            do {
+              checkPlanError(holder != ancestor,
+                             "Error: Node " << n->getNodeId()
+                             << " attempted to acquire mutex " << m->getName()
+                             << ", which is held by node's ancestor "
+                             << ancestor->getNodeId());
+            } while ((ancestor = ancestor->getParent()));
 
-          debugMsg("PlexilExec:resolveResourceConflicts",
-                   " node " << n->getNodeId()
-                   << " with priority " << n->getPriority()
-                   << " cannot execute because mutex " << m->getName()
-                   << " is held by node " << holder->getNodeId());
-          eligible = false;
-          break; // from inner loop
-        } // end mutex in use
-      } // end inner loop
+            debugMsg("PlexilExec:resolveResourceConflicts",
+                     " node " << n->getNodeId()
+                     << " with priority " << n->getPriority()
+                     << " cannot execute because mutex " << m->getName()
+                     << " is held by node " << holder->getNodeId());
+            eligible = false;
+            break; // from inner loop
+          } // end mutex in use
+        } // end inner loop
 
-      if (eligible) {
-        // Remove from pending queue and move to state change queue
-        Node *temp = n;
-        n = n->next();
-        removePendingNode(temp);
+        if (eligible) {
+          // Remove from pending queue and move to state change queue
+          Node *temp = n;
+          n = n->next();
+          removePendingNode(temp);
 
-        // Grab mutexes and enqueue it for execution
-        for (Mutex *m : *mutexes)
-          m->acquire(temp);
-        addStateChangeNode(temp);
-        debugMsg("PlexilExec:step",
-                 " mutex(es) acquired, placing node " << temp->getNodeId()
-                 << " on the state change queue in position " << ++m_queuePos);
+          // Grab mutexes and enqueue it for execution
+          for (Mutex *m : *mutexes)
+            m->acquire(temp);
+          addStateChangeNode(temp);
+          debugMsg("PlexilExec:step",
+                   " mutex(es) acquired, placing node " << temp->getNodeId()
+                   << " on the state change queue in position " << ++m_queuePos);
+          continue;
+        }
+        else {
+          // TODO check for deadlock, priority inversion, etc.
+          debugMsg("PlexilExec:step",
+                   " unable to acquire mutex(es) for node " << n->getNodeId()
+                   << ", leaving in pending queue");
+          n->setQueueStatus(QUEUE_PENDING);
+        }
       }
-      else {
-        // TODO check for deadlock, priority inversion, etc.
-        debugMsg("PlexilExec:step",
-                 " unable to acquire mutex(es) for node " << n->getNodeId()
-                 << ", leaving in pending queue");
-        n = n->next();
-      }
+
+      // Look at next
+      n = n->next();
     } // end while
   }
 
@@ -494,35 +499,10 @@ namespace PLEXIL
 
   void PlexilExec::addCandidateNode(Node *node)
   {
-    switch (node->getQueueStatus()) {
-    case QUEUE_NONE:
-      // Preserve old debug output
-      debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId());
-      node->setQueueStatus(QUEUE_CHECK);
-      m_candidateQueue.push(node);
-      return;
-
-    case QUEUE_CHECK:             // already a candidate
-    case QUEUE_TRANSITION_CHECK:  // will be a candidate after pending transition
-    case QUEUE_PENDING_CHECK:     // will be a candidate when pending queue evaluated
-      return;
-
-    case QUEUE_PENDING:
-      node->setQueueStatus(QUEUE_PENDING_CHECK); // recheck on next pending queue scan
-      return;
-
-    case QUEUE_TRANSITION:        // transition pending, defer adding to queue
-      node->setQueueStatus(QUEUE_TRANSITION_CHECK);
-      return;
-
-    case QUEUE_DELETE:            // cannot possibly be a candidate
-    default:                      // bogus
-      assertTrueMsg(ALWAYS_FAIL,
-                    "PlexilExec::addCandidateNode: Invalid queue status "
-                    << node->getQueueStatus()
-                    << " for node " << node->getNodeId());
-      return;
-    }
+    // Preserve old debug output
+    debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId());
+    node->setQueueStatus(QUEUE_CHECK);
+    m_candidateQueue.push(node);
   }
 
   Node *PlexilExec::getCandidateNode() {
@@ -530,26 +510,40 @@ namespace PLEXIL
     if (!result)
       return nullptr;
 
+    // TEMP (?)
+    assertTrue_1(result->getQueueStatus() == QUEUE_CHECK);
+    
     m_candidateQueue.pop();
-    result->setQueueStatus(QUEUE_NONE);
+    result->conditionsChecked(); // mark it as dequeued
     return result;
   }
 
   void PlexilExec::removeCandidateNode(Node *node) {
+    // TEMP (?)
+    assertTrue_1(node->getQueueStatus() == QUEUE_CHECK);
+
     m_candidateQueue.remove(node);
-    node->setQueueStatus(QUEUE_NONE);
+    node->conditionsChecked(); // mark it as dequeued
   }
 
   void PlexilExec::addPendingNode(Node *node)
   {
-    node->setQueueStatus(QUEUE_PENDING);
+    // TEMP (?)
+    assertTrue_1(node->getQueueStatus() == QUEUE_NONE);
+
+    node->setQueueStatus(QUEUE_PENDING_TRY);
     m_pendingQueue.insert(node);
+    for (Mutex *m : *node->getUsingMutexes())
+      m->addWaitingNode(node);
   }
 
+  // Should only happen in QUEUE_PENDING and QUEUE_PENDING_TRY.
   void PlexilExec::removePendingNode(Node *node)
   {
     m_pendingQueue.remove(node);
     node->setQueueStatus(QUEUE_NONE);
+    for (Mutex *m : *node->getUsingMutexes())
+      m->removeWaitingNode(node);
   }
 
   Node *PlexilExec::getStateChangeNode() {
@@ -567,11 +561,15 @@ namespace PLEXIL
 
   void PlexilExec::addStateChangeNode(Node *node) {
     switch (node->getQueueStatus()) {
-    case QUEUE_NONE:    // unit test, used to be normal case
-    case QUEUE_CHECK:   // normal case
+    case QUEUE_NONE:    // normal case
       node->setQueueStatus(QUEUE_TRANSITION);
       m_stateChangeQueue.push(node);
       return;
+
+    case QUEUE_CHECK:   // shouldn't happen (?)
+      assertTrueMsg(ALWAYS_FAIL,
+                    "PlexilExec::addStateChangeNode: Node "
+                    << node->getNodeId() << " already in check queue");
 
     case QUEUE_TRANSITION:        // already in queue, shouldn't get here
     case QUEUE_TRANSITION_CHECK:  // already in queue, shouldn't get here
@@ -614,16 +612,13 @@ namespace PLEXIL
       m_finishedRootNodes.push(node);
       return;
 
-    case QUEUE_PENDING:
-    case QUEUE_PENDING_CHECK:
-    case QUEUE_TRANSITION:
-    case QUEUE_TRANSITION_CHECK:
+    case QUEUE_DELETE: // shouldn't happen, but harmless
+      return;
+
+    default:
       assertTrueMsg(ALWAYS_FAIL,
                     "Root node " << node->getNodeId()
                     << " is eligible for deletion but is still in pending or state transition queue");
-      return;
-
-    case QUEUE_DELETE: // shouldn't happen, but harmless
       return;
     }
   }

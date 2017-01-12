@@ -28,6 +28,7 @@
 #define PLEXIL_MUTEX_HH
 
 #include <string>
+#include <vector>
 
 namespace PLEXIL
 {
@@ -71,6 +72,18 @@ namespace PLEXIL
      */
     Node const *getHolder() const;
 
+    /**
+     * @brief Add a node to the list of nodes waiting on the mutex.
+     * @param node Pointer to the node.
+     */
+    void addWaitingNode(Node *node);
+
+    /**
+     * @brief Remove a node from the list of nodes waiting on the mutex.
+     * @param node Pointer to the node.
+     */
+    void removeWaitingNode(Node *node);
+
   private:
 
     // Not implemented
@@ -80,7 +93,8 @@ namespace PLEXIL
     Mutex &operator=(Mutex const &) = delete;
     Mutex &operator=(Mutex &&) = delete;
 
-    std::string m_name;
+    std::string const m_name;
+    std::vector<Node *> m_waiters;
     Node const *m_holder;
   };
 

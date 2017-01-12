@@ -30,7 +30,7 @@
 #include "Node.hh" 
 #include "PlanError.hh"
 
-#include <algorithm> // std::find
+#include <algorithm> // std::find, std::remove
 #include <map>
 #include <memory> // std::unique_ptr
 
@@ -39,6 +39,7 @@ namespace PLEXIL
 
   Mutex::Mutex(char const *name)
     : m_name(name),
+      m_waiters(),
       m_holder(nullptr)
   {
   }
@@ -50,11 +51,12 @@ namespace PLEXIL
   void Mutex::acquire(Node const *acquirer)
   {
     assertTrue_2(acquirer, "Mutex::acquire: null argument!");
-
     assertTrueMsg(!m_holder,
-                  "Mutex::acquire called with mutex " << m_name << " already held");
+                  "Mutex::acquire: mutex " << m_name
+                  << " already held by node " << acquirer->getNodeId());
 
     m_holder = acquirer;
+    std::remove(m_waiters.begin(), m_waiters.end(), acquirer);
     debugMsg("Mutex:acquire",
              ' ' << m_name << " node " << acquirer->getNodeId() << " succeeded");
   }
@@ -62,10 +64,10 @@ namespace PLEXIL
   void Mutex::release()
   {
     assertTrue_2(m_holder, "Releasing mutex which was not held");
-    if (m_holder) {
-      debugMsg("Mutex:release",' ' << m_name << " by node " << m_holder->getNodeId());
-      m_holder = nullptr;
-    }
+    debugMsg("Mutex:release",' ' << m_name << " by node " << m_holder->getNodeId());
+    m_holder = nullptr;
+    for (Node *n : m_waiters)
+      n->notifyMutexAvailable();
   }
 
   std::string const &Mutex::getName() const
@@ -76,6 +78,24 @@ namespace PLEXIL
   Node const *Mutex::getHolder() const
   {
     return m_holder;
+  }
+
+  void Mutex::addWaitingNode(Node *node)
+  {
+    if (m_waiters.end() !=
+        std::find(m_waiters.begin(), m_waiters.end(), node)) {
+      debugMsg("Mutex:addWaitingNode",
+               " node " << node->getNodeId() << " already queued");
+      return; // already added
+    }
+    m_waiters.push_back(node);
+    debugMsg("Mutex:addWaitingNode",
+             " enqueued node " << node->getNodeId());
+  }
+
+  void Mutex::removeWaitingNode(Node *node)
+  {
+    std::remove(m_waiters.begin(), m_waiters.end(), node);
   }
 
   //

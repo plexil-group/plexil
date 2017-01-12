@@ -50,20 +50,31 @@ namespace PLEXIL {
 
   //
   // QueueStatus - Used by PlexilExec and Node classes for queue management
-  // There are three queues: the check queue, transition queue, and deletion queue.
+  // There are four queues:
+  //  - the candidate queue, scheduled for condition evaluation;
+  //  - the pending queue, eligible for execution and waiting on one or more mutexes;
+  //  - the transition queue, nodes in the process of state transition; and
+  //  - the deletion queue, top level nodes which have run and are no longer active.
+  //
   // A node can be in at most one queue at any time.
-  // A node queued for transition can be notified of a change, making it eligible
-  // for the check queue again after it has transitioned.
+  // A node in the candidate queue cannot be re-added before its conditions are evaluated.
+  // A node in the pending queue can have a condition check scheduled, or be notified
+  //  that a mutex it's waiting on has been released, or both.
   //
   enum QueueStatus : uint8_t {
     QUEUE_NONE = 0,          // not in any queue
     QUEUE_CHECK,             // in check-conditions queue
+    QUEUE_PENDING_TRY,       // just added, or waiting for a mutex which was just released
+    QUEUE_PENDING_TRY_CHECK, // just added, or waiting for a mutex which was just released
+                             // AND check-conditions requested
     QUEUE_PENDING,           // waiting for a mutex
     QUEUE_PENDING_CHECK,     // waiting for a mutex AND check-conditions requested
     QUEUE_TRANSITION,        // in state transition queue
     QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
     QUEUE_DELETE             // no longer eligible to transition
   };
+
+  
 
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.
@@ -281,6 +292,23 @@ namespace PLEXIL {
      * @return The mutex, or NULL if not found.
      */
     Mutex *findLocalMutex(char const *name);
+
+    /**
+     * @brief Notify that a mutex on which we're pending is now available.
+     */
+    void notifyMutexAvailable();
+
+    /**
+     * @brief Mark the node as eligible for recheck of conditions.
+     * @return true if it should be added to candidate queue, false otherwise
+     */
+    bool scheduleCheckConditions();
+
+    /**
+     * @brief Clear the check-conditions "flag".
+     * @return The resulting QueueStatus.
+     */
+    QueueStatus conditionsChecked();
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;

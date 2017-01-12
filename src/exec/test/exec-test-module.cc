@@ -48,22 +48,25 @@ using namespace PLEXIL;
 
 std::list<Node *> const g_dummyPlanList;
 
-class TransitionExecConnector : public ExecConnector
+class TransitionExecConnector :
+  public ExecConnector
 {
 public:
-  TransitionExecConnector() : ExecConnector() {}
-  void notifyNodeConditionChanged(Node * /* node */) {}
-  void enqueueAssignment(Assignment * /* assign */) {}
-  void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
-  void markRootNodeFinished(Node * /* node */) {}
-  bool addPlan(Node * /* root */) { return false; }
-  void step(double /* startTime */) {}
-  bool needsStep() const {return false;}
-  void setExecListener(ExecListenerBase * /* l */) {}
-  ExecListenerBase *getExecListener() { return NULL; }
-  void deleteFinishedPlans() {}
-  bool allPlansFinished() const { return true; }
-  std::list<Node *> const &getPlans() const { return g_dummyPlanList; }
+  TransitionExecConnector() = default;
+  ~TransitionExecConnector() = default;
+    
+  virtual bool addPlan(Node * /* root */) { return false; }
+  virtual void step(double /* startTime */) {}
+  virtual bool needsStep() const {return false;}
+  virtual void setExecListener(ExecListenerBase * /* l */) {}
+  virtual ExecListenerBase *getExecListener() { return nullptr; }
+  virtual void deleteFinishedPlans() {}
+  virtual bool allPlansFinished() const { return true; }
+  virtual void enqueueAssignment(Assignment * /* assign */) {}
+  virtual void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
+  virtual void markRootNodeFinished(Node * /* node */) {}
+  virtual void addCandidateNode(Node * /* node */) {}
+  virtual std::list<Node *> const &getPlans() const { return g_dummyPlanList; }
 };
 
 static bool inactiveDestTest() 
