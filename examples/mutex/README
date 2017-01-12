@@ -1,0 +1,18 @@
+This directory contains a sample use of mutexes in PLEXIL.
+
+To run the example:
+
+ plexilc LibraryA.ple
+ plexilc LibraryB.ple
+ plexilc MutexExample.ple
+ plexilexec -c ../dummy-config.xml -p MutexExample.plx
+
+The Debug.cfg file in this directory reports all mutex operations, so
+one can see what is happening. These settings may be useful in
+troubleshooting your own applications.
+
+Mutexes in PLEXIL can also be used with the TestExec. See
+../../test/TestExec-regression-test/plans/MutexTest.ple for an
+example.
+
+

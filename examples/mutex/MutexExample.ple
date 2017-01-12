@@ -11,7 +11,7 @@ Concurrence
 
   MainHold1:
     {
-      Mutex m;
+      Using m;
       pprint("MutexExample holds mutex m");
       Wait 2;
     }
@@ -23,7 +23,7 @@ Concurrence
 
   MainHold2:
     {
-      Mutex m;
+      Using m;
       pprint("MutexExample holds mutex m again");
       Wait 1;
     }

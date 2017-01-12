@@ -7,7 +7,7 @@ LibraryA:
 
  HoldA:
   {
-    Mutex m;
+    Using m;
     pprint("LibraryA holds mutex m");
     Wait 2;
   }
