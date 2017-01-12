@@ -18,6 +18,9 @@
           <BooleanValue>false</BooleanValue>
         </InitialValue>
       </DeclareVariable>
+      <DeclareMutex>
+        <Name>n</Name>
+      </DeclareMutex>
     </VariableDeclarations>
     <PostCondition>
       <EQInternal>
@@ -30,6 +33,11 @@
         <Node NodeType="Assignment">
           <NodeId>set-to-1</NodeId>
           <Priority>0</Priority>
+          <UsingMutex>
+            <Name>
+              <StringValue>n</StringValue>
+            </Name>
+          </UsingMutex>
           <NodeBody>
             <Assignment>
               <IntegerVariable>n</IntegerVariable>
@@ -42,6 +50,11 @@
         <Node NodeType="Assignment">
           <NodeId>set-to-2</NodeId>
           <Priority>1</Priority>
+          <UsingMutex>
+            <Name>
+              <StringValue>n</StringValue>
+            </Name>
+          </UsingMutex>
           <ExitCondition>
             <BooleanVariable>flag</BooleanVariable>
           </ExitCondition>

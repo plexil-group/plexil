@@ -1,22 +1,38 @@
-Mutex m;
 Command pprint(...);
 
 MutexTest:
 Concurrence
 {
-  PostCondition NodeSucceeded(Hold1) && NodeSucceeded(Hold2);
+  Mutex m;
+  InvariantCondition !NodeExecuting(PreFail3);
+  PostCondition NodeSucceeded(Hold1) && NodeSucceeded(Hold2)
+    && NodePreconditionFailed(PreFail3) && NodeSucceeded(Hold4);
 
  Hold1:
   {
-    InvariantCondition !NodeExecuting(Hold2);
-    Mutex m;
+    InvariantCondition !NodeExecuting(Hold2) && !NodeExecuting(Hold4);
+    Using m;
     pprint("Hold1");
   }
 
  Hold2:
   {
-    InvariantCondition !NodeExecuting(Hold1);
-    Mutex m;
+    InvariantCondition !NodeExecuting(Hold1) && !NodeExecuting(Hold4);
+    Using m;
     pprint("Hold2");
+  }
+
+ PreFail3:
+  {
+    PreCondition false;
+    Using m;
+    pprint("PreFail3 should never run!");
+  }
+
+ Hold4:
+  {
+    InvariantCondition !NodeExecuting(Hold1) && !NodeExecuting(Hold2);
+    Using m;
+    pprint("Hold4");
   }
 }

@@ -35,30 +35,28 @@ AssignToParentInvariant{
 [PlexilExec:step][1:3] Check queue: AssignToParentInvariant Child 
 [PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Child' for state transition.
-[PlexilExec:handleConditionsChanged]Node 'Child' is an assignment node that could be executing.  Adding it to the resource contention list 
-[PlexilExec:addToResourceContention]Adding node 'Child' to resource contention.
-[PlexilExec:resolveResourceConflicts]Node 'Child' has best priority.  Adding it to be executed in position 4
+[PlexilExec:handleConditionsChanged]Placing node 'Child' on the state change queue in position 4
 [PlexilExec:step][1:3] State change queue: Child 
 [PlexilExec:step][1:3:0] Transitioning node Child from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node AssignToParentInvariant
 [PlexilExec:notifyNodeConditionChanged] for node Child
 [PlexilExec:handleNeedsExecution]Storing action for node 'Child' of type 'Assignment' to be executed.
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Boolean step_failed 0x7ffda9c067d0 [a](0)) to 1
+[Test:testOutput]Assigning (Variable Boolean step_failed 0x7f94fa4069b0 [a](0)) to 1
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 AssignToParentInvariant{
  State: EXECUTING (0)
- InvariantCondition: (EQ Boolean 0x7ffda9c06d30 [a](0) (Variable Boolean step_failed 0x7ffda9c067d0 [a](1)) (Constant Boolean 0x104debb50 [a](0)))
- EndCondition: (EQ Boolean 0x7ffda9c06da0 [a](0) (StateVariable NodeState Child 0x7ffda9c06910 [a](EXECUTING)) (NodeStateValue NodeState 0x104debc40 [a](FINISHED)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ffda9c06e20 [i](0))
- step_failed: (Variable Boolean step_failed 0x7ffda9c067d0 [a](1))
+ InvariantCondition: (EQ Boolean 0x7f94fa406d00 [a](0) (Variable Boolean step_failed 0x7f94fa4069b0 [a](1)) (Constant Boolean 0x102869c80 [a](0)))
+ EndCondition: (EQ Boolean 0x7f94fa406db0 [a](0) (StateVariable NodeState Child 0x7f94fa406ae8 [a](EXECUTING)) (NodeStateValue NodeState 0x102869d70 [a](FINISHED)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f94fa406e10 [i](0))
+ step_failed: (Variable Boolean step_failed 0x7f94fa4069b0 [a](1))
   Child{
    State: EXECUTING (0)
-   AncestorInvariantCondition: (EQ Boolean 0x7ffda9c06d30 [a](0) (Variable Boolean step_failed 0x7ffda9c067d0 [a](1)) (Constant Boolean 0x104debb50 [a](0)))
-   AncestorEndCondition: (EQ Boolean 0x7ffda9c06da0 [a](0) (StateVariable NodeState Child 0x7ffda9c06910 [a](EXECUTING)) (NodeStateValue NodeState 0x104debc40 [a](FINISHED)))
-   ActionCompleteCondition: (InternalVariable Boolean ack 0x7ffda9c06a90 [a](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ffda9c06ad8 [i](0))
+   AncestorInvariantCondition: (EQ Boolean 0x7f94fa406d00 [a](0) (Variable Boolean step_failed 0x7f94fa4069b0 [a](1)) (Constant Boolean 0x102869c80 [a](0)))
+   AncestorEndCondition: (EQ Boolean 0x7f94fa406db0 [a](0) (StateVariable NodeState Child 0x7f94fa406ae8 [a](EXECUTING)) (NodeStateValue NodeState 0x102869d70 [a](FINISHED)))
+   ActionCompleteCondition: (InternalVariable Boolean ack 0x7f94fa406c50 [a](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f94fa406c90 [i](0))
   }
 }
 
@@ -69,30 +67,28 @@ AssignToParentInvariant{
 [PlexilExec:handleConditionsChanged]Placing node 'AssignToParentInvariant' on the state change queue in position 5
 [PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Child' for state transition.
-[PlexilExec:handleConditionsChanged]Node 'Child' is an assignment node that is failing, and is already in the resource contention list
 [PlexilExec:handleConditionsChanged]Placing node 'Child' on the state change queue in position 6
-[PlexilExec:resolveResourceConflicts] Ignoring Assignments for variable 'step_failed', which has a retraction pending
 [PlexilExec:step][2:0] State change queue: AssignToParentInvariant Child 
 [PlexilExec:step][2:0:0] Transitioning node AssignToParentInvariant from EXECUTING to FAILING
 [PlexilExec:notifyNodeConditionChanged] for node AssignToParentInvariant
 [PlexilExec:step][2:0:1] Transitioning node Child from EXECUTING to FAILING
 [PlexilExec:notifyNodeConditionChanged] for node Child
 [PlexilExec:performAssignments] performing 0 assignments and 1 retractions
-[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7ffda9c067d0 [a](1))
+[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7f94fa4069b0 [a](1))
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 AssignToParentInvariant{
  State: FAILING (0)
- InvariantCondition: (EQ Boolean 0x7ffda9c06d30 [a](1) (Variable Boolean step_failed 0x7ffda9c067d0 [a](0)) (Constant Boolean 0x104debb50 [a](0)))
- EndCondition: (EQ Boolean 0x7ffda9c06da0 [a](0) (StateVariable NodeState Child 0x7ffda9c06910 [a](FAILING)) (NodeStateValue NodeState 0x104debc40 [a](FINISHED)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ffda9c06e20 [a](0))
- step_failed: (Variable Boolean step_failed 0x7ffda9c067d0 [a](0))
+ InvariantCondition: (EQ Boolean 0x7f94fa406d00 [a](1) (Variable Boolean step_failed 0x7f94fa4069b0 [a](0)) (Constant Boolean 0x102869c80 [a](0)))
+ EndCondition: (EQ Boolean 0x7f94fa406db0 [a](0) (StateVariable NodeState Child 0x7f94fa406ae8 [a](FAILING)) (NodeStateValue NodeState 0x102869d70 [a](FINISHED)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f94fa406e10 [a](0))
+ step_failed: (Variable Boolean step_failed 0x7f94fa4069b0 [a](0))
   Child{
    State: FAILING (0)
-   AncestorInvariantCondition: (EQ Boolean 0x7ffda9c06d30 [a](1) (Variable Boolean step_failed 0x7ffda9c067d0 [a](0)) (Constant Boolean 0x104debb50 [a](0)))
-   AncestorEndCondition: (EQ Boolean 0x7ffda9c06da0 [a](0) (StateVariable NodeState Child 0x7ffda9c06910 [a](FAILING)) (NodeStateValue NodeState 0x104debc40 [a](FINISHED)))
-   ActionCompleteCondition: (InternalVariable Boolean ack 0x7ffda9c06a90 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ffda9c06ad8 [a](1))
+   AncestorInvariantCondition: (EQ Boolean 0x7f94fa406d00 [a](1) (Variable Boolean step_failed 0x7f94fa4069b0 [a](0)) (Constant Boolean 0x102869c80 [a](0)))
+   AncestorEndCondition: (EQ Boolean 0x7f94fa406db0 [a](0) (StateVariable NodeState Child 0x7f94fa406ae8 [a](FAILING)) (NodeStateValue NodeState 0x102869d70 [a](FINISHED)))
+   ActionCompleteCondition: (InternalVariable Boolean ack 0x7f94fa406c50 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f94fa406c90 [a](1))
   }
 }
 
@@ -100,7 +96,6 @@ AssignToParentInvariant{
 [PlexilExec:step][3:0] Check queue: AssignToParentInvariant Child 
 [PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Child' for state transition.
-[PlexilExec:handleConditionsChanged]Node 'Child' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
 [PlexilExec:handleConditionsChanged]Placing node 'Child' on the state change queue in position 7
 [PlexilExec:step][3:0] State change queue: Child 
 [PlexilExec:step][3:0:0] Transitioning node Child from FAILING to FINISHED
@@ -126,7 +121,7 @@ AssignToParentInvariant{
  State: FINISHED (0)
  Outcome: FAILURE
  Failure type: INVARIANT_CONDITION_FAILED
- step_failed: (Variable Boolean step_failed 0x7ffda9c067d0 [i]([unknown_value]))
+ step_failed: (Variable Boolean step_failed 0x7f94fa4069b0 [i]([unknown_value]))
   Child{
    State: FINISHED (0)
    Outcome: FAILURE

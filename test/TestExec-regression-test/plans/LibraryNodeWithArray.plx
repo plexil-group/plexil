@@ -11,11 +11,21 @@
             </DeclareArray>
          </InOut>
       </Interface>
+      <VariableDeclarations>
+        <DeclareMutex>
+          <Name>states</Name>
+        </DeclareMutex>
+      </VariableDeclarations>
       <NodeBody>
          <NodeList>
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_0</NodeId>
 			 <Priority>0</Priority>
+             <UsingMutex>
+               <Name>
+                 <StringValue>states</StringValue>
+               </Name>
+             </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
@@ -33,6 +43,11 @@
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_1</NodeId>
 			 <Priority>1</Priority>
+             <UsingMutex>
+               <Name>
+                 <StringValue>states</StringValue>
+               </Name>
+             </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
@@ -50,6 +65,11 @@
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_2</NodeId>
 			 <Priority>2</Priority>
+             <UsingMutex>
+               <Name>
+                 <StringValue>states</StringValue>
+               </Name>
+             </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
@@ -67,6 +87,11 @@
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_3</NodeId>
 			 <Priority>3</Priority>
+             <UsingMutex>
+               <Name>
+                 <StringValue>states</StringValue>
+               </Name>
+             </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
