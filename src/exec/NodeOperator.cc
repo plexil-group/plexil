@@ -24,83 +24,37 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_MUTEX_HH
-#define PLEXIL_MUTEX_HH
+//
+// Define default operator() methods
+//
 
-#include <string>
+#include "NodeOperator.hh"
+
+#include "Error.hh"
 
 namespace PLEXIL
 {
-  //
-  // Forward references
-  //
 
-  class Node;
+#define DEFINE_NODE_OPERATOR_DEFAULT_METHOD(_rtype_) \
+  bool NodeOperator::operator()(_rtype_ & /* result */, Node const * /* node */) const \
+  { assertTrueMsg(ALWAYS_FAIL, "No method defined for _rtype_"); return false; }
 
-  class Mutex
-  {
-  public:
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Boolean)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Integer)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Real)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(String)
 
-    Mutex(char const *name);
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(NodeState)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(NodeOutcome)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(FailureType)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(CommandHandleValue)
 
-    ~Mutex();
-
-    /**
-     * @brief Attempt to acquire this mutex for the named node.
-     * @param acquirer The node wishing to acquire the mutex.
-     * @return true if successful, false if the mutex is already held.
-     */
-
-    void acquire(Node const *acquirer);
-
-    /**
-     * @brief Release the mutex so another node can use it.
-     */
-
-    void release();
-
-    /**
-     * @brief Get the name of this mutex.
-     * @return Const reference to the name string.
-     */
-    std::string const &getName() const;
-
-    /**
-     * @brief Report which node owns this mutex.
-     * @return Pointer to the node; may be null.
-     */
-    Node const *getHolder() const;
-
-  private:
-
-    // Not implemented
-    Mutex() = delete;
-    Mutex(Mutex const &) = delete;
-    Mutex(Mutex &&) = delete;
-    Mutex &operator=(Mutex const &) = delete;
-    Mutex &operator=(Mutex &&) = delete;
-
-    std::string m_name;
-    Node const *m_holder;
-  };
-
-  /**
-   * @brief Find the named global Mutex, if it exists.
-   * @param name The name of the mutex.
-   * @return Pointer to the named Mutex, or NULL.
-   */
-
-  Mutex *getGlobalMutex(char const *name);
-
-  /**
-   * @brief Find the named global Mutex. If it does not exist, create it.
-   * @param name The name of the mutex.
-   * @return Pointer to the named Mutex.
-   * @note Should never return null.
-   */
-
-  Mutex *ensureGlobalMutex(char const *name);
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Array)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(BooleanArray)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(IntegerArray)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(RealArray)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(StringArray)
+  
+#undef DEFINE_NODE_OPERATOR_DEFAULT_METHOD
 
 }
-
-#endif // PLEXIL_MUTEX_HH

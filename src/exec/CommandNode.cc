@@ -51,14 +51,14 @@ namespace PLEXIL
     {
     }
     
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown, Boolean)
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    bool operator()(Boolean &result, Node const *node) const
+    virtual bool operator()(Boolean &result, Node const *node) const override
     {
       result =
         (NO_COMMAND_HANDLE !=
@@ -98,7 +98,7 @@ namespace PLEXIL
       return true;
     }
 
-    bool operator()(bool &result, Node const *node) const
+    virtual bool operator()(bool &result, Node const *node) const override
     {
       switch (((CommandNode const *) node)->getCommand()->getCommandHandle()) {
         // Cases in which node is terminated early
@@ -116,7 +116,7 @@ namespace PLEXIL
       return true;
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, Boolean)
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible)
 
     private:
 

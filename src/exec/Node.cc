@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 #include "BooleanOperators.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecConnector.hh" // g_exec
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "Function.hh"
@@ -38,7 +39,6 @@
 #include "NodeOperatorImpl.hh"
 #include "NodeTimepointValue.hh"
 #include "NodeVariableMap.hh"
-#include "PlexilExec.hh"
 #include "SimpleMap.hh"
 #include "UserVariable.hh"
 #include "lifecycle-utils.h"
@@ -56,78 +56,6 @@ namespace PLEXIL
   //
   // Node operators for conditions
   //
-
-  class TryAcquireMutexes : public NodeOperatorImpl<Boolean>
-  {
-  public:
-    ~TryAcquireMutexes() = default;
-
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(TryAcquireMutexes, Boolean);
-
-    bool checkArgCount(size_t /* count */) const
-    {
-      return true;
-    }
-
-    bool operator()(Boolean &result, Node const *node) const
-    {
-      std::vector<Mutex *> const *mutexes = node->getMutexes();
-      assertTrueMsg(mutexes,
-                    "TryAcquireMutexes called on node " << node->getNodeId()
-                    << " which has no mutexes!");
-
-      size_t i = 0;
-      for (i = 0; i < mutexes->size(); ++i) {
-        if (!(*mutexes)[i]->tryAcquire(node)) {
-          debugMsg("TryAcquireMutexes",
-                   ' ' << node->getNodeId() << " failed to acquire mutex "
-                   << (*mutexes)[i]->getName() << "; returning false");
-
-          // Release any mutexes we did acquire, in reverse order of acquisition
-          while (i > 0)
-            (*mutexes)[--i]->release();
-          result = false;
-          return true; // result is known
-        }
-      }
-      // Success
-      result = true;
-      debugMsg("TryAcquireMutexes",
-               ' ' << node->getNodeId() << " succeeded, returning true");
-      return true; 
-    }
-
-    // Kludge alert!
-    // Since calculating this value has side effects, look for the side effects.
-    virtual void printValue(std::ostream &s, void *cache, Node const *node) const override
-    {
-      std::vector<Mutex *> const *mutexes = node->getMutexes();
-      if (!mutexes || !mutexes->size()) {
-        s << "[unknown_value]"; // fail quietly
-        return;
-      }
-
-      assertTrueMsg((*mutexes)[0],
-                    "Internal error: Null mutex pointer in Node " << node->getNodeId());
-
-      PLEXIL::printValue((Boolean) ((*mutexes)[0]->getHolder() == node),
-                         s);
-    }
-
-  private:
-
-    TryAcquireMutexes()
-      : NodeOperatorImpl<Boolean>("TryAcquireMutexes")
-    {
-    }
-
-    // Disallow copy, assign
-    TryAcquireMutexes(TryAcquireMutexes const &) = delete;
-    TryAcquireMutexes(TryAcquireMutexes &&) = delete;
-    TryAcquireMutexes &operator=(TryAcquireMutexes const &) = delete;
-    TryAcquireMutexes &operator=(TryAcquireMutexes &&) = delete;
-
-  };
 
   //
   // Static members
@@ -177,7 +105,8 @@ namespace PLEXIL
       m_parent(parent),
       m_conditions(),
       m_localVariables(nullptr),
-      m_mutexes(nullptr),
+      m_localMutexes(nullptr),
+      m_usingMutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -185,6 +114,7 @@ namespace PLEXIL
       m_nodeId(nodeId),
       m_currentStateStartTime(0.0),
       m_timepoints(nullptr),
+      m_priority(WORST_PRIORITY),
       m_garbageConditions(),
       m_cleanedConditions(false),
       m_cleanedVars(false),
@@ -212,7 +142,8 @@ namespace PLEXIL
       m_parent(parent),
       m_conditions(),
       m_localVariables(nullptr),
-      m_mutexes(nullptr),
+      m_localMutexes(nullptr),
+      m_usingMutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -220,6 +151,7 @@ namespace PLEXIL
       m_nodeId(name),
       m_currentStateStartTime(0.0),
       m_timepoints(nullptr),
+      m_priority(WORST_PRIORITY),
       m_garbageConditions(),
       m_cleanedConditions(false), 
       m_cleanedVars(false),
@@ -326,15 +258,53 @@ namespace PLEXIL
 
   void Node::allocateMutexes(size_t n)
   {
-    assertTrue_1(!m_mutexes); // illegal to call this twice
-    m_mutexes = new std::vector<Mutex *>();
-    m_mutexes->reserve(n);
+    assertTrue_1(!m_localMutexes); // illegal to call this twice
+    m_localMutexes = new std::vector<std::unique_ptr<Mutex> >();
+    m_localMutexes->reserve(n);
+  }
+
+  void Node::allocateUsingMutexes(size_t n)
+  {
+    assertTrue_1(!m_usingMutexes); // illegal to call this twice
+    m_usingMutexes = new std::vector<Mutex *>();
+    m_usingMutexes->reserve(n);
   }
 
   void Node::addMutex(Mutex *m)
   {
-    assertTrue_1(m_mutexes); // should have been preallocated
-    m_mutexes->push_back(m);
+    assertTrue_1(m_localMutexes); // should have been preallocated
+    m_localMutexes->emplace_back(std::unique_ptr<Mutex>(m));
+  }
+
+  void Node::addUsingMutex(Mutex *m)
+  {
+    assertTrue_1(m_usingMutexes); // should have been preallocated
+    m_usingMutexes->push_back(m);
+  }
+
+  Mutex *Node::findLocalMutex(char const *name)
+  {
+    if (!m_localMutexes)
+      return nullptr;
+    for (std::unique_ptr<Mutex> const &mp : *m_localMutexes)
+      if (!mp->getName().compare(name))
+        return mp.get();
+    return nullptr;
+  }
+
+  Mutex *Node::findMutex(char const *name)
+  {
+    Mutex *result = findLocalMutex(name);
+    if (result)
+      return result;
+    Node *ancestor = m_parent;
+    while (ancestor) {
+      result = ancestor->findLocalMutex(name);
+      if (result)
+        return result;
+      ancestor = ancestor->m_parent;
+    }
+    return getGlobalMutex(name);
   }
 
   void Node::finalizeConditions()
@@ -393,25 +363,6 @@ namespace PLEXIL
   void Node::createConditionWrappers()
   {
     this->specializedCreateConditionWrappers();
-
-    if (m_mutexes) {
-      // Add acquisition of mutexes as final gate to start condition
-      Expression *sc =
-        new NodeFunction(TryAcquireMutexes::instance(), this);
-      if (getStartCondition())
-        sc = makeFunction(BooleanAnd::instance(),
-                          getStartCondition(),
-                          sc,
-                          m_garbageConditions[startIdx],
-                          true);
-      // else use by itself
-      m_conditions[startIdx] = sc;
-      m_garbageConditions[startIdx] = true;
-
-      // Add start condition as listener to mutexes
-      for (Mutex *m : *m_mutexes)
-        m->addListener(sc);
-    }
   }
 
   // Default method does nothing.
@@ -448,19 +399,10 @@ namespace PLEXIL
 
     debugMsg("Node:cleanUpConditions", " for " << m_nodeId);
 
-    if (m_mutexes) {
-      debugMsg("Node:cleanUpConds",
-               "<" << m_nodeId << "> Deleting mutexes");
-      
-      // Remove start condition as listener from mutexes
-      Expression *sc = getStartCondition();
-      assertTrue_1(sc);
-      for (Mutex *m: *m_mutexes)
-        m->removeListener(sc);
-      
-      // Delete vector (but not the shared mutexes)
-      delete m_mutexes;
-      m_mutexes = nullptr;
+    // Delete mutex references
+    if (m_usingMutexes) {
+      delete m_usingMutexes;
+      m_usingMutexes = nullptr;
     }
 
     // Remove condition listeners
@@ -517,7 +459,9 @@ namespace PLEXIL
       delete m_localVariables;
     }
 
-    // Delete internal variables
+    // Delete mutexes
+    delete m_localMutexes; // deletes actual mutexes
+
     m_cleanedVars = true;
   }
 
@@ -605,8 +549,8 @@ namespace PLEXIL
 
     // Temporary - shouldn't be necessary in production
     switch (m_queueStatus) {
-    case QUEUE_NONE: // unit tests, used to be exec's normal case
-    case QUEUE_CHECK: // normal case in exec
+    case QUEUE_NONE: // unit tests, exec's normal case
+    case QUEUE_PENDING_CHECK: // waiting on a mutex
       break;
 
     default: // all other cases are trouble
@@ -977,7 +921,6 @@ namespace PLEXIL
       m_nextState = ITERATION_ENDED_STATE;
       m_nextOutcome = FAILURE_OUTCOME;
       m_nextFailureType = PRE_CONDITION_FAILED;
-      releaseMutexes(); // in case any were acquired by executing the StartCondition
       return true;
     }
     debugMsg("Node:getDestState",
@@ -1721,9 +1664,9 @@ namespace PLEXIL
   // Release in reverse order of acquisition
   void Node::releaseMutexes()
   {
-    if (m_mutexes)
-      for (std::vector<Mutex *>::const_reverse_iterator rit = m_mutexes->rbegin();
-           rit != m_mutexes->rend();
+    if (m_usingMutexes)
+      for (std::vector<Mutex *>::const_reverse_iterator rit = m_usingMutexes->rbegin();
+           rit != m_usingMutexes->rend();
            ++rit) {
         assertTrueMsg((*rit)->getHolder() == this,
                       "Node::releaseMutexes: node " << m_nodeId

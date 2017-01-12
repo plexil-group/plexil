@@ -42,33 +42,6 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  // First pass
-  static void parsePriority(AssignmentNode *anode, xml_node const nodeXml)
-    throw (ParserException)
-  {
-    xml_node const prio = nodeXml.child(PRIORITY_TAG);
-    if (!prio)
-      return; // nothing to do
-
-    char const *prioString = prio.child_value();
-    checkParserExceptionWithLocation(*prioString,
-                                     prio,
-                                     "Priority element is empty");
-    char *endptr = NULL;
-    errno = 0;
-    unsigned long prioValue = strtoul(prioString, &endptr, 10);
-    checkParserExceptionWithLocation(endptr != prioString && !*endptr,
-                                     prio,
-                                     "Priority element does not contain a non-negative integer");
-    checkParserExceptionWithLocation(!errno,
-                                     prio,
-                                     "Priority element contains negative or out-of-range integer");
-    checkParserExceptionWithLocation(prioValue < (unsigned long) std::numeric_limits<int32_t>::max(),
-                                     prio,
-                                     "Priority element contains out-of-range integer");
-    anode->setPriority((int32_t) prioValue);
-  }
-
   static void checkAssignment(std::string const &nodeId, xml_node const nodeXml)
     throw (ParserException)
   {
@@ -92,7 +65,6 @@ namespace PLEXIL
 
     // Can throw ParserException
     checkAssignment(anode->getNodeId(), xml);
-    parsePriority(anode, xml);
     
     // Just construct it, will be populated in second pass
     anode->setAssignment(new Assignment(anode->getNodeId()));

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -282,7 +282,7 @@ namespace PLEXIL
                                      elt,
                                      declXml.name() << " " << NAME_TAG << " is empty");
 
-    Symbol *m = g_symbolTable->addMutex(name);
+    Symbol *m = g_symbolTable->addMutex(name); // creates mutex if not already there
     checkParserExceptionWithLocation(m,
                                      elt,
                                      declXml.name() << " " << name << " is already declared");
@@ -301,7 +301,7 @@ namespace PLEXIL
         parseStateDeclaration(decl);
       else if (testTag(LIBRARY_NODE_DECLARATION_TAG, decl))
         parseLibraryNodeDeclaration(decl);
-      else if (testTag(MUTEX_DECLARATION_TAG, decl))
+      else if (testTag(DECLARE_MUTEX_TAG, decl))
         parseMutexDeclaration(decl);
       else {
         checkParserExceptionWithLocation(ALWAYS_FAIL,

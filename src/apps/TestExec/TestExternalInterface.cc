@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,9 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecConnector.hh" // g_exec
 #include "Node.hh"
 #include "NodeConstants.hh"
-#include "PlexilExec.hh"
 #include "StateCacheEntry.hh"
 #include "Update.hh"
 #include "parsePlan.hh"

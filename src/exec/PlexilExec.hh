@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #include "ExecConnector.hh"
 #include "LinkedQueue.hh"
 #include "NodeTransition.hh"
-#include "VariableConflictSet.hh"
 
 #include <list>
 #include <map>
@@ -41,8 +40,6 @@ namespace PLEXIL
   // Forward references
   class Expression;
   class ExecListenerBase;
-
-  struct NodeConflictComparator;
 
   /**
    * @brief The core PLEXIL executive.
@@ -135,53 +132,44 @@ namespace PLEXIL
     void notifyNodeConditionChanged(Node *node);
 
     /**
-     * @brief Remove node from consideration for state change.
-     * @param node The node which is ineligible for state change.
-     */
-    void removeNodeFromConsideration(Node *node);
-
-    /**
-     * @brief Handle the fact that a node's relevant conditions have changed (it is eligible for state change).
-     * @param node The node which is eligible for state change.
-     */
-    void handleConditionsChanged(Node *node);
-
-    /**
      * @brief Get the list of active plans.
      */
     std::list<Node *> const &getPlans() const;
 
   private:
+
     // Not implemented
-    PlexilExec(PlexilExec const &);
-    PlexilExec &operator=(PlexilExec const &);
+    PlexilExec(PlexilExec const &) = delete;
+    PlexilExec(PlexilExec &&) = delete;
+    PlexilExec &operator=(PlexilExec const &) = delete;
+    PlexilExec &operator=(PlexilExec &&) = delete;
+
+    // Comparison function for pending queue
+    struct PendingCompare
+    {
+      bool operator() (Node const &x, Node const &y) const;
+    };
 
     /**
-     * @brief Resolve conflicts among potentially executing assignment variables.
+     * @brief Check the node for its role in resource conflicts (mutex or variable)
+     * @param node The node that is eligible to transition.
+     * @return true if conflict possible, false if not.
+     * @note Puts nodes with potential conflict roles into a special queue.
+     */
+    bool checkResourceConflicts(Node *node);
+
+    /**
+     * @brief Resolve conflicts among potentially executing variables.
      */
     void resolveResourceConflicts();
 
     /**
-     * @brief Resolve conflicts for this variable.
+     * @brief Adds a node to consideration for resource contention.
+     *        The node must use at least one mutex and be eligible
+     *        for state transition to EXECUTING.
+     * @param node The node.
      */
-    void resolveVariableConflicts(VariableConflictSet *conflictNodes);
-
-    /**
-     * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
-     * @param node The assignment node.
-     */
-    void addToResourceContention(Node *node);
-
-    /**
-     * @brief Removes a node from consideration for resource contention.  This is usually because some condition has changed that makes the node no longer
-     * eligible for execution.
-     * @param node The assignment node.
-     */
-    void removeFromResourceContention(Node *node);
-
-    VariableConflictSet *getConflictSet(Expression *);
-
-    VariableConflictSet *ensureConflictSet(Expression *);
+    void addToContention(Node *node);
 
     //
     // Internal queue management
@@ -191,21 +179,18 @@ namespace PLEXIL
     Node *getCandidateNode();
     void removeCandidateNode(Node *node);
 
+    void addPendingNode(Node *node);
+    void removePendingNode(Node *node);
+
     void addStateChangeNode(Node *node);
     Node *getStateChangeNode();
 
     void addFinishedRootNode(Node *node);
     Node *getFinishedRootNode();
 
-    /**
-     * @brief Gets a stringified version of the current check queue.
-     */
-    std::string conditionCheckQueueStr() const;
-
-    /**
-     * @brief Gets a stringified version of the current state change queue.
-     */
-    std::string stateChangeQueueStr() const;
+    void printConditionCheckQueue() const;
+    void printPendingQueue() const;
+    void printStateChangeQueue() const;
 
     /**
      * @brief Batch-perform internal assignments queued up from a quiescence step.
@@ -213,15 +198,15 @@ namespace PLEXIL
     void performAssignments();
 
     LinkedQueue<Node> m_candidateQueue;    /*<! Nodes whose conditions have changed and may be eligible to transition. */
+    PriorityQueue<Node, PendingCompare> m_pendingQueue; /*<! Nodes waiting to acquire a mutex. */ 
     LinkedQueue<Node> m_stateChangeQueue;  /*<! Nodes awaiting state transition.*/
     LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
+
     LinkedQueue<Assignment> m_assignmentsToExecute;
     LinkedQueue<Assignment> m_assignmentsToRetract;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
-    std::vector<Expression *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     ExecListenerBase *m_listener;
-    VariableConflictSet *m_resourceConflicts; /*<! Linked list of variable assignment contention sets. */
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };

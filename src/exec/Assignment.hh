@@ -41,8 +41,13 @@ namespace PLEXIL
     ~Assignment();
 
     Expression *getDest();
+    Expression const *getDest() const;
+
     Expression *getAck();
+    Expression const *getAck() const;
+    
     Expression *getAbortComplete();
+    Expression const *getAbortComplete() const;
 
     // For use by plan parser
     void setVariable(Expression *lhs, bool garbage);

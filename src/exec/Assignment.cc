@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
 #include "Assignable.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecConnector.hh" // getExecListener()
 #include "ExecListenerBase.hh"
-#include "PlexilExec.hh" // getExecListener()
 
 namespace PLEXIL
 {
@@ -65,7 +65,16 @@ namespace PLEXIL
     return &m_next;
   }
 
+  //
+  // Both const and non-const flavors for accessors
+  //
+
   Expression *Assignment::getDest()
+  {
+    return m_dest;
+  }
+
+  Expression const *Assignment::getDest() const
   {
     return m_dest;
   }
@@ -74,8 +83,18 @@ namespace PLEXIL
   {
     return &m_ack;
   }
+  
+  Expression const *Assignment::getAck() const
+  {
+    return &m_ack;
+  }
 
   Expression *Assignment::getAbortComplete()
+  {
+    return &m_abortComplete;
+  }
+
+  Expression const *Assignment::getAbortComplete() const
   {
     return &m_abortComplete;
   }

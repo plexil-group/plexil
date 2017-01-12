@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,7 @@
 */
 
 #include "SymbolTable.hh"
+#include "Mutex.hh"
 
 namespace PLEXIL
 {
@@ -290,6 +291,9 @@ namespace PLEXIL
         m_mutexMap.find(namestr);
       if (it != m_mutexMap.end())
         return NULL; // duplicate
+
+      ensureGlobalMutex(name); // for effect
+
       return (m_mutexMap[namestr] = new Symbol(name, MUTEX_TYPE));
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -60,19 +60,22 @@ namespace PLEXIL
     virtual void *allocateCache() const = 0;
     virtual void deleteCache(void *Ptr) const = 0;
 
-    virtual bool operator()(Boolean &result, Node const *arg) const = 0;
-    virtual bool operator()(NodeState &result, Node const *arg) const = 0;
-    virtual bool operator()(NodeOutcome &result, Node const *arg) const = 0;
-    virtual bool operator()(FailureType &result, Node const *arg) const = 0;
-    virtual bool operator()(CommandHandleValue &result, Node const *arg) const = 0;
-    virtual bool operator()(Integer &result, Node const *node) const = 0;
-    virtual bool operator()(Real &result, Node const *node) const = 0;
-    virtual bool operator()(String &result, Node const *node) const = 0;
-    virtual bool operator()(Array &result, Node const *node) const = 0;
-    virtual bool operator()(BooleanArray &result, Node const *node) const = 0;
-    virtual bool operator()(IntegerArray &result, Node const *node) const = 0;
-    virtual bool operator()(RealArray &result, Node const *node) const = 0;
-    virtual bool operator()(StringArray &result, Node const *node) const = 0;
+    // Default methods assert
+    virtual bool operator()(Boolean &result, Node const *arg) const;
+    virtual bool operator()(Integer &result, Node const *node) const;
+    virtual bool operator()(Real &result, Node const *node) const;
+    virtual bool operator()(String &result, Node const *node) const;
+
+    virtual bool operator()(Array &result, Node const *node) const;
+    virtual bool operator()(BooleanArray &result, Node const *node) const;
+    virtual bool operator()(IntegerArray &result, Node const *node) const;
+    virtual bool operator()(RealArray &result, Node const *node) const;
+    virtual bool operator()(StringArray &result, Node const *node) const;
+
+    virtual bool operator()(NodeState &result, Node const *arg) const;
+    virtual bool operator()(NodeOutcome &result, Node const *arg) const;
+    virtual bool operator()(FailureType &result, Node const *arg) const;
+    virtual bool operator()(CommandHandleValue &result, Node const *arg) const;
 
     virtual bool calcNative(void *cache, Node const *node) const = 0;
     virtual void printValue(std::ostream &s, void *cache, Node const *node) const = 0;

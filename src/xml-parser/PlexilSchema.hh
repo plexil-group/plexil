@@ -43,14 +43,14 @@ namespace PLEXIL
   constexpr char const *ANY_PARAMETERS_TAG = "AnyParameters";
   constexpr char const *STATE_DECLARATION_TAG = "StateDeclaration";
   constexpr char const *LIBRARY_NODE_DECLARATION_TAG = "LibraryNodeDeclaration";
-  constexpr char const *MUTEX_DECLARATION_TAG = "MutexDeclaration";
+  constexpr char const *DECLARE_MUTEX_TAG = "DeclareMutex";
 
   constexpr char const *NODE_TAG = "Node";
   constexpr char const *NODETYPE_ATTR = "NodeType";
   constexpr char const *NODEID_TAG = "NodeId";
   constexpr char const *COMMENT_TAG = "Comment";
   constexpr char const *PRIORITY_TAG = "Priority";
-  constexpr char const *MUTEXES_TAG = "Mutexes";
+  constexpr char const *USING_MUTEX_TAG = "UsingMutex";
 
   constexpr char const *VAR_DECLS_TAG = "VariableDeclarations";
   constexpr char const *DECL_VAR_TAG = "DeclareVariable";

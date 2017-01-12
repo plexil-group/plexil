@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -67,26 +67,12 @@ namespace PLEXIL
       return NodeType_Assignment;
     }
 
+    // *** TODO - remove if no longer needed ***
+
     /**
      * @brief Accessor for the assigned variable.
      */
     Expression *getAssignmentVariable() const;
-
-    /**
-     * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
-     * @return the priority of this node.
-     */
-    int32_t getPriority() const {return m_priority;}
-
-    /**
-     * @brief Set the node's priority.
-     * @param prio The priority.
-     * @note Should only be used by plan parser and unit tests.
-     */
-    void setPriority(int32_t prio)
-    {
-      m_priority = prio;
-    }
 
     // Intended for plan parser only
     Assignment *getAssignment() { return m_assignment; }
@@ -122,7 +108,6 @@ namespace PLEXIL
     void abort();
 
     Assignment *m_assignment;
-    int32_t m_priority; /*<! The priority of this node. */
   };
 
 }

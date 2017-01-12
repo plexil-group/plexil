@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// TODO:
+// *** Consider whether we really need an AbortComplete condition ***
+
 #include "AssignmentNode.hh"
 #include "Assignment.hh"
 #include "Debug.hh"
@@ -38,8 +41,7 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(char const *nodeId, 
                                  Node *parent)
     : Node(nodeId, parent),
-      m_assignment(NULL),
-      m_priority(WORST_PRIORITY)
+      m_assignment(NULL)
   {
   }
 
@@ -49,8 +51,7 @@ namespace PLEXIL
                                  NodeState state,
                                  Node *parent)
     : Node(type, name, state, parent),
-      m_assignment(NULL),
-      m_priority(WORST_PRIORITY)
+      m_assignment(NULL)
   {
     // Create Assignment object
     createDummyAssignment();

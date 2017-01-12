@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
 
+#include <memory> // std::unique_ptr
+
 // Take care of annoying VxWorks macro
 #undef UPDATE
 
@@ -56,6 +58,8 @@ namespace PLEXIL {
   enum QueueStatus : uint8_t {
     QUEUE_NONE = 0,          // not in any queue
     QUEUE_CHECK,             // in check-conditions queue
+    QUEUE_PENDING,           // waiting for a mutex
+    QUEUE_PENDING_CHECK,     // waiting for a mutex AND check-conditions requested
     QUEUE_TRANSITION,        // in state transition queue
     QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
     QUEUE_DELETE             // no longer eligible to transition
@@ -177,9 +181,21 @@ namespace PLEXIL {
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
      * @return the priority of this node.
-     * @note Default method; only assignment nodes care about priority.
      */
-    virtual int32_t getPriority() const {return WORST_PRIORITY;}
+    Integer getPriority() const
+    {
+      return m_priority;
+    }
+
+    /**
+     * @brief Set the node's priority.
+     * @param prio The priority.
+     * @note Should only be used by plan parser and unit tests.
+     */
+    void setPriority(Integer prio)
+    {
+      m_priority = prio;
+    }
 
     //
     // ExpressionListener API
@@ -189,7 +205,7 @@ namespace PLEXIL {
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.
-     * @return True if the new destination state is different from the last check, false otherwise.
+     * @return True if the node is eligible to transition, false otherwise.
      * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
      */
     bool getDestState();
@@ -241,13 +257,30 @@ namespace PLEXIL {
     // Pre-allocate local variable vector, variable map.
     void allocateVariables(size_t n);
 
-    std::vector<Mutex *> const *getMutexes() const { return m_mutexes; }
+    std::vector<Mutex *> const *getUsingMutexes() const { return m_usingMutexes; }
 
     // Pre-allocate mutex vector.
     void allocateMutexes(size_t n);
+    void allocateUsingMutexes(size_t n);
 
     // Add a mutex.
     void addMutex(Mutex *m);
+    void addUsingMutex(Mutex *m);
+
+    /**
+     * @brief Looks up a mutex by name. Searches ancestors and globals.
+     * @param name Name of the mutex.
+     * @return The mutex, or NULL if not found.
+     */
+    Mutex *findMutex(char const *name);
+
+    /**
+     * @brief Find the named mutex in this node, ignoring its ancestors
+     *        and any global declarations.
+     * @param name Name of the mutex.
+     * @return The mutex, or NULL if not found.
+     */
+    Mutex *findLocalMutex(char const *name);
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
@@ -487,7 +520,7 @@ namespace PLEXIL {
     NodeOutcome  m_outcome;             /*!< The current outcome. */
     FailureType  m_failureType;         /*!< The current failure. */
 
-    bool         m_pad;                 // to ensure 8 byte alignment
+    bool         m_pad;                 /*!< Ensure 4-byte alignment */
     NodeState    m_nextState;           /*!< The state calculated by getDestState() the last time checkConditions() was called. */
     NodeOutcome  m_nextOutcome;         /*!< The pending outcome. */
     FailureType  m_nextFailureType;     /*!< The pending failure. */
@@ -496,7 +529,8 @@ namespace PLEXIL {
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
  
     std::vector<Expression *> *m_localVariables; /*!< Variables created in this node. */
-    std::vector<Mutex *> *m_mutexes; /*!< Mutexes required by this node. */
+    std::vector<std::unique_ptr<Mutex> > *m_localMutexes; /*!< Mutexes created in this node. */
+    std::vector<Mutex *> *m_usingMutexes; /*!< Mutexes required by this node. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
@@ -510,6 +544,8 @@ namespace PLEXIL {
     NodeTimepointValue *m_timepoints;
 
   protected:
+
+    Integer m_priority;
 
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */

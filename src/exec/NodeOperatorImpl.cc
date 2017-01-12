@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -90,39 +90,6 @@ namespace PLEXIL
   //     return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
   //   else
   //     return Value();
-  // }
-
-  // Default methods
-  template <typename R>
-  bool NodeOperatorImpl<R>::calc(R &result, Node const * /* node */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for return type "
-                   << valueTypeName(PlexilValueType<R>::value));
-    return false;
-  }
-
-  // template <typename R>
-  // bool NodeOperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Node const * /* node */) const
-  // {
-  //   checkPlanError(ALWAYS_FAIL,
-  //                  "Operator " << this->getName() << " not implemented for return type "
-  //                  << valueTypeName(PlexilValueType<R>::arrayValue));
-  //   return false;
-  // }
-
-  // Conversion methods
- 
-  // Not currently used
-  // template <>
-  // template <>
-  // bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const
-  // {
-  //   Integer temp;
-  //   if (!this->calc(temp, node))
-  //     return false;
-  //   result = (Real) temp;
-  //   return true;
   // }
 
   //

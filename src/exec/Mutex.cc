@@ -27,7 +27,6 @@
 #include "Mutex.hh"
 
 #include "Debug.hh"
-#include "ExpressionListener.hh"
 #include "Node.hh" 
 #include "PlanError.hh"
 
@@ -40,43 +39,24 @@ namespace PLEXIL
 
   Mutex::Mutex(char const *name)
     : m_name(name),
-      m_holder(nullptr),
-      m_listeners()
+      m_holder(nullptr)
   {
-    m_listeners.reserve(2); // at least one listener will register upon creation
   }
 
   Mutex::~Mutex()
   {
-    // To be deleted; for debugging only
-    check_error_2(m_listeners.empty(),
-                  "Mutex destructor: listeners still registered");
   }
 
-  bool Mutex::tryAcquire(Node const *acquirer)
+  void Mutex::acquire(Node const *acquirer)
   {
-    // To be deleted; for debugging only
-    assertTrue_2(acquirer, "Mutex::tryAcquire: null argument!");
+    assertTrue_2(acquirer, "Mutex::acquire: null argument!");
 
-    if (m_holder) {
-      // Check for double acquisition
-      Node const *ancestor = acquirer;
-      do {
-        checkPlanError(m_holder != ancestor,
-                       "Error: Node " << acquirer->getNodeId()
-                       << " attempting to acquire mutex " << m_name
-                       << " already held by node's ancestor " << ancestor->getNodeId());
-      } while ((ancestor = ancestor->getParent()));
-
-      debugMsg("Mutex:tryAcquire",
-               ' ' << m_name << " node " << acquirer->getNodeId() << " failed");
-      return false; // sorry, Charlie
-    }
+    assertTrueMsg(!m_holder,
+                  "Mutex::acquire called with mutex " << m_name << " already held");
 
     m_holder = acquirer;
-    debugMsg("Mutex:tryAcquire",
+    debugMsg("Mutex:acquire",
              ' ' << m_name << " node " << acquirer->getNodeId() << " succeeded");
-    return true;
   }
 
   void Mutex::release()
@@ -85,7 +65,6 @@ namespace PLEXIL
     if (m_holder) {
       debugMsg("Mutex:release",' ' << m_name << " by node " << m_holder->getNodeId());
       m_holder = nullptr;
-      notifyAvailable();
     }
   }
 
@@ -99,54 +78,43 @@ namespace PLEXIL
     return m_holder;
   }
 
-  void Mutex::addListener(ExpressionListener *l)
-  {
-    if (std::find(std::begin(m_listeners), std::end(m_listeners), l)
-        == m_listeners.end())
-      m_listeners.push_back(l);
-  }
-
-  void Mutex::removeListener(ExpressionListener *l)
-  {
-    std::vector<ExpressionListener *>::iterator it =
-      std::find(std::begin(m_listeners), std::end(m_listeners), l);
-    if (it != m_listeners.end())
-      m_listeners.erase(it);
-  }
-
-  void Mutex::notifyAvailable()
-  {
-    debugMsg("Mutex:notifyAvailable", ' ' << m_name);
-    for (ExpressionListener *l : m_listeners)
-      l->notifyChanged();
-  }
-
   //
-  // Mutex management
+  // Global Mutex management
   //
 
   typedef std::map<std::string, std::unique_ptr<Mutex> > MutexMap;
 
-  static MutexMap s_mutexes;
+  static MutexMap s_globalMutexes;
 
-  Mutex *createMutex(char const *name)
+  Mutex *getGlobalMutex(char const *name)
   {
-    debugMsg("Mutex:ensureMutex", " constructing new mutex " << name);
+    assertTrue_2(name && *name,
+                 "getGlobalMutex: null or empty name");
+    MutexMap::const_iterator it = s_globalMutexes.find(name);
+    if (it != s_globalMutexes.end())
+      return it->second.get();
+    else
+      return nullptr;
+  }
+    
+  static Mutex *createGlobalMutex(char const *name)
+  {
+    debugMsg("Mutex:ensureGlobalMutex", " constructing new mutex " << name);
     Mutex *result = new Mutex(name);
-    s_mutexes.emplace(std::make_pair(std::string(name),
-                                     std::unique_ptr<Mutex>(result)));
+    s_globalMutexes.emplace(std::make_pair(std::string(name),
+                                           std::unique_ptr<Mutex>(result)));
     return result;
   }
 
-  Mutex *ensureMutex(char const *name)
+  Mutex *ensureGlobalMutex(char const *name)
   {
-    assertTrue_2(name && *name,
-                 "ensureMutex: null or empty name");
-    MutexMap::const_iterator it = s_mutexes.find(name);
-    if (it == s_mutexes.end())
-      return createMutex(name);
-    debugMsg("Mutex:ensureMutex", " returning existing mutex " << name);
-    return it->second.get();
+    Mutex *result = getGlobalMutex(name);
+    if (result) {
+      debugMsg("Mutex:ensureGlobalMutex", " returning existing mutex " << name);
+      return result;
+    }
+    else
+      return createGlobalMutex(name);
   }
 
 }

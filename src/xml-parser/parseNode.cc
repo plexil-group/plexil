@@ -59,14 +59,6 @@ namespace PLEXIL
   // First pass
   //
 
-  // Early first pass
-  // Preallocate symbol table space for variables
-  // Don't do any parsing, just count
-  static size_t estimateVariableSpace(xml_node const decls)
-  {
-    return std::distance(decls.begin(), decls.end());
-  }
-
   static char const *getVarDeclName(xml_node const decl)
     throw (ParserException)
   {
@@ -79,24 +71,50 @@ namespace PLEXIL
     return name;
   }
 
+  static void parseVariableDeclaration(Node *node, xml_node const decl)
+  {
+    // Check for duplicate names before allocating
+    char const *name = getVarDeclName(decl);
+    for (xml_node sib = decl.previous_sibling(); sib; sib = sib.previous_sibling()) {
+      checkParserExceptionWithLocation(strcmp(name, getVarDeclName(sib)),
+                                       decl,
+                                       "Multiple variables named \""
+                                       << name
+                                       << "\" in node "
+                                       << node->getNodeId());
+    }
+
+    // Variables are always created here, no need for "garbage" flag.
+    node->addLocalVariable(name, createExpression(decl, node));
+  }
+
+  static void parseMutexDeclaration(Node *node, xml_node const decl)
+  {
+    char const *name = decl.child(NAME_TAG).child_value();
+    // Ensure name is supplied
+    checkParserExceptionWithLocation(name && *name,
+                                     decl,
+                                     "Malformed or empty " << DECLARE_MUTEX_TAG
+                                     << " in node " << node->getNodeId());
+    // Ensure supplied name is locally unique
+    checkParserExceptionWithLocation(!node->findLocalMutex(name),
+                                     decl.child(NAME_TAG),
+                                     "Multiple mutexes named \""
+                                     << name
+                                     << "\" in node " << node->getNodeId());
+
+    // Construct it and give to node
+    node->addMutex(new Mutex(name));
+  }
+
   static void parseVariableDeclarations(Node *node, xml_node const decls)
     throw (ParserException)
   {
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
-      // Check for duplicate names before allocating
-      char const *name = getVarDeclName(decl);
-      for (xml_node sib = decl.previous_sibling(); sib; sib = sib.previous_sibling()) {
-        checkParserExceptionWithLocation(strcmp(name, getVarDeclName(sib)),
-                                         decl,
-                                         "Multiple variables named \""
-                                         << name
-                                         << "\" in node "
-                                         << node->getNodeId());
-      }
-
-      // Variables are always created here, no need for "garbage" flag.
-      node->addLocalVariable(name, createExpression(decl, node));
-    }
+    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling())
+      if (testTag(DECLARE_MUTEX_TAG, decl))
+        parseMutexDeclaration(node, decl);
+      else
+        parseVariableDeclaration(node, decl);
   }
 
   // Early first pass
@@ -262,7 +280,7 @@ namespace PLEXIL
     bool hasPrio = false;
     bool hasIface = false;
     bool hasVarDecls = false;
-    bool hasMutexes = false;
+    bool usesMutexes = false;
     bool hasBody = false;
 
     // Scan all children in order
@@ -301,18 +319,6 @@ namespace PLEXIL
                                           "Illegal element \"" << tag << "\" in Node");
         break;
 
-      case 'M': // Mutexes
-        if (!strcmp(MUTEXES_TAG, tag)) {
-          checkParserExceptionWithLocation(!hasMutexes,
-                                           temp, 
-                                           "Duplicate " << tag << " element in Node");
-          hasMutexes = true;
-          break;
-        }
-        reportParserExceptionWithLocation(temp, 
-                                          "Illegal element \"" << tag << "\" in Node");
-        break;
-
       case 'N': // NodeId, NodeBody
         if (!strcmp(NODEID_TAG, tag)) {
           checkParserExceptionWithLocation(!hasId,
@@ -337,9 +343,6 @@ namespace PLEXIL
             || !strcmp(PRE_CONDITION_TAG, tag))
           break;
         if (!strcmp(PRIORITY_TAG, tag)) {
-          checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
-                                           temp,
-                                           "Only Assignment nodes may have a Priority element");
           checkParserExceptionWithLocation(!hasPrio,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
@@ -360,6 +363,18 @@ namespace PLEXIL
         if (!strcmp(START_CONDITION_TAG, tag)
             || !strcmp(SKIP_CONDITION_TAG, tag))
           break;
+        reportParserExceptionWithLocation(temp,
+                                          "Illegal element \"" << tag << "\" in Node");
+        break;
+
+      case 'U': // UsingMutex
+        if (!strcmp(USING_MUTEX_TAG, tag)) {
+          checkParserExceptionWithLocation(!usesMutexes,
+                                           temp, 
+                                           "Duplicate " << tag << " element in Node");
+          usesMutexes = true;
+          break;
+        }
         reportParserExceptionWithLocation(temp,
                                           "Illegal element \"" << tag << "\" in Node");
         break;
@@ -407,21 +422,60 @@ namespace PLEXIL
     return nodeType;
   }
 
+  // First pass
+  static void parsePriority(Node *node, xml_node const nodeXml)
+    throw (ParserException)
+  {
+    xml_node const prio = nodeXml.child(PRIORITY_TAG);
+    if (!prio)
+      return; // nothing to do
+
+    char const *prioString = prio.child_value();
+    checkParserExceptionWithLocation(*prioString,
+                                     prio,
+                                     "Priority element is empty");
+    char *endptr = NULL;
+    errno = 0;
+    unsigned long prioValue = strtoul(prioString, &endptr, 10);
+    checkParserExceptionWithLocation(endptr != prioString && !*endptr,
+                                     prio,
+                                     "Priority element does not contain a non-negative integer");
+    checkParserExceptionWithLocation(!errno,
+                                     prio,
+                                     "Priority element contains negative or out-of-range integer");
+    checkParserExceptionWithLocation(prioValue < (unsigned long) std::numeric_limits<int32_t>::max(),
+                                     prio,
+                                     "Priority element contains out-of-range integer");
+    node->setPriority((int32_t) prioValue);
+  }
+
   static void initializeNodeVariables(Node *node, xml_node const xml)
   {
     xml_node const varDecls = xml.child(VAR_DECLS_TAG);
     xml_node const iface = xml.child(INTERFACE_TAG);
 
-    // By now we have an upper bound on how many entries are required.
-    // Reserve space for them. 
+    // Now we can estimate how many entries are required and reserve space for them. 
     // This saves us from reallocating and copying the whole table as it grows.
     if (varDecls || iface) {
       size_t nVariables = 0;
-      if (varDecls)
-        nVariables = estimateVariableSpace(varDecls);
+      size_t nMutexes = 0;
+      if (varDecls) {
+        // Grovel over declarations and separate variables from mutexes
+        for (xml_node decl = varDecls.first_child();
+             decl;
+             decl = decl.next_sibling())
+          if (testTag(DECLARE_MUTEX_TAG, decl))
+            ++nMutexes;
+          else
+            ++nVariables;
+      }
       if (iface)
         nVariables += estimateInterfaceSpace(xml.child(INTERFACE_TAG));
-      node->allocateVariables(nVariables);
+
+      if (nVariables)
+        node->allocateVariables(nVariables);
+      if (nMutexes)
+        node->allocateMutexes(nMutexes);
 
       // Check interface variables
       if (iface) {
@@ -429,7 +483,7 @@ namespace PLEXIL
         parseInterface(node, iface);
       }
 
-      // Populate local variables
+      // Populate local variables and mutexes
       if (varDecls) {
         debugMsg("parseNode", " parsing variable declarations");
         parseVariableDeclarations(node, varDecls);
@@ -440,12 +494,12 @@ namespace PLEXIL
   static void initializeNodeMutexes(Node *node, xml_node const xml)
   {
     // Count # of mutexes in this node
-    xml_node mtx = xml.child(MUTEXES_TAG);
+    xml_node mtx = xml.child(USING_MUTEX_TAG);
     if (!mtx)
       return;
 
     size_t n = std::distance(mtx.begin(), mtx.end());
-    node->allocateMutexes(n);
+    node->allocateUsingMutexes(n);
     std::vector<char const *> names;
     names.reserve(n);
 
@@ -455,10 +509,17 @@ namespace PLEXIL
       char const *name = nm.child_value(STRING_VAL_TAG);
       checkParserExceptionWithLocation(std::find(names.begin(), names.end(), name)
                                        == names.end(),
-                                       mtx,
-                                       "Duplicate mutex name \"" << name << "\" in node");
+                                       nm,
+                                       "Duplicate mutex name \"" << name << "\" in node "
+                                       << node->getNodeId());
+      Mutex * m = node->findMutex(name);
+      checkParserExceptionWithLocation(m,
+                                       nm,
+                                       "No mutex named \"" << name
+                                       << "\" accessible from node "
+                                       << node->getNodeId());
       names.push_back(name);
-      node->addMutex(ensureMutex(name));
+      node->addUsingMutex(m);
     }
     while ((nm = nm.next_sibling(NAME_TAG)));
   }
@@ -477,6 +538,9 @@ namespace PLEXIL
     debugMsg("parseNode", " Node " << node->getNodeId()  << " created");
 
     try {
+      // Get priority, if supplied.
+      parsePriority(node, xml);
+
       // Populate interface and local variables.
       initializeNodeVariables(node, xml);
 
