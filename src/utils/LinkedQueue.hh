@@ -132,7 +132,7 @@ namespace PLEXIL
           break;
         }
         prev = cur;
-        prevNextPtr = prev->nextPtr();
+        prevNextPtr = cur->nextPtr();
         cur = cur->next();
       }
       if (!cur)
@@ -243,14 +243,12 @@ namespace PLEXIL
 
       static Compare comp;
 
-      T *prev = nullptr;               // last entry we looked at
       T **prevNextPtr = &this->m_head; // pointer to last entry's "next" pointer
       T *cur = *prevNextPtr;           // the item being compared
 
       // Find the first entry greater than item
       while (cur && !comp(*item, *cur)) {
-        prev = cur;
-        prevNextPtr = prev->nextPtr();
+        prevNextPtr = cur->nextPtr();
         cur = cur->next();
       }
       if (cur) {
