@@ -264,7 +264,7 @@ struct RealPair
 struct StringPair
 {
   struct PairHeader pairHeader;
-  double stringDoubleValue;
+  const char *pairStringValue;
 };
 
 #define STRING_PAIR_MSG "PlexilStringPair"
