@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,9 @@ public class NodeContext
 
     protected NodeContext m_parentContext;
     protected Vector<VariableName> m_variables = new Vector<VariableName>();
+    protected Vector<MutexName> m_mutexes = new Vector<MutexName>();
+    protected Vector<MutexName> m_usingMutexes = new Vector<MutexName>();
     protected Vector<NodeContext> m_children = new Vector<NodeContext>();
-    protected Vector<String> m_mutexes = new Vector<String>();
     protected Map<String, PlexilTreeNode> m_childIds =
         new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
@@ -72,11 +73,6 @@ public class NodeContext
         m_children.add(child);
     }
 
-    public void setNodeName(String name)
-    {
-        m_nodeName = name;
-    }
-
     public String getNodeName()
     {
         return m_nodeName;
@@ -87,9 +83,8 @@ public class NodeContext
         throws Exception
     {
         if (m_parentContext == null)
-            // is global context -- error
-            throw new Exception("getRootContext() called on global context");
-        else if (m_parentContext.isGlobalContext())
+            throw new Exception("Internal error: non-global context has no parent!");
+        if (m_parentContext.isGlobalContext())
             return this;
         return m_parentContext.getRootContext();
     }
@@ -223,6 +218,9 @@ public class NodeContext
     // Creates a locally unique node name based on the child's type
     public String generateChildNodeName(String prefix)
     {
+        // Kludge
+        if (prefix.equals("{"))
+            prefix = "BLOCK";
         return prefix +  "__" + s_generatedIdCount++;
     }
 
@@ -393,32 +391,60 @@ public class NodeContext
     }
 
     //
-    // Mutexes
+    // Mutex declarations
     //
 
-    public boolean isMutexName(String name)
+    public MutexName getLocalMutex(String name)
     {
-        return m_mutexes.contains(name);
+        for (MutexName m : m_mutexes)
+            if (m.getName().equals(name))
+                return m;
+        return null;
     }
 
-    public boolean isMutexInherited(String name)
+    public MutexName getMutex(String name)
     {
-        if (m_parentContext == null
-            || m_parentContext.isGlobalContext())
-            return false;
-        if (m_parentContext.isMutexName(name))
-            return true;
-        return m_parentContext.isMutexInherited(name);
+        for (MutexName m : m_mutexes)
+            if (m.getName().equals(name))
+                return m;
+        if (m_parentContext != null)
+            return m_parentContext.getMutex(name); // tail recurse
+        return null;
     }
 
-    public void addMutex(String name)
-    {
-        m_mutexes.add(name);
-    }
-
-    public Vector<String> getMutexes()
+    public Vector<MutexName> getMutexes()
     {
         return m_mutexes;
+    }
+
+    public void addMutex(PlexilTreeNode nameNode)
+    {
+        m_mutexes.add(new MutexName(nameNode, this));
+    }
+
+    //
+    // Mutex references
+    //
+
+    public NodeContext contextUsing(MutexName m)
+    {
+        if (m_usingMutexes.contains(m))
+            return this;
+        if (m_parentContext == null) // error
+            return null;
+        if (m_parentContext.isGlobalContext())
+            return null;
+        return m_parentContext.contextUsing(m); 
+    }
+
+    public void addUsingMutex(MutexName m)
+    {
+        m_usingMutexes.add(m);
+    }
+
+    public Vector<MutexName> getMutexRefs()
+    {
+        return m_usingMutexes;
     }    
 
     //

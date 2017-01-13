@@ -62,9 +62,24 @@ public class GlobalContext
         libraryNodes = new HashMap<String, GlobalDeclaration>();
     }
 
+    @Override
     public boolean isGlobalContext()
     {
         return true;
+    }
+
+    // get the root of this context tree
+    @Override
+    protected NodeContext getRootContext()
+        throws Exception
+    {
+        throw new Exception("getRootContext() called on global context");
+    }
+
+    @Override
+    protected boolean isRootContext()
+    {
+        return false;
     }
 
     public GlobalDeclaration getCommandDeclaration(String name)
@@ -171,6 +186,15 @@ public class GlobalContext
                                                NameType.LIBRARY_NODE_NAME,
                                                parm_spec,
                                                null));
+    }
+
+    @Override
+    public MutexName getMutex(String name) 
+    {
+        for (MutexName m : m_mutexes)
+            if (m.getName().equals(name))
+                return m;
+        return null;
     }
 
 };

@@ -1,14 +1,15 @@
-Mutex m1;
-Mutex m2;
+Mutex m1, m2;
 Command pprint(...);
 
 MutexTest:
 Concurrence
 {
+  Mutex m3;
+
   {
   M1:
     {
-      Mutex m1;
+      Using m1;
       pprint("With mutex m1 held");
     }
 
@@ -16,7 +17,7 @@ Concurrence
 
   M2:
     {
-      Mutex m2;
+      Using m2;
       pprint("With mutex m2 held");
     }
   }
@@ -26,9 +27,15 @@ Concurrence
     
   M12:
     {
-      Mutex m1;
-      Mutex m2;
+      Using m1;
+      Using m2;
       pprint("With mutexes m1 and m2 held");
     }
+  }
+
+  M13:
+  {
+    Using m1, m3;
+    pprint("With mutexes m1 and m3 held");
   }
 }

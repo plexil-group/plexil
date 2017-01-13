@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,10 @@ public class ActionNode extends PlexilTreeNode
 		return new ActionNode(this);
 	}
 
+    //
+    // Format is
+    // (ACTION NCName? baseAction)
+
     public void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         // If supplied, get the node ID
@@ -89,11 +93,27 @@ public class ActionNode extends PlexilTreeNode
         }
     }
 
+    /**
+     * @brief Add new source locator attributes to m_xml, or replace the existing ones.
+     * @note Use the first child's location as ours.
+     */
+
+    @Override
+    protected void addSourceLocatorAttributes()
+    {
+        Token t = getChild(0).getToken();
+        m_xml.setAttribute("LineNo", String.valueOf(t.getLine()));
+        m_xml.setAttribute("ColNo", String.valueOf(t.getCharPositionInLine()));
+    }
+
+    @Override
     protected void constructXML()
     {
         // Get XML from last child
         PlexilTreeNode child = this.getChild(this.getChildCount() - 1);
         m_xml = child.getXML();
+        addSourceLocatorAttributes();
+
         // Insert Node ID element
         IXMLElement nodeIdElt = new XMLElement("NodeId");
         nodeIdElt.setContent(m_nodeId);

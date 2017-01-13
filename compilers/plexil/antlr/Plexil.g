@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ UPPER_BOUND_KYWD = 'UpperBound';
 LOWER_BOUND_KYWD = 'LowerBound';
 RELEASE_AT_TERM_KYWD = 'ReleaseAtTermination';
 
+USING_KYWD = 'Using';
 PRIORITY_KYWD = 'Priority';
 
 // Interface declarations
@@ -430,7 +431,7 @@ libraryParamSpec :
  ;
 
 mutexDeclaration :
-   MUTEX_KYWD^ NCNAME SEMICOLON!
+   MUTEX_KYWD^ NCNAME ( COMMA! NCNAME )* SEMICOLON!
 ;
 
 //
@@ -531,7 +532,7 @@ block
 @after { m_paraphrases.pop(); }
  : 
     (variant=sequenceVariantKywd LBRACE -> $variant
-     | LBRACE -> BLOCK)
+     | lb=LBRACE -> BLOCK[$lb])
     comment?
     nodeDeclaration*
     nodeAttribute*
@@ -552,6 +553,7 @@ comment : COMMENT_KYWD^ STRING SEMICOLON! ;
 nodeDeclaration :
     interfaceDeclaration
   | variableDeclaration
+  | mutexDeclaration
 ;
 
 nodeAttribute :
@@ -683,7 +685,7 @@ booleanLiteral : TRUE_KYWD | FALSE_KYWD ;
 realValue : DOUBLE | INT ;
 
 mutexReference :
- MUTEX_KYWD^ NCNAME ( COMMA! NCNAME )* SEMICOLON! ;
+ USING_KYWD^ NCNAME ( COMMA! NCNAME )* SEMICOLON! ;
 
 // TODO: extend to other expressions
 

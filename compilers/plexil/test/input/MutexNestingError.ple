@@ -3,9 +3,9 @@ Command pprint(...);
 
 MutexNestingError:
 {
-  Mutex m;
+  Using m;
   {
-    Mutex m;
+    Using m;
     pprint("With mutex m held");
   }
 }

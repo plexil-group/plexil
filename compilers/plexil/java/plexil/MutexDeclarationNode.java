@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,6 @@ import org.antlr.runtime.tree.*;
 
 public class MutexDeclarationNode extends PlexilTreeNode
 {
-    boolean m_isGlobal = false;
-
     public MutexDeclarationNode(Token t)
     {
         super(t);
@@ -45,83 +43,75 @@ public class MutexDeclarationNode extends PlexilTreeNode
     }
 
     //
-    // Structure is ^(MUTEX_KWYD NCNAME)
+    // Structure is ^(MUTEX_KWYD NCNAME*)
     //
-
-    public String getMutexName()
-    {
-        return this.getChild(0).getText();
-    }
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         if (context.isGlobalContext()) {
             // Top-level declaration
-            m_isGlobal = true;
-
-            // Only one child allowed
-            if (this.getChild(1) != null) {
-                state.addDiagnostic(this.getChild(1),
-                                    "Mutex declarations may only name one mutex per declaration",
-                                    Severity.ERROR);
-            }
-
             // Check for duplicate
-            String mutexName = getMutexName();
-            if (context.isMutexName(mutexName)) {
-                state.addDiagnostic(this.getChild(0),
-                                    "Mutex \"" + mutexName + "\" is already declared in this plan",
-                                    Severity.WARNING);
+            for (int i = 0; i < this.getChildCount(); ++i)  {
+                PlexilTreeNode n = this.getChild(i);
+                String name = n.getText();
+                MutexName mn = context.getMutex(name);
+                if (mn != null)
+                    state.addDiagnostic(n,
+                                        "In global declarations: Mutex \"" + name
+                                        + "\" is already declared",
+                                        Severity.WARNING);
+                else
+                    context.addMutex(n);
             }
-            context.addMutex(mutexName);
         }
         else {
             // Node level declaration
             for (int i = 0; i < this.getChildCount(); ++i) {
                 PlexilTreeNode n = this.getChild(i);
-                String mutexName = n.getText();
-                // Check for top-level declaration
-                if (!GlobalContext.getGlobalContext().isMutexName(mutexName)) {
-                    state.addDiagnostic(n,
-                                        "Mutex \"" + mutexName + "\" lacks a global declaration",
-                                        Severity.ERROR);
+                String name = n.getText();
+                // Check for duplicates and shadowing
+                MutexName m = context.getMutex(name);
+                if (m != null) {
+                    // Already declared somewhere, figure out where
+                    NodeContext c = m.getContext();
+                    if (context == c) {
+                        state.addDiagnostic(n,
+                                            "In node " + context.getNodeName()
+                                            + ": Mutex \"" + name
+                                            + "\" is already declared in this node",
+                                            Severity.ERROR);
+                        continue;
+                    }
+                    else if (c.isGlobalContext())
+                        state.addDiagnostic(n,
+                                            "In node " + context.getNodeName()
+                                            + ": Mutex \"" + name
+                                            + "\" shadows a global mutex of the same name",
+                                            Severity.WARNING);
+                    else if (c == null)
+                        state.addDiagnostic(n,
+                                            "Internal error: Mutex \"" + name
+                                            + "\" has no context!",
+                                            Severity.FATAL);
+                    else
+                        state.addDiagnostic(n,
+                                            "In node " + context.getNodeName()
+                                            + ": Mutex \"" + name
+                                            + "\" shadows a local mutex declared in node "
+                                            + c.getNodeName(),
+                                            Severity.WARNING);
                 }
-
-                // Check for duplicate in node
-                if (context.isMutexName(mutexName)) {
-                    state.addDiagnostic(n,
-                                        "Mutex \"" + mutexName + "\" is already held in this node",
-                                        Severity.ERROR);
-                }
-
-                // Check for duplicate in ancestors
-                if (context.isMutexInherited(mutexName)) {
-                    state.addDiagnostic(n,
-                                        "Mutex \"" + mutexName + "\" is already held by an ancestor node",
-                                        Severity.ERROR);
-                }
-
-                context.addMutex(mutexName);
+                context.addMutex(n);
             }
         }
     }
 
-    public void constructXML()
+    // XML generation is delegated to MutexName.
+    // See MutexName.makeDeclarationXML().
+    @Override
+    public IXMLElement getXML()
     {
-        if (m_isGlobal) {
-            IXMLElement nameXML = new XMLElement("Name");
-            super.constructXML();
-            nameXML.setContent(this.getChild(0).getText());
-            m_xml.addChild(nameXML);
-        }
-    }
-
-    public String getXMLElementName()
-    {
-        if (m_isGlobal)
-            return "MutexDeclaration";
-        else
-            return "Mutexes";
+        return null;
     }
 
 }

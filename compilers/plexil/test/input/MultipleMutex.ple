@@ -1,10 +1,9 @@
-Mutex m1;
-Mutex m2;
+Mutex m1, m2;
 Command pprint(...);
 
 MultipleMutex:
 {
-    Mutex m1;
-    Mutex m2;
+    Using m1;
+    Using m2;
     pprint("With mutexes m1 and m2 held");
 }

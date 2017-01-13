@@ -2,6 +2,6 @@ Command pprint(...);
 
 UndeclaredMutex:
 {
-    Mutex m;
+    Using m;
     pprint("With mutex m held");
 }

@@ -3,6 +3,6 @@ Command pprint(...);
 
 MutexBasics:
 {
-    Mutex m;
+    Using m;
     pprint("With mutex m held");
 }

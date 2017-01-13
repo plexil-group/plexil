@@ -3,7 +3,7 @@ Command pprint(...);
 
 DuplicateMutex:
 {
-    Mutex m1;
-    Mutex m1;
+    Using m1;
+    Using m1;
     pprint("With mutexes m1 and m1 held");
 }

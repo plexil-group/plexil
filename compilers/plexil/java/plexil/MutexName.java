@@ -26,23 +26,45 @@
 
 package plexil;
 
-/* Requires Java 1.5 or later */
+import net.n3.nanoxml.*;
 
-public enum NameType
+public class MutexName extends PlexilName
 {
-    UNDEFINED_NAME("_UNDEFINED"),
-    NODE_NAME("Node"),
-    VARIABLE_NAME("Variable"),
-    FUNCTION_NAME("Function"),
-    COMMAND_NAME("Command"),
-    STATE_NAME("State"),
-    PARAMETER_NAME("Parameter"),
-    LIBRARY_NODE_NAME("LibraryNode"),
-    MUTEX_NAME("Mutex")
-    ;
+    NodeContext m_context;
 
-    public final String plexilName;
-    NameType(String prettyName) {
-        plexilName = prettyName;
+    public MutexName(PlexilTreeNode decl, NodeContext c)
+    {
+        super(decl.getText(), NameType.MUTEX_NAME, decl);
+        m_context = c;
+    }
+
+    public NodeContext getContext()
+    {
+        return m_context;
+    }
+
+    public IXMLElement makeDeclarationXML()
+    {
+        IXMLElement nameElt = new XMLElement("Name");
+        nameElt.setContent(getName());
+        IXMLElement result = new XMLElement("DeclareMutex");
+        result.addChild(nameElt);
+        if (m_declaration != null) {
+            result.setAttribute("LineNo",
+                                String.valueOf(m_declaration.getLine()));
+            result.setAttribute("ColNo",
+                                String.valueOf(m_declaration.getCharPositionInLine()));
+        }
+        return result;
+    }
+
+    // TODO: add null/empty string checks
+    public IXMLElement asReference()
+    {
+        IXMLElement result = new XMLElement("Name");
+        IXMLElement valXML = new XMLElement("StringValue");
+        valXML.setContent(getName());
+        result.addChild(valXML);
+        return result;
     }
 }

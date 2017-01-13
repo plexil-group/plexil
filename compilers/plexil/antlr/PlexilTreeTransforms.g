@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -209,12 +209,12 @@ booleanEqualityNegation:
 // Block flattening
 
 flattenTrivialBlocks:
-        ^(ACTION ^(BLOCK innerUnnamed=unnamedAction))
+        ^(ACTION ^(LBRACE innerUnnamed=unnamedAction))
         -> $innerUnnamed
-    |   ^(ACTION ^(BLOCK innerNamed=namedAction))
+    |   ^(ACTION ^(LBRACE innerNamed=namedAction))
         -> $innerNamed
-    |   ^(ACTION NCNAME ^(BLOCK namedAction)) // no transform
-    |   ^(ACTION outerId=NCNAME ^(BLOCK ^(ACTION body=.)))
+    |   ^(ACTION NCNAME ^(LBRACE namedAction)) // no transform
+    |   ^(ACTION outerId=NCNAME ^(LBRACE ^(ACTION body=.)))
         -> ^(ACTION $outerId $body)
     ;
 
@@ -254,6 +254,7 @@ flattenTrivialConcurrences:
 
 bindingContextNode:
         BLOCK
+    | LBRACE
     | CONCURRENCE_KYWD
     | SEQUENCE_KYWD
     | UNCHECKED_SEQUENCE_KYWD

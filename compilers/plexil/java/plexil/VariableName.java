@@ -173,7 +173,6 @@ public class VariableName extends PlexilName
             new XMLElement(isArray() ? "DeclareArray" : "DeclareVariable");
 
         // add source locators
-        // TODO: add FileName attribute
         if (m_declaration != null) {
             result.setAttribute("LineNo", String.valueOf(m_declaration.getLine()));
             result.setAttribute("ColNo", String.valueOf(m_declaration.getCharPositionInLine()));

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ public class BlockNode extends PlexilTreeNode
         checkSelf(parentContext, state);
     }
 
-    // N.B. Interface and variable decl's, and conditions, check themselves.
+    // N.B. Interface, variable, mutex decl's, mutex refs, and conditions check themselves.
     public void checkSelf(NodeContext context, CompilerState state)
     {
         // Check for duplicate conditions
@@ -124,7 +124,9 @@ public class BlockNode extends PlexilTreeNode
             Integer condType = new Integer(c.getType());
             if (conditionsSeen.contains(condType)) {
                 state.addDiagnostic(c,
-                                    "Multiple \"" + c.getToken().getText() + "\" conditions specified",
+                                    "In node " + context.getNodeName()
+                                    + ": Multiple \"" + c.getToken().getText()
+                                    + "\" conditions specified",
                                     Severity.ERROR);
             }
             else {
@@ -139,7 +141,9 @@ public class BlockNode extends PlexilTreeNode
             // Resources are NOT legal, flag them as errors
             for (PlexilTreeNode r : m_resources) {
                 state.addDiagnostic(r, 
-                                    "The \"" + r.getToken().getText() + "\" keyword is only valid for Command actions",
+                                    "In node " + context.getNodeName()
+                                    + "The \"" + r.getToken().getText()
+                                    + "\" keyword is only valid for Command actions",
                                     Severity.ERROR);
             }
         }
@@ -170,6 +174,7 @@ public class BlockNode extends PlexilTreeNode
                 case PlexilLexer.IN_OUT_KYWD:
                 case PlexilLexer.VARIABLE_DECLARATIONS:
                 case PlexilLexer.MUTEX_KYWD:
+                case PlexilLexer.USING_KYWD:
                     // declarations take care of themselves
                     break;
 
@@ -200,7 +205,6 @@ public class BlockNode extends PlexilTreeNode
         }
     }
 
-
     // N.B. Could add more cases to inherit XML from child.
     protected void constructXML()
     {
@@ -220,14 +224,10 @@ public class BlockNode extends PlexilTreeNode
                 m_xml = new XMLElement("Node");
                 m_xml.setAttribute("NodeType", "Empty");
             }
-            else {
-                if (this.getType() == PlexilLexer.BLOCK) {
-                    m_xml = new XMLElement("Sequence");
-                }
-                else {
-                    m_xml = new XMLElement(this.getToken().getText());
-                }
-            }
+            else if (this.getType() == PlexilLexer.LBRACE)
+                m_xml = new XMLElement("Sequence");
+            else
+                m_xml = new XMLElement(this.getToken().getText());
             this.addSourceLocatorAttributes();
         }
 
@@ -258,12 +258,14 @@ public class BlockNode extends PlexilTreeNode
                     inOutXML.addChild(iov.makeDeclarationXML());
             }
         }
-        if (!localVars.isEmpty()) {
+
+        if (!localVars.isEmpty() || !m_context.getMutexes().isEmpty()) {
             IXMLElement decls = new XMLElement("VariableDeclarations");
             m_xml.addChild(decls);
-            for (VariableName v : localVars) {
+            for (VariableName v : localVars)
                 decls.addChild(v.makeDeclarationXML());
-            }
+            for (MutexName m : m_context.getMutexes())
+                decls.addChild(m.makeDeclarationXML());
         }
 
         // Add conditions
@@ -271,16 +273,14 @@ public class BlockNode extends PlexilTreeNode
             m_xml.addChild(n.getXML());
         }
 
-        // Add mutexes
-        if (!m_context.getMutexes().isEmpty()) {
-            IXMLElement mtx = new XMLElement("Mutexes");
+        // Add mutex references
+        if (!m_context.getMutexRefs().isEmpty()) {
+            IXMLElement mtx = new XMLElement("UsingMutex");
             m_xml.addChild(mtx);
-            for (String n : m_context.getMutexes()) {
-                IXMLElement nmXML = new XMLElement("Name");
-                IXMLElement valueXML = new XMLElement("StringValue");
-                valueXML.setContent(n);
-                nmXML.addChild(valueXML);
-                mtx.addChild(nmXML);
+            for (MutexName m : m_context.getMutexRefs()) {
+                IXMLElement ref = m.asReference();
+                // TODO: Add source locators
+                mtx.addChild(ref);
             }
         }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -195,6 +195,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
         case PlexilLexer.WHILE_KYWD:
             return new WhileNode(payload);
+
+        case PlexilLexer.USING_KYWD:
+            return new MutexReferenceNode(payload);
 
             // Internal tokens
         case PlexilLexer.ACTION:
