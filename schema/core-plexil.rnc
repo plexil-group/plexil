@@ -2,7 +2,8 @@ namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 default namespace = ""
 
 start =
-  SQRT
+  DeclareMutex
+  | SQRT
   | Node
   | NumericRHS
   | Assignment
@@ -28,7 +29,6 @@ start =
   | ResourceList
   | MIN
   | InvariantCondition
-  | Mutexes
   | NEInternal
   | XOR
   | In
@@ -56,7 +56,6 @@ start =
   | Interface
   | ADD
   | DeclareArray
-  | MutexDeclaration
   | ArrayMaxSize
   | LT
   | Update
@@ -90,6 +89,7 @@ start =
   | NENumeric
   | GlobalDeclarations
   | CommandDeclaration
+  | UsingMutex
   | GE
   | LookupNow
   | Pair
@@ -108,86 +108,45 @@ start =
   | SkipCondition
   | InOut
   | StateDeclaration
-FLOOR =
+CEIL =
   notAllowed
-  | element FLOOR { SourceLocators, GeneralizedNumericExpression }
-ALL_KNOWN =
-  notAllowed
-  | element ALL_KNOWN { SourceLocators, GeneralizedArrayExpression }
-NumericRHS =
-  notAllowed
-  | element NumericRHS { SourceLocators, GeneralizedNumericExpression }
-Assignment =
-  notAllowed
-  | element Assignment {
-      SourceLocators,
-      DeclaredVariable,
-      (BooleanRHS | NumericRHS | StringRHS | ArrayRHS)
-    }
-LookupNow =
-  notAllowed
-  | element LookupNow { SourceLocators, Name, Arguments? }
-ExitCondition =
-  notAllowed
-  | element ExitCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-XOR =
-  notAllowed
-  | element XOR { SourceLocators, GeneralizedBooleanExpression* }
-MutexDeclaration =
-  notAllowed
-  | element MutexDeclaration {
-      SourceLocators,
-      element Name { NCName }
-    }
-EQInternal =
-  notAllowed
-  | element EQInternal {
-      SourceLocators,
-      ((NodeState, NodeState)
-       | (NodeOutcome, NodeOutcome)
-       | (NodeFailure, NodeFailure)
-       | (NodeCommandHandle, NodeCommandHandle))
-    }
+  | element CEIL { SourceLocators, GeneralizedNumericExpression }
 Pair =
   notAllowed
   | element Pair {
       element Name { NCName },
       Expression
     }
-VariableDeclarations =
+LookupOnChange =
   notAllowed
-  | element VariableDeclarations { (DeclareVariable | DeclareArray)+ }
-NodeOutcomeVariable =
-  notAllowed
-  | element NodeOutcomeVariable { node-reference }
-ADD =
-  notAllowed
-  | element ADD {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression*
+  | element LookupOnChange {
+      SourceLocators, Name, Tolerance?, Arguments?
     }
+Command =
+  notAllowed
+  | element Command {
+      SourceLocators, ResourceList?, DeclaredVariable?, Name, Arguments?
+    }
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | ArrayVariable
+  | ArrayElement
 EndCondition =
   notAllowed
   | element EndCondition {
       SourceLocators, GeneralizedBooleanExpression
     }
-InvariantCondition =
+OR =
   notAllowed
-  | element InvariantCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-NEInternal =
+  | element OR { SourceLocators, GeneralizedBooleanExpression* }
+DeclareMutex =
   notAllowed
-  | element NEInternal {
+  | element DeclareMutex {
       SourceLocators,
-      ((NodeState, NodeState)
-       | (NodeOutcome, NodeOutcome)
-       | (NodeFailure, NodeFailure)
-       | (NodeCommandHandle, NodeCommandHandle))
+      element Name { SourceLocators, xsd:NCName }
     }
 EQNumeric =
   notAllowed
@@ -196,16 +155,48 @@ EQNumeric =
       GeneralizedNumericExpression,
       GeneralizedNumericExpression
     }
-MIN =
+NodeStateVariable =
   notAllowed
-  | element MIN {
+  | element NodeStateVariable { node-reference }
+ArrayMaxSize =
+  notAllowed
+  | element ArrayMaxSize { SourceLocators, GeneralizedArrayExpression }
+InvariantCondition =
+  notAllowed
+  | element InvariantCondition {
+      SourceLocators, GeneralizedBooleanExpression
+    }
+NodeState = NodeStateVariable | NodeStateValue
+ArrayExpression = ArrayValue | ArrayVariable
+PostCondition =
+  notAllowed
+  | element PostCondition {
+      SourceLocators, GeneralizedBooleanExpression
+    }
+NENumeric =
+  notAllowed
+  | element NENumeric {
       SourceLocators,
       GeneralizedNumericExpression,
       GeneralizedNumericExpression
     }
-NodeFailureVariable =
+EQBoolean =
   notAllowed
-  | element NodeFailureVariable { node-reference }
+  | element EQBoolean {
+      SourceLocators,
+      GeneralizedBooleanExpression,
+      GeneralizedBooleanExpression
+    }
+MAX =
+  notAllowed
+  | element MAX {
+      SourceLocators,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression
+    }
+NumericRHS =
+  notAllowed
+  | element NumericRHS { SourceLocators, GeneralizedNumericExpression }
 Node =
   notAllowed
   | element Node {
@@ -232,257 +223,19 @@ Node =
        & element Priority { nonNegativeInteger }?
        & Interface?
        & VariableDeclarations?
-       & Mutexes?
+       & UsingMutex?
        & NodeBody?)
     }
-In =
+DIV =
   notAllowed
-  | element In { SourceLocators, (DeclareVariable | DeclareArray)+ }
-NodeState = NodeStateVariable | NodeStateValue
-MOD =
-  notAllowed
-  | element MOD {
+  | element DIV {
       SourceLocators,
       GeneralizedNumericExpression,
       GeneralizedNumericExpression
     }
-ROUND =
+FLOOR =
   notAllowed
-  | element ROUND { SourceLocators, GeneralizedNumericExpression }
-IntegerVariable =
-  notAllowed
-  | element IntegerVariable { NCName }
-GT =
-  notAllowed
-  | element GT {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression
-    }
-LookupGroup = LookupOnChange | LookupNow
-Mutexes =
-  notAllowed
-  | element Mutexes {
-      SourceLocators,
-      element Name {
-        element StringValue { NCName }
-      }+
-    }
-GeneralizedArrayExpression = ArrayExpression | LookupGroup
-REAL_TO_INT =
-  notAllowed
-  | element REAL_TO_INT { SourceLocators, GeneralizedNumericExpression }
-NodeReference = NodeId | NodeRef
-CEIL =
-  notAllowed
-  | element CEIL { SourceLocators, GeneralizedNumericExpression }
-GeneralizedNumericExpression =
-  NumericExpression | LookupGroup | ArrayElement
-RealValue =
-  notAllowed
-  | element RealValue { xsd:double }
-PreCondition =
-  notAllowed
-  | element PreCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-Timepoint =
-  notAllowed
-  | element Timepoint { xsd:NMTOKEN "START" | xsd:NMTOKEN "END" }
-NodeOutcomeValue =
-  notAllowed
-  | element NodeOutcomeValue {
-      xsd:NMTOKEN "SUCCESS"
-      | xsd:NMTOKEN "SKIPPED"
-      | xsd:NMTOKEN "FAILURE"
-      | xsd:NMTOKEN "INTERRUPTED"
-    }
-GeneralizedStringExpression =
-  StringExpression | LookupGroup | ArrayElement
-AtomicTypeValues =
-  xsd:NMTOKEN "Integer"
-  | xsd:NMTOKEN "Real"
-  | xsd:NMTOKEN "String"
-  | xsd:NMTOKEN "Boolean"
-NCName = xsd:NCName
-NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
-GlobalDeclarations =
-  notAllowed
-  | element GlobalDeclarations {
-      SourceLocators,
-      (CommandDeclaration
-       | empty
-       | StateDeclaration
-       | LibraryNodeDeclaration
-       | MutexDeclaration
-       | element TimeScalingUnitsSubunits { xsd:integer })+
-    }
-EQBoolean =
-  notAllowed
-  | element EQBoolean {
-      SourceLocators,
-      GeneralizedBooleanExpression,
-      GeneralizedBooleanExpression
-    }
-GE =
-  notAllowed
-  | element GE {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression
-    }
-NEString =
-  notAllowed
-  | element NEString {
-      SourceLocators,
-      GeneralizedStringExpression,
-      GeneralizedStringExpression
-    }
-Parameter =
-  notAllowed
-  | element Parameter {
-      element Name { NCName }?,
-      element Type {
-        xsd:NMTOKEN "Integer"
-        | xsd:NMTOKEN "Real"
-        | xsd:NMTOKEN "String"
-        | xsd:NMTOKEN "Boolean"
-        | xsd:NMTOKEN "Any"
-      },
-      element MaxSize { nonNegativeInteger }?
-    }
-NodeId =
-  notAllowed
-  | element NodeId { NCName }
-NodeTimepointValue =
-  notAllowed
-  | element NodeTimepointValue {
-      SourceLocators, NodeReference, NodeStateValue, Timepoint
-    }
-BooleanVariable =
-  notAllowed
-  | element BooleanVariable { NCName }
-MUL =
-  notAllowed
-  | element MUL {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression*
-    }
-CommandDeclaration =
-  notAllowed
-  | element CommandDeclaration {
-      SourceLocators,
-      element Name { NCName },
-      Return*,
-      ParameterSpec?,
-      ResourceList?
-    }
-PostCondition =
-  notAllowed
-  | element PostCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-NodeStateVariable =
-  notAllowed
-  | element NodeStateVariable { node-reference }
-Return =
-  notAllowed
-  | element Return {
-      element Name { NCName }?,
-      element Type { AtomicTypeValues },
-      element MaxSize { nonNegativeInteger }?
-    }
-ArraySize =
-  notAllowed
-  | element ArraySize { SourceLocators, GeneralizedArrayExpression }
-MAX =
-  notAllowed
-  | element MAX {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression
-    }
-ArrayElement =
-  notAllowed
-  | element ArrayElement {
-      SourceLocators,
-      (GeneralizedArrayExpression
-       | element Name { NCName }),
-      element Index { GeneralizedNumericExpression }
-    }
-AND =
-  notAllowed
-  | element AND { SourceLocators, GeneralizedBooleanExpression* }
-NEBoolean =
-  notAllowed
-  | element NEBoolean {
-      SourceLocators,
-      GeneralizedBooleanExpression,
-      GeneralizedBooleanExpression
-    }
-SkipCondition =
-  notAllowed
-  | element SkipCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-Expression =
-  BooleanExpression
-  | NumericExpression
-  | StringExpression
-  | ArrayExpression
-  | LookupGroup
-  | ArrayElement
-NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
-ParameterSpec =
-  Parameter*,
-  (notAllowed
-   | element AnyParameters {
-       mixed {
-         (attribute * { text }
-          | element0)*
-       }
-     })?
-ABS =
-  notAllowed
-  | element ABS { SourceLocators, GeneralizedNumericExpression }
-StringValue =
-  notAllowed
-  | element StringValue { xsd:string }
-ArrayRHS =
-  notAllowed
-  | element ArrayRHS { SourceLocators, GeneralizedArrayExpression }
-NodeBody =
-  notAllowed
-  | element NodeBody {
-      NodeList | Command | Assignment | Update | LibraryNodeCall
-    }
-Arguments =
-  notAllowed
-  | element Arguments { SourceLocators, Expression+ }
-StartCondition =
-  notAllowed
-  | element StartCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-Action = Node
-Update =
-  notAllowed
-  | element Update { SourceLocators, Pair* }
-nonNegativeInteger = xsd:nonNegativeInteger
-IsKnown =
-  notAllowed
-  | element IsKnown {
-      SourceLocators,
-      (Expression
-       | NodeStateVariable
-       | NodeOutcomeVariable
-       | NodeCommandHandleVariable)
-    }
-TRUNC =
-  notAllowed
-  | element TRUNC { SourceLocators, GeneralizedNumericExpression }
+  | element FLOOR { SourceLocators, GeneralizedNumericExpression }
 DeclareArray =
   notAllowed
   | element DeclareArray {
@@ -492,77 +245,16 @@ DeclareArray =
       element MaxSize { nonNegativeInteger }?,
       element InitialValue { Value+ | ArrayValue }?
     }
-Value = IntegerValue | RealValue | BooleanValue | StringValue
-IntegerValue =
+ALL_KNOWN =
   notAllowed
-  | element IntegerValue { xsd:integer }
-ResourceList =
+  | element ALL_KNOWN { SourceLocators, GeneralizedArrayExpression }
+NEString =
   notAllowed
-  | element ResourceList { SourceLocators, Resource* }
-Alias =
-  notAllowed
-  | element Alias {
+  | element NEString {
       SourceLocators,
-      element NodeParameter { NCName },
-      Expression
+      GeneralizedStringExpression,
+      GeneralizedStringExpression
     }
-RepeatCondition =
-  notAllowed
-  | element RepeatCondition {
-      SourceLocators, GeneralizedBooleanExpression
-    }
-GeneralizedBooleanExpression =
-  BooleanExpression | LookupGroup | ArrayElement
-SourceLocators =
-  attribute ColNo { xsd:integer }?,
-  attribute LineNo { xsd:integer }?,
-  attribute FileName { xsd:string }?
-NodeFailure = NodeFailureVariable | NodeFailureValue
-LibraryNodeCall =
-  notAllowed
-  | element LibraryNodeCall { SourceLocators, NodeId, Alias* }
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
-  }
-LE =
-  notAllowed
-  | element LE {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression
-    }
-StringRHS =
-  notAllowed
-  | element StringRHS { SourceLocators, GeneralizedStringExpression }
-RealVariable =
-  notAllowed
-  | element RealVariable { NCName }
-NENumeric =
-  notAllowed
-  | element NENumeric {
-      SourceLocators,
-      GeneralizedNumericExpression,
-      GeneralizedNumericExpression
-    }
-node-reference = (SourceLocators, NodeReference), empty
-StringExpression = StringVariable | StringValue | Concat
-BooleanValue =
-  notAllowed
-  | element BooleanValue { xsd:boolean }
-DeclaredVariable =
-  IntegerVariable
-  | RealVariable
-  | BooleanVariable
-  | StringVariable
-  | ArrayVariable
-  | ArrayElement
-ArrayMaxSize =
-  notAllowed
-  | element ArrayMaxSize { SourceLocators, GeneralizedArrayExpression }
 NumericExpression =
   (ADD
    | SUB
@@ -586,29 +278,261 @@ NumericExpression =
   | NodeTimepointValue
   | ArraySize
   | ArrayMaxSize
-NodeList =
+VariableDeclarations =
   notAllowed
-  | element NodeList { Action* }
-ANY_KNOWN =
+  | element VariableDeclarations {
+      (DeclareVariable | DeclareArray | DeclareMutex)+
+    }
+NCName = xsd:NCName
+STRLEN =
   notAllowed
-  | element ANY_KNOWN { SourceLocators, GeneralizedArrayExpression }
-LibraryNodeDeclaration =
+  | element STRLEN { SourceLocators, GeneralizedStringExpression }
+NodeStateValue =
   notAllowed
-  | element LibraryNodeDeclaration {
+  | element NodeStateValue {
+      xsd:NMTOKEN "EXECUTING"
+      | xsd:NMTOKEN "FAILING"
+      | xsd:NMTOKEN "ITERATION_ENDED"
+      | xsd:NMTOKEN "INACTIVE"
+      | xsd:NMTOKEN "WAITING"
+      | xsd:NMTOKEN "FINISHING"
+      | xsd:NMTOKEN "FINISHED"
+    }
+TRUNC =
+  notAllowed
+  | element TRUNC { SourceLocators, GeneralizedNumericExpression }
+NodeReference = NodeId | NodeRef
+ABS =
+  notAllowed
+  | element ABS { SourceLocators, GeneralizedNumericExpression }
+IntegerValue =
+  notAllowed
+  | element IntegerValue { xsd:integer }
+RepeatCondition =
+  notAllowed
+  | element RepeatCondition {
+      SourceLocators, GeneralizedBooleanExpression
+    }
+ArrayValue =
+  notAllowed
+  | element ArrayValue {
       SourceLocators,
-      element Name { NCName },
-      Interface?
+      attribute Type {
+        xsd:NMTOKEN "Integer"
+        | xsd:NMTOKEN "Real"
+        | xsd:NMTOKEN "String"
+        | xsd:NMTOKEN "Boolean"
+      },
+      (IntegerValue+ | RealValue+ | BooleanValue+ | StringValue+)
+    }
+GeneralizedStringExpression =
+  StringExpression | LookupGroup | ArrayElement
+Value = IntegerValue | RealValue | BooleanValue | StringValue
+GeneralizedArrayExpression = ArrayExpression | LookupGroup
+GlobalDeclarations =
+  notAllowed
+  | element GlobalDeclarations {
+      SourceLocators,
+      (CommandDeclaration
+       | empty
+       | StateDeclaration
+       | LibraryNodeDeclaration
+       | DeclareMutex
+       | element TimeScalingUnitsSubunits { xsd:integer })+
     }
 NOT =
   notAllowed
   | element NOT { SourceLocators, GeneralizedBooleanExpression }
-DIV =
+GT =
   notAllowed
-  | element DIV {
+  | element GT {
       SourceLocators,
       GeneralizedNumericExpression,
       GeneralizedNumericExpression
     }
+NEInternal =
+  notAllowed
+  | element NEInternal {
+      SourceLocators,
+      ((NodeState, NodeState)
+       | (NodeOutcome, NodeOutcome)
+       | (NodeFailure, NodeFailure)
+       | (NodeCommandHandle, NodeCommandHandle))
+    }
+Parameter =
+  notAllowed
+  | element Parameter {
+      element Name { NCName }?,
+      element Type {
+        xsd:NMTOKEN "Integer"
+        | xsd:NMTOKEN "Real"
+        | xsd:NMTOKEN "String"
+        | xsd:NMTOKEN "Boolean"
+        | xsd:NMTOKEN "Any"
+      },
+      element MaxSize { nonNegativeInteger }?
+    }
+Resource =
+  notAllowed
+  | element Resource {
+      SourceLocators,
+      (element ResourceName { GeneralizedStringExpression }
+       & element ResourcePriority { GeneralizedNumericExpression }
+       & element ResourceLowerBound { GeneralizedNumericExpression }?
+       & element ResourceUpperBound { GeneralizedNumericExpression }?
+       & element ResourceReleaseAtTermination {
+           GeneralizedBooleanExpression
+         }?)
+    }
+NodeId =
+  notAllowed
+  | element NodeId { NCName }
+Timepoint =
+  notAllowed
+  | element Timepoint { xsd:NMTOKEN "START" | xsd:NMTOKEN "END" }
+RealVariable =
+  notAllowed
+  | element RealVariable { NCName }
+GeneralizedNumericExpression =
+  NumericExpression | LookupGroup | ArrayElement
+SUB =
+  notAllowed
+  | element SUB {
+      SourceLocators,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression*
+    }
+CommandDeclaration =
+  notAllowed
+  | element CommandDeclaration {
+      SourceLocators,
+      element Name { NCName },
+      Return*,
+      ParameterSpec?,
+      ResourceList?
+    }
+PreCondition =
+  notAllowed
+  | element PreCondition {
+      SourceLocators, GeneralizedBooleanExpression
+    }
+Return =
+  notAllowed
+  | element Return {
+      element Name { NCName }?,
+      element Type { AtomicTypeValues },
+      element MaxSize { nonNegativeInteger }?
+    }
+MOD =
+  notAllowed
+  | element MOD {
+      SourceLocators,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression
+    }
+ArrayVariable =
+  notAllowed
+  | element ArrayVariable { NCName }
+EQString =
+  notAllowed
+  | element EQString {
+      SourceLocators,
+      GeneralizedStringExpression,
+      GeneralizedStringExpression
+    }
+XOR =
+  notAllowed
+  | element XOR { SourceLocators, GeneralizedBooleanExpression* }
+ExitCondition =
+  notAllowed
+  | element ExitCondition {
+      SourceLocators, GeneralizedBooleanExpression
+    }
+StringExpression = StringVariable | StringValue | Concat
+ParameterSpec =
+  Parameter*,
+  (notAllowed
+   | element AnyParameters {
+       mixed {
+         (attribute * { text }
+          | element0)*
+       }
+     })?
+SQRT =
+  notAllowed
+  | element SQRT { SourceLocators, GeneralizedNumericExpression }
+BooleanValue =
+  notAllowed
+  | element BooleanValue { xsd:boolean }
+Concat =
+  notAllowed
+  | element Concat { SourceLocators, GeneralizedStringExpression* }
+UsingMutex =
+  notAllowed
+  | element UsingMutex {
+      SourceLocators,
+      element Name {
+        SourceLocators,
+        element StringValue { NCName }
+      }+
+    }
+LookupNow =
+  notAllowed
+  | element LookupNow { SourceLocators, Name, Arguments? }
+Name =
+  notAllowed
+  | element Name { SourceLocators, GeneralizedStringExpression }
+Action = Node
+Assignment =
+  notAllowed
+  | element Assignment {
+      SourceLocators,
+      DeclaredVariable,
+      (BooleanRHS | NumericRHS | StringRHS | ArrayRHS)
+    }
+StringValue =
+  notAllowed
+  | element StringValue { xsd:string }
+NodeCommandHandleVariable =
+  notAllowed
+  | element NodeCommandHandleVariable { node-reference }
+ROUND =
+  notAllowed
+  | element ROUND { SourceLocators, GeneralizedNumericExpression }
+DeclareVariable =
+  notAllowed
+  | element DeclareVariable {
+      SourceLocators,
+      element Name { NCName },
+      element Type { AtomicTypeValues },
+      element InitialValue { Value }?
+    }
+Tolerance =
+  notAllowed
+  | element Tolerance { GeneralizedNumericExpression }
+SkipCondition =
+  notAllowed
+  | element SkipCondition {
+      SourceLocators, GeneralizedBooleanExpression
+    }
+ResourceList =
+  notAllowed
+  | element ResourceList { SourceLocators, Resource* }
+BooleanRHS =
+  notAllowed
+  | element BooleanRHS { SourceLocators, GeneralizedBooleanExpression }
+AtomicTypeValues =
+  xsd:NMTOKEN "Integer"
+  | xsd:NMTOKEN "Real"
+  | xsd:NMTOKEN "String"
+  | xsd:NMTOKEN "Boolean"
+NodeBody =
+  notAllowed
+  | element NodeBody {
+      NodeList | Command | Assignment | Update | LibraryNodeCall
+    }
+NodeFailure = NodeFailureVariable | NodeFailureValue
 NodeFailureValue =
   notAllowed
   | element NodeFailureValue {
@@ -619,18 +543,33 @@ NodeFailureValue =
       | xsd:NMTOKEN "PARENT_EXITED"
       | xsd:NMTOKEN "POST_CONDITION_FAILED"
     }
-StringVariable =
+StartCondition =
   notAllowed
-  | element StringVariable { NCName }
-DeclareVariable =
-  notAllowed
-  | element DeclareVariable {
-      SourceLocators,
-      element Name { NCName },
-      element Type { AtomicTypeValues },
-      element InitialValue { Value }?
+  | element StartCondition {
+      SourceLocators, GeneralizedBooleanExpression
     }
-ArrayExpression = ArrayValue | ArrayVariable
+Expression =
+  BooleanExpression
+  | NumericExpression
+  | StringExpression
+  | ArrayExpression
+  | LookupGroup
+  | ArrayElement
+nonNegativeInteger = xsd:nonNegativeInteger
+SourceLocators =
+  attribute ColNo { xsd:integer }?,
+  attribute LineNo { xsd:integer }?,
+  attribute FileName { xsd:string }?
+Update =
+  notAllowed
+  | element Update { SourceLocators, Pair* }
+element0 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element0)*
+    }
+  }
 LT =
   notAllowed
   | element LT {
@@ -638,18 +577,91 @@ LT =
       GeneralizedNumericExpression,
       GeneralizedNumericExpression
     }
-Concat =
+IntegerVariable =
   notAllowed
-  | element Concat { SourceLocators, GeneralizedStringExpression* }
-ArrayVariable =
+  | element IntegerVariable { NCName }
+InOut =
   notAllowed
-  | element ArrayVariable { NCName }
-STRLEN =
+  | element InOut { SourceLocators, (DeclareVariable | DeclareArray)+ }
+NEBoolean =
   notAllowed
-  | element STRLEN { SourceLocators, GeneralizedStringExpression }
-Name =
+  | element NEBoolean {
+      SourceLocators,
+      GeneralizedBooleanExpression,
+      GeneralizedBooleanExpression
+    }
+node-reference = (SourceLocators, NodeReference), empty
+RealValue =
   notAllowed
-  | element Name { SourceLocators, GeneralizedStringExpression }
+  | element RealValue { xsd:double }
+NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+ArrayElement =
+  notAllowed
+  | element ArrayElement {
+      SourceLocators,
+      (GeneralizedArrayExpression
+       | element Name { NCName }),
+      element Index { GeneralizedNumericExpression }
+    }
+ArraySize =
+  notAllowed
+  | element ArraySize { SourceLocators, GeneralizedArrayExpression }
+Alias =
+  notAllowed
+  | element Alias {
+      SourceLocators,
+      element NodeParameter { NCName },
+      Expression
+    }
+LibraryNodeDeclaration =
+  notAllowed
+  | element LibraryNodeDeclaration {
+      SourceLocators,
+      element Name { NCName },
+      Interface?
+    }
+AND =
+  notAllowed
+  | element AND { SourceLocators, GeneralizedBooleanExpression* }
+StringRHS =
+  notAllowed
+  | element StringRHS { SourceLocators, GeneralizedStringExpression }
+GeneralizedBooleanExpression =
+  BooleanExpression | LookupGroup | ArrayElement
+LE =
+  notAllowed
+  | element LE {
+      SourceLocators,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression
+    }
+MUL =
+  notAllowed
+  | element MUL {
+      SourceLocators,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression*
+    }
+NodeFailureVariable =
+  notAllowed
+  | element NodeFailureVariable { node-reference }
+BooleanVariable =
+  notAllowed
+  | element BooleanVariable { NCName }
+NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
+IsKnown =
+  notAllowed
+  | element IsKnown {
+      SourceLocators,
+      (Expression
+       | NodeStateVariable
+       | NodeOutcomeVariable
+       | NodeCommandHandleVariable)
+    }
+ArrayRHS =
+  notAllowed
+  | element ArrayRHS { SourceLocators, GeneralizedArrayExpression }
 BooleanExpression =
   (OR | XOR | AND | NOT)
   | (EQBoolean
@@ -664,87 +676,38 @@ BooleanExpression =
   | (IsKnown | ALL_KNOWN | ANY_KNOWN)
   | BooleanVariable
   | BooleanValue
-Resource =
+GE =
   notAllowed
-  | element Resource {
+  | element GE {
       SourceLocators,
-      (element ResourceName { GeneralizedStringExpression }
-       & element ResourcePriority { GeneralizedNumericExpression }
-       & element ResourceLowerBound { GeneralizedNumericExpression }?
-       & element ResourceUpperBound { GeneralizedNumericExpression }?
-       & element ResourceReleaseAtTermination {
-           GeneralizedBooleanExpression
-         }?)
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression
     }
-ArrayValue =
+REAL_TO_INT =
   notAllowed
-  | element ArrayValue {
+  | element REAL_TO_INT { SourceLocators, GeneralizedNumericExpression }
+StringVariable =
+  notAllowed
+  | element StringVariable { NCName }
+Arguments =
+  notAllowed
+  | element Arguments { SourceLocators, Expression+ }
+LookupGroup = LookupOnChange | LookupNow
+NodeList =
+  notAllowed
+  | element NodeList { Action* }
+NodeTimepointValue =
+  notAllowed
+  | element NodeTimepointValue {
+      SourceLocators, NodeReference, NodeStateValue, Timepoint
+    }
+MIN =
+  notAllowed
+  | element MIN {
       SourceLocators,
-      attribute Type {
-        xsd:NMTOKEN "Integer"
-        | xsd:NMTOKEN "Real"
-        | xsd:NMTOKEN "String"
-        | xsd:NMTOKEN "Boolean"
-      },
-      (IntegerValue+ | RealValue+ | BooleanValue+ | StringValue+)
+      GeneralizedNumericExpression,
+      GeneralizedNumericExpression
     }
-Command =
-  notAllowed
-  | element Command {
-      SourceLocators, ResourceList?, DeclaredVariable?, Name, Arguments?
-    }
-BooleanRHS =
-  notAllowed
-  | element BooleanRHS { SourceLocators, GeneralizedBooleanExpression }
-SQRT =
-  notAllowed
-  | element SQRT { SourceLocators, GeneralizedNumericExpression }
-NodeStateValue =
-  notAllowed
-  | element NodeStateValue {
-      xsd:NMTOKEN "EXECUTING"
-      | xsd:NMTOKEN "FAILING"
-      | xsd:NMTOKEN "ITERATION_ENDED"
-      | xsd:NMTOKEN "INACTIVE"
-      | xsd:NMTOKEN "WAITING"
-      | xsd:NMTOKEN "FINISHING"
-      | xsd:NMTOKEN "FINISHED"
-    }
-OR =
-  notAllowed
-  | element OR { SourceLocators, GeneralizedBooleanExpression* }
-InOut =
-  notAllowed
-  | element InOut { SourceLocators, (DeclareVariable | DeclareArray)+ }
-Tolerance =
-  notAllowed
-  | element Tolerance { GeneralizedNumericExpression }
-NodeCommandHandleVariable =
-  notAllowed
-  | element NodeCommandHandleVariable { node-reference }
-StateDeclaration =
-  notAllowed
-  | element StateDeclaration {
-      SourceLocators,
-      element Name { NCName },
-      Return,
-      ParameterSpec?
-    }
-EQString =
-  notAllowed
-  | element EQString {
-      SourceLocators,
-      GeneralizedStringExpression,
-      GeneralizedStringExpression
-    }
-LookupOnChange =
-  notAllowed
-  | element LookupOnChange {
-      SourceLocators, Name, Tolerance?, Arguments?
-    }
-Interface =
-  notAllowed
-  | element Interface { SourceLocators, (In? & InOut?) }
 NodeCommandHandleValue =
   notAllowed
   | element NodeCommandHandleValue {
@@ -757,6 +720,46 @@ NodeCommandHandleValue =
       | xsd:NMTOKEN "COMMAND_ACCEPTED"
       | xsd:NMTOKEN "COMMAND_FAILED"
     }
+In =
+  notAllowed
+  | element In { SourceLocators, (DeclareVariable | DeclareArray)+ }
+NodeOutcomeValue =
+  notAllowed
+  | element NodeOutcomeValue {
+      xsd:NMTOKEN "SUCCESS"
+      | xsd:NMTOKEN "SKIPPED"
+      | xsd:NMTOKEN "FAILURE"
+      | xsd:NMTOKEN "INTERRUPTED"
+    }
+LibraryNodeCall =
+  notAllowed
+  | element LibraryNodeCall { SourceLocators, NodeId, Alias* }
+NodeOutcomeVariable =
+  notAllowed
+  | element NodeOutcomeVariable { node-reference }
+StateDeclaration =
+  notAllowed
+  | element StateDeclaration {
+      SourceLocators,
+      element Name { NCName },
+      Return,
+      ParameterSpec?
+    }
+ANY_KNOWN =
+  notAllowed
+  | element ANY_KNOWN { SourceLocators, GeneralizedArrayExpression }
+EQInternal =
+  notAllowed
+  | element EQInternal {
+      SourceLocators,
+      ((NodeState, NodeState)
+       | (NodeOutcome, NodeOutcome)
+       | (NodeFailure, NodeFailure)
+       | (NodeCommandHandle, NodeCommandHandle))
+    }
+Interface =
+  notAllowed
+  | element Interface { SourceLocators, (In? & InOut?) }
 NodeRef =
   notAllowed
   | element NodeRef {
@@ -768,9 +771,9 @@ NodeRef =
       }?,
       (xsd:NCName | xsd:string "")
     }
-SUB =
+ADD =
   notAllowed
-  | element SUB {
+  | element ADD {
       SourceLocators,
       GeneralizedNumericExpression,
       GeneralizedNumericExpression,

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:apply-templates select="NodeBody" />
     </Node>
   </xsl:template>
@@ -100,7 +100,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
@@ -126,7 +126,7 @@
         </xsl:when>
       </xsl:choose>
       <xsl:call-template name="success-invariant-condition" />
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
@@ -210,7 +210,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="concurrent-body" />
     </Node>
   </xsl:template>
@@ -249,7 +249,7 @@
       </xsl:choose>
       <xsl:call-template name="try-end-condition" />
       <xsl:call-template name="try-post-condition" />
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
@@ -365,7 +365,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="if-body" />
     </Node>
   </xsl:template>
@@ -605,7 +605,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="while-body" />
     </Node>
   </xsl:template>
@@ -729,7 +729,7 @@
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode" />
       </xsl:call-template>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="for-body" />
     </Node>
   </xsl:template>
@@ -836,7 +836,7 @@
                                        InvariantCondition|ExitCondition" />
         </xsl:when>
       </xsl:choose>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <xsl:call-template name="wait-end-condition" />
     </Node>
   </xsl:template>
@@ -1167,7 +1167,7 @@
       <xsl:with-param name="context" select="$context" />
       <xsl:with-param name="mode" select="$mode" />
     </xsl:call-template>
-    <xsl:copy-of select="Mutexes" />
+    <xsl:copy-of select="UsingMutex" />
   </xsl:template>
 
 
@@ -1548,7 +1548,7 @@
         </DeclareVariable>
       </VariableDeclarations>
       <xsl:copy-of select="NodeId" />
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <!-- Find parent node and set invariant, if exists -->
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
@@ -1612,9 +1612,7 @@
       <xsl:copy-of select="@LineNo" />
       <xsl:copy-of select="@ColNo" />
       <VariableDeclarations>
-        <xsl:apply-templates select="VariableDeclarations/DeclareVariable"/>
-        <!-- Arrays are variables too -->
-        <xsl:apply-templates select="VariableDeclarations/DeclareArray"/>
+        <xsl:apply-templates select="VariableDeclarations/*"/>
         <DeclareVariable>
           <Name>
             <xsl:value-of select="tr:prefix('hdl')" />
@@ -1622,7 +1620,7 @@
           <Type>String</Type>
         </DeclareVariable>
       </VariableDeclarations>
-      <xsl:copy-of select="Mutexes" />
+      <xsl:copy-of select="UsingMutex" />
       <!-- Handle the OnCommand node conditions -->
       <xsl:call-template name="translate-conditions">
         <xsl:with-param name="mode" select="$mode"/>

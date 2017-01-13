@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ element.  It is used as an included schema only.
         <xs:element ref="CommandDeclaration" minOccurs="0"/>
         <xs:element ref="StateDeclaration" minOccurs="0"/>
         <xs:element ref="LibraryNodeDeclaration" minOccurs="0"/>
-        <xs:element ref="MutexDeclaration" minOccurs="0"/>
+        <xs:element ref="DeclareMutex" minOccurs="0"/>
         <xs:element name="TimeScalingUnitsSubunits" type="xs:integer" minOccurs="0"/>
       </xs:choice>
       <xs:attributeGroup ref="SourceLocators"/>
@@ -171,10 +171,20 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="MutexDeclaration">
+  <!-- Both global and local declarations share this syntax -->
+
+  <xs:element name="DeclareMutex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Name" type="xs:NCName"/>
+        <xs:element name="Name">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:NCName">
+                <xs:attributeGroup ref="SourceLocators"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -206,7 +216,7 @@ element.  It is used as an included schema only.
         <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
         <xs:element ref="Interface" minOccurs="0"/>
         <xs:element ref="VariableDeclarations" minOccurs="0"/>
-        <xs:element ref="Mutexes" minOccurs="0"/>
+        <xs:element ref="UsingMutex" minOccurs="0"/>
         <xs:element ref="NodeBody" minOccurs="0"/>
       </xs:all>
       <xs:attribute name="NodeType" use="required">
@@ -340,14 +350,15 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="Mutexes">
+  <xs:element name="UsingMutex">
     <xs:complexType>
-      <xs:sequence maxOccurs="unbounded">
-        <xs:element name="Name">
+      <xs:sequence>
+        <xs:element name="Name" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="StringValue" type="xs:NCName" />
             </xs:sequence>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -468,6 +479,7 @@ element.  It is used as an included schema only.
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="DeclareVariable"/>
         <xs:element ref="DeclareArray"/>
+        <xs:element ref="DeclareMutex"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -543,29 +555,25 @@ element.  It is used as an included schema only.
 
   <xs:element name="IntegerValue">
     <xs:simpleType>
-      <xs:restriction base="xs:integer">
-      </xs:restriction>
+      <xs:restriction base="xs:integer" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="RealValue">
     <xs:simpleType>
-      <xs:restriction base="xs:double">
-      </xs:restriction>
+      <xs:restriction base="xs:double" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="BooleanValue">
     <xs:simpleType>
-      <xs:restriction base="xs:boolean">
-      </xs:restriction>
+      <xs:restriction base="xs:boolean" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="StringValue">
     <xs:simpleType>
-      <xs:restriction base="xs:string">
-      </xs:restriction>
+      <xs:restriction base="xs:string" />
     </xs:simpleType>
   </xs:element>
 

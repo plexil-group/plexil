@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="Concurrence">
     <NodeId>ep2cp_Concurrence_d1e12</NodeId>
@@ -16,11 +16,11 @@
         </InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="Assignment">

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="SynchronousCommand" FileName="foo.ple" LineNo="104" ColNo="1">
     <NodeId>A</NodeId>
@@ -13,11 +13,11 @@
         <Type>Integer</Type>
       </DeclareVariable>
     </VariableDeclarations>
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">

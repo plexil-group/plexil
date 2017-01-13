@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -192,7 +192,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
       <xs:element ref="Interface" minOccurs="0"/>
       <xs:element ref="VariableDeclarations" minOccurs="0"/>
-      <xs:element ref="Mutexes" minOccurs="0"/>
+      <xs:element ref="UsingMutex" minOccurs="0"/>
     </xs:choice>
   </xs:group>
 

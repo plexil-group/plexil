@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="For">
     <NodeId>ep2cp_For_d1e12</NodeId>
@@ -35,11 +35,11 @@
             <NodeList>
               <Node NodeType="NodeList" epx="Concurrence">
                 <NodeId>ep2cp_Concurrence_d1e58</NodeId>
-                <Mutexes>
+                <UsingMutex>
                   <Name>
                     <StringValue>m</StringValue>
                   </Name>
-                </Mutexes>
+                </UsingMutex>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Empty">

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="Try">
     <NodeId>Root</NodeId>
@@ -56,11 +56,11 @@
         </EQInternal>
       </OR>
     </PostCondition>
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="Assignment">

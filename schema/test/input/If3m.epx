@@ -1,16 +1,16 @@
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
 
   <If>
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
 
     <Condition>
       <BooleanValue>true</BooleanValue>

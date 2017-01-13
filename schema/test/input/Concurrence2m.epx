@@ -1,8 +1,8 @@
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
 
   <Concurrence>
@@ -16,11 +16,11 @@
       </DeclareVariable>
     </VariableDeclarations>
 
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
 
     <Node NodeType="Assignment">
       <NodeId>One</NodeId>

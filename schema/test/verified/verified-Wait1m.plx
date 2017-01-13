@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="Empty" epx="Wait" FileName="foo.ple" LineNo="104" ColNo="1">
     <NodeId>Wait1</NodeId>
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
     <EndCondition>
       <GE>
         <LookupOnChange>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId>ep2cp_Sequence_d2e1</NodeId>
@@ -47,11 +47,11 @@
         </OR>
       </NOT>
     </InvariantCondition>
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">

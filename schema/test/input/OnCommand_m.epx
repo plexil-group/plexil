@@ -1,8 +1,8 @@
 <PlexilPlan>
   <GlobalDeclarations>
-    <MutexDeclaration>
+    <DeclareMutex>
       <Name>m</Name>
-    </MutexDeclaration>
+    </DeclareMutex>
   </GlobalDeclarations>
 
   <OnCommand>
@@ -17,11 +17,11 @@
       </DeclareVariable>
     </VariableDeclarations>
 
-    <Mutexes>
+    <UsingMutex>
       <Name>
         <StringValue>m</StringValue>
       </Name>
-    </Mutexes>
+    </UsingMutex>
 
     <Name><StringValue>moveRover</StringValue></Name>
     <Node NodeType= "Empty">
