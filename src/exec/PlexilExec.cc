@@ -129,21 +129,7 @@ namespace PLEXIL
       m_finishedRootNodes.pop();
       debugMsg("PlexilExec:deleteFinishedPlans",
                " deleting node \"" << node->getNodeId() << "\"");
-      // Remove from active plan
-      bool found = false;
-      for (std::list<Node *>::iterator pit = m_plan.begin();
-           pit != m_plan.end();
-           ++pit) {
-        if (*pit == node) {
-          found = true;
-          m_plan.erase(pit);
-          break;
-        }
-      }
-      assertTrueMsg(found,
-                    "PlexilExec::deleteFinishedPlan: Node \"" << node->getNodeId()
-                    << "\" not found on active root node list");
-      // Now safe to delete
+      m_plan.remove(node);
       delete node;
     }
     m_finishedRootNodesDeleted = true;
@@ -229,22 +215,10 @@ namespace PLEXIL
                   s << m->getName() << ' ';
                 s << std::endl;
               });
-    addToContention(node);
-    return true;
-  }
-
-  // Assumes node wishes to grab mutexes and next state is EXECUTING
-  void PlexilExec::addToContention(Node *node)
-  {
-    // Safety checks
-    assertTrue_1(node);
-    assertTrueMsg(node->getQueueStatus() == QUEUE_NONE,
-                  "PlexilExec::addToContention: node " << node->getNodeId()
-                  << " in invalid queue state " << node->getQueueStatus());
-
     debugMsg("PlexilExec:addToContention",
              " Adding node " << node->getNodeId() << " to pending queue.");
     addPendingNode(node);
+    return true;
   }
 
   // Find eligible nodes which can obtain mutexes, and enqueue them
@@ -253,10 +227,6 @@ namespace PLEXIL
   {
     Node *n = m_pendingQueue.front();
     while (n) {
-      assertTrueMsg(n->getState() == WAITING_STATE,
-                    "PlexilExec::resolveResourceConflicts: node " << n->getNodeId()
-                    << " in invalid state " << nodeStateName(n->getState()));
-
       // Do we need to recalculate node state?
       QueueStatus qs = n->getQueueStatus();
       if (qs == QUEUE_PENDING_CHECK
@@ -286,17 +256,8 @@ namespace PLEXIL
 
       // Evaluate whether mutex(es) can be acquired
       if (qs == QUEUE_PENDING_TRY) {
-        // This had better be true!
-        check_error_1(n->getNextState() == EXECUTING_STATE);
-
-        std::vector<Mutex *> const *mutexes = n->getUsingMutexes();
-        assertTrue_1(mutexes);
-
-        debugMsg("PlexilExec:resolveResourceConflicts",
-                 " evaluating node '" << n->getNodeId()
-                 << "' with priority " << n->getPriority());
-
         // Check whether mutexes are available
+        std::vector<Mutex *> const *mutexes = n->getUsingMutexes();
         bool eligible = true;
         for (Mutex const *m : *mutexes) {
           if (m->getHolder()) {
@@ -331,6 +292,10 @@ namespace PLEXIL
           for (Mutex *m : *mutexes)
             m->acquire(temp);
           addStateChangeNode(temp);
+          debugMsg("PlexilExec:resolveResourceConflicts",
+                   " node '" << temp->getNodeId()
+                   << "' with priority " << temp->getPriority()
+                   << " queued for state transition");
           debugMsg("PlexilExec:step",
                    " mutex(es) acquired, placing node " << temp->getNodeId()
                    << " on the state change queue in position " << ++m_queuePos);
@@ -509,28 +474,14 @@ namespace PLEXIL
     Node *result = m_candidateQueue.front();
     if (!result)
       return nullptr;
-
-    // TEMP (?)
-    assertTrue_1(result->getQueueStatus() == QUEUE_CHECK);
     
     m_candidateQueue.pop();
     result->conditionsChecked(); // mark it as dequeued
     return result;
   }
 
-  void PlexilExec::removeCandidateNode(Node *node) {
-    // TEMP (?)
-    assertTrue_1(node->getQueueStatus() == QUEUE_CHECK);
-
-    m_candidateQueue.remove(node);
-    node->conditionsChecked(); // mark it as dequeued
-  }
-
   void PlexilExec::addPendingNode(Node *node)
   {
-    // TEMP (?)
-    assertTrue_1(node->getQueueStatus() == QUEUE_NONE);
-
     node->setQueueStatus(QUEUE_PENDING_TRY);
     m_pendingQueue.insert(node);
     for (Mutex *m : *node->getUsingMutexes())
@@ -570,6 +521,7 @@ namespace PLEXIL
       assertTrueMsg(ALWAYS_FAIL,
                     "PlexilExec::addStateChangeNode: Node "
                     << node->getNodeId() << " already in check queue");
+      return;
 
     case QUEUE_TRANSITION:        // already in queue, shouldn't get here
     case QUEUE_TRANSITION_CHECK:  // already in queue, shouldn't get here
@@ -578,10 +530,7 @@ namespace PLEXIL
                     << " is already in transition queue");
       return;
 
-    case QUEUE_PENDING:           // internal error
-    case QUEUE_PENDING_CHECK:     // internal error
-    case QUEUE_DELETE:            // cannot possibly transition
-    default:                      // bogus value
+    default:                      // illegal or bogus value
       assertTrueMsg(ALWAYS_FAIL,
                     "PlexilExec::addStateChangeNode: Invalid queue status "
                     << node->getQueueStatus()

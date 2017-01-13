@@ -231,7 +231,6 @@ namespace PLEXIL
 
   void Node::allocateVariables(size_t n)
   {
-    assertTrue_1(!m_localVariables); // illegal to call this twice
     m_localVariables = new std::vector<Expression *>();
     m_localVariables->reserve(n);
     m_variablesByName =
@@ -247,8 +246,6 @@ namespace PLEXIL
 
   bool Node::addLocalVariable(char const *name, Expression *var)
   {
-    assertTrueMsg(m_localVariables && m_variablesByName,
-                  "Internal error: failed to allocate variables");
     if (m_variablesByName->find(name) != m_variablesByName->end())
       return false; // duplicate
     (*m_variablesByName)[name] = var;
@@ -258,14 +255,12 @@ namespace PLEXIL
 
   void Node::allocateMutexes(size_t n)
   {
-    assertTrue_1(!m_localMutexes); // illegal to call this twice
     m_localMutexes = new std::vector<std::unique_ptr<Mutex> >();
     m_localMutexes->reserve(n);
   }
 
   void Node::allocateUsingMutexes(size_t n)
   {
-    assertTrue_1(!m_usingMutexes); // illegal to call this twice
     m_usingMutexes = new std::vector<Mutex *>();
     m_usingMutexes->reserve(n);
   }
@@ -278,7 +273,6 @@ namespace PLEXIL
 
   void Node::addUsingMutex(Mutex *m)
   {
-    assertTrue_1(m_usingMutexes); // should have been preallocated
     m_usingMutexes->push_back(m);
   }
 
@@ -350,7 +344,6 @@ namespace PLEXIL
 
   void Node::addUserCondition(char const *cname, Expression *cond, bool isGarbage)
   {
-    assertTrue_2(cname, "Null condition name");
     ConditionIndex which = getConditionIndex(cname);
     checkParserException(which >= skipIdx && which <= repeatIdx,
                          "Invalid condition name \"" << cname << "\" for user condition");
@@ -539,15 +532,9 @@ namespace PLEXIL
 
   void Node::notifyMutexAvailable()
   {
-    // Irrelevant if we're not on the pending queue
-    if (m_state != WAITING_STATE
-        || m_nextState != EXECUTING_STATE)
-      return;
     switch (m_queueStatus) {
     case QUEUE_PENDING_TRY:
-      // can this happen?
-      debugMsg("Node:notifyMutexAvailable",
-               " " << m_nodeId << " before mutexes evaluated, ignoring");
+      // already marked - ignore - can happen when multiple mutexes in use by one node
       return;
 
     case QUEUE_PENDING:
@@ -578,7 +565,7 @@ namespace PLEXIL
     switch (m_queueStatus) {
       // Only case which should return true
     case QUEUE_NONE:
-      // m_queueStatus = QUEUE_CHECK; exec will do this
+      // m_queueStatus = QUEUE_CHECK; // exec will do this
       return true;
 
       // Valid cases
@@ -600,10 +587,9 @@ namespace PLEXIL
     case QUEUE_PENDING_CHECK:
     case QUEUE_TRANSITION_CHECK:
       // ignore, check already scheduled
-      return false;
-
     case QUEUE_DELETE:
-      // should we ever get here?
+      // ignore, on its way to deletion
+      return false;
 
     default:
       assertTrueMsg(ALWAYS_FAIL,
@@ -690,10 +676,6 @@ namespace PLEXIL
 
   void Node::transition(double time) 
   {
-    // Fail silently
-    if (m_nextState == m_state)
-      return;
-
     debugMsg("Node:transition", "Transitioning '" << m_nodeId
              << "' from " << nodeStateName(m_state)
              << " to " << nodeStateName(m_nextState)

@@ -167,20 +167,11 @@ namespace PLEXIL
      */
     void resolveResourceConflicts();
 
-    /**
-     * @brief Adds a node to consideration for resource contention.
-     *        The node must use at least one mutex and be eligible
-     *        for state transition to EXECUTING.
-     * @param node The node.
-     */
-    void addToContention(Node *node);
-
     //
     // Internal queue management
     //
 
     Node *getCandidateNode();
-    void removeCandidateNode(Node *node);
 
     void addPendingNode(Node *node);
     void removePendingNode(Node *node);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #include "Node.hh" 
 #include "PlanError.hh"
 
-#include <algorithm> // std::find, std::remove
+#include <algorithm> // std::remove
 #include <map>
 #include <memory> // std::unique_ptr
 
@@ -82,15 +82,7 @@ namespace PLEXIL
 
   void Mutex::addWaitingNode(Node *node)
   {
-    if (m_waiters.end() !=
-        std::find(m_waiters.begin(), m_waiters.end(), node)) {
-      debugMsg("Mutex:addWaitingNode",
-               " node " << node->getNodeId() << " already queued");
-      return; // already added
-    }
     m_waiters.push_back(node);
-    debugMsg("Mutex:addWaitingNode",
-             " enqueued node " << node->getNodeId());
   }
 
   void Mutex::removeWaitingNode(Node *node)
@@ -119,7 +111,7 @@ namespace PLEXIL
     
   static Mutex *createGlobalMutex(char const *name)
   {
-    debugMsg("Mutex:ensureGlobalMutex", " constructing new mutex " << name);
+    debugMsg("Mutex:ensureGlobalMutex", " constructing " << name);
     Mutex *result = new Mutex(name);
     s_globalMutexes.emplace(std::make_pair(std::string(name),
                                            std::unique_ptr<Mutex>(result)));
