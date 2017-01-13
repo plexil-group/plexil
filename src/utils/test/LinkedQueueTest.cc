@@ -65,8 +65,7 @@ public:
 
 };
 
-template <>
-struct std::less<QueueTest>
+struct QueueTestComp
 {
 public:
   bool operator() (QueueTest const &a, QueueTest const &b) const
@@ -355,7 +354,7 @@ static bool testLinkedQueueRemoveIf()
 
 static bool testPriorityQueue()
 {
-  PriorityQueue<QueueTest> testpq;
+  PriorityQueue<QueueTest, QueueTestComp> testpq;
 
   // Basics
   assertTrue_1(testpq.empty());
