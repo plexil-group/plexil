@@ -62,7 +62,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 	    <xs:group ref="NumericComparison"/>
         <xs:group ref="KnownTest"/>
         <xs:element ref="BooleanVariable"/>
-        <xs:element ref="BooleanValue"/>
+        <xs:element ref="Boolean"/>
         <xs:element ref="Finished"/>
         <xs:element ref="IterationEnded"/>
         <xs:element ref="Executing"/>
@@ -103,29 +103,18 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       </xs:choice>
     </xs:group>
 
-    <xs:group name="Value">
-      <xs:choice>
-        <xs:element ref="IntegerValue"/>
-        <xs:element ref="RealValue"/>
-        <xs:element ref="BooleanValue"/>
-        <xs:element ref="StringValue"/>
-        <xs:element ref="DateValue"/>
-        <xs:element ref="DurationValue"/>
-      </xs:choice>
-    </xs:group>
-
     <xs:group name="NumericExpression">
       <xs:choice>
         <xs:group ref="ArithmeticOperator"/>
         <xs:element ref="IntegerVariable"/>
         <xs:element ref="RealVariable"/>
-        <xs:element ref="IntegerValue"/>
-        <xs:element ref="RealValue"/>
+        <xs:element ref="Integer"/>
+        <xs:element ref="Real"/>
         <xs:element ref="DateVariable"/>
-        <xs:element ref="DateValue"/>
+        <xs:element ref="Date"/>
         <xs:element ref="DurationVariable"/>
-        <xs:element ref="DurationValue"/>
-        <xs:element ref="NodeTimepointValue"/>
+        <xs:element ref="Duration"/>
+        <xs:element ref="NodeTimepoint"/>
         <!-- read operations for arrays-->
         <xs:element ref="ArraySize"/>
         <xs:element ref="ArrayMaxSize"/>
@@ -163,17 +152,17 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:element name="DurationVariable" type="VariableReference"/>
-  <xs:element name="DateVariable" type="VariableReference"/>
+  <xs:element name="DurationVariable" type="VariableReferenceType"/>
+  <xs:element name="DateVariable" type="VariableReferenceType"/>
   
-  <xs:element name="DateValue">
+  <xs:element name="Date">
     <xs:simpleType>
       <xs:restriction base="xs:string">
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
 
-  <xs:element name="DurationValue">
+  <xs:element name="Duration">
     <xs:simpleType>
       <xs:restriction base="xs:string">
       </xs:restriction>
@@ -194,8 +183,8 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       <xs:element ref="EndCondition" minOccurs="0"/>
       <xs:element ref="SkipCondition" minOccurs="0"/>
       <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
-      <xs:element ref="Interface" minOccurs="0"/>
-      <xs:element ref="VariableDeclarations" minOccurs="0"/>
+      <xs:group ref="Interface" minOccurs="0"/>
+      <xs:group ref="VariableDeclaration" minOccurs="0"/>
       <xs:element ref="UsingMutex" minOccurs="0"/>
     </xs:choice>
   </xs:group>
@@ -300,21 +289,21 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
   <!-- Node Predicates -->
 
-  <xs:element name="Finished" type="node-reference"/>
-  <xs:element name="IterationEnded" type="node-reference"/>
-  <xs:element name="Executing" type="node-reference"/>
-  <xs:element name="Waiting" type="node-reference"/>
-  <xs:element name="Inactive" type="node-reference"/>
-  <xs:element name="Succeeded" type="node-reference"/>
-  <xs:element name="IterationSucceeded" type="node-reference"/>
-  <xs:element name="Failed" type="node-reference"/>
-  <xs:element name="Interrupted" type="node-reference"/>
-  <xs:element name="IterationFailed" type="node-reference"/>
-  <xs:element name="Skipped" type="node-reference"/>
-  <xs:element name="InvariantFailed" type="node-reference"/>
-  <xs:element name="PreconditionFailed" type="node-reference"/>
-  <xs:element name="PostconditionFailed" type="node-reference"/>
-  <xs:element name="ParentFailed" type="node-reference"/>
+  <xs:element name="Finished" type="NodeReference"/>
+  <xs:element name="IterationEnded" type="NodeReference"/>
+  <xs:element name="Executing" type="NodeReference"/>
+  <xs:element name="Waiting" type="NodeReference"/>
+  <xs:element name="Inactive" type="NodeReference"/>
+  <xs:element name="Succeeded" type="NodeReference"/>
+  <xs:element name="IterationSucceeded" type="NodeReference"/>
+  <xs:element name="Failed" type="NodeReference"/>
+  <xs:element name="Interrupted" type="NodeReference"/>
+  <xs:element name="IterationFailed" type="NodeReference"/>
+  <xs:element name="Skipped" type="NodeReference"/>
+  <xs:element name="InvariantFailed" type="NodeReference"/>
+  <xs:element name="PreconditionFailed" type="NodeReference"/>
+  <xs:element name="PostconditionFailed" type="NodeReference"/>
+  <xs:element name="ParentFailed" type="NodeReference"/>
 
   <!-- Support for message passing between executives -->
 

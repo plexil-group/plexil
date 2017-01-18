@@ -34,24 +34,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
   <xs:include schemaLocation='plexil-base-v2.xsd' />
 
-  <!-- Legal initializers for atomic variable declarations -->
-  <xs:group name="InitialValue">
-    <xs:choice>
-      <xs:group ref="BooleanExpression" />
-      <xs:group ref="NumericExpression" />
-      <xs:group ref="StringExpression" />
-      <xs:group ref="LookupGroup"/>
-      <xs:element ref="ArrayElement"/>
-    </xs:choice>
-  </xs:group>
-
-  <!-- Legal initializers for array variable declarations -->
-  <xs:group name="InitialArrayValue">
-    <xs:choice>
-      <xs:group ref="GeneralizedArrayExpression" />
-    </xs:choice>
-  </xs:group>
-
   <!-- Names of commands and lookups -->
   <xs:element name="Name">
     <xs:complexType>

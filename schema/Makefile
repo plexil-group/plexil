@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # My bone head script to fix up the generated RELAX-NG Compact schema.
 RNCFIX := ./rncfix
 
-SCHEMA_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd plexil-script.xsd
+SCHEMA_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd \
+ core-plexil-v2.xsd extended-plexil-v2.xsd \
+ plexil-script.xsd
 SCHEMA_RNG =    $(SCHEMA_XSD:.xsd=.rng)
 SCHEMA_RNC =    $(SCHEMA_XSD:.xsd=.rnc)
 SCHEMA_RNC_IN = $(SCHEMA_XSD:.xsd=.rnc.in)

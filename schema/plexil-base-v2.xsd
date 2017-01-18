@@ -405,6 +405,24 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- Legal initializers for atomic variable declarations -->
+  <xs:group name="InitialValue">
+    <xs:choice>
+      <xs:group ref="BooleanExpression" />
+      <xs:group ref="NumericExpression" />
+      <xs:group ref="StringExpression" />
+      <xs:group ref="LookupGroup"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Legal initializers for array variable declarations -->
+  <xs:group name="InitialArrayValue">
+    <xs:choice>
+      <xs:group ref="GeneralizedArrayExpression" />
+    </xs:choice>
+  </xs:group>
+
   <xs:element name="Command">
     <xs:complexType>
       <xs:sequence>
@@ -952,13 +970,15 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
+  <xs:element name="Tolerance" minOccurs="0">
+    <xs:complexType>
+      <xs:group ref="GeneralizedNumericExpression"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:complexType name="GeneralLookup">
     <xs:sequence>
-      <xs:element name="Tolerance" minOccurs="0">
-        <xs:complexType>
-          <xs:group ref="GeneralizedNumericExpression"/>
-        </xs:complexType>
-      </xs:element>
+      <xs:element ref="Tolerance" minOccurs="0" />
       <xs:element ref="Name" />
       <xs:group ref="Expression" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
