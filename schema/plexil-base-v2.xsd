@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,7 @@ element.  It is used as an included schema only.
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="CommandDeclaration" minOccurs="0"/>
         <xs:element ref="StateDeclaration" minOccurs="0"/>
+        <xs:element ref="DeclareMutex" minOccurs="0"/>
         <xs:element ref="LibraryNode" minOccurs="0"/>
         <!-- nuke this? -->
         <xs:element name="TimeScalingUnitsSubunits" type="xs:integer" minOccurs="0"/>
@@ -119,6 +120,15 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- Both global and local declarations share this syntax -->
+
+  <xs:element name="DeclareMutex">
+    <xs:complexType>
+      <xs:attribute name="Name" type="xs:NCName" />
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
   <!-- This is overridden in Extended Plexil -->
   <xs:group name="Action">
     <xs:choice>
@@ -137,7 +147,6 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-
   <xs:complexType name="NodeBase">
     <xs:sequence>
       <xs:element name="Comment" type="xs:string" minOccurs="0"/>
@@ -146,7 +155,9 @@ element.  It is used as an included schema only.
       <xs:group ref="Interface" minOccurs="0" maxOccurs="unbounded" />
       <!-- Variable declarations -->
       <xs:group ref="VariableDeclaration" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="UsingMutex" minOccurs="0"/>
     </xs:sequence>
+    <xs:attribute name="Priority" type="xs:nonNegativeInteger" use="optional"/>
 
     <xs:attribute name="NodeId" type="xs:NMTOKEN" use="required" />
 
@@ -168,7 +179,6 @@ element.  It is used as an included schema only.
             <xs:group ref="DeclaredVariable"/>
             <xs:group ref="Expression" />
           </xs:sequence>
-          <xs:attribute name="Priority" type="xs:nonNegativeInteger" use="optional"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -296,6 +306,23 @@ element.  It is used as an included schema only.
 
   <xs:element name="InOut" type="InterfaceSpec" />
 
+  <xs:element name="UsingMutex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:NCName">
+                <xs:attributeGroup ref="SourceLocators"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="Resource">
     <xs:complexType>
       <xs:all>
@@ -355,6 +382,7 @@ element.  It is used as an included schema only.
     <xs:choice>
       <xs:element ref="DeclareVariable" />
       <xs:element ref="DeclareArray" />
+      <xs:element ref="DeclareMutex" />
     </xs:choice>
   </xs:group>
 

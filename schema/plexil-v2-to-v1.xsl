@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -164,6 +164,15 @@
     </Parameter>
   </xsl:template>
 
+  <xsl:template match="DeclareMutex">
+    <DeclareMutex>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+      <Name>
+        <xsl:value-of select="@Name" />
+      </Name>
+    </DeclareMutex>
+  </xsl:template>
+
   <xsl:template name="NodeCommon">
     <xsl:copy-of select="@epx|@FileName|@LineNo|@ColNo" />
     <NodeId>
@@ -189,11 +198,12 @@
         </xsl:for-each>
       </Interface>
     </xsl:if>
-    <xsl:if test="DeclareVariable|DeclareArray">
+    <xsl:if test="DeclareVariable|DeclareArray|DeclareMutex">
       <VariableDeclarations>
-        <xsl:apply-templates select="DeclareVariable|DeclareArray" /> 
+        <xsl:apply-templates select="DeclareVariable|DeclareArray|DeclareMutex" /> 
       </VariableDeclarations>
     </xsl:if>
+    <xsl:apply-templates select="UsingMutex" />
   </xsl:template>
 
   <xsl:template match="EmptyNode">
@@ -455,6 +465,20 @@ in assignment node <xsl:value-of select="@NodeId" />
         </InitialValue>
       </xsl:if>
     </DeclareArray>
+  </xsl:template>
+
+  <!-- UsingMutex -->
+  <xsl:template match="UsingMutex">
+    <UsingMutex>
+      <xsl:for-each select="Name">
+        <Name>
+          <StringValue>
+            <xsl:value-of select="." />
+          </StringValue>
+          <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+        </Name>
+      </xsl:for-each>
+    </UsingMutex>
   </xsl:template>
 
   <!-- Expressions -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -189,6 +189,14 @@ canonicalized plan to determine if they are equivalent. -->
       <xsl:copy-of select="Type" copy-namespaces="no" />
       <xsl:copy-of select="MaxSize" copy-namespaces="no" />
     </Return>
+  </xsl:template>
+
+  <!-- Strip source locators from Assignment -->
+  <!-- This kludge works around the inability to copy them into PLEXIL V2 XML -->
+  <xsl:template match="Assignment">
+    <Assignment>
+      <xsl:apply-templates select="*" />
+    </Assignment>
   </xsl:template>
 
 </xsl:stylesheet>

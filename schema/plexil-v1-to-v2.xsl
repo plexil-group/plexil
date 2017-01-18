@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -167,6 +167,15 @@
     </Parameter>
   </xsl:template>
 
+  <xsl:template match="DeclareMutex">
+    <DeclareMutex>
+      <xsl:attribute name="Name">
+        <xsl:value-of select="Name" />
+      </xsl:attribute>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+    </DeclareMutex>
+  </xsl:template>
+
   <xsl:template match="Node">
     <xsl:choose>
       <xsl:when test="@NodeType eq 'Assignment'">
@@ -214,6 +223,7 @@
     <xsl:for-each select="VariableDeclarations"> 
       <xsl:apply-templates/> 
     </xsl:for-each> 
+    <xsl:apply-templates select="UsingMutex" />
   </xsl:template>
 
   <xsl:template name="Assignment">
@@ -379,6 +389,19 @@
         </xsl:choose>
       </xsl:if>
     </DeclareArray>
+  </xsl:template>
+
+  <!-- UsingMutex -->
+
+  <xsl:template match="UsingMutex">
+    <UsingMutex>
+      <xsl:for-each select="Name">
+        <Name>
+          <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+          <xsl:value-of select="StringValue" />
+        </Name>
+      </xsl:for-each>
+    </UsingMutex>
   </xsl:template>
 
   <!-- Expressions -->
