@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -303,6 +303,68 @@ namespace PLEXIL
     }
   }
 
+  struct PlexilMsgBase* constructPlexilPairMsg(std::string const& name,
+                                               Value const val) {
+  PlexilMsgBase* result = NULL;
+  if(val.isKnown()) {
+    PairHeader* header = NULL;
+    switch(val.valueType()) {
+      case BOOLEAN_TYPE: {
+        bool b;
+        val.getValue(b);
+        struct BooleanPair* boolMsg = new BooleanPair;
+        boolMsg->pairBoolValue = b;
+        debugMsg("constructPlexilPairMsg",
+                 "(" << name << ", " << boolMsg->pairBoolValue << ")");
+        header = reinterpret_cast<PairHeader*>(boolMsg);
+        result = reinterpret_cast<PlexilMsgBase*>(boolMsg);
+        result->msgType = PlexilMsgType_PairBoolean;
+        break;
+      }
+      case INTEGER_TYPE: {
+        struct IntegerPair* intMsg = new IntegerPair;
+        val.getValue(intMsg->pairIntValue);
+        debugMsg("constructPlexilPairMsg",
+                 "(" << name << ", " << intMsg->pairIntValue << ")");
+        header = reinterpret_cast<PairHeader*>(intMsg);
+        result = reinterpret_cast<PlexilMsgBase*>(intMsg);
+        result->msgType = PlexilMsgType_PairInteger;
+        break;
+      }
+      case REAL_TYPE: {
+        struct RealPair* realMsg = new RealPair;
+        val.getValue(realMsg->pairDoubleValue);
+        debugMsg("constructPlexilPairMsg",
+                 "(" << name << ", " << realMsg->pairDoubleValue << ")");
+        header = reinterpret_cast<PairHeader*>(realMsg);
+        result = reinterpret_cast<PlexilMsgBase*>(realMsg);
+        result->msgType = PlexilMsgType_PairReal;
+        break;
+      }
+      case STRING_TYPE: {
+        std::string const* sp;
+        val.getValuePointer(sp);
+        struct StringPair* strMsg = new StringPair;
+        strMsg->pairStringValue = sp->c_str();
+        debugMsg("constructPlexilPairMsg",
+                 "(" << name << ", " << strMsg->pairStringValue << ")");
+        header = reinterpret_cast<PairHeader*>(strMsg);
+        result = reinterpret_cast<PlexilMsgBase*>(strMsg);
+        result->msgType = PlexilMsgType_PairString;
+        break;
+      }
+      default:        
+        break;
+    }
+    if(result != NULL)
+      reinterpret_cast<PairHeader*>(result)->pairName = name.c_str();
+  }
+  else {
+    debugMsg("constructPlexilPairMsg", " Unknown value.");
+  }
+  return result;
+}
+
   /**
    * @brief Utility function to extract the value from a value message.
    * @param msg Pointer to const IPC message.
@@ -600,7 +662,14 @@ namespace PLEXIL
     assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
     status = subscribeDataCentral(STRING_ARRAY_MSG, messageHandler);
     assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    // *** TODO: implement receiving planner update
+    status = subscribeDataCentral(BOOLEAN_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(INTEGER_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(REAL_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(STRING_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
     return status;
   }
 
@@ -659,7 +728,18 @@ namespace PLEXIL
     status = IPC_unsubscribe(STRING_ARRAY_MSG, messageHandler);
     assertTrueMsg(status == IPC_OK,
                   "IpcFacade: Error unsubscribing from " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    // *** TODO: implement receiving planner update
+    status = IPC_unsubscribe(BOOLEAN_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << BOOLEAN_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(INTEGER_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << INTEGER_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(REAL_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << REAL_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(STRING_PAIR_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
     return status;
   }
 
@@ -753,6 +833,21 @@ namespace PLEXIL
     setError(status);
     return status == IPC_OK ? leaderSerial : ERROR_SERIAL();
   }
+  
+uint32_t IpcFacade::publishUpdate(const std::string& nodeName, std::vector<std::pair<std::string, Value> > const& update) {
+  debugMsg("IpcFacade:publishUpdate",
+           " sending planner update for \"" << nodeName << "\"");
+  uint32_t serial = getSerialNumber();
+  struct PlexilStringValueMsg updatePacket =
+      {{PlexilMsgType_PlannerUpdate, update.size(), serial, m_myUID.c_str()},
+       nodeName.c_str()};
+  IPC_RETURN_TYPE status = IPC_publishData(STRING_VALUE_MSG, (void*) &updatePacket);
+  if(status == IPC_OK) {
+    status = sendPairs(update, serial);
+  }
+  setError(status);
+  return status == IPC_OK ? serial : ERROR_SERIAL();
+}
 
   /**
    * @brief Helper function for sending a vector of parameters via IPC.
@@ -860,6 +955,48 @@ namespace PLEXIL
 
     return result;
   }
+
+/** 
+ * @brief Helper function for sending a vector of pairs via IPC.
+ * @param pairs The pairs to convert into messages and send
+ * @param serial The serial to send along with each parameter.  This should be the same serial s the header.
+ * 
+ * @return The IPC error status.
+ */
+IPC_RETURN_TYPE IpcFacade::sendPairs(std::vector<std::pair<std::string, Value> > const& pairs,
+                                     uint32_t serial) {
+  IPC_RETURN_TYPE result = IPC_OK;
+  for(std::vector<std::pair<std::string, Value> >::const_iterator it = pairs.begin();
+      it != pairs.end() && result == IPC_OK; ++it) {
+    PlexilMsgBase* pairMsg = constructPlexilPairMsg(it->first, it->second);
+    pairMsg->count = std::distance(pairs.begin(), it);
+    pairMsg->serial = serial;
+    pairMsg->senderUID = m_myUID.c_str();
+    std::string msgName =
+        formatMsgName(std::string(msgFormatForType((PlexilMsgType) pairMsg->msgType)),
+                      "");
+    result = IPC_publishData(msgName.c_str(), pairMsg);
+
+    switch(pairMsg->msgType) {
+      case PlexilMsgType_PairBoolean:
+        delete reinterpret_cast<BooleanPair*>(pairMsg);
+        break;
+      case PlexilMsgType_PairInteger:
+        delete reinterpret_cast<IntegerPair*>(pairMsg);
+        break;
+      case PlexilMsgType_PairReal:
+        delete reinterpret_cast<RealPair*>(pairMsg);
+        break;
+      case PlexilMsgType_PairString:
+        delete reinterpret_cast<StringPair*>(pairMsg);
+        break;
+      default:
+        delete pairMsg;
+        break;
+    }
+  }
+  return result;
+}
 
   /**
    * @brief Get next serial number

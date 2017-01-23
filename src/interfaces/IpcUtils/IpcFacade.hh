@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,6 +133,7 @@ namespace PLEXIL {
     /**
      * @brief publishes the given message via IPC
      * @param command The command string to send
+     * @return IPC status
      */
     uint32_t publishMessage(std::string const &command);
 
@@ -141,7 +142,9 @@ namespace PLEXIL {
      * sendCommand with an empty destination string.
      * Note: The response to this command may be received before
      * this method returns.
-     * @param command The command string to send
+     * @param command The command name.
+     * @param argsToDeliver The parameters for the command.
+     * @return IPC status
      */
     uint32_t publishCommand(std::string const &command, std::vector<Value> const &argsToDeliver);
 
@@ -150,17 +153,20 @@ namespace PLEXIL {
      * an empty string, the command is published to all clients.
      * Note: The response to this command may be received before
      * this method returns.
-     * @param command The command string to send
-     * @param dest The destination ID for this command
+     * @param command The command name.
+     * @param dest The destination ID for this command.
+     * @param argsToDeliver The parameters for the command.
+     * @return IPC status
      */
     uint32_t sendCommand(std::string const &command,
                          std::string const &dest, 
                          std::vector<Value> const &argsToDeliver);
 
     /**
-     * @brief publishes the given LookupNow via IPC
+     * @brief publishes the given LookupNow call via IPC
      * @param lookup The state name
-     * @param argsToDeliver Vector of parameters.
+     * @param argsToDeliver Vector of state parameters.
+     * @return IPC status
      */
     uint32_t publishLookupNow(std::string const &lookup, 
                               std::vector<Value> const &argsToDeliver);
@@ -168,8 +174,10 @@ namespace PLEXIL {
     /**
      * @brief Sends the given LookupNow to the given client ID via IPC. If the client ID is
      * an empty string, the LookupNow is published to all clients.
-     * @param lookup The lookup string to send
+     * @param lookup The state name.
      * @param dest The destination ID for this LookupNow
+     * @param argsToDeliver Vector of state parameters.
+     * @return IPC status
      */
     uint32_t sendLookupNow(std::string const &lookup,
                            std::string const &dest,
@@ -177,18 +185,31 @@ namespace PLEXIL {
 
     /**
      * @brief publishes the given return values via IPC
-     * @param command The command string to send
+     * @param request_serial The serial of the request to which this is a response.
+     * @param command The command name being responded to.
+     * @param arg The value being returned.
+     * @return IPC status
      */
     uint32_t publishReturnValues(uint32_t request_serial,
                                  std::string const &command,
                                  Value const &arg);
 
     /**
-     * @brief publishes the given telemetry value via IPC
-     * @param command The command string to send
+     * @brief publishes the given telemetry values via IPC
+     * @param destName The destination ID for this message.
+     * @param values Vector of PLEXIL Values to be published.
+     * @return IPC status
      */
     uint32_t publishTelemetry(std::string const &destName, std::vector<Value> const &values);
 
+    /**
+     * @brief publishes the given telemetry value via IPC
+     * @param nodeName The name of the node publishing the update.
+     * @param update Vector of name, value pairs to publish.
+     * @return IPC status
+     */
+    uint32_t publishUpdate(const std::string& nodeName,
+                           std::vector<std::pair<std::string, Value> > const& update);
     /**
      * @brief Get next serial number
      */
@@ -278,6 +299,15 @@ namespace PLEXIL {
      */
     IPC_RETURN_TYPE sendParameters(std::vector<Value> const &args, uint32_t serial, std::string const &dest);
 
+    /** 
+     * @brief Helper function for sending a vector of pairs via IPC.
+     * @param pairs The pairs to convert into messages and send
+     * @param serial The serial to send along with each parameter.  This should be the same serial s the header.
+     * 
+     * @return The IPC error status.
+     */
+    IPC_RETURN_TYPE sendPairs(std::vector<std::pair<std::string, Value> > const& pairs,
+                              uint32_t serial);
     /**
      * @brief Define all PLEXIL message types with Central. Also defines each PLEXIL message type with
      * the UID as a prefix for directed communication. Has no effect for any previously defined message types.
@@ -372,6 +402,15 @@ namespace PLEXIL {
    */
   extern struct PlexilMsgBase *constructPlexilValueMsg(Value const &val);
 
+  /**
+   * @brief Utility function to create a pair message from a string and a PLEXIL Value.
+   * @param name The name of the pair.
+   * @param val The Value to encode in the message.
+   * @return Pointer to newly allocated IPC message.
+   * @note Returns NULL for unimplemented/invalid Values.
+   */
+  extern struct PlexilMsgBase* constructPlexilPairMsg(std::string const& name,
+                                                      Value const val);
   /**
    * @brief Utility function to extract the value from a value message.
    * @param msg Pointer to const IPC message.
