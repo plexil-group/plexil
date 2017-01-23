@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,12 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "InterfaceSchema.hh"
+#include "NodeConnector.hh"
 #include "parsePlan.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 #include "ThreadSpawn.hh"
+#include "Update.hh"
 
 #include "pugixml.hpp"
 
@@ -321,10 +323,26 @@ namespace PLEXIL
    * @param update The Update object.
    */
 
-  void IpcAdapter::sendPlannerUpdate(Update * /* update */)
+  void IpcAdapter::sendPlannerUpdate(Update* update)
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "IpcAdapter: sendPlannerUpdate is not yet implemented");
+    std::string const& name = update->getSource()->getNodeId();
+    debugMsg("IpcAdapter:sendPlannerUpdate", " for \"" << name << "\"");
+    std::vector<std::pair<std::string, Value> > args(update->getPairs().begin(),
+                                                     update->getPairs().end());
+    if(args.empty()) {
+      debugMsg("IpcAdapter:sendPlannerUpdate", "Emtpy update");
+      return;
+    }
+
+    ThreadMutexGuard guard(m_cmdMutex);
+    uint32_t serial = m_ipcFacade.publishUpdate(name, args);
+    assertTrueMsg(serial != IpcFacade::ERROR_SERIAL(),
+                  "IpcAdapter::sendPlannerUpdate: IPC Error, IPC_errno = " <<
+                  m_ipcFacade.getError());
+    //is this the right thing to do?
+    update->acknowledge(true);
+    m_execInterface.handleUpdateAck(update, true);
+    m_execInterface.notifyOfExternalEvent();
   }
 
   /**
