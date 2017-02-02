@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,18 @@ namespace PLEXIL
   }
 
   template <typename T>
+  Equal<ArrayImpl<T> >::Equal()
+    : OperatorImpl<Boolean>("EQ")
+  {
+  }
+
+  template <typename T>
   Equal<T>::~Equal()
+  {
+  }
+
+  template <typename T>
+  Equal<ArrayImpl<T> >::~Equal()
   {
   }
 
@@ -77,9 +88,21 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool Equal<ArrayImpl<T> >::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
   bool Equal<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+  }
+
+  template <typename T>
+  bool Equal<ArrayImpl<T> >::checkArgTypes(Function const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::arrayValue);
   }
 
   template <>
@@ -117,6 +140,28 @@ namespace PLEXIL
     return true;
   }
 
+  // Don't allocate temporary strings
+  template <>
+  bool Equal<String>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    String const *tempA, *tempB;
+    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
+      return false; // some value unknown
+    result = (*tempA == *tempB);
+    return true;
+  }
+
+  // Don't allocate temporary arrays
+  template <typename T>
+  bool Equal<ArrayImpl<T> >::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    ArrayImpl<T> const *tempA, *tempB;
+    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
+      return false; // some value unknown
+    result = (*tempA == *tempB);
+    return true;
+  }
+
   //
   // NotEqual
   //
@@ -128,7 +173,18 @@ namespace PLEXIL
   }
 
   template <typename T>
+  NotEqual<ArrayImpl<T> >::NotEqual()
+    : OperatorImpl<Boolean>("NEQ")
+  {
+  }
+
+  template <typename T>
   NotEqual<T>::~NotEqual()
+  {
+  }
+
+  template <typename T>
+  NotEqual<ArrayImpl<T> >::~NotEqual()
   {
   }
 
@@ -139,9 +195,21 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool NotEqual<ArrayImpl<T> >::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
   bool NotEqual<T>::checkArgTypes(Function const *ev) const
   {
     return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+  }
+
+  template <typename T>
+  bool NotEqual<ArrayImpl<T> >::checkArgTypes(Function const *ev) const
+  {
+    return ev->allSameTypeOrUnknown(PlexilValueType<T>::arrayValue);
   }
 
   template <>
@@ -176,6 +244,26 @@ namespace PLEXIL
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
       return false; // some value unknown -> result unknown
     result = (tempA != tempB);
+    return true;
+  }
+
+  template <>
+  bool NotEqual<String>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    String const *tempA, *tempB;
+    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
+      return false; // some value unknown
+    result = (*tempA != *tempB);
+    return true;
+  }
+
+  template <typename T>
+  bool NotEqual<ArrayImpl<T> >::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    ArrayImpl<T> const *tempA, *tempB;
+    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
+      return false; // some value unknown
+    result = (*tempA != *tempB);
     return true;
   }
 
@@ -336,12 +424,20 @@ namespace PLEXIL
   template class Equal<Integer>;
   template class Equal<Real>;
   template class Equal<String>;
+  template class Equal<BooleanArray>;
+  template class Equal<IntegerArray>;
+  template class Equal<RealArray>;
+  template class Equal<StringArray>;
 
   template class NotEqual<Boolean>;
   template class NotEqual<uint16_t>;
   template class NotEqual<Integer>;
   template class NotEqual<Real>;
   template class NotEqual<String>;
+  template class NotEqual<BooleanArray>;
+  template class NotEqual<IntegerArray>;
+  template class NotEqual<RealArray>;
+  template class NotEqual<StringArray>;
 
   // Comparisons below don't make sense for Booleans
 

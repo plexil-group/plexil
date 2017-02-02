@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #ifndef PLEXIL_COMPARISON_OPERATORS_HH
 #define PLEXIL_COMPARISON_OPERATORS_HH
 
+#include "ArrayImpl.hh"
 #include "OperatorImpl.hh"
 
 namespace PLEXIL
@@ -77,6 +78,28 @@ namespace PLEXIL
   };
 
   template <typename T>
+  class Equal<ArrayImpl<T> > : public OperatorImpl<Boolean>
+  {
+  public:
+    ~Equal();
+
+    bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(Function const *ev) const;
+
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<ArrayImpl<T> >, Boolean)
+
+  private:
+    Equal();
+
+    // Disallow copy, assignment
+    Equal(const Equal<ArrayImpl<T> > &);
+    Equal &operator=(const Equal<ArrayImpl<T> > &);
+  };
+
+  template <typename T>
   class NotEqual : public OperatorImpl<Boolean>
   {
   public:
@@ -96,6 +119,28 @@ namespace PLEXIL
     // Disallow copy, assignment
     NotEqual(const NotEqual<T> &);
     NotEqual &operator=(const NotEqual<T> &);
+  };
+
+  template <typename T>
+  class NotEqual<ArrayImpl<T> > : public OperatorImpl<Boolean>
+  {
+  public:
+    ~NotEqual();
+
+    bool checkArgCount(size_t count) const;
+
+    bool checkArgTypes(Function const *ev) const;
+
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<ArrayImpl<T> >, Boolean)
+
+  private:
+    NotEqual();
+
+    // Disallow copy, assignment
+    NotEqual(const NotEqual<ArrayImpl<T> > &);
+    NotEqual &operator=(const NotEqual<ArrayImpl<T> > &);
   };
 
   // Special cases for internal values
