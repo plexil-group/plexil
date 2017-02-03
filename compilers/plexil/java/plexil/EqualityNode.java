@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -78,25 +78,27 @@ public class EqualityNode extends ExpressionNode
 
     protected String getXMLElementName()
     {
-        String result;
-        if (this.getType() == PlexilLexer.DEQUALS)
-            result = "EQ";
-        else
-            result = "NE";
+        String op =
+            (this.getType() == PlexilLexer.DEQUALS) ? "EQ" : "NE";
 
         PlexilDataType lhsType = ((ExpressionNode) this.getChild(0)).getDataType();
         if (lhsType == PlexilDataType.ANY_TYPE) {
             lhsType = ((ExpressionNode) this.getChild(1)).getDataType();
         }
+
         if (lhsType == PlexilDataType.INTEGER_TYPE ||
             lhsType == PlexilDataType.REAL_TYPE ||
-            lhsType.isTemporal()) result = result + "Numeric";
-        else if (lhsType == PlexilDataType.STRING_TYPE
-                 || lhsType == PlexilDataType.BOOLEAN_TYPE) {
-            result = result + lhsType.typeName();
-        }
-        else result = result + "Internal";
-        return result;
+            lhsType.isTemporal())
+            return op + "Numeric";
+
+        if (lhsType == PlexilDataType.STRING_TYPE
+            || lhsType == PlexilDataType.BOOLEAN_TYPE)
+            return op + lhsType.typeName();
+
+        if (lhsType.isArray())
+            return op + "Array";
+
+        return op + "Internal";
     }
 
 }
