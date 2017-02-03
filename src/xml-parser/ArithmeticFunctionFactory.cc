@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -149,8 +149,6 @@ namespace PLEXIL
 #define ENSURE_ARITHMETIC_FUNCTION_FACTORY(CLASS) template class PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>;
 
   // Comparisons
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Equal);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(NotEqual);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterThan);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterEqual);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessThan);

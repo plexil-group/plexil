@@ -27,7 +27,6 @@
 #ifndef PLEXIL_COMPARISON_OPERATORS_HH
 #define PLEXIL_COMPARISON_OPERATORS_HH
 
-#include "ArrayImpl.hh"
 #include "OperatorImpl.hh"
 
 namespace PLEXIL
@@ -55,7 +54,6 @@ namespace PLEXIL
     IsKnown& operator=(const IsKnown &);
   };
 
-  template <typename T>
   class Equal : public OperatorImpl<Boolean>
   {
   public:
@@ -67,39 +65,16 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, Boolean)
+    DECLARE_OPERATOR_STATIC_INSTANCE(Equal, Boolean)
 
   private:
     Equal();
 
     // Disallow copy, assignment
-    Equal(const Equal<T> &);
-    Equal &operator=(const Equal<T> &);
+    Equal(const Equal &);
+    Equal &operator=(const Equal &);
   };
 
-  template <typename T>
-  class Equal<ArrayImpl<T> > : public OperatorImpl<Boolean>
-  {
-  public:
-    ~Equal();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
-
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-
-    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<ArrayImpl<T> >, Boolean)
-
-  private:
-    Equal();
-
-    // Disallow copy, assignment
-    Equal(const Equal<ArrayImpl<T> > &);
-    Equal &operator=(const Equal<ArrayImpl<T> > &);
-  };
-
-  template <typename T>
   class NotEqual : public OperatorImpl<Boolean>
   {
   public:
@@ -111,75 +86,14 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, Boolean)
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual, Boolean)
 
   private:
     NotEqual();
 
     // Disallow copy, assignment
-    NotEqual(const NotEqual<T> &);
-    NotEqual &operator=(const NotEqual<T> &);
-  };
-
-  template <typename T>
-  class NotEqual<ArrayImpl<T> > : public OperatorImpl<Boolean>
-  {
-  public:
-    ~NotEqual();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
-
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<ArrayImpl<T> >, Boolean)
-
-  private:
-    NotEqual();
-
-    // Disallow copy, assignment
-    NotEqual(const NotEqual<ArrayImpl<T> > &);
-    NotEqual &operator=(const NotEqual<ArrayImpl<T> > &);
-  };
-
-  // Special cases for internal values
-  class EqualInternal : public OperatorImpl<Boolean>
-  {
-  public:
-    ~EqualInternal();
-
-    bool checkArgCount(size_t count) const;
-
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-
-    DECLARE_OPERATOR_STATIC_INSTANCE(EqualInternal, Boolean)
-
-  private:
-    EqualInternal();
-
-    // Disallow copy, assignment
-    EqualInternal(const EqualInternal &);
-    EqualInternal &operator=(const EqualInternal &);
-  };
-
-  class NotEqualInternal : public OperatorImpl<Boolean>
-  {
-  public:
-    ~NotEqualInternal();
-
-    bool checkArgCount(size_t count) const;
-
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqualInternal, Boolean)
-
-  private:
-    NotEqualInternal();
-
-    // Disallow copy, assignment
-    NotEqualInternal(const NotEqualInternal &);
-    NotEqualInternal &operator=(const NotEqualInternal &);
+    NotEqual(const NotEqual &);
+    NotEqual &operator=(const NotEqual &);
   };
 
   template <typename T>

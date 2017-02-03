@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -95,41 +95,41 @@ static bool testBoolean()
   BooleanConstant falls(false);
   BooleanVariable varb;
 
-  Function *boolEq1 = makeFunction(Equal<bool>::instance(),
+  Function *boolEq1 = makeFunction(Equal::instance(),
                                    &troo, &troo,
                                    false, false);
-  Function *boolEq2 = makeFunction(Equal<bool>::instance(),
+  Function *boolEq2 = makeFunction(Equal::instance(),
                                    &falls, &falls,
                                    false, false);
-  Function *boolEq3 = makeFunction(Equal<bool>::instance(),
+  Function *boolEq3 = makeFunction(Equal::instance(),
                                    &troo, &falls,
                                    false, false);
-  Function *boolEq4 = makeFunction(Equal<bool>::instance(),
+  Function *boolEq4 = makeFunction(Equal::instance(),
                                    &falls, &troo,
                                    false, false);
-  Function *boolEq5 = makeFunction(Equal<bool>::instance(),
+  Function *boolEq5 = makeFunction(Equal::instance(),
                                    &troo, &varb,
                                    false, false);
-  Function *boolEq6 = makeFunction(Equal<bool>::instance(),
+  Function *boolEq6 = makeFunction(Equal::instance(),
                                    &varb, &falls,
                                    false, false);
 
-  Function *boolNeq1 = makeFunction(NotEqual<bool>::instance(),
+  Function *boolNeq1 = makeFunction(NotEqual::instance(),
                                     &troo, &troo,
                                     false, false);
-  Function *boolNeq2 = makeFunction(NotEqual<bool>::instance(),
+  Function *boolNeq2 = makeFunction(NotEqual::instance(),
                                     &falls, &falls,
                                     false, false);
-  Function *boolNeq3 = makeFunction(NotEqual<bool>::instance(),
+  Function *boolNeq3 = makeFunction(NotEqual::instance(),
                                     &troo, &falls,
                                     false, false);
-  Function *boolNeq4 = makeFunction(NotEqual<bool>::instance(),
+  Function *boolNeq4 = makeFunction(NotEqual::instance(),
                                     &falls, &troo,
                                     false, false);
-  Function *boolNeq5 = makeFunction(NotEqual<bool>::instance(),
+  Function *boolNeq5 = makeFunction(NotEqual::instance(),
                                     &troo, &varb,
                                     false, false);
-  Function *boolNeq6 = makeFunction(NotEqual<bool>::instance(),
+  Function *boolNeq6 = makeFunction(NotEqual::instance(),
                                     &varb, &falls,
                                     false, false);
 
@@ -220,41 +220,41 @@ static bool testString()
   StringConstant mama("Mama");
   StringVariable vars;
 
-  Function *strEq1 = makeFunction(Equal<String>::instance(),
+  Function *strEq1 = makeFunction(Equal::instance(),
                                   &yo, &yo,
                                   false, false);
-  Function *strEq2 = makeFunction(Equal<String>::instance(),
+  Function *strEq2 = makeFunction(Equal::instance(),
                                   &mama, &mama,
                                   false, false);
-  Function *strEq3 = makeFunction(Equal<String>::instance(),
+  Function *strEq3 = makeFunction(Equal::instance(),
                                   &yo, &mama,
                                   false, false);
-  Function *strEq4 = makeFunction(Equal<String>::instance(),
+  Function *strEq4 = makeFunction(Equal::instance(),
                                   &mama, &yo,
                                   false, false);
-  Function *strEq5 = makeFunction(Equal<String>::instance(),
+  Function *strEq5 = makeFunction(Equal::instance(),
                                   &yo, &vars,
                                   false, false);
-  Function *strEq6 = makeFunction(Equal<String>::instance(),
+  Function *strEq6 = makeFunction(Equal::instance(),
                                   &vars, &mama,
                                   false, false);
 
-  Function *strNeq1 = makeFunction(NotEqual<String>::instance(),
+  Function *strNeq1 = makeFunction(NotEqual::instance(),
                                    &yo, &yo,
                                    false, false);
-  Function *strNeq2 = makeFunction(NotEqual<String>::instance(),
+  Function *strNeq2 = makeFunction(NotEqual::instance(),
                                    &mama, &mama,
                                    false, false);
-  Function *strNeq3 = makeFunction(NotEqual<String>::instance(),
+  Function *strNeq3 = makeFunction(NotEqual::instance(),
                                    &yo, &mama,
                                    false, false);
-  Function *strNeq4 = makeFunction(NotEqual<String>::instance(),
+  Function *strNeq4 = makeFunction(NotEqual::instance(),
                                    &mama, &yo,
                                    false, false);
-  Function *strNeq5 = makeFunction(NotEqual<String>::instance(),
+  Function *strNeq5 = makeFunction(NotEqual::instance(),
                                    &yo, &vars,
                                    false, false);
-  Function *strNeq6 = makeFunction(NotEqual<String>::instance(),
+  Function *strNeq6 = makeFunction(NotEqual::instance(),
                                    &vars, &mama,
                                    false, false);
 
@@ -590,41 +590,41 @@ static bool testInteger()
   IntegerConstant too(2);
   IntegerVariable vari;
 
-  Function *intEq1 = makeFunction(Equal<Integer>::instance(),
+  Function *intEq1 = makeFunction(Equal::instance(),
                                   &won, &won,
                                   false, false);
-  Function *intEq2 = makeFunction(Equal<Integer>::instance(),
+  Function *intEq2 = makeFunction(Equal::instance(),
                                   &too, &too,
                                   false, false);
-  Function *intEq3 = makeFunction(Equal<Integer>::instance(),
+  Function *intEq3 = makeFunction(Equal::instance(),
                                   &won, &too,
                                   false, false);
-  Function *intEq4 = makeFunction(Equal<Integer>::instance(),
+  Function *intEq4 = makeFunction(Equal::instance(),
                                   &too, &won,
                                   false, false);
-  Function *intEq5 = makeFunction(Equal<Integer>::instance(),
+  Function *intEq5 = makeFunction(Equal::instance(),
                                   &won, &vari,
                                   false, false);
-  Function *intEq6 = makeFunction(Equal<Integer>::instance(),
+  Function *intEq6 = makeFunction(Equal::instance(),
                                   &vari, &too,
                                   false, false);
 
-  Function *intNeq1 = makeFunction(NotEqual<Integer>::instance(),
+  Function *intNeq1 = makeFunction(NotEqual::instance(),
                                    &won, &won,
                                    false, false);
-  Function *intNeq2 = makeFunction(NotEqual<Integer>::instance(),
+  Function *intNeq2 = makeFunction(NotEqual::instance(),
                                    &too, &too,
                                    false, false);
-  Function *intNeq3 = makeFunction(NotEqual<Integer>::instance(),
+  Function *intNeq3 = makeFunction(NotEqual::instance(),
                                    &won, &too,
                                    false, false);
-  Function *intNeq4 = makeFunction(NotEqual<Integer>::instance(),
+  Function *intNeq4 = makeFunction(NotEqual::instance(),
                                    &too, &won,
                                    false, false);
-  Function *intNeq5 = makeFunction(NotEqual<Integer>::instance(),
+  Function *intNeq5 = makeFunction(NotEqual::instance(),
                                    &won, &vari,
                                    false, false);
-  Function *intNeq6 = makeFunction(NotEqual<Integer>::instance(),
+  Function *intNeq6 = makeFunction(NotEqual::instance(),
                                    &vari, &too,
                                    false, false);
 
@@ -967,41 +967,41 @@ static bool testReal()
   std::vector<bool> garbage2(2, false);
   std::vector<Expression *> v1, v2, v3, v4, v5, v6;
 
-  Function *dblEq1 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq1 = makeFunction(Equal::instance(),
                                   &wontoo, &wontoo,
                                   false, false);
-  Function *dblEq2 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq2 = makeFunction(Equal::instance(),
                                   &tootoo, &tootoo,
                                   false, false);
-  Function *dblEq3 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq3 = makeFunction(Equal::instance(),
                                   &wontoo, &tootoo,
                                   false, false);
-  Function *dblEq4 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq4 = makeFunction(Equal::instance(),
                                   &tootoo, &wontoo,
                                   false, false);
-  Function *dblEq5 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq5 = makeFunction(Equal::instance(),
                                   &wontoo, &varr,
                                   false, false);
-  Function *dblEq6 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq6 = makeFunction(Equal::instance(),
                                   &varr, &tootoo,
                                   false, false);
 
-  Function *dblNeq1 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq1 = makeFunction(NotEqual::instance(),
                                    &wontoo, &wontoo,
                                    false, false);
-  Function *dblNeq2 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq2 = makeFunction(NotEqual::instance(),
                                    &tootoo, &tootoo,
                                    false, false);
-  Function *dblNeq3 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq3 = makeFunction(NotEqual::instance(),
                                    &wontoo, &tootoo,
                                    false, false);
-  Function *dblNeq4 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq4 = makeFunction(NotEqual::instance(),
                                    &tootoo, &wontoo,
                                    false, false);
-  Function *dblNeq5 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq5 = makeFunction(NotEqual::instance(),
                                    &wontoo, &varr,
                                    false, false);
-  Function *dblNeq6 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq6 = makeFunction(NotEqual::instance(),
                                    &varr, &tootoo,
                                    false, false);
 
@@ -1337,41 +1337,41 @@ static bool testMixedNumerics()
   IntegerConstant wontoo(1);
   IntegerConstant tootoo(2);
 
-  Function *dblEq1 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq1 = makeFunction(Equal::instance(),
                                   &won, &wontoo,
                                   false, false);
-  Function *dblEq2 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq2 = makeFunction(Equal::instance(),
                                   &tootoo, &too,
                                   false, false);
-  Function *dblEq3 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq3 = makeFunction(Equal::instance(),
                                   &wontoo, &too,
                                   false, false);
-  Function *dblEq4 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq4 = makeFunction(Equal::instance(),
                                   &won, &tootoo,
                                   false, false);
-  Function *dblEq5 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq5 = makeFunction(Equal::instance(),
                                   &wontoo, &wontoo,
                                   false, false);
-  Function *dblEq6 = makeFunction(Equal<Real>::instance(),
+  Function *dblEq6 = makeFunction(Equal::instance(),
                                   &wontoo, &tootoo,
                                   false, false);
 
-  Function *dblNeq1 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq1 = makeFunction(NotEqual::instance(),
                                    &won, &wontoo,
                                    false, false);
-  Function *dblNeq2 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq2 = makeFunction(NotEqual::instance(),
                                    &tootoo, &too,
                                    false, false);
-  Function *dblNeq3 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq3 = makeFunction(NotEqual::instance(),
                                    &wontoo, &too,
                                    false, false);
-  Function *dblNeq4 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq4 = makeFunction(NotEqual::instance(),
                                    &won, &tootoo,
                                    false, false);
-  Function *dblNeq5 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq5 = makeFunction(NotEqual::instance(),
                                    &wontoo, &wontoo,
                                    false, false);
-  Function *dblNeq6 = makeFunction(NotEqual<Real>::instance(),
+  Function *dblNeq6 = makeFunction(NotEqual::instance(),
                                    &wontoo, &tootoo,
                                    false, false);
 

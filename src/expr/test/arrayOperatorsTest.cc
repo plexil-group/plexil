@@ -443,8 +443,8 @@ static bool testAnyElementsKnown()
 
 static bool testBooleanArrayEqual()
 {
-  Operator const *beq = Equal<BooleanArray>::instance();
-  Operator const *bneq = NotEqual<BooleanArray>::instance();
+  Operator const *beq = Equal::instance();
+  Operator const *bneq = NotEqual::instance();
   Boolean tempb;
 
   BooleanArrayConstant unknownbac;
@@ -737,8 +737,8 @@ static bool testBooleanArrayEqual()
 
 static bool testIntegerArrayEqual()
 {
-  Operator const *ieq = Equal<IntegerArray>::instance();
-  Operator const *ineq = NotEqual<IntegerArray>::instance();
+  Operator const *ieq = Equal::instance();
+  Operator const *ineq = NotEqual::instance();
   Boolean tempb;
 
   IntegerArrayConstant unknowniac;
@@ -1031,8 +1031,8 @@ static bool testIntegerArrayEqual()
 
 static bool testRealArrayEqual()
 {
-  Operator const *req = Equal<RealArray>::instance();
-  Operator const *rneq = NotEqual<RealArray>::instance();
+  Operator const *req = Equal::instance();
+  Operator const *rneq = NotEqual::instance();
   Boolean tempb;
 
   RealArrayConstant unknownrac;
@@ -1325,8 +1325,8 @@ static bool testRealArrayEqual()
 
 static bool testStringArrayEqual()
 {
-  Operator const *seq = Equal<StringArray>::instance();
-  Operator const *sneq = NotEqual<StringArray>::instance();
+  Operator const *seq = Equal::instance();
+  Operator const *sneq = NotEqual::instance();
   Boolean tempb;
 
   StringArrayConstant unknownsac;

@@ -26,6 +26,7 @@
 
 #include "Comparisons.hh"
 
+#include "Array.hh"
 #include "Function.hh"
 #include "PlexilTypeTraits.hh"
 
@@ -59,66 +60,9 @@ namespace PLEXIL
   // Equal
   //
 
+  // General (scalar) case
   template <typename T>
-  Equal<T>::Equal()
-    : OperatorImpl<Boolean>("EQ")
-  {
-  }
-
-  template <typename T>
-  Equal<ArrayImpl<T> >::Equal()
-    : OperatorImpl<Boolean>("EQ")
-  {
-  }
-
-  template <typename T>
-  Equal<T>::~Equal()
-  {
-  }
-
-  template <typename T>
-  Equal<ArrayImpl<T> >::~Equal()
-  {
-  }
-
-  template <typename T>
-  bool Equal<T>::checkArgCount(size_t count) const
-  {
-    return count == 2;
-  }
-
-  template <typename T>
-  bool Equal<ArrayImpl<T> >::checkArgCount(size_t count) const
-  {
-    return count == 2;
-  }
-
-  template <typename T>
-  bool Equal<T>::checkArgTypes(Function const *ev) const
-  {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
-  }
-
-  template <typename T>
-  bool Equal<ArrayImpl<T> >::checkArgTypes(Function const *ev) const
-  {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::arrayValue);
-  }
-
-  template <>
-  bool Equal<uint16_t>::checkArgTypes(Function const *ev) const
-  {
-    ValueType vta = (*ev)[0]->valueType();
-    if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
-      return false;
-    ValueType vtb = (*ev)[1]->valueType();
-    if (vta != vtb && vtb != UNKNOWN_TYPE)
-      return false;
-    return true;
-  }
-
-  template <typename T>
-  bool Equal<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  static bool compareEqual(Boolean &result, Expression const *argA, Expression const *argB)
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -127,22 +71,12 @@ namespace PLEXIL
     return true;
   }
 
-  // a.k.a. EQInternal
-  template <>
-  bool Equal<uint16_t>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    if (argA->valueType() != argB->valueType())
-      return false; // type mismatch
-    uint16_t tempA, tempB;
-    if (!argA->getValue(tempA) || !argB->getValue(tempB))
-      return false; // some value unknown -> result unknown
-    result = (tempA == tempB);
-    return true;
-  }
+  //
+  // Special cases
+  //
 
-  // Don't allocate temporary strings
   template <>
-  bool Equal<String>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool compareEqual<String>(Boolean &result, Expression const *argA, Expression const *argB)
   {
     String const *tempA, *tempB;
     if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
@@ -151,120 +85,126 @@ namespace PLEXIL
     return true;
   }
 
-  // Don't allocate temporary arrays
-  template <typename T>
-  bool Equal<ArrayImpl<T> >::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  template <>
+  bool compareEqual<Array>(Boolean &result, Expression const *argA, Expression const *argB)
   {
-    ArrayImpl<T> const *tempA, *tempB;
+    Array const *tempA, *tempB;
     if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
       return false; // some value unknown
     result = (*tempA == *tempB);
     return true;
+  }
+
+  static bool isEqual(Boolean &result, Expression const *argA, Expression const *argB)
+  {
+    switch (argA->valueType()) {
+    case UNKNOWN_TYPE:
+      return false; // unknown == any -> unknown
+
+    case BOOLEAN_TYPE:
+      return compareEqual<Boolean>(result, argA, argB);
+
+    case INTEGER_TYPE:
+      if (argB->valueType() == INTEGER_TYPE)
+        return compareEqual<Integer>(result, argA, argB);
+      // else fall through to Real case
+
+    case REAL_TYPE:
+      return compareEqual<Real>(result, argA, argB);
+
+    case STRING_TYPE:
+      return compareEqual<String>(result, argA, argB);
+
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      return compareEqual<Array>(result, argA, argB);
+
+    case NODE_STATE_TYPE:
+    case OUTCOME_TYPE:
+    case FAILURE_TYPE:
+    case COMMAND_HANDLE_TYPE:
+      if (argA->valueType() != argB->valueType()) {
+        result = false;
+        return true; // type mismatch
+      }
+      return compareEqual<uint16_t>(result, argA, argB);
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "isEqual: Invalid or unimplemented expression type " << argA->valueType());
+      return false;
+    }
+  }
+
+  Equal::Equal()
+    : OperatorImpl<Boolean>("EQ")
+  {
+  }
+
+  Equal::~Equal()
+  {
+  }
+
+  bool Equal::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  // Called at plan load time, so some expressions (e.g. Lookups) may not know their own types
+  bool Equal::checkArgTypes(Function const *ev) const
+  {
+    ValueType t0 = (*ev)[0]->valueType();
+    if (t0 == UNKNOWN_TYPE)
+      return true;
+    ValueType t1 = (*ev)[1]->valueType();
+    return (t1 == UNKNOWN_TYPE
+            || t0 == t1
+            || (isNumericType(t0) && isNumericType(t1)));
+  }
+
+  bool Equal::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    return isEqual(result, argA, argB);
   }
 
   //
   // NotEqual
   //
 
-  template <typename T>
-  NotEqual<T>::NotEqual()
+  NotEqual::NotEqual()
     : OperatorImpl<Boolean>("NEQ")
   {
   }
 
-  template <typename T>
-  NotEqual<ArrayImpl<T> >::NotEqual()
-    : OperatorImpl<Boolean>("NEQ")
+  NotEqual::~NotEqual()
   {
   }
 
-  template <typename T>
-  NotEqual<T>::~NotEqual()
-  {
-  }
-
-  template <typename T>
-  NotEqual<ArrayImpl<T> >::~NotEqual()
-  {
-  }
-
-  template <typename T>
-  bool NotEqual<T>::checkArgCount(size_t count) const
+  bool NotEqual::checkArgCount(size_t count) const
   {
     return count == 2;
   }
 
-  template <typename T>
-  bool NotEqual<ArrayImpl<T> >::checkArgCount(size_t count) const
+  bool NotEqual::checkArgTypes(Function const *ev) const
   {
-    return count == 2;
+    ValueType t0 = (*ev)[0]->valueType();
+    if (t0 == UNKNOWN_TYPE)
+      return true;
+    ValueType t1 = (*ev)[1]->valueType();
+    return (t1 == UNKNOWN_TYPE
+            || t0 == t1
+            || (isNumericType(t0) && isNumericType(t1)));
   }
 
-  template <typename T>
-  bool NotEqual<T>::checkArgTypes(Function const *ev) const
+  bool NotEqual::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
   {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
-  }
-
-  template <typename T>
-  bool NotEqual<ArrayImpl<T> >::checkArgTypes(Function const *ev) const
-  {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::arrayValue);
-  }
-
-  template <>
-  bool NotEqual<uint16_t>::checkArgTypes(Function const *ev) const
-  {
-    ValueType vta = (*ev)[0]->valueType();
-    if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
-      return false;
-    ValueType vtb = (*ev)[1]->valueType();
-    if (vta != vtb && vtb != UNKNOWN_TYPE)
-      return false;
-    return true;
-  }
-
-  template <typename T>
-  bool NotEqual<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    T tempA, tempB;
-    if (!argA->getValue(tempA) || !argB->getValue(tempB))
-      return false; // some value unknown
-    result = (tempA != tempB);
-    return true;
-  }
-
-  // a.k.a. NEInternal
-  template <>
-  bool NotEqual<uint16_t>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    if (argA->valueType() != argB->valueType())
-      return true; // type mismatch
-    uint16_t tempA, tempB;
-    if (!argA->getValue(tempA) || !argB->getValue(tempB))
-      return false; // some value unknown -> result unknown
-    result = (tempA != tempB);
-    return true;
-  }
-
-  template <>
-  bool NotEqual<String>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    String const *tempA, *tempB;
-    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
-      return false; // some value unknown
-    result = (*tempA != *tempB);
-    return true;
-  }
-
-  template <typename T>
-  bool NotEqual<ArrayImpl<T> >::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    ArrayImpl<T> const *tempA, *tempB;
-    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
-      return false; // some value unknown
-    result = (*tempA != *tempB);
-    return true;
+    Boolean tempResult;
+    bool returnVal = isEqual(tempResult, argA, argB);
+    if (returnVal)
+      result = !tempResult;
+    return returnVal;
   }
 
   //
@@ -418,26 +358,6 @@ namespace PLEXIL
   //
   // Explicit instantiations of template classes
   //
-
-  template class Equal<Boolean>;
-  template class Equal<uint16_t>;
-  template class Equal<Integer>;
-  template class Equal<Real>;
-  template class Equal<String>;
-  template class Equal<BooleanArray>;
-  template class Equal<IntegerArray>;
-  template class Equal<RealArray>;
-  template class Equal<StringArray>;
-
-  template class NotEqual<Boolean>;
-  template class NotEqual<uint16_t>;
-  template class NotEqual<Integer>;
-  template class NotEqual<Real>;
-  template class NotEqual<String>;
-  template class NotEqual<BooleanArray>;
-  template class NotEqual<IntegerArray>;
-  template class NotEqual<RealArray>;
-  template class NotEqual<StringArray>;
 
   // Comparisons below don't make sense for Booleans
 

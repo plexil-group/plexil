@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -89,10 +89,11 @@ namespace PLEXIL
       new ArrayVariableFactory("DeclareArray"); // for effect
       new UserVariableFactory("DeclareVariable"); // for effect
 
-      REGISTER_FUNCTION(Equal<Boolean>, EQBoolean);
-      REGISTER_FUNCTION(Equal<uint16_t>, EQInternal);
-      REGISTER_ARITHMETIC_FUNCTION(Equal, EQNumeric);
-      REGISTER_FUNCTION(Equal<String>, EQString);
+      REGISTER_FUNCTION(Equal, EQBoolean);
+      REGISTER_FUNCTION(Equal, EQInternal);
+      REGISTER_FUNCTION(Equal, EQNumeric);
+      REGISTER_FUNCTION(Equal, EQString);
+      REGISTER_FUNCTION(Equal, EQArray);
 
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
 
@@ -115,10 +116,11 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Modulo, MOD);
       REGISTER_ARITHMETIC_FUNCTION(Multiplication, MUL);
 
-      REGISTER_FUNCTION(NotEqual<Boolean>, NEBoolean);
-      REGISTER_FUNCTION(NotEqual<uint16_t>, NEInternal);
-      REGISTER_ARITHMETIC_FUNCTION(NotEqual, NENumeric);
-      REGISTER_FUNCTION(NotEqual<String>, NEString);
+      REGISTER_FUNCTION(NotEqual, NEBoolean);
+      REGISTER_FUNCTION(NotEqual, NEInternal);
+      REGISTER_FUNCTION(NotEqual, NENumeric);
+      REGISTER_FUNCTION(NotEqual, NEString);
+      REGISTER_FUNCTION(NotEqual, NEArray);
 
       REGISTER_FUNCTION(BooleanNot, NOT);
 

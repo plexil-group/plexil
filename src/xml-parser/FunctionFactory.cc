@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -90,13 +90,8 @@ namespace PLEXIL
 #define ENSURE_FUNCTION_FACTORY(CLASS) template class PLEXIL::FunctionFactoryImpl<CLASS>;
 
   // Comparisons
-  ENSURE_FUNCTION_FACTORY(Equal<bool>);
-  ENSURE_FUNCTION_FACTORY(Equal<std::string>);
-  ENSURE_FUNCTION_FACTORY(Equal<uint16_t>);
-
-  ENSURE_FUNCTION_FACTORY(NotEqual<bool>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<std::string>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<uint16_t>);
+  ENSURE_FUNCTION_FACTORY(Equal);
+  ENSURE_FUNCTION_FACTORY(NotEqual);
 
   // Not currently in the schema
   // ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>);
