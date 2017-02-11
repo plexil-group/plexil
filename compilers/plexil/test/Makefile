@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SMALL_TESTS = AddArray ArglistArithmeticType ArrayLookup \
+SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  array-add array-complex array-copy array_size_test \
  assignment0 assignment1 assignment2 \
  basic-wait-test boolean1 boolean2 boolean3 boolean4 boolean5 \

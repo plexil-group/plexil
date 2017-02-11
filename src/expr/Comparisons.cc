@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "Comparisons.hh"
 
+#include "Array.hh"
 #include "Function.hh"
 #include "PlexilTypeTraits.hh"
 
@@ -37,10 +38,6 @@ namespace PLEXIL
   //
   IsKnown::IsKnown()
     : OperatorImpl<Boolean>("IsKnown")
-  {
-  }
-
-  IsKnown::~IsKnown()
   {
   }
 
@@ -59,38 +56,9 @@ namespace PLEXIL
   // Equal
   //
 
+  // General (scalar) case
   template <typename T>
-  Equal<T>::Equal()
-    : OperatorImpl<Boolean>("EQ")
-  {
-  }
-
-  template <typename T>
-  bool Equal<T>::checkArgCount(size_t count) const
-  {
-    return count == 2;
-  }
-
-  template <typename T>
-  bool Equal<T>::checkArgTypes(Function const *ev) const
-  {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
-  }
-
-  template <>
-  bool Equal<uint16_t>::checkArgTypes(Function const *ev) const
-  {
-    ValueType vta = (*ev)[0]->valueType();
-    if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
-      return false;
-    ValueType vtb = (*ev)[1]->valueType();
-    if (vta != vtb && vtb != UNKNOWN_TYPE)
-      return false;
-    return true;
-  }
-
-  template <typename T>
-  bool Equal<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  static bool compareEqual(Boolean &result, Expression const *argA, Expression const *argB)
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -100,159 +68,133 @@ namespace PLEXIL
   }
 
   //
-  // NotEqual
+  // Special cases
   //
 
-  template <typename T>
-  NotEqual<T>::NotEqual()
-    : OperatorImpl<Boolean>("NEQ")
+  template <>
+  bool compareEqual<String>(Boolean &result, Expression const *argA, Expression const *argB)
   {
-  }
-
-  template <typename T>
-  bool NotEqual<T>::checkArgCount(size_t count) const
-  {
-    return count == 2;
-  }
-
-  template <typename T>
-  bool NotEqual<T>::checkArgTypes(Function const *ev) const
-  {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    String const *tempA, *tempB;
+    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
+      return false; // some value unknown
+    result = (*tempA == *tempB);
+    return true;
   }
 
   template <>
-  bool NotEqual<uint16_t>::checkArgTypes(Function const *ev) const
+  bool compareEqual<Array>(Boolean &result, Expression const *argA, Expression const *argB)
   {
-    ValueType vta = (*ev)[0]->valueType();
-    if (!isInternalType(vta) && vta != UNKNOWN_TYPE)
-      return false;
-    ValueType vtb = (*ev)[1]->valueType();
-    if (vta != vtb && vtb != UNKNOWN_TYPE)
-      return false;
-    return true;
-  }
-
-  template <typename T>
-  bool NotEqual<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
-  {
-    T tempA, tempB;
-    if (!argA->getValue(tempA) || !argB->getValue(tempB))
+    Array const *tempA, *tempB;
+    if (!argA->getValuePointer(tempA) || !argB->getValuePointer(tempB))
       return false; // some value unknown
-    result = (tempA != tempB);
+    result = (*tempA == *tempB);
     return true;
   }
 
-  //
-  // EqualInternal
-  //
-  EqualInternal::EqualInternal()
+  static bool isEqual(Boolean &result, Expression const *argA, Expression const *argB)
+  {
+    switch (argA->valueType()) {
+    case UNKNOWN_TYPE:
+      return false; // unknown == any -> unknown
+
+    case BOOLEAN_TYPE:
+      return compareEqual<Boolean>(result, argA, argB);
+
+    case INTEGER_TYPE:
+      if (argB->valueType() == INTEGER_TYPE)
+        return compareEqual<Integer>(result, argA, argB);
+      // else fall through to Real case
+
+    case REAL_TYPE:
+      return compareEqual<Real>(result, argA, argB);
+
+    case STRING_TYPE:
+      return compareEqual<String>(result, argA, argB);
+
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      return compareEqual<Array>(result, argA, argB);
+
+    case NODE_STATE_TYPE:
+      return compareEqual<NodeState>(result, argA, argB);
+
+    case OUTCOME_TYPE:
+      return compareEqual<NodeOutcome>(result, argA, argB);
+
+    case FAILURE_TYPE:
+      return compareEqual<FailureType>(result, argA, argB);
+
+    case COMMAND_HANDLE_TYPE:
+      return compareEqual<CommandHandleValue>(result, argA, argB);
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "isEqual: Invalid or unimplemented expression type " << argA->valueType());
+      return false;
+    }
+  }
+
+  Equal::Equal()
     : OperatorImpl<Boolean>("EQ")
   {
   }
 
-  bool EqualInternal::checkArgCount(size_t count) const
+  bool Equal::checkArgCount(size_t count) const
   {
     return count == 2;
   }
 
-  bool EqualInternal::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  // Called at plan load time, so some expressions (e.g. Lookups) may not know their own types
+  bool Equal::checkArgTypes(Function const *ev) const
   {
-    if (!argA->isKnown() || !argB->isKnown()) {
-      return false; // some value unknown
-    }
-    ValueType typ = argA->valueType();
-    if (typ != argB->valueType()) {
-      result = false;
+    ValueType t0 = (*ev)[0]->valueType();
+    if (t0 == UNKNOWN_TYPE)
       return true;
-    }
-    // Both values are same type and both are known
-    switch (typ) {
-    case NODE_STATE_TYPE: {
-      NodeState sa, sb;
-      argA->getValue(sa); argB->getValue(sb);
-      result = (sa == sb);
-      return true;
-    }
-    case OUTCOME_TYPE: {
-      NodeOutcome oa, ob;
-      argA->getValue(oa); argB->getValue(ob);
-      result = (oa == ob);
-      return true;
-    }
-    case FAILURE_TYPE: {
-      FailureType fa, fb;
-      argA->getValue(fa); argB->getValue(fb);
-      result = (fa == fb);
-      return true;
-    }
-    case COMMAND_HANDLE_TYPE: {
-      CommandHandleValue ha, hb;
-      argA->getValue(ha); argB->getValue(hb);
-      result = (ha == hb);
-      return true;
-    }
+    ValueType t1 = (*ev)[1]->valueType();
+    return (t1 == UNKNOWN_TYPE
+            || t0 == t1
+            || (isNumericType(t0) && isNumericType(t1)));
+  }
 
-    default:
-      // Type not valid, return unknown
-      return false;
-    }
+  bool Equal::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    return isEqual(result, argA, argB);
   }
 
   //
-  // NotEqualInternal
+  // NotEqual
   //
-  NotEqualInternal::NotEqualInternal()
+
+  NotEqual::NotEqual()
     : OperatorImpl<Boolean>("NEQ")
   {
   }
 
-  bool NotEqualInternal::checkArgCount(size_t count) const
+  bool NotEqual::checkArgCount(size_t count) const
   {
     return count == 2;
   }
 
-  bool NotEqualInternal::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool NotEqual::checkArgTypes(Function const *ev) const
   {
-    if (!argA->isKnown() || !argB->isKnown())
-      return false; // some value unknown
-    ValueType typ = argA->valueType();
-    if (typ != argB->valueType()) {
-      // type mismatch
-      result = true;
+    ValueType t0 = (*ev)[0]->valueType();
+    if (t0 == UNKNOWN_TYPE)
       return true;
-    }
-    // Both values are same type and both are known
-    switch (typ) {
-    case NODE_STATE_TYPE: {
-      NodeState sa, sb;
-      argA->getValue(sa); argB->getValue(sb);
-      result = (sa != sb);
-      return true;
-    }
-    case OUTCOME_TYPE: {
-      NodeOutcome oa, ob;
-      argA->getValue(oa); argB->getValue(ob);
-      result = (oa != ob);
-      return true;
-    }
-    case FAILURE_TYPE: {
-      FailureType fa, fb;
-      argA->getValue(fa); argB->getValue(fb);
-      result = (fa != fb);
-      return true;
-    }
-    case COMMAND_HANDLE_TYPE: {
-      CommandHandleValue ha, hb;
-      argA->getValue(ha); argB->getValue(hb);
-      result = (ha != hb);
-      return true;
-    }
+    ValueType t1 = (*ev)[1]->valueType();
+    return (t1 == UNKNOWN_TYPE
+            || t0 == t1
+            || (isNumericType(t0) && isNumericType(t1)));
+  }
 
-    default:
-      // Type not valid, return unknown
-      return false;
-    }
+  bool NotEqual::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
+  {
+    Boolean tempResult;
+    bool returnVal = isEqual(tempResult, argA, argB);
+    if (returnVal)
+      result = !tempResult;
+    return returnVal;
   }
 
   //
@@ -262,11 +204,6 @@ namespace PLEXIL
   template <typename T>
   GreaterThan<T>::GreaterThan()
     : OperatorImpl<Boolean>("GT")
-  {
-  }
-
-  template <typename T>
-  GreaterThan<T>::~GreaterThan()
   {
   }
 
@@ -303,11 +240,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  GreaterEqual<T>::~GreaterEqual()
-  {
-  }
-
-  template <typename T>
   bool GreaterEqual<T>::checkArgCount(size_t count) const
   {
     return count == 2;
@@ -336,11 +268,6 @@ namespace PLEXIL
   template <typename T>
   LessThan<T>::LessThan()
     : OperatorImpl<Boolean>("LT")
-  {
-  }
-
-  template <typename T>
-  LessThan<T>::~LessThan()
   {
   }
 
@@ -377,11 +304,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  LessEqual<T>::~LessEqual()
-  {
-  }
-
-  template <typename T>
   bool LessEqual<T>::checkArgCount(size_t count) const
   {
     return count == 2;
@@ -406,24 +328,6 @@ namespace PLEXIL
   //
   // Explicit instantiations of template classes
   //
-
-  template class Equal<Boolean>;
-  template class Equal<Integer>;
-  template class Equal<Real>;
-  template class Equal<NodeState>;
-  template class Equal<NodeOutcome>;
-  template class Equal<FailureType>;
-  template class Equal<CommandHandleValue>;
-  template class Equal<String>;
-
-  template class NotEqual<Boolean>;
-  template class NotEqual<Integer>;
-  template class NotEqual<Real>;
-  template class NotEqual<NodeState>;
-  template class NotEqual<NodeOutcome>;
-  template class NotEqual<FailureType>;
-  template class NotEqual<CommandHandleValue>;
-  template class NotEqual<String>;
 
   // Comparisons below don't make sense for Booleans
 

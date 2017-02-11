@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ namespace PLEXIL
                                      expr,
                                      "Wrong number of operands for operator "
                                      << oper->getName());
+
     Function *result = makeFunction(oper, n);
     try {
       size_t i = 0;
@@ -85,19 +86,8 @@ namespace PLEXIL
 #define ENSURE_FUNCTION_FACTORY(CLASS) template class PLEXIL::FunctionFactoryImpl<CLASS>;
 
   // Comparisons
-  ENSURE_FUNCTION_FACTORY(Equal<bool>);
-  ENSURE_FUNCTION_FACTORY(Equal<std::string>);
-  ENSURE_FUNCTION_FACTORY(Equal<CommandHandleValue>);
-  ENSURE_FUNCTION_FACTORY(Equal<NodeState>);
-  ENSURE_FUNCTION_FACTORY(Equal<NodeOutcome>);
-  ENSURE_FUNCTION_FACTORY(Equal<FailureType>);
-
-  ENSURE_FUNCTION_FACTORY(NotEqual<bool>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<std::string>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<CommandHandleValue>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<NodeState>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<NodeOutcome>);
-  ENSURE_FUNCTION_FACTORY(NotEqual<FailureType>);
+  ENSURE_FUNCTION_FACTORY(Equal);
+  ENSURE_FUNCTION_FACTORY(NotEqual);
 
   // Not currently in the schema
   // ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>);

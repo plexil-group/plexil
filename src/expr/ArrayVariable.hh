@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -99,6 +99,12 @@ namespace PLEXIL
      * @param val The new value for this object.
      */
     virtual void setValue(Value const &val) override;
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     */
+    virtual void setValue(Expression const &val);
 
     /**
      * @brief Set the current value unknown.

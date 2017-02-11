@@ -683,10 +683,12 @@ element.  It is used as an included schema only.
       <xs:element ref="EQNumeric"/>
       <xs:element ref="EQInternal"/>
       <xs:element ref="EQString"/>
+      <xs:element ref="EQArray"/>
       <xs:element ref="NEBoolean"/>
       <xs:element ref="NENumeric"/>
       <xs:element ref="NEInternal"/>
       <xs:element ref="NEString"/>
+      <xs:element ref="NEArray"/>
 	</xs:choice>
   </xs:group>
 
@@ -832,6 +834,14 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="EQArray">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"
+                 minOccurs="2" maxOccurs="2"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="NEBoolean">
     <xs:complexType>
       <xs:group ref="GeneralizedBooleanExpression"
@@ -863,6 +873,14 @@ element.  It is used as an included schema only.
   <xs:element name="NEString">
     <xs:complexType>
       <xs:group ref="GeneralizedStringExpression"
+                 minOccurs="2" maxOccurs="2"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NEArray">
+    <xs:complexType>
+      <xs:group ref="GeneralizedArrayExpression"
                  minOccurs="2" maxOccurs="2"/>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>

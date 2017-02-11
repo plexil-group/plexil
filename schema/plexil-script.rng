@@ -23,6 +23,18 @@
             <ref name="Simultaneous"/>
         </choice>
     </start>
+    <define name="UpdateAck">
+        <choice>
+            <notAllowed/>
+            <element name="UpdateAck">
+                <optional>
+                    <attribute name="name">
+                        <data type="string"/>
+                    </attribute>
+                </optional>
+            </element>
+        </choice>
+    </define>
     <define name="type">
         <attribute name="type">
             <choice>
@@ -37,45 +49,34 @@
             </choice>
         </attribute>
     </define>
-    <define name="UpdateAck">
+    <define name="CommandAck">
         <choice>
             <notAllowed/>
-            <element name="UpdateAck">
+            <element name="CommandAck">
+                <ref name="command-type"/>
+            </element>
+        </choice>
+    </define>
+    <define name="State">
+        <choice>
+            <notAllowed/>
+            <element name="State">
+                <optional>
+                    <ref name="type"/>
+                </optional>
                 <optional>
                     <attribute name="name">
                         <data type="string"/>
                     </attribute>
                 </optional>
-            </element>
-        </choice>
-    </define>
-    <define name="Script">
-        <choice>
-            <notAllowed/>
-            <element name="Script">
                 <zeroOrMore>
-                    <choice>
-                        <ref name="State"/>
-                        <ref name="UpdateAck"/>
-                        <ref name="Command"/>
-                        <ref name="CommandAck"/>
-                        <ref name="CommandAbort"/>
-                        <ref name="Simultaneous"/>
-                        <ref name="SendPlan"/>
-                        <element name="Delay">
-                            <mixed>
-                                <zeroOrMore>
-                                    <choice>
-                                    <attribute>
-                                    <anyName/>
-                                    </attribute>
-                                    <ref name="element0"/>
-                                    </choice>
-                                </zeroOrMore>
-                            </mixed>
-                        </element>
-                    </choice>
+                    <ref name="Param"/>
                 </zeroOrMore>
+                <oneOrMore>
+                    <element name="Value">
+                        <ref name="string"/>
+                    </element>
+                </oneOrMore>
             </element>
         </choice>
     </define>
@@ -123,6 +124,58 @@
         </group>
         <empty/>
     </define>
+    <define name="Param">
+        <choice>
+            <notAllowed/>
+            <element name="Param">
+                <optional>
+                    <ref name="type"/>
+                </optional>
+                <data type="string"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Script">
+        <choice>
+            <notAllowed/>
+            <element name="Script">
+                <zeroOrMore>
+                    <choice>
+                        <ref name="State"/>
+                        <ref name="UpdateAck"/>
+                        <ref name="Command"/>
+                        <ref name="CommandAck"/>
+                        <ref name="CommandAbort"/>
+                        <ref name="Simultaneous"/>
+                        <ref name="SendPlan"/>
+                        <element name="Delay">
+                            <mixed>
+                                <zeroOrMore>
+                                    <choice>
+                                    <attribute>
+                                    <anyName/>
+                                    </attribute>
+                                    <ref name="element0"/>
+                                    </choice>
+                                </zeroOrMore>
+                            </mixed>
+                        </element>
+                    </choice>
+                </zeroOrMore>
+            </element>
+        </choice>
+    </define>
+    <define name="Command">
+        <choice>
+            <notAllowed/>
+            <element name="Command">
+                <ref name="command-type"/>
+            </element>
+        </choice>
+    </define>
+    <define name="string">
+        <data type="string"/>
+    </define>
     <define name="Simultaneous">
         <choice>
             <notAllowed/>
@@ -154,51 +207,6 @@
             </mixed>
         </element>
     </define>
-    <define name="Command">
-        <choice>
-            <notAllowed/>
-            <element name="Command">
-                <ref name="command-type"/>
-            </element>
-        </choice>
-    </define>
-    <define name="string">
-        <data type="string"/>
-    </define>
-    <define name="Param">
-        <choice>
-            <notAllowed/>
-            <element name="Param">
-                <optional>
-                    <ref name="type"/>
-                </optional>
-                <data type="string"/>
-            </element>
-        </choice>
-    </define>
-    <define name="State">
-        <choice>
-            <notAllowed/>
-            <element name="State">
-                <optional>
-                    <ref name="type"/>
-                </optional>
-                <optional>
-                    <attribute name="name">
-                        <data type="string"/>
-                    </attribute>
-                </optional>
-                <zeroOrMore>
-                    <ref name="Param"/>
-                </zeroOrMore>
-                <oneOrMore>
-                    <element name="Value">
-                        <ref name="string"/>
-                    </element>
-                </oneOrMore>
-            </element>
-        </choice>
-    </define>
     <define name="InitialState">
         <choice>
             <notAllowed/>
@@ -206,14 +214,6 @@
                 <zeroOrMore>
                     <ref name="State"/>
                 </zeroOrMore>
-            </element>
-        </choice>
-    </define>
-    <define name="CommandAck">
-        <choice>
-            <notAllowed/>
-            <element name="CommandAck">
-                <ref name="command-type"/>
             </element>
         </choice>
     </define>

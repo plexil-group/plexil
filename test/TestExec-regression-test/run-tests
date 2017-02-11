@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 # Run all TestExec regression tests
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,9 @@ fi
 PARSER_ERROR_TESTS=`(cd ${TEST_DIR}/plans/parser-tests; ls *.plx | sed -e 's/.plx//g')`
 
 # Tests requiring no external interaction, for which root node success is sufficient
-EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9 ArrayInLoop
- ArrayAssignmentWithFailure AssignmentFailureTest AssignFailureWithConflict
+EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9
+ ArrayEquality ArrayInLoop ArrayAssignmentWithFailure AssignmentFailureTest
+ AssignFailureWithConflict
  concat1 contention1 contention3
  DoubleInvariantAssignment
  empty1 empty2 empty3 empty4 EmptyString1

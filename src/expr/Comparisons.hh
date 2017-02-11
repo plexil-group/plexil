@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,10 @@ namespace PLEXIL
   // TODO:
   // - Handle mixed type numeric operands
 
-  class IsKnown : public OperatorImpl<Boolean>
+  class IsKnown final : public OperatorImpl<Boolean>
   {
   public:
-    ~IsKnown();
+    ~IsKnown() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -50,12 +50,13 @@ namespace PLEXIL
     IsKnown();
 
     // Disallow copy, assignment
-    IsKnown(const IsKnown &);
-    IsKnown& operator=(const IsKnown &);
+    IsKnown(IsKnown const &) = delete;
+    IsKnown(IsKnown &&) = delete;
+    IsKnown& operator=(IsKnown const &) = delete;
+    IsKnown& operator=(IsKnown &&) = delete;
   };
 
-  template <typename T>
-  class Equal : public OperatorImpl<Boolean>
+  class Equal final : public OperatorImpl<Boolean>
   {
   public:
     ~Equal() = default;
@@ -66,18 +67,19 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, Boolean)
+    DECLARE_OPERATOR_STATIC_INSTANCE(Equal, Boolean)
 
   private:
     Equal();
 
     // Disallow copy, assignment
-    Equal(const Equal<T> &);
-    Equal &operator=(const Equal<T> &);
+    Equal(Equal const &) = delete;
+    Equal(Equal &&) = delete;
+    Equal &operator=(Equal const &) = delete;
+    Equal &operator=(Equal &&) = delete;
   };
 
-  template <typename T>
-  class NotEqual : public OperatorImpl<Boolean>
+  class NotEqual final : public OperatorImpl<Boolean>
   {
   public:
     ~NotEqual() = default;
@@ -88,60 +90,23 @@ namespace PLEXIL
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, Boolean)
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual, Boolean)
 
   private:
     NotEqual();
 
     // Disallow copy, assignment
-    NotEqual(const NotEqual<T> &);
-    NotEqual &operator=(const NotEqual<T> &);
-  };
-
-  // Special cases for internal values
-  class EqualInternal : public OperatorImpl<Boolean>
-  {
-  public:
-    ~EqualInternal() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-
-    DECLARE_OPERATOR_STATIC_INSTANCE(EqualInternal, Boolean)
-
-  private:
-    EqualInternal();
-
-    // Disallow copy, assignment
-    EqualInternal(const EqualInternal &) = delete;
-    EqualInternal &operator=(const EqualInternal &) = delete;
-  };
-
-  class NotEqualInternal : public OperatorImpl<Boolean>
-  {
-  public:
-    ~NotEqualInternal() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-
-    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqualInternal, Boolean)
-
-  private:
-    NotEqualInternal();
-
-    // Disallow copy, assignment
-    NotEqualInternal(const NotEqualInternal &) = delete;
-    NotEqualInternal &operator=(const NotEqualInternal &) = delete;
+    NotEqual(NotEqual const &) = delete;
+    NotEqual(NotEqual &&) = delete;
+    NotEqual &operator=(NotEqual const &) = delete;
+    NotEqual &operator=(NotEqual &&) = delete;
   };
 
   template <typename T>
-  class GreaterThan : public OperatorImpl<Boolean>
+  class GreaterThan final : public OperatorImpl<Boolean>
   {
   public:
-    ~GreaterThan();
+    ~GreaterThan() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -155,15 +120,17 @@ namespace PLEXIL
     GreaterThan();
 
     // Disallow copy, assignment
-    GreaterThan(const GreaterThan<T> &);
-    GreaterThan &operator=(const GreaterThan<T> &);
+    GreaterThan(GreaterThan<T> const &) = delete;
+    GreaterThan(GreaterThan<T> &&) = delete;
+    GreaterThan &operator=(GreaterThan<T> const &) = delete;
+    GreaterThan &operator=(GreaterThan<T> &&) = delete;
   };
 
   template <typename T>
-  class GreaterEqual : public OperatorImpl<Boolean>
+  class GreaterEqual final : public OperatorImpl<Boolean>
   {
   public:
-    ~GreaterEqual();
+    ~GreaterEqual() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -177,15 +144,17 @@ namespace PLEXIL
     GreaterEqual();
 
     // Disallow copy, assignment
-    GreaterEqual(const GreaterEqual<T> &);
-    GreaterEqual &operator=(const GreaterEqual<T> &);
+    GreaterEqual(GreaterEqual<T> const &) = delete;
+    GreaterEqual(GreaterEqual<T> &&) = delete;
+    GreaterEqual &operator=(GreaterEqual<T> const &) = delete;
+    GreaterEqual &operator=(GreaterEqual<T> &&) = delete;
   };
 
   template <typename T>
-  class LessThan : public OperatorImpl<Boolean>
+  class LessThan final : public OperatorImpl<Boolean>
   {
   public:
-    ~LessThan();
+    ~LessThan() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -199,15 +168,17 @@ namespace PLEXIL
     LessThan();
 
     // Disallow copy, assignment
-    LessThan(const LessThan<T> &);
-    LessThan &operator=(const LessThan<T> &);
+    LessThan(LessThan<T> const &) = delete;
+    LessThan(LessThan<T> &&) = delete;
+    LessThan &operator=(LessThan<T> const &) = delete;
+    LessThan &operator=(LessThan<T> &&) = delete;
   };
 
   template <typename T>
-  class LessEqual : public OperatorImpl<Boolean>
+  class LessEqual final : public OperatorImpl<Boolean>
   {
   public:
-    ~LessEqual();
+    ~LessEqual() = default;
 
     bool checkArgCount(size_t count) const;
 
@@ -221,8 +192,10 @@ namespace PLEXIL
     LessEqual();
 
     // Disallow assignment
-    LessEqual(const LessEqual<T> &);
-    LessEqual &operator=(const LessEqual<T> &);
+    LessEqual(LessEqual<T> const &) = delete;
+    LessEqual(LessEqual<T> &&) = delete;
+    LessEqual &operator=(LessEqual<T> const &) = delete;
+    LessEqual &operator=(LessEqual<T> &&) = delete;
   };
 
 }

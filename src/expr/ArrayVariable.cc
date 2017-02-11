@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -260,6 +260,15 @@ namespace PLEXIL
   }
 
   void ArrayVariable::setValue(Value const &val)
+  {
+    Array const *aryPtr;
+    if (val.getValuePointer(aryPtr))
+      this->setValueImpl(aryPtr);
+    else
+      setUnknown();
+  }
+
+  void ArrayVariable::setValue(Expression const &val)
   {
     Array const *aryPtr;
     if (val.getValuePointer(aryPtr))
