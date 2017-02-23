@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -80,12 +80,13 @@ namespace PLEXIL
     throw (ParserException)
   {
     bool dummy;
-    return createExpression(expr, node, dummy);
+    return createExpression(expr, node, dummy, UNKNOWN_TYPE);
   }
 
   Expression *createExpression(pugi::xml_node const expr,
                                NodeConnector *node,
-                               bool& wasCreated)
+                               bool& wasCreated,
+                               ValueType returnType)
     throw (ParserException)
   {
     char const *name = expr.name();
@@ -95,7 +96,8 @@ namespace PLEXIL
     ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
     checkParserException(it != s_expressionFactoryMap.end(),
                          "createExpression: No factory registered for name \"" << name << "\".");
-    Expression *retval = it->second->allocate(expr, node, wasCreated);
+
+    Expression *retval = it->second->allocate(expr, node, wasCreated, returnType);
     debugMsg("createExpression",
              " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
     return retval;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,8 @@ namespace PLEXIL
 
   Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
                                                       NodeConnector *node,
-                                                      bool & wasCreated) const
+                                                      bool & wasCreated,
+                                                      ValueType /* returnType */) const
   {
     assertTrue_1(node); // internal error
     checkNotEmpty(expr);

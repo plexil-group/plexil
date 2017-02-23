@@ -46,7 +46,8 @@ namespace PLEXIL
 
   Expression *FunctionFactory::allocate(pugi::xml_node const expr,
                                         NodeConnector *node,
-                                        bool &wasCreated) const
+                                        bool &wasCreated,
+                                        ValueType returnType) const
   {
     size_t n = std::distance(expr.begin(), expr.end());
     Operator const *oper = this->getOperator();
@@ -62,7 +63,7 @@ namespace PLEXIL
            subexp && i < n;
            subexp = subexp.next_sibling(), ++i) {
         bool created;
-        Expression *arg = createExpression(subexp, node, created);
+        Expression *arg = createExpression(subexp, node, created, returnType);
         result->setArgument(i, arg, created);
       }
     }

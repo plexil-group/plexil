@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,8 @@ namespace PLEXIL
 
   Expression *ConcreteExpressionFactory<StateVariable>::allocate(pugi::xml_node const expr,
                                                                  NodeConnector *node,
-                                                                 bool &wasCreated) const
+                                                                 bool &wasCreated,
+                                                                 ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
     Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
@@ -162,7 +163,8 @@ namespace PLEXIL
 
   Expression *ConcreteExpressionFactory<OutcomeVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
-                                                                   bool &wasCreated) const
+                                                                   bool &wasCreated,
+                                                                   ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
     Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
@@ -172,7 +174,8 @@ namespace PLEXIL
 
   Expression *ConcreteExpressionFactory<FailureVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
-                                                                   bool &wasCreated) const
+                                                                   bool &wasCreated,
+                                                                   ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
     Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
@@ -182,7 +185,8 @@ namespace PLEXIL
 
   Expression *ConcreteExpressionFactory<CommandHandleVariable>::allocate(pugi::xml_node const expr,
                                                                          NodeConnector *node,
-                                                                         bool &wasCreated) const
+                                                                         bool &wasCreated,
+                                                                         ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
     pugi::xml_node nodeRef = expr.first_child();
@@ -201,7 +205,8 @@ namespace PLEXIL
 
   Expression *ConcreteExpressionFactory<NodeTimepointValue>::allocate(pugi::xml_node const expr,
                                                                       NodeConnector *node,
-                                                                      bool &wasCreated) const
+                                                                      bool &wasCreated,
+                                                                      ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
     pugi::xml_node nodeRef = expr.first_child();
@@ -245,7 +250,8 @@ namespace PLEXIL
   template <>
   Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
                                                                           NodeConnector *node,
-                                                                          bool &wasCreated) const
+                                                                          bool &wasCreated,
+                                                                          ValueType /* returnType */) const
   {
     checkNotEmpty(expr);
     wasCreated = false;
@@ -281,7 +287,8 @@ namespace PLEXIL
   template <>
   Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const expr,
                                                                             NodeConnector *node,
-                                                                            bool &wasCreated) const
+                                                                            bool &wasCreated,
+                                                                            ValueType /* returnType */) const
   {
     checkNotEmpty(expr);
     wasCreated = false;
@@ -308,7 +315,8 @@ namespace PLEXIL
   template <>
   Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const expr,
                                                                             NodeConnector *node,
-                                                                            bool &wasCreated) const
+                                                                            bool &wasCreated,
+                                                                            ValueType /* returnType */) const
   {
     checkNotEmpty(expr);
     wasCreated = false;
@@ -341,7 +349,8 @@ namespace PLEXIL
   template <>
   Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const expr,
                                                                               NodeConnector *node,
-                                                                              bool &wasCreated) const
+                                                                              bool &wasCreated,
+                                                                              ValueType /* returnType */) const
   {
     checkNotEmpty(expr);
     wasCreated = false;

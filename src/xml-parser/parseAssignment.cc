@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -109,11 +109,12 @@ namespace PLEXIL
     bool varGarbage = false;
     Expression *var = createAssignable(temp, anode, varGarbage);
     assertTrue_2(var, "finalizeAssignment: Internal error: null LHS expression");
+    ValueType varType = var->valueType();
     temp = temp.next_sibling().first_child();
     bool rhsGarbage = false;
     Expression *rhs = NULL;
     try {
-      rhs = createExpression(temp, anode, rhsGarbage);
+      rhs = createExpression(temp, anode, rhsGarbage, varType);
     }
     catch (ParserException &e) {
       if (varGarbage)
@@ -121,9 +122,8 @@ namespace PLEXIL
       throw;
     }
     assertTrue_2(rhs, "finalizeAssignment: Internal error: null RHS expression");
-    if (!areTypesCompatible(var->valueType(), rhs->valueType())) {
-      String const &rhsType = valueTypeName(rhs->valueType());
-      String const &varType = valueTypeName(var->valueType());
+    ValueType rhsType = rhs->valueType();
+    if (!areTypesCompatible(varType, rhsType)) {
       if (varGarbage)
         delete var;
       if (rhsGarbage)
@@ -131,9 +131,9 @@ namespace PLEXIL
       reportParserExceptionWithLocation(assn,
                                         "Assignment Node " << anode->getNodeId()
                                         << ": RHS expression type "
-                                        << rhsType
+                                        << valueTypeName(rhsType)
                                         << " incompatible with variable of type "
-                                        << varType);
+                                        << valueTypeName(varType));
     }
     assign->setVariable(var, varGarbage);
     assign->setExpression(rhs, rhsGarbage);

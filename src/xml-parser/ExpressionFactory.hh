@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,8 @@ namespace PLEXIL
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
-                                 bool & wasCreated) const = 0;
+                                 bool & wasCreated,
+                                 ValueType returnType = UNKNOWN_TYPE) const = 0;
 
   private:
     // Default, copy, assign all prohibited
@@ -91,7 +92,8 @@ namespace PLEXIL
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
   extern Expression *createExpression(pugi::xml_node const expr,
                                       NodeConnector *node,
-                                      bool& wasCreated)
+                                      bool& wasCreated,
+                                      ValueType returnType = UNKNOWN_TYPE)
     throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
