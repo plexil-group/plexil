@@ -1109,11 +1109,6 @@ namespace PLEXIL
 
   void IpcAdapter::MessageListener::ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs)
   {
-    if (strcmp(msgs.front()->senderUID, m_adapter.m_ipcFacade.getUID().c_str()) == 0) {
-      debugMsg("IpcAdapter:handleIpcMessage", " ignoring my own outgoing message");
-      return;
-    }
-
     PlexilMsgType msgType = (PlexilMsgType) msgs.front()->msgType;
     debugMsg("IpcAdapter:handleIpcMessage", " received message type = " << msgType);
     switch (msgType) {

@@ -87,7 +87,8 @@ namespace PLEXIL
 
   Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const expr,
                                                   NodeConnector *node,
-                                                  bool & wasCreated) const
+                                                  bool & wasCreated,
+                                                  ValueType returnType) const
   {
     // Count subexpressions
     size_t n = std::distance(expr.begin(), expr.end());
@@ -113,8 +114,11 @@ namespace PLEXIL
       throw;
     }
 
-    ValueType type = arithmeticCommonType(exprs, n);
-    if (type == UNKNOWN_TYPE) {
+    if (returnType == UNKNOWN_TYPE)
+      // Unspecified - default it from types of parameters
+      returnType = arithmeticCommonType(exprs, n);
+
+    if (returnType == UNKNOWN_TYPE) {
       // Clean up before throwing
       for (i = 0; i < n; ++i)
         if (garbage[i])
@@ -122,7 +126,19 @@ namespace PLEXIL
       reportParserExceptionWithLocation(expr,
                                         "Type inconsistency or indeterminacy in arithmetic expression");
     }
-    Operator const *oper = this->selectOperator(type);
+    
+    Operator const *oper = this->selectOperator(returnType);
+    if (!oper) {
+      // Clean up before throwing
+      for (i = 0; i < n; ++i)
+        if (garbage[i])
+          delete exprs[i];
+      reportParserExceptionWithLocation(expr,
+                                        "Operator " << expr.name()
+                                        << " not implemented for return type "
+                                        << valueTypeName(returnType));
+    }
+
     if (!oper->checkArgCount(n)) {
       // Clean up before throwing
       for (i = 0; i < n; ++i)
@@ -130,7 +146,7 @@ namespace PLEXIL
           delete exprs[i];
       reportParserExceptionWithLocation(expr,
                                         "Wrong number of operands for operator "
-                                        << oper->getName());
+                                        << expr.name());
     }
 
     Function *result = makeFunction(oper, n);

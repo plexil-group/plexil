@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,8 +52,9 @@ namespace PLEXIL
   // N.B. Construction of initializer expression happens later.
 
   Expression *ArrayVariableFactory::allocate(pugi::xml_node const expr,
-                                            NodeConnector *node,
-                                            bool &wasCreated) const
+                                             NodeConnector *node,
+                                             bool &wasCreated,
+                                             ValueType /* returnType */) const
   {
     pugi::xml_node nameElt = expr.first_child();
     checkTag(NAME_TAG, nameElt);

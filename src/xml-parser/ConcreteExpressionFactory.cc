@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,8 @@ namespace PLEXIL
   template <typename T>
   Expression *ConcreteExpressionFactory<Constant<T> >::allocate(pugi::xml_node const expr,
                                                                 NodeConnector * /* node */,
-                                                                bool &wasCreated) const
+                                                                bool &wasCreated,
+                                                                ValueType /* returnType */) const
   {
     checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
@@ -76,7 +77,8 @@ namespace PLEXIL
   template <>
   Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(pugi::xml_node const expr,
                                                                    NodeConnector * /* node */,
-                                                                   bool &wasCreated) const
+                                                                   bool &wasCreated,
+                                                                   ValueType /* returnType */) const
   {
     checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
@@ -98,7 +100,8 @@ namespace PLEXIL
   template <>
   Expression *ConcreteExpressionFactory<Constant<int32_t> >::allocate(pugi::xml_node const expr,
                                                                       NodeConnector * /* node */,
-                                                                      bool &wasCreated) const
+                                                                      bool &wasCreated,
+                                                                      ValueType /* returnType */) const
   {
     // check for empty value
     checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
@@ -136,7 +139,8 @@ namespace PLEXIL
   template <>
   Expression *ConcreteExpressionFactory<Constant<std::string> >::allocate(pugi::xml_node const expr,
                                                                           NodeConnector * /* node */,
-                                                                          bool &wasCreated) const
+                                                                          bool &wasCreated,
+                                                                          ValueType /* returnType */) const
   {
     wasCreated = true;
     return new Constant<std::string>(expr.child_value());
@@ -206,7 +210,8 @@ namespace PLEXIL
   Expression *
   ConcreteExpressionFactory<ArrayReference>::allocate(pugi::xml_node const expr,
                                                       NodeConnector *node,
-                                                      bool & wasCreated) const
+                                                      bool & wasCreated,
+                                                      ValueType /* returnType */) const
   {
     Expression *arrayExpr = NULL;
     Expression *indexExpr = NULL;
@@ -249,7 +254,8 @@ namespace PLEXIL
   Expression *
   VariableReferenceFactory::allocate(pugi::xml_node const expr,
                                      NodeConnector *node,
-                                     bool & wasCreated) const
+                                     bool & wasCreated,
+                                     ValueType /* returnType */) const
   {
     assertTrue_1(node); // internal error
     checkNotEmpty(expr);
@@ -265,8 +271,8 @@ namespace PLEXIL
     // *** FIXME? ***
     // Shouldn't be parsing reference to Integer variables as Real
     if (!match
-	&& m_type == REAL_TYPE
-	&& result->valueType() == INTEGER_TYPE)
+        && m_type == REAL_TYPE
+        && result->valueType() == INTEGER_TYPE)
       match = true; // expecting Real, but naming an Integer variable
     checkParserExceptionWithLocation(match,
 				     expr,
