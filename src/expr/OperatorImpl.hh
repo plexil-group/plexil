@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,57 +36,15 @@
 namespace PLEXIL
 {
 
-  template <class IMPL>
-  class OperatorShim : public Operator
-  {
-  protected:
-    OperatorShim(std::string const &name) : Operator(name) {}
-
-  private:
-    // Unimplemented
-    OperatorShim() = delete;
-    OperatorShim(OperatorShim const &) = delete;
-    OperatorShim(OperatorShim &&) = delete;
-    OperatorShim &operator=(OperatorShim const &) = delete;
-    OperatorShim &operator=(OperatorShim &&) = delete;
-
-  public:
-    virtual ~OperatorShim() = default;
-
-    // Local macro to generate a truckload of boilerplate
-#define DEFINE_OPERATOR_SHIM_METHODS(_rtype_) \
-    bool operator()(_rtype_ &result, Expression const *arg) const \
-    {return static_cast<IMPL const *>(this)->calc(result, arg);} \
- \
-    bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const \
-    {return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);} \
- \
-    bool operator()(_rtype_ &result, Function const &args) const \
-    {return static_cast<IMPL const *>(this)->calc(result, args);}
-
-    DEFINE_OPERATOR_SHIM_METHODS(Boolean)
-    DEFINE_OPERATOR_SHIM_METHODS(NodeState)
-    DEFINE_OPERATOR_SHIM_METHODS(NodeOutcome)
-    DEFINE_OPERATOR_SHIM_METHODS(FailureType)
-    DEFINE_OPERATOR_SHIM_METHODS(CommandHandleValue)
-    DEFINE_OPERATOR_SHIM_METHODS(Integer)
-    DEFINE_OPERATOR_SHIM_METHODS(Real)
-    DEFINE_OPERATOR_SHIM_METHODS(String)
-    DEFINE_OPERATOR_SHIM_METHODS(Array)
-    DEFINE_OPERATOR_SHIM_METHODS(BooleanArray)
-    DEFINE_OPERATOR_SHIM_METHODS(IntegerArray)
-    DEFINE_OPERATOR_SHIM_METHODS(RealArray)
-    DEFINE_OPERATOR_SHIM_METHODS(StringArray)
-
-#undef DEFINE_OPERATOR_SHIM_METHODS
-
-  };
-
   template <typename R>
-  class OperatorImpl : public OperatorShim<OperatorImpl<R> >
+  class OperatorImpl : public Operator
   {
   public:
-    virtual ~OperatorImpl() {}
+    virtual ~OperatorImpl() = default;
+
+    virtual bool operator()(R &result, Expression const *arg) const;
+    virtual bool operator()(R &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool operator()(R &result, Function const &args) const;
 
     // Default methods, based on R
     ValueType valueType() const;
@@ -103,50 +61,8 @@ namespace PLEXIL
     virtual bool calc(R &result, Expression const *arg0, Expression const *arg1) const;
     virtual bool calc(R &result, Function const &args) const;
 
-    // Conversion or type error
-    // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
-    template <typename U>
-    bool calc(U & /* result */, Expression const */* arg */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     this->getName() << ": Attempt to get "
-                     << valueTypeName(PlexilValueType<U>::value)
-                     << " result from a "
-                     << valueTypeName(PlexilValueType<R>::value)
-                     << " expression");
-      return false;
-    }
-
-    template <typename U>
-    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     this->getName() << ": Attempt to get "
-                     << valueTypeName(PlexilValueType<U>::value)
-                     << " result from a "
-                     << valueTypeName(PlexilValueType<R>::value)
-                     << " expression");
-      return false;
-    }
-
-    template <typename U>
-    bool calc(U & /* result */, Function const & /* args */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     this->getName() << ": Attempt to get "
-                     << valueTypeName(PlexilValueType<U>::value)
-                     << " result from a "
-                     << valueTypeName(PlexilValueType<R>::value)
-                     << " expression");
-      return false;
-    }
-
   protected:
-    // Base class shouldn't be instantiated by itself
-    OperatorImpl(std::string const &name)
-      : OperatorShim<OperatorImpl<R> >(name)
-    {
-    }
+    OperatorImpl(std::string const &name);
 
   private:
     // Unimplemented
@@ -155,29 +71,57 @@ namespace PLEXIL
     OperatorImpl(OperatorImpl &&) = delete;
     OperatorImpl &operator=(OperatorImpl const &) = delete;
     OperatorImpl &operator=(OperatorImpl &&) = delete;
-
   };
 
   // Specialized conversions for Integer operator to Real
-  // *** Must be declared here for OS X 10.9 ***
   template <>
-  template <>
-  bool OperatorImpl<Integer>::calc(Real &result, Expression const *arg) const;
+  class OperatorImpl<Integer> : public Operator
+  {
+  public:
+    virtual ~OperatorImpl() = default;
 
-  template <>
-  template <>
-  bool OperatorImpl<Integer>::calc(Real &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool operator()(Integer &result, Expression const *arg) const;
+    virtual bool operator()(Integer &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool operator()(Integer &result, Function const &args) const;
 
-  template <>
-  template <>
-  bool OperatorImpl<Integer>::calc(Real &result, Function const &args) const;
+    // Conversion methods
+    virtual bool operator()(Real &result, Expression const *arg) const;
+    virtual bool operator()(Real &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool operator()(Real &result, Function const &args) const;
+
+    ValueType valueType() const;
+    void *allocateCache() const;
+    void deleteCache(void *ptr) const;
+
+    bool calcNative(void *cache, Function const &exprs) const;
+    void printValue(std::ostream &s, void *cache, Function const &exprs) const;
+    Value toValue(void *cache, Function const &exprs) const;
+
+    virtual bool calc(Integer &result, Expression const *arg) const;
+    virtual bool calc(Integer &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool calc(Integer &result, Function const &args) const;
+
+  protected:
+    OperatorImpl(std::string const &name);
+
+  private:
+    // Unimplemented
+    OperatorImpl() = delete;
+    OperatorImpl(OperatorImpl const &) = delete;
+    OperatorImpl(OperatorImpl &&) = delete;
+    OperatorImpl &operator=(OperatorImpl const &) = delete;
+    OperatorImpl &operator=(OperatorImpl &&) = delete;
+  };
 
   template <typename R>
-  class OperatorImpl<ArrayImpl<R> >
-    : public OperatorShim<OperatorImpl<ArrayImpl<R> > >
+  class OperatorImpl<ArrayImpl<R> > : public Operator
   {
   public:
     virtual ~OperatorImpl() {}
+
+    virtual bool operator()(ArrayImpl<R> &result, Expression const *arg) const;
+    virtual bool operator()(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool operator()(ArrayImpl<R> &result, Function const &args) const;
 
     // Default methods, based on R
     ValueType valueType() const;
@@ -193,55 +137,9 @@ namespace PLEXIL
     virtual bool calc(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool calc(ArrayImpl<R> &result, Function const &args) const = 0;
 
-    // Downcast to Array base
-    virtual bool calc(Array &result, Expression const *arg) const = 0;
-    virtual bool calc(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
-    virtual bool calc(Array &result, Function const &args) const = 0;
-
-    // Conversion or type error
-    // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
-    template <typename U>
-    bool calc(U & /* result */, Expression const */* arg */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     this->getName() << ": Attempt to get "
-                     << valueTypeName(PlexilValueType<U>::value)
-                     << " result from "
-                     << valueTypeName(PlexilValueType<R>::arrayValue)
-                     << " expression");
-      return false;
-    }
-
-    template <typename U>
-    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     this->getName() << ": Attempt to get "
-                     << valueTypeName(PlexilValueType<U>::value)
-                     << " result from "
-                     << valueTypeName(PlexilValueType<R>::arrayValue)
-                     << " expression");
-      return false;
-    }
-
-    template <typename U>
-    bool calc(U & /* result */, Function const & /* args */) const
-    {
-      checkPlanError(ALWAYS_FAIL,
-                     this->getName() << ": Attempt to get "
-                     << valueTypeName(PlexilValueType<U>::value)
-                     << " result from "
-                     << valueTypeName(PlexilValueType<R>::arrayValue)
-                     << " expression");
-      return false;
-    }
-
   protected:
     // Base class shouldn't be instantiated by itself
-    OperatorImpl(std::string const &name)
-      : OperatorShim<OperatorImpl<R> >(name)
-    {
-    }
+    OperatorImpl(std::string const &name);
 
   private:
     // Unimplemented

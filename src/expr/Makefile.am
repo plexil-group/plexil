@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ libPlexilExpr_la_SOURCES = Alias.cc allocateCache.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
  Assignable.cc BooleanOperators.cc Comparisons.cc Constant.cc Expression.cc \
  ExpressionConstants.cc Function.cc GetValueImpl.cc \
- NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
+ NodeConstantExpressions.cc NotifierImpl.cc Operator.cc OperatorImpl.cc \
  SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 
 if MODULE_TESTS_OPT
