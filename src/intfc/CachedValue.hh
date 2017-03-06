@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,20 @@ namespace PLEXIL
   class Value;
 
   /**
-   * Pure virtual base class for storing state cache values
+   * Abstract base class for storing state cache values
    */
   class CachedValue
   {
   public:
     CachedValue() : m_timestamp(0) {}
     CachedValue(CachedValue const &orig) : m_timestamp(orig.m_timestamp) {}
-    CachedValue(CachedValue && orig) : m_timestamp(orig.m_timestamp) {}
-    virtual ~CachedValue() {}
+    virtual ~CachedValue() = default;
+
+    virtual CachedValue &operator=(CachedValue const &orig)
+    {
+      m_timestamp = orig.m_timestamp;
+      return *this;
+    }
 
     unsigned int getTimestamp() const
     {
@@ -52,8 +57,6 @@ namespace PLEXIL
     }
 
     // Delegated to derived classes.
-    virtual CachedValue &operator=(CachedValue const &) = 0;
-    virtual CachedValue &operator=(CachedValue &&) = 0;
     virtual CachedValue *clone() const = 0;
     virtual bool operator==(CachedValue const &) const = 0;
 
@@ -103,17 +106,18 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      * @note The value is not copied if the return value is false.
      * @note Derived classes should implement only the appropriate methods.
+     * @note Default methods report a type error.
      */
 
-    virtual bool getValue(Boolean &result) const = 0;
-    virtual bool getValue(NodeState &result) const = 0;
-    virtual bool getValue(NodeOutcome &result) const = 0;
-    virtual bool getValue(FailureType &result) const = 0;
-    virtual bool getValue(CommandHandleValue &result) const = 0;
-    virtual bool getValue(Integer &result) const = 0;
-    virtual bool getValue(Real &result) const = 0;
+    virtual bool getValue(Boolean &result) const;
+    virtual bool getValue(NodeState &result) const;
+    virtual bool getValue(NodeOutcome &result) const;
+    virtual bool getValue(FailureType &result) const;
+    virtual bool getValue(CommandHandleValue &result) const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
 
-    virtual bool getValue(String &result) const = 0;
+    virtual bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this object.
@@ -121,16 +125,17 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      * @note The pointer is not copied if the return value is false.
      * @note Derived classes should implement only the appropriate methods.
+     * @note Default methods report a type error.
      */
 
-    virtual bool getValuePointer(String const *&ptr) const = 0;
+    virtual bool getValuePointer(String const *&ptr) const;
 
-    virtual bool getValuePointer(Array const *&ptr) const = 0;
+    virtual bool getValuePointer(Array const *&ptr) const;
 
-    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
-    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
-    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
-    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
     /**
      * @brief Update the cache entry with the given new value.
@@ -138,26 +143,28 @@ namespace PLEXIL
      * @param val The new value.
      * @return True if changed, false otherwise.
      * @note The caller is responsible for deleting the object pointed to upon return.
+     * @note Default methods report a type error.
      */
-    virtual bool update(unsigned int timestamp, Boolean const &val) = 0;
-    virtual bool update(unsigned int timestamp, Integer const &val) = 0;
-    virtual bool update(unsigned int timestamp, Real const &val) = 0;
-    virtual bool update(unsigned int timestamp, NodeState const &val) = 0;
-    virtual bool update(unsigned int timestamp, NodeOutcome const &val) = 0;
-    virtual bool update(unsigned int timestamp, FailureType const &val) = 0;
-    virtual bool update(unsigned int timestamp, CommandHandleValue const &val) = 0;
-    virtual bool update(unsigned int timestamp, String const &val) = 0;
-    virtual bool updatePtr(unsigned int timestamp, String const *valPtr) = 0;
-    virtual bool updatePtr(unsigned int timestamp, BooleanArray const *valPtr) = 0;
-    virtual bool updatePtr(unsigned int timestamp, IntegerArray const *valPtr) = 0;
-    virtual bool updatePtr(unsigned int timestamp, RealArray const *valPtr) = 0;
-    virtual bool updatePtr(unsigned int timestamp, StringArray const *valPtr) = 0;
+    virtual bool update(unsigned int timestamp, Boolean const &val);
+    virtual bool update(unsigned int timestamp, Integer const &val);
+    virtual bool update(unsigned int timestamp, Real const &val);
+    virtual bool update(unsigned int timestamp, String const &val);
+    virtual bool updatePtr(unsigned int timestamp, String const *valPtr);
+    virtual bool updatePtr(unsigned int timestamp, BooleanArray const *valPtr);
+    virtual bool updatePtr(unsigned int timestamp, IntegerArray const *valPtr);
+    virtual bool updatePtr(unsigned int timestamp, RealArray const *valPtr);
+    virtual bool updatePtr(unsigned int timestamp, StringArray const *valPtr);
 
     // For convenience of TestExternalInterface, others
     virtual bool update(unsigned int timestamp, Value const &val) = 0;
 
   protected:
     unsigned int m_timestamp;
+
+  private:
+    // Unimplemented
+    CachedValue(CachedValue && orig) = delete;
+    CachedValue &operator=(CachedValue &&) = delete;
   };
 
   // Factory function
