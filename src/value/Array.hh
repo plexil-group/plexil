@@ -51,6 +51,9 @@ namespace PLEXIL
 
     virtual Array *clone() const = 0;
 
+    virtual Array &operator=(Array const &);
+    virtual Array &operator=(Array &&);
+
     // Generic accessors
 
     size_t size() const;
@@ -107,10 +110,6 @@ namespace PLEXIL
     virtual size_t serialSize() const = 0;
 
   protected:
-
-    // For use by implementation classes
-    Array &operator=(Array const &);
-    Array &operator=(Array &&);
 
     inline bool checkIndex(size_t index) const
     {

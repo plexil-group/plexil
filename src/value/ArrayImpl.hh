@@ -51,6 +51,10 @@ namespace PLEXIL
     ~ArrayImpl();
 
     virtual Array *clone() const override;
+
+    virtual Array &operator=(Array const &) override;
+    virtual Array &operator=(Array &&) override;
+
     ArrayImpl &operator=(ArrayImpl<T> const &);
     ArrayImpl &operator=(ArrayImpl<T> &&);
 
@@ -104,6 +108,10 @@ namespace PLEXIL
     ~ArrayImpl();
 
     virtual Array *clone() const override;
+
+    virtual Array &operator=(Array const &) override;
+    virtual Array &operator=(Array &&) override;
+
     ArrayImpl &operator=(ArrayImpl<String> const &);
     ArrayImpl &operator=(ArrayImpl<String> &&);
 

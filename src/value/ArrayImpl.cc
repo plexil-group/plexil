@@ -145,6 +145,44 @@ namespace PLEXIL
   }
 
   template <typename T>
+  Array &ArrayImpl<T>::operator=(Array const &orig)
+  {
+    ArrayImpl<T> const *typedOrig =
+      dynamic_cast<ArrayImpl<T> const *>(&orig);
+    checkPlanError(typedOrig,
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type " << valueTypeName(getElementType()));
+    return this->operator=(*typedOrig);
+  }
+
+  Array &ArrayImpl<String>::operator=(Array const &orig)
+  {
+    ArrayImpl<String> const *typedOrig =
+      dynamic_cast<ArrayImpl<String> const *>(&orig);
+    checkPlanError(typedOrig,
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type String");
+    return this->operator=(*typedOrig);
+  }
+
+  template <typename T>
+  Array &ArrayImpl<T>::operator=(Array && orig)
+  {
+    checkPlanError(dynamic_cast<ArrayImpl<T> *>(&orig),
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type " << valueTypeName(getElementType()));
+    return this->operator=(static_cast<ArrayImpl<T> &&>(orig));
+  }
+
+  Array &ArrayImpl<String>::operator=(Array &&orig)
+  {
+    checkPlanError(dynamic_cast<ArrayImpl<String> *>(&orig),
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type String");
+    return this->operator=(static_cast<ArrayImpl<String> &&>(orig));
+  }
+
+  template <typename T>
   ArrayImpl<T> &ArrayImpl<T>::operator=(ArrayImpl<T> const &orig)
   {
     Array::operator=(orig);
