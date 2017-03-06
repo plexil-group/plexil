@@ -205,11 +205,13 @@ namespace PLEXIL
 
   void ArrayVariable::saveCurrentValue()
   {
-    assertTrue_2(!m_savedValue,
-                 "Attempt to save array variable twice!");
     m_savedKnown = m_known;
-    if (m_known)
-      m_savedValue.reset(m_value->clone());
+    if (m_known) {
+      if (m_savedValue)
+        *m_savedValue = *m_value;
+      else
+        m_savedValue.reset(m_value->clone());
+    }
   }
 
   Value ArrayVariable::getSavedValue() const
