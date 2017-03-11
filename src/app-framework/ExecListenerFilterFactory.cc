@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #include "ExecListenerFilterFactory.hh"
 #include "Debug.hh"
 #ifdef HAVE_DLFCN_H
-#include "DynamicLoader.hh"
+#include "DynamicLoader.h"
 #endif
 #include "Error.hh"
 #include "InterfaceSchema.hh"
@@ -88,7 +88,7 @@ namespace PLEXIL
 	  // Attempt to dynamically load library
 	  const char* libCPath =
 		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
-	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+	  if (!dynamicLoadModule(name.c_str(), libCPath)) {
 		debugMsg("ExecListenerFilterFactory:createInstance",
 				 " unable to load module for filter type \""
 				 << name.c_str() << "\"");
@@ -100,8 +100,8 @@ namespace PLEXIL
 #endif
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFilterFactory:createInstance", 
-          " No exec listener filter factory registered for name \""
-                  << name.c_str() << "\".");
+               " No exec listener filter factory registered for name \""
+               << name.c_str() << "\".");
       return NULL;
     }
     ExecListenerFilter *retval = it->second->create(xml);
