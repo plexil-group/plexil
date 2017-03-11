@@ -28,18 +28,17 @@
 
 #include <dlfcn.h> 
 
+#include <cstdlib> // atexit()
 #include <string>
 #include <stack>
 
 #include "Debug.hh"
-#include "lifecycle-utils.h"
 
 static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
 
 static std::stack<void *> s_handles;
 
-extern "C"
-void dynamicLoaderCleanUp()
+static void dynamicLoaderCleanUp()
 {
   while (!s_handles.empty()) {
     dlclose(s_handles.top());
@@ -51,7 +50,9 @@ static void ensureFinalizer()
 {
   static bool sl_inited = false;
   if (!sl_inited) {
-    plexilAddFinalizer(&dynamicLoaderCleanUp);
+    // This cannot be run until all other cleanup is done,
+    // so use atexit() instead of plexilAddFinalizer().
+    atexit(&dynamicLoaderCleanUp);
     sl_inited = true;
   }
 }
@@ -66,12 +67,15 @@ static void *tryLoadFile(const char *fname)
 {
   ensureFinalizer();
   void *handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
-  condDebugMsg(!handle,
-               "DynamicLoader:tryLoadFile",
-               " dlopen failed on file " << fname << ": " << dlerror());
-  condDebugMsg(handle,
-               "DynamicLoader:tryLoadFile",
-               " dlopen of " << fname << " successful");
+  if (handle) {
+    debugMsg("DynamicLoader:tryLoadFile",
+             " dlopen of " << fname << " successful");
+    s_handles.push(handle);
+  }
+  else {
+    debugMsg("DynamicLoader:tryLoadFile",
+             " dlopen failed on file " << fname << ": " << dlerror());
+  }
   return handle;
 }
 
