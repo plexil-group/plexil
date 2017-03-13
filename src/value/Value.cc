@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -131,6 +131,13 @@ namespace PLEXIL
       m_known(true)
   {
     m_value.stringValue = new std::string(val);
+  }
+
+  Value::Value(Array const &val)
+    : m_type(arrayType(val.getElementType())),
+      m_known(true)
+  {
+    m_value.arrayValue = val.clone();
   }
 
   Value::Value(BooleanArray const &val)
