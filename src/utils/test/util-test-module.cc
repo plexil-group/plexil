@@ -85,6 +85,7 @@
 
 extern bool LinkedQueueTest();
 extern bool SimpleMapTest();
+extern bool bitsetUtilsTest();
 
 /**
  * @def assertFalse
@@ -531,6 +532,7 @@ void UtilModuleTests::runTests(std::string /* path */)
 
   runTestSuite(SimpleMapTest);
   runTestSuite(LinkedQueueTest);
+  runTestSuite(bitsetUtilsTest);
 
   // Do cleanup
   plexilRunFinalizers();

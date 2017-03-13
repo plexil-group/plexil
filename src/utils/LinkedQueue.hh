@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,15 @@ namespace PLEXIL
   //        T *next() const and T **nextPtr()
   //
 
-  template <typename T> class LinkedQueue
+  template <typename T>
+  class LinkedQueue
   {
-  private:
+  protected: // for use by PriorityQueue
     T *m_head;
     T *m_tail;
     size_t m_count;
 
+  private: // not implemented
     LinkedQueue(LinkedQueue const &);
     LinkedQueue &operator=(LinkedQueue const &);
 
@@ -58,7 +60,7 @@ namespace PLEXIL
     {
     }
     
-    ~LinkedQueue()
+    virtual ~LinkedQueue()
     {
     }
 
@@ -128,14 +130,74 @@ namespace PLEXIL
           break;
         }
         prev = cur;
-        prevNextPtr = prev->nextPtr();
+        prevNextPtr = cur->nextPtr();
         cur = cur->next();
       }
       if (!cur)
         return; // not found
 
-      *(item->nextPtr()) = NULL; // temp?
+      *(item->nextPtr()) = NULL; // no dangling pointers!
       --m_count;
+    }
+ 
+    /**
+     * @brief Find an item satisfying a predicate.
+     * @param pred The predicate object. Must have an operator() method with the signature:
+     *    bool operator()(T* item)
+     * @return The first item satisfying the predicate, or null if not found.
+     */
+
+    template <typename Predicate>
+    T* find_if(Predicate const &pred)
+    {
+      T *cur = m_head; // the item being compared
+      while (cur) {
+        if (pred(cur))
+          // Found it
+          return cur;
+        // Step to next item if any
+        cur = cur->next();
+      }
+      // not found
+      return NULL;
+    }
+ 
+    /**
+     * @brief Remove the first item satisfying the predicate.
+     * @param pred The predicate object. Must have an operator() method with the signature:
+     *    bool operator()(T* item)
+     * @return The removed queue item, or null if not found.
+     */
+
+    template <typename Predicate>
+    T* remove_if(Predicate const &pred)
+    {
+      T *result = NULL;
+
+      T *prev = NULL; // last entry we looked at
+      T **prevNextPtr = &m_head; // pointer to last entry's "next" pointer
+      T *cur = m_head;
+
+      while (cur) {
+        if (pred(cur)) {
+          // Found one, splice it out
+          result = cur;
+          *(prevNextPtr) = cur->next();
+          if (cur == m_tail)
+            m_tail = prev;
+          break;
+        }
+        // Step to next item if any
+        prev = cur;
+        prevNextPtr = prev->nextPtr();
+        cur = cur->next();
+      }
+
+      if (result) {
+        *(result->nextPtr()) = NULL; // no dangling pointers!
+        --m_count;
+      }
+      return result;
     }
 
     void clear()
@@ -144,6 +206,69 @@ namespace PLEXIL
       m_count = 0;
     }
 
+  };
+
+  /**
+   * @class PriorityQueue
+   * @brief A variant of LinkedQueue that stores its entries in nondecreasing sorted order
+   *        as determined by Compare.
+   * @note Compare must implement a strict less-than comparison.
+   * @note Callers should not use push() member function!!
+   */
+
+  template <typename T, typename Compare = std::less<T> >
+  class PriorityQueue :
+    public LinkedQueue<T>
+  {
+  public:
+    PriorityQueue()
+      : LinkedQueue<T>()
+    {
+    }
+
+    ~PriorityQueue()
+    {
+    }
+
+    // Inserts item after all entries less than or equal to item.
+    void insert(T *item)
+    {
+      if (!this->m_head) {
+        // Is empty - trivial case
+        LinkedQueue<T>::push(item);
+        return;
+      }
+
+      static Compare comp;
+
+      T **prevNextPtr = &this->m_head; // pointer to last entry's "next" pointer
+      T *cur = *prevNextPtr;           // the item being compared
+
+      // Find the first entry greater than item
+      while (cur && !comp(*item, *cur)) {
+        prevNextPtr = cur->nextPtr();
+        cur = cur->next();
+      }
+      if (cur) {
+        // Insert in front of cur
+        *(item->nextPtr()) = cur;
+        *(prevNextPtr) = item;
+      }
+      else {
+        // Tack it onto the end
+        *(item->nextPtr()) = NULL;
+        *(this->m_tail->nextPtr()) = item;
+        this->m_tail = item;
+      }
+      ++this->m_count;
+    }
+
+  private:
+
+    PriorityQueue(PriorityQueue const &);
+    PriorityQueue &operator=(PriorityQueue const &);
+
+    void push(T *); // callers should not use this base class member function
   };
 
 }
