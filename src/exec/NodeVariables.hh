@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValue(uint16_t &) const;
 
     /**
      * @brief Print the expression's value to the given stream.
@@ -140,7 +140,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValue(uint16_t &) const;
 
     /**
      * @brief Print the expression's value to the given stream.
@@ -205,7 +205,7 @@ namespace PLEXIL {
     /**
      * @brief Get the current value of the node's state.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValue(uint16_t &) const;
 
     /**
      * @brief Print the expression's value to the given stream.

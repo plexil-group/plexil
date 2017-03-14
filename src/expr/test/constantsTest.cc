@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -70,35 +70,35 @@ static bool testScalarConstants()
   assertTrue_1(!us.getValuePointer(pfoos));
 
   // Constants with values
-  BooleanConstant troo = true;
-  IntegerConstant too = 2;
-  RealConstant doo = 2.718;
-  StringConstant soo = std::string("Sue");
+  Expression const *troo = new BooleanConstant(true);
+  Expression const *too = new IntegerConstant(2);
+  Expression const *doo = new RealConstant(2.718);
+  Expression const *soo = new StringConstant("Sue");
 
-  assertTrue_1(troo.isConstant());
-  assertTrue_1(too.isConstant());
-  assertTrue_1(doo.isConstant());
-  assertTrue_1(soo.isConstant());
-  assertTrue_1(troo.isKnown());
-  assertTrue_1(too.isKnown());
-  assertTrue_1(doo.isKnown());
-  assertTrue_1(soo.isKnown());
+  assertTrue_1(troo->isConstant());
+  assertTrue_1(too->isConstant());
+  assertTrue_1(doo->isConstant());
+  assertTrue_1(soo->isConstant());
+  assertTrue_1(troo->isKnown());
+  assertTrue_1(too->isKnown());
+  assertTrue_1(doo->isKnown());
+  assertTrue_1(soo->isKnown());
     
   // getValue() test
-  assertTrue_1(troo.getValue(foob));
+  assertTrue_1(troo->getValue(foob));
   assertTrue_1(foob == true);
-  assertTrue_1(too.getValue(fooi));
+  assertTrue_1(too->getValue(fooi));
   assertTrue_1(fooi == 2);
-  assertTrue_1(doo.getValue(food));
+  assertTrue_1(doo->getValue(food));
   assertTrue_1(food == 2.718);
-  assertTrue_1(soo.getValue(foos));
+  assertTrue_1(soo->getValue(foos));
   assertTrue_1(foos == std::string("Sue"));
   // Numeric conversion
-  assertTrue_1(too.getValue(food));
+  assertTrue_1(too->getValue(food));
   assertTrue_1(food == 2);
 
   // getValuePointer() tests
-  assertTrue_1(soo.getValuePointer(pfoos));
+  assertTrue_1(soo->getValuePointer(pfoos));
   assertTrue_1(*pfoos == std::string("Sue"));
 
   return true;

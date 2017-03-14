@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -170,13 +170,13 @@ namespace PLEXIL
   // Called whenever state name or parameter changes
   void Lookup::handleChange(Expression const *src)
   {
-    debugMsg("Lookup:handleChange", ' ' << src);
-    if (handleChangeInternal(src))
-      this->publishChange(src);
+    debugMsg("Lookup:handleChange", ' ' << *this);
+    if (handleChangeInternal())
+      publishChange(src);
   }
 
   // Return true if state changed, false otherwise
-  bool Lookup::handleChangeInternal(Expression const *src)
+  bool Lookup::handleChangeInternal()
   {
     State newState;
     bool oldKnown = m_stateKnown;
@@ -313,7 +313,7 @@ namespace PLEXIL
   // Callback from external interface
   void Lookup::valueChanged()
   {
-    this->publishChange(this);
+    publishChange(this);
   }
 
   bool Lookup::getThresholds(Integer &high, Integer &low)
@@ -335,13 +335,8 @@ namespace PLEXIL
   class ThresholdCache
   {
   public:
-    ThresholdCache()
-    {
-    }
-
-    virtual ~ThresholdCache()
-    {
-    }
+    ThresholdCache() {}
+    virtual ~ThresholdCache() {}
 
     /**
      * @brief Check whether the threshold value itself has changed.
@@ -368,70 +363,36 @@ namespace PLEXIL
      * @brief Get the current thresholds.
      * @param high Place to store the current high threshold.
      * @param low Place to store the current low threshold.
+     * @note Default methods.
      */
-    virtual void getThresholds(Integer &high, Integer &low) = 0;
-    virtual void getThresholds(Real &high, Real &low) = 0;
-  };
 
-  template <typename IMPL>
-  class ThresholdCacheShim : public ThresholdCache
-  {
-  public:
-    ThresholdCacheShim()
-      : ThresholdCache()
+    virtual void getThresholds(Integer &high, Integer &low)
     {
+      assertTrueMsg(ALWAYS_FAIL,
+                    "LookupOnChange:getTolerance: attempt to get Integer thresholds from non-Integer");
     }
 
-    virtual ~ThresholdCacheShim()
+    virtual void getThresholds(Real &high, Real &low)
     {
+      assertTrueMsg(ALWAYS_FAIL,
+                    "LookupOnChange:getTolerance: attempt to get Real thresholds from non-Real");
     }
 
-    bool toleranceChanged(Expression const *tolerance) const
-    {
-      return static_cast<IMPL const *>(this)->checkToleranceImpl(tolerance);
-    }
-
-    bool thresholdsExceeded(CachedValue const *value) const
-    {
-      return static_cast<IMPL const *>(this)->checkImpl(value);
-    }
-
-    void setThresholds(CachedValue const *value, Expression const *tolerance)
-    {
-      static_cast<IMPL *>(this)->setImpl(value, tolerance);
-    }
-
-    void getThresholds(Integer &high, Integer &low)
-    {
-      static_cast<IMPL *>(this)->getImpl(high, low);
-    }
-
-    void getThresholds(Real &high, Real &low)
-    {
-      static_cast<IMPL *>(this)->getImpl(high, low);
-    }
-
-  protected:
-    virtual bool checkToleranceImpl(Expression const *tolerance) const = 0;
-    virtual bool checkImpl(CachedValue const *value) const = 0;
-    virtual void setImpl(CachedValue const *value, Expression const *tolerance) = 0;
   };
 
   template <typename NUM>
-  class ThresholdCacheImpl : public ThresholdCacheShim<ThresholdCacheImpl<NUM> >
+  class ThresholdCacheImpl : public ThresholdCache
   {
   public:
     ThresholdCacheImpl()
-      : ThresholdCacheShim<ThresholdCacheImpl<NUM> >(),
+      : ThresholdCache(),
       m_wasKnown(false)
     {
     }
 
-    ~ThresholdCacheImpl()
-    {
-    }
+    ~ThresholdCacheImpl() {}
 
-    bool checkToleranceImpl(Expression const *tolerance) const
+    virtual bool toleranceChanged(Expression const *tolerance) const
     {
       check_error_1(tolerance); // paranoid check
       NUM newTol;
@@ -445,18 +406,10 @@ namespace PLEXIL
       return true;
     }
 
-    // This implementation is appropriate for integers.
-    // See below for floating point types.
-    bool checkImpl(CachedValue const *value) const
-    {
-      NUM currentValue;
-      if (value->getValue(currentValue))
-        return (currentValue >= m_high) || (currentValue <= m_low);
-      // Current value is unknown
-      return m_wasKnown; 
-    }
+    // See below for implementations of this method.
+    virtual bool thresholdsExceeded(CachedValue const *value) const;
 
-    void setImpl(CachedValue const *value, Expression const *tolerance)
+    virtual void setThresholds(CachedValue const *value, Expression const *tolerance)
     {
       debugMsg("LookupOnChange:setThresholds", " entered");
       check_error_1(value); // paranoid check
@@ -479,16 +432,10 @@ namespace PLEXIL
       }
     }
 
-    void getImpl(NUM &high, NUM &low)
+    virtual void getThresholds(NUM &high, NUM &low)
     {
       high = m_high;
       low = m_low;
-    }
-
-    template <typename T>
-    void getImpl(T &high, T &low)
-    {
-      assertTrueMsg(ALWAYS_FAIL, "LookupOnChange:getTolerance: type error");
     }
 
   private:
@@ -498,10 +445,21 @@ namespace PLEXIL
     bool m_wasKnown;
   };
 
-  // Separate check for Real-valued lookups
+  // Threshold check for Integer-valued lookups
+  template <>
+  bool ThresholdCacheImpl<Integer>::thresholdsExceeded(CachedValue const *value) const
+  {
+    Integer currentValue;
+    if (value->getValue(currentValue))
+      return (currentValue >= m_high) || (currentValue <= m_low);
+    // Current value is unknown
+    return m_wasKnown; 
+  }
+
+  // Threshold check for Real-valued lookups
   // Covers up a horde of sins, notably timers returning early (!)
   template <>
-  bool ThresholdCacheImpl<Real>::checkImpl(CachedValue const *value) const
+  bool ThresholdCacheImpl<Real>::thresholdsExceeded(CachedValue const *value) const
   {
     check_error_1(value); // paranoid check
     Real currentValue;
@@ -548,10 +506,6 @@ namespace PLEXIL
     }
   }
 
-  // Explicit instantiations of type error methods
-  template void ThresholdCacheImpl<Integer>::getImpl(Real &, Real &);
-  template void ThresholdCacheImpl<Real>::getImpl(Integer &, Integer &);
-
   LookupOnChange::LookupOnChange(Expression *stateName,
                                  bool stateNameIsGarbage,
                                  ValueType declaredType,
@@ -590,7 +544,7 @@ namespace PLEXIL
     m_tolerance->activate();  // may cause calls to handleChange()
     updateInternal(true);     // may cause redundant notifications
     if (this->isKnown())
-      this->publishChange(this);
+      publishChange(this);
   }
 
   void LookupOnChange::addListener(ExpressionListener *l)
@@ -620,8 +574,8 @@ namespace PLEXIL
   // Consider possibility lookup may not be fully activated yet.
   void LookupOnChange::handleChange(Expression const *src)
   {
-    if (updateInternal(Lookup::handleChangeInternal(src)))
-      this->publishChange(src);
+    if (updateInternal(Lookup::handleChangeInternal()))
+      publishChange(src);
   }
 
   void LookupOnChange::invalidateOldState()
@@ -644,7 +598,7 @@ namespace PLEXIL
     }
     if (updateInternal(true)) {
       debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << ": notifying listeners");
-      this->publishChange(this);
+      publishChange(this);
     }
     else {
       debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << ": no change");

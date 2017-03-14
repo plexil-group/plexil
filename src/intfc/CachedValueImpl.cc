@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,11 +47,11 @@ namespace PLEXIL
   {
   }
 
+
   CachedValue &VoidCachedValue::operator=(CachedValue const &other)
   {
-    assertTrue_2(dynamic_cast<VoidCachedValue const *>(&other),
-                 "VoidCachedValue: assigning from incompatible CachedValue type");
-    return static_cast<CachedValue &>(*this);
+    assertTrueMsg(ALWAYS_FAIL,
+                  "This method should never be called");
   }
 
   ValueType VoidCachedValue::valueType() const
@@ -79,66 +79,47 @@ namespace PLEXIL
     return Value();
   }
 
+  void VoidCachedValue::printValue(std::ostream &s) const
+  {
+    s << "UNKNOWN"; 
+  }
+
   /**
    * @brief Update the cache entry with the given new value.
    * @param timestamp Sequence number.
    * @param val The new value.
    * @note The caller is responsible for deleting the object pointed to upon return.
    */
-  bool VoidCachedValue::update(unsigned int /* timestamp */, Boolean const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-      
-  bool VoidCachedValue::update(unsigned int /* timestamp */, Integer const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
+
+#define DEFINE_UPDATE_METHOD(_type_)                                    \
+  bool VoidCachedValue::update(unsigned int /* timestamp */, _type_ const & /* val */) \
+  {                                                                     \
+    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");        \
+    return false;                                                       \
   }
 
-  bool VoidCachedValue::update(unsigned int /* timestamp */, Real const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
+  DEFINE_UPDATE_METHOD(Boolean)
+  DEFINE_UPDATE_METHOD(Integer)
+  DEFINE_UPDATE_METHOD(Real)
+  DEFINE_UPDATE_METHOD(String)
+
+#undef DEFINE_UPDATE_METHOD
+
+#define DEFINE_UPDATE_PTR_METHOD(_type_)                                \
+  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, _type_ const * /* valPtr */) \
+  {                                                                     \
+    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");        \
+    return false;                                                       \
   }
 
-  bool VoidCachedValue::update(unsigned int /* timestamp */, String const &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
+  DEFINE_UPDATE_PTR_METHOD(String)
+  DEFINE_UPDATE_PTR_METHOD(BooleanArray)
+  DEFINE_UPDATE_PTR_METHOD(IntegerArray)
+  DEFINE_UPDATE_PTR_METHOD(RealArray)
+  DEFINE_UPDATE_PTR_METHOD(StringArray)
 
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, String const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, BooleanArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, IntegerArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, RealArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
-  bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, StringArray const *valPtr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
-  }
-
+#undef DEFINE_UPDATE_PTR_METHOD
+  
   bool VoidCachedValue::update(unsigned int timestamp, Value const &val)
   {
     assertTrue_2(!val.isKnown(), "Can't update a VoidCachedValue");
@@ -150,130 +131,172 @@ namespace PLEXIL
   // Typed implementation
   //
 
+  //
+  // Default constructors
+  //
+  
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<T> >(),
-      m_known(false)
+    : CachedValue(),
+    m_known(false)
+  {
+  }
+
+  CachedValueImpl<Integer>::CachedValueImpl()
+    : CachedValue(),
+    m_known(false)
+  {
+  }
+
+  CachedValueImpl<Real>::CachedValueImpl()
+    : CachedValue(),
+    m_known(false)
   {
   }
 
   CachedValueImpl<String>::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<String> >(),
-      m_known(false)
+    : CachedValue(),
+    m_known(false)
   {
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
-      m_known(false)
+    : CachedValue(),
+    m_known(false)
   {
   }
 
+  //
+  // Copy constructors
+  //  
+  
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> const &orig)
-    : CachedValueShim<CachedValueImpl<T> >(),
+    : CachedValue(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
-    this->m_timestamp = orig.getTimestamp();
+  }
+
+  CachedValueImpl<Integer>::CachedValueImpl(CachedValueImpl<Integer> const &orig)
+    : CachedValue(orig),
+      m_value(orig.m_value),
+      m_known(orig.m_known)
+  {
+  }
+
+  CachedValueImpl<Real>::CachedValueImpl(CachedValueImpl<Real> const &orig)
+    : CachedValue(orig),
+      m_value(orig.m_value),
+      m_known(orig.m_known)
+  {
   }
 
   CachedValueImpl<String>::CachedValueImpl(CachedValueImpl<String> const &orig)
-    : CachedValueShim<CachedValueImpl<String> >(),
+    : CachedValue(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
-    this->m_timestamp = orig.getTimestamp();
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &orig)
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
+    : CachedValue(orig),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
-    this->m_timestamp = orig.getTimestamp();
   }
 
-  template <typename T>
-  CachedValueImpl<T>::~CachedValueImpl()
-  {
-  }
-
-  CachedValueImpl<String>::~CachedValueImpl()
-  {
-  }
-
-  template <typename T>
-  CachedValueImpl<ArrayImpl<T> >::~CachedValueImpl()
-  {
-  }
+  //
+  // Assignment operator
+  //
 
   template <typename T>
   CachedValue &CachedValueImpl<T>::operator=(CachedValue const &other)
   {
-    CachedValueImpl<T> const *otherPtr = 
-      dynamic_cast<CachedValueImpl<T> const * > (&other);
-    checkInterfaceError(otherPtr,
-                        "Attempt to assign CachedValue of type "
-                        << valueTypeName(PlexilValueType<T>::value)
-                        << " from another of type " << valueTypeName(other.valueType()));
-    return static_cast<CachedValue &>(operator=(*otherPtr));
+    CachedValueImpl<T> const *typedOther =
+      dynamic_cast<CachedValueImpl<T> const *>(&other);
+    assertTrueMsg(typedOther,
+                  "Attempt to assign CachedValue of type " << valueTypeName(other.valueType())
+                  << " to CachedValue of type " << valueTypeName(valueType()));
+    CachedValue::operator=(other);
+    m_value = typedOther->m_value;
+    m_known = typedOther->m_known;
+    return *this;
+  }
+
+  CachedValue &CachedValueImpl<Integer>::operator=(CachedValue const &other)
+  {
+    CachedValueImpl<Integer> const *typedOther =
+      dynamic_cast<CachedValueImpl<Integer> const *>(&other);
+    assertTrueMsg(typedOther,
+                  "Attempt to assign CachedValue of type " << valueTypeName(other.valueType())
+                  << " to CachedValue of type " << valueTypeName(valueType()));
+    CachedValue::operator=(other);
+    m_value = typedOther->m_value;
+    m_known = typedOther->m_known;
+    return *this;
+  }
+
+  CachedValue &CachedValueImpl<Real>::operator=(CachedValue const &other)
+  {
+    CachedValueImpl<Real> const *typedOther =
+      dynamic_cast<CachedValueImpl<Real> const *>(&other);
+    assertTrueMsg(typedOther,
+                  "Attempt to assign CachedValue of type " << valueTypeName(other.valueType())
+                  << " to CachedValue of type " << valueTypeName(valueType()));
+    CachedValue::operator=(other);
+    m_value = typedOther->m_value;
+    m_known = typedOther->m_known;
+    return *this;
   }
 
   CachedValue &CachedValueImpl<String>::operator=(CachedValue const &other)
   {
-    CachedValueImpl<String> const *otherPtr = 
-      dynamic_cast<CachedValueImpl<String> const * > (&other);
-    checkInterfaceError(otherPtr,
-                        "Attempt to assign CachedValue of type String from another of type "
-                        << valueTypeName(other.valueType()));
-    return static_cast<CachedValue &>(operator=(*otherPtr));
+    CachedValueImpl<String> const *typedOther =
+      dynamic_cast<CachedValueImpl<String> const *>(&other);
+    assertTrueMsg(typedOther,
+                  "Attempt to assign CachedValue of type " << valueTypeName(other.valueType())
+                  << " to CachedValue of type " << valueTypeName(valueType()));
+    CachedValue::operator=(other);
+    m_value = typedOther->m_value;
+    m_known = typedOther->m_known;
+    return *this;
   }
 
   template <typename T>
   CachedValue &CachedValueImpl<ArrayImpl<T> >::operator=(CachedValue const &other)
   {
-    CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
+    CachedValueImpl<ArrayImpl<T> > const *typedOther =
       dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
-    checkInterfaceError(otherPtr,
-                        "Attempt to assign CachedValue of type "
-                        << valueTypeName(PlexilValueType<T>::arrayValue)
-                        << " from another of type " << valueTypeName(other.valueType()));
-    return static_cast<CachedValue &>(operator=(*otherPtr));
-  }
-
-  template <typename T>
-  CachedValueImpl<T> &CachedValueImpl<T>::operator=(CachedValueImpl<T> const &other)
-  {
-    this->m_timestamp = other.getTimestamp();
-    if ((m_known = other.m_known))
-      m_value = other.m_value;
+    assertTrueMsg(typedOther,
+                  "Attempt to assign CachedValue of type " << valueTypeName(other.valueType())
+                  << " to CachedValue of type " << valueTypeName(valueType()));
+    CachedValue::operator=(other);
+    m_value = typedOther->m_value;
+    m_known = typedOther->m_known;
     return *this;
   }
 
-  CachedValueImpl<String> &CachedValueImpl<String>::operator=(CachedValueImpl<String> const &other)
-  {
-    this->m_timestamp = other.getTimestamp();
-    if ((m_known = other.m_known))
-      m_value = other.m_value;
-    return *this;
-  }
-
-  template <typename T>
-  CachedValueImpl<ArrayImpl<T> > &CachedValueImpl<ArrayImpl<T> >::operator=(CachedValueImpl<ArrayImpl<T> > const &other)
-  {
-    this->m_timestamp = other.getTimestamp();
-    if ((m_known = other.m_known))
-      m_value = other.m_value;
-    return *this;
-  }
+  //
+  // GetValue API
+  //
 
   template <typename T>
   ValueType CachedValueImpl<T>::valueType() const
   {
-    return PlexilValueType<T>::value;;
+    return PlexilValueType<T>::value;
+  }
+
+  ValueType CachedValueImpl<Integer>::valueType() const
+  {
+    return INTEGER_TYPE;
+  }
+
+  ValueType CachedValueImpl<Real>::valueType() const
+  {
+    return REAL_TYPE;
   }
 
   ValueType CachedValueImpl<String>::valueType() const
@@ -284,11 +307,21 @@ namespace PLEXIL
   template <typename T>
   ValueType CachedValueImpl<ArrayImpl<T> >::valueType() const
   {
-    return PlexilValueType<T>::arrayValue;
+    return PlexilValueType<ArrayImpl<T> >::value;
   }
 
   template <typename T>
   bool CachedValueImpl<T>::isKnown() const
+  {
+    return m_known;
+  }
+
+  bool CachedValueImpl<Integer>::isKnown() const
+  {
+    return m_known;
+  }
+
+  bool CachedValueImpl<Real>::isKnown() const
   {
     return m_known;
   }
@@ -305,7 +338,178 @@ namespace PLEXIL
   }
 
   template <typename T>
+  Value CachedValueImpl<T>::toValue() const
+  {
+    T temp;
+    bool known = this->getValue(temp);
+    if (known)
+      return Value(temp);
+    else
+      return Value(0, this->valueType());
+  }
+
+  Value CachedValueImpl<Integer>::toValue() const
+  {
+    Integer temp;
+    bool known = this->getValue(temp);
+    if (known)
+      return Value(temp);
+    else
+      return Value(0, this->valueType());
+  }
+
+  Value CachedValueImpl<Real>::toValue() const
+  {
+    Real temp;
+    bool known = this->getValue(temp);
+    if (known)
+      return Value(temp);
+    else
+      return Value(0, this->valueType());
+  }
+
+  Value CachedValueImpl<String>::toValue() const
+  {
+    std::string const *ptr;
+    bool known = this->getValuePointer(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <typename T>
+  Value CachedValueImpl<ArrayImpl<T> >::toValue() const
+  {
+    ArrayImpl<T> const *ptr;
+    bool known = this->getValuePointer(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <typename T>
+  bool CachedValueImpl<T>::getValue(T &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  bool CachedValueImpl<Integer>::getValue(Integer &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  // Conversion method
+  bool CachedValueImpl<Integer>::getValue(Real &result) const
+  {
+    if (m_known)
+      result = (Real) m_value;
+    return m_known;
+  }
+
+  bool CachedValueImpl<Real>::getValue(Real &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  bool CachedValueImpl<String>::getValue(String &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  bool CachedValueImpl<String>::getValuePointer(std::string const *&ptr) const
+  {
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::getValuePointer(ArrayImpl<T> const *&ptr) const
+  {
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  // Conversion method
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::getValuePointer(Array const *& ptr) const
+  {
+    if (m_known)
+      ptr = dynamic_cast<Array const *>(&m_value);
+    return m_known;
+  }
+
+  template <typename T>
+  void CachedValueImpl<T>::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "UNKNOWN"; 
+  }
+
+  void CachedValueImpl<Integer>::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "UNKNOWN"; 
+  }
+
+  void CachedValueImpl<Real>::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "UNKNOWN"; 
+  }
+
+  void CachedValueImpl<String>::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "UNKNOWN"; 
+  }
+
+  template <typename T>
+  void CachedValueImpl<ArrayImpl<T> >::printValue(std::ostream &s) const
+  {
+    if (m_known)
+      PLEXIL::printValue(m_value, s);
+    else
+      s << "UNKNOWN"; 
+  }
+
+  template <typename T>
   bool CachedValueImpl<T>::setUnknown(unsigned int timestamp)
+  {
+    bool wasKnown = m_known;
+    m_known = false;
+    this->m_timestamp = timestamp;
+    return wasKnown;
+  }
+
+  bool CachedValueImpl<Integer>::setUnknown(unsigned int timestamp)
+  {
+    bool wasKnown = m_known;
+    m_known = false;
+    this->m_timestamp = timestamp;
+    return wasKnown;
+  }
+
+  bool CachedValueImpl<Real>::setUnknown(unsigned int timestamp)
   {
     bool wasKnown = m_known;
     m_known = false;
@@ -330,70 +534,108 @@ namespace PLEXIL
     return wasKnown;
   }
 
-template <typename T>
-bool CachedValueImpl<T>::operator==(CachedValue const &other) const
-{
-  if (!m_known && other.isKnown())
+  template <typename T>
+  bool CachedValueImpl<T>::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<T> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<T> const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
     return true;
-  CachedValueImpl<T> const *otherPtr = 
-    dynamic_cast<CachedValueImpl<T> const *>(&other);
-  if (!otherPtr)
-    return false; // different type
-  if (m_known != otherPtr->m_known
-      || m_value != otherPtr->m_value)
-    return false; // different value
-  return true;
-}
+  }
 
-bool CachedValueImpl<String>::operator==(CachedValue const &other) const
-{
-  if (!m_known && other.isKnown())
+  bool CachedValueImpl<Integer>::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<Integer> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<Integer> const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
     return true;
-  CachedValueImpl<String> const *otherPtr = 
-    dynamic_cast<CachedValueImpl<String> const *>(&other);
-  if (!otherPtr)
-    return false; // different type
-  if (m_known != otherPtr->m_known
-      || m_value != otherPtr->m_value)
-    return false; // different value
-  return true;
-}
+  }
 
-template <typename T>
-bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
-{
-  if (!m_known && other.isKnown())
+  bool CachedValueImpl<Real>::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<Real> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<Real> const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
     return true;
-  CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
-    dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
-  if (!otherPtr)
-    return false; // different type
-  if (m_known != otherPtr->m_known
-      || m_value != otherPtr->m_value)
-    return false; // different value
-  return true;
-}
+  }
+
+  bool CachedValueImpl<String>::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<String> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<String> const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
+    return true;
+  }
 
   template <typename T>
-  CachedValue *CachedValueImpl<T>::cloneImpl() const
+  bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
+  {
+    if (!m_known && other.isKnown())
+      return true;
+    CachedValueImpl<ArrayImpl<T> > const *otherPtr = 
+      dynamic_cast<CachedValueImpl<ArrayImpl<T> > const *>(&other);
+    if (!otherPtr)
+      return false; // different type
+    if (m_known != otherPtr->m_known
+        || m_value != otherPtr->m_value)
+      return false; // different value
+    return true;
+  }
+
+  template <typename T>
+  CachedValue *CachedValueImpl<T>::clone() const
   {
     return new CachedValueImpl<T>(*this);
   }
 
-  CachedValue *CachedValueImpl<String>::cloneImpl() const
+  CachedValue *CachedValueImpl<Integer>::clone() const
+  {
+    return new CachedValueImpl<Integer>(*this);
+  }
+
+  CachedValue *CachedValueImpl<Real>::clone() const
+  {
+    return new CachedValueImpl<Real>(*this);
+  }
+
+  CachedValue *CachedValueImpl<String>::clone() const
   {
     return new CachedValueImpl<String>(*this);
   }
 
   template <typename T>
-  CachedValue *CachedValueImpl<ArrayImpl<T> >::cloneImpl() const
+  CachedValue *CachedValueImpl<ArrayImpl<T> >::clone() const
   {
     return new CachedValueImpl<ArrayImpl<T> >(*this);
   }
 
   // Only implemented for scalar types (and string)
   template <typename T>
-  bool CachedValueImpl<T>::updateImpl(unsigned int timestamp, T const &val)
+  bool CachedValueImpl<T>::update(unsigned int timestamp, T const &val)
   {
     if (!m_known || m_value != val) {
       m_value = val;
@@ -406,9 +648,21 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
-  // Specialization for Real, solely for debug printing purposes.
-  template <>
-  bool CachedValueImpl<Real>::updateImpl(unsigned int timestamp, Real const &val)
+  bool CachedValueImpl<Integer>::update(unsigned int timestamp, Integer const &val)
+  {
+    if (!m_known || m_value != val) {
+      m_value = val;
+      m_known = true;
+      this->m_timestamp = timestamp;
+      debugMsg("CachedValue:update", " updated to " << val);
+      return true;
+    }
+    debugMsg("CachedValue:update", " value is already " << val << ", not updating");
+    return false;
+  }
+
+  // Real is different for debug printing purposes.
+  bool CachedValueImpl<Real>::update(unsigned int timestamp, Real const &val)
   {
     if (!m_known || m_value != val) {
       m_value = val;
@@ -421,7 +675,13 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
-  bool CachedValueImpl<String>::updateImpl(unsigned int timestamp, String const &val)
+  // Type conversion method.
+  bool CachedValueImpl<Real>::update(unsigned int timestamp, Integer const &val)
+  {
+    return this->update(timestamp, (Real) val);
+  }
+
+  bool CachedValueImpl<String>::update(unsigned int timestamp, String const &val)
   {
     if (!m_known || m_value != val) {
       m_value = val;
@@ -432,66 +692,52 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
-  // Default wrong-type methods.
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<T>::updateImpl(unsigned int timestamp, U const & /* val */)
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::value)
-                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
-    return false;
-  }
-
-  template <typename U>
-  bool CachedValueImpl<String>::updateImpl(unsigned int timestamp, U const & /* val */)
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to update a String CachedValue with a "
-                        << valueTypeName(PlexilValueType<U>::value)); 
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<ArrayImpl<T> >::updateImpl(unsigned int timestamp, U const & /* val */)
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::arrayValue)
-                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
-    return false;
-  }
-
-  // Type conversion method.
-  template <>
-  template <>
-  bool CachedValueImpl<Real>::updateImpl(unsigned int timestamp, Integer const &val)
-  {
-    return this->updateImpl(timestamp, (Real) val);
-  }
-
   // From Value
   // Default for scalar types
   template <typename T>
-  bool CachedValueImpl<T>::updateImpl(unsigned int timestamp, Value const &val)
+  bool CachedValueImpl<T>::update(unsigned int timestamp, Value const &val)
   {
     T nativeVal;
     if (val.getValue(nativeVal))
-      return this->updateImpl(timestamp, nativeVal);
+      return this->update(timestamp, nativeVal);
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for "
-               << valueTypeName(PlexilValueType<T>::value) << " lookup");
+               << PlexilValueType<T>::typeName << " lookup");
+      return setUnknown(timestamp);
+    }
+  }
+
+  bool CachedValueImpl<Integer>::update(unsigned int timestamp, Value const &val)
+  {
+    Integer nativeVal;
+    if (val.getValue(nativeVal))
+      return this->update(timestamp, nativeVal);
+    else {
+      debugMsg("CachedValue:mismatch",
+               " value " << val << "is wrong type for Integer lookup");
+      return setUnknown(timestamp);
+    }
+  }
+
+  bool CachedValueImpl<Real>::update(unsigned int timestamp, Value const &val)
+  {
+    Real nativeVal;
+    if (val.getValue(nativeVal))
+      return this->update(timestamp, nativeVal);
+    else {
+      debugMsg("CachedValue:mismatch",
+               " value " << val << "is wrong type for Real lookup");
       return setUnknown(timestamp);
     }
   }
 
   // Special case for string
-  bool CachedValueImpl<String>::updateImpl(unsigned int timestamp, Value const &val)
+  bool CachedValueImpl<String>::update(unsigned int timestamp, Value const &val)
   {
-    String const *valPtr;
+    std::string const *valPtr;
     if (val.getValuePointer(valPtr))
-      return this->updatePtrImpl(timestamp, valPtr);
+      return this->updatePtr(timestamp, valPtr);
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for String lookup");
@@ -501,24 +747,24 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 
   // Array method
   template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::updateImpl(unsigned int timestamp, Value const &val)
+  bool CachedValueImpl<ArrayImpl<T> >::update(unsigned int timestamp, Value const &val)
   {
     ArrayImpl<T> const *valPtr;
     if (val.getValuePointer(valPtr))
-      return this->updatePtrImpl(timestamp, valPtr);
+      return this->updatePtr(timestamp, valPtr);
     else {
       debugMsg("CachedValue:mismatch",
                " value " << val << "is wrong type for "
-               << valueTypeName(PlexilValueType<T>::arrayValue) << " lookup");
+               << PlexilValueType<ArrayImpl<T> >::typeName << " lookup");
       return setUnknown(timestamp);
     }
   }
 
-//
-// updatePtrImpl
-//
+  //
+  // updatePtr
+  //
 
-bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, String const *ptr)
+  bool CachedValueImpl<String>::updatePtr(unsigned int timestamp, std::string const *ptr)
   {
     if (!m_known || m_value != *ptr) {
       m_value = *ptr;
@@ -530,7 +776,7 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, String const
   }
 
   template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::updatePtrImpl(unsigned int timestamp, ArrayImpl<T> const *ptr)
+  bool CachedValueImpl<ArrayImpl<T> >::updatePtr(unsigned int timestamp, ArrayImpl<T> const *ptr)
   {
     if (!m_known || m_value != *ptr) {
       m_value = *ptr;
@@ -539,180 +785,6 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, String const
       return true;
     }
     return false;
-  }
-
-  // Default wrong-type methods.
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<T>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::value)
-                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
-    return false;
-  }
-
-  template <typename U>
-  bool CachedValueImpl<String>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to update a String CachedValue with a "
-                        << valueTypeName(PlexilValueType<U>::value)); 
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<ArrayImpl<T> >::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to update a " << valueTypeName(PlexilValueType<T>::arrayValue)
-                        << " CachedValue with a " << valueTypeName(PlexilValueType<U>::value)); 
-    return false;
-  }
-
-  //
-  // getValue() and friends
-  //
-
-  template <typename T>
-  bool CachedValueImpl<T>::getValueImpl(T &result) const
-  {
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
-  bool CachedValueImpl<String>::getValueImpl(String &result) const
-  {
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
-  // Default wrong-type methods.
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<T>::getValueImpl(U & /* result */) const
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
-                        << " value from a " << valueTypeName(PlexilValueType<T>::value)
-                        << " valued Lookup"); 
-    return false;
-  }
-
-  template <typename U>
-  bool CachedValueImpl<String>::getValueImpl(U & /* result */) const
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
-                        << " value from a String valued lookup"); 
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(U & /* result */) const
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
-                        << " value from a " << valueTypeName(PlexilValueType<T>::arrayValue)
-                        << " valued Lookup"); 
-    return false;
-  }
-
-  // Conversion method
-  template <>
-  template <>
-  bool CachedValueImpl<Integer>::getValueImpl(Real &result) const
-  {
-    if (m_known)
-      result = (Real) m_value;
-    return m_known;
-  }
-
-  // Same-type methods
-  bool CachedValueImpl<String>::getValuePointerImpl(String const *&ptr) const
-  {
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
-  }
-
-  template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
-  {
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
-  }
-
-  // Default wrong-type methods.
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
-                        << " value from a " << valueTypeName(PlexilValueType<T>::value)
-                        << " valued Lookup"); 
-    return false;
-  }
-
-  template <typename U>
-  bool CachedValueImpl<String>::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
-                        << " value from a String valued lookup"); 
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    checkInterfaceError(ALWAYS_FAIL,
-                        "Attempt to get a " << valueTypeName(PlexilValueType<U>::value)
-                        << " value from a " << valueTypeName(PlexilValueType<T>::arrayValue)
-                        << " valued Lookup"); 
-    return false;
-  }
-
-  // Conversion method
-  template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::getValuePointerImpl(Array const *& ptr) const
-  {
-    if (m_known)
-      ptr = dynamic_cast<Array const *>(&m_value);
-    return m_known;
-  }
-
-  template <typename T>
-  Value CachedValueImpl<T>::toValue() const
-  {
-    if (m_known)
-      return Value(m_value);
-    else
-      return Value(0, valueType());
-  }
-
-  Value CachedValueImpl<String>::toValue() const
-  {
-    if (m_known)
-      return Value(m_value);
-    else
-      return Value(0, valueType());
-  }
-
-  template <typename T>
-  Value CachedValueImpl<ArrayImpl<T> >::toValue() const
-  {
-    if (m_known)
-      return Value(m_value);
-    else
-      return Value(0, valueType());
   }
 
   //
@@ -762,9 +834,10 @@ bool CachedValueImpl<String>::updatePtrImpl(unsigned int timestamp, String const
   //
 
   template class CachedValueImpl<Boolean>;
-  template class CachedValueImpl<Integer>;
-  template class CachedValueImpl<Real>;
-// template class CachedValueImpl<String>; // redundant
+  // template class CachedValueImpl<Integer>; // redundant
+  // template class CachedValueImpl<Real>;    // redundant
+  // template class CachedValueImpl<String>;  // redundant
+
   template class CachedValueImpl<BooleanArray>;
   template class CachedValueImpl<IntegerArray>;
   template class CachedValueImpl<RealArray>;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,8 +76,8 @@ static bool testUninitialized()
   assertTrue_1(!vui.getValue(fooi));
   assertTrue_1(!vud.getValue(food));
   assertTrue_1(!vus.getValue(foos));
-  // Numeric conversion
-  assertTrue_1(!vui.getValue(food));
+  // Numeric conversion -- C++ sucks at inheritance
+  assertTrue_1(!((Expression const &) vui).getValue(food));
 
   // Activate and confirm they are still unknown
   vub.activate();
@@ -95,7 +95,7 @@ static bool testUninitialized()
   assertTrue_1(!vud.getValue(food));
   assertTrue_1(!vus.getValue(foos));
   // Numeric conversion
-  assertTrue_1(!vui.getValue(food));
+  assertTrue_1(!((Expression const &) vui).getValue(food));
 
   // Assign and check result
   vub.setValue(Value(true));
@@ -117,7 +117,7 @@ static bool testUninitialized()
   assertTrue_1(vus.getValue(foos));
   assertTrue_1(foos == String("yoohoo"));
   // Test getValue type conversion
-  assertTrue_1(vui.getValue(food));
+  assertTrue_1(((Expression const &) vui).getValue(food));
   assertTrue_1(food == 42);
 
   // Arrays
@@ -258,7 +258,7 @@ static bool testInitialValue()
   assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(vi.getValue(food));
+  assertTrue_1(((Expression const &) vi).getValue(food));
   assertTrue_1(food == 69);
 
   // Set unknown
@@ -405,7 +405,7 @@ static bool testInitializers()
   assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(vi.getValue(food));
+  assertTrue_1(((Expression const &) vi).getValue(food));
   assertTrue_1(food == 69);
 
   // Set unknown
@@ -716,7 +716,7 @@ static bool testAssignablePointer()
   assertTrue_1(vs.getValue(foos));
   assertTrue_1(foos == String("yo"));
   // Numeric conversion
-  assertTrue_1(vi.getValue(food));
+  assertTrue_1(((Expression const &) vi).getValue(food));
   assertTrue_1(food == 69);
 
   // Set values

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #include "Constant.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
+#include "ExpressionConstants.hh"
 #include "Function.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
@@ -49,7 +50,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(atroo->isActive());
     assertTrue_1(atroo->isKnown());
 
-    bool tb, tba;
+    Boolean tb, tba;
     assertTrue_1(troo->getValue(tb));
     assertTrue_1(atroo->getValue(tba));
     assertTrue_1(tb == tba);
@@ -70,7 +71,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(atree->isActive());
     assertTrue_1(atree->isKnown());
 
-    int32_t ti, tia;
+    Integer ti, tia;
     assertTrue_1(tree->getValue(ti));
     assertTrue_1(atree->getValue(tia));
     assertTrue_1(ti == tia);
@@ -91,7 +92,7 @@ static bool testAliasToScalarConstant()
     assertTrue_1(apie->isActive());
     assertTrue_1(apie->isKnown());
 
-    double td, tda;
+    Real td, tda;
     assertTrue_1(pie->getValue(td));
     assertTrue_1(apie->getValue(tda));
     assertTrue_1(td == tda);
@@ -112,8 +113,8 @@ static bool testAliasToScalarConstant()
     assertTrue_1(afore->isActive());
     assertTrue_1(afore->isKnown());
 
-    std::string ts, tsa;
-    const std::string *tsp, *tspa;
+    String ts, tsa;
+    const String *tsp, *tspa;
     assertTrue_1(fore->getValue(ts));
     assertTrue_1(afore->getValue(tsa));
     assertTrue_1(ts == tsa);
@@ -131,7 +132,7 @@ static bool testAliasToScalarConstant()
 static bool testAliasToArrayConstant()
 {
   {
-    std::vector<bool>        vb(2);
+    std::vector<Boolean>        vb(2);
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
@@ -155,7 +156,7 @@ static bool testAliasToArrayConstant()
   }
 
   {
-    std::vector<int32_t> vi(4);
+    std::vector<Integer> vi(4);
     vi[0] = 0;
     vi[1] = 1;
     vi[2] = 2;
@@ -180,7 +181,7 @@ static bool testAliasToArrayConstant()
   }
 
   {
-    std::vector<double> vd(4);
+    std::vector<Real> vd(4);
     vd[0] = 0;
     vd[1] = 1;
     vd[2] = 2;
@@ -205,11 +206,11 @@ static bool testAliasToArrayConstant()
   }
 
   {
-    std::vector<std::string> vs(4);
-    vs[0] = std::string("zero");
-    vs[1] = std::string("one");
-    vs[2] = std::string("two");
-    vs[3] = std::string("three");
+    std::vector<String> vs(4);
+    vs[0] = String("zero");
+    vs[1] = String("one");
+    vs[2] = String("two");
+    vs[3] = String("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
     Alias *asc = new Alias(NULL, "asc", sc);
     StringArray const *pas = NULL, *paas = NULL;
@@ -235,7 +236,8 @@ static bool testAliasToArrayConstant()
 static bool testAliasToScalarVariable()
 {
   {
-    BooleanVariable *troo = new BooleanVariable(true);
+    BooleanVariable *troo = new BooleanVariable();
+    troo->setInitializer(TRUE_EXP(), false);
     Alias *atroo = new Alias(NULL, "atroo", troo);
     assertTrue_1(!atroo->isAssignable());
     assertTrue_1(atroo->isConstant() == troo->isConstant());
@@ -247,7 +249,7 @@ static bool testAliasToScalarVariable()
     assertTrue_1(atroo->isActive());
     assertTrue_1(atroo->isKnown());
 
-    bool tb, tba;
+    Boolean tb, tba;
     assertTrue_1(troo->getValue(tb));
     assertTrue_1(atroo->getValue(tba));
     assertTrue_1(tb == tba);
@@ -257,7 +259,8 @@ static bool testAliasToScalarVariable()
   }
 
   {
-    IntegerVariable *tree = new IntegerVariable(3);
+    IntegerVariable *tree = new IntegerVariable();
+    tree->setInitializer(new IntegerConstant(3), true);
     Alias *atree = new Alias(NULL, "atree", tree);
     assertTrue_1(!atree->isAssignable());
     assertTrue_1(atree->isConstant() == tree->isConstant());
@@ -270,7 +273,7 @@ static bool testAliasToScalarVariable()
     assertTrue_1(atree->isActive());
     assertTrue_1(atree->isKnown());
 
-    int32_t ti, tia;
+    Integer ti, tia;
     assertTrue_1(tree->getValue(ti));
     assertTrue_1(atree->getValue(tia));
     assertTrue_1(ti == tia);
@@ -280,7 +283,8 @@ static bool testAliasToScalarVariable()
   }
 
   {
-    RealVariable *pie = new RealVariable(3.14);
+    RealVariable *pie = new RealVariable();
+    pie->setInitializer(new RealConstant(3.14), true);
     Alias *apie = new Alias(NULL, "apie",  pie);
     assertTrue_1(!apie->isAssignable());
     assertTrue_1(apie->isConstant()  == pie->isConstant());
@@ -293,7 +297,7 @@ static bool testAliasToScalarVariable()
     assertTrue_1(apie->isActive());
     assertTrue_1(apie->isKnown());
 
-    double td, tda;
+    Real td, tda;
     assertTrue_1(pie->getValue(td));
     assertTrue_1(apie->getValue(tda));
     assertTrue_1(td == tda);
@@ -303,7 +307,8 @@ static bool testAliasToScalarVariable()
   }
 
   {
-    StringVariable *fore = new StringVariable("four");
+    StringVariable *fore = new StringVariable();
+    fore->setInitializer(new StringConstant("four"), true);
     Alias *afore = new Alias(NULL, "afore", fore);
     assertTrue_1(!afore->isAssignable());
     assertTrue_1(afore->isConstant() == fore->isConstant());
@@ -317,8 +322,8 @@ static bool testAliasToScalarVariable()
     assertTrue_1(afore->isActive());
     assertTrue_1(afore->isKnown());
   
-    std::string ts, tsa;
-    const std::string *tsp, *tspa;
+    String ts, tsa;
+    const String *tsp, *tspa;
     assertTrue_1(fore->getValue(ts));
     assertTrue_1(afore->getValue(tsa));
     assertTrue_1(ts == tsa);
@@ -335,13 +340,14 @@ static bool testAliasToScalarVariable()
 
 static bool testAliasToArrayVariable()
 {
-  IntegerVariable *ix = new IntegerVariable;
+  IntegerVariable *ix = new IntegerVariable();
 
   {
-    std::vector<bool> vb(2);
+    BooleanArrayVariable *bc = new BooleanArrayVariable();
+    std::vector<Boolean> vb(2);
     vb[0] = false;
     vb[1] = true;
-    BooleanArrayVariable *bc = new BooleanArrayVariable(vb);
+    bc->setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
     Alias *abc = new Alias(NULL, "abc", bc);
     BooleanArray const *pab = NULL, *paab = NULL;
     assertTrue_1(!abc->isAssignable());
@@ -360,12 +366,12 @@ static bool testAliasToArrayVariable()
 
     ArrayReference *bar = new ArrayReference(bc, ix);
     ArrayReference *abar = new ArrayReference(abc, ix);
-    bool bt1, bt2;
+    Boolean bt1, bt2;
     ix->activate();
     bar->activate();
     abar->activate();
 
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(bar->getValue(bt1));
     assertTrue_1(!bt1);
     assertTrue_1(abar->getValue(bt2));
@@ -378,12 +384,13 @@ static bool testAliasToArrayVariable()
   }
 
   {
-    std::vector<int32_t>     vi(4);
+    IntegerArrayVariable *ic = new IntegerArrayVariable();
+    std::vector<Integer>     vi(4);
     vi[0] = 0;
     vi[1] = 1;
     vi[2] = 2;
     vi[3] = 3;
-    IntegerArrayVariable *ic = new IntegerArrayVariable(vi);
+    ic->setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
     Alias *aic = new Alias(NULL, "aic", ic);
     IntegerArray const *pai = NULL, *paai = NULL;
     assertTrue_1(!aic->isAssignable());
@@ -402,11 +409,11 @@ static bool testAliasToArrayVariable()
 
     ArrayReference *iar = new ArrayReference(ic, ix);
     ArrayReference *aiar= new ArrayReference(aic, ix);
-    int32_t it1, it2;
+    Integer it1, it2;
     ix->activate();
     iar->activate();
     aiar->activate();
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(iar->getValue(it1));
     assertTrue_1(it1 == 0);
     assertTrue_1(aiar->getValue(it2));
@@ -419,12 +426,13 @@ static bool testAliasToArrayVariable()
   }
 
   {
-    std::vector<double> vd(4);
+    RealArrayVariable *dc = new RealArrayVariable;
+    std::vector<Real> vd(4);
     vd[0] = 0;
     vd[1] = 1;
     vd[2] = 2;
     vd[3] = 3;
-    RealArrayVariable *dc = new RealArrayVariable(vd);
+    dc->setInitializer(new RealArrayConstant(RealArray(vd)), true);
     Alias *adc = new Alias(NULL, "adc", dc);
     RealArray const *pad = NULL, *paad = NULL;
     assertTrue_1(!adc->isAssignable());
@@ -443,11 +451,11 @@ static bool testAliasToArrayVariable()
 
     ArrayReference *dar = new ArrayReference(dc, ix);
     ArrayReference *adar = new ArrayReference(adc, ix);
-    double dt1, dt2;
+    Real dt1, dt2;
     ix->activate();
     dar->activate();
     adar->activate();
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(dar->getValue(dt1));
     assertTrue_1(dt1 == 0);
     assertTrue_1(adar->getValue(dt2));
@@ -460,12 +468,13 @@ static bool testAliasToArrayVariable()
   }
 
   {
-    std::vector<std::string> vs(4);
-    vs[0] = std::string("zero");
-    vs[1] = std::string("one");
-    vs[2] = std::string("two");
-    vs[3] = std::string("three");
-    StringArrayVariable *sc = new StringArrayVariable(vs);
+    StringArrayVariable *sc = new StringArrayVariable;
+    std::vector<String> vs(4);
+    vs[0] = String("zero");
+    vs[1] = String("one");
+    vs[2] = String("two");
+    vs[3] = String("three");
+    sc->setInitializer(new StringArrayConstant(StringArray(vs)), true);
     Alias *asc = new Alias(NULL, "asc", sc);
     StringArray const *pas = NULL, *paas = NULL;
     assertTrue_1(!asc->isAssignable());
@@ -484,19 +493,19 @@ static bool testAliasToArrayVariable()
 
     ArrayReference *sar = new ArrayReference(sc, ix);
     ArrayReference *asar = new ArrayReference(asc, ix);
-    std::string st1, st2;
-    std::string const *stp1, *stp2;
+    String st1, st2;
+    String const *stp1, *stp2;
     ix->activate();
     sar->activate();
     asar->activate();
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(sar->getValue(st1));
-    assertTrue_1(st1 == std::string("zero"));
+    assertTrue_1(st1 == String("zero"));
     assertTrue_1(asar->getValue(st2));
     assertTrue_1(st1 == st2);
 
     assertTrue_1(sar->getValuePointer(stp1));
-    assertTrue_1(*stp1 == std::string("zero"));
+    assertTrue_1(*stp1 == String("zero"));
     assertTrue_1(asar->getValuePointer(stp2));
     assertTrue_1(*stp1 == *stp2);
 
@@ -513,23 +522,24 @@ static bool testAliasToArrayVariable()
 
 static bool testAliasToArrayReference()
 {
-  IntegerVariable *ix = new IntegerVariable;
+  IntegerVariable *ix = new IntegerVariable();
 
   {
-    std::vector<bool> vb(2);
+    BooleanArrayVariable *bc = new BooleanArrayVariable;
+    std::vector<Boolean> vb(2);
     vb[0] = false;
     vb[1] = true;
-    BooleanArrayVariable *bc = new BooleanArrayVariable(vb);
+    bc->setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
     ArrayReference *bar = new ArrayReference(bc, ix);
     MutableArrayReference *wbar = new MutableArrayReference(bc, ix);
     Alias *abar = new Alias(NULL, "abar", bar);
     Alias *awbar = new Alias(NULL, "awbar", wbar);
-    bool bt1, bt2;
+    Boolean bt1, bt2;
     ix->activate();
     bc->activate();
     bar->activate();
     wbar->activate();
-    ix->setValue((int32_t) 1);
+    ix->setValue((Integer) 1);
     assertTrue_1(!abar->isActive());
     assertTrue_1(!awbar->isActive());
     assertTrue_1(!abar->isKnown());
@@ -548,7 +558,7 @@ static bool testAliasToArrayReference()
     assertTrue_1(awbar->getValue(bt2));
     assertTrue_1(bt1 == bt2);
 
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(bar->getValue(bt1));
     assertTrue_1(!bt1);
     assertTrue_1(abar->getValue(bt2));
@@ -571,22 +581,23 @@ static bool testAliasToArrayReference()
   }
 
   {
-    std::vector<int32_t> vi(4);
+    IntegerArrayVariable *ic = new IntegerArrayVariable;
+    std::vector<Integer> vi(4);
     vi[0] = 3;
     vi[1] = 2;
     vi[2] = 1;
     vi[3] = 0;
-    IntegerArrayVariable *ic = new IntegerArrayVariable(vi);
+    ic->setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
     ArrayReference *iar = new ArrayReference(ic, ix);
     MutableArrayReference *wiar = new MutableArrayReference(ic, ix);
     Alias *aiar = new Alias(NULL, "aiar", iar);
     Alias *awiar = new Alias(NULL, "awiar", wiar);
-    int32_t it1, it2;
+    Integer it1, it2;
     ix->activate();
     ic->activate();
     iar->activate();
     wiar->activate();
-    ix->setValue((int32_t) 1);
+    ix->setValue((Integer) 1);
     assertTrue_1(!aiar->isActive());
     assertTrue_1(!awiar->isActive());
     assertTrue_1(!aiar->isKnown());
@@ -605,7 +616,7 @@ static bool testAliasToArrayReference()
     assertTrue_1(awiar->getValue(it2));
     assertTrue_1(it1 == it2);
 
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(iar->getValue(it1));
     assertTrue_1(it1 == 3);
     assertTrue_1(aiar->getValue(it2));
@@ -628,22 +639,23 @@ static bool testAliasToArrayReference()
   }
 
   {
-    std::vector<double> vd(4);
+    RealArrayVariable *dc = new RealArrayVariable;
+    std::vector<Real> vd(4);
     vd[0] = 7;
     vd[1] = 6;
     vd[2] = 5;
     vd[3] = 4;
-    RealArrayVariable *dc = new RealArrayVariable(vd);
+    dc->setInitializer(new RealArrayConstant(RealArray(vd)), true);
     ArrayReference *dar = new ArrayReference(dc, ix);
     MutableArrayReference *wdar = new MutableArrayReference(dc, ix);
     Alias *adar = new Alias(NULL, "adar", dar);
     Alias *awdar = new Alias(NULL, "awdar", wdar);
-    double dt1, dt2;
+    Real dt1, dt2;
     ix->activate();
     dc->activate();
     dar->activate();
     wdar->activate();
-    ix->setValue((int32_t) 1);
+    ix->setValue((Integer) 1);
     assertTrue_1(!adar->isActive());
     assertTrue_1(!awdar->isActive());
     assertTrue_1(!adar->isKnown());
@@ -662,7 +674,7 @@ static bool testAliasToArrayReference()
     assertTrue_1(awdar->getValue(dt2));
     assertTrue_1(dt1 == dt2);
 
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(dar->getValue(dt1));
     assertTrue_1(dt1 == 7);
     assertTrue_1(adar->getValue(dt2));
@@ -685,23 +697,24 @@ static bool testAliasToArrayReference()
   }
 
   {
-    std::vector<std::string> vs(4);
-    vs[0] = std::string("zero");
-    vs[1] = std::string("one");
-    vs[2] = std::string("two");
-    vs[3] = std::string("three");
-    StringArrayVariable *sc = new StringArrayVariable(vs);
+    StringArrayVariable *sc = new StringArrayVariable;
+    std::vector<String> vs(4);
+    vs[0] = String("zero");
+    vs[1] = String("one");
+    vs[2] = String("two");
+    vs[3] = String("three");
+    sc->setInitializer(new StringArrayConstant(StringArray(vs)), true);
     ArrayReference *sar = new ArrayReference(sc, ix);
     MutableArrayReference *wsar = new MutableArrayReference(sc, ix);
     Alias *asar = new Alias(NULL, "asar", sar);
     Alias *awsar = new Alias(NULL, "awsar", wsar);
-    std::string st1, st2;
-    std::string const *stp1, *stp2;
+    String st1, st2;
+    String const *stp1, *stp2;
     ix->activate();
     sc->activate();
     sar->activate();
     wsar->activate();
-    ix->setValue((int32_t) 1);
+    ix->setValue((Integer) 1);
     assertTrue_1(!asar->isActive());
     assertTrue_1(!awsar->isActive());
     assertTrue_1(!asar->isKnown());
@@ -714,27 +727,27 @@ static bool testAliasToArrayReference()
     assertTrue_1(asar->isKnown());
     assertTrue_1(awsar->isKnown());
     assertTrue_1(sar->getValue(st1));
-    assertTrue_1(st1 == std::string("one"));
+    assertTrue_1(st1 == String("one"));
     assertTrue_1(asar->getValue(st2));
     assertTrue_1(st1 == st2);
     assertTrue_1(awsar->getValue(st2));
     assertTrue_1(st1 == st2);
     assertTrue_1(sar->getValuePointer(stp1));
-    assertTrue_1(*stp1 == std::string("one"));
+    assertTrue_1(*stp1 == String("one"));
     assertTrue_1(asar->getValuePointer(stp2));
     assertTrue_1(*stp1 == *stp2);
     assertTrue_1(awsar->getValuePointer(stp2));
     assertTrue_1(*stp1 == *stp2);
 
-    ix->setValue((int32_t) 0);
+    ix->setValue((Integer) 0);
     assertTrue_1(sar->getValue(st1));
-    assertTrue_1(st1 == std::string("zero"));
+    assertTrue_1(st1 == String("zero"));
     assertTrue_1(asar->getValue(st2));
     assertTrue_1(st1 == st2);
     assertTrue_1(awsar->getValue(st2));
     assertTrue_1(st1 == st2);
     assertTrue_1(sar->getValuePointer(stp1));
-    assertTrue_1(*stp1 == std::string("zero"));
+    assertTrue_1(*stp1 == String("zero"));
     assertTrue_1(asar->getValuePointer(stp2));
     assertTrue_1(*stp1 == *stp2);
     assertTrue_1(awsar->getValuePointer(stp2));
@@ -763,7 +776,8 @@ static BooleanConstant dummy; // used as prop source
 
 static bool testVariableAliasPropagation()
 {
-  IntegerVariable *tree = new IntegerVariable(3);
+  IntegerVariable *tree = new IntegerVariable();
+  tree->setInitializer(new IntegerConstant(3), true);
   Alias *atree = new Alias(NULL, "atree", tree);
   bool treeChanged, atreeChanged;
   TrivialListener *treeListener = new TrivialListener(treeChanged);
@@ -794,7 +808,7 @@ static bool testVariableAliasPropagation()
   atreeChanged = false;
 
   // Test change propagation from origin to/through alias
-  tree->notifyChanged(&dummy);
+  tree->setValue((Integer) 1);
   assertTrue_1(treeChanged);
   assertTrue_1(atreeChanged);
 
@@ -812,12 +826,13 @@ static bool testVariableAliasPropagation()
 
 static bool testArrayAliasPropagation()
 {
-  std::vector<int32_t> vi(4);
+  IntegerArrayVariable *ary = new IntegerArrayVariable;
+  std::vector<Integer> vi(4);
   vi[0] = 2;
   vi[1] = 4;
   vi[2] = 6;
   vi[3] = 8;
-  IntegerArrayVariable *ary = new IntegerArrayVariable(vi);
+  ary->setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
   Alias *aary = new Alias(NULL, "aary", ary);
   bool aryChanged, aaryChanged;
   TrivialListener *aryListener = new TrivialListener(aryChanged);
@@ -865,13 +880,15 @@ static bool testArrayAliasPropagation()
 
 static bool testArrayRefAliasPropagation()
 {
-  std::vector<int32_t> vi(4);
+  IntegerArrayVariable *ary = new IntegerArrayVariable;
+  std::vector<Integer> vi(4);
   vi[0] = 2;
   vi[1] = 4;
   vi[2] = 6;
   vi[3] = 8;
-  IntegerArrayVariable *ary = new IntegerArrayVariable(vi);
-  IntegerVariable *tree = new IntegerVariable(3);
+  ary->setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
+  IntegerVariable *tree = new IntegerVariable();
+  tree->setInitializer(new IntegerConstant(3), true);
   Alias *atree = new Alias(NULL, "atree", tree);
   MutableArrayReference *ref = new MutableArrayReference(ary, atree);
   Alias *aref = new Alias(NULL, "aref", ref);
@@ -938,17 +955,17 @@ static bool testArrayRefAliasPropagation()
   assertTrue_1(arefChanged);
   aryChanged = refChanged = arefChanged = false;
 
-  tree->notifyChanged(&dummy);
+  tree->setValue((Integer) 2);
   assertTrue_1(atreeChanged);
   assertTrue_1(!aryChanged);
   assertTrue_1(refChanged);
   assertTrue_1(arefChanged);
   atreeChanged = refChanged = arefChanged = false;
 
-  ref->notifyChanged(&dummy);
+  ref->setValue((Integer) 7);
   assertTrue_1(refChanged);
   assertTrue_1(arefChanged);
-  assertTrue_1(!aryChanged);
+  assertTrue_1(aryChanged);
   assertTrue_1(!atreeChanged);
 
   // Clean up

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ namespace PLEXIL {
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(Boolean &result) const;
+    bool getValue(Boolean &result) const;
 
     /**
      * @brief Set the value for this object.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -166,14 +166,14 @@ namespace PLEXIL
    * @return True if known, false if unknown.
    */
   template <typename T>
-  bool Constant<T>::getValueImpl(T& result) const
+  bool Constant<T>::getValue(T& result) const
   {
     if (m_known)
       result = m_value;
     return m_known;
   }
 
-  bool Constant<String>::getValueImpl(String& result) const
+  bool Constant<String>::getValue(String& result) const
   {
     if (m_known)
       result = m_value;
@@ -185,7 +185,7 @@ namespace PLEXIL
    * @param ptr Reference to the pointer variable to receive the result.
    * @return True if known, false if unknown.
    */
-  bool Constant<String>::getValuePointerImpl(String const *&ptr) const
+  bool Constant<String>::getValuePointer(String const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -193,7 +193,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool Constant<ArrayImpl<T> >::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
+  bool Constant<ArrayImpl<T> >::getValuePointer(ArrayImpl<T> const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;

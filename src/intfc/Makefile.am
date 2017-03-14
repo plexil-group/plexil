@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  QueueEntry.hh ResourceArbiterInterface.hh State.hh \
  StateCacheEntry.hh StateCacheMap.hh Update.hh resource-tags.hh
 
-libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
+libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
  Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \

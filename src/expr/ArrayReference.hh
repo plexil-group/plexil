@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
 #include "Value.hh"
 
 namespace PLEXIL {
+
+  class ArrayVariable;
 
   class ArrayReference : public NotifierImpl
   {
@@ -153,22 +155,6 @@ namespace PLEXIL {
     virtual void setUnknown();
 
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     */
-    virtual void setValue(Boolean const &val);
-    virtual void setValue(Integer const &val);
-    virtual void setValue(Real const &val);
-    virtual void setValue(String const &val);
-
-    /**
-     * @brief Set the value for this expression from another Expression.
-     * @param valex The expression from which to obtain the new value.
-     * @note May cause change notifications to occur.
-     */
-    virtual void setValue(Expression const &valex);
-
-    /**
      * @brief Set the value for this expression from a generic Value.
      * @param val The Value.
      * @note May cause change notifications to occur.
@@ -176,17 +162,6 @@ namespace PLEXIL {
     virtual void setValue(Value const &value);
 
     using Assignable::setValue;
-
-    /**
-     * @brief Retrieve a writable pointer to the value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     * @note Default method returns false and reports a type error.
-     */
-    bool getMutableValuePointer(std::string *& ptr);
-
-    // Throws an exception
-    virtual bool getMutableValuePointer(Array *& ptr);
 
     virtual void saveCurrentValue();
     virtual void restoreSavedValue();
@@ -198,11 +173,6 @@ namespace PLEXIL {
     virtual Expression *getBaseVariable();
     virtual Expression const *getBaseVariable() const;
 
-  protected:
-
-    // Wrap NotifierImpl method
-    void publishChange(Expression const *src); // N.B.: NOT VIRTUAL!!!
-
   private:
     // Default, copy, assignment disallowed
     MutableArrayReference();
@@ -210,10 +180,9 @@ namespace PLEXIL {
     MutableArrayReference &operator=(const MutableArrayReference &);
 
     // Internal function
-    bool mutableSelfCheck(Array *&ary, size_t &idx);
+    bool mutableSelfCheck(size_t &idx);
 
-    // FIXME: make this a pointer to ArrayVariable
-    Assignable *m_mutableArray;
+    ArrayVariable *m_mutableArray;
     Value m_savedValue;
     bool m_saved;
   };

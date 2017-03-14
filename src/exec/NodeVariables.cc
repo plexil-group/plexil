@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ namespace PLEXIL
   {
   }
 
-  bool StateVariable::getValueImpl(uint16_t &result) const
+  bool StateVariable::getValue(uint16_t &result) const
   {
     result = m_node.getState();
     return true;
@@ -85,7 +85,7 @@ namespace PLEXIL
     return (outcome == NO_OUTCOME);
   }
 
-  bool OutcomeVariable::getValueImpl(uint16_t &result) const
+  bool OutcomeVariable::getValue(uint16_t &result) const
   {
     uint16_t outcome = m_node.getOutcome();
     if (outcome == NO_OUTCOME)
@@ -133,7 +133,7 @@ namespace PLEXIL
     return (ftype == NO_FAILURE);
   }
 
-  bool FailureVariable::getValueImpl(uint16_t &result) const
+  bool FailureVariable::getValue(uint16_t &result) const
   {
     uint16_t ftype = m_node.getFailureType();
     if (ftype == NO_FAILURE)

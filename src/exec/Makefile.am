@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc \
- NodeFunction.cc NodeOperatorImpl.cc \
+ NodeFunction.cc NodeOperator.cc NodeOperatorImpl.cc \
  NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc UpdateNode.cc VariableConflictSet.cc \
  plan-utils.cc

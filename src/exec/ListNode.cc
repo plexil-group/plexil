@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ namespace PLEXIL
     {
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished, Boolean);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished);
 
     bool checkArgCount(size_t count) const
     {
@@ -93,7 +93,7 @@ namespace PLEXIL
     {
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, Boolean);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished);
 
     bool checkArgCount(size_t count) const
     {

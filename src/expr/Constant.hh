@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ namespace PLEXIL {
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(T &result) const;
+    bool getValue(T &result) const;
 
     /**
      * @brief Query whether the expression's value is known.
@@ -182,14 +182,14 @@ namespace PLEXIL {
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValueImpl(String &result) const;
+    bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(String const *& ptr) const;
+    bool getValuePointer(String const *& ptr) const;
 
     /**
      * @brief Query whether the expression's value is known.
@@ -284,7 +284,7 @@ namespace PLEXIL {
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(ArrayImpl<T> const *& ptr) const;
+    bool getValuePointer(ArrayImpl<T> const *& ptr) const;
 
     /**
      * @brief Query whether the expression's value is known.

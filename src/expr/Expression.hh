@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -191,12 +191,12 @@ namespace PLEXIL
      * @note Derived classes should implement only the appropriate methods.
      */
 
-    virtual bool getValue(Boolean &result) const = 0;
-    virtual bool getValue(uint16_t &result) const = 0;
-    virtual bool getValue(Integer &result) const = 0;
-    virtual bool getValue(Real &result) const = 0;
+    virtual bool getValue(Boolean &result) const;
+    virtual bool getValue(uint16_t &result) const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
 
-    virtual bool getValue(String &result) const = 0;
+    virtual bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this object.
@@ -206,14 +206,14 @@ namespace PLEXIL
      * @note Derived classes should implement only the appropriate methods.
      */
 
-    virtual bool getValuePointer(String const *&ptr) const = 0;
+    virtual bool getValuePointer(String const *&ptr) const;
 
-    virtual bool getValuePointer(Array const *&ptr) const = 0;
+    virtual bool getValuePointer(Array const *&ptr) const;
 
-    virtual bool getValuePointer(BooleanArray const *&ptr) const = 0;
-    virtual bool getValuePointer(IntegerArray const *&ptr) const = 0;
-    virtual bool getValuePointer(RealArray const *&ptr) const = 0;
-    virtual bool getValuePointer(StringArray const *&ptr) const = 0;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
     //
     // Expression notification graph API

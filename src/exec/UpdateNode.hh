@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,6 @@ namespace PLEXIL
     virtual void createConditionWrappers();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
-    virtual void specializedReset();
 
     virtual bool getDestStateFromExecuting();
     virtual bool getDestStateFromFailing();

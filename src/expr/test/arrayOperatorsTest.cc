@@ -50,7 +50,7 @@ static bool testArraySize()
   Function *rl = makeFunction(&lop, &rav, false);
   Function *sl = makeFunction(&lop, &sav, false);
 
-  int32_t len;
+  Integer len;
 
   // test inactive
   assertTrue_1(!bl->getValue(len));
@@ -120,20 +120,16 @@ static bool testArraySize()
   assertTrue_1(!rl->getValue(len));
   assertTrue_1(!sl->getValue(len));
 
-  // Reactivate
+  // Reactivate, should revert to unknown
   bl->activate();
   il->activate();
   rl->activate();
   sl->activate();
 
-  assertTrue_1(bl->getValue(len));
-  assertTrue_1(len == 8);
-  assertTrue_1(il->getValue(len));
-  assertTrue_1(len == 8);
-  assertTrue_1(rl->getValue(len));
-  assertTrue_1(len == 8);
-  assertTrue_1(sl->getValue(len));
-  assertTrue_1(len == 8);
+  assertTrue_1(!bl->getValue(len));
+  assertTrue_1(!il->getValue(len));
+  assertTrue_1(!rl->getValue(len));
+  assertTrue_1(!sl->getValue(len));
 
   // Assign unknown arrays
   BooleanArrayConstant unknownbac;

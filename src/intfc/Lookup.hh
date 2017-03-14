@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -185,7 +185,7 @@ namespace PLEXIL
     virtual void invalidateOldState(); // called before updating state to new value
 
     // Shared behavior needed by LookupOnChange
-    bool handleChangeInternal(Expression const *src);
+    bool handleChangeInternal();
     void ensureRegistered();
     void unregister();
     
@@ -225,7 +225,7 @@ namespace PLEXIL
     // Wrappers around Lookup methods
     void handleActivate();
     void handleDeactivate();
-    void handleChange(Expression const *exp);
+    void handleChange(Expression const *src);
     void valueChanged();
 
     bool getThresholds(Integer &high, Integer &low);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ namespace PLEXIL
     {
     }
     
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown, Boolean)
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
 
     bool checkArgCount(size_t count) const
     {
@@ -114,7 +114,7 @@ namespace PLEXIL
       return true;
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, Boolean)
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible)
 
   private:
 
@@ -572,12 +572,6 @@ namespace PLEXIL
   {
     assertTrue_1(m_command);
     m_command->deactivate();
-  }
-
-  void CommandNode::specializedReset()
-  {
-    assertTrue_1(m_command);
-    m_command->reset();
   }
 
   // Unit test utility

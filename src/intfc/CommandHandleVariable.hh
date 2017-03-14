@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ namespace PLEXIL
     /**
      * @brief Get the current value of the command handle.
      */
-    bool getValueImpl(uint16_t &) const;
+    bool getValue(uint16_t &) const;
 
     // Command notifies variable when value changes
     void valueChanged();

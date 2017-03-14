@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,15 +43,12 @@ class TestInterface : public ExternalInterface
 {
 public:
   TestInterface()
-    : ExternalInterface(),
-      m_listener(*this) 
+    : ExternalInterface()
   {
   }
 
   ~TestInterface() 
   {
-    for (std::set<Expression *>::iterator it = m_exprs.begin(); it != m_exprs.end(); ++it)
-      (*it)->removeListener(&m_listener);
   }
 
   //
@@ -121,9 +118,10 @@ public:
  
   void watch(const char* name, Expression *expr)
   {
-    if (m_exprs.find(expr) == m_exprs.end()) {
-      expr->addListener(&m_listener);
-      m_exprs.insert(expr);
+    if (m_listeners.find(expr) == m_listeners.end()) {
+      ChangeListener * l = newListener(expr);
+      expr->addListener(l);
+      m_listeners[expr] = l;
     }
     std::string nameStr(name);
     m_changingExprs.insert(std::pair<std::string, Expression *>(nameStr, expr));
@@ -132,9 +130,11 @@ public:
 
   void unwatch(const char* name, Expression *expr)
   {
-    if (m_exprs.find(expr) != m_exprs.end()) {
-      m_exprs.erase(expr);
-      expr->removeListener(&m_listener);
+    if (m_listeners.find(expr) != m_listeners.end()) {
+      ChangeListener *l = m_listeners[expr];
+      expr->removeListener(l);
+      m_listeners.erase(expr);
+      delete l;
     }
     std::string nameStr(name);
     m_changingExprs.erase(nameStr);
@@ -152,7 +152,6 @@ public:
   }
 
 protected:
-  friend class ChangeListener;
 
   // Not used
 
@@ -172,7 +171,7 @@ protected:
   // API for unit test
   //
 
-  void notifyChanged(Expression const *n)
+  void expressionChanged(Expression const *n)
   {
     Expression const *expression = dynamic_cast<Expression const *>(n);
     assertTrue_1(expression);
@@ -185,34 +184,47 @@ protected:
   }
 
 private:
+
   class ChangeListener : public ExpressionListener 
   {
   public:
-    ChangeListener(TestInterface& intf)
+    ChangeListener(TestInterface *intf, Expression *expr)
     : ExpressionListener(),
-      m_intf(intf)
+      m_intf(intf),
+      m_expr(expr)
     {
     }
 
-    void notifyChanged(Expression const *src)
+    ~ChangeListener() {}
+
+    void notifyChanged(Expression const * /* src */)
     {
-      m_intf.notifyChanged(src);
+      m_intf->expressionChanged(m_expr);
     }
 
   private:
-    TestInterface& m_intf;
+    // Not implemented
+    ChangeListener(ChangeListener const &);
+    ChangeListener &operator=(ChangeListener const &);
+
+    TestInterface *m_intf;
+    Expression *m_expr;
   };
+
+  ChangeListener *newListener(Expression *exp)
+  {
+    return new ChangeListener(this, exp);
+  }
 
   typedef std::map<std::string, std::pair<Real, Real > > ThresholdMap; 
 
-  std::set<Expression *> m_exprs;
+  std::map<Expression const *, ChangeListener *> m_listeners;
   std::map<std::string, Expression *> m_changingExprs; //map of names to expressions being watched
   ThresholdMap m_thresholds;
   std::multimap<Expression const *, std::string> m_exprsToStateName; //make of watched expressions to their state names
   std::multimap<Expression const *, Expression *> m_listeningExprs; //map of changing expressions to listening expressions
   std::map<Expression const *, Real> m_tolerances; //map of dest expressions to tolerances
   std::map<Expression const *, Value> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
-  ChangeListener m_listener;
 };
 
 static TestInterface *theInterface = NULL;
@@ -229,7 +241,8 @@ static bool testLookupNow()
   StringConstant high("high");
   StringConstant low("low");
 
-  StringVariable test4("test1");
+  StringVariable test4;
+  test4.setInitializer(new StringConstant("test1"), true);
 
   Expression *l1 = new Lookup(&test1, false, UNKNOWN_TYPE);
 
@@ -330,13 +343,16 @@ static bool testLookupNow()
 static bool testLookupOnChange() 
 {
   StringConstant changeTest("changeTest");
-  StringVariable changeWithToleranceTest("changeWithToleranceTest");
-  RealVariable watchVar(0.0);
+  StringVariable changeWithToleranceTest;
+  changeWithToleranceTest.setInitializer(new StringConstant("changeWithToleranceTest"), true);
+  RealVariable watchVar;
+  watchVar.setInitializer(new RealConstant(0.0), true);
   watchVar.activate();
   theInterface->watch("changeTest", &watchVar);
   theInterface->watch("changeWithToleranceTest", &watchVar);
 
-  RealVariable tolerance(0.5);
+  RealVariable tolerance;
+  tolerance.setInitializer(new RealConstant(0.5), true);
   Real temp;
 
   Lookup l1(&changeTest, false, UNKNOWN_TYPE);
@@ -360,6 +376,8 @@ static bool testLookupOnChange()
   assertTrue_1(l1.getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(changeNotified);
+
+  changeWithToleranceTest.activate();
   l2.activate();
   assertTrue_1(tolerance.isActive());
   assertTrue_1(l2.getValue(temp));
@@ -506,13 +524,17 @@ static bool testLookupOnChange()
 
 static bool testThresholdUpdate()
 {
-  StringVariable thresholdTest("thresholdTest");
-  RealVariable watchVar(0.0);
+  StringVariable thresholdTest;
+  thresholdTest.setInitializer(new StringConstant("thresholdTest"), true);
+  RealVariable watchVar;
+  watchVar.setInitializer(new RealConstant(0.0), true);
   watchVar.activate();
   theInterface->watch("thresholdTest", &watchVar);
 
-  RealVariable tolerance2(0.5);
-  RealVariable tolerance3(0.75);
+  RealVariable tolerance2;
+  tolerance2.setInitializer(new RealConstant(0.5), true);
+  RealVariable tolerance3;
+  tolerance3.setInitializer(new RealConstant(0.75), true);
   Real temp, hi, lo;
 
   LookupOnChange l2(&thresholdTest, false, UNKNOWN_TYPE,

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -219,7 +219,7 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  bool UserVariable<T>::getValueImpl(T &result) const
+  bool UserVariable<T>::getValue(T &result) const
   {
     if (!this->isActive())
       return false;
@@ -228,7 +228,7 @@ namespace PLEXIL {
     return m_known;
   }
 
-  bool UserVariable<String>::getValueImpl(String &result) const
+  bool UserVariable<String>::getValue(String &result) const
   {
     if (!this->isActive())
       return false;
@@ -237,7 +237,7 @@ namespace PLEXIL {
     return m_known;
   }
 
-  bool UserVariable<String>::getValuePointerImpl(String const *&ptr) const
+  bool UserVariable<String>::getValuePointer(String const *&ptr) const
   {
     if (!this->isActive())
       return false;
@@ -247,36 +247,10 @@ namespace PLEXIL {
   }
 
   template <typename U>
-  bool UserVariable<String>::getValuePointerImpl(U const *&ptr) const
+  bool UserVariable<String>::getValuePointer(U const *&ptr) const
   {
     assertTrue_2(ALWAYS_FAIL, "UserVariable::getValuePointer type error");
     return false;
-  }
-
-  template <typename T>
-  bool UserVariable<T>::getMutableValuePointer(Array *&ptr)
-  {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Can't get writable array pointer from "
-                  << PlexilValueType<T>::typeName
-                  << " variable");
-    return false;
-  }
-
-  bool UserVariable<String>::getMutableValuePointer(Array *&ptr)
-  {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Can't get writable array pointer from String variable");
-    return false;
-  }
-
-  bool UserVariable<String>::getMutableValuePointerImpl(String *&ptr)
-  {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      ptr = &m_value;
-    return m_known;
   }
 
   // A variable takes its initial value when first activated,

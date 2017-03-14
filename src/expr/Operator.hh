@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,18 +47,15 @@ namespace PLEXIL
     {
     }
 
-    std::string const &getName() const
-    {
-      return m_name;
-    }
+    std::string const &getName() const;
 
     // Delegated to each individual operator.
     // Default method returns false.
-    virtual bool checkArgCount(size_t count) const { return false; }
+    virtual bool checkArgCount(size_t count) const;
 
     // Delegated to each individual operator.
     // Default method returns true.
-    virtual bool checkArgTypes(Function const *ev) const { return true; }
+    virtual bool checkArgTypes(Function const *ev) const;
 
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;
@@ -67,9 +64,9 @@ namespace PLEXIL
 
     // Local macro to generate a truckload of boilerplate
 #define DECLARE_OPERATOR_METHODS(_rtype_) \
-    virtual bool operator()(_rtype_ &result, Expression const *arg) const = 0; \
-    virtual bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const = 0; \
-    virtual bool operator()(_rtype_ &result, Function const &args) const = 0; \
+    virtual bool operator()(_rtype_ &result, Expression const *arg) const; \
+    virtual bool operator()(_rtype_ &result, Expression const *arg0, Expression const *arg1) const; \
+    virtual bool operator()(_rtype_ &result, Function const &args) const;
 
     DECLARE_OPERATOR_METHODS(Boolean)
     DECLARE_OPERATOR_METHODS(Integer)
@@ -91,10 +88,7 @@ namespace PLEXIL
     virtual Value toValue(void *cache, Function const &exprs) const = 0;
 
   protected:
-    Operator(std::string const &name)
-      : m_name(name)
-    {
-    }
+    Operator(std::string const &name);
 
     std::string const m_name;
 

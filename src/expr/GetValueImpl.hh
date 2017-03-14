@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,59 +31,11 @@
 
 namespace PLEXIL
 {
-  //*
-  // @class GetValueShim
-  // @brief CRTP template adapter for strongly typed Expression classes
-
-  template <class IMPL>
-  class GetValueShim : public virtual Expression
-  {
-  protected:
-    GetValueShim()
-    {
-    }
-  
-  private:
-    // not implemented
-    GetValueShim(GetValueShim const &);
-
-  public:
-    ~GetValueShim() {}
-
-    // Local macro
-#define DEFINE_GET_VALUE_METHOD_SHIM(_type_) \
-  bool getValue(_type_ &result) const \
-  { return static_cast<IMPL const *>(this)->getValueImpl(result); }
-
-    DEFINE_GET_VALUE_METHOD_SHIM(Boolean)
-    DEFINE_GET_VALUE_METHOD_SHIM(uint16_t)
-    DEFINE_GET_VALUE_METHOD_SHIM(Integer)
-    DEFINE_GET_VALUE_METHOD_SHIM(Real)
-    DEFINE_GET_VALUE_METHOD_SHIM(String)
-
-#undef DEFINE_GET_VALUE_METHOD_SHIM
-
-    // Local macro
-#define DEFINE_GET_VALUE_POINTER_METHOD_SHIM(_type_) \
-  bool getValuePointer(_type_ const *&ptr) const \
-  { return static_cast<IMPL const *>(this)->getValuePointerImpl(ptr); }
-
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(String)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(Array)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(BooleanArray)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(IntegerArray)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(RealArray)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(StringArray)
-
-#undef DEFINE_GET_VALUE_POINTER_METHOD_SHIM
-
-  };
 
   //*
   // @class GetValueImpl
-  // @brief CRTP template class
   template <typename T>
-  class GetValueImpl : public GetValueShim<GetValueImpl<T> >
+  class GetValueImpl : public virtual Expression
   {
   protected:
     GetValueImpl() {}
@@ -100,51 +52,87 @@ namespace PLEXIL
      * @return A constant enumeration.
      * @note May be overridden by derived classes.
      */
-    ValueType valueType() const;
+    virtual ValueType valueType() const;
 
     /**
      * @brief Determine whether the value is known or unknown.
      * @return True if known, false otherwise.
      * @note May be overridden by derived classes.
      */
-    bool isKnown() const;
+    virtual bool isKnown() const;
 
     /**
      * @brief Get the value of this expression as a Value instance.
      * @return The Value instance.
      */
-    Value toValue() const;
+    virtual Value toValue() const;
 
     /**
      * @brief Retrieve the value of this object in its native type.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValueImpl(T &result) const = 0;
+    virtual bool getValue(T &result) const = 0;
 
-    // Conversion wrapper, error if particular conversion not supported
-    template <typename U>
-    bool getValueImpl(U &result) const;
+    virtual void printValue(std::ostream &s) const;
+
+  };
+
+  // Specialization for Integer
+  template <>
+  class GetValueImpl<Integer> : public virtual Expression
+  {
+  protected:
+    GetValueImpl() {}
+
+  private:
+    // Not implemented
+    GetValueImpl(GetValueImpl const &);
+
+  public:
+    ~GetValueImpl() {}
 
     /**
-     * @brief Retrieve the value of this object as a pointer to const.
-     * @param ptr Reference to the pointer variable.
-     * @return True if known, false if unknown.
-     * @note These are errors for Boolean and numeric expressions.
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
      */
+    virtual ValueType valueType() const;
 
-    // Error for scalar types
-    bool getValuePointerImpl(T const *&) const;
-    template <typename U>
-    bool getValuePointerImpl(U const *&) const;
+    /**
+     * @brief Determine whether the value is known or unknown.
+     * @return True if known, false otherwise.
+     * @note May be overridden by derived classes.
+     */
+    virtual bool isKnown() const;
 
-    void printValue(std::ostream &s) const;
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const;
 
+    /**
+     * @brief Retrieve the value of this object in its native type.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValue(Integer &result) const = 0;
+
+    /**
+     * @brief Retrieve the value of this object as a Real.
+     * @param Reference to Real variable.
+     * @return True if known, false if unknown.
+     * @note Conversion method.
+     */
+    virtual bool getValue(Real &result) const;
+
+    virtual void printValue(std::ostream &s) const;
   };
 
   // Specialization for string
   template <>
-  class GetValueImpl<String> : public GetValueShim<GetValueImpl<String> >
+  class GetValueImpl<String> : public virtual Expression
   {
   protected:
     GetValueImpl() {}
@@ -161,49 +149,41 @@ namespace PLEXIL
      * @return A constant enumeration.
      * @note May be overridden by derived classes.
      */
-    ValueType valueType() const;
+    virtual ValueType valueType() const;
 
     /**
      * @brief Determine whether the value is known or unknown.
      * @return True if known, false otherwise.
      * @note May be overridden by derived classes.
      */
-    bool isKnown() const;
+    virtual bool isKnown() const;
 
     /**
      * @brief Get the value of this expression as a Value instance.
      * @return The Value instance.
      */
-    Value toValue() const;
+    virtual Value toValue() const;
 
     /**
      * @brief Retrieve the value of this object in its native type.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValueImpl(String &result) const = 0;
-
-    // Conversion wrapper, error if particular conversion not supported
-    template <typename U>
-    bool getValueImpl(U &result) const;
+    virtual bool getValue(String &result) const = 0;
 
     /**
      * @brief Retrieve the value of this object as a pointer to const.
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointerImpl(String const *&) const = 0;
+    virtual bool getValuePointer(String const *&) const = 0;
 
-    // Type error
-    template <typename U>
-    bool getValuePointerImpl(U const *&) const;
-
-    void printValue(std::ostream &s) const;
+    virtual void printValue(std::ostream &s) const;
   };
 
   // Specialization for array types
   template <typename T>
-  class GetValueImpl<ArrayImpl<T> > : public GetValueShim<GetValueImpl<ArrayImpl<T> > >
+  class GetValueImpl<ArrayImpl<T> > : public virtual Expression
   {
   protected:
     GetValueImpl() {}
@@ -220,42 +200,30 @@ namespace PLEXIL
      * @return A constant enumeration.
      * @note May be overridden by derived classes.
      */
-    ValueType valueType() const;
+    virtual ValueType valueType() const;
 
     /**
      * @brief Determine whether the value is known or unknown.
      * @return True if known, false otherwise.
      * @note May be overridden by derived classes.
      */
-    bool isKnown() const;
+    virtual bool isKnown() const;
 
     /**
      * @brief Get the value of this expression as a Value instance.
      * @return The Value instance.
      */
-    Value toValue() const;
-
-    // Not implemented - no implicit copying allowed
-    bool getValueImpl(ArrayImpl<T> &result) const;
-
-    // Type mismatches
-    template <typename U>
-    bool getValueImpl(U &result) const;
+    virtual Value toValue() const;
 
     /**
      * @brief Retrieve the value of this object as a pointer to const.
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointerImpl(ArrayImpl<T> const *&) const = 0;
-    bool getValuePointerImpl(Array const *& ptr) const;
+    virtual bool getValuePointer(ArrayImpl<T> const *&) const = 0;
+    virtual bool getValuePointer(Array const *& ptr) const;
 
-    // Error for type mismatch
-    template <typename U>
-    bool getValuePointerImpl(U const *&) const;
-
-    void printValue(std::ostream &s) const;
-
+    virtual void printValue(std::ostream &s) const;
   };
 
 }

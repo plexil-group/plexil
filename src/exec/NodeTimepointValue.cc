@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool NodeTimepointValue::getValueImpl(Real &result) const // FIXME
+  bool NodeTimepointValue::getValue(Real &result) const // FIXME
   {
     if (m_known)
       result = m_time;
@@ -101,7 +101,7 @@ namespace PLEXIL
   void NodeTimepointValue::printValue(std::ostream &s) const
   {
     Real tym;
-    if (getValueImpl(tym))
+    if (getValue(tym))
       s << std::setprecision(15) << tym; // FIXME: needs better format
     else
       s << UNKNOWN_STR;

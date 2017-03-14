@@ -129,7 +129,7 @@ namespace PLEXIL
       tmp->expr->activate();
       tmp = tmp->next;
     }
-    m_ack.activate();
+    m_ack.activate(); // resets to false
   }
 
   void Update::execute()
@@ -154,11 +154,6 @@ namespace PLEXIL
       tmp = tmp->next;
     }
     m_ack.deactivate();
-  }
-
-  void Update::reset() 
-  {
-    m_ack.reset();
   }
 
 }

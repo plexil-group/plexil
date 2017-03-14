@@ -381,8 +381,17 @@ namespace PLEXIL
     check_error_1(!m_active);
     check_error_1(m_nameExpr);
 
+    m_commandHandle = NO_COMMAND_HANDLE;
     m_ack.activate();
     m_abortComplete.activate();
+
+    // Will always be false on first activation
+    // and if relevant parameters are not constants
+    if (!m_commandIsConstant)
+      m_commandFixed = false;
+    if (!m_resourcesAreConstant)
+      m_resourcesFixed = false;
+
     if (m_dest)
       m_dest->activate();
 
@@ -490,19 +499,6 @@ namespace PLEXIL
         m_argVec->deactivate();
       m_commandFixed = false;
     }
-  }
-
-  void Command::reset()
-  {
-    check_error_1(!m_active); // should never be called while active
-
-    m_commandHandle = NO_COMMAND_HANDLE;
-    m_abortComplete.reset();
-
-    if (!m_commandIsConstant)
-      m_commandFixed = false;
-    if (!m_resourcesAreConstant)
-      m_resourcesFixed = false;
   }
 
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,76 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_UPDATE_HH
-#define PLEXIL_UPDATE_HH
-
-#include "SimpleBooleanVariable.hh"
-#include "Value.hh"
-
-#include "SimpleMap.hh"
-
 namespace PLEXIL
 {
-  // Forward declarations in PLEXIL namespace
-  class NodeConnector;
-  struct Pair;
 
-  class Update 
-  {
-  public:
-    typedef SimpleMap<std::string, Value> PairValueMap;
+  //
+  // Specialized allocator for Operator result caches
+  //
 
-    Update(NodeConnector *node);
+  template <typename T>
+  T *allocateCache();
 
-    ~Update();
-
-    //
-    // Parser API
-    //
-
-    void reservePairs(size_t n);
-    // Return true if OK, false if name is a duplicate
-    bool addPair(std::string const &name, Expression *exp, bool garbage);
-
-    Expression *getAck() {return &m_ack;}
-    const PairValueMap& getPairs() const {return m_valuePairs;}
-    NodeConnector *getSource() {return m_source;}
-    NodeConnector const *getSource() const {return m_source;}
-    void activate();
-    void deactivate();
-
-    void execute();
-    void acknowledge(bool ack);
-
-    void cleanUp();
-
-    // Made public for parser unit test
-    void fixValues();
-
-    // LinkedQueue item API
-    Update *next() const
-    {
-      return m_next;
-    }
-
-    Update **nextPtr()
-    {
-      return &m_next;
-    }
-
-  private:
-    // Deliberately unimplemented
-    Update();
-    Update(Update const &);
-    Update& operator=(Update const &);
-
-    Update *m_next;
-    NodeConnector *m_source;
-    SimpleBooleanVariable m_ack;
-    Pair *m_pairs;
-    PairValueMap m_valuePairs;
-  };
+  template <typename T>
+  void deallocateCache(T *);
 
 }
-
-#endif // PLEXIL_UPDATE_HH

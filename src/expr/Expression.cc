@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "Expression.hh"
 
 #include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL 
 {
@@ -128,5 +129,62 @@ namespace PLEXIL
   void Expression::notifyChanged(Expression const * /* src */)
   {
   }
+
+  // Default methods always throw PlanError
+
+#define DEFINE_DEFAULT_GET_VALUE_METHOD(_TYPE_) \
+  bool Expression::getValue(_TYPE_ & /* result */) const    \
+  { \
+    checkPlanError(ALWAYS_FAIL, \
+                   "Can't get a " << PlexilValueType<_TYPE_>::typeName \
+                   << " value from a " << valueTypeName(this->valueType()) << " expression"); \
+    return false; \
+  }
+
+  DEFINE_DEFAULT_GET_VALUE_METHOD(Boolean)
+  DEFINE_DEFAULT_GET_VALUE_METHOD(Integer)
+  DEFINE_DEFAULT_GET_VALUE_METHOD(String)
+
+#undef DEFINE_DEFAULT_GET_VALUE_METHOD
+
+  bool Expression::getValue(uint16_t & /* result */) const    \
+  { \
+    checkPlanError(ALWAYS_FAIL, \
+                   "Can't get a Plexil internal value from a "
+                   << valueTypeName(this->valueType()) << " expression"); \
+    return false; \
+  }
+
+  // Conversion method for Integer-valued expressions
+  bool Expression::getValue(Real &result) const
+  {
+    checkPlanError(this->valueType() == INTEGER_TYPE,
+                   "Can't get a " << PlexilValueType<Real>::typeName
+                   << " value from a " << valueTypeName(this->valueType()) << " expression");
+    Integer temp;
+    if (this->getValue(temp)) {
+      result = (Real) temp;
+      return true;
+    }
+    return false; // unknown
+  }
+
+#define DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(_TYPE_) \
+  bool Expression::getValuePointer(_TYPE_ const *& /* ptr */) const \
+  { \
+    checkPlanError(ALWAYS_FAIL, \
+                   "Can't get a pointer to " << PlexilValueType<_TYPE_>::typeName \
+                   << " from a " << valueTypeName(this->valueType()) << " expression"); \
+    return false; \
+  }
+
+  DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(String)
+  DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(Array)
+  DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(BooleanArray)
+  DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(IntegerArray)
+  DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(RealArray)
+  DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(StringArray)
+
+#undef DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD
 
 } // namespace PLEXIL

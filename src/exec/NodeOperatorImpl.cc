@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ namespace PLEXIL
     if (calcNative(cache, node))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
     else
-      s << "UNKNOWN";
+      s << "[unknown_value]";
   }
 
   template <typename R>
@@ -64,7 +64,7 @@ namespace PLEXIL
     else
       return Value();
   }
-
+ 
   // Array variants unlikely to be used any time soon
 
   // template <typename R>
@@ -79,7 +79,7 @@ namespace PLEXIL
   //   if (calcNative(cache, node))
   //     PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
   //   else
-  //     s << "UNKNOWN";
+  //     s << "[unknown_value]";
   // }
 
   // template <typename R>
@@ -92,39 +92,6 @@ namespace PLEXIL
   //     return Value();
   // }
 
-  // Default methods
-  template <typename R>
-  bool NodeOperatorImpl<R>::calc(R &result, Node const * /* node */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for return type "
-                   << valueTypeName(PlexilValueType<R>::value));
-    return false;
-  }
-
-  // template <typename R>
-  // bool NodeOperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Node const * /* node */) const
-  // {
-  //   checkPlanError(ALWAYS_FAIL,
-  //                  "Operator " << this->getName() << " not implemented for return type "
-  //                  << valueTypeName(PlexilValueType<R>::arrayValue));
-  //   return false;
-  // }
-
-  // Conversion methods
-
-  // Not currently used
-  // template <>
-  // template <>
-  // bool NodeOperatorImpl<Integer>::calc(Real &result, Node const *node) const
-  // {
-  //   Integer temp;
-  //   if (!this->calc(temp, node))
-  //     return false;
-  //   result = (Real) temp;
-  //   return true;
-  // }
-
   //
   // Explicit instantiations
   //
@@ -132,10 +99,14 @@ namespace PLEXIL
   template class NodeOperatorImpl<Boolean>;
 
   // later?
-  // template class NodeOperatorImpl<uint16_t>;
+  // template class NodeOperatorImpl<NodeState>;
+  // template class NodeOperatorImpl<NodeOutcome>;
+  // template class NodeOperatorImpl<FailureType>;
+  // template class NodeOperatorImpl<CommandHandleValue>;
   // template class NodeOperatorImpl<Integer>;
   // template class NodeOperatorImpl<Real>;
   // template class NodeOperatorImpl<String>;
+
   // template class NodeOperatorImpl<BooleanArray>;
   // template class NodeOperatorImpl<IntegerArray>;
   // template class NodeOperatorImpl<RealArray>;

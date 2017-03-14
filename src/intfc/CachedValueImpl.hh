@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,14 +37,15 @@ namespace PLEXIL
   {
   public:
     VoidCachedValue();
-
     ~VoidCachedValue();
+
+    CachedValue &operator=(CachedValue const &other);
 
     ValueType valueType() const;
     bool isKnown() const;
-    CachedValue &operator=(CachedValue const &other);
     bool operator==(CachedValue const &) const;
-    CachedValue *clone() const;
+    virtual CachedValue *clone() const;
+    void printValue(std::ostream &) const;
 
     /**
      * @brief Retrieve the cached value.
@@ -117,92 +118,25 @@ namespace PLEXIL
 
     // For convenience of TestExternalInterface, others
     virtual bool update(unsigned int timestamp, Value const &val);
-  };
-  
-  // Another invocation of CRTP.
-  // This class should never be seen in public.
-  template <class IMPL>
-  class CachedValueShim : public CachedValue
-  {
-  public:
-    CachedValueShim() : CachedValue() {}
-    CachedValueShim(CachedValueShim<IMPL> const &orig) : CachedValue(orig) {}
 
-    ~CachedValueShim() {}
+  private:
+    // Not implemented
+    VoidCachedValue(VoidCachedValue const &);
 
-    inline CachedValue *clone() const
-    {
-      return static_cast<IMPL const *>(this)->cloneImpl();
-    }
-    
-    // Local macro
-#define DEFINE_GET_VALUE_METHOD_SHIM(_type_) \
-  bool getValue(_type_ &result) const \
-  { return static_cast<IMPL const *>(this)->getValueImpl(result); }
-
-    DEFINE_GET_VALUE_METHOD_SHIM(Boolean)
-    DEFINE_GET_VALUE_METHOD_SHIM(Integer)
-    DEFINE_GET_VALUE_METHOD_SHIM(Real)
-    DEFINE_GET_VALUE_METHOD_SHIM(String)
-
-#undef DEFINE_GET_VALUE_METHOD_SHIM
-
-    // Local macro
-#define DEFINE_GET_VALUE_POINTER_METHOD_SHIM(_type_) \
-  bool getValuePointer(_type_ const *&ptr) const \
-  { return static_cast<IMPL const *>(this)->getValuePointerImpl(ptr); }
-
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(String)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(Array)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(BooleanArray)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(IntegerArray)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(RealArray)
-    DEFINE_GET_VALUE_POINTER_METHOD_SHIM(StringArray)
-
-#undef DEFINE_GET_VALUE_POINTER_METHOD_SHIM
-
-    // Local macro
-#define DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(_type_) \
-    bool update(unsigned int timestamp, _type_ const &val) \
-    {return static_cast<IMPL *>(this)->updateImpl(timestamp, val);}
-
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(Boolean)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(Integer)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(Real)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(String)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD(Value)
-
-#undef DEFINE_CACHED_VALUE_SHIM_UPDATE_METHOD
-
-    // Local macro
-#define DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD(_type_) \
-    bool updatePtr(unsigned int timestamp, _type_ const *valPtr) \
-    {return static_cast<IMPL *>(this)->updatePtrImpl(timestamp, valPtr);}
-
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD(String)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD(BooleanArray)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD(IntegerArray)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD(RealArray)
-    DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD(StringArray)
-#undef DEFINE_CACHED_VALUE_SHIM_UPDATE_PTR_METHOD
-    
   };
 
   // Scalar types
   template <typename T>
-  class CachedValueImpl :
-    public CachedValueShim<CachedValueImpl<T> >
+  class CachedValueImpl : public CachedValue
   {
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<T> const &);
+    ~CachedValueImpl() {}
 
-    ~CachedValueImpl();
+    CachedValue &operator=(CachedValue const &other);
 
-    CachedValue &operator=(CachedValue const &);
-    CachedValueImpl<T> &operator=(CachedValueImpl<T> const &);
-
-    CachedValue *cloneImpl() const;
+    virtual CachedValue *clone() const;
 
     bool operator==(CachedValue const &) const;
 
@@ -231,23 +165,9 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValueImpl(T &result) const;
+    virtual bool getValue(T &result) const;
 
-    // Conversion wrapper, error if particular conversion not supported
-    template <typename U>
-    bool getValueImpl(U &result) const;
-
-    /**
-     * @brief Retrieve the value of this object as a pointer to const.
-     * @param ptr Reference to the pointer variable.
-     * @return True if known, false if unknown.
-     * @note These are errors for Boolean and numeric expressions.
-     */
-
-    // Error for scalar types
-    bool getValuePointerImpl(T const *&) const;
-    template <typename U>
-    bool getValuePointerImpl(U const *&) const;
+    void printValue(std::ostream &s) const;
 
     //
     // API to external interface
@@ -255,180 +175,143 @@ namespace PLEXIL
     
     bool setUnknown(unsigned int timestamp);
 
-    virtual bool updateImpl(unsigned int timestamp, T const &val);
+    virtual bool update(unsigned int timestamp, T const &val);
 
-    // Type conversion or invalid type
-    template <typename U>
-    bool updateImpl(unsigned int timestamp, U const &val);
-
-    bool updateImpl(unsigned int timestamp, Value const &val);
-
-    // Type error
-    template <typename U>
-    bool updatePtrImpl(unsigned int timestamp, U const *valPtr);
+    virtual bool update(unsigned int timestamp, Value const &val);
 
   private:
+    CachedValueImpl<T> &operator=(CachedValueImpl<T> const &);
+
     T m_value;
+    bool m_known;
+  };
+
+  // Integer specialized to support getValue(Real &) conversion method
+  template <>
+  class CachedValueImpl<Integer> : public CachedValue
+  {
+  public:
+    CachedValueImpl();
+    CachedValueImpl(CachedValueImpl<Integer> const &);
+    ~CachedValueImpl() {}
+
+    CachedValue &operator=(CachedValue const &other);
+
+    virtual CachedValue *clone() const;
+    bool operator==(CachedValue const &) const;
+    ValueType valueType() const;
+    bool isKnown() const;
+    Value toValue() const;
+    virtual bool getValue(Integer &result) const;
+    virtual bool getValue(Real &result) const;
+
+    void printValue(std::ostream &s) const;
+
+    bool setUnknown(unsigned int timestamp);
+    virtual bool update(unsigned int timestamp, Integer const &val);
+    virtual bool update(unsigned int timestamp, Value const &val);
+
+  private:
+    CachedValueImpl<Integer> &operator=(CachedValueImpl<Integer> const &);
+
+    Integer m_value;
+    bool m_known;
+  };
+
+  // Real specialized to support update(unsigned int, Integer const &) conversion method
+  template <>
+  class CachedValueImpl<Real> : public CachedValue
+  {
+  public:
+    CachedValueImpl();
+    CachedValueImpl(CachedValueImpl<Real> const &);
+    ~CachedValueImpl() {}
+
+    CachedValue &operator=(CachedValue const &other);
+
+    virtual CachedValue *clone() const;
+    bool operator==(CachedValue const &) const;
+    ValueType valueType() const;
+    bool isKnown() const;
+    Value toValue() const;
+    virtual bool getValue(Real &result) const;
+
+    void printValue(std::ostream &s) const;
+
+    bool setUnknown(unsigned int timestamp);
+    virtual bool update(unsigned int timestamp, Integer const &val);
+    virtual bool update(unsigned int timestamp, Real const &val);
+    virtual bool update(unsigned int timestamp, Value const &val);
+
+  private:
+    CachedValueImpl<Real> &operator=(CachedValueImpl<Real> const &);
+
+    Real m_value;
     bool m_known;
   };
 
   // String is special
   template <>
-  class CachedValueImpl<String> :
-    public CachedValueShim<CachedValueImpl<String> >
+  class CachedValueImpl<String> : public CachedValue
   {
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<String> const &);
+    ~CachedValueImpl() {}
 
-    ~CachedValueImpl();
+    CachedValue &operator=(CachedValue const &other);
 
-    CachedValue &operator=(CachedValue const &);
-    CachedValueImpl<String> &operator=(CachedValueImpl<String> const &);
-
-    CachedValue *cloneImpl() const;
-
+    virtual CachedValue *clone() const;
     bool operator==(CachedValue const &) const;
-
-    /**
-     * @brief Return the value type.
-     * @return A constant enumeration.
-     * @note May be overridden by derived classes.
-     */
     ValueType valueType() const;
-
-    /**
-     * @brief Determine whether the value is known or unknown.
-     * @return True if known, false otherwise.
-     * @note May be overridden by derived classes.
-     */
     bool isKnown() const;
-
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
     Value toValue() const;
+    virtual bool getValue(String &result) const;
+    virtual bool getValuePointer(String const *&) const;
 
-    /**
-     * @brief Retrieve the value of this object in its native type.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown.
-     */
-    virtual bool getValueImpl(String &result) const;
+    void printValue(std::ostream &s) const;
 
-    // Conversion wrapper, error if particular conversion not supported
-    template <typename U>
-    bool getValueImpl(U &result) const;
-
-    /**
-     * @brief Retrieve the value of this object as a pointer to const.
-     * @param ptr Reference to the pointer variable.
-     * @return True if known, false if unknown.
-     */
-    virtual bool getValuePointerImpl(String const *&ptr) const;
-
-    // Type error
-    template <typename U>
-    bool getValuePointerImpl(U const *&ptr) const;
-
-    // API to external interface
     bool setUnknown(unsigned int timestamp);
-
-    virtual bool updateImpl(unsigned int timestamp, String const &val);
-
-    // Type error
-    template <typename U>
-    bool updateImpl(unsigned int timestamp, U const &val);
-
-    bool updateImpl(unsigned int timestamp, Value const &val);
-
-    bool updatePtrImpl(unsigned int timestamp, String const *valPtr);
-
-    // Type error
-    template <typename U>
-    bool updatePtrImpl(unsigned int timestamp, U const *valPtr);
+    virtual bool update(unsigned int timestamp, String const &val);
+    virtual bool update(unsigned int timestamp, Value const &val);
+    virtual bool updatePtr(unsigned int timestamp, String const *valPtr);
 
   private:
+    CachedValueImpl<String> &operator=(CachedValueImpl<String> const &);
+
     String m_value;
     bool m_known;
   };
 
   // Specialized for arrays
   template <typename T>
-  class CachedValueImpl<ArrayImpl<T> > :
-    public CachedValueShim<CachedValueImpl<ArrayImpl<T> > >
+  class CachedValueImpl<ArrayImpl<T> > : public CachedValue
   {
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &);
+    ~CachedValueImpl() {}
 
-    ~CachedValueImpl();
+    CachedValue &operator=(CachedValue const &other);
 
-    CachedValue &operator=(CachedValue const &);
-    CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > const &);
-
-    CachedValue *cloneImpl() const;
-
+    virtual CachedValue *clone() const;
     bool operator==(CachedValue const &) const;
-
-    /**
-     * @brief Return the value type.
-     * @return A constant enumeration.
-     * @note May be overridden by derived classes.
-     */
     ValueType valueType() const;
-
-    /**
-     * @brief Determine whether the value is known or unknown.
-     * @return True if known, false otherwise.
-     * @note May be overridden by derived classes.
-     */
     bool isKnown() const;
-
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
     Value toValue() const;
 
-    // Not implemented - no implicit copying allowed
-    bool getValueImpl(ArrayImpl<T> &result) const;
+    virtual bool getValuePointer(Array const *&) const;
+    virtual bool getValuePointer(ArrayImpl<T> const *&) const;
 
-    // Type mismatches
-    template <typename U>
-    bool getValueImpl(U &result) const;
-
-    /**
-     * @brief Retrieve the value of this object as a pointer to const.
-     * @param ptr Reference to the pointer variable.
-     * @return True if known, false if unknown.
-     */
-    virtual bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
-    bool getValuePointerImpl(Array const *&ptr) const;
-
-    // Error for type mismatch
-    template <typename U>
-    bool getValuePointerImpl(U const *&) const;
-
-    //
-    // API to external interface
-    //
+    void printValue(std::ostream &s) const;
     
     bool setUnknown(unsigned int timestamp);
-
-    template <typename U>
-    bool updateImpl(unsigned int timestamp, U const &val);
-
-    bool updateImpl(unsigned int timestamp, Value const &val);
-
-    bool updatePtrImpl(unsigned int timestamp, ArrayImpl<T> const *valPtr);
-
-    // Type conversion or invalid type
-    template <typename U>
-    bool updatePtrImpl(unsigned int timestamp, U const *valPtr);
+    bool updatePtr(unsigned int timestamp, ArrayImpl<T> const *valPtr);
+    bool update(unsigned int timestamp, Value const &val);
 
   private:
+    CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > const &);
+
     ArrayImpl<T> m_value;
     bool m_known;
   };

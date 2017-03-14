@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,9 @@ namespace PLEXIL {
     /**
      * @brief Set the value of this expression back to the initial value with which it was
      *        created.
+     * @note Default method does nothing.
      */
-    virtual void reset() = 0;
+    virtual void reset() {}
 
     /**
      * @brief Temporarily stores the previous value of this variable.
@@ -117,19 +118,6 @@ namespace PLEXIL {
      * @param val The new value.
      */
     virtual void setValue(Value const &val) = 0;
-
-    /**
-     * @brief Set the value for this object from another expression.
-     * @param valex The expression from which to obtain the new value.
-     */
-    virtual void setValue(Expression const &valex) = 0;
-
-    /**
-     * @brief Retrieve a pointer to the non-const value.
-     * @param valuePtr Reference to the pointer variable
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    virtual bool getMutableValuePointer(Array *&ptr) = 0;
 
   private:
     // Not implemented
