@@ -168,11 +168,11 @@ namespace PLEXIL
   }
 
   // Called whenever state name or parameter changes
-  void Lookup::handleChange(Expression const *src)
+  void Lookup::handleChange()
   {
     debugMsg("Lookup:handleChange", ' ' << *this);
     if (handleChangeInternal())
-      publishChange(src);
+      publishChange();
   }
 
   // Return true if state changed, false otherwise
@@ -313,7 +313,7 @@ namespace PLEXIL
   // Callback from external interface
   void Lookup::valueChanged()
   {
-    publishChange(this);
+    publishChange();
   }
 
   bool Lookup::getThresholds(Integer &high, Integer &low)
@@ -544,7 +544,7 @@ namespace PLEXIL
     m_tolerance->activate();  // may cause calls to handleChange()
     updateInternal(true);     // may cause redundant notifications
     if (this->isKnown())
-      publishChange(this);
+      publishChange();
   }
 
   void LookupOnChange::addListener(ExpressionListener *l)
@@ -572,10 +572,10 @@ namespace PLEXIL
 
   // Consider possibility that tolerance has changed.
   // Consider possibility lookup may not be fully activated yet.
-  void LookupOnChange::handleChange(Expression const *src)
+  void LookupOnChange::handleChange()
   {
     if (updateInternal(Lookup::handleChangeInternal()))
-      publishChange(src);
+      publishChange();
   }
 
   void LookupOnChange::invalidateOldState()
@@ -598,7 +598,7 @@ namespace PLEXIL
     }
     if (updateInternal(true)) {
       debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << ": notifying listeners");
-      publishChange(this);
+      publishChange();
     }
     else {
       debugMsg("LookupOnChange:valueChanged", " for " << m_cachedState << ": no change");

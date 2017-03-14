@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -452,7 +452,7 @@ namespace PLEXIL
    * @brief Notifies the node that one of its conditions has changed.
    * @note Renamed from conditionChanged.
    */
-  void Node::notifyChanged(Expression const * /* src */)
+  void Node::notifyChanged()
   {
     g_exec->notifyNodeConditionChanged(this);
   }
@@ -1206,7 +1206,7 @@ namespace PLEXIL
       // with no parent, it cannot be reset, therefore cannot transition again.
       g_exec->markRootNodeFinished(this); // puts node on exec's finished queue
     else
-      notifyChanged(&m_stateVariable); // check for potential of additional transitions
+      notifyChanged(); // check for potential of additional transitions
   }
 
   //

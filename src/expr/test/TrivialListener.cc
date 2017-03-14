@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ TrivialListener::~TrivialListener()
 {
 }
 
-void TrivialListener::notifyChanged(PLEXIL::Expression const * /* src */)
+void TrivialListener::notifyChanged()
 {
   m_changed = true;
 }

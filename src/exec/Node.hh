@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -165,7 +165,7 @@ namespace PLEXIL {
     // ExpressionListener API
     //
 
-    virtual void notifyChanged(Expression const *src);
+    virtual void notifyChanged();
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.

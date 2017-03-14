@@ -188,6 +188,7 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
      * @note The value is not copied if the return value is false.
+     * @note Default methods throw a PlanError.
      * @note Derived classes should implement only the appropriate methods.
      */
 
@@ -203,6 +204,7 @@ namespace PLEXIL
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      * @note The pointer is not copied if the return value is false.
+     * @note Default methods throw a PlanError.
      * @note Derived classes should implement only the appropriate methods.
      */
 
@@ -227,14 +229,14 @@ namespace PLEXIL
     virtual bool isActive() const = 0;
 
     /**
-     * @brief Make this expression active.  It will publish value changes and it will accept
-     *        incoming change notifications.
+     * @brief Make this expression active.  It will publish value changes and it
+     *        will propagate incoming change notifications.
      */
     virtual void activate() = 0;
 
     /**
-     * @brief Make this listener inactive.  It will not publish value changes, nor will it
-     *        accept incoming change notifications.
+     * @brief Make this listener inactive.  It will not publish value changes, nor
+     *        will it propagate incoming change notifications.
      */
     virtual void deactivate() = 0;
 
@@ -256,10 +258,9 @@ namespace PLEXIL
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
-     * @param src The Expression which initiated the change.
      * @note This default method does nothing.
      */
-    virtual void notifyChanged(Expression const *src);
+    virtual void notifyChanged();
 
   };
 

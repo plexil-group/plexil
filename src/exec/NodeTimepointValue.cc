@@ -118,13 +118,13 @@ namespace PLEXIL
   {
     m_time = newval;
     m_known = true;
-    publishChange(this);
+    publishChange();
   }
 
   void NodeTimepointValue::reset()
   {
     m_known = false;
-    publishChange(this);
+    publishChange();
   }
 
   NodeTimepointValue *NodeTimepointValue::next() const

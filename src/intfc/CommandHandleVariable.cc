@@ -83,7 +83,7 @@ namespace PLEXIL
 
   void CommandHandleVariable::valueChanged()
   {
-    this->publishChange(this);
+    this->publishChange();
   }
   
   void CommandHandleVariable::printValue(std::ostream &s) const

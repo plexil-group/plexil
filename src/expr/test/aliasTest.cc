@@ -772,8 +772,6 @@ static bool testAliasToArrayReference()
   return true;
 }
 
-static BooleanConstant dummy; // used as prop source
-
 static bool testVariableAliasPropagation()
 {
   IntegerVariable *tree = new IntegerVariable();
@@ -787,7 +785,7 @@ static bool testVariableAliasPropagation()
   treeChanged = atreeChanged = false;
 
   // Test that notifying while inactive does nothing
-  atree->notifyChanged(tree);
+  atree->notifyChanged();
   assertTrue_1(!atreeChanged);
   assertTrue_1(!treeChanged);
 
@@ -802,7 +800,7 @@ static bool testVariableAliasPropagation()
   // Test that notifying alias doesn't notify origin
   treeChanged = atreeChanged = false;
 
-  atree->notifyChanged(tree);
+  atree->notifyChanged();
   assertTrue_1(atreeChanged);
   assertTrue_1(!treeChanged);
   atreeChanged = false;
@@ -842,7 +840,7 @@ static bool testArrayAliasPropagation()
   aryChanged = aaryChanged = false;
 
   // Test that notifying while inactive does nothing
-  aary->notifyChanged(ary);
+  aary->notifyChanged();
   assertTrue_1(!aaryChanged);
   assertTrue_1(!aryChanged);
 
@@ -856,13 +854,13 @@ static bool testArrayAliasPropagation()
 
   // Test that notifying alias doesn't notify origin
   aryChanged = aaryChanged = false;
-  aary->notifyChanged(ary);
+  aary->notifyChanged();
   assertTrue_1(aaryChanged);
   assertTrue_1(!aryChanged);
   aaryChanged = false;
 
   // Test change propagation from origin to/through alias
-  ary->notifyChanged(&dummy);
+  ary->notifyChanged();
   assertTrue_1(aryChanged);
   assertTrue_1(aaryChanged);
 
@@ -908,10 +906,10 @@ static bool testArrayRefAliasPropagation()
   aryChanged = atreeChanged = refChanged = arefChanged = false;
 
   // Test that notifying while inactive does nothing
-  atree->notifyChanged(tree);
+  atree->notifyChanged();
   assertTrue_1(!atreeChanged);
 
-  aref->notifyChanged(ref);
+  aref->notifyChanged();
   assertTrue_1(!arefChanged);
   assertTrue_1(!refChanged);
   assertTrue_1(!aryChanged);
@@ -933,14 +931,14 @@ static bool testArrayRefAliasPropagation()
   // Test that notifying alias doesn't notify origin
   aryChanged = atreeChanged = refChanged = arefChanged = false;
 
-  atree->notifyChanged(tree);
+  atree->notifyChanged();
   assertTrue_1(atreeChanged);
   assertTrue_1(!aryChanged);
   assertTrue_1(refChanged);   // these depend on atree
   assertTrue_1(arefChanged);  //
   atreeChanged = refChanged = arefChanged = false;
 
-  aref->notifyChanged(ref);
+  aref->notifyChanged();
   assertTrue_1(arefChanged);
   assertTrue_1(!refChanged);
   assertTrue_1(!aryChanged);
@@ -948,7 +946,7 @@ static bool testArrayRefAliasPropagation()
   arefChanged = false;
 
   // Test change propagation from origin to/through alias
-  ary->notifyChanged(&dummy);
+  ary->notifyChanged();
   assertTrue_1(aryChanged);
   assertTrue_1(!atreeChanged);
   assertTrue_1(refChanged);

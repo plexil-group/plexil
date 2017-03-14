@@ -197,7 +197,7 @@ private:
 
     ~ChangeListener() {}
 
-    void notifyChanged(Expression const * /* src */)
+    void notifyChanged()
     {
       m_intf->expressionChanged(m_expr);
     }

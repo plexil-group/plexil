@@ -263,7 +263,7 @@ namespace PLEXIL {
       m_known = m_initializer->getValue(m_value);
     }
     if (m_known)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   void UserVariable<String>::handleActivate()
@@ -275,7 +275,7 @@ namespace PLEXIL {
       m_value = *valptr;
     }
     if (m_known)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   template <typename T>
@@ -352,7 +352,7 @@ namespace PLEXIL {
     m_value = value;
     m_known = true;
     if (changed)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   void UserVariable<String>::setValueImpl(String const &value)
@@ -361,7 +361,7 @@ namespace PLEXIL {
     m_value = value;
     m_known = true;
     if (changed)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   template <typename T>
@@ -370,7 +370,7 @@ namespace PLEXIL {
     bool changed = m_known;
     m_known = false;
     if (changed)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   void UserVariable<String>::setUnknown()
@@ -378,7 +378,7 @@ namespace PLEXIL {
     bool changed = m_known;
     m_known = false;
     if (changed)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   // This should only be called when inactive, therefore doesn't need to report changes.
@@ -416,7 +416,7 @@ namespace PLEXIL {
     m_value = m_savedValue;
     m_known = m_savedKnown;
     if (changed)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   void UserVariable<String>::restoreSavedValue()
@@ -425,7 +425,7 @@ namespace PLEXIL {
     m_value = m_savedValue;
     m_known = m_savedKnown;
     if (changed)
-      this->publishChange(this);
+      this->publishChange();
   }
 
   template <typename T>

@@ -94,7 +94,7 @@ namespace PLEXIL
     if (this->isActive()) {
       if (m_value != val) {
         m_value = val;
-        this->publishChange(this);
+        this->publishChange();
       }
     }
   }

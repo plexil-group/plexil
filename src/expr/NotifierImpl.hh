@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -98,10 +98,9 @@ namespace PLEXIL
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
-     * @param src The Expression which initiated the change.
      * @note This method overrides the one on Expression.
      */
-    virtual void notifyChanged(Expression const *src);
+    virtual void notifyChanged();
 
     /**
      * @brief Determine whether or not expression has any listeners.
@@ -149,15 +148,14 @@ namespace PLEXIL
 
     /**
      * @brief Called by notifyChanged() when the expression is active.
-     * @param src The Expression which initiated the change.
      * @note Default method calls publishChange().
      */
-    virtual void handleChange(Expression const *src);
+    virtual void handleChange();
 
     /**
      * @brief Notify all listeners that this expression's value has changed.
      */
-    void publishChange(Expression const *src);
+    void publishChange();
 
   private:
     // Not implemented

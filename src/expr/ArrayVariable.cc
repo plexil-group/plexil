@@ -172,7 +172,7 @@ namespace PLEXIL
         else
           m_value.reset(this->makeArray(m_maxSize)); // delegate to derived class
         m_known = true; // array is known, not its contents
-        this->publishChange(this);
+        this->publishChange();
       }
       else
         m_known = false; // no need to publish
@@ -199,7 +199,7 @@ namespace PLEXIL
     if (!m_known)
       return; // no change
     m_known = false;
-    publishChange(this);
+    publishChange();
   }
 
   void ArrayVariable::saveCurrentValue()
@@ -661,7 +661,7 @@ namespace PLEXIL
       m_value->resize(m_maxSize);
     }
     if (changed)
-      publishChange(this);
+      publishChange();
   }
 
   void ArrayVariableImpl<Integer>::setValueImpl(Array const *a)
@@ -693,7 +693,7 @@ namespace PLEXIL
       m_value->resize(m_maxSize);
     }
     if (changed)
-      publishChange(this);
+      publishChange();
   }
 
   void ArrayVariableImpl<String>::setValueImpl(Array const *a)
@@ -725,7 +725,7 @@ namespace PLEXIL
       m_value->resize(m_maxSize);
     }
     if (changed)
-      publishChange(this);
+      publishChange();
   }
 
   // Should only be called when active.
@@ -743,7 +743,7 @@ namespace PLEXIL
     }
     m_known = m_savedKnown;
     if (changed)
-      publishChange(this);
+      publishChange();
   }
 
   void ArrayVariableImpl<Integer>::restoreSavedValue()
@@ -759,7 +759,7 @@ namespace PLEXIL
     }
     m_known = m_savedKnown;
     if (changed)
-      publishChange(this);
+      publishChange();
   }
 
   void ArrayVariableImpl<String>::restoreSavedValue()
@@ -775,7 +775,7 @@ namespace PLEXIL
     }
     m_known = m_savedKnown;
     if (changed)
-      publishChange(this);
+      publishChange();
   }
 
   template <typename T>
@@ -789,13 +789,13 @@ namespace PLEXIL
     if (vknown) {
       if (!aknown || vtemp != atemp) {
         ary->setElement(idx, vtemp);
-        publishChange(this);
+        publishChange();
       }
       // else unchanged
     }
     else if (aknown) {
       m_value->setElementUnknown(idx);
-      publishChange(this);
+      publishChange();
     }
     // else unchanged
   }
@@ -810,13 +810,13 @@ namespace PLEXIL
     if (vknown) {
       if (!aknown || vtemp != atemp) {
         ary->setElement(idx, vtemp);
-        publishChange(this);
+        publishChange();
       }
       // else unchanged
     }
     else if (aknown) {
       m_value->setElementUnknown(idx);
-      publishChange(this);
+      publishChange();
     }
     // else unchanged
   }
@@ -832,13 +832,13 @@ namespace PLEXIL
     if (vknown) {
       if (!aknown || (*vtemp) != (*atemp)) {
         ary->setElement(idx, *vtemp);
-        publishChange(this);
+        publishChange();
       }
       // else unchanged
     }
     else if (aknown) {
       m_value->setElementUnknown(idx);
-      publishChange(this);
+      publishChange();
     }
     // else unchanged
   }

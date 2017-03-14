@@ -62,7 +62,7 @@ namespace PLEXIL
 
   void StateVariable::changed()
   {
-    this->publishChange(this);
+    this->publishChange();
   }
 
   //
@@ -110,7 +110,7 @@ namespace PLEXIL
 
   void OutcomeVariable::changed()
   {
-    this->publishChange(this);
+    this->publishChange();
   }
 
   //
@@ -154,7 +154,7 @@ namespace PLEXIL
 
   void FailureVariable::changed()
   {
-    this->publishChange(this);
+    this->publishChange();
   }
 
 } // namespace PLEXIL

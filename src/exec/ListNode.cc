@@ -398,7 +398,7 @@ namespace PLEXIL
            it != m_children.end();
            ++it)
         if ((*it)->getState() == FINISHED_STATE)
-          (*it)->notifyChanged(&m_stateVariable);
+          (*it)->notifyChanged();
       break;
 
     case EXECUTING_STATE:
@@ -407,7 +407,7 @@ namespace PLEXIL
            it != m_children.end();
            ++it)
         if ((*it)->getState() == INACTIVE_STATE)
-          (*it)->notifyChanged(&m_stateVariable);
+          (*it)->notifyChanged();
       break;
 
     default:

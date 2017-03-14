@@ -101,14 +101,12 @@ namespace PLEXIL {
   {
     bool changed = (!m_activeCount);
     ++m_activeCount;
-    if (changed) {
+    if (changed)
       this->handleActivate();
-    }
-    else {
+    else
       // Check for counter wrap only if active at entry
       assertTrue_2(m_activeCount,
                    "NotifierImpl::activate: Active counter overflowed.");
-    }
   }
 
   // No-op default method.
@@ -137,19 +135,16 @@ namespace PLEXIL {
     return !m_outgoingListeners.empty();
   }
 
-  void NotifierImpl::notifyChanged(Expression const *src)
+  void NotifierImpl::notifyChanged()
   {
-    if (isActive()) {
-      if (src == this)
-        return; // prevent infinite looping
-      this->handleChange(src);
-    }
+    if (isActive())
+      this->handleChange();
   }
 
   // Default method.
-  void NotifierImpl::handleChange(Expression const *src)
+  void NotifierImpl::handleChange()
   {
-    this->publishChange(src);
+    publishChange();
   }
 
   // Have to check for duplicates, sigh.
@@ -190,13 +185,13 @@ namespace PLEXIL {
     m_outgoingListeners.erase(it);
   }
 
-  void NotifierImpl::publishChange(Expression const *src)
+  void NotifierImpl::publishChange()
   {
     if (isActive())
       for (std::vector<ExpressionListener *>::iterator it = m_outgoingListeners.begin();
            it != m_outgoingListeners.end();
            ++it)
-        (*it)->notifyChanged(src);
+        (*it)->notifyChanged();
   }
 
 #ifdef RECORD_EXPRESSION_STATS
