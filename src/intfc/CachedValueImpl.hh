@@ -37,8 +37,7 @@ namespace PLEXIL
   {
   public:
     VoidCachedValue();
-    VoidCachedValue(VoidCachedValue const &);
-    ~VoidCachedValue();
+    ~VoidCachedValue() = default;
 
     CachedValue &operator=(CachedValue const &other);
 
@@ -129,6 +128,7 @@ namespace PLEXIL
     virtual bool update(unsigned int timestamp, Value const &val);
 
   private:
+    VoidCachedValue(VoidCachedValue const &) = delete;
     VoidCachedValue(VoidCachedValue &&) = delete;
     VoidCachedValue &operator=(VoidCachedValue const &other) = delete;
     VoidCachedValue &operator=(VoidCachedValue &&other) = delete;

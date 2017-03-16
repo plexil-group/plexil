@@ -232,9 +232,9 @@ namespace PLEXIL
   }
 
   template <typename R>
-  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Function const &exprs) const
+  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Function const &f) const
   {
-    if (calcNative(cache, exprs))
+    if (calcNative(cache, f))
       PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
     else
       s << "[unknown_value]";
@@ -345,14 +345,12 @@ namespace PLEXIL
     return false;
   }
 
-  // Conversion methods
-
   //
   // Explicit instantiations
   //
 
   template class OperatorImpl<Real>;
-  template class OperatorImpl<Integer>;
+  // template class OperatorImpl<Integer>; // redundant
   template class OperatorImpl<Boolean>;
   template class OperatorImpl<String>;
 

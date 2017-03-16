@@ -259,7 +259,8 @@ namespace PLEXIL {
     
     // May return NULL.
     // Used by plan analyzer and plan parser module test only.
-    const std::vector<Expression *> *getLocalVariables() const { return m_localVariables; }
+    const std::vector<std::unique_ptr<Expression> > *getLocalVariables() const
+    { return m_localVariables; }
 
     // May return NULL.
     // Used by GanttListener.
@@ -556,7 +557,7 @@ namespace PLEXIL {
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
  
-    std::vector<Expression *> *m_localVariables; /*!< Variables created in this node. */
+    std::vector<std::unique_ptr<Expression> > *m_localVariables; /*!< Variables created in this node. */
     std::vector<std::unique_ptr<Mutex> > *m_localMutexes; /*!< Mutexes created in this node. */
     std::vector<Mutex *> *m_usingMutexes; /*!< Mutexes required by this node. */
     StateVariable m_stateVariable;

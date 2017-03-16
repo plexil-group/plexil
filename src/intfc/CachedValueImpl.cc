@@ -43,16 +43,6 @@ namespace PLEXIL
   {
   }
 
-  VoidCachedValue::VoidCachedValue(VoidCachedValue const &orig)
-    : CachedValue(orig)
-  {
-  }
-
-  VoidCachedValue::~VoidCachedValue()
-  {
-  }
-
-
   CachedValue &VoidCachedValue::operator=(CachedValue const &other)
   {
     assertTrueMsg(ALWAYS_FAIL,

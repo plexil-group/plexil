@@ -117,7 +117,7 @@ namespace PLEXIL
   class OperatorImpl<ArrayImpl<R> > : public Operator
   {
   public:
-    virtual ~OperatorImpl() {}
+    virtual ~OperatorImpl() = default;
 
     virtual bool operator()(ArrayImpl<R> &result, Expression const *arg) const;
     virtual bool operator()(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const;
@@ -143,9 +143,11 @@ namespace PLEXIL
 
   private:
     // Unimplemented
-    OperatorImpl();
-    OperatorImpl(OperatorImpl const &);
-    OperatorImpl &operator=(OperatorImpl const &);
+    OperatorImpl() = delete;
+    OperatorImpl(OperatorImpl const &) = delete;
+    OperatorImpl(OperatorImpl &&) = delete;
+    OperatorImpl &operator=(OperatorImpl const &) = delete;
+    OperatorImpl &operator=(OperatorImpl &&) = delete;
   };
 
 } // namespace PLEXIL

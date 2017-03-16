@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,8 +88,8 @@ namespace PLEXIL
     (*m_aliasMap)[name] = exp;
     if (isGarbage) {
       if (!m_localVariables)
-        m_localVariables = new std::vector<Expression *>();
-      m_localVariables->push_back(exp);
+        m_localVariables = new std::vector<std::unique_ptr<Expression> >();
+      m_localVariables->emplace_back(std::unique_ptr<Expression>(exp));
     }
     return true;
   }

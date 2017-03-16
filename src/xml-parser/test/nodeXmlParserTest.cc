@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -506,7 +506,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(varAccessList->getLocalVariables()
                  && !varAccessList->getLocalVariables()->empty());
     assertTrue_1(varAccessList->getLocalVariables()->size() == 1);
-    Expression *rootVar = varAccessList->getLocalVariables()->front();
+    Expression *rootVar = varAccessList->getLocalVariables()->front().get();
     assertTrue_1(rootVar);
     assertTrue_1(rootVar->valueType() == INTEGER_TYPE);
     assertTrue_1(rootVar->asAssignable()->getNode() == varAccessList);
@@ -516,7 +516,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(kid->getLocalVariables()
                  && !kid->getLocalVariables()->empty());
     assertTrue_1(kid->getLocalVariables()->size() == 1);
-    Expression *kidVar = kid->getLocalVariables()->front();
+    Expression *kidVar = kid->getLocalVariables()->front().get();
     assertTrue_1(kidVar);
     assertTrue_1(kidVar->valueType() == INTEGER_TYPE);
     assertTrue_1(kidVar->asAssignable()->getNode() == kid);
@@ -1245,7 +1245,7 @@ static bool updateNodeXmlParserTest()
     std::vector<Node *> const &nodeList = listNode->getChildren();
     assertTrue_1(!nodeList.empty());
     assertTrue_1(nodeList.size() == 1);
-    std::vector<Expression *> const *vars = listNode->getLocalVariables();
+    std::vector<std::unique_ptr<Expression> > const *vars = listNode->getLocalVariables();
     assertTrue_1(vars && !vars->empty());
     assertTrue_1(vars->size() == 2);
     Expression *ivar = listNode->findLocalVariable("i");

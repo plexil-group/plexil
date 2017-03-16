@@ -231,7 +231,7 @@ namespace PLEXIL
 
   void Node::allocateVariables(size_t n)
   {
-    m_localVariables = new std::vector<Expression *>();
+    m_localVariables = new std::vector<std::unique_ptr<Expression> >();
     m_localVariables->reserve(n);
     m_variablesByName =
       new NodeVariableMap(m_parent ? m_parent->getChildVariableMap() : NULL);
@@ -249,7 +249,7 @@ namespace PLEXIL
     if (m_variablesByName->find(name) != m_variablesByName->end())
       return false; // duplicate
     (*m_variablesByName)[name] = var;
-    m_localVariables->push_back(var);
+    m_localVariables->emplace_back(std::unique_ptr<Expression>(var));
     return true;
   }
 
@@ -440,20 +440,9 @@ namespace PLEXIL
     // Delete map
     delete m_variablesByName;
 
-    // Delete user-spec'd variables
-    if (m_localVariables) {
-      for (std::vector<Expression *>::iterator it = m_localVariables->begin();
-           it != m_localVariables->end();
-           ++it) {
-        debugMsg("Node:cleanUpVars",
-                 "<" << m_nodeId << "> Removing " << **it);
-        delete (Expression *) (*it);
-      }
-      delete m_localVariables;
-    }
-
-    // Delete mutexes
-    delete m_localMutexes; // deletes actual mutexes
+    // Delete user-spec'd variables and mutexes
+    delete m_localVariables;
+    delete m_localMutexes;
 
     m_cleanedVars = true;
   }
@@ -1672,20 +1661,16 @@ namespace PLEXIL
   void Node::activateLocalVariables()
   {
     if (m_localVariables) {
-      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
-           vit != m_localVariables->end();
-           ++vit)
-        (*vit)->activate();
+      for (std::unique_ptr<Expression> const &var : *m_localVariables)
+        var->activate();
     }
   }
 
   void Node::deactivateLocalVariables()
   {
     if (m_localVariables) {
-      for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
-           vit != m_localVariables->end();
-           ++vit)
-        (*vit)->deactivate();
+      for (std::unique_ptr<Expression> const &var : *m_localVariables)
+        var->deactivate();
     }
   }
 
