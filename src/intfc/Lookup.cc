@@ -689,23 +689,26 @@ namespace PLEXIL
     return valueChanged;
   }
 
-  template <typename R>
-  bool LookupOnChange::getValueImpl(R &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    // Use local cache if we have a tolerance, as it may differ from state cache value
-    else if (m_cachedValue)
-      return m_cachedValue->getValue(result);
-    else if (m_entry->isKnown())
-      return m_entry->cachedValue()->getValue(result);
-    else
-      return false;
+  // Use local cache if we have a tolerance, as it may differ from state cache value
+
+#define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
+  bool LookupOnChange::getValue(_rtype_ &result) const \
+  { \
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue()) \
+      return false; \
+    else if (m_cachedValue) \
+      return m_cachedValue->getValue(result); \
+    else if (m_entry->isKnown()) \
+      return m_entry->cachedValue()->getValue(result); \
+    else \
+      return false; \
   }
 
   // Explicit instantiations
-  template bool LookupOnChange::getValueImpl(Real &result) const;
-  template bool LookupOnChange::getValueImpl(Integer &result) const;
+  DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
+  DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
+
+#undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
   /**
    * @brief Get the value of this expression as a Value instance.

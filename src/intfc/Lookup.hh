@@ -205,7 +205,7 @@ namespace PLEXIL
     Lookup &operator=(Lookup &&) = delete;
   };
 
-  class LookupOnChange : public Lookup
+  class LookupOnChange final : public Lookup
   {
   public:
     LookupOnChange(Expression *stateName,
@@ -217,16 +217,16 @@ namespace PLEXIL
 
     ~LookupOnChange();
 
-    const char *exprName() const;
+    virtual const char *exprName() const override;
 
     // Wrappers around Lookup methods
-    void handleActivate();
-    void handleDeactivate();
-    void handleChange();
-    void valueChanged();
+    virtual void handleActivate() override;
+    virtual void handleDeactivate() override;
+    virtual void handleChange() override;
+    virtual void valueChanged() override;
 
-    bool getThresholds(Integer &high, Integer &low);
-    bool getThresholds(Real &high, Real &low);
+    virtual bool getThresholds(Integer &high, Integer &low) override;
+    virtual bool getThresholds(Real &high, Real &low) override;
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -236,23 +236,22 @@ namespace PLEXIL
      */
 
     // Local macro
-#define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
-    virtual bool getValue(_rtype_ &result) const \
-    { return getValueImpl(result); }
+#define DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
+    virtual bool getValue(_rtype_ &result) const override;
 
-    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
-    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
+    DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
 
-#undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
+#undef DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
      * @return The Value instance.
      */
-    Value toValue() const;
+    virtual Value toValue() const override;
 
     // Wrap NotifierImpl method
-    virtual void addListener(ExpressionListener *l);
+    virtual void addListener(ExpressionListener *l) override;
 
   private:
     // Prohibit default constructor, copy, assign
@@ -263,13 +262,10 @@ namespace PLEXIL
     LookupOnChange &operator=(LookupOnChange &&) = delete;
 
     // Wrapper for base class method
-    virtual void invalidateOldState();
+    virtual void invalidateOldState() override;
 
     // Internal helper
     bool updateInternal(bool valueChanged);
-
-    template <typename R>
-    bool getValueImpl(R &) const;
 
     // Unique member data
     ThresholdCache *m_thresholds;
