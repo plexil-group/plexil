@@ -260,42 +260,48 @@ namespace PLEXIL
       return m_entry->isKnown();
   }
 
-  template <typename R>
-  bool Lookup::getValueImpl(R &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValue(result);
+#define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
+  bool Lookup::getValue(_rtype_ &result) const \
+  { \
+    if (!isActive() || !m_entry || !m_entry->cachedValue()) \
+      return false; \
+    else \
+      return m_entry->cachedValue()->getValue(result); \
+  }
+
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Boolean)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Real)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(String)
+
+    // Uncomment if any of these are ever required
+    // Falls back to Expression::getValue(_rtype_) methods
+    // DEFINE_LOOKUP_GET_VALUE_METHOD(NodeState)
+    // DEFINE_LOOKUP_GET_VALUE_METHOD(NodeOutcome)
+    // DEFINE_LOOKUP_GET_VALUE_METHOD(FailureType)
+    // DEFINE_LOOKUP_GET_VALUE_METHOD(CommandHandleValue)
+
+#undef DEFINE_LOOKUP_GET_VALUE_METHOD
+
+#define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
+  bool Lookup::getValuePointer(_rtype_ const *&ptr) const \
+  { \
+    if (!isActive() || !m_entry || !m_entry->cachedValue()) \
+      return false; \
+    else \
+      return m_entry->cachedValue()->getValuePointer(ptr); \
   }
 
   // Explicit instantiations
-  template bool Lookup::getValueImpl(Boolean &result) const;
-  template bool Lookup::getValueImpl(Integer &result) const;
-  template bool Lookup::getValueImpl(Real &result) const;
-  template bool Lookup::getValueImpl(NodeState &result) const;
-  template bool Lookup::getValueImpl(NodeOutcome &result) const;
-  template bool Lookup::getValueImpl(FailureType &result) const;
-  template bool Lookup::getValueImpl(CommandHandleValue &result) const;
-  template bool Lookup::getValueImpl(String &result) const;
 
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
 
-  template <typename R>
-  bool Lookup::getValuePointerImpl(R const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
-
-  // Explicit instantiations
-  template bool Lookup::getValuePointerImpl(String const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(Array const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(BooleanArray const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(IntegerArray const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(RealArray const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(StringArray const *&ptr) const;
+#undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
 
   /**
    * @brief Get the value of this expression as a Value instance.

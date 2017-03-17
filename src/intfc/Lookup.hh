@@ -63,13 +63,6 @@ namespace PLEXIL
 
   class Lookup : public NotifierImpl
   {
-  protected:    
-    template <typename R>
-    bool getValueImpl(R &) const;
-
-    template <typename R>
-    bool getValuePointerImpl(R const *&) const;
-
   public:
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
@@ -79,28 +72,28 @@ namespace PLEXIL
     virtual ~Lookup();
 
     // Standard Expression API
-    bool isAssignable() const;
-    bool isConstant() const;
-    virtual const char *exprName() const;
-    void printValue(std::ostream &s) const;
-    void printSubexpressions(std::ostream &s) const;
+    bool isAssignable() const override;
+    bool isConstant() const override;
+    virtual const char *exprName() const override;
+    void printValue(std::ostream &s) const override;
+    void printSubexpressions(std::ostream &s) const override;
 
     // Wrap NotifierImpl method
-    virtual void addListener(ExpressionListener *l);
+    virtual void addListener(ExpressionListener *l) override;
 
     // Common behavior required by NotifierImpl
-    void handleActivate();
-    void handleDeactivate();
-    void handleChange();
+    void handleActivate() override;
+    void handleDeactivate() override;
+    void handleChange() override;
 
     //
     // Value access
     //
 
-    ValueType valueType() const;
+    ValueType valueType() const override;
 
     // Delegated to the StateCacheEntry in every case
-    bool isKnown() const;
+    bool isKnown() const override;
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -110,20 +103,22 @@ namespace PLEXIL
      */
 
     // Local macro
-#define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
-    virtual bool getValue(_rtype_ &result) const \
-    { return getValueImpl(result); }
+#define DECLARE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
+    virtual bool getValue(_rtype_ &result) const override;
 
-    DEFINE_LOOKUP_GET_VALUE_METHOD(Boolean)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(Integer)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(Real)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(NodeState)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(NodeOutcome)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(FailureType)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(CommandHandleValue)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(String)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(Boolean)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(Real)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(String)
 
-#undef DEFINE_LOOKUP_GET_VALUE_METHOD
+    // Uncomment if any of these are ever required
+    // Falls back to Expression::getValue(_rtype_) methods
+    // DECLARE_LOOKUP_GET_VALUE_METHOD(NodeState)
+    // DECLARE_LOOKUP_GET_VALUE_METHOD(NodeOutcome)
+    // DECLARE_LOOKUP_GET_VALUE_METHOD(FailureType)
+    // DECLARE_LOOKUP_GET_VALUE_METHOD(CommandHandleValue)
+
+#undef DECLARE_LOOKUP_GET_VALUE_METHOD
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -133,24 +128,23 @@ namespace PLEXIL
      */
 
     // Local macro
-#define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
-    virtual bool getValuePointer(_rtype_ const *&ptr) const \
-    { return getValuePointerImpl(ptr); }
+#define DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
+    virtual bool getValuePointer(_rtype_ const *&ptr) const override;
 
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
 
-#undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
+#undef DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
      * @return The Value instance.
      */
-    virtual Value toValue() const;
+    virtual Value toValue() const override;
 
     //
     // API to external interface
