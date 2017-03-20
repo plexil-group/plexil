@@ -24,65 +24,34 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <bitset>
-#include <climits>
-#include <stdint.h>
+//
+// Define default operator() methods
+//
+
+#include "NodeOperator.hh"
+
+#include "Error.hh"
 
 namespace PLEXIL
 {
 
-  int findFirstOne(unsigned long const b)
-  {
-    if (!b)
-      return -1;
+#define DEFINE_NODE_OPERATOR_DEFAULT_METHOD(_rtype_) \
+  bool NodeOperator::operator()(_rtype_ & /* result */, Node const * /* node */) const \
+  { assertTrueMsg(ALWAYS_FAIL, "No method defined for _rtype_"); return false; }
 
-    // Must be at least one 1 bit
-    int n = 0;
-    unsigned long tmp, tmp2;
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Boolean)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Integer)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Real)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(String)
 
-#if (ULONG_MAX > UINT32_MAX)
-    if (!(tmp = b & 0xFFFFFFFFUL)) {
-      n += 32;
-      tmp = b >> 32;
-    }
-#else
-    tmp = b;
-#endif
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Array)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(BooleanArray)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(IntegerArray)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(RealArray)
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(StringArray)
 
-    tmp2 = tmp;
-    tmp &= 0xFFFFUL;
-    if (!tmp) {
-      n += 16;
-      tmp = tmp2 >> 16;
-    }
-
-    tmp2 = tmp;
-    if (!(tmp &= 0xFFUL)) {
-      n += 8;
-      tmp = tmp2 >> 8;
-    }
-
-    tmp2 = tmp;
-    if (!(tmp &= 0xFUL)) {
-      n += 4;
-      tmp = tmp2 >> 4;
-    }
-
-    tmp2 = tmp;
-    if (!(tmp &= 3UL)) {
-      n += 2;
-      tmp = tmp2 >> 2;
-    }
-
-    if (tmp & 1UL)
-      return n;
-    else
-      return n + 1;
-  }
-
-  int findFirstZero(unsigned long const b)
-  {
-    return findFirstOne(~b);
-  }
+  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(uint16_t)
+  
+#undef DEFINE_NODE_OPERATOR_DEFAULT_METHOD
 
 }

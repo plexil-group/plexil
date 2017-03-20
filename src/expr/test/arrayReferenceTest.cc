@@ -87,7 +87,7 @@ static bool testArrayConstantReference()
   // Check boolean
   bar.activate();
   assertTrue_1(iv.isActive());
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     iv.setValue(i);
     assertTrue_1(iv.getValue(n));
     assertTrue_1(n == i);
@@ -98,7 +98,7 @@ static bool testArrayConstantReference()
   // Check integer
   iar.activate();
   assertTrue_1(iv.isActive());
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     iv.setValue(i);
     assertTrue_1(iv.getValue(n));
     assertTrue_1(n == i);
@@ -109,7 +109,7 @@ static bool testArrayConstantReference()
   // Check double
   dar.activate();
   assertTrue_1(iv.isActive());
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     iv.setValue(i);
     assertTrue_1(iv.getValue(n));
     assertTrue_1(n == i);
@@ -120,7 +120,7 @@ static bool testArrayConstantReference()
   // Check string
   sar.activate();
   assertTrue_1(iv.isActive());
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     iv.setValue(i);
     assertTrue_1(iv.getValue(n));
     assertTrue_1(n == i);
@@ -199,7 +199,7 @@ static bool testArrayVariableReference()
   bar.activate();
   assertTrue_1(bv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -211,7 +211,7 @@ static bool testArrayVariableReference()
   iar.activate();
   assertTrue_1(iv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -223,7 +223,7 @@ static bool testArrayVariableReference()
   dar.activate();
   assertTrue_1(dv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -235,7 +235,7 @@ static bool testArrayVariableReference()
   sar.activate();
   assertTrue_1(sv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -313,7 +313,7 @@ bool testMutableArrayReference()
   bar.activate();
   assertTrue_1(bv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -325,7 +325,7 @@ bool testMutableArrayReference()
   iar.activate();
   assertTrue_1(iv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -337,7 +337,7 @@ bool testMutableArrayReference()
   dar.activate();
   assertTrue_1(dv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -349,7 +349,7 @@ bool testMutableArrayReference()
   sar.activate();
   assertTrue_1(sv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -360,7 +360,7 @@ bool testMutableArrayReference()
   // Write tests
 
   // Boolean
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -372,7 +372,7 @@ bool testMutableArrayReference()
   }
   
   // Integer
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -385,7 +385,7 @@ bool testMutableArrayReference()
   }
 
   // Real
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -398,7 +398,7 @@ bool testMutableArrayReference()
   }
 
   // String
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -424,7 +424,7 @@ bool testMutableArrayReference()
   sv.activate();
 
   // Boolean
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -437,7 +437,7 @@ bool testMutableArrayReference()
   }
   
   // Integer
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -450,7 +450,7 @@ bool testMutableArrayReference()
   }
 
   // Real
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -463,7 +463,7 @@ bool testMutableArrayReference()
   }
 
   // String
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -550,7 +550,7 @@ bool testAssignablePointer()
   bar.activate();
   assertTrue_1(bv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -562,7 +562,7 @@ bool testAssignablePointer()
   iar.activate();
   assertTrue_1(iv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -574,7 +574,7 @@ bool testAssignablePointer()
   dar.activate();
   assertTrue_1(dv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -586,7 +586,7 @@ bool testAssignablePointer()
   sar.activate();
   assertTrue_1(sv.isActive());
   assertTrue_1(ivar.isActive());
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -597,7 +597,7 @@ bool testAssignablePointer()
   // Write tests
 
   // Boolean
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -609,7 +609,7 @@ bool testAssignablePointer()
   }
   
   // Integer
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -622,7 +622,7 @@ bool testAssignablePointer()
   }
 
   // Real
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -635,7 +635,7 @@ bool testAssignablePointer()
   }
 
   // String
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -661,7 +661,7 @@ bool testAssignablePointer()
   sv.activate();
 
   // Boolean
-  for (int32_t i = 0; i < vb.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -674,7 +674,7 @@ bool testAssignablePointer()
   }
   
   // Integer
-  for (int32_t i = 0; i < vi.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -687,7 +687,7 @@ bool testAssignablePointer()
   }
 
   // Real
-  for (int32_t i = 0; i < vd.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);
@@ -700,7 +700,7 @@ bool testAssignablePointer()
   }
 
   // String
-  for (int32_t i = 0; i < vs.size(); ++i) {
+  for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
     ivar.setValue(i);
     assertTrue_1(ivar.getValue(n));
     assertTrue_1(n == i);

@@ -31,8 +31,6 @@
 #include "GetValueImpl.hh"
 #include "NotifierImpl.hh"
 
-#include <memory> // std::unique_ptr
-
 namespace PLEXIL
 {
 
@@ -211,8 +209,8 @@ namespace PLEXIL
     // Member variables
     //
 
-    std::unique_ptr<Array> m_value;
-    std::unique_ptr<Array> m_savedValue;   // for undoing assignment 
+    Array* m_value;
+    Array* m_savedValue;   // for undoing assignment 
 
     Expression *m_size;
     Expression *m_initializer;

@@ -79,8 +79,8 @@ namespace PLEXIL
 
   ArrayVariable::~ArrayVariable()
   {
-    m_value.reset();
-    m_savedValue.reset();
+    delete m_value;
+    delete m_savedValue;
     free((void *) m_name);
     if (m_initializerIsGarbage)
       delete m_initializer;
@@ -170,7 +170,7 @@ namespace PLEXIL
             m_value->resize(m_maxSize);
         }
         else
-          m_value.reset(this->makeArray(m_maxSize)); // delegate to derived class
+          m_value = this->makeArray(m_maxSize); // delegate to derived class
         m_known = true; // array is known, not its contents
         this->publishChange();
       }
@@ -209,7 +209,7 @@ namespace PLEXIL
       if (m_savedValue)
         *m_savedValue = *m_value;
       else
-        m_savedValue.reset(m_value->clone());
+        m_savedValue = m_value->clone();
     }
   }
 
@@ -329,7 +329,7 @@ namespace PLEXIL
       return false;
     if (!m_known)
       return false;
-    ptr = m_value.get();
+    ptr = m_value;
     return true;
   }
 
@@ -408,7 +408,7 @@ namespace PLEXIL
       return NULL;
 
     ArrayImpl<T> const *typed_value =
-      dynamic_cast<ArrayImpl<T> const *>(m_value.get()); // static_cast?
+      dynamic_cast<ArrayImpl<T> const *>(m_value); // static_cast?
     assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
 
     return typed_value;
@@ -420,7 +420,7 @@ namespace PLEXIL
       return NULL;
 
     ArrayImpl<Integer> const *typed_value =
-      dynamic_cast<ArrayImpl<Integer> const *>(m_value.get()); // static_cast?
+      dynamic_cast<ArrayImpl<Integer> const *>(m_value); // static_cast?
     assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
 
     return typed_value;
@@ -432,7 +432,7 @@ namespace PLEXIL
       return NULL;
 
     ArrayImpl<String> const *typed_value =
-      dynamic_cast<ArrayImpl<String> const *>(m_value.get()); // static_cast?
+      dynamic_cast<ArrayImpl<String> const *>(m_value); // static_cast?
     assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
 
     return typed_value;
@@ -446,7 +446,7 @@ namespace PLEXIL
       return NULL;
 
     ArrayImpl<T> *typed_value =
-      dynamic_cast<ArrayImpl<T> *>(m_value.get()); // static_cast?
+      dynamic_cast<ArrayImpl<T> *>(m_value); // static_cast?
     assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
 
     return typed_value;
@@ -458,7 +458,7 @@ namespace PLEXIL
       return NULL;
 
     ArrayImpl<Integer> *typed_value =
-      dynamic_cast<ArrayImpl<Integer> *>(m_value.get()); // static_cast?
+      dynamic_cast<ArrayImpl<Integer> *>(m_value); // static_cast?
     assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
 
     return typed_value;
@@ -470,7 +470,7 @@ namespace PLEXIL
       return NULL;
 
     ArrayImpl<String> *typed_value =
-      dynamic_cast<ArrayImpl<String> *>(m_value.get()); // static_cast?
+      dynamic_cast<ArrayImpl<String> *>(m_value); // static_cast?
     assertTrue_2(typed_value, "ArrayVariable internal error: Array is wrong type!");
 
     return typed_value;
@@ -562,7 +562,7 @@ namespace PLEXIL
     if (!this->isActive())
       return false;
     if (m_known)
-      ptr = dynamic_cast<ArrayImpl<T> const *>(m_value.get()); // static_cast?
+      ptr = dynamic_cast<ArrayImpl<T> const *>(m_value); // static_cast?
     return m_known;
   }
 
@@ -571,7 +571,7 @@ namespace PLEXIL
     if (!this->isActive())
       return false;
     if (m_known)
-      ptr = dynamic_cast<ArrayImpl<Integer> const *>(m_value.get()); // static_cast?
+      ptr = dynamic_cast<ArrayImpl<Integer> const *>(m_value); // static_cast?
     return m_known;
   }
 
@@ -580,7 +580,7 @@ namespace PLEXIL
     if (!this->isActive())
       return false;
     if (m_known)
-      ptr = dynamic_cast<ArrayImpl<String> const *>(m_value.get()); // static_cast?
+      ptr = dynamic_cast<ArrayImpl<String> const *>(m_value); // static_cast?
     return m_known;
   }
 
@@ -652,7 +652,7 @@ namespace PLEXIL
       }
     }
     else {
-      m_value.reset(ary->clone());
+      m_value = ary->clone();
       changed = true;
     }
     m_known = true;
@@ -684,7 +684,7 @@ namespace PLEXIL
       }
     }
     else {
-      m_value.reset(ary->clone());
+      m_value = ary->clone();
       changed = true;
     }
     m_known = true;
@@ -716,7 +716,7 @@ namespace PLEXIL
       }
     }
     else {
-      m_value.reset(ary->clone());
+      m_value = ary->clone();
       changed = true;
     }
     m_known = true;
@@ -734,10 +734,10 @@ namespace PLEXIL
   {
     bool changed = (m_known != m_savedKnown);
     if (m_known && m_savedKnown
-        && !equals(m_savedValue.get())) {
+        && !equals(m_savedValue)) {
       changed = true;
       ArrayImpl<T> const *saved =
-        dynamic_cast<ArrayImpl<T> const *>(m_savedValue.get());
+        dynamic_cast<ArrayImpl<T> const *>(m_savedValue);
       assertTrue_2(saved, "ArrayVariable: saved value is null or wrong type!");
       *typedArrayPointer() = *saved;
     }
@@ -750,10 +750,10 @@ namespace PLEXIL
   {
     bool changed = (m_known != m_savedKnown);
     if (m_known && m_savedKnown
-        && !equals(m_savedValue.get())) {
+        && !equals(m_savedValue)) {
       changed = true;
       ArrayImpl<Integer> const *saved =
-        dynamic_cast<ArrayImpl<Integer> const *>(m_savedValue.get());
+        dynamic_cast<ArrayImpl<Integer> const *>(m_savedValue);
       assertTrue_2(saved, "ArrayVariable: saved value is null or wrong type!");
       *typedArrayPointer() = *saved;
     }
@@ -766,10 +766,10 @@ namespace PLEXIL
   {
     bool changed = (m_known != m_savedKnown);
     if (m_known && m_savedKnown
-        && !equals(m_savedValue.get())) {
+        && !equals(m_savedValue)) {
       changed = true;
       ArrayImpl<String> const *saved =
-        dynamic_cast<ArrayImpl<String> const *>(m_savedValue.get());
+        dynamic_cast<ArrayImpl<String> const *>(m_savedValue);
       assertTrue_2(saved, "ArrayVariable: saved value is null or wrong type!");
       *typedArrayPointer() = *saved;
     }

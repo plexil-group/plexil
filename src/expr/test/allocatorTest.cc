@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,15 +37,15 @@ using PLEXIL::deallocateCache;
 template <typename T, size_t N>
 void lifoTest()
 {
-  std::vector<T *> caches(N, nullptr);
+  std::vector<T *> caches(N, NULL);
   int i;
   // Allocate a bunch
-  for (i = 0; i < N; ++i)
+  for (i = 0; i < (int) N; ++i)
     caches[i] = allocateCache<T>();
   // Return them all in last-in, first-out order
-  for (i = N - 1; i >= 0; --i) {
+  for (i = (int) N - 1; i >= 0; --i) {
     deallocateCache<T>(caches[i]);
-    caches[i] = nullptr;
+    caches[i] = NULL;
   }
 }
 
@@ -62,7 +62,7 @@ static bool lifoAllocationTest()
 template <typename T, size_t N, size_t MODULUS>
 void moduloTest()
 {
-  std::vector<T *> caches(N, nullptr);
+  std::vector<T *> caches(N, NULL);
   // Allocate a bunch
   for (size_t i = 0; i < N; ++i)
     caches[i] = allocateCache<T>();
@@ -73,7 +73,7 @@ void moduloTest()
       return;
     }
     deallocateCache<T>(caches[ix]);
-    caches[ix] = nullptr;
+    caches[ix] = NULL;
     ix = (ix + MODULUS) % N;
   }
 }
@@ -91,7 +91,7 @@ static bool moduloAllocationTest()
 template <typename T, size_t N, size_t MODULUS>
 void mixedTest()
 {
-  std::vector<T *> caches(N, nullptr);
+  std::vector<T *> caches(N, NULL);
   // Allocate a bunch
   size_t i;
   for (i = 0; i < N; ++i)
@@ -105,7 +105,7 @@ void mixedTest()
       return;
     }
     deallocateCache<T>(caches[ix]);
-    caches[ix] = nullptr;
+    caches[ix] = NULL;
     ix = (ix + MODULUS) % N;
   }
   // Reallocate those
@@ -121,7 +121,7 @@ void mixedTest()
   // Return them all in linear order
   for (i = 0; i < N; ++i) {
     deallocateCache<T>(caches[i]);
-    caches[i] = nullptr;
+    caches[i] = NULL;
   }
 }
 
