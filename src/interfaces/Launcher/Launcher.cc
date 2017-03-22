@@ -196,7 +196,7 @@ namespace PLEXIL
   static Node *findNode(std::string const &nodeName)
   {
     // Find the named node
-    auto pred = [&] (Node const *n) { return n->getNodeId() == nodeName; } ;
+    auto pred = [nodeName] (Node const *n) { return n->getNodeId() == nodeName; } ;
     std::list<Node *> const &allNodes = g_exec->getPlans();
     std::list<Node *>::const_iterator it =
       std::find_if(allNodes.begin(), allNodes.end(), pred);
