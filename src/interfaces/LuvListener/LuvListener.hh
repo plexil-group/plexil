@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 #include "ExecListener.hh"
 
 #ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #elif defined(__VXWORKS__)
 #include <vxWorks.h>

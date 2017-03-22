@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
 #ifndef PLEXIL_SYMBOL_TABLE_HH
 #define PLEXIL_SYMBOL_TABLE_HH
 
+#include "plexil-config.h"
+
 #include "ParserException.hh"
 #include "ValueType.hh"
 
@@ -34,7 +36,12 @@
 #include <string>
 #include <vector>
 
+#ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {

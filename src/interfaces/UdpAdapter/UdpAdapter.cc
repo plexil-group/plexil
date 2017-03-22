@@ -45,8 +45,15 @@
 #include <cerrno>
 #include <cfloat>
 #include <cstring>
-#include <stdint.h>
 #include <unistd.h> // for close()
+
+#ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
+
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
