@@ -1,5 +1,5 @@
-// -*- Mode: Java -*-
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// -*- Mode: C++ -*-
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,91 +34,103 @@ Real Lookup time;
 test_send:
 UncheckedSequence
 {
-    String arg1 = "CA";                    // intentionally shorter than declared in udp.xml (for testing)
-    //Boolean arg2 = false;                // set to "true" to request an "ack" from the other agent
-    Integer arg3 = 3;                      // 23 bits: -2147483649, 2147483648; 16 bits: -32768, 32767
-    Real arg4 = 3.14159;                   // 1.17e-38, 3.5e+38
-    Integer arg5[3] = #(9 8 7);            // test arrays
-    Real arg6[3] = #(36.0 -104.7 25000.0);
-    Boolean arg7[3] = #(true true false);
-    String arg8[3] = #("foo" "baz" "bar");
+  String arg1 = "CA";                    // intentionally shorter than declared in udp.xml (for testing)
+  //Boolean arg2 = false;                // set to "true" to request an "ack" from the other agent
+  Integer arg3 = 3;                      // 32 bits: -2147483649, 2147483648; 16 bits: -32768, 32767
+  Real arg4 = 3.14159;                   // 1.17e-38, 3.5e+38
+  Integer arg5[3] = #(9 8 7);            // test arrays
+  Real arg6[3] = #(36.0 -104.7 25000.0);
+  Boolean arg7[3] = #(true true false);
+  String arg8[3] = #("foo" "baz" "bar");
 
-    Boolean ackReceived;
-    Boolean ackTimedOut;
+  Boolean ackReceived;
+  Boolean ackTimedOut;
 
-    SendUdpCommand1:
-    {
+ SendUdpCommand1:
+  {
 	ackReceived = false;
 	ackTimedOut = false;
 	print ("\ntest_send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
 	       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+  SendCommand1:
 	test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
-    }
+    if (SendCommand1.command_handle != COMMAND_SUCCESS)
+      print("\n>>> test_send: command 1 failed\n\n");
+    endif
+  }
 
-    WaitForAckOrTimeout1:
-    Concurrence
+ WaitForAckOrTimeout1:
+  Concurrence
     {
-	InvariantCondition !ackTimedOut;
+      InvariantCondition !ackTimedOut;
 
-        HandleAck1:
-	OnCommand "ack_msg" (String ack)
-            {
-                print ("\ntest_send: received ack\n\n");
-		ackReceived = true;
-            }
-
-        HandleTimeout1:
-        UncheckedSequence
+    HandleAck1:
+      OnCommand "ack_msg" (String ack)
         {
-            StartCondition Lookup(time, 1) > WaitForAckOrTimeout1.EXECUTING.START + 4;
-            SkipCondition ackReceived;
+          print ("\ntest_send: received ack\n\n");
+          ackReceived = true;
+        }
 
-	    print ("\ntest_send: ack timed out\n\n");
+    HandleTimeout1:
+      UncheckedSequence
+        {
+          StartCondition Lookup(time, 1) > WaitForAckOrTimeout1.EXECUTING.START + 4;
+          SkipCondition ackReceived;
 
-            SignalTimeout:
-	    ackTimedOut = true;
+          print ("\ntest_send: ack timed out\n\n");
+
+        SignalTimeout:
+          ackTimedOut = true;
         }
     }
 
-    SendUdpCommand2:
-    {
+ SendUdpCommand2:
+  {
 	ackReceived = false;
 	ackTimedOut = false;
 	print ("\ntest_send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
 	       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+  SendCommand2:
 	test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
-    }
+    if (SendCommand2.command_handle != COMMAND_SUCCESS)
+      print("\n>>> test_send: command 2 failed\n\n");
+    endif
+  }
 
-    WaitForAckOrTimeout2:
-    Concurrence
+ WaitForAckOrTimeout2:
+  Concurrence
     {
-	InvariantCondition !ackTimedOut;
+      InvariantCondition !ackTimedOut;
 
-        HandleAck2:
-	OnCommand "ack_msg" (String ack)
-            {
-                print ("\ntest_send: received ack\n\n");
-		ackReceived = true;
-            }
-
-        HandleTimeout2:
-        UncheckedSequence
+    HandleAck2:
+      OnCommand "ack_msg" (String ack)
         {
-            StartCondition Lookup(time, 1) > WaitForAckOrTimeout2.EXECUTING.START + 4;
-            SkipCondition ackReceived;
+          print ("\ntest_send: received ack\n\n");
+          ackReceived = true;
+        }
 
-	    print ("\ntest_send: ack timed out\n\n");
+    HandleTimeout2:
+      UncheckedSequence
+        {
+          StartCondition Lookup(time, 1) > WaitForAckOrTimeout2.EXECUTING.START + 4;
+          SkipCondition ackReceived;
 
-            SignalTimeout2:
-	    ackTimedOut = true;
+          print ("\ntest_send: ack timed out\n\n");
+
+        SignalTimeout2:
+          ackTimedOut = true;
         }
     }
 
-    SendQuitCommand:
-    {
+ SendQuitCommand:
+  {
 	print ("\ntest_send: sending quit command\n\n");
+  SendQuit:
 	quit_msg ("quit");   // Send a Quit command
-    }
+    if (SendQuit.command_handle != COMMAND_SUCCESS)
+      print("\n>>> test_send: send quit failed\n\n");
+    endif
+  }
 }
 
 // EOF
