@@ -12,7 +12,8 @@
       (repeat-condition true)
       (on-command "set-speed" ((real "knots"))
         (sequence "set-speed"
-          (assignment (array-element "actual" 2) (+ (array-element "actual" 2) (realvar "knots")))
+	  (assignment-node (priority 1)
+	     (assignment (array-element "actual" 2) (+ (array-element "actual" 2) (realvar "knots"))))
           (if (boolvar "debug")
               (command "print" "[" (stringvar "name") "] recv: set-speed " (realvar "knots") ", " (arrayvar "actual") "\n")))))
     ;; Handle set-angle commands
@@ -20,7 +21,9 @@
       (repeat-condition true)
       (on-command "set-angle" ((real "degrees"))
         (sequence "set-angle"
-          (assignment (array-element "actual" 4) (+ (array-element "actual" 4) (realvar "degrees")))
+	  (assignment-node 
+	   (priority 2)
+	   (assignment (array-element "actual" 4) (+ (array-element "actual" 4) (realvar "degrees"))))
           (if (boolvar "debug")
               (command "print" "[" (stringvar "name") "] recv: set-angle " (realvar "degrees") ", " (arrayvar "actual") "\n")))))
     ;; Handle get-current-state commands
