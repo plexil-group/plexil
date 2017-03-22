@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ void lifoTest()
   std::vector<T *> caches(N, nullptr);
   int i;
   // Allocate a bunch
-  for (i = 0; i < N; ++i)
+  for (i = 0; i < (int) N; ++i)
     caches[i] = allocateCache<T>();
   // Return them all in last-in, first-out order
   for (i = N - 1; i >= 0; --i) {

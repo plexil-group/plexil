@@ -153,7 +153,7 @@ static bool testLinkedQueueBasics()
   for (int i = 1; i <= n; ++i) {
     testq.push(new QueueTest(i));
     assertTrue_1(!testq.empty());
-    assertTrue_1(testq.size() == i);
+    assertTrue_1(testq.size() == (size_t) i);
     assertTrue_1(testq.front() != nullptr);
   }
 
@@ -168,7 +168,7 @@ static bool testLinkedQueueBasics()
   for (int i = 1; i <= n; ++i) {
     testq.push(new QueueTest(i));
     assertTrue_1(!testq.empty());
-    assertTrue_1(testq.size() == i);
+    assertTrue_1(testq.size() == (size_t) i);
     assertTrue_1(testq.front() != nullptr);
   }
 
@@ -190,7 +190,7 @@ static bool testLinkedQueueBasics()
   assertTrue_1(nxt != nullptr);
   testq.remove(item);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 1);
+  assertTrue_1(testq.size() == (size_t) n - 1);
   assertTrue_1(testq.front() == nxt);
   delete item;
 
@@ -199,7 +199,7 @@ static bool testLinkedQueueBasics()
   assertTrue_1(item != nullptr);
   testq.remove(item);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 2);
+  assertTrue_1(testq.size() == (size_t) n - 2);
   delete item;
 
   // Remove from end
@@ -209,14 +209,14 @@ static bool testLinkedQueueBasics()
   // item now points to last
   testq.remove(item);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 3);
+  assertTrue_1(testq.size() == (size_t) n - 3);
   delete item;
 
   // Try to "remove" an item not in queue
   item = new QueueTest(42);
   testq.remove(item);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 3);
+  assertTrue_1(testq.size() == (size_t) n - 3);
   delete item;
 
   // Pop and delete remaining
@@ -245,7 +245,7 @@ static bool testLinkedQueueFindIf()
     testq.push(new QueueTest(i));
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.front() != nullptr);
-    assertTrue_1(testq.size() == i);
+    assertTrue_1(testq.size() == (size_t) i);
   }
 
   // Try finding first item
@@ -295,7 +295,7 @@ static bool testLinkedQueueRemoveIf()
     testq.push(new QueueTest(i));
     assertTrue_1(!testq.empty());
     assertTrue_1(testq.front() != nullptr);
-    assertTrue_1(testq.size() == i);
+    assertTrue_1(testq.size() == (size_t) i);
   }
 
   // Try removing from front
@@ -307,7 +307,7 @@ static bool testLinkedQueueRemoveIf()
   assertTrue_1(item->value == 1);
   assertTrue_1(item == temp);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 1);
+  assertTrue_1(testq.size() == (size_t) n - 1);
   assertTrue_1(testq.front()->value == 2);
   delete item;
 
@@ -319,7 +319,7 @@ static bool testLinkedQueueRemoveIf()
   assertTrue_1(item->value == 10);
   assertTrue_1(item == temp);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 2);
+  assertTrue_1(testq.size() == (size_t) n - 2);
   assertTrue_1(testq.front()->value == 2);
   delete item;
 
@@ -331,7 +331,7 @@ static bool testLinkedQueueRemoveIf()
   assertTrue_1(item->value == 6);
   assertTrue_1(item == temp);
   assertTrue_1(!testq.empty());
-  assertTrue_1(testq.size() == n - 3);
+  assertTrue_1(testq.size() == (size_t) n - 3);
   assertTrue_1(testq.front()->value == 2);
   delete item;
 
@@ -431,7 +431,7 @@ static bool testPriorityQueue()
   for (int i = 1; i <= n; ++i) {
     testpq.insert(new QueueTest(i));
     assertTrue_1(!testpq.empty());
-    assertTrue_1(testpq.size() == i);
+    assertTrue_1(testpq.size() == (size_t) i);
     assertTrue_1(testpq.front() != nullptr);
   }
 
@@ -453,7 +453,7 @@ static bool testPriorityQueue()
   for (int i = 1; i <= n; ++i) {
     testpq.insert(new QueueTest(n + 1 - i));
     assertTrue_1(!testpq.empty());
-    assertTrue_1(testpq.size() == i);
+    assertTrue_1(testpq.size() == (size_t) i);
     assertTrue_1(testpq.front() != nullptr);
   }
 
@@ -476,7 +476,7 @@ static bool testPriorityQueue()
     testpq.insert(new QueueTest(n + 1 - i));
     testpq.insert(new QueueTest(n/2 + 1 - i));
     assertTrue_1(!testpq.empty());
-    assertTrue_1(testpq.size() == 2 * i);
+    assertTrue_1(testpq.size() == (size_t) (2 * i));
     assertTrue_1(testpq.front() != nullptr);
   }
 

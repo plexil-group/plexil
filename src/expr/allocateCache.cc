@@ -109,7 +109,7 @@ namespace PLEXIL
         return nullptr; // full up
 
       int i = findFirstZero(inUse);
-      if (i < 0 || i >= N_ENTRIES) {
+      if (i < 0 || N_ENTRIES <= (size_t) i) {
         // error
         return nullptr;
       }

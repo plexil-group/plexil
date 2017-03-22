@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ValueType.hh"
+
 namespace PLEXIL
 {
 
@@ -34,7 +36,17 @@ namespace PLEXIL
   template <typename T>
   T *allocateCache();
 
+  template <> Boolean *allocateCache<Boolean>();
+  template <> Integer *allocateCache<Integer>();
+  template <> Real *allocateCache<Real>();
+  template <> String *allocateCache<String>();
+
   template <typename T>
   void deallocateCache(T *);
+
+  template <> void deallocateCache<Boolean>(Boolean *);
+  template <> void deallocateCache<Integer>(Integer *);
+  template <> void deallocateCache<Real>(Real *);
+  template <> void deallocateCache<String>(String *);
 
 }

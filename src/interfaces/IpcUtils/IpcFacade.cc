@@ -307,7 +307,6 @@ namespace PLEXIL
                                                Value const val) {
     PlexilMsgBase* result = NULL;
     if(val.isKnown()) {
-      PairHeader* header = NULL;
       switch(val.valueType()) {
       case BOOLEAN_TYPE: {
         bool b;
@@ -316,7 +315,6 @@ namespace PLEXIL
         boolMsg->pairBoolValue = b;
         debugMsg("constructPlexilPairMsg",
                  "(" << name << ", " << boolMsg->pairBoolValue << ")");
-        header = reinterpret_cast<PairHeader*>(boolMsg);
         result = reinterpret_cast<PlexilMsgBase*>(boolMsg);
         result->msgType = PlexilMsgType_PairBoolean;
         break;
@@ -326,7 +324,6 @@ namespace PLEXIL
         val.getValue(intMsg->pairIntValue);
         debugMsg("constructPlexilPairMsg",
                  "(" << name << ", " << intMsg->pairIntValue << ")");
-        header = reinterpret_cast<PairHeader*>(intMsg);
         result = reinterpret_cast<PlexilMsgBase*>(intMsg);
         result->msgType = PlexilMsgType_PairInteger;
         break;
@@ -336,7 +333,6 @@ namespace PLEXIL
         val.getValue(realMsg->pairDoubleValue);
         debugMsg("constructPlexilPairMsg",
                  "(" << name << ", " << realMsg->pairDoubleValue << ")");
-        header = reinterpret_cast<PairHeader*>(realMsg);
         result = reinterpret_cast<PlexilMsgBase*>(realMsg);
         result->msgType = PlexilMsgType_PairReal;
         break;
@@ -348,12 +344,11 @@ namespace PLEXIL
         strMsg->pairStringValue = sp->c_str();
         debugMsg("constructPlexilPairMsg",
                  "(" << name << ", " << strMsg->pairStringValue << ")");
-        header = reinterpret_cast<PairHeader*>(strMsg);
         result = reinterpret_cast<PlexilMsgBase*>(strMsg);
         result->msgType = PlexilMsgType_PairString;
         break;
       }
-      default:        
+      default:
         break;
       }
       if(result != NULL)

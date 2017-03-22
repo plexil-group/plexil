@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ static bool testArrayConstantReferenceXmlParser()
 
       barvi->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vb.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -219,7 +219,7 @@ static bool testArrayConstantReferenceXmlParser()
 
       iari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vi.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -272,7 +272,7 @@ static bool testArrayConstantReferenceXmlParser()
 
     dari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vd.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -326,7 +326,7 @@ static bool testArrayConstantReferenceXmlParser()
 
     sari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vs.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -387,7 +387,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     bari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vb.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -441,7 +441,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     iari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vi.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -494,7 +494,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     dari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vd.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -549,7 +549,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     sari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vs.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -614,7 +614,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     bari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vb.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -672,7 +672,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     iari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vi.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -730,7 +730,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     dari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vd.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -788,7 +788,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     sari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vs.size(); ++i) {
+    for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -857,7 +857,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       bari->activate(); // should activate bav, iv
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vb.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -868,7 +868,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       bari->activate();
-      for (int32_t i = 0; i < vb.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -896,7 +896,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       barv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vb.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -907,7 +907,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       barv->activate();
-      for (int32_t i = 0; i < vb.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -969,7 +969,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       iari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vi.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -980,7 +980,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       iari->activate();
-      for (int32_t i = 0; i < vi.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1009,7 +1009,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       iarv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vi.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1020,7 +1020,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       iarv->activate();
-      for (int32_t i = 0; i < vi.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1083,7 +1083,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       dari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vd.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1094,7 +1094,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       dari->activate();
-      for (int32_t i = 0; i < vd.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1123,7 +1123,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       darv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vd.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1134,7 +1134,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       darv->activate();
-      for (int32_t i = 0; i < vd.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1197,7 +1197,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       sari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vs.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1205,7 +1205,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(ps == vs[i]);
       }
 
-      for (int32_t i = 0; i < vs.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1236,7 +1236,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       sarv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < vs.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1244,7 +1244,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(ps == vs[i]);
       }
 
-      for (int32_t i = 0; i < vs.size(); ++i) {
+      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
