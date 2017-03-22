@@ -178,9 +178,18 @@ namespace PLEXIL
       valueToExprXml(alias, actuals[i]);
     }
     
+    try {
+      g_manager->handleAddPlan(plan);
+    }
+    catch (ParserException &e) {
+      warn("Launching plan " << nodeName << " failed:\n"
+           << e.what());
+      g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+      g_manager->notifyOfExternalEvent();
+      return;
+    }
     g_manager->handleCommandReturn(cmd, Value(callerId));
     g_manager->handleCommandAck(cmd, COMMAND_SUCCESS);
-    g_manager->handleAddPlan(plan);
     g_manager->notifyOfExternalEvent();
   }
 
