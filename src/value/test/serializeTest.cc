@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ static bool testCommandHandleSerDes()
 
   // Read
   char const *cbufptr = buffer;
-  CommandHandleValue chRead = NO_COMMAND_HANDLE;
+  uint16_t chRead = NO_COMMAND_HANDLE;
   offset = 0;
 
   cbufptr = deserialize(chRead, cbufptr);
@@ -1050,7 +1050,7 @@ static bool testCommandHandleValueSerDes()
 
   // Read as CommandHandleValue
   char const *cbufptr = buffer;
-  CommandHandleValue chRead = NO_COMMAND_HANDLE;
+  uint16_t chRead = NO_COMMAND_HANDLE;
   offset = 0;
 
   cbufptr = deserialize(chRead, cbufptr);

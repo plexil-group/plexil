@@ -946,8 +946,7 @@ namespace PLEXIL
     case COMMAND_HANDLE_TYPE:
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize((CommandHandleValue &) m_value.enumValue, b);
-      return b;
+      return PLEXIL::deserialize(m_value.enumValue, b);
 
     case BOOLEAN_ARRAY_TYPE:
       if (m_type != BOOLEAN_ARRAY_TYPE || !m_value.arrayValue)

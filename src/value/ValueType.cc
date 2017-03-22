@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -540,12 +540,24 @@ namespace PLEXIL
     return b;
   }
 
+  // For all internal enum types
+  // Currently only COMMAND_HANDLE_TYPE supported
   template <>
-  char const *deserialize<CommandHandleValue>(CommandHandleValue &o, char const *b)
+  char const *deserialize<uint16_t>(uint16_t &o, char const *b)
   {
-    if (COMMAND_HANDLE_TYPE != (ValueType) *b++)
+    switch((ValueType) *b++) {
+      // Future (?)
+    // case NODE_STATE_TYPE:
+    // case OUTCOME_TYPE:
+    // case FAILURE_TYPE:
+    case COMMAND_HANDLE_TYPE:
+      break;
+      
+    default:
       return NULL;
-    o = (CommandHandleValue) *b++;
+    }
+
+    o = (uint16_t) *b++;
     return b;
   }
 
