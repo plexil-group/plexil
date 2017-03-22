@@ -816,6 +816,12 @@
    "forms defined above.")
   (xml "InOut" vars))
 
+;;; Priority - only used in Assignment nodes
+
+(pdefine pl (Priority priority) (n) 0 nil
+  ("Declare the priority of this Assignment node. n must be an integer.")
+  (xml "Priority" n))
+
 ;;; Predicates, all: xml * xml -> xml
 
 (insert-plexil-heading
