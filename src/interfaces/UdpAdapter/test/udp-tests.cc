@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,6 @@ int main()
 
   printf("\nSend and receive some UDP buffers\n\n");
 
-  int status = 0;
   int local_port = 9876;
   char remote_host[] = "localhost";
   int remote_port = 8031;
@@ -128,9 +127,16 @@ int main()
   pthread_t thread_handle;
   threadSpawn((THREAD_FUNC_PTR) wait_for_input_on_thread, params, thread_handle);
 
-  status = send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
+  if (0 > send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true)) {
+    printf("send_message_connect failed\n");
+    return 1;
+  }
+
   usleep(100);
-  status = send_message_bind(local_port, remote_host, remote_port+1, (const char*)bytes1, 4*sizeof(bytes1), true);
+  if (0 > send_message_bind(local_port, remote_host, remote_port+1, (const char*)bytes1, 4*sizeof(bytes1), true)) {
+    printf("send_message_bind failed\n");
+    return 1;
+  }
 
   // Wait for wait_for_input to return
   int myErrno = pthread_join(thread_handle, NULL);
