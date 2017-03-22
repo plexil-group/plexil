@@ -193,43 +193,10 @@ namespace PLEXIL
     g_manager->notifyOfExternalEvent();
   }
 
-  // Helper class
-  class NodeNameEquals
-  {
-  public:
-    NodeNameEquals(std::string const &s)
-      : m_string(s)
-    {
-    }
-
-    NodeNameEquals(NodeNameEquals const &other)
-      : m_string(other.m_string)
-    {
-    }
-
-    ~NodeNameEquals()
-    {
-    }
-
-    NodeNameEquals &operator=(NodeNameEquals const &other)
-    {
-      m_string = other.m_string;
-      return *this;
-    }
-
-    bool operator()(Node const *n)
-    {
-      return n->getNodeId() == m_string;
-    }
-
-  private:
-    std::string m_string;
-  };
-
   static Node *findNode(std::string const &nodeName)
   {
     // Find the named node
-    NodeNameEquals pred(nodeName);
+    auto pred = [&] (Node const *n) { return n->getNodeId() == nodeName; } ;
     std::list<Node *> const &allNodes = g_exec->getPlans();
     std::list<Node *>::const_iterator it =
       std::find_if(allNodes.begin(), allNodes.end(), pred);
