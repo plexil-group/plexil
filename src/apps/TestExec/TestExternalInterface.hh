@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_TestExternalInterface
-#define _H_TestExternalInterface
+#ifndef PLEXIL_TEST_EXTERNAL_INTERFACE_HH
+#define PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 
 #include "ExternalInterface.hh"
 #include "ParserException.hh"

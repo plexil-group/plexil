@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_AdapterExecInterface
-#define _H_AdapterExecInterface
+#ifndef PLEXIL_ADAPTER_EXEC_INTERFACE_HH
+#define PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 
 #include "CommandHandle.hh"
 #include "ParserException.hh"
@@ -180,4 +180,4 @@ namespace PLEXIL
 
 }
 
-#endif // _H_AdapterExecInterface
+#endif // PLEXIL_ADAPTER_EXEC_INTERFACE_HH

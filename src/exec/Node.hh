@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_Node
-#define _H_Node
+#ifndef PLEXIL_NODE_HH
+#define PLEXIL_NODE_HH
 
 #include "Expression.hh"
 #include "NodeConnector.hh"

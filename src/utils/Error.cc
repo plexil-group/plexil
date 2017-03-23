@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@
    @brief Numerous declarations related to error generation and handling.
 */
 
-#ifndef _NO_ERROR_EXCEPTIONS_
+#ifndef PLEXIL_NO_ERROR_EXCEPTIONS
 /* Contains the rest of this file */
 
 #include "Error.hh"
@@ -268,6 +268,6 @@ namespace PLEXIL
     return(os);
   }
 
-#endif /* _NO_ERROR_EXCEPTIONS_ */
+#endif /* PLEXIL_NO_ERROR_EXCEPTIONS */
 
 } // namespace PLEXIL

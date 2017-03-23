@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ResourceArbiterInterface
-#define _H_ResourceArbiterInterface
+#ifndef PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
+#define PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
 
 // For int32_t
 #include "plexil-config.h"
@@ -76,4 +76,4 @@ namespace PLEXIL
   extern ResourceArbiterInterface *makeResourceArbiter();
   
 }
-#endif // _H_ResourceArbiterInterface
+#endif // PLEXIL_RESOURCE_ARBITER_INTERFACE_HH

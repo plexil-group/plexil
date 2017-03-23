@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@
   @brief Numerous declarations related to debugging.
 */
 
-#ifndef _H_Debug
-#define _H_Debug
+#ifndef PLEXIL_DEBUG_HH
+#define PLEXIL_DEBUG_HH
 
 #include "plexil-config.h"
 
@@ -166,4 +166,4 @@ inline bool readDebugConfigStream(std::istream & /* is */)
 
 #endif /* NO_DEBUG_MESSAGE_SUPPORT */
 
-#endif /* _H_Debug */
+#endif /* PLEXIL_DEBUG_HH */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ThreadSemaphore
-#define _H_ThreadSemaphore
+#ifndef PLEXIL_THREAD_SEMAPHORE_HH
+#define PLEXIL_THREAD_SEMAPHORE_HH
 
 //
 // Does this platform support POSIX thread semaphores?
@@ -120,4 +120,4 @@ namespace PLEXIL
 
 } // namespace PLEXIL
 
-#endif // _H_ThreadSemaphore
+#endif // PLEXIL_THREAD_SEMAPHORE_HH

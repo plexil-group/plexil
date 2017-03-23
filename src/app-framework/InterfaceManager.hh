@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_InterfaceManager
-#define _H_InterfaceManager
+#ifndef PLEXIL_INTERFACE_MANAGER_HH
+#define PLEXIL_INTERFACE_MANAGER_HH
 
 #include "ExternalInterface.hh"
 #include "AdapterExecInterface.hh"
@@ -337,4 +337,4 @@ namespace PLEXIL
 
 }
 
-#endif // _H_InterfaceManager
+#endif // PLEXIL_INTERFACE_MANAGER_HH
