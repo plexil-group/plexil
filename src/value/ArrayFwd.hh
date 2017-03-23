@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,17 +27,10 @@
 #ifndef PLEXIL_ARRAY_FWD_HH
 #define PLEXIL_ARRAY_FWD_HH
 
-#include <plexil-config.h>
-
 // Forward declarations for array types
 
+#include <cstdint> // int32_t
 #include <string>
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {

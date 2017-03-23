@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_PlexilExec
-#define _H_PlexilExec
+#ifndef PLEXIL_EXEC_HH
+#define PLEXIL_EXEC_HH
 
 #include "ExecConnector.hh"
 #include "LinkedQueue.hh"

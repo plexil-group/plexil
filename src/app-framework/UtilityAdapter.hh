@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
 // This adapter is accessed by including the following entry in your interface
 // configuration file:    <Adapter AdapterType="Utility"/>
 
-#ifndef _H__UtilityAdapter
-#define _H__UtilityAdapter
+#ifndef PLEXIL_UTILITY_ADAPTER_HH
+#define PLEXIL_UTILITY_ADAPTER_HH
 
 #include "InterfaceAdapter.hh"
 

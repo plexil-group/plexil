@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,8 @@
 * Updated by Cao, Yichuan
 */
 
-#ifndef _H_GanttListener
-#define _H_GanttListener
+#ifndef PLEXIL_GANTT_LISTENER_HH
+#define PLEXIL_GANTT_LISTENER_HH
 
 #include "ExecListener.hh"
 
@@ -141,4 +141,4 @@ extern "C"
 }
 
 
-#endif // _H_GanttListener
+#endif // PLEXIL_GANTT_LISTENER_HH

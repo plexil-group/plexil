@@ -67,12 +67,12 @@
 #include <stdexcept>
 
 // Helper macro for telling compiler that error handler won't return
-#ifdef __GNUC__
-// This version for g++ and clang++
-#define PLEXIL_NORETURN __attribute__((__noreturn__))
+#if (__cplusplus >= 201103L)
+// This version for modern compilers
+#define PLEXIL_NORETURN [[noreturn]]
 #else
 // TODO: Support other compilers here
-// fallback (no-op)
+// fallback (no-op for now)
 #define PLEXIL_NORETURN
 #endif
 
@@ -243,7 +243,7 @@ namespace PLEXIL
      * @note Which is done depends on throwEnabled().
      * @see throwEnabled
      */
-    void handleAssert() PLEXIL_NORETURN;
+    PLEXIL_NORETURN void handleAssert();
 
   protected:
 

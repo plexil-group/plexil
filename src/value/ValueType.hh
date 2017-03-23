@@ -32,14 +32,9 @@
 #include "NodeConstants.hh"
 #include "ParserException.hh"
 
+// #include <cstdint> // included by ArrayFwd.hh
 #include <iosfwd>
 #include <vector>
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {

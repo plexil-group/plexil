@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_TestExternalInterface
-#define _H_TestExternalInterface
+#ifndef PLEXIL_TEST_EXTERNAL_INTERFACE_HH
+#define PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 
 #include "ExternalInterface.hh"
 #include "ParserException.hh"
@@ -54,25 +54,25 @@ namespace PLEXIL
     void run(pugi::xml_node const input)
     throw(ParserException);
 
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
+    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) override;
 
     // LookupOnChange
-    void subscribe(const State& state);
-    void unsubscribe(const State& state);
-    void setThresholds(const State& state, double hi, double lo);
-    void setThresholds(const State& state, int32_t hi, int32_t lo);
+    virtual void subscribe(const State& state) override;
+    virtual void unsubscribe(const State& state) override;
+    virtual void setThresholds(const State& state, Real hi, Real lo) override;
+    virtual void setThresholds(const State& state, Integer hi, Integer lo) override;
 
-    double currentTime();
+    virtual Real currentTime() override;
 
   protected:
 
     // Commands
-    void executeCommand(Command *cmd);
-    void reportCommandArbitrationFailure(Command *cmd);
-    void invokeAbort(Command *cmd);
+    virtual void executeCommand(Command *cmd) override;
+    virtual void reportCommandArbitrationFailure(Command *cmd) override;
+    virtual void invokeAbort(Command *cmd) override;
 
     // Updates
-    void executeUpdate(Update * update);
+    virtual void executeUpdate(Update * update) override;
 
   private:
     

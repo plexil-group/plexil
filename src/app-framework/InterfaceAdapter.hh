@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,19 +27,12 @@
 #ifndef INTERFACE_ADAPTER_H
 #define INTERFACE_ADAPTER_H
 
-#include <plexil-config.h>
-
+#include "ValueType.hh"
 #include "pugixml.hpp"
 
 #include <map>
 #include <set>
 #include <vector>
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {
@@ -150,8 +143,8 @@ namespace PLEXIL
      * @param lo The lower threshold, at or below which to report changes.
      * @note Adapters should provide their own methods as appropriate.  The default methods do nothing.
      */
-    virtual void setThresholds(const State& state, double hi, double lo);
-    virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
+    virtual void setThresholds(const State& state, Real hi, Real lo);
+    virtual void setThresholds(const State& state, Integer hi, Integer lo);
 
     /**
      * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.

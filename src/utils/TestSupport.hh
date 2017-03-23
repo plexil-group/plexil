@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_TestSupport
-#define _H_TestSupport
+#ifndef PLEXIL_TEST_SUPPORT_HH
+#define PLEXIL_TEST_SUPPORT_HH
 
 #include "PlanError.hh"
 
@@ -59,4 +59,4 @@
   } \
   }
 
-#endif // _H_TestSupport
+#endif // PLEXIL_TEST_SUPPORT_HH

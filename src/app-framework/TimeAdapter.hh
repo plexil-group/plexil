@@ -27,6 +27,8 @@
 #ifndef TIME_ADAPTER_H
 #define TIME_ADAPTER_H
 
+#include "plexil-config.h" // PLEXIL_ANDROID, HAVE_SETITIMER
+
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
 #include "ValueType.hh"

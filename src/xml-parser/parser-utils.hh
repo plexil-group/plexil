@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -61,8 +61,8 @@ namespace PLEXIL
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
   // Helper for checkParserExceptionWithLocation
-  extern void reportParserException(std::string const &msg, pugi::xml_node location)
-    throw (ParserException) PLEXIL_NORETURN;
+  PLEXIL_NORETURN extern void reportParserException(std::string const &msg, pugi::xml_node location)
+    throw (ParserException);
 
 } // namespace PLEXIL
 

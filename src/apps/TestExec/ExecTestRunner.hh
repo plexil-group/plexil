@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ExecTestRunner
-#define _H_ExecTestRunner
+#ifndef PLEXIL_EXEC_TEST_RUNNER_HH
+#define PLEXIL_EXEC_TEST_RUNNER_HH
 
 namespace PLEXIL {
 

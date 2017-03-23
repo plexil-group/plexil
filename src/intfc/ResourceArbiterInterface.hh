@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,16 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ResourceArbiterInterface
-#define _H_ResourceArbiterInterface
-
-// For int32_t
-#include "plexil-config.h"
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
+#ifndef PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
+#define PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
 
 #include <fstream>
 #include <string>
@@ -74,4 +66,4 @@ namespace PLEXIL
   extern ResourceArbiterInterface *makeResourceArbiter();
   
 }
-#endif // _H_ResourceArbiterInterface
+#endif // PLEXIL_RESOURCE_ARBITER_INTERFACE_HH

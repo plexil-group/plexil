@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@
    @brief Numerous declarations related to testing.
 */
 
-#ifndef _NO_ERROR_EXCEPTIONS_
+#ifndef PLEXIL_NO_ERROR_EXCEPTIONS
 /* Contains the rest of this file */
 
 #include "TestData.hh"
@@ -91,15 +91,9 @@ void TestData::wrongException(const std::string& /* macro */,
             << caughtException << " is not the expected " << expectedException << std::endl;
 }
 
-void TestData::areEqual(const std::string& /* macro */,
-                        const std::string& one,
-                        const std::string& two) {
-  std::cerr << one << " equals " << two << '\n';
-}
-
 void TestData::correctException(const std::string& /* macro */,
                                 const Error& exception) {
   std::cout << "Caught expected exception " << exception << '\n';
 }
 
-#endif /* _NO_ERROR_EXCEPTIONS_ */
+#endif /* PLEXIL_NO_ERROR_EXCEPTIONS */

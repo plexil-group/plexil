@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_InterfaceManager
-#define _H_InterfaceManager
+#ifndef PLEXIL_INTERFACE_MANAGER_HH
+#define PLEXIL_INTERFACE_MANAGER_HH
 
-#include "ExternalInterface.hh"
 #include "AdapterExecInterface.hh"
+#include "ExternalInterface.hh"
 
 #include <map>
 
@@ -87,17 +87,17 @@ namespace PLEXIL
       return m_application;
     }
 
+
     //
     // API for all related objects
     //
-
     
     /**
      * @brief Return the number of "macro steps" since this instance was constructed.
      * @return The macro step count.
      * @note Needed by the StateCacheEntry API.
      */
-    unsigned int getCycleCount() const
+    virtual unsigned int getCycleCount() const override
     {
       return ExternalInterface::getCycleCount();
     }
@@ -107,14 +107,14 @@ namespace PLEXIL
      * @param name The string naming the property.
      * @param thing The property value as an untyped pointer.
      */
-    virtual void setProperty(const std::string& name, void * thing);
+    virtual void setProperty(const std::string& name, void * thing) override;
 
     /**
      * @brief Fetch the named property.
      * @param name The string naming the property.
      * @return The property value as an untyped pointer.
      */
-    virtual void* getProperty(const std::string& name);
+    virtual void* getProperty(const std::string& name) const override;
 
 
     //
@@ -187,18 +187,18 @@ namespace PLEXIL
      * @param state The state.
      * @return The current value of the state or UNKNOWN().
      */
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
+    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) override;
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
      * @param state The state.
      */
-    void subscribe(const State& state);
+    virtual void subscribe(const State& state) override;
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
      */
-    void unsubscribe(const State& state);
+    virtual void unsubscribe(const State& state) override;
 
     /**
      * @brief Advise the interface of the current thresholds to use when reporting this state.
@@ -206,29 +206,29 @@ namespace PLEXIL
      * @param hi The upper threshold, at or above which to report changes.
      * @param lo The lower threshold, at or below which to report changes.
      */
-    void setThresholds(const State& state, double hi, double lo);
-    void setThresholds(const State& state, int32_t hi, int32_t lo);
+    virtual void setThresholds(const State& state, Real hi, Real lo) override;
+    virtual void setThresholds(const State& state, Integer hi, Integer lo) override;
 
-    void executeCommand(Command *cmd);
+    virtual void executeCommand(Command *cmd) override;
 
     /**
      * @brief Report the failure in the appropriate way for the application.
      */
-    void reportCommandArbitrationFailure(Command *cmd);
+    virtual void reportCommandArbitrationFailure(Command *cmd) override;
 
     /**
      * @brief Abort one command in execution.
      * @param cmd The command.
      */
-    void invokeAbort(Command *cmd);
+    virtual void invokeAbort(Command *cmd) override;
 
-    void executeUpdate(Update *upd);
+    virtual void executeUpdate(Update *upd) override;
 
     // Use most recent cached value of time
-    double currentTime();
+    virtual Real currentTime() override;
 
     // Query interface and actually retrieve the current time
-    double queryTime();
+    Real queryTime();
 
     //
     // API to interface adapters
@@ -239,27 +239,29 @@ namespace PLEXIL
      * @param state The state for the new value.
      * @param value The new value.
      */
-    void handleValueChange(const State& state, const Value& value);
+    virtual void handleValueChange(const State& state, const Value& value) override;
 
-    void handleCommandReturn(Command * cmd, Value const& value);
-    void handleCommandAck(Command * cmd, CommandHandleValue value);
-    void handleCommandAbortAck(Command * cmd, bool ack);
+    virtual void handleCommandReturn(Command * cmd, Value const& value) override;
+    virtual void handleCommandAck(Command * cmd, CommandHandleValue value) override;
+    virtual void handleCommandAbortAck(Command * cmd, bool ack) override;
 
-    void handleUpdateAck(Update * upd, bool ack);
+    virtual void handleUpdateAck(Update * upd, bool ack) override;
 
     /**
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
      */
-    void handleAddPlan(pugi::xml_node const planXml)
-      throw (ParserException);
+    virtual void handleAddPlan(pugi::xml_node const planXml)
+      throw (ParserException)
+      override;
 
     /**
      * @brief Notify the executive of a new library node.
      * @param planXml The XML document containing the new library node.
      */
-    void handleAddLibrary(pugi::xml_document *planXml)
-      throw (ParserException);
+    virtual void handleAddLibrary(pugi::xml_document *planXml)
+      throw (ParserException)
+      override;
 
     /**
      * @brief Load the named library from the library path.
@@ -278,13 +280,13 @@ namespace PLEXIL
     /**
      * @brief Notify the executive that it should run one cycle.
     */
-    void notifyOfExternalEvent();
+    virtual void notifyOfExternalEvent() override;
 
 #ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Run the exec and wait until all events in the queue have been processed.
      */
-    void notifyAndWaitForCompletion();
+    void notifyAndWaitForCompletion() override;
 #endif
 
   protected:
@@ -337,4 +339,4 @@ namespace PLEXIL
 
 }
 
-#endif // _H_InterfaceManager
+#endif // PLEXIL_INTERFACE_MANAGER_HH

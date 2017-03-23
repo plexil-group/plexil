@@ -27,7 +27,19 @@
 #ifndef IPC_DATA_FORMATS_H
 #define IPC_DATA_FORMATS_H
 
+#include "plexil-config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
+
 #include <limits.h>
 
 /*
@@ -357,5 +369,9 @@ typedef enum {
   PlexilMsgType_limit
 }
   PlexilMsgType;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* IPC_DATA_FORMATS_H */

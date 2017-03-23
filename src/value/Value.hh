@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,6 @@ namespace PLEXIL
     Value(CommandHandleValue val);
     Value(String const &val);
     Value(char const *val); // for convenience
-    // TODO: templatize?
     Value(Array const &val);
     Value(BooleanArray const &val);
     Value(IntegerArray const &val);

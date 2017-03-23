@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -1255,7 +1255,6 @@ namespace PLEXIL
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(commandHandleValue, b);
-      return b;
 
     case BOOLEAN_ARRAY_TYPE:
       if (m_type != BOOLEAN_ARRAY_TYPE || !arrayValue)

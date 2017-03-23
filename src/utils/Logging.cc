@@ -198,8 +198,10 @@ static void prompt_user()
     Error::getStream() << " (pid:" << getpid()
                        << ") [E]xit, show [S]tack trace or [P]roceed: ";
 
-    if (isatty(0) && isatty(1))
-      fgets(buf, 8, stdin);
+    if (isatty(0) && isatty(1)) {
+      if (!fgets(buf, 8, stdin))
+	strcpy(buf, "E\n"); // go non-interactive if we don't get input
+    }
     else
       strcpy(buf, "E\n");
 

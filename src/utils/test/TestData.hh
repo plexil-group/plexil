@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,47 +44,41 @@
    @brief Numerous declarations related to testing.
 */
 
-#ifndef _H_TestData
-#define _H_TestData
+//
+// *** FIXME ***
+// Rename these macros from __[whatever]
+// See SEI CERT C++ Coding Standard rule DCL51-CPP.
+//
+
+#ifndef PLEXIL_TEST_DATA_HH
+#define PLEXIL_TEST_DATA_HH
 
 /* $Id: TestData.hh,v 1.1 2006/08/14 22:05:54 miatauro Exp $ */
 
 #include "Error.hh"
 
-/**
-   @brief If the arguments are equal, print that.
-   If they aren't, complain in a way Emacs will recognize as an error
-   that includes location information.
-   @note Use only in test programs.  Should not be in this include file,
-   but rather in one specific to test programs.
-*/
-#define __c__(cmp1, cmp2) { \
-  if ((cmp1) == (cmp2)) { \
-    TestData::areEqual("__c__", #cmp1, #cmp2); \
-  } else { \
-    TestData::failedCompare("__c__", #cmp1, #cmp2, __FILE__, __LINE__); \
-  } \
-}
-
-#ifdef _NO_ERROR_EXCEPTIONS_
+#ifdef PLEXIL_NO_ERROR_EXCEPTIONS
 /* Since no exceptions are thrown by this variant, we cannot test for them. */
 
 /**
    @brief Complain about an unexpected exception.
-   @note As for __c__.
+   @note Use only in test programs.  Should not be in this include file,
+   but rather in one specific to test programs.
 */
 #define __x__(exception)
 
 /**
    @brief Complain about the lack of an expected exception by printing the
    message with location information.
-   @note As for __c__.
+   @note Use only in test programs.  Should not be in this include file,
+   but rather in one specific to test programs.
 */
 #define __y__(msg)
 
 /**
    @brief Complain about the lack of an expected exception.
-   @note As for __c__.
+   @note Use only in test programs.  Should not be in this include file,
+   but rather in one specific to test programs.
 */
 #define __y2__(exception)
 
@@ -96,7 +90,8 @@
    @param exception The exception thrown during the test.
    @param expectedException The exception that is thrown if the code being tested is correct.
    @param good A bool variable set to false if the expected error does not match the one actually thrown.
-   @note As for __c__.
+   @note Use only in test programs.  Should not be in this include file,
+   but rather in one specific to test programs.
  */
 #define __z__(exception, expectedException, good)
 
@@ -129,7 +124,8 @@
 /**
    @class TestData
    @brief Records statistics about tests, including success and failure.
-   Should not be here, but in an include file used only by test programs.
+   @note Use only in test programs.  Should not be in this include file,
+   but rather in one specific to test programs.
 */
 class TestData {
 public:
@@ -167,19 +163,12 @@ public:
                              const std::string& file, const int& line);
 
   /**
-     @brief Record a successful test: one and two are equal (as they should be).
-  */
-  static void areEqual(const std::string& macro,
-                       const std::string& one,
-                       const std::string& two);
-
-  /**
      @brief Record a successful test in that an expected exception was thrown.
   */
   static void correctException(const std::string& macro,
                                const PLEXIL::Error& caughtException);
 };
 
-#endif /* _NO_ERROR_EXCEPTIONS */
+#endif /* PLEXIL_NO_ERROR_EXCEPTIONS */
 
-#endif /* _H_TestData */
+#endif /* PLEXIL_TEST_DATA_HH */

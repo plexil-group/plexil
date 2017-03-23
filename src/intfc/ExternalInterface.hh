@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ExternalInterface
-#define _H_ExternalInterface
+#ifndef PLEXIL_EXTERNAL_INTERFACE_HH
+#define PLEXIL_EXTERNAL_INTERFACE_HH
 
 #include "CommandHandle.hh"
 #include "Expression.hh"
@@ -89,8 +89,8 @@ namespace PLEXIL {
      * @param hi The upper threshold, at or above which to report changes.
      * @param lo The lower threshold, at or below which to report changes.
      */
-    virtual void setThresholds(const State& state, double hi, double lo) = 0;
-    virtual void setThresholds(const State& state, int32_t hi, int32_t lo) = 0;
+    virtual void setThresholds(const State& state, Real hi, Real lo) = 0;
+    virtual void setThresholds(const State& state, Integer hi, Integer lo) = 0;
 
     //
     // API to Node classes
@@ -139,7 +139,7 @@ namespace PLEXIL {
 
     // Returns the current time.
     // FIXME - use real time type
-    virtual double currentTime() = 0;
+    virtual Real currentTime() = 0;
 
     /**
      * @brief Increment the macro step count and return the new value.

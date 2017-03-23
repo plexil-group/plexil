@@ -402,7 +402,7 @@ namespace PLEXIL
    * @param hi The upper threshold, at or above which to report changes.
    * @param lo The lower threshold, at or below which to report changes.
    */
-  void InterfaceManager::setThresholds(const State& state, double hi, double lo)
+  void InterfaceManager::setThresholds(const State& state, Real hi, Real lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
     InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
@@ -414,7 +414,7 @@ namespace PLEXIL
     adapter->setThresholds(state, hi, lo);
   }
 
-  void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
+  void InterfaceManager::setThresholds(const State& state, Integer hi, Integer lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
     InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
@@ -489,13 +489,13 @@ namespace PLEXIL
     }
   }
 
-  double 
+  Real 
   InterfaceManager::currentTime()
   {
     return m_currentTime;
   }
 
-  double
+  Real
   InterfaceManager::queryTime()
   {
     assertTrue_1(g_configuration);
@@ -772,7 +772,7 @@ namespace PLEXIL
    * @param name The string naming the property.
    * @return The property value as an untyped pointer.
    */
-  void* InterfaceManager::getProperty(const std::string &name)
+  void* InterfaceManager::getProperty(const std::string &name) const
   {
     PropertyMap::const_iterator it = m_propertyMap.find(name);
     if (it == m_propertyMap.end())

@@ -399,13 +399,13 @@ namespace PLEXIL
       return Value(0, t);
     }
     else if (type == "int") {
-      int32_t value;
+      Integer value;
       std::istringstream str(val);
       str >> value;
       return Value(value);
     }
     else if (type == "real") {
-      double value;
+      Real value;
       std::istringstream str(val);
       str >> value;
       return Value(value);
@@ -462,14 +462,14 @@ namespace PLEXIL
     }
     // int, int-array
     else if (type.find("int") == 0) {
-      int32_t value;
+      Integer value;
       std::istringstream ss(valStr);
       ss >> value;
       return Value(value);
     }
     // real, real-array
     else if (type.find("real") == 0) {
-      double value;
+      Real value;
       std::istringstream ss(valStr);
       ss >> value;
       return Value(value);
@@ -525,13 +525,13 @@ namespace PLEXIL
   {}
 
   void TestExternalInterface::setThresholds(const State& /* state */,
-                                            double /* highThreshold */,
-                                            double /* lowThreshold */)
+                                            Real /* highThreshold */,
+                                            Real /* lowThreshold */)
   {}
 
   void TestExternalInterface::setThresholds(const State& /* state */,
-                                            int32_t /* highThreshold */,
-                                            int32_t /* lowThreshold */)
+                                            Integer /* highThreshold */,
+                                            Integer /* lowThreshold */)
   {}
 
   void TestExternalInterface::executeCommand(Command *cmd)
@@ -618,9 +618,9 @@ namespace PLEXIL
     return retval.str();
   }
 
-  double TestExternalInterface::currentTime()
+  Real TestExternalInterface::currentTime()
   {
-    double result = 0; // default if unknown
+    Real result = 0; // default if unknown
     m_states[State::timeState()].getValue(result);
     return result;
   }

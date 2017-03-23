@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ExecListener
-#define _H_ExecListener
+#ifndef PLEXIL_EXEC_LISTENER_HH
+#define PLEXIL_EXEC_LISTENER_HH
 
 #include "PlexilListener.hh"
 #include "NodeConstants.hh"
@@ -223,4 +223,4 @@ namespace PLEXIL
   };
 }
 
-#endif // _H_ExecListener
+#endif // PLEXIL_EXEC_LISTENER_HH

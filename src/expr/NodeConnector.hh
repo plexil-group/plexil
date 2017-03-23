@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,9 @@
 #ifndef NODE_CONNECTOR_HH
 #define NODE_CONNECTOR_HH
 
-#include "plexil-config.h"
+#include "ValueType.hh"
 
 #include <string>
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {
@@ -45,7 +39,7 @@ namespace PLEXIL
 
   // NOTE: this used to be 100000000, which somehow gets printed as
   // scientific notation in XML and doesn't parse correctly.
-  const int32_t WORST_PRIORITY = 100000;
+  const Integer WORST_PRIORITY = 100000;
 
   /**
    * @class NodeConnector
@@ -64,7 +58,7 @@ namespace PLEXIL
     virtual Node *findChild(char const * childName) = 0;
     virtual Node *getParent() = 0;
     virtual Node const *getParent() const = 0;
-    virtual int32_t getPriority() const = 0;
+    virtual Integer getPriority() const = 0;
   };
 
 } // namespace PLEXIL

@@ -54,7 +54,7 @@ static bool testArrayConstantReferenceXmlParser()
   IntegerVariable *iv = new IntegerVariable;
   realNc->storeVariable("i", iv); // will be deleted by node connector
   xml_document doc;
-  int32_t n;
+  Integer n;
   bool wasCreated = false;
 
   // Boolean array
@@ -126,13 +126,13 @@ static bool testArrayConstantReferenceXmlParser()
       barl->activate();
       assertTrue_1(iv->isActive());
 
-      iv->setValue((int32_t) 0);
+      iv->setValue((Integer) 0);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == 0);
       assertTrue_1(barl->getValue(pb));
       assertTrue_1(pb == false);
 
-      iv->setValue((int32_t) 1);
+      iv->setValue((Integer) 1);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == 1);
       assertTrue_1(barl->getValue(pb));
@@ -158,7 +158,7 @@ static bool testArrayConstantReferenceXmlParser()
 
       barvi->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -174,7 +174,7 @@ static bool testArrayConstantReferenceXmlParser()
 
   // Integer array
   {
-    std::vector<int32_t>     vi(4);
+    std::vector<Integer>     vi(4);
     vi[0] = 0;
     vi[1] = 1;
     vi[2] = 2;
@@ -183,7 +183,7 @@ static bool testArrayConstantReferenceXmlParser()
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
     realNc->storeVariable("int", ic); // will be deleted by node connector
 
-    int32_t pi;
+    Integer pi;
 
     {
       xml_node iart0Xml = doc.append_child("ArrayElement");
@@ -219,7 +219,7 @@ static bool testArrayConstantReferenceXmlParser()
 
       iari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -272,7 +272,7 @@ static bool testArrayConstantReferenceXmlParser()
 
     dari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vd.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -326,7 +326,7 @@ static bool testArrayConstantReferenceXmlParser()
 
     sari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vs.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -346,7 +346,7 @@ static bool testArrayVariableReferenceXmlParser()
   IntegerVariable *iv = new IntegerVariable;
   realNc->storeVariable("i", iv); // will be deleted by node connector
   xml_document doc;
-  int32_t n;
+  Integer n;
   bool wasCreated = false;
   
   {
@@ -387,7 +387,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     bari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vb.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -403,7 +403,7 @@ static bool testArrayVariableReferenceXmlParser()
 
   // Integer array
   {
-    std::vector<int32_t> vi(4);
+    std::vector<Integer> vi(4);
     vi[0] = 0;
     vi[1] = 1;
     vi[2] = 2;
@@ -434,14 +434,14 @@ static bool testArrayVariableReferenceXmlParser()
     assertTrue_1(iari->valueType() == INTEGER_TYPE);
     assertTrue_1(!iari->isKnown());
 
-    int32_t pi;
+    Integer pi;
     iar0->activate();
     assertTrue_1(iar0->getValue(pi));
     assertTrue_1(pi == 0);
 
     iari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vi.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -494,7 +494,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     dari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vd.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -549,7 +549,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     sari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vs.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -569,7 +569,7 @@ static bool testArrayAliasReferenceXmlParser()
   IntegerVariable *iv = new IntegerVariable;
   realNc->storeVariable("i", iv);
   xml_document doc;
-  int32_t n;
+  Integer n;
   bool wasCreated = false;
 
   // Boolean array
@@ -614,7 +614,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     bari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vb.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -630,7 +630,7 @@ static bool testArrayAliasReferenceXmlParser()
 
   // Integer array
   {
-    std::vector<int32_t> vi(4);
+    std::vector<Integer> vi(4);
     vi[0] = 0;
     vi[1] = 1;
     vi[2] = 2;
@@ -665,14 +665,14 @@ static bool testArrayAliasReferenceXmlParser()
     assertTrue_1(iar0->isKnown());
     assertTrue_1(!iari->isKnown());
 
-    int32_t pi;
+    Integer pi;
     iar0->activate();
     assertTrue_1(iar0->getValue(pi));
     assertTrue_1(pi == 0);
 
     iari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vi.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -730,7 +730,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     dari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vd.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -788,7 +788,7 @@ static bool testArrayAliasReferenceXmlParser()
 
     sari->activate();
     assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+    for (Integer i = 0; i < (Integer) vs.size(); ++i) {
       iv->setValue(i);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == i);
@@ -808,7 +808,7 @@ static bool testMutableArrayReferenceXmlParser()
   IntegerVariable *iv = new IntegerVariable;
   realNc->storeVariable("i", iv);
   xml_document doc;
-  int32_t n;
+  Integer n;
   bool wasCreated = false;
 
   // Boolean array
@@ -857,7 +857,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       bari->activate(); // should activate bav, iv
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -868,7 +868,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       bari->activate();
-      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -896,7 +896,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       barv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -907,7 +907,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       barv->activate();
-      for (int32_t i = 0; i < (int32_t) vb.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vb.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -925,7 +925,7 @@ static bool testMutableArrayReferenceXmlParser()
 
   // Integer array
   {
-    std::vector<int32_t>     vi(4);
+    std::vector<Integer>     vi(4);
     vi[0] = 0;
     vi[1] = 1;
     vi[2] = 2;
@@ -935,7 +935,7 @@ static bool testMutableArrayReferenceXmlParser()
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav); // will be deleted by node connector
 
-    int32_t pi;
+    Integer pi;
 
     {
       xml_node iart0Xml = doc.append_child("ArrayElement");
@@ -969,7 +969,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       iari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -980,7 +980,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       iari->activate();
-      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1009,7 +1009,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       iarv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1020,7 +1020,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       iarv->activate();
-      for (int32_t i = 0; i < (int32_t) vi.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vi.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1083,7 +1083,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       dari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1094,7 +1094,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       dari->activate();
-      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1123,7 +1123,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       darv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1134,7 +1134,7 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(!iv->isActive());
 
       darv->activate();
-      for (int32_t i = 0; i < (int32_t) vd.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vd.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1197,7 +1197,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       sari->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1205,7 +1205,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(ps == vs[i]);
       }
 
-      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1236,7 +1236,7 @@ static bool testMutableArrayReferenceXmlParser()
 
       sarv->activate();
       assertTrue_1(iv->isActive());
-      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
@@ -1244,7 +1244,7 @@ static bool testMutableArrayReferenceXmlParser()
         assertTrue_1(ps == vs[i]);
       }
 
-      for (int32_t i = 0; i < (int32_t) vs.size(); ++i) {
+      for (Integer i = 0; i < (Integer) vs.size(); ++i) {
         iv->setValue(i);
         assertTrue_1(iv->getValue(n));
         assertTrue_1(n == i);
