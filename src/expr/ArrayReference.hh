@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,15 +52,16 @@ namespace PLEXIL
     // Essential Expression API
     //
 
-    char const *getName() const;
-    char const *exprName() const;
-    ValueType valueType() const;
-    bool isKnown() const;
-    bool isConstant() const;
-    bool isAssignable() const;
-    Expression *getBaseExpression();
-    Expression const *getBaseExpression() const;
-    void printValue(std::ostream& s) const;
+    virtual char const *getName() const override;
+    virtual char const *exprName() const override;
+    virtual ValueType valueType() const override;
+    virtual bool isKnown() const override;
+    virtual bool isConstant() const override;
+    virtual bool isPropagationSource() const override;
+    virtual bool isAssignable() const override;
+    virtual Expression *getBaseExpression() override;
+    virtual Expression const *getBaseExpression() const override;
+    virtual void printValue(std::ostream& s) const override;
 
     /**
      * @brief Get the expression's value.
@@ -69,41 +70,40 @@ namespace PLEXIL
      * @note Unimplemented conversions will cause a link time error.
      */
 
-    virtual bool getValue(Boolean &result) const;
-    virtual bool getValue(Integer &result) const;
-    virtual bool getValue(Real &result) const;
-    virtual bool getValue(String &result) const;
+    virtual bool getValue(Boolean &result) const override;
+    virtual bool getValue(Integer &result) const override;
+    virtual bool getValue(Real &result) const override;
+    virtual bool getValue(String &result) const override;
 
     // These issue a PlanError
-    virtual bool getValue(NodeState &result) const;
-    virtual bool getValue(NodeOutcome &result) const;
-    virtual bool getValue(FailureType &result) const;
-    virtual bool getValue(CommandHandleValue &result) const;
+    virtual bool getValue(NodeState &result) const override;
+    virtual bool getValue(NodeOutcome &result) const override;
+    virtual bool getValue(FailureType &result) const override;
+    virtual bool getValue(CommandHandleValue &result) const override;
 
     /**
      * @brief Get a pointer to the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    virtual bool getValuePointer(String const *&ptr) const;
+    virtual bool getValuePointer(String const *&ptr) const override;
 
-    virtual bool getValuePointer(Array const *&ptr) const;
-    virtual bool getValuePointer(BooleanArray const *&ptr) const;
-    virtual bool getValuePointer(IntegerArray const *&ptr) const;
-    virtual bool getValuePointer(RealArray const *&ptr) const;
-    virtual bool getValuePointer(StringArray const *&ptr) const;
+    virtual bool getValuePointer(Array const *&ptr) const override;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const override;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const override;
+    virtual bool getValuePointer(RealArray const *&ptr) const override;
+    virtual bool getValuePointer(StringArray const *&ptr) const override;
 
-    Value toValue() const;
+    virtual Value toValue() const override;
 
-    // Wrapper for NotifierImpl method
-    virtual void addListener(ExpressionListener *l);
+    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
 
     //
     // NotifierImpl API
     //
 
-    void handleActivate();
-    void handleDeactivate();
+    virtual void handleActivate() override;
+    virtual void handleDeactivate() override;
 
   protected:
     // State shared with MutableArrayReference

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -289,6 +289,32 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Query whether this expression is a source of change events.
+   * @return True if the value may change independently of any subexpressions, false otherwise.
+   */
+  template <typename T>
+  bool Constant<T>::isPropagationSource() const
+  {
+    return false;
+  }
+
+  bool Constant<Integer>::isPropagationSource() const
+  {
+    return false;
+  }
+
+  bool Constant<String>::isPropagationSource() const
+  {
+    return false;
+  }
+
+  template <typename T>
+  bool Constant<ArrayImpl<T> >::isPropagationSource() const
+  {
+    return false;
+  }
+
+  /**
    * @brief Is this expression active (i.e. propagating value changes?)
    * @return true if this Expression is active, false if it is not.
    */
@@ -355,47 +381,6 @@ namespace PLEXIL
 
   template <typename T>
   void Constant<ArrayImpl<T> >::deactivate()
-  {
-  }
-
-  /**
-   * @brief Add a listener for changes to this Expression's value.
-   * @param ptr Pointer to the listener to notify.
-   * @note No-op for constants.
-   */
-  template <typename T>
-  void Constant<T>::addListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  void Constant<Integer>::addListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  void Constant<String>::addListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  template <typename T>
-  void Constant<ArrayImpl<T> >::addListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  template <typename T>
-  void Constant<T>::removeListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  void Constant<Integer>::removeListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  void Constant<String>::removeListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  template <typename T>
-  void Constant<ArrayImpl<T> >::removeListener(ExpressionListener * /* ptr */)
   {
   }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,19 +53,19 @@ namespace PLEXIL
     // Expression API
     //
 
-    const char *exprName() const;
-    ValueType valueType() const;
-    bool isKnown() const;
-    void printValue(std::ostream &s) const;
-    Value toValue() const;
+    virtual const char *exprName() const override;
+    virtual ValueType valueType() const override;
+    virtual bool isKnown() const override;
+    virtual void printValue(std::ostream &s) const override;
+    virtual Value toValue() const override;
 
     // Delegated to implementation classes
 
     // Argument accessors
 
-    virtual size_t size() const = 0;
+    virtual size_t size() const  = 0;
     virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
-    virtual void printSubexpressions(std::ostream &s) const = 0;
+    virtual void printSubexpressions(std::ostream &s) const override = 0;
     virtual void setArgument(size_t i, Expression *expr, bool garbage) = 0;
     virtual Expression const *operator[](size_t n) const = 0;
 
@@ -75,15 +75,15 @@ namespace PLEXIL
      * @return True if result known, false if unknown.
      * @note Derived classes may override the default methods for performance.
      */
-    virtual bool getValue(Boolean &result) const;
-    virtual bool getValue(Integer &result) const;
-    virtual bool getValue(Real &result) const;
-    virtual bool getValue(String &result) const;
+    virtual bool getValue(Boolean &result) const override;
+    virtual bool getValue(Integer &result) const override;
+    virtual bool getValue(Real &result) const override;
+    virtual bool getValue(String &result) const override;
 
-    virtual bool getValue(NodeState &result) const;
-    virtual bool getValue(NodeOutcome &result) const;
-    virtual bool getValue(FailureType &result) const;
-    virtual bool getValue(CommandHandleValue &result) const;
+    virtual bool getValue(NodeState &result) const override;
+    virtual bool getValue(NodeOutcome &result) const override;
+    virtual bool getValue(FailureType &result) const override;
+    virtual bool getValue(CommandHandleValue &result) const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -91,17 +91,27 @@ namespace PLEXIL
      * @return True if known, false if unknown.
      * @note Derived classes may override the default methods for performance.
      */
-    virtual bool getValuePointer(String const *&ptr) const;
+    virtual bool getValuePointer(String const *&ptr) const override;
 
     // Maybe later?
-    virtual bool getValuePointer(Array const *&ptr) const;
-    virtual bool getValuePointer(BooleanArray const *&ptr) const;
-    virtual bool getValuePointer(IntegerArray const *&ptr) const;
-    virtual bool getValuePointer(RealArray const *&ptr) const;
-    virtual bool getValuePointer(StringArray const *&ptr) const;
+    virtual bool getValuePointer(Array const *&ptr) const override;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const override;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const override;
+    virtual bool getValuePointer(RealArray const *&ptr) const override;
+    virtual bool getValuePointer(StringArray const *&ptr) const override;
+
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     * @note Delegated to the operator.
+     */
+    virtual bool isPropagationSource() const override;
 
     // Needed by Operator::calcNative for array types
     virtual bool apply(Operator const *op, Array &result) const;
+
+    // Implemented by derived classes
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override = 0;
     
   protected:
 
@@ -111,8 +121,8 @@ namespace PLEXIL
     //
     // NotifierImpl API
     //
-    virtual void handleActivate() = 0;
-    virtual void handleDeactivate() = 0;
+    virtual void handleActivate() override = 0;
+    virtual void handleDeactivate() override = 0;
 
     Operator const *m_op;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -96,6 +96,12 @@ namespace PLEXIL {
     virtual bool isConstant() const override;
 
     /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const override;
+
+    /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
@@ -112,20 +118,6 @@ namespace PLEXIL {
      * @note No-op for constants.
      */
     virtual void deactivate() override;
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     * @note No-op for constants.
-     */
-    virtual void addListener(ExpressionListener * /* ptr */) override;
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param ptr The pointer to the listener to remove.
-     * @note No-op for constants.
-     */
-    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
@@ -198,6 +190,12 @@ namespace PLEXIL {
     virtual bool isConstant() const override;
 
     /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const override;
+
+    /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
@@ -214,20 +212,6 @@ namespace PLEXIL {
      * @note No-op for constants.
      */
     virtual void deactivate() override;
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     * @note No-op for constants.
-     */
-    virtual void addListener(ExpressionListener * /* ptr */) override;
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param ptr The pointer to the listener to remove.
-     * @note No-op for constants.
-     */
-    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
@@ -307,6 +291,12 @@ namespace PLEXIL {
     virtual bool isConstant() const override;
 
     /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const override;
+
+    /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
@@ -323,20 +313,6 @@ namespace PLEXIL {
      * @note No-op for constants.
      */
     virtual void deactivate() override;
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     * @note No-op for constants.
-     */
-    virtual void addListener(ExpressionListener * /* ptr */) override;
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param ptr The pointer to the listener to remove.
-     * @note No-op for constants.
-     */
-    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 
@@ -403,6 +379,12 @@ namespace PLEXIL {
     virtual bool isConstant() const override;
 
     /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const override;
+
+    /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
@@ -419,20 +401,6 @@ namespace PLEXIL {
      * @note No-op for constants.
      */
     virtual void deactivate() override;
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to notify.
-     * @note No-op for constants.
-     */
-    virtual void addListener(ExpressionListener * /* ptr */) override;
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param ptr The pointer to the listener to remove.
-     * @note No-op for constants.
-     */
-    virtual void removeListener(ExpressionListener * /* ptr */) override;
 
   protected:
 

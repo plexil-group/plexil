@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -78,53 +78,61 @@ namespace PLEXIL
           delete exprs[i];
     }
 
-    size_t size() const 
+    virtual size_t size() const override
     {
       return N; 
     }
 
-    Expression const *operator[](size_t n) const
+    virtual Expression const *operator[](size_t n) const override
     {
       check_error_1(n < N);
       return exprs[n]; 
     }
 
-    Expression *operator[](size_t n)
+    virtual Expression *operator[](size_t n) override
     {
       check_error_1(n < N);
       return exprs[n]; 
     }
 
-    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    virtual void setArgument(size_t i, Expression *exp, bool isGarbage) override
     {
       assertTrue_2(i < N, "setArgument(): too many args");
       exprs[i] = exp;
       garbage[i] = isGarbage;
     }
 
-    void activate()
+    virtual void activate() override
     {
       for (size_t i = 0; i < N; ++i)
         exprs[i]->activate();
     }
 
-    void deactivate()
+    virtual void deactivate() override
     {
       for (size_t i = 0; i < N; ++i)
         exprs[i]->deactivate();
     }
 
-    void addListener(ExpressionListener * ptr) 
+    virtual void addListener(ExpressionListener * ptr) override
     {
-      ExprVec::addListener(ptr);
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->addListener(ptr);
     }
 
-    void removeListener(ExpressionListener * ptr) 
+    virtual void removeListener(ExpressionListener * ptr) override
     {
-      ExprVec::removeListener(ptr);
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->removeListener(ptr);
     }
 
-    void print(std::ostream & s) const
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    {
+      for (size_t i = 0; i < N; ++i)
+        (f)(exprs[i]);
+    }
+
+    virtual void print(std::ostream & s) const override
     {
       for (size_t i = 0; i < N; ++i) {
         s << ' ';
@@ -143,7 +151,6 @@ namespace PLEXIL
     Expression *exprs[N];
     bool garbage[N];
   };
-
 
   //
   // GeneralExprVec
@@ -173,48 +180,66 @@ namespace PLEXIL
       delete[] exprs;
     }
 
-    size_t size() const
+    virtual size_t size() const override
     {
       return m_size; 
     }
 
-    Expression const *operator[](size_t n) const
+    virtual Expression const *operator[](size_t n) const override
     {
       check_error_1(n < m_size);
       return exprs[n]; 
     }
 
-    Expression *operator[](size_t n)
+    virtual Expression *operator[](size_t n) override
     {
       check_error_1(n < m_size);
       return exprs[n]; 
     }
 
-    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    virtual void setArgument(size_t i, Expression *exp, bool isGarbage) override
     {
       assertTrue_2(i < m_size, "setArgument(): too many args");
       exprs[i] = exp;
       garbage[i] = isGarbage;
     }
 
-    void activate()
+    virtual void activate() override
     {
       for (size_t i = 0; i < m_size; ++i)
         exprs[i]->activate();
     }
       
-    void deactivate()
+    virtual void deactivate() override
     {
       for (size_t i = 0; i < m_size; ++i)
         exprs[i]->deactivate();
     }
 
-    void print(std::ostream & s) const
+    virtual void print(std::ostream & s) const override
     {
       for (size_t i = 0; i < m_size; ++i) {
         s << ' ';
         exprs[i]->print(s);
       }
+    }
+
+    virtual void addListener(ExpressionListener * ptr) override
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        exprs[i]->addListener(ptr);
+    }
+
+    virtual void removeListener(ExpressionListener * ptr) override
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        exprs[i]->removeListener(ptr);
+    }
+
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        (f)(exprs[i]);
     }
 
   private:

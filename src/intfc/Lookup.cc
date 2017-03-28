@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -94,11 +94,6 @@ namespace PLEXIL
     return false;
   }
 
-  bool Lookup::isConstant() const
-  {
-    return false;
-  }
-
   char const *Lookup::exprName() const
   {
     return "LookupNow";
@@ -121,28 +116,43 @@ namespace PLEXIL
     s << ' ';
   }
 
-  void Lookup::addListener(ExpressionListener *l)
+  /**
+   * @brief Query whether this expression is a source of change events.
+   * @return True if the value may change independently of any subexpressions, false otherwise.
+   */
+  bool Lookup::isPropagationSource() const
   {
-    if (!hasListeners() && !m_stateIsConstant) {
-      if (!m_stateName->isConstant())
-        m_stateName->addListener(this);
-      if (m_paramVec)
-        m_paramVec->addListener(this);
-    }
-    NotifierImpl::addListener(l);
+    return true; // value changes independently of parameters
+  }
+
+  void Lookup::doSubexprs(std::function<void(Expression *)> const &f)
+  {
+    (f)(m_stateName);
+    if (m_paramVec)
+      m_paramVec->doSubexprs(f);
   }
 
   void Lookup::handleActivate()
   {
-    debugMsg("Lookup:handleActivate", " called");
+    debugMsg("Lookup:handleActivate", ' ' << *this);
     // Activate all subexpressions
     m_stateName->activate();
     if (m_paramVec)
       m_paramVec->activate();
 
     // Compute current state and cache it
-    if (!m_stateIsConstant)
+    condDebugMsg(m_stateIsConstant && m_stateKnown,
+                 "Lookup:handleActivate",
+                 ' ' << *this << " constant state is " << m_cachedState);
+    if (!m_stateIsConstant) {
       m_stateKnown = getState(m_cachedState);
+      condDebugMsg(m_stateKnown,
+                   "Lookup:handleActivate",
+                   ' ' << *this << " state is " << m_cachedState);
+      condDebugMsg(!m_stateKnown,
+                   "Lookup:handleActivate",
+                   ' ' << *this << " state is unknown");
+    }
     if (!m_entry && m_stateKnown) {
       m_entry =
         StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
@@ -552,13 +562,10 @@ namespace PLEXIL
       publishChange();
   }
 
-  void LookupOnChange::addListener(ExpressionListener *l)
+  void LookupOnChange::doSubexprs(std::function<void(Expression *)> const &f)
   {
-    if (!hasListeners()) {
-      check_error_1(m_tolerance); // paranoid check
-      m_tolerance->addListener(this);
-    }
-    Lookup::addListener(l);
+    (f)(m_tolerance);
+    Lookup::doSubexprs(f);
   }
 
   // TODO: Optimization opportunity if state is known to be constant

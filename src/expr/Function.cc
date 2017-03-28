@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,11 @@ namespace PLEXIL
     return m_op->toValue(m_valueCache, *this);
   }
 
+  bool Function::isPropagationSource() const
+  {
+    return m_op->isPropagationSource();
+  }
+
   // Local macro for boilerplate
 #define DEFINE_FUNC_DEFAULT_GET_VALUE_METHOD(_type) \
   bool Function::getValue(_type &result) const \
@@ -134,35 +139,39 @@ namespace PLEXIL
     {
     }
 
-    virtual size_t size() const
+    virtual size_t size() const override
     {
       return 0;
     }
       
-    virtual Expression const *operator[](size_t n) const
+    virtual Expression const *operator[](size_t n) const override
     {
       assertTrue_2(ALWAYS_FAIL, "operator[]: no arguments in NullaryFunction");
     }
 
-    virtual void setArgument(size_t i, Expression * /* exp */, bool /* garbage */)
+    virtual void setArgument(size_t i, Expression * /* exp */, bool /* garbage */) override
     {
       assertTrue_2(ALWAYS_FAIL, "setArgument(): no arguments to set in NullaryFunction");
     }
 
-    virtual bool allSameTypeOrUnknown(ValueType /* vt */) const
+    virtual bool allSameTypeOrUnknown(ValueType /* vt */) const override
     {
       return true;
     }
 
-    virtual void printSubexpressions(std::ostream & /* s */) const
+    virtual void printSubexpressions(std::ostream & /* s */) const override
     {
     }
 
-    virtual void handleActivate()
+    virtual void handleActivate() override
     {
     }
 
-    virtual void handleDeactivate()
+    virtual void handleDeactivate() override
+    {
+    }
+
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
     {
     }
 
@@ -214,7 +223,7 @@ namespace PLEXIL
     }
 
     // Not worth optimizing this, it's only used once per function at load time.
-    virtual bool allSameTypeOrUnknown(ValueType vt) const
+    virtual bool allSameTypeOrUnknown(ValueType vt) const override
     {
       for (size_t i = 0; i < N; ++i) {
         ValueType vti = exprs[i]->valueType();
@@ -224,44 +233,36 @@ namespace PLEXIL
       return true;
     }
 
-    virtual size_t size() const
+    virtual size_t size() const override
     {
       return N;
     }
 
-    virtual Expression const *operator[](size_t n) const
+    virtual Expression const *operator[](size_t n) const override
     {
       check_error_1(n < N);
       return exprs[n]; 
     }
 
-    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    virtual void setArgument(size_t i, Expression *exp, bool isGarbage) override
     {
       exprs[i] = exp;
       garbage[i] = isGarbage;
     }
 
-    virtual void addListener(ExpressionListener *exp)
-    {
-      if (!this->hasListeners())
-        for (size_t i = 0; i < N; ++i)
-          exprs[i]->addListener(this);
-      NotifierImpl::addListener(exp);
-    }
-
-    virtual void handleActivate()
+    virtual void handleActivate() override
     {
       for (size_t i = 0; i < N; ++i)
         exprs[i]->activate();
     }
 
-    virtual void handleDeactivate()
+    virtual void handleDeactivate() override
     {
       for (size_t i = 0; i < N; ++i)
         exprs[i]->deactivate();
     }
 
-    virtual void printSubexpressions(std::ostream & s) const
+    virtual void printSubexpressions(std::ostream & s) const override
     {
       for (size_t i = 0; i < N; ++i) {
         s << ' ';
@@ -271,7 +272,7 @@ namespace PLEXIL
 
     // Have to define this so specialized template functions can be defined below
 #define DEFINE_FIXED_ARG_GET_VALUE_METHOD(_type) \
-  virtual bool getValue(_type &result) const \
+  virtual bool getValue(_type &result) const override \
   { \
     return (*m_op)(result, *this); \
   }
@@ -291,7 +292,7 @@ namespace PLEXIL
 
 // Have to define this so specialized template functions can be defined below
 #define DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(_type) \
-  virtual bool getValuePointer(_type const *&ptr) const \
+  virtual bool getValuePointer(_type const *&ptr) const override \
   { \
     bool result = (*m_op)(*static_cast<_type *>(m_valueCache), this);    \
     if (result) \
@@ -309,9 +310,16 @@ namespace PLEXIL
 #undef DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD
 
     // Default method, overridden in specialized variants
-    virtual bool apply(Operator const *op, Array &result) const
+    virtual bool apply(Operator const *op, Array &result) const override
     {
       return (*op)(result, this);
+    }
+
+    // Default method, overridden in specialized variants
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    {
+      for (size_t i = 0; i < N; ++i)
+        (f)(exprs[i]);
     }
 
   private:
@@ -361,7 +369,7 @@ namespace PLEXIL
 
   // Local macro for boilerplate
 #define DEFINE_ONE_ARG_GET_VALUE_METHOD(_type) \
-  template <> bool FixedSizeFunction<1>::getValue(_type &result) const   \
+  template <> bool FixedSizeFunction<1>::getValue(_type &result) const \
   { \
     return (*m_op)(result, exprs[0]); \
   }
@@ -380,7 +388,7 @@ namespace PLEXIL
 #undef DEFINE_ONE_ARG_GET_VALUE_METHOD
 
 #define DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(_type) \
-  template <> bool FixedSizeFunction<1>::getValuePointer(_type const *&ptr) const   \
+  template <> bool FixedSizeFunction<1>::getValuePointer(_type const *&ptr) const \
   { \
     bool result = (*m_op)(*static_cast<_type *>(m_valueCache), exprs[0]); \
     if (result) \
@@ -402,6 +410,13 @@ namespace PLEXIL
   bool FixedSizeFunction<1>::apply(Operator const *op, Array &result) const
   {
     return (*op)(result, exprs[0]);
+  }
+
+  // Specialized method
+  template <>
+  void FixedSizeFunction<1>::doSubexprs(std::function<void (Expression *)> const &f)
+  {
+    (f)(exprs[0]);
   }
 
   //
@@ -434,7 +449,7 @@ namespace PLEXIL
   }
 
   template <>
-  void FixedSizeFunction<2>::handleActivate() 
+  void FixedSizeFunction<2>::handleActivate()
   {
     exprs[0]->activate();
     exprs[1]->activate();
@@ -492,6 +507,14 @@ namespace PLEXIL
     return (*op)(result, exprs[0], exprs[1]);
   }
 
+  // Specialized method
+  template <>
+  void FixedSizeFunction<2>::doSubexprs(std::function<void (Expression *)> const &f)
+  {
+    (f)(exprs[0]);
+    (f)(exprs[1]);
+  }
+
   //
   // NaryFunction
   //
@@ -524,33 +547,25 @@ namespace PLEXIL
       delete[] exprs;
     }
 
-    virtual size_t size() const
+    virtual size_t size() const override
     {
       return m_size;
     }
 
-    virtual Expression const *operator[](size_t n) const
+    virtual Expression const *operator[](size_t n) const override
     {
       check_error_1(n < m_size);
       return exprs[n]; 
     }
 
-    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    virtual void setArgument(size_t i, Expression *exp, bool isGarbage) override
     {
       assertTrue_2(i < m_size, "setArgument(): too many args");
       exprs[i] = exp;
       garbage[i] = isGarbage;
     }
 
-    virtual void addListener(ExpressionListener *exp)
-    {
-      if (!this->hasListeners())
-        for (size_t i = 0; i < m_size; ++i)
-          exprs[i]->addListener(this);
-      NotifierImpl::addListener(exp);
-    }
-
-    virtual bool allSameTypeOrUnknown(ValueType vt) const
+    virtual bool allSameTypeOrUnknown(ValueType vt) const override
     {
       for (size_t i = 0; i < m_size; ++i) {
         ValueType vti = exprs[i]->valueType();
@@ -560,24 +575,30 @@ namespace PLEXIL
       return true;
     }
 
-    void handleActivate()
+    virtual void handleActivate() override
     {
       for (size_t i = 0; i < m_size; ++i)
         exprs[i]->activate();
     }
       
-    void handleDeactivate()
+    virtual void handleDeactivate() override
     {
       for (size_t i = 0; i < m_size; ++i)
         exprs[i]->deactivate();
     }
 
-    void printSubexpressions(std::ostream & s) const
+    virtual void printSubexpressions(std::ostream & s) const override
     {
       for (size_t i = 0; i < m_size; ++i) {
         s << ' ';
         exprs[i]->print(s);
       }
+    }
+
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    {
+      for (size_t i = 0; i < this->size(); ++i)
+        (f)(exprs[i]);
     }
 
   private:

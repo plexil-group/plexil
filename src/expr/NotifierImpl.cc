@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,9 @@
 
 #include "NotifierImpl.hh"
 
-#ifdef EXPRESSION_DEBUG
+// #define LISTENER_DEBUG 1
+
+#ifdef LISTENER_DEBUG
 #include "Debug.hh"
 #include <typeinfo>
 #endif
@@ -62,17 +64,11 @@ namespace PLEXIL {
   NotifierImpl::~NotifierImpl()
   {
 
-#ifdef EXPRESSION_DEBUG
+#ifdef LISTENER_DEBUG
     if (!m_outgoingListeners.empty()) {
-      std::cerr << m_outgoingListeners.size() << " OUTGOING LISTENERS: ";
-      for (std::vector<ExpressionListener const *>::const_iterator it = m_outgoingListeners.begin();
-           it != m_outgoingListeners.end();
-           ++it) {
-        std::ostringstream s;
-        if (dynamic_cast<Expression const *>(*it))
-          dynamic_cast<Expression const *>(*it)->print(s);
-        std::cerr << ' ' << typeid(**it).name() << ' ' << *it << ' ' << s.str() << ' ';
-      }
+      std::cerr << "*** " << this << " HAS " << m_outgoingListeners.size() << " OUTGOING LISTENERS:";
+      for (ExpressionListener const *l : m_outgoingListeners)
+        std::cerr << ' ' << l << ' ';
       std::cerr << std::endl;
     }
 #endif
@@ -127,14 +123,6 @@ namespace PLEXIL {
   {
   }
 
-  /**
-   * @brief Determine whether or not expression has any listeners.
-   */
-  bool NotifierImpl::hasListeners() const
-  {
-    return !m_outgoingListeners.empty();
-  }
-
   void NotifierImpl::notifyChanged()
   {
     if (isActive())
@@ -147,51 +135,137 @@ namespace PLEXIL {
     publishChange();
   }
 
-  // Have to check for duplicates, sigh.
+  // helpers for below
+  static void addListenerToSubexprs(ExpressionListener *l,
+                                    Expression *e)
+  {
+#ifdef LISTENER_DEBUG
+    debugMsg("NotifierImpl:addListenerToSubexprs",
+             ' ' << e << " adding " << l);
+#endif
+    std::function<void (Expression *)> innerFn
+      = ([l, &innerFn](Expression *x)
+         { 
+#ifdef LISTENER_DEBUG
+           debugMsg("NotifierImpl:addListenerToSubexprs[1]",
+                    ' ' << x << " adding " << l);
+#endif
+           if (x->hasListeners()) {
+             // Subexprs already dealt with, just listen to this one
+             x->addListenerInternal(l);
+           }
+           else {
+             if (x->isPropagationSource()) {
+               // This expression can independently generate notifications
+               x->addListenerInternal(l);
+             }
+             // Either way, do its subexpressions
+             x->doSubexprs(innerFn);
+           }
+         });
+    e->doSubexprs(innerFn);
+  }
+
   void NotifierImpl::addListener(ExpressionListener *ptr)
+  {
+#ifdef LISTENER_DEBUG
+      debugMsg("NotifierImpl:addListener",
+               ' ' << *this << " adding " << ptr << ' ' << typeid(*ptr).name());
+#endif
+    if (m_outgoingListeners.empty()) {
+#ifdef LISTENER_DEBUG
+      debugMsg("NotifierImpl:addListener",
+               ' ' << this << " previously had no listeners, adding it to subexpressions");
+#endif
+      addListenerToSubexprs(this, this);
+    }
+    addListenerInternal(ptr);
+  }
+
+  // Have to check for duplicates, sigh.
+  void NotifierImpl::addListenerInternal(ExpressionListener *ptr)
   {
     std::vector<ExpressionListener *>::iterator it =
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
     if (it != m_outgoingListeners.end()) {
-#ifdef EXPRESSION_DEBUG
-      debugMsg("NotifierImpl:addListener", " listener " << ptr << " already present");
+#ifdef LISTENER_DEBUG
+      debugMsg("NotifierImpl:addListener",
+               ' ' << this << " listener " << ptr << " already present");
 #endif
-        return;
+      return;
     }
-#ifdef EXPRESSION_DEBUG
-    {
-      std::ostringstream s;
-      if (dynamic_cast<Expression const *>(ptr))
-        dynamic_cast<Expression const *>(ptr)->print(s);
-      debugMsg("NotifierImpl:addListener", ' ' << typeid(*ptr).name() << ' ' << ptr << ' ' << s.str());
-    }
-#endif
     m_outgoingListeners.push_back(ptr);
+#ifdef LISTENER_DEBUG
+    debugMsg("NotifierImpl:addListener",
+             ' ' << this << " added " << ptr);
+#endif
+  }
+
+  // Helper function
+  static void removeListenerFromSubexprs(ExpressionListener *l,
+                                         Expression *e)
+  {
+    std::function<void (Expression *)> innerFn
+      = ([l, &innerFn](Expression *x)
+         { 
+#ifdef LISTENER_DEBUG
+           debugMsg("NotifierImpl:removeListenerFromSubexprs[1]",
+                    ' ' << x << " removing " << l);
+#endif
+           x->removeListener(l);
+         });
+    e->doSubexprs(innerFn);
   }
 
   void NotifierImpl::removeListener(ExpressionListener *ptr)
   {
+#ifdef LISTENER_DEBUG
+    debugMsg("NotifierImpl:removeListener",
+             ' ' << *this << " removing " << ptr << ' ' << typeid(*ptr).name());
+#endif
+    // Children might have this listener, so walk the whole tree
+    removeListenerFromSubexprs(ptr, this);
+    if (m_outgoingListeners.empty()) {
+#ifdef LISTENER_DEBUG
+      debugMsg("NotifierImpl:removeListener", ' ' << this << " has no listeners");
+#endif
+      return;
+    }
     std::vector<ExpressionListener *>::iterator it =
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
     if (it == m_outgoingListeners.end()) {
-#ifdef EXPRESSION_DEBUG
-      debugMsg("NotifierImpl:removeListener", " listener " << ptr << " not found");
+#ifdef LISTENER_DEBUG
+      debugMsg("NotifierImpl:removeListener",
+               ' ' << this << " listener " << ptr << " not found");
 #endif
         return;
     }
-#ifdef EXPRESSION_DEBUG
-    debugMsg("NotifierImpl:removeListener", ' ' << ptr);
-#endif
     m_outgoingListeners.erase(it);
+#ifdef LISTENER_DEBUG
+    debugMsg("NotifierImpl:removeListener", ' ' << this << " removed " << ptr);
+#endif
+    if (m_outgoingListeners.empty())
+      removeListenerFromSubexprs(this, this);
+  }
+
+  bool NotifierImpl::hasListeners() const
+  {
+    return !m_outgoingListeners.empty();
   }
 
   void NotifierImpl::publishChange()
   {
     if (isActive())
-      for (std::vector<ExpressionListener *>::iterator it = m_outgoingListeners.begin();
-           it != m_outgoingListeners.end();
-           ++it)
-        (*it)->notifyChanged();
+#ifdef LISTENER_DEBUG
+      debugMsg("NotifierImpl:publishChange", ' ' << *this);
+#endif
+      for (ExpressionListener *l : m_outgoingListeners) {
+#ifdef LISTENER_DEBUG
+        debugMsg("NotifierImpl:publishChange",
+                 ' ' << this << " to listener " << typeid(*l).name() << ' ' << l);
+#endif
+        l->notifyChanged();
+      }
   }
 
 #ifdef RECORD_EXPRESSION_STATS

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -72,28 +72,32 @@ namespace PLEXIL
     virtual ~Lookup();
 
     // Standard Expression API
-    bool isAssignable() const override;
-    bool isConstant() const override;
+    virtual bool isAssignable() const override;
     virtual const char *exprName() const override;
-    void printValue(std::ostream &s) const override;
-    void printSubexpressions(std::ostream &s) const override;
+    virtual void printValue(std::ostream &s) const override;
+    virtual void printSubexpressions(std::ostream &s) const override;
 
-    // Wrap NotifierImpl method
-    virtual void addListener(ExpressionListener *l) override;
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const override;
 
     // Common behavior required by NotifierImpl
-    void handleActivate() override;
-    void handleDeactivate() override;
-    void handleChange() override;
+    virtual void handleActivate() override;
+    virtual void handleDeactivate() override;
+    virtual void handleChange() override;
+
+    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
 
     //
     // Value access
     //
 
-    ValueType valueType() const override;
+    virtual ValueType valueType() const override;
 
     // Delegated to the StateCacheEntry in every case
-    bool isKnown() const override;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -250,8 +254,7 @@ namespace PLEXIL
      */
     virtual Value toValue() const override;
 
-    // Wrap NotifierImpl method
-    virtual void addListener(ExpressionListener *l) override;
+    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
 
   private:
     // Prohibit default constructor, copy, assign

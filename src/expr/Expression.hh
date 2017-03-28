@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 
 #include "ValueType.hh"
 #include "ExpressionListener.hh"
+
+#include <functional> // std::function<>
 
 //
 // Virtual base classes for the expression system
@@ -98,10 +100,20 @@ namespace PLEXIL
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
-     * @return True if assignable, false otherwise.
+     * @return True if the value may change, false otherwise.
      * @note The default method returns false.
      */
     virtual bool isConstant() const;
+
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     * @note This is generally true for leaf expression nodes that are not constant; however,
+     *       some interior nodes (e.g. Lookup, random generator) may also generate changes
+     *       of their own accord.
+     * @note The default method returns true.
+     */
+    virtual bool isPropagationSource() const;
 
     /**
      * @brief Get the real expression for which this may be an alias or reference.
@@ -248,14 +260,16 @@ namespace PLEXIL
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
+     * @note The default method does nothing.
      */
-    virtual void addListener(ExpressionListener *ptr) = 0;
+    virtual void addListener(ExpressionListener *ptr);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
+     * @note The default method does nothing.
      */
-    virtual void removeListener(ExpressionListener *ptr) = 0;
+    virtual void removeListener(ExpressionListener *ptr);
 
     //
     // ExpressionListener API
@@ -266,6 +280,32 @@ namespace PLEXIL
      * @note This default method does nothing.
      */
     virtual void notifyChanged();
+
+    //
+    // Implementation details
+    //
+
+    /**
+     * @brief Report whether the expression has listeners.
+     * @return True if present, false if not.
+     * @note The default method returns false.
+     */
+    virtual bool hasListeners() const;
+
+    /**
+     * @brief Unconditionally add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     * @note The default method does nothing.
+     */
+    virtual void addListenerInternal(ExpressionListener *ptr);
+
+    /**
+     * @brief Call a function on all subexpressions of this one.
+     * @param f The function.
+     * @note Default method does nothing. 
+     * @note Should be overridden by derived classes with subexpressions.
+     */
+    virtual void doSubexprs(std::function<void(Expression *)> const &f);
 
   };
 

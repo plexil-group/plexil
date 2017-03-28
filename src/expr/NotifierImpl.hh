@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -102,10 +102,21 @@ namespace PLEXIL
      */
     virtual void notifyChanged() override;
 
+    //
+    // Implementation details
+    //
+
     /**
-     * @brief Determine whether or not expression has any listeners.
+     * @brief Report whether the expression has listeners.
+     * @return True if present, false if not.
      */
-    bool hasListeners() const;
+    virtual bool hasListeners() const override;
+
+    /**
+     * @brief Unconditionally add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     */
+    virtual void addListenerInternal(ExpressionListener *ptr) override;
 
 #ifdef RECORD_EXPRESSION_STATS    
     /**
@@ -132,6 +143,10 @@ namespace PLEXIL
      */
     NotifierImpl();
 
+    //
+    // Delegated to derived classes
+    //
+
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept
      *        incoming change notifications.
@@ -151,6 +166,10 @@ namespace PLEXIL
      * @note Default method calls publishChange().
      */
     virtual void handleChange();
+
+    //
+    // Potentially useful to derived classes
+    //
 
     /**
      * @brief Notify all listeners that this expression's value has changed.

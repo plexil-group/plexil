@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,13 +57,6 @@ namespace PLEXIL
     free((void *)m_name);
   }
 
-  void Alias::addListener(ExpressionListener *l)
-  {
-    if (!hasListeners())
-      m_exp->addListener(this);
-    NotifierImpl::addListener(l);
-  }
-
   char const *Alias::getName() const
   {
     return m_name;
@@ -92,6 +85,11 @@ namespace PLEXIL
   bool Alias::isConstant() const
   {
     return m_exp->isConstant();
+  }
+
+  bool Alias::isPropagationSource() const
+  {
+    return false;
   }
 
   Expression *Alias::getBaseExpression()
@@ -183,5 +181,11 @@ namespace PLEXIL
   {
     return m_exp->toValue();
   }
+
+  void Alias::doSubexprs(std::function<void(Expression *)> const &f)
+  {
+    (f)(m_exp);
+  }
+
 
 } // namespace PLEXIL

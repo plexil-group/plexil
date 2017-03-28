@@ -46,6 +46,11 @@ namespace PLEXIL
     return m_name;
   }
 
+  bool Operator::isPropagationSource() const
+  {
+    return false;
+  }
+
   bool Operator::checkArgCount(size_t count) const
   {
     return false;

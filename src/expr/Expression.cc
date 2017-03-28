@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,12 @@ namespace PLEXIL
   }
 
   // Default method.
+  bool Expression::isPropagationSource() const
+  {
+    return true;
+  }
+
+  // Default method.
   Expression *Expression::getBaseExpression()
   {
     return this;
@@ -70,6 +76,27 @@ namespace PLEXIL
   Expression const *Expression::getBaseExpression() const
   {
     return this;
+  }
+
+  // Default method.
+  void Expression::addListener(ExpressionListener *ptr)
+  {
+  }
+
+  // Default method.
+  void Expression::removeListener(ExpressionListener *ptr)
+  {
+  }
+
+  // Default method.
+  void Expression::addListenerInternal(ExpressionListener *ptr)
+  {
+  }
+
+  // Default method.
+  bool Expression::hasListeners() const
+  {
+    return false;
   }
 
   void Expression::print(std::ostream& s) const
@@ -173,5 +200,9 @@ namespace PLEXIL
   DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(StringArray)
 
 #undef DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD
+
+  void Expression::doSubexprs(std::function<void (Expression *)> const & /* f */)
+  {
+  }
 
 } // namespace PLEXIL
