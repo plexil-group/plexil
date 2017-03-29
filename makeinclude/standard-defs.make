@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,9 @@ CP              = /bin/cp -p
 
 ## Preprocessor flags
 # -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
-# Not supposed to be required in C++11.
-DEFINES		:= -D__STDC_LIMIT_MACROS
+# Not supposed to be required in C++11, and should really be defined at the point of inclusion anyway.
+#DEFINES		:= -D__STDC_LIMIT_MACROS
+DEFINES		:=
 
 ## Include path
 

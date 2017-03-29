@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -172,22 +172,22 @@ dust: localdust
 %.o: %.c
 %.o: %.c %.d
 	@$(COMPILE.c) $< -o $*.o
-	@$(CC) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+	@$(CC) $(MKDEP_FLAGS) $(CPPFLAGS) $(CFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
 
 %.o: %.cc
 %.o: %.cc %.d
 	@$(COMPILE.cc) $< -o $*.o
-	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $(CXXFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
 
 %.o: %.cpp
 %.o: %.cpp %.d
 	@$(COMPILE.cpp) $< -o $*.o
-	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $(CXXFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
 
 %.o: %.C
 %.o: %.C %.d
 	@$(COMPILE.C) $< -o $*.o
-	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
+	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $(CXXFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
 
 %.d: ;
 
