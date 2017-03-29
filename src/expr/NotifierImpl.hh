@@ -44,6 +44,13 @@ namespace PLEXIL
    * @brief Mixin class for expressions whose value may change. Implements expression graph notification.
    */
 
+  //
+  // The expression listener graph (really a forest of trees, there are no cycles)
+  // is built during plan loading. Its purpose is to tell a node when one of its
+  // conditions may have changed, so that it can be considered for a potential node
+  // state transition.
+  //
+
   class NotifierImpl : virtual public Expression
   {
   public:
