@@ -128,18 +128,6 @@ namespace PLEXIL
 	 */
     virtual void print(std::ostream& s) const;
 
-    /**
-     * @brief Print additional information about derived objects.
-     * @param s The output stream.
-     */
-    virtual void printSpecialized(std::ostream &s) const;
-
-    /**
-     * @brief Print subexpressions of derived objects.
-     * @param s The output stream.
-     */
-    virtual void printSubexpressions(std::ostream &s) const;
-
     //
     // Convenience methods which may be overridden or extended
     //
@@ -282,7 +270,9 @@ namespace PLEXIL
     virtual void notifyChanged();
 
     //
-    // Implementation details
+    // Implementation details for NotifierImpl
+    // Made public here rather than adding another pure virtual class
+    // Should ONLY be called from NotifierImpl methods
     //
 
     /**
@@ -306,6 +296,24 @@ namespace PLEXIL
      * @note Should be overridden by derived classes with subexpressions.
      */
     virtual void doSubexprs(std::function<void(Expression *)> const &f);
+
+  protected:
+
+    //
+    // print() helpers
+    //
+
+    /**
+     * @brief Print additional information about derived objects.
+     * @param s The output stream.
+     */
+    virtual void printSpecialized(std::ostream &s) const;
+
+    /**
+     * @brief Print subexpressions of derived objects.
+     * @param s The output stream.
+     */
+    virtual void printSubexpressions(std::ostream &s) const;
 
   };
 

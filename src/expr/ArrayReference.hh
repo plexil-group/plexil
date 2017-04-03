@@ -96,7 +96,7 @@ namespace PLEXIL
 
     virtual Value toValue() const override;
 
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+  protected:
 
     //
     // NotifierImpl API
@@ -105,7 +105,8 @@ namespace PLEXIL
     virtual void handleActivate() override;
     virtual void handleDeactivate() override;
 
-  protected:
+    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+
     // State shared with MutableArrayReference
     Expression *m_array;
     Expression *m_index;

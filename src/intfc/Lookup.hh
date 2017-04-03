@@ -83,13 +83,6 @@ namespace PLEXIL
      */
     virtual bool isPropagationSource() const override;
 
-    // Common behavior required by NotifierImpl
-    virtual void handleActivate() override;
-    virtual void handleDeactivate() override;
-    virtual void handleChange() override;
-
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
-
     //
     // Value access
     //
@@ -180,6 +173,16 @@ namespace PLEXIL
 
   protected:
 
+    //
+    // NotifierImpl API
+    // 
+
+    virtual void handleActivate() override;
+    virtual void handleDeactivate() override;
+    virtual void handleChange() override;
+
+    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+
     // Behavior that needs to be augmented for LookupOnChange
     virtual void invalidateOldState(); // called before updating state to new value
 
@@ -224,9 +227,6 @@ namespace PLEXIL
     virtual const char *exprName() const override;
 
     // Wrappers around Lookup methods
-    virtual void handleActivate() override;
-    virtual void handleDeactivate() override;
-    virtual void handleChange() override;
     virtual void valueChanged() override;
 
     virtual bool getThresholds(Integer &high, Integer &low) override;
@@ -253,6 +253,16 @@ namespace PLEXIL
      * @return The Value instance.
      */
     virtual Value toValue() const override;
+
+  protected:
+
+    //
+    // NotifierImpl API
+    //
+
+    virtual void handleActivate() override;
+    virtual void handleDeactivate() override;
+    virtual void handleChange() override;
 
     virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
 

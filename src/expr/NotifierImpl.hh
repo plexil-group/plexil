@@ -113,18 +113,6 @@ namespace PLEXIL
     // Implementation details
     //
 
-    /**
-     * @brief Report whether the expression has listeners.
-     * @return True if present, false if not.
-     */
-    virtual bool hasListeners() const override;
-
-    /**
-     * @brief Unconditionally add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     */
-    virtual void addListenerInternal(ExpressionListener *ptr) override;
-
 #ifdef RECORD_EXPRESSION_STATS    
     /**
      * @brief Get head of list of instances.
@@ -143,6 +131,18 @@ namespace PLEXIL
 #endif
 
   protected:
+
+    /**
+     * @brief Report whether the expression has listeners.
+     * @return True if present, false if not.
+     */
+    virtual bool hasListeners() const override;
+
+    /**
+     * @brief Unconditionally add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     */
+    virtual void addListenerInternal(ExpressionListener *ptr) override;
 
     /**
      * @brief Default constructor.

@@ -55,13 +55,21 @@ namespace PLEXIL
     virtual bool isKnown() const;
     virtual bool getValue(Real &result) const; // FIXME
     virtual void printValue(std::ostream &s) const;
-    virtual void printSpecialized(std::ostream &s) const;
 
     void setValue(Real newval); // FIXME
     void reset(); 
 
     NodeTimepointValue *next() const;
     void setNext(NodeTimepointValue *);
+
+  protected:
+
+    //
+    // Expression internal API
+    //
+
+    virtual void printSpecialized(std::ostream &s) const;
+
 
   private:
     // not implemented

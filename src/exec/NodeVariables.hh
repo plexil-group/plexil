@@ -84,8 +84,6 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
-    void printSpecialized(std::ostream &s) const;
-
     // Notifier API
     inline bool isActive() const
     {
@@ -97,6 +95,14 @@ namespace PLEXIL {
 
     // For convenience of Node
     void changed();
+
+  protected:
+
+    //
+    // Expression internal API
+    //
+
+    void printSpecialized(std::ostream &s) const;
 
   private:
     // Not implemented
@@ -148,8 +154,6 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
-    void printSpecialized(std::ostream &s) const;
-
     // Notifier API
     inline bool isActive() const
     {
@@ -161,6 +165,14 @@ namespace PLEXIL {
 
     // For convenience of Node
     void changed();
+
+  protected:
+
+    //
+    // Expression internal API
+    //
+
+    void printSpecialized(std::ostream &s) const;
 
   private:
 
@@ -213,8 +225,6 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
-    void printSpecialized(std::ostream &s) const;
-
     // Notifier API
     inline bool isActive() const
     {
@@ -226,6 +236,14 @@ namespace PLEXIL {
 
     // For convenience of Node
     void changed();
+
+  protected:
+
+    //
+    // Expression internal API
+    //
+
+    void printSpecialized(std::ostream &s) const;
 
   private:
 

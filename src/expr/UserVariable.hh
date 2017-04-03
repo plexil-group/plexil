@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -126,12 +126,6 @@ namespace PLEXIL
      */
     virtual void setValue(Value const &val) override;
 
-    void handleActivate() override;
-
-    void handleDeactivate() override;
-
-    void printSpecialized(std::ostream &s) const override;
-
   protected:
     
     /**
@@ -139,6 +133,19 @@ namespace PLEXIL
      * @param value The value to assign.
      */
     void setValueImpl(T const &value);
+
+    //
+    // Expression internal API
+    //
+
+    void printSpecialized(std::ostream &s) const override;
+
+    //
+    // NotifierImpl API
+    //
+
+    void handleActivate() override;
+    void handleDeactivate() override;
 
   private:
 
@@ -246,19 +253,26 @@ namespace PLEXIL
      */
     virtual void setValue(Value const &val) override;
 
-    void handleActivate() override;
-
-    void handleDeactivate() override;
-
-    void printSpecialized(std::ostream &s) const override;
-
   protected:
-    
+
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
      */
     void setValueImpl(Integer const &value);
+
+    //
+    // Expression internal API
+    //
+
+    void printSpecialized(std::ostream &s) const override;
+    
+    //
+    // NotifierImpl API
+    //
+
+    void handleActivate() override;
+    void handleDeactivate() override;
 
   private:
 
@@ -338,13 +352,6 @@ namespace PLEXIL
     bool getValuePointer(U const *&ptr) const;
 
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
-     */
-    void setValueImpl(String const &value);
-
-    /**
      * @brief Set the current value unknown.
      */
     void setUnknown() override;
@@ -374,11 +381,27 @@ namespace PLEXIL
      */
     virtual void setValue(Value const &val) override;
 
-    void handleActivate() override;
+  protected:
 
-    void handleDeactivate() override;
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     * @note Type conversions must go on derived classes.
+     */
+    void setValueImpl(String const &value);
+
+    //
+    // Expression internal API
+    //
 
     void printSpecialized(std::ostream &s) const override;
+    
+    //
+    // NotifierImpl API
+    //
+
+    void handleActivate() override;
+    void handleDeactivate() override;
 
   private:
 

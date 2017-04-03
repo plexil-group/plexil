@@ -99,9 +99,9 @@ namespace PLEXIL
      */
     virtual Value toValue() const override;
 
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
-
   protected:
+
+    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
 
     // The expression being aliased.
     Expression *m_exp;

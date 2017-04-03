@@ -111,12 +111,6 @@ namespace PLEXIL
      */
     virtual void setUnknown() override;
 
-    virtual void handleActivate() override;
-
-    virtual void handleDeactivate() override;
-
-    virtual void printSpecialized(std::ostream &s) const override;
-
     //
     // Access needed by ArrayReference
     //
@@ -160,6 +154,19 @@ namespace PLEXIL
     void setElementUnknown(size_t idx);
 
   protected:
+
+    //
+    // Expression internal API
+    //
+
+    virtual void printSpecialized(std::ostream &s) const override;
+
+    //
+    // NotifierImpl API
+    //
+
+    virtual void handleActivate() override;
+    virtual void handleDeactivate() override;
 
     //
     // API to derived classes

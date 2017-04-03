@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,15 +54,8 @@ namespace PLEXIL {
 
     virtual char const *getName() const override;
     virtual char const *exprName() const override;
-    virtual void printSpecialized(std::ostream &s) const override;
 
     virtual bool isKnown() const override;
-
-    //
-    // NotifierImpl API
-    //
-
-    virtual void handleActivate() override;
 
     //
     // Assignable and AssignableImpl API
@@ -86,6 +79,19 @@ namespace PLEXIL {
      * @param val The new value for this object.
      */
     // virtual void setValue(Value const &val) override;
+
+  protected:
+
+    //
+    // Expression internal API
+    //
+    virtual void printSpecialized(std::ostream &s) const override;
+
+    //
+    // NotifierImpl API
+    //
+
+    virtual void handleActivate() override;
 
   private:
 

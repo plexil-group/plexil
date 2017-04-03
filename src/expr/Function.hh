@@ -65,7 +65,6 @@ namespace PLEXIL
 
     virtual size_t size() const  = 0;
     virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
-    virtual void printSubexpressions(std::ostream &s) const override = 0;
     virtual void setArgument(size_t i, Expression *expr, bool garbage) = 0;
     virtual Expression const *operator[](size_t n) const = 0;
 
@@ -109,9 +108,6 @@ namespace PLEXIL
 
     // Needed by Operator::calcNative for array types
     virtual bool apply(Operator const *op, Array &result) const;
-
-    // Implemented by derived classes
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override = 0;
     
   protected:
 
@@ -119,10 +115,21 @@ namespace PLEXIL
     Function(Operator const *op);
 
     //
-    // NotifierImpl API
+    // Expression internal API
+    // Implemented by derived classes
     //
+
+    virtual void printSubexpressions(std::ostream &s) const override = 0;
+
+    //
+    // NotifierImpl API
+    // Implemented by derived classes
+    //
+
     virtual void handleActivate() override = 0;
     virtual void handleDeactivate() override = 0;
+
+    virtual void doSubexprs(std::function<void (Expression *)> const &f) override = 0;
 
     Operator const *m_op;
 

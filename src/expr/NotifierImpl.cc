@@ -161,45 +161,47 @@ namespace PLEXIL {
   // originally called.
   //
 
-  // helper for below
-  static void addListenerToSubexprs(ExpressionListener *l,
-                                    Expression *e)
-  {
-#ifdef LISTENER_DEBUG
-    debugMsg("NotifierImpl:addListenerToSubexprs",
-             ' ' << e << " adding " << l);
-#endif
-    std::function<void (Expression *)> innerFn
-      = ([l, &innerFn](Expression *x)
-         { 
-#ifdef LISTENER_DEBUG
-           debugMsg("NotifierImpl:addListenerToSubexprs[1]",
-                    ' ' << x << " adding " << l);
-#endif
-           if (x->hasListeners()) {
-             // Subexprs already dealt with, just listen to this one
-             x->addListenerInternal(l);
-           }
-           else if (x->isPropagationSource()) {
-             // This expression can independently generate notifications,
-             // so add requested listener here ...
-             x->addListenerInternal(l);
-             // ... and make it listen to its descendants.
-             addListenerToSubexprs(x, x);
-           }
-           else {
-             // Not a source, recurse on descendants
-             x->doSubexprs(innerFn);
-           }
-         });
-    e->doSubexprs(innerFn);
-  }
-
   void NotifierImpl::addListener(ExpressionListener *ptr)
   {
+    // Internal helper fn
+    // Have to explicitly declare type because it refers to itself
+    std::function<void(ExpressionListener *l, Expression *e)> addListenerToSubexprs =
+      [&addListenerToSubexprs](ExpressionListener *l, Expression *e)
+      {
 #ifdef LISTENER_DEBUG
-      debugMsg("NotifierImpl:addListener",
-               ' ' << *this << " adding " << ptr << ' ' << typeid(*ptr).name());
+        debugMsg("NotifierImpl:addListenerToSubexprs",
+                 ' ' << e << " adding " << l);
+#endif
+        // Have to explicitly declare type because it refers to itself
+        std::function<void(Expression *)> innerFn =
+        [&addListenerToSubexprs, l, &innerFn](Expression *x)
+        { 
+#ifdef LISTENER_DEBUG
+          debugMsg("NotifierImpl:addListenerToSubexprs[1]",
+                   ' ' << x << " adding " << l);
+#endif
+          if (x->hasListeners()) {
+            // Subexprs already dealt with, just listen to this one
+            x->addListenerInternal(l);
+          }
+          else if (x->isPropagationSource()) {
+            // This expression can independently generate notifications,
+            // so add requested listener here ...
+            x->addListenerInternal(l);
+            // ... and make it listen to its descendants.
+            addListenerToSubexprs(x, x);
+          }
+          else {
+            // Not a source, recurse on descendants
+            x->doSubexprs(innerFn);
+          }
+        };
+        e->doSubexprs(innerFn);
+      };
+
+#ifdef LISTENER_DEBUG
+    debugMsg("NotifierImpl:addListener",
+             ' ' << *this << " adding " << ptr << ' ' << typeid(*ptr).name());
 #endif
     if (m_outgoingListeners.empty()) {
 #ifdef LISTENER_DEBUG
@@ -231,22 +233,22 @@ namespace PLEXIL {
 #endif
   }
 
-  // Helper function
-  static void removeListenerFromSubexprs(ExpressionListener *l,
-                                         Expression *e)
-  {
-    e->doSubexprs([l](Expression *x)
-                  { 
-#ifdef LISTENER_DEBUG
-                    debugMsg("NotifierImpl:removeListenerFromSubexprs",
-                             ' ' << x << " removing " << l);
-#endif
-                    x->removeListener(l);
-                  });
-  }
-
   void NotifierImpl::removeListener(ExpressionListener *ptr)
   {
+    // Internal helper function
+    auto removeListenerFromSubexprs =
+      [](ExpressionListener *l, Expression *e)
+      {
+        e->doSubexprs([l](Expression *x)
+      { 
+#ifdef LISTENER_DEBUG
+        debugMsg("NotifierImpl:removeListenerFromSubexprs",
+                 ' ' << x << " removing " << l);
+#endif
+        x->removeListener(l);
+      });
+      };
+
 #ifdef LISTENER_DEBUG
     debugMsg("NotifierImpl:removeListener",
              ' ' << *this << " removing " << ptr << ' ' << typeid(*ptr).name());
