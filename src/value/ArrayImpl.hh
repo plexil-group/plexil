@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,118 +31,12 @@
 
 namespace PLEXIL
 {
-  /**
-   * @class ArrayAdapter
-   * @brief Dispatching layer between Array and ArrayImpl<T>. Contains no state of its own.
-   * @note Another instance of the Curiously Recurring Template Pattern.
-   * @note Should never be referenced except inside ArrayImpl<T>.
-   */
-  template <class IMPL>
-  class ArrayAdapter : public Array
-  {
-  public:
-    ~ArrayAdapter()
-    {
-    }
-
-#define DEFINE_AA_GET_ELEMENT_METHOD_SHIM(_type) \
-    bool getElement(size_t index, _type &result) const \
-    {return static_cast<const IMPL *>(this)->getElementImpl(index, result);}
-
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Boolean)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Integer)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(Real)
-    DEFINE_AA_GET_ELEMENT_METHOD_SHIM(String)
-
-#undef DEFINE_AA_GET_ELEMENT_METHOD_SHIM
-
-    bool getElementPointer(size_t index, String const *&result) const
-    {
-      return static_cast<const IMPL *>(this)->getElementPointerImpl(index, result);
-    }
-
-    void setElement(size_t index, Boolean const &newVal)
-    {
-      static_cast<IMPL *>(this)->setElementImpl(index, newVal);
-    }
-
-    void setElement(size_t index, Integer const &newVal)
-    {
-      static_cast<IMPL *>(this)->setElementImpl(index, newVal);
-    }
-
-    void setElement(size_t index, Real const &newVal)
-    {
-      static_cast<IMPL *>(this)->setElementImpl(index, newVal);
-    }
-
-    void setElement(size_t index, String const &newVal)
-    {
-      static_cast<IMPL *>(this)->setElementImpl(index, newVal);
-    }
-
-    void getContentsVector(std::vector<Boolean> const *& result) const
-    {
-      static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
-    }
-
-    void getContentsVector(std::vector<Integer> const *& result) const
-    {
-      static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
-    }
-
-    void getContentsVector(std::vector<Real> const *& result) const
-    {
-      static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
-    }
-
-    void getContentsVector(std::vector<String> const *& result) const
-    {
-      static_cast<IMPL const *>(this)->getContentsVectorImpl(result);
-    }
-
-    char *serialize(char *b) const
-    {
-      return static_cast<IMPL const *>(this)->serializeImpl(b);
-    }
-
-    char const *deserialize(char const *b)
-    {
-      return static_cast<IMPL *>(this)->deserializeImpl(b);
-    }
-
-    size_t serialSize() const
-    {
-      return static_cast<IMPL const *>(this)->serialSizeImpl();
-    }
-
-  protected:
-    // Only available to derived classes
-    ArrayAdapter()
-      : Array()
-    {
-    }
-
-    ArrayAdapter(ArrayAdapter const &orig)
-    : Array(orig)
-    {
-    }
-    
-    ArrayAdapter(size_t size, bool known)
-      : Array(size, known)
-    {
-    }
-
-  private:
-    // No one should ever call this.
-    ArrayAdapter &operator=(ArrayAdapter const &);
-  };
 
   //
   // ArrayImpl
   //
   template <typename T>
-  class ArrayImpl : public ArrayAdapter<ArrayImpl<T> >
+  class ArrayImpl : public Array
   {
   public:
     ArrayImpl();
@@ -153,48 +47,91 @@ namespace PLEXIL
 
     ~ArrayImpl();
 
-    Array *clone() const;
-    ArrayImpl &operator=(ArrayImpl<T> const &);
+    virtual Array *clone() const;
 
-    void resize(size_t size);
+    virtual Array &operator=(Array const &);
+    virtual ArrayImpl &operator=(ArrayImpl<T> const &);
+
+    virtual void resize(size_t size);
 
     // Generic accessors
-    ValueType getElementType() const;
-    Value getElementValue(size_t index) const;
+    virtual ValueType getElementType() const;
+    virtual Value getElementValue(size_t index) const;
 
-    bool operator==(Array const &other) const;
+    virtual bool operator==(Array const &other) const;
     bool operator==(ArrayImpl<T> const &other) const;
 
     // Generic setter
-    void setElementValue(size_t index, Value const &value);
+    virtual void setElementValue(size_t index, Value const &value);
 
     // Typed accessors
-    bool getElementImpl(size_t index, T &result) const;
-    template <typename U>
-    bool getElementImpl(size_t index, U &result) const;
+    virtual bool getElement(size_t index, T &result) const;
 
-    bool getElementPointerImpl(size_t index, T const *&result) const;
-    template <typename U>
-    bool getElementPointerImpl(size_t index, U const *&result) const;
+    void getContentsVector(std::vector<T> const *&result) const;
 
-    void getContentsVectorImpl(std::vector<T> const *&result) const;
-    template <typename U>
-    void getContentsVectorImpl(std::vector<U> const *&result) const;
+    virtual void setElement(size_t index, T const &newVal);
 
-    void setElementImpl(size_t index, T const &newVal);
-    template <typename U>
-    void setElementImpl(size_t index, U const &newVal);
+    virtual void print(std::ostream &s) const;
 
-    bool getMutableElementPointer(size_t index, String *&result);
-
-    void print(std::ostream &s) const;
-
-    char *serializeImpl(char *b) const; 
-    char const *deserializeImpl(char const *b);
-    size_t serialSizeImpl() const; 
+    virtual char *serialize(char *b) const; 
+    virtual char const *deserialize(char const *b);
+    virtual size_t serialSize() const; 
 
   private:
     std::vector<T> m_contents;
+  };
+
+  //
+  // String is special because of getElementPointer()
+  // So we have to duplicate every blasted member function.
+  //
+
+  template <>
+  class ArrayImpl<String> : public Array
+  {
+  public:
+    ArrayImpl();
+    ArrayImpl(ArrayImpl const &);
+    ArrayImpl(size_t size);
+    ArrayImpl(size_t size, String const &initval);
+    ArrayImpl(std::vector<String> const &initval);
+
+    ~ArrayImpl();
+
+    virtual Array *clone() const;
+
+    virtual Array &operator=(Array const &);
+    virtual ArrayImpl &operator=(ArrayImpl<String> const &);
+
+    virtual void resize(size_t size);
+
+    // Generic accessors
+    virtual ValueType getElementType() const;
+    virtual Value getElementValue(size_t index) const;
+
+    virtual bool operator==(Array const &other) const;
+    bool operator==(ArrayImpl<String> const &other) const;
+
+    // Generic setter
+    virtual void setElementValue(size_t index, Value const &value);
+
+    // Typed accessors
+    virtual bool getElement(size_t index, String &result) const;
+
+    virtual bool getElementPointer(size_t index, String const *&result) const;
+
+    void getContentsVector(std::vector<String> const *&result) const;
+
+    virtual void setElement(size_t index, String const &newVal);
+
+    virtual void print(std::ostream &s) const;
+
+    virtual char *serialize(char *b) const; 
+    virtual char const *deserialize(char const *b);
+    virtual size_t serialSize() const; 
+
+  private:
+    std::vector<String> m_contents;
   };
 
   template <typename T>

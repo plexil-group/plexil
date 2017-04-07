@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,8 @@
 */
 
 #include "Array.hh"
-#include "Error.hh"
+#include "PlanError.hh"
+#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -111,6 +112,51 @@ namespace PLEXIL
         return true;
     return false;
   }
+
+  // Default methods throw PlanError
+#define DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(_TYPE_) \
+  bool Array::getElement(size_t /* index */, _TYPE_ & /* result */) const \
+  { \
+    checkPlanError(ALWAYS_FAIL, \
+                   "Type error: can't get element of type " \
+                   << PlexilValueType<_TYPE_>::typeName \
+                   << " from array of " \
+                   << valueTypeName(this->getElementType()));   \
+    return false; \
+  }
+
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(Boolean)
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(Integer)
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(Real)
+  DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(String)
+
+#undef DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD
+
+  bool Array::getElementPointer(size_t /* index */, String const *& /* result */) const
+  {
+    checkPlanError(ALWAYS_FAIL,
+                   "Type error: can't get pointer to String element "
+                   << " from array of "
+                   << valueTypeName(this->getElementType()));
+    return false;
+  }
+
+#define DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(_TYPE_) \
+  void Array::setElement(size_t /* index */, _TYPE_ const & /* newval */) \
+  { \
+    checkPlanError(ALWAYS_FAIL, \
+                   "Type error: can't assign element of type " \
+                   << valueTypeName(PlexilValueType<_TYPE_>::value) \
+                   << " to array of " \
+                   << valueTypeName(this->getElementType()));  \
+  }
+
+  DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(Boolean)
+  DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(Integer)
+  DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(Real)
+  DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(String)
+
+#undef DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD
 
   std::string Array::toString() const
   {

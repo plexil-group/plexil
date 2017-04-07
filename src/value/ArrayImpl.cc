@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,34 +36,63 @@ namespace PLEXIL
 
   template <typename T>
   ArrayImpl<T>::ArrayImpl()
-    : ArrayAdapter<ArrayImpl<T> >()
+    : Array()
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl()
+    : Array()
   {
   }
 
   template <typename T>
   ArrayImpl<T>::ArrayImpl(ArrayImpl<T> const &orig)
-    : ArrayAdapter<ArrayImpl<T> >(orig),
+    : Array(orig),
+      m_contents(orig.m_contents)
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl(ArrayImpl<String> const &orig)
+    : Array(orig),
       m_contents(orig.m_contents)
   {
   }
 
   template <typename T>
   ArrayImpl<T>::ArrayImpl(size_t size)
-  : ArrayAdapter<ArrayImpl<T> >(size, false),
+  : Array(size, false),
+    m_contents(size)
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl(size_t size)
+  : Array(size, false),
     m_contents(size)
   {
   }
 
   template <typename T>
   ArrayImpl<T>::ArrayImpl(size_t size, T const &initval)
-  : ArrayAdapter<ArrayImpl<T> >(size, true),
+  : Array(size, true),
+    m_contents(size, initval)
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl(size_t size, String const &initval)
+  : Array(size, true),
     m_contents(size, initval)
   {
   }
 
   template <typename T>
   ArrayImpl<T>::ArrayImpl(std::vector<T> const &initval)
-    : ArrayAdapter<ArrayImpl<T> >(initval.size(), true),
+    : Array(initval.size(), true),
+      m_contents(initval)
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl(std::vector<String> const &initval)
+    : Array(initval.size(), true),
       m_contents(initval)
   {
   }
@@ -73,14 +102,51 @@ namespace PLEXIL
   {
   }
 
+  ArrayImpl<String>::~ArrayImpl()
+  {
+  }
+
   template <typename T>
   Array *ArrayImpl<T>::clone() const
   {
     return new ArrayImpl<T>(*this);
   }
 
+  Array *ArrayImpl<String>::clone() const
+  {
+    return new ArrayImpl<String>(*this);
+  }
+
+  template <typename T>
+  Array &ArrayImpl<T>::operator=(Array const &orig)
+  {
+    ArrayImpl<T> const *typedOrig =
+      dynamic_cast<ArrayImpl<T> const *>(&orig);
+    checkPlanError(typedOrig,
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type " << valueTypeName(getElementType()));
+    return this->operator=(*typedOrig);
+  }
+
+  Array &ArrayImpl<String>::operator=(Array const &orig)
+  {
+    ArrayImpl<String> const *typedOrig =
+      dynamic_cast<ArrayImpl<String> const *>(&orig);
+    checkPlanError(typedOrig,
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type String");
+    return this->operator=(*typedOrig);
+  }
+
   template <typename T>
   ArrayImpl<T> &ArrayImpl<T>::operator=(ArrayImpl<T> const &orig)
+  {
+    Array::operator=(orig);
+    m_contents = orig.m_contents;
+    return *this;
+  }
+
+  ArrayImpl<String> &ArrayImpl<String>::operator=(ArrayImpl<String> const &orig)
   {
     Array::operator=(orig);
     m_contents = orig.m_contents;
@@ -94,25 +160,18 @@ namespace PLEXIL
     m_contents.resize(size);
   }
 
-  template <>
-  ValueType ArrayImpl<Boolean>::getElementType() const
+  void ArrayImpl<String>::resize(size_t size)
   {
-    return BOOLEAN_TYPE;
+    Array::resize(size);
+    m_contents.resize(size);
   }
 
-  template <>
-  ValueType ArrayImpl<Integer>::getElementType() const
+  template <typename T>
+  ValueType ArrayImpl<T>::getElementType() const
   {
-    return INTEGER_TYPE;
+    return PlexilValueType<T>::value;
   }
 
-  template <>
-  ValueType ArrayImpl<Real>::getElementType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
   ValueType ArrayImpl<String>::getElementType() const
   {
     return STRING_TYPE;
@@ -127,8 +186,16 @@ namespace PLEXIL
       return Value(m_contents[index]);
   }
 
+  Value ArrayImpl<String>::getElementValue(size_t index) const
+  {
+    if (!(this->checkIndex(index) && this->m_known[index]))
+      return Value(); // unknown
+    else
+      return Value(m_contents[index]);
+  }
+
   template <typename T>
-  bool ArrayImpl<T>::getElementImpl(size_t index, T &result) const
+  bool ArrayImpl<T>::getElement(size_t index, T &result) const
   {
     if (!this->checkIndex(index))
       return false;
@@ -138,29 +205,23 @@ namespace PLEXIL
     return true;
   }
 
-  // Default
-  template <typename T>
-  template <typename U>
-  bool ArrayImpl<T>::getElementImpl(size_t index, U & /* result */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Array indexing type error: array elements are of type "
-                   << valueTypeName(PlexilValueType<T>::value)
-                   << " but result variable is of type "
-                   << valueTypeName(PlexilValueType<U>::value));
-    return false;
-  }
-
-  // Conversion
-  template <>
-  template <>
-  bool ArrayImpl<Integer>::getElementImpl(size_t index, Real &result) const
+  bool ArrayImpl<String>::getElement(size_t index, String &result) const
   {
     if (!this->checkIndex(index))
       return false;
     if (!this->m_known[index])
       return false;
-    result = (Real) m_contents[index];
+    result = m_contents[index];
+    return true;
+  }
+
+  bool ArrayImpl<String>::getElementPointer(size_t index, String const *&result) const
+  {
+    if (!this->checkIndex(index))
+      return false;
+    if (!this->m_known[index])
+      return false;
+    result = &m_contents[index];
     return true;
   }
 
@@ -175,6 +236,15 @@ namespace PLEXIL
     return operator==(*typedOther);
   }
 
+  bool ArrayImpl<String>::operator==(Array const &other) const
+  {
+    ArrayImpl<String> const *typedOther = 
+      dynamic_cast<ArrayImpl<String> const *>(&other);
+    if (!typedOther)
+      return false;
+    return operator==(*typedOther);
+  }
+
   // Specific equality
   template <typename T>
   bool ArrayImpl<T>::operator==(ArrayImpl<T> const &other) const
@@ -184,73 +254,34 @@ namespace PLEXIL
     return m_contents == other.m_contents;
   }
 
-  template <typename T>
-  bool ArrayImpl<T>::getElementPointerImpl(size_t index, T const *&result) const
+  bool ArrayImpl<String>::operator==(ArrayImpl<String> const &other) const
   {
-    if (!this->checkIndex(index))
+    if (!(this->getKnownVector() == other.getKnownVector()))
       return false;
-    if (!this->m_known[index])
-      return false;
-    result = &m_contents[index];
-    return true;
-  }
-
-  // Limitation of std::vector<Boolean>
-  template <>
-  bool ArrayImpl<Boolean>::getElementPointerImpl(size_t index, Boolean const *&result) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Array::getElementPointer not implemented for BooleanArray");
-    return false;
+    return m_contents == other.m_contents;
   }
 
   template <typename T>
-  bool ArrayImpl<T>::getMutableElementPointer(size_t index, String *&result)
-  {
-    assertTrue_2(ALWAYS_FAIL, "Array:getMutableElementPointer not implemented for numeric arrays");
-    return false;
-  }
-
-  template <>
-  bool ArrayImpl<String>::getMutableElementPointer(size_t index, String *&result)
-  {
-    if (!this->checkIndex(index))
-      return false;
-    if (!this->m_known[index])
-      return false;
-    result = &m_contents[index];
-    return true;
-  }
-
-  // Default
-  template <typename T>
-  template <typename U>
-  bool ArrayImpl<T>::getElementPointerImpl(size_t index, U const *& /* result */) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Array indexing type error: array elements are of type "
-                   << valueTypeName(PlexilValueType<T>::value)
-                   << " but result variable is of type "
-                   << valueTypeName(PlexilValueType<U>::value));
-    return false;
-  }
-
-  template <typename T>
-  void ArrayImpl<T>::getContentsVectorImpl(std::vector<T> const *&result) const
+  void ArrayImpl<T>::getContentsVector(std::vector<T> const *&result) const
   {
     result = &m_contents;
   }
 
-  // Default
-  template <typename T>
-  template <typename U>
-  void ArrayImpl<T>::getContentsVectorImpl(std::vector<U> const *&result) const
+  void ArrayImpl<String>::getContentsVector(std::vector<String> const *&result) const
   {
-    // I _think_ this is only an internal error.
-    assertTrue_2(ALWAYS_FAIL, "Array::getContentsVector: type error");
+    result = &m_contents;
   }
 
   template <typename T>
-  void ArrayImpl<T>::setElementImpl(size_t index, T const &newval)
+  void ArrayImpl<T>::setElement(size_t index, T const &newval)
+  {
+    if (!this->checkIndex(index))
+      return;
+    m_contents[index] = newval;
+    this->m_known[index] = true;
+  }
+
+  void ArrayImpl<String>::setElement(size_t index, String const &newval)
   {
     if (!this->checkIndex(index))
       return;
@@ -270,27 +301,16 @@ namespace PLEXIL
     this->m_known[index] = known;
   }
 
-  // Default
-  template <typename T>
-  template <typename U>
-  void ArrayImpl<T>::setElementImpl(size_t index, U const &newval)
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Array element type error: array elements are of type "
-                   << valueTypeName(PlexilValueType<T>::value)
-                   << " but new value is of type "
-                   << valueTypeName(PlexilValueType<U>::value));
-  }
-
-  // Conversion
-  template <>
-  template <>
-  void ArrayImpl<Real>::setElementImpl(size_t index, Integer const &newval)
+  // Slight optimization for String
+  void ArrayImpl<String>::setElementValue(size_t index, Value const &value)
   {
     if (!this->checkIndex(index))
       return;
-    m_contents[index] = (Real) newval;
-    this->m_known[index] = true;
+    String const *temp;
+    bool known = value.getValuePointer(temp);
+    if (known)
+      m_contents[index] = *temp;
+    this->m_known[index] = known;
   }
 
   template <typename T>
@@ -303,7 +323,7 @@ namespace PLEXIL
 
     while (i < len) {
       T temp;
-      if (getElementImpl(i, temp))
+      if (getElement(i, temp))
         printValue<T>(temp, s);
       else
         s << "UNKNOWN";
@@ -313,6 +333,31 @@ namespace PLEXIL
     // Print tail
     s << ')';
   }
+
+  // Slight optimization for String
+  void ArrayImpl<String>::print(std::ostream &s) const
+  {
+    s << "#(";
+
+    size_t len = this->size();
+    size_t i = 0;
+
+    while (i < len) {
+      String const *temp;
+      if (getElementPointer(i, temp))
+        printValue(*temp, s);
+      else
+        s << "UNKNOWN";
+      if (++i < len)
+        s << ' ';
+    }
+    // Print tail
+    s << ')';
+  }
+
+  //
+  // Non-member functions
+  //
 
   template <typename T>
   bool operator==(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
@@ -354,8 +399,8 @@ namespace PLEXIL
 
     // Same size
     std::vector<T> const *aVec, *bVec;
-    a.getContentsVectorImpl(aVec);
-    b.getContentsVectorImpl(bVec);
+    a.getContentsVector(aVec);
+    b.getContentsVector(bVec);
 
     for (size_t i = 0; i < aSize; ++i) {
       // Unknown is less than known
@@ -393,8 +438,8 @@ namespace PLEXIL
 
     // Same size
     std::vector<Boolean> const *aVec, *bVec;
-    a.getContentsVectorImpl(aVec);
-    b.getContentsVectorImpl(bVec);
+    a.getContentsVector(aVec);
+    b.getContentsVector(bVec);
 
     for (size_t i = 0; i < aSize; ++i) {
       // Unknown is less than known
@@ -733,7 +778,7 @@ namespace PLEXIL
    */
 
   template <typename T>
-  char *ArrayImpl<T>::serializeImpl(char *b) const
+  char *ArrayImpl<T>::serialize(char *b) const
   {
     size_t s = this->size();
     if (s > 0xFFFFFF)
@@ -760,7 +805,7 @@ namespace PLEXIL
   }
 
   template <>
-  char *ArrayImpl<Boolean>::serializeImpl(char *b) const
+  char *ArrayImpl<Boolean>::serialize(char *b) const
   {
     size_t s = this->size();
     if (s > 0xFFFFFF)
@@ -783,6 +828,32 @@ namespace PLEXIL
     return b;
   }
 
+  char *ArrayImpl<String>::serialize(char *b) const
+  {
+    size_t s = this->size();
+    if (s > 0xFFFFFF)
+      return NULL; // too big to serialize
+
+    // Write type code
+    *b++ = (char) PlexilValueType<String>::arrayValue;
+
+    // Write 3 bytes of size
+    *b++ = (char) (0xFF & (s >> 16));
+    *b++ = (char) (0xFF & (s >> 8));
+    *b++ = (char) (0xFF & s);
+
+    // Write known vector
+    b = serializeBoolVector(this->m_known, b);
+
+    // Write array contents
+    for (size_t i = 0; i < s; ++i) {
+      b = serializeElement(m_contents[i], b);
+      if (!b)
+        return NULL; // serializeElement failed
+    }
+    return b;
+  }
+
   /**
    * @brief Read a binary representation from the buffer and store it to the result object.
    * @param o The result object.
@@ -792,7 +863,7 @@ namespace PLEXIL
 
   // General case
   template <typename T>
-  char const *ArrayImpl<T>::deserializeImpl(char const *b)
+  char const *ArrayImpl<T>::deserialize(char const *b)
   {
     // Check type code
     if (PlexilValueType<T>::arrayValue != (ValueType) *b++)
@@ -814,7 +885,7 @@ namespace PLEXIL
 
   // Special case for Boolean
   template <>
-  char const *ArrayImpl<Boolean>::deserializeImpl(char const *b)
+  char const *ArrayImpl<Boolean>::deserialize(char const *b)
   {
     if (BOOLEAN_ARRAY_TYPE != (ValueType) *b++)
       return NULL; // not a Boolean array
@@ -831,6 +902,26 @@ namespace PLEXIL
     return b;
   }
 
+  char const *ArrayImpl<String>::deserialize(char const *b)
+  {
+    // Check type code
+    if (PlexilValueType<String>::arrayValue != (ValueType) *b++)
+      return NULL; // not an appropriate array
+
+    // Get 3 bytes of size
+    size_t s = (size_t) *b++; s = s << 8;
+    s += (size_t) *b++; s = s << 8;
+    s += (size_t) *b++;
+    
+    this->resize(s);
+    
+    b = deserializeBoolVector(this->m_known, b);
+    for (size_t i = 0; i < s; ++i)
+      b = deserializeElement(m_contents[i], b);
+
+    return b;
+  }
+
   /**
    * @brief Calculate the size of the serial representation of the object.
    * @param o The object.
@@ -839,7 +930,7 @@ namespace PLEXIL
 
   // Numeric case
   template <typename NUM>
-  size_t ArrayImpl<NUM>::serialSizeImpl() const
+  size_t ArrayImpl<NUM>::serialSize() const
   {
     NUM const dummy = 0;
     size_t s = this->size();
@@ -847,14 +938,13 @@ namespace PLEXIL
   }
 
   template <>
-  size_t ArrayImpl<Boolean>::serialSizeImpl() const
+  size_t ArrayImpl<Boolean>::serialSize() const
   {
     return 4 + 2 * bitVectorSize(this->size());
   }
 
   // Requires traversing entire array
-  template <>
-  size_t ArrayImpl<String>::serialSizeImpl() const
+  size_t ArrayImpl<String>::serialSize() const
   {
     size_t s = this->size();
     size_t result = 4 + bitVectorSize(s);
@@ -871,13 +961,13 @@ namespace PLEXIL
 
 #define DEF_ARRAY_SERDES_WRAPPERS(typ) \
   template <> char *serialize(ArrayImpl<typ> const &o, char *b)	\
-  {return o.serializeImpl(b);} \
+  {return o.serialize(b);} \
 \
   template <> char const *deserialize(ArrayImpl<typ> &o, char const *b) \
-  {return o.deserializeImpl(b);} \
+  {return o.deserialize(b);} \
 \
   template <> size_t serialSize(ArrayImpl<typ> const &o) \
-  {return o.serialSizeImpl();}
+  {return o.serialSize();}
 
   DEF_ARRAY_SERDES_WRAPPERS(Boolean)
   DEF_ARRAY_SERDES_WRAPPERS(Integer)
@@ -890,27 +980,9 @@ namespace PLEXIL
   // Explicit instantiations
   //
   template class ArrayImpl<Boolean>;
-
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, Integer &) const;
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, Real &) const;
-  template bool ArrayImpl<Boolean>::getElementImpl(size_t, String &) const;
-
   template class ArrayImpl<Integer>;
-
-  template bool ArrayImpl<Integer>::getElementImpl(size_t, Boolean &) const;
-  template bool ArrayImpl<Integer>::getElementImpl(size_t, String &) const;
-
   template class ArrayImpl<Real>;
-
-  template bool ArrayImpl<Real>::getElementImpl(size_t, Boolean &) const;
-  template bool ArrayImpl<Real>::getElementImpl(size_t, Integer &) const;
-  template bool ArrayImpl<Real>::getElementImpl(size_t, String &) const;
-
-  template class ArrayImpl<String>;
-
-  template bool ArrayImpl<String>::getElementImpl(size_t, Boolean &) const;
-  template bool ArrayImpl<String>::getElementImpl(size_t, Integer &) const;
-  template bool ArrayImpl<String>::getElementImpl(size_t, Real &) const;
+  // template class ArrayImpl<String>;
 
   template bool operator!=(ArrayImpl<Boolean> const &, ArrayImpl<Boolean> const &);
   template bool operator!=(ArrayImpl<Integer> const &, ArrayImpl<Integer> const &);
@@ -942,20 +1014,5 @@ namespace PLEXIL
   template std::ostream &operator<<(std::ostream &s, ArrayImpl<Integer> const &);
   template std::ostream &operator<<(std::ostream &s, ArrayImpl<Real> const &);
   template std::ostream &operator<<(std::ostream &s, ArrayImpl<String> const &);
-
-  template char *serialize(ArrayImpl<Boolean> const &, char *);
-  template char *serialize(ArrayImpl<Integer> const &, char *);
-  template char *serialize(ArrayImpl<Real> const &, char *);
-  template char *serialize(ArrayImpl<String> const &, char *);
-
-  template char const *deserialize(ArrayImpl<Boolean> &, char const *);
-  template char const *deserialize(ArrayImpl<Integer> &, char const *);
-  template char const *deserialize(ArrayImpl<Real> &, char const *);
-  template char const *deserialize(ArrayImpl<String> &, char const *);
-
-  template size_t serialSize(ArrayImpl<Boolean> const &);
-  template size_t serialSize(ArrayImpl<Integer> const &);
-  template size_t serialSize(ArrayImpl<Real> const &);
-  template size_t serialSize(ArrayImpl<String> const &);
 
 } // namespace PLEXIL
