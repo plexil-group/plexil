@@ -67,11 +67,12 @@ namespace PLEXIL
     virtual bool operator()(Real &result, Node const *node) const;
     virtual bool operator()(String &result, Node const *node) const;
 
-    virtual bool operator()(Array &result, Node const *node) const;
-    virtual bool operator()(BooleanArray &result, Node const *node) const;
-    virtual bool operator()(IntegerArray &result, Node const *node) const;
-    virtual bool operator()(RealArray &result, Node const *node) const;
-    virtual bool operator()(StringArray &result, Node const *node) const;
+    // Not needed yet
+    // virtual bool operator()(Array &result, Node const *node) const;
+    // virtual bool operator()(BooleanArray &result, Node const *node) const;
+    // virtual bool operator()(IntegerArray &result, Node const *node) const;
+    // virtual bool operator()(RealArray &result, Node const *node) const;
+    // virtual bool operator()(StringArray &result, Node const *node) const;
 
     virtual bool operator()(uint16_t &result, Node const *arg) const;
 
