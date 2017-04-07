@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayFwd.hh"
-#include "Expression.hh"
 #include "NodeOperatorImpl.hh"
 #include "PlexilTypeTraits.hh"
 
@@ -99,10 +97,7 @@ namespace PLEXIL
   template class NodeOperatorImpl<Boolean>;
 
   // later?
-  // template class NodeOperatorImpl<NodeState>;
-  // template class NodeOperatorImpl<NodeOutcome>;
-  // template class NodeOperatorImpl<FailureType>;
-  // template class NodeOperatorImpl<CommandHandleValue>;
+  // template class NodeOperatorImpl<uint16_t>; // node internal values
   // template class NodeOperatorImpl<Integer>;
   // template class NodeOperatorImpl<Real>;
   // template class NodeOperatorImpl<String>;

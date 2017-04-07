@@ -27,7 +27,6 @@
 #ifndef PLEXIL_NODE_OPERATOR_HH
 #define PLEXIL_NODE_OPERATOR_HH
 
-#include "ArrayFwd.hh"
 #include "ValueType.hh"
 
 namespace PLEXIL

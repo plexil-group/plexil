@@ -30,8 +30,6 @@
 #include "NodeOperator.hh"
 
 #include "allocateCache.hh"
-#include "PlanError.hh"
-#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
