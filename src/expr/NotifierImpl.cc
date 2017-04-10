@@ -234,22 +234,21 @@ namespace PLEXIL {
 #endif
   }
 
+  // Internal helper function
+  static void removeListenerFromSubexprs(ExpressionListener *l, Expression *e)
+  {
+    e->doSubexprs([l](Expression *x)
+                  { 
+#ifdef LISTENER_DEBUG
+                    debugMsg("NotifierImpl:removeListenerFromSubexprs",
+                             ' ' << x << " removing " << l);
+#endif
+                    x->removeListener(l);
+                  });
+  };
+
   void NotifierImpl::removeListener(ExpressionListener *ptr)
   {
-    // Internal helper function
-    auto removeListenerFromSubexprs =
-      [](ExpressionListener *l, Expression *e)
-      {
-        e->doSubexprs([l](Expression *x)
-      { 
-#ifdef LISTENER_DEBUG
-        debugMsg("NotifierImpl:removeListenerFromSubexprs",
-                 ' ' << x << " removing " << l);
-#endif
-        x->removeListener(l);
-      });
-      };
-
 #ifdef LISTENER_DEBUG
     debugMsg("NotifierImpl:removeListener",
              ' ' << *this << " removing " << ptr << ' ' << typeid(*ptr).name());
