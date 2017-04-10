@@ -161,44 +161,45 @@ namespace PLEXIL {
   // originally called.
   //
 
+  //
+  // Helper function
+  //
+
+  static void addListenerToSubexprs(ExpressionListener *l, Expression *e)
+  {
+#ifdef LISTENER_DEBUG
+    debugMsg("NotifierImpl:addListenerToSubexprs",
+             ' ' << e << " adding " << l);
+#endif
+    // Have to explicitly declare type because it refers to itself
+    std::function<void(Expression *)> innerFn =
+      [l, &innerFn](Expression *x)
+      { 
+#ifdef LISTENER_DEBUG
+        debugMsg("NotifierImpl:addListenerToSubexprs[1]",
+                 ' ' << x << " adding " << l);
+#endif
+        if (x->hasListeners()) {
+          // Subexprs already dealt with, just listen to this one
+          x->addListenerInternal(l);
+        }
+        else if (x->isPropagationSource()) {
+          // This expression can independently generate notifications,
+          // so add requested listener here ...
+          x->addListenerInternal(l);
+          // ... and make it listen to its descendants.
+          addListenerToSubexprs(x, x);
+        }
+        else {
+          // Not a source, recurse on descendants
+          x->doSubexprs(innerFn);
+        }
+      };
+    e->doSubexprs(innerFn);
+  }
+
   void NotifierImpl::addListener(ExpressionListener *ptr)
   {
-    // Internal helper fn
-    // Have to explicitly declare type because it refers to itself
-    std::function<void(ExpressionListener *l, Expression *e)> addListenerToSubexprs =
-      [&addListenerToSubexprs](ExpressionListener *l, Expression *e)
-      {
-#ifdef LISTENER_DEBUG
-        debugMsg("NotifierImpl:addListenerToSubexprs",
-                 ' ' << e << " adding " << l);
-#endif
-        // Have to explicitly declare type because it refers to itself
-        std::function<void(Expression *)> innerFn =
-        [&addListenerToSubexprs, l, &innerFn](Expression *x)
-        { 
-#ifdef LISTENER_DEBUG
-          debugMsg("NotifierImpl:addListenerToSubexprs[1]",
-                   ' ' << x << " adding " << l);
-#endif
-          if (x->hasListeners()) {
-            // Subexprs already dealt with, just listen to this one
-            x->addListenerInternal(l);
-          }
-          else if (x->isPropagationSource()) {
-            // This expression can independently generate notifications,
-            // so add requested listener here ...
-            x->addListenerInternal(l);
-            // ... and make it listen to its descendants.
-            addListenerToSubexprs(x, x);
-          }
-          else {
-            // Not a source, recurse on descendants
-            x->doSubexprs(innerFn);
-          }
-        };
-        e->doSubexprs(innerFn);
-      };
-
 #ifdef LISTENER_DEBUG
     debugMsg("NotifierImpl:addListener",
              ' ' << *this << " adding " << ptr << ' ' << typeid(*ptr).name());
