@@ -79,11 +79,6 @@ namespace PLEXIL
       unregister();
       m_entry = NULL;
     }
-    if (!m_stateIsConstant) {
-      if (m_paramVec)
-        m_paramVec->removeListener(this);
-      m_stateName->removeListener(this);
-    }
     delete m_paramVec;
     if (m_stateNameIsGarbage)
       delete m_stateName;

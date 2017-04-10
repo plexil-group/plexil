@@ -31,21 +31,6 @@
 
 namespace PLEXIL
 {
-  //
-  // ExprVec base class methods
-  //
-
-  void ExprVec::addListener(ExpressionListener * ptr)
-  {
-    for (size_t i = 0; i < this->size(); ++i)
-      (*this)[i]->addListener(ptr);
-  }
-
-  void ExprVec::removeListener(ExpressionListener * ptr)
-  {
-    for (size_t i = 0; i < this->size(); ++i)
-      (*this)[i]->removeListener(ptr);
-  }
 
   //
   // FixedExprVec
@@ -112,18 +97,6 @@ namespace PLEXIL
     {
       for (size_t i = 0; i < N; ++i)
         exprs[i]->deactivate();
-    }
-
-    virtual void addListener(ExpressionListener * ptr) override
-    {
-      for (size_t i = 0; i < N; ++i)
-        exprs[i]->addListener(ptr);
-    }
-
-    virtual void removeListener(ExpressionListener * ptr) override
-    {
-      for (size_t i = 0; i < N; ++i)
-        exprs[i]->removeListener(ptr);
     }
 
     virtual void doSubexprs(std::function<void (Expression *)> const &f) override
@@ -222,18 +195,6 @@ namespace PLEXIL
         s << ' ';
         exprs[i]->print(s);
       }
-    }
-
-    virtual void addListener(ExpressionListener * ptr) override
-    {
-      for (size_t i = 0; i < m_size; ++i)
-        exprs[i]->addListener(ptr);
-    }
-
-    virtual void removeListener(ExpressionListener * ptr) override
-    {
-      for (size_t i = 0; i < m_size; ++i)
-        exprs[i]->removeListener(ptr);
     }
 
     virtual void doSubexprs(std::function<void (Expression *)> const &f) override
