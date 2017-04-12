@@ -174,7 +174,7 @@ static bool inactiveTransTest()
         for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
           for (int i = 0; i < 5; i++) {
             Node *node = NodeFactory::createNode(types[i],
-                                                  std::string("test"), 
+                                                  std::string("inactiveTransTest"), 
                                                   INACTIVE_STATE, 
                                                   parent);
             node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
@@ -235,7 +235,7 @@ static bool waitingDestTest()
   g_interface = &tif;
   Node *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), WAITING_STATE, parent);
+  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("waitingDestTest"), WAITING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -303,8 +303,8 @@ static bool waitingTransTest()
   Node *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
   Value values[3] = {Value(), Value(false), Value(true)};
-  std::string types[4] = {ASSIGNMENT, COMMAND, LIST, UPDATE};
 
+  std::string types[4] = {ASSIGNMENT, COMMAND, LIST, UPDATE};
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
     for (int exit = 0; exit < 3; ++exit) {
       for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
@@ -313,18 +313,22 @@ static bool waitingTransTest()
             for (int start = 0; start < 3; ++start) {
               for (int pre = 0; pre < 3; ++pre) {
                 for (int i = 0; i < 4; i++) {
-                  Node *node = NodeFactory::createNode(types[i], std::string("test"), WAITING_STATE, parent);
+                  Node *node = NodeFactory::createNode(types[i], std::string("waitingTransTest"), WAITING_STATE, parent);
+
+                  // Parent's condition
                   node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
                   node->getExitCondition()->asAssignable()->setValue(values[exit]);
-                  node->getSkipCondition()->asAssignable()->setValue(values[skip]);
+                  // Parent's condition
                   node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
+                  // Parent's condition
                   node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
+                  node->getSkipCondition()->asAssignable()->setValue(values[skip]);
                   node->getStartCondition()->asAssignable()->setValue(values[start]);
                   node->getPreCondition()->asAssignable()->setValue(values[pre]);
 
                   debugMsg("UnitTest:waitingTransition",
-                           "Testing node type " << types[i] << " with "
-                           << " ancestor exit = " << values[ancestorExit]
+                           "Testing node type " << types[i]
+                           << " with ancestor exit = " << values[ancestorExit]
                            << " ancestor invariant = " << values[ancestorInvariant]
                            << " ancestor end = " << values[ancestorEnd]
                            << " skip = " << values[skip]
@@ -391,7 +395,7 @@ static bool iterationEndedDestTest()
   g_interface = &tif;
   Node *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), ITERATION_ENDED_STATE, parent);
+  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("iterationEndedDestTest"), ITERATION_ENDED_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -445,7 +449,7 @@ static bool iterationEndedTransTest()
       for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
         for (int repeat = 0; repeat < 3; ++repeat) {
           for (int i = 0; i < 4; i++) {
-            Node *node = NodeFactory::createNode(types[i], std::string("test"), ITERATION_ENDED_STATE, parent);
+            Node *node = NodeFactory::createNode(types[i], std::string("iterationEndedTransTest"), ITERATION_ENDED_STATE, parent);
             node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
             node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
             node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
@@ -504,7 +508,7 @@ static bool finishedDestTest()
   g_interface = &tif;
   Node *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), INACTIVE_STATE, NULL);
-  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), FINISHED_STATE, parent);
+  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("finishedDestTest"), FINISHED_STATE, parent);
   NodeState states[7] = {INACTIVE_STATE,
                          WAITING_STATE,
                          EXECUTING_STATE,
@@ -549,7 +553,7 @@ static bool finishedTransTest()
 
   for (size_t s = 0; s < 7; ++s) {
     for (int i = 0; i < 4; ++i) {
-      Node *node = NodeFactory::createNode(types[i], std::string("test"), FINISHED_STATE, parent);
+      Node *node = NodeFactory::createNode(types[i], std::string("finishedTransTest"), FINISHED_STATE, parent);
       parent->setState(states[s], tif.currentTime());
 
       debugMsg("UnitTest:finishedTransition",
@@ -583,7 +587,7 @@ static bool listExecutingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(LIST, std::string("test"), EXECUTING_STATE, parent);
+  Node *node = NodeFactory::createNode(LIST, std::string("listExecutingDestTest"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -638,7 +642,7 @@ static bool listExecutingTransTest()
       for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
         for (int invariant = 0; invariant < 3; ++invariant) {
           for (int end = 0; end < 3; ++end) {
-            Node *node = NodeFactory::createNode(LIST, std::string("test"), EXECUTING_STATE, parent);
+            Node *node = NodeFactory::createNode(LIST, std::string("listExecutingTransTest"), EXECUTING_STATE, parent);
             node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
             node->getExitCondition()->asAssignable()->setValue(values[exit]);
             node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
@@ -706,7 +710,7 @@ static bool listFailingDestTest()
   g_interface = &tif;
   Node *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(LIST, std::string("test"), FAILING_STATE, parent);
+  Node *node = NodeFactory::createNode(LIST, std::string("listFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   FailureType failureTypes[2] = {PRE_CONDITION_FAILED, PARENT_FAILED};
@@ -753,7 +757,7 @@ static bool listFailingTransTest()
 
   for (int children = IDX_FALSE; children < 3; ++children) {
     for (int i = 0; i < 2; ++i) {
-      Node *node = NodeFactory::createNode(LIST, std::string("test"), FAILING_STATE, parent);
+      Node *node = NodeFactory::createNode(LIST, std::string("listFailingTransTest"), FAILING_STATE, parent);
       node->getActionCompleteCondition()->asAssignable()->setValue(values[children]);
       node->setNodeFailureType(failureType[i]);
 
@@ -799,7 +803,7 @@ static bool listFinishingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(LIST, std::string("test"), FINISHING_STATE, parent);
+  Node *node = NodeFactory::createNode(LIST, std::string("listFinishingDestTest"), FINISHING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -868,7 +872,7 @@ static bool listFinishingTransTest()
         for (int invariant = 0; invariant < 3; ++invariant) {
           for (int children = IDX_FALSE; children < 3; ++children) {
             for (int post = 0; post < 3; ++post) {
-              Node *node = NodeFactory::createNode(LIST, std::string("test"), FINISHING_STATE, parent);
+              Node *node = NodeFactory::createNode(LIST, std::string("listFinishingTransTest"), FINISHING_STATE, parent);
               node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
               node->getExitCondition()->asAssignable()->setValue(values[exit]);
               node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
@@ -949,7 +953,7 @@ static bool bindingExecutingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), EXECUTING_STATE, parent);
+  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("bindingExecutingDestTest"), EXECUTING_STATE, parent);
   Value const values[3] = {Value(), Value(false), Value(true)};
   Assignable *actionCompleteVar = node->getActionCompleteCondition()->asAssignable();
   Assignable *ancestorExitVar = node->getAncestorExitCondition()->asAssignable();
@@ -1029,7 +1033,7 @@ static bool bindingExecutingTransTest()
           for (int invariant = 0; invariant < 3; ++invariant) {
             for (int end = 0; end < 3; ++end) {
               for (int post = 0; end < 3; ++end) {
-                Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), EXECUTING_STATE, parent);
+                Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("bindingExecutingTransTest"), EXECUTING_STATE, parent);
                 node->getActionCompleteCondition()->asAssignable()->setValue(values[actionComplete]);
                 node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
                 node->getExitCondition()->asAssignable()->setValue(values[exit]);
@@ -1118,7 +1122,7 @@ static bool bindingFailingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), FAILING_STATE, parent);
+  Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("bindingFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureType[4] = {INVARIANT_CONDITION_FAILED,
                                 PARENT_FAILED,
@@ -1168,7 +1172,7 @@ static bool bindingFailingTransTest()
 
   for (int children = 0; children < 3; ++children) {
     for (int failure = 0; failure < 2; ++failure) {
-      Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), FAILING_STATE, parent);
+      Node *node = NodeFactory::createNode(ASSIGNMENT, std::string("bindingFailingTransTest"), FAILING_STATE, parent);
       node->getActionCompleteCondition()->asAssignable()->setValue(values[children]);
       node->setNodeFailureType(failureType[failure]);
 
@@ -1216,7 +1220,7 @@ static bool commandExecutingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(COMMAND, std::string("test"), EXECUTING_STATE, parent);
+  Node *node = NodeFactory::createNode(COMMAND, std::string("commandExecutingDestTest"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1277,7 +1281,7 @@ static bool commandExecutingTransTest()
       for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
         for (int invariant = 0; invariant < 3; ++invariant) {
           for (int end = 0; end < 3; ++end) {
-            Node *node = NodeFactory::createNode(COMMAND, std::string("test"), EXECUTING_STATE, parent);
+            Node *node = NodeFactory::createNode(COMMAND, std::string("commandExecutingTransTest"), EXECUTING_STATE, parent);
             node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
             node->getExitCondition()->asAssignable()->setValue(values[exit]);
             node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
@@ -1351,7 +1355,7 @@ static bool commandFailingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(COMMAND, std::string("test"), FAILING_STATE, parent);
+  Node *node = NodeFactory::createNode(COMMAND, std::string("commandFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureTypes[4] = {INVARIANT_CONDITION_FAILED,
                                  PARENT_FAILED,
@@ -1399,7 +1403,7 @@ static bool commandFailingTransTest()
 
   for (int abort = 0; abort < 3; ++abort) {
     for (int failure = 0; failure < 4; ++failure) {
-      Node *node = NodeFactory::createNode(COMMAND, std::string("test"), FAILING_STATE, parent);
+      Node *node = NodeFactory::createNode(COMMAND, std::string("commandFailingTransTest"), FAILING_STATE, parent);
       node->getAbortCompleteCondition()->asAssignable()->setValue(values[abort]);
       node->setNodeFailureType(failureTypes[failure]);
 
@@ -1445,7 +1449,7 @@ static bool commandFinishingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(COMMAND, std::string("test"), FINISHING_STATE, parent);
+  Node *node = NodeFactory::createNode(COMMAND, std::string("commandFinishingDestTest"), FINISHING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1506,7 +1510,7 @@ static bool commandFinishingTransTest()
         for (int invariant = 0; invariant < 3; ++invariant) {
           for (int actionComplete = IDX_FALSE; actionComplete < 3; ++actionComplete) {
             for (int post = 0; post < 3; ++post) {
-              Node *node = NodeFactory::createNode(COMMAND, std::string("test"), FINISHING_STATE, parent);
+              Node *node = NodeFactory::createNode(COMMAND, std::string("commandFinishingTransTest"), FINISHING_STATE, parent);
               node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
               node->getExitCondition()->asAssignable()->setValue(values[exit]);
               node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
@@ -1592,7 +1596,7 @@ static bool updateExecutingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(UPDATE, std::string("test"), EXECUTING_STATE, parent);
+  Node *node = NodeFactory::createNode(UPDATE, std::string("updateExecutingDestTest"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1656,7 +1660,7 @@ static bool updateExecutingTransTest()
         for (int invariant = 0; invariant < 3; ++invariant) {
           for (int end = 0; end < 3; ++end) {
             for (int post = 0; post < 3; ++post) {
-              Node *node = NodeFactory::createNode(UPDATE, std::string("test"), EXECUTING_STATE, parent);
+              Node *node = NodeFactory::createNode(UPDATE, std::string("updateExecutingTransTest"), EXECUTING_STATE, parent);
               node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
               node->getExitCondition()->asAssignable()->setValue(values[exit]);
               node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
@@ -1737,7 +1741,7 @@ static bool updateFailingDestTest()
   TransitionExternalInterface tif;
   g_interface = &tif;
   Node *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NULL);
-  Node *node = NodeFactory::createNode(UPDATE, std::string("test"), FAILING_STATE, parent);
+  Node *node = NodeFactory::createNode(UPDATE, std::string("updateFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureTypes[4] = {INVARIANT_CONDITION_FAILED,
                                  PARENT_FAILED,
@@ -1785,7 +1789,7 @@ static bool updateFailingTransTest()
 
   for (int actionComplete = 0; actionComplete < 3; ++actionComplete) {
     for (int failure = 0; failure < 4; ++failure) {
-      Node *node = NodeFactory::createNode(UPDATE, std::string("test"), FAILING_STATE, parent);
+      Node *node = NodeFactory::createNode(UPDATE, std::string("updateFailingTransTest"), FAILING_STATE, parent);
       node->getActionCompleteCondition()->asAssignable()->setValue(values[actionComplete]);
       node->setNodeFailureType(failureTypes[failure]);
 
