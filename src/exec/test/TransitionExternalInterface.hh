@@ -51,6 +51,9 @@ public:
   void setThresholds(State const & /* state */, int32_t /* hi */, int32_t /* lo */) {}
   double currentTime() {return 0.0;}
 
+  virtual void enqueueCommand(Command * /* cmd */) {}
+  virtual void enqueueUpdate(Update * /* update */) {}
+
 protected:
   void executeCommand(Command * /* cmd */) {}
   void reportCommandArbitrationFailure(Command * /* cmd */) {}
