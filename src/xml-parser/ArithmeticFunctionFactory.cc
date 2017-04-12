@@ -106,7 +106,7 @@ namespace PLEXIL
     size_t i = 0;
     try {
       for (pugi::xml_node subexp = expr.first_child();
-           subexp && i < n;
+           i < n;
            subexp = subexp.next_sibling(), ++i)
         exprs[i] = createExpression(subexp, node, garbage[i]);
     }
