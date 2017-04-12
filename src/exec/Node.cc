@@ -143,16 +143,21 @@ namespace PLEXIL
       m_cleanedVars(false),
       m_cleanedBody(false)
   {
+    static Value const falseValue(false);
+
     commonInit();
 
     for (size_t i = 0; i < conditionIndexMax; ++i) {
-      Expression *expr = new BooleanVariable(false);
-      debugMsg("Node:node",
-               " Created internal variable "
-               << ALL_CONDITIONS[i] <<
-               " with value FALSE for node " << m_nodeId);
+      std::string varName = m_nodeId + " " + ALL_CONDITIONS[i];
+      BooleanVariable *expr = new BooleanVariable(this, varName.c_str());
+      expr->setValue(falseValue);
+      debugMsg("Node:node", ' ' << m_nodeId
+               << " Created internal variable " << varName <<
+               " with value FALSE");
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
+      // N.B. Ancestor-end, ancestor-exit, and ancestor-invariant belong to parent;
+      // will be NULL if this node has no parent
       if (i != preIdx && i != postIdx && getCondition(i))
         getCondition(i)->addListener(this);
     }
@@ -336,8 +341,8 @@ namespace PLEXIL
     }
 
     // Clean up conditions
-    // N.B.: Ancestor-end and ancestor-invariant MUST be cleaned up before
-    // end and invariant, respectively. 
+    // N.B.: Ancestor-end, ancestor-exit, and ancestor-invariant
+    // MUST be cleaned up before end, exit, and invariant, respectively. 
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (m_garbageConditions[i]) {
         debugMsg("Node:cleanUpConds",
@@ -462,7 +467,7 @@ namespace PLEXIL
    * @return True if the new destination state is different from the last check, false otherwise.
    * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
    */
-  bool Node::getDestState() 
+  bool Node::getDestState()
   {
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId << " from state " <<
