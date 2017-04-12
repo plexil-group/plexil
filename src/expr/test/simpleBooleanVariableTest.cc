@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,6 @@ static bool testUninitializedSBV()
 
   // Reset and check that value is now false
   vub.deactivate();
-  vub.reset();
   vub.activate();
   assertTrue_1(vub.isKnown());
   assertTrue_1(vub.getValue(foob));
@@ -96,7 +95,6 @@ static bool testNotificationSBV()
 
   // Activate after reset should not notify
   vub.deactivate();
-  vub.reset();
   vub.activate();
   assertTrue_1(!bchanged);
 

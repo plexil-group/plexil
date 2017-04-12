@@ -96,6 +96,12 @@ namespace PLEXIL {
     bool isConstant() const;
 
     /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const;
+
+    /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
@@ -204,6 +210,12 @@ namespace PLEXIL {
     bool isConstant() const;
 
     /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const;
+
+    /**
      * @brief Is this expression active (i.e. propagating value changes?)
      * @return true if this Expression is active, false if it is not.
      */
@@ -297,6 +309,12 @@ namespace PLEXIL {
      * @return True if constant, false otherwise.
      */
     bool isConstant() const;
+
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const;
 
     /**
      * @brief Is this expression active (i.e. propagating value changes?)

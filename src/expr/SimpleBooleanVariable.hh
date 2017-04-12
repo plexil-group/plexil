@@ -54,7 +54,6 @@ namespace PLEXIL {
 
     virtual char const *getName() const;
     virtual char const *exprName() const;
-    void printSpecialized(std::ostream &s) const;
 
     virtual bool isKnown() const;
 
@@ -67,7 +66,7 @@ namespace PLEXIL {
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValue(Boolean &result) const;
+    virtual bool getValue(Boolean &result) const;
 
     /**
      * @brief Set the value for this object.
@@ -81,10 +80,18 @@ namespace PLEXIL {
      */
     virtual void setValue(Value const &val);
 
-    /**
-     * @brief Reset to initial status.
-     */
-    virtual void reset();
+  protected:
+
+    //
+    // Expression internal API
+    //
+    virtual void printSpecialized(std::ostream &s) const;
+
+    //
+    // NotifierImpl API
+    //
+
+    virtual void handleActivate();
 
   private:
 

@@ -49,6 +49,14 @@ namespace PLEXIL
 
     std::string const &getName() const;
 
+    /**
+     * @brief Query whether this operator is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     * @note Default method returns false, i.e. return value depends entirely on subexpressions.
+     * @note Implementors should override where appropriate, e.g. random number generators.
+     */
+    virtual bool isPropagationSource() const;
+
     // Delegated to each individual operator.
     // Default method returns false.
     virtual bool checkArgCount(size_t count) const;

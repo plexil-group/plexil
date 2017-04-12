@@ -243,6 +243,27 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Query whether this expression is a source of change events.
+   * @return True if the value may change independently of any subexpressions, false otherwise.
+   */
+  template <typename T>
+  bool Constant<T>::isPropagationSource() const
+  {
+    return false;
+  }
+
+  bool Constant<String>::isPropagationSource() const
+  {
+    return false;
+  }
+
+  template <typename T>
+  bool Constant<ArrayImpl<T> >::isPropagationSource() const
+  {
+    return false;
+  }
+
+  /**
    * @brief Is this expression active (i.e. propagating value changes?)
    * @return true if this Expression is active, false if it is not.
    */

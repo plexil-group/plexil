@@ -1522,14 +1522,6 @@ namespace PLEXIL
     m_outcome = NO_OUTCOME;
     m_failureType = NO_FAILURE;
 
-    if (m_localVariables) {
-      for (std::vector<Expression *>::const_iterator it = m_localVariables->begin();
-           it != m_localVariables->end();
-           ++it)
-        if ((*it)->isAssignable())
-          (*it)->asAssignable()->reset();
-    }
-
     specializedReset();
   }
 

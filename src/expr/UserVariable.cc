@@ -253,45 +253,48 @@ namespace PLEXIL {
     return false;
   }
 
-  // A variable takes its initial value when first activated,
-  // or after being reset and reactivated.
+  // A variable takes its initial value when activated.
+  // If no initializer, its initial value is unknown.
   template <typename T>
   void UserVariable<T>::handleActivate()
   {
+    m_savedKnown = false;
+
     if (m_initializer) {
       m_initializer->activate();
       m_known = m_initializer->getValue(m_value);
+      if (m_known)
+        this->publishChange();
     }
-    if (m_known)
-      this->publishChange();
+    else
+      m_known = false;
   }
 
   void UserVariable<String>::handleActivate()
   {
+    m_savedKnown = false;
+
     if (m_initializer) {
       m_initializer->activate();
       String const *valptr;
       m_known = m_initializer->getValuePointer(valptr);
       m_value = *valptr;
+      if (m_known)
+        this->publishChange();
     }
-    if (m_known)
-      this->publishChange();
+    else
+      m_known = false;
   }
 
   template <typename T>
   void UserVariable<T>::handleDeactivate()
   {
-    // Clear saved value
-    m_savedKnown = false;
     if (m_initializer)
       m_initializer->deactivate();
   }
 
   void UserVariable<String>::handleDeactivate()
   {
-    // Clear saved value
-    m_savedValue.clear();
-    m_savedKnown = false;
     if (m_initializer)
       m_initializer->deactivate();
   }
@@ -379,20 +382,6 @@ namespace PLEXIL {
     m_known = false;
     if (changed)
       this->publishChange();
-  }
-
-  // This should only be called when inactive, therefore doesn't need to report changes.
-  template <typename T>
-  void UserVariable<T>::reset()
-  {
-    assertTrueMsg(!this->isActive(), "UserVariable " << *this << " reset while active");
-    m_savedKnown = m_known = false;
-  }
-
-  void UserVariable<String>::reset()
-  {
-    assertTrueMsg(!this->isActive(), "UserVariable " << *this << " reset while active");
-    m_savedKnown = m_known = false;
   }
 
   template <typename T>

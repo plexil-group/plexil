@@ -44,6 +44,16 @@ namespace PLEXIL
   class Assignable;
   class Value;
 
+  //
+  // Used by Expression::doSubexprs().
+  //
+
+  class ExprUnaryOperator
+  {
+  public:
+    virtual void operator()(Expression *) const = 0;
+  };
+
   /**
    * @class Expression
    * @brief Abstract base class for expressions.
@@ -100,6 +110,16 @@ namespace PLEXIL
      * @note The default method returns false.
      */
     virtual bool isConstant() const;
+
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     * @note This is generally true for leaf expression nodes that are not constant; however,
+     *       some interior nodes (e.g. Lookup, random generator) may also generate changes
+     *       of their own accord.
+     * @note The default method returns true.
+     */
+    virtual bool isPropagationSource() const;
 
     /**
      * @brief Get the real expression for which this may be an alias or reference.
@@ -243,14 +263,16 @@ namespace PLEXIL
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
+     * @note The default method does nothing.
      */
-    virtual void addListener(ExpressionListener *ptr) = 0;
+    virtual void addListener(ExpressionListener *ptr);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
+     * @note The default method does nothing.
      */
-    virtual void removeListener(ExpressionListener *ptr) = 0;
+    virtual void removeListener(ExpressionListener *ptr);
 
     //
     // ExpressionListener API
@@ -261,6 +283,34 @@ namespace PLEXIL
      * @note This default method does nothing.
      */
     virtual void notifyChanged();
+
+    //
+    // Implementation details for NotifierImpl
+    // Made public here rather than adding another pure virtual class
+    // Should ONLY be called from NotifierImpl methods
+    //
+
+    /**
+     * @brief Report whether the expression has listeners.
+     * @return True if present, false if not.
+     * @note The default method returns false.
+     */
+    virtual bool hasListeners() const;
+
+    /**
+     * @brief Unconditionally add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     * @note The default method does nothing.
+     */
+    virtual void addListenerInternal(ExpressionListener *ptr);
+
+    /**
+     * @brief Call a function on all subexpressions of this one.
+     * @param f The function.
+     * @note Default method does nothing. 
+     * @note Should be overridden by derived classes with subexpressions.
+     */
+    virtual void doSubexprs(ExprUnaryOperator const &f);
 
   };
 

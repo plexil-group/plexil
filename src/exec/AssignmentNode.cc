@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -336,11 +336,6 @@ namespace PLEXIL
   {
     debugMsg("Node:abort", "Aborting node " << m_nodeId);
     g_exec->enqueueAssignmentForRetraction(m_assignment);
-  }
-
-  void AssignmentNode::specializedReset()
-  {
-    m_assignment->reset();
   }
 
   void AssignmentNode::specializedDeactivateExecutable() 

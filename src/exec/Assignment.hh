@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,6 @@ namespace PLEXIL
     void fixValue();
     void execute();
     void retract();
-    void reset();
 
     // LinkedQueue participant API
     Assignment *next() const;

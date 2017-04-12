@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -311,7 +311,6 @@ static bool testBinaryBasics()
 
     ichanged = false;
     won.deactivate();
-    won.reset();
     won.activate();
     assertTrue_1(won.isKnown());
     assertTrue_1(won.getValue(itemp));
@@ -365,7 +364,6 @@ static bool testBinaryBasics()
 
     rchanged = false;
     tree.deactivate();
-    tree.reset();
     tree.activate();
     assertTrue_1(tree.isKnown());
     assertTrue_1(realFn->isKnown());
@@ -425,7 +423,6 @@ static bool testNaryBasics()
     ichanged = false;
 
     tree.deactivate();
-    tree.reset();
     tree.activate();
     assertTrue_1(tree.isKnown());
     assertTrue_1(intFn->isKnown());
@@ -479,7 +476,6 @@ static bool testNaryBasics()
 
     // Reset variables, check that values are known and reasonable
     fivefive.deactivate();
-    fivefive.reset();
     fivefive.activate();
     assertTrue_1(fivefive.isKnown());
     assertTrue_1(realFn->isKnown());

@@ -63,13 +63,6 @@ namespace PLEXIL
 
   class Lookup : public NotifierImpl
   {
-  protected:    
-    template <typename R>
-    bool getValueImpl(R &) const;
-
-    template <typename R>
-    bool getValuePointerImpl(R const *&) const;
-
   public:
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
@@ -79,28 +72,25 @@ namespace PLEXIL
     virtual ~Lookup();
 
     // Standard Expression API
-    bool isAssignable() const;
-    bool isConstant() const;
+    virtual bool isAssignable() const;
     virtual const char *exprName() const;
-    void printValue(std::ostream &s) const;
-    void printSubexpressions(std::ostream &s) const;
+    virtual void printValue(std::ostream &s) const;
+    virtual void printSubexpressions(std::ostream &s) const;
 
-    // Wrap NotifierImpl method
-    virtual void addListener(ExpressionListener *l);
-
-    // Common behavior required by NotifierImpl
-    void handleActivate();
-    void handleDeactivate();
-    void handleChange();
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     */
+    virtual bool isPropagationSource() const;
 
     //
     // Value access
     //
 
-    ValueType valueType() const;
+    virtual ValueType valueType() const;
 
     // Delegated to the StateCacheEntry in every case
-    bool isKnown() const;
+    virtual bool isKnown() const;
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -110,19 +100,19 @@ namespace PLEXIL
      */
 
     // Local macro
-#define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
-    virtual bool getValue(_rtype_ &result) const \
-    { return getValueImpl(result); }
+#define DECLARE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
+    virtual bool getValue(_rtype_ &result) const;
 
-    DEFINE_LOOKUP_GET_VALUE_METHOD(Boolean)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(Integer)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(Real)
-    DEFINE_LOOKUP_GET_VALUE_METHOD(String)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(Boolean)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(Real)
+    DECLARE_LOOKUP_GET_VALUE_METHOD(String)
 
-#undef DEFINE_LOOKUP_GET_VALUE_METHOD
+#undef DECLARE_LOOKUP_GET_VALUE_METHOD
 
-    // Type error
-    virtual bool getValue(uint16_t &result) const;
+    // Uncomment if ever required
+    // Falls back to Expression::getValue(_rtype_) methods
+    // virtual bool getValue(uint16_t &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
@@ -132,18 +122,17 @@ namespace PLEXIL
      */
 
     // Local macro
-#define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
-    virtual bool getValuePointer(_rtype_ const *&ptr) const \
-    { return getValuePointerImpl(ptr); }
+#define DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
+    virtual bool getValuePointer(_rtype_ const *&ptr) const;
 
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
-    DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
+    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
 
-#undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
+#undef DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
@@ -180,6 +169,16 @@ namespace PLEXIL
     bool getState(State &result) const; 
 
   protected:
+
+    //
+    // NotifierImpl API
+    // 
+
+    virtual void handleActivate();
+    virtual void handleDeactivate();
+    virtual void handleChange();
+
+    virtual void doSubexprs(ExprUnaryOperator const &f);
 
     // Behavior that needs to be augmented for LookupOnChange
     virtual void invalidateOldState(); // called before updating state to new value
@@ -220,16 +219,12 @@ namespace PLEXIL
 
     ~LookupOnChange();
 
-    const char *exprName() const;
+    virtual const char *exprName() const;
 
-    // Wrappers around Lookup methods
-    void handleActivate();
-    void handleDeactivate();
-    void handleChange();
-    void valueChanged();
+    virtual void valueChanged();
 
-    bool getThresholds(Integer &high, Integer &low);
-    bool getThresholds(Real &high, Real &low);
+    virtual bool getThresholds(Integer &high, Integer &low);
+    virtual bool getThresholds(Real &high, Real &low);
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -239,14 +234,13 @@ namespace PLEXIL
      */
 
     // Local macro
-#define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
-    virtual bool getValue(_rtype_ &result) const \
-    { return getValueImpl(result); }
+#define DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
+    virtual bool getValue(_rtype_ &result) const;
 
-    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
-    DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
+    DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
 
-#undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
+#undef DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
     /**
      * @brief Get the value of this expression as a Value instance.
@@ -254,11 +248,20 @@ namespace PLEXIL
      */
     Value toValue() const;
 
-    // Wrap NotifierImpl method
-    virtual void addListener(ExpressionListener *l);
+  protected:
+
+    //
+    // NotifierImpl API
+    //
+
+    virtual void handleActivate();
+    virtual void handleDeactivate();
+    virtual void handleChange();
+
+    virtual void doSubexprs(ExprUnaryOperator const &f);
 
   private:
-    // Prohibit default, copy, assign
+    // Prohibit default constructor, copy, assign
     LookupOnChange();
     LookupOnChange(const LookupOnChange &);
     LookupOnChange &operator=(const LookupOnChange &);
@@ -268,9 +271,6 @@ namespace PLEXIL
 
     // Internal helper
     bool updateInternal(bool valueChanged);
-
-    template <typename R>
-    bool getValueImpl(R &) const;
 
     // Unique member data
     ThresholdCache *m_thresholds;

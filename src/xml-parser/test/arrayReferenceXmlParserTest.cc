@@ -834,7 +834,8 @@ static bool testMutableArrayReferenceXmlParser()
       assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
       assertTrue_1(!bar0->isKnown());
 
-      bar0->activate();
+      bar0->activate(); // should activate bav
+      assertTrue_1(bav->isActive());
       assertTrue_1(bar0->getValue(pb));
       assertTrue_1(!pb);
   
@@ -880,8 +881,6 @@ static bool testMutableArrayReferenceXmlParser()
       bari->deactivate();
       delete bari;
     }
-
-    bav->reset();
 
     {
       xml_node bartvXml = doc.append_child("ArrayElement");
@@ -995,8 +994,6 @@ static bool testMutableArrayReferenceXmlParser()
 
       delete iari;
     }
-
-    iav->reset();
 
     {
       xml_node iartvXml = doc.append_child("ArrayElement");
@@ -1224,8 +1221,6 @@ static bool testMutableArrayReferenceXmlParser()
       sari->deactivate();
       delete sari;
     }
-
-    sav->reset();
 
     {
       xml_node sartvXml = doc.append_child("ArrayElement");

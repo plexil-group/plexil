@@ -44,14 +44,10 @@ namespace PLEXIL
       m_indexIsGarbage(idxIsGarbage),
       m_namePtr(new std::string())
   {
-    m_array->addListener(this);
-    m_index->addListener(this);
   }
 
   ArrayReference::~ArrayReference()
   {
-    m_array->removeListener(this);
-    m_index->removeListener(this);
     if (m_arrayIsGarbage)
       delete m_array;
     if (m_indexIsGarbage)
@@ -96,6 +92,11 @@ namespace PLEXIL
   bool ArrayReference::isConstant() const
   {
     return m_array->isConstant() && m_index->isConstant();
+  }
+
+  bool ArrayReference::isPropagationSource() const
+  {
+    return false; // can't change value independently of subexpressions
   }
 
   bool ArrayReference::isAssignable() const
@@ -207,14 +208,11 @@ namespace PLEXIL
     else
       return ary->getElementValue(idx);
   }
-  
-  void ArrayReference::addListener(ExpressionListener *l)
+
+  void ArrayReference::doSubexprs(ExprUnaryOperator const &f)
   {
-    if (!hasListeners()) {
-      m_array->addListener(this);
-      m_index->addListener(this);
-    }
-    NotifierImpl::addListener(l);
+    (f)(m_array);
+    (f)(m_index);
   }
 
   void ArrayReference::handleActivate()
@@ -292,11 +290,6 @@ namespace PLEXIL
     if (!mutableSelfCheck(idx))
       return;
     m_mutableArray->setElementUnknown(idx);
-  }
-
-  void MutableArrayReference::reset()
-  {
-    // No-op
   }
 
   void MutableArrayReference::saveCurrentValue()

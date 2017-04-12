@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,13 @@
 #ifndef PLEXIL_EXPR_VEC_HH
 #define PLEXIL_EXPR_VEC_HH
 
-#include "ValueType.hh"
+#include "Expression.hh"
 #include "ValueType.hh"
 
 #include <vector>
 
 namespace PLEXIL
 {
-  class Expression;
   class ExpressionListener;
 
   /**
@@ -52,17 +51,13 @@ namespace PLEXIL
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
     virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
+    virtual void doSubexprs(ExprUnaryOperator const &f) = 0;
+    virtual void print(std::ostream &s) const = 0;
 
     // These are in critical path of exec inner loop, 
     // so should be optimized for each representation
     virtual void activate() = 0;
     virtual void deactivate() = 0;
-
-    // Default methods, derived classes can use these
-    virtual void addListener(ExpressionListener *);
-    virtual void removeListener(ExpressionListener *);
-
-    virtual void print(std::ostream &s) const = 0;
 
   protected:
 

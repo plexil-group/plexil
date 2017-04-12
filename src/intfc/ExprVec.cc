@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,21 +31,6 @@
 
 namespace PLEXIL
 {
-  //
-  // ExprVec base class methods
-  //
-
-  void ExprVec::addListener(ExpressionListener * ptr)
-  {
-    for (size_t i = 0; i < this->size(); ++i)
-      (*this)[i]->addListener(ptr);
-  }
-
-  void ExprVec::removeListener(ExpressionListener * ptr)
-  {
-    for (size_t i = 0; i < this->size(); ++i)
-      (*this)[i]->removeListener(ptr);
-  }
 
   //
   // FixedExprVec
@@ -114,14 +99,10 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    void addListener(ExpressionListener * ptr) 
+    virtual void doSubexprs(ExprUnaryOperator const &f)
     {
-      ExprVec::addListener(ptr);
-    }
-
-    void removeListener(ExpressionListener * ptr) 
-    {
-      ExprVec::removeListener(ptr);
+      for (size_t i = 0; i < N; ++i)
+        (f)(exprs[i]);
     }
 
     void print(std::ostream & s) const
@@ -213,6 +194,12 @@ namespace PLEXIL
         s << ' ';
         exprs[i]->print(s);
       }
+    }
+
+    virtual void doSubexprs(ExprUnaryOperator const &f)
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        (f)(exprs[i]);
     }
 
   private:

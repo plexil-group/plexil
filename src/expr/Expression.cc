@@ -71,6 +71,12 @@ namespace PLEXIL
   }
 
   // Default method.
+  bool Expression::isPropagationSource() const
+  {
+    return true;
+  }
+
+  // Default method.
   Expression *Expression::getBaseExpression()
   {
     return this;
@@ -79,6 +85,32 @@ namespace PLEXIL
   Expression const *Expression::getBaseExpression() const
   {
     return this;
+  }
+
+  // Default method.
+  void Expression::addListener(ExpressionListener *ptr)
+  {
+  }
+
+  // Default method.
+  void Expression::removeListener(ExpressionListener *ptr)
+  {
+  }
+
+  // Default method.
+  void Expression::addListenerInternal(ExpressionListener *ptr)
+  {
+  }
+
+  // Default method.
+  bool Expression::hasListeners() const
+  {
+    return false;
+  }
+
+  // Default method.
+  void Expression::doSubexprs(ExprUnaryOperator const & /* f */)
+  {
   }
 
   void Expression::print(std::ostream& s) const

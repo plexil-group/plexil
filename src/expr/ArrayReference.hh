@@ -50,15 +50,16 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
-    char const *getName() const;
-    char const *exprName() const;
-    ValueType valueType() const;
-    bool isKnown() const;
-    bool isConstant() const;
-    bool isAssignable() const;
-    Expression *getBaseExpression();
-    Expression const *getBaseExpression() const;
-    void printValue(std::ostream& s) const;
+    virtual char const *getName() const;
+    virtual char const *exprName() const;
+    virtual ValueType valueType() const;
+    virtual bool isKnown() const;
+    virtual bool isConstant() const;
+    virtual bool isPropagationSource() const;
+    virtual bool isAssignable() const;
+    virtual Expression *getBaseExpression();
+    virtual Expression const *getBaseExpression() const;
+    virtual void printValue(std::ostream& s) const;
 
     /**
      * @brief Get the expression's value.
@@ -90,8 +91,7 @@ namespace PLEXIL {
 
     Value toValue() const;
 
-    // Wrapper for NotifierImpl method
-    virtual void addListener(ExpressionListener *l);
+  protected:
 
     //
     // NotifierImpl API
@@ -100,7 +100,8 @@ namespace PLEXIL {
     void handleActivate();
     void handleDeactivate();
 
-  protected:
+    virtual void doSubexprs(ExprUnaryOperator const &f);
+
     // State shared with MutableArrayReference
     Expression *m_array;
     Expression *m_index;
@@ -143,11 +144,6 @@ namespace PLEXIL {
 
     virtual Assignable const *asAssignable() const;
     virtual Assignable *asAssignable();
-
-    /**
-     * @brief Reset the expression.
-     */
-    virtual void reset();
 
     /**
      * @brief Assign the current value to UNKNOWN.

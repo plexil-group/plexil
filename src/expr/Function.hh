@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,11 +53,11 @@ namespace PLEXIL
     // Expression API
     //
 
-    const char *exprName() const;
-    ValueType valueType() const;
-    bool isKnown() const;
-    void printValue(std::ostream &s) const;
-    Value toValue() const;
+    virtual const char *exprName() const;
+    virtual ValueType valueType() const;
+    virtual bool isKnown() const;
+    virtual void printValue(std::ostream &s) const;
+    virtual Value toValue() const;
 
     // Delegated to implementation classes
 
@@ -96,6 +96,13 @@ namespace PLEXIL
     virtual bool getValuePointer(RealArray const *&ptr) const;
     virtual bool getValuePointer(StringArray const *&ptr) const;
 
+    /**
+     * @brief Query whether this expression is a source of change events.
+     * @return True if the value may change independently of any subexpressions, false otherwise.
+     * @note Delegated to the operator.
+     */
+    virtual bool isPropagationSource() const;
+
     // Needed by Operator::calcNative for array types
     virtual bool apply(Operator const *op, Array &result) const;
 
@@ -109,6 +116,8 @@ namespace PLEXIL
     //
     virtual void handleActivate() = 0;
     virtual void handleDeactivate() = 0;
+
+    virtual void doSubexprs(ExprUnaryOperator const &f) = 0;
 
     Operator const *m_op;
 

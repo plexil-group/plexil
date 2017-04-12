@@ -44,6 +44,13 @@ namespace PLEXIL
    * @brief Mixin class for expressions whose value may change. Implements expression graph notification.
    */
 
+  //
+  // The expression listener graph (really a forest of trees, there are no cycles)
+  // is built during plan loading. Its purpose is to tell a node when one of its
+  // conditions may have changed, so that it can be considered for a potential node
+  // state transition.
+  //
+
   class NotifierImpl : virtual public Expression
   {
   public:
@@ -102,11 +109,6 @@ namespace PLEXIL
      */
     virtual void notifyChanged();
 
-    /**
-     * @brief Determine whether or not expression has any listeners.
-     */
-    bool hasListeners() const;
-
 #ifdef RECORD_EXPRESSION_STATS    
     /**
      * @brief Get head of list of instances.
@@ -125,6 +127,18 @@ namespace PLEXIL
 #endif
 
   protected:
+
+    /**
+     * @brief Report whether the expression has listeners.
+     * @return True if present, false if not.
+     */
+    virtual bool hasListeners() const;
+
+    /**
+     * @brief Unconditionally add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     */
+    virtual void addListenerInternal(ExpressionListener *ptr);
 
     /**
      * @brief Default constructor.

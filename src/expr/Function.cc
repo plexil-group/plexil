@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,11 @@ namespace PLEXIL
   Value Function::toValue() const
   {
     return m_op->toValue(m_valueCache, *this);
+  }
+
+  bool Function::isPropagationSource() const
+  {
+    return m_op->isPropagationSource();
   }
 
   // Local macro for boilerplate
@@ -163,6 +168,10 @@ namespace PLEXIL
     {
     }
 
+    virtual void doSubexprs(ExprUnaryOperator const &f)
+    {
+    }
+
   private:
 
     // Not implemented
@@ -236,14 +245,6 @@ namespace PLEXIL
       garbage[i] = isGarbage;
     }
 
-    virtual void addListener(ExpressionListener *exp)
-    {
-      if (!this->hasListeners())
-        for (size_t i = 0; i < N; ++i)
-          exprs[i]->addListener(this);
-      NotifierImpl::addListener(exp);
-    }
-
     virtual void handleActivate()
     {
       for (size_t i = 0; i < N; ++i)
@@ -307,6 +308,13 @@ namespace PLEXIL
     virtual bool apply(Operator const *op, Array &result) const
     {
       return (*op)(result, this);
+    }
+
+    // Default method, overridden in specialized variants
+    virtual void doSubexprs(ExprUnaryOperator const &f)
+    {
+      for (size_t i = 0; i < N; ++i)
+        (f)(exprs[i]);
     }
 
   private:
@@ -397,6 +405,13 @@ namespace PLEXIL
     return (*op)(result, exprs[0]);
   }
 
+  // Specialized method
+  template <>
+  void FixedSizeFunction<1>::doSubexprs(ExprUnaryOperator const &f)
+  {
+    (f)(exprs[0]);
+  }
+
   //
   // Two-arg variants
   //
@@ -485,6 +500,14 @@ namespace PLEXIL
     return (*op)(result, exprs[0], exprs[1]);
   }
 
+  // Specialized method
+  template <>
+  void FixedSizeFunction<2>::doSubexprs(ExprUnaryOperator const &f)
+  {
+    (f)(exprs[0]);
+    (f)(exprs[1]);
+  }
+
   //
   // NaryFunction
   //
@@ -535,14 +558,6 @@ namespace PLEXIL
       garbage[i] = isGarbage;
     }
 
-    virtual void addListener(ExpressionListener *exp)
-    {
-      if (!this->hasListeners())
-        for (size_t i = 0; i < m_size; ++i)
-          exprs[i]->addListener(this);
-      NotifierImpl::addListener(exp);
-    }
-
     virtual bool allSameTypeOrUnknown(ValueType vt) const
     {
       for (size_t i = 0; i < m_size; ++i) {
@@ -571,6 +586,12 @@ namespace PLEXIL
         s << ' ';
         exprs[i]->print(s);
       }
+    }
+
+    virtual void doSubexprs(ExprUnaryOperator const &f)
+    {
+      for (size_t i = 0; i < this->size(); ++i)
+        (f)(exprs[i]);
     }
 
   private:

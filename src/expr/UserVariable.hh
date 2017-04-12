@@ -107,11 +107,6 @@ namespace PLEXIL
      */
     void setUnknown();
 
-    /**
-     * @brief Reset to initial status.
-     */
-    void reset();
-
     void saveCurrentValue();
 
     void restoreSavedValue();
@@ -251,11 +246,6 @@ namespace PLEXIL
      * @brief Set the current value unknown.
      */
     void setUnknown();
-
-    /**
-     * @brief Reset to initial status.
-     */
-    void reset();
 
     void saveCurrentValue();
 

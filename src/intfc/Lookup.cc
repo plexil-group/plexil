@@ -79,22 +79,12 @@ namespace PLEXIL
       unregister();
       m_entry = NULL;
     }
-    if (!m_stateIsConstant) {
-      if (m_paramVec)
-        m_paramVec->removeListener(this);
-      m_stateName->removeListener(this);
-    }
     delete m_paramVec;
     if (m_stateNameIsGarbage)
       delete m_stateName;
   }
 
   bool Lookup::isAssignable() const
-  {
-    return false;
-  }
-
-  bool Lookup::isConstant() const
   {
     return false;
   }
@@ -119,17 +109,6 @@ namespace PLEXIL
         s << ' ' << *(*m_paramVec)[i];
     }
     s << ' ';
-  }
-
-  void Lookup::addListener(ExpressionListener *l)
-  {
-    if (!hasListeners() && !m_stateIsConstant) {
-      if (!m_stateName->isConstant())
-        m_stateName->addListener(this);
-      if (m_paramVec)
-        m_paramVec->addListener(this);
-    }
-    NotifierImpl::addListener(l);
   }
 
   void Lookup::handleActivate()
@@ -260,43 +239,46 @@ namespace PLEXIL
       return m_entry->isKnown();
   }
 
-  template <typename R>
-  bool Lookup::getValueImpl(R &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValue(result);
+
+#define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
+  bool Lookup::getValue(_rtype_ &result) const \
+  { \
+    if (!isActive() || !m_entry || !m_entry->cachedValue()) \
+      return false; \
+    else \
+      return m_entry->cachedValue()->getValue(result); \
+  }
+
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Boolean)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Integer)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(Real)
+    DEFINE_LOOKUP_GET_VALUE_METHOD(String)
+
+    // Uncomment if this is ever required
+    // Falls back to Expression::getValue(_rtype_) methods
+    // DEFINE_LOOKUP_GET_VALUE_METHOD(uint16_t)
+
+#undef DEFINE_LOOKUP_GET_VALUE_METHOD
+
+#define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
+  bool Lookup::getValuePointer(_rtype_ const *&ptr) const \
+  { \
+    if (!isActive() || !m_entry || !m_entry->cachedValue()) \
+      return false; \
+    else \
+      return m_entry->cachedValue()->getValuePointer(ptr); \
   }
 
   // Explicit instantiations
-  template bool Lookup::getValueImpl(Boolean &result) const;
-  template bool Lookup::getValueImpl(String &result) const;
-  template bool Lookup::getValueImpl(Integer &result) const;
-  template bool Lookup::getValueImpl(Real &result) const;
 
-  bool Lookup::getValue(uint16_t &result) const
-  {
-    checkPlanError(ALWAYS_FAIL,
-                   "Lookup not implemented for internal types");
-  }
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
+  DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
 
-  template <typename R>
-  bool Lookup::getValuePointerImpl(R const *&ptr) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    else
-      return m_entry->cachedValue()->getValuePointer(ptr);
-  }
-
-  // Explicit instantiations
-  template bool Lookup::getValuePointerImpl(String const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(Array const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(BooleanArray const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(IntegerArray const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(RealArray const *&ptr) const;
-  template bool Lookup::getValuePointerImpl(StringArray const *&ptr) const;
+#undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
 
   /**
    * @brief Get the value of this expression as a Value instance.
@@ -524,8 +506,6 @@ namespace PLEXIL
   {
     delete m_thresholds;
     delete m_cachedValue;
-    if (!m_tolerance->isConstant())
-      m_tolerance->removeListener(this);
     if (m_toleranceIsGarbage)
       delete m_tolerance;
   }
@@ -533,6 +513,22 @@ namespace PLEXIL
   char const *LookupOnChange::exprName() const
   {
     return "LookupOnChange";
+  }
+
+  /**
+   * @brief Query whether this expression is a source of change events.
+   * @return True if the value may change independently of any subexpressions, false otherwise.
+   */
+  bool Lookup::isPropagationSource() const
+  {
+    return true; // value changes independently of parameters
+  }
+
+  void Lookup::doSubexprs(ExprUnaryOperator const &f)
+  {
+    (f)(m_stateName);
+    if (m_paramVec)
+      m_paramVec->doSubexprs(f);
   }
 
   void LookupOnChange::handleActivate()
@@ -545,15 +541,6 @@ namespace PLEXIL
     updateInternal(true);     // may cause redundant notifications
     if (this->isKnown())
       publishChange();
-  }
-
-  void LookupOnChange::addListener(ExpressionListener *l)
-  {
-    if (!hasListeners()) {
-      check_error_1(m_tolerance); // paranoid check
-      m_tolerance->addListener(this);
-    }
-    Lookup::addListener(l);
   }
 
   // TODO: Optimization opportunity if state is known to be constant
@@ -576,6 +563,12 @@ namespace PLEXIL
   {
     if (updateInternal(Lookup::handleChangeInternal()))
       publishChange();
+  }
+
+  void LookupOnChange::doSubexprs(ExprUnaryOperator const &f)
+  {
+    (f)(m_tolerance);
+    Lookup::doSubexprs(f);
   }
 
   void LookupOnChange::invalidateOldState()
@@ -684,23 +677,26 @@ namespace PLEXIL
     return valueChanged;
   }
 
-  template <typename R>
-  bool LookupOnChange::getValueImpl(R &result) const
-  {
-    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-      return false;
-    // Use local cache if we have a tolerance, as it may differ from state cache value
-    else if (m_cachedValue)
-      return m_cachedValue->getValue(result);
-    else if (m_entry->isKnown())
-      return m_entry->cachedValue()->getValue(result);
-    else
-      return false;
+  // Use local cache if we have a tolerance, as it may differ from state cache value
+
+#define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
+  bool LookupOnChange::getValue(_rtype_ &result) const \
+  { \
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue()) \
+      return false; \
+    else if (m_cachedValue) \
+      return m_cachedValue->getValue(result); \
+    else if (m_entry->isKnown()) \
+      return m_entry->cachedValue()->getValue(result); \
+    else \
+      return false; \
   }
 
   // Explicit instantiations
-  template bool LookupOnChange::getValueImpl(Real &result) const;
-  template bool LookupOnChange::getValueImpl(Integer &result) const;
+  DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
+  DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
+
+#undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
   /**
    * @brief Get the value of this expression as a Value instance.

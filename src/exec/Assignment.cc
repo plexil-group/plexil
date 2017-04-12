@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -132,13 +132,6 @@ namespace PLEXIL
     ExecListenerBase *l = g_exec->getExecListener();
     if (l)
       l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->asAssignable()->getSavedValue());
-  }
-
-  void Assignment::reset()
-  {
-    m_ack.reset();
-    m_abortComplete.reset();
-    m_value = Value(); // set unknown
   }
 
 }
