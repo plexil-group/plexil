@@ -80,7 +80,7 @@ namespace PLEXIL
     /**
      * @brief Add a child to this node.
      * @param node The child.
-     * @note Intended for use by the plan parser and unit tests.
+     * @note Intended for use by the plan parser. Not used by unit tests.
      */
     void addChild(Node *node)
     {
