@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,11 @@ public:
   void unsubscribe(State const & /* state */) {}
   void setThresholds(State const & /* state */, double /* hi */, double /* lo */) {}
   void setThresholds(State const & /* state */, int32_t /* hi */, int32_t /* lo */) {}
+  void enqueueCommand(Command *cmd) {}
+  void abortCommand(Command *cmd) {}
+  void enqueueUpdate(Update *update) {}
+  void executeOutboundQueue() {}
   double currentTime() {return 0.0;}
-
-  virtual void enqueueCommand(Command * /* cmd */) {}
-  virtual void enqueueUpdate(Update * /* update */) {}
 
 protected:
   void executeCommand(Command * /* cmd */) {}
