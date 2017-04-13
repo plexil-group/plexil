@@ -534,8 +534,6 @@ namespace PLEXIL
   {
     delete m_thresholds;
     delete m_cachedValue;
-    if (!m_tolerance->isConstant())
-      m_tolerance->removeListener(this);
     if (m_toleranceIsGarbage)
       delete m_tolerance;
   }
@@ -555,12 +553,6 @@ namespace PLEXIL
     updateInternal(true);     // may cause redundant notifications
     if (this->isKnown())
       publishChange();
-  }
-
-  void LookupOnChange::doSubexprs(std::function<void(Expression *)> const &f)
-  {
-    (f)(m_tolerance);
-    Lookup::doSubexprs(f);
   }
 
   // TODO: Optimization opportunity if state is known to be constant
@@ -583,6 +575,12 @@ namespace PLEXIL
   {
     if (updateInternal(Lookup::handleChangeInternal()))
       publishChange();
+  }
+
+  void LookupOnChange::doSubexprs(std::function<void(Expression *)> const &f)
+  {
+    (f)(m_tolerance);
+    Lookup::doSubexprs(f);
   }
 
   void LookupOnChange::invalidateOldState()

@@ -59,7 +59,6 @@ namespace PLEXIL
     void fixValue();
     void execute();
     void retract();
-    void reset();
 
     // LinkedQueue participant API
     Assignment *next() const;

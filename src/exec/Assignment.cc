@@ -121,7 +121,7 @@ namespace PLEXIL
   {
     assertTrue_2(m_dest && m_rhs,
                  "Attempt to activate uninitialized Assignment");
-    m_rhs->activate();  // resets to false
+    m_rhs->activate();  // resets to unknown
     m_dest->activate(); // ""     "" ""
   }
 
