@@ -118,7 +118,7 @@ namespace PLEXIL
     m_garbageConditions[actionCompleteIdx] = false;
   }
 
-  void UpdateNode::createConditionWrappers()
+  void UpdateNode::specializedCreateConditionWrappers()
   {
     Expression *ack = m_update->getAck();
     if (!(m_conditions[endIdx]) || m_conditions[endIdx] == TRUE_EXP()) {

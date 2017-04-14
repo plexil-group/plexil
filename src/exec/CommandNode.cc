@@ -221,7 +221,7 @@ namespace PLEXIL
     m_garbageConditions[abortCompleteIdx] = false;
   }
 
-  void CommandNode::createConditionWrappers()
+  void CommandNode::specializedCreateConditionWrappers()
   {
     // No need to wrap if end condition is default - (True || anything) == True
     if (m_conditions[endIdx] && m_conditions[endIdx] != TRUE_EXP()) {

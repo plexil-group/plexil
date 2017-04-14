@@ -299,8 +299,13 @@ namespace PLEXIL
     m_garbageConditions[which] = isGarbage;
   }
 
-  // Default method
   void Node::createConditionWrappers()
+  {
+    this->specializedCreateConditionWrappers();
+  }
+
+  // Default method does nothing.
+  void Node::specializedCreateConditionWrappers()
   {
   }
 
@@ -1526,13 +1531,6 @@ namespace PLEXIL
     //reset outcome and failure type
     m_outcome = NO_OUTCOME;
     m_failureType = NO_FAILURE;
-
-    specializedReset();
-  }
-
-  // Default method
-  void Node::specializedReset()
-  {
   }
 
   // Default method

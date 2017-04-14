@@ -396,11 +396,10 @@ namespace PLEXIL {
     void deactivateAbortCompleteCondition();
 
     // Specific behaviors for derived classes
-    virtual void createConditionWrappers();
+    virtual void specializedCreateConditionWrappers();
     virtual void specializedActivate();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
-    virtual void specializedReset();
 
     //
     // State transition implementation methods
@@ -488,6 +487,8 @@ namespace PLEXIL {
     bool m_cleanedConditions, m_cleanedVars, m_cleanedBody;
 
   private:
+
+    void createConditionWrappers();
 
     // These should only be called from transition().
     void setNodeOutcome(NodeOutcome o);

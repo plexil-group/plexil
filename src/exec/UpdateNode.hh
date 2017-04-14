@@ -84,7 +84,7 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void createConditionWrappers();
+    virtual void specializedCreateConditionWrappers();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
 

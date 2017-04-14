@@ -204,7 +204,7 @@ namespace PLEXIL
 
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
   // This method is called after all user-spec'd conditions have been instantiated
-  void ListNode::createConditionWrappers()
+  void ListNode::specializedCreateConditionWrappers()
   {
     // At least one node state function is dependent on child states,
     // so just add this node as a listener to each state variable.

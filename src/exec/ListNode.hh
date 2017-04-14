@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,7 @@ namespace PLEXIL
 
   protected:
 
-    virtual void createConditionWrappers();
+    virtual void specializedCreateConditionWrappers();
     virtual void specializedActivate();
 
     virtual void cleanUpConditions();
