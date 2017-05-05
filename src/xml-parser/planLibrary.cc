@@ -91,13 +91,19 @@ namespace PLEXIL
     }
     assertTrue_2(doc, "addLibraryNode: Null document");
     assertTrue_2(*name, "addLibraryNode: Empty name");
-    // *** TODO: handle global decls ***
-    // *** TODO: Check library is well formed ***
 
-    // If there is an existing entry, delete its document.
+    // *** TODO: Check library is well formed ***
+    // *** TODO: handle global decls ***
+
+    // Check whether we already have a library by the same name
     LibraryMap::iterator it = libraryMap.find<char const *, CStringComparator>(name);
-    if (it != libraryMap.end())
+    if (it != libraryMap.end()) {
+      if (it->second == doc)
+        return; // same document, no need to do anything else
+
+      // If there is an existing entry, delete its document.
       delete it->second;
+    }
 
     // Insert it
     libraryMap[name] = doc;
