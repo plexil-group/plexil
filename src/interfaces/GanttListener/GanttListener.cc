@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -295,15 +295,13 @@ namespace PLEXIL
       for (NodeVariableMap::const_iterator it = tempLocalVariablesMap->begin();
          it != tempLocalVariablesMap->end(); ++it) 
       {
-         const string& tempNameString = it->first;
-         string tempValueString = it->second->valueString();
-         std::ostringstream tempString;
-         tempString << "<br><i>" << tempNameString << "</i>" 
-            << " = " << tempValueString;
-         myLocalVariableMapValues.push_back(tempValueString);
-         //filter out local variables that are 'state' key  or 'UNKNOWN' value
-         if (tempNameString != "state" && tempValueString != "UNKNOWN")
-            myLocalVars << tempString << ", ";
+        const string& tempNameString = it->first;
+        string tempValueString = it->second->valueString();
+        myLocalVariableMapValues.push_back(tempValueString);
+        //filter out local variables that are 'state' key  or 'UNKNOWN' value
+        if (tempNameString != "state" && tempValueString != "UNKNOWN")
+          myLocalVars << "<br><i>" << tempNameString << "</i>" 
+                      << " = " << tempValueString << ", ";
       }
       return myLocalVars.str();
    }
