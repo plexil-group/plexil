@@ -29,6 +29,10 @@
 
 #include "ValueType.hh"
 
+#if __cplusplus >= 201103L
+#include <memory> // std::unique_ptr
+#endif
+
 namespace PLEXIL
 {
 
@@ -45,6 +49,9 @@ namespace PLEXIL
 
     Value();
     Value(Value const &);
+#if __cplusplus >= 201103L
+    Value(Value &&);
+#endif
 
     Value(Boolean val);
     Value(uint16_t enumVal, ValueType typ); // internal values, typed UNKNOWN
@@ -65,6 +72,9 @@ namespace PLEXIL
     ~Value();
     
     Value &operator=(Value const &);
+#if __cplusplus >= 201103L
+    Value &operator=(Value &&);
+#endif
     Value &operator=(Boolean val);
     Value &operator=(uint16_t enumVal);
     Value &operator=(Integer val);
@@ -109,15 +119,20 @@ namespace PLEXIL
     void cleanup();
     void cleanupForString();
     void cleanupForArray();
-    
+
     union {
       Boolean  booleanValue;
       uint16_t enumValue;
       Integer  integerValue;
       Real     realValue;
+#if __cplusplus < 201103L
       String  *stringValue;
       Array   *arrayValue;
-    } m_value;
+#else
+      std::unique_ptr<String>  stringValue;
+      std::unique_ptr<Array>   arrayValue;
+#endif
+    };
     ValueType m_type;
     bool m_known;
   };

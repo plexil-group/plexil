@@ -41,16 +41,29 @@ namespace PLEXIL
   public:
     ArrayImpl();
     ArrayImpl(ArrayImpl const &);
+#if __cplusplus >= 201103L
+    ArrayImpl(ArrayImpl &&);
+#endif
     ArrayImpl(size_t size);
     ArrayImpl(size_t size, T const &initval);
     ArrayImpl(std::vector<T> const &initval);
-
+#if __cplusplus >= 201103L
+    ArrayImpl(std::vector<T> &&initval);
+#endif
+    
     ~ArrayImpl();
 
     virtual Array *clone() const;
 
     virtual Array &operator=(Array const &);
+#if __cplusplus >= 201103L
+    virtual Array &operator=(Array &&);
+#endif
+
     virtual ArrayImpl &operator=(ArrayImpl<T> const &);
+#if __cplusplus >= 201103L
+    ArrayImpl &operator=(ArrayImpl<T> &&);
+#endif
 
     virtual void resize(size_t size);
 
@@ -92,16 +105,29 @@ namespace PLEXIL
   public:
     ArrayImpl();
     ArrayImpl(ArrayImpl const &);
+#if __cplusplus >= 201103L
+    ArrayImpl(ArrayImpl &&);
+#endif
     ArrayImpl(size_t size);
     ArrayImpl(size_t size, String const &initval);
     ArrayImpl(std::vector<String> const &initval);
+#if __cplusplus >= 201103L
+    ArrayImpl(std::vector<String> &&initval);
+#endif
 
     ~ArrayImpl();
 
     virtual Array *clone() const;
 
     virtual Array &operator=(Array const &);
+#if __cplusplus >= 201103L
+    virtual Array &operator=(Array &&);
+#endif
+
     virtual ArrayImpl &operator=(ArrayImpl<String> const &);
+#if __cplusplus >= 201103L
+    ArrayImpl &operator=(ArrayImpl<String> &&);
+#endif
 
     virtual void resize(size_t size);
 

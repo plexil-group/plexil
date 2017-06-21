@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,8 @@
 */
 
 #include "ArrayImpl.hh"
+#include "CommandHandle.hh"
+#include "NodeConstants.hh"
 #include "TestSupport.hh"
 #include "Value.hh"
 
@@ -50,8 +52,8 @@ static bool testConstructorsAndAccessors()
   }
 
   {
-    Value *intv = new Value((int32_t) 42);
-    int32_t tempi;
+    Value *intv = new Value((Integer) 42);
+    Integer tempi;
     assertTrue_1(intv->isKnown());
     assertTrue_1(INTEGER_TYPE == intv->valueType());
     assertTrue_1(intv->getValue(tempi));
@@ -61,7 +63,7 @@ static bool testConstructorsAndAccessors()
 
   {
     Value *realv = new Value(2.5);
-    double tempr;
+    Real tempr;
     assertTrue_1(realv->isKnown());
     assertTrue_1(REAL_TYPE == realv->valueType());
     assertTrue_1(realv->getValue(tempr));
@@ -70,9 +72,9 @@ static bool testConstructorsAndAccessors()
   }
 
   {
-    std::string temps;
-    std::string const *tempsp;
-    std::string foo("Foo");
+    String temps;
+    String const *tempsp;
+    String foo("Foo");
 
     {
       Value *stringv = new Value(foo);
@@ -161,7 +163,7 @@ static bool testConstructorsAndAccessors()
     }
 
     {
-      std::vector<int32_t> iv(2);
+      std::vector<Integer> iv(2);
       iv[0] = 42;
       iv[1] = 6;
       IntegerArray *initedInt = new IntegerArray(iv);
@@ -200,7 +202,7 @@ static bool testConstructorsAndAccessors()
     }
 
     {
-      std::vector<double> dv(2);
+      std::vector<Real> dv(2);
       dv[0] = 3.14;
       dv[1] = 4.5;
       RealArray *initedReal = new RealArray(dv);
@@ -240,9 +242,9 @@ static bool testConstructorsAndAccessors()
     }
 
     {
-      std::vector<std::string> sv(2);
-      sv[0] = std::string("yo ");
-      sv[1] = std::string("mama");
+      std::vector<String> sv(2);
+      sv[0] = String("yo ");
+      sv[1] = String("mama");
       StringArray *initedString = new StringArray(sv);
       Value *isav = new Value(*initedString);
       assertTrue_1(isav->isKnown());
@@ -257,18 +259,288 @@ static bool testConstructorsAndAccessors()
   return true;
 }
 
+#if __cplusplus >= 201103L
+static bool testMoveConstructors()
+{
+  {
+    Value *unkv = new Value(Value());
+    assertTrue_1(!unkv->isKnown());
+    assertTrue_1(UNKNOWN_TYPE == unkv->valueType());
+    delete unkv;
+  }
+
+  {
+    Value *boolv = new Value(Value(true));
+    bool tempb;
+    assertTrue_1(boolv->isKnown());
+    assertTrue_1(BOOLEAN_TYPE == boolv->valueType());
+    assertTrue_1(boolv->getValue(tempb));
+    assertTrue_1(tempb);
+    delete boolv;
+  }
+
+  {
+    Value *intv = new Value(Value((Integer) 42));
+    Integer tempi;
+    assertTrue_1(intv->isKnown());
+    assertTrue_1(INTEGER_TYPE == intv->valueType());
+    assertTrue_1(intv->getValue(tempi));
+    assertTrue_1(tempi == 42);
+    delete intv;
+  }
+
+  {
+    Value *realv = new Value(Value(2.5));
+    Real tempr;
+    assertTrue_1(realv->isKnown());
+    assertTrue_1(REAL_TYPE == realv->valueType());
+    assertTrue_1(realv->getValue(tempr));
+    assertTrue_1(tempr == 2.5);
+    delete realv;
+  }
+
+  // Node enums
+  {
+    Value *statev = new Value(Value(INACTIVE_STATE, NODE_STATE_TYPE));
+    uint16_t temps;
+    assertTrue_1(statev->isKnown());
+    assertTrue_1(NODE_STATE_TYPE == statev->valueType());
+    assertTrue_1(statev->getValue(temps));
+    assertTrue_1(temps == INACTIVE_STATE);
+    delete statev;
+  }
+
+  {
+    Value *outcomev = new Value(Value(SUCCESS_OUTCOME, OUTCOME_TYPE));
+    uint16_t tempo;
+    assertTrue_1(outcomev->isKnown());
+    assertTrue_1(OUTCOME_TYPE == outcomev->valueType());
+    assertTrue_1(outcomev->getValue(tempo));
+    assertTrue_1(tempo == SUCCESS_OUTCOME);
+    delete outcomev;
+  }
+
+  {
+    Value *failv = new Value(Value(EXITED, FAILURE_TYPE));
+    uint16_t tempf;
+    assertTrue_1(failv->isKnown());
+    assertTrue_1(FAILURE_TYPE == failv->valueType());
+    assertTrue_1(failv->getValue(tempf));
+    assertTrue_1(tempf == EXITED);
+    delete failv;
+  }
+
+  {
+    Value *handlev = new Value(Value(COMMAND_SUCCESS, COMMAND_HANDLE_TYPE));
+    uint16_t temph;
+    assertTrue_1(handlev->isKnown());
+    assertTrue_1(COMMAND_HANDLE_TYPE == handlev->valueType());
+    assertTrue_1(handlev->getValue(temph));
+    assertTrue_1(temph == COMMAND_SUCCESS);
+    delete handlev;
+  }
+
+  {
+    String temps;
+    String const *tempsp;
+    String foo("Foo");
+
+    {
+      Value *stringv = new Value(Value(foo));
+      assertTrue_1(stringv->isKnown());
+      assertTrue_1(STRING_TYPE == stringv->valueType());
+      assertTrue_1(stringv->getValue(temps));
+      assertTrue_1(temps == foo);
+      assertTrue_1(stringv->getValuePointer(tempsp));
+      assertTrue_1(*tempsp == foo);
+      delete stringv;
+    }
+
+    {
+      Value *stringv2 = new Value(Value(foo.c_str()));
+      assertTrue_1(stringv2->isKnown());
+      assertTrue_1(STRING_TYPE == stringv2->valueType());
+      assertTrue_1(stringv2->getValue(temps));
+      assertTrue_1(temps == foo);
+      assertTrue_1(stringv2->getValuePointer(tempsp));
+      assertTrue_1(*tempsp == foo);
+      delete stringv2;
+    }
+  }
+
+  {
+    BooleanArray const * tempbap;
+    {
+      BooleanArray *emptyBool = new BooleanArray;
+      Value *bav = new Value(Value(*emptyBool));
+      assertTrue_1(bav->isKnown());
+      assertTrue_1(BOOLEAN_ARRAY_TYPE == bav->valueType());
+      assertTrue_1(bav->getValuePointer(tempbap));
+      assertTrue_1(*emptyBool == *tempbap);
+      delete bav;
+      delete emptyBool;
+    }
+    {
+      BooleanArray *sizedBool = new BooleanArray(2);
+      Value *sbav = new Value(Value(*sizedBool));
+      assertTrue_1(sbav->isKnown());
+      assertTrue_1(BOOLEAN_ARRAY_TYPE == sbav->valueType());
+      assertTrue_1(sbav->getValuePointer(tempbap));
+      assertTrue_1(*sizedBool == *tempbap);
+      assertTrue_1(tempbap->size() == 2);
+      delete sbav;
+      delete sizedBool;
+    }
+    {
+      std::vector<bool> bv(2);
+      bv[0] = false;
+      bv[1] = true;
+      BooleanArray *initedBool = new BooleanArray(bv);
+      Value *ibav = new Value(Value(*initedBool));
+      assertTrue_1(ibav->isKnown());
+      assertTrue_1(BOOLEAN_ARRAY_TYPE == ibav->valueType());
+      assertTrue_1(ibav->getValuePointer(tempbap));
+      assertTrue_1(*initedBool == *tempbap);
+      assertTrue_1(tempbap->size() == 2);
+      delete ibav;
+      delete initedBool;
+    }
+  }
+
+  {
+    IntegerArray const * tempiap;
+    {
+      IntegerArray *emptyInt = new IntegerArray;
+      Value *iav = new Value(Value(*emptyInt));
+      assertTrue_1(iav->isKnown());
+      assertTrue_1(INTEGER_ARRAY_TYPE == iav->valueType());
+      assertTrue_1(iav->getValuePointer(tempiap));
+      assertTrue_1(*emptyInt == *tempiap);
+      delete iav;
+      delete emptyInt;
+    }
+
+    {
+      IntegerArray *sizedInt = new IntegerArray(2);
+      Value *siav = new Value(Value(*sizedInt));
+      assertTrue_1(siav->isKnown());
+      assertTrue_1(INTEGER_ARRAY_TYPE == siav->valueType());
+      assertTrue_1(siav->getValuePointer(tempiap));
+      assertTrue_1(*sizedInt == *tempiap);
+      delete siav;
+      delete sizedInt;
+    }
+
+    {
+      std::vector<Integer> iv(2);
+      iv[0] = 42;
+      iv[1] = 6;
+      IntegerArray *initedInt = new IntegerArray(iv);
+      Value *iiav = new Value(Value(*initedInt));
+      assertTrue_1(iiav->isKnown());
+      assertTrue_1(INTEGER_ARRAY_TYPE == iiav->valueType());
+      assertTrue_1(iiav->getValuePointer(tempiap));
+      assertTrue_1(*initedInt == *tempiap);
+      delete iiav;
+      delete initedInt;
+    }
+  }
+  {
+    RealArray const * temprap;
+  
+    {
+      RealArray *emptyReal = new RealArray;
+      Value *rav = new Value(Value(*emptyReal));
+      assertTrue_1(rav->isKnown());
+      assertTrue_1(REAL_ARRAY_TYPE == rav->valueType());
+      assertTrue_1(rav->getValuePointer(temprap));
+      assertTrue_1(*emptyReal == *temprap);
+      delete rav;
+      delete emptyReal;
+    }
+  
+    {
+      RealArray *sizedReal = new RealArray(2);
+      Value *srav = new Value(Value(*sizedReal));
+      assertTrue_1(srav->isKnown());
+      assertTrue_1(REAL_ARRAY_TYPE == srav->valueType());
+      assertTrue_1(srav->getValuePointer(temprap));
+      assertTrue_1(*sizedReal == *temprap);
+      delete srav;
+      delete sizedReal;
+    }
+
+    {
+      std::vector<Real> dv(2);
+      dv[0] = 3.14;
+      dv[1] = 4.5;
+      RealArray *initedReal = new RealArray(dv);
+      Value *irav = new Value(Value(*initedReal));
+      assertTrue_1(irav->isKnown());
+      assertTrue_1(REAL_ARRAY_TYPE == irav->valueType());
+      assertTrue_1(irav->getValuePointer(temprap));
+      assertTrue_1(*initedReal == *temprap);
+      delete irav;
+      delete initedReal;
+    }
+  }
+
+  {
+    StringArray const * tempsap;
+
+    {
+      StringArray *emptyString = new StringArray;
+      Value *sav = new Value(Value(*emptyString));
+      assertTrue_1(sav->isKnown());
+      assertTrue_1(STRING_ARRAY_TYPE == sav->valueType());
+      assertTrue_1(sav->getValuePointer(tempsap));
+      assertTrue_1(*emptyString == *tempsap);
+      delete sav;
+      delete emptyString;
+    }
+
+    {
+      StringArray *sizedString = new StringArray(2);
+      Value *ssav = new Value(Value(*sizedString));
+      assertTrue_1(ssav->isKnown());
+      assertTrue_1(STRING_ARRAY_TYPE == ssav->valueType());
+      assertTrue_1(ssav->getValuePointer(tempsap));
+      assertTrue_1(*sizedString == *tempsap);
+      delete ssav;
+      delete sizedString;
+    }
+
+    {
+      std::vector<String> sv(2);
+      sv[0] = String("yo ");
+      sv[1] = String("mama");
+      StringArray *initedString = new StringArray(sv);
+      Value *isav = new Value(Value(*initedString));
+      assertTrue_1(isav->isKnown());
+      assertTrue_1(STRING_ARRAY_TYPE == isav->valueType());
+      assertTrue_1(isav->getValuePointer(tempsap));
+      assertTrue_1(*initedString == *tempsap);
+      delete isav;
+      delete initedString;
+    }
+  }
+
+  return true;
+}
+#endif
+
 static bool testScalarEquality()
 {
   // Basics
   Value *stringv = NULL;
   {
-    std::string foo("Foo");
+    String foo("Foo");
     stringv = new Value(foo);
   }
   Value *unkv = new Value;
   Value *tempv = new Value; // both type & value unknown
   Value *boolv = new Value(true);
-  Value *intv = new Value((int32_t) 42);
+  Value *intv = new Value((Integer) 42);
   Value *realv = new Value(2.5);
 
   // Identity
@@ -378,9 +650,44 @@ static bool testScalarEquality()
   assertTrue_1(*stringv == *tempv);
   assertTrue_1(!(*stringv != *tempv));
 
+#if __cplusplus >= 201103L
+  //
+  // Via move assignment
+  //
+  *tempv = Value(*unkv);
+  assertTrue_1(*tempv == *unkv);
+  assertTrue_1(!(*tempv != *unkv));
+  assertTrue_1(*unkv == *tempv);
+  assertTrue_1(!(*unkv != *tempv));
+  
+  *tempv = Value(*boolv);
+  assertTrue_1(*tempv == *boolv);
+  assertTrue_1(!(*tempv != *boolv));
+  assertTrue_1(*boolv == *tempv);
+  assertTrue_1(!(*boolv != *tempv));
+  
+  *tempv = Value(*intv);
+  assertTrue_1(*tempv == *intv);
+  assertTrue_1(!(*tempv != *intv));
+  assertTrue_1(*intv == *tempv);
+  assertTrue_1(!(*intv != *tempv));
+  
+  *tempv = Value(*realv);
+  assertTrue_1(*tempv == *realv);
+  assertTrue_1(!(*tempv != *realv));
+  assertTrue_1(*realv == *tempv);
+  assertTrue_1(!(*realv != *tempv));
+  
+  *tempv = Value(*stringv);
+  assertTrue_1(*tempv == *stringv);
+  assertTrue_1(!(*tempv != *stringv));
+  assertTrue_1(*stringv == *tempv);
+  assertTrue_1(!(*stringv != *tempv));
+#endif
+
   // Real vs integer
   {
-    Value *real42v = new Value((double) 42);
+    Value *real42v = new Value((Real) 42);
     assertTrue_1(real42v->valueType() == REAL_TYPE);
     assertTrue_1(*intv == *real42v);
     assertTrue_1(!(*intv != *real42v));
@@ -529,7 +836,7 @@ static bool testIntegerArrayEquality()
 
   Value *iiav = NULL;
   {
-    std::vector<int32_t> iv(2);
+    std::vector<Integer> iv(2);
     iv[0] = 42;
     iv[1] = 6;
     IntegerArray *initedInt = new IntegerArray(iv);
@@ -626,7 +933,7 @@ static bool testRealArrayEquality()
 
   Value *irav = NULL;
   {
-    std::vector<double> dv(2);
+    std::vector<Real> dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
     RealArray* initedReal = new RealArray(dv);
@@ -723,9 +1030,9 @@ static bool testStringArrayEquality()
 
   Value *isav = NULL;
   {
-    std::vector<std::string> sv(2);
-    sv[0] = std::string("yo ");
-    sv[1] = std::string("mama");
+    std::vector<String> sv(2);
+    sv[0] = String("yo ");
+    sv[1] = String("mama");
     StringArray *initedString = new StringArray(sv);
     isav = new Value(*initedString);
     delete initedString;
@@ -913,7 +1220,7 @@ static bool testScalarBooleanArrayEquality()
   }
 
   {
-    Value *intv = new Value((int32_t) 42);
+    Value *intv = new Value((Integer) 42);
 
     assertTrue_1(!(*intv == *bav));
     assertTrue_1(*intv != *bav);
@@ -998,7 +1305,7 @@ static bool testScalarIntegerArrayEquality()
   }
   Value *iiav = NULL;
   {
-    std::vector<int32_t> iv(2);
+    std::vector<Integer> iv(2);
     iv[0] = 42;
     iv[1] = 6;
     IntegerArray *initedInt = new IntegerArray(iv);
@@ -1028,7 +1335,7 @@ static bool testScalarIntegerArrayEquality()
   }
 
   {
-    Value *intv = new Value((int32_t) 42);
+    Value *intv = new Value((Integer) 42);
 
     assertTrue_1(!(*intv == *iav));
     assertTrue_1(*intv != *iav);
@@ -1113,7 +1420,7 @@ static bool testScalarRealArrayEquality()
   }
   Value *irav = NULL;
   {
-    std::vector<double> dv(2);
+    std::vector<Real> dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
     RealArray* initedReal = new RealArray(dv);
@@ -1143,7 +1450,7 @@ static bool testScalarRealArrayEquality()
   }
 
   {
-    Value *intv = new Value((int32_t) 42);
+    Value *intv = new Value((Integer) 42);
 
     assertTrue_1(!(*intv == *rav));
     assertTrue_1(*intv != *rav);
@@ -1228,9 +1535,9 @@ static bool testScalarStringArrayEquality()
   }
   Value *isav = NULL;
   {
-    std::vector<std::string> sv(2);
-    sv[0] = std::string("yo ");
-    sv[1] = std::string("mama");
+    std::vector<String> sv(2);
+    sv[0] = String("yo ");
+    sv[1] = String("mama");
     StringArray *initedString = new StringArray(sv);
     isav = new Value(*initedString);
     delete initedString;
@@ -1258,7 +1565,7 @@ static bool testScalarStringArrayEquality()
   }
 
   {
-    Value *intv = new Value((int32_t) 42);
+    Value *intv = new Value((Integer) 42);
 
     assertTrue_1(!(*intv == *sav));
     assertTrue_1(*intv != *sav);
@@ -1397,9 +1704,9 @@ static bool testScalarLessThan()
 
   delete falls;
 
-  Value *fortytwo = new Value((int32_t) 42);
+  Value *fortytwo = new Value((Integer) 42);
   {
-    Value *fortythree = new Value((int32_t) 43);
+    Value *fortythree = new Value((Integer) 43);
     assertTrue_1(!(*fortytwo < *fortytwo));
     assertTrue_1(!(*fortythree < *fortythree));
     assertTrue_1(*fortytwo < *fortythree);
@@ -1551,7 +1858,7 @@ static bool testScalarLessThan()
   }
 
   {
-    Value *real42v = new Value((double) 42);
+    Value *real42v = new Value((Real) 42);
     assertTrue_1(real42v->valueType() == REAL_TYPE);
     // Equal
     assertTrue_1(!(*fortytwo < *real42v));
@@ -1678,7 +1985,7 @@ static bool testIntegerArrayLessThan()
 
   Value *iiav = NULL;
   {
-    std::vector<int32_t> iv(2);
+    std::vector<Integer> iv(2);
     iv[0] = 42;
     iv[1] = 6;
     IntegerArray *initedInt = new IntegerArray(iv);
@@ -1698,7 +2005,7 @@ static bool testIntegerArrayLessThan()
 
   Value *iiav2 = NULL;
   {
-    std::vector<int32_t> iv2(2);
+    std::vector<Integer> iv2(2);
     iv2[0] = 42;
     iv2[1] = 7;
     IntegerArray *initedInt2 = new IntegerArray(iv2);
@@ -1760,7 +2067,7 @@ static bool testRealArrayLessThan()
 
   Value *irav = NULL;
   {
-    std::vector<double> dv(2);
+    std::vector<Real> dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
     RealArray *initedReal = new RealArray(dv);
@@ -1780,7 +2087,7 @@ static bool testRealArrayLessThan()
 
   Value *irav2 = NULL;
   {
-    std::vector<double> dv2(2);
+    std::vector<Real> dv2(2);
     dv2[0] = 3.14;
     dv2[1] = 4.6;
     RealArray *initedReal2 = new RealArray(dv2);
@@ -1846,9 +2153,9 @@ static bool testStringArrayLessThan()
 
   Value *isav = NULL;
   {
-    std::vector<std::string> sv(2);
-    sv[0] = std::string("yo ");
-    sv[1] = std::string("mama");
+    std::vector<String> sv(2);
+    sv[0] = String("yo ");
+    sv[1] = String("mama");
     StringArray *initedString = new StringArray(sv);
     isav = new Value(*initedString);
   }
@@ -1865,9 +2172,9 @@ static bool testStringArrayLessThan()
 
   Value *isav2 = NULL;
   {
-    std::vector<std::string> sv2(2);
-    sv2[0] = std::string("yo ");
-    sv2[1] = std::string("mamb");
+    std::vector<String> sv2(2);
+    sv2[0] = String("yo ");
+    sv2[1] = String("mamb");
     StringArray *initedString2 = new StringArray(sv2);
     isav2 = new Value(*initedString2);
     delete initedString2;
@@ -1915,6 +2222,9 @@ static bool testStringArrayLessThan()
 bool valueTest()
 {
   runTest(testConstructorsAndAccessors);
+#if __cplusplus >= 201103L
+  runTest(testMoveConstructors);
+#endif
   runTest(testScalarEquality);
   runTest(testBooleanArrayEquality);
   runTest(testIntegerArrayEquality);

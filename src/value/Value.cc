@@ -35,12 +35,14 @@ namespace PLEXIL
 {
 
   Value::Value()
-    : m_type(UNKNOWN_TYPE),
+    : realValue(0.0),
+      m_type(UNKNOWN_TYPE),
       m_known(false)
   {}
 
   Value::Value(Value const &other)
-    : m_type(other.m_type),
+    : realValue(0.0),
+      m_type(other.m_type),
       m_known(other.m_known)
   {
     if (!m_known)
@@ -48,47 +50,118 @@ namespace PLEXIL
     switch (m_type) {
       // Unknown - do nothing
     case UNKNOWN_TYPE:
-      break;
+      return;
 
-      // Immediate data - copy the union
+      // Immediate data - copy it
     case BOOLEAN_TYPE:
+      booleanValue = other.booleanValue;
+      return;
+
     case INTEGER_TYPE:
+      integerValue = other.integerValue;
+      return;
+
     case REAL_TYPE:
+      realValue = other.realValue;
+      return;
+
     case NODE_STATE_TYPE:
     case OUTCOME_TYPE:
     case FAILURE_TYPE:
     case COMMAND_HANDLE_TYPE:
-      m_value = other.m_value;
-      break;
+      enumValue = other.enumValue;
+      return;
 
       // Copy the actual value
     case STRING_TYPE:
-      m_value.stringValue = new std::string(*other.m_value.stringValue);
-      break;
+#if __cplusplus >= 201103L
+      new (&stringValue) std::unique_ptr<String>(new String(*other.stringValue));
+#else
+      stringValue = new String(*other.stringValue);
+#endif
+      return;
 
       // Copy the entire array
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      m_value.arrayValue = other.m_value.arrayValue->clone();
-      break;
+#if __cplusplus >= 201103L
+      new (&arrayValue) std::unique_ptr<Array>(other.arrayValue->clone());
+#else
+      arrayValue = other.arrayValue->clone();
+#endif
+      return;
 
     default:
       assertTrue_2(ALWAYS_FAIL, "Value copy constructor: unknown type");
-      break;
+      return;
     }
   }
 
+#if __cplusplus >= 201103L
+  Value::Value(Value &&other)
+    : realValue(0.0),
+      m_type(other.m_type),
+      m_known(other.m_known)
+  {
+    if (!m_known)
+      return;
+
+    switch (m_type) {
+      // Immediate data - copy it
+    case BOOLEAN_TYPE:
+      booleanValue = other.booleanValue;
+      return;
+
+    case INTEGER_TYPE:
+      integerValue = other.integerValue;
+      return;
+
+    case REAL_TYPE:
+      realValue = other.realValue;
+      return;
+
+    case NODE_STATE_TYPE:
+    case OUTCOME_TYPE:
+    case FAILURE_TYPE:
+    case COMMAND_HANDLE_TYPE:
+      enumValue = other.enumValue;
+      return;
+
+      // Pointer data - move it
+    case STRING_TYPE:
+      stringValue = std::move(other.stringValue);
+      other.m_known = false;
+      return;
+
+      // Copy the entire array
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      arrayValue = std::move(other.arrayValue);
+      other.m_known = false;
+      return;
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "Value move constructor: unknown type");
+      return;
+    }
+  }
+#endif
+  
   Value::Value(Boolean val)
-    : m_type(BOOLEAN_TYPE),
+    : booleanValue(val),
+      m_type(BOOLEAN_TYPE),
       m_known(true)
   {
-    m_value.booleanValue = val;
+    booleanValue = val;
   }
 
   Value::Value(uint16_t enumVal, ValueType typ)
-    : m_type(typ)
+    : enumValue(enumVal),
+      m_type(typ)
   {
     switch (m_type) {
       // Internal enumerations
@@ -96,7 +169,7 @@ namespace PLEXIL
     case OUTCOME_TYPE:
     case FAILURE_TYPE:
     case COMMAND_HANDLE_TYPE:
-      m_value.enumValue = enumVal;
+      enumValue = enumVal;
       m_known = true;
       break;
 
@@ -106,70 +179,71 @@ namespace PLEXIL
   }
       
   Value::Value(Integer val)
-    : m_type(INTEGER_TYPE),
+    : integerValue(val),
+      m_type(INTEGER_TYPE),
       m_known(true)
   {
-    m_value.integerValue = val;
   }
 
   Value::Value(Real val)
-    : m_type(REAL_TYPE),
+    : realValue(val),
+      m_type(REAL_TYPE),
       m_known(true)
   {
-    m_value.realValue = val;
   }
 
   Value::Value(String const &val)
-    : m_type(STRING_TYPE),
+    : stringValue(new String(val)),
+      m_type(STRING_TYPE),
       m_known(true)
   {
-    m_value.stringValue = new std::string(val);
   }
 
   Value::Value(char const *val)
-    : m_type(STRING_TYPE),
+    : stringValue(new String(val)),
+      m_type(STRING_TYPE),
       m_known(true)
   {
-    m_value.stringValue = new std::string(val);
   }
 
   Value::Value(Array const &val)
-    : m_type(arrayType(val.getElementType())),
+    : arrayValue(val.clone()),
+      m_type(arrayType(val.getElementType())),
       m_known(true)
   {
-    m_value.arrayValue = val.clone();
   }
 
   Value::Value(BooleanArray const &val)
-    : m_type(BOOLEAN_ARRAY_TYPE),
+    : arrayValue(val.clone()),
+      m_type(BOOLEAN_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.arrayValue = static_cast<Array *>(new BooleanArray(val));
   }
 
   Value::Value(IntegerArray const &val)
-    : m_type(INTEGER_ARRAY_TYPE),
+    : arrayValue(val.clone()),
+      m_type(INTEGER_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.arrayValue = static_cast<Array *>(new IntegerArray(val));
   }
 
   Value::Value(RealArray const &val)
-    : m_type(REAL_ARRAY_TYPE),
+    : arrayValue(val.clone()),
+      m_type(REAL_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.arrayValue = static_cast<Array *>(new RealArray(val));
   }
 
   Value::Value(StringArray const &val)
-    : m_type(STRING_ARRAY_TYPE),
+    : arrayValue(val.clone()),
+      m_type(STRING_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.arrayValue = static_cast<Array *>(new StringArray(val));
   }
 
   Value::Value(std::vector<Value> const &vals)
-    : m_type(UNKNOWN_TYPE),
+    : arrayValue(),
+      m_type(UNKNOWN_TYPE),
       m_known(true)
   {
     size_t len = vals.size();
@@ -201,7 +275,12 @@ namespace PLEXIL
     case BOOLEAN_TYPE: {
       m_type = BOOLEAN_ARRAY_TYPE;
       BooleanArray *ary = new BooleanArray(len);
-      m_value.arrayValue = static_cast<Array *>(ary);
+#if __cplusplus >= 201103L
+      arrayValue.reset(static_cast<Array *>(ary));
+#else
+      arrayValue = static_cast<Array *>(ary);
+#endif
+        
       for (size_t i = 0; i < len; ++i) {
         Boolean temp;
         if (vals[i].getValue(temp))
@@ -215,7 +294,11 @@ namespace PLEXIL
     case INTEGER_TYPE: {
       m_type = INTEGER_ARRAY_TYPE;
       IntegerArray *ary = new IntegerArray(len);
-      m_value.arrayValue = static_cast<Array *>(ary);
+#if __cplusplus >= 201103L
+      arrayValue.reset(static_cast<Array *>(ary));
+#else
+      arrayValue = static_cast<Array *>(ary);
+#endif
       for (size_t i = 0; i < len; ++i) {
         Integer temp;
         if (vals[i].getValue(temp))
@@ -231,7 +314,11 @@ namespace PLEXIL
     case REAL_TYPE: {
       m_type = REAL_ARRAY_TYPE;
       RealArray *ary = new RealArray(len);
-      m_value.arrayValue = static_cast<Array *>(ary);
+#if __cplusplus >= 201103L
+      arrayValue.reset(static_cast<Array *>(ary));
+#else
+      arrayValue = static_cast<Array *>(ary);
+#endif
       for (size_t i = 0; i < len; ++i) {
         Real temp;
         if (vals[i].getValue(temp))
@@ -245,7 +332,11 @@ namespace PLEXIL
     case STRING_TYPE: {
       m_type = STRING_ARRAY_TYPE;
       StringArray *ary = new StringArray(len);
-      m_value.arrayValue = static_cast<Array *>(ary);
+#if __cplusplus >= 201103L
+      arrayValue.reset(static_cast<Array *>(ary));
+#else
+      arrayValue = static_cast<Array *>(ary);
+#endif
       for (size_t i = 0; i < len; ++i) {
         String const *temp;
         if (vals[i].getValuePointer(temp))
@@ -287,12 +378,16 @@ namespace PLEXIL
     case FAILURE_TYPE:
     case COMMAND_HANDLE_TYPE:
       cleanup();
-      m_value = other.m_value;
+      realValue = other.realValue;
       break;
 
     case STRING_TYPE:
       cleanupForString();
-      m_value.stringValue = new String(*other.m_value.stringValue);
+#if __cplusplus >= 201103L
+      stringValue.reset(new String(*other.stringValue));
+#else
+      stringValue = new String(*other.stringValue);
+#endif
       break;
 
     case BOOLEAN_ARRAY_TYPE:
@@ -300,7 +395,11 @@ namespace PLEXIL
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
       cleanupForArray();
-      m_value.arrayValue = other.m_value.arrayValue->clone();
+#if __cplusplus >= 201103L
+      arrayValue.reset(other.arrayValue->clone());
+#else
+      arrayValue = other.arrayValue->clone();
+#endif
       break;
 
     default:
@@ -312,10 +411,73 @@ namespace PLEXIL
     return *this;
   }
 
+#if __cplusplus >= 201103L
+  // Move assignment
+  Value &Value::operator=(Value &&other)
+  {
+    if (!other.m_known) {
+      cleanup();
+      m_type = other.m_type;
+      return *this;
+    }
+
+    switch (other.m_type) {
+      // Copy the original's value
+    case BOOLEAN_TYPE:
+      cleanup();
+      booleanValue = other.booleanValue;
+      break;
+
+    case INTEGER_TYPE:
+      cleanup();
+      integerValue = other.integerValue;
+      break;
+
+    case REAL_TYPE:
+      cleanup();
+      realValue = other.realValue;
+      break;
+
+    case NODE_STATE_TYPE:
+    case OUTCOME_TYPE:
+    case FAILURE_TYPE:
+    case COMMAND_HANDLE_TYPE:
+      cleanup();
+      enumValue = other.enumValue;
+      break;
+
+      // Pointer data - move it
+    case STRING_TYPE:
+      cleanupForString();
+      stringValue = std::move(other.stringValue);
+      other.m_known = false;
+      break;
+
+      // Copy the entire array
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      cleanupForArray();
+      arrayValue = std::move(other.arrayValue);
+      other.m_known = false;
+      break;
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "Value move assignment: invalid or unknown type");
+      break;
+    }
+    m_known = true;
+    m_type = other.m_type;
+
+    return *this;
+  }
+#endif
+  
   Value &Value::operator=(Boolean val)
   {
     cleanup();
-    m_value.booleanValue = val;
+    booleanValue = val;
     m_type = BOOLEAN_TYPE;
     m_known = true;
     return *this;
@@ -324,7 +486,7 @@ namespace PLEXIL
   Value &Value::operator=(uint16_t enumVal)
   {
     cleanup();
-    m_value.enumValue = enumVal;
+    enumValue = enumVal;
     // *** FIXME: Have to determine type ***
     // For now assume command handle
     m_type = COMMAND_HANDLE_TYPE;
@@ -335,7 +497,7 @@ namespace PLEXIL
   Value &Value::operator=(Integer val)
   {
     cleanup();
-    m_value.integerValue = val;
+    integerValue = val;
     m_type = INTEGER_TYPE;
     m_known = true;
     return *this;
@@ -344,7 +506,7 @@ namespace PLEXIL
   Value &Value::operator=(Real val)
   {
     cleanup();
-    m_value.realValue = val;
+    realValue = val;
     m_type = REAL_TYPE;
     m_known = true;
     return *this;
@@ -353,7 +515,11 @@ namespace PLEXIL
   Value &Value::operator=(String const &val)
   {
     cleanupForString();
-    m_value.stringValue = new std::string(val);
+#if __cplusplus >= 201103L
+    stringValue.reset(new String(val));
+#else
+    stringValue = new String(val);
+#endif
     m_type = STRING_TYPE;
     m_known = true;
     return *this;
@@ -362,7 +528,11 @@ namespace PLEXIL
   Value &Value::operator=(char const *val)
   {
     cleanupForString();
-    m_value.stringValue = new std::string(val);
+#if __cplusplus >= 201103L
+    stringValue.reset(new String(val));
+#else
+    stringValue = new String(val);
+#endif
     m_type = STRING_TYPE;
     m_known = true;
     return *this;
@@ -371,7 +541,11 @@ namespace PLEXIL
   Value &Value::operator=(BooleanArray const &val)
   {
     cleanupForArray();
-    m_value.arrayValue = val.clone();
+#if __cplusplus >= 201103L
+    arrayValue.reset(val.clone());
+#else
+    arrayValue = val.clone();
+#endif
     m_type = BOOLEAN_ARRAY_TYPE;
     m_known = true;
     return *this;
@@ -380,7 +554,11 @@ namespace PLEXIL
   Value &Value::operator=(IntegerArray const &val)
   {
     cleanupForArray();
-    m_value.arrayValue = val.clone();
+#if __cplusplus >= 201103L
+    arrayValue.reset(val.clone());
+#else
+    arrayValue = val.clone();
+#endif
     m_type = INTEGER_ARRAY_TYPE;
     m_known = true;
     return *this;
@@ -389,7 +567,11 @@ namespace PLEXIL
   Value &Value::operator=(RealArray const &val)
   {
     cleanupForArray();
-    m_value.arrayValue = val.clone();
+#if __cplusplus >= 201103L
+    arrayValue.reset(val.clone());
+#else
+    arrayValue = val.clone();
+#endif
     m_type = REAL_ARRAY_TYPE;
     m_known = true;
     return *this;
@@ -398,7 +580,11 @@ namespace PLEXIL
   Value &Value::operator=(StringArray const &val)
   {
     cleanupForArray();
-    m_value.arrayValue = val.clone();
+#if __cplusplus >= 201103L
+    arrayValue.reset(val.clone());
+#else
+    arrayValue = val.clone();
+#endif
     m_type = STRING_ARRAY_TYPE;
     m_known = true;
     return *this;
@@ -417,16 +603,24 @@ namespace PLEXIL
 
     switch (m_type) {
     case STRING_TYPE:
-      delete m_value.stringValue;
-      m_value.stringValue = NULL;
+#if __cplusplus >= 201103L
+      stringValue.reset();
+#else
+      delete stringValue;
+      stringValue = NULL;
+#endif
       break;
       
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      delete m_value.arrayValue;
-      m_value.arrayValue = NULL;
+#if __cplusplus >= 201103L
+      arrayValue.reset();
+#else
+      delete arrayValue;
+      arrayValue = NULL;
+#endif
       break;
 
     default:
@@ -444,16 +638,28 @@ namespace PLEXIL
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
       // Delete the old value
-      delete m_value.arrayValue;
-      m_value.arrayValue = NULL;
+#if __cplusplus >= 201103L
+      arrayValue.reset();
+      new (&stringValue) std::unique_ptr<String>;
+#else
+      delete arrayValue;
+      arrayValue = NULL;
+#endif
       return;
 
     case STRING_TYPE:
-      delete m_value.stringValue;
-      // and fall through...
+#if __cplusplus < 201103L
+      delete stringValue;
+      stringValue = NULL;
+#endif
+      return;
 
     default:
-      m_value.stringValue = NULL;
+#if __cplusplus >= 201103L
+      new (&stringValue) std::unique_ptr<String>;
+#else
+      stringValue = NULL;
+#endif
       return;
     }
   }
@@ -463,19 +669,31 @@ namespace PLEXIL
     switch (m_type) {
     case STRING_TYPE:
       // Delete old value
-      delete m_value.stringValue;
-      m_value.stringValue = NULL;
+#if __cplusplus >= 201103L
+      stringValue.reset();
+      new (&arrayValue) std::unique_ptr<Array>;
+#else
+      delete stringValue;
+      stringValue = NULL;
+#endif
       return;
       
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      delete m_value.arrayValue;
-      // and fall through...
+#if __cplusplus < 201103L
+      delete arrayValue;
+      arrayValue = NULL;
+#endif
+      return;
 
     default:
-      m_value.arrayValue = NULL;
+#if __cplusplus >= 201103L
+      new (&arrayValue) std::unique_ptr<Array>;
+#else
+      arrayValue = NULL;
+#endif
       return;
     }
   }
@@ -497,7 +715,7 @@ namespace PLEXIL
     checkPlanError(m_type == BOOLEAN_TYPE,
                    "Attempt to get Boolean value of a "
                    << valueTypeName(m_type) << " Value");
-    result = m_value.booleanValue;
+    result = booleanValue;
     return true;
   }
 
@@ -511,7 +729,7 @@ namespace PLEXIL
     case OUTCOME_TYPE:
     case FAILURE_TYPE:
     case COMMAND_HANDLE_TYPE:
-      result = m_value.enumValue;
+      result = enumValue;
       return true;
 
     default:
@@ -529,7 +747,7 @@ namespace PLEXIL
     checkPlanError(m_type == INTEGER_TYPE,
                    "Attempt to get an Integer value from a "
                    << valueTypeName(m_type) << " Value");
-    result = m_value.integerValue;
+    result = integerValue;
     return true;
   }
 
@@ -539,11 +757,11 @@ namespace PLEXIL
       return false;
     switch (m_type) {
     case REAL_TYPE:
-      result = m_value.realValue;
+      result = realValue;
       return true;
 
     case INTEGER_TYPE:
-      result = (Real) m_value.integerValue;
+      result = (Real) integerValue;
       return true;
 
     default:
@@ -561,7 +779,7 @@ namespace PLEXIL
     checkPlanError(m_type == STRING_TYPE,
                    "Attempt to get a String value from a "
                    << valueTypeName(m_type) << " Value");
-    result = *m_value.stringValue;
+    result = *stringValue;
     return true;
   }
 
@@ -572,7 +790,11 @@ namespace PLEXIL
     checkPlanError(m_type == STRING_TYPE,
                    "Attempt to get a String value from a "
                    << valueTypeName(m_type) << " Value");
-    ptr = m_value.stringValue;
+#if __cplusplus >= 201103L
+    ptr = stringValue.get();
+#else
+    ptr = stringValue;
+#endif
     return true;
   }
 
@@ -585,7 +807,11 @@ namespace PLEXIL
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      ptr = m_value.arrayValue;
+#if __cplusplus >= 201103L
+      ptr = arrayValue.get();
+#else
+      ptr = arrayValue;
+#endif
       return true;
 
     default:
@@ -603,7 +829,11 @@ namespace PLEXIL
     checkPlanError(m_type == BOOLEAN_ARRAY_TYPE,
                    "Attempt to get a BooleanArray value from a "
                    << valueTypeName(m_type) << " Value");
-    ptr = dynamic_cast<BooleanArray const *>(m_value.arrayValue);
+#if __cplusplus >= 201103L
+    ptr = dynamic_cast<BooleanArray const *>(arrayValue.get());
+#else
+    ptr = dynamic_cast<BooleanArray const *>(arrayValue);
+#endif
     assertTrue_1(ptr);
     return true;
   }
@@ -615,7 +845,11 @@ namespace PLEXIL
     checkPlanError(m_type == INTEGER_ARRAY_TYPE,
                    "Attempt to get a IntegerArray value from a "
                    << valueTypeName(m_type) << " Value");
-    ptr = dynamic_cast<IntegerArray const *>(m_value.arrayValue);
+#if __cplusplus >= 201103L
+    ptr = dynamic_cast<IntegerArray const *>(arrayValue.get());
+#else
+    ptr = dynamic_cast<IntegerArray const *>(arrayValue);
+#endif
     assertTrue_1(ptr);
     return true;
   }
@@ -627,7 +861,11 @@ namespace PLEXIL
     checkPlanError(m_type == REAL_ARRAY_TYPE,
                    "Attempt to get a RealArray value from a "
                    << valueTypeName(m_type) << " Value");
-    ptr = dynamic_cast<RealArray const *>(m_value.arrayValue);
+#if __cplusplus >= 201103L
+    ptr = dynamic_cast<RealArray const *>(arrayValue.get());
+#else
+    ptr = dynamic_cast<RealArray const *>(arrayValue);
+#endif
     assertTrue_1(ptr);
     return true;
   }
@@ -639,7 +877,11 @@ namespace PLEXIL
     checkPlanError(m_type == STRING_ARRAY_TYPE,
                    "Attempt to get a StringArray value from a "
                    << valueTypeName(m_type) << " Value");
-    ptr = dynamic_cast<StringArray const *>(m_value.arrayValue);
+#if __cplusplus >= 201103L
+    ptr = dynamic_cast<StringArray const *>(arrayValue.get());
+#else
+    ptr = dynamic_cast<StringArray const *>(arrayValue);
+#endif
     assertTrue_1(ptr);
     return true;
   }
@@ -652,51 +894,67 @@ namespace PLEXIL
     }
     switch (m_type) {
     case BOOLEAN_TYPE:
-      printValue<Boolean>(m_value.booleanValue, s);
+      printValue<Boolean>(booleanValue, s);
       break;
 
     case INTEGER_TYPE:
-      printValue<Integer>(m_value.integerValue, s);
+      printValue<Integer>(integerValue, s);
       break;
 
     case REAL_TYPE:
-      printValue<Real>(m_value.realValue, s);
+      printValue<Real>(realValue, s);
       break;
 
     case STRING_TYPE:
-      printValue<String>(*m_value.stringValue, s);
+      printValue<String>(*stringValue, s);
       break;
 
     case BOOLEAN_ARRAY_TYPE:
-      printValue<Boolean>(*dynamic_cast<BooleanArray const *>(m_value.arrayValue), s);
+#if __cplusplus >= 201103L
+      printValue<Boolean>(*dynamic_cast<BooleanArray const *>(arrayValue.get()), s);
+#else
+      printValue<Boolean>(*dynamic_cast<BooleanArray const *>(arrayValue), s);
+#endif
       break;
 
     case INTEGER_ARRAY_TYPE:
-      printValue<Integer>(*dynamic_cast<IntegerArray const *>(m_value.arrayValue), s);
+#if __cplusplus >= 201103L
+      printValue<Integer>(*dynamic_cast<IntegerArray const *>(arrayValue.get()), s);
+#else
+      printValue<Integer>(*dynamic_cast<IntegerArray const *>(arrayValue), s);
+#endif
       break;
 
     case REAL_ARRAY_TYPE:
-      printValue<Real>(*dynamic_cast<RealArray const *>(m_value.arrayValue), s);
+#if __cplusplus >= 201103L
+      printValue<Real>(*dynamic_cast<RealArray const *>(arrayValue.get()), s);
+#else
+      printValue<Real>(*dynamic_cast<RealArray const *>(arrayValue), s);
+#endif
       break;
 
     case STRING_ARRAY_TYPE:
-      printValue<String>(*dynamic_cast<StringArray const *>(m_value.arrayValue), s);
+#if __cplusplus >= 201103L
+      printValue<String>(*dynamic_cast<StringArray const *>(arrayValue.get()), s);
+#else
+      printValue<String>(*dynamic_cast<StringArray const *>(arrayValue), s);
+#endif
       break;
 
     case NODE_STATE_TYPE:
-      s << nodeStateName(m_value.enumValue);
+      s << nodeStateName(enumValue);
       break;
 
     case OUTCOME_TYPE:
-      s << outcomeName(m_value.enumValue);
+      s << outcomeName(enumValue);
       break;
 
     case FAILURE_TYPE:
-      s << failureTypeName(m_value.enumValue);
+      s << failureTypeName(enumValue);
       break;
 
     case COMMAND_HANDLE_TYPE:
-      s << commandHandleValueName(m_value.enumValue);
+      s << commandHandleValueName(enumValue);
       break;
 
     default:
@@ -730,12 +988,12 @@ namespace PLEXIL
       if (other.m_type == m_type) {
         if (!m_known)
           return true;
-        return m_value.integerValue == other.m_value.integerValue;
+        return integerValue == other.integerValue;
       }
       else if (other.m_type == REAL_TYPE) {
         if (!m_known)
           return true;
-        return other.m_value.realValue == (Real) m_value.integerValue;
+        return other.realValue == (Real) integerValue;
       }
       else
         return false; // type mismatch
@@ -744,12 +1002,12 @@ namespace PLEXIL
       if (other.m_type == m_type) {
         if (!m_known)
           return true;
-        return m_value.realValue == other.m_value.realValue;
+        return realValue == other.realValue;
       }
       else if (other.m_type == INTEGER_TYPE) {
         if (!m_known)
           return true;
-        return m_value.realValue == (Real) other.m_value.integerValue;
+        return realValue == (Real) other.integerValue;
       }
       else
         return false; // type mismatch
@@ -761,22 +1019,22 @@ namespace PLEXIL
         return true;
       switch (m_type) {
       case BOOLEAN_TYPE:
-        return m_value.booleanValue == other.m_value.booleanValue;
+        return booleanValue == other.booleanValue;
 
       case NODE_STATE_TYPE:
       case OUTCOME_TYPE:
       case FAILURE_TYPE:
       case COMMAND_HANDLE_TYPE:
-        return m_value.enumValue == other.m_value.enumValue;
+        return enumValue == other.enumValue;
       
       case STRING_TYPE:
-        return *m_value.stringValue == *other.m_value.stringValue;
+        return *stringValue == *other.stringValue;
 
       case BOOLEAN_ARRAY_TYPE:
       case INTEGER_ARRAY_TYPE:
       case REAL_ARRAY_TYPE:
       case STRING_ARRAY_TYPE:
-        return *m_value.arrayValue == *other.m_value.arrayValue;
+        return *arrayValue == *other.arrayValue;
 
       default:
         assertTrue_2(ALWAYS_FAIL, "Value::equals: unknown value type");
@@ -797,13 +1055,13 @@ namespace PLEXIL
     case INTEGER_TYPE:
       if (m_type == other.m_type) {
         if (m_known)
-          return m_value.integerValue < other.m_value.integerValue;
+          return integerValue < other.integerValue;
         else 
           return false; // unknown integer values are equal
       }
       else if (REAL_TYPE == other.m_type) {
         if (m_known)
-          return ((Real) m_value.integerValue) < other.m_value.realValue;
+          return ((Real) integerValue) < other.realValue;
         else 
           return true; // real unknown > int unknown
       }
@@ -813,13 +1071,13 @@ namespace PLEXIL
     case REAL_TYPE:
       if (m_type == other.m_type) {
         if (m_known)
-          return m_value.realValue < other.m_value.realValue;
+          return realValue < other.realValue;
         else
           return false; // unknown real values are equal
       }
       else if (INTEGER_TYPE == other.m_type) {
         if (m_known)
-          return m_value.realValue < (Real) other.m_value.integerValue;
+          return realValue < (Real) other.integerValue;
         else
           return false; // real unknown > int unknown
       }
@@ -840,36 +1098,52 @@ namespace PLEXIL
 
     switch (m_type) {
       case BOOLEAN_TYPE:
-        return ((int) m_value.booleanValue) < ((int) other.m_value.booleanValue);
+        return ((int) booleanValue) < ((int) other.booleanValue);
 
       case NODE_STATE_TYPE:
       case OUTCOME_TYPE:
       case FAILURE_TYPE:
       case COMMAND_HANDLE_TYPE:
-        return m_value.enumValue < other.m_value.enumValue;
+        return enumValue < other.enumValue;
       
       case STRING_TYPE:
-        return *m_value.stringValue < *other.m_value.stringValue;
+        return *stringValue < *other.stringValue;
 
       case BOOLEAN_ARRAY_TYPE:
-        return 
-          *dynamic_cast<BooleanArray const *>(m_value.arrayValue) < 
-          *dynamic_cast<BooleanArray const *>(other.m_value.arrayValue);
+#if __cplusplus >= 201103L
+        return *dynamic_cast<BooleanArray const *>(arrayValue.get()) < 
+          *dynamic_cast<BooleanArray const *>(other.arrayValue.get());
+#else
+        return *dynamic_cast<BooleanArray const *>(arrayValue) < 
+          *dynamic_cast<BooleanArray const *>(other.arrayValue);
+#endif
 
       case INTEGER_ARRAY_TYPE:
-        return 
-          *dynamic_cast<IntegerArray const *>(m_value.arrayValue) < 
-          *dynamic_cast<IntegerArray const *>(other.m_value.arrayValue);
+#if __cplusplus >= 201103L
+        return *dynamic_cast<IntegerArray const *>(arrayValue.get()) < 
+          *dynamic_cast<IntegerArray const *>(other.arrayValue.get());
+#else
+        return *dynamic_cast<IntegerArray const *>(arrayValue) < 
+          *dynamic_cast<IntegerArray const *>(other.arrayValue);
+#endif
 
       case REAL_ARRAY_TYPE:
-        return 
-          *dynamic_cast<RealArray const *>(m_value.arrayValue) < 
-          *dynamic_cast<RealArray const *>(other.m_value.arrayValue);
+#if __cplusplus >= 201103L
+        return *dynamic_cast<RealArray const *>(arrayValue.get()) < 
+          *dynamic_cast<RealArray const *>(other.arrayValue.get());
+#else
+        return *dynamic_cast<RealArray const *>(arrayValue) < 
+          *dynamic_cast<RealArray const *>(other.arrayValue);
+#endif
 
       case STRING_ARRAY_TYPE:
-        return 
-          *dynamic_cast<StringArray const *>(m_value.arrayValue) < 
-          *dynamic_cast<StringArray const *>(other.m_value.arrayValue);
+#if __cplusplus >= 201103L
+        return *dynamic_cast<StringArray const *>(arrayValue.get()) < 
+          *dynamic_cast<StringArray const *>(other.arrayValue.get());
+#else
+        return *dynamic_cast<StringArray const *>(arrayValue) < 
+          *dynamic_cast<StringArray const *>(other.arrayValue);
+#endif
 
       default:
         assertTrue_2(ALWAYS_FAIL, "Value::lessThan: unknown value type");
@@ -885,25 +1159,25 @@ namespace PLEXIL
     }
     switch (m_type) {
     case BOOLEAN_TYPE:
-      return PLEXIL::serialize(m_value.booleanValue, b);
+      return PLEXIL::serialize(booleanValue, b);
 
     case INTEGER_TYPE:
-      return PLEXIL::serialize(m_value.integerValue, b);
+      return PLEXIL::serialize(integerValue, b);
       
     case REAL_TYPE:
-      return PLEXIL::serialize(m_value.realValue, b);
+      return PLEXIL::serialize(realValue, b);
 
     case STRING_TYPE:
-      return PLEXIL::serialize(*m_value.stringValue, b);
+      return PLEXIL::serialize(*stringValue, b);
 
     case COMMAND_HANDLE_TYPE:
-      return PLEXIL::serialize((CommandHandleValue) m_value.enumValue, b);
+      return PLEXIL::serialize((CommandHandleValue) enumValue, b);
 
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      return PLEXIL::serialize(*m_value.arrayValue, b);
+      return PLEXIL::serialize(*arrayValue, b);
 
     default: // invalid/unimplemented
       return NULL;
@@ -924,57 +1198,77 @@ namespace PLEXIL
     case BOOLEAN_TYPE:
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(m_value.booleanValue, b);
+      return PLEXIL::deserialize(booleanValue, b);
 
     case INTEGER_TYPE:
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(m_value.integerValue, b);
+      return PLEXIL::deserialize(integerValue, b);
 
     case REAL_TYPE:
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(m_value.realValue, b);
+      return PLEXIL::deserialize(realValue, b);
 
     case STRING_TYPE:
-      if (m_type != STRING_TYPE || !m_value.stringValue)
-        m_value.stringValue = new String();
+      if (m_type != STRING_TYPE || !stringValue)
+#if __cplusplus >= 201103L
+        stringValue.reset(new String());
+#else
+        stringValue = new String();
+#endif
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(*m_value.stringValue, b);
+      return PLEXIL::deserialize(*stringValue, b);
 
     case COMMAND_HANDLE_TYPE:
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(m_value.enumValue, b);
+      return PLEXIL::deserialize(enumValue, b);
 
     case BOOLEAN_ARRAY_TYPE:
-      if (m_type != BOOLEAN_ARRAY_TYPE || !m_value.arrayValue)
-        m_value.arrayValue = new BooleanArray();
+      if (m_type != BOOLEAN_ARRAY_TYPE || !arrayValue)
+#if __cplusplus >= 201103L
+        arrayValue.reset(new BooleanArray());
+#else
+        arrayValue = new BooleanArray();
+#endif
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(*(BooleanArray *)m_value.arrayValue, b);
+      return PLEXIL::deserialize((BooleanArray &) *arrayValue, b);
 
     case INTEGER_ARRAY_TYPE:
-      if (m_type != INTEGER_ARRAY_TYPE || !m_value.arrayValue)
-        m_value.arrayValue = new IntegerArray();
+      if (m_type != INTEGER_ARRAY_TYPE || !arrayValue)
+#if __cplusplus >= 201103L
+        arrayValue.reset(new IntegerArray());
+#else
+        arrayValue = new IntegerArray();
+#endif
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(*(IntegerArray *) m_value.arrayValue, b);
+      return PLEXIL::deserialize((IntegerArray &) *arrayValue, b);
 
     case REAL_ARRAY_TYPE:
-      if (m_type != REAL_ARRAY_TYPE || !m_value.arrayValue)
-        m_value.arrayValue = new RealArray();
+      if (m_type != REAL_ARRAY_TYPE || !arrayValue)
+#if __cplusplus >= 201103L
+        arrayValue.reset(new RealArray());
+#else
+        arrayValue = new RealArray();
+#endif
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(*(RealArray *) m_value.arrayValue, b);
+      return PLEXIL::deserialize((RealArray &) *arrayValue, b);
 
     case STRING_ARRAY_TYPE:
-      if (m_type != STRING_ARRAY_TYPE || !m_value.arrayValue)
-        m_value.arrayValue = new StringArray();
+      if (m_type != STRING_ARRAY_TYPE || !arrayValue)
+#if __cplusplus >= 201103L
+        arrayValue.reset(new StringArray());
+#else
+        arrayValue = new StringArray();
+#endif
       m_type = t;
       m_known = true;
-      return PLEXIL::deserialize(*(StringArray *) m_value.arrayValue, b);
+      return PLEXIL::deserialize((StringArray &) *arrayValue, b);
 
     default: // invalid
       return NULL;
@@ -988,25 +1282,25 @@ namespace PLEXIL
 
     switch (m_type) {
     case BOOLEAN_TYPE:
-      return PLEXIL::serialSize(m_value.booleanValue);
+      return PLEXIL::serialSize(booleanValue);
 
     case INTEGER_TYPE:
-      return PLEXIL::serialSize(m_value.integerValue);
+      return PLEXIL::serialSize(integerValue);
 
     case REAL_TYPE:
-      return PLEXIL::serialSize(m_value.realValue);
+      return PLEXIL::serialSize(realValue);
 
     case STRING_TYPE:
-      return PLEXIL::serialSize(*m_value.stringValue);
+      return PLEXIL::serialSize(*stringValue);
 
     case COMMAND_HANDLE_TYPE:
-      return PLEXIL::serialSize<CommandHandleValue>((CommandHandleValue) m_value.enumValue);
+      return PLEXIL::serialSize<CommandHandleValue>((CommandHandleValue) enumValue);
 
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      return PLEXIL::serialSize(*m_value.arrayValue);
+      return PLEXIL::serialSize(*arrayValue);
 
     default: // invalid/unimplemented
       return 0;

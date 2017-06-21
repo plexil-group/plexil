@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -250,8 +250,15 @@ namespace PLEXIL
 
   private:
     // Not implemented
+#if __cplusplus >= 201103L
+    SimpleMap(SimpleMap const &) = delete;
+    SimpleMap(SimpleMap &&) = delete;
+    SimpleMap &operator=(SimpleMap const &) = delete;
+    SimpleMap &operator=(SimpleMap &&) = delete;
+#else
     SimpleMap(SimpleMap const &);
     SimpleMap &operator=(SimpleMap const &);
+#endif
 
     // Wrap a used-defined comparator class for map entries
 

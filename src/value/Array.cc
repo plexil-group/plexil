@@ -39,6 +39,13 @@ namespace PLEXIL
   {
   }
 
+#if __cplusplus >= 201103L
+  Array::Array(Array &&orig)
+    : m_known(std::move(orig.m_known))
+  {
+  }
+#endif
+
   Array::Array(size_t size, bool known)
   : m_known(size, known)
   {
@@ -54,6 +61,14 @@ namespace PLEXIL
     return *this;
   }
 
+#if __cplusplus >= 201103L
+  Array &Array::operator=(Array &&other)
+  {
+    m_known = std::move(other.m_known);
+    return *this;
+  }
+#endif
+  
   size_t Array::size() const
   {
     return m_known.size();

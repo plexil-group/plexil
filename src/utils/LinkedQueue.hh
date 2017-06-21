@@ -49,8 +49,15 @@ namespace PLEXIL
     size_t m_count;
 
   private: // not implemented
+#if __cplusplus >= 201103L
+    LinkedQueue(LinkedQueue const &) = delete;
+    LinkedQueue(LinkedQueue &&) = delete;
+    LinkedQueue &operator=(LinkedQueue const &) = delete;
+    LinkedQueue &operator=(LinkedQueue &&) = delete;
+#else
     LinkedQueue(LinkedQueue const &);
     LinkedQueue &operator=(LinkedQueue const &);
+#endif
 
   public:
     LinkedQueue()
@@ -265,8 +272,15 @@ namespace PLEXIL
 
   private:
 
+#if __cplusplus >= 201103L
+    PriorityQueue(PriorityQueue const &) = delete;
+    PriorityQueue(PriorityQueue &&) = delete;
+    PriorityQueue &operator=(PriorityQueue const &) = delete;
+    PriorityQueue &operator=(PriorityQueue &&) = delete;
+#else
     PriorityQueue(PriorityQueue const &);
     PriorityQueue &operator=(PriorityQueue const &);
+#endif
 
     void push(T *); // callers should not use this base class member function
   };

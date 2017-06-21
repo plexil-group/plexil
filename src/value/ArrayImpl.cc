@@ -58,6 +58,21 @@ namespace PLEXIL
   {
   }
 
+#if __cplusplus >= 201103L
+  template <typename T>
+  ArrayImpl<T>::ArrayImpl(ArrayImpl<T> &&orig)
+    : Array(orig),
+      m_contents(std::move(orig.m_contents))
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl(ArrayImpl<String> &&orig)
+    : Array(orig),
+      m_contents(std::move(orig.m_contents))
+  {
+  }
+#endif
+
   template <typename T>
   ArrayImpl<T>::ArrayImpl(size_t size)
   : Array(size, false),
@@ -83,6 +98,21 @@ namespace PLEXIL
     m_contents(size, initval)
   {
   }
+
+#if __cplusplus >= 201103L
+  template <typename T>
+  ArrayImpl<T>::ArrayImpl(std::vector<T> &&initval)
+    : Array(initval.size(), true),
+    m_contents(std::move(initval))
+  {
+  }
+
+  ArrayImpl<String>::ArrayImpl(std::vector<String> &&initval)
+    : Array(initval.size(), true),
+    m_contents(std::move(initval))
+  {
+  }
+#endif
 
   template <typename T>
   ArrayImpl<T>::ArrayImpl(std::vector<T> const &initval)
@@ -138,6 +168,25 @@ namespace PLEXIL
     return this->operator=(*typedOrig);
   }
 
+#if __cplusplus >= 201103L
+  template <typename T>
+  Array &ArrayImpl<T>::operator=(Array && orig)
+  {
+    checkPlanError(dynamic_cast<ArrayImpl<T> *>(&orig),
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type " << valueTypeName(getElementType()));
+    return this->operator=(static_cast<ArrayImpl<T> &&>(orig));
+  }
+
+  Array &ArrayImpl<String>::operator=(Array &&orig)
+  {
+    checkPlanError(dynamic_cast<ArrayImpl<String> *>(&orig),
+                   "Can't assign array of element type " << valueTypeName(orig.getElementType())
+                   << " to array of element type String");
+    return this->operator=(static_cast<ArrayImpl<String> &&>(orig));
+  }
+#endif
+  
   template <typename T>
   ArrayImpl<T> &ArrayImpl<T>::operator=(ArrayImpl<T> const &orig)
   {
@@ -152,6 +201,23 @@ namespace PLEXIL
     m_contents = orig.m_contents;
     return *this;
   }
+
+#if __cplusplus >= 201103L
+  template <typename T>
+  ArrayImpl<T> &ArrayImpl<T>::operator=(ArrayImpl<T> &&orig)
+  {
+    Array::operator=(orig);
+    m_contents = std::move(orig.m_contents);
+    return *this;
+  }
+
+  ArrayImpl<String> &ArrayImpl<String>::operator=(ArrayImpl<String> &&orig)
+  {
+    Array::operator=(orig);
+    m_contents = std::move(orig.m_contents);
+    return *this;
+  }
+#endif
 
   template <typename T>
   void ArrayImpl<T>::resize(size_t size)

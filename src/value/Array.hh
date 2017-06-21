@@ -44,6 +44,9 @@ namespace PLEXIL
   public:
     Array();
     Array(Array const &);
+#if __cplusplus >= 201103L
+    Array(Array &&);
+#endif
     Array(size_t size, bool known = false);
 
     virtual ~Array();
@@ -51,6 +54,9 @@ namespace PLEXIL
     virtual Array *clone() const = 0;
 
     Array &operator=(Array const &);
+#if __cplusplus >= 201103L
+    virtual Array &operator=(Array &&);
+#endif
 
     // Generic accessors
 
