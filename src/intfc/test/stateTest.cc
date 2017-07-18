@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,11 +48,36 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(named.parameterCount() == 0);
   assertTrue_1(named.name() == foo);
 
+  // Name and value
+  Value fortytwo((Integer) 42);
+  std::string const goo("Goo");
+  State nameval(goo, fortytwo);
+  assertTrue_1(!nameval.name().empty());
+  assertTrue_1(!nameval.parameters().empty());
+  assertTrue_1(nameval.parameterCount() == 1);
+  assertTrue_1(nameval.name() == goo);
+  assertTrue_1(nameval.parameter(0) == fortytwo);
+
   // Set up parameters
-  Value too((int32_t) 2);
+  Value too((Integer) 2);
   Value roo(3.5);
   std::string soo("Soo");
   Value sue(soo);
+
+  State test0("Foo", 3);
+  test0.setParameter(0, too);
+  test0.setParameter(1, roo);
+  test0.setParameter(2, sue);
+
+  assertTrue_1(!test0.name().empty());
+  assertTrue_1(test0.name() == foo);
+  assertTrue_1(!test0.parameters().empty());
+  assertTrue_1(test0.parameterCount() == 3);
+  assertTrue_1(test0.parameter(0) == too);
+  assertTrue_1(test0.parameter(1) == roo);
+  assertTrue_1(test0.parameter(2) == sue);
+  assertTrue_1(!test0.isParameterKnown(3));
+  assertTrue_1(test0.parameterType(3) == UNKNOWN_TYPE);
 
   // Name and params
   State test1(foo, 3);
@@ -67,11 +92,30 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(test1.parameter(0) == too);
   assertTrue_1(test1.parameter(1) == roo);
   assertTrue_1(test1.parameter(2) == sue);
-  // Array bounds checking test
   assertTrue_1(!test1.isParameterKnown(3));
   assertTrue_1(test1.parameterType(3) == UNKNOWN_TYPE);
 
   // Copy
+  State mtclone(mt);
+  assertTrue_1(mtclone.name().empty());
+  assertTrue_1(mtclone.parameters().empty());
+  assertTrue_1(mtclone.parameterCount() == 0);
+  assertTrue_1(!mtclone.isParameterKnown(1));
+  assertTrue_1(mtclone.parameterType(1) == UNKNOWN_TYPE);
+
+  State namedclone(named);
+  assertTrue_1(!namedclone.name().empty());
+  assertTrue_1(namedclone.parameters().empty());
+  assertTrue_1(namedclone.parameterCount() == 0);
+  assertTrue_1(namedclone.name() == foo);
+
+  State namevalclone(nameval);
+  assertTrue_1(!namevalclone.name().empty());
+  assertTrue_1(!namevalclone.parameters().empty());
+  assertTrue_1(namevalclone.parameterCount() == 1);
+  assertTrue_1(namevalclone.name() == goo);
+  assertTrue_1(namevalclone.parameter(0) == fortytwo);
+
   State test2(test1);
   assertTrue_1(!test2.name().empty());
   assertTrue_1(test2.name() == foo);
@@ -80,10 +124,43 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(test2.parameter(0) == too);
   assertTrue_1(test2.parameter(1) == roo);
   assertTrue_1(test2.parameter(2) == sue);
-  // Array bounds checking test
   assertTrue_1(!test2.isParameterKnown(3));
   assertTrue_1(test2.parameterType(3) == UNKNOWN_TYPE);
 
+#if __cplusplus >= 201103L
+  // Move
+  State mtmove = std::move(mtclone);
+  assertTrue_1(mtmove.name().empty());
+  assertTrue_1(mtmove.parameters().empty());
+  assertTrue_1(mtmove.parameterCount() == 0);
+  assertTrue_1(!mtmove.isParameterKnown(1));
+  assertTrue_1(mtmove.parameterType(1) == UNKNOWN_TYPE);
+
+  State namedmove = std::move(namedclone);
+  assertTrue_1(!namedmove.name().empty());
+  assertTrue_1(namedmove.parameters().empty());
+  assertTrue_1(namedmove.parameterCount() == 0);
+  assertTrue_1(namedmove.name() == foo);
+
+  State namevalmove = std::move(namevalclone);
+  assertTrue_1(!namevalmove.name().empty());
+  assertTrue_1(!namevalmove.parameters().empty());
+  assertTrue_1(namevalmove.parameterCount() == 1);
+  assertTrue_1(namevalmove.name() == goo);
+  assertTrue_1(namevalmove.parameter(0) == fortytwo);
+
+  State test3 = std::move(test2);
+  assertTrue_1(!test3.name().empty());
+  assertTrue_1(test3.name() == foo);
+  assertTrue_1(!test3.parameters().empty());
+  assertTrue_1(test3.parameterCount() == 3);
+  assertTrue_1(test3.parameter(0) == too);
+  assertTrue_1(test3.parameter(1) == roo);
+  assertTrue_1(test3.parameter(2) == sue);
+  assertTrue_1(!test3.isParameterKnown(3));
+  assertTrue_1(test3.parameterType(3) == UNKNOWN_TYPE);
+#endif
+  
   return true;
 }
 
@@ -144,6 +221,64 @@ static bool testAssignment()
 
   return true;
 }
+
+#if __cplusplus >= 201103L
+static bool testMoveAssignment()
+{
+  // Default constructor
+  State temp;
+
+  // empty
+  temp = std::move(State());
+  assertTrue_1(temp.name().empty());
+  assertTrue_1(temp.parameters().empty());
+  assertTrue_1(temp.parameterCount() == 0);
+
+  // Name only
+  std::string const foo("Foo");
+  temp = std::move(State(foo));
+  assertTrue_1(!temp.name().empty());
+  assertTrue_1(temp.parameters().empty());
+  assertTrue_1(temp.parameterCount() == 0);
+  assertTrue_1(temp.name() == foo);
+
+  // Set empty again
+  temp = std::move(State());
+  assertTrue_1(temp.name().empty());
+  assertTrue_1(temp.parameters().empty());
+  assertTrue_1(temp.parameterCount() == 0);
+
+  // Set up parameters
+  Value too((int32_t) 2);
+  Value roo(3.5);
+  std::string soo("Soo");
+  Value sue(soo);
+
+  // Name and params
+  State test1(foo, 3);
+  test1.setParameter(0, too);
+  test1.setParameter(1, roo);
+  test1.setParameter(2, sue);
+
+  temp = std::move(State(test1));
+
+  assertTrue_1(!temp.name().empty());
+  assertTrue_1(temp.name() == foo);
+  assertTrue_1(!temp.parameters().empty());
+  assertTrue_1(temp.parameterCount() == 3);
+  assertTrue_1(temp.parameter(0) == too);
+  assertTrue_1(temp.parameter(1) == roo);
+  assertTrue_1(temp.parameter(2) == sue);
+
+  // Set empty again
+  temp = std::move(State());
+  assertTrue_1(temp.name().empty());
+  assertTrue_1(temp.parameters().empty());
+  assertTrue_1(temp.parameterCount() == 0);
+
+  return true;
+}
+#endif
 
 static bool testEquality()
 {
@@ -345,6 +480,9 @@ bool stateTest()
 {
   runTest(testConstructorsAndAccessors);
   runTest(testAssignment);
+#if __cplusplus >= 201103L
+  runTest(testMoveAssignment);
+#endif
   runTest(testEquality);
   runTest(testLessThan);
 

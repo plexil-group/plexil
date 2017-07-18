@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,14 @@ namespace PLEXIL
   {
   }
 
+#if __cplusplus >= 201103L
+  State::State(State &&other)
+    : m_name(std::move(other.m_name)),
+      m_parameters(std::move(other.m_parameters))
+  {
+  }
+#endif
+
   State::State(char const *name, size_t n)
     : m_name(name),
       m_parameters(n)
@@ -72,6 +80,15 @@ namespace PLEXIL
     m_parameters = other.m_parameters;
     return *this;
   }
+
+#if __cplusplus >= 201103L
+  State &State::operator=(State &&other)
+  {
+    m_name = std::move(other.m_name);
+    m_parameters = std::move(other.m_parameters);
+    return *this;
+  }
+#endif
 
   std::string const &State::name() const
   {
