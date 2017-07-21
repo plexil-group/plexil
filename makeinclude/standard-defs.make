@@ -80,8 +80,7 @@ CP              = /bin/cp -p
 DEPEND		= $(CXX) -MM
 
 # Defines
-# -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
-DEFINES			:= -D__STDC_LIMIT_MACROS
+DEFINES			:=
 
 STANDARD_CFLAGS		:=
 STANDARD_CXXFLAGS	:=
