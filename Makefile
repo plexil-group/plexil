@@ -163,8 +163,9 @@ src/Makefile: src/configure
 # Bootstrapping autobuild files
 #
 
+# Create m4 directory - some older versions of autotools won't do it for us
 src/configure: src/configure.ac src/Makefile.am
-	cd ./src && $(AUTORECONF) -f -i
+	cd ./src && mkdir -p m4 && $(AUTORECONF) -f -i
 
 #
 # End Automake targets
@@ -189,8 +190,11 @@ squeaky-clean: | clean
 	(cd src/interfaces && $(RM) -f */Makefile */Makefile.in)
 	(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
 	(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
-	(cd src && $(RM) -f Makefile Makefile.in configure config.guess config.sub \
- cppcheck.sh install-sh libtool)
+	(cd src && $(RM) -f Makefile Makefile.in aclocal.m4 \
+ compile configure config.guess config.status config.sub \
+ cppcheck.sh depcomp INSTALL install-sh libtool ltmain.sh missing \
+ plexil-config.h plexil-config.h.in stamp-h1)
+	(cd src && $(RM) -rf m4 autom4te.cache)
 
 # *** TODO: release target(s) ***
 
