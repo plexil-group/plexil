@@ -14,48 +14,6 @@ start =
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
   | Simultaneous
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
-    }
-type =
-  attribute type {
-    xsd:NMTOKEN "string-array"
-    | xsd:NMTOKEN "bool"
-    | xsd:NMTOKEN "string"
-    | xsd:NMTOKEN "bool-array"
-    | xsd:NMTOKEN "real-array"
-    | xsd:NMTOKEN "int-array"
-    | xsd:NMTOKEN "real"
-    | xsd:NMTOKEN "int"
-  }
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
-    }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
-SendPlan =
-  notAllowed
-  | element SendPlan {
-      attribute file { xsd:string }?
-    }
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
 Param =
   notAllowed
   | element Param { type?, xsd:string }
@@ -76,15 +34,31 @@ Script =
            }
          })*
     }
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
 Command =
   notAllowed
   | element Command { command-type }
 \string = xsd:string
-Simultaneous =
+CommandAck =
   notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
+  | element CommandAck { command-type }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
 element0 =
   element * {
     mixed {
@@ -92,9 +66,35 @@ element0 =
        | element0)*
     }
   }
-InitialState =
+Simultaneous =
   notAllowed
-  | element InitialState { State* }
+  | element Simultaneous {
+      (State | UpdateAck | Command | CommandAck | CommandAbort)*
+    }
+type =
+  attribute type {
+    xsd:NMTOKEN "string-array"
+    | xsd:NMTOKEN "bool"
+    | xsd:NMTOKEN "string"
+    | xsd:NMTOKEN "bool-array"
+    | xsd:NMTOKEN "real-array"
+    | xsd:NMTOKEN "int-array"
+    | xsd:NMTOKEN "real"
+    | xsd:NMTOKEN "int"
+  }
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
+CommandAbort =
+  notAllowed
+  | element CommandAbort { command-type }
+SendPlan =
+  notAllowed
+  | element SendPlan {
+      attribute file { xsd:string }?
+    }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

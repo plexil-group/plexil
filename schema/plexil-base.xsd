@@ -185,6 +185,9 @@ element.  It is used as an included schema only.
       <xs:all>
         <xs:element name="Comment" type="xs:string" minOccurs="0"/>
         <xs:element ref="NodeId"/>
+        <xs:element ref="Assume" minOccurs="0"/>
+        <xs:element ref="Desire" minOccurs="0"/>
+        <xs:element ref="Expect" minOccurs="0"/>
         <xs:element ref="StartCondition" minOccurs="0"/>
         <xs:element ref="RepeatCondition" minOccurs="0"/>
         <xs:element ref="PreCondition" minOccurs="0"/>
@@ -240,6 +243,27 @@ element.  It is used as an included schema only.
       <xs:sequence>
         <xs:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Assume">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Desire">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Expect">
+    <xs:complexType>
+      <xs:group ref="GeneralizedBooleanExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
