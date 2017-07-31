@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -271,15 +271,29 @@ namespace PLEXIL
                                        "Non-element found at top level of node");
       debugMsg("parseNode", " parsing element " << tag);
       switch (*tag) {
+
+      case 'A': // Assume - annotation for analysis, ignored
+        checkParserExceptionWithLocation(!strcmp(ASSUME_TAG, tag),
+                                         temp, 
+                                         "Illegal element \"" << tag << "\" in Node");
+        break;
+        
       case 'C': // Comment
         checkParserExceptionWithLocation(!strcmp(COMMENT_TAG, tag),
                                          temp, 
                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
-      case 'E': // EndCondition, ExitCondition
+      case 'D': // Desire - annotation for analysis, ignored
+        checkParserExceptionWithLocation(!strcmp(DESIRE_TAG, tag),
+                                         temp, 
+                                         "Illegal element \"" << tag << "\" in Node");
+        break;
+        
+      case 'E': // EndCondition, ExitCondition, Expect
         if (!strcmp(END_CONDITION_TAG, tag)
-            || !strcmp(EXIT_CONDITION_TAG, tag))
+            || !strcmp(EXIT_CONDITION_TAG, tag)
+            || !strcmp(EXPECT_TAG, tag)) // Annotation for analysis, ignored
           break;
         reportParserExceptionWithLocation(temp,
                                           "Illegal element \"" << tag << "\" in Node");

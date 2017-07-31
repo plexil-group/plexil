@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,11 @@ namespace PLEXIL
   char const *RESOURCE_LIST_TAG = "ResourceList";
   char const *STATE_DECLARATION_TAG = "StateDeclaration";
   char const *LIBRARY_NODE_DECLARATION_TAG = "LibraryNodeDeclaration";
+
+  // 'Noise words' added for use by analysis tools
+  char const *ASSUME_TAG = "Assume";
+  char const *DESIRE_TAG = "Desire";
+  char const *EXPECT_TAG = "Expect";
 
   char const *NODE_TAG = "Node";
   char const *NODETYPE_ATTR = "NodeType";
