@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -474,9 +474,10 @@ namespace PLEXIL
    */
   bool Node::getDestState()
   {
-    debugMsg("Node:getDestState",
-             "Getting destination state for " << m_nodeId << " from state " <<
-             nodeStateName(m_state));
+    // Trim output for this tag
+    // debugMsg("Node:getDestState",
+    //          "Getting destination state for " << m_nodeId << " from state " <<
+    //          nodeStateName(m_state));
 
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;
@@ -656,7 +657,8 @@ namespace PLEXIL
 
       case FINISHED_STATE:
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. Parent state == FINISHED.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state) <<
+                 " -> FINISHED. Parent state == FINISHED.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = SKIPPED_OUTCOME;
         return true;
@@ -670,7 +672,8 @@ namespace PLEXIL
                      "Node::getDestStateFromInactive: Ancestor exit for " << m_nodeId << " is inactive.");
           if (cond->getValue(temp) && temp) {
             debugMsg("Node:getDestState",
-                     " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_EXIT_CONDITION true.");
+                     " '" << m_nodeId << "' " << nodeStateName(m_state)
+                     << " -> FINISHED. Parent EXECUTING and ANCESTOR_EXIT_CONDITION true.");
             m_nextState = FINISHED_STATE;
             m_nextOutcome = SKIPPED_OUTCOME;
             return true;
@@ -682,7 +685,8 @@ namespace PLEXIL
                      "Node::getDestStateFromInactive: Ancestor invariant for " << m_nodeId << " is inactive.");
           if (cond->getValue(temp) && !temp) {
             debugMsg("Node:getDestState",
-                     " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_INVARIANT_CONDITION false.");
+                     " '" << m_nodeId << "' " << nodeStateName(m_state)
+                     << " -> FINISHED. Parent EXECUTING and ANCESTOR_INVARIANT_CONDITION false.");
             m_nextState = FINISHED_STATE;
             m_nextOutcome = SKIPPED_OUTCOME;
             return true;
@@ -694,7 +698,8 @@ namespace PLEXIL
                      "Node::getDestStateFromInactive: Ancestor end for " << m_nodeId << " is inactive.");
           if (cond->getValue(temp) && temp) {
             debugMsg("Node:getDestState",
-                     " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_END_CONDITION true.");
+                     " '" << m_nodeId << "' " << nodeStateName(m_state)
+                     << " -> FINISHED. Parent EXECUTING and ANCESTOR_END_CONDITION true.");
             m_nextState = FINISHED_STATE;
             m_nextOutcome = SKIPPED_OUTCOME;
             return true;
@@ -702,20 +707,23 @@ namespace PLEXIL
         }
 
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: WAITING. Parent state == EXECUTING.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> WAITING. Parent state == EXECUTING.");
         m_nextState = WAITING_STATE;
         return true;
       }
 
       default:
         debugMsg("Node:getDestState", 
-                 " '" << m_nodeId << "' destination: no state.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> no change.");
         return false;
       }
     }
     else {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: WAITING. Root node.");
+               " '" << m_nodeId << "' " << nodeStateName(m_state)
+               << " -> WAITING. Root node.");
       m_nextState = WAITING_STATE;
       return true;
     }
@@ -761,7 +769,8 @@ namespace PLEXIL
                  "Node::getDestStateFromWaiting: Ancestor exit for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_EXIT_CONDITION true.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = SKIPPED_OUTCOME;
         return true;
@@ -773,7 +782,8 @@ namespace PLEXIL
                  "Node::getDestStateFromWaiting: Exit condition for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. EXIT_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. EXIT_CONDITION true.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = SKIPPED_OUTCOME;
         return true;
@@ -785,7 +795,8 @@ namespace PLEXIL
                  "Node::getDestStateFromWaiting: Ancestor invariant for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_INVARIANT_CONDITION false.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_INVARIANT_CONDITION false.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = SKIPPED_OUTCOME;
         return true;
@@ -797,7 +808,8 @@ namespace PLEXIL
                  "Node::getDestStateFromWaiting: Ancestor end for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_END_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_END_CONDITION true.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = SKIPPED_OUTCOME;
         return true;
@@ -809,7 +821,8 @@ namespace PLEXIL
                  "Node::getDestStateFromWaiting: Skip for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. SKIP_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. SKIP_CONDITION true.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = SKIPPED_OUTCOME;
         return true;
@@ -821,7 +834,8 @@ namespace PLEXIL
                  "Node::getDestStateFromWaiting: Start for " << m_nodeId << " is inactive.");
       if (!cond->getValue(temp) || !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: no state. START_CONDITION false or unknown");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> no change. START_CONDITION false or unknown");
         return false;
       }
     }
@@ -829,14 +843,16 @@ namespace PLEXIL
       checkError(cond->isActive(),
                  "Node::getDestStateFromWaiting: Pre for " << m_nodeId << " is inactive.");
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
+               " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
       m_nextState = ITERATION_ENDED_STATE;
       m_nextOutcome = FAILURE_OUTCOME;
       m_nextFailureType = PRE_CONDITION_FAILED;
       return true;
     }
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: EXECUTING. START_CONDITION and PRE_CONDITION are both true.");
+             " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> EXECUTING. START_CONDITION and PRE_CONDITION are both true.");
     m_nextState = EXECUTING_STATE;
     return true;
   }
@@ -896,7 +912,8 @@ namespace PLEXIL
                  "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_EXIT_CONDITION true.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = PARENT_EXITED;
@@ -909,7 +926,8 @@ namespace PLEXIL
                  "Node::getDestStateFromExecuting: Exit condition for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: ITERATION_ENDED. EXIT_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> ITERATION_ENDED. EXIT_CONDITION true.");
         m_nextState = ITERATION_ENDED_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = EXITED;
@@ -922,7 +940,8 @@ namespace PLEXIL
                  "Node::getDestStateFromExecuting: Ancestor invariant for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. Ancestor invariant false.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. Ancestor invariant false.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = PARENT_FAILED;
@@ -935,7 +954,8 @@ namespace PLEXIL
                  "Node::getDestStateFromExecuting: Invariant for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: ITERATION_ENDED. Invariant false.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> ITERATION_ENDED. Invariant false.");
         m_nextState = ITERATION_ENDED_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = INVARIANT_CONDITION_FAILED;
@@ -950,7 +970,8 @@ namespace PLEXIL
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: ITERATION_ENDED. End condition .");
+             " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> ITERATION_ENDED. End condition true.");
     m_nextState = ITERATION_ENDED_STATE;
     if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
@@ -1017,7 +1038,8 @@ namespace PLEXIL
                  "Node::getDestStateFromIterationEnded: Ancestor exit for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_EXIT_CONDITION true.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = PARENT_EXITED;
@@ -1030,7 +1052,8 @@ namespace PLEXIL
                  "Node::getDestStateFromIterationEnded: Ancestor invariant for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_INVARIANT false.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_INVARIANT false.");
         m_nextState = FINISHED_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = PARENT_FAILED;
@@ -1043,7 +1066,8 @@ namespace PLEXIL
                  "Node::getDestStateFromIterationEnded: Ancestor end for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_END true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. ANCESTOR_END true.");
         m_nextState = FINISHED_STATE;
         // outcome, failure type already set
         return true;
@@ -1055,19 +1079,22 @@ namespace PLEXIL
         checkError(cond->isActive(),
                    "Node::getDestStateFromIterationEnded: Repeat for " << m_nodeId << " is inactive.");
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: no state. ANCESTOR_END false or unknown and REPEAT unknown.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> no change. ANCESTOR_END false or unknown and REPEAT unknown.");
         return false;
       } 
       if (temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: WAITING. REPEAT_CONDITION true.");
+                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> WAITING. REPEAT_CONDITION true.");
         m_nextState = WAITING_STATE;
         return true;
       }
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: FINISHED. REPEAT_CONDITION false.");
+             " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> FINISHED. REPEAT_CONDITION false.");
     m_nextState = FINISHED_STATE;
     return true;
   }
@@ -1115,13 +1142,15 @@ namespace PLEXIL
   {
     if (m_parent && m_parent->getState() == WAITING_STATE) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: INACTIVE.  Parent state == WAITING.");
+               " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> INACTIVE. Parent state == WAITING.");
       m_nextState = INACTIVE_STATE;
       return true;
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: no state.");
+             " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 << " -> no change.");
     return false;
   }
 
