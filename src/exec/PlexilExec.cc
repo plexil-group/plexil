@@ -45,15 +45,6 @@
 namespace PLEXIL 
 {
 
-  // Used internally by PlexilExec class only
-  enum QueueStatus {
-    QUEUE_NONE = 0,          // not in any queue
-    QUEUE_CHECK,             // in check-conditions queue
-    QUEUE_TRANSITION,        // in state transition queue
-    QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
-    QUEUE_DELETE             // no longer eligible to transition
-  };
-
   /**
    * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
    */
@@ -108,7 +99,7 @@ namespace PLEXIL
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
-    root->notifyChanged(); // redundant?
+    addCandidateNode(root); // if redundant, will trigger assertion
     return true;
   }
 
@@ -168,20 +159,6 @@ namespace PLEXIL
     m_finishedRootNodesDeleted = true;
   }
 
-  void PlexilExec::notifyNodeConditionChanged(Node *node)
-  {
-    addCandidateNode(node);
-  }
-
-  /**
-   * @brief Remove node from consideration for state change.
-   * @param node The node which is ineligible for state change.
-   */
-  void PlexilExec::removeNodeFromConsideration(Node *node)
-  {
-    removeCandidateNode(node);
-  }
-
   bool PlexilExec::needsStep() const
   {
     return !m_candidateQueue.empty();
@@ -235,7 +212,8 @@ namespace PLEXIL
                    "' is an assignment node that is no longer possibly executing.  " <<
                    "Removing it from resource contention.");
           removeFromResourceContention(node);
-          // fall thru to...
+          break;
+
         default:
           break;
         }
@@ -560,22 +538,12 @@ namespace PLEXIL
 
   void PlexilExec::addCandidateNode(Node *node)
   {
-    switch (node->getQueueStatus()) {
-    case QUEUE_NONE:
-      debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId());
-      node->setQueueStatus(QUEUE_CHECK);
-      m_candidateQueue.push(node);
-      return;
+    assertTrueMsg(node->getQueueStatus() == QUEUE_NONE,
+                  "PlexilExec::addCandidateNode: " << node->getNodeId() << " is already enqueued");
 
-    case QUEUE_CHECK:             // already a candidate
-    case QUEUE_TRANSITION_CHECK:  // will be a candidate after pending transition
-    case QUEUE_DELETE:            // cannot possibly be a candidate, silently ignore
-      return;
-
-    case QUEUE_TRANSITION:        // transition pending, defer adding to queue
-      node->setQueueStatus(QUEUE_TRANSITION_CHECK);
-      return;
-    }
+    debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId());
+    node->setQueueStatus(QUEUE_CHECK);
+    m_candidateQueue.push(node);
   }
 
   Node *PlexilExec::getCandidateNode() {
@@ -586,11 +554,6 @@ namespace PLEXIL
     m_candidateQueue.pop();
     result->setQueueStatus(QUEUE_NONE);
     return result;
-  }
-
-  void PlexilExec::removeCandidateNode(Node *node) {
-    m_candidateQueue.remove(node);
-    node->setQueueStatus(QUEUE_NONE);
   }
 
   Node *PlexilExec::getStateChangeNode() {
@@ -644,7 +607,7 @@ namespace PLEXIL
   void PlexilExec::addFinishedRootNode(Node *node) {
     switch (node->getQueueStatus()) {
       
-    case QUEUE_CHECK: // seems plausible
+    case QUEUE_CHECK: // seems plausible?
       m_candidateQueue.remove(node);
       // fall thru
 

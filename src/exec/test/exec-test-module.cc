@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,7 @@ class TransitionExecConnector : public ExecConnector
 {
 public:
   TransitionExecConnector() : ExecConnector() {}
-  void notifyNodeConditionChanged(Node * /* node */) {}
-  void removeNodeFromConsideration(Node * /* node */) {}
-  void handleConditionsChanged(Node * /* node */) {}
+  void addCandidateNode(Node * /* node */) {}
   void enqueueAssignment(Assignment * /* assign */) {}
   void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
   void markRootNodeFinished(Node * /* node */) {}

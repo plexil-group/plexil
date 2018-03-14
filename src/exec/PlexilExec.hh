@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -114,6 +114,14 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Consider a node for potential state transition.
+     * @param node Pointer to the node.
+     * @note Node's queue status must be QUEUE_NONE.
+     * @note Known callers are Node::notifyChanged(), PlexilExec::addPlan(), PlexilExec::getStateChangeNode().
+     */
+    void addCandidateNode(Node *node);
+
+    /**
      * @brief Schedule this assignment for execution.
      */
     void enqueueAssignment(Assignment *assign);
@@ -127,24 +135,6 @@ namespace PLEXIL
      * @brief Mark node as finished and no longer eligible for execution.
      */
     void markRootNodeFinished(Node *node);
-
-    /**
-     * @brief Handle the fact that a node's conditions may have changed (it is eligible for state change).
-     * @param node The node which is eligible for state change.
-     */
-    void notifyNodeConditionChanged(Node *node);
-
-    /**
-     * @brief Remove node from consideration for state change.
-     * @param node The node which is ineligible for state change.
-     */
-    void removeNodeFromConsideration(Node *node);
-
-    /**
-     * @brief Handle the fact that a node's relevant conditions have changed (it is eligible for state change).
-     * @param node The node which is eligible for state change.
-     */
-    void handleConditionsChanged(Node *node);
 
     /**
      * @brief Get the list of active plans.
@@ -184,12 +174,20 @@ namespace PLEXIL
     VariableConflictSet *ensureConflictSet(Expression *);
 
     //
-    // Internal queue management
+    // Queue management
     //
 
-    void addCandidateNode(Node *node);
+    /**
+     * @brief Dequeue a node from the candidate queue.
+     * @return Pointer to the top node in the queue, or NULL if queue empty.
+     */
     Node *getCandidateNode();
-    void removeCandidateNode(Node *node);
+ 
+    /**
+     * @brief Prepare for a potential state transition of this eligible node.
+     * @param node Pointer to the node.
+     */
+    void handleConditionsChanged(Node *node);
 
     void addStateChangeNode(Node *node);
     Node *getStateChangeNode();

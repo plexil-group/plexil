@@ -462,9 +462,31 @@ namespace PLEXIL
    * @brief Notifies the node that one of its conditions has changed.
    * @note Renamed from conditionChanged.
    */
+
+  // In addition to expressions to which this node listens, can be called by
+  // ListNode::setState(), Node::setState().
+
   void Node::notifyChanged()
   {
-    g_exec->notifyNodeConditionChanged(this);
+    switch (m_queueStatus) {
+    case QUEUE_NONE:              // add to check queue
+      g_exec->addCandidateNode(this);
+      return;
+      
+    case QUEUE_TRANSITION:        // state transition pending, defer adding to queue
+      m_queueStatus = QUEUE_TRANSITION_CHECK;
+      return;
+
+    case QUEUE_CHECK:             // already a candidate, nothing to do
+    case QUEUE_TRANSITION_CHECK:  // will become a candidate after pending transition
+    case QUEUE_DELETE:            // cannot possibly be a candidate, silently ignore (?)
+      return;
+
+    default:                      // Invalid queue state
+      assertTrueMsg(ALWAYS_FAIL,
+                    "Node::notifyChanged for node " << m_nodeId << ": invalid queue state");
+      return;
+    }
   }
 
   /**
@@ -474,11 +496,6 @@ namespace PLEXIL
    */
   bool Node::getDestState()
   {
-    // Trim output for this tag
-    // debugMsg("Node:getDestState",
-    //          "Getting destination state for " << m_nodeId << " from state " <<
-    //          nodeStateName(m_state));
-
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;
 
@@ -1233,6 +1250,7 @@ namespace PLEXIL
   }
 
   // Some transition handlers call this twice.
+  // Called from Node::transitionTo(), ListNode::setState() (wrapper method)
   void Node::setState(NodeState newValue, double tym) // FIXME
   {
     if (newValue == m_state)

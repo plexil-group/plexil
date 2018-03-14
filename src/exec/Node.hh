@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,14 @@ namespace PLEXIL {
   // Forward references
   class NodeTimepointValue;
   class NodeVariableMap;
+
+  enum QueueStatus {
+    QUEUE_NONE = 0,          // not in any queue
+    QUEUE_CHECK,             // in check-conditions queue
+    QUEUE_TRANSITION,        // in state transition queue
+    QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
+    QUEUE_DELETE             // no longer eligible to transition
+  };
 
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.
