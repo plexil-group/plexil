@@ -556,6 +556,14 @@ namespace PLEXIL
       pprint(command.parameters());
       this->commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
+    else if (cmdName == "printToString") {
+      this->commandReturn(cmd, printToString(command.parameters()));
+      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+    }
+    else if (cmdName == "pprintToString") {
+      this->commandReturn(cmd, pprintToString(command.parameters()));
+      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+    }
     else {
       // Usual case - set up for scripted ack value
       m_commandAcks[command] = cmd;
