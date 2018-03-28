@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,5 +39,11 @@ void print (const std::vector<Value>& args);
 
 // Print arguments to standard output in a "pretty" way.
 void pprint (const std::vector<Value>& args);
+
+// Print arguments to a PLEXIL string verbatim.
+Value printToString(const std::vector<Value>& args);
+
+// Print arguments to a PLEXIL string in a "pretty" way.
+Value pprintToString(const std::vector<Value>& args);
 
 }
