@@ -83,8 +83,7 @@ namespace PLEXIL
     throw (InterfaceError)
   {
     timeval tv;
-    int status = gettimeofday(&tv, NULL);
-    checkInterfaceError(status == 0,
+    checkInterfaceError(0 == gettimeofday(&tv, NULL),
                         "getCurrentTime: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
@@ -133,33 +132,48 @@ namespace PLEXIL
    * @param date The Unix-epoch wakeup time, as a double.
    * @return True if the timer was set, false if clock time had already passed the wakeup time.
    */
+
+  // N.B. gettimeofday() on macOS rarely performs an actual syscall:
+  // https://stackoverflow.com/questions/40967594/does-gettimeofday-on-macos-use-a-system-call
+
   bool DarwinTimeAdapter::setTimer(double date)
     throw (InterfaceError)
   {
-    // Convert to timeval
-    timeval dateval = doubleToTimeval(date);
+    static timeval const sl_timezero = {0, 0};
+    struct timeval dateval = doubleToTimeval(date);
 
-    // Get the current time
-    timeval now;
-    int status = gettimeofday(&now, NULL);
-    checkInterfaceError(status == 0,
+    struct timeval now;
+    checkInterfaceError(0 == gettimeofday(&now, NULL),
                         "TimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
 
-    // Compute the interval
-    itimerval myItimerval = {{0, 0}, {0, 0}};
-    myItimerval.it_value = dateval - now;
-    if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
-      // Already past the scheduled time, submit wakeup
+    // Check if we're already past the desired time
+    dateval = dateval - now;
+    if (dateval < sl_timezero) {
+      // Already past the scheduled time, tell caller to submit wakeup
       debugMsg("TimeAdapter:setTimer",
-               " new value " << std::setprecision(15) << date << " is in past");
+               " desired time " << std::setprecision(15) << date << " is in the past");
       return false;
     }
 
-    // Set the timer 
+    // Is timer already set for an earlier time?
+    struct itimerval myItimerval = {{0, 0}, {0, 0}};
+    checkInterfaceError(0 == getitimer(ITIMER_REAL, &myItimerval),
+                        "TimeAdapter:setTimer: getitimer failed, errno = " << errno);
+    if (timerisset(&myItimerval.it_value)
+        && (dateval > myItimerval.it_value)) {
+      debugMsg("TimeAdapter:setTimer",
+               " already set for " << std::setprecision(15)
+               << timevalToDouble(now + myItimerval.it_value));
+      return true;
+    }
+
+    // Compute the interval and set the timer
+    myItimerval.it_interval = sl_timezero;
+    myItimerval.it_value = dateval;
     checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
                         "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
-             " timer set for " << std::setprecision(15) << date);
+             " set timer for " << std::setprecision(15) << date);
     return true;
   }
 
@@ -174,6 +188,8 @@ namespace PLEXIL
     condDebugMsg(status != 0,
                  "TimeAdapter:stopTimer",
                  " setitimer() failed, errno = " << errno);
+    condDebugMsg(status == 0,
+                 "TimeAdapter:stopTimer", " succeeded");
     return status == 0;
   }
 

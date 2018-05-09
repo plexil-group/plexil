@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ namespace PLEXIL
 
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr)
     : TimeAdapter(mgr),
+      m_nextWakeup(0),
       m_stopping(false)
   {
   }
@@ -53,6 +54,7 @@ namespace PLEXIL
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr,
 				   pugi::xml_node const config)
     : TimeAdapter(mgr, config),
+      m_nextWakeup(0),
       m_stopping(false)
   {
   }
@@ -152,12 +154,13 @@ namespace PLEXIL
 
     debugMsg("TimeAdapter:setThresholds", " setting wakeup at " << std::setprecision(15) << hi);
     if (setTimer(hi)) {
+      m_nextWakeup = hi;
       debugMsg("TimeAdapter:setThresholds",
-               " timer set for " << hi);
+               " timer set for " << std::setprecision(15) << hi);
     }
     else {
       debugMsg("TimeAdapter:setThresholds",
-               " sending wakeup for missed timer at " << hi);
+               " sending wakeup for missed timer at " << std::setprecision(15) << hi);
       timerTimeout();
     }
   }
@@ -236,6 +239,18 @@ namespace PLEXIL
    */
   void TimeAdapterImpl::timerTimeout()
   {
+    double now = getCurrentTime();
+    debugMsg("TimeAdapter:timerTimeout", " at " << std::setprecision(15) << getCurrentTime());
+    if (m_nextWakeup) {
+      if (now < m_nextWakeup) {
+        // Alarm went off too early. Hit the snooze button.
+        debugMsg("TimeAdapter:timerTimeout", " early wakeup, resetting");
+        setTimer(m_nextWakeup);
+      }
+      else
+        m_nextWakeup = 0;
+    }
+    // Notify in any case
     m_execInterface.notifyOfExternalEvent();
   }
 

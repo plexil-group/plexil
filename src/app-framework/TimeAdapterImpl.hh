@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -196,9 +196,12 @@ namespace PLEXIL
     // Wait thread
     pthread_t m_waitThread;
 #endif
+
+    // Next scheduled wakeup
+    double m_nextWakeup;
+
     // Flag to wait thread
     bool m_stopping;
-
 
   }; // class TimeAdapterImpl
 
