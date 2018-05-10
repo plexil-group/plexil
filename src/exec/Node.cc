@@ -557,12 +557,12 @@ namespace PLEXIL
 
     condDebugMsg(m_state == FINISHED_STATE || m_state == ITERATION_ENDED_STATE,
                  "Node:outcome",
-                 "Outcome of " << m_nodeId <<
+                 "Outcome of " << m_nodeId << ' ' << this <<
                  " is " << outcomeName((NodeOutcome) m_outcome));
     condDebugMsg(m_outcome == FAILURE_OUTCOME
                  && (m_state == FINISHED_STATE || m_state == ITERATION_ENDED_STATE),
                  "Node:failure",
-                 "Failure type of " << m_nodeId <<
+                 "Failure type of " << m_nodeId << ' ' << this <<
                  " is " << failureTypeName((FailureType) m_failureType));
   }
 
