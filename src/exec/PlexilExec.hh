@@ -182,7 +182,7 @@ namespace PLEXIL
      * @return Pointer to the top node in the queue, or NULL if queue empty.
      */
     Node *getCandidateNode();
- 
+
     /**
      * @brief Prepare for a potential state transition of this eligible node.
      * @param node Pointer to the node.

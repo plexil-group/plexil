@@ -9,183 +9,168 @@ Resource2EqualPriority{
   }
 }
 
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:cycle]==>Start cycle 1
-[PlexilExec:step][1:0] Check queue: Resource2EqualPriority 
-[PlexilExec:handleConditionsChanged]Node Resource2EqualPriority had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'Resource2EqualPriority' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Resource2EqualPriority' on the state change queue in position 1
-[PlexilExec:step][1:0] State change queue: Resource2EqualPriority 
-[PlexilExec:step][1:0:0] Transitioning node Resource2EqualPriority from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:step][1:1] Check queue: Resource2EqualPriority 
-[PlexilExec:handleConditionsChanged]Node Resource2EqualPriority had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'Resource2EqualPriority' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Resource2EqualPriority' on the state change queue in position 2
-[PlexilExec:step][1:1] State change queue: Resource2EqualPriority 
-[PlexilExec:step][1:1:0] Transitioning node Resource2EqualPriority from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:handleNeedsExecution]Storing action for node 'Resource2EqualPriority' of type 'NodeList' to be executed.
-[PlexilExec:step][1:2] Check queue: Resource2EqualPriority PickupObject ProcessImage 
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 3
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 4
-[PlexilExec:step][1:2] State change queue: PickupObject ProcessImage 
-[PlexilExec:step][1:2:0] Transitioning node PickupObject from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][1:2:1] Transitioning node ProcessImage from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][1:3] Check queue: Resource2EqualPriority PickupObject ProcessImage 
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 5
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 6
-[PlexilExec:step][1:3] State change queue: PickupObject ProcessImage 
-[PlexilExec:step][1:3:0] Transitioning node PickupObject from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:handleNeedsExecution]Storing action for node 'PickupObject' of type 'Command' to be executed.
-[PlexilExec:step][1:3:1] Transitioning node ProcessImage from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:cycle] ==>Start cycle 1
+[PlexilExec:step][1:0] Check queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:handleConditionsChanged] Considering node Resource2EqualPriority 0x7ff73cc044d0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Resource2EqualPriority 0x7ff73cc044d0 on the state change queue in position 1
+[PlexilExec:step][1:0] State change queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:step][1:0:0] Transitioning node Resource2EqualPriority 0x7ff73cc044d0 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:step][1:1] Check queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:handleConditionsChanged] Considering node Resource2EqualPriority 0x7ff73cc044d0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Resource2EqualPriority 0x7ff73cc044d0 on the state change queue in position 2
+[PlexilExec:step][1:1] State change queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:step][1:1:0] Transitioning node Resource2EqualPriority 0x7ff73cc044d0 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage 0x7ff73cc04a70
+[PlexilExec:handleNeedsExecution] Storing action for node Resource2EqualPriority 0x7ff73cc044d0 of type NodeList to be executed.
+[PlexilExec:step][1:2] Check queue: Resource2EqualPriority 0x7ff73cc044d0 PickupObject 0x7ff73cc04670 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:handleConditionsChanged] Considering node PickupObject 0x7ff73cc04670 for state transition.
+[PlexilExec:addStateChangeNode] Placing node PickupObject 0x7ff73cc04670 on the state change queue in position 3
+[PlexilExec:handleConditionsChanged] Considering node ProcessImage 0x7ff73cc04a70 for state transition.
+[PlexilExec:addStateChangeNode] Placing node ProcessImage 0x7ff73cc04a70 on the state change queue in position 4
+[PlexilExec:step][1:2] State change queue: PickupObject 0x7ff73cc04670 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:step][1:2:0] Transitioning node PickupObject 0x7ff73cc04670 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:step][1:2:1] Transitioning node ProcessImage 0x7ff73cc04a70 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage 0x7ff73cc04a70
+[PlexilExec:step][1:3] Check queue: Resource2EqualPriority 0x7ff73cc044d0 PickupObject 0x7ff73cc04670 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:handleConditionsChanged] Considering node PickupObject 0x7ff73cc04670 for state transition.
+[PlexilExec:addStateChangeNode] Placing node PickupObject 0x7ff73cc04670 on the state change queue in position 5
+[PlexilExec:handleConditionsChanged] Considering node ProcessImage 0x7ff73cc04a70 for state transition.
+[PlexilExec:addStateChangeNode] Placing node ProcessImage 0x7ff73cc04a70 on the state change queue in position 6
+[PlexilExec:step][1:3] State change queue: PickupObject 0x7ff73cc04670 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:step][1:3:0] Transitioning node PickupObject 0x7ff73cc04670 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:handleNeedsExecution] Storing action for node PickupObject 0x7ff73cc04670 of type Command to be executed.
+[PlexilExec:step][1:3:1] Transitioning node ProcessImage 0x7ff73cc04a70 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage 0x7ff73cc04a70
+[PlexilExec:handleNeedsExecution] Storing action for node ProcessImage 0x7ff73cc04a70 of type Command to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing pickup_object(20) into (Variable Integer returnValue 0x7fb088d00588 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fb088d00688 [a](UNKNOWN))
+[Test:testOutput]Executing pickup_object(20) into (Variable Integer returnValue 0x7ff73cc04808 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7ff73cc048d8 [a](UNKNOWN))
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
-[PlexilExec:cycle]==>End cycle 1
+[PlexilExec:cycle] ==>End cycle 1
 [PlexilExec:printPlan]
 Resource2EqualPriority{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fb088d00c50 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb088d00bc0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7ff73cc04ed0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff73cc04e50 [i](0))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fb088d00df0 [a](0) (Interruptible Boolean 0x7fb088d00da0 [a](0)) (EQ Boolean 0x7fb088d00ce0 [a](0) (Constant Integer 0x7fb088d00cd0 [a](10)) (Variable Integer returnValue 0x7fb088d00588 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fb088d00d40 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb088d00688 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x105443368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb088d00780 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb088d006c8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb088d00688 [a](UNKNOWN))
-   priority20: (Variable Integer priority20 0x7fb088d00608 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fb088d00588 [a](-1))
+   EndCondition: (OR Boolean 0x7ff73cc05030 [a](0) (Interruptible Boolean 0x7ff73cc04ff0 [a](0)) (EQ Boolean 0x7ff73cc04f40 [a](0) (Constant Integer 0x7ff73cc04f90 [a](10)) (Variable Integer returnValue 0x7ff73cc04808 [a](-1))))
+   PostCondition: (EQ Boolean 0x7ff73cc04fa0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7ff73cc048d8 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10c03af10 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff73cc049d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff73cc04918 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff73cc048d8 [a](UNKNOWN))
+   priority20: (Variable Integer priority20 0x7ff73cc04868 [a](20))
+   returnValue: (Variable Integer returnValue 0x7ff73cc04808 [a](-1))
   }
   ProcessImage{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fb088e00190 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb088d00a58 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x1054433c8 [a](COMMAND_DENIED)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb088d00b50 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb088d00a98 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb088d00a58 [a](COMMAND_DENIED))
-   mem_priority2: (Variable Integer mem_priority2 0x7fb088d009d8 [a](20))
+   PostCondition: (EQ Boolean 0x7ff73cc05250 [i](1) (CommandHandleVariable NodeCommandHandle 0x7ff73cc04cf8 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10c03af70 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff73cc04df0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff73cc04d38 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff73cc04cf8 [a](COMMAND_DENIED))
+   mem_priority2: (Variable Integer mem_priority2 0x7ff73cc04c78 [a](20))
   }
 }
 
 [Test:testOutput]Sending command ACK pickup_object(20) = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:cycle]==>Start cycle 2
-[PlexilExec:step][2:0] Check queue: Resource2EqualPriority PickupObject ProcessImage 
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 7
-[PlexilExec:step][2:0] State change queue: ProcessImage 
-[PlexilExec:step][2:0:0] Transitioning node ProcessImage from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][2:1] Check queue: Resource2EqualPriority ProcessImage 
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 8
-[PlexilExec:step][2:1] State change queue: ProcessImage 
-[PlexilExec:step][2:1:0] Transitioning node ProcessImage from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][2:2] Check queue: Resource2EqualPriority ProcessImage 
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 9
-[PlexilExec:step][2:2] State change queue: ProcessImage 
-[PlexilExec:step][2:2:0] Transitioning node ProcessImage from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][2:3] Check queue: Resource2EqualPriority ProcessImage 
+[PlexilExec:cycle] ==>Start cycle 2
+[PlexilExec:step][2:0] Check queue: Resource2EqualPriority 0x7ff73cc044d0 PickupObject 0x7ff73cc04670 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:handleConditionsChanged] Considering node ProcessImage 0x7ff73cc04a70 for state transition.
+[PlexilExec:addStateChangeNode] Placing node ProcessImage 0x7ff73cc04a70 on the state change queue in position 7
+[PlexilExec:step][2:0] State change queue: ProcessImage 0x7ff73cc04a70 
+[PlexilExec:step][2:0:0] Transitioning node ProcessImage 0x7ff73cc04a70 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage 0x7ff73cc04a70
+[PlexilExec:step][2:1] Check queue: Resource2EqualPriority 0x7ff73cc044d0 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:handleConditionsChanged] Considering node ProcessImage 0x7ff73cc04a70 for state transition.
+[PlexilExec:addStateChangeNode] Placing node ProcessImage 0x7ff73cc04a70 on the state change queue in position 8
+[PlexilExec:step][2:1] State change queue: ProcessImage 0x7ff73cc04a70 
+[PlexilExec:step][2:1:0] Transitioning node ProcessImage 0x7ff73cc04a70 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage 0x7ff73cc04a70
+[PlexilExec:step][2:2] Check queue: Resource2EqualPriority 0x7ff73cc044d0 ProcessImage 0x7ff73cc04a70 
+[PlexilExec:handleConditionsChanged] Considering node ProcessImage 0x7ff73cc04a70 for state transition.
+[PlexilExec:addStateChangeNode] Placing node ProcessImage 0x7ff73cc04a70 on the state change queue in position 9
+[PlexilExec:step][2:2] State change queue: ProcessImage 0x7ff73cc04a70 
+[PlexilExec:step][2:2:0] Transitioning node ProcessImage 0x7ff73cc04a70 from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage 0x7ff73cc04a70
+[PlexilExec:step][2:3] Check queue: Resource2EqualPriority 0x7ff73cc044d0 ProcessImage 0x7ff73cc04a70 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:cycle] ==>End cycle 2
 [PlexilExec:printPlan]
 Resource2EqualPriority{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fb088d00c50 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fb088d00bc0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean 0x7ff73cc04ed0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff73cc04e50 [i](0))
   PickupObject{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fb088d00df0 [a](0) (Interruptible Boolean 0x7fb088d00da0 [a](0)) (EQ Boolean 0x7fb088d00ce0 [a](0) (Constant Integer 0x7fb088d00cd0 [a](10)) (Variable Integer returnValue 0x7fb088d00588 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fb088d00d40 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb088d00688 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x105443368 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fb088d00780 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb088d006c8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb088d00688 [a](COMMAND_SENT_TO_SYSTEM))
-   priority20: (Variable Integer priority20 0x7fb088d00608 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fb088d00588 [a](-1))
+   EndCondition: (OR Boolean 0x7ff73cc05030 [a](0) (Interruptible Boolean 0x7ff73cc04ff0 [a](0)) (EQ Boolean 0x7ff73cc04f40 [a](0) (Constant Integer 0x7ff73cc04f90 [a](10)) (Variable Integer returnValue 0x7ff73cc04808 [a](-1))))
+   PostCondition: (EQ Boolean 0x7ff73cc04fa0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7ff73cc048d8 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c03af10 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff73cc049d0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff73cc04918 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff73cc048d8 [a](COMMAND_SENT_TO_SYSTEM))
+   priority20: (Variable Integer priority20 0x7ff73cc04868 [a](20))
+   returnValue: (Variable Integer returnValue 0x7ff73cc04808 [a](-1))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb088d00a58 [i](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fb088d009d8 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff73cc04cf8 [i](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7ff73cc04c78 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command result pickup_object(20) = 10
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:cycle]==>Start cycle 3
-[PlexilExec:step][3:0] Check queue: PickupObject 
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 10
-[PlexilExec:step][3:0] State change queue: PickupObject 
-[PlexilExec:step][3:0:0] Transitioning node PickupObject from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][3:1] Check queue: Resource2EqualPriority PickupObject 
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 11
-[PlexilExec:step][3:1] State change queue: PickupObject 
-[PlexilExec:step][3:1:0] Transitioning node PickupObject from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][3:2] Check queue: Resource2EqualPriority PickupObject 
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 12
-[PlexilExec:step][3:2] State change queue: PickupObject 
-[PlexilExec:step][3:2:0] Transitioning node PickupObject from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][3:3] Check queue: Resource2EqualPriority PickupObject 
-[PlexilExec:handleConditionsChanged]Node Resource2EqualPriority had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'Resource2EqualPriority' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Resource2EqualPriority' on the state change queue in position 13
-[PlexilExec:step][3:3] State change queue: Resource2EqualPriority 
-[PlexilExec:step][3:3:0] Transitioning node Resource2EqualPriority from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:step][3:4] Check queue: Resource2EqualPriority 
-[PlexilExec:handleConditionsChanged]Node Resource2EqualPriority had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'Resource2EqualPriority' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Resource2EqualPriority' on the state change queue in position 14
-[PlexilExec:step][3:4] State change queue: Resource2EqualPriority 
-[PlexilExec:step][3:4:0] Transitioning node Resource2EqualPriority from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority
-[PlexilExec:step][3:5] Check queue: Resource2EqualPriority 
-[PlexilExec:handleConditionsChanged]Node Resource2EqualPriority had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'Resource2EqualPriority' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Resource2EqualPriority' on the state change queue in position 15
-[PlexilExec:step][3:5] State change queue: Resource2EqualPriority 
-[PlexilExec:step][3:5:0] Transitioning node Resource2EqualPriority from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:cycle] ==>Start cycle 3
+[PlexilExec:step][3:0] Check queue: PickupObject 0x7ff73cc04670 
+[PlexilExec:handleConditionsChanged] Considering node PickupObject 0x7ff73cc04670 for state transition.
+[PlexilExec:addStateChangeNode] Placing node PickupObject 0x7ff73cc04670 on the state change queue in position 10
+[PlexilExec:step][3:0] State change queue: PickupObject 0x7ff73cc04670 
+[PlexilExec:step][3:0:0] Transitioning node PickupObject 0x7ff73cc04670 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:step][3:1] Check queue: Resource2EqualPriority 0x7ff73cc044d0 PickupObject 0x7ff73cc04670 
+[PlexilExec:handleConditionsChanged] Considering node PickupObject 0x7ff73cc04670 for state transition.
+[PlexilExec:addStateChangeNode] Placing node PickupObject 0x7ff73cc04670 on the state change queue in position 11
+[PlexilExec:step][3:1] State change queue: PickupObject 0x7ff73cc04670 
+[PlexilExec:step][3:1:0] Transitioning node PickupObject 0x7ff73cc04670 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:step][3:2] Check queue: Resource2EqualPriority 0x7ff73cc044d0 PickupObject 0x7ff73cc04670 
+[PlexilExec:handleConditionsChanged] Considering node PickupObject 0x7ff73cc04670 for state transition.
+[PlexilExec:addStateChangeNode] Placing node PickupObject 0x7ff73cc04670 on the state change queue in position 12
+[PlexilExec:step][3:2] State change queue: PickupObject 0x7ff73cc04670 
+[PlexilExec:step][3:2:0] Transitioning node PickupObject 0x7ff73cc04670 from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject 0x7ff73cc04670
+[PlexilExec:step][3:3] Check queue: Resource2EqualPriority 0x7ff73cc044d0 PickupObject 0x7ff73cc04670 
+[PlexilExec:handleConditionsChanged] Considering node Resource2EqualPriority 0x7ff73cc044d0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Resource2EqualPriority 0x7ff73cc044d0 on the state change queue in position 13
+[PlexilExec:step][3:3] State change queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:step][3:3:0] Transitioning node Resource2EqualPriority 0x7ff73cc044d0 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:step][3:4] Check queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:handleConditionsChanged] Considering node Resource2EqualPriority 0x7ff73cc044d0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Resource2EqualPriority 0x7ff73cc044d0 on the state change queue in position 14
+[PlexilExec:step][3:4] State change queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:step][3:4:0] Transitioning node Resource2EqualPriority 0x7ff73cc044d0 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node Resource2EqualPriority 0x7ff73cc044d0
+[PlexilExec:step][3:5] Check queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:handleConditionsChanged] Considering node Resource2EqualPriority 0x7ff73cc044d0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Resource2EqualPriority 0x7ff73cc044d0 on the state change queue in position 15
+[PlexilExec:step][3:5] State change queue: Resource2EqualPriority 0x7ff73cc044d0 
+[PlexilExec:step][3:5:0] Transitioning node Resource2EqualPriority 0x7ff73cc044d0 from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 3
+[PlexilExec:cycle] ==>End cycle 3
 [PlexilExec:printPlan]
 Resource2EqualPriority{
  State: FINISHED (0)
@@ -193,15 +178,15 @@ Resource2EqualPriority{
   PickupObject{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb088d00688 [i](UNKNOWN))
-   priority20: (Variable Integer priority20 0x7fb088d00608 [i](UNKNOWN))
-   returnValue: (Variable Integer returnValue 0x7fb088d00588 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff73cc048d8 [i](UNKNOWN))
+   priority20: (Variable Integer priority20 0x7ff73cc04868 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7ff73cc04808 [i](UNKNOWN))
   }
   ProcessImage{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb088d00a58 [i](UNKNOWN))
-   mem_priority2: (Variable Integer mem_priority2 0x7fb088d009d8 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff73cc04cf8 [i](UNKNOWN))
+   mem_priority2: (Variable Integer mem_priority2 0x7ff73cc04c78 [i](UNKNOWN))
   }
 }
 

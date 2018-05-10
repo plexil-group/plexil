@@ -53,7 +53,7 @@ namespace PLEXIL
       m_priority(WORST_PRIORITY)
   {
     checkError(type == ASSIGNMENT,
-               "Invalid node type \"" << type << "\" for an AssignmentNode");
+               "Invalid node type " << type << " for an AssignmentNode");
 
     // Create Assignment object
     createDummyAssignment();
@@ -141,21 +141,23 @@ namespace PLEXIL
     // Not eligible to transition from EXECUTING until the assignment has been executed.
     Expression *cond = getActionCompleteCondition();
     checkError(cond->isActive(),
-               "Node::getDestStateFromExecuting: Assignment-complete for " << m_nodeId << " is inactive.");
+               "Node::getDestStateFromExecuting: Assignment-complete for " << m_nodeId << ' '
+               << this << " is inactive.");
     bool temp;
     if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' " << nodeStateName(m_state)
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
                  << " -> no change. Assignment node and assignment-complete false.");
       return false;
     }
 
     if ((cond = getAncestorExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId << " is inactive.");
+                 "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId << ' '
+                 << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
                  << " -> FAILING. Assignment node and ANCESTOR_EXIT_CONDITION true.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
@@ -166,10 +168,11 @@ namespace PLEXIL
 
     if ((cond = getExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Exit condition for " << m_nodeId << " is inactive.");
+                 "Node::getDestStateFromExecuting: Exit condition for " << m_nodeId << ' '
+                 << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
                  << " -> FAILING. Assignment node and EXIT_CONDITION true.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
@@ -180,10 +183,11 @@ namespace PLEXIL
 
     if ((cond = getAncestorInvariantCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Ancestor invariant for " << m_nodeId << " is inactive.");
+                 "Node::getDestStateFromExecuting: Ancestor invariant for " << m_nodeId << ' '
+                 << this << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
                  << " -> FAILING. Assignment node and Ancestor invariant false.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
@@ -194,10 +198,11 @@ namespace PLEXIL
 
     if ((cond = getInvariantCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Invariant for " << m_nodeId << " is inactive.");
+                 "Node::getDestStateFromExecuting: Invariant for " << m_nodeId << ' '
+                 << this << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' " << nodeStateName(m_state)
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
                  << " -> FAILING. Assignment node and Invariant false.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
@@ -208,17 +213,18 @@ namespace PLEXIL
 
     if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: End for " << m_nodeId << " is inactive.");
+                 "Node::getDestStateFromExecuting: End for " << m_nodeId << ' '
+                 << this << " is inactive.");
       return false;
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' " << nodeStateName(m_state)
-                 << " -> ITERATION_ENDED. Assignment node and End condition true.");
+             ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+             << " -> ITERATION_ENDED. Assignment node and End condition true.");
     m_nextState = ITERATION_ENDED_STATE;
     if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) { 
       checkError(cond->isActive(),
-                 "Node::getDestState: Post for " << m_nodeId << " is inactive.");
+                 "Node::getDestState: Post for " << m_nodeId << ' ' << this << " is inactive.");
       m_nextOutcome = FAILURE_OUTCOME;
       m_nextFailureType = POST_CONDITION_FAILED;
     }
@@ -282,34 +288,34 @@ namespace PLEXIL
   {
     Expression *cond = getAbortCompleteCondition();
     checkError(cond->isActive(),
-               "Abort complete for " << getNodeId() << " is inactive.");
+               "Abort complete for " << getNodeId() << ' ' << this << " is inactive.");
     bool temp;
     if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' " << nodeStateName(m_state)
-                 << " -> no change. Assignment node and abort complete false.");
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> no change. Assignment node and abort complete false.");
       return false;
     }
 
     FailureType failureValue = getFailureType();
     if (failureValue == PARENT_FAILED) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' " << nodeStateName(m_state)
-                 << " -> FINISHED. Assignment node, abort complete, and parent failed.");
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> FINISHED. Assignment node, abort complete, and parent failed.");
       m_nextState = FINISHED_STATE;
       return true;
     }
     else if (failureValue == PARENT_EXITED) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' " << nodeStateName(m_state)
-                 << " -> FINISHED. Assignment node, abort complete, and parent exited.");
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> FINISHED. Assignment node, abort complete, and parent exited.");
       m_nextState = FINISHED_STATE;
       return true;
     }
     else {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' " << nodeStateName(m_state)
-                 << " -> ITERATION_ENDED. Assignment node and abort complete.");
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> ITERATION_ENDED. Assignment node and abort complete.");
       m_nextState = ITERATION_ENDED_STATE;
       return true;
     }
@@ -340,7 +346,7 @@ namespace PLEXIL
     
   void AssignmentNode::abort()
   {
-    debugMsg("Node:abort", "Aborting node " << m_nodeId);
+    debugMsg("Node:abort", "Aborting node " << m_nodeId << ' ' << this);
     g_exec->enqueueAssignmentForRetraction(m_assignment);
   }
 

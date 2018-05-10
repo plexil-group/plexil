@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ namespace PLEXIL
       m_aliasMap(NULL)
   {
     checkError(type == LIBRARYNODECALL,
-               "Invalid node type \"" << type << "\" for a LibraryCallNode");
+               "Invalid node type " << type << " for a LibraryCallNode");
   }
 
   /**
