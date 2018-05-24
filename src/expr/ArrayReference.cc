@@ -160,10 +160,26 @@ namespace PLEXIL
   // getValue explicit instantiations
   DEFINE_AREF_GET_VALUE_METHOD(Boolean)
   DEFINE_AREF_GET_VALUE_METHOD(Integer)
-  DEFINE_AREF_GET_VALUE_METHOD(Real)
   DEFINE_AREF_GET_VALUE_METHOD(String)
 
 #undef DEFINE_AREF_GET_VALUE_METHOD
+
+  // Allow Real result from accessing Integer array
+  bool ArrayReference::getValue(Real &result) const
+  { 
+    Array const *ary; 
+    size_t idx;
+    if (!selfCheck(ary, idx))
+      return false;
+    if (ary->getElementType() == INTEGER_TYPE) {
+      Integer intResult;
+      bool success = ary->getElement(idx, intResult);
+      if (success)
+        result = (Real) intResult;
+      return success;
+    }
+    return ary->getElement(idx, result);
+  }
 
   bool ArrayReference::getValue(uint16_t &result) const
   {
