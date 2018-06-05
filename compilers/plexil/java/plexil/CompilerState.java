@@ -256,6 +256,12 @@ public class CompilerState
 
     public Vector<Diagnostic> getDiagnostics() { return m_diagnostics; }
 
+    public void displayDiagnostics()
+    {
+        for (Diagnostic d : m_diagnostics)
+            System.err.println(d.toString());
+    }
+
     public int maxErrorSeverity()
     {
         int result = -1;
