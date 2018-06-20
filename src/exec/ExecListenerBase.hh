@@ -27,6 +27,8 @@
 #ifndef EXEC_LISTENER_BASE_HH
 #define EXEC_LISTENER_BASE_HH
 
+#include "plexil-config.h"
+
 #include <string>
 #include <vector>
 

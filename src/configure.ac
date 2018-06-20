@@ -143,7 +143,7 @@ AC_CHECK_LIB([execinfo], [backtrace])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h dlfcn.h execinfo.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([arpa/inet.h dlfcn.h execinfo.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h sys/types.h unistd.h wchar.h])
 
 AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 
