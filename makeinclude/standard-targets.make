@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ $(SHLIB): depend $(OBJ)
 
 localclean::
 	-$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB)
+	-$(RM) $(SHLIB).dSYM
 endif
 
 ifneq ($(PLEXIL_STATIC),)
@@ -113,6 +114,7 @@ $(EXECUTABLE): depend $(OBJ)
 
 localclean::
 	-$(RM) $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
+	-$(RM) $(EXECUTABLE).dSYM
 endif
 
 ##### Delete all products of compilation and dependency list.

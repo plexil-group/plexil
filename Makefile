@@ -1,6 +1,6 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -175,6 +175,7 @@ clean:
 	-$(MAKE) -C compilers/plexil $@
 	-$(MAKE) -C examples/robosim $@
 	-$(MAKE) -C examples/sample-app $@
+	-$(MAKE) -C examples/sample-app1 $@
 	-$(MAKE) -C src $@
 	(cd checker && ant $@)
 	(cd compilers/plexilscript && ant $@)
