@@ -75,5 +75,5 @@ then
 fi
 
 echo "Summarizing $input_file ..."
-$JAVA -jar $saxon_jar -o $result_file $input_file $transform_file 
+$JAVA -jar $saxon_jar -o:$result_file $input_file $transform_file 
 echo Summary written to $result_file
