@@ -50,7 +50,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
@@ -156,7 +156,7 @@ public class PlanView
         plan = null;
         executionPaused = false;
         configDialog = null;
-        breakPointSet = new TreeSet<LuvBreakPoint>();
+        breakPointSet = new HashSet<LuvBreakPoint>();
         eventQueue = new ConcurrentLinkedQueue<PlanEvent>();
         displaySem = new Semaphore(1);
         nodeChangeListener = makeNodeChangeListener();
