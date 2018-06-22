@@ -170,32 +170,32 @@ namespace PLEXIL
             "A. (ARC-TI); originally authored by " <<
             "Swanson, Keith J. (ARC-TI)\"> " << br << br <<
             "<!-- jQuery is required --> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory << "jq/jquery-1.6.2.js\" " <<
+            "<script src=\"file://" << m_plexilGanttDirectory << "jq/jquery-1.6.2.js\" " <<
             "type=\"text/javascript\"></script> " << br <<
             "<link type=\"text/css\" href=\"" << m_plexilGanttDirectory << 
             "jq/jquery-ui-1.8.15.custom.css\" " <<
             "rel=\"Stylesheet\" /> " << br <<
-            "<script type=\"text/javascript\" src=\"" << m_plexilGanttDirectory <<
+            "<script type=\"text/javascript\" src=\"file://" << m_plexilGanttDirectory <<
             "jq/jquery-ui-1.8.15.custom.min.js\"></script> " << br << br <<
             "<!-- Load data locally --> " << br <<
-            "<script src=\"" << m_currentWorkingDir << "/" << myTokenFileName << 
+            "<script src=\"file://" << m_currentWorkingDir << "/" << myTokenFileName << 
             "\" type=\"text/javascript\"></script> " << br << br <<
             "<!-- Application code --> " << br <<      
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "addons.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "getAndConvertTokens.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "showTokens.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "detailsBox.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "grid.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "sizing.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "main.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "shortcuts.js\" type=\"text/javascript\"></script> " << br << br <<
             "<!-- My styles --> " << br <<
             "<link rel=\"stylesheet\" href=\"" << m_plexilGanttDirectory << 
