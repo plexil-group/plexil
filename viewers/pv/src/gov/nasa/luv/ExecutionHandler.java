@@ -230,10 +230,12 @@ public class ExecutionHandler
         catch (CommandGenerationException c) {
             currentView.showErrorMessage(null,
                                          "Error constructing PLEXIL Exec command line");
+            c.printStackTrace();
             return false;
         }
         catch (Exception e) {
             currentView.showErrorMessage(e, "Error constructing PLEXIL Exec command line");
+            e.printStackTrace();
             return false;
         }
 
