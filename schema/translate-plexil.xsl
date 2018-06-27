@@ -36,7 +36,7 @@
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                exclude-result-prefixes="xs">
 
-  <xsl:output method="xml" indent="no"/>
+  <xsl:output method="xml" indent="yes"/>
 
   <!-- This is the "overriding copy idiom", from "XSLT Cookbook" by
        Sal Mangano.  It is the identity transform, covering all
@@ -2052,7 +2052,7 @@
   <xsl:template match="Lookup">
     <xsl:choose>
       <xsl:when test="ancestor::Command|ancestor::Assignment|ancestor::Update|
-                      ancestor::Command|ancestor::PreCondition|
+                      ancestor::Command|ancestor::PreCondition|ancestor::Condition|
                       ancestor::PostCondition|ancestor::InvariantCondition">
         <LookupNow>
           <Name>

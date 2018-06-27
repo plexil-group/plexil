@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<PlexilPlan>
+  <GlobalDeclarations>
+    <StateDeclaration>
+      <Name>flag</Name>
+      <Return>
+        <Name>_return_0</Name>
+        <Type>Boolean</Type>
+      </Return>
+    </StateDeclaration>
+  </GlobalDeclarations>
+  <While>
+    <NodeId>Root</NodeId>
+    <Condition>
+      <Lookup>
+        <Name>
+          <StringValue>flag</StringValue>
+        </Name>
+      </Lookup>
+    </Condition>
+    <Action>
+      <Node NodeType="Empty">
+        <NodeId>A</NodeId>
+      </Node>
+    </Action>
+  </While>
+</PlexilPlan>
