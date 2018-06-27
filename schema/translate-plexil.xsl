@@ -36,7 +36,7 @@
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                exclude-result-prefixes="xs">
 
-  <xsl:output method="xml" indent="yes"/>
+  <xsl:output method="xml" indent="no"/>
 
   <!-- This is the "overriding copy idiom", from "XSLT Cookbook" by
        Sal Mangano.  It is the identity transform, covering all
