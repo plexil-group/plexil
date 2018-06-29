@@ -290,6 +290,9 @@ namespace PLEXIL
       return; // not found
     }
 
+    debugMsg("PlexilExec:removeFromResourceContention",
+             " removing node " << node->getNodeId() << ' ' << node
+             << " from contention for variable " << *exp);
     conflictNodes->remove(node);
 
     // If deleted node was only one in conflict set,
@@ -481,31 +484,63 @@ namespace PLEXIL
     // Only look at nodes with the highest priority
     Node *nodeToExecute = NULL;
     NodeState destState = NO_NODE_STATE;
-    size_t count = conflict->front_count(); // # of nodes with same priority as top
+    size_t count = conflict->front_count(); // # of nodes with best priority
+    debugMsg("PlexilExec:resolveResourceConflicts",
+             ' ' << count << " Assignment node(s) with best priority for variable " << var->getName());
     if (count == 1) {
       // Usual case (we hope) - make it simple
-      nodeToExecute = conflict->front();
-      destState = nodeToExecute->getNextState();
+      Node *node = conflict->front();
+      NodeState dest = node->getNextState();
+      if (dest == NO_NODE_STATE
+          && node->getState() == WAITING_STATE) { // other cases? EXECUTING_STATE?
+        // A node was eligible to transition in a previous cycle but is no longer,
+        // possibly due to a retraction
+        removeFromResourceContention(node);
+      }
+      else {
+        nodeToExecute = node;
+        destState = node->getNextState();
+      }
     }
-
     else {
-      VariableConflictSet::const_iterator conflictIt = conflict->begin(); 
+      size_t conflictCounter = 0;
+      VariableConflictSet::iterator conflictIt = conflict->begin(); 
       // Look at the destination states of all the nodes with equal priority
-      for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
+      for (size_t i = 0; i < count; ++i) {
         Node *node = *conflictIt;
         NodeState dest = node->getNextState();
 
-        // Found one that is scheduled for execution
-        if (dest == EXECUTING_STATE || dest == FAILING_STATE)
-          ++conflictCounter;
-        else 
-          // Internal error
-          checkError(node->getState() == EXECUTING_STATE
-                     || node->getState() == FAILING_STATE,
-                     "Error: node " << node->getNodeId() << ' ' << node
-                     << " is neither executing nor failing nor eligible for either, yet is in conflict map.");
+        if (dest == NO_NODE_STATE
+            && node->getState() == WAITING_STATE) { // other cases? EXECUTING_STATE?
+          // A node was eligible to transition in a previous cycle but is no longer,
+          // possibly due to a retraction
+          // Remove from conflict set without invalidating conflictIt
+          bool atBegin = (conflictIt == conflict->begin());
+          if (!atBegin)
+            --conflictIt; // back up to previous
+          removeFromResourceContention(node);
+          if (atBegin)
+            conflictIt = conflict->begin();
+          else
+            ++conflictIt; // step forward past deleted
+          continue;
+        }
+        else if (dest != EXECUTING_STATE && dest != FAILING_STATE) {
+          checkError(ALWAYS_FAIL,
+                     "Error: unexpected node " << node->getNodeId() << ' ' << node
+                     << " state " << nodeStateName(node->getState())
+                     << " eligible to transition to " << nodeStateName(dest)
+                     << " in conflict map.");
+          ++conflictIt;
+          continue;
+        }
+
+        // Got a live one
+        ++conflictCounter;
+        ++conflictIt;
 
         // If more than one node is scheduled for execution, we have a resource contention.
+        // N.B.: If this message triggers, nodeToExecute has been set in a previous iteration
         // *** FIXME: This is a plan error. Find a non-fatal way to handle this conflict!! ***
         checkError(conflictCounter < 2,
                    "Error: nodes " << node->getNodeId() << ' ' << node << " and "
@@ -516,7 +551,13 @@ namespace PLEXIL
         nodeToExecute = node;
         destState = dest;
       }
-      assertTrue_1(nodeToExecute);
+    }
+
+    if (!nodeToExecute) {
+      // FIXME - If top priority nodes were removed from conflict list, are there more?
+      debugMsg("PlexilExec:resolveResourceConflicts",
+               " No eligible Assignment nodes for " << var->getName());
+      return;
     }
 
     if (destState == EXECUTING_STATE || destState == FAILING_STATE) {
@@ -529,7 +570,7 @@ namespace PLEXIL
       condDebugMsg(nodeToExecute->getState() == EXECUTING_STATE
                    || nodeToExecute->getState() == FAILING_STATE,
                    "PlexilExec:resolveResourceConflicts",
-                   "Node for " << var->getName() << " already executing.  Nothing to resolve.");
+                   " Node for " << var->getName() << " already executing.  Nothing to resolve.");
     }
   }
 

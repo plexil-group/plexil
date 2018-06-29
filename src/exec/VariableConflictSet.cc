@@ -126,9 +126,19 @@ namespace PLEXIL
     return result;
   }
 
+  VariableConflictSet::iterator VariableConflictSet::begin()
+  {
+    return m_nodes.begin();
+  }
+
   VariableConflictSet::const_iterator VariableConflictSet::begin() const
   {
     return m_nodes.begin();
+  }
+
+  VariableConflictSet::iterator VariableConflictSet::end()
+  {
+    return m_nodes.end();
   }
 
   VariableConflictSet::const_iterator VariableConflictSet::end() const

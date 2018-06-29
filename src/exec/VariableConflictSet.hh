@@ -67,7 +67,10 @@ namespace PLEXIL
     void remove(Node *);          // delete the indicated element (no error if not there)
     size_t front_count() const;   // how many have same priority as front element
 
+    iterator begin();
     const_iterator begin() const;
+
+    iterator end();
     const_iterator end() const;
 
     // Managing pool of instances
