@@ -1,0 +1,67 @@
+#!/usr/bin/python3
+
+"""
+Select ple files within the project and ensure decompiling then
+recompiling a program yields the same output as compiling it normally.
+
+This program uses the decompiler-single-file script to run the tests and uses
+the multiprocessing library to run this script in parallel.
+"""
+
+import glob
+import sys
+import os
+from multiprocessing import Pool, Manager
+import subprocess
+from functools import partial
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+if 'PLEXIL_HOME' not in os.environ:
+    print("Error: Please set environment variable PLEXIL_HOME")
+    print("to the full pathname of your 'plexil' or 'trunk' directory.")
+    sys.exit(1)
+
+PLEXIL_HOME = os.environ['PLEXIL_HOME']
+
+def process(lock, f):
+    """Process a single ple file for testing."""
+    rows, columns = os.popen('stty size', 'r').read().split()
+    proc = subprocess.Popen([dir_path + '/decompiler-single-file',  f, columns], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    buffer = []
+    for line in proc.stdout:
+        line = line.decode('utf-8')
+        if line == '$\n':
+            lock.acquire()
+            print(''.join(buffer), end='')
+            lock.release()
+            buffer = []
+        else:
+            buffer.append(line)
+    print(''.join(buffer), end='')
+    proc.communicate()
+    if proc.returncode != 0:
+        return 1
+    return 0
+
+if __name__ == '__main__':
+    files = (glob.glob(PLEXIL_HOME + '/examples/**/*.ple', recursive=True)
+           + glob.glob(PLEXIL_HOME + '/schema/**/*.ple', recursive=True)
+           + glob.glob(PLEXIL_HOME + '/test/**/*.ple', recursive=True)
+           + glob.glob(PLEXIL_HOME + '/compilers/**/*.ple', recursive=True))
+
+    print('Testing on {} files'.format(len(files)))
+
+    manager = Manager()
+    lock = manager.Lock()
+
+    f = partial(process, lock)
+
+    with Pool(4) as p:
+        failed = sum(p.map(f, files))
+        p.close()
+        p.join()
+    print('Done!')
+    print(failed, 'failed')
+    if failed > 0:
+        sys.exit(1)

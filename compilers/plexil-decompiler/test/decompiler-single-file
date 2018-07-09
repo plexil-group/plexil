@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# This script tests the decompiler on a single .ple file. It:
+#   1. Compiles the ple file if it isn't already compiled
+#   2. Decompiles the generated plx version
+#   3. Compiles the decompiled version
+#   4. Compares the original compiled file to the new one and warns of any differences
+#
+# If any of these steps fail or the compiled and non-compiled versions differ, the script will exit
+# with a nonzero status code.
+#
+# This is usually run via the decompiler-test script. However, to call it manually, run it as
+# decompiler-embed PLE [TERMWIDTH]
+
+removesource () {
+    # Remove source declarations from the plx file (the attributes LineNo, ColNo, NodeType, FileName, and epx)
+    # It also handles the following known issues which should be ignored
+    #   1. The NodeRef and NodeId elements are used interchangeably in compiled output.
+    #   2. The decompiler escapes dashes in node names while the epx translator does not.
+    #   3. The exp translator will sometimes use RealValues when IntegerValues should be used.
+    #   4. Date lookups are converted to Real lookups by the decompiler.
+    # The plx file is then outputted in a formatted version by xmllint.
+    cat $1 \
+    | sed -re 's/(LineNo|ColNo)="[0-9]+"//g' \
+    | sed -re 's/NodeRef dir="[a-z]*"/NodeId/g' \
+    | sed -re 's/NodeRef/NodeId/g' \
+    | sed -re 's/(epx|NodeType|FileName)="[A-Za-z0-9./_-]*"//g' \
+    | sed -re 's/_dash_/-/g' \
+    | sed -re 's/IntegerValue/RealValue/g' \
+    | sed -re 's/Date/Real/g' \
+    | xmllint --format -
+}
+
+# Calculate the width of the terminal so that the diffs can take up the whole screen width
+width=$2
+if [ -z $width ]; then
+    width=$(tput cols)
+fi
+
+# Step 1: Compile the ple file if it isn't already compiled
+ple=$1
+plx="${ple%.*}.plx"
+if [ ! -f "$plx" ]; then
+    echo -e "\e[33m$plx not found so compiling\e[39m"
+    $PLEXIL_HOME/scripts/plexilc "$ple"
+    if [ $? != 0 ]; then
+        echo -e "\e[36mSkipping $ple because it didn't compile\e[39m"
+        exit 0
+    fi
+fi
+echo '$' # Make python script flush output
+# Create the two temp files needed for decompilation and recompilation
+basefile=$(mktemp)
+decompiled="$basefile.ple"
+recompiled="$basefile.plx"
+# Step 2: Decompile the plx file
+$PLEXIL_HOME/scripts/decompile-plexil "$plx" "$decompiled"
+echo '$' # Flush output
+# Step 3: Compile the decompiled ple
+errors=$($PLEXIL_HOME/scripts/plexilc "$decompiled" 2>&1)
+compstatus=$?
+error=true
+if [ $compstatus != 0 ]; then
+    echo -e "\e[31mError compiling for $ple\e[39m"
+    echo "$errors"
+    # if echo "$errors" | grep -qE 'Command "(SendReturnValue|ReceiveMessage)" is not defined'; then
+    #     echo -e "\e[36mNot outputting more details\e[39m"
+    # else
+        echo "Decompiled"
+        cat -n $decompiled
+        echo "Old vs decompiled"
+        colordiff -y <(tr -d '\r' < $ple) $decompiled -W $width
+        # removesource $plx
+    # fi
+else
+    if ! diff -q <(removesource $plx) <(removesource $recompiled); then
+        echo -e "\e[31mFailed for $ple\e[39m"
+        echo "Old vs decompiled"
+        colordiff -y <(tr -d '\r' < $ple) $decompiled -W $width
+        echo "Old vs recompiled"
+        colordiff -y <(removesource $plx) <(removesource $recompiled) -W $width
+    else
+        echo -e "\e[32mSuccess for $plx\e[39m"
+        error=false
+    fi
+fi
+echo '$' # Flush output
+rm $basefile $decompiled $recompiled
+if [ $error = true ]; then
+    exit 1
+fi
