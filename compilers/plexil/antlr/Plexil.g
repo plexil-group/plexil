@@ -912,6 +912,7 @@ unaryOp : NOT_KYWD ;
 
 unaryMinus : (MINUS i=INT) -> ^(NEG_INT $i)
            | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
+           | MINUS^ quantity
            ;
 
 dateLiteral : (DATE_KYWD LPAREN s=STRING RPAREN) -> ^(DATE_LITERAL $s) ;

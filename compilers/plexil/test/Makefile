@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  succeeded1 Sum sync-cmd-test sync-cmd-test1 \
  test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
  timed-iteration tolerance1 try1 \
- update1 update2 update3 \
+ UnaryMinus update1 update2 update3 \
  wait1 waiting1 while1
 
 SYNTAX_ERROR_TESTS   = array-library-call

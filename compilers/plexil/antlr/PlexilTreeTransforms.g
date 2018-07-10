@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -159,9 +159,8 @@ trivialReduction:
         ^(AND_KYWD arg=.) -> $arg
     |   ^(OR_KYWD arg=.) -> $arg
     |   ^(PLUS arg=.) -> $arg
-    |   ^(MINUS arg=.) -> $arg
     |   ^(ASTERISK arg=.) -> $arg
-    |   ^(SLASH arg=.) -> $arg
+    |   ^(SLASH arg=.) -> $arg  // ???
     |   ^(MAX_KYWD arg=.) -> $arg
     |   ^(MIN_KYWD arg=.) -> $arg
     ;

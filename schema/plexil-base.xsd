@@ -1084,7 +1084,7 @@ element.  It is used as an included schema only.
   <xs:element name="SUB">
     <xs:complexType>
       <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="unbounded"/>
+                 minOccurs="1" maxOccurs="unbounded"/>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
