@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 
 lib_LTLIBRARIES = libGanttListener.la
 include_HEADERS = GanttListener.hh
-libGanttListener_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/app-framework \
+libGanttListener_la_CPPFLAGS = $(AM_CPPFLAGS) \
+ -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/app-framework \
  -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 libGanttListener_la_SOURCES = GanttListener.cc

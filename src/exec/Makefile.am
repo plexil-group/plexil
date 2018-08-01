@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExec.la
 
-libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
+ -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
@@ -51,8 +51,9 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
   noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
-  test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
- ../expr/libPlexilExpr.la ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+  test_exec_module_tests_LDADD = libPlexilExec.la @top_srcdir@/intfc/libPlexilIntfc.la \
+ @top_srcdir@/expr/libPlexilExpr.la @top_srcdir@/value/libPlexilValue.la \
+ @top_srcdir@/utils/libPlexilUtils.la
   test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 if JNI_OPT

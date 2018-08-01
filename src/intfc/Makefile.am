@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,29 +27,27 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilIntfc.la
 
-libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/value \
- -I@top_srcdir@/utils
+libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExprVec.hh ExternalInterface.hh \
  InputQueue.hh InterfaceError.hh Lookup.hh \
  QueueEntry.hh ResourceArbiterInterface.hh State.hh \
- StateCacheEntry.hh StateCacheMap.hh Update.hh resource-tags.hh
+ StateCacheEntry.hh StateCacheMap.hh Update.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
  Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
- State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
- resource-tags.cc
+ State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   noinst_HEADERS =
-  test_intfc_module_tests_SOURCES = ../expr/test/TrivialListener.cc \
+  test_intfc_module_tests_SOURCES = @top_srcdir@/expr/test/TrivialListener.cc \
  test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc \
  test/intfc-test-module.cc
-  test_intfc_module_tests_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/value \
- -I@top_srcdir@/utils
-  test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \
- ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+  test_intfc_module_tests_CPPFLAGS = $(libPlexilIntfc_la_CPPFLAGS)
+  test_intfc_module_tests_LDADD = libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
+ @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
 endif

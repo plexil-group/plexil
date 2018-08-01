@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 
 lib_LTLIBRARIES = libPlexilAppFramework.la
 
-libPlexilAppFramework_la_CPPFLAGS = -I@top_srcdir@/xml-parser \
+libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/xml-parser \
  -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
@@ -60,8 +60,8 @@ libPlexilAppFramework_la_SOURCES += TimeAdapter.cc TimeAdapterImpl.cc \
 endif
 
 # Libraries to link against
-libPlexilAppFramework_la_LIBADD = ../xml-parser/libPlexilXmlParser.la \
- ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
- ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
- ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+libPlexilAppFramework_la_LIBADD = @top_srcdir@/xml-parser/libPlexilXmlParser.la \
+ @top_srcdir@/third-party/pugixml/src/libpugixml.la @top_srcdir@/exec/libPlexilExec.la \
+ @top_srcdir@/intfc/libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
+ @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
 

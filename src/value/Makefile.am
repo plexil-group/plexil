@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilValue.la
 
-libPlexilValue_la_CPPFLAGS = -I@top_srcdir@/utils
+libPlexilValue_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
 include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
  NodeConstants.hh PlexilTypeTraits.hh Value.hh ValueType.hh
@@ -40,6 +40,6 @@ if MODULE_TESTS_OPT
   noinst_HEADERS =
   test_value_module_tests_SOURCES = test/arrayTest.cc test/serializeTest.cc \
  test/valueTest.cc test/valueTypeTest.cc test/value-test-module.cc
-  test_value_module_tests_CPPFLAGS = -I../utils
-  test_value_module_tests_LDADD = libPlexilValue.la  ../utils/libPlexilUtils.la
+  test_value_module_tests_CPPFLAGS = $(libPlexilValue_la_CPPFLAGS)
+  test_value_module_tests_LDADD = libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
 endif

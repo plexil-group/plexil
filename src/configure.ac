@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -198,6 +198,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk])
 ])
 
+
 AC_CONFIG_FILES([Makefile
                  utils/Makefile
                  value/Makefile
@@ -207,14 +208,26 @@ AC_CONFIG_FILES([Makefile
                  third-party/pugixml/src/Makefile
                  xml-parser/Makefile
                  app-framework/Makefile
-                 apps/TestExec/Makefile
-                 interfaces/GanttListener/Makefile
-		 interfaces/Launcher/Makefile
-                 interfaces/LuvListener/Makefile
-                 interfaces/PlanDebugListener/Makefile
-                 interfaces/Sockets/Makefile
-                 interfaces/UdpAdapter/Makefile
-                 universal-exec/Makefile])
+                 interfaces/Launcher/Makefile])
+
+# Options that are normally on
+AS_IF([test "x$enable_debug_listener" != "xno"], [
+AC_CONFIG_FILES([interfaces/PlanDebugListener/Makefile])
+])
+
+AS_IF([test "x$enable_viewer" != "xno"], [
+AC_CONFIG_FILES([interfaces/Sockets/Makefile
+                 interfaces/LuvListener/Makefile])
+])
+
+AS_IF([test "x$enable_universal_exec" != "xno"], [
+AC_CONFIG_FILES([universal-exec/Makefile])
+])
+
+# Options that are normally off
+AS_IF([test "x$enable_test_exec" = "xyes"], [
+AC_CONFIG_FILES([apps/TestExec/Makefile])
+])
 
 AS_IF([test "x$enable_ipc" = "xyes"], [
 AC_CONFIG_FILES([third-party/ipc/Makefile
@@ -224,6 +237,14 @@ AC_CONFIG_FILES([third-party/ipc/Makefile
 
 AS_IF([test "x$enable_sas" = "xyes"], [
 AC_CONFIG_FILES([apps/StandAloneSimulator/Makefile])
+])
+
+AS_IF([test "x$enable_udp" = "xyes"], [
+AC_CONFIG_FILES([interfaces/UdpAdapter/Makefile])
+])
+
+AS_IF([test "x$enable_gantt" = "xyes"], [
+AC_CONFIG_FILES([interfaces/GanttListener/Makefile])
 ])
 
 AC_OUTPUT

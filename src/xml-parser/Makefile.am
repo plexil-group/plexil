@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,10 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilXmlParser.la
 
-libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilXmlParser_la_CPPFLAGS = $(AM_CPPFLAGS) \
+ -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/exec \
+ -I@top_srcdir@/intfc -I@top_srcdir@/expr -I@top_srcdir@/value \
+ -I@top_srcdir@/utils
 
 # Publicly available header files
 include_HEADERS = ExpressionFactory.hh Expressions.hh parseNode.hh parsePlan.hh \
@@ -43,16 +44,16 @@ libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
  parseLibraryCall.cc parseNode.cc parsePlan.cc parser-utils.cc planLibrary.cc \
  PlexilSchema.cc SymbolTable.cc updateXmlParser.cc UserVariableFactory.cc
 
+DEPENDED_LIBS = libPlexilXmlParser.la \
+ @top_srcdir@/third-party/pugixml/src/libpugixml.la @top_srcdir@/exec/libPlexilExec.la \
+ @top_srcdir@/intfc/libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
+ @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+
 bin_PROGRAMS = analyzePlan
 
 analyzePlan_SOURCES = analyzePlan.cc
-analyzePlan_LDADD = libPlexilXmlParser.la \
- ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
- ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../value/libPlexilValue.la \
- ../utils/libPlexilUtils.la
-analyzePlan_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+analyzePlan_LDADD = $(DEPENDED_LIBS)
+analyzePlan_CPPFLAGS = $(libPlexilXmlParser_la_CPPFLAGS)
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS += test/parser-module-tests test/benchmark
@@ -63,20 +64,10 @@ if MODULE_TESTS_OPT
    test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
    test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
    test/updateXmlParserTest.cc test/nodeXmlParserTest.cc
-  test_parser_module_tests_LDADD = libPlexilXmlParser.la \
-   ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
-   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../value/libPlexilValue.la \
-   ../utils/libPlexilUtils.la
-  test_parser_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+  test_parser_module_tests_LDADD = $(DEPENDED_LIBS)
+  test_parser_module_tests_CPPFLAGS = $(libPlexilXmlParser_la_CPPFLAGS)
 
   test_benchmark_SOURCES = test/benchmark.cc
-  test_benchmark_LDADD = libPlexilXmlParser.la \
-   ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
-   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../value/libPlexilValue.la \
-   ../utils/libPlexilUtils.la
-  test_benchmark_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+  test_benchmark_LDADD = $(DEPENDED_LIBS)
+  test_benchmark_CPPFLAGS = $(libPlexilXmlParser_la_CPPFLAGS)
 endif

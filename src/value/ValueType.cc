@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,27 +48,26 @@
 namespace PLEXIL
 {
   // Initialize type name strings
-  char const *BOOLEAN_STR = "Boolean";
-  char const *INTEGER_STR = "Integer";
-  char const *REAL_STR = "Real";
-  char const *DATE_STR = "Date";
-  char const *DURATION_STR = "Duration";
-  char const *STRING_STR = "String";
-  char const *ARRAY_STR = "Array";
-  char const *BOOLEAN_ARRAY_STR = "BooleanArray";
-  char const *INTEGER_ARRAY_STR = "IntegerArray";
-  char const *REAL_ARRAY_STR = "RealArray";
-  char const *STRING_ARRAY_STR = "StringArray";
-  char const *STATE_STR = "State";
-  char const *NODE_STATE_STR = "NodeState";
-  char const *NODE_OUTCOME_STR = "NodeOutcome";
-  char const *NODE_FAILURE_STR = "NodeFailure";
-  char const *NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
+  char const BOOLEAN_STR[] = "Boolean";
+  char const INTEGER_STR[] = "Integer";
+  char const REAL_STR[] = "Real";
+  char const DATE_STR[] = "Date";
+  char const DURATION_STR[] = "Duration";
+  char const STRING_STR[] = "String";
+  char const ARRAY_STR[] = "Array";
+  char const BOOLEAN_ARRAY_STR[] = "BooleanArray";
+  char const INTEGER_ARRAY_STR[] = "IntegerArray";
+  char const REAL_ARRAY_STR[] = "RealArray";
+  char const STRING_ARRAY_STR[] = "StringArray";
+  char const STATE_STR[] = "State";
+  char const NODE_STATE_STR[] = "NodeState";
+  char const NODE_OUTCOME_STR[] = "NodeOutcome";
+  char const NODE_FAILURE_STR[] = "NodeFailure";
+  char const NODE_COMMAND_HANDLE_STR[] = "NodeCommandHandle";
 
-  char const *VAL_SUFFIX = "Value";
-  char const *VAR_SUFFIX = "Variable";
+  char const VAL_SUFFIX[] = "Value";
 
-  char const *UNKNOWN_STR = "UNKNOWN";
+  char const UNKNOWN_STR[] = "UNKNOWN";
 
   const std::string &valueTypeName(ValueType ty)
   {

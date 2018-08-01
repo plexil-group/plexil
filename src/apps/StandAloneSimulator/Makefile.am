@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libstandalonesimulator.la
 
-libstandalonesimulator_la_CPPFLAGS = -I@top_srcdir@/interfaces/IpcUtils \
+libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
+ -I@top_srcdir@/interfaces/IpcUtils \
  -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
@@ -44,11 +45,10 @@ noinst_HEADERS = PlexilSimulator/PlexilSimResponseFactory.hh
 
 simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
  PlexilSimulator/PlexilSimulator.cc
-simulator_CPPFLAGS = -I@top_srcdir@/interfaces/IpcUtils \
- -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/value -I@top_srcdir@/utils
+simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
 
 simulator_LDADD = libstandalonesimulator.la \
- ../../interfaces/IpcUtils/libIpcUtils.la \
- ../../value/libPlexilValue.la ../../utils/libPlexilUtils.la
+ @top_srcdir@/interfaces/IpcUtils/libIpcUtils.la \
+ @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
 
-simulator_LDFLAGS = -L../../../lib -lipc
+simulator_LDFLAGS = -L@libdir@ -lipc

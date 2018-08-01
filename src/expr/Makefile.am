@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExpr.la
 
-libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
+ -I@top_srcdir@/utils
 
 include_HEADERS = Alias.hh allocateCache.hh ArrayReference.hh ArrayVariable.hh \
  Assignable.hh Constant.hh Expression.hh ExpressionConstants.hh \
@@ -52,7 +53,7 @@ if MODULE_TESTS_OPT
  test/functionsTest.cc test/listenerTest.cc test/simpleBooleanVariableTest.cc \
  test/stringTest.cc test/TrivialListener.cc test/variablesTest.cc \
  test/expr-test-module.cc
-  test_expr_module_tests_CPPFLAGS = -I../value -I../utils
+  test_expr_module_tests_CPPFLAGS = $(libPlexilExpr_la_CPPFLAGS)
   test_expr_module_tests_LDADD = libPlexilExpr.la \
- ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+ @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
 endif

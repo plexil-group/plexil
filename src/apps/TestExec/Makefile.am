@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc TestExternalInterface.c
 # Try to get right library ordering
 TestExec_LDADD =
 
-TestExec_CPPFLAGS = -I@top_srcdir@/app-framework \
+TestExec_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/app-framework \
  -I@top_srcdir@/xml-parser -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
@@ -41,21 +41,21 @@ if JNI_OPT
 endif
 
 if DEBUG_LISTENER_OPT
-  TestExec_LDADD += ../../interfaces/PlanDebugListener/libPlanDebugListener.la
+  TestExec_LDADD += @top_srcdir@/interfaces/PlanDebugListener/libPlanDebugListener.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
 endif
 
 if VIEWER_OPT
-  TestExec_LDADD += ../../interfaces/LuvListener/libLuvListener.la \
-   ../../interfaces/Sockets/libPlexilSockets.la
+  TestExec_LDADD += @top_srcdir@/interfaces/LuvListener/libLuvListener.la \
+   @top_srcdir@/interfaces/Sockets/libPlexilSockets.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
    -I@top_srcdir@/interfaces/Sockets
 endif
 
-TestExec_LDADD += ../../app-framework/libPlexilAppFramework.la \
- ../../xml-parser/libPlexilXmlParser.la \
- ../../third-party/pugixml/src/libpugixml.la \
- ../../exec/libPlexilExec.la ../../intfc/libPlexilIntfc.la \
- ../../expr/libPlexilExpr.la ../../value/libPlexilValue.la \
- ../../utils/libPlexilUtils.la
+TestExec_LDADD += @top_srcdir@/app-framework/libPlexilAppFramework.la \
+ @top_srcdir@/xml-parser/libPlexilXmlParser.la \
+ @top_srcdir@/third-party/pugixml/src/libpugixml.la \
+ @top_srcdir@/exec/libPlexilExec.la @top_srcdir@/intfc/libPlexilIntfc.la \
+ @top_srcdir@/expr/libPlexilExpr.la @top_srcdir@/value/libPlexilValue.la \
+ @top_srcdir@/utils/libPlexilUtils.la
 

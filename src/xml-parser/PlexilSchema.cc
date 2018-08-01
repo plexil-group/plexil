@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,90 +24,100 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "PlexilSchema.hh"
+
 namespace PLEXIL
 {
-  char const *PLEXIL_PLAN_TAG = "PlexilPlan";
-  char const *FILE_NAME_ATTR = "FileName";
-  char const *LINE_NO_ATTR = "LineNo";
-  char const *COL_NO_ATTR = "ColNo";
+  char const PLEXIL_PLAN_TAG[] = "PlexilPlan";
+  char const FILE_NAME_ATTR[] = "FileName";
+  char const LINE_NO_ATTR[] = "LineNo";
+  char const COL_NO_ATTR[] = "ColNo";
 
-  char const *GLOBAL_DECLARATIONS_TAG = "GlobalDeclarations";
-  char const *COMMAND_DECLARATION_TAG = "CommandDeclaration";
-  char const *RETURN_TAG = "Return";
-  char const *PARAMETER_TAG = "Parameter";
-  char const *ANY_PARAMETERS_TAG = "AnyParameters";
-  char const *RESOURCE_LIST_TAG = "ResourceList";
-  char const *STATE_DECLARATION_TAG = "StateDeclaration";
-  char const *LIBRARY_NODE_DECLARATION_TAG = "LibraryNodeDeclaration";
+  char const GLOBAL_DECLARATIONS_TAG[] = "GlobalDeclarations";
+  char const COMMAND_DECLARATION_TAG[] = "CommandDeclaration";
+  char const RETURN_TAG[] = "Return";
+  char const PARAMETER_TAG[] = "Parameter";
+  char const ANY_PARAMETERS_TAG[] = "AnyParameters";
+
+  char const RESOURCE_TAG[] = "Resource";
+  char const RESOURCE_LIST_TAG[] = "ResourceList";
+  char const RESOURCE_NAME_TAG[] = "ResourceName";
+  char const RESOURCE_PRIORITY_TAG[] = "ResourcePriority";
+  char const RESOURCE_LOWER_BOUND_TAG[] = "ResourceLowerBound";
+  char const RESOURCE_UPPER_BOUND_TAG[] = "ResourceUpperBound";
+  char const RESOURCE_RELEASE_AT_TERMINATION_TAG[] = "ResourceReleaseAtTermination";
+
+  char const STATE_DECLARATION_TAG[] = "StateDeclaration";
+  char const LIBRARY_NODE_DECLARATION_TAG[] = "LibraryNodeDeclaration";
 
   // 'Noise words' added for use by analysis tools
-  char const *ASSUME_TAG = "Assume";
-  char const *DESIRE_TAG = "Desire";
-  char const *EXPECT_TAG = "Expect";
+  char const ASSUME_TAG[] = "Assume";
+  char const DESIRE_TAG[] = "Desire";
+  char const EXPECT_TAG[] = "Expect";
 
-  char const *NODE_TAG = "Node";
-  char const *NODETYPE_ATTR = "NodeType";
-  char const *NODEID_TAG = "NodeId";
-  char const *COMMENT_TAG = "Comment";
-  char const *PRIORITY_TAG = "Priority";
+  char const NODE_TAG[] = "Node";
+  char const NODETYPE_ATTR[] = "NodeType";
+  char const NODEID_TAG[] = "NodeId";
+  char const COMMENT_TAG[] = "Comment";
+  char const PRIORITY_TAG[] = "Priority";
 
-  char const *VAR_DECLS_TAG = "VariableDeclarations";
-  char const *DECL_VAR_TAG = "DeclareVariable";
-  char const *NAME_TAG = "Name";
-  char const *TYPE_TAG = "Type";
-  char const *INITIALVAL_TAG = "InitialValue";
-  char const *DECL_ARRAY_TAG = "DeclareArray";
-  char const *MAX_SIZE_TAG = "MaxSize";
-  char const *ANY_VAL = "Any";
+  char const VAR_DECLS_TAG[] = "VariableDeclarations";
+  char const DECL_VAR_TAG[] = "DeclareVariable";
+  char const NAME_TAG[] = "Name";
+  char const TYPE_TAG[] = "Type";
+  char const INITIALVAL_TAG[] = "InitialValue";
+  char const DECL_ARRAY_TAG[] = "DeclareArray";
+  char const MAX_SIZE_TAG[] = "MaxSize";
+  char const ANY_VAL[] = "Any";
 
-  char const *INTERFACE_TAG = "Interface";
-  char const *IN_TAG = "In";
-  char const *INOUT_TAG = "InOut";
+  char const INTERFACE_TAG[] = "Interface";
+  char const IN_TAG[] = "In";
+  char const INOUT_TAG[] = "InOut";
 
-  char const *BODY_TAG = "NodeBody";
-  char const *ASSN_TAG = "Assignment";
-  char const *RHS_TAG = "RHS";
-  char const *LIBRARYNODECALL_TAG = "LibraryNodeCall";
-  char const *ALIAS_TAG = "Alias";
-  char const *NODE_PARAMETER_TAG = "NodeParameter";
-  char const *NODELIST_TAG = "NodeList";
+  char const BODY_TAG[] = "NodeBody";
+  char const ASSN_TAG[] = "Assignment";
+  char const RHS_TAG[] = "RHS";
+  char const LIBRARYNODECALL_TAG[] = "LibraryNodeCall";
+  char const ALIAS_TAG[] = "Alias";
+  char const NODE_PARAMETER_TAG[] = "NodeParameter";
+  char const NODELIST_TAG[] = "NodeList";
 
   // condition names
-  char const *CONDITION_SUFFIX = "Condition";
-  char const *START_CONDITION_TAG = "StartCondition";
-  char const *REPEAT_CONDITION_TAG = "RepeatCondition";
-  char const *PRE_CONDITION_TAG = "PreCondition";
-  char const *POST_CONDITION_TAG = "PostCondition";
-  char const *INVARIANT_CONDITION_TAG = "InvariantCondition";
-  char const *END_CONDITION_TAG = "EndCondition";
-  char const *EXIT_CONDITION_TAG = "ExitCondition";
-  char const *SKIP_CONDITION_TAG = "SkipCondition";
+  char const CONDITION_SUFFIX[] = "Condition";
+  char const START_CONDITION_TAG[] = "StartCondition";
+  char const REPEAT_CONDITION_TAG[] = "RepeatCondition";
+  char const PRE_CONDITION_TAG[] = "PreCondition";
+  char const POST_CONDITION_TAG[] = "PostCondition";
+  char const INVARIANT_CONDITION_TAG[] = "InvariantCondition";
+  char const END_CONDITION_TAG[] = "EndCondition";
+  char const EXIT_CONDITION_TAG[] = "ExitCondition";
+  char const SKIP_CONDITION_TAG[] = "SkipCondition";
 
-  char const *NODEREF_TAG = "NodeRef";
-  char const *DIR_ATTR = "dir";
-  char const *PARENT_VAL = "parent";
-  char const *CHILD_VAL = "child";
-  char const *SIBLING_VAL = "sibling";
-  char const *SELF_VAL = "self";
+  char const NODEREF_TAG[] = "NodeRef";
+  char const DIR_ATTR[] = "dir";
+  char const PARENT_VAL[] = "parent";
+  char const CHILD_VAL[] = "child";
+  char const SIBLING_VAL[] = "sibling";
+  char const SELF_VAL[] = "self";
 
-  char const *STATEVAL_TAG = "NodeStateValue";
+  char const STATEVAL_TAG[] = "NodeStateValue";
 
-  char const *TIMEPOINT_TAG = "Timepoint";
-  char const *START_VAL = "START";
-  char const *END_VAL = "END";
+  char const TIMEPOINT_TAG[] = "Timepoint";
+  char const START_VAL[] = "START";
+  char const END_VAL[] = "END";
 
-  char const *ARGS_TAG = "Arguments";
-  char const *CMD_TAG = "Command";
-  char const *LOOKUPNOW_TAG = "LookupNow";
-  char const *LOOKUPCHANGE_TAG = "LookupOnChange";
-  char const *PAIR_TAG = "Pair";
-  char const *TOLERANCE_TAG = "Tolerance";
-  char const *UPDATE_TAG = "Update";
+  char const ARGS_TAG[] = "Arguments";
+  char const CMD_TAG[] = "Command";
+  char const LOOKUPNOW_TAG[] = "LookupNow";
+  char const LOOKUPCHANGE_TAG[] = "LookupOnChange";
+  char const PAIR_TAG[] = "Pair";
+  char const TOLERANCE_TAG[] = "Tolerance";
+  char const UPDATE_TAG[] = "Update";
 
-  char const *ARRAYELEMENT_TAG = "ArrayElement";
-  char const *INDEX_TAG = "Index";
+  char const ARRAYELEMENT_TAG[] = "ArrayElement";
+  char const INDEX_TAG[] = "Index";
 
-  char const *ARRAY_VAL_TAG = "ArrayValue";
-  char const *VAR_SUFFIX = "Variable";
+  char const ARRAY_VAL_TAG[] = "ArrayValue";
+  char const VAR_SUFFIX[] = "Variable";
 
 }

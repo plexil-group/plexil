@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
-#include "resource-tags.hh"
 
 #include "pugixml.hpp"
 

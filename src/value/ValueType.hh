@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -95,27 +95,26 @@ namespace PLEXIL
     };
 
   // Type name string constants
-  extern char const *BOOLEAN_STR;
-  extern char const *INTEGER_STR;
-  extern char const *REAL_STR;
-  extern char const *DATE_STR;
-  extern char const *DURATION_STR;
-  extern char const *STRING_STR;
-  extern char const *ARRAY_STR;
-  extern char const *BOOLEAN_ARRAY_STR;
-  extern char const *INTEGER_ARRAY_STR;
-  extern char const *REAL_ARRAY_STR;
-  extern char const *STRING_ARRAY_STR;
-  extern char const *STATE_STR;
-  extern char const *NODE_STATE_STR;
-  extern char const *NODE_OUTCOME_STR;
-  extern char const *NODE_FAILURE_STR;
-  extern char const *NODE_COMMAND_HANDLE_STR;
+  extern char const BOOLEAN_STR[];
+  extern char const INTEGER_STR[];
+  extern char const REAL_STR[];
+  extern char const DATE_STR[];
+  extern char const DURATION_STR[];
+  extern char const STRING_STR[];
+  extern char const ARRAY_STR[];
+  extern char const BOOLEAN_ARRAY_STR[];
+  extern char const INTEGER_ARRAY_STR[];
+  extern char const REAL_ARRAY_STR[];
+  extern char const STRING_ARRAY_STR[];
+  extern char const STATE_STR[];
+  extern char const NODE_STATE_STR[];
+  extern char const NODE_OUTCOME_STR[];
+  extern char const NODE_FAILURE_STR[];
+  extern char const NODE_COMMAND_HANDLE_STR[];
 
-  extern char const *VAL_SUFFIX;
-  extern char const *VAR_SUFFIX;
+  extern char const VAL_SUFFIX[];
 
-  extern char const *UNKNOWN_STR;
+  extern char const UNKNOWN_STR[];
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
