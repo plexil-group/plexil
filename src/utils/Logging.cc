@@ -244,7 +244,7 @@ static const char *get_date_time()
 // Does nothing if runtime fails to support stack traces.
 static void print_stack()
 {
-#ifdef HAVE_EXECINFO_H
+#if defined(HAVE_BACKTRACE_H) && defined(HAVE_BACKTRACE_SYMBOLS_H)
   void *trace[16];
   int trace_size = backtrace(trace, 16);
   char **messages = backtrace_symbols(trace, trace_size);

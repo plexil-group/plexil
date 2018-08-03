@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,9 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "DynamicLoader.h"
 
-#include <dlfcn.h> 
+#ifdef HAVE_DLFCN_H
+#include <dlfcn.h>
+#endif
 
 #include <cstdlib> // atexit()
 #include <string>
@@ -40,10 +44,12 @@ static std::stack<void *> s_handles;
 
 static void dynamicLoaderCleanUp()
 {
+#ifdef HAVE_DLCLOSE
   while (!s_handles.empty()) {
     dlclose(s_handles.top());
     s_handles.pop();
   }
+#endif
 }
 
 static void ensureFinalizer()
@@ -65,8 +71,10 @@ static void ensureFinalizer()
  */
 static void *tryLoadFile(const char *fname)
 {
+  void *handle = NULL;
+#ifdef HAVE_DLOPEN
   ensureFinalizer();
-  void *handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
+  handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
   if (handle) {
     debugMsg("DynamicLoader:tryLoadFile",
              " dlopen of " << fname << " successful");
@@ -74,8 +82,13 @@ static void *tryLoadFile(const char *fname)
   }
   else {
     debugMsg("DynamicLoader:tryLoadFile",
-             " dlopen failed on file " << fname << ": " << dlerror());
+             " dlopen failed on file " << fname
+#ifdef HAVE_DLERROR
+             << ": " << dlerror()
+#endif
+             );
   }
+#endif
   return handle;
 }
 
@@ -144,7 +157,7 @@ static void *findSymbol(char const *symName, void *dl_handle)
 /**
  * @brief Call the module's init function.
  * @param moduleName The name of the module
- * @param dl_handle If supplied, the return value from dlopen() or loadLibrary() below.
+ * @param dl_handle If supplied, the return value from dlopen() or loadLibrary().
  * @return true if the function was found and called, false otherwise.
  * @note Expects to call init<moduleName>() with no args.
  */

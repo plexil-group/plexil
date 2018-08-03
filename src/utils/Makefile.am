@@ -39,6 +39,7 @@ libPlexilUtils_la_SOURCES = Error.cc Logging.cc ParserException.cc \
  timeval-utils.cc
 
 if JNI_OPT
+  libPlexilUtils_la_CPPFLAGS += -I$(JAVA_HOME)/include -I$(JAVA_HOME)/Headers
   include_HEADERS += JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
   libPlexilUtils_la_SOURCES += JNIHelper.cc JNIUtils.cc
 endif
@@ -65,6 +66,7 @@ if MODULE_TESTS_OPT
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
   test_utils_module_tests_SOURCES = test/bitsetUtilsTest.cc test/LinkedQueueTest.cc \
  test/SimpleMapTest.cc test/TestData.cc test/util-test-module.cc test/module-tests.cc
+  test_utils_module_tests_CPPFLAGS = $(libPlexilUtils_la_CPPFLAGS)
   test_utils_module_tests_LDADD = libPlexilUtils.la
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh

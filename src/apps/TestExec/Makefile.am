@@ -36,6 +36,7 @@ TestExec_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/app-framework \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
 if JNI_OPT
+  TestExec_CPPFLAGS += -I$(JAVA_HOME)/include -I$(JAVA_HOME)/Headers
   noinst_HEADERS += jni-interface.hh
   TestExec_SOURCES += jni-interface.cc 
 endif

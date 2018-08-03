@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,11 +42,11 @@
 #include "PlexilSchema.hh"
 #include "TestExternalInterface.hh"
 
-#if HAVE_DEBUG_LISTENER
+#ifdef HAVE_DEBUG_LISTENER
 #include "PlanDebugListener.hh"
 #endif
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
 #endif
 
@@ -78,7 +78,7 @@ int ExecTestRunner::run(int argc, char** argv)
                         [-r <resource_file>]     (default ./resource.data)\n\
                         [+r]                     (don't read resource data)\n");
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
   string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = LuvListener::LUV_DEFAULT_PORT();
   bool luvRequest = false;
@@ -195,7 +195,7 @@ int ExecTestRunner::run(int argc, char** argv)
       resourceFile.clear();
       useResourceFile = false;
     }
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
     else if (strcmp(argv[i], "-b") == 0)
@@ -289,12 +289,12 @@ int ExecTestRunner::run(int argc, char** argv)
   g_exec->setExecListener(&hub);
 
 
-#if HAVE_DEBUG_LISTENER
+#ifdef HAVE_DEBUG_LISTENER
   // add the debug listener
   hub.addListener(new PlanDebugListener());
 #endif
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
   // if a Plexil Viewer is to be attached
   if (luvRequest) {
     // create and add luv listener

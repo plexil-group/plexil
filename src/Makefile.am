@@ -25,14 +25,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-## Set global, platform-invariant flags here
-## Override and extend with <module>_CFLAGS (etc.) in dependent Makefile.am files
-## Extend and override at configure time with "CFLAGS=..." etc.
-AM_CFLAGS =
-AM_CPPFLAGS =
-AM_CXXFLAGS =
-AM_LDFLAGS =
-
 include_HEADERS = plexil-config.h
 
 ## Options normally on

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,11 @@
 #endif
 #include "UtilityAdapter.hh"
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
 #endif
 
-#if HAVE_DEBUG_LISTENER
+#ifdef HAVE_DEBUG_LISTENER
 #include "PlanDebugListener.hh"
 #endif
 
@@ -85,12 +85,12 @@ namespace PLEXIL {
 
     registerExecListenerFilters();
 
-#if HAVE_DEBUG_LISTENER
+#ifdef HAVE_DEBUG_LISTENER
       // Every application should have access to the Plan Debug Listener
       REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
 #endif
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
     // Every application should have access to the Plexil Viewer (formerly LUV) Listener
     REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
 #endif
