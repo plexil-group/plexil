@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,7 @@
 
 #include "pugixml.hpp"
 
-#include <cstdlib> // for strtoul()
-#include <cstring>
+#include <cstring> // strcmp()
 
 using pugi::xml_attribute;
 using pugi::xml_node;
