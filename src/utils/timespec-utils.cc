@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,15 +30,11 @@
 
 #include "plexil-config.h"
 
-#ifdef HAVE_SYS_TIME_H 
-#include <sys/time.h>
-#else
-#include <time.h>
-#endif
+#include <ctime>
 #include <cmath>
 
-const long ONE_BILLION = 1000000000;
-const double ONE_BILLION_DOUBLE = 1000000000.0;
+static const long ONE_BILLION = 1000000000;
+static const double ONE_BILLION_DOUBLE = 1000000000.0;
 
 //
 // General utility for normalizing timespecs after arithmetic
