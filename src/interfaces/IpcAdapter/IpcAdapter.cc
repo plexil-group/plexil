@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -820,7 +820,7 @@ namespace PLEXIL
       // parse into XML document
       try {
         pugi::xml_document doc;
-        pugi::xml_parse_result result = doc.load(stringMsg->stringValue);
+        pugi::xml_parse_result result = doc.load_string(stringMsg->stringValue);
         if (result.status == pugi::status_ok) {
           m_execInterface.handleAddPlan(doc.document_element());
           // Always notify immediately when adding a plan
@@ -867,7 +867,7 @@ namespace PLEXIL
       // parse XML into node structure
       try {
         pugi::xml_document *doc = new pugi::xml_document;
-        pugi::xml_parse_result result = doc->load(stringMsg->stringValue);
+        pugi::xml_parse_result result = doc->load_string(stringMsg->stringValue);
         if (result.status == pugi::status_ok)
           m_execInterface.handleAddLibrary(doc);
         else {
