@@ -33,8 +33,4 @@ clean:
 	-$(RM) -rf output
 
 # Targets that should be made every time they are invoked
-.PHONY: setup header summary
-
-.PHONY: empty-script-tests empty-script-valid-tests same-name-script-tests
-
-.PHONY: simple-drive-tests command-handles-tests resource-arbitration-tests
+.PHONY: clean run-regression-suite
