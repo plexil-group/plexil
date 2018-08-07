@@ -77,7 +77,7 @@ EPX_SCHEMA := $(PLEXIL_HOME)/schema/extended-plexil.xsd
 all: test syntax-error-tests semantic-error-tests
 
 setup:
-	@-$(RM) tempRegressionResults ; touch tempRegressionResults
+	@rm -f tempRegressionResults ; touch tempRegressionResults
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$
@@ -173,7 +173,6 @@ output:
 	@$(RM) -f output/*.epx
 
 clean:
-#	-$(RM) -r output
 	-$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
 
-.PHONY: setup output
+.PHONY: setup output clean
