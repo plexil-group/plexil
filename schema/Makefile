@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -89,12 +89,12 @@ rnc: $(SCHEMA_RNC)
 rng: $(SCHEMA_RNG)
 
 dust:
-	@ -rm -f $(SCHEMA_RNG)
-	@ -rm -f $(SCHEMA_RNC_IN)
+	@$(RM) -f $(SCHEMA_RNG)
+	@$(RM) -f $(SCHEMA_RNC_IN)
 
 clean: dust
-	@ -rm -f $(SCHEMA_RNC)
-	@ -rm -f plexil-formatted.xsd
+	@$(RM) -f $(SCHEMA_RNC)
+	@$(RM) -f plexil-formatted.xsd
 
 # The rule creates a RELAX-NG schema from a XML Schema.
 %.rng: %.xsd plexil-base.xsd
