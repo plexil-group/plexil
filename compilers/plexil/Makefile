@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PLEXIL_HOME			?= ../..
+
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 # Program defaults
@@ -70,7 +71,7 @@ JAVAC_OPTIONS	:= -source 1.6 -target 1.6
 plexil-default: $(PLEXILC_JAR)
 
 $(PLEXILC_JAR): $(JAVA_CLASSES) $(PARSER_CLASSES) Makefile
-	$(RM) $@
+	$(RM) -f $@
 	$(JAR) cf $@ -C $(CLASSES_DIR) .
 
 # Hack: After initial build, comment out the following for incremental.
@@ -100,9 +101,6 @@ $(PARSER_CLASSES): $(CLASSES_DIR)/plexil/%.class : $(PARSER_JAVA_SRC_DIR)/%.java
 clean: localclean
 
 localclean::
-	$(RM) $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
+	$(RM) -rf $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-
-# Override the Makedepend target
-Makedepend:
