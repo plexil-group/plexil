@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,3 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
-# Name of the library with the pthreads API
-PTHREAD_LIB   	      	       	        := pthread
-# Name of system library with realtime clock API
-RT_LIB					:= rt

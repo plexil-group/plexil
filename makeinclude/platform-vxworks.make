@@ -1,6 +1,6 @@
 # Platform definitions for cross-compilation for VxWorks RTOS
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ include $(WIND_BASE)/target/h/make/defs.library
 #
 
 # Header file path for targets
-INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/wrn/coreip $(WIND_BASE)/target/h/wrn/coreip
+SYSTEM_INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/wrn/coreip $(WIND_BASE)/target/h/wrn/coreip
 
 # Define this as a Real Time Process project
 
@@ -93,5 +93,3 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
-# Name of the library with the pthreads API
-PTHREAD_LIB   	      	       		:= pthreadLib

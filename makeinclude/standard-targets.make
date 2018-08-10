@@ -32,65 +32,66 @@
 #
 #       INC - .H files
 #       SRC - .C files
-#       TAG - the command to create an Emacs tags table
+#       ETAGS - the command to create an Emacs tags table
 #       SVN_FILES - a list of all files under SVN control
 #       INCLUDES - "-I" flags
 #       RM - command to remove files
-#       DEPEND - command to generate header dependencies (Makedepend file)
-#       TARGET - the name of the product of compilation (library or executable)
+#       DEPEND_FLAGS - compiler option(s) to generate header dependencies
 #       LIBRARY - the base name of the binary library file
+#       EXECUTABLE - the name of the executable file
 
 ##### Wrapup defs
 
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
-DIRT    = $(OBJ) $(addsuffix .d,$(basename $(SRC)))
+DEPS    = $(addsuffix .d,$(basename $(SRC)))
+DIRT    = $(OBJ) $(DEPS) 
 
 ##### Internal Targets -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
 
 $(LIB_DIR):
-	-$(MKDIR) -p $(LIB_DIR)
+	$(MKDIR) -p $(LIB_DIR)
 
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
 
-SHLIB	= lib$(LIBRARY)$(SUFSHARE)
+SHLIB	:= lib$(LIBRARY)$(SUFSHARE)
 
 plexil-default: shlib
 
 shlib $(LIB_DIR)/$(SHLIB): $(SHLIB) $(LIB_DIR)
-	-$(RM) $(LIB_DIR)/$(SHLIB)
+	$(RM) -f $(LIB_DIR)/$(SHLIB)
 	$(CP) $(SHLIB) $(LIB_DIR)/$(SHLIB)
 
-$(SHLIB): depend $(OBJ)
+$(SHLIB): $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
 
 localclean::
-	-$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB)
-	-$(RM) $(SHLIB).dSYM
+	$(RM) -f $(SHLIB) $(LIB_DIR)/$(SHLIB)
+	$(RM) -f $(SHLIB).dSYM
 endif
 
 ifneq ($(PLEXIL_STATIC),)
 ## Build an archive library (.a file)
 
-ARCHIVE = lib$(LIBRARY).a
+ARCHIVE := lib$(LIBRARY).a
 
 plexil-default: archive
 
 archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE) $(LIB_DIR)
-	-$(RM) $(LIB_DIR)/$(ARCHIVE)
+	$(RM) -f $(LIB_DIR)/$(ARCHIVE)
 	$(CP) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
 
-$(ARCHIVE): depend $(OBJ)
+$(ARCHIVE): $(OBJ)
 	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
-	-$(RM) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+	$(RM) -f $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 endif
 
 endif # $(LIBRARY)
@@ -105,44 +106,51 @@ executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE) $(BIN
 	$(CP) $(EXECUTABLE) $(BIN_DIR)
 
 $(BIN_DIR):
-	$(MKDIR) -p $(BIN_DIR)
+	$(MKDIR_P) $(BIN_DIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
-$(EXECUTABLE): depend $(OBJ)
+$(EXECUTABLE): $(OBJ)
 	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
 
 localclean::
-	-$(RM) $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
-	-$(RM) $(EXECUTABLE).dSYM
+	$(RM) -f $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
+	$(RM) -f $(EXECUTABLE).dSYM
 endif
-
-##### Delete all products of compilation and dependency list.
-
-localclean:: localdust
-	-$(RM) Makedepend
 
 ##### Delete extraneous by-products of compilation.
 
 localdust:
-	$(RM) $(DIRT)
+	if [ -n "$(DIRT)" ] ; then $(RM) -f $(DIRT); fi
 
-##### Rebuild the dependency list.
-# NOTE: 'make' does not support automatic dependency updating like 'smake'
+##### Dependencies
 
-depend: Makedepend
+## Straight from the GNU make manual
+# FIXME: if compilation fails, .d.NNNNN files are left around
+%.d : %.c
+	@set -e; $(RM) -f $@; \
+	 $(CC) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
+     sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+     $(RM) -f $@.$$$$
 
-Makedepend: $(SRC) $(INC) Makefile
-	-$(RM) $@
-	touch $@
-	for src in $(SRC) ; do \
-		$(DEPEND) $(DEFINES) $(INCLUDES) $${src} >> $@ ; \
-	done
+%.d : %.cc
+	@set -e; $(RM) -f $@; \
+	 $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
+     sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+     $(RM) -f $@.$$$$
+
+%.d : %.cpp
+	@set -e; $(RM) -f $@; \
+	 $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
+     sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+     $(RM) -f $@.$$$$
+
+# does anyone use .C for C++?
 
 ##### Rebuild an Emacs tags table (the TAGS file).
 
 tags:	$(SVN_FILES)
-	$(TAG) $?
+	$(ETAGS) $?
 
 ##### Generate documentation
 
@@ -163,7 +171,7 @@ test: plexil-default
 	fi
 
 ## Clean module and test directories
-clean: localclean
+clean: dust localclean
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test $@; \
@@ -175,3 +183,9 @@ dust: localdust
 	then \
 		$(MAKE) -C test $@; \
 	fi
+
+.PHONY: dust clean localclean localdust
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif

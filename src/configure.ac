@@ -27,17 +27,35 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Because an ancient version of vxWorks only offered this version
-AC_PREREQ(2.59)
+#AC_PREREQ(2.59)
+AC_PREREQ(2.62)
 AC_INIT(Plexil, 4.5.0a1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-#LT_INIT
-AC_PROG_LIBTOOL
+# Note that these two commands set default CFLAGS/CXXFLAGS to '-g -O2'
+AC_PROG_CXX
+AC_PROG_CC
+
+AM_PROG_CC_C_O
+AM_PROG_AR
+#AC_PROG_INSTALL
+
+# ???
+#AC_PROG_MAKE_SET
+
+# Use this with autoconf 2.62 and newer
+LT_INIT([])
+# Use this with autoconf 2.61 and older
+#AC_PROG_LIBTOOL
+
 AC_SUBST([LIBTOOL_DEPS])
 AM_INIT_AUTOMAKE
+
+# Comment out this line to see the gory details of the build process
+AM_SILENT_RULES([yes])
 
 # Configuration options
 AC_ARG_WITH([jni],
@@ -100,21 +118,9 @@ AS_IF([test "x$with_unix_time" != "xno"],[
 AS_IF([test "x$enable_debug_listener" != "xno"],[
   AC_DEFINE([HAVE_DEBUG_LISTENER],[1],[Define to 1 if PlanDebugListener is enabled in the build.])
 ])
-# Not used?
-#AS_IF([test "x$enable_gantt" = "xyes"],[
-#  AC_DEFINE([HAVE_GANTT_LISTENER],[1],[Define to 1 if GanttListener is enabled in the build.])
-#])
 AS_IF([test "x$enable_viewer" != "xno"],[
   AC_DEFINE([HAVE_LUV_LISTENER],[1],[Define to 1 if LuvListener is enabled in the build.])
 ])
-
-# Checks for programs.
-AC_PROG_CXX
-AC_PROG_CC
-AM_PROG_CC_C_O
-AC_PROG_LIBTOOL
-#AC_PROG_INSTALL
-AC_PROG_MAKE_SET
 
 # Checks for libraries.
 
@@ -208,7 +214,8 @@ AC_CHECK_TYPES([pid_t])
 # AC_STRUCT_TM
 #])
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([configure.env
+                 Makefile
                  utils/Makefile
                  value/Makefile
                  expr/Makefile

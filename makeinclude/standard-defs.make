@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,11 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Standard macro definitions for Plexil make files.
+
+# N.B. This file serves two distinct purposes:
+#  - to supply defaults to be used with src/configure;
+#  - to establish the build environment for the Plexil examples.
+
 # Note that these are defaults -
 # overrides (if any) are defined in the platform-*.make files in this directory.
 
@@ -31,87 +36,105 @@ ifeq ($(PLEXIL_HOME),)
 $(error The environment variable PLEXIL_HOME is not set. Exiting.)
 endif
 
-# The location we're building into - may be overridden
-TOP_DIR			?= $(PLEXIL_HOME)
+# If PLEXIL is already built, get the environment from results of 'configure'.
+CONFIGURE_ENV := $(PLEXIL_HOME)/src/configure.env
+
+ifneq ($(wildcard $(CONFIGURE_ENV)),)
+include $(PLEXIL_HOME)/src/configure.env
+else 
+#
+# Set defaults to use with 'configure'
+# 
+
+##### C/C++ compiler options
+
+##### *** N.B.: Most of these presume gcc,
+##### *** but clang is default on OS X and the BSDs,
+##### *** and cross-compilers could be anything.
+##### *** Fortunately clang emulates gcc's option parsing.
+
+# Install the products into this hierarchy by default.
+INITIAL_PREFIX 		:= $(PLEXIL_HOME)
+
+# Use the platform's default compilers.
+INITIAL_CC			:= cc
+INITIAL_CXX			:= c++
+
+# Sane defaults for compiler flags.
+INITIAL_CPPFLAGS	:=
+INITIAL_CFLAGS		:= -g -O2 -Wall
+INITIAL_CXXFLAGS	:= $(INITIAL_CFLAGS)
+
+# PLEXIL_UNSAFE disables some error checking macros
+# INITIAL_CPPFLAGS += -DPLEXIL_UNSAFE
+
+# end defaults for configure
+endif
+
+#
+# Variables autoconf should set for us.
+# See also configure.env.in
+#
+
+# Commands
+ETAGS		?= etags
+LN_S		?= /bin/ln -s
+SHELL       ?= /bin/sh
 
 # Where to install product files. 
-# May be overridden, e.g. for cross-compilation.
-PREFIX			?= $(PLEXIL_HOME)
+ifeq ($(prefix),)
+PREFIX		:= $(PLEXIL_HOME)
+else
+PREFIX		:= $(prefix)
+endif
 
+# The defaults may be individually overridden by 'configure'.
+ifeq ($(libdir),)
+LIB_DIR		:= $(PREFIX)/lib
+else
+LIB_DIR		:=$(libdir)
+endif
+
+LIBRARY_SEARCH_PATH_FLAG	= -L
+LIB_PATH_FLAGS				= $(LIBRARY_PATH_SEARCH_FLAG)$(LIB_DIR)
+
+# FIXME: Determine whether we really need . in the list
+ifeq ($(includedir),)
+INC_DIRS	:= . $(PREFIX)/include
+else
+INC_DIRS	:= . $(includedir)
+endif
+
+ifeq ($(bindir),)
+BIN_DIR		:= $(PREFIX)/bin
+else
+BIN_DIR		:= $(bindir)
+endif
+
+# FIXME: find way to integrate with 'configure', libtool settings
 # Which variant(s) to build by default
 # These can be overridden at the command line or in the shell environment
-PLEXIL_DEBUG		?= 1
-PLEXIL_OPTIMIZED	?=
-PLEXIL_STATIC		?=
 ifeq ($(PLEXIL_STATIC),)
 PLEXIL_SHARED		?= 1
 else
 PLEXIL_SHARED		?=
 endif
 
-##### Basic utilities and Unix commands
+##### Other utilities
 
-SHELL           = /bin/sh
+RM		?= /bin/rm
+CP		?= /bin/cp
+MKDIR	?= /bin/mkdir
 
-# Delete files (recursively, forced)
-RM		= /bin/rm -fr
-# File system link
-LN		= /bin/ln -s
-# Directory list
-LS              = /bin/ls
-TAG		= etags -t
-# Move a file
-MV              = /bin/mv
-# Make a directory
-MKDIR           = /bin/mkdir
-# Copy a file
-CP              = /bin/cp -p
-
-##### C/C++ compiler options.
-
-##### *** FIXME: Most of these presume gcc,
-##### *** but clang is default on OS X and the BSDs,
-##### *** and cross-compilers could be anything.
-##### *** Fortunately clang emulates gcc's option parsing.
-
-# Compiler options
-
-# Generating include file dependencies
-DEPEND		= $(CXX) -MM
-
-# Defines
-DEFINES			:=
-
-STANDARD_CFLAGS		:=
-STANDARD_CXXFLAGS	:=
+DEPEND_FLAGS ?= -MM
 
 # Include path
 
-SYSTEM_INC_DIRS	=
-INC_DIRS	= . $(PLEXIL_HOME)/include
+SYSTEM_INC_DIRS	?=
 INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 
 # Compiler flags for shared libraries
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
-
-# Compiler flags for debug builds
-#DEBUG_FLAGS	:= -ggdb # Not appropriate for OS X
-DEBUG_FLAGS	:= -g
-WARNING_FLAGS	:= -Wall
-
-# Compiler flags for optimized builds
-OPTIMIZE_FLAGS	:= -O3 -DPLEXIL_FAST
-
-VARIANT_CFLAGS	=
-ifneq ($(PLEXIL_DEBUG),)
-VARIANT_CFLAGS	+= $(DEBUG_FLAGS) $(WARNING_FLAGS)
-endif
-ifneq ($(PLEXIL_OPTIMIZED),)
-VARIANT_CFLAGS	+= $(OPTIMIZE_FLAGS)
-endif
-
-CFLAGS		+= $(DEFINES) $(STANDARD_CFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
-CXXFLAGS	+= $(DEFINES) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
 
 ##### Library support
 
@@ -120,11 +143,6 @@ CXXFLAGS	+= $(DEFINES) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
 LIBRARY		=
 
 # Where to put the new libraries
-LIB_DIR		?= $(PREFIX)/lib
-
-# Where to find previously built libraries
-LIB_PATH	:= $(PREFIX)/lib
-LIB_PATH_FLAGS	= $(foreach libdir,$(LIB_PATH),$(LIBRARY_PATH_SEARCH_FLAG)$(libdir))
 
 LIBS		=
 LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
@@ -134,9 +152,6 @@ LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
 # Names the executable that will be the product of this make.
 # User must set this to be useful.
 EXECUTABLE	=
-
-# Where to store the resulting executable
-BIN_DIR		?= $(PREFIX)/bin
 
 #
 # Linker
@@ -151,7 +166,7 @@ AR		= ar
 LD		= $(CXX) $(CXXFLAGS) $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
 
 # Compiler flag to pass an argument to the linker
-LINKER_PASSTHROUGH_FLAG			:= -Wl,
+LINKER_PASSTHROUGH_FLAG			?= -Wl,
 # Linker flag for link-time library search path
 LIBRARY_PATH_SEARCH_FLAG		:= -L
 LINKTIME_SHARED_LIBRARY_PATH_FLAG	:= -L
@@ -175,15 +190,14 @@ endif
 
 # Choose appropriate default version of Java
 ifeq ($(JAVA_HOME),)
-JAVA	?= java
-JAVAC	?= javac
-JAR	?= jar
+JAVA  ?= java
+JAVAC ?= javac
+JAR   ?= jar
 else
-JAVA	?= $(JAVA_HOME)/bin/java
-JAVAC	?= $(JAVA_HOME)/bin/javac
-JAR	?= $(JAVA_HOME)/bin/jar
+JAVA  ?= $(JAVA_HOME)/bin/java
+JAVAC ?= $(JAVA_HOME)/bin/javac
+JAR   ?= $(JAVA_HOME)/bin/jar
 endif
-
 
 ##### Conveniences
 
@@ -194,10 +208,6 @@ SVN_FILES       = *
 
 all: plexil-default
 
-include $(PLEXIL_HOME)/makeinclude/platform-defs.make
-
-# Check here in case some platform include file (re)defines these
-
 ifneq ($(PLEXIL_SHARED),)
 ifneq ($(PLEXIL_STATIC),)
 $(error PLEXIL_STATIC and PLEXIL_SHARED cannot both be true. Exiting.)
@@ -205,5 +215,15 @@ endif
 endif
 
 ifneq ($(PLEXIL_SHARED),)
-VARIANT_CFLAGS	+= $(POSITION_INDEPENDENT_CODE_FLAG)
+VARIANT_CPPFLAGS +=
+VARIANT_CFLAGS   += $(POSITION_INDEPENDENT_CODE_FLAG)
+VARIANT_CXXFLAGS += $(POSITION_INDEPENDENT_CODE_FLAG)
 endif
+
+# FIXME: User supplied flags should override defaults.
+CPPFLAGS    = $(CONFIGURED_CPPFLAGS) $(VARIANT_CPPFLAGS) $(INCLUDES)
+CFLAGS		= $(CONFIGURED_CFLAGS) $(VARIANT_CFLAGS)
+CXXFLAGS	= $(CONFIGURED_CXXFLAGS) $(VARIANT_CXXFLAGS)
+
+include $(PLEXIL_HOME)/makeinclude/platform-defs.make
+

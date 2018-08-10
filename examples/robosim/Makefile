@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+include ../../makeinclude/standard-defs.make
+
 plexil-default: 2DRoboSim plans
 
 PLAN_SRCS := $(wildcard plans/*.ple)
@@ -39,7 +41,7 @@ robosim :
 clean:
 	@ $(MAKE) -C 2DRobotSimulator $@
 	@ $(MAKE) -C RoboSimSimulator $@
-	@ $(RM) plans/*.plx
+	@ $(RM) -f plans/*.plx
 
 %.plx: %.ple
 	$(PLEXIL_HOME)/scripts/plexilc $<

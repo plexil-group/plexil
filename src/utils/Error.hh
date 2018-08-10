@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@
    @note This is presently only the "interface for programmers";
    nothing has been tested.
 
-   @note Think of the first section, #ifdef PLEXIL_FAST, as the
+   @note Think of the first section, #ifdef PLEXIL_UNSAFE, as the
    "prototypes" and documentation as well as the "production" variant.
 */
 
@@ -319,7 +319,7 @@ namespace PLEXIL
   } \
 }
 
-#ifdef PLEXIL_FAST
+#ifdef PLEXIL_UNSAFE
 
 #define check_error_1(cond)
 #define check_error_2(cond, msg)
@@ -331,7 +331,7 @@ namespace PLEXIL
  * @def warn
  * Print a warning if such is enabled.
  * @param msg The information to print.
- * @note When PLEXIL_FAST is defined, these are ignored
+ * @note When PLEXIL_UNSAFE is defined, these are ignored
  */
 #define warn(msg)
 
@@ -378,6 +378,6 @@ namespace PLEXIL
       PLEXIL::Error::printWarning(sstr.str(), __FILE__, __LINE__);  \
 }
 
-#endif /* PLEXIL_FAST */
+#endif /* PLEXIL_UNSAFE */
 
 #endif /* PLEXIL_ERROR_HH */

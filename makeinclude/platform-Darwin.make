@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,13 @@
 # C/C++ compiler flag overrides
 #
 
-DEFINES			+= -DDarwin
-DEBUG_FLAGS		+= -gfull
+CPPFLAGS += -DDarwin
 
-ifeq (4,$(CXX_MAJOR_VERSION))
-DEFINES		+= -DPLATFORM_HAS_EXECINFO_H
-endif
+#
+# Default locations
+#
+
+JAVA_HOME ?= /System/Library/Frameworks/JavaVM.framework/Versions/Current
 
 #
 # Compiler/linker option overrides
@@ -43,11 +44,12 @@ LINKER_PASSTHROUGH_FLAG				:=
 # Linker flag for run-time library search path
 RUNTIME_SHARED_LIBRARY_PATH_FLAG	:=
 # Linker flag to construct shared library
-SHARED_FLAGS						:= -fno-common -dynamiclib
+SHARED_CFLAGS						:= -fno-common -dynamiclib
+SHARED_CXXFLAGS						:= -fno-common -dynamiclib
 # Extension for shared library
 SUFSHARE							:= .dylib
-# Name of the library with the pthreads API
-PTHREAD_LIB 		   	       		:= pthread
-# Name of system library with realtime clock API
-# Is in libc on OS X
-RT_LIB								:= 
+
+OPENGL_LIBS			:=
+OPENGL_LIB_FLAGS	:= -framework OpenGL -framework GLUT
+OPENGL_LIB_PATH		:=
+OPENGL_INCLUDES		:=

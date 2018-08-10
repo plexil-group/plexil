@@ -154,10 +154,12 @@ most-build: src/Makefile
 most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
+# INITIAL_ variables come from makeinclude/standard-defs.make and related
 src/Makefile: src/configure
-	cd ./src && ./configure --prefix=$(PLEXIL_HOME) \
- CC=$(CC) CXX=$(CXX) --disable-static \
- --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+	cd ./src && ./configure --prefix=$(INITIAL_PREFIX) \
+ CC="$(INITIAL_CC)" CXX="$(INITIAL_CXX)" \
+ CPPFLAGS="$(INITIAL_CPPFLAGS)" CFLAGS="$(INITIAL_CFLAGS)" CXXFLAGS="$(INITIAL_CXXFLAGS)" \
+ --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 #
 # Bootstrapping autobuild files
@@ -181,7 +183,7 @@ clean:
 	(cd compilers/plexilscript && ant $@)
 	(cd jars && $(RM) -f plexilscript.jar)	
 	(cd viewers/pv && ant $@)
-	-$(RM) lib/lib* bin/*
+	$(RM) -f lib/lib* bin/*
 	@ echo Done.
 
 # Clean up after autotools
@@ -189,10 +191,10 @@ squeaky-clean: | clean
 	(cd src && $(RM) -f */Makefile */Makefile.in)
 	(cd src/apps && $(RM) -f */Makefile */Makefile.in)
 	(cd src/interfaces && $(RM) -f */Makefile */Makefile.in)
-	(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
-	(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
+	(cd src/third-party/ipc && $(RM) -f Makefile Makefile.in)
+	(cd src/third-party/pugixml/src && $(RM) -f Makefile Makefile.in)
 	(cd src && $(RM) -f Makefile Makefile.in aclocal.m4 \
- compile configure config.guess config.status config.sub \
+ compile configure configure.env config.guess config.status config.sub \
  cppcheck.sh depcomp INSTALL install-sh libtool ltmain.sh missing \
  plexil-config.h plexil-config.h.in stamp-h1)
 	(cd src && $(RM) -rf m4 autom4te.cache)

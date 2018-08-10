@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,39 +25,25 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-# Platform-dependent configuration
-ifeq (Darwin,$(OSNAME))
-OPENGL_EXTRA_FLAGS	:= -framework OpenGL -framework GLUT
-endif
-
-ifeq (Linux,$(OSNAME))
-OPENGL_LIB_PATH := /usr/X11R6/lib
-OPENGL_LIBS	:= GL GLU glut Xi Xmu
-endif
-
-ifeq (FreeBSD,$(OSNAME))
-OPENGL_LIB_PATH := /usr/local/lib
-OPENGL_LIBS	:= GL GLU glut Xi Xmu
-INCLUDES += -I/usr/local/include
-endif
-
 EXECUTABLE := robotSimulator
 
+# Common to most platforms
+PTHREAD_LIB ?= pthread
+
+# Turn off deprecation warnings for OpenGL on some platforms (macOS)
+CFLAGS		+= -Wno-deprecated-declarations
+CXXFLAGS	+= -Wno-deprecated-declarations
+
 # External dependencies
+INCLUDES	+= $(OPENGL_INCLUDES)
 LIB_PATH	+= $(OPENGL_LIB_PATH)
-LIBS		+= pugixml IpcUtils ipc \
- PlexilExpr PlexilUtils PlexilValue $(PTHREAD_LIB) $(OPENGL_LIBS)
-EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
+LIBS		+= pugixml IpcUtils ipc PlexilExpr PlexilUtils PlexilValue \
+ $(PTHREAD_LIB) $(OPENGL_LIBS)
+LIB_FLAGS	+= $(OPENGL_LIB_FLAGS)
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
-# a hack until we need to get VxWorks working
-DEFINES += -DUNIX
-
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif
