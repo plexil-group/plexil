@@ -40,11 +40,6 @@ AC_PROG_CXX
 AC_PROG_CC
 
 AM_PROG_CC_C_O
-AM_PROG_AR
-#AC_PROG_INSTALL
-
-# ???
-#AC_PROG_MAKE_SET
 
 # Use this with autoconf 2.62 and newer
 LT_INIT([])

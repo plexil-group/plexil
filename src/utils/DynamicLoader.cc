@@ -165,14 +165,14 @@ static void *findSymbol(char const *symName, void *dl_handle)
 static bool initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT) 
 {
   std::string funcName = (std::string("init") + moduleName);
-  void (*func)() = NULL;
-  *(void **)(&func) = findSymbol(funcName.c_str(), dl_handle);
-  if (!func) {
+  void *func_as_void_ptr = findSymbol(funcName.c_str(), dl_handle);
+  if (!func_as_void_ptr) {
     debugMsg("DynamicLoader:initModule",
              " failed; init function for module " << moduleName << " not found");
     return false;
   }
 
+  void (*func)() = reinterpret_cast<void (*)()>(func_as_void_ptr);
   // FIXME - Could blow up spectacularly, how to defend?
   (*func)();
 
