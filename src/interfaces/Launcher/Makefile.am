@@ -24,7 +24,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 lib_LTLIBRARIES = libLauncher.la
-include_HEADERS =
+include_HEADERS = Launcher.hh
 libLauncher_la_SOURCES = Launcher.cc
 libLauncher_la_CPPFLAGS = $(AM_CPPFLAGS) \
  -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/app-framework \
