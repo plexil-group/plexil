@@ -165,8 +165,11 @@ src/Makefile: src/configure
 # Bootstrapping autobuild files
 #
 
+# Must recreate configure if any of the Makefile.am files changes
+MAKEFILE_AMS = $(wildcard src/**/Makefile.am)
+
 # Create m4 directory - some older versions of autotools won't do it for us
-src/configure: src/configure.ac src/Makefile.am
+src/configure: src/configure.ac $(MAKEFILE_AMS)
 	cd ./src && mkdir -p m4 && $(AUTORECONF) -f -i
 
 #
