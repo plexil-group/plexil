@@ -28,6 +28,7 @@
 #include "LuvFormat.hh"
 
 #include "Debug.hh"
+#include "ExecListenerFactory.hh"
 #include "Expression.hh"
 #include "Node.hh"
 
@@ -360,6 +361,12 @@ namespace PLEXIL
           }
         while (buffer[0] != LUV_END_OF_MESSAGE());
       }
+  }
+  
+  extern "C"
+  void initLuvListener()
+  {
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
   }
 
 }

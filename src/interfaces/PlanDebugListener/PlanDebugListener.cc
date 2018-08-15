@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "PlanDebugListener.hh"
 
+#include "ExecListenerFactory.hh"
 #include "Debug.hh"
 #include "Node.hh"
 
@@ -62,6 +63,12 @@ namespace PLEXIL
                  "Node '" << nodeId->getNodeId() <<
                  "' started at " << std::setprecision(15) <<
                  nodeId->getCurrentStateStartTime());
+  }
+  
+  extern "C"
+  void initPlanDebugListener()
+  {
+    REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
   }
 
 }

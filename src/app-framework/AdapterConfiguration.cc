@@ -29,6 +29,7 @@
 #include "AdapterFactory.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
+#include "DynamicLoader.h"
 #include "Error.hh"
 #include "ExecListenerFactory.hh"
 #include "ExecListenerFilterFactory.hh"
@@ -86,13 +87,13 @@ namespace PLEXIL {
     registerExecListenerFilters();
 
 #ifdef HAVE_DEBUG_LISTENER
-      // Every application should have access to the Plan Debug Listener
-      REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
+    // Every application should have access to the Plan Debug Listener
+    dynamicLoadModule("PlanDebugListener", NULL);
 #endif
 
 #ifdef HAVE_LUV_LISTENER
     // Every application should have access to the Plexil Viewer (formerly LUV) Listener
-    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+    dynamicLoadModule("LuvListener", NULL);
 #endif
   }
 
