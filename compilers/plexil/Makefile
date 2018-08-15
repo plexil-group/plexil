@@ -98,9 +98,7 @@ $(PARSER_CLASSES): $(CLASSES_DIR)/plexil/%.class : $(PARSER_JAVA_SRC_DIR)/%.java
              -sourcepath "$(PARSER_JAVA_DIR):$(JAVA_SRCPATH)" \
              -d $(CLASSES_DIR) $(JAVAC_OPTIONS) $<
 
-clean: localclean
-
 localclean::
-	$(RM) -rf $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
+	@$(RM) -rf $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make

@@ -25,17 +25,9 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-OSTYPE   ?= $(shell uname -s)
-MACHTYPE ?= $(shell uname -p)
-OS_ARCH = $(OSTYPE)-$(MACHTYPE)
-
 LIBRARY = SampleAdapter
 SRC = subscriber.cc SampleSystem.cc SampleAdapter.cc
 INC = subscriber.hh SampleSystem.hh SampleAdapter.hh
-
-LIBS += pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilValue PlexilUtils
-
-LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 

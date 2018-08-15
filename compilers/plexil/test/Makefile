@@ -172,7 +172,9 @@ output:
 	@mkdir -p output
 	@$(RM) -f output/*.epx
 
-clean:
-	-$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
+clean::
+	-@$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
 
-.PHONY: setup output clean
+dust:: ;
+
+.PHONY: setup output clean dust

@@ -176,31 +176,31 @@ src/configure: src/configure.ac $(MAKEFILE_AMS)
 # End Automake targets
 #
 
-clean:
-	-$(MAKE) -C compilers/plexil $@
-	-$(MAKE) -C examples/robosim $@
-	-$(MAKE) -C examples/sample-app $@
-	-$(MAKE) -C examples/sample-app1 $@
-	-$(MAKE) -C src $@
-	(cd checker && ant $@)
-	(cd compilers/plexilscript && ant $@)
-	(cd jars && $(RM) -f plexilscript.jar)	
-	(cd viewers/pv && ant $@)
-	$(RM) -f lib/lib* bin/*
+clean::
+	-@$(MAKE) -C compilers/plexil $@
+	-@$(MAKE) -C examples/robosim $@
+	-@$(MAKE) -C examples/sample-app $@
+	-@$(MAKE) -C examples/sample-app1 $@
+	-@$(MAKE) -C src $@ > /dev/null 2>&1
+	@(cd checker && ant $@)
+	@(cd compilers/plexilscript && ant $@)
+	@(cd jars && $(RM) plexilscript.jar)	
+	@(cd viewers/pv && ant $@)
+	@$(RM) lib/lib* bin/* include/*
 	@ echo Done.
 
 # Clean up after autotools
 squeaky-clean: | clean
-	(cd src && $(RM) -f */Makefile */Makefile.in)
-	(cd src/apps && $(RM) -f */Makefile */Makefile.in)
-	(cd src/interfaces && $(RM) -f */Makefile */Makefile.in)
-	(cd src/third-party/ipc && $(RM) -f Makefile Makefile.in)
-	(cd src/third-party/pugixml/src && $(RM) -f Makefile Makefile.in)
-	(cd src && $(RM) -f Makefile Makefile.in aclocal.m4 \
+	@(cd src && $(RM) */Makefile */Makefile.in)
+	@(cd src/apps && $(RM) */Makefile */Makefile.in)
+	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)
+	@(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
+	@(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
+	@(cd src && $(RM) Makefile Makefile.in aclocal.m4 \
  compile configure configure.env config.guess config.status config.sub \
  cppcheck.sh depcomp INSTALL install-sh libtool ltmain.sh missing \
  plexil-config.h plexil-config.h.in stamp-h1)
-	(cd src && $(RM) -rf m4 autom4te.cache)
+	@(cd src && $(RM) -rf m4 autom4te.cache)
 
 # *** TODO: release target(s) ***
 

@@ -38,10 +38,13 @@ plans: $(PLAN_PLXS)
 robosim :
 	$(MAKE) -C RoboSimSimulator
 
-clean:
+clean::
 	@ $(MAKE) -C 2DRobotSimulator $@
 	@ $(MAKE) -C RoboSimSimulator $@
-	@ $(RM) -f plans/*.plx
+	@ $(RM) $(PLAN_PLXS)
 
-%.plx: %.ple
-	$(PLEXIL_HOME)/scripts/plexilc $<
+dust::
+	@ $(MAKE) -C 2DRobotSimulator $@
+	@ $(MAKE) -C RoboSimSimulator $@
+
+include ../../makeinclude/standard-targets.make

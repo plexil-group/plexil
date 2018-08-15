@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -92,10 +92,10 @@ int main(int argc, char** argv)
   if (dc.fail())
     std::cerr << "Warning: unable to open debug configuration file "
               << debugConfig << std::endl;
-  else if (!DebugMessage::readConfigFile(dc))
+  else if (!PLEXIL::readDebugConfigStream(dc))
     std::cerr << "Warning: unable to read debug configuration file " << debugConfig << std::endl;
   else
-    DebugMessage::setStream(std::cerr);
+    PLEXIL::setDebugOutputStream(std::cerr);
 
   debugMsg("RoboSimSimulator",  
            " Running with command script: " << commandScriptName

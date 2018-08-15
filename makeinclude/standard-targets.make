@@ -35,17 +35,19 @@
 #       ETAGS - the command to create an Emacs tags table
 #       SVN_FILES - a list of all files under SVN control
 #       INCLUDES - "-I" flags
-#       RM - command to remove files
+#       RM - command to remove files (GNU make defaults to 'rm -f')
 #       DEPEND_FLAGS - compiler option(s) to generate header dependencies
 #       LIBRARY - the base name of the binary library file
 #       EXECUTABLE - the name of the executable file
+#		EXTRA_LIBS - libraries beyond the standard Plexil core libraries
 
 ##### Wrapup defs
 
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
 DEPS    = $(addsuffix .d,$(basename $(SRC)))
-DIRT    = $(OBJ) $(DEPS) 
+DEP_TMP	= $(wildcard $(addsuffix .*,$(DEPS)))
+DIRT    = $(OBJ) $(DEPS) $(DEP_TMP)
 
 ##### Internal Targets -- not typically invoked explicitly.
 
@@ -62,15 +64,14 @@ SHLIB	:= lib$(LIBRARY)$(SUFSHARE)
 plexil-default: shlib
 
 shlib $(LIB_DIR)/$(SHLIB): $(SHLIB) $(LIB_DIR)
-	$(RM) -f $(LIB_DIR)/$(SHLIB)
+	$(RM) $(LIB_DIR)/$(SHLIB)
 	$(CP) $(SHLIB) $(LIB_DIR)/$(SHLIB)
 
 $(SHLIB): $(OBJ)
-	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
+	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
 
 localclean::
-	$(RM) -f $(SHLIB) $(LIB_DIR)/$(SHLIB)
-	$(RM) -f $(SHLIB).dSYM
+	@$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB) $(SHLIB).dSYM
 endif
 
 ifneq ($(PLEXIL_STATIC),)
@@ -81,7 +82,7 @@ ARCHIVE := lib$(LIBRARY).a
 plexil-default: archive
 
 archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE) $(LIB_DIR)
-	$(RM) -f $(LIB_DIR)/$(ARCHIVE)
+	$(RM) $(LIB_DIR)/$(ARCHIVE)
 	$(CP) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
@@ -91,7 +92,7 @@ $(ARCHIVE): $(OBJ)
 	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
-	$(RM) -f $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+	@$(RM) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 endif
 
 endif # $(LIBRARY)
@@ -111,39 +112,37 @@ $(BIN_DIR):
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
 $(EXECUTABLE): $(OBJ)
-	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
+	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
 
 localclean::
-	$(RM) -f $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
-	$(RM) -f $(EXECUTABLE).dSYM
+	@$(RM) $(EXECUTABLE) $(EXECUTABLE).dSYM $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
 endif
 
 ##### Delete extraneous by-products of compilation.
 
-localdust:
-	if [ -n "$(DIRT)" ] ; then $(RM) -f $(DIRT); fi
+localdust::
+	@if [ -n "$(DIRT)" ] ; then $(RM) $(DIRT); fi
 
 ##### Dependencies
 
 ## Straight from the GNU make manual
-# FIXME: if compilation fails, .d.NNNNN files are left around
 %.d : %.c
-	@set -e; $(RM) -f $@; \
+	@set -e; $(RM) $@; \
 	 $(CC) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
      sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-     $(RM) -f $@.$$$$
+     $(RM) $@.$$$$
 
 %.d : %.cc
-	@set -e; $(RM) -f $@; \
+	@set -e; $(RM) $@; \
 	 $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
      sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-     $(RM) -f $@.$$$$
+     $(RM) $@.$$$$
 
 %.d : %.cpp
-	@set -e; $(RM) -f $@; \
+	@set -e; $(RM) $@; \
 	 $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
      sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-     $(RM) -f $@.$$$$
+     $(RM) $@.$$$$
 
 # does anyone use .C for C++?
 
@@ -156,6 +155,16 @@ tags:	$(SVN_FILES)
 
 #doc: $(DOC)
 
+##### Default pattern rules for generating Plexil XML
+
+%.plx: %.ple
+	$(PLEXIL_HOME)/scripts/plexilc $<
+
+%.plx: %.pli
+	$(PLEXIL_HOME)/scripts/plexilc $<
+
+%.plx: %.epx
+	$(PLEXIL_HOME)/scripts/plexilc $<
 
 ##### Test Directory
 # These targets apply to any directory that has a 'test' subdirectory.
@@ -171,14 +180,14 @@ test: plexil-default
 	fi
 
 ## Clean module and test directories
-clean: dust localclean
+clean:: dust localclean
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test $@; \
 	fi
 
 ## Dust module and test directories
-dust: localdust
+dust:: localdust
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test $@; \

@@ -40,32 +40,20 @@ TARGETS = $(filter %.plx, $(PLANS:%.ple=%.plx) $(PLANS:%.pli=%.plx))
 # The default target for this file (leave all for others)
 plx: $(TARGETS)
 
-# Plexilisp rule
-%.plx: %.pli
-	plexilisp $<
-	@xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
-	@$(RM) -f $*.epx*
-
-# Standard Plexil rule
-%.plx: %.ple
-	plexilc $<
-	@xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
-	@$(RM) -f $*.epx*
-
 # Default clean targets.  Can be redefined in makefile which includes this file.
 # This idiom allows makefiles which include this one to add more rules to clean, etc.
 DIRS = . lib test
 
 _dust:
-	for dir in $(DIRS) ; do $(RM) -f $${dir}/*.{epx,last} ; done
+	for dir in $(DIRS) ; do $(RM) $${dir}/*.{epx,last} ; done
 dust: _dust
 
 _clean: dust
-	for dir in $(DIRS) ; do $(RM) -f $${dir}/*.plx ; $(RM) core.* ; done
+	for dir in $(DIRS) ; do $(RM) $${dir}/*.plx ; $(RM) core.* ; done
 clean: _clean
 
 _cleaner: clean
-	for dir in $(DIRS) ; do $(RM) -f $${dir}/*~ ; done
+	for dir in $(DIRS) ; do $(RM) $${dir}/*~ ; done
 cleaner: _cleaner
 
 plexil-targets:

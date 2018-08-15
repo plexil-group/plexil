@@ -122,7 +122,6 @@ endif
 
 ##### Other utilities
 
-RM		?= /bin/rm
 CP		?= /bin/cp
 MKDIR	?= /bin/mkdir
 
@@ -136,16 +135,19 @@ INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 # Compiler flags for shared libraries
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
 
+# Compiler flags for static linking
+STATIC_FLAG := -static
+
 ##### Library support
 
 # Names the library that will be the product of this make.
 # User must set this to be useful.
 LIBRARY		=
 
-# Where to put the new libraries
-
-LIBS		=
-LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
+# Standard libraries for application framework based examples
+UE_LIBS		= pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilValue PlexilUtils
+EXTRA_LIBS	= 
+LIB_FLAGS	= $(foreach lib,$(EXTRA_LIBS) $(UE_LIBS),-l$(lib))
 
 ##### Executable support
 
@@ -218,6 +220,12 @@ ifneq ($(PLEXIL_SHARED),)
 VARIANT_CPPFLAGS +=
 VARIANT_CFLAGS   += $(POSITION_INDEPENDENT_CODE_FLAG)
 VARIANT_CXXFLAGS += $(POSITION_INDEPENDENT_CODE_FLAG)
+endif
+
+ifneq ($(PLEXIL_STATIC),)
+VARIANT_CPPFLAGS +=
+VARIANT_CFLAGS   += $(STATIC_FLAG)
+VARIANT_CXXFLAGS += $(STATIC_FLAG)
 endif
 
 # FIXME: User supplied flags should override defaults.

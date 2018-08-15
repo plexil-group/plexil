@@ -27,9 +27,6 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 EXECUTABLE := robotSimulator
 
-# Common to most platforms
-PTHREAD_LIB ?= pthread
-
 # Turn off deprecation warnings for OpenGL on some platforms (macOS)
 CFLAGS		+= -Wno-deprecated-declarations
 CXXFLAGS	+= -Wno-deprecated-declarations
@@ -37,8 +34,7 @@ CXXFLAGS	+= -Wno-deprecated-declarations
 # External dependencies
 INCLUDES	+= $(OPENGL_INCLUDES)
 LIB_PATH	+= $(OPENGL_LIB_PATH)
-LIBS		+= pugixml IpcUtils ipc PlexilExpr PlexilUtils PlexilValue \
- $(PTHREAD_LIB) $(OPENGL_LIBS)
+EXTRA_LIBS	+= IpcUtils ipc $(OPENGL_LIBS)
 LIB_FLAGS	+= $(OPENGL_LIB_FLAGS)
 
 SRC		:= $(wildcard *.cc)
