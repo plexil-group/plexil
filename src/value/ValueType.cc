@@ -745,7 +745,7 @@ namespace PLEXIL
   template void printValue(Boolean const &, std::ostream &);
   // template void printValue(uint16_t const &, std::ostream &); // redundant
   template void printValue(Integer const &, std::ostream &);
-  template void printValue(Real const &, std::ostream &);
+  // template void printValue(Real const &, std::ostream &); // redundant
   template void printValue(String const &, std::ostream &);
 
   template void printValue(ArrayImpl<Boolean> const &, std::ostream &);
