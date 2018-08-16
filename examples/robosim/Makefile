@@ -44,7 +44,5 @@ clean::
 	@ $(RM) $(PLAN_PLXS)
 
 dust::
-	@ $(MAKE) -C 2DRobotSimulator $@
-	@ $(MAKE) -C RoboSimSimulator $@
 
 include ../../makeinclude/standard-targets.make
