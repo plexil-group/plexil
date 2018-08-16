@@ -40,7 +40,7 @@ JAVA_HOME ?= /System/Library/Frameworks/JavaVM.framework/Versions/Current
 #
 
 # Compiler flag to pass an argument to the linker
-LINKER_PASSTHROUGH_FLAG				:= 
+LINKER_PASSTHROUGH_FLAG				:= -Wl,
 # Linker flag for run-time library search path
 RUNTIME_SHARED_LIBRARY_PATH_FLAG	:=
 # Linker flag to construct shared library
@@ -51,7 +51,8 @@ SUFSHARE							:= .dylib
 
 # No way to create completely static executable on macOS
 ifneq ($(PLEXIL_STATIC),)
-LD	= $(CXX) $(filter-out -static -Bstatic,$(CXXFLAGS)) \
+STATIC_EXE_FLAG = -read_only_relocs,suppress
+LD	= $(CXX) $(filter-out $(STATIC_FLAG),$(CXXFLAGS)) \
  $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
 endif
 
