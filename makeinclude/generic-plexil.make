@@ -60,6 +60,17 @@ plexil-targets:
 	@echo "plans:   " $(PLANS)
 	@echo "targets: " $(TARGETS)
 
+##### Default pattern rules for generating Plexil XML
+
+%.plx: %.ple
+	$(PLEXIL_HOME)/scripts/plexilc $<
+
+%.plx: %.pli
+	$(PLEXIL_HOME)/scripts/plexilc $<
+
+%.plx: %.epx
+	$(PLEXIL_HOME)/scripts/plexilc $<
+
 .PHONY: _dust dust _clean clean _cleaner cleaner plexil-targets
 
 # EOF
