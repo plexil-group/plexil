@@ -145,7 +145,7 @@ STATIC_FLAG := -static
 LIBRARY		=
 
 # Standard libraries for application framework based examples
-UE_LIBS		= pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilValue PlexilUtils
+UE_LIBS		= pugixml PlexilAppFramework PlexilXmlParser PlexilExec PlexilIntfc PlexilExpr PlexilValue PlexilUtils
 EXTRA_LIBS	= 
 LIB_FLAGS	= $(foreach lib,$(EXTRA_LIBS) $(UE_LIBS),-l$(lib))
 
