@@ -49,6 +49,12 @@ SHARED_CXXFLAGS						:= -fno-common -dynamiclib
 # Extension for shared library
 SUFSHARE							:= .dylib
 
+# No way to create completely static executable on macOS
+ifneq ($(PLEXIL_STATIC),)
+LD	= $(CXX) $(filter-out -static -Bstatic,$(CXXFLAGS)) \
+ $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
+endif
+
 OPENGL_LIBS			:=
 OPENGL_LIB_FLAGS	:= -framework OpenGL -framework GLUT
 OPENGL_LIB_PATH		:=
