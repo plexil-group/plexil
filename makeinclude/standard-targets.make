@@ -125,23 +125,23 @@ localdust::
 
 ##### Dependencies
 
-## Straight from the GNU make manual
+## Derived from the GNU make manual
 %.d : %.c
-	@set -e; $(RM) $@; \
-	 $(CC) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
-     sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	@$(RM) $@; \
+	 if $(CC) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$ 2> /dev/null; \
+     then sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; fi; \
      $(RM) $@.$$$$
 
 %.d : %.cc
-	@set -e; $(RM) $@; \
-	 $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
-     sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	@$(RM) $@; \
+	 if $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$ 2> /dev/null; \
+     then sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; fi; \
      $(RM) $@.$$$$
 
 %.d : %.cpp
-	@set -e; $(RM) $@; \
-	 $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$; \
-     sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	@$(RM) $@; \
+	 if $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$ 2> /dev/null; \
+     then sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; fi; \
      $(RM) $@.$$$$
 
 # does anyone use .C for C++?
