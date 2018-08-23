@@ -29,7 +29,7 @@
 # Because an ancient version of vxWorks only offered this version
 #AC_PREREQ(2.59)
 AC_PREREQ(2.62)
-AC_INIT(Plexil, 4.5.0a1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+AC_INIT(Plexil, 4.5.0RC1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
