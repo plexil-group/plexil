@@ -91,7 +91,9 @@ namespace PLEXIL
     if (isGarbage) {
       if (!m_localVariables)
         m_localVariables = new std::vector<Expression *>();
-      m_localVariables->push_back(exp);
+      // N.B. Aliases can refer to local variables,
+      // so ensure the alias gets cleaned up first by inserting it in the front.
+      m_localVariables->insert(m_localVariables->begin(), exp);
     }
     return true;
   }
