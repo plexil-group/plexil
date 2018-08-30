@@ -1612,7 +1612,10 @@
                 </element>
                 <optional>
                     <element name="InitialValue">
-                        <ref name="Value"/>
+                        <choice>
+                            <ref name="DeclaredVariable"/>
+                            <ref name="Value"/>
+                        </choice>
                     </element>
                 </optional>
             </element>

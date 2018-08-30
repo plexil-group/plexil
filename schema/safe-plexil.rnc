@@ -758,7 +758,7 @@ DeclareVariable =
       SourceLocators,
       element Name { NCName },
       element Type { AtomicTypeValues },
-      element InitialValue { Value }?
+      element InitialValue { DeclaredVariable | Value }?
     }
 Assignment =
   notAllowed

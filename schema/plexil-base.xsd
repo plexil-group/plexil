@@ -432,7 +432,10 @@ element.  It is used as an included schema only.
         <xs:element name="Type" type="AtomicTypeValues"/>
         <xs:element name="InitialValue" minOccurs="0">
           <xs:complexType>
-            <xs:group ref="Value"/>
+            <xs:choice>
+              <xs:group ref="DeclaredVariable"/>
+              <xs:group ref="Value"/>
+            </xs:choice>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
