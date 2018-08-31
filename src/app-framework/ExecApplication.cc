@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -406,16 +406,14 @@ namespace PLEXIL
       return false;
 
     // Delegate to InterfaceManager
-    try {
-      g_manager->handleAddLibrary(libraryXml);
+    if (g_manager->handleAddLibrary(libraryXml)) {
+      debugMsg("ExecApplication:addLibrary", " Library added");
+      return true;
     }
-    catch (const ParserException& e) {
-      std::cerr << "ExecApplication::addLibrary: Plan parser error:\n" << e.what() << std::endl;
-      return false;
+    else {
+      debugMsg("ExecApplication:addLibrary", " failed");
+      return true;
     }
-
-    debugMsg("ExecApplication:addLibrary", " Library added");
-    return true;
   }
 
   /**

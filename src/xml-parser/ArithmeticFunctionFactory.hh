@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,10 +44,14 @@ namespace PLEXIL
     ArithmeticFunctionFactory(std::string const &name);
     ~ArithmeticFunctionFactory();
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated,
-                         ValueType returnType = UNKNOWN_TYPE) const;
+                         ValueType returnType = UNKNOWN_TYPE) const
+      throw (ParserException);
 
   protected:
     // Override base class virtual method
@@ -84,10 +88,10 @@ namespace PLEXIL
     {
       switch (type) {
       case INTEGER_TYPE:
-        return OP<int32_t>::instance();
+        return OP<Integer>::instance();
 
       case REAL_TYPE:
-        return OP<double>::instance();
+        return OP<Real>::instance();
       
       default:
         checkParserException(false,
@@ -106,9 +110,60 @@ namespace PLEXIL
     ArithmeticFunctionFactoryImpl &operator=(ArithmeticFunctionFactoryImpl const &);
   };
 
+  // Special case for comparisons
+  template <template <typename NUM> class OP>
+  class ComparisonFactoryImpl
+    : public ArithmeticFunctionFactory
+  {
+  public:
+    ComparisonFactoryImpl(std::string const &name)
+      : ArithmeticFunctionFactory(name)
+    {
+    }
+
+    ~ComparisonFactoryImpl()
+    {
+    }
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
+
+  protected:
+
+    // Default methods, can be overridden as required
+    Operator const *selectOperator(ValueType type) const
+    {
+      switch (type) {
+      case INTEGER_TYPE:
+        return OP<Integer>::instance();
+
+      case REAL_TYPE:
+        return OP<Real>::instance();
+      
+      case STRING_TYPE:
+        return OP<String>::instance();
+
+      default:
+        checkParserException(false,
+                             "createExpression: invalid or unimplemented type "
+                             << valueTypeName(type)
+                             << " for comparison operator " << this->m_name);
+        return NULL;
+      }
+    }
+
+  private:
+
+    // Not implemented
+    ComparisonFactoryImpl();
+    ComparisonFactoryImpl(ComparisonFactoryImpl const &);
+    ComparisonFactoryImpl &operator=(ComparisonFactoryImpl const &);
+  };
+
 } // namespace PLEXIL
 
 // Convenience macros
 #define REGISTER_ARITHMETIC_FUNCTION(CLASS,NAME) {new PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>(#NAME);}
+#define REGISTER_COMPARISON(CLASS,NAME) {new PLEXIL::ComparisonFactoryImpl<CLASS>(#NAME);}
 
 #endif // PLEXIL_ARITHMETIC_FUNCTION_FACTORY_HH

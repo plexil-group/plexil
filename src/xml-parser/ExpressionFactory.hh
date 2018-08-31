@@ -52,10 +52,16 @@ namespace PLEXIL
     ExpressionFactory(const std::string& name);
     virtual ~ExpressionFactory();
 
+    // Default method returns UNKNOWN_TYPE, as a convenience.
+    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
+
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
                                  bool & wasCreated,
-                                 ValueType returnType = UNKNOWN_TYPE) const = 0;
+                                 ValueType returnType = UNKNOWN_TYPE) const
+      throw (ParserException)
+    = 0;
 
   private:
     // Default, copy, assign all prohibited
@@ -67,6 +73,28 @@ namespace PLEXIL
     const std::string m_name; /*!< Name used for lookup and error reporting */
   };
 
+  /**
+   * @brief Check the XML for validity as an expression.
+   * @param nodeId Name of the node to which the expression belongs.
+   * @param expr The XML representation of the expression.
+   * @return The ValueType of the expression; UNKNOWN_TYPE if could not be determined.
+   * @note Throws ParserException if any problems are found.
+   */
+
+  extern ValueType checkExpression(char const *nodeId, pugi::xml_node const expr)
+    throw (ParserException);
+
+  /**
+   * @brief Check the XML for validity as an assignable expression.
+   * @param nodeId Name of the node to which the expression belongs.
+   * @param expr The XML representation of the expression.
+   * @return The ValueType of the expression; UNKNOWN_TYPE if could not be determined.
+   * @note Throws ParserException if any problems are found.
+   */
+
+  extern ValueType checkAssignable(char const *nodeId, pugi::xml_node const expr)
+    throw (ParserException);
+  
   /**
    * @brief Creates a new Expression instance with the type associated with the
    *        given expression specification.

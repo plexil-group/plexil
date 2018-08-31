@@ -42,63 +42,90 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  // First pass
-  static void parsePriority(AssignmentNode *anode, xml_node const nodeXml)
+  // Check pass
+  void checkPriority(char const *nodeId, xml_node const prioXml)
     throw (ParserException)
   {
-    xml_node const prio = nodeXml.child(PRIORITY_TAG);
-    if (!prio)
-      return; // nothing to do
-
-    char const *prioString = prio.child_value();
+    char const *prioString = prioXml.child_value();
     checkParserExceptionWithLocation(*prioString,
-                                     prio,
-                                     "Priority element is empty");
+                                     prioXml,
+                                     "Node \"" << nodeId << "\": Priority element is empty");
     char *endptr = NULL;
     errno = 0;
-    unsigned long prioValue = strtoul(prioString, &endptr, 10);
+    // TODO: check for junk after the number
+    unsigned long prioValue = strtoul(prioString, NULL, 10);
     checkParserExceptionWithLocation(endptr != prioString && !*endptr,
-                                     prio,
-                                     "Priority element does not contain a non-negative integer");
+                                     prioXml,
+                                     "Node \"" << nodeId
+                                     << "\": Priority element does not contain a non-negative integer");
     checkParserExceptionWithLocation(!errno,
-                                     prio,
-                                     "Priority element contains negative or out-of-range integer");
+                                     prioXml,
+                                     "Node \""
+                                     << nodeId << "\": Priority element contains negative or out-of-range integer");
     checkParserExceptionWithLocation(prioValue < (unsigned long) std::numeric_limits<int32_t>::max(),
-                                     prio,
-                                     "Priority element contains out-of-range integer");
-    anode->setPriority((int32_t) prioValue);
+                                     prioXml,
+                                     "Node \""
+                                     << nodeId << "\": Priority element contains out-of-range integer");
   }
 
-  static void checkAssignment(std::string const &nodeId, xml_node const nodeXml)
+  // Check pass
+  void checkAssignmentBody(char const *nodeId, xml_node const assnXml)
     throw (ParserException)
   {
-    xml_node const assn = nodeXml.child(BODY_TAG).first_child();
-    checkTag(ASSN_TAG, assn);
+    checkTag(ASSN_TAG, assnXml);
 
-    xml_node const varXml = assn.first_child();
+    xml_node const varXml = assnXml.first_child();
+    checkParserExceptionWithLocation(varXml,
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Malformed Assignment element");
+
+    checkParserExceptionWithLocation(testTagSuffix(VAR_SUFFIX, varXml)
+                                     || testTag(ARRAYELEMENT_TAG, varXml),
+                                     varXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": invalid left hand side for Assignment");
+    ValueType lht = checkExpression(nodeId, varXml);
+
     xml_node const rhsXml = varXml.next_sibling();
     checkParserExceptionWithLocation(rhsXml,
-                                     assn,
-                                     "Assignment Node " << nodeId
-                                     << ": Malformed Assignment element");
-    checkTagSuffix(RHS_TAG, rhsXml);
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Malformed Assignment element");
+    checkParserExceptionWithLocation(testTagSuffix(RHS_TAG, rhsXml),
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Invalid right hand side for Assignment");
+    ValueType rht = checkExpression(nodeId, rhsXml.first_child());
+
+    // Check type consistency between variable (or array elt) and RHS expression
+    checkParserExceptionWithLocation(areTypesCompatible(lht, rht),
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Type error; variable has type " << valueTypeName(lht)
+                                     << " but right hand side has type " << valueTypeName(rht));
   }
 
-  // First pass
+  // Second pass
+  static void parsePriority(AssignmentNode *anode, xml_node const nodeXml)
+  {
+    xml_node const prio = nodeXml.child(PRIORITY_TAG);
+    if (prio)
+      anode->setPriority((int32_t) strtoul(prio.child_value(), NULL, 10));
+  }
+
+  // Second pass
   void constructAssignment(AssignmentNode *anode, xml_node const xml)
     throw (ParserException)
   {
     assertTrue_1(anode);
-
-    // Can throw ParserException
-    checkAssignment(anode->getNodeId(), xml);
     parsePriority(anode, xml);
-    
+
     // Just construct it, will be populated in second pass
     anode->setAssignment(new Assignment(anode->getNodeId()));
   }
 
-  // Second pass
+  // Third pass
   void finalizeAssignment(AssignmentNode *anode, xml_node const assn)
     throw (ParserException)
   {
@@ -129,11 +156,9 @@ namespace PLEXIL
       if (rhsGarbage)
         delete rhs;
       reportParserExceptionWithLocation(assn,
-                                        "Assignment Node " << anode->getNodeId()
-                                        << ": RHS expression type "
-                                        << valueTypeName(rhsType)
-                                        << " incompatible with variable of type "
-                                        << valueTypeName(varType));
+                                        "Assignment Node \"" << anode->getNodeId()
+                                        << "\": Type error; variable has type " << valueTypeName(varType)
+                                        << " but right hand side has type " << valueTypeName(rhsType));
     }
     assign->setVariable(var, varGarbage);
     assign->setExpression(rhs, rhsGarbage);

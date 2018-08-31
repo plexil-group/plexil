@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,10 +51,15 @@ namespace PLEXIL
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated,
-                         ValueType returnType) const = 0;
+                         ValueType returnType) const
+      throw (ParserException)
+    = 0;
 
   private:
     // Default, copy, assign all prohibited
@@ -75,11 +80,15 @@ namespace PLEXIL
     ~ConcreteExpressionFactory()
     {
     }
+    
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated,
-                         ValueType returnType) const;
+                         ValueType returnType) const
+      throw (ParserException);
 
   private:
     // Default, copy, assign all prohibited
@@ -96,14 +105,19 @@ namespace PLEXIL
       : ExpressionFactory(name)
     {
     }
+
     ~ConcreteExpressionFactory()
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
+
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
                                  bool & wasCreated,
-                                 ValueType returnType) const;
+                                 ValueType returnType) const
+      throw (ParserException);
 
   private:
     // Default, copy, assign prohibited
@@ -115,7 +129,8 @@ namespace PLEXIL
   // Special case for ArrayElement as assignment target or InOut alias
   Expression *createMutableArrayReference(pugi::xml_node const expr,
                                           NodeConnector *node,
-                                          bool & wasCreated);
+                                          bool & wasCreated)
+    throw (ParserException);
 
   class VariableReferenceFactory : public ExpressionFactory
   {
@@ -130,10 +145,14 @@ namespace PLEXIL
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const
+      throw (ParserException);
+
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
                                  bool & wasCreated,
-                                 ValueType returnType) const;
+                                 ValueType returnType) const
+      throw (ParserException);
 
   private:
     // Default, copy, assign prohibited

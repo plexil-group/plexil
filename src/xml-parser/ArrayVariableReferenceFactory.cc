@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,17 +43,28 @@ namespace PLEXIL
   {
   }
 
-  Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
-                                                      NodeConnector *node,
-                                                      bool & wasCreated,
-                                                      ValueType /* returnType */) const
+  ValueType ArrayVariableReferenceFactory::check(char const *nodeId, pugi::xml_node expr) const
+      throw (ParserException)
   {
-    assertTrue_1(node); // internal error
     checkNotEmpty(expr);
     char const *varName = expr.child_value();
     checkParserExceptionWithLocation(*varName,
                                      expr,
-                                     "Empty or malformed " << expr.name() << " element");
+                                     "Node \"" << nodeId
+                                     << "\": Empty or malformed " << expr.name() << " element");
+
+    // TODO: determine type from context
+    return UNKNOWN_TYPE;
+  }
+
+  Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
+                                                      NodeConnector *node,
+                                                      bool & wasCreated,
+                                                      ValueType /* returnType */) const
+    throw (ParserException)
+  {
+    assertTrue_1(node); // internal error
+    char const *varName = expr.child_value();
     Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,

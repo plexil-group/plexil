@@ -230,6 +230,49 @@ namespace PLEXIL
     return true;
   }
 
+
+  char const *typeNameAsValue(ValueType ty)
+  {
+    switch (ty) {
+      // Scalar types
+    case BOOLEAN_TYPE:
+      return BOOLEAN_VAL_TAG;
+
+    case INTEGER_TYPE:
+      return INTEGER_VAL_TAG;
+
+    case REAL_TYPE:
+      return REAL_VAL_TAG;
+      
+    case STRING_TYPE:
+      return STRING_VAL_TAG;
+
+    case DATE_TYPE:
+      return DATE_VAL_TAG;
+
+    case DURATION_TYPE:
+      return DURATION_VAL_TAG;
+
+      // Internal types
+    case NODE_STATE_TYPE:
+      return NODE_STATE_VAL_TAG;
+
+    case OUTCOME_TYPE:
+      return NODE_OUTCOME_VAL_TAG;
+
+    case FAILURE_TYPE:
+      return NODE_FAILURE_VAL_TAG;
+
+    case COMMAND_HANDLE_TYPE:
+      return NODE_COMMAND_HANDLE_VAL_TAG;
+
+      // Array types not yet implemented
+
+    default:
+      return "";
+    }
+  }
+  
   static bool findSourceLocation(xml_node here, char const *&filename, int &line, int &col)
   {
     // File name is now only on PlexilPlan node

@@ -320,10 +320,10 @@ int ExecTestRunner::run(int argc, char** argv)
     if (fname.rfind(".plx") == std::string::npos)
       fname += ".plx";
     
-    pugi::xml_node libraryNode;
+    Library const *l;
     try {
-      libraryNode = loadLibraryNode(fname.c_str());
-      if (!libraryNode) {
+      l = loadLibraryNode(fname.c_str());
+      if (!l) {
         warn("Unable to find file for library " << *libraryName);
         delete g_exec;
         g_exec = NULL;

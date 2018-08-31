@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,18 +44,36 @@ namespace PLEXIL
   {
   }
 
+  ValueType FunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
+    throw (ParserException)
+  {
+    size_t n = std::distance(expr.begin(), expr.end());
+    Operator const *oper = this->getOperator();
+    assertTrueMsg(oper, "FunctionFactory::check: no operator for " << m_name);
+    checkParserExceptionWithLocation(oper->checkArgCount(n),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Wrong number of operands for operator "
+                                     << oper->getName());
+
+    // Check arguments
+    // TODO: check types
+    for (pugi::xml_node subexp = expr.first_child();
+         subexp;
+         subexp = subexp.next_sibling())
+      checkExpression(nodeId, subexp);
+
+    return oper->valueType();
+  }
+
   Expression *FunctionFactory::allocate(pugi::xml_node const expr,
                                         NodeConnector *node,
                                         bool &wasCreated,
                                         ValueType returnType) const
+    throw (ParserException)
   {
     size_t n = std::distance(expr.begin(), expr.end());
     Operator const *oper = this->getOperator();
-    checkParserExceptionWithLocation(oper->checkArgCount(n),
-                                     expr,
-                                     "Wrong number of operands for operator "
-                                     << oper->getName());
-
     Function *result = makeFunction(oper, n);
     try {
       size_t i = 0;

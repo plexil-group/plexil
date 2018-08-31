@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,20 @@ namespace pugi
 namespace PLEXIL
 {
   class Node;
+  class SymbolTable;
 
   extern unsigned int const PUGI_PARSE_OPTIONS;
 
   extern pugi::xml_document *loadXmlFile(std::string const &filename)
+    throw (ParserException);
+
+  extern SymbolTable *checkPlan(pugi::xml_node const xml)
+    throw (ParserException);
+
+  /**
+   * Constructs but does not finalize the node (for library calls).
+   */
+  extern Node *constructPlan(pugi::xml_node const xml, SymbolTable *symtab, Node *parent)
     throw (ParserException);
 
   extern Node *parsePlan(pugi::xml_node const xml)

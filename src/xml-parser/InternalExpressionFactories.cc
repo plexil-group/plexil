@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -154,6 +154,7 @@ namespace PLEXIL
                                                                  NodeConnector *node,
                                                                  bool &wasCreated,
                                                                  ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkHasChildElement(expr);
     Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
@@ -165,6 +166,7 @@ namespace PLEXIL
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkHasChildElement(expr);
     Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
@@ -176,6 +178,7 @@ namespace PLEXIL
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkHasChildElement(expr);
     Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
@@ -187,6 +190,7 @@ namespace PLEXIL
                                                                          NodeConnector *node,
                                                                          bool &wasCreated,
                                                                          ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkHasChildElement(expr);
     pugi::xml_node nodeRef = expr.first_child();
@@ -207,6 +211,7 @@ namespace PLEXIL
                                                                       NodeConnector *node,
                                                                       bool &wasCreated,
                                                                       ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkHasChildElement(expr);
     pugi::xml_node nodeRef = expr.first_child();
@@ -252,6 +257,7 @@ namespace PLEXIL
                                                                           NodeConnector *node,
                                                                           bool &wasCreated,
                                                                           ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkNotEmpty(expr);
     wasCreated = false;
@@ -289,6 +295,7 @@ namespace PLEXIL
                                                                             NodeConnector *node,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkNotEmpty(expr);
     wasCreated = false;
@@ -317,6 +324,7 @@ namespace PLEXIL
                                                                             NodeConnector *node,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkNotEmpty(expr);
     wasCreated = false;
@@ -351,6 +359,7 @@ namespace PLEXIL
                                                                               NodeConnector *node,
                                                                               bool &wasCreated,
                                                                               ValueType /* returnType */) const
+    throw (ParserException)
   {
     checkNotEmpty(expr);
     wasCreated = false;

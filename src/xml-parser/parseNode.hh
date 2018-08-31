@@ -28,6 +28,7 @@
 #define PLEXIL_PARSE_NODE_HH
 
 #include "ParserException.hh"
+#include "PlexilNodeType.hh"
 
 namespace pugi
 {
@@ -39,12 +40,21 @@ namespace PLEXIL
   class Node;
 
   /**
-   * @brief Parse the node and all its children from the given XML DOM.
+   * @brief Check the node's XML before taking any action
+   * @param xml The DOM representation of the node's XML.
+   * @note Throws ParserException in the event of a parse error.
+   */
+  extern void checkNode(pugi::xml_node const xml)
+    throw (ParserException);
+
+  /**
+   * @brief Construct the node and all its children from the given XML DOM.
    * @param xml The DOM representation of the node's XML.
    * @param parent The node which is the parent of the returned value.
    * @return The node represented by the XML, with all its children and variables populated.
+   * @note Presumes that checkNode() has already been called.
    */
-  extern Node *parseNode(pugi::xml_node const xml, Node *parent)
+  extern Node *constructNode(pugi::xml_node const xml, Node *parent)
     throw (ParserException);
 
   /**

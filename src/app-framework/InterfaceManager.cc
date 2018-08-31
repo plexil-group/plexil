@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -656,16 +656,8 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:handleAddPlan", " entered");
 
-    // check that the plan actually *has* a Node element!
-    // Assumes we are starting from the PlexilPlan element.
-    checkParserException(planXml && planXml.child(NODE_TAG),
-                         "Plan is empty or malformed");
-    checkParserExceptionWithLocation(testTag(PLEXIL_PLAN_TAG, planXml),
-                                     planXml,
-                                     "Not a PLEXIL Plan");
-
     // parse the plan
-    Node *root = parsePlan(planXml); // can also throw ParserException
+    Node *root = parsePlan(planXml); // can throw ParserException
 
     assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();
@@ -681,34 +673,29 @@ namespace PLEXIL
   /**
    * @brief Notify the executive of a new library node.
    * @param doc The XML document containing the library node.
+   * @return True if successful, false otherwise.
    */
-  void
+  bool
   InterfaceManager::handleAddLibrary(pugi::xml_document *doc)
-    throw (ParserException)
   {
     assertTrue_1(m_inputQueue);
     checkError(doc,
                "InterfaceManager::handleAddLibrary: Null plan document");
 
-    // Parse just far enough to extract name
-    pugi::xml_node plan = doc->document_element();
-    pugi::xml_node node;
-    checkParserExceptionWithLocation(testTag(PLEXIL_PLAN_TAG, plan)
-                                     && (node = plan.child(NODE_TAG)),
-                                     plan,
-                                     "handleAddLibrary: Input is not a PLEXIL plan");
-    pugi::xml_node nodeIdElt = node.child(NODEID_TAG);
-    checkParserExceptionWithLocation(nodeIdElt,
-                                     node,
-                                     "handleAddLibrary: Root node lacks " << NODEID_TAG << " element");
-    const char *name = nodeIdElt.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nodeIdElt,
-                                     "handleAddLibrary: " << NODEID_TAG << " element is empty");
-    addLibraryNode(name, doc);
-    if (g_configuration->getListenerHub())
-      g_configuration->getListenerHub()->notifyOfAddLibrary(node);
-    debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
+    // Hand off to librarian
+    Library const *l = loadLibraryDocument(doc);
+    if (l) {
+      pugi::xml_node const node = l->doc->document_element().child(NODE_TAG);
+      char const *name = node.child_value(NODEID_TAG);
+      if (g_configuration->getListenerHub())
+        g_configuration->getListenerHub()->notifyOfAddLibrary(node);
+      debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
+      return true;
+    }
+    else {
+      debugMsg("InterfaceManager:handleAddLibrary", " failed");
+      return false;
+    }
   }
 
   /**
@@ -718,13 +705,11 @@ namespace PLEXIL
    */
   bool
   InterfaceManager::handleLoadLibrary(std::string const &libName)
-      throw (ParserException) 
   {
     if (loadLibraryNode(libName.c_str()))
       return true;
-    return getLibraryNode(libName.c_str(), false);
+    return PLEXIL::isLibraryLoaded(libName.c_str());
   }
-
 
   /**
    * @brief Determine whether the named library is loaded.
@@ -733,7 +718,7 @@ namespace PLEXIL
   bool
   InterfaceManager::isLibraryLoaded(const std::string &libName) const
   {
-    return getLibraryNode(libName.c_str(), false);
+    return PLEXIL::isLibraryLoaded(libName.c_str());
   }
 
   /**

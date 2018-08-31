@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,8 @@
 
 #include <cstring>
 
+using pugi::xml_node;
+
 namespace PLEXIL
 {
 
@@ -75,7 +77,49 @@ namespace PLEXIL
   {
   }
 
-  Expression *createExpression(pugi::xml_node const expr,
+  // Default method
+  ValueType ExpressionFactory::check(char const *nodeId, xml_node const expr) const
+      throw (ParserException)
+  {
+    return UNKNOWN_TYPE;
+  }
+
+  ValueType checkExpression(char const *nodeId, xml_node const expr)
+    throw (ParserException)
+  {
+    char const *name = expr.name();
+    checkParserExceptionWithLocation(*name,
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Expression is not an XML element");
+    // Delegate to factory
+    debugMsg("createExpression", " name = " << name);
+    ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
+    checkParserExceptionWithLocation(it != s_expressionFactoryMap.end(),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Unknown expression \"" << name << "\".");
+
+    return it->second->check(nodeId, expr);
+  }
+
+  ValueType checkAssignable(char const *nodeId, xml_node const expr)
+    throw (ParserException)
+  {
+    char const *name = expr.name();
+    checkParserExceptionWithLocation(*name,
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Expression is not an XML element");
+    checkParserExceptionWithLocation(testSuffix(VAR_SUFFIX, name)
+                                     || !strcmp(ARRAYELEMENT_TAG, name),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Expression is not a legal Assignment, Command, or InOut alias target");
+    return checkExpression(nodeId, expr);
+  }
+  
+  Expression *createExpression(xml_node const expr,
                                NodeConnector *node)
     throw (ParserException)
   {
@@ -83,19 +127,22 @@ namespace PLEXIL
     return createExpression(expr, node, dummy, UNKNOWN_TYPE);
   }
 
-  Expression *createExpression(pugi::xml_node const expr,
+  Expression *createExpression(xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated,
                                ValueType returnType)
     throw (ParserException)
   {
     char const *name = expr.name();
-    checkParserException(*name, "createExpression: Not an XML element");
+    checkParserExceptionWithLocation(*name, 
+                                     expr.parent(),
+                                     "createExpression: Not an XML element");
     // Delegate to factory
     debugMsg("createExpression", " name = " << name);
     ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
-    checkParserException(it != s_expressionFactoryMap.end(),
-                         "createExpression: No factory registered for name \"" << name << "\".");
+    // Should have been caught in checkExpression()
+    assertTrueMsg(it != s_expressionFactoryMap.end(),
+                  "createExpression: No factory registered for name \"" << name << "\".");
 
     Expression *retval = it->second->allocate(expr, node, wasCreated, returnType);
     debugMsg("createExpression",
@@ -107,14 +154,15 @@ namespace PLEXIL
   // createAssignable
   //
 
-  Expression *createAssignable(pugi::xml_node const expr,
+  Expression *createAssignable(xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
   {
     assertTrue_2(node, "createAssignable: Internal error: Null node argument");
     char const *name = expr.name();
-    checkParserException(*name, "createAssignable: Not an XML element");
+    // Should have been caught in checkAssignable()
+    assertTrueMsg(*name, "createAssignable: Not an XML element");
     Expression *resultExpr = NULL;
     if (testSuffix(VAR_SUFFIX, name))
       resultExpr = createExpression(expr, node, wasCreated);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,15 +43,14 @@ extern bool lookupXmlParserTest();
 extern bool updateXmlParserTest();
 extern bool nodeXmlParserTest();
 
-using PLEXIL::g_symbolTable;
-
 void runTests()
 {
   // Initialize factories
   PLEXIL::initializeExpressions();
 
   // Construct symbol table
-  g_symbolTable = PLEXIL::makeSymbolTable();
+  PLEXIL::SymbolTable *symtab = PLEXIL::makeSymbolTable();
+  PLEXIL::pushSymbolTable(symtab); 
 
   // Initialize infrastructure
   PLEXIL::PlanError::doThrowExceptions();
@@ -71,8 +70,8 @@ void runTests()
   runTestSuite(nodeXmlParserTest);
 
   // Clean up
-  delete g_symbolTable;
-  g_symbolTable = NULL;
+  PLEXIL::popSymbolTable();
+  delete symtab;
 
   plexilRunFinalizers();
 

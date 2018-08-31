@@ -42,11 +42,120 @@ using pugi::xml_node;
 
 namespace PLEXIL
 {
+
   // First pass
-  
-  // Entry point for unit test; see wrapper below for parser
-  
-  Command *constructCommand(NodeConnector *node, xml_node const cmdXml)
+  static void checkResource(char const *nodeId, xml_node const resourceElt)
+    throw (ParserException)
+  {
+    checkTag(RESOURCE_TAG, resourceElt);
+    xml_node nameXml, prioXml;
+
+    // check the fields
+    for (xml_node rtemp = resourceElt.first_child();
+         rtemp;
+         rtemp = rtemp.next_sibling()) {
+      char const* tag = rtemp.name();
+      size_t taglen = strlen(tag);
+      xml_node lowerBoundXml, upperBoundXml, releaseAtTermXml;
+      switch (taglen) {
+      case 12: // ResourceName
+        checkParserExceptionWithLocation(!strcmp(RESOURCE_NAME_TAG, tag),
+                                         rtemp,
+                                         "Invalid " << tag << " element in Command Resource");
+        checkParserExceptionWithLocation(!nameXml,
+                                         rtemp,
+                                         "Duplicate " << RESOURCE_NAME_TAG
+                                         << " element in Command Resource");
+        nameXml = rtemp;
+        break;
+
+      case 16: // ResourcePriority
+        checkParserExceptionWithLocation(!strcmp(RESOURCE_PRIORITY_TAG, tag),
+                                         rtemp,
+                                         "Invalid " << tag << " element in Command Resource");
+        checkParserExceptionWithLocation(!prioXml,
+                                         rtemp,
+                                         "Duplicate " << RESOURCE_PRIORITY_TAG << " element in Command Resource");
+        prioXml = rtemp;
+        break;
+
+      case 18: // ResourceLowerBound, ResourceUpperBound
+        if (!strcmp(RESOURCE_LOWER_BOUND_TAG, tag)) {
+          checkParserExceptionWithLocation(!lowerBoundXml,
+                                           rtemp,
+                                           "Duplicate " << RESOURCE_LOWER_BOUND_TAG << " element in Command Resource");
+          lowerBoundXml = rtemp;
+        }
+        else {
+          checkParserExceptionWithLocation(!strcmp(RESOURCE_UPPER_BOUND_TAG, tag),
+                                           rtemp,
+                                           "Invalid " << tag << " element in Command Resource");
+          checkParserExceptionWithLocation(!upperBoundXml,
+                                           rtemp,
+                                           "Duplicate " << RESOURCE_UPPER_BOUND_TAG << " element in Command Resource");
+          upperBoundXml = rtemp;
+        }
+        break;
+
+      default:
+        checkParserExceptionWithLocation(0 == strcmp(RESOURCE_RELEASE_AT_TERMINATION_TAG, tag),
+                                         rtemp,
+                                         "Invalid " << tag << " element in Command Resource");
+        checkParserExceptionWithLocation(!releaseAtTermXml,
+                                         rtemp,
+                                         "Duplicate " << RESOURCE_RELEASE_AT_TERMINATION_TAG << " element in Command Resource");
+        releaseAtTermXml = rtemp;
+        break;
+      }
+    }
+        
+    // Check that name and priority were supplied
+    checkParserExceptionWithLocation(nameXml,
+                                     resourceElt,
+                                     "Node \"" << nodeId
+                                     << "\": No " << RESOURCE_NAME_TAG << " element for resource");
+    checkParserExceptionWithLocation(prioXml,
+                                     resourceElt,
+                                     "Node \"" << nodeId
+                                     << "\": No " << RESOURCE_PRIORITY_TAG << " element for resource");
+  }
+
+  // First pass
+  static void checkResourceList(char const *nodeId, xml_node const resourceXml)
+    throw (ParserException)
+  {
+    // Process resource list
+    for (xml_node resourceElt = resourceXml.first_child(); 
+         resourceElt;
+         resourceElt = resourceElt.next_sibling())
+      checkResource(nodeId, resourceElt);
+
+    // Check for duplicate names
+    for (xml_node resourceElt = resourceXml.first_child(); 
+         resourceElt;
+         resourceElt = resourceElt.next_sibling()) {
+      xml_node rnameXml = resourceElt.child(RESOURCE_NAME_TAG).first_child(); 
+      // Can only check if constant string supplied
+      if (testTag(STRING_VAL_TAG, rnameXml)) {
+        char const *rname = rnameXml.child_value();
+        xml_node temp = resourceElt.next_sibling();
+        while (temp) {
+          xml_node tnameXml = temp.child(RESOURCE_NAME_TAG).first_child();
+          // Can only check if constant string supplied
+          if (testTag(STRING_VAL_TAG, tnameXml)) {
+            checkParserExceptionWithLocation(strcmp(rname, tnameXml.child_value()),
+                                             temp,
+                                             "Node \"" << nodeId
+                                             << "\": Duplicate resource name \"" << rname << '"');
+          }
+          temp = temp.next_sibling();
+        }
+      }
+    }
+  }
+
+  // First pass: XML checks
+  void checkCommandBody(char const *nodeId, pugi::xml_node const cmdXml)
     throw (ParserException)
   {
     checkHasChildElement(cmdXml);
@@ -54,21 +163,7 @@ namespace PLEXIL
 
     // Optional ResourceList
     if (testTag(RESOURCE_LIST_TAG, temp)) {
-      // Process resource list
-      for (xml_node resourceElt = temp.first_child(); 
-           resourceElt;
-           resourceElt = resourceElt.next_sibling()) {
-        checkTag(RESOURCE_TAG, resourceElt);
-        // check that the resource has a name and a priority
-        checkParserExceptionWithLocation(resourceElt.child(RESOURCE_NAME_TAG),
-                                         resourceElt,
-                                         "No " << RESOURCE_NAME_TAG << " element for resource");
-        checkParserExceptionWithLocation(resourceElt.child(RESOURCE_PRIORITY_TAG),
-                                         resourceElt,
-                                         "No " << RESOURCE_PRIORITY_TAG << " element for resource");
-        // save rest for 2nd pass
-      }
-
+      checkResourceList(nodeId, temp);
       temp = temp.next_sibling();
     }
 
@@ -86,20 +181,9 @@ namespace PLEXIL
     temp = temp.next_sibling();
     if (temp)
       checkTag(ARGS_TAG, temp);
-
-    Command *result = new Command(node->getNodeId());
-    return result;
   }
 
-  // Entry point from parser
-
-  void constructAndSetCommand(CommandNode *node, xml_node const cmdXml)
-    throw (ParserException)
-  {
-    assertTrue_1(node);
-    node->setCommand(constructCommand(node, cmdXml));
-  }
-
+  // Pass 3
   static void finalizeResourceList(NodeConnector *node,
                                    Command *cmd,
                                    xml_node const rlist)
@@ -124,12 +208,8 @@ namespace PLEXIL
           Expression *exp = NULL;
           switch (taglen) {
           case 12: // ResourceName
-            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_NAME_TAG, tag),
-                                             rtemp,
-                                             "Invalid " << tag << " element in Command Resource");
-            checkParserExceptionWithLocation(rspec.nameExp == NULL,
-                                             rtemp,
-                                             "Duplicate " << RESOURCE_NAME_TAG << " element in Command Resource");
+            assertTrueMsg(!strcmp(RESOURCE_NAME_TAG, tag),
+                          "finalizeResourceList: unexpected tag \"" << tag << '"');
             exp = createExpression(rtemp.first_child(), node, isGarbage);
             checkParserExceptionWithLocation(exp->valueType() == STRING_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
@@ -138,12 +218,8 @@ namespace PLEXIL
             break;
 
           case 16: // ResourcePriority
-            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_PRIORITY_TAG, tag),
-                                             rtemp,
-                                             "Invalid " << tag << " element in Command Resource");
-            checkParserExceptionWithLocation(rspec.priorityExp == NULL,
-                                             rtemp,
-                                             "Duplicate " << RESOURCE_PRIORITY_TAG << " element in Command Resource");
+            assertTrueMsg(!strcmp(RESOURCE_PRIORITY_TAG, tag),
+                          "finalizeResourceList: unexpected tag \"" << tag << '"');
             exp = createExpression(rtemp.first_child(), node, isGarbage);
             checkParserExceptionWithLocation(exp->valueType() == INTEGER_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
@@ -152,38 +228,29 @@ namespace PLEXIL
             break;
 
           case 18: // ResourceLowerBound, ResourceUpperBound
-            if (0 == strcmp(RESOURCE_LOWER_BOUND_TAG, tag)) {
-              checkParserExceptionWithLocation(rspec.lowerBoundExp == NULL,
-                                               rtemp,
-                                               "Duplicate " << RESOURCE_LOWER_BOUND_TAG << " element in Command Resource");
+            if (!strcmp(RESOURCE_LOWER_BOUND_TAG, tag)) {
               exp = createExpression(rtemp.first_child(), node, isGarbage);
               checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
                                                rtemp.first_child(),
                                                RESOURCE_LOWER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
               rspec.setLowerBoundExpression(exp, isGarbage);
             }
-            else {
-              checkParserExceptionWithLocation(0 == strcmp(RESOURCE_UPPER_BOUND_TAG, tag),
-                                               rtemp,
-                                               "Invalid " << tag << " element in Command Resource");
-              checkParserExceptionWithLocation(rspec.upperBoundExp == NULL,
-                                               rtemp,
-                                               "Duplicate " << RESOURCE_UPPER_BOUND_TAG << " element in Command Resource");
+            else if (!strcmp(RESOURCE_UPPER_BOUND_TAG, tag)) {
               exp = createExpression(rtemp.first_child(), node, isGarbage);
               checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
                                                rtemp.first_child(),
                                                RESOURCE_UPPER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
               rspec.setUpperBoundExpression(exp, isGarbage);
             }
+            else {
+              assertTrueMsg(ALWAYS_FAIL,
+                            "finalizeResourceList: unexpected tag \"" << tag << '"');
+            }
             break;
 
           default:
-            checkParserExceptionWithLocation(0 == strcmp(RESOURCE_RELEASE_AT_TERMINATION_TAG, tag),
-                                             rtemp,
-                                             "Invalid " << tag << " element in Command Resource");
-            checkParserExceptionWithLocation(rspec.releaseAtTermExp == NULL,
-                                             rtemp,
-                                             "Duplicate " << RESOURCE_RELEASE_AT_TERMINATION_TAG << " element in Command Resource");
+            assertTrueMsg(!strcmp(RESOURCE_RELEASE_AT_TERMINATION_TAG, tag),
+                          "finalizeResourceList: unexpected tag \"" << tag << '"');
             exp = createExpression(rtemp.first_child(), node, isGarbage);
             checkParserExceptionWithLocation(exp->valueType() == BOOLEAN_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
@@ -202,8 +269,7 @@ namespace PLEXIL
     cmd->setResourceList(resources);
   }
 
-  // Entry point from unit test and wrapper below
-
+  // Pass 3
   void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const cmdXml)
     throw (ParserException)
   {
@@ -245,7 +311,7 @@ namespace PLEXIL
     Symbol const *cmdSym = NULL;
     if (nameExpr->isConstant() && nameType == STRING_TYPE) {
       std::string cmdName = nameExpr->valueString();
-      cmdSym = g_symbolTable->getCommand(cmdName.c_str());
+      cmdSym = getCommandSymbol(cmdName.c_str());
     }
 
     if (cmdSym && dest) {
@@ -302,13 +368,5 @@ namespace PLEXIL
     }
   }
 
-  // Entry point from parser
-
-  void finalizeCommandNode(CommandNode *node, xml_node const cmdXml)
-    throw (ParserException)
-  {
-    assertTrue_1(node);
-    finalizeCommand(node->getCommand(), node, cmdXml);
-  }
 
 } // namespace PLEXIL

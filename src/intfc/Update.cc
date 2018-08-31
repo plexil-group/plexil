@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -91,23 +91,15 @@ namespace PLEXIL
     m_valuePairs.grow(n);
   }
 
-  bool Update::addPair(std::string const &name, Expression *exp, bool garbage)
+  // Push on the front of the linked list
+  void Update::addPair(std::string const &name, Expression *exp, bool garbage)
   {
     check_error_1(exp);
 
     debugMsg("Update:addPair", " name = \"" << name << "\", exp = " << *exp);
-    Pair **tmp = &m_pairs;
-    // Search to end of list for duplicate name
-    while (*tmp) {
-      if ((*tmp)->name == name)
-        return false;
-      tmp = &((*tmp)->next);
-    }
-
-    // tmp should now be pointing at last pointer in list
-    // (could be m_pairs)
-    *tmp = new Pair(name, exp, garbage);
-    return true;
+    Pair *tmp = new Pair(name, exp, garbage);
+    tmp->next = m_pairs;
+    m_pairs = tmp;
   }
 
   void Update::fixValues()

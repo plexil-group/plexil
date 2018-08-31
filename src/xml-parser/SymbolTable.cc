@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,10 @@
 */
 
 #include "SymbolTable.hh"
+
+#include "Debug.hh"
+
+#include <stack>
 
 namespace PLEXIL
 {
@@ -323,6 +327,54 @@ namespace PLEXIL
     return new SymbolTableImpl();
   }
 
-  SymbolTable *g_symbolTable = NULL;
-  
+  static std::stack<SymbolTable *> s_symtabStack;
+
+  static SymbolTable *s_symbolTable = NULL;
+
+  void pushSymbolTable(SymbolTable *s)
+  {
+    debugMsg("pushSymbolTable", ' ' << s);
+    if (s_symbolTable)
+      s_symtabStack.push(s_symbolTable);
+    s_symbolTable = s;
+  }
+
+  void popSymbolTable()
+  {
+    debugMsg("popSymbolTable", ' ' << s_symbolTable);
+    if (s_symtabStack.empty()) {
+      // Back at top level
+      s_symbolTable = NULL;
+      return;
+    }
+    else {
+      s_symbolTable = s_symtabStack.top();
+      s_symtabStack.pop();
+    }
+  }
+
+  extern Symbol const *getLookupSymbol(char const *name)
+  {
+    if (s_symbolTable)
+      return s_symbolTable->getLookup(name);
+    else
+      return NULL;
+  }
+
+  extern Symbol const *getCommandSymbol(char const *name)
+  {
+    if (s_symbolTable)
+      return s_symbolTable->getCommand(name);
+    else
+      return NULL;
+  }
+
+  extern LibraryNodeSymbol const *getLibraryNodeSymbol(char const *name)
+  {
+    if (s_symbolTable)
+      return s_symbolTable->getLibraryNode(name);
+    else
+      return NULL;
+  }
+
 }

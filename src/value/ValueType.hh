@@ -106,20 +106,20 @@ namespace PLEXIL
   extern char const INTEGER_ARRAY_STR[];
   extern char const REAL_ARRAY_STR[];
   extern char const STRING_ARRAY_STR[];
+
   extern char const STATE_STR[];
   extern char const NODE_STATE_STR[];
   extern char const NODE_OUTCOME_STR[];
   extern char const NODE_FAILURE_STR[];
   extern char const NODE_COMMAND_HANDLE_STR[];
 
+  // Value type tags
   extern char const VAL_SUFFIX[];
 
   extern char const UNKNOWN_STR[];
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
-  // still used by XML parser for array initialization
-  const std::string &typeNameAsValue(ValueType ty);
 
   extern bool isUserType(ValueType ty);
   extern bool isInternalType(ValueType ty);

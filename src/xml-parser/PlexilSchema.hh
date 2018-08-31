@@ -119,8 +119,21 @@ namespace PLEXIL
   extern char const ARRAYELEMENT_TAG[];
   extern char const INDEX_TAG[];
 
-  extern char const ARRAY_VAL_TAG[];
   extern char const VAR_SUFFIX[];
+
+  // Type literal tags
+  extern char const BOOLEAN_VAL_TAG[];
+  extern char const INTEGER_VAL_TAG[];
+  extern char const REAL_VAL_TAG[];
+  extern char const DATE_VAL_TAG[];
+  extern char const DURATION_VAL_TAG[];
+  extern char const STRING_VAL_TAG[];
+  extern char const NODE_STATE_VAL_TAG[];
+  extern char const NODE_OUTCOME_VAL_TAG[];
+  extern char const NODE_FAILURE_VAL_TAG[];
+  extern char const NODE_COMMAND_HANDLE_VAL_TAG[];
+
+  extern char const ARRAY_VAL_TAG[];
 
 } // namespace PLEXIL
 

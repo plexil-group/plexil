@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,15 @@ static bool emptyNodeXmlParserTest()
 
   {
     xml_node minimal = makeNode(*doc, "minimal", "Empty");
-    Node *minimalNode = parseNode(minimal, NULL);
+    Node *minimalNode = NULL;
+    
+    try {
+      checkNode(minimal);
+      minimalNode = constructNode(minimal, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(minimalNode);
     assertTrue_1(minimalNode->getType() == NodeType_Empty);
     assertTrue_1(minimalNode->getChildren().empty());
@@ -114,7 +122,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node comment = makeNode(*doc, "comment", "Empty");
     makePcdataElement(comment, "Comment", "This is a comment");
-    Node *commentNode = parseNode(comment, NULL);
+    Node *commentNode = NULL;
+
+    try {
+      checkNode(comment);
+      commentNode = constructNode(comment, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(commentNode);
     assertTrue_1(commentNode->getType() == NodeType_Empty);
     assertTrue_1(commentNode->getChildren().empty());
@@ -130,8 +146,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node preCond = makeNode(*doc, "preCond", "Empty");
     makePcdataElement(preCond.append_child("PreCondition"), "BooleanValue", "true");
+    Node *preCondNode = NULL;
 
-    Node *preCondNode = parseNode(preCond, NULL);
+    try {
+      checkNode(preCond);
+      preCondNode = constructNode(preCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(preCondNode);
     assertTrue_1(preCondNode->getType() == NodeType_Empty);
     assertTrue_1(preCondNode->getChildren().empty());
@@ -150,8 +173,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node endCond = makeNode(*doc, "endCond", "Empty");
     makePcdataElement(endCond.append_child("EndCondition"), "BooleanValue", "true");
+    Node *endCondNode = NULL;
 
-    Node *endCondNode = parseNode(endCond, NULL);
+    try {
+      checkNode(endCond);
+      endCondNode = constructNode(endCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(endCondNode);
     assertTrue_1(endCondNode->getType() == NodeType_Empty);
     assertTrue_1(endCondNode->getChildren().empty());
@@ -170,8 +200,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node exitCond = makeNode(*doc, "exitCond", "Empty");
     makePcdataElement(exitCond.append_child("ExitCondition"), "BooleanValue", "true");
+    Node *exitCondNode = NULL;
 
-    Node *exitCondNode = parseNode(exitCond, NULL);
+    try {
+      checkNode(exitCond);
+      exitCondNode = constructNode(exitCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(exitCondNode);
     assertTrue_1(exitCondNode->getType() == NodeType_Empty);
     assertTrue_1(exitCondNode->getChildren().empty());
@@ -190,8 +227,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node postCond = makeNode(*doc, "postCond", "Empty");
     makePcdataElement(postCond.append_child("PostCondition"), "BooleanValue", "true");
+    Node *postCondNode = NULL;
 
-    Node *postCondNode = parseNode(postCond, NULL);
+    try {
+      checkNode(postCond);
+      postCondNode = constructNode(postCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(postCondNode);
     assertTrue_1(postCondNode->getType() == NodeType_Empty);
     assertTrue_1(postCondNode->getChildren().empty());
@@ -210,8 +254,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node skipCond = makeNode(*doc, "skipCond", "Empty");
     makePcdataElement(skipCond.append_child("SkipCondition"), "BooleanValue", "true");
+    Node *skipCondNode = NULL;
 
-    Node *skipCondNode = parseNode(skipCond, NULL);
+    try {
+      checkNode(skipCond);
+      skipCondNode = constructNode(skipCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(skipCondNode);
     assertTrue_1(skipCondNode->getType() == NodeType_Empty);
     assertTrue_1(skipCondNode->getChildren().empty());
@@ -230,8 +281,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node startCond = makeNode(*doc, "startCond", "Empty");
     makePcdataElement(startCond.append_child("StartCondition"), "BooleanValue", "true");
-
-    Node *startCondNode = parseNode(startCond, NULL);
+    Node *startCondNode = NULL;
+    
+    try {
+      checkNode(startCond);
+      startCondNode = constructNode(startCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(startCondNode);
     assertTrue_1(startCondNode->getType() == NodeType_Empty);
     assertTrue_1(startCondNode->getChildren().empty());
@@ -250,8 +308,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node repeatCond = makeNode(*doc, "repeatCond", "Empty");
     makePcdataElement(repeatCond.append_child("RepeatCondition"), "BooleanValue", "true");
+    Node *repeatCondNode = NULL;
 
-    Node *repeatCondNode = parseNode(repeatCond, NULL);
+    try {
+      checkNode(repeatCond);
+      repeatCondNode = constructNode(repeatCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(repeatCondNode);
     assertTrue_1(repeatCondNode->getType() == NodeType_Empty);
     assertTrue_1(repeatCondNode->getChildren().empty());
@@ -270,8 +335,15 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node invariantCond = makeNode(*doc, "invariantCond", "Empty");
     makePcdataElement(invariantCond.append_child("InvariantCondition"), "BooleanValue", "true");
+    Node *invariantCondNode = NULL;
 
-    Node *invariantCondNode = parseNode(invariantCond, NULL);
+    try {
+      checkNode(invariantCond);
+      invariantCondNode = constructNode(invariantCond, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(invariantCondNode);
     assertTrue_1(invariantCondNode->getType() == NodeType_Empty);
     assertTrue_1(invariantCondNode->getChildren().empty());
@@ -291,8 +363,15 @@ static bool emptyNodeXmlParserTest()
     xml_node simpleVarDecl = makeNode(*doc, "simpleVarDecl", "Empty");
     xml_node decls = simpleVarDecl.append_child("VariableDeclarations");
     makeDeclareVariable(decls, "b", "Boolean");
+    Node *simpleVarDeclNode = NULL;
 
-    Node *simpleVarDeclNode = parseNode(simpleVarDecl, NULL);
+    try {
+      checkNode(simpleVarDecl);
+      simpleVarDeclNode = constructNode(simpleVarDecl, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(simpleVarDeclNode);
     assertTrue_1(simpleVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(simpleVarDeclNode->getChildren().empty());
@@ -316,8 +395,15 @@ static bool emptyNodeXmlParserTest()
     xml_node decls = initedVarDecl.append_child("VariableDeclarations");
     xml_node initedDecl = makeDeclareVariable(decls, "b", "Boolean");
     makePcdataElement(initedDecl.append_child("InitialValue"), "BooleanValue", "false");
+    Node *initedVarDeclNode = NULL;
 
-    Node *initedVarDeclNode = parseNode(initedVarDecl, NULL);
+    try {
+      checkNode(initedVarDecl);
+      initedVarDeclNode = constructNode(initedVarDecl, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(initedVarDeclNode);
     assertTrue_1(initedVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(initedVarDeclNode->getChildren().empty());
@@ -344,8 +430,15 @@ static bool emptyNodeXmlParserTest()
     xml_node simpleArrayVarDecl = makeNode(*doc, "simpleArrayVarDecl", "Empty");
     xml_node decls = simpleArrayVarDecl.append_child("VariableDeclarations");
     xml_node simpleArrayDecl = makeDeclareArray(decls, "ba", "Boolean", "1");
+    Node *simpleArrayVarDeclNode = NULL;
 
-    Node *simpleArrayVarDeclNode = parseNode(simpleArrayVarDecl, NULL);
+    try {
+      checkNode(simpleArrayVarDecl);
+      simpleArrayVarDeclNode = constructNode(simpleArrayVarDecl, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(simpleArrayVarDeclNode);
     assertTrue_1(simpleArrayVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(simpleArrayVarDeclNode->getChildren().empty());
@@ -371,8 +464,15 @@ static bool emptyNodeXmlParserTest()
     xml_node initXml = initedArrayDecl.append_child("InitialValue").append_child("ArrayValue");
     initXml.append_attribute("Type").set_value("Boolean");
     makePcdataElement(initXml, "BooleanValue", "false");
+    Node *initedArrayVarDeclNode = NULL;
 
-    Node *initedArrayVarDeclNode = parseNode(initedArrayVarDecl, NULL);
+    try {
+      checkNode(initedArrayVarDecl);
+      initedArrayVarDeclNode = constructNode(initedArrayVarDecl, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(initedArrayVarDeclNode);
     assertTrue_1(initedArrayVarDeclNode->getType() == NodeType_Empty);
     assertTrue_1(initedArrayVarDeclNode->getChildren().empty());
@@ -412,7 +512,14 @@ static bool listNodeXmlParserTest()
   assertTrue_1(list);
 
   {
-    Node *emptyList = parseNode(basicListXml, NULL);
+    Node *emptyList = NULL;
+    try {
+      checkNode(basicListXml);
+      emptyList = constructNode(basicListXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(emptyList);
     assertTrue_1(emptyList->getType() == NodeType_NodeList);
     assertTrue_1(emptyList->getNodeId() == "basicList");
@@ -428,8 +535,15 @@ static bool listNodeXmlParserTest()
     assertTrue_1(oneListXml.child("NodeId").first_child().set_value("oneList"));
     xml_node oneListKid = makeNode(oneListXml.child("NodeBody").child("NodeList"),
                                    "oneListKid", "Empty");
+    Node *oneList = NULL;
 
-    Node *oneList = parseNode(oneListXml, NULL);
+    try {
+      checkNode(oneListXml);
+      oneList = constructNode(oneListXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneList);
     assertTrue_1(oneList->getType() == NodeType_NodeList);
     assertTrue_1(oneList->getNodeId() == "oneList");
@@ -453,8 +567,15 @@ static bool listNodeXmlParserTest()
     assertTrue_1(theList);
     xml_node anotherListKid = makeNode(theList, "anotherListKid0", "Empty");
     xml_node yaListKid = makeNode(theList, "anotherListKid1", "Empty");
+    Node *anotherList = NULL;
 
-    Node *anotherList = parseNode(anotherListXml, NULL);
+    try {
+      checkNode(anotherListXml);
+      anotherList = constructNode(anotherListXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(anotherList);
     assertTrue_1(anotherList->getType() == NodeType_NodeList);
     assertTrue_1(anotherList->getNodeId() == "anotherList");
@@ -491,8 +612,15 @@ static bool listNodeXmlParserTest()
     xml_node decl1 = makeDeclareVariable(kidDecls, "bar", "Integer");
     assertTrue_1(decl1);
     makePcdataElement(decl1.append_child("InitialValue"), "IntegerVariable", "foo");
+    Node *varAccessList = NULL;
 
-    Node *varAccessList = parseNode(varAccessListXml, NULL);
+    try {
+      checkNode(varAccessListXml);
+      varAccessList = constructNode(varAccessListXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(varAccessList);
     assertTrue_1(varAccessList->getType() == NodeType_NodeList);
     assertTrue_1(varAccessList->getNodeId() == "varAccessList");
@@ -541,7 +669,15 @@ static bool listNodeXmlParserTest()
     assertTrue_1(neq);
     makePcdataElement(neq.append_child("NodeStateVariable"), "NodeId", "nodeRefTest");
     makePcdataElement(neq, "NodeStateValue", "EXECUTING");
-    Node *nodeRefTest = parseNode(nodeRefTestXml, NULL);
+    Node *nodeRefTest = NULL;
+    
+    try {
+      checkNode(nodeRefTestXml);
+      nodeRefTest = constructNode(nodeRefTestXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(nodeRefTest);
     assertTrue_1(nodeRefTest->getType() == NodeType_NodeList);
     assertTrue_1(nodeRefTest->getNodeId() == "nodeRefTest");
@@ -579,8 +715,15 @@ static bool assignmentNodeXmlParserTest()
     xml_node assnXml = basicAssnXml.append_child("NodeBody").append_child("Assignment");
     makePcdataElement(assnXml, "IntegerVariable", "foo");
     makePcdataElement(assnXml.append_child("NumericRHS"), "IntegerValue", "2");
-
-    Node *listNode = parseNode(listNodeXml, NULL);
+    Node *listNode = NULL;
+    
+    try {
+      checkNode(listNodeXml);
+      listNode = constructNode(listNodeXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode);
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
@@ -621,8 +764,15 @@ static bool assignmentNodeXmlParserTest()
     xml_node assnXml = basicAssnXml.append_child("NodeBody").append_child("Assignment");
     makePcdataElement(assnXml, "IntegerVariable", "foo");
     makePcdataElement(assnXml.append_child("NumericRHS"), "IntegerValue", "2");
+    Node *listNode1 = NULL;
 
-    Node *listNode1 = parseNode(listNode1Xml, NULL);
+    try {
+      checkNode(listNode1Xml);
+      listNode1 = constructNode(listNode1Xml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode1);
     assertTrue_1(listNode1->getType() == NodeType_NodeList);
     assertTrue_1(!listNode1->getChildren().empty());
@@ -666,8 +816,15 @@ static bool assignmentNodeXmlParserTest()
     arrayXml.append_attribute("Type").set_value("Integer");
     makePcdataElement(arrayXml, "IntegerValue", "2");
     makePcdataElement(arrayXml, "IntegerValue", "3");
+    Node *listNode2 = NULL;
 
-    Node *listNode2 = parseNode(listNode2Xml, NULL);
+    try {
+      checkNode(listNode2Xml);
+      listNode2 = constructNode(listNode2Xml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode2);
     assertTrue_1(listNode2->getType() == NodeType_NodeList);
     assertTrue_1(!listNode2->getChildren().empty());
@@ -709,8 +866,15 @@ static bool assignmentNodeXmlParserTest()
     makePcdataElement(elemXml, "Name", "baz");
     makePcdataElement(elemXml.append_child("Index"), "IntegerValue", "0");
     makePcdataElement(assnXml.append_child("NumericRHS"), "IntegerValue", "3");
+    Node *listNode3 = NULL;
 
-    Node *listNode3 = parseNode(listNode3Xml, NULL);
+    try {
+      checkNode(listNode3Xml);
+      listNode3 = constructNode(listNode3Xml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode3);
     assertTrue_1(listNode3->getType() == NodeType_NodeList);
     assertTrue_1(!listNode3->getChildren().empty());
@@ -764,8 +928,15 @@ static bool commandNodeXmlParserTest()
     xml_node basicCmdXml = makeNode(*doc, "basicCmd", "Command");
     xml_node cmdXml = basicCmdXml.append_child("NodeBody").append_child("Command");
     makePcdataElement(cmdXml.append_child("Name"),"StringValue", "foo");
+    Node *basicCmd = NULL;
 
-    Node *basicCmd = parseNode(basicCmdXml, NULL);
+    try {
+      checkNode(basicCmdXml);
+      basicCmd = constructNode(basicCmdXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(basicCmd);
     assertTrue_1(basicCmd->getType() == NodeType_Command);
     assertTrue_1(basicCmd->getNodeId() == "basicCmd");
@@ -802,8 +973,15 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(res2Xml.append_child("ResourceReleaseAtTermination"), "BooleanValue", "false");
 
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "goo");
+    Node *cmdWithResources = NULL;
 
-    Node *cmdWithResources = parseNode(cmdWithResourcesXml, NULL);
+    try {
+      checkNode(cmdWithResourcesXml);
+      cmdWithResources = constructNode(cmdWithResourcesXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(cmdWithResources);
     assertTrue_1(cmdWithResources->getType() == NodeType_Command);
     assertTrue_1(cmdWithResources->getNodeId() == "cmdWithResources");
@@ -851,8 +1029,15 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(argsXml, "IntegerValue", "5");
     makePcdataElement(argsXml, "RealValue", "3.14");
     makePcdataElement(argsXml, "StringValue", "hi there");
+    Node *cmdWithArgs = NULL;
 
-    Node *cmdWithArgs = parseNode(cmdWithArgsXml, NULL);
+    try {
+      checkNode(cmdWithArgsXml);
+      cmdWithArgs = constructNode(cmdWithArgsXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(cmdWithArgs);
     assertTrue_1(cmdWithArgs->getType() == NodeType_Command);
     assertTrue_1(cmdWithArgs->getNodeId() == "cmdWithArgs");
@@ -895,7 +1080,15 @@ static bool commandNodeXmlParserTest()
     xml_node cmdXml = cmdWithReturnXml.append_child("NodeBody").append_child("Command");
     makePcdataElement(cmdXml, "IntegerVariable", "foo");
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "bar");
-    Node *listNode = parseNode(listNodeXml, NULL);
+    Node *listNode = NULL;
+
+    try {
+      checkNode(listNodeXml);
+      listNode = constructNode(listNodeXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode);
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
@@ -947,8 +1140,15 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(argsXml, "IntegerValue", "5");
     makePcdataElement(argsXml, "RealValue", "3.14");
     makePcdataElement(argsXml, "StringValue", "hi there");
+    Node *listNode = NULL;
 
-    Node *listNode = parseNode(listNodeXml, NULL);
+    try {
+      checkNode(listNodeXml);
+      listNode = constructNode(listNodeXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode);
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
@@ -1011,7 +1211,15 @@ static bool commandNodeXmlParserTest()
 
     makePcdataElement(cmdXml, "IntegerVariable", "foo");
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "har");
-    Node *listNode = parseNode(listNodeXml, NULL);
+    Node *listNode = NULL;
+
+    try {
+      checkNode(listNodeXml);
+      listNode = constructNode(listNodeXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode);
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
@@ -1087,8 +1295,15 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(argsXml, "IntegerVariable", "foo");
     makePcdataElement(argsXml, "RealValue", "3.14");
     makePcdataElement(argsXml, "StringValue", "hi there");
+    Node *listNode = NULL;
 
-    Node *listNode = parseNode(listNodeXml, NULL);
+    try {
+      checkNode(listNodeXml);
+      listNode = constructNode(listNodeXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode);
     assertTrue_1(listNode->getType() == NodeType_NodeList);
     assertTrue_1(!listNode->getChildren().empty());
@@ -1167,8 +1382,15 @@ static bool updateNodeXmlParserTest()
   {
     xml_node emptyUpdXml = makeNode(*doc, "emptyUpd", "Update");
     emptyUpdXml.append_child("NodeBody").append_child("Update");
+    Node *emptyUpd = NULL;
 
-    Node *emptyUpd = parseNode(emptyUpdXml, NULL);
+    try {
+      checkNode(emptyUpdXml);
+      emptyUpd = constructNode(emptyUpdXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(emptyUpd);
     assertTrue_1(emptyUpd->getNodeId() == "emptyUpd");
     assertTrue_1(emptyUpd->getType() == NodeType_Update);
@@ -1193,8 +1415,15 @@ static bool updateNodeXmlParserTest()
     makePcdataElement(makePair(updXml, "bar"), "IntegerValue", "216");
     makePcdataElement(makePair(updXml, "baz"), "RealValue", "2.718");
     makePcdataElement(makePair(updXml, "bletch"), "StringValue", "bletch");
+    Node *literalUpd = NULL;
 
-    Node *literalUpd = parseNode(literalUpdXml, NULL);
+    try {
+      checkNode(literalUpdXml);
+      literalUpd = constructNode(literalUpdXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(literalUpd);
     assertTrue_1(literalUpd->getNodeId() == "literalUpd");
     assertTrue_1(literalUpd->getType() == NodeType_Update);
@@ -1237,8 +1466,15 @@ static bool updateNodeXmlParserTest()
     makePcdataElement(aeXml, "Name", "a");
     makePcdataElement(aeXml.append_child("Index"), "IntegerValue", "1");
     makePcdataElement(makePair(updXml, "bletch"), "StringValue", "bletch");
+    Node *listNode = NULL;
 
-    Node *listNode = parseNode(listNodeXml, NULL);
+    try {
+      checkNode(listNodeXml);
+      listNode = constructNode(listNodeXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(listNode);
     assertTrue_1(listNode->getNodeId() == "listNode");
     assertTrue_1(listNode->getType() == NodeType_NodeList);
@@ -1295,7 +1531,7 @@ static bool libraryCallNodeXmlParserTest()
   // Simple
   xml_document *dummyDoc = new xml_document;
   xml_node dummyXml = makeNode(dummyDoc->append_child("PlexilPlan"), "dummy", "Empty");
-  addLibraryNode("dummy", dummyDoc);
+  loadLibraryDocument(dummyDoc);
 
   // With In variable, no default
   xml_document *withInDoc = new xml_document;
@@ -1303,7 +1539,7 @@ static bool libraryCallNodeXmlParserTest()
   makeDeclareVariable(withInVarXml.append_child("Interface").append_child("In"),
                       "inInt",
                       "Integer");
-  addLibraryNode("withInVar", withInDoc);
+  loadLibraryDocument(withInDoc);
   
   // In variable with default
   xml_document *defaultedInDoc = new xml_document;
@@ -1312,7 +1548,7 @@ static bool libraryCallNodeXmlParserTest()
                                                  "defInInt",
                                                  "Integer");
   makePcdataElement(defaultedInDecl.append_child("InitialValue"), "IntegerValue", "5");
-  addLibraryNode("defaultedInVar", defaultedInDoc);
+  loadLibraryDocument(defaultedInDoc);
   
   // With InOut variable
   xml_document *inOutDoc = new xml_document;
@@ -1323,7 +1559,7 @@ static bool libraryCallNodeXmlParserTest()
   xml_node inOutBody = inOutVarXml.append_child("NodeBody").append_child("Assignment");
   makePcdataElement(inOutBody, "IntegerVariable", "inOutInt");
   makePcdataElement(inOutBody.append_child("NumericRHS"), "IntegerValue", "-2");
-  addLibraryNode("inOutVar", inOutDoc);
+  loadLibraryDocument(inOutDoc);
 
   // With defaulted InOut variable
   xml_document *defInOutDoc = new xml_document;
@@ -1336,7 +1572,7 @@ static bool libraryCallNodeXmlParserTest()
   xml_node defInOutBody = defInOutVarXml.append_child("NodeBody").append_child("Assignment");
   makePcdataElement(defInOutBody, "IntegerVariable", "defInOutInt");
   makePcdataElement(defInOutBody.append_child("NumericRHS"), "IntegerValue", "-99");
-  addLibraryNode("defInOutVar", defInOutDoc);
+  loadLibraryDocument(defInOutDoc);
 
   //
   // Call tests
@@ -1347,8 +1583,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node basicLibCallXml = makeNode(*doc, "basicLibCall", "LibraryNodeCall");
     xml_node libCall = basicLibCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "dummy");
+    Node *basicLibCall = NULL;
 
-    Node *basicLibCall = parseNode(basicLibCallXml, NULL);
+    try {
+      checkNode(basicLibCallXml);
+      basicLibCall = constructNode(basicLibCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(basicLibCall);
     assertTrue_1(basicLibCall->getNodeId() == "basicLibCall");
     assertTrue_1(basicLibCall->getType() == NodeType_LibraryNodeCall);
@@ -1369,8 +1612,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node defaultedInCallXml = makeNode(*doc, "defaultedInCall", "LibraryNodeCall");
     xml_node libCall = defaultedInCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defaultedInVar");
+    Node *defaultedInCall = NULL;
 
-    Node *defaultedInCall = parseNode(defaultedInCallXml, NULL);
+    try {
+      checkNode(defaultedInCallXml);
+      defaultedInCall = constructNode(defaultedInCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(defaultedInCall);
     assertTrue_1(defaultedInCall->getNodeId() == "defaultedInCall");
     assertTrue_1(defaultedInCall->getType() == NodeType_LibraryNodeCall);
@@ -1403,8 +1653,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "inInt");
     makePcdataElement(alias0, "IntegerValue", "3");
+    Node *inCall = NULL;
 
-    Node *inCall = parseNode(inCallXml, NULL);
+    try {
+      checkNode(inCallXml);
+      inCall = constructNode(inCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(inCall);
     assertTrue_1(inCall->getNodeId() == "inCall");
     assertTrue_1(inCall->getType() == NodeType_LibraryNodeCall);
@@ -1437,8 +1694,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "defInInt");
     makePcdataElement(alias0, "IntegerValue", "19");
+    Node *nondefaultedInCall = NULL;
 
-    Node *nondefaultedInCall = parseNode(nondefaultedInCallXml, NULL);
+    try {
+      checkNode(nondefaultedInCallXml);
+      nondefaultedInCall = constructNode(nondefaultedInCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(nondefaultedInCall);
     assertTrue_1(nondefaultedInCall->getNodeId() == "nondefaultedInCall");
     assertTrue_1(nondefaultedInCall->getType() == NodeType_LibraryNodeCall);
@@ -1474,8 +1738,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "inOutInt");
     makePcdataElement(alias0, "IntegerVariable", "aliasedInOut");
+    Node *inOutCall = NULL;
 
-    Node *inOutCall = parseNode(inOutCallXml, NULL);
+    try {
+      checkNode(inOutCallXml);
+      inOutCall = constructNode(inOutCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(inOutCall);
     assertTrue_1(inOutCall->getNodeId() == "inOutCall");
     assertTrue_1(inOutCall->getType() == NodeType_LibraryNodeCall);
@@ -1514,8 +1785,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node defInOutCallXml = makeNode(*doc, "defInOutCall", "LibraryNodeCall");
     xml_node libCall = defInOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defInOutVar");
+    Node *defInOutCall = NULL;
 
-    Node *defInOutCall = parseNode(defInOutCallXml, NULL);
+    try {
+      checkNode(defInOutCallXml);
+      defInOutCall = constructNode(defInOutCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(defInOutCall);
     assertTrue_1(defInOutCall->getNodeId() == "defInOutCall");
     assertTrue_1(defInOutCall->getType() == NodeType_LibraryNodeCall);
@@ -1553,8 +1831,15 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "defInOutInt");
     makePcdataElement(alias0, "IntegerVariable", "aliasedInOut");
+    Node *nonDefInOutCall = NULL;
 
-    Node *nonDefInOutCall = parseNode(nonDefInOutCallXml, NULL);
+    try {
+      checkNode(nonDefInOutCallXml);
+      nonDefInOutCall = constructNode(nonDefInOutCallXml, NULL);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(nonDefInOutCall);
     assertTrue_1(nonDefInOutCall->getNodeId() == "nonDefInOutCall");
     assertTrue_1(nonDefInOutCall->getType() == NodeType_LibraryNodeCall);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "Node.hh"
+#include "parser-utils.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 
@@ -92,7 +93,7 @@ namespace PLEXIL
     ValueType vt = v.valueType();
     if (isArrayType(vt)) {
       pugi::xml_node aryxml = parent.append_child("ArrayValue");
-      char const *eltType = typeNameAsValue(arrayElementType(vt)).c_str();
+      char const *eltType = typeNameAsValue(arrayElementType(vt));
       aryxml.append_attribute("Type").set_value(eltType);
       Array const *ary;
       v.getValuePointer(ary); // better succeed!
@@ -103,7 +104,7 @@ namespace PLEXIL
     }
     else {
       // Scalar value
-      parent.append_child(typeNameAsValue(vt).c_str()).append_child(pugi::node_pcdata).set_value(v.valueToString().c_str());
+      parent.append_child(typeNameAsValue(vt)).append_child(pugi::node_pcdata).set_value(v.valueToString().c_str());
     }
   }
 

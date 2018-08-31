@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,6 @@
 
 #include "pugixml.hpp"
 
-#include <stack>
-
 using pugi::xml_document;
 using pugi::xml_node;
 using pugi::xml_parse_result;
@@ -50,6 +48,7 @@ namespace PLEXIL
   xml_document *loadXmlFile(std::string const &filename)
     throw (ParserException)
   {
+    debugMsg("loadXmlFile", ' ' << filename);
     xml_document *doc = new xml_document;
     xml_parse_result parseResult = doc->load_file(filename.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status == pugi::status_file_not_found) {
@@ -66,64 +65,91 @@ namespace PLEXIL
     return doc;
   }
 
-  static std::stack<SymbolTable *> sl_symtabStack;
-
-  static void pushSymbolTable()
-  {
-    if (g_symbolTable)
-      sl_symtabStack.push(g_symbolTable);
-    g_symbolTable = makeSymbolTable();
-  }
-
-  static void popSymbolTable()
-  {
-    delete g_symbolTable;
-    if (sl_symtabStack.empty()) {
-      // Back at top level
-      g_symbolTable = NULL;
-      return;
-    }
-    else {
-      g_symbolTable = sl_symtabStack.top();
-      sl_symtabStack.pop();
-    }
-  }
-
-  Node *parsePlan(xml_node const xml)
+  // First pass: surface check of XML
+  SymbolTable *checkPlan(xml_node const xml)
     throw (ParserException)
   {
+    debugMsg("checkPlan", " entered");
     checkTag(PLEXIL_PLAN_TAG, xml);
     checkHasChildElement(xml);
 
-    // Construct a symbol table for this plan
-    pushSymbolTable();
+    xml_node elt = xml.first_child();
+    SymbolTable *result = NULL;
+    if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
+      checkGlobalDeclarations(elt);
+      result = parseGlobalDeclarations(elt);
+
+      elt = elt.next_sibling();
+    }
+    else {
+      // Create an empty symbol table
+      result = makeSymbolTable();
+    }
+
+    // Check the node using the context of the global declarations
+    pushSymbolTable(result);
+    try {
+      checkNode(elt);
+    }
+    catch (...) {
+      delete result;
+      popSymbolTable();
+      throw;
+    }
+    popSymbolTable();
+
+    return result;
+  }
+
+  Node *constructPlan(xml_node const xml, SymbolTable *symtab, Node *parent)
+    throw (ParserException)
+  {
+    debugMsg("constructPlan", ' ' << xml.child(NODE_TAG).child(NODEID_TAG));
+    pushSymbolTable(symtab);
     Node *result = NULL;
     try {
-      xml_node elt = xml.first_child();
-
-      // Handle global declarations
-      if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
-        parseGlobalDeclarations(elt);
-        elt = elt.next_sibling();
-      }
-
-      checkTag(NODE_TAG, elt);
-      result = parseNode(elt, NULL);
+      // Construct the plan
+      xml_node const root = xml.child(NODE_TAG);
       try {
-        finalizeNode(result, elt);
+        result = constructNode(root, parent);
       }
-      catch (ParserException &e) {
+      catch (...) {
         delete result;
         result = NULL;
         throw;
       }
     }
-    catch (ParserException &e) {
+    catch (...) {
       popSymbolTable();
       throw;
     }
 
     popSymbolTable();
+
+    // Normal return
+    return result;
+  }
+
+  Node *parsePlan(xml_node const xml)
+    throw (ParserException)
+  {
+    debugMsg("parsePlan", "entered");
+    // Perform surface checks & log global symbols
+    SymbolTable *symtab = checkPlan(xml);
+    Node *result = NULL;
+    result = constructPlan(xml, symtab, NULL); // can throw ParserException
+    pushSymbolTable(symtab);
+    try {
+      finalizeNode(result, xml.child(NODE_TAG));
+    }
+    catch (...) {
+      popSymbolTable();
+      delete symtab;
+      throw;
+    }
+
+    popSymbolTable();
+    delete symtab;
 
     // Normal return
     return result;

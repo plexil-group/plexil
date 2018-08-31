@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -257,17 +257,16 @@ namespace PLEXIL
     /**
      * @brief Notify the executive of a new library node.
      * @param planXml The XML document containing the new library node.
+     * @return True if successful, false otherwise.
      */
-    void handleAddLibrary(pugi::xml_document *planXml)
-      throw (ParserException);
+    bool handleAddLibrary(pugi::xml_document *planXml);
 
     /**
      * @brief Load the named library from the library path.
      * @param libname Name of the library node.
      * @return True if successful, false if not found.
      */
-    bool handleLoadLibrary(std::string const &libName)
-      throw (ParserException);
+    bool handleLoadLibrary(std::string const &libName);
 
     /**
      * @brief Determine whether the named library is loaded.

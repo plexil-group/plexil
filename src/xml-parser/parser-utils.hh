@@ -29,6 +29,7 @@
 
 #include "Error.hh" // PLEXIL_NORETURN macro
 #include "ParserException.hh"
+#include "ValueType.hh"
 
 //
 // General purpose xml parsing utilities
@@ -60,6 +61,9 @@ namespace PLEXIL
   extern bool isBoolean(const char* initval);
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
+
+  extern char const *typeNameAsValue(ValueType ty);
+
   // Helper for checkParserExceptionWithLocation
   extern void reportParserException(std::string const &msg, pugi::xml_node location)
     throw (ParserException) PLEXIL_NORETURN;

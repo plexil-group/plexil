@@ -117,7 +117,19 @@ namespace PLEXIL
   char const ARRAYELEMENT_TAG[] = "ArrayElement";
   char const INDEX_TAG[] = "Index";
 
-  char const ARRAY_VAL_TAG[] = "ArrayValue";
   char const VAR_SUFFIX[] = "Variable";
 
+  // Type literal tags
+  char const BOOLEAN_VAL_TAG[] = "BooleanValue";
+  char const INTEGER_VAL_TAG[] = "IntegerValue";
+  char const REAL_VAL_TAG[] = "RealValue";
+  char const DATE_VAL_TAG[] = "DateValue";
+  char const DURATION_VAL_TAG[] = "DurationValue";
+  char const STRING_VAL_TAG[] = "StringValue";
+  char const NODE_STATE_VAL_TAG[] = "NodeStateValue";
+  char const NODE_OUTCOME_VAL_TAG[] = "NodeOutcomeValue";
+  char const NODE_FAILURE_VAL_TAG[] = "NodeFailureValue";
+  char const NODE_COMMAND_HANDLE_VAL_TAG[] = "NodeCommandHandleValue";
+
+  char const ARRAY_VAL_TAG[] = "ArrayValue";
 }

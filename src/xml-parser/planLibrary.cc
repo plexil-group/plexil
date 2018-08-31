@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,9 @@
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "SimpleMap.hh"
+#include "SymbolTable.hh"
+
+#include "pugixml.hpp"
 
 using pugi::xml_document;
 using pugi::xml_node;
@@ -46,70 +49,47 @@ namespace PLEXIL
   //
 
   // List of library directories to search
-  static vector<string> librarySearchPaths;
+  static vector<string> s_librarySearchPaths;
 
-  // Place to store library nodes
-  typedef SimpleMap<string, xml_document *> LibraryMap;
-  static LibraryMap libraryMap;
+  // Place to store library nodes and their global contexts
+  typedef SimpleMap<string, Library> LibraryMap;
+  static LibraryMap s_libraryMap;
 
   vector<string> const &getLibraryPaths()
   {
-    return librarySearchPaths;
+    return s_librarySearchPaths;
   }
 
   void appendLibraryPath(string const &dirname)
   {
-    librarySearchPaths.push_back(dirname);
+    s_librarySearchPaths.push_back(dirname);
   }
 
   void prependLibraryPath(string const &dirname)
   {
-    librarySearchPaths.insert(librarySearchPaths.begin(), dirname);
+    s_librarySearchPaths.insert(s_librarySearchPaths.begin(), dirname);
   }
 
   void setLibraryPaths(std::vector<std::string> const &paths)
   {
-    librarySearchPaths = paths;
+    s_librarySearchPaths = paths;
   }
 
+  // Call at exit
   static void cleanLibraryMap()
   {
-    for (LibraryMap::iterator it = libraryMap.begin(); it != libraryMap.end(); ++it) {
-      xml_document *temp = it->second;
-      it->second = NULL;
-      delete temp;
+    for (LibraryMap::iterator it = s_libraryMap.begin(); it != s_libraryMap.end(); ++it) {
+      Library &l = it->second;
+      delete l.doc;
+      l.doc = NULL;
+      delete l.symtab;
+      l.symtab = NULL;
     }
+    s_libraryMap.clear();
   }
 
-  void addLibraryNode(char const *name, xml_document *doc)
-    throw (ParserException)
-  {
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      plexilAddFinalizer(&cleanLibraryMap);
-      sl_inited = true;
-    }
-    assertTrue_2(doc, "addLibraryNode: Null document");
-    assertTrue_2(*name, "addLibraryNode: Empty name");
-
-    // *** TODO: Check library is well formed ***
-    // *** TODO: handle global decls ***
-
-    // Check whether we already have a library by the same name
-    LibraryMap::iterator it = libraryMap.find<char const *, CStringComparator>(name);
-    if (it != libraryMap.end()) {
-      if (it->second == doc)
-        return; // same document, no need to do anything else
-
-      // If there is an existing entry, delete its document.
-      delete it->second;
-    }
-
-    // Insert it
-    libraryMap[name] = doc;
-  }
-
-  xml_document *loadLibraryFile(string const &filename)
+  // Internal function
+  static xml_document *loadLibraryFile(string const &filename)
   {
     // Check current working directory first
     xml_document *result = loadXmlFile(filename);
@@ -117,8 +97,8 @@ namespace PLEXIL
       return result;
 
     // Find the first occurrence of the library in this path
-    vector<string>::const_iterator it = librarySearchPaths.begin();
-    while (!result && it != librarySearchPaths.end()) {
+    vector<string>::const_iterator it = s_librarySearchPaths.begin();
+    while (!result && it != s_librarySearchPaths.end()) {
       string candidateFile = *it + "/" + filename;
       result = loadXmlFile(candidateFile);
       if (result)
@@ -129,7 +109,7 @@ namespace PLEXIL
   }
 
   // name could be node name, file name w/ or w/o directory, w/ w/o .plx
-  xml_node loadLibraryNode(char const *name)
+  Library const *loadLibraryNode(char const *name)
   {
     string nodeName = name;
     string fname = name;
@@ -144,30 +124,96 @@ namespace PLEXIL
 
     xml_document *doc = loadLibraryFile(fname);
     if (!doc)
-      return xml_node();
-    xml_node theNode = doc->document_element().child(NODE_TAG);
-    xml_node nodeIdXml = theNode.child(NODEID_TAG);
-    checkParserExceptionWithLocation(nodeIdXml,
-                                     doc->document_element(),
-                                     "No " << NODEID_TAG << " element in library node, or not a PLEXIL plan");
-    char const *nodeId = nodeIdXml.child_value();
-    checkParserExceptionWithLocation(nodeName == nodeId,
-                                     nodeIdXml,
-                                     "loadLibraryNode: Requested " << nodeName
-                                     << " but file contains " << nodeId);
-    addLibraryNode(nodeName.c_str(), doc);
-    return theNode;
+      return NULL;
+    
+    // Check whether document actually contains the named plan
+    char const *nodeId = doc->document_element().child(NODE_TAG).child_value(NODEID_TAG);
+    if (nodeName != nodeId) {
+      warn("Unable to load library node \"" << nodeName
+           << "\": file " << fname << " does not contain " << nodeId);
+      delete doc;
+      return NULL;
+    }
+
+    return loadLibraryDocument(doc);
   }
 
-  xml_node getLibraryNode(char const *name, bool loadIfNotFound)
+  // Internal fn
+  static Library *findLibraryNode(char const *name)
   {
-    LibraryMap::iterator it = libraryMap.find<char const *, CStringComparator>(name);
-    if (it != libraryMap.end())
-      return it->second->document_element().child(NODE_TAG);
+    LibraryMap::iterator it = s_libraryMap.find<char const *, CStringComparator>(name);
+    if (it != s_libraryMap.end())
+      return &it->second;
+    else
+      return NULL;
+  }
+
+  Library const *loadLibraryDocument(xml_document *doc)
+  {
+    // Check if already loaded
+    xml_node const plan = doc->document_element();
+    char const *nodeId = plan.child(NODE_TAG).child_value(NODEID_TAG);
+    Library *l = findLibraryNode(nodeId);
+
+    if (l && plan == l->doc->document_element()) {
+      // Same plan, no need to go any further
+      delete doc;
+      return l;
+    }
+
+    SymbolTable *symtab = NULL;
+    try {
+      symtab = checkPlan(plan);
+    }
+    catch (ParserException const &exc) {
+      delete doc;
+      warn("Unable to load library node \"" << nodeId << "\": "
+           << exc.what());
+      return NULL;
+    }
+    catch (...) {
+      delete doc;
+      throw;
+    }
+
+    // Success!
+    if (l) {
+      // Replace previous version
+      delete l->doc;
+      delete l->symtab;
+      l->doc = doc;
+      l->symtab = symtab;
+      return l;
+    }
+    else {
+      // If this is first library added, set up the cleanup function
+      static bool sl_inited = false;
+      if (!sl_inited) {
+        plexilAddFinalizer(&cleanLibraryMap);
+        sl_inited = true;
+      }
+      
+      std::string nodeStr = nodeId;
+      s_libraryMap[nodeStr] = Library(doc, symtab);
+      return &s_libraryMap[nodeStr];
+    }
+  }
+
+  bool isLibraryLoaded(char const *name)
+  {
+    LibraryMap::iterator it = s_libraryMap.find<char const *, CStringComparator>(name);
+    return it != s_libraryMap.end();
+  }
+
+  Library const *getLibraryNode(char const *name, bool loadIfNotFound)
+  {
+    LibraryMap::iterator it = s_libraryMap.find<char const *, CStringComparator>(name);
+    if (it != s_libraryMap.end())
+      return &it->second;
     else if (loadIfNotFound)
       return loadLibraryNode(name);
     else
-      return xml_node();
+      return NULL;
   }
 
 } // namespace PLEXIL

@@ -97,16 +97,16 @@ namespace PLEXIL
 
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
 
-      REGISTER_ARITHMETIC_FUNCTION(GreaterEqual, GE);
-      REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
+      REGISTER_COMPARISON(GreaterEqual, GE);
+      REGISTER_COMPARISON(GreaterThan, GT);
 
       REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
       new VariableReferenceFactory("IntegerVariable", INTEGER_TYPE); // for effect
 
       REGISTER_FUNCTION(IsKnown, IsKnown);
 
-      REGISTER_ARITHMETIC_FUNCTION(LessEqual, LE);
-      REGISTER_ARITHMETIC_FUNCTION(LessThan, LT);
+      REGISTER_COMPARISON(LessEqual, LE);
+      REGISTER_COMPARISON(LessThan, LT);
 
       new LookupFactory("LookupNow"); // for effect
       new LookupFactory("LookupOnChange");  // for effect
