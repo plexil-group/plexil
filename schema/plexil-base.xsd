@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -452,10 +452,12 @@ element.  It is used as an included schema only.
         <xs:element name="InitialValue" minOccurs="0">
           <xs:complexType>
             <xs:choice>
-              <!-- these for backward compatibility -->
+              <!-- backward compatibility for scalar literals -->
               <xs:group ref="Value" maxOccurs="unbounded"/>
               <!-- preferred new style -->
-              <xs:element ref ="ArrayValue"/>
+              <xs:element ref="ArrayValue"/>
+              <!-- variable reference -->
+              <xs:element ref="ArrayVariable"/>
             </xs:choice>
           </xs:complexType>
         </xs:element>

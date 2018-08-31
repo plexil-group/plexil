@@ -1592,6 +1592,7 @@
                                 <ref name="Value"/>
                             </oneOrMore>
                             <ref name="ArrayValue"/>
+                            <ref name="ArrayVariable"/>
                         </choice>
                     </element>
                 </optional>

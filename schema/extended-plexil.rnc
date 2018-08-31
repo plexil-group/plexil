@@ -973,7 +973,7 @@ DeclareArray =
       element Name { NCName },
       element Type { AtomicTypeValues },
       element MaxSize { nonNegativeInteger }?,
-      element InitialValue { Value+ | ArrayValue }?
+      element InitialValue { Value+ | ArrayValue | ArrayVariable }?
     }
 DeclareVariable =
   notAllowed
