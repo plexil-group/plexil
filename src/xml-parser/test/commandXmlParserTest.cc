@@ -317,9 +317,10 @@ static bool testCommandParserErrorHandling()
   xml_node wrongTypeName = doc.append_child("Command");
   wrongTypeName.append_child("Name").append_child("RealValue").append_child(node_pcdata).set_value("3.14");
   {
-    checkCommandBody("wrongTypeName", wrongTypeName);
-    Command *wrongTypeNameCmd = new Command("wrongTypeName");
+    Command *wrongTypeNameCmd = NULL;
     try {
+      checkCommandBody("wrongTypeName", wrongTypeName);
+      wrongTypeNameCmd = new Command("wrongTypeName");
       finalizeCommand(wrongTypeNameCmd, &conn, wrongTypeName);
       assertTrue_2(ALWAYS_FAIL, "Failed to detect non-string Name value");
     }

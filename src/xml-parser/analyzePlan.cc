@@ -188,10 +188,10 @@ static void getNodeStatistics(Node const *node)
     break;
 
   default:
-  for (std::vector<Node *>::const_iterator it = kids.begin();
-       it != kids.end();
-       ++it)
-    getNodeStatistics(*it);
+    for (std::vector<Node *>::const_iterator it = kids.begin();
+         it != kids.end();
+         ++it)
+      getNodeStatistics(*it);
     break;
   }
 }
@@ -294,7 +294,7 @@ static void reportStatistics()
   std::cout << "\n--- Nodes With Specific Conditions --- \n\n";
   for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
     std::cout << g_conditionCounts[i] << " nodes with "
-	      << Node::getConditionName(i) << '\n';
+              << Node::getConditionName(i) << '\n';
   }
   std::cout << '\n';
 

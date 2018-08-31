@@ -33,6 +33,8 @@
 
 #include "pugixml.hpp"
 
+#include <cstring>
+
 using pugi::node_element;
 using pugi::xml_node;
 
@@ -56,6 +58,7 @@ namespace PLEXIL
                                        pr,
                                        "Node \"" << nodeId
                                        << "\": Update pair without a value expression");
+      checkExpression(nodeId, temp);
     }
 
     // Check for duplicates

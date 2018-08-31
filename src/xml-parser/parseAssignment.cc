@@ -53,7 +53,7 @@ namespace PLEXIL
     char *endptr = NULL;
     errno = 0;
     // TODO: check for junk after the number
-    unsigned long prioValue = strtoul(prioString, NULL, 10);
+    unsigned long prioValue = strtoul(prioString, &endptr, 10);
     checkParserExceptionWithLocation(endptr != prioString && !*endptr,
                                      prioXml,
                                      "Node \"" << nodeId
