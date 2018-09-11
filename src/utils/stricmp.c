@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,25 +24,24 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int stricmp(const char * s1, const char * s2)
+int stricmp(const char *s1, const char *s2)
 {
   if (!s1) {
-    if (!s2 || !*s2)
-      return 0; /* null equals null or empty string */
-    else
+    if (s2 && *s2)
       return -1;
+    return 0; /* null equals null or empty string */
   }
   if (!s2) {
-    if (!*s1)
-      return 0; /* null equals empty string */
-    else
+    if (*s1)
       return 1;
+    return 0; /* null equals empty string */
   }
-  while (*s1 && *s2) {
-    if (*s1 != *s2) {
+
+  char c1 = *s1++;
+  char c2 = *s2++;
+  while (c1 && c2) {
+    if (c1 != c2) {
       /* coerce alpha to upper case */
-      char c1 = *s1;
-      char c2 = *s2;
       if (c1 >= 'a' && c1 <= 'z')
         c1 = c1 - 0x20;
       if (c2 >= 'a' && c2 <= 'z')
@@ -50,18 +49,18 @@ int stricmp(const char * s1, const char * s2)
 
       if (c1 > c2)
         return 1;
-      if (c1 < c2)
+      if (c2 > c1)
         return -1;
     }
 
-    s1++;
-    s2++;
+    c1 = *s1++;
+    c2 = *s2++;
   }
 
-  /* if we got here, either s1 or s2 is pointing at a terminating null */
-  if (*s1 == *s2)
+  /* if we got here, either c1 or c2 is a terminating null */
+  if (c1 == c2) /* only if both are null */
     return 0; /* strings are equal */
-  if (*s1)
+  if (c1)
     return 1; /* s1 is longer, therefore greater */
   return -1;
 }

@@ -93,7 +93,7 @@ namespace PLEXIL
                                      "Node \"" << nodeId
                                      << "\": Expression is not an XML element");
     // Delegate to factory
-    debugMsg("createExpression", " name = " << name);
+    debugMsg("checkExpression", " name = " << name);
     ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
     checkParserExceptionWithLocation(it != s_expressionFactoryMap.end(),
                                      expr,

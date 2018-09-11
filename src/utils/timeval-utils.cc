@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,58 +56,58 @@ const double ONE_MILLION_DOUBLE = 1000000.0;
 // of two valid timevals?
 //
 
-void timevalNormalize(struct timeval& tv)
+void timevalNormalize(struct timeval& tval)
 {
   // check for usec over/underflow
-  if (tv.tv_usec >= ONE_MILLION) {
-    tv.tv_sec += 1;
-    tv.tv_usec -= ONE_MILLION;
+  if (tval.tv_usec >= ONE_MILLION) {
+    tval.tv_sec += 1;
+    tval.tv_usec -= ONE_MILLION;
   }
-  else if (tv.tv_usec + ONE_MILLION <= 0) {
-    tv.tv_sec -= 1;
-    tv.tv_usec += ONE_MILLION;
+  else if (tval.tv_usec + ONE_MILLION <= 0) {
+    tval.tv_sec -= 1;
+    tval.tv_usec += ONE_MILLION;
   }
 
   // now check that signs are consistent
-  if (tv.tv_sec > 0 && tv.tv_usec < 0) {
-    tv.tv_sec -= 1;
-    tv.tv_usec += ONE_MILLION;
+  if (tval.tv_sec > 0 && tval.tv_usec < 0) {
+    tval.tv_sec -= 1;
+    tval.tv_usec += ONE_MILLION;
   }
-  else if (tv.tv_sec < 0 && tv.tv_usec > 0) {
-    tv.tv_sec += 1;
-    tv.tv_usec -= ONE_MILLION;
+  else if (tval.tv_sec < 0 && tval.tv_usec > 0) {
+    tval.tv_sec += 1;
+    tval.tv_usec -= ONE_MILLION;
   }
 }
 
-bool operator<(const struct timeval& t1, const struct timeval& t2)
+bool operator<(const struct timeval& tv1, const struct timeval& tv2)
 {
-  return ((t1.tv_sec < t2.tv_sec) || 
-          ((t1.tv_sec == t2.tv_sec) && (t1.tv_usec < t2.tv_usec)));
+  return tv1.tv_sec < tv2.tv_sec ||
+    (tv1.tv_sec == tv2.tv_sec && tv1.tv_usec < tv2.tv_usec);
 }
 
-bool operator>(const struct timeval& t1, const struct timeval& t2)
+bool operator>(const struct timeval& tv1, const struct timeval& tv2)
 {
-  return ((t1.tv_sec > t2.tv_sec) || 
-          ((t1.tv_sec == t2.tv_sec) && (t1.tv_usec > t2.tv_usec)));
+  return tv1.tv_sec > tv2.tv_sec || 
+    (tv1.tv_sec == tv2.tv_sec && tv1.tv_usec > tv2.tv_usec);
 }
 
-bool operator==(const struct timeval& t1, const struct timeval& t2)
+bool operator==(const struct timeval& tv1, const struct timeval& tv2)
 {
-  return (t1.tv_sec == t2.tv_sec) && (t1.tv_usec == t2.tv_usec);
+  return (tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec == tv2.tv_usec);
 }
 
-struct timeval operator+(const struct timeval& t1, const struct timeval& t2)
+struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2)
 {
-  struct timeval time = {t1.tv_sec + t2.tv_sec,
-                         t1.tv_usec + t2.tv_usec};
+  struct timeval time = {tv1.tv_sec + tv2.tv_sec,
+                         tv1.tv_usec + tv2.tv_usec};
   timevalNormalize(time);
   return time;
 }
 
-struct timeval operator- (const struct timeval& t1, const struct timeval& t2)
+struct timeval operator- (const struct timeval& tv1, const struct timeval& tv2)
 {
-  struct timeval time = {t1.tv_sec - t2.tv_sec,
-                         t1.tv_usec - t2.tv_usec};
+  struct timeval time = {tv1.tv_sec - tv2.tv_sec,
+                         tv1.tv_usec - tv2.tv_usec};
   timevalNormalize(time);
   return time;
 }
@@ -134,9 +134,9 @@ struct timeval doubleToTimeval(double d)
   return result;
 }
 
-double timevalToDouble(const struct timeval& tv)
+double timevalToDouble(const struct timeval& tval)
 {
-  double result = (double) tv.tv_sec;
-  result += ((double) tv.tv_usec / ONE_MILLION_DOUBLE);
+  double result = (double) tval.tv_sec;
+  result += (double) tval.tv_usec / ONE_MILLION_DOUBLE;
   return result;
 }

@@ -164,7 +164,7 @@ static void *findSymbol(char const *symName, void *dl_handle)
 
 static int initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT) 
 {
-  std::string funcName = (std::string("init") + moduleName);
+  std::string funcName = std::string("init") + moduleName;
   void *func_as_void_ptr = findSymbol(funcName.c_str(), dl_handle);
   if (!func_as_void_ptr) {
     debugMsg("DynamicLoader:initModule",
@@ -194,7 +194,8 @@ int dynamicInitModule(const char *moduleName)
 }
 
 /**
- * @brief Dynamically load the shared library containing the module name, using the library name if provided.
+ * @brief Dynamically load the shared library containing the module name,
+ *        using the library name if provided.
  * @param typeName The name of the module
  * @param libPath The library name containing the module, or NULL.
  * @return 1 if successful, 0 otherwise.

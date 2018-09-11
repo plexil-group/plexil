@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,8 @@ struct plexil_opstack_bucket {
 
 struct plexil_opstack {
   struct plexil_opstack_bucket *head; /* pointer to most recent bucket */
-  size_t insert_idx;           /* index of first open slot in bucket; range 1 - PLEXIL_OPSTACK_BUCKET_SIZE */
+  size_t insert_idx;           /* index of first open slot in bucket;  */
+                               /* range 1 - PLEXIL_OPSTACK_BUCKET_SIZE */
 #ifdef LIFECYCLE_DEBUG
   size_t n_buckets;           /* total # of buckets */
 #endif
@@ -99,11 +100,11 @@ static void plexil_opstack_push(struct plexil_opstack *list, lc_operator op)
 static void plexil_opstack_run(struct plexil_opstack *list)
 {
 #ifdef LIFECYCLE_DEBUG
-  if (!list->head)
-    puts("plexil_opstack_run, empty list\n");
-  else 
+  if (list->head)
     printf("plexil_opstack_run, list has %u entries\n",
            list->n_buckets * PLEXIL_OPSTACK_BUCKET_SIZE + list->insert_idx - 1);
+  else 
+    puts("plexil_opstack_run, empty list\n");
 #endif
   struct plexil_opstack_bucket *head = list->head;
   size_t i = list->insert_idx;

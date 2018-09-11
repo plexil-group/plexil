@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -84,8 +84,7 @@ namespace PLEXIL
 
     if (tmp & 1UL)
       return n;
-    else
-      return n + 1;
+    return n + 1;
   }
 
   int findFirstZero(unsigned long const b)

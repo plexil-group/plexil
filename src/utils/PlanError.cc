@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 namespace PLEXIL
 {
 
-  bool PlanError::s_throw = false;
+  static bool PlanError_throw = false; /**<Set to throw exception. */
 
   //
   // Static member functions
@@ -41,17 +41,17 @@ namespace PLEXIL
 
   void PlanError::doThrowExceptions()
   {
-    s_throw = true;
+    PlanError_throw = true;
   }
 
   void PlanError::doNotThrowExceptions()
   {
-    s_throw = false;
+    PlanError_throw = false;
   }
 
   bool PlanError::throwEnabled()
   {
-    return s_throw;
+    return PlanError_throw;
   }
 
   PlanError::PlanError(const std::string& condition,

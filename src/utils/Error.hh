@@ -254,11 +254,6 @@ namespace PLEXIL
     int m_line; /**<The source line on which the error detected (__LINE__). */
 
   private:
-
-    static bool s_throw; /**<Set to throw exception. */
-    static bool s_printErrors; /**<Set to print errors when detetected */
-    static bool s_printWarnings; /**<Set to print warnings */
-    static std::ostream *s_os; /**<The stream to write all error data to. */
     Error(); /**<The zero argument constructor should not be used. */
   };
 

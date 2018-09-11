@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -175,27 +175,27 @@ namespace PLEXIL
 
   std::string Array::toString() const
   {
-    std::ostringstream s;
-    this->print(s);
-    return s.str();
+    std::ostringstream strm;
+    this->print(strm);
+    return strm.str();
   }
 
-  std::ostream &operator<<(std::ostream &s, Array const &a)
+  std::ostream &operator<<(std::ostream &str, Array const &ary)
   {
-    a.print(s);
-    return s;
-  }
-
-  template <>
-  char *serialize<Array>(Array const &o, char *b)
-  {
-    return o.serialize(b);
+    ary.print(str);
+    return str;
   }
 
   template <>
-  char const *deserialize<Array>(Array &o, char const *b)
+  char *serialize<Array>(Array const &o, char *buf)
   {
-    return o.deserialize(b);
+    return o.serialize(buf);
+  }
+
+  template <>
+  char const *deserialize<Array>(Array &o, char const *buf)
+  {
+    return o.deserialize(buf);
   }
 
   template <> size_t serialSize(Array const &o)

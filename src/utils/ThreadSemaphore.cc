@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -134,15 +134,16 @@ namespace PLEXIL
   {
 	myDebugMsg("ThreadSemaphore:wait", " on " << this << ", Mach semaphore " << m_mach_sem);
     kern_return_t status = semaphore_wait(m_mach_sem);
-	myDebugMsg("ThreadSemaphore:wait", " complete on " << this << ", Mach semaphore " << m_mach_sem << ", status = " << status);
+	myDebugMsg("ThreadSemaphore:wait",
+               " complete on " << this << ", Mach semaphore "
+               << m_mach_sem << ", status = " << status);
     return status;
   }
 
   int ThreadSemaphore::post()
   {
 	myDebugMsg("ThreadSemaphore:post", " to " << this << ", Mach semaphore " << m_mach_sem);
-    kern_return_t status = semaphore_signal(m_mach_sem);
-    return status;
+    return (int) semaphore_signal(m_mach_sem);
   }
 
 #endif // PLEXIL_USE_MACH_SEMAPHORES
