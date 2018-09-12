@@ -70,7 +70,7 @@ namespace PLEXIL
       break;
 
     case FINISHING_STATE:
-      checkError(ALWAYS_FAIL, "Invalid state FINISHING for an AssignmentNode");
+      errorMsg("Invalid state FINISHING for an AssignmentNode");
       break;
 
     default:
@@ -106,7 +106,7 @@ namespace PLEXIL
   // Unit test variant of above
   void AssignmentNode::createDummyAssignment() 
   {
-    m_assignment = new Assignment(m_nodeId);
+    m_assignment = new Assignment();
     m_assignment->setVariable(new BooleanVariable(false),
                               true);
     m_assignment->setExpression(TRUE_EXP(), false);
@@ -262,9 +262,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition AssignmentNode from EXECUTING to invalid state"
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition AssignmentNode from EXECUTING to invalid state"
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -312,13 +311,12 @@ namespace PLEXIL
       m_nextState = FINISHED_STATE;
       return true;
     }
-    else {
-      debugMsg("Node:getDestState",
-               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
-               << " -> ITERATION_ENDED. Assignment node and abort complete.");
-      m_nextState = ITERATION_ENDED_STATE;
-      return true;
-    }
+
+    debugMsg("Node:getDestState",
+             ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+             << " -> ITERATION_ENDED. Assignment node and abort complete.");
+    m_nextState = ITERATION_ENDED_STATE;
+    return true;
   }
 
   void AssignmentNode::transitionFromFailing()
@@ -337,9 +335,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition Assignment node from FAILING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition Assignment node from FAILING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }

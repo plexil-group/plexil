@@ -131,8 +131,7 @@ namespace PLEXIL
       return new StringVariable(node, name);
 
     default:
-      assertTrue_2(ALWAYS_FAIL,
-                   "UserVariableFactory::allocate: Internal type error");
+      errorMsg("UserVariableFactory::allocate: Internal type error");
       return NULL;
     }
   }

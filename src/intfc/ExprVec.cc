@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -99,17 +99,17 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &f)
+    virtual void doSubexprs(ExprUnaryOperator const &opr)
     {
       for (size_t i = 0; i < N; ++i)
-        (f)(exprs[i]);
+        (opr)(exprs[i]);
     }
 
-    void print(std::ostream & s) const
+    void print(std::ostream & str) const
     {
       for (size_t i = 0; i < N; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
@@ -188,18 +188,18 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    void print(std::ostream & s) const
+    void print(std::ostream & str) const
     {
       for (size_t i = 0; i < m_size; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &f)
+    virtual void doSubexprs(ExprUnaryOperator const &opr)
     {
       for (size_t i = 0; i < m_size; ++i)
-        (f)(exprs[i]);
+        (opr)(exprs[i]);
     }
 
   private:

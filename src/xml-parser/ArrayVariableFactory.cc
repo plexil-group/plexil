@@ -204,8 +204,7 @@ namespace PLEXIL
                                      sizeIsGarbage);
 
     default:
-      assertTrue_2(ALWAYS_FAIL,
-                   "ArrayVariableFactory::allocate: Internal type error");
+      errorMsg("ArrayVariableFactory::allocate: Internal type error");
       return NULL;
     }
   }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ namespace PLEXIL
   }
 
   // Copy constructor, used ONLY by StateCacheMap
-  StateCacheEntry::StateCacheEntry(StateCacheEntry const &orig)
+  StateCacheEntry::StateCacheEntry(StateCacheEntry const & /* orig */)
     : m_value(NULL),
       m_lowThreshold(NULL),
       m_highThreshold(NULL)
@@ -64,76 +64,75 @@ namespace PLEXIL
   {
     if (m_value)
       return m_value->valueType();
-    else
-      return UNKNOWN_TYPE;
+    return UNKNOWN_TYPE;
   }
 
   bool StateCacheEntry::isKnown() const
   {
     if (m_value)
       return m_value->isKnown();
-    else
-      return false;
+    return false;
   }
 
-  void StateCacheEntry::registerLookup(State const &s, Lookup *l)
+  void StateCacheEntry::registerLookup(State const &state, Lookup *lkup)
   {
     bool unsubscribed = m_lookups.empty();
-    m_lookups.push_back(l);
+    m_lookups.push_back(lkup);
     if (unsubscribed) {
-      debugMsg("StateCacheEntry:registerLookup", ' ' << s << " subscribing to interface")
-      g_interface->subscribe(s);
+      debugMsg("StateCacheEntry:registerLookup", ' ' << state << " subscribing to interface")
+        g_interface->subscribe(state);
     }
     debugMsg("StateCacheEntry:registerLookup",
-	     ' ' << s << " now has " << m_lookups.size() << " lookups");
+             ' ' << state << " now has " << m_lookups.size() << " lookups");
     // Update if stale
     if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount()) {
-      debugMsg("StateCacheEntry:registerLookup", ' ' << s << " updating stale value")
-      g_interface->lookupNow(s, *this);
+      debugMsg("StateCacheEntry:registerLookup", ' ' << state << " updating stale value")
+        g_interface->lookupNow(state, *this);
     }
   }
 
-  void StateCacheEntry::unregisterLookup(State const &s, Lookup *l)
+  void StateCacheEntry::unregisterLookup(State const &state, Lookup *lkup)
   {
-    debugMsg("StateCacheEntry:unregisterLookup", ' ' << s)
+    debugMsg("StateCacheEntry:unregisterLookup", ' ' << state)
 
-    if (m_lookups.empty())
-      return; // can't possibly be registered
+      if (m_lookups.empty())
+        return; // can't possibly be registered
 
     // Somewhat likely to remove last item first, so check for that special case.
     // TODO: analyze to see if this is true!
-    if (l == m_lookups.back())
+    if (lkup == m_lookups.back())
       m_lookups.pop_back();
     else {
-      std::vector<Lookup *>::iterator it =
-        std::find(m_lookups.begin(), m_lookups.end(), l);
-      if (it != m_lookups.end())
-        m_lookups.erase(it);
+      std::vector<Lookup *>::iterator iter =
+        std::find(m_lookups.begin(), m_lookups.end(), lkup);
+      if (iter != m_lookups.end())
+        m_lookups.erase(iter);
       else {
-	debugMsg("StateCacheEntry:unregisterLookup", ' ' << s << " lookup not found")
-        return;
+        debugMsg("StateCacheEntry:unregisterLookup", ' ' << state << " lookup not found")
+          return;
       }
     }
 
     if (m_lookups.empty()) {
       debugMsg("StateCacheEntry:unregisterLookup",
-	       ' ' << s << " no lookups remaining, unsubscribing");
-      g_interface->unsubscribe(s);
+               ' ' << state << " no lookups remaining, unsubscribing");
+      g_interface->unsubscribe(state);
       if (m_lowThreshold || m_highThreshold) {
-	delete m_lowThreshold;
-	delete m_highThreshold;
-	m_lowThreshold = m_highThreshold = NULL;
+        delete m_lowThreshold;
+        delete m_highThreshold;
+        m_lowThreshold = m_highThreshold = NULL;
       }
     }
     else if (m_lowThreshold || m_highThreshold) {
       // Check whether thresholds should be updated
       debugMsg("StateCacheEntry:unregisterLookup",
-	       ' ' << s << " updating thresholds from remaining " << m_lookups.size() << " lookups");
-      updateThresholds(s);
+               ' ' << state << " updating thresholds from remaining "
+               << m_lookups.size() << " lookups");
+      updateThresholds(state);
     }
   }
 
-  bool StateCacheEntry::integerUpdateThresholds(State const &s)
+  bool StateCacheEntry::integerUpdateThresholds(State const &state)
   {
     bool hasThresholds = false;
     Integer ihi, ilo;
@@ -142,22 +141,22 @@ namespace PLEXIL
          it != m_lookups.end();
          ++it) {
       if ((*it)->getThresholds(newihi, newilo)) {
-        if (!hasThresholds) {
-          hasThresholds = true;
-          ilo = newilo;
-          ihi = newihi;
-        }
-        else {
+        if (hasThresholds) {
           if (newilo > ilo)
             ilo = newilo;
           if (newihi < ihi)
             ihi = newihi;
         }
+        else {
+          hasThresholds = true;
+          ilo = newilo;
+          ihi = newihi;
+        }
       }
     }
     if (hasThresholds) {
       debugMsg("StateCacheEntry:updateThresholds",
-               ' ' << s << " resetting thresholds " << ilo << ", " << ihi);
+               ' ' << state << " resetting thresholds " << ilo << ", " << ihi);
       if (!m_lowThreshold) {
         m_lowThreshold = CachedValueFactory(INTEGER_TYPE);
         m_highThreshold = CachedValueFactory(INTEGER_TYPE);
@@ -165,49 +164,49 @@ namespace PLEXIL
       unsigned int timestamp = g_interface->getCycleCount();
       m_lowThreshold->update(timestamp, ilo);
       m_highThreshold->update(timestamp, ihi);
-      g_interface->setThresholds(s, ihi, ilo);
+      g_interface->setThresholds(state, ihi, ilo);
     }
     return hasThresholds;
   }
 
-  bool StateCacheEntry::realUpdateThresholds(State const &s)
+  bool StateCacheEntry::realUpdateThresholds(State const &state)
   {
     bool hasThresholds = false;
     Real rhi, rlo;
     Real newrhi, newrlo;
     for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
-	 it != m_lookups.end();
-	 ++it) {
+         it != m_lookups.end();
+         ++it) {
       if ((*it)->getThresholds(newrhi, newrlo)) {
-	if (!hasThresholds) {
-	  hasThresholds = true;
-	  rlo = newrlo;
-	  rhi = newrhi;
-	}
-	else {
-	  if (newrlo > rlo)
-	    rlo = newrlo;
-	  if (newrhi < rhi)
-	    rhi = newrhi;
-	}
+        if (hasThresholds) {
+          if (newrlo > rlo)
+            rlo = newrlo;
+          if (newrhi < rhi)
+            rhi = newrhi;
+        }
+        else {
+          hasThresholds = true;
+          rlo = newrlo;
+          rhi = newrhi;
+        }
       }
     }
     if (hasThresholds) {
       debugMsg("StateCacheEntry:updateThresholds",
-	       ' ' << s << " setting thresholds " << rlo << ", " << rhi);
+               ' ' << state << " setting thresholds " << rlo << ", " << rhi);
       if (!m_lowThreshold) {
-	m_lowThreshold = CachedValueFactory(REAL_TYPE);
-	m_highThreshold = CachedValueFactory(REAL_TYPE);
+        m_lowThreshold = CachedValueFactory(REAL_TYPE);
+        m_highThreshold = CachedValueFactory(REAL_TYPE);
       }
       unsigned int timestamp = g_interface->getCycleCount();
       m_lowThreshold->update(timestamp, rlo);
       m_highThreshold->update(timestamp, rhi);
-      g_interface->setThresholds(s, rhi, rlo);
+      g_interface->setThresholds(state, rhi, rlo);
     }
     return hasThresholds;
   }
 
-  void StateCacheEntry::updateThresholds(State const &s)
+  void StateCacheEntry::updateThresholds(State const &state)
   {
     // Survey lookups to determine if the thresholds
     // need to be established, changed, or deleted.
@@ -216,7 +215,7 @@ namespace PLEXIL
 
     switch (vtype) {
     case INTEGER_TYPE:
-      hasThresholds = integerUpdateThresholds(s);
+      hasThresholds = integerUpdateThresholds(state);
       break;
 
       // FIXME: support non-Real date/duration types
@@ -224,19 +223,20 @@ namespace PLEXIL
     case DURATION_TYPE:
 
     case REAL_TYPE: {
-      hasThresholds = realUpdateThresholds(s);
+      hasThresholds = realUpdateThresholds(state);
       break;
     }
 
     default:
       // this is a plan error
       warn("LookupOnChange: lookup value of type " << valueTypeName(vtype)
-	   << " does not allow a tolerance");
+           << " does not allow a tolerance");
       return;
     }
+
     if (!hasThresholds) {
       debugMsg("StateCacheEntry:updateThresholds",
-	       ' ' << s << " no change lookups remaining, clearing thresholds");
+               ' ' << state << " no change lookups remaining, clearing thresholds");
       delete m_lowThreshold;
       delete m_highThreshold;
       m_lowThreshold = m_highThreshold = NULL;
@@ -248,46 +248,44 @@ namespace PLEXIL
     return m_value;
   }
 
-  bool StateCacheEntry::ensureCachedValue(ValueType v)
+  bool StateCacheEntry::ensureCachedValue(ValueType typ)
   {
     if (m_value) {
       // Check that requested type is consistent with existing
-      ValueType ct = m_value->valueType();
-      if (ct == v) // usual case, we hope
+      ValueType ctyp = m_value->valueType();
+      if (ctyp == typ             // same type (should be usual case)
+          || typ == UNKNOWN_TYPE) // caller doesn't know or care
         return true;
-      if (v == UNKNOWN_TYPE) // caller doesn't know or care
-        return true;
-      if (ct == UNKNOWN_TYPE) {
+      if (ctyp == UNKNOWN_TYPE) {
         // Replace placeholder with correct type
         delete m_value;
-        m_value = CachedValueFactory(v);
+        m_value = CachedValueFactory(typ);
         return true;
       }
-      if (v == INTEGER_TYPE && isNumericType(ct)) // can store an integer in any numeric type
+      if (typ == INTEGER_TYPE && isNumericType(ctyp)) // can store an integer in any numeric type
         return true;
+      // Date, Duration are reals
       // FIXME implement a real time type
-      if (v == REAL_TYPE && (ct == DATE_TYPE || ct == DURATION_TYPE)) // date, duration are real
+      if (typ == REAL_TYPE && (ctyp == DATE_TYPE || ctyp == DURATION_TYPE))
         return true;
 
       // Type mismatch
       // FIXME this is likely a plan or interface coding error, handle more gracefully
       debugMsg("StateCacheEntry:update",
-               " requested type " << valueTypeName(v)
-               << " but existing value is type " << valueTypeName(ct));
+               " requested type " << valueTypeName(typ)
+               << " but existing value is type " << valueTypeName(ctyp));
       return false;
     }
-    else {
-      m_value = CachedValueFactory(v);
-      return true;
-    }
+
+    // Didn't exist before, simply construct the desired type
+    m_value = CachedValueFactory(typ);
+    return true;
   }
 
   void StateCacheEntry::setUnknown()
   {
-    if (m_value) {
-      if (m_value->setUnknown(g_interface->getCycleCount()))
-        notify();
-    }
+    if (m_value && m_value->setUnknown(g_interface->getCycleCount()))
+      notify();
   }
 
   void StateCacheEntry::update(Boolean const &val)

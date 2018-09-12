@@ -224,6 +224,12 @@ namespace PLEXIL
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
 
+  /**
+   * @brief Construct a PlexilExec instance.
+   * @return Pointer to the new PlexilExec instance.
+   */
+  PlexilExec *makePlexilExec();
+
 }
 
 #endif

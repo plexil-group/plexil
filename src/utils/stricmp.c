@@ -24,43 +24,43 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int stricmp(const char *s1, const char *s2)
+int stricmp(const char *str1, const char *str2)
 {
-  if (!s1) {
-    if (s2 && *s2)
+  if (!str1) {
+    if (str2 && *str2)
       return -1;
     return 0; /* null equals null or empty string */
   }
-  if (!s2) {
-    if (*s1)
+  if (!str2) {
+    if (*str1)
       return 1;
     return 0; /* null equals empty string */
   }
 
-  char c1 = *s1++;
-  char c2 = *s2++;
-  while (c1 && c2) {
-    if (c1 != c2) {
+  char ch1 = *str1++;
+  char ch2 = *str2++;
+  while (ch1 && ch2) {
+    if (ch1 != ch2) {
       /* coerce alpha to upper case */
-      if (c1 >= 'a' && c1 <= 'z')
-        c1 = c1 - 0x20;
-      if (c2 >= 'a' && c2 <= 'z')
-        c2 = c2 - 0x20;
+      if (ch1 >= 'a' && ch1 <= 'z')
+        ch1 = ch1 - 0x20;
+      if (ch2 >= 'a' && ch2 <= 'z')
+        ch2 = ch2 - 0x20;
 
-      if (c1 > c2)
+      if (ch1 > ch2)
         return 1;
-      if (c2 > c1)
+      if (ch2 > ch1)
         return -1;
     }
 
-    c1 = *s1++;
-    c2 = *s2++;
+    ch1 = *str1++;
+    ch2 = *str2++;
   }
 
-  /* if we got here, either c1 or c2 is a terminating null */
-  if (c1 == c2) /* only if both are null */
+  /* if we got here, either ch1 or ch2 is a terminating null */
+  if (ch1 == ch2) /* only if both are null */
     return 0; /* strings are equal */
-  if (c1)
-    return 1; /* s1 is longer, therefore greater */
+  if (ch1)
+    return 1; /* str1 is longer, therefore greater */
   return -1;
 }

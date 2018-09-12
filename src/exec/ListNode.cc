@@ -540,9 +540,9 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition NodeList/LibraryNodeCall "
+               "from EXECUTING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -675,9 +675,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition List node from FINISHING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition List node from FINISHING to invalid state "
+               << nodeStateName(m_nextState));
     }
   }
 
@@ -709,25 +708,25 @@ namespace PLEXIL
       if (this->getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
                  ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
-                 << " -> FINISHED. List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
+                 << " -> FINISHED. "
+                 "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
         m_nextState = FINISHED_STATE;
         return true;
       }
       if (this->getFailureType() == PARENT_FAILED) {
         debugMsg("Node:getDestState",
                  ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
-                 << " -> FINISHED. List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent failed.");
+                 << " -> FINISHED. "
+                 "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent failed.");
         m_nextState = FINISHED_STATE;
         return true;
       }
-      else {
-        debugMsg("Node:getDestState",
-                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
-                 << " -> ITERATION_ENDED. List node and "
-                 << (this->getFailureType() == EXITED ? "self-exited" : "self-failure."));
-        m_nextState = ITERATION_ENDED_STATE;
-        return true;
-      }
+      debugMsg("Node:getDestState",
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> ITERATION_ENDED. List node and "
+               << (this->getFailureType() == EXITED ? "self-exited" : "self-failure."));
+      m_nextState = ITERATION_ENDED_STATE;
+      return true;
     }
 
     debugMsg("Node:getDestState",
@@ -761,9 +760,9 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition NodeList/LibraryNodeCall node "
+               "from FAILING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }

@@ -58,15 +58,8 @@ namespace PLEXIL
 
   std::ostream &operator<<(std::ostream &ostr, DebugMessage const &msg)
   {
-    try {
-      ostr.exceptions(std::ostream::badbit);
-      ostr << msg.marker << " ("
-           << (msg.enabled ? "en" : "dis") << "abled)";
-    }
-    catch (std::ios_base::failure& exc) {
-      check_error_2(ALWAYS_FAIL, exc.what());
-      throw;
-    }
+    ostr << msg.marker << " ("
+         << (msg.enabled ? "en" : "dis") << "abled)";
     return ostr;
   }
 

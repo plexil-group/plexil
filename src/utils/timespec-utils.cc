@@ -106,19 +106,19 @@ struct timespec operator-(const struct timespec& ts1, const struct timespec& ts2
   return time;
 }
 
-void doubleToTimespec(double d, timespec& result)
+void doubleToTimespec(double dbl, timespec& result)
 {
   double seconds = 0;
-  double fraction = modf(d, &seconds);
+  double fraction = modf(dbl, &seconds);
 
   result.tv_sec = (time_t) seconds;
   result.tv_nsec = (long) (fraction * ONE_BILLION_DOUBLE);
 }
 
-struct timespec doubleToTimespec(double d)
+struct timespec doubleToTimespec(double dbl)
 {
   timespec result;
-  doubleToTimespec(d, result);
+  doubleToTimespec(dbl, result);
   return result;
 }
 

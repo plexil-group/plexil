@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -83,33 +83,33 @@ namespace PLEXIL
     return *this;
   }
 
-  void ResourceSpec::setNameExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setNameExpression(Expression *exp, bool isGarbage)
   {
-    nameExp = e;
+    nameExp = exp;
     nameIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setPriorityExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setPriorityExpression(Expression *exp, bool isGarbage)
   {
-    priorityExp = e;
+    priorityExp = exp;
     priorityIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setLowerBoundExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setLowerBoundExpression(Expression *exp, bool isGarbage)
   {
-    lowerBoundExp = e;
+    lowerBoundExp = exp;
     lowerBoundIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setUpperBoundExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setUpperBoundExpression(Expression *exp, bool isGarbage)
   {
-    upperBoundExp = e;
+    upperBoundExp = exp;
     upperBoundIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setReleaseAtTerminationExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setReleaseAtTerminationExpression(Expression *exp, bool isGarbage)
   {
-    releaseAtTermExp = e;
+    releaseAtTermExp = exp;
     releaseIsGarbage = isGarbage;
   }
 
@@ -234,19 +234,18 @@ namespace PLEXIL
     m_nameIsGarbage = isGarbage;
   }
 
-  void Command::setResourceList(ResourceList *l)
+  void Command::setResourceList(ResourceList *lst)
   {
-    if (m_resourceList && m_resourceList != l) // unlikely, but...
+    if (m_resourceList && m_resourceList != lst) // unlikely, but...
       delete m_resourceList;
 
-    m_resourceList = l;
+    m_resourceList = lst;
     m_resourcesAreConstant = false; // must check
   }
 
   void Command::setArgumentVector(ExprVec *vec)
   {
-    if (m_argVec)
-      delete m_argVec;
+    delete m_argVec;
     m_argVec = vec;
   }
 
@@ -273,18 +272,16 @@ namespace PLEXIL
     static ResourceValueList const sl_emptyList;
 
     assertTrue_1(m_resourcesFixed);
-    if (!m_resourceList)
-      return sl_emptyList;
-    else
+    if (m_resourceList)
       return *m_resourceValueList;
+    return sl_emptyList;
   }
 
   Expression *Command::getDest()
   {
     if (m_dest)
       return m_dest;
-    else
-      return NULL;
+    return NULL;
   }
 
   bool Command::isCommandConstant() const
@@ -404,11 +401,10 @@ namespace PLEXIL
 
     // If resources fixed, they are already active
     if (m_resourceList && !m_resourcesFixed)
-      if (m_resourceList)
-        for (ResourceList::iterator it = m_resourceList->begin();
-             it != m_resourceList->end();
-             ++it)
-          it->activate();
+      for (ResourceList::iterator it = m_resourceList->begin();
+           it != m_resourceList->end();
+           ++it)
+        it->activate();
 
     // Check for constancy at first activation
     if (!m_checkedConstant) {
@@ -482,14 +478,12 @@ namespace PLEXIL
       m_dest->deactivate();
 
     // Don't deactivate if resources are constant
-    if (m_resourceList) {
-      if (!m_resourcesAreConstant) {
-        for (ResourceList::iterator it = m_resourceList->begin();
-             it != m_resourceList->end();
-             ++it)
-          it->deactivate();
-        m_resourcesFixed = false;
-      }
+    if (m_resourceList && !m_resourcesAreConstant) {
+      for (ResourceList::iterator it = m_resourceList->begin();
+           it != m_resourceList->end();
+           ++it)
+        it->deactivate();
+      m_resourcesFixed = false;
     }
 
     // Don't deactivate if command is constant

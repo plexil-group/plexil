@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -104,9 +104,9 @@ namespace PLEXIL
     return m_exp->getBaseExpression();
   }
 
-  void Alias::printValue(std::ostream &s) const
+  void Alias::printValue(std::ostream &str) const
   {
-    m_exp->printValue(s);
+    m_exp->printValue(str);
   }
 
   bool Alias::getValue(Boolean &var) const
@@ -193,9 +193,9 @@ namespace PLEXIL
     return m_exp->toValue();
   }
 
-  void Alias::doSubexprs(ExprUnaryOperator const &f)
+  void Alias::doSubexprs(ExprUnaryOperator const &func)
   {
-    (f)(m_exp);
+    (func)(m_exp);
   }
 
 } // namespace PLEXIL

@@ -168,7 +168,7 @@ namespace PLEXIL
   void TimeAdapterImpl::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     // This is an internal error, shouldn't be reachable from a plan
-    assertTrue_2(ALWAYS_FAIL, "setThresholds of integer thresholds not implemented");
+    errorMsg("setThresholds of integer thresholds not implemented");
   }
 
 

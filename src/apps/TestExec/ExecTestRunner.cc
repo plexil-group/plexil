@@ -284,7 +284,7 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // create the exec
 
-  g_exec = new PlexilExec();
+  g_exec = makePlexilExec();
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);
 

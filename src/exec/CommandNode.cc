@@ -350,9 +350,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition Command node from EXECUTING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition Command node from EXECUTING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -468,9 +467,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition Command node from FINISHING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition Command node from FINISHING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
 
@@ -515,13 +513,12 @@ namespace PLEXIL
         m_nextState = FINISHED_STATE;
         return true;
       }
-      else {
-        debugMsg("Node:getDestState",
-                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
-                 << " -> ITERATION_ENDED. Command node abort complete.");
-        m_nextState = ITERATION_ENDED_STATE;
-        return true;
-      }
+
+      debugMsg("Node:getDestState",
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> ITERATION_ENDED. Command node abort complete.");
+      m_nextState = ITERATION_ENDED_STATE;
+      return true;
     }
 
     debugMsg("Node:getDestState",
@@ -547,9 +544,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition Command node from FAILING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition Command node from FAILING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -581,7 +577,6 @@ namespace PLEXIL
     // Empty arglist
     // No destination variable
     // No resource
-    ResourceList resourceList;
     m_command = new Command(this->getNodeId());
     m_command->setNameExpr(&sl_dummyCmdName, false);
   }

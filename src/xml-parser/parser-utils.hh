@@ -65,7 +65,7 @@ namespace PLEXIL
   extern char const *typeNameAsValue(ValueType ty);
 
   // Helper for checkParserExceptionWithLocation
-  extern void reportParserException(std::string const &msg, pugi::xml_node location)
+  extern void throwParserException(std::string const &msg, pugi::xml_node location)
     throw (ParserException) PLEXIL_NORETURN;
 
 } // namespace PLEXIL
@@ -79,7 +79,7 @@ namespace PLEXIL
 #define reportParserExceptionWithLocation(loc, msg) { \
   std::ostringstream whatstr; \
   whatstr << msg; \
-  reportParserException(whatstr.str().c_str(), loc); \
+  throwParserException(whatstr.str().c_str(), loc); \
 }
 
 /**

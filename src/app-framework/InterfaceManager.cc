@@ -281,9 +281,8 @@ namespace PLEXIL
 
       default:
         // Internal error
-        checkError(ALWAYS_FAIL,
-                   "InterfaceManager:processQueue: Invalid entry type "
-                   << entry->type);
+        errorMsg("InterfaceManager:processQueue: Invalid entry type "
+                 << entry->type);
         break;
       }
 

@@ -162,7 +162,9 @@ namespace PLEXIL
   }
 
   void Error::print(std::ostream& ostr) const {
-    ostr << "Error(\"" << m_condition << "\", \"";
+    ostr << "Error(";
+    if (!m_condition.empty())
+      ostr << '"' << m_condition << "\", \"";
     if (!m_msg.empty())
       ostr << m_msg << "\", \"";
     ostr << m_file << "\", " << m_line << ")";

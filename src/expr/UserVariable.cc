@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -184,16 +184,14 @@ namespace PLEXIL {
   {
     if (m_name)
       return m_name;
-    static char const *sl_anon = "anonymous";
-    return sl_anon;
+    return "anonymous";
   }
 
   char const *UserVariable<String>::getName() const
   {
     if (m_name)
       return m_name;
-    static char const *sl_anon = "anonymous";
-    return sl_anon;
+    return "anonymous";
   }
 
   template <typename T>
@@ -249,7 +247,7 @@ namespace PLEXIL {
   template <typename U>
   bool UserVariable<String>::getValuePointer(U const *&ptr) const
   {
-    assertTrue_2(ALWAYS_FAIL, "UserVariable::getValuePointer type error");
+    errorMsg("UserVariable::getValuePointer type error");
     return false;
   }
 
@@ -300,14 +298,14 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  void UserVariable<T>::printSpecialized(std::ostream &s) const
+  void UserVariable<T>::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
+    str << getName() << ' ';
   }
 
-  void UserVariable<String>::printSpecialized(std::ostream &s) const
+  void UserVariable<String>::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
+    str << getName() << ' ';
   }
 
   template <typename T>

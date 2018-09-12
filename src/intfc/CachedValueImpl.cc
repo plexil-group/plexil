@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,7 @@ namespace PLEXIL
 
   CachedValue &VoidCachedValue::operator=(CachedValue const &other)
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "This method should never be called");
+    errorMsg("This method should never be called");
   }
 
   ValueType VoidCachedValue::valueType() const
@@ -79,9 +78,9 @@ namespace PLEXIL
     return Value();
   }
 
-  void VoidCachedValue::printValue(std::ostream &s) const
+  void VoidCachedValue::printValue(std::ostream &str) const
   {
-    s << "UNKNOWN"; 
+    str << "UNKNOWN"; 
   }
 
   /**
@@ -94,7 +93,7 @@ namespace PLEXIL
 #define DEFINE_UPDATE_METHOD(_type_)                                    \
   bool VoidCachedValue::update(unsigned int /* timestamp */, _type_ const & /* val */) \
   {                                                                     \
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");        \
+    errorMsg("Can't update a VoidCachedValue");        \
     return false;                                                       \
   }
 
@@ -108,7 +107,7 @@ namespace PLEXIL
 #define DEFINE_UPDATE_PTR_METHOD(_type_)                                \
   bool VoidCachedValue::updatePtr(unsigned int /* timestamp */, _type_ const * /* valPtr */) \
   {                                                                     \
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");        \
+    errorMsg("Can't update a VoidCachedValue");        \
     return false;                                                       \
   }
 
@@ -122,7 +121,10 @@ namespace PLEXIL
   
   bool VoidCachedValue::update(unsigned int timestamp, Value const &val)
   {
-    assertTrue_2(!val.isKnown(), "Can't update a VoidCachedValue");
+    if (val.isKnown()) {
+      errorMsg("Can't update a VoidCachedValue");
+      return false;
+    }
     this->m_timestamp = timestamp;
     return true;
   }
@@ -344,8 +346,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   Value CachedValueImpl<Integer>::toValue() const
@@ -354,8 +355,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   Value CachedValueImpl<Real>::toValue() const
@@ -364,8 +364,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   Value CachedValueImpl<String>::toValue() const
@@ -374,8 +373,7 @@ namespace PLEXIL
     bool known = this->getValuePointer(ptr);
     if (known)
       return Value(*ptr);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   template <typename T>
@@ -385,8 +383,7 @@ namespace PLEXIL
     bool known = this->getValuePointer(ptr);
     if (known)
       return Value(*ptr);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   template <typename T>
@@ -451,45 +448,45 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void CachedValueImpl<T>::printValue(std::ostream &s) const
+  void CachedValueImpl<T>::printValue(std::ostream &str) const
   {
     if (m_known)
-      PLEXIL::printValue(m_value, s);
+      PLEXIL::printValue(m_value, str);
     else
-      s << "UNKNOWN"; 
+      str << "UNKNOWN"; 
   }
 
-  void CachedValueImpl<Integer>::printValue(std::ostream &s) const
+  void CachedValueImpl<Integer>::printValue(std::ostream &str) const
   {
     if (m_known)
-      PLEXIL::printValue(m_value, s);
+      PLEXIL::printValue(m_value, str);
     else
-      s << "UNKNOWN"; 
+      str << "UNKNOWN"; 
   }
 
-  void CachedValueImpl<Real>::printValue(std::ostream &s) const
+  void CachedValueImpl<Real>::printValue(std::ostream &str) const
   {
     if (m_known)
-      PLEXIL::printValue(m_value, s);
+      PLEXIL::printValue(m_value, str);
     else
-      s << "UNKNOWN"; 
+      str << "UNKNOWN"; 
   }
 
-  void CachedValueImpl<String>::printValue(std::ostream &s) const
+  void CachedValueImpl<String>::printValue(std::ostream &str) const
   {
     if (m_known)
-      PLEXIL::printValue(m_value, s);
+      PLEXIL::printValue(m_value, str);
     else
-      s << "UNKNOWN"; 
+      str << "UNKNOWN"; 
   }
 
   template <typename T>
-  void CachedValueImpl<ArrayImpl<T> >::printValue(std::ostream &s) const
+  void CachedValueImpl<ArrayImpl<T> >::printValue(std::ostream &str) const
   {
     if (m_known)
-      PLEXIL::printValue(m_value, s);
+      PLEXIL::printValue(m_value, str);
     else
-      s << "UNKNOWN"; 
+      str << "UNKNOWN"; 
   }
 
   template <typename T>
@@ -700,12 +697,11 @@ namespace PLEXIL
     T nativeVal;
     if (val.getValue(nativeVal))
       return this->update(timestamp, nativeVal);
-    else {
-      debugMsg("CachedValue:mismatch",
-               " value " << val << "is wrong type for "
-               << PlexilValueType<T>::typeName << " lookup");
-      return setUnknown(timestamp);
-    }
+
+    debugMsg("CachedValue:mismatch",
+             " value " << val << "is wrong type for "
+             << PlexilValueType<T>::typeName << " lookup");
+    return setUnknown(timestamp);
   }
 
   bool CachedValueImpl<Integer>::update(unsigned int timestamp, Value const &val)
@@ -713,11 +709,10 @@ namespace PLEXIL
     Integer nativeVal;
     if (val.getValue(nativeVal))
       return this->update(timestamp, nativeVal);
-    else {
-      debugMsg("CachedValue:mismatch",
-               " value " << val << "is wrong type for Integer lookup");
-      return setUnknown(timestamp);
-    }
+
+    debugMsg("CachedValue:mismatch",
+             " value " << val << "is wrong type for Integer lookup");
+    return setUnknown(timestamp);
   }
 
   bool CachedValueImpl<Real>::update(unsigned int timestamp, Value const &val)
@@ -725,11 +720,10 @@ namespace PLEXIL
     Real nativeVal;
     if (val.getValue(nativeVal))
       return this->update(timestamp, nativeVal);
-    else {
-      debugMsg("CachedValue:mismatch",
-               " value " << val << "is wrong type for Real lookup");
-      return setUnknown(timestamp);
-    }
+
+    debugMsg("CachedValue:mismatch",
+             " value " << val << "is wrong type for Real lookup");
+    return setUnknown(timestamp);
   }
 
   // Special case for string
@@ -738,11 +732,10 @@ namespace PLEXIL
     std::string const *valPtr;
     if (val.getValuePointer(valPtr))
       return this->updatePtr(timestamp, valPtr);
-    else {
-      debugMsg("CachedValue:mismatch",
-               " value " << val << "is wrong type for String lookup");
-      return setUnknown(timestamp);
-    }
+    
+    debugMsg("CachedValue:mismatch",
+             " value " << val << "is wrong type for String lookup");
+    return setUnknown(timestamp);
   }
 
   // Array method
@@ -752,12 +745,11 @@ namespace PLEXIL
     ArrayImpl<T> const *valPtr;
     if (val.getValuePointer(valPtr))
       return this->updatePtr(timestamp, valPtr);
-    else {
-      debugMsg("CachedValue:mismatch",
-               " value " << val << "is wrong type for "
-               << PlexilValueType<ArrayImpl<T> >::typeName << " lookup");
-      return setUnknown(timestamp);
-    }
+
+    debugMsg("CachedValue:mismatch",
+             " value " << val << "is wrong type for "
+             << PlexilValueType<ArrayImpl<T> >::typeName << " lookup");
+    return setUnknown(timestamp);
   }
 
   //
@@ -824,7 +816,7 @@ namespace PLEXIL
       return static_cast<CachedValue *>(new VoidCachedValue());
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "CachedValueFactory: Invalid or unimplemented value type");
+      errorMsg("CachedValueFactory: Invalid or unimplemented value type");
       return NULL;
     }
   }

@@ -230,7 +230,7 @@ namespace PLEXIL
 
     default:
       // Internal error
-      assertTrue_2(ALWAYS_FAIL, "checkNodeBody: Internal error: invalid PlexilNodeType value");
+      errorMsg("checkNodeBody: Internal error: invalid PlexilNodeType value");
       return;
     }
   }
@@ -261,11 +261,21 @@ namespace PLEXIL
     checkTag(NODE_TAG, xml);
 
     PlexilNodeType nodeType = checkNodeTypeAttr(xml);
+
+    // Temps for duplicate checking
     xml_node idXml;
     xml_node ifaceXml;
     xml_node bodyXml;
     xml_node prioXml;
     xml_node varDeclsXml;
+    xml_node endXml;
+    xml_node exitXml;
+    xml_node invariantXml;
+    xml_node postXml;
+    xml_node preXml;
+    xml_node repeatXml;
+    xml_node skipXml;
+    xml_node startXml;
 
     // Scan all children in order
     for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
@@ -295,9 +305,19 @@ namespace PLEXIL
         break;
         
       case 'E': // EndCondition, ExitCondition, Expect
-        if (!strcmp(END_CONDITION_TAG, tag)
-            || !strcmp(EXIT_CONDITION_TAG, tag)) {
+        if (!strcmp(END_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(endXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
           checkCondition(xml.child_value(NODEID_TAG), temp);
+          endXml = temp;
+        }
+        else if (!strcmp(EXIT_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(exitXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
+          checkCondition(xml.child_value(NODEID_TAG), temp);
+          exitXml = temp;
         }
         else if (strcmp(EXPECT_TAG, tag)) { // Annotation for analysis, ignored 
           reportParserExceptionWithLocation(temp,
@@ -307,7 +327,11 @@ namespace PLEXIL
 
       case 'I': // Interface, InvariantCondition
         if (!strcmp(INVARIANT_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(invariantXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
           checkCondition(xml.child_value(NODEID_TAG), temp);
+          invariantXml = temp;
         }
         else if (!strcmp(INTERFACE_TAG, tag)) {
           checkParserExceptionWithLocation(!ifaceXml,
@@ -345,9 +369,19 @@ namespace PLEXIL
         break;
 
       case 'P': // PostCondition, Priority, PreCondition
-        if (!strcmp(POST_CONDITION_TAG, tag)
-            || !strcmp(PRE_CONDITION_TAG, tag)) {
+        if (!strcmp(POST_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(postXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
           checkCondition(xml.child_value(NODEID_TAG), temp);
+          postXml = temp;
+        }
+        else if (!strcmp(PRE_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(preXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
+          checkCondition(xml.child_value(NODEID_TAG), temp);
+          preXml = temp;
         }
         else if (!strcmp(PRIORITY_TAG, tag)) {
           checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
@@ -370,13 +404,27 @@ namespace PLEXIL
         checkParserExceptionWithLocation(!strcmp(REPEAT_CONDITION_TAG, tag),
                                          temp, 
                                          "Illegal element \"" << tag << "\" in Node");
+        checkParserExceptionWithLocation(repeatXml.empty(),
+                                         temp,
+                                         "Duplicate " << tag << " element in Node");
         checkCondition(xml.child_value(NODEID_TAG), temp);
+        repeatXml = temp;
         break;
 
       case 'S': // SkipCondition, StartCondition
-        if (!strcmp(START_CONDITION_TAG, tag)
-            || !strcmp(SKIP_CONDITION_TAG, tag)) {
+        if (!strcmp(START_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(startXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
           checkCondition(xml.child_value(NODEID_TAG), temp);
+          startXml = temp;
+        }
+        else if (!strcmp(SKIP_CONDITION_TAG, tag)) {
+          checkParserExceptionWithLocation(skipXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
+          checkCondition(xml.child_value(NODEID_TAG), temp);
+          skipXml = temp;
         }
         else {
           reportParserExceptionWithLocation(temp,
@@ -632,7 +680,7 @@ namespace PLEXIL
         break;
 
       default:
-        assertTrue_2(ALWAYS_FAIL, "Internal error: bad node type");
+        errorMsg("Internal error: bad node type");
         break;
       }
     }
@@ -905,9 +953,8 @@ namespace PLEXIL
           linkInOutVar(node, decl, isCall);
       }
       else
-        assertTrueMsg(ALWAYS_FAIL,
-                      "Internal error: Found " << temp.name()
-                      << " element in Interface during second pass");
+        errorMsg("Internal error: Found " << temp.name()
+                 << " element in Interface during second pass");
     }
   }
 

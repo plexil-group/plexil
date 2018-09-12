@@ -85,6 +85,17 @@ namespace PLEXIL
 
 
 /**
+ * @def reportPlanError
+ * @brief Unconditionally create an error message.
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define reportPlanError(msg) { \
+  std::ostringstream sstr; \
+  sstr << msg; \
+  PLEXIL::PlanError("", sstr.str(), __FILE__, __LINE__).report(); \
+}
+
+/**
  * @def checkPlanError
  * @brief Test a condition and create an error if false.
  * @param cond Expression that yields a true/false result.

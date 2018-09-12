@@ -301,6 +301,17 @@ namespace PLEXIL
 }
 
 /**
+ * @def errorMsg
+ * @brief Create and report an error unconditionally.
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define errorMsg(msg) { \
+  std::ostringstream sstr; \
+  sstr << msg; \
+  PLEXIL::Error("", sstr.str(), __FILE__, __LINE__).handleAssert(); \
+} 
+
+/**
  * @def assertTrueMsg
  * @brief Test a condition and create an error if false.
  * @param cond Expression that yields a true/false result.

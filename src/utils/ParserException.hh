@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,21 @@
 #include <sstream>
 
 /**
+ * @def reportParserException
+ * @brief Unconditionally throw a ParserException with the given message
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define reportParserException(msg) { \
+    std::ostringstream whatstr; \
+    whatstr << msg; \
+    throw PLEXIL::ParserException(whatstr.str().c_str()); \
+}
+
+/**
  * @def checkParserException
  * @brief If the condition is false, throw a ParserException
  * @param cond The condition to test; if false, throw the exception
- * @param msg An expression which writes the required message to a stream
+ * @param msg Anything suitable as the right-hand side of <<.
  */
 #define checkParserException(cond, msg) { \
   if (!(cond)) \

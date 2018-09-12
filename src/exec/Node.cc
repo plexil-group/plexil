@@ -207,7 +207,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL, "Node module test constructor: Invalid state " << state);
+      errorMsg("Node module test constructor: Invalid state " << state);
     }
   }
 
@@ -291,10 +291,13 @@ namespace PLEXIL
   {
     assertTrue_2(cname, "Null condition name");
     ConditionIndex which = getConditionIndex(cname);
-    checkParserException(which >= skipIdx && which <= repeatIdx,
-                         "Invalid condition name \"" << cname << "\" for user condition");
-    checkParserException(!m_conditions[which],
-                         "Duplicate " << cname << " for Node \"" << m_nodeId << "\"");
+
+    // These should have been checked by the parser's check pass
+    assertTrueMsg(which >= skipIdx && which <= repeatIdx,
+                  "Internal error: Invalid condition name \"" << cname << "\" for user condition");
+    assertTrueMsg(!m_conditions[which],
+                  "Duplicate " << cname << " for Node \"" << m_nodeId << "\"");
+
     m_conditions[which] = cond;
     m_garbageConditions[which] = isGarbage;
   }
@@ -420,8 +423,7 @@ namespace PLEXIL
     case ancestorInvariantIdx:
       if (m_parent)
         return m_parent->m_conditions[idx];
-      else
-        return NULL;
+      return NULL;
 
     default:
       return m_conditions[idx];
@@ -437,8 +439,7 @@ namespace PLEXIL
     case ancestorInvariantIdx:
       if (m_parent)
         return m_parent->m_conditions[idx];
-      else
-        return NULL;
+      return NULL;
 
     default:
       return m_conditions[idx];
@@ -483,8 +484,7 @@ namespace PLEXIL
       return;
 
     default:                      // Invalid queue state
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Node::notifyChanged for node " << m_nodeId << ": invalid queue state");
+      errorMsg("Node::notifyChanged for node " << m_nodeId << ": invalid queue state");
       return;
     }
   }
@@ -526,8 +526,7 @@ namespace PLEXIL
       return getDestStateFromIterationEnded();
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Node::getDestState: invalid node state " << m_state);
+      errorMsg("Node::getDestState: invalid node state " << m_state);
       return false;
     }
   }
@@ -599,8 +598,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Node::transitionFrom: Invalid node state " << m_state);
+      errorMsg("Node::transitionFrom: Invalid node state " << m_state);
     }
   }
 
@@ -637,8 +635,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Node::transitionTo: Invalid destination state " << m_nextState);
+      errorMsg("Node::transitionTo: Invalid destination state " << m_nextState);
     }
 
     setState((NodeState) m_nextState, time);
@@ -904,9 +901,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition from WAITING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition from WAITING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -1036,9 +1032,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition empty node from EXECUTING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition empty node from EXECUTING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
 
@@ -1154,9 +1149,8 @@ namespace PLEXIL
       return;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition from ITERATION_ENDED to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition from ITERATION_ENDED to invalid state "
+               << nodeStateName(m_nextState));
       return;
     }
   }
@@ -1210,24 +1204,21 @@ namespace PLEXIL
   // Default method
   void Node::transitionToFinishing()
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "No transition to FINISHING state defined for this node");
+    errorMsg("No transition to FINISHING state defined for this node");
   }
 
   // Default method
   bool Node::getDestStateFromFinishing()
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Attempted to compute destination state from FINISHING for node "
-                  << m_nodeId << ' ' << this << " of type " << getType());
+    errorMsg("Attempted to compute destination state from FINISHING for node "
+             << m_nodeId << ' ' << this << " of type " << getType());
     return false;
   }
 
   // Default method
   void Node::transitionFromFinishing()
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "No transition from FINISHING state defined for this node");
+    errorMsg("No transition from FINISHING state defined for this node");
   }
 
   //
@@ -1242,24 +1233,21 @@ namespace PLEXIL
   // Default method
   void Node::transitionToFailing()
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "No transition to FAILING state defined for this node");
+    errorMsg("No transition to FAILING state defined for this node");
   }
 
   // Default method
   bool Node::getDestStateFromFailing()
   {
-    assertTrueMsg(ALWAYS_FAIL,
-                  "Attempted to compute destination state from FAILING for node "
-                  << m_nodeId << ' ' << this << " of type " << getType());
+    errorMsg("Attempted to compute destination state from FAILING for node "
+             << m_nodeId << ' ' << this << " of type " << getType());
     return false;
   }
 
   // Default method
   void Node::transitionFromFailing()
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "No transition from FAILING state defined for this node");
+    errorMsg("No transition from FAILING state defined for this node");
   }
 
   // ***
@@ -1407,10 +1395,9 @@ namespace PLEXIL
                ' ' << m_nodeId << " Returning " << it->second->toString());
       return it->second;
     }
-    else {
-      debugMsg("Node:findLocalVariable", ' ' << m_nodeId << ' ' << name << " not found");
-      return NULL;
-    }
+
+    debugMsg("Node:findLocalVariable", ' ' << m_nodeId << ' ' << name << " not found");
+    return NULL;
   }
 
   // Default methods
@@ -1604,7 +1591,7 @@ namespace PLEXIL
   // Default method
   void Node::abort() 
   {
-    // checkError(ALWAYS_FAIL, "Abort illegal for node type " << getType());
+    errorMsg("Abort illegal for node type " << getType());
   }
 
   void Node::deactivateExecutable() 

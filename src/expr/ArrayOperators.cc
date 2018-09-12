@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArraySize::checkArgTypes(Function const *ev) const
+  bool ArraySize::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isArrayType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool ArraySize::operator()(int32_t &result, Expression const *arg) const
@@ -82,10 +82,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArrayMaxSize::checkArgTypes(Function const *ev) const
+  bool ArrayMaxSize::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isArrayType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool ArrayMaxSize::operator()(int32_t &result, Expression const *arg) const
@@ -116,10 +116,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AllElementsKnown::checkArgTypes(Function const *ev) const
+  bool AllElementsKnown::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isArrayType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool AllElementsKnown::operator()(bool &result, Expression const *arg) const
@@ -149,10 +149,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AnyElementsKnown::checkArgTypes(Function const *ev) const
+  bool AnyElementsKnown::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isArrayType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool AnyElementsKnown::operator()(bool &result, Expression const *arg) const

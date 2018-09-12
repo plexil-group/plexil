@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ namespace PLEXIL
 
       // report unknown script element
       else {
-        checkError(ALWAYS_FAIL, "Unknown script element '" << scriptElement.name() << "'");
+        reportParserException("Unknown script element '" << scriptElement.name() << "'");
         return;
       }
          
@@ -293,8 +293,8 @@ namespace PLEXIL
       }
       // report unknown script element
       else {
-        checkError(ALWAYS_FAIL,
-                   "Unknown script element '" << item.name() << "' inside <Simultaneous>");
+        reportParserException("Unknown script element '" << item.name()
+                              << "' inside <Simultaneous>");
         return;
       }
       item = item.next_sibling();
@@ -488,7 +488,7 @@ namespace PLEXIL
       }
     }
     else {
-      checkError(ALWAYS_FAIL, "Unknown type attribute \"" << type << "\"");
+      reportParserException("Unknown type attribute \"" << type << "\"");
       return Value();
     }
   }

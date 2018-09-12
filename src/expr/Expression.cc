@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,7 @@ namespace PLEXIL
   // Default method.
   char const *Expression::getName() const
   {
-    static char const *sl_empty = "";
-    return sl_empty;
+    return "";
   }
 
   // Default method.
@@ -113,48 +112,48 @@ namespace PLEXIL
   {
   }
 
-  void Expression::print(std::ostream& s) const
+  void Expression::print(std::ostream& str) const
   {
-    s << '(' << this->exprName() << ' ' 
+    str << '(' << this->exprName() << ' ' 
       << valueTypeName(this->valueType()) << ' ';
-    this->printSpecialized(s);
-	s << this << " [" << (this->isActive() ? 'a' : 'i')
+    this->printSpecialized(str);
+	str << this << " [" << (this->isActive() ? 'a' : 'i')
 	  << "](";
-	this->printValue(s);
-	s << ')';
-    this->printSubexpressions(s);
-    s << ')';
+	this->printValue(str);
+	str << ')';
+    this->printSubexpressions(str);
+    str << ')';
   }
 
   // Default method, derived classes can elaborate
-  void Expression::printSpecialized(std::ostream &s) const
+  void Expression::printSpecialized(std::ostream & /* str */) const
   {
   }
 
   // Default method, derived classes can elaborate
-  void Expression::printSubexpressions(std::ostream & /* s */) const
+  void Expression::printSubexpressions(std::ostream & /* str */) const
   {
   }
 
   // Stream-style print operator
-  std::ostream& operator<<(std::ostream& s, const Expression& e)
+  std::ostream& operator<<(std::ostream& str, const Expression& exp)
   {
-    e.print(s);
-    return s;
+    exp.print(str);
+    return str;
   }
 
   std::string Expression::toString() const
   {
-    std::ostringstream s;
-    this->print(s);
-    return s.str();
+    std::ostringstream strm;
+    this->print(strm);
+    return strm.str();
   }
 
   std::string Expression::valueString() const
   {
-    std::ostringstream s;
-    this->printValue(s);
-    return s.str();
+    std::ostringstream strm;
+    this->printValue(strm);
+    return strm.str();
   }
 
   // Default method does nothing
@@ -167,9 +166,8 @@ namespace PLEXIL
 #define DEFINE_DEFAULT_GET_VALUE_METHOD(_TYPE_) \
   bool Expression::getValue(_TYPE_ & /* result */) const    \
   { \
-    checkPlanError(ALWAYS_FAIL, \
-                   "Can't get a " << PlexilValueType<_TYPE_>::typeName \
-                   << " value from a " << valueTypeName(this->valueType()) << " expression"); \
+    reportPlanError("Can't get a " << PlexilValueType<_TYPE_>::typeName \
+                    << " value from a " << valueTypeName(this->valueType()) << " expression"); \
     return false; \
   }
 
@@ -179,12 +177,11 @@ namespace PLEXIL
 
 #undef DEFINE_DEFAULT_GET_VALUE_METHOD
 
-  bool Expression::getValue(uint16_t & /* result */) const    \
-  { \
-    checkPlanError(ALWAYS_FAIL, \
-                   "Can't get a Plexil internal value from a "
-                   << valueTypeName(this->valueType()) << " expression"); \
-    return false; \
+  bool Expression::getValue(uint16_t & /* result */) const
+  {
+    reportPlanError("Can't get a Plexil internal value from a "
+                   << valueTypeName(this->valueType()) << " expression");
+    return false;
   }
 
   // Conversion method for Integer-valued expressions
@@ -204,9 +201,8 @@ namespace PLEXIL
 #define DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(_TYPE_) \
   bool Expression::getValuePointer(_TYPE_ const *& /* ptr */) const \
   { \
-    checkPlanError(ALWAYS_FAIL, \
-                   "Can't get a pointer to " << PlexilValueType<_TYPE_>::typeName \
-                   << " from a " << valueTypeName(this->valueType()) << " expression"); \
+    reportPlanError("Can't get a pointer to " << PlexilValueType<_TYPE_>::typeName \
+                    << " from a " << valueTypeName(this->valueType()) << " expression"); \
     return false; \
   }
 

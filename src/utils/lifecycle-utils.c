@@ -70,7 +70,7 @@ static struct plexil_opstack_bucket *new_plexil_opstack_bucket()
   return result;
 }
 
-static void plexil_opstack_push(struct plexil_opstack *list, lc_operator op)
+static void plexil_opstack_push(struct plexil_opstack *list, lc_operator opr)
 {
   struct plexil_opstack_bucket *head;
   /* Ensure there is space for the new entry */
@@ -94,7 +94,7 @@ static void plexil_opstack_push(struct plexil_opstack *list, lc_operator op)
   }
 
   /* Insert */
-  head->ops[list->insert_idx++] = op;
+  head->ops[list->insert_idx++] = opr;
 }
 
 static void plexil_opstack_run(struct plexil_opstack *list)
@@ -115,8 +115,8 @@ static void plexil_opstack_run(struct plexil_opstack *list)
     }
 #endif
     while (i > 0) {
-      lc_operator op = head->ops[--i];
-      (*op)();
+      lc_operator opr = head->ops[--i];
+      (*opr)();
     }
     /* Free this bucket and go to previous */
     list->head = head->prev;
@@ -134,15 +134,15 @@ static void plexil_opstack_run(struct plexil_opstack *list)
 }
 
 static struct plexil_opstack s_finalizers = {NULL,
-                                      0
+                                             0
 #ifdef LIFECYCLE_DEBUG
-                                      , 0
+                                             , 0
 #endif                             
 };
 
-void plexilAddFinalizer(lc_operator op)
+void plexilAddFinalizer(lc_operator opr)
 {
-  plexil_opstack_push(&s_finalizers, op);
+  plexil_opstack_push(&s_finalizers, opr);
 }
 
 void plexilRunFinalizers()

@@ -94,7 +94,7 @@ namespace PLEXIL
       return;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value copy constructor: unknown type");
+      errorMsg("Value copy constructor: unknown type");
       return;
     }
   }
@@ -145,7 +145,7 @@ namespace PLEXIL
       return;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value move constructor: unknown type");
+      errorMsg("Value move constructor: unknown type");
       return;
     }
   }
@@ -259,8 +259,7 @@ namespace PLEXIL
       else if (eltType == INTEGER_TYPE && itype == REAL_TYPE)
         eltType = itype; // promote int to real
       else if (eltType != itype) {
-        checkPlanError(ALWAYS_FAIL,
-                       "Value constructor: Inconsistent value types in vector");
+        reportPlanError("Value constructor: Inconsistent value types in vector");
         m_known = false;
       }
       // else type is consistent
@@ -349,7 +348,7 @@ namespace PLEXIL
     }
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value constructor: Unknown or unimplemented element type");
+      errorMsg("Value constructor: Unknown or unimplemented element type");
       break;
     }
   }
@@ -405,7 +404,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value copy assignment: invalid or unknown type");
+      errorMsg("Value copy assignment: invalid or unknown type");
       break;
     }
     m_known = true;
@@ -466,7 +465,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value move assignment: invalid or unknown type");
+      errorMsg("Value move assignment: invalid or unknown type");
       break;
     }
     m_known = true;
@@ -735,9 +734,8 @@ namespace PLEXIL
       return true;
 
     default:
-      checkPlanError(ALWAYS_FAIL,
-                     "Attempt to get a PLEXIL internal value from a "
-                     << valueTypeName(m_type) << " Value");
+      reportPlanError("Attempt to get a PLEXIL internal value from a "
+                      << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -767,9 +765,8 @@ namespace PLEXIL
       return true;
 
     default:
-      checkPlanError(ALWAYS_FAIL,
-                     "Attempt to get a Real value from a "
-                     << valueTypeName(m_type) << " Value");
+      reportPlanError("Attempt to get a Real value from a "
+                      << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -817,9 +814,8 @@ namespace PLEXIL
       return true;
 
     default:
-      checkPlanError(ALWAYS_FAIL,
-                     "Attempt to get an Array value from a "
-                     << valueTypeName(m_type) << " Value");
+      reportPlanError("Attempt to get an Array value from a "
+                      << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -1037,7 +1033,7 @@ namespace PLEXIL
         return *arrayValue == *other.arrayValue;
 
       default:
-        assertTrue_2(ALWAYS_FAIL, "Value::equals: unknown value type");
+        errorMsg("Value::equals: unknown value type");
         return false;
       }
     }
@@ -1141,7 +1137,7 @@ namespace PLEXIL
 #endif
 
       default:
-        assertTrue_2(ALWAYS_FAIL, "Value::lessThan: unknown value type");
+        errorMsg("Value::lessThan: unknown value type");
         return false;
       }
   }
@@ -1302,19 +1298,19 @@ namespace PLEXIL
     }
   }
 
-  template <> char *serialize(Value const &o, char *buf)
+  template <> char *serialize(Value const &val, char *buf)
   {
-    return o.serialize(buf);
+    return val.serialize(buf);
   }
 
-  template <> char const *deserialize(Value &o, char const *buf)
+  template <> char const *deserialize(Value &val, char const *buf)
   {
-    return o.deserialize(buf);
+    return val.deserialize(buf);
   }
 
-  template <> size_t serialSize(Value const &o)
+  template <> size_t serialSize(Value const &val)
   {
-    return o.serialSize();
+    return val.serialSize();
   }
 
 } // namespace PLEXIL

@@ -526,11 +526,10 @@ namespace PLEXIL
           continue;
         }
         else if (dest != EXECUTING_STATE && dest != FAILING_STATE) {
-          checkError(ALWAYS_FAIL,
-                     "Error: unexpected node " << node->getNodeId() << ' ' << node
-                     << " state " << nodeStateName(node->getState())
-                     << " eligible to transition to " << nodeStateName(dest)
-                     << " in conflict map.");
+          errorMsg("Error: unexpected node " << node->getNodeId() << ' ' << node
+                   << " state " << nodeStateName(node->getState())
+                   << " eligible to transition to " << nodeStateName(dest)
+                   << " in conflict map.");
           ++conflictIt;
           continue;
         }
@@ -625,9 +624,8 @@ namespace PLEXIL
       return;
 
     case QUEUE_CHECK:             // shouldn't happen
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Cannot add node " << node->getNodeId() << ' ' << node
-                    << " to transition queue, is still in candidate queue");
+      errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
+               << " to transition queue, is still in candidate queue");
       return;
 
     case QUEUE_TRANSITION:        // already in queue, nothing to do
@@ -642,9 +640,8 @@ namespace PLEXIL
       return;
 
     case QUEUE_DELETE:            // cannot possibly transition
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Cannot add node " << node->getNodeId() << ' ' << node
-                    << " to transition queue, is finished root node pending deletion");
+      errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
+               << " to transition queue, is finished root node pending deletion");
       return;
     }
   }
@@ -673,9 +670,8 @@ namespace PLEXIL
 
     case QUEUE_TRANSITION:
     case QUEUE_TRANSITION_CHECK:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Root node " << node->getNodeId() << ' ' << node
-                    << " is eligible for deletion but is still in state transition queue");
+      errorMsg("Root node " << node->getNodeId() << ' ' << node
+               << " is eligible for deletion but is still in state transition queue");
       return;
 
     case QUEUE_DELETE: // shouldn't happen, but harmless
@@ -701,6 +697,12 @@ namespace PLEXIL
       node = node->next();
     }
     return retval.str();
+  }
+
+  // Public constructor
+  PlexilExec *makePlexilExec()
+  {
+    return new PlexilExec();
   }
 
 }

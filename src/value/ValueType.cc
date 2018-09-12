@@ -360,8 +360,7 @@ namespace PLEXIL
       break;
     }
     // No match
-    checkParserException(ALWAYS_FAIL,
-                         "parseValue: \"" << str << "\" is not a valid Boolean value");
+    reportParserException("parseValue: \"" << str << "\" is not a valid Boolean value");
   }
 
   template <>

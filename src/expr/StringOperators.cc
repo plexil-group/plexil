@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,9 @@ namespace PLEXIL
     return true;
   }
 
-  bool StringConcat::checkArgTypes(Function const *ev) const
+  bool StringConcat::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(STRING_TYPE);
+    return func->allSameTypeOrUnknown(STRING_TYPE);
   }
 
   bool StringConcat::operator()(String &result) const
@@ -79,12 +79,12 @@ namespace PLEXIL
   }
 
   bool StringConcat::operator()(String &result, 
-                                Function const &f) const
+                                Function const &func) const
   {
-    size_t nargs = f.size();
+    size_t nargs = func.size();
     String const *vals[nargs];
     for (size_t i = 0; i < nargs; ++i) {
-      if (!f[i]->getValuePointer(vals[i]))
+      if (!func[i]->getValuePointer(vals[i]))
         return false;
     }
     size_t len = 0;
@@ -114,10 +114,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool StringLength::checkArgTypes(Function const *ev) const
+  bool StringLength::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return ty == STRING_TYPE || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return typ == STRING_TYPE || typ == UNKNOWN_TYPE;
   }
 
   bool StringLength::operator()(Integer &result, Expression const *arg) const

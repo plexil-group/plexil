@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Addition<NUM>::checkArgCount(size_t count) const
+  bool Addition<NUM>::checkArgCount(size_t /* count */) const
   {
     return true;
   }
@@ -460,10 +460,10 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool SquareRoot<NUM>::checkArgTypes(Function const *ev) const
+  bool SquareRoot<NUM>::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isNumericType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
   template <>
@@ -483,12 +483,12 @@ namespace PLEXIL
   // Returns true if conversion successful,
   // false if x is out of range or not an integer.
   //
-  static bool RealToInt(Real x, Integer &result)
+  static bool RealToInt(Real reel, Integer &result)
   {
     Real tempInt;
-    x = modf(x, &tempInt);
+    reel = modf(reel, &tempInt);
     // TODO: allow fraction to be +/- epsilon
-    if (x != 0)
+    if (reel != 0)
       return false; // not an integer
     if (tempInt < std::numeric_limits<Integer>::min()
         || tempInt > std::numeric_limits<Integer>::max())
@@ -675,10 +675,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool RealToInteger::checkArgTypes(Function const *ev) const
+  bool RealToInteger::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isNumericType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool RealToInteger::calc(Integer & result,

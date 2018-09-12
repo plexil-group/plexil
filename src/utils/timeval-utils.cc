@@ -112,10 +112,10 @@ struct timeval operator- (const struct timeval& tv1, const struct timeval& tv2)
   return time;
 }
 
-void doubleToTimeval(double d, timeval& result)
+void doubleToTimeval(double dbl, timeval& result)
 {
   double seconds = 0;
-  double fraction = modf(d, &seconds);
+  double fraction = modf(dbl, &seconds);
 
   result.tv_sec = (time_t) seconds;
   result.tv_usec =
@@ -127,10 +127,10 @@ void doubleToTimeval(double d, timeval& result)
     (fraction * ONE_MILLION_DOUBLE);
 }
 
-struct timeval doubleToTimeval(double d)
+struct timeval doubleToTimeval(double dbl)
 {
   timeval result;
-  doubleToTimeval(d, result);
+  doubleToTimeval(dbl, result);
   return result;
 }
 

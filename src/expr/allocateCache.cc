@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -191,18 +191,18 @@ namespace PLEXIL
       for (typename BucketVector::reverse_iterator rit = m_buckets.rbegin();
            rit != m_buckets.rend();
            ++rit) {
-        Bucket<T> *b = *rit;
-        if (b->deallocate(ptr)) {
+        Bucket<T> *bkt = *rit;
+        if (bkt->deallocate(ptr)) {
           // Delete buckets when empty
-          if (b->isEmpty()) {
-            delete b;
+          if (bkt->isEmpty()) {
+            delete bkt;
             m_buckets.erase(rit.base() - 1);
           }
           return;
         }
       }
 
-      assertTrue_2(ALWAYS_FAIL, "deallocate: Object not allocated");
+      errorMsg("deallocate: Object not allocated");
     }
 
   private:

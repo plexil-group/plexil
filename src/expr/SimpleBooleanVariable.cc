@@ -64,13 +64,12 @@ namespace PLEXIL
   {
     if (m_name)
       return m_name;
-    static char const *sl_dummy = "";
-    return sl_dummy;
+    return "";
   }
 
-  void SimpleBooleanVariable::printSpecialized(std::ostream &s) const
+  void SimpleBooleanVariable::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
+    str << getName() << ' ';
   }
 
   //
@@ -104,11 +103,9 @@ namespace PLEXIL
 
   void SimpleBooleanVariable::setValue(Boolean const &val)
   {
-    if (this->isActive()) {
-      if (m_value != val) {
-        m_value = val;
-        publishChange();
-      }
+    if (this->isActive() && m_value != val) {
+      m_value = val;
+      publishChange();
     }
   }
 

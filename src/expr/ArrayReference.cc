@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -59,13 +59,12 @@ namespace PLEXIL
   {
     Expression const *base = getBaseExpression();
     if (base) {
-      std::ostringstream s;
-      s << base->getName() << '[' << m_index->valueString() << ']';
-      *m_namePtr = s.str();
+      std::ostringstream strm;
+      strm << base->getName() << '[' << m_index->valueString() << ']';
+      *m_namePtr = strm.str();
       return m_namePtr->c_str();
     }
-    static char const *sl_dummy = "";
-    return sl_dummy;
+    return "";
   }
 
   char const *ArrayReference::exprName() const
@@ -76,10 +75,9 @@ namespace PLEXIL
   ValueType ArrayReference::valueType() const
   {
     ValueType aryType = m_array->valueType();
-    if (!isArrayType(aryType))
-      return UNKNOWN_TYPE;
-    else
+    if (isArrayType(aryType))
       return arrayElementType(aryType);
+    return UNKNOWN_TYPE;
   }
 
   bool ArrayReference::isKnown() const
@@ -114,17 +112,17 @@ namespace PLEXIL
     return m_array->getBaseExpression();
   }
 
-  void ArrayReference::printValue(std::ostream &s) const
+  void ArrayReference::printValue(std::ostream &str) const
   {
     Array const *ary;
     size_t idx;
     if (!selfCheck(ary, idx)) {
-      s << "UNKNOWN";
+      str << "UNKNOWN";
       return;
     }
 
     // Punt for now
-    s << ary->getElementValue(idx);
+    str << ary->getElementValue(idx);
   }
 
   bool ArrayReference::selfCheck(Array const *&valuePtr,
@@ -139,11 +137,11 @@ namespace PLEXIL
     idx = (size_t) idxTemp;
     if (!m_array->getValuePointer(valuePtr))
       return false; // array unknown or invalid
-    std::vector<bool> const &kv = valuePtr->getKnownVector();
-    checkPlanError(idx < kv.size(),
+    std::vector<bool> const &knownVec = valuePtr->getKnownVector();
+    checkPlanError(idx < knownVec.size(),
                    "Array index " << idx
-                   << " equals or exceeds array size " << kv.size());
-    return kv[idx];
+                   << " equals or exceeds array size " << knownVec.size());
+    return knownVec[idx];
   }
 
   // Local macro
@@ -183,8 +181,7 @@ namespace PLEXIL
 
   bool ArrayReference::getValue(uint16_t &result) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Array references not implemented for internal values");
+    reportPlanError("Array references not implemented for internal values");
     return false;
   }
 
@@ -201,9 +198,8 @@ namespace PLEXIL
 #define DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(_type_) \
   bool ArrayReference::getValuePointer(_type_ const *&ptr) const \
   { \
-    assertTrueMsg(ALWAYS_FAIL, \
-                  "getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
-                  << " pointer value from an ArrayReference"); \
+    errorMsg("getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
+             << " pointer value from an ArrayReference"); \
     return false; \
   }
 
@@ -219,16 +215,15 @@ namespace PLEXIL
   {
     Array const *ary;
     size_t idx;
-    if (!selfCheck(ary, idx))
-      return Value(); // unknown
-    else
+    if (selfCheck(ary, idx))
       return ary->getElementValue(idx);
+    return Value(); // unknown
   }
 
-  void ArrayReference::doSubexprs(ExprUnaryOperator const &f)
+  void ArrayReference::doSubexprs(ExprUnaryOperator const &opr)
   {
-    (f)(m_array);
-    (f)(m_index);
+    (opr)(m_array);
+    (opr)(m_index);
   }
 
   void ArrayReference::handleActivate()

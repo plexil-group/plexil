@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -79,12 +79,21 @@ namespace PLEXIL
 
     InterfaceError(); // not implemented
 
-    static bool s_throw; /**<Set to throw exception. */
-
   };
 
 } // namespace PLEXIL
 
+
+/**
+ * @def reportInterfaceError
+ * @brief Unconditionally create an error message.
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define reportInterfaceError(msg) { \
+  std::ostringstream sstr; \
+  sstr << msg; \
+  PLEXIL::InterfaceError("", sstr.str(), __FILE__, __LINE__).report(); \
+}
 
 /**
  * @def checkInterfaceError

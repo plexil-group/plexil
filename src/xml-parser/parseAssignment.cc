@@ -122,7 +122,7 @@ namespace PLEXIL
     parsePriority(anode, xml);
 
     // Just construct it, will be populated in second pass
-    anode->setAssignment(new Assignment(anode->getNodeId()));
+    anode->setAssignment(new Assignment());
   }
 
   // Third pass

@@ -36,13 +36,13 @@ namespace PLEXIL
     int status;
     if ((status = pthread_mutexattr_init(&m_mta))) {
       assertTrue_2(status != ENOMEM, "No memory for mutex attribute init.");
-      assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_init failed, errno = " << status);
+      errorMsg("pthread_mutexattr_init failed, errno = " << status);
     }
 
 #if !defined(__VXWORKS__) /* platform lacks function */
     if ((status = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL))) {
       assertTrue_2(status != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
-      assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << status);
+      errorMsg("pthread_mutexattr_settype failed, errno = " << status);
     }
 #endif
 
@@ -52,7 +52,7 @@ namespace PLEXIL
     if ((status = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT))) {
       assertTrue_2(status != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
       assertTrue_2(status != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
-      assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << status);
+      errorMsg("pthread_mutexattr_setprotocol failed, errno = " << status);
     }
 #endif
 
@@ -62,7 +62,7 @@ namespace PLEXIL
       assertTrue_2(status != EBUSY, "Attempt to initialize mutex which was already initialized.");
       assertTrue_2(status != ENOMEM, "No memory for mutex initialization.");
       assertTrue_2(status != EAGAIN, "Insufficient system resources for mutex initialization.");
-      assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_init failed, errno = " << status);
+      errorMsg("pthread_mutex_init failed, errno = " << status);
     }
     
     // Clean up
@@ -76,7 +76,7 @@ namespace PLEXIL
     if (status == 0)
       return;
     assertTrue_2(status != EBUSY, "Attempted to destroy mutex while locked or referenced.");
-    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_destroy failed, errno = " << status);
+    errorMsg("pthread_mutex_destroy failed, errno = " << status);
   }
 
   void ThreadMutex::lock()
@@ -89,7 +89,7 @@ namespace PLEXIL
                  "Deadlock detected, or attempt to lock mutex "
                  "that is already locked by this thread.");
     assertTrue_2(status != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
-    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_lock failed, errno = " << status);
+    errorMsg("pthread_mutex_lock failed, errno = " << status);
   }
 
   bool ThreadMutex::trylock()
@@ -101,7 +101,7 @@ namespace PLEXIL
       // mutex already locked
       return false;
     assertTrue_2(status != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
-    assertTrueMsg(ALWAYS_FAIL,  "pthread_mutex_trylock failed, errno = " << status);
+    errorMsg( "pthread_mutex_trylock failed, errno = " << status);
     return false; // to make compiler happy
   }
 
@@ -111,7 +111,7 @@ namespace PLEXIL
     if (status == 0)
       return;
     assertTrue_2(status != EPERM, "Attempt to unlock mutex that is locked by another thread.");
-    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_unlock failed, errno = " << status);
+    errorMsg("pthread_mutex_unlock failed, errno = " << status);
   }
 
   ThreadMutexGuard::ThreadMutexGuard(ThreadMutex& mutex)

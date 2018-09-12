@@ -337,8 +337,7 @@ namespace PLEXIL
               rspec.setUpperBoundExpression(exp, isGarbage);
             }
             else {
-              assertTrueMsg(ALWAYS_FAIL,
-                            "finalizeResourceList: unexpected tag \"" << tag << '"');
+              reportParserException("finalizeResourceList: unexpected tag \"" << tag << '"');
             }
             break;
 

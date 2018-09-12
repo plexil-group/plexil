@@ -66,7 +66,7 @@ namespace PLEXIL
       break;
 
     case FINISHING_STATE:
-      checkError(ALWAYS_FAIL, "Invalid state FINISHING for an UpdateNode");
+      errorMsg("Invalid state FINISHING for an UpdateNode");
       break;
 
     case FAILING_STATE:
@@ -267,9 +267,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition Update node from EXECUTING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition Update node from EXECUTING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -339,9 +338,8 @@ namespace PLEXIL
       break;
       
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition Update node from FAILING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition Update node from FAILING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }

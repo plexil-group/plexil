@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,10 @@
 
 namespace PLEXIL
 {
-  Function::Function(Operator const *op)
+  Function::Function(Operator const *oper)
     : NotifierImpl(),
-      m_op(op),
-      m_valueCache(op->allocateCache())
+      m_op(oper),
+      m_valueCache(oper->allocateCache())
   {
   }
 
@@ -61,9 +61,9 @@ namespace PLEXIL
     return m_op->calcNative(m_valueCache, *this);
   }
 
-  void Function::printValue(std::ostream &s) const
+  void Function::printValue(std::ostream &str) const
   {
-    m_op->printValue(s, m_valueCache, *this);
+    m_op->printValue(str, m_valueCache, *this);
   }
 
   Value Function::toValue() const
@@ -111,9 +111,9 @@ namespace PLEXIL
 #undef DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD
   
   // Default method
-  bool Function::apply(Operator const *op, Array &result) const
+  bool Function::apply(Operator const *opr, Array &result) const
   {
-    return (*op)(result, *this);
+    return (*opr)(result, *this);
   }
 
   //
@@ -127,8 +127,8 @@ namespace PLEXIL
   class NullaryFunction : public Function
   {
   public:
-    NullaryFunction(Operator const *op)
-      : Function(op)
+    NullaryFunction(Operator const *oper)
+      : Function(oper)
     {
     }
 
@@ -141,14 +141,14 @@ namespace PLEXIL
       return 0;
     }
       
-    virtual Expression const *operator[](size_t n) const
+    virtual Expression const *operator[](size_t /* n */) const
     {
-      assertTrue_2(ALWAYS_FAIL, "operator[]: no arguments in NullaryFunction");
+      errorMsg("operator[]: no arguments in NullaryFunction");
     }
 
     virtual void setArgument(size_t i, Expression * /* exp */, bool /* garbage */)
     {
-      assertTrue_2(ALWAYS_FAIL, "setArgument(): no arguments to set in NullaryFunction");
+      errorMsg("setArgument(): no arguments to set in NullaryFunction");
     }
 
     virtual bool allSameTypeOrUnknown(ValueType /* vt */) const
@@ -168,7 +168,7 @@ namespace PLEXIL
     {
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &f)
+    virtual void doSubexprs(ExprUnaryOperator const & /* opr */)
     {
     }
 
@@ -197,8 +197,8 @@ namespace PLEXIL
   class FixedSizeFunction : public Function
   {
   public:
-    FixedSizeFunction(Operator const *op)
-      : Function(op)
+    FixedSizeFunction(Operator const *oper)
+      : Function(oper)
     {
       for (size_t i = 0; i < N; ++i)
         exprs[i] = NULL;
@@ -218,11 +218,11 @@ namespace PLEXIL
     }
 
     // Not worth optimizing this, it's only used once per function at load time.
-    virtual bool allSameTypeOrUnknown(ValueType vt) const
+    virtual bool allSameTypeOrUnknown(ValueType vtyp) const
     {
       for (size_t i = 0; i < N; ++i) {
         ValueType vti = exprs[i]->valueType();
-        if (vti != vt && vti != UNKNOWN_TYPE)
+        if (vti != vtyp && vti != UNKNOWN_TYPE)
           return false;
       }
       return true;
@@ -257,11 +257,11 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void printSubexpressions(std::ostream & s) const
+    virtual void printSubexpressions(std::ostream & str) const
     {
       for (size_t i = 0; i < N; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
@@ -305,16 +305,16 @@ namespace PLEXIL
 #undef DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD
 
     // Default method, overridden in specialized variants
-    virtual bool apply(Operator const *op, Array &result) const
+    virtual bool apply(Operator const *oper, Array &result) const
     {
-      return (*op)(result, this);
+      return (*oper)(result, this);
     }
 
     // Default method, overridden in specialized variants
-    virtual void doSubexprs(ExprUnaryOperator const &f)
+    virtual void doSubexprs(ExprUnaryOperator const &oper)
     {
       for (size_t i = 0; i < N; ++i)
-        (f)(exprs[i]);
+        (oper)(exprs[i]);
     }
 
   private:
@@ -331,8 +331,8 @@ namespace PLEXIL
   // One-arg variants
 
   template <>
-  FixedSizeFunction<1>::FixedSizeFunction(Operator const *op)
-    : Function(op)
+  FixedSizeFunction<1>::FixedSizeFunction(Operator const *oper)
+    : Function(oper)
   {
     exprs[0] = NULL;
     garbage[0] = false;
@@ -400,16 +400,16 @@ namespace PLEXIL
 
   // Specialized method
   template <>
-  bool FixedSizeFunction<1>::apply(Operator const *op, Array &result) const
+  bool FixedSizeFunction<1>::apply(Operator const *oper, Array &result) const
   {
-    return (*op)(result, exprs[0]);
+    return (*oper)(result, exprs[0]);
   }
 
   // Specialized method
   template <>
-  void FixedSizeFunction<1>::doSubexprs(ExprUnaryOperator const &f)
+  void FixedSizeFunction<1>::doSubexprs(ExprUnaryOperator const &oper)
   {
-    (f)(exprs[0]);
+    (oper)(exprs[0]);
   }
 
   //
@@ -417,8 +417,8 @@ namespace PLEXIL
   //
 
   template <>
-  FixedSizeFunction<2>::FixedSizeFunction(Operator const *op)
-    : Function(op)
+  FixedSizeFunction<2>::FixedSizeFunction(Operator const *oper)
+    : Function(oper)
   {
     exprs[0] = NULL;
     exprs[1] = NULL;
@@ -495,17 +495,17 @@ namespace PLEXIL
 
   // Specialized method
   template <>
-  bool FixedSizeFunction<2>::apply(Operator const *op, Array &result) const
+  bool FixedSizeFunction<2>::apply(Operator const *oper, Array &result) const
   {
-    return (*op)(result, exprs[0], exprs[1]);
+    return (*oper)(result, exprs[0], exprs[1]);
   }
 
   // Specialized method
   template <>
-  void FixedSizeFunction<2>::doSubexprs(ExprUnaryOperator const &f)
+  void FixedSizeFunction<2>::doSubexprs(ExprUnaryOperator const &oper)
   {
-    (f)(exprs[0]);
-    (f)(exprs[1]);
+    (oper)(exprs[0]);
+    (oper)(exprs[1]);
   }
 
   //
@@ -519,8 +519,8 @@ namespace PLEXIL
   class NaryFunction : public Function
   {
   public:
-    NaryFunction(Operator const *op, size_t n)
-      : Function(op),
+    NaryFunction(Operator const *oper, size_t n)
+      : Function(oper),
         m_size(n),
         exprs(new Expression*[n]()),
         garbage(new bool[n]())
@@ -558,11 +558,11 @@ namespace PLEXIL
       garbage[i] = isGarbage;
     }
 
-    virtual bool allSameTypeOrUnknown(ValueType vt) const
+    virtual bool allSameTypeOrUnknown(ValueType vtyp) const
     {
       for (size_t i = 0; i < m_size; ++i) {
         ValueType vti = exprs[i]->valueType();
-        if (vti != vt && vti != UNKNOWN_TYPE)
+        if (vti != vtyp && vti != UNKNOWN_TYPE)
           return false;
       }
       return true;
@@ -580,18 +580,18 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    void printSubexpressions(std::ostream & s) const
+    void printSubexpressions(std::ostream & str) const
     {
       for (size_t i = 0; i < m_size; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &f)
+    virtual void doSubexprs(ExprUnaryOperator const &oper)
     {
       for (size_t i = 0; i < this->size(); ++i)
-        (f)(exprs[i]);
+        (oper)(exprs[i]);
     }
 
   private:
@@ -609,45 +609,45 @@ namespace PLEXIL
   // Factory functions
   //
   
-  Function *makeFunction(Operator const *op,
+  Function *makeFunction(Operator const *oper,
                          size_t n)
   {
-    assertTrue_2(op, "makeFunction: null operator");
+    assertTrue_2(oper, "makeFunction: null operator");
 
     switch (n) {
     case 0:
-      return static_cast<Function *>(new NullaryFunction(op));
+      return static_cast<Function *>(new NullaryFunction(oper));
     case 1:
-      return static_cast<Function *>(new FixedSizeFunction<1>(op));
+      return static_cast<Function *>(new FixedSizeFunction<1>(oper));
     case 2:
-      return static_cast<Function *>(new FixedSizeFunction<2>(op));
+      return static_cast<Function *>(new FixedSizeFunction<2>(oper));
     case 3:
-      return static_cast<Function *>(new FixedSizeFunction<3>(op));
+      return static_cast<Function *>(new FixedSizeFunction<3>(oper));
     case 4:
-      return static_cast<Function *>(new FixedSizeFunction<4>(op));
+      return static_cast<Function *>(new FixedSizeFunction<4>(oper));
     default: // anything greater than 4
-      return static_cast<Function *>(new NaryFunction(op, n));
+      return static_cast<Function *>(new NaryFunction(oper, n));
     }
   }
 
-  Function *makeFunction(Operator const *op,
+  Function *makeFunction(Operator const *oper,
                          Expression *expr,
                          bool garbage)
   {
-    assertTrue_2(op && expr, "makeFunction: operator or argument is null");
-    Function *result = new FixedSizeFunction<1>(op);
+    assertTrue_2(oper && expr, "makeFunction: operator or argument is null");
+    Function *result = new FixedSizeFunction<1>(oper);
     result->setArgument(0, expr, garbage);
     return result;
   }
 
-  Function *makeFunction(Operator const *op, 
+  Function *makeFunction(Operator const *oper, 
                          Expression *expr1,
                          Expression *expr2,
                          bool garbage1,
                          bool garbage2)
   {
-    assertTrue_2(op && expr1 && expr2, "makeFunction: operator or argument is null");
-    Function *result = new FixedSizeFunction<2>(op);
+    assertTrue_2(oper && expr1 && expr2, "makeFunction: operator or argument is null");
+    Function *result = new FixedSizeFunction<2>(oper);
     result->setArgument(0, expr1, garbage1);
     result->setArgument(1, expr2, garbage2);
     return result;

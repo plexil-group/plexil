@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -108,9 +108,8 @@ namespace PLEXIL
 #define DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(_rtype) \
   bool NodeFunction::getValuePointer(_rtype const *& /* ptr */) const   \
   { \
-    checkError(ALWAYS_FAIL, \
-               "NodeFunction::getValuePointer not implemented for " \
-               << PlexilValueType<_rtype>::typeName); \
+    errorMsg("NodeFunction::getValuePointer not implemented for " \
+             << PlexilValueType<_rtype>::typeName);               \
     return false; \
   }
 

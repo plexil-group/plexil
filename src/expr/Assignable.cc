@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -65,8 +65,7 @@ namespace PLEXIL {
    */
   void Assignable::setInitializer(Expression * /* expr */, bool /* garbage */)
   {
-    assertTrue_2(ALWAYS_FAIL,
-                 "setInitializer() called on Assignable that doesn't have an initializer");
+    errorMsg("setInitializer() called on Assignable that doesn't have an initializer");
   }
 
 } // namespace PLEXIL

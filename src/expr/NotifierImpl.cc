@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ namespace PLEXIL {
 
   void NotifierImpl::activate()
   {
-    bool changed = (!m_activeCount);
+    bool changed = !m_activeCount;
     ++m_activeCount;
     if (changed)
       this->handleActivate();
@@ -168,7 +168,7 @@ namespace PLEXIL {
   //
 
   // Forward reference
-  static void addListenerToSubexprs(Expression *l, Expression *e);
+  static void addListenerToSubexprs(Expression *listener, Expression *exp);
   
   class AddListenerHelper : public ExprUnaryOperator
   {
@@ -178,27 +178,31 @@ namespace PLEXIL {
     {
     }
 
-    virtual void operator()(Expression *x) const
+    virtual ~AddListenerHelper()
+    {
+    }
+
+    virtual void operator()(Expression *exp) const
     {
 #ifdef LISTENER_DEBUG
       debugMsg("NotifierImpl:addListenerHelper",
-               ' ' << x << " adding "
+               ' ' << exp << " adding "
                << (ExpressionListener *) l);
 #endif
-      if (x->hasListeners()) {
+      if (exp->hasListeners()) {
         // Subexprs already dealt with, just listen to this one
-        x->addListenerInternal(l);
+        exp->addListenerInternal(l);
       }
-      else if (x->isPropagationSource()) {
+      else if (exp->isPropagationSource()) {
         // This expression can independently generate notifications,
         // so add requested listener here ...
-        x->addListenerInternal(l);
+        exp->addListenerInternal(l);
         // ... and make it listen to its descendants.
-        addListenerToSubexprs(x, x);
+        addListenerToSubexprs(exp, exp);
       }
       else {
         // Not a source, recurse on descendants
-        x->doSubexprs(*this);
+        exp->doSubexprs(*this);
       }
     }
 
@@ -206,13 +210,13 @@ namespace PLEXIL {
     ExpressionListener *l;
   };
 
-  static void addListenerToSubexprs(Expression *l, Expression *e)
+  static void addListenerToSubexprs(Expression *listener, Expression *exp)
   {
 #ifdef LISTENER_DEBUG
     debugMsg("NotifierImpl:addListenerToSubexprs",
-             ' ' << e << " adding " << l << " to subexpressions");
+             ' ' << exp << " adding " << listener << " to subexpressions");
 #endif
-    e->doSubexprs(AddListenerHelper(l));
+    exp->doSubexprs(AddListenerHelper(listener));
   }
 
   void NotifierImpl::addListener(ExpressionListener *ptr)
@@ -237,9 +241,9 @@ namespace PLEXIL {
   void NotifierImpl::addListenerInternal(ExpressionListener *ptr)
   {
     // Have to check for duplicates, sigh.
-    std::vector<ExpressionListener *>::iterator it =
+    std::vector<ExpressionListener *>::iterator iter =
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
-    if (it != m_outgoingListeners.end()) {
+    if (iter != m_outgoingListeners.end()) {
 #ifdef LISTENER_DEBUG
       debugMsg("NotifierImpl:addListener",
                ' ' << (Expression *) this << " listener " << ptr << " already present");
@@ -265,13 +269,17 @@ namespace PLEXIL {
     {
     }
 
-    virtual void operator()(Expression *e) const
+    virtual ~RemoveListenerHelper()
+    {
+    }
+
+    virtual void operator()(Expression *exp) const
     {
 #ifdef LISTENER_DEBUG
       debugMsg("NotifierImpl:removeListener",
-               ' ' << e << " removing " << l << " from subexpressions");
+               ' ' << exp << " removing " << l << " from subexpressions");
 #endif
-      e->removeListener(l);
+      exp->removeListener(l);
     }
 
   private:
@@ -285,9 +293,9 @@ namespace PLEXIL {
              ' ' << (Expression *) this << ' ' << *this
              << " removing " << ptr << ' ' << typeid(*ptr).name());
 #endif
-    std::vector<ExpressionListener *>::iterator it =
+    std::vector<ExpressionListener *>::iterator iter =
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
-    if (it == m_outgoingListeners.end()) {
+    if (iter == m_outgoingListeners.end()) {
 #ifdef LISTENER_DEBUG
       condDebugMsg(m_outgoingListeners.empty(),
                    "NotifierImpl:removeListener",
@@ -298,7 +306,7 @@ namespace PLEXIL {
 #endif
     }
     else {
-      m_outgoingListeners.erase(it);
+      m_outgoingListeners.erase(iter);
 #ifdef LISTENER_DEBUG
       debugMsg("NotifierImpl:removeListener",
                ' ' << (Expression *) this << " removed " << ptr);
