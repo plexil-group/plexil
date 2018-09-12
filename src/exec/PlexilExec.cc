@@ -47,16 +47,6 @@
 namespace PLEXIL 
 {
 
-  /**
-   * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
-   */
-  struct NodeConflictComparator {
-    bool operator() (Node const *x, Node const *y) const
-    {
-      return (x->getPriority() < y->getPriority());
-    }
-  };
-
   class PlexilExecImpl:
     public PlexilExec
   {
