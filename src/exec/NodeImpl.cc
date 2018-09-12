@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Node.hh"
+#include "NodeImpl.hh"
 
 #include "Alias.hh"
 #include "Debug.hh"
@@ -53,7 +53,11 @@ namespace PLEXIL
   // Static members
   //
 
-  char const * const Node::ALL_CONDITIONS[] =
+  // NOTE: this used to be 100000000, which somehow gets printed as
+  // scientific notation in XML and doesn't parse correctly.
+  const int32_t NodeImpl::WORST_PRIORITY = 100000;
+
+  char const * const NodeImpl::ALL_CONDITIONS[] =
     {
       "AncestorExitCondition",
       "AncestorInvariantCondition",
@@ -69,23 +73,22 @@ namespace PLEXIL
       "ActionCompleteCondition",
       "AbortCompleteCondition"
     };
+  
+  static NodeImpl::ConditionIndex getConditionIndex(char const *cName)
+  {
+    for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
+      if (!strcmp(NodeImpl::ALL_CONDITIONS[i], cName))
+        return (NodeImpl::ConditionIndex) i;
+    return NodeImpl::conditionIndexMax;
+  }
 
-  char const *Node::getConditionName(size_t idx)
+  char const *NodeImpl::getConditionName(size_t idx)
   {
     return ALL_CONDITIONS[idx];
   }
-  
-  Node::ConditionIndex Node::getConditionIndex(char const *cName)
-  {
-    for (size_t i = 0; i < conditionIndexMax; ++i)
-      if (!strcmp(ALL_CONDITIONS[i], cName))
-        return (Node::ConditionIndex) i;
-    return conditionIndexMax;
-  }
 
-  Node::Node(char const *nodeId, Node *parent)
-    : NodeConnector(),
-      ExpressionListener(),
+  NodeImpl::NodeImpl(char const *nodeId, NodeImpl *parent)
+    : Node(),
       m_next(NULL),
       m_queueStatus(0),
       m_state(INACTIVE_STATE),
@@ -109,17 +112,16 @@ namespace PLEXIL
       m_cleanedVars(false),
       m_cleanedBody(false)
   {
-    debugMsg("Node:node", " Constructor for \"" << m_nodeId << "\"");
+    debugMsg("NodeImpl:NodeImpl", " Constructor for \"" << m_nodeId << "\"");
     commonInit();
   }
 
   // Used only by module test
-  Node::Node(const std::string& type, 
-             const std::string& name, 
-             NodeState state,
-             Node *parent)
-    : NodeConnector(),
-      ExpressionListener(),
+  NodeImpl::NodeImpl(const std::string& type, 
+                     const std::string& name, 
+                     NodeState state,
+                     NodeImpl *parent)
+    : Node(),
       m_next(NULL),
       m_queueStatus(0),
       m_state(state),
@@ -151,7 +153,7 @@ namespace PLEXIL
       std::string varName = m_nodeId + ' ' + ALL_CONDITIONS[i];
       BooleanVariable *expr = new BooleanVariable(this, varName.c_str());
       expr->setValue(falseValue);
-      debugMsg("Node:node", ' ' << m_nodeId
+      debugMsg("NodeImpl:NodeImpl", ' ' << m_nodeId
                << " Created internal variable " << varName <<
                " with value FALSE");
       m_conditions[i] = expr;
@@ -212,14 +214,14 @@ namespace PLEXIL
   }
 
   // N.B.: called from base class constructor
-  void Node::commonInit() {
-    debugMsg("Node:node", " common initialization");
+  void NodeImpl::commonInit() {
+    debugMsg("NodeImpl:NodeImpl", " common initialization");
 
     // Initialize transition trace
     logTransition(g_interface->currentTime(), (NodeState) m_state);
   }
 
-  void Node::allocateVariables(size_t n)
+  void NodeImpl::allocateVariables(size_t n)
   {
     assertTrue_1(!m_localVariables); // illegal to call this twice
     m_localVariables = new std::vector<Expression *>();
@@ -230,12 +232,12 @@ namespace PLEXIL
   }
 
   // Default method.
-  NodeVariableMap const *Node::getChildVariableMap() const
+  NodeVariableMap const *NodeImpl::getChildVariableMap() const
   {
     return NULL; // this node has no children
   }
 
-  bool Node::addLocalVariable(char const *name, Expression *var)
+  bool NodeImpl::addLocalVariable(char const *name, Expression *var)
   {
     assertTrueMsg(m_localVariables && m_variablesByName,
                   "Internal error: failed to allocate variables");
@@ -246,7 +248,7 @@ namespace PLEXIL
     return true;
   }
 
-  void Node::finalizeConditions()
+  void NodeImpl::finalizeConditions()
   {
     // Create conditions that may wrap user-defined conditions
     createConditionWrappers();
@@ -287,7 +289,7 @@ namespace PLEXIL
     }
   }
 
-  void Node::addUserCondition(char const *cname, Expression *cond, bool isGarbage)
+  void NodeImpl::addUserCondition(char const *cname, Expression *cond, bool isGarbage)
   {
     assertTrue_2(cname, "Null condition name");
     ConditionIndex which = getConditionIndex(cname);
@@ -302,19 +304,19 @@ namespace PLEXIL
     m_garbageConditions[which] = isGarbage;
   }
 
-  void Node::createConditionWrappers()
+  void NodeImpl::createConditionWrappers()
   {
     this->specializedCreateConditionWrappers();
   }
 
   // Default method does nothing.
-  void Node::specializedCreateConditionWrappers()
+  void NodeImpl::specializedCreateConditionWrappers()
   {
   }
 
-  Node::~Node() 
+  NodeImpl::~NodeImpl() 
   {
-    debugMsg("Node:~Node", " base class destructor for " << m_nodeId);
+    debugMsg("NodeImpl:~NodeImpl", " base class destructor for " << m_nodeId);
 
     // Remove conditions as they may refer to variables, either ours or another node's
     // Derived classes' destructors should also call this
@@ -334,7 +336,7 @@ namespace PLEXIL
     }
   }
 
-  void Node::cleanUpConditions() 
+  void NodeImpl::cleanUpConditions() 
   {
     if (m_cleanedConditions)
       return;
@@ -365,12 +367,12 @@ namespace PLEXIL
   }
 
   // Default method.
-  void Node::cleanUpNodeBody()
+  void NodeImpl::cleanUpNodeBody()
   {
   }
 
   // Called from base class destructor and possibly derived as well.
-  void Node::cleanUpVars() 
+  void NodeImpl::cleanUpVars() 
   {
     if (m_cleanedVars)
       return;
@@ -400,7 +402,7 @@ namespace PLEXIL
   }
 
   // Make the node (and its children, if any) active.
-  void Node::activate()
+  void NodeImpl::activate()
   {
     // Activate conditions needed for INACTIVE state
     transitionToInactive();
@@ -410,11 +412,11 @@ namespace PLEXIL
   }
 
   // Default method
-  void Node::specializedActivate()
+  void NodeImpl::specializedActivate()
   {
   }
 
-  Expression *Node::getCondition(size_t idx)
+  Expression *NodeImpl::getCondition(size_t idx)
   {
     switch (idx) {
 
@@ -430,7 +432,7 @@ namespace PLEXIL
     }
   }
 
-  Expression const *Node::getCondition(size_t idx) const
+  Expression const *NodeImpl::getCondition(size_t idx) const
   {
     switch (idx) {
 
@@ -447,15 +449,15 @@ namespace PLEXIL
   }
 
   // Default methods.
-  std::vector<Node *>& Node::getChildren()
+  std::vector<NodeImpl *>& NodeImpl::getChildren()
   {
-    static std::vector<Node *> sl_emptyNodeVec;
+    static std::vector<NodeImpl *> sl_emptyNodeVec;
     return sl_emptyNodeVec;
   }
 
-  const std::vector<Node *>& Node::getChildren() const
+  const std::vector<NodeImpl *>& NodeImpl::getChildren() const
   {
-    static const std::vector<Node *> sl_emptyNodeVec;
+    static const std::vector<NodeImpl *> sl_emptyNodeVec;
     return sl_emptyNodeVec;
   }
 
@@ -465,9 +467,9 @@ namespace PLEXIL
    */
 
   // In addition to expressions to which this node listens, can be called by
-  // ListNode::setState(), Node::setState().
+  // ListNodeImpl::setState(), NodeImpl::setState().
 
-  void Node::notifyChanged()
+  void NodeImpl::notifyChanged()
   {
     switch (m_queueStatus) {
     case QUEUE_NONE:              // add to check queue
@@ -484,7 +486,7 @@ namespace PLEXIL
       return;
 
     default:                      // Invalid queue state
-      errorMsg("Node::notifyChanged for node " << m_nodeId << ": invalid queue state");
+      errorMsg("NodeImpl::notifyChanged for node " << m_nodeId << ": invalid queue state");
       return;
     }
   }
@@ -494,7 +496,7 @@ namespace PLEXIL
    * @return True if the new destination state is different from the last check, false otherwise.
    * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
    */
-  bool Node::getDestState()
+  bool NodeImpl::getDestState()
   {
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId << ' ' << this << " from state " <<
@@ -526,7 +528,7 @@ namespace PLEXIL
       return getDestStateFromIterationEnded();
 
     default:
-      errorMsg("Node::getDestState: invalid node state " << m_state);
+      errorMsg("NodeImpl::getDestState: invalid node state " << m_state);
       return false;
     }
   }
@@ -535,7 +537,7 @@ namespace PLEXIL
   // State transition logic
   //
 
-  void Node::transition(double time) 
+  void NodeImpl::transition(double time) 
   {
     // Fail silently
     if (m_nextState == m_state)
@@ -566,7 +568,7 @@ namespace PLEXIL
   }
 
   // Common method 
-  void Node::transitionFrom()
+  void NodeImpl::transitionFrom()
   {
     switch (m_state) {
     case INACTIVE_STATE:
@@ -598,12 +600,12 @@ namespace PLEXIL
       break;
 
     default:
-      errorMsg("Node::transitionFrom: Invalid node state " << m_state);
+      errorMsg("NodeImpl::transitionFrom: Invalid node state " << m_state);
     }
   }
 
   // Common method 
-  void Node::transitionTo(double time)
+  void NodeImpl::transitionTo(double time)
   {
     switch (m_nextState) {
     case INACTIVE_STATE:
@@ -635,7 +637,7 @@ namespace PLEXIL
       break;
 
     default:
-      errorMsg("Node::transitionTo: Invalid destination state " << m_nextState);
+      errorMsg("NodeImpl::transitionTo: Invalid destination state " << m_nextState);
     }
 
     setState((NodeState) m_nextState, time);
@@ -660,12 +662,12 @@ namespace PLEXIL
   // Legal successor states: WAITING, FINISHED
 
   // Common method
-  void Node::transitionToInactive()
+  void NodeImpl::transitionToInactive()
   {
   }
 
   // Common method
-  bool Node::getDestStateFromInactive()
+  bool NodeImpl::getDestStateFromInactive()
   {
     if (m_parent) {
       switch (m_parent->getState()) {
@@ -684,7 +686,7 @@ namespace PLEXIL
         Expression *cond;
         if ((cond = getAncestorExitCondition())) {
           checkError(cond->isActive(),
-                     "Node::getDestStateFromInactive: Ancestor exit for "
+                     "NodeImpl::getDestStateFromInactive: Ancestor exit for "
                      << m_nodeId << ' ' << this << " is inactive.");
           if (cond->getValue(temp) && temp) {
             debugMsg("Node:getDestState",
@@ -698,7 +700,7 @@ namespace PLEXIL
 
         if ((cond = getAncestorInvariantCondition())) {
           checkError(cond->isActive(),
-                     "Node::getDestStateFromInactive: Ancestor invariant for "
+                     "NodeImpl::getDestStateFromInactive: Ancestor invariant for "
                      << m_nodeId << ' ' << this << " is inactive.");
           if (cond->getValue(temp) && !temp) {
             debugMsg("Node:getDestState",
@@ -712,7 +714,7 @@ namespace PLEXIL
 
         if ((cond = getAncestorEndCondition())) {
           checkError(cond->isActive(),
-                     "Node::getDestStateFromInactive: Ancestor end for "
+                     "NodeImpl::getDestStateFromInactive: Ancestor end for "
                      << m_nodeId << ' ' << this << " is inactive.");
           if (cond->getValue(temp) && temp) {
             debugMsg("Node:getDestState",
@@ -748,7 +750,7 @@ namespace PLEXIL
   }
 
   // Common method
-  void Node::transitionFromInactive()
+  void NodeImpl::transitionFromInactive()
   {
     if (m_nextState == WAITING_STATE) {
       activateAncestorExitInvariantConditions();
@@ -771,20 +773,20 @@ namespace PLEXIL
   // ** N.B. Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active.
 
   // Common method
-  void Node::transitionToWaiting()
+  void NodeImpl::transitionToWaiting()
   {
     activateExitCondition();
     activatePreSkipStartConditions();
   }
 
   // Common method
-  bool Node::getDestStateFromWaiting()
+  bool NodeImpl::getDestStateFromWaiting()
   {
     Expression *cond;
     bool temp;
     if ((cond = getAncestorExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Ancestor exit for "
+                 "NodeImpl::getDestStateFromWaiting: Ancestor exit for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -798,7 +800,7 @@ namespace PLEXIL
 
     if ((cond = getExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Exit condition for "
+                 "NodeImpl::getDestStateFromWaiting: Exit condition for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -812,7 +814,7 @@ namespace PLEXIL
 
     if ((cond = getAncestorInvariantCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Ancestor invariant for "
+                 "NodeImpl::getDestStateFromWaiting: Ancestor invariant for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
@@ -826,7 +828,7 @@ namespace PLEXIL
 
     if ((cond = getAncestorEndCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Ancestor end for "
+                 "NodeImpl::getDestStateFromWaiting: Ancestor end for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -840,7 +842,7 @@ namespace PLEXIL
 
     if ((cond = getSkipCondition())) {
       checkError(cond->isActive(), 
-                 "Node::getDestStateFromWaiting: Skip for "
+                 "NodeImpl::getDestStateFromWaiting: Skip for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -854,7 +856,7 @@ namespace PLEXIL
 
     if ((cond = getStartCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Start for "
+                 "NodeImpl::getDestStateFromWaiting: Start for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (!cond->getValue(temp) || !temp) {
         debugMsg("Node:getDestState",
@@ -865,7 +867,7 @@ namespace PLEXIL
     }
     if ((cond = getPreCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Pre for "
+                 "NodeImpl::getDestStateFromWaiting: Pre for "
                  << m_nodeId << ' ' << this << " is inactive.");
       debugMsg("Node:getDestState",
                ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
@@ -883,7 +885,7 @@ namespace PLEXIL
   }
 
   // Common method
-  void Node::transitionFromWaiting()
+  void NodeImpl::transitionFromWaiting()
   {
     deactivatePreSkipStartConditions();
     switch (m_nextState) {
@@ -917,7 +919,7 @@ namespace PLEXIL
   // Legal successor states: FINISHED, ITERATION_ENDED
 
   // Default method
-  void Node::transitionToExecuting()
+  void NodeImpl::transitionToExecuting()
   {
     activateLocalVariables();
 
@@ -927,13 +929,13 @@ namespace PLEXIL
   }
 
   // Default method
-  bool Node::getDestStateFromExecuting()
+  bool NodeImpl::getDestStateFromExecuting()
   {
     Expression *cond;
     bool temp;
     if ((cond = getAncestorExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Ancestor exit for "
+                 "NodeImpl::getDestStateFromExecuting: Ancestor exit for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -948,7 +950,7 @@ namespace PLEXIL
 
     if ((cond = getExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Exit condition for "
+                 "NodeImpl::getDestStateFromExecuting: Exit condition for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -963,7 +965,7 @@ namespace PLEXIL
 
     if ((cond = getAncestorInvariantCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Ancestor invariant for "
+                 "NodeImpl::getDestStateFromExecuting: Ancestor invariant for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
@@ -978,7 +980,7 @@ namespace PLEXIL
 
     if ((cond = getInvariantCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Invariant for "
+                 "NodeImpl::getDestStateFromExecuting: Invariant for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
@@ -993,7 +995,7 @@ namespace PLEXIL
 
     if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: End for "
+                 "NodeImpl::getDestStateFromExecuting: End for "
                  << m_nodeId << ' ' << this << " is inactive.");
       return false;
     }
@@ -1004,7 +1006,7 @@ namespace PLEXIL
     m_nextState = ITERATION_ENDED_STATE;
     if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromExecuting: Post for "
+                 "NodeImpl::getDestStateFromExecuting: Post for "
                  << m_nodeId << ' ' << this << " is inactive.");
       m_nextOutcome = FAILURE_OUTCOME;
       m_nextFailureType = POST_CONDITION_FAILED;
@@ -1015,7 +1017,7 @@ namespace PLEXIL
   }
 
   // Empty node method
-  void Node::transitionFromExecuting()
+  void NodeImpl::transitionFromExecuting()
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -1052,19 +1054,19 @@ namespace PLEXIL
   // *** N.B.: Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active!
 
   // Common method
-  void Node::transitionToIterationEnded() 
+  void NodeImpl::transitionToIterationEnded() 
   {
     activateRepeatCondition();
   }
 
   // Common method
-  bool Node::getDestStateFromIterationEnded()
+  bool NodeImpl::getDestStateFromIterationEnded()
   {
     Expression *cond;
     bool temp;
     if ((cond = getAncestorExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromIterationEnded: Ancestor exit for "
+                 "NodeImpl::getDestStateFromIterationEnded: Ancestor exit for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -1079,7 +1081,7 @@ namespace PLEXIL
 
     if ((cond = getAncestorInvariantCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromIterationEnded: Ancestor invariant for "
+                 "NodeImpl::getDestStateFromIterationEnded: Ancestor invariant for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
@@ -1094,7 +1096,7 @@ namespace PLEXIL
 
     if ((cond = getAncestorEndCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromIterationEnded: Ancestor end for "
+                 "NodeImpl::getDestStateFromIterationEnded: Ancestor end for "
                  << m_nodeId << ' ' << this << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
@@ -1109,7 +1111,7 @@ namespace PLEXIL
     if ((cond = getRepeatCondition())) {
       if (!cond->getValue(temp)) {
         checkError(cond->isActive(),
-                   "Node::getDestStateFromIterationEnded: Repeat for "
+                   "NodeImpl::getDestStateFromIterationEnded: Repeat for "
                    << m_nodeId << ' ' << this << " is inactive.");
         debugMsg("Node:getDestState",
                  ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
@@ -1133,7 +1135,7 @@ namespace PLEXIL
   }
 
   // Common method
-  void Node::transitionFromIterationEnded()
+  void NodeImpl::transitionFromIterationEnded()
   {
     deactivateRepeatCondition();
 
@@ -1165,12 +1167,12 @@ namespace PLEXIL
   // Legal successor states: INACTIVE
 
   // Common method
-  void Node::transitionToFinished()
+  void NodeImpl::transitionToFinished()
   {
   }
 
   // Common method
-  bool Node::getDestStateFromFinished()
+  bool NodeImpl::getDestStateFromFinished()
   {
     if (m_parent && m_parent->getState() == WAITING_STATE) {
       debugMsg("Node:getDestState",
@@ -1187,7 +1189,7 @@ namespace PLEXIL
   }
 
   // Common method
-  void Node::transitionFromFinished()
+  void NodeImpl::transitionFromFinished()
   {
     reset();
   }
@@ -1202,13 +1204,13 @@ namespace PLEXIL
   // Legal successor states: n/a
 
   // Default method
-  void Node::transitionToFinishing()
+  void NodeImpl::transitionToFinishing()
   {
     errorMsg("No transition to FINISHING state defined for this node");
   }
 
   // Default method
-  bool Node::getDestStateFromFinishing()
+  bool NodeImpl::getDestStateFromFinishing()
   {
     errorMsg("Attempted to compute destination state from FINISHING for node "
              << m_nodeId << ' ' << this << " of type " << getType());
@@ -1216,7 +1218,7 @@ namespace PLEXIL
   }
 
   // Default method
-  void Node::transitionFromFinishing()
+  void NodeImpl::transitionFromFinishing()
   {
     errorMsg("No transition from FINISHING state defined for this node");
   }
@@ -1231,13 +1233,13 @@ namespace PLEXIL
   // Legal successor states: n/a
 
   // Default method
-  void Node::transitionToFailing()
+  void NodeImpl::transitionToFailing()
   {
     errorMsg("No transition to FAILING state defined for this node");
   }
 
   // Default method
-  bool Node::getDestStateFromFailing()
+  bool NodeImpl::getDestStateFromFailing()
   {
     errorMsg("Attempted to compute destination state from FAILING for node "
              << m_nodeId << ' ' << this << " of type " << getType());
@@ -1245,7 +1247,7 @@ namespace PLEXIL
   }
 
   // Default method
-  void Node::transitionFromFailing()
+  void NodeImpl::transitionFromFailing()
   {
     errorMsg("No transition from FAILING state defined for this node");
   }
@@ -1254,13 +1256,13 @@ namespace PLEXIL
   // *** END NODE STATE LOGIC ***
   // ***
 
-  NodeState Node::getState() const {
+  NodeState NodeImpl::getState() const {
     return (NodeState) m_state;
   }
 
   // Some transition handlers call this twice.
-  // Called from Node::transitionTo(), ListNode::setState() (wrapper method)
-  void Node::setState(NodeState newValue, double tym) // FIXME
+  // Called from NodeImpl::transitionTo(), ListNodeImpl::setState() (wrapper method)
+  void NodeImpl::setState(NodeState newValue, double tym) // FIXME
   {
     if (newValue == m_state)
       return;
@@ -1279,7 +1281,7 @@ namespace PLEXIL
   // Transition time trace methods
   //
 
-  void Node::logTransition(double tym, NodeState newState)
+  void NodeImpl::logTransition(double tym, NodeState newState)
   {
     m_currentStateStartTime = tym;
     if (!m_timepoints)
@@ -1304,34 +1306,34 @@ namespace PLEXIL
     }
   }
 
-  double Node::getCurrentStateStartTime() const
+  double NodeImpl::getCurrentStateStartTime() const
   {
     return m_currentStateStartTime;
   }
 
-  void Node::setNodeOutcome(NodeOutcome o)
+  void NodeImpl::setNodeOutcome(NodeOutcome o)
   {
     m_outcome = o;
     m_outcomeVariable.changed();
   }
 
-  NodeOutcome Node::getOutcome() const
+  NodeOutcome NodeImpl::getOutcome() const
   {
     return (NodeOutcome) m_outcome;
   }
 
-  void Node::setNodeFailureType(FailureType f)
+  void NodeImpl::setNodeFailureType(FailureType f)
   {
     m_failureType = f;
     m_failureTypeVariable.changed();
   }
 
-  FailureType Node::getFailureType() const
+  FailureType NodeImpl::getFailureType() const
   {
     return (FailureType) m_failureType;
   }
 
-  Expression *Node::ensureTimepoint(NodeState st, bool isEnd)
+  Expression *NodeImpl::ensureTimepoint(NodeState st, bool isEnd)
   {
     NodeTimepointValue *result = m_timepoints;
     while (result) {
@@ -1348,7 +1350,7 @@ namespace PLEXIL
   }
 
   // Searches ancestors' maps when required
-  Expression *Node::findVariable(char const *name)
+  Expression *NodeImpl::findVariable(char const *name)
   {
     debugMsg("Node:findVariable",
              " node " << m_nodeId << ", for " << name);
@@ -1384,7 +1386,7 @@ namespace PLEXIL
     return NULL;
   }
 
-  Expression *Node::findLocalVariable(char const *name)
+  Expression *NodeImpl::findLocalVariable(char const *name)
   {
     if (!m_variablesByName)
       return NULL;
@@ -1401,12 +1403,12 @@ namespace PLEXIL
   }
 
   // Default methods
-  Node const *Node::findChild(char const * /* childName */) const
+  NodeImpl const *NodeImpl::findChild(char const * /* childName */) const
   {
     return NULL;
   }
 
-  Node *Node::findChild(char const * /* childName */)
+  NodeImpl *NodeImpl::findChild(char const * /* childName */)
   {
     return NULL;
   }
@@ -1416,15 +1418,15 @@ namespace PLEXIL
   //
 
   // These are special because parent owns the condition expression
-  void Node::activateAncestorEndCondition()
+  void NodeImpl::activateAncestorEndCondition()
   {
   }
-  void Node::activateAncestorExitInvariantConditions()
+  void NodeImpl::activateAncestorExitInvariantConditions()
   {
   }
 
   // User conditions
-  void Node::activatePreSkipStartConditions()
+  void NodeImpl::activatePreSkipStartConditions()
   {
     Expression *temp;
     if ((temp = m_conditions[skipIdx]))
@@ -1435,45 +1437,45 @@ namespace PLEXIL
       temp->activate();
   }
 
-  void Node::activateEndCondition()
+  void NodeImpl::activateEndCondition()
   {
     if (m_conditions[endIdx])
       m_conditions[endIdx]->activate();
   }
 
-  void Node::activateExitCondition()
+  void NodeImpl::activateExitCondition()
   {
     if (m_conditions[exitIdx])
       m_conditions[exitIdx]->activate();
   }
 
-  void Node::activateInvariantCondition()
+  void NodeImpl::activateInvariantCondition()
   {
     if (m_conditions[invariantIdx])
       m_conditions[invariantIdx]->activate();
   }
 
-  void Node::activatePostCondition()
+  void NodeImpl::activatePostCondition()
   {
     if (m_conditions[postIdx])
       m_conditions[postIdx]->activate();
   }
 
-  void Node::activateRepeatCondition()
+  void NodeImpl::activateRepeatCondition()
   {
     if (m_conditions[repeatIdx])
       m_conditions[repeatIdx]->activate();
   }
 
   // These are for specialized node types
-  void Node::activateActionCompleteCondition()
+  void NodeImpl::activateActionCompleteCondition()
   {
     assertTrueMsg(m_conditions[actionCompleteIdx],
                   "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
     m_conditions[actionCompleteIdx]->activate();
   }
 
-  void Node::activateAbortCompleteCondition()
+  void NodeImpl::activateAbortCompleteCondition()
   {
     assertTrueMsg(m_conditions[abortCompleteIdx],
                   "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
@@ -1481,15 +1483,15 @@ namespace PLEXIL
   }
 
   // These are special because parent owns the condition expression
-  void Node::deactivateAncestorEndCondition()
+  void NodeImpl::deactivateAncestorEndCondition()
   {
   }
-  void Node::deactivateAncestorExitInvariantConditions()
+  void NodeImpl::deactivateAncestorExitInvariantConditions()
   {
   }
 
   // User conditions
-  void Node::deactivatePreSkipStartConditions()
+  void NodeImpl::deactivatePreSkipStartConditions()
   {
     Expression *temp;
     if ((temp = m_conditions[skipIdx]))
@@ -1500,48 +1502,48 @@ namespace PLEXIL
       temp->deactivate();
   }
 
-  void Node::deactivateEndCondition()
+  void NodeImpl::deactivateEndCondition()
   {
     if (m_conditions[endIdx])
       m_conditions[endIdx]->deactivate();
   }
 
-  void Node::deactivateExitCondition()
+  void NodeImpl::deactivateExitCondition()
   {
     if ((m_conditions[exitIdx]))
       m_conditions[exitIdx]->deactivate();
   }
 
-  void Node::deactivateInvariantCondition()
+  void NodeImpl::deactivateInvariantCondition()
   {
     if ((m_conditions[invariantIdx]))
       m_conditions[invariantIdx]->deactivate();
   }
 
-  void Node::deactivatePostCondition()
+  void NodeImpl::deactivatePostCondition()
   {
     if ((m_conditions[postIdx]))
       m_conditions[postIdx]->deactivate();
   }
 
-  void Node::deactivateRepeatCondition()
+  void NodeImpl::deactivateRepeatCondition()
   {
     if (m_conditions[repeatIdx])
       m_conditions[repeatIdx]->deactivate();
   }
 
   // These are for specialized node types
-  void Node::deactivateActionCompleteCondition()
+  void NodeImpl::deactivateActionCompleteCondition()
   {
     m_conditions[actionCompleteIdx]->deactivate();
   }
 
-  void Node::deactivateAbortCompleteCondition()
+  void NodeImpl::deactivateAbortCompleteCondition()
   {
     m_conditions[abortCompleteIdx]->deactivate();
   }
 
-  void Node::activateLocalVariables()
+  void NodeImpl::activateLocalVariables()
   {
     if (m_localVariables) {
       for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
@@ -1551,7 +1553,7 @@ namespace PLEXIL
     }
   }
 
-  void Node::deactivateLocalVariables()
+  void NodeImpl::deactivateLocalVariables()
   {
     if (m_localVariables) {
       for (std::vector<Expression *>::iterator vit = m_localVariables->begin();
@@ -1561,7 +1563,7 @@ namespace PLEXIL
     }
   }
 
-  void Node::execute() 
+  void NodeImpl::execute() 
   {
     debugMsg("Node:execute", " Executing node " << m_nodeId);
 
@@ -1575,11 +1577,11 @@ namespace PLEXIL
   }
 
   // default method
-  void Node::specializedHandleExecution()
+  void NodeImpl::specializedHandleExecution()
   {
   }
 
-  void Node::reset()
+  void NodeImpl::reset()
   {
     debugMsg("Node:reset", " Re-setting node " << m_nodeId);
 
@@ -1589,36 +1591,37 @@ namespace PLEXIL
   }
 
   // Default method
-  void Node::abort() 
+  void NodeImpl::abort() 
   {
     errorMsg("Abort illegal for node type " << getType());
   }
 
-  void Node::deactivateExecutable() 
+  void NodeImpl::deactivateExecutable() 
   {
     specializedDeactivateExecutable();
     deactivateLocalVariables();
   }
 
   // Default method
-  void Node::specializedDeactivateExecutable()
+  void NodeImpl::specializedDeactivateExecutable()
   {
   }
 
-  std::string Node::toString(const unsigned int indent)
+  std::string NodeImpl::toString(const unsigned int indent)
   {
     std::ostringstream retval;
     print(retval, indent);
     return retval.str();
   }
 
-  std::ostream& operator<<(std::ostream& stream, const Node& node)
+  // Defined here because Node.cc is no more
+  std::ostream& operator<<(std::ostream &stream, Node const &node)
   {
     node.print(stream, 0);
     return stream;
   }
 
-  void Node::print(std::ostream& stream, const unsigned int indent) const
+  void NodeImpl::print(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');
 
@@ -1647,18 +1650,20 @@ namespace PLEXIL
       printVariables(stream, indent);
     }
     // print children
-    for (std::vector<Node *>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it)
+    for (std::vector<NodeImpl *>::const_iterator it = getChildren().begin();
+         it != getChildren().end();
+         ++it)
       (*it)->print(stream, indent + 2);
     stream << indentStr << "}" << std::endl;
   }
 
   // Default method does nothing
-  void Node::printCommandHandle(std::ostream& /* stream */, const unsigned int /* indent */) const
+  void NodeImpl::printCommandHandle(std::ostream& /* stream */, const unsigned int /* indent */) const
   {
   }
 
   // Print variables
-  void Node::printVariables(std::ostream& stream, const unsigned int indent) const
+  void NodeImpl::printVariables(std::ostream& stream, const unsigned int indent) const
   {
     if (!m_variablesByName)
       return;
@@ -1671,5 +1676,7 @@ namespace PLEXIL
         *(it->second) << '\n';
     }
   }
+
+
 
 }
