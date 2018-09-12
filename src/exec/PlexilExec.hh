@@ -28,13 +28,9 @@
 #define PLEXIL_EXEC_HH
 
 #include "ExecConnector.hh"
-#include "LinkedQueue.hh"
 #include "NodeTransition.hh"
-#include "VariableConflictSet.hh"
 
 #include <list>
-#include <map>
-#include <queue>
 
 namespace PLEXIL 
 {
@@ -45,7 +41,7 @@ namespace PLEXIL
   struct NodeConflictComparator;
 
   /**
-   * @brief The core PLEXIL executive.
+   * @brief The API of the core PLEXIL executive.
    */
   class PlexilExec : public ExecConnector
   {
@@ -53,12 +49,17 @@ namespace PLEXIL
     /**
      * @brief Default constructor.
      */
-    PlexilExec();
+    PlexilExec()
+      : ExecConnector()
+    {
+    }
 
     /**
      * @brief Destructor.
      */
-    ~PlexilExec();
+    virtual ~PlexilExec()
+    {
+    }
 
     //
     // API to ExternalInterface
@@ -69,45 +70,39 @@ namespace PLEXIL
      * @param The plan's root node.
      * @return True if succesful, false otherwise.
      */
-    bool addPlan(Node *root);
+    virtual bool addPlan(Node *root) = 0;
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
      */
-    void step(double startTime); // *** FIXME ***
+    virtual void step(double startTime) = 0; // *** FIXME ***
 
     /**
      * @brief Returns true if the Exec needs to be stepped.
      */
-    bool needsStep() const;
+    virtual bool needsStep() const = 0;
 
     /**
      * @brief Set the ExecListener instance.
      */
-    void setExecListener(ExecListenerBase *l)
-    {
-      m_listener = l;
-    }
+    virtual void setExecListener(ExecListenerBase *l) = 0;
 
     /**
      * @brief Get the ExecListener instance.
      * @return The ExecListener. May be NULL.
      */
-    ExecListenerBase *getExecListener()
-    {
-      return m_listener;
-    }
+    virtual ExecListenerBase *getExecListener() = 0;
 
     /**
      * @brief Queries whether all plans are finished.
      * @return true if all finished, false otherwise.
      */
-    bool allPlansFinished() const;
+    virtual bool allPlansFinished() const = 0;
 
     /**
      * @brief Deletes any finished root nodes.
      */
-    void deleteFinishedPlans();
+    virtual void deleteFinishedPlans() = 0;
 
     //
     // API to Node classes
@@ -119,116 +114,39 @@ namespace PLEXIL
      * @note Node's queue status must be QUEUE_NONE.
      * @note Known callers are Node::notifyChanged(), PlexilExec::addPlan(), PlexilExec::getStateChangeNode().
      */
-    void addCandidateNode(Node *node);
+    virtual void addCandidateNode(Node *node) = 0;
 
     /**
      * @brief Schedule this assignment for execution.
      */
-    void enqueueAssignment(Assignment *assign);
+    virtual void enqueueAssignment(Assignment *assign) = 0;
 
     /**
      * @brief Schedule this assignment for retraction.
      */
-    void enqueueAssignmentForRetraction(Assignment *assign);
+    virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
-    void markRootNodeFinished(Node *node);
+    virtual void markRootNodeFinished(Node *node) = 0;
 
     /**
      * @brief Get the list of active plans.
      */
-    std::list<Node *> const &getPlans() const;
+    virtual std::list<Node *> const &getPlans() const = 0;
 
   private:
     // Not implemented
     PlexilExec(PlexilExec const &);
     PlexilExec &operator=(PlexilExec const &);
-
-    /**
-     * @brief Resolve conflicts among potentially executing assignment variables.
-     */
-    void resolveResourceConflicts();
-
-    /**
-     * @brief Resolve conflicts for this variable.
-     */
-    void resolveVariableConflicts(VariableConflictSet *conflictNodes);
-
-    /**
-     * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
-     * @param node The assignment node.
-     */
-    void addToResourceContention(Node *node);
-
-    /**
-     * @brief Removes a node from consideration for resource contention.  This is usually because some condition has changed that makes the node no longer
-     * eligible for execution.
-     * @param node The assignment node.
-     */
-    void removeFromResourceContention(Node *node);
-
-    VariableConflictSet *getConflictSet(Expression *);
-
-    VariableConflictSet *ensureConflictSet(Expression *);
-
-    //
-    // Queue management
-    //
-
-    /**
-     * @brief Dequeue a node from the candidate queue.
-     * @return Pointer to the top node in the queue, or NULL if queue empty.
-     */
-    Node *getCandidateNode();
-
-    /**
-     * @brief Prepare for a potential state transition of this eligible node.
-     * @param node Pointer to the node.
-     */
-    void handleConditionsChanged(Node *node);
-
-    void addStateChangeNode(Node *node);
-    Node *getStateChangeNode();
-
-    void addFinishedRootNode(Node *node);
-    Node *getFinishedRootNode();
-
-    /**
-     * @brief Gets a stringified version of the current check queue.
-     */
-    std::string conditionCheckQueueStr() const;
-
-    /**
-     * @brief Gets a stringified version of the current state change queue.
-     */
-    std::string stateChangeQueueStr() const;
-
-    /**
-     * @brief Batch-perform internal assignments queued up from a quiescence step.
-     */
-    void performAssignments();
-
-    LinkedQueue<Node> m_candidateQueue;    /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    LinkedQueue<Node> m_stateChangeQueue;  /*<! Nodes awaiting state transition.*/
-    LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
-    LinkedQueue<Assignment> m_assignmentsToExecute;
-    LinkedQueue<Assignment> m_assignmentsToRetract;
-    std::list<Node *> m_plan; /*<! The root of the plan.*/
-    std::vector<NodeTransition> m_transitionsToPublish;
-    std::vector<Expression *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
-    ExecListenerBase *m_listener;
-    VariableConflictSet *m_resourceConflicts; /*<! Linked list of variable assignment contention sets. */
-    unsigned int m_queuePos;
-    bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
 
   /**
    * @brief Construct a PlexilExec instance.
    * @return Pointer to the new PlexilExec instance.
    */
-  PlexilExec *makePlexilExec();
+  extern PlexilExec *makePlexilExec();
 
 }
 
