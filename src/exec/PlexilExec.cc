@@ -36,13 +36,7 @@
 #include "LinkedQueue.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
-#include "NodeFactory.hh"
 #include "VariableConflictSet.hh"
-
-#include <algorithm> // for find(), transform
-#include <iterator> // for back_insert_iterator
-#include <functional>
-#include <time.h>
 
 namespace PLEXIL 
 {
