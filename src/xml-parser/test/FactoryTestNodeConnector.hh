@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,18 +42,10 @@ namespace PLEXIL
   {
   public:
     FactoryTestNodeConnector();
-
     ~FactoryTestNodeConnector();
 
-    Expression *findVariable(char const *name);
-
     std::string const &getNodeId() const;
-
-    Node const *findChild(char const *childName) const;
-    Node *findChild(char const *childName);
-    Node *getParent();
-    Node const *getParent() const;
-    int32_t getPriority() const;
+    Expression *findVariable(char const *name);
 
     // Test setup
     void storeVariable(const std::string & name, Expression *var);

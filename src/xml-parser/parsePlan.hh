@@ -38,7 +38,7 @@ namespace pugi
 
 namespace PLEXIL
 {
-  class Node;
+  class NodeImpl;
   class SymbolTable;
 
   extern unsigned int const PUGI_PARSE_OPTIONS;
@@ -52,10 +52,10 @@ namespace PLEXIL
   /**
    * Constructs but does not finalize the node (for library calls).
    */
-  extern Node *constructPlan(pugi::xml_node const xml, SymbolTable *symtab, Node *parent)
+  extern NodeImpl *constructPlan(pugi::xml_node const xml, SymbolTable *symtab, NodeImpl *parent)
     throw (ParserException);
 
-  extern Node *parsePlan(pugi::xml_node const xml)
+  extern NodeImpl *parsePlan(pugi::xml_node const xml)
     throw (ParserException);
 }
 

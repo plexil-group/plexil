@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -60,31 +60,6 @@ namespace PLEXIL
   {
     static std::string sl_empty;
     return sl_empty;
-  }
-
-  Node const *FactoryTestNodeConnector::findChild(char const * /* childName */) const
-  {
-    return NULL;
-  }
-   
-  Node *FactoryTestNodeConnector::findChild(char const * /* childName */)
-  {
-    return NULL;
-  }
-
-  Node *FactoryTestNodeConnector::getParent()
-  {
-    return NULL;
-  }
-
-  Node const *FactoryTestNodeConnector::getParent() const
-  {
-    return NULL;
-  }
-
-  int32_t FactoryTestNodeConnector::getPriority() const
-  {
-    return WORST_PRIORITY;
   }
 
   void FactoryTestNodeConnector::storeVariable(const std::string & name, Expression *var)

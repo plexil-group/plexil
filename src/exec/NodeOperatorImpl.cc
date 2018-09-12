@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,13 @@ namespace PLEXIL
   // Convenience methods
 
   template <typename R>
-  bool NodeOperatorImpl<R>::calcNative(void *cache, Node const *node) const
+  bool NodeOperatorImpl<R>::calcNative(void *cache, NodeImpl const *node) const
   {
     return (*this)(*(static_cast<R *>(cache)), node);
   }
 
   template <typename R>
-  void NodeOperatorImpl<R>::printValue(std::ostream &s, void *cache, Node const *node) const
+  void NodeOperatorImpl<R>::printValue(std::ostream &s, void *cache, NodeImpl const *node) const
   {
     if (calcNative(cache, node))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
@@ -54,7 +54,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value NodeOperatorImpl<R>::toValue(void *cache, Node const *node) const
+  Value NodeOperatorImpl<R>::toValue(void *cache, NodeImpl const *node) const
   {
     bool known = calcNative(cache, node);
     if (known)
@@ -66,13 +66,13 @@ namespace PLEXIL
   // Array variants unlikely to be used any time soon
 
   // template <typename R>
-  // bool NodeOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Node const *node) const
+  // bool NodeOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, NodeImpl const *node) const
   // {
   //   return (*this)(*(static_cast<ArrayImpl<R> *>(cache)), node);
   // }
 
   // template <typename R>
-  // void NodeOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Node const *node) const
+  // void NodeOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, NodeImpl const *node) const
   // {
   //   if (calcNative(cache, node))
   //     PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
@@ -81,7 +81,7 @@ namespace PLEXIL
   // }
 
   // template <typename R>
-  // Value NodeOperatorImpl<ArrayImpl<R> >::toValue(void *cache, Node const *node) const
+  // Value NodeOperatorImpl<ArrayImpl<R> >::toValue(void *cache, NodeImpl const *node) const
   // {
   //   bool known = calcNative(cache, node);
   //   if (known)

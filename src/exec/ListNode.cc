@@ -58,9 +58,9 @@ namespace PLEXIL
       return true;
     }
 
-    bool operator()(Boolean &result, Node const *node) const
+    bool operator()(Boolean &result, NodeImpl const *node) const
     {
-      std::vector<Node *> const &kids = node->getChildren();
+      std::vector<NodeImpl *> const &kids = node->getChildren();
       size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
         if (kids[i]->getState() != FINISHED_STATE) {
@@ -100,9 +100,9 @@ namespace PLEXIL
       return true;
     }
 
-    bool operator()(Boolean &result, Node const *node) const
+    bool operator()(Boolean &result, NodeImpl const *node) const
     {
-      std::vector<Node *> const &kids = node->getChildren();
+      std::vector<NodeImpl *> const &kids = node->getChildren();
       size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
         switch (kids[i]->getState()) {
@@ -137,8 +137,8 @@ namespace PLEXIL
   // ListNode member functions
   //
 
-  ListNode::ListNode(char const *nodeId, Node *parent)
-    : Node(nodeId, parent)
+  ListNode::ListNode(char const *nodeId, NodeImpl *parent)
+    : NodeImpl(nodeId, parent)
   {
   }
 
@@ -149,8 +149,8 @@ namespace PLEXIL
   ListNode::ListNode(const std::string& type,
                      const std::string& name, 
                      NodeState state,
-                     Node *parent)
-    : Node(type, name, state, parent)
+                     NodeImpl *parent)
+    : NodeImpl(type, name, state, parent)
   {
     checkError(type == LIST || type == LIBRARYNODECALL,
                "Invalid node type " << type << " for a ListNode");
@@ -192,7 +192,7 @@ namespace PLEXIL
       return m_variablesByName;
 
     // Search ancestors for first in chain
-    Node *n = m_parent;
+    NodeImpl *n = m_parent;
     NodeVariableMap const *map = NULL;
     while (n && !map) {
       map = n->getVariableMap();
@@ -208,7 +208,7 @@ namespace PLEXIL
   {
     // At least one node state function is dependent on child states,
     // so just add this node as a listener to each state variable.
-    for (std::vector<Node *>::iterator it = m_children.begin();
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin();
          it != m_children.end();
          ++it)
       (*it)->getStateVariable()->addListener(this);
@@ -327,9 +327,9 @@ namespace PLEXIL
 
     cleanUpChildConditions();
 
-    Node::cleanUpConditions();
+    NodeImpl::cleanUpConditions();
 
-    for (std::vector<Node *>::iterator it = m_children.begin();
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin();
          it != m_children.end();
          ++it)
       (*it)->getStateVariable()->removeListener(this);
@@ -343,7 +343,7 @@ namespace PLEXIL
     debugMsg("ListNode:cleanUpNodeBody", " for " << m_nodeId);
 
     // Delete children
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       delete (Node*) (*it);
     m_children.clear();
     m_cleanedBody = true;
@@ -352,15 +352,15 @@ namespace PLEXIL
   void ListNode::cleanUpChildConditions()
   {
     debugMsg("ListNode:cleanUpChildConditions", " for " << m_nodeId);
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpConditions();
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpNodeBody();
   }
 
-  Node const *ListNode::findChild(char const *childName) const
+  NodeImpl const *ListNode::findChild(char const *childName) const
   {
-    for (std::vector<Node *>::const_iterator it = m_children.begin();
+    for (std::vector<NodeImpl *>::const_iterator it = m_children.begin();
          it != m_children.end();
          ++it)
       if ((*it)->getNodeId() == childName)
@@ -368,9 +368,9 @@ namespace PLEXIL
     return NULL;
   }
 
-  Node *ListNode::findChild(char const *childName)
+  NodeImpl *ListNode::findChild(char const *childName)
   {
-    for (std::vector<Node *>::const_iterator it = m_children.begin();
+    for (std::vector<NodeImpl *>::const_iterator it = m_children.begin();
          it != m_children.end();
          ++it)
       if ((*it)->getNodeId() == childName)
@@ -390,11 +390,11 @@ namespace PLEXIL
    */
   void ListNode::setState(NodeState newValue, double tym)
   {
-    Node::setState(newValue, tym);
+    NodeImpl::setState(newValue, tym);
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:
-      for (std::vector<Node *>::iterator it = m_children.begin();
+      for (std::vector<NodeImpl *>::iterator it = m_children.begin();
            it != m_children.end();
            ++it)
         if ((*it)->getState() == FINISHED_STATE)
@@ -403,7 +403,7 @@ namespace PLEXIL
 
     case EXECUTING_STATE:
     case FINISHED_STATE:
-      for (std::vector<Node *>::iterator it = m_children.begin();
+      for (std::vector<NodeImpl *>::iterator it = m_children.begin();
            it != m_children.end();
            ++it)
         if ((*it)->getState() == INACTIVE_STATE)
@@ -775,7 +775,7 @@ namespace PLEXIL
   void ListNode::specializedActivate()
   {
     // Activate all children
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->activate();
   }
 

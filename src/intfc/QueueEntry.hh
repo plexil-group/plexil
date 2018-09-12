@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class Command;
-  class Node;
+  class NodeImpl;
   class State;
   class Update;
 
@@ -58,7 +58,7 @@ namespace PLEXIL
       Command *command;
       Update *update;
       State *state;
-      Node *plan;
+      NodeImpl *plan;
       unsigned int sequence;
     };
     Value value;
@@ -74,7 +74,7 @@ namespace PLEXIL
 
     void initForUpdateAck(Update *upd, bool ack);
 
-    void initForAddPlan(Node *p);
+    void initForAddPlan(NodeImpl *p);
 
     void initForMark(unsigned int seq);
 

@@ -76,7 +76,7 @@ namespace PLEXIL
     type = Q_UPDATE_ACK;
   }
 
-  void QueueEntry::initForAddPlan(Node *node)
+  void QueueEntry::initForAddPlan(NodeImpl *node)
   {
     plan = node;
     type = Q_ADD_PLAN;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,9 +57,9 @@ namespace PLEXIL
       PLEXIL::deallocateCache<R>(static_cast<R *>(ptr));
     }
 
-    bool calcNative(void *cache, Node const *node) const;
-    virtual void printValue(std::ostream &s, void *cache, Node const *node) const;
-    Value toValue(void *cache, Node const *node) const;
+    bool calcNative(void *cache, NodeImpl const *node) const;
+    virtual void printValue(std::ostream &s, void *cache, NodeImpl const *node) const;
+    Value toValue(void *cache, NodeImpl const *node) const;
 
   protected:
 

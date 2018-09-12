@@ -30,7 +30,6 @@
 #include "Command.hh"
 #include "CommandNode.hh"
 #include "ExpressionFactory.hh"
-#include "Node.hh"
 #include "parseNode.hh"
 #include "planLibrary.hh"
 #include "TestSupport.hh"
@@ -102,7 +101,7 @@ static bool emptyNodeXmlParserTest()
 
   {
     xml_node minimal = makeNode(*doc, "minimal", "Empty");
-    Node *minimalNode = NULL;
+    NodeImpl *minimalNode = NULL;
     
     try {
       checkNode(minimal);
@@ -122,7 +121,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node comment = makeNode(*doc, "comment", "Empty");
     makePcdataElement(comment, "Comment", "This is a comment");
-    Node *commentNode = NULL;
+    NodeImpl *commentNode = NULL;
 
     try {
       checkNode(comment);
@@ -146,7 +145,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node preCond = makeNode(*doc, "preCond", "Empty");
     makePcdataElement(preCond.append_child("PreCondition"), "BooleanValue", "true");
-    Node *preCondNode = NULL;
+    NodeImpl *preCondNode = NULL;
 
     try {
       checkNode(preCond);
@@ -173,7 +172,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node endCond = makeNode(*doc, "endCond", "Empty");
     makePcdataElement(endCond.append_child("EndCondition"), "BooleanValue", "true");
-    Node *endCondNode = NULL;
+    NodeImpl *endCondNode = NULL;
 
     try {
       checkNode(endCond);
@@ -200,7 +199,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node exitCond = makeNode(*doc, "exitCond", "Empty");
     makePcdataElement(exitCond.append_child("ExitCondition"), "BooleanValue", "true");
-    Node *exitCondNode = NULL;
+    NodeImpl *exitCondNode = NULL;
 
     try {
       checkNode(exitCond);
@@ -227,7 +226,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node postCond = makeNode(*doc, "postCond", "Empty");
     makePcdataElement(postCond.append_child("PostCondition"), "BooleanValue", "true");
-    Node *postCondNode = NULL;
+    NodeImpl *postCondNode = NULL;
 
     try {
       checkNode(postCond);
@@ -254,7 +253,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node skipCond = makeNode(*doc, "skipCond", "Empty");
     makePcdataElement(skipCond.append_child("SkipCondition"), "BooleanValue", "true");
-    Node *skipCondNode = NULL;
+    NodeImpl *skipCondNode = NULL;
 
     try {
       checkNode(skipCond);
@@ -281,7 +280,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node startCond = makeNode(*doc, "startCond", "Empty");
     makePcdataElement(startCond.append_child("StartCondition"), "BooleanValue", "true");
-    Node *startCondNode = NULL;
+    NodeImpl *startCondNode = NULL;
     
     try {
       checkNode(startCond);
@@ -308,7 +307,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node repeatCond = makeNode(*doc, "repeatCond", "Empty");
     makePcdataElement(repeatCond.append_child("RepeatCondition"), "BooleanValue", "true");
-    Node *repeatCondNode = NULL;
+    NodeImpl *repeatCondNode = NULL;
 
     try {
       checkNode(repeatCond);
@@ -335,7 +334,7 @@ static bool emptyNodeXmlParserTest()
   {
     xml_node invariantCond = makeNode(*doc, "invariantCond", "Empty");
     makePcdataElement(invariantCond.append_child("InvariantCondition"), "BooleanValue", "true");
-    Node *invariantCondNode = NULL;
+    NodeImpl *invariantCondNode = NULL;
 
     try {
       checkNode(invariantCond);
@@ -363,7 +362,7 @@ static bool emptyNodeXmlParserTest()
     xml_node simpleVarDecl = makeNode(*doc, "simpleVarDecl", "Empty");
     xml_node decls = simpleVarDecl.append_child("VariableDeclarations");
     makeDeclareVariable(decls, "b", "Boolean");
-    Node *simpleVarDeclNode = NULL;
+    NodeImpl *simpleVarDeclNode = NULL;
 
     try {
       checkNode(simpleVarDecl);
@@ -395,7 +394,7 @@ static bool emptyNodeXmlParserTest()
     xml_node decls = initedVarDecl.append_child("VariableDeclarations");
     xml_node initedDecl = makeDeclareVariable(decls, "b", "Boolean");
     makePcdataElement(initedDecl.append_child("InitialValue"), "BooleanValue", "false");
-    Node *initedVarDeclNode = NULL;
+    NodeImpl *initedVarDeclNode = NULL;
 
     try {
       checkNode(initedVarDecl);
@@ -430,7 +429,7 @@ static bool emptyNodeXmlParserTest()
     xml_node simpleArrayVarDecl = makeNode(*doc, "simpleArrayVarDecl", "Empty");
     xml_node decls = simpleArrayVarDecl.append_child("VariableDeclarations");
     xml_node simpleArrayDecl = makeDeclareArray(decls, "ba", "Boolean", "1");
-    Node *simpleArrayVarDeclNode = NULL;
+    NodeImpl *simpleArrayVarDeclNode = NULL;
 
     try {
       checkNode(simpleArrayVarDecl);
@@ -464,7 +463,7 @@ static bool emptyNodeXmlParserTest()
     xml_node initXml = initedArrayDecl.append_child("InitialValue").append_child("ArrayValue");
     initXml.append_attribute("Type").set_value("Boolean");
     makePcdataElement(initXml, "BooleanValue", "false");
-    Node *initedArrayVarDeclNode = NULL;
+    NodeImpl *initedArrayVarDeclNode = NULL;
 
     try {
       checkNode(initedArrayVarDecl);
@@ -512,7 +511,7 @@ static bool listNodeXmlParserTest()
   assertTrue_1(list);
 
   {
-    Node *emptyList = NULL;
+    NodeImpl *emptyList = NULL;
     try {
       checkNode(basicListXml);
       emptyList = constructNode(basicListXml, NULL);
@@ -535,7 +534,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(oneListXml.child("NodeId").first_child().set_value("oneList"));
     xml_node oneListKid = makeNode(oneListXml.child("NodeBody").child("NodeList"),
                                    "oneListKid", "Empty");
-    Node *oneList = NULL;
+    NodeImpl *oneList = NULL;
 
     try {
       checkNode(oneListXml);
@@ -549,7 +548,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(oneList->getNodeId() == "oneList");
     assertTrue_1(!oneList->getChildren().empty());
     assertTrue_1(oneList->getChildren().size() == 1);
-    Node *kid = oneList->getChildren().front();
+    NodeImpl *kid = oneList->getChildren().front();
     assertTrue_1(kid->getType() == NodeType_Empty); 
     assertTrue_1(kid->getNodeId() == "oneListKid");
     assertTrue_1(kid->getChildren().empty());
@@ -567,7 +566,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(theList);
     xml_node anotherListKid = makeNode(theList, "anotherListKid0", "Empty");
     xml_node yaListKid = makeNode(theList, "anotherListKid1", "Empty");
-    Node *anotherList = NULL;
+    NodeImpl *anotherList = NULL;
 
     try {
       checkNode(anotherListXml);
@@ -581,11 +580,11 @@ static bool listNodeXmlParserTest()
     assertTrue_1(anotherList->getNodeId() == "anotherList");
     assertTrue_1(!anotherList->getChildren().empty());
     assertTrue_1(anotherList->getChildren().size() == 2);
-    Node *kid0 = anotherList->getChildren().at(0);
+    NodeImpl *kid0 = anotherList->getChildren().at(0);
     assertTrue_1(kid0->getType() == NodeType_Empty);
     assertTrue_1(kid0->getNodeId() == "anotherListKid0");
     assertTrue_1(kid0->getChildren().empty());
-    Node *kid1 = anotherList->getChildren().at(1);
+    NodeImpl *kid1 = anotherList->getChildren().at(1);
     assertTrue_1(kid1->getType() == NodeType_Empty);
     assertTrue_1(kid1->getNodeId() == "anotherListKid1");
     assertTrue_1(kid1->getChildren().empty());
@@ -612,7 +611,7 @@ static bool listNodeXmlParserTest()
     xml_node decl1 = makeDeclareVariable(kidDecls, "bar", "Integer");
     assertTrue_1(decl1);
     makePcdataElement(decl1.append_child("InitialValue"), "IntegerVariable", "foo");
-    Node *varAccessList = NULL;
+    NodeImpl *varAccessList = NULL;
 
     try {
       checkNode(varAccessListXml);
@@ -626,7 +625,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(varAccessList->getNodeId() == "varAccessList");
     assertTrue_1(!varAccessList->getChildren().empty());
     assertTrue_1(varAccessList->getChildren().size() == 1);
-    Node *kid = varAccessList->getChildren().front();
+    NodeImpl *kid = varAccessList->getChildren().front();
     assertTrue_1(kid->getType() == NodeType_Empty); 
     assertTrue_1(kid->getNodeId() == "varAccessListKid");
     assertTrue_1(kid->getChildren().empty());
@@ -669,7 +668,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(neq);
     makePcdataElement(neq.append_child("NodeStateVariable"), "NodeId", "nodeRefTest");
     makePcdataElement(neq, "NodeStateValue", "EXECUTING");
-    Node *nodeRefTest = NULL;
+    NodeImpl *nodeRefTest = NULL;
     
     try {
       checkNode(nodeRefTestXml);
@@ -683,7 +682,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(nodeRefTest->getNodeId() == "nodeRefTest");
     assertTrue_1(!nodeRefTest->getChildren().empty());
     assertTrue_1(nodeRefTest->getChildren().size() == 1);
-    Node *kid = nodeRefTest->getChildren().front();
+    NodeImpl *kid = nodeRefTest->getChildren().front();
     assertTrue_1(kid->getType() == NodeType_Empty); 
     assertTrue_1(kid->getNodeId() == "nodeRefTestKid");
     assertTrue_1(kid->getChildren().empty());
@@ -715,7 +714,7 @@ static bool assignmentNodeXmlParserTest()
     xml_node assnXml = basicAssnXml.append_child("NodeBody").append_child("Assignment");
     makePcdataElement(assnXml, "IntegerVariable", "foo");
     makePcdataElement(assnXml.append_child("NumericRHS"), "IntegerValue", "2");
-    Node *listNode = NULL;
+    NodeImpl *listNode = NULL;
     
     try {
       checkNode(listNodeXml);
@@ -732,7 +731,7 @@ static bool assignmentNodeXmlParserTest()
                  && !listNode->getLocalVariables()->empty());
     assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
-    Node *basicAssn = listNode->getChildren().front();
+    NodeImpl *basicAssn = listNode->getChildren().front();
     assertTrue_1(basicAssn);
     assertTrue_1(basicAssn->getType() == NodeType_Assignment);
     assertTrue_1(basicAssn->getChildren().empty());
@@ -764,7 +763,7 @@ static bool assignmentNodeXmlParserTest()
     xml_node assnXml = basicAssnXml.append_child("NodeBody").append_child("Assignment");
     makePcdataElement(assnXml, "IntegerVariable", "foo");
     makePcdataElement(assnXml.append_child("NumericRHS"), "IntegerValue", "2");
-    Node *listNode1 = NULL;
+    NodeImpl *listNode1 = NULL;
 
     try {
       checkNode(listNode1Xml);
@@ -781,7 +780,7 @@ static bool assignmentNodeXmlParserTest()
                  && !listNode1->getLocalVariables()->empty());
     assertTrue_1(listNode1->getLocalVariables()->size() == 1);
 
-    Node *basicAssn = listNode1->getChildren().front();
+    NodeImpl *basicAssn = listNode1->getChildren().front();
     assertTrue_1(basicAssn);
     assertTrue_1(basicAssn->getType() == NodeType_Assignment);
     assertTrue_1(basicAssn->getChildren().empty());
@@ -816,7 +815,7 @@ static bool assignmentNodeXmlParserTest()
     arrayXml.append_attribute("Type").set_value("Integer");
     makePcdataElement(arrayXml, "IntegerValue", "2");
     makePcdataElement(arrayXml, "IntegerValue", "3");
-    Node *listNode2 = NULL;
+    NodeImpl *listNode2 = NULL;
 
     try {
       checkNode(listNode2Xml);
@@ -833,7 +832,7 @@ static bool assignmentNodeXmlParserTest()
                  && !listNode2->getLocalVariables()->empty());
     assertTrue_1(listNode2->getLocalVariables()->size() == 1);
 
-    Node *arrayAssn = listNode2->getChildren().front();
+    NodeImpl *arrayAssn = listNode2->getChildren().front();
     assertTrue_1(arrayAssn);
     assertTrue_1(arrayAssn->getType() == NodeType_Assignment);
     assertTrue_1(arrayAssn->getChildren().empty());
@@ -866,7 +865,7 @@ static bool assignmentNodeXmlParserTest()
     makePcdataElement(elemXml, "Name", "baz");
     makePcdataElement(elemXml.append_child("Index"), "IntegerValue", "0");
     makePcdataElement(assnXml.append_child("NumericRHS"), "IntegerValue", "3");
-    Node *listNode3 = NULL;
+    NodeImpl *listNode3 = NULL;
 
     try {
       checkNode(listNode3Xml);
@@ -883,7 +882,7 @@ static bool assignmentNodeXmlParserTest()
                  && !listNode3->getLocalVariables()->empty());
     assertTrue_1(listNode3->getLocalVariables()->size() == 1);
 
-    Node *arrayAssn = listNode3->getChildren().front();
+    NodeImpl *arrayAssn = listNode3->getChildren().front();
     assertTrue_1(arrayAssn);
     assertTrue_1(arrayAssn->getType() == NodeType_Assignment);
     assertTrue_1(arrayAssn->getChildren().empty());
@@ -928,7 +927,7 @@ static bool commandNodeXmlParserTest()
     xml_node basicCmdXml = makeNode(*doc, "basicCmd", "Command");
     xml_node cmdXml = basicCmdXml.append_child("NodeBody").append_child("Command");
     makePcdataElement(cmdXml.append_child("Name"),"StringValue", "foo");
-    Node *basicCmd = NULL;
+    NodeImpl *basicCmd = NULL;
 
     try {
       checkNode(basicCmdXml);
@@ -973,7 +972,7 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(res2Xml.append_child("ResourceReleaseAtTermination"), "BooleanValue", "false");
 
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "goo");
-    Node *cmdWithResources = NULL;
+    NodeImpl *cmdWithResources = NULL;
 
     try {
       checkNode(cmdWithResourcesXml);
@@ -1029,7 +1028,7 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(argsXml, "IntegerValue", "5");
     makePcdataElement(argsXml, "RealValue", "3.14");
     makePcdataElement(argsXml, "StringValue", "hi there");
-    Node *cmdWithArgs = NULL;
+    NodeImpl *cmdWithArgs = NULL;
 
     try {
       checkNode(cmdWithArgsXml);
@@ -1080,7 +1079,7 @@ static bool commandNodeXmlParserTest()
     xml_node cmdXml = cmdWithReturnXml.append_child("NodeBody").append_child("Command");
     makePcdataElement(cmdXml, "IntegerVariable", "foo");
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "bar");
-    Node *listNode = NULL;
+    NodeImpl *listNode = NULL;
 
     try {
       checkNode(listNodeXml);
@@ -1097,7 +1096,7 @@ static bool commandNodeXmlParserTest()
                  && !listNode->getLocalVariables()->empty());
     assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
-    Node *cmdWithReturn = listNode->getChildren().front();
+    NodeImpl *cmdWithReturn = listNode->getChildren().front();
     assertTrue_1(cmdWithReturn);
     assertTrue_1(cmdWithReturn->getType() == NodeType_Command);
     assertTrue_1(cmdWithReturn->getNodeId() == "cmdWithReturn");
@@ -1140,7 +1139,7 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(argsXml, "IntegerValue", "5");
     makePcdataElement(argsXml, "RealValue", "3.14");
     makePcdataElement(argsXml, "StringValue", "hi there");
-    Node *listNode = NULL;
+    NodeImpl *listNode = NULL;
 
     try {
       checkNode(listNodeXml);
@@ -1157,7 +1156,7 @@ static bool commandNodeXmlParserTest()
                  && !listNode->getLocalVariables()->empty());
     assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
-    Node *cmdWithReturn = listNode->getChildren().front();
+    NodeImpl *cmdWithReturn = listNode->getChildren().front();
     assertTrue_1(cmdWithReturn);
     assertTrue_1(cmdWithReturn->getType() == NodeType_Command);
     assertTrue_1(cmdWithReturn->getNodeId() == "cmdWithReturn");
@@ -1211,7 +1210,7 @@ static bool commandNodeXmlParserTest()
 
     makePcdataElement(cmdXml, "IntegerVariable", "foo");
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "har");
-    Node *listNode = NULL;
+    NodeImpl *listNode = NULL;
 
     try {
       checkNode(listNodeXml);
@@ -1228,7 +1227,7 @@ static bool commandNodeXmlParserTest()
                  && !listNode->getLocalVariables()->empty());
     assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
-    Node *cmdRetRes = listNode->getChildren().front();
+    NodeImpl *cmdRetRes = listNode->getChildren().front();
     assertTrue_1(cmdRetRes);
     assertTrue_1(cmdRetRes->getType() == NodeType_Command);
     assertTrue_1(cmdRetRes->getNodeId() == "cmdRetRes");
@@ -1295,7 +1294,7 @@ static bool commandNodeXmlParserTest()
     makePcdataElement(argsXml, "IntegerVariable", "foo");
     makePcdataElement(argsXml, "RealValue", "3.14");
     makePcdataElement(argsXml, "StringValue", "hi there");
-    Node *listNode = NULL;
+    NodeImpl *listNode = NULL;
 
     try {
       checkNode(listNodeXml);
@@ -1312,7 +1311,7 @@ static bool commandNodeXmlParserTest()
                  && !listNode->getLocalVariables()->empty());
     assertTrue_1(listNode->getLocalVariables()->size() == 1);
 
-    Node *kitchenSink = listNode->getChildren().front();
+    NodeImpl *kitchenSink = listNode->getChildren().front();
     assertTrue_1(kitchenSink);
     assertTrue_1(kitchenSink->getType() == NodeType_Command);
     assertTrue_1(kitchenSink->getNodeId() == "kitchenSink");
@@ -1382,7 +1381,7 @@ static bool updateNodeXmlParserTest()
   {
     xml_node emptyUpdXml = makeNode(*doc, "emptyUpd", "Update");
     emptyUpdXml.append_child("NodeBody").append_child("Update");
-    Node *emptyUpd = NULL;
+    NodeImpl *emptyUpd = NULL;
 
     try {
       checkNode(emptyUpdXml);
@@ -1415,7 +1414,7 @@ static bool updateNodeXmlParserTest()
     makePcdataElement(makePair(updXml, "bar"), "IntegerValue", "216");
     makePcdataElement(makePair(updXml, "baz"), "RealValue", "2.718");
     makePcdataElement(makePair(updXml, "bletch"), "StringValue", "bletch");
-    Node *literalUpd = NULL;
+    NodeImpl *literalUpd = NULL;
 
     try {
       checkNode(literalUpdXml);
@@ -1466,7 +1465,7 @@ static bool updateNodeXmlParserTest()
     makePcdataElement(aeXml, "Name", "a");
     makePcdataElement(aeXml.append_child("Index"), "IntegerValue", "1");
     makePcdataElement(makePair(updXml, "bletch"), "StringValue", "bletch");
-    Node *listNode = NULL;
+    NodeImpl *listNode = NULL;
 
     try {
       checkNode(listNodeXml);
@@ -1478,7 +1477,7 @@ static bool updateNodeXmlParserTest()
     assertTrue_1(listNode);
     assertTrue_1(listNode->getNodeId() == "listNode");
     assertTrue_1(listNode->getType() == NodeType_NodeList);
-    std::vector<Node *> const &nodeList = listNode->getChildren();
+    std::vector<NodeImpl *> const &nodeList = listNode->getChildren();
     assertTrue_1(!nodeList.empty());
     assertTrue_1(nodeList.size() == 1);
     std::vector<Expression *> const *vars = listNode->getLocalVariables();
@@ -1491,7 +1490,7 @@ static bool updateNodeXmlParserTest()
     assertTrue_1(avar);
     assertTrue_1(avar->valueType() == INTEGER_ARRAY_TYPE);
 
-    Node *exprUpd = nodeList.front();
+    NodeImpl *exprUpd = nodeList.front();
     assertTrue_1(exprUpd);
     assertTrue_1(exprUpd->getNodeId() == "exprUpd");
     assertTrue_1(exprUpd->getType() == NodeType_Update);
@@ -1583,7 +1582,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node basicLibCallXml = makeNode(*doc, "basicLibCall", "LibraryNodeCall");
     xml_node libCall = basicLibCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "dummy");
-    Node *basicLibCall = NULL;
+    NodeImpl *basicLibCall = NULL;
 
     try {
       checkNode(basicLibCallXml);
@@ -1599,7 +1598,7 @@ static bool libraryCallNodeXmlParserTest()
     finalizeNode(basicLibCall, basicLibCallXml);
     assertTrue_1(!basicLibCall->getChildren().empty());
     assertTrue_1(basicLibCall->getChildren().size() == 1);
-    Node *dummy = basicLibCall->getChildren().front();
+    NodeImpl *dummy = basicLibCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "dummy");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
@@ -1612,7 +1611,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node defaultedInCallXml = makeNode(*doc, "defaultedInCall", "LibraryNodeCall");
     xml_node libCall = defaultedInCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defaultedInVar");
-    Node *defaultedInCall = NULL;
+    NodeImpl *defaultedInCall = NULL;
 
     try {
       checkNode(defaultedInCallXml);
@@ -1628,7 +1627,7 @@ static bool libraryCallNodeXmlParserTest()
     finalizeNode(defaultedInCall, defaultedInCallXml);
     assertTrue_1(!defaultedInCall->getChildren().empty());
     assertTrue_1(defaultedInCall->getChildren().size() == 1);
-    Node *dummy = defaultedInCall->getChildren().front();
+    NodeImpl *dummy = defaultedInCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "defaultedInVar");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
@@ -1653,7 +1652,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "inInt");
     makePcdataElement(alias0, "IntegerValue", "3");
-    Node *inCall = NULL;
+    NodeImpl *inCall = NULL;
 
     try {
       checkNode(inCallXml);
@@ -1669,7 +1668,7 @@ static bool libraryCallNodeXmlParserTest()
     finalizeNode(inCall, inCallXml);
     assertTrue_1(!inCall->getChildren().empty());
     assertTrue_1(inCall->getChildren().size() == 1);
-    Node *dummy = inCall->getChildren().front();
+    NodeImpl *dummy = inCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "withInVar");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
@@ -1694,7 +1693,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "defInInt");
     makePcdataElement(alias0, "IntegerValue", "19");
-    Node *nondefaultedInCall = NULL;
+    NodeImpl *nondefaultedInCall = NULL;
 
     try {
       checkNode(nondefaultedInCallXml);
@@ -1710,7 +1709,7 @@ static bool libraryCallNodeXmlParserTest()
     finalizeNode(nondefaultedInCall, nondefaultedInCallXml);
     assertTrue_1(!nondefaultedInCall->getChildren().empty());
     assertTrue_1(nondefaultedInCall->getChildren().size() == 1);
-    Node *dummy = nondefaultedInCall->getChildren().front();
+    NodeImpl *dummy = nondefaultedInCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "defaultedInVar");
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
@@ -1738,7 +1737,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "inOutInt");
     makePcdataElement(alias0, "IntegerVariable", "aliasedInOut");
-    Node *inOutCall = NULL;
+    NodeImpl *inOutCall = NULL;
 
     try {
       checkNode(inOutCallXml);
@@ -1758,7 +1757,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(avar);
     assertTrue_1(avar->valueType() == INTEGER_TYPE);
 
-    Node *dummy = inOutCall->getChildren().front();
+    NodeImpl *dummy = inOutCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "inOutVar");
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
@@ -1785,7 +1784,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node defInOutCallXml = makeNode(*doc, "defInOutCall", "LibraryNodeCall");
     xml_node libCall = defInOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defInOutVar");
-    Node *defInOutCall = NULL;
+    NodeImpl *defInOutCall = NULL;
 
     try {
       checkNode(defInOutCallXml);
@@ -1803,7 +1802,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(defInOutCall->getChildren().size() == 1);
     assertTrue_1(!defInOutCall->getLocalVariables());
 
-    Node *dummy = defInOutCall->getChildren().front();
+    NodeImpl *dummy = defInOutCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "defInOutVar");
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
@@ -1831,7 +1830,7 @@ static bool libraryCallNodeXmlParserTest()
     xml_node alias0 = libCall.append_child("Alias");
     makePcdataElement(alias0, "NodeParameter", "defInOutInt");
     makePcdataElement(alias0, "IntegerVariable", "aliasedInOut");
-    Node *nonDefInOutCall = NULL;
+    NodeImpl *nonDefInOutCall = NULL;
 
     try {
       checkNode(nonDefInOutCallXml);
@@ -1853,7 +1852,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(avar);
     assertTrue_1(avar->valueType() == INTEGER_TYPE);
 
-    Node *dummy = nonDefInOutCall->getChildren().front();
+    NodeImpl *dummy = nonDefInOutCall->getChildren().front();
     assertTrue_1(dummy->getNodeId() == "defInOutVar");
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());

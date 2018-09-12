@@ -29,7 +29,7 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"
 #include "StateCacheEntry.hh"
@@ -251,7 +251,7 @@ namespace PLEXIL
 
     debugMsg("Test:testOutput",
              "Sending plan from file " << elt.attribute("file").value());
-    Node *root = NULL;
+    NodeImpl *root = NULL;
     try {
       root = parsePlan(doc->document_element().child("PlexilPlan"));
     }

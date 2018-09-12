@@ -32,9 +32,10 @@
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecListenerFactory.hh"
 #include "Expression.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "NodeVariableMap.hh"
 
 #include <fstream>
@@ -285,7 +286,7 @@ namespace PLEXIL
          "JSON tokens file written to "+ outputFileName);
    }
 
-   static string getLocalVarInExecStateFromMap(Node *nodeId, 
+   static string getLocalVarInExecStateFromMap(NodeImpl *nodeId, 
                                                vector<string>& myLocalVariableMapValues)
    {
       NodeVariableMap const *tempLocalVariablesMap = nodeId->getVariableMap();
@@ -308,18 +309,18 @@ namespace PLEXIL
       return myLocalVars.str();
    }
 
-   static string getChildNode(Node *nodeId)
+   static string getChildNode(NodeImpl *nodeId)
    {
       std::ostringstream myChildNode;
       //get child nodes
-      const vector<Node *>& tempChildList = nodeId->getChildren();
+      const vector<NodeImpl *>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
          return std::string();
       }
       else
       {
-         for (vector<Node *>::const_iterator i = tempChildList.begin(); 
+         for (vector<NodeImpl *>::const_iterator i = tempChildList.begin(); 
             i != tempChildList.end(); i++) 
            myChildNode << (*i)->getNodeId() << ", ";
       }
@@ -337,14 +338,18 @@ namespace PLEXIL
    {
       vector<string> myLocalVariableMapValues;
 
+      NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+      assertTrueMsg(node, "GanttListener: not a node");
+
       //startTime is when first node executes
       if (m_startTime == -1) {
-         m_startTime = nodeId->getCurrentStateStartTime();
+         m_startTime = node->getCurrentStateStartTime();
       }
 
       m_parent.clear();
 
-      double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
+
+      double myStartValdbl = ((node->getCurrentStateStartTime()) - m_startTime) * 100;
 
       if (nodeId->getParent())
          m_parent = nodeId->getParent()->getNodeId();
@@ -363,8 +368,8 @@ namespace PLEXIL
          m_counterMap[nodeId] = m_actualId;
 
       //get local variables from map in state 'EXECUTING'
-      string myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
-      string myChildren = getChildNode(nodeId); //get child nodes
+      string myLocalVars = getLocalVarInExecStateFromMap(node, myLocalVariableMapValues);
+      string myChildren = getChildNode(node); //get child nodes
       return NodeObj(myStartValdbl,
                      -1,
                      -1,
@@ -447,18 +452,19 @@ namespace PLEXIL
 
    void GanttListener::getFinalLocalVar(Node *nodeId)
    {
-      NodeVariableMap const *tempLocalVariableMapAfter = nodeId->getVariableMap();
-      vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
-      vector<string> thisLocalVarsVectorKeys;
-      vector<string> thisLocalVarsVectorValues;
+     NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+     NodeVariableMap const *tempLocalVariableMapAfter = node->getVariableMap();
+     vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
+     vector<string> thisLocalVarsVectorKeys;
+     vector<string> thisLocalVarsVectorValues;
 
-      if(!m_nodes[m_index].localvariables.empty() &&
-         m_nodes[m_index].localvarsvector.size() > 0) 
-      {
+     if(!m_nodes[m_index].localvariables.empty() &&
+        m_nodes[m_index].localvarsvector.size() > 0) 
+       {
          if (!tempLocalVariableMapAfter || tempLocalVariableMapAfter->empty())
-         {
-            m_nodes[m_index].localvariables = "";
-         }
+           {
+             m_nodes[m_index].localvariables = "";
+           }
          else {
            for (NodeVariableMap::const_iterator it = tempLocalVariableMapAfter->begin(); 
                 it != tempLocalVariableMapAfter->end(); it++) 
@@ -469,17 +475,18 @@ namespace PLEXIL
          }
          processLocalVar(prevLocalVarsVector, thisLocalVarsVectorValues, 
                          thisLocalVarsVectorKeys);
-      }
-      else 
-      {
+       }
+     else 
+       {
          m_nodes[m_index].localvariables = "";
-      }
+       }
    }
 
    void GanttListener::processTempValsForNode(Node *nodeId)
    {
       m_parent.clear();
-      m_nodes[m_index].end = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
+      NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+      m_nodes[m_index].end = ((node->getCurrentStateStartTime()) - m_startTime) * 100;
       m_nodes[m_index].duration = m_nodes[m_index].end - m_nodes[m_index].start;
       //doesn't exist until node is finished     
       if (nodeId->getParent()) {

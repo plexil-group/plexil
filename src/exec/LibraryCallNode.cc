@@ -33,7 +33,7 @@
 namespace PLEXIL
 {
 
-  LibraryCallNode::LibraryCallNode(char const *nodeId, Node *parent)
+  LibraryCallNode::LibraryCallNode(char const *nodeId, NodeImpl *parent)
     : ListNode(nodeId, parent),
       m_aliasMap(NULL)
   {
@@ -45,7 +45,7 @@ namespace PLEXIL
   LibraryCallNode::LibraryCallNode(const std::string& type,
                                    const std::string& name, 
                                    NodeState state,
-                                   Node *parent)
+                                   NodeImpl *parent)
     : ListNode(type, name, state, parent),
       m_aliasMap(NULL)
   {

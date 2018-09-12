@@ -59,7 +59,7 @@ namespace PLEXIL
       return true;
     }
 
-    bool operator()(Boolean &result, Node const *node) const
+    bool operator()(Boolean &result, NodeImpl const *node) const
     {
       result =
         (NO_COMMAND_HANDLE !=
@@ -96,7 +96,7 @@ namespace PLEXIL
       return true;
     }
 
-    bool operator()(Boolean &result, Node const *node) const
+    bool operator()(Boolean &result, NodeImpl const *node) const
     {
       switch (((CommandNode const *) node)->getCommand()->getCommandHandle()) {
         // Cases in which node is terminated early
@@ -128,8 +128,8 @@ namespace PLEXIL
     CommandHandleInterruptible &operator=(const CommandHandleInterruptible &);
   };
 
-  CommandNode::CommandNode(char const *nodeId, Node *parent)
-    : Node(nodeId, parent),
+  CommandNode::CommandNode(char const *nodeId, NodeImpl *parent)
+    : NodeImpl(nodeId, parent),
       m_command(NULL)
   {
   }
@@ -140,8 +140,8 @@ namespace PLEXIL
   CommandNode::CommandNode(const std::string& type,
                            const std::string& name, 
                            NodeState state,
-                           Node *parent)
-    : Node(type, name, state, parent),
+                           NodeImpl *parent)
+    : NodeImpl(type, name, state, parent),
       m_command(NULL)
   {
     // Create dummy command for unit test

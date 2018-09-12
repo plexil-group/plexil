@@ -42,7 +42,7 @@
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "parsePlan.hh"
 #include "parser-utils.hh"
 #include "planLibrary.hh"
@@ -269,7 +269,7 @@ namespace PLEXIL
 
       case Q_ADD_PLAN:
         {
-          Node *pid = entry->plan;
+          NodeImpl *pid = entry->plan;
           assertTrue_1(pid);
           debugMsg("InterfaceManager:processQueue",
                    " adding plan " << entry->plan->getNodeId());
@@ -656,7 +656,7 @@ namespace PLEXIL
     debugMsg("InterfaceManager:handleAddPlan", " entered");
 
     // parse the plan
-    Node *root = parsePlan(planXml); // can throw ParserException
+    NodeImpl *root = parsePlan(planXml); // can throw ParserException
 
     assertTrue_1(m_inputQueue);
     QueueEntry *entry = m_inputQueue->allocate();

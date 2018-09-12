@@ -29,6 +29,7 @@
 #include "Error.hh"
 #include "ExprVec.hh"
 #include "Lookup.hh"
+#include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"

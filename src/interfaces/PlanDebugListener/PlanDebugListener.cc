@@ -26,9 +26,10 @@
 
 #include "PlanDebugListener.hh"
 
-#include "ExecListenerFactory.hh"
 #include "Debug.hh"
-#include "Node.hh"
+#include "Error.hh"
+#include "ExecListenerFactory.hh"
+#include "NodeImpl.hh"
 
 #include "pugixml.hpp"
 
@@ -52,17 +53,20 @@ namespace PLEXIL
   void PlanDebugListener::
   implementNotifyNodeTransition (NodeState /* prevState */, Node *nodeId) const
   {
-    condDebugMsg((nodeId->getState() == FINISHED_STATE),
+    NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+    assertTrueMsg(node,
+                  "PlanDebugListener:implementNotifyNodeTransition: not a node");
+    condDebugMsg((node->getState() == FINISHED_STATE),
                  "Node:clock",
-                 "Node '" << nodeId->getNodeId() <<
+                 "Node '" << node->getNodeId() <<
                  "' finished at " << std::setprecision(15) <<
-                 nodeId->getCurrentStateStartTime() << " (" <<
-                 nodeId->getOutcome() << ")");
-    condDebugMsg((nodeId->getState() == EXECUTING_STATE),
+                 node->getCurrentStateStartTime() << " (" <<
+                 node->getOutcome() << ")");
+    condDebugMsg((node->getState() == EXECUTING_STATE),
                  "Node:clock",
-                 "Node '" << nodeId->getNodeId() <<
+                 "Node '" << node->getNodeId() <<
                  "' started at " << std::setprecision(15) <<
-                 nodeId->getCurrentStateStartTime());
+                 node->getCurrentStateStartTime());
   }
   
   extern "C"

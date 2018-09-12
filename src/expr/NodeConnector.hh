@@ -31,22 +31,10 @@
 
 #include <string>
 
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
-
 namespace PLEXIL
 {
-  // Forward references
+  // Forward reference
   class Expression;
-  class Node;
-
-  // NOTE: this used to be 100000000, which somehow gets printed as
-  // scientific notation in XML and doesn't parse correctly.
-  const int32_t WORST_PRIORITY = 100000;
 
   /**
    * @class NodeConnector
@@ -56,16 +44,12 @@ namespace PLEXIL
   class NodeConnector 
   {
   public:
-
+    NodeConnector() {}
     virtual ~NodeConnector() {}
 
-    virtual Expression *findVariable(char const *name) = 0;
+    // Used by parser tests
     virtual std::string const &getNodeId() const = 0;
-    virtual Node const *findChild(char const * childName) const = 0;
-    virtual Node *findChild(char const * childName) = 0;
-    virtual Node *getParent() = 0;
-    virtual Node const *getParent() const = 0;
-    virtual int32_t getPriority() const = 0;
+    virtual Expression *findVariable(char const *name) = 0;
   };
 
 } // namespace PLEXIL

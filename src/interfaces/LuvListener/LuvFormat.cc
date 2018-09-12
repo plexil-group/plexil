@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 
 #include "Assignable.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 
 #include <iostream>
 
@@ -90,16 +90,20 @@ namespace PLEXIL {
    * @param node The node whose conditions are being extracted.
    */
   void formatConditions(std::ostream& s, 
-                        Node const *node)
+                        Node const *nptr)
   {
+    NodeImpl const *node = dynamic_cast<NodeImpl const *>(nptr);
+    assertTrueMsg(node,
+                  "LuvFormat::formatConditions: not a node");
+
     simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
-    for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+    for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
       Expression const *cond = node->getCondition(i);
       if (cond) {
         std::string const valueStr = cond->valueString();
         simpleTextElement(s, 
-                          Node::ALL_CONDITIONS[i],
+                          NodeImpl::ALL_CONDITIONS[i],
                           valueStr.c_str());
       }
     }

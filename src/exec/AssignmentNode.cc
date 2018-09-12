@@ -36,8 +36,8 @@ namespace PLEXIL
 {
 
   AssignmentNode::AssignmentNode(char const *nodeId, 
-                                 Node *parent)
-    : Node(nodeId, parent),
+                                 NodeImpl *parent)
+    : NodeImpl(nodeId, parent),
       m_assignment(NULL),
       m_priority(WORST_PRIORITY)
   {
@@ -47,8 +47,8 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(const std::string &type,
                                  const std::string &name, 
                                  NodeState state,
-                                 Node *parent)
-    : Node(type, name, state, parent),
+                                 NodeImpl *parent)
+    : NodeImpl(type, name, state, parent),
       m_assignment(NULL),
       m_priority(WORST_PRIORITY)
   {
@@ -132,7 +132,7 @@ namespace PLEXIL
 
   void AssignmentNode::transitionToExecuting()
   {
-    Node::transitionToExecuting();
+    NodeImpl::transitionToExecuting();
     activateActionCompleteCondition();
   }
 

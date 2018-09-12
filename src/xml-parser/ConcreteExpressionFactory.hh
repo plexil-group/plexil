@@ -28,7 +28,6 @@
 #define PLEXIL_CONCRETE_EXPRESSION_FACTORY_HH
 
 #include "ExpressionFactory.hh"
-#include "NodeConnector.hh"
 
 namespace PLEXIL
 {

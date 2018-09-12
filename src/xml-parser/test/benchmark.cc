@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "Expressions.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
 #include "planLibrary.hh"
@@ -70,7 +70,7 @@ void loadPlanBenchmark(std::string const &planFile)
   pugi::xml_document *doc = PLEXIL::loadXmlFile(planFile);
   checkParserException(doc, "File " << planFile << " not found");
   
-  PLEXIL::Node *root = PLEXIL::parsePlan(doc->document_element());
+  PLEXIL::NodeImpl *root = PLEXIL::parsePlan(doc->document_element());
   checkParserException(root, "parsePlan returned NULL");
 
   delete root;

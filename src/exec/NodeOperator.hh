@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class ExpressionListener;
-  class Node;
+  class NodeImpl;
   class Value;
 
   // TODO:
@@ -62,23 +62,23 @@ namespace PLEXIL
     virtual void deleteCache(void *Ptr) const = 0;
 
     // Default methods assert
-    virtual bool operator()(Boolean &result, Node const *arg) const;
-    virtual bool operator()(Integer &result, Node const *node) const;
-    virtual bool operator()(Real &result, Node const *node) const;
-    virtual bool operator()(String &result, Node const *node) const;
+    virtual bool operator()(Boolean &result, NodeImpl const *arg) const;
+    virtual bool operator()(Integer &result, NodeImpl const *node) const;
+    virtual bool operator()(Real &result, NodeImpl const *node) const;
+    virtual bool operator()(String &result, NodeImpl const *node) const;
 
     // Not needed yet
-    // virtual bool operator()(Array &result, Node const *node) const;
-    // virtual bool operator()(BooleanArray &result, Node const *node) const;
-    // virtual bool operator()(IntegerArray &result, Node const *node) const;
-    // virtual bool operator()(RealArray &result, Node const *node) const;
-    // virtual bool operator()(StringArray &result, Node const *node) const;
+    // virtual bool operator()(Array &result, NodeImpl const *node) const;
+    // virtual bool operator()(BooleanArray &result, NodeImpl const *node) const;
+    // virtual bool operator()(IntegerArray &result, NodeImpl const *node) const;
+    // virtual bool operator()(RealArray &result, NodeImpl const *node) const;
+    // virtual bool operator()(StringArray &result, NodeImpl const *node) const;
 
-    virtual bool operator()(uint16_t &result, Node const *arg) const;
+    virtual bool operator()(uint16_t &result, NodeImpl const *arg) const;
 
-    virtual bool calcNative(void *cache, Node const *node) const = 0;
-    virtual void printValue(std::ostream &s, void *cache, Node const *node) const = 0;
-    virtual Value toValue(void *cache, Node const *node) const = 0;
+    virtual bool calcNative(void *cache, NodeImpl const *node) const = 0;
+    virtual void printValue(std::ostream &s, void *cache, NodeImpl const *node) const = 0;
+    virtual Value toValue(void *cache, NodeImpl const *node) const = 0;
 
   protected:
     NodeOperator(std::string const &name)

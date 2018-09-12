@@ -29,7 +29,7 @@
 #include "Command.hh"
 #include "CommandNode.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "NodeConstantExpressions.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
@@ -42,18 +42,18 @@
 namespace PLEXIL
 {
   // Utility routines
-  static Node *parseNodeRef(pugi::xml_node nodeRef, NodeConnector *node)
+  static NodeImpl *parseNodeRef(pugi::xml_node nodeRef, NodeImpl *node)
   {
     // parse directional reference
     checkAttr(DIR_ATTR, nodeRef);
     const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
 
     if (!strcmp(dirValue, SELF_VAL))
-      return dynamic_cast<Node *>(node);
+      return dynamic_cast<NodeImpl *>(node);
 
-    Node *result = NULL;
-    if (0 == strcmp(dirValue, PARENT_VAL)) {
-      result = node->getParent();
+    NodeImpl *result = NULL;
+    if (!strcmp(dirValue, PARENT_VAL)) {
+      result = node->getParentNode();
       checkParserExceptionWithLocation(result,
                                        nodeRef,
                                        "createExpression: Parent node reference in root node "
@@ -74,7 +74,7 @@ namespace PLEXIL
       return result;
     }
     if (!strcmp(dirValue, SIBLING_VAL)) {
-      Node *parent = node->getParent();
+      NodeImpl *parent = node->getParentNode();
       checkParserExceptionWithLocation(parent,
                                        nodeRef,
                                        "createExpression: Sibling node reference from root node "
@@ -94,35 +94,35 @@ namespace PLEXIL
     }
   }
 
-  static Node *findLocalNodeId(char const *name, NodeConnector *node)
+  static NodeImpl *findLocalNodeId(char const *name, NodeImpl *node)
   {
     // search for node ID
     if (node->getNodeId() == name)
-      return dynamic_cast<Node *>(node);
+      return dynamic_cast<NodeImpl *>(node);
     // Check children, if any
-    Node *result = node->findChild(name);
+    NodeImpl *result = node->findChild(name);
     if (result)
       return result;
     return NULL;
   }
 
-  static Node *parseNodeId(pugi::xml_node nodeRef, NodeConnector *node)
+  static NodeImpl *parseNodeId(pugi::xml_node nodeRef, NodeImpl *node)
   {
     // search for node ID
     char const *name = nodeRef.child_value();
     checkParserExceptionWithLocation(*name,
                                      nodeRef,
                                      "Empty or invalid " << nodeRef.name() << " element");
-    Node *result = findLocalNodeId(name, node);
+    NodeImpl *result = findLocalNodeId(name, node);
     if (result)
       return result;
 
-    Node *parent = node->getParent();
+    NodeImpl *parent = node->getParentNode();
     while (parent) {
       result = findLocalNodeId(name, parent);
       if (result)
         return result;
-      parent = parent->getParent();
+      parent = parent->getParentNode();
     }
     reportParserExceptionWithLocation(nodeRef.first_child(),
                                       "createExpression: No node named "
@@ -131,7 +131,7 @@ namespace PLEXIL
     return NULL;
   }
 
-  static Node *parseNodeReference(pugi::xml_node nodeRef, NodeConnector *node)
+  static NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node)
   {
     const char* tag = nodeRef.name();
     checkParserExceptionWithLocation(*tag,
@@ -157,11 +157,14 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(expr);
-    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "StateVariable factory: internal error: argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl); // can throw ParserException
     wasCreated = false;
     return refNode->getStateVariable();
   }
-
+  
   Expression *ConcreteExpressionFactory<OutcomeVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
@@ -169,7 +172,10 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(expr);
-    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "OutcomeVariable factory: internal error: argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl); // can throw ParserException
     wasCreated = false;
     return refNode->getOutcomeVariable();
   }
@@ -181,7 +187,10 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(expr);
-    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "FailureVariable factory: internal error: argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl); // can throw ParserException
     wasCreated = false;
     return refNode->getFailureTypeVariable();
   }
@@ -193,8 +202,11 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(expr);
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "CommandHandleVariable factory: internal error: argument is not a NodeImpl");
     pugi::xml_node nodeRef = expr.first_child();
-    Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+    NodeImpl *refNode = parseNodeReference(nodeRef, impl); // can throw ParserException
     checkParserExceptionWithLocation(refNode->getType() == NodeType_Command,
                                      expr.first_child(),
                                      "createExpression: Node " << refNode->getNodeId()
@@ -214,8 +226,11 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkHasChildElement(expr);
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "NodeTimepointValue factory: internal error: argument is not a NodeImpl");
     pugi::xml_node nodeRef = expr.first_child();
-    Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+    NodeImpl *refNode = parseNodeReference(nodeRef, impl); // can throw ParserException
     pugi::xml_node stateName = nodeRef.next_sibling();
     checkParserExceptionWithLocation(stateName && testTag(STATEVAL_TAG, stateName),
                                      expr,
@@ -254,7 +269,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
-                                                                          NodeConnector *node,
+                                                                          NodeConnector * /* node */,
                                                                           bool &wasCreated,
                                                                           ValueType /* returnType */) const
     throw (ParserException)
@@ -292,7 +307,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const expr,
-                                                                            NodeConnector *node,
+                                                                            NodeConnector * /* node */,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
     throw (ParserException)
@@ -321,7 +336,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const expr,
-                                                                            NodeConnector *node,
+                                                                            NodeConnector * /* node */,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
     throw (ParserException)
@@ -356,7 +371,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const expr,
-                                                                              NodeConnector *node,
+                                                                              NodeConnector * /* node */,
                                                                               bool &wasCreated,
                                                                               ValueType /* returnType */) const
     throw (ParserException)

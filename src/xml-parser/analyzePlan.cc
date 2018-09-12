@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "Expressions.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
 #include "planLibrary.hh"
@@ -44,7 +44,7 @@
 #include <cstring>
 
 using PLEXIL::Expression;
-using PLEXIL::Node;
+using PLEXIL::NodeImpl;
 using PLEXIL::NodeType_error;
 using PLEXIL::NodeType_NodeList;
 using PLEXIL::NodeType_LibraryNodeCall;
@@ -55,9 +55,9 @@ using PLEXIL::PlexilNodeType;
 static size_t g_nodeCount = 0;
 
 static size_t g_nodeTypeCounts[NodeType_error];
-static size_t g_conditionCounts[Node::conditionIndexMax];
-static size_t g_conditionCountNodes[Node::conditionIndexMax];
-static size_t g_conditionCountListNodes[Node::conditionIndexMax];
+static size_t g_conditionCounts[NodeImpl::conditionIndexMax];
+static size_t g_conditionCountNodes[NodeImpl::conditionIndexMax];
+static size_t g_conditionCountListNodes[NodeImpl::conditionIndexMax];
 
 // Initialize to semi-sane values
 static std::vector<size_t> g_nodeChildCounts(16, 0);
@@ -114,25 +114,25 @@ static void initializeStatistics()
   g_expressionListenerCounts.clear();
   g_expressions.clear();
 #endif
-  for (size_t i = 0; i < Node::conditionIndexMax; ++i)
+  for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
     g_conditionCounts[i] = 0;
-  for (size_t i = 0; i < Node::conditionIndexMax; ++i)
+  for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
     g_conditionCountNodes[i] = 0;
-  for (size_t i = 0; i < Node::conditionIndexMax; ++i)
+  for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
     g_conditionCountListNodes[i] = 0;
   g_calledLibs.clear();
 }
 
-static Expression const *getNodeCondition(Node const *node, size_t idx)
+static Expression const *getNodeCondition(NodeImpl const *node, size_t idx)
 {
   switch (idx) {
-  case Node::ancestorExitIdx:
-  case Node::ancestorInvariantIdx:
-  case Node::ancestorEndIdx: {
-    std::vector<Node *> const &kids = node->getChildren();
+  case NodeImpl::ancestorExitIdx:
+  case NodeImpl::ancestorInvariantIdx:
+  case NodeImpl::ancestorEndIdx: {
+    std::vector<NodeImpl *> const &kids = node->getChildren();
     if (kids.empty())
       return NULL;
-    return (const_cast<Node const *>(kids.front()))->getCondition(idx);
+    return (const_cast<NodeImpl const *>(kids.front()))->getCondition(idx);
   }
 
   default:
@@ -141,11 +141,11 @@ static Expression const *getNodeCondition(Node const *node, size_t idx)
 
 }
 
-static void getConditionStatistics(Node const *node)
+static void getConditionStatistics(NodeImpl const *node)
 {
   // Count total conditions on this node
   size_t nConds = 0;
-  for (size_t i = 0 ; i < Node::conditionIndexMax; ++i) 
+  for (size_t i = 0 ; i < NodeImpl::conditionIndexMax; ++i) 
     if (getNodeCondition(node, i)) {
       ++nConds;
       ++g_conditionCounts[i];
@@ -156,7 +156,7 @@ static void getConditionStatistics(Node const *node)
 }
 
 // Recursive function for plan traversal
-static void getNodeStatistics(Node const *node)
+static void getNodeStatistics(NodeImpl const *node)
 {
   ++g_nodeCount;
 
@@ -171,7 +171,7 @@ static void getNodeStatistics(Node const *node)
   getConditionStatistics(node);
 
   // Count children
-  std::vector<Node *> const &kids = node->getChildren();
+  std::vector<NodeImpl *> const &kids = node->getChildren();
   incrementNodeChildCount(kids.size());
 
   switch (typ) {
@@ -188,7 +188,7 @@ static void getNodeStatistics(Node const *node)
     break;
 
   default:
-    for (std::vector<Node *>::const_iterator it = kids.begin();
+    for (std::vector<NodeImpl *>::const_iterator it = kids.begin();
          it != kids.end();
          ++it)
       getNodeStatistics(*it);
@@ -292,21 +292,21 @@ static void reportStatistics()
   std::cout << '\n';
 
   std::cout << "\n--- Nodes With Specific Conditions --- \n\n";
-  for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+  for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
     std::cout << g_conditionCounts[i] << " nodes with "
-              << Node::getConditionName(i) << '\n';
+              << NodeImpl::getConditionName(i) << '\n';
   }
   std::cout << '\n';
 
   std::cout << "\n--- Total Node Condition Counts --- \n\n";
-  for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+  for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
     if (g_conditionCountNodes[i])  
       std::cout << g_conditionCountNodes[i] << " nodes with " << i << " conditions\n";
   }
   std::cout << '\n';
 
   std::cout << "\n--- List Node Condition Counts --- \n\n";
-  for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+  for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
     if (g_conditionCountListNodes[i])  
       std::cout << g_conditionCountListNodes[i] << " nodes with " << i << " conditions\n";
   }
@@ -325,7 +325,7 @@ static void loadAndAnalyzePlan(std::string const &planFile)
   pugi::xml_document *doc = PLEXIL::loadXmlFile(planFile);
   checkParserException(doc, "File " << planFile << " not found");
   
-  Node *root = PLEXIL::parsePlan(doc->document_element());
+  NodeImpl *root = PLEXIL::parsePlan(doc->document_element());
   checkParserException(root, "parsePlan returned NULL");
 
   // Analyze plan

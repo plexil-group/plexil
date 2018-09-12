@@ -31,7 +31,7 @@
 
 namespace PLEXIL
 {
-  class Node;
+  class NodeImpl;
   class NodeOperator;
 
   /**
@@ -44,7 +44,7 @@ namespace PLEXIL
     : public NotifierImpl
   {
   public:
-    NodeFunction(NodeOperator const *op, Node *exprs);
+    NodeFunction(NodeOperator const *op, NodeImpl *exprs);
     virtual ~NodeFunction();
 
     //
@@ -92,7 +92,7 @@ namespace PLEXIL
     NodeFunction(const NodeFunction &);
     NodeFunction& operator=(const NodeFunction &);
 
-    Node *m_node;
+    NodeImpl *m_node;
 
     // For implementing getValuePointer().
     // Must be a pointer to preserve const-ness.

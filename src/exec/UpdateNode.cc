@@ -37,8 +37,8 @@
 namespace PLEXIL
 {
 
-  UpdateNode::UpdateNode(char const *nodeId, Node *parent)
-    : Node(nodeId, parent),
+  UpdateNode::UpdateNode(char const *nodeId, NodeImpl *parent)
+    : NodeImpl(nodeId, parent),
       m_update(NULL)
   {
   }
@@ -49,8 +49,8 @@ namespace PLEXIL
   UpdateNode::UpdateNode(const std::string& type,
                          const std::string& name, 
                          NodeState state,
-                         Node *parent)
-    : Node(type, name, state, parent),
+                         NodeImpl *parent)
+    : NodeImpl(type, name, state, parent),
       m_update(NULL)
   {
     checkError(type == UPDATE,

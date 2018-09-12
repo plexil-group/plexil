@@ -40,6 +40,7 @@ namespace PLEXIL
   // Forward declarations
   class Command;
   class CommandNode;
+  class NodeConnector;
 
   //
   // Parser entry points

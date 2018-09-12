@@ -26,7 +26,7 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "parseGlobalDeclarations.hh"
 #include "parseNode.hh"
 #include "parser-utils.hh"
@@ -101,12 +101,12 @@ namespace PLEXIL
     return result;
   }
 
-  Node *constructPlan(xml_node const xml, SymbolTable *symtab, Node *parent)
+  NodeImpl *constructPlan(xml_node const xml, SymbolTable *symtab, NodeImpl *parent)
     throw (ParserException)
   {
     debugMsg("constructPlan", ' ' << xml.child(NODE_TAG).child(NODEID_TAG));
     pushSymbolTable(symtab);
-    Node *result = NULL;
+    NodeImpl *result = NULL;
     try {
       // Construct the plan
       xml_node const root = xml.child(NODE_TAG);
@@ -130,13 +130,13 @@ namespace PLEXIL
     return result;
   }
 
-  Node *parsePlan(xml_node const xml)
+  NodeImpl *parsePlan(xml_node const xml)
     throw (ParserException)
   {
     debugMsg("parsePlan", "entered");
     // Perform surface checks & log global symbols
     SymbolTable *symtab = checkPlan(xml);
-    Node *result = NULL;
+    NodeImpl *result = NULL;
     result = constructPlan(xml, symtab, NULL); // can throw ParserException
     pushSymbolTable(symtab);
     try {

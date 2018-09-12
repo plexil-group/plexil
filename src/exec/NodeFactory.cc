@@ -58,7 +58,7 @@ namespace PLEXIL
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
-    Node *create(char const *name, Node *parent) const
+    NodeImpl *create(char const *name, NodeImpl *parent) const
     {
       return new NODE_TYPE(name, parent);
     }
@@ -67,10 +67,10 @@ namespace PLEXIL
      * @brief Alternate constructor.  Used only by Exec test module.
      */
 
-    Node *create(const std::string& type,
-                 const std::string& name, 
-                 NodeState state,
-                 Node *parent) const
+    NodeImpl *create(const std::string& type,
+                     const std::string& name, 
+                     NodeState state,
+                     NodeImpl *parent) const
     {
       return new NODE_TYPE(type, name, state, parent);
     }
@@ -96,7 +96,7 @@ namespace PLEXIL
     s_nodeFactories[NodeType_Command] = new ConcreteNodeFactory<CommandNode>();
     s_nodeFactories[NodeType_Assignment] = new ConcreteNodeFactory<AssignmentNode>();
     s_nodeFactories[NodeType_Update] = new ConcreteNodeFactory<UpdateNode>();
-    s_nodeFactories[NodeType_Empty] = new ConcreteNodeFactory<Node>();
+    s_nodeFactories[NodeType_Empty] = new ConcreteNodeFactory<NodeImpl>();
     s_nodeFactories[NodeType_LibraryNodeCall] = new ConcreteNodeFactory<LibraryCallNode>();
     debugMsg("NodeFactory", " initialized");
   }
@@ -128,11 +128,11 @@ namespace PLEXIL
   /**
    * @brief Primary factory method.
    */
-  Node *NodeFactory::createNode(char const *name, 
-                                PlexilNodeType nodeType,
-                                Node *parent)
+  NodeImpl *NodeFactory::createNode(char const *name, 
+                                    PlexilNodeType nodeType,
+                                    NodeImpl *parent)
   {
-    Node *result = getNodeFactory(nodeType)->create(name, parent);
+    NodeImpl *result = getNodeFactory(nodeType)->create(name, parent);
     debugMsg("NodeFactory", " created node " << name);
     // common post process here
     return result;
@@ -141,15 +141,15 @@ namespace PLEXIL
   /**
    * @brief Alternate factory method.  Used only by Exec test module.
    */
-  Node *NodeFactory::createNode(const std::string& type, 
-                                const std::string& name, 
-                                NodeState state,
-                                Node *parent)
+  NodeImpl *NodeFactory::createNode(const std::string& type, 
+                                    const std::string& name, 
+                                    NodeState state,
+                                    NodeImpl *parent)
   {
     PlexilNodeType nodeType = parseNodeType(type.c_str());
     checkError(nodeType < NodeType_error,
                "Invalid node type string " << type);
-    Node *result = getNodeFactory(nodeType)->create(type, name, state, parent);
+    NodeImpl *result = getNodeFactory(nodeType)->create(type, name, state, parent);
     debugMsg("NodeFactory", " created node " << name);
     // common post process here
     return result;

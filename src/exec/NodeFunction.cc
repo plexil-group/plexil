@@ -34,7 +34,7 @@
 
 namespace PLEXIL
 {
-  NodeFunction::NodeFunction(NodeOperator const *op, Node *node)
+  NodeFunction::NodeFunction(NodeOperator const *op, NodeImpl *node)
     : NotifierImpl(),
       m_op(op),
       m_node(node),

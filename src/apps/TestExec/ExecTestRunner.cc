@@ -33,7 +33,7 @@
 #include "ExecListenerHub.hh"
 #include "Expressions.hh"
 #include "Logging.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "parseNode.hh"
 #include "parsePlan.hh"
 #include "parser-utils.hh"
@@ -360,7 +360,7 @@ int ExecTestRunner::run(int argc, char** argv)
       return 1;
     }
 
-    Node *root = NULL;
+    NodeImpl *root = NULL;
     try {
       root = parsePlan(planDoc->document_element());
       hub.notifyOfAddPlan(planDoc->document_element());
