@@ -81,12 +81,13 @@ static void *tryLoadFile(const char *fname)
     s_handles.push(handle);
   }
   else {
-    debugMsg("DynamicLoader:tryLoadFile",
-             " dlopen failed on file " << fname
 #ifdef HAVE_DLERROR
-             << ": " << dlerror()
+    debugMsg("DynamicLoader:tryLoadFile",
+             " dlopen failed on file " << fname << ": " << dlerror());
+#else    
+    debugMsg("DynamicLoader:tryLoadFile",
+             " dlopen failed on file " << fname);
 #endif
-             );
   }
 #endif
   return handle;

@@ -175,6 +175,7 @@ namespace PLEXIL
     if (!resultExpr->isAssignable()) {
       if (wasCreated)
         delete resultExpr;
+      resultExpr = NULL;
       reportParserExceptionWithLocation(expr,
                                         "Expression is not assignable");
     }

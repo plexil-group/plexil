@@ -678,16 +678,14 @@ namespace PLEXIL
   void IpcFacade::unsubscribeAll(IpcMessageListener* listener) {
     //prevent modification and access while removing
     RTMutexGuard guard(m_mutex);
-    bool removed = false;
     for (LocalListenerList::iterator it = m_localRegisteredHandlers.begin();
-         !removed && it != m_localRegisteredHandlers.end();
-         it++) {
-      if ((*it).second == listener) {
+         it != m_localRegisteredHandlers.end();
+         it++)
+      if (it->second == listener) {
         unsubscribeGlobal(*it);
         m_localRegisteredHandlers.erase(it);
-        removed = true;
+        return;
       }
-    }
   }
 
   IPC_RETURN_TYPE IpcFacade::unsubscribeFromMsgs()
@@ -1262,19 +1260,16 @@ IPC_RETURN_TYPE IpcFacade::sendPairs(std::vector<std::pair<std::string, Value> >
 
   /**
    * @brief Unsubscribe the given listener from the listener map.
-   * @return True if found and unsubscribed. False if not found.
    */
-  bool IpcFacade::unsubscribeGlobal(const LocalListenerRef& listener) {
+  void IpcFacade::unsubscribeGlobal(const LocalListenerRef& listener) {
     ListenerMap::iterator map_it = m_registeredListeners.find(listener.first);
     if (map_it != m_registeredListeners.end()) {
-      for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
-        if (listener.second == (*it)) {
-          it = (*map_it).second.erase(it);
-          return true;
+      for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++)
+        if (listener.second == *it) {
+          *map_it->second.erase(it);
+          return;
         }
-      }
     }
-    return false;
   }
 
   /**

@@ -329,7 +329,6 @@ namespace PLEXIL
 
 #define check_error_1(cond)
 #define check_error_2(cond, msg)
-#define check_error_1(cond, msg1, msg2)
 
 #define checkError(cond, msg)
 
