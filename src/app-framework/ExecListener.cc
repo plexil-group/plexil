@@ -41,8 +41,7 @@ namespace PLEXIL
    * @brief Default constructor.
    */
   ExecListener::ExecListener()
-    : PlexilListener(),
-      m_filter(NULL)
+    : m_filter(NULL)
   {
   }
 
@@ -50,8 +49,7 @@ namespace PLEXIL
    * @brief Constructor from configuration XML.
    */
   ExecListener::ExecListener(pugi::xml_node const xml)
-    : PlexilListener(),
-      m_filter(NULL)
+    : m_filter(NULL)
   {
   }
 

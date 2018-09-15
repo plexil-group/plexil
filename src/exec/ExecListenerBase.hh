@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,8 @@
 #define EXEC_LISTENER_BASE_HH
 
 #include "plexil-config.h"
+
+#include "NodeConstants.hh" // enum NodeState
 
 #include <string>
 #include <vector>
@@ -64,21 +66,34 @@ namespace PLEXIL
 	//
 
 	/**
-	 * @brief Notify that nodes have changed state.
-	 * @param Vector of node state transition info.
-	 * @note Current states are accessible via the node.
+	 * @brief Notify that a node has changed state.
+	 * @param node Pointer to the node.
+     * @param oldState State being transitioned from.
+     * @param newState State being transitioned to.
+     * @note This is called synchronously from the inner loop of the Exec.
+     *       Listeners should not do any I/O during this call.
 	 */
-	virtual void notifyOfTransitions(std::vector<NodeTransition> const &transitions) const = 0;
+    virtual void notifyNodeTransition(Node *node,
+                                      NodeState oldState,
+                                      NodeState newState) = 0;
 
     /**
      * @brief Notify that a variable assignment has been performed.
      * @param dest The Expression being assigned to.
      * @param destName A string naming the destination.
      * @param value The value (as a generic Value) being assigned.
+     * @note This is called synchronously from the inner loop of the Exec.
+     *       Listeners should not do any I/O during this call.
      */
     virtual void notifyOfAssignment(Expression const *dest,
                                     std::string const &destName,
-                                    Value const &value) const = 0;
+                                    Value const &value) = 0;
+
+    /**
+     * @brief Notify that a step is complete and the listener
+     *        may publish transitions and assignments.
+     */
+    virtual void stepComplete(unsigned int cycleNum) = 0;
   };
 
 }

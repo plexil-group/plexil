@@ -343,9 +343,9 @@ namespace PLEXIL {
 
   /**
    * @brief Add an externally constructed ExecListener.
-   * @param listener The ExecListener ID.
+   * @param listener Pointer to the ExecListener.
    */
-  void AdapterConfiguration::addExecListener(PlexilListener *listener)
+  void AdapterConfiguration::addExecListener(ExecListener *listener)
   {
     m_listenerHub->addListener(listener);
   }

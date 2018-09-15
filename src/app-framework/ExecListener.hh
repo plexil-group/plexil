@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,8 @@
 #ifndef PLEXIL_EXEC_LISTENER_HH
 #define PLEXIL_EXEC_LISTENER_HH
 
-#include "PlexilListener.hh"
 #include "NodeConstants.hh"
+#include "NodeTransition.hh"
 
 #include "pugixml.hpp"
 
@@ -36,14 +36,15 @@ namespace PLEXIL
 {
   // Forward references
   class ExecListenerFilter;
-
+  class Expression;
   class Node;
+  class Value;
 
   /**
    * @brief A base class for implementing notifications to external agents about exec state changes.
    * @note Provides event filtering hooks.
    */
-  class ExecListener : public PlexilListener
+  class ExecListener
   {
   public:
 

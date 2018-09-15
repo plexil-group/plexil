@@ -54,7 +54,6 @@ namespace PLEXIL
     LinkedQueue<Assignment> m_assignmentsToExecute;
     LinkedQueue<Assignment> m_assignmentsToRetract;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
-    std::vector<NodeTransition> m_transitionsToPublish;
     std::vector<Expression *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     ExecListenerBase *m_listener;
     VariableConflictSet *m_resourceConflicts; /*<! Linked list of variable assignment contention sets. */
@@ -75,7 +74,6 @@ namespace PLEXIL
         m_assignmentsToExecute(),
         m_assignmentsToRetract(),
         m_plan(),
-        m_transitionsToPublish(),
         m_variablesToRetract(),
         m_listener(NULL),
         m_resourceConflicts(NULL),
@@ -324,7 +322,6 @@ namespace PLEXIL
         unsigned int microStepCount = 0;
 
         // Transition the nodes
-        m_transitionsToPublish.reserve(m_stateChangeQueue.size());
         while (!m_stateChangeQueue.empty()) {
           Node *node = getStateChangeNode();
           debugMsg("PlexilExec:step",
@@ -334,17 +331,12 @@ namespace PLEXIL
                    << " to " << nodeStateName(node->getNextState()));
           NodeState oldState = node->getState();
           node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
-          m_transitionsToPublish.push_back(NodeTransition(node, oldState));
+          if (m_listener)
+            m_listener->notifyNodeTransition(node, oldState, node->getState());
           ++microStepCount;
         }
 
         // TODO: instrument high-water-mark of max nodes transitioned in this step
-
-        // Publish the transitions
-        // FIXME: Move call to listener outside of quiescence loop
-        if (m_listener)
-          m_listener->notifyOfTransitions(m_transitionsToPublish);
-        m_transitionsToPublish.clear();
 
         // done with this batch
         ++stepCount;
@@ -358,6 +350,8 @@ namespace PLEXIL
       g_interface->incrementCycleCount();
       performAssignments();
       g_interface->executeOutboundQueue();
+      if (m_listener)
+        m_listener->stepComplete(cycleNum);
 
       debugMsg("PlexilExec:cycle", " ==>End cycle " << cycleNum);
       for (std::list<Node *>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {

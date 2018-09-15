@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecListener.hh"
 #include "NodeTransition.hh"
 
 #include "pugixml.hpp"
@@ -37,13 +38,15 @@
 namespace PLEXIL
 {
   ExecListenerHub::ExecListenerHub()
-    : m_listeners()
+    : m_listeners(),
+      m_transitions(),
+      m_assignments()
   {
   }
 
   ExecListenerHub::~ExecListenerHub()
   {
-    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       delete *it;
@@ -53,7 +56,7 @@ namespace PLEXIL
   /**
    * @brief Adds an Exec listener for publication of plan events.
    */
-  void ExecListenerHub::addListener(PlexilListener *listener)
+  void ExecListenerHub::addListener(ExecListener *listener)
   {
     check_error_1(listener);
     if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end())
@@ -64,9 +67,9 @@ namespace PLEXIL
   /**
    * @brief Removes an Exec listener.
    */
-  void ExecListenerHub::removeListener(PlexilListener *listener)
+  void ExecListenerHub::removeListener(ExecListener *listener)
   {
-    std::vector<PlexilListener *>::iterator it = 
+    std::vector<ExecListener *>::iterator it = 
       std::find(m_listeners.begin(), m_listeners.end(), listener);
     if (it != m_listeners.end())
       m_listeners.erase(it);
@@ -76,26 +79,14 @@ namespace PLEXIL
   // API to Exec
   //
 
-  /**
-   * @brief Notify that nodes have changed state.
-   * @param Vector of node state transition info.
-   * @note Current states are accessible via the node.
-   */
-  void ExecListenerHub::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
-  {
-    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
-         it != m_listeners.end();
-         ++it)
-      (*it)->notifyOfTransitions(transitions);
-  }
 
   /**
    * @brief Notify that a plan has been received by the Exec.
    * @param plan The intermediate representation of the plan.
    */
-  void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan) const
+  void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan)
   {
-    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       (*it)->notifyOfAddPlan(plan);
@@ -105,12 +96,27 @@ namespace PLEXIL
    * @brief Notify that a library node has been received by the Exec.
    * @param libNode The intermediate representation of the plan.
    */
-  void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode) const
+  void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode)
   {
-    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       (*it)->notifyOfAddLibrary(libNode);
+  }
+
+  /**
+   * @brief Notify that a node has changed state.
+   * @param node Pointer to the node.
+   * @param oldState State being transitioned from.
+   * @param newState State being transitioned to.
+   * @note This is called synchronously from the inner loop of the Exec.
+   *       Listeners should not do any I/O during this call.
+   */
+  void ExecListenerHub::notifyNodeTransition(Node *node,
+                                             NodeState oldState,
+                                             NodeState newState)
+  {
+    m_transitions.push_back(NodeTransition(node, newState));
   }
 
   /**
@@ -118,15 +124,33 @@ namespace PLEXIL
    * @param dest The Expression being assigned to.
    * @param destName A string naming the destination.
    * @param value The value (in internal Exec representation) being assigned.
+   * @note This is called synchronously from the inner loop of the Exec.
+   *       Listeners should not do any I/O during this call.
    */
   void ExecListenerHub::notifyOfAssignment(Expression const *dest,
                                            std::string const &destName,
-                                           Value const &value) const
+                                           Value const &value)
   {
-    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
+    m_assignments.push_back(AssignmentRecord(dest, destName, value));
+  }
+
+  /**
+   * @brief Notify that a step is complete and the listener
+   *        may publish transitions and assignments.
+   */
+  void ExecListenerHub::stepComplete(unsigned int cycleNum)
+  {
+    for (std::vector<ExecListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
-         ++it)
-      (*it)->notifyOfAssignment(dest, destName, value);
+         ++it) {
+      (*it)->notifyOfTransitions(m_transitions);
+      m_transitions.clear();
+      for (std::vector<AssignmentRecord>::const_iterator rit = m_assignments.begin();
+           rit != m_assignments.end();
+           ++rit)
+        (*it)->notifyOfAssignment(rit->dest, rit->destName, rit->value);
+      m_assignments.clear();
+    }
   }
 
   //
@@ -141,7 +165,7 @@ namespace PLEXIL
   bool ExecListenerHub::initialize()
   {
     bool success = true;
-    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          ++it) {
       success = (*it)->initialize();
@@ -161,7 +185,7 @@ namespace PLEXIL
   bool ExecListenerHub::start()
   {
     bool success = true;
-    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::iterator it = m_listeners.begin();
          success && it != m_listeners.end(); // stop at first failure
          ++it)
       success = (*it)->start();
@@ -176,7 +200,7 @@ namespace PLEXIL
   bool ExecListenerHub::stop()
   {
     bool success = true;
-    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       success = (*it)->stop() && success;
@@ -191,7 +215,7 @@ namespace PLEXIL
   bool ExecListenerHub::reset()
   {
     bool success = true;
-    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          ++it)
       success = (*it)->reset();
@@ -206,7 +230,7 @@ namespace PLEXIL
   bool ExecListenerHub::shutdown()
   {
     bool success = true;
-    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListener *>::iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       success = (*it)->shutdown() && success;
