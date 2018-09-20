@@ -54,7 +54,7 @@ DIRT    = $(OBJ) $(DEPS) $(DEP_TMP)
 ifneq ($(LIBRARY),)
 
 $(LIB_DIR):
-	$(MKDIR) -p $(LIB_DIR)
+	mkdir -p $(LIB_DIR)
 
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
@@ -107,7 +107,7 @@ executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE) $(BIN
 	$(CP) $(EXECUTABLE) $(BIN_DIR)
 
 $(BIN_DIR):
-	$(MKDIR_P) $(BIN_DIR)
+	mkdir -p $(BIN_DIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
