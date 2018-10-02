@@ -28,6 +28,7 @@
 #define NODE_IMPL_HH
 
 #include "Node.hh"
+#include "NodeVariables.hh"
 
 // for int32_t type
 #ifdef HAVE_STDINT_H

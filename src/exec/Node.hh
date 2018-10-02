@@ -29,7 +29,7 @@
 
 #include "Expression.hh"
 #include "NodeConnector.hh"
-#include "NodeVariables.hh"
+#include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
 
 // Take care of annoying VxWorks macro
