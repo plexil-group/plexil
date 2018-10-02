@@ -15,16 +15,16 @@
       <OR>
         <AND>
           <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-          <EQInternal>
             <NodeStateVariable>
               <NodeRef dir="child">One</NodeRef>
             </NodeStateVariable>
             <NodeStateValue>FINISHED</NodeStateValue>
+          </EQInternal>
+          <EQInternal>
+            <NodeOutcomeVariable>
+              <NodeRef dir="child">One</NodeRef>
+            </NodeOutcomeVariable>
+            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
           </EQInternal>
         </AND>
         <EQInternal>

@@ -15,30 +15,30 @@
       <OR>
         <AND>
           <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-          <EQInternal>
             <NodeStateVariable>
               <NodeRef dir="child">One</NodeRef>
             </NodeStateVariable>
             <NodeStateValue>FINISHED</NodeStateValue>
+          </EQInternal>
+          <EQInternal>
+            <NodeOutcomeVariable>
+              <NodeRef dir="child">One</NodeRef>
+            </NodeOutcomeVariable>
+            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
           </EQInternal>
         </AND>
         <AND>
           <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-          <EQInternal>
             <NodeStateVariable>
               <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
             </NodeStateVariable>
             <NodeStateValue>FINISHED</NodeStateValue>
+          </EQInternal>
+          <EQInternal>
+            <NodeOutcomeVariable>
+              <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
+            </NodeOutcomeVariable>
+            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
           </EQInternal>
         </AND>
         <EQInternal>
