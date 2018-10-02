@@ -39,6 +39,8 @@
 #include "InternalExpressionFactories.hh"
 #include "LookupFactory.hh"
 #include "NodeConstantExpressions.hh"
+#include "NodeFunctionFactory.hh"
+#include "NodeOperators.hh"
 #include "NodeVariables.hh"
 #include "StringOperators.hh"
 #include "UserVariable.hh"
@@ -95,13 +97,20 @@ namespace PLEXIL
       REGISTER_FUNCTION(Equal, EQString);
       REGISTER_FUNCTION(Equal, EQArray);
 
+      REGISTER_NODE_FUNCTION(NodeExecuting, Executing);
+      REGISTER_NODE_FUNCTION(NodeFinished, Finished);
+
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
 
       REGISTER_COMPARISON(GreaterEqual, GE);
       REGISTER_COMPARISON(GreaterThan, GT);
 
+      REGISTER_NODE_FUNCTION(NodeInactive, Inactive);
+
       REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
       new VariableReferenceFactory("IntegerVariable", INTEGER_TYPE); // for effect
+
+      REGISTER_NODE_FUNCTION(NodeIterationEnded, IterationEnded);
 
       REGISTER_FUNCTION(IsKnown, IsKnown);
 
@@ -163,6 +172,8 @@ namespace PLEXIL
 #if !defined(__VXWORKS__)
       REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC);
 #endif // !defined(__VXWORKS__)
+
+      REGISTER_NODE_FUNCTION(NodeWaiting, Waiting);
 
       REGISTER_FUNCTION(BooleanXor, XOR);
 

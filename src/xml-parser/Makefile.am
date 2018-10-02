@@ -37,12 +37,13 @@ include_HEADERS = ExpressionFactory.hh Expressions.hh parseNode.hh parsePlan.hh 
  parser-utils.hh planLibrary.hh PlexilSchema.hh
 
 libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
- ArrayLiteralFactory.cc ArrayVariableFactory.cc ArrayVariableReferenceFactory.cc \
- ConcreteExpressionFactory.cc commandXmlParser.cc ExpressionFactory.cc \
- Expressions.cc FunctionFactory.cc InternalExpressionFactories.cc \
- LookupFactory.cc parseAssignment.cc parseGlobalDeclarations.cc \
- parseLibraryCall.cc parseNode.cc parseNodeReference.cc parsePlan.cc \
- parser-utils.cc planLibrary.cc \
+ ArrayLiteralFactory.cc ArrayVariableFactory.cc \
+ ArrayVariableReferenceFactory.cc ConcreteExpressionFactory.cc \
+ commandXmlParser.cc ExpressionFactory.cc Expressions.cc \
+ FunctionFactory.cc InternalExpressionFactories.cc \
+ LookupFactory.cc NodeFunctionFactory.cc parseAssignment.cc \
+ parseGlobalDeclarations.cc parseLibraryCall.cc parseNode.cc \
+ parseNodeReference.cc parsePlan.cc parser-utils.cc planLibrary.cc \
  PlexilSchema.cc SymbolTable.cc updateXmlParser.cc UserVariableFactory.cc
 
 DEPENDED_LIBS = libPlexilXmlParser.la \

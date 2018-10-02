@@ -46,9 +46,9 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  // Revise this when we have the actual number.
+  // Revise this when the actual number changes. Best to overestimate.
   // See purgeExpressionFactories() below and Expressions.cc in this directory.
-  static size_t const EST_N_EXPR_FACTORIES = 60;
+  static size_t const EST_N_EXPR_FACTORIES = 72;
 
   typedef SimpleMap<char const *, ExpressionFactory *, CStringComparator>
   ExpressionFactoryMap;
