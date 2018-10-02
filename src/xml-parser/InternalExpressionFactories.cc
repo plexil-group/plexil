@@ -31,6 +31,7 @@
 #include "Error.hh"
 #include "NodeImpl.hh"
 #include "NodeConstantExpressions.hh"
+#include "parseNodeReference.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
@@ -41,111 +42,6 @@
 
 namespace PLEXIL
 {
-  // Utility routines
-  static NodeImpl *parseNodeRef(pugi::xml_node nodeRef, NodeImpl *node)
-  {
-    // parse directional reference
-    checkAttr(DIR_ATTR, nodeRef);
-    const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
-
-    if (!strcmp(dirValue, SELF_VAL))
-      return dynamic_cast<NodeImpl *>(node);
-
-    NodeImpl *result = NULL;
-    if (!strcmp(dirValue, PARENT_VAL)) {
-      result = node->getParentNode();
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: Parent node reference in root node "
-                                       << node->getNodeId());
-      return result;
-    }
-
-    const char *name = nodeRef.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nodeRef,
-                                     "createExpression: Empty node name");
-    if (!strcmp(dirValue, CHILD_VAL)) {
-      result = node->findChild(name);
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: No child node named " << name 
-                                       << " in node " << node->getNodeId());
-      return result;
-    }
-    if (!strcmp(dirValue, SIBLING_VAL)) {
-      NodeImpl *parent = node->getParentNode();
-      checkParserExceptionWithLocation(parent,
-                                       nodeRef,
-                                       "createExpression: Sibling node reference from root node "
-                                       << node->getNodeId());
-      result = parent->findChild(name);
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: No sibling node named " << name 
-                                       << " for node " << node->getNodeId());
-      return result;
-    }
-    else {
-      reportParserExceptionWithLocation(nodeRef,
-                                        "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
-                                        << dirValue << "\"");
-      return NULL;
-    }
-  }
-
-  static NodeImpl *findLocalNodeId(char const *name, NodeImpl *node)
-  {
-    // search for node ID
-    if (node->getNodeId() == name)
-      return dynamic_cast<NodeImpl *>(node);
-    // Check children, if any
-    NodeImpl *result = node->findChild(name);
-    if (result)
-      return result;
-    return NULL;
-  }
-
-  static NodeImpl *parseNodeId(pugi::xml_node nodeRef, NodeImpl *node)
-  {
-    // search for node ID
-    char const *name = nodeRef.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nodeRef,
-                                     "Empty or invalid " << nodeRef.name() << " element");
-    NodeImpl *result = findLocalNodeId(name, node);
-    if (result)
-      return result;
-
-    NodeImpl *parent = node->getParentNode();
-    while (parent) {
-      result = findLocalNodeId(name, parent);
-      if (result)
-        return result;
-      parent = parent->getParentNode();
-    }
-    reportParserExceptionWithLocation(nodeRef.first_child(),
-                                      "createExpression: No node named "
-                                      << name
-                                      << " reachable from node " << node->getNodeId());
-    return NULL;
-  }
-
-  static NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node)
-  {
-    const char* tag = nodeRef.name();
-    checkParserExceptionWithLocation(*tag,
-                                     nodeRef.parent(),
-                                     "createExpression: Node reference is not an element");
-    if (0 == strcmp(tag, NODEREF_TAG))
-      return parseNodeRef(nodeRef, node);
-    else if (0 == strcmp(tag, NODEID_TAG))
-      return parseNodeId(nodeRef, node);
-    reportParserExceptionWithLocation(nodeRef,
-                                      "createExpression: Invalid node reference");
-    return NULL;
-  }
-  
   //
   // Specializations for internal variables
   //
