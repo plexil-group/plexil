@@ -242,7 +242,7 @@ static void reportLibraryStatistics()
 static void reportExpressionStatistics()
 {
   std::cout << "\n--- Expression Listener Counts --- \n\n";
-  std::cout << g_expressionCount << " expressions with listeners\n\n";
+  std::cout << g_expressionCount << " expressions\n\n";
   std::cout << "Expression " << *g_highWaterExpression
             << "\n has largest count of listeners, " << g_listenerHighWater << "\n\n";
 

@@ -46,6 +46,14 @@ namespace PLEXIL
   // Specializations for internal variables
   //
 
+  ValueType ConcreteExpressionFactory<StateVariable>::check(char const * nodeId,
+                                                            pugi::xml_node const expr) const
+      throw (ParserException)
+  {
+    // TODO
+    return NODE_STATE_TYPE;
+  }    
+
   Expression *ConcreteExpressionFactory<StateVariable>::allocate(pugi::xml_node const expr,
                                                                  NodeConnector *node,
                                                                  bool &wasCreated,
@@ -60,6 +68,14 @@ namespace PLEXIL
     wasCreated = false;
     return refNode->getStateVariable();
   }
+
+  ValueType ConcreteExpressionFactory<OutcomeVariable>::check(char const *nodeId,
+                                                              pugi::xml_node const expr) const
+      throw (ParserException)
+  {
+    // TODO
+    return OUTCOME_TYPE;
+  }    
   
   Expression *ConcreteExpressionFactory<OutcomeVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
@@ -76,6 +92,15 @@ namespace PLEXIL
     return refNode->getOutcomeVariable();
   }
 
+
+  ValueType ConcreteExpressionFactory<FailureVariable>::check(char const *nodeId,
+                                                              pugi::xml_node const expr) const
+      throw (ParserException)
+  {
+    // TODO
+    return FAILURE_TYPE;
+  }    
+
   Expression *ConcreteExpressionFactory<FailureVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
@@ -90,6 +115,14 @@ namespace PLEXIL
     wasCreated = false;
     return refNode->getFailureTypeVariable();
   }
+
+  ValueType ConcreteExpressionFactory<CommandHandleVariable>::check(char const *nodeId,
+                                                                    pugi::xml_node const expr) const
+      throw (ParserException)
+  {
+    // TODO
+    return COMMAND_HANDLE_TYPE;
+  }    
 
   Expression *ConcreteExpressionFactory<CommandHandleVariable>::allocate(pugi::xml_node const expr,
                                                                          NodeConnector *node,
@@ -114,6 +147,14 @@ namespace PLEXIL
   }
   
   // Specialization for node timepoint references
+
+  ValueType ConcreteExpressionFactory<NodeTimepointValue>::check(char const *nodeId,
+                                                                 pugi::xml_node const expr) const
+      throw (ParserException)
+  {
+    // TODO
+    return DATE_TYPE;
+  }    
 
   Expression *ConcreteExpressionFactory<NodeTimepointValue>::allocate(pugi::xml_node const expr,
                                                                       NodeConnector *node,
@@ -164,13 +205,35 @@ namespace PLEXIL
   //
 
   template <>
+  ValueType NamedConstantExpressionFactory<NodeStateConstant>::check(char const *nodeId,
+                                                                     pugi::xml_node const expr) const
+    throw (ParserException)
+  {
+    checkNotEmpty(expr);
+    switch (parseNodeState(expr.child_value())) {
+    case INACTIVE_STATE:
+    case WAITING_STATE:
+    case EXECUTING_STATE:
+    case ITERATION_ENDED_STATE:
+    case FINISHED_STATE:
+    case FAILING_STATE:
+    case FINISHING_STATE:
+      return NODE_STATE_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr.first_child(),
+                                        "Invalid NodeStateValue");
+      return UNKNOWN_TYPE;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
                                                                           NodeConnector * /* node */,
                                                                           bool &wasCreated,
                                                                           ValueType /* returnType */) const
     throw (ParserException)
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseNodeState(expr.child_value())) {
     case INACTIVE_STATE:
@@ -195,9 +258,29 @@ namespace PLEXIL
       return FINISHING_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid NodeStateValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid NodeStateValue");
       return NULL;
+    }
+  }
+
+  template <>
+  ValueType NamedConstantExpressionFactory<NodeOutcomeConstant>::check(char const *nodeId,
+                                                                       pugi::xml_node const expr) const
+    throw (ParserException)
+  {
+    checkNotEmpty(expr);
+    switch (parseNodeOutcome(expr.child_value())) {
+    case SUCCESS_OUTCOME:
+    case FAILURE_OUTCOME:
+    case SKIPPED_OUTCOME:
+    case INTERRUPTED_OUTCOME:
+      return OUTCOME_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid NodeOutcomeValue");
+      return UNKNOWN_TYPE;
     }
   }
 
@@ -208,7 +291,6 @@ namespace PLEXIL
                                                                             ValueType /* returnType */) const
     throw (ParserException)
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseNodeOutcome(expr.child_value())) {
     case SUCCESS_OUTCOME:
@@ -224,9 +306,31 @@ namespace PLEXIL
       return INTERRUPTED_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid NodeOutcomeValue");
       return NULL;
+    }
+  }
+
+  template <>
+  ValueType NamedConstantExpressionFactory<FailureTypeConstant>::check(char const *nodeId,
+                                                                       pugi::xml_node const expr) const
+    throw (ParserException)
+  {
+    checkNotEmpty(expr);
+    switch (parseFailureType(expr.child_value())) {
+    case PRE_CONDITION_FAILED:
+    case POST_CONDITION_FAILED:
+    case INVARIANT_CONDITION_FAILED:
+    case PARENT_FAILED:
+    case EXITED:
+    case PARENT_EXITED:
+      return FAILURE_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid FailureTypeValue");
+      return UNKNOWN_TYPE;
     }
   }
 
@@ -237,7 +341,6 @@ namespace PLEXIL
                                                                             ValueType /* returnType */) const
     throw (ParserException)
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseFailureType(expr.child_value())) {
     case PRE_CONDITION_FAILED:
@@ -259,9 +362,31 @@ namespace PLEXIL
       return PARENT_EXITED_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "createExpression: Invalid FailureTypeValue");
       return NULL;
+    }
+  }
+
+  template <>
+  ValueType NamedConstantExpressionFactory<CommandHandleConstant>::check(char const *nodeId,
+                                                                         pugi::xml_node const expr) const
+    throw (ParserException)
+  {
+    checkNotEmpty(expr);
+    switch (parseCommandHandleValue(expr.child_value())) {
+    case COMMAND_SENT_TO_SYSTEM:
+    case COMMAND_ACCEPTED:
+    case COMMAND_RCVD_BY_SYSTEM:
+    case COMMAND_FAILED:
+    case COMMAND_DENIED:
+    case COMMAND_SUCCESS:
+      return COMMAND_HANDLE_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid CommandHandleValue");
+      return UNKNOWN_TYPE;
     }
   }
 
@@ -272,7 +397,6 @@ namespace PLEXIL
                                                                               ValueType /* returnType */) const
     throw (ParserException)
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseCommandHandleValue(expr.child_value())) {
     case COMMAND_SENT_TO_SYSTEM:
@@ -294,8 +418,8 @@ namespace PLEXIL
       return COMMAND_SUCCESS_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid CommandHandleValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "createExpression: Invalid CommandHandleValue");
       return NULL;
     }
   }

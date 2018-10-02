@@ -36,54 +36,165 @@
 namespace PLEXIL
 {
 
-  static NodeImpl *parseNodeRef(pugi::xml_node nodeRef, NodeImpl *node)
+  static pugi::xml_node getContainingNode(pugi::xml_node nodeRef)
   {
-    // parse directional reference
+    return nodeRef.select_node("ancestor::Node").node();
+  }
+
+  // theNode must be a Plexil Node 
+  static pugi::xml_node getNodeChild(pugi::xml_node theNode, char const *childName)
+  {
+    char const *ntype = theNode.attribute(NODETYPE_ATTR).value();
+    if (!strcmp(ntype, NODELIST_TAG)) {
+      pugi::xpath_node_set children = theNode.select_nodes("NodeBody/NodeList/Node");
+      for (pugi::xpath_node_set::const_iterator iter = children.begin();
+           iter != children.end();
+           ++iter) {
+        if (!strcmp(childName, iter->node().child_value(NODEID_TAG)))
+          return iter->node();
+      }
+    }
+    else if (!strcmp(ntype, LIBRARYNODECALL_TAG)) {
+      pugi::xml_node temp = theNode.select_node("NodeBody/LibraryNodeCall").node();
+      if (!strcmp(childName, temp.child_value(NODEID_TAG))) {
+        return temp;
+      }
+    }
+    // Fall-through return
+    return pugi::xml_node();
+  }
+
+  static void checkNodeRef(pugi::xml_node nodeRef)
+    throw (ParserException)
+  {
     checkAttr(DIR_ATTR, nodeRef);
-    const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
-
+    char const *dirValue = nodeRef.attribute(DIR_ATTR).value();
     if (!strcmp(dirValue, SELF_VAL))
-      return dynamic_cast<NodeImpl *>(node);
+      return; // no need to check further
 
-    NodeImpl *result = NULL;
+    // All other directions need the containing Node
+    pugi::xml_node self = getContainingNode(nodeRef);
     if (!strcmp(dirValue, PARENT_VAL)) {
-      result = node->getParentNode();
-      checkParserExceptionWithLocation(result,
+      pugi::xml_node parent = getContainingNode(self);
+      checkParserExceptionWithLocation(parent,
                                        nodeRef,
-                                       "createExpression: Parent node reference in root node "
-                                       << node->getNodeId());
-      return result;
+                                       "Invalid node reference: root node has no " << PARENT_VAL);
+      return;
     }
 
     const char *name = nodeRef.child_value();
     checkParserExceptionWithLocation(*name,
                                      nodeRef,
-                                     "createExpression: Empty node name");
+                                     "Invalid node reference: empty node name");
+    if (!strcmp(dirValue, SIBLING_VAL)) {
+      pugi::xml_node parent = getContainingNode(self);
+      checkParserExceptionWithLocation(parent,
+                                       nodeRef,
+                                       "Invalid node reference: root node has no siblings");
+      checkParserExceptionWithLocation(getNodeChild(parent, name),
+                                       nodeRef,
+                                       "Invalid node reference: node has no sibling named "
+                                       << nodeRef.value());
+    }
+    else if (!strcmp(dirValue, CHILD_VAL)) {
+      checkParserExceptionWithLocation(getNodeChild(self, name),
+                                       nodeRef,
+                                       "Invalid node reference: node has no child named "
+                                       << nodeRef.value());
+    }
+    else {
+      reportParserExceptionWithLocation(nodeRef,
+                                        "Invalid node reference");
+    }
+  }
+
+  static void checkNodeId(pugi::xml_node nodeRef)
+    throw (ParserException)
+  {
+    char const *name = nodeRef.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     nodeRef,
+                                     "Invalid node reference: empty or invalid "
+                                     << nodeRef.name() << " element");
+
+    pugi::xml_node theNode = getContainingNode(nodeRef);
+    // Check against own name
+    if (!strcmp(name, theNode.child_value(NODEID_TAG)))
+      return;
+    // Check children
+    if (getNodeChild(theNode, name))
+      return;
+    // Check ancestors
+    pugi::xml_node parent = getContainingNode(theNode);
+    while (parent) {
+      if (!strcmp(name, parent.child_value(NODEID_TAG)))
+        return;
+      parent = getContainingNode(parent);
+    }
+    // Not found
+    reportParserExceptionWithLocation(nodeRef,
+                                      "Invalid node reference: No node named "
+                                      << name
+                                      << " reachable from node "
+                                      << theNode.child_value(NODEID_TAG));
+  }
+
+  void checkNodeReference(pugi::xml_node nodeRef)
+    throw (ParserException)
+  {
+    const char* tag = nodeRef.name();
+    checkParserExceptionWithLocation(*tag,
+                                     nodeRef.parent(),
+                                     "createExpression: Node reference is not an element");
+    if (0 == strcmp(tag, NODEREF_TAG))
+      checkNodeRef(nodeRef);
+    else if (0 == strcmp(tag, NODEID_TAG))
+      checkNodeId(nodeRef);
+    reportParserExceptionWithLocation(nodeRef,
+                                      "createExpression: Invalid node reference");
+  }
+
+  static NodeImpl *parseNodeRef(pugi::xml_node nodeRef, NodeImpl *node)
+    throw (ParserException)
+  {
+    // parse directional reference
+    const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
+    if (!strcmp(dirValue, SELF_VAL))
+      return node;
+
+    NodeImpl *result = NULL;
+    if (!strcmp(dirValue, PARENT_VAL)) {
+      result = node->getParentNode();
+      assertTrueMsg(result,
+                    "Internal error: Node " << node->getNodeId() << " has no parent");
+      return result;
+    }
+
+    char const *name = nodeRef.child_value();
+    assertTrueMsg(*name,
+                  "Internal error: Empty node name in " << nodeRef.name());
+
     if (!strcmp(dirValue, CHILD_VAL)) {
       result = node->findChild(name);
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: No child node named " << name 
-                                       << " in node " << node->getNodeId());
+      assertTrueMsg(result,
+                    "Internal error: Node " << node->getNodeId()
+                    << " has no child named " << name);
       return result;
     }
     if (!strcmp(dirValue, SIBLING_VAL)) {
       NodeImpl *parent = node->getParentNode();
-      checkParserExceptionWithLocation(parent,
-                                       nodeRef,
-                                       "createExpression: Sibling node reference from root node "
-                                       << node->getNodeId());
+      assertTrueMsg(parent,
+                    "Internal error: Node " << node->getNodeId() << " has no parent");
       result = parent->findChild(name);
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: No sibling node named " << name 
-                                       << " for node " << node->getNodeId());
+      assertTrueMsg(result,
+                    "Internal error: Node " << node->getNodeId()
+                    << " has no sibling named " << name);
       return result;
     }
     else {
-      reportParserExceptionWithLocation(nodeRef,
-                                        "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
-                                        << dirValue << "\"");
+      // Should have been caught by check()
+      errorMsg("Internal error: Invalid value for "
+               << DIR_ATTR << " attibute \"" << dirValue << "\"");
       return NULL;
     }
   }
@@ -92,7 +203,7 @@ namespace PLEXIL
   {
     // search for node ID
     if (node->getNodeId() == name)
-      return dynamic_cast<NodeImpl *>(node);
+      return node;
     // Check children, if any
     NodeImpl *result = node->findChild(name);
     if (result)
@@ -101,12 +212,10 @@ namespace PLEXIL
   }
 
   static NodeImpl *parseNodeId(pugi::xml_node nodeRef, NodeImpl *node)
+    throw (ParserException)
   {
     // search for node ID
     char const *name = nodeRef.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nodeRef,
-                                     "Empty or invalid " << nodeRef.name() << " element");
     NodeImpl *result = findLocalNodeId(name, node);
     if (result)
       return result;
@@ -118,25 +227,22 @@ namespace PLEXIL
         return result;
       parent = parent->getParentNode();
     }
-    reportParserExceptionWithLocation(nodeRef.first_child(),
-                                      "createExpression: No node named "
-                                      << name
-                                      << " reachable from node " << node->getNodeId());
+    // Should have been caught by checkNodeId()
+    errorMsg("Internal error: No node named " << name
+             << " reachable from node " << node->getNodeId());
     return NULL;
   }
 
   NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node)
+    throw (ParserException)
   {
     const char* tag = nodeRef.name();
-    checkParserExceptionWithLocation(*tag,
-                                     nodeRef.parent(),
-                                     "createExpression: Node reference is not an element");
     if (0 == strcmp(tag, NODEREF_TAG))
       return parseNodeRef(nodeRef, node);
     else if (0 == strcmp(tag, NODEID_TAG))
       return parseNodeId(nodeRef, node);
-    reportParserExceptionWithLocation(nodeRef,
-                                      "createExpression: Invalid node reference");
+    // should have been caught by checkNodeReference()
+    errorMsg("Internal error: invalid node reference");
     return NULL;
   }
 

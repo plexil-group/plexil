@@ -27,6 +27,8 @@
 #ifndef PLEXIL_PARSE_NODE_REFERENCE_HH
 #define PLEXIL_PARSE_NODE_REFERENCE_HH
 
+#include "ParserException.hh"
+
 namespace pugi
 {
   class xml_node;
@@ -36,7 +38,11 @@ namespace PLEXIL
 {
   class NodeImpl;
 
-  extern NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node);
+  extern void checkNodeReference(pugi::xml_node nodeRef)
+    throw (ParserException);
+
+  extern NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node)
+    throw (ParserException);
 }
 
 #endif // PLEXIL_PARSE_NODE_REFERENCE_HH

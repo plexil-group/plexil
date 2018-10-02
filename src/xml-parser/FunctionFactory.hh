@@ -28,7 +28,6 @@
 #define PLEXIL_FUNCTION_FACTORY_HH
 
 #include "ExpressionFactory.hh"
-#include "ExprVec.hh"
 #include "Function.hh"
 
 namespace PLEXIL
