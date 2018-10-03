@@ -153,6 +153,28 @@ namespace PLEXIL
     (oper)(node->getStateVariable());
   }
 
+  NodeFailed::NodeFailed()
+    : NodeOperatorImpl<Boolean>("Failed")
+  {
+  }
+
+  NodeFailed::~NodeFailed()
+  {
+  }
+
+  bool NodeFailed::operator()(Boolean &result, NodeImpl const *node) const
+  {
+    result = node->getState() == FINISHED_STATE
+      && node->getOutcome() == FAILURE_OUTCOME;
+    return true;
+  }
+
+  void NodeFailed::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    // It's sufficient to listen to the node state
+    (oper)(node->getStateVariable());
+  }
+
   NodeSkipped::NodeSkipped()
     : NodeOperatorImpl<Boolean>("Skipped")
   {

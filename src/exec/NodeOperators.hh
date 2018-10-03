@@ -116,6 +116,20 @@ namespace PLEXIL
     void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
+  class NodeFailed : public NodeOperatorImpl<Boolean>
+  {
+  private:
+    NodeFailed();
+
+  public:
+    virtual ~NodeFailed();
+    
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeFailed);
+
+    bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+  };
+
   class NodeSkipped : public NodeOperatorImpl<Boolean>
   {
   private:

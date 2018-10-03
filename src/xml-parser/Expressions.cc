@@ -98,6 +98,7 @@ namespace PLEXIL
       REGISTER_FUNCTION(Equal, EQArray);
 
       REGISTER_NODE_FUNCTION(NodeExecuting, Executing);
+      REGISTER_NODE_FUNCTION(NodeFailed, Failed);
       REGISTER_NODE_FUNCTION(NodeFinished, Finished);
 
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
