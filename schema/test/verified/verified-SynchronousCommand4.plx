@@ -63,12 +63,9 @@
                     <Node NodeType="Assignment" epx="aux">
                       <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
                       <StartCondition>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
+                        <Finished>
+                          <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
+                        </Finished>
                       </StartCondition>
                       <NodeBody>
                         <Assignment>

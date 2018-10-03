@@ -14,12 +14,9 @@
     <EndCondition>
       <OR>
         <AND>
-          <EQInternal>
-            <NodeStateVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeStateVariable>
-            <NodeStateValue>FINISHED</NodeStateValue>
-          </EQInternal>
+          <Finished>
+            <NodeRef dir="child">One</NodeRef>
+          </Finished>
           <EQInternal>
             <NodeOutcomeVariable>
               <NodeRef dir="child">One</NodeRef>
@@ -28,12 +25,9 @@
           </EQInternal>
         </AND>
         <AND>
-          <EQInternal>
-            <NodeStateVariable>
-              <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-            </NodeStateVariable>
-            <NodeStateValue>FINISHED</NodeStateValue>
-          </EQInternal>
+          <Finished>
+            <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
+          </Finished>
           <EQInternal>
             <NodeOutcomeVariable>
               <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
@@ -41,12 +35,9 @@
             <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
           </EQInternal>
         </AND>
-        <EQInternal>
-          <NodeStateVariable>
-            <NodeRef dir="child">Three</NodeRef>
-          </NodeStateVariable>
-          <NodeStateValue>FINISHED</NodeStateValue>
-        </EQInternal>
+        <Finished>
+          <NodeRef dir="child">Three</NodeRef>
+        </Finished>
       </OR>
     </EndCondition>
     <PostCondition>
@@ -80,12 +71,9 @@
           <NodeId>ep2cp_Try_d1e29</NodeId>
           <StartCondition>
             <AND>
-              <EQInternal>
-                <NodeStateVariable>
-                  <NodeRef dir="sibling">One</NodeRef>
-                </NodeStateVariable>
-                <NodeStateValue>FINISHED</NodeStateValue>
-              </EQInternal>
+              <Finished>
+                <NodeRef dir="sibling">One</NodeRef>
+              </Finished>
               <EQNumeric>
                 <IntegerVariable>foo</IntegerVariable>
                 <IntegerValue>0</IntegerValue>
@@ -111,12 +99,9 @@
         <Node NodeType="Empty">
           <NodeId>Three</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_Try_d1e29</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_Try_d1e29</NodeRef>
+            </Finished>
           </StartCondition>
         </Node>
       </NodeList>

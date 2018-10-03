@@ -18,6 +18,7 @@
             <ref name="EQArray"/>
             <ref name="IsKnown"/>
             <ref name="NodeCommandHandleValue"/>
+            <ref name="Finished"/>
             <ref name="SUB"/>
             <ref name="StringRHS"/>
             <ref name="NodeBody"/>
@@ -85,7 +86,9 @@
             <ref name="NOT"/>
             <ref name="AND"/>
             <ref name="NodeId"/>
+            <ref name="IterationEnded"/>
             <ref name="Assume"/>
+            <ref name="Executing"/>
             <ref name="ExitCondition"/>
             <ref name="ArrayValue"/>
             <ref name="NodeCommandHandleVariable"/>
@@ -97,6 +100,7 @@
             <ref name="NENumeric"/>
             <ref name="GlobalDeclarations"/>
             <ref name="CommandDeclaration"/>
+            <ref name="Inactive"/>
             <ref name="GE"/>
             <ref name="LookupNow"/>
             <ref name="Pair"/>
@@ -110,6 +114,7 @@
             <ref name="LibraryNodeCall"/>
             <ref name="GT"/>
             <ref name="NEBoolean"/>
+            <ref name="Waiting"/>
             <ref name="Expect"/>
             <ref name="Command"/>
             <ref name="BooleanVariable"/>
@@ -119,12 +124,6 @@
             <ref name="StateDeclaration"/>
         </choice>
     </start>
-    <define name="NodeCommandHandle">
-        <choice>
-            <ref name="NodeCommandHandleVariable"/>
-            <ref name="NodeCommandHandleValue"/>
-        </choice>
-    </define>
     <define name="LibraryNodeCall">
         <choice>
             <notAllowed/>
@@ -137,18 +136,22 @@
             </element>
         </choice>
     </define>
-    <define name="LookupOnChange">
+    <define name="TRUNC">
         <choice>
             <notAllowed/>
-            <element name="LookupOnChange">
+            <element name="TRUNC">
                 <ref name="SourceLocators"/>
-                <ref name="Name"/>
-                <optional>
-                    <ref name="Tolerance"/>
-                </optional>
-                <optional>
-                    <ref name="Arguments"/>
-                </optional>
+                <ref name="GeneralizedNumericExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="NEString">
+        <choice>
+            <notAllowed/>
+            <element name="NEString">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedStringExpression"/>
+                <ref name="GeneralizedStringExpression"/>
             </element>
         </choice>
     </define>
@@ -160,6 +163,14 @@
             <value type="NMTOKEN">Boolean</value>
         </choice>
     </define>
+    <define name="NodeStateVariable">
+        <choice>
+            <notAllowed/>
+            <element name="NodeStateVariable">
+                <ref name="node-reference"/>
+            </element>
+        </choice>
+    </define>
     <define name="BooleanValue">
         <choice>
             <notAllowed/>
@@ -168,12 +179,16 @@
             </element>
         </choice>
     </define>
-    <define name="CEIL">
+    <define name="MUL">
         <choice>
             <notAllowed/>
-            <element name="CEIL">
+            <element name="MUL">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <zeroOrMore>
+                    <ref name="GeneralizedNumericExpression"/>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
@@ -200,6 +215,24 @@
                     <ref name="NCName"/>
                 </element>
                 <ref name="Expression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Tolerance">
+        <choice>
+            <notAllowed/>
+            <element name="Tolerance">
+                <ref name="GeneralizedNumericExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="LE">
+        <choice>
+            <notAllowed/>
+            <element name="LE">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -319,6 +352,20 @@
             </element>
         </choice>
     </define>
+    <define name="IsKnown">
+        <choice>
+            <notAllowed/>
+            <element name="IsKnown">
+                <ref name="SourceLocators"/>
+                <choice>
+                    <ref name="Expression"/>
+                    <ref name="NodeStateVariable"/>
+                    <ref name="NodeOutcomeVariable"/>
+                    <ref name="NodeCommandHandleVariable"/>
+                </choice>
+            </element>
+        </choice>
+    </define>
     <define name="NumericExpression">
         <choice>
             <choice>
@@ -347,12 +394,14 @@
             <ref name="ArrayMaxSize"/>
         </choice>
     </define>
-    <define name="ArrayMaxSize">
+    <define name="NodeTimepointValue">
         <choice>
             <notAllowed/>
-            <element name="ArrayMaxSize">
+            <element name="NodeTimepointValue">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedArrayExpression"/>
+                <ref name="NodeReference"/>
+                <ref name="NodeStateValue"/>
+                <ref name="Timepoint"/>
             </element>
         </choice>
     </define>
@@ -387,58 +436,60 @@
             </element>
         </choice>
     </define>
-    <define name="NodeCommandHandleValue">
+    <define name="NodeFailureVariable">
         <choice>
             <notAllowed/>
-            <element name="NodeCommandHandleValue">
-                <choice>
-                    <value type="NMTOKEN">COMMAND_DENIED</value>
-                    <value type="NMTOKEN">COMMAND_ABORTED</value>
-                    <value type="NMTOKEN">COMMAND_ABORT_FAILED</value>
-                    <value type="NMTOKEN">COMMAND_SUCCESS</value>
-                    <value type="NMTOKEN">COMMAND_RCVD_BY_SYSTEM</value>
-                    <value type="NMTOKEN">COMMAND_SENT_TO_SYSTEM</value>
-                    <value type="NMTOKEN">COMMAND_ACCEPTED</value>
-                    <value type="NMTOKEN">COMMAND_FAILED</value>
-                </choice>
-            </element>
-        </choice>
-    </define>
-    <define name="NodeOutcomeVariable">
-        <choice>
-            <notAllowed/>
-            <element name="NodeOutcomeVariable">
+            <element name="NodeFailureVariable">
                 <ref name="node-reference"/>
             </element>
         </choice>
     </define>
-    <define name="ALL_KNOWN">
+    <define name="NEBoolean">
         <choice>
             <notAllowed/>
-            <element name="ALL_KNOWN">
+            <element name="NEBoolean">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedArrayExpression"/>
+                <ref name="GeneralizedBooleanExpression"/>
+                <ref name="GeneralizedBooleanExpression"/>
             </element>
         </choice>
     </define>
-    <define name="EQArray">
+    <define name="XOR">
         <choice>
             <notAllowed/>
-            <element name="EQArray">
+            <element name="XOR">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedArrayExpression"/>
-                <ref name="GeneralizedArrayExpression"/>
+                <zeroOrMore>
+                    <ref name="GeneralizedBooleanExpression"/>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
-    <define name="MOD">
+    <define name="Timepoint">
         <choice>
             <notAllowed/>
-            <element name="MOD">
+            <element name="Timepoint">
+                <choice>
+                    <value type="NMTOKEN">START</value>
+                    <value type="NMTOKEN">END</value>
+                </choice>
+            </element>
+        </choice>
+    </define>
+    <define name="LT">
+        <choice>
+            <notAllowed/>
+            <element name="LT">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
                 <ref name="GeneralizedNumericExpression"/>
             </element>
+        </choice>
+    </define>
+    <define name="NodeOutcome">
+        <choice>
+            <ref name="NodeOutcomeVariable"/>
+            <ref name="NodeOutcomeValue"/>
         </choice>
     </define>
     <define name="NodeBody">
@@ -455,27 +506,35 @@
             </element>
         </choice>
     </define>
-    <define name="SUB">
+    <define name="ALL_KNOWN">
         <choice>
             <notAllowed/>
-            <element name="SUB">
+            <element name="ALL_KNOWN">
                 <ref name="SourceLocators"/>
-                <oneOrMore>
-                    <ref name="GeneralizedNumericExpression"/>
-                </oneOrMore>
+                <ref name="GeneralizedArrayExpression"/>
             </element>
         </choice>
     </define>
-    <define name="Tolerance">
+    <define name="CEIL">
         <choice>
             <notAllowed/>
-            <element name="Tolerance">
+            <element name="CEIL">
+                <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
-    <define name="string">
-        <data type="string"/>
+    <define name="LookupNow">
+        <choice>
+            <notAllowed/>
+            <element name="LookupNow">
+                <ref name="SourceLocators"/>
+                <ref name="Name"/>
+                <optional>
+                    <ref name="Arguments"/>
+                </optional>
+            </element>
+        </choice>
     </define>
     <define name="NodeReference">
         <choice>
@@ -517,16 +576,6 @@
             </element>
         </choice>
     </define>
-    <define name="DIV">
-        <choice>
-            <notAllowed/>
-            <element name="DIV">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
-            </element>
-        </choice>
-    </define>
     <define name="ExitCondition">
         <choice>
             <notAllowed/>
@@ -543,47 +592,63 @@
             <ref name="ArrayElement"/>
         </choice>
     </define>
-    <define name="XOR">
+    <define name="NodeCommandHandleVariable">
         <choice>
             <notAllowed/>
-            <element name="XOR">
-                <ref name="SourceLocators"/>
-                <zeroOrMore>
-                    <ref name="GeneralizedBooleanExpression"/>
-                </zeroOrMore>
+            <element name="NodeCommandHandleVariable">
+                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
-    <define name="NodeOutcomeValue">
+    <define name="NodeOutcomeVariable">
         <choice>
             <notAllowed/>
-            <element name="NodeOutcomeValue">
+            <element name="NodeOutcomeVariable">
+                <ref name="node-reference"/>
+            </element>
+        </choice>
+    </define>
+    <define name="string">
+        <data type="string"/>
+    </define>
+    <define name="NodeCommandHandleValue">
+        <choice>
+            <notAllowed/>
+            <element name="NodeCommandHandleValue">
                 <choice>
-                    <value type="NMTOKEN">SUCCESS</value>
-                    <value type="NMTOKEN">SKIPPED</value>
-                    <value type="NMTOKEN">FAILURE</value>
-                    <value type="NMTOKEN">INTERRUPTED</value>
+                    <value type="NMTOKEN">COMMAND_DENIED</value>
+                    <value type="NMTOKEN">COMMAND_ABORTED</value>
+                    <value type="NMTOKEN">COMMAND_ABORT_FAILED</value>
+                    <value type="NMTOKEN">COMMAND_SUCCESS</value>
+                    <value type="NMTOKEN">COMMAND_RCVD_BY_SYSTEM</value>
+                    <value type="NMTOKEN">COMMAND_SENT_TO_SYSTEM</value>
+                    <value type="NMTOKEN">COMMAND_ACCEPTED</value>
+                    <value type="NMTOKEN">COMMAND_FAILED</value>
                 </choice>
             </element>
         </choice>
     </define>
-    <define name="NEBoolean">
+    <define name="REAL_TO_INT">
         <choice>
             <notAllowed/>
-            <element name="NEBoolean">
+            <element name="REAL_TO_INT">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedBooleanExpression"/>
-                <ref name="GeneralizedBooleanExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
-    <define name="ArraySize">
+    <define name="Executing">
         <choice>
             <notAllowed/>
-            <element name="ArraySize">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedArrayExpression"/>
+            <element name="Executing">
+                <ref name="node-reference"/>
             </element>
+        </choice>
+    </define>
+    <define name="NodeState">
+        <choice>
+            <ref name="NodeStateVariable"/>
+            <ref name="NodeStateValue"/>
         </choice>
     </define>
     <define name="IntegerVariable">
@@ -612,33 +677,13 @@
             </element>
         </choice>
     </define>
-    <define name="GT">
+    <define name="ABS">
         <choice>
             <notAllowed/>
-            <element name="GT">
+            <element name="ABS">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
             </element>
-        </choice>
-    </define>
-    <define name="OR">
-        <choice>
-            <notAllowed/>
-            <element name="OR">
-                <ref name="SourceLocators"/>
-                <zeroOrMore>
-                    <ref name="GeneralizedBooleanExpression"/>
-                </zeroOrMore>
-            </element>
-        </choice>
-    </define>
-    <define name="Value">
-        <choice>
-            <ref name="IntegerValue"/>
-            <ref name="RealValue"/>
-            <ref name="BooleanValue"/>
-            <ref name="StringValue"/>
         </choice>
     </define>
     <define name="FLOOR">
@@ -650,18 +695,26 @@
             </element>
         </choice>
     </define>
-    <define name="ADD">
+    <define name="Value">
+        <choice>
+            <ref name="IntegerValue"/>
+            <ref name="RealValue"/>
+            <ref name="BooleanValue"/>
+            <ref name="StringValue"/>
+        </choice>
+    </define>
+    <define name="DIV">
         <choice>
             <notAllowed/>
-            <element name="ADD">
+            <element name="DIV">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
                 <ref name="GeneralizedNumericExpression"/>
-                <zeroOrMore>
-                    <ref name="GeneralizedNumericExpression"/>
-                </zeroOrMore>
             </element>
         </choice>
+    </define>
+    <define name="nonNegativeInteger">
+        <data type="nonNegativeInteger"/>
     </define>
     <define name="Interface">
         <choice>
@@ -679,12 +732,16 @@
             </element>
         </choice>
     </define>
-    <define name="SQRT">
+    <define name="ADD">
         <choice>
             <notAllowed/>
-            <element name="SQRT">
+            <element name="ADD">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <zeroOrMore>
+                    <ref name="GeneralizedNumericExpression"/>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
@@ -696,8 +753,29 @@
             </element>
         </choice>
     </define>
-    <define name="nonNegativeInteger">
-        <data type="nonNegativeInteger"/>
+    <define name="LookupOnChange">
+        <choice>
+            <notAllowed/>
+            <element name="LookupOnChange">
+                <ref name="SourceLocators"/>
+                <ref name="Name"/>
+                <optional>
+                    <ref name="Tolerance"/>
+                </optional>
+                <optional>
+                    <ref name="Arguments"/>
+                </optional>
+            </element>
+        </choice>
+    </define>
+    <define name="NOT">
+        <choice>
+            <notAllowed/>
+            <element name="NOT">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedBooleanExpression"/>
+            </element>
+        </choice>
     </define>
     <define name="CommandDeclaration">
         <choice>
@@ -716,16 +794,6 @@
                 <optional>
                     <ref name="ResourceList"/>
                 </optional>
-            </element>
-        </choice>
-    </define>
-    <define name="NENumeric">
-        <choice>
-            <notAllowed/>
-            <element name="NENumeric">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -755,50 +823,22 @@
             </attribute>
         </optional>
     </define>
-    <define name="NodeState">
-        <choice>
-            <ref name="NodeStateVariable"/>
-            <ref name="NodeStateValue"/>
-        </choice>
-    </define>
-    <define name="MIN">
+    <define name="ArrayMaxSize">
         <choice>
             <notAllowed/>
-            <element name="MIN">
+            <element name="ArrayMaxSize">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedArrayExpression"/>
             </element>
         </choice>
     </define>
-    <define name="NodeOutcome">
-        <choice>
-            <ref name="NodeOutcomeVariable"/>
-            <ref name="NodeOutcomeValue"/>
-        </choice>
-    </define>
-    <define name="AND">
+    <define name="EQArray">
         <choice>
             <notAllowed/>
-            <element name="AND">
+            <element name="EQArray">
                 <ref name="SourceLocators"/>
-                <zeroOrMore>
-                    <ref name="GeneralizedBooleanExpression"/>
-                </zeroOrMore>
-            </element>
-        </choice>
-    </define>
-    <define name="NodeFailure">
-        <choice>
-            <ref name="NodeFailureVariable"/>
-            <ref name="NodeFailureValue"/>
-        </choice>
-    </define>
-    <define name="NodeStateVariable">
-        <choice>
-            <notAllowed/>
-            <element name="NodeStateVariable">
-                <ref name="node-reference"/>
+                <ref name="GeneralizedArrayExpression"/>
+                <ref name="GeneralizedArrayExpression"/>
             </element>
         </choice>
     </define>
@@ -822,15 +862,23 @@
             </element>
         </choice>
     </define>
-    <define name="NCName">
-        <data type="NCName"/>
-    </define>
-    <define name="NOT">
+    <define name="AND">
         <choice>
             <notAllowed/>
-            <element name="NOT">
+            <element name="AND">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedBooleanExpression"/>
+                <zeroOrMore>
+                    <ref name="GeneralizedBooleanExpression"/>
+                </zeroOrMore>
+            </element>
+        </choice>
+    </define>
+    <define name="ROUND">
+        <choice>
+            <notAllowed/>
+            <element name="ROUND">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -882,6 +930,17 @@
             </element>
         </choice>
     </define>
+    <define name="Concat">
+        <choice>
+            <notAllowed/>
+            <element name="Concat">
+                <ref name="SourceLocators"/>
+                <zeroOrMore>
+                    <ref name="GeneralizedStringExpression"/>
+                </zeroOrMore>
+            </element>
+        </choice>
+    </define>
     <define name="BooleanRHS">
         <choice>
             <notAllowed/>
@@ -891,14 +950,29 @@
             </element>
         </choice>
     </define>
-    <define name="NEArray">
+    <define name="EQString">
         <choice>
             <notAllowed/>
-            <element name="NEArray">
+            <element name="EQString">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedArrayExpression"/>
-                <ref name="GeneralizedArrayExpression"/>
+                <ref name="GeneralizedStringExpression"/>
+                <ref name="GeneralizedStringExpression"/>
             </element>
+        </choice>
+    </define>
+    <define name="STRLEN">
+        <choice>
+            <notAllowed/>
+            <element name="STRLEN">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedStringExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="NodeCommandHandle">
+        <choice>
+            <ref name="NodeCommandHandleVariable"/>
+            <ref name="NodeCommandHandleValue"/>
         </choice>
     </define>
     <define name="GeneralizedArrayExpression">
@@ -907,21 +981,39 @@
             <ref name="LookupGroup"/>
         </choice>
     </define>
-    <define name="REAL_TO_INT">
+    <define name="EQInternal">
         <choice>
             <notAllowed/>
-            <element name="REAL_TO_INT">
+            <element name="EQInternal">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
+                <choice>
+                    <group>
+                        <ref name="NodeState"/>
+                        <ref name="NodeState"/>
+                    </group>
+                    <group>
+                        <ref name="NodeOutcome"/>
+                        <ref name="NodeOutcome"/>
+                    </group>
+                    <group>
+                        <ref name="NodeFailure"/>
+                        <ref name="NodeFailure"/>
+                    </group>
+                    <group>
+                        <ref name="NodeCommandHandle"/>
+                        <ref name="NodeCommandHandle"/>
+                    </group>
+                </choice>
             </element>
         </choice>
     </define>
-    <define name="ANY_KNOWN">
+    <define name="MIN">
         <choice>
             <notAllowed/>
-            <element name="ANY_KNOWN">
+            <element name="MIN">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedArrayExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -942,6 +1034,21 @@
             </element>
         </choice>
     </define>
+    <define name="NodeFailureValue">
+        <choice>
+            <notAllowed/>
+            <element name="NodeFailureValue">
+                <choice>
+                    <value type="NMTOKEN">PRE_CONDITION_FAILED</value>
+                    <value type="NMTOKEN">EXITED</value>
+                    <value type="NMTOKEN">INVARIANT_CONDITION_FAILED</value>
+                    <value type="NMTOKEN">PARENT_FAILED</value>
+                    <value type="NMTOKEN">PARENT_EXITED</value>
+                    <value type="NMTOKEN">POST_CONDITION_FAILED</value>
+                </choice>
+            </element>
+        </choice>
+    </define>
     <define name="LibraryNodeDeclaration">
         <choice>
             <notAllowed/>
@@ -956,42 +1063,11 @@
             </element>
         </choice>
     </define>
-    <define name="IsKnown">
+    <define name="IterationEnded">
         <choice>
             <notAllowed/>
-            <element name="IsKnown">
-                <ref name="SourceLocators"/>
-                <choice>
-                    <ref name="Expression"/>
-                    <ref name="NodeStateVariable"/>
-                    <ref name="NodeOutcomeVariable"/>
-                    <ref name="NodeCommandHandleVariable"/>
-                </choice>
-            </element>
-        </choice>
-    </define>
-    <define name="EQNumeric">
-        <choice>
-            <notAllowed/>
-            <element name="EQNumeric">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
-            </element>
-        </choice>
-    </define>
-    <define name="NodeFailureValue">
-        <choice>
-            <notAllowed/>
-            <element name="NodeFailureValue">
-                <choice>
-                    <value type="NMTOKEN">PRE_CONDITION_FAILED</value>
-                    <value type="NMTOKEN">EXITED</value>
-                    <value type="NMTOKEN">INVARIANT_CONDITION_FAILED</value>
-                    <value type="NMTOKEN">PARENT_FAILED</value>
-                    <value type="NMTOKEN">PARENT_EXITED</value>
-                    <value type="NMTOKEN">POST_CONDITION_FAILED</value>
-                </choice>
+            <element name="IterationEnded">
+                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
@@ -1038,18 +1114,15 @@
             </element>
         </choice>
     </define>
-    <define name="NodeStateValue">
+    <define name="NodeOutcomeValue">
         <choice>
             <notAllowed/>
-            <element name="NodeStateValue">
+            <element name="NodeOutcomeValue">
                 <choice>
-                    <value type="NMTOKEN">EXECUTING</value>
-                    <value type="NMTOKEN">FAILING</value>
-                    <value type="NMTOKEN">ITERATION_ENDED</value>
-                    <value type="NMTOKEN">INACTIVE</value>
-                    <value type="NMTOKEN">WAITING</value>
-                    <value type="NMTOKEN">FINISHING</value>
-                    <value type="NMTOKEN">FINISHED</value>
+                    <value type="NMTOKEN">SUCCESS</value>
+                    <value type="NMTOKEN">SKIPPED</value>
+                    <value type="NMTOKEN">FAILURE</value>
+                    <value type="NMTOKEN">INTERRUPTED</value>
                 </choice>
             </element>
         </choice>
@@ -1072,67 +1145,11 @@
             </element>
         </choice>
     </define>
-    <define name="NEString">
-        <choice>
-            <notAllowed/>
-            <element name="NEString">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedStringExpression"/>
-                <ref name="GeneralizedStringExpression"/>
-            </element>
-        </choice>
-    </define>
-    <define name="NEInternal">
-        <choice>
-            <notAllowed/>
-            <element name="NEInternal">
-                <ref name="SourceLocators"/>
-                <choice>
-                    <group>
-                        <ref name="NodeState"/>
-                        <ref name="NodeState"/>
-                    </group>
-                    <group>
-                        <ref name="NodeOutcome"/>
-                        <ref name="NodeOutcome"/>
-                    </group>
-                    <group>
-                        <ref name="NodeFailure"/>
-                        <ref name="NodeFailure"/>
-                    </group>
-                    <group>
-                        <ref name="NodeCommandHandle"/>
-                        <ref name="NodeCommandHandle"/>
-                    </group>
-                </choice>
-            </element>
-        </choice>
-    </define>
-    <define name="EQBoolean">
-        <choice>
-            <notAllowed/>
-            <element name="EQBoolean">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedBooleanExpression"/>
-                <ref name="GeneralizedBooleanExpression"/>
-            </element>
-        </choice>
-    </define>
     <define name="StringExpression">
         <choice>
             <ref name="StringVariable"/>
             <ref name="StringValue"/>
             <ref name="Concat"/>
-        </choice>
-    </define>
-    <define name="GE">
-        <choice>
-            <notAllowed/>
-            <element name="GE">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
-            </element>
         </choice>
     </define>
     <define name="SkipCondition">
@@ -1154,14 +1171,13 @@
             <ref name="ArrayElement"/>
         </choice>
     </define>
-    <define name="Concat">
+    <define name="NEArray">
         <choice>
             <notAllowed/>
-            <element name="Concat">
+            <element name="NEArray">
                 <ref name="SourceLocators"/>
-                <zeroOrMore>
-                    <ref name="GeneralizedStringExpression"/>
-                </zeroOrMore>
+                <ref name="GeneralizedArrayExpression"/>
+                <ref name="GeneralizedArrayExpression"/>
             </element>
         </choice>
     </define>
@@ -1182,6 +1198,22 @@
             </element>
         </choice>
     </define>
+    <define name="NodeStateValue">
+        <choice>
+            <notAllowed/>
+            <element name="NodeStateValue">
+                <choice>
+                    <value type="NMTOKEN">EXECUTING</value>
+                    <value type="NMTOKEN">FAILING</value>
+                    <value type="NMTOKEN">ITERATION_ENDED</value>
+                    <value type="NMTOKEN">INACTIVE</value>
+                    <value type="NMTOKEN">WAITING</value>
+                    <value type="NMTOKEN">FINISHING</value>
+                    <value type="NMTOKEN">FINISHED</value>
+                </choice>
+            </element>
+        </choice>
+    </define>
     <define name="node-reference">
         <group>
             <ref name="SourceLocators"/>
@@ -1189,11 +1221,31 @@
         </group>
         <empty/>
     </define>
-    <define name="NodeFailureVariable">
+    <define name="EQNumeric">
         <choice>
             <notAllowed/>
-            <element name="NodeFailureVariable">
+            <element name="EQNumeric">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Inactive">
+        <choice>
+            <notAllowed/>
+            <element name="Inactive">
                 <ref name="node-reference"/>
+            </element>
+        </choice>
+    </define>
+    <define name="EQBoolean">
+        <choice>
+            <notAllowed/>
+            <element name="EQBoolean">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedBooleanExpression"/>
+                <ref name="GeneralizedBooleanExpression"/>
             </element>
         </choice>
     </define>
@@ -1240,29 +1292,11 @@
             </element>
         </choice>
     </define>
-    <define name="EQInternal">
+    <define name="Finished">
         <choice>
             <notAllowed/>
-            <element name="EQInternal">
-                <ref name="SourceLocators"/>
-                <choice>
-                    <group>
-                        <ref name="NodeState"/>
-                        <ref name="NodeState"/>
-                    </group>
-                    <group>
-                        <ref name="NodeOutcome"/>
-                        <ref name="NodeOutcome"/>
-                    </group>
-                    <group>
-                        <ref name="NodeFailure"/>
-                        <ref name="NodeFailure"/>
-                    </group>
-                    <group>
-                        <ref name="NodeCommandHandle"/>
-                        <ref name="NodeCommandHandle"/>
-                    </group>
-                </choice>
+            <element name="Finished">
+                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
@@ -1274,17 +1308,10 @@
             </element>
         </choice>
     </define>
-    <define name="MUL">
+    <define name="NodeFailure">
         <choice>
-            <notAllowed/>
-            <element name="MUL">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <zeroOrMore>
-                    <ref name="GeneralizedNumericExpression"/>
-                </zeroOrMore>
-            </element>
+            <ref name="NodeFailureVariable"/>
+            <ref name="NodeFailureValue"/>
         </choice>
     </define>
     <define name="IntegerValue">
@@ -1295,30 +1322,13 @@
             </element>
         </choice>
     </define>
-    <define name="ROUND">
+    <define name="MOD">
         <choice>
             <notAllowed/>
-            <element name="ROUND">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-            </element>
-        </choice>
-    </define>
-    <define name="LE">
-        <choice>
-            <notAllowed/>
-            <element name="LE">
+            <element name="MOD">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedNumericExpression"/>
                 <ref name="GeneralizedNumericExpression"/>
-            </element>
-        </choice>
-    </define>
-    <define name="NodeCommandHandleVariable">
-        <choice>
-            <notAllowed/>
-            <element name="NodeCommandHandleVariable">
-                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
@@ -1330,22 +1340,14 @@
             </element>
         </choice>
     </define>
-    <define name="ABS">
+    <define name="SUB">
         <choice>
             <notAllowed/>
-            <element name="ABS">
+            <element name="SUB">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-            </element>
-        </choice>
-    </define>
-    <define name="LT">
-        <choice>
-            <notAllowed/>
-            <element name="LT">
-                <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
+                <oneOrMore>
+                    <ref name="GeneralizedNumericExpression"/>
+                </oneOrMore>
             </element>
         </choice>
     </define>
@@ -1359,13 +1361,12 @@
             <ref name="ArrayElement"/>
         </choice>
     </define>
-    <define name="MAX">
+    <define name="ArraySize">
         <choice>
             <notAllowed/>
-            <element name="MAX">
+            <element name="ArraySize">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedNumericExpression"/>
-                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedArrayExpression"/>
             </element>
         </choice>
     </define>
@@ -1375,6 +1376,20 @@
             <element name="PreCondition">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedBooleanExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="NCName">
+        <data type="NCName"/>
+    </define>
+    <define name="OR">
+        <choice>
+            <notAllowed/>
+            <element name="OR">
+                <ref name="SourceLocators"/>
+                <zeroOrMore>
+                    <ref name="GeneralizedBooleanExpression"/>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
@@ -1425,22 +1440,28 @@
             </element>
         </choice>
     </define>
+    <define name="ANY_KNOWN">
+        <choice>
+            <notAllowed/>
+            <element name="ANY_KNOWN">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedArrayExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Waiting">
+        <choice>
+            <notAllowed/>
+            <element name="Waiting">
+                <ref name="node-reference"/>
+            </element>
+        </choice>
+    </define>
     <define name="BooleanVariable">
         <choice>
             <notAllowed/>
             <element name="BooleanVariable">
                 <ref name="NCName"/>
-            </element>
-        </choice>
-    </define>
-    <define name="NodeTimepointValue">
-        <choice>
-            <notAllowed/>
-            <element name="NodeTimepointValue">
-                <ref name="SourceLocators"/>
-                <ref name="NodeReference"/>
-                <ref name="NodeStateValue"/>
-                <ref name="Timepoint"/>
             </element>
         </choice>
     </define>
@@ -1475,28 +1496,23 @@
                 <ref name="ALL_KNOWN"/>
                 <ref name="ANY_KNOWN"/>
             </choice>
+            <choice>
+                <ref name="Executing"/>
+                <ref name="Finished"/>
+                <ref name="Inactive"/>
+                <ref name="IterationEnded"/>
+                <ref name="Waiting"/>
+            </choice>
             <ref name="BooleanVariable"/>
             <ref name="BooleanValue"/>
         </choice>
     </define>
-    <define name="STRLEN">
+    <define name="SQRT">
         <choice>
             <notAllowed/>
-            <element name="STRLEN">
+            <element name="SQRT">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedStringExpression"/>
-            </element>
-        </choice>
-    </define>
-    <define name="LookupNow">
-        <choice>
-            <notAllowed/>
-            <element name="LookupNow">
-                <ref name="SourceLocators"/>
-                <ref name="Name"/>
-                <optional>
-                    <ref name="Arguments"/>
-                </optional>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -1515,14 +1531,13 @@
             </element>
         </choice>
     </define>
-    <define name="Timepoint">
+    <define name="GE">
         <choice>
             <notAllowed/>
-            <element name="Timepoint">
-                <choice>
-                    <value type="NMTOKEN">START</value>
-                    <value type="NMTOKEN">END</value>
-                </choice>
+            <element name="GE">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -1541,6 +1556,16 @@
             <element name="ArrayRHS">
                 <ref name="SourceLocators"/>
                 <ref name="GeneralizedArrayExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="NENumeric">
+        <choice>
+            <notAllowed/>
+            <element name="NENumeric">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
@@ -1637,22 +1662,49 @@
             </element>
         </choice>
     </define>
-    <define name="TRUNC">
+    <define name="MAX">
         <choice>
             <notAllowed/>
-            <element name="TRUNC">
+            <element name="MAX">
                 <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
                 <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>
-    <define name="EQString">
+    <define name="NEInternal">
         <choice>
             <notAllowed/>
-            <element name="EQString">
+            <element name="NEInternal">
                 <ref name="SourceLocators"/>
-                <ref name="GeneralizedStringExpression"/>
-                <ref name="GeneralizedStringExpression"/>
+                <choice>
+                    <group>
+                        <ref name="NodeState"/>
+                        <ref name="NodeState"/>
+                    </group>
+                    <group>
+                        <ref name="NodeOutcome"/>
+                        <ref name="NodeOutcome"/>
+                    </group>
+                    <group>
+                        <ref name="NodeFailure"/>
+                        <ref name="NodeFailure"/>
+                    </group>
+                    <group>
+                        <ref name="NodeCommandHandle"/>
+                        <ref name="NodeCommandHandle"/>
+                    </group>
+                </choice>
+            </element>
+        </choice>
+    </define>
+    <define name="GT">
+        <choice>
+            <notAllowed/>
+            <element name="GT">
+                <ref name="SourceLocators"/>
+                <ref name="GeneralizedNumericExpression"/>
+                <ref name="GeneralizedNumericExpression"/>
             </element>
         </choice>
     </define>

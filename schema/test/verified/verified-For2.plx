@@ -34,12 +34,9 @@
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">One</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">One</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>

@@ -46,12 +46,9 @@
                 </StartCondition>
                 <SkipCondition>
                   <AND>
-                    <EQInternal>
-                      <NodeStateVariable>
-                        <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
-                      </NodeStateVariable>
-                      <NodeStateValue>FINISHED</NodeStateValue>
-                    </EQInternal>
+                    <Finished>
+                      <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                    </Finished>
                     <EQInternal>
                       <NodeFailureVariable>
                         <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>

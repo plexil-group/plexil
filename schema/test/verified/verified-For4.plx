@@ -41,31 +41,25 @@
                   <NOT>
                     <OR>
                       <AND>
+                        <Finished>
+                          <NodeRef dir="child">Two</NodeRef>
+                        </Finished>
                         <EQInternal>
                           <NodeOutcomeVariable>
                             <NodeRef dir="child">Two</NodeRef>
                           </NodeOutcomeVariable>
                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="child">Two</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
                         </EQInternal>
                       </AND>
                       <AND>
+                        <Finished>
+                          <NodeRef dir="child">Four</NodeRef>
+                        </Finished>
                         <EQInternal>
                           <NodeOutcomeVariable>
                             <NodeRef dir="child">Four</NodeRef>
                           </NodeOutcomeVariable>
                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="child">Four</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
                         </EQInternal>
                       </AND>
                     </OR>
@@ -79,12 +73,9 @@
                     <Node NodeType="Empty">
                       <NodeId>Four</NodeId>
                       <StartCondition>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="sibling">Two</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
+                        <Finished>
+                          <NodeRef dir="sibling">Two</NodeRef>
+                        </Finished>
                       </StartCondition>
                     </Node>
                   </NodeList>
@@ -93,12 +84,9 @@
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">ep2cp_Sequence_d1e71</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">ep2cp_Sequence_d1e71</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>

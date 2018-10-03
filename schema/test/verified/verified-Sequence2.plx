@@ -15,31 +15,25 @@
       <NOT>
         <OR>
           <AND>
+            <Finished>
+              <NodeRef dir="child">One</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">One</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">One</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">Two</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">Two</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">Two</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
         </OR>
@@ -73,21 +67,15 @@
         <Node NodeType="Assignment">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">One</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">One</NodeRef>
+            </Finished>
           </StartCondition>
           <SkipCondition>
             <AND>
-              <EQInternal>
-                <NodeStateVariable>
-                  <NodeRef dir="sibling">One</NodeRef>
-                </NodeStateVariable>
-                <NodeStateValue>FINISHED</NodeStateValue>
-              </EQInternal>
+              <Finished>
+                <NodeRef dir="sibling">One</NodeRef>
+              </Finished>
               <EQNumeric>
                 <IntegerVariable>foo</IntegerVariable>
                 <IntegerValue>0</IntegerValue>

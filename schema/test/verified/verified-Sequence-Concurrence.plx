@@ -33,31 +33,25 @@
             <NOT>
               <OR>
                 <AND>
+                  <Finished>
+                    <NodeRef dir="child">DoFirst</NodeRef>
+                  </Finished>
                   <EQInternal>
                     <NodeOutcomeVariable>
                       <NodeRef dir="child">DoFirst</NodeRef>
                     </NodeOutcomeVariable>
                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="child">DoFirst</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>
                 </AND>
                 <AND>
+                  <Finished>
+                    <NodeRef dir="child">DoSecond</NodeRef>
+                  </Finished>
                   <EQInternal>
                     <NodeOutcomeVariable>
                       <NodeRef dir="child">DoSecond</NodeRef>
                     </NodeOutcomeVariable>
                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="child">DoSecond</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>
                 </AND>
               </OR>
@@ -82,12 +76,9 @@
               <Node NodeType="Assignment" FileName="Plan.ple" LineNo="9" ColNo="35">
                 <NodeId>DoSecond</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">DoFirst</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">DoFirst</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>

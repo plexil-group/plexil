@@ -658,6 +658,7 @@ element.  It is used as an included schema only.
 	  <xs:group ref="Equality"/>
 	  <xs:group ref="NumericComparison"/>
       <xs:group ref="KnownTest"/>
+      <xs:group ref="NodeStatePredicate"/>
       <xs:element ref="BooleanVariable"/>
       <xs:element ref="BooleanValue"/>
     </xs:choice>
@@ -927,6 +928,24 @@ element.  It is used as an included schema only.
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
+
+  <!-- Node State Predicates -->
+
+  <xs:group name="NodeStatePredicate">
+    <xs:choice>
+      <xs:element ref="Executing"/>
+      <xs:element ref="Finished"/>
+      <xs:element ref="Inactive"/>
+      <xs:element ref="IterationEnded"/>
+      <xs:element ref="Waiting"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:element name="Executing" type="node-reference"/>
+  <xs:element name="Finished" type="node-reference"/>
+  <xs:element name="Inactive" type="node-reference"/>
+  <xs:element name="IterationEnded" type="node-reference"/>
+  <xs:element name="Waiting" type="node-reference"/>
 
   <xs:group name="NodeOutcome">
     <xs:choice>

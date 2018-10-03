@@ -20,73 +20,58 @@
       <NOT>
         <OR>
           <AND>
+            <Finished>
+              <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
             </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
             </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
             </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
             </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
         </OR>
@@ -116,12 +101,9 @@
         <Node NodeType="Command">
           <NodeId>ep2cp_CmdGetParam_distance</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
+            </Finished>
           </StartCondition>
           <EndCondition>
             <IsKnown>
@@ -144,12 +126,9 @@
         <Node NodeType="Command">
           <NodeId>ep2cp_CmdGetParam_direction</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_CmdGetParam_distance</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_CmdGetParam_distance</NodeRef>
+            </Finished>
           </StartCondition>
           <EndCondition>
             <IsKnown>
@@ -172,12 +151,9 @@
         <Node NodeType="NodeList">
           <NodeId>ep2cp_CmdAction_moveRover</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_CmdGetParam_direction</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_CmdGetParam_direction</NodeRef>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <NodeList>
@@ -190,12 +166,9 @@
         <Node NodeType="Command">
           <NodeId>ep2cp_CmdReturn</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_CmdAction_moveRover</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_CmdAction_moveRover</NodeRef>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <Command>

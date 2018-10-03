@@ -14,31 +14,25 @@
       <NOT>
         <OR>
           <AND>
+            <Finished>
+              <NodeRef dir="child">A</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">A</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">A</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">B</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">B</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">B</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
         </OR>
@@ -95,12 +89,9 @@
                     <Node NodeType="Assignment" epx="aux">
                       <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
                       <StartCondition>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
+                        <Finished>
+                          <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
+                        </Finished>
                       </StartCondition>
                       <NodeBody>
                         <Assignment>
@@ -128,12 +119,9 @@
             </DeclareArray>
           </VariableDeclarations>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">A</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">A</NodeRef>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <NodeList>
@@ -173,12 +161,9 @@
                     <Node NodeType="Assignment" epx="aux">
                       <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
                       <StartCondition>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
+                        <Finished>
+                          <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
+                        </Finished>
                       </StartCondition>
                       <NodeBody>
                         <Assignment>

@@ -10,12 +10,9 @@
         <Node NodeType="Empty">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">One</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">One</NodeRef>
+            </Finished>
           </StartCondition>
         </Node>
       </NodeList>

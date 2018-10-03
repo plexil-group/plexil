@@ -34,12 +34,9 @@
           <NodeId>Two</NodeId>
           <StartCondition>
             <AND>
-              <EQInternal>
-                <NodeStateVariable>
-                  <NodeId>One</NodeId>
-                </NodeStateVariable>
-                <NodeStateValue>FINISHED</NodeStateValue>
-              </EQInternal>
+              <Finished>
+                <NodeId>One</NodeId>
+              </Finished>
               <EQInternal>
                 <NodeFailureVariable>
                   <NodeId>One</NodeId>
@@ -66,12 +63,9 @@
         <Node NodeType="Assignment">
           <NodeId>Three</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeId>Two</NodeId>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeId>Two</NodeId>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <Assignment>

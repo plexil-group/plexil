@@ -20,12 +20,9 @@
           <NodeId>ep2cp_UncheckedSequence_d1e29</NodeId>
           <StartCondition>
             <AND>
-              <EQInternal>
-                <NodeStateVariable>
-                  <NodeRef dir="sibling">One</NodeRef>
-                </NodeStateVariable>
-                <NodeStateValue>FINISHED</NodeStateValue>
-              </EQInternal>
+              <Finished>
+                <NodeRef dir="sibling">One</NodeRef>
+              </Finished>
               <EQNumeric>
                 <IntegerVariable>foo</IntegerVariable>
                 <IntegerValue>0</IntegerValue>
@@ -43,12 +40,9 @@
         <Node NodeType="Empty">
           <NodeId>Three</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_UncheckedSequence_d1e29</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_UncheckedSequence_d1e29</NodeRef>
+            </Finished>
           </StartCondition>
         </Node>
       </NodeList>

@@ -5,12 +5,9 @@
     <EndCondition>
       <OR>
         <AND>
-          <EQInternal>
-            <NodeStateVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeStateVariable>
-            <NodeStateValue>FINISHED</NodeStateValue>
-          </EQInternal>
+          <Finished>
+            <NodeRef dir="child">One</NodeRef>
+          </Finished>
           <EQInternal>
             <NodeOutcomeVariable>
               <NodeRef dir="child">One</NodeRef>
@@ -18,12 +15,9 @@
             <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
           </EQInternal>
         </AND>
-        <EQInternal>
-          <NodeStateVariable>
-            <NodeRef dir="child">Two</NodeRef>
-          </NodeStateVariable>
-          <NodeStateValue>FINISHED</NodeStateValue>
-        </EQInternal>
+        <Finished>
+          <NodeRef dir="child">Two</NodeRef>
+        </Finished>
       </OR>
     </EndCondition>
     <PostCondition>
@@ -50,12 +44,9 @@
         <Node NodeType="Empty">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">One</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">One</NodeRef>
+            </Finished>
           </StartCondition>
         </Node>
       </NodeList>

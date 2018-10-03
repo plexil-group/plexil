@@ -6,31 +6,25 @@
       <NOT>
         <OR>
           <AND>
+            <Finished>
+              <NodeRef dir="child">A</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">A</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">A</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
           <AND>
+            <Finished>
+              <NodeRef dir="child">B</NodeRef>
+            </Finished>
             <EQInternal>
               <NodeOutcomeVariable>
                 <NodeRef dir="child">B</NodeRef>
               </NodeOutcomeVariable>
               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">B</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
             </EQInternal>
           </AND>
         </OR>
@@ -101,12 +95,9 @@
         <Node NodeType="NodeList" epx="SynchronousCommand">
           <NodeId>B</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">A</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">A</NodeRef>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <NodeList>

@@ -175,28 +175,13 @@
 
   <xsl:template name="child-failed-test">
     <xsl:param name="id" />
-    <AND>
-      <EQInternal>
-        <NodeOutcomeVariable>
-          <NodeRef dir="child">
-            <xsl:value-of select="$id" />
-          </NodeRef>
-        </NodeOutcomeVariable>
-        <NodeOutcomeValue>
-          <xsl:text>FAILURE</xsl:text>
-        </NodeOutcomeValue>
-      </EQInternal>
-      <EQInternal>
-        <NodeStateVariable>
-          <NodeRef dir="child">
-            <xsl:value-of select="$id" />
-          </NodeRef>
-        </NodeStateVariable>
-        <NodeStateValue>
-          <xsl:text>FINISHED</xsl:text>
-        </NodeStateValue>
-      </EQInternal>
-    </AND>
+    <xsl:call-template name="Failed">
+      <xsl:with-param name="ref">
+        <NodeRef dir="child">
+          <xsl:value-of select="$id" />
+        </NodeRef>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template match="Concurrence">
@@ -276,9 +261,9 @@
                 </xsl:when>
                 <xsl:otherwise>
                   <!-- sufficient to check last child has finished -->
-                  <xsl:call-template name="Finished">
-                    <xsl:with-param name="ref" select="$kid-ref" />
-                  </xsl:call-template>
+                  <Finished>
+                    <xsl:copy-of select="$kid-ref" />
+                  </Finished>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:for-each>
@@ -743,14 +728,11 @@
                   <xsl:value-of select="tr:prefix('ForLoopUpdater')" />
                 </NodeId>
                 <StartCondition>
-                  <xsl:call-template name="Finished">
-                    <xsl:with-param name="ref">
-                      <NodeRef dir="sibling">
-                        <xsl:value-of
-                            select="$expanded-action/Node/NodeId" />
-                      </NodeRef>
-                    </xsl:with-param>
-                  </xsl:call-template>
+                  <Finished>
+                    <NodeRef dir="sibling">
+                      <xsl:value-of select="$expanded-action/Node/NodeId" />
+                    </NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>
@@ -1023,13 +1005,11 @@
                     <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
                   </NodeId>
                   <StartCondition>
-                    <xsl:call-template name="Finished">
-                      <xsl:with-param name="ref">
-                        <NodeRef dir="sibling">
-                          <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                        </NodeRef>
-                      </xsl:with-param>
-                    </xsl:call-template>
+                    <Finished>
+                      <NodeRef dir="sibling">
+                        <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+                      </NodeRef>
+                    </Finished>
                   </StartCondition>
                   <NodeBody>
                     <Assignment>
@@ -1251,16 +1231,14 @@
 
   <xsl:template name="ordered-start-test">
     <xsl:param name="context"/>
-    <xsl:call-template name="Finished">
-      <xsl:with-param name="ref">
-        <NodeRef dir="sibling">
-          <xsl:call-template name="node-id">
-            <xsl:with-param name="context"
-                            select="$context/preceding-sibling::*[1]" />
-          </xsl:call-template>
-        </NodeRef>
-      </xsl:with-param>
-    </xsl:call-template>
+    <Finished>
+      <NodeRef dir="sibling">
+        <xsl:call-template name="node-id">
+          <xsl:with-param name="context"
+                          select="$context/preceding-sibling::*[1]" />
+        </xsl:call-template>
+      </NodeRef>
+    </Finished>
   </xsl:template>
   
   <xsl:template name="ordered-skip-condition">
@@ -1292,16 +1270,14 @@
 
   <xsl:template name="ordered-skip-test">
     <xsl:param name="context" />
-    <xsl:call-template name="Finished">
-      <xsl:with-param name="ref">
-        <NodeRef dir="sibling">
-          <xsl:call-template name="node-id">
-            <xsl:with-param name="context"
-                            select="$context/preceding-sibling::*[1]" />
-          </xsl:call-template>
-        </NodeRef>
-      </xsl:with-param>
-    </xsl:call-template>
+    <Finished>
+      <NodeRef dir="sibling">
+        <xsl:call-template name="node-id">
+          <xsl:with-param name="context"
+                          select="$context/preceding-sibling::*[1]" />
+        </xsl:call-template>
+      </NodeRef>
+    </Finished>
   </xsl:template>
 
   <xsl:template name="node-id">
@@ -1398,56 +1374,6 @@
     </xsl:copy>
   </xsl:template>
 
-  <!--These node state tests will be implemented as Core PLEXIL operators -->
-
-  <xsl:template match="Finished">
-    <xsl:call-template name="Finished" />
-  </xsl:template>
-
-  <xsl:template name="Finished">
-    <xsl:param name="ref" select="*" />
-    <xsl:call-template name="noderef-state-check">
-      <xsl:with-param name="ref" select="$ref" />
-      <xsl:with-param name="state" select="'FINISHED'" />
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="IterationEnded">
-    <xsl:call-template name="IterationEnded" />
-  </xsl:template>
-
-  <xsl:template name="IterationEnded">
-    <xsl:param name="ref" select="*" />
-    <xsl:call-template name="noderef-state-check">
-      <xsl:with-param name="ref" select="$ref" />
-      <xsl:with-param name="state" select="'ITERATION_ENDED'" />
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="Executing">
-    <xsl:param name="ref" select="*" />
-    <xsl:call-template name="noderef-state-check">
-      <xsl:with-param name="ref" select="$ref" />
-      <xsl:with-param name="state" select="'EXECUTING'" />
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="Waiting">
-    <xsl:param name="ref" select="*" />
-    <xsl:call-template name="noderef-state-check">
-      <xsl:with-param name="ref" select="$ref" />
-      <xsl:with-param name="state" select="'WAITING'" />
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="Inactive">
-    <xsl:param name="ref" select="*" />
-    <xsl:call-template name="noderef-state-check">
-      <xsl:with-param name="ref" select="$ref" />
-      <xsl:with-param name="state" select="'INACTIVE'" />
-    </xsl:call-template>
-  </xsl:template>
-
   <!-- To be implemented as Core Plexil primitives -->
 
   <xsl:template match="Succeeded">
@@ -1457,9 +1383,9 @@
   <xsl:template name="Succeeded">
     <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished" >  <!-- ??? -->
-        <xsl:with-param name="ref" select="$ref" />
-      </xsl:call-template>
+      <Finished>  <!-- ??? -->
+        <xsl:copy-of select="$ref" />
+      </Finished>
       <xsl:call-template name="noderef-succeeded">
         <xsl:with-param name="ref" select="$ref" />
       </xsl:call-template>
@@ -1468,7 +1394,9 @@
 
   <xsl:template match="IterationSucceeded">
     <AND>
-      <xsl:call-template name="IterationEnded" />
+      <IterationEnded>
+        <xsl:copy-of select="*" />
+      </IterationEnded>
       <xsl:call-template name="noderef-succeeded" />
     </AND>
   </xsl:template>
@@ -1480,9 +1408,9 @@
   <xsl:template name="Failed">
     <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished">
-        <xsl:with-param name="ref" select="$ref" />
-      </xsl:call-template>
+      <Finished>
+        <xsl:copy-of select="$ref"/>
+      </Finished>
       <xsl:call-template name="noderef-failed">
         <xsl:with-param name="ref" select="$ref" />
       </xsl:call-template>
@@ -1490,16 +1418,26 @@
   </xsl:template>
 
   <xsl:template match="Interrupted">
+    <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished" />
-      <xsl:call-template name="noderef-interrupted" />
+      <Finished>
+        <xsl:copy-of select="$ref" />
+      </Finished>
+      <xsl:call-template name="noderef-interrupted">
+        <xsl:with-param name="ref" select="$ref" />
+      </xsl:call-template>
     </AND>
   </xsl:template>
 
   <xsl:template match="IterationFailed">
+    <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="IterationEnded" />
-      <xsl:call-template name="noderef-failed" />
+      <IterationEnded>
+        <xsl:copy-of select="$ref" />
+      </IterationEnded>
+      <xsl:call-template name="noderef-failed">
+        <xsl:with-param name="ref" select="$ref" />
+      </xsl:call-template>
     </AND>
   </xsl:template>
 
@@ -1517,16 +1455,26 @@
   </xsl:template>
 
   <xsl:template match="InvariantFailed">
+    <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished" />
-      <xsl:call-template name="noderef-invariant-failed" />
+      <Finished>
+        <xsl:copy-of select="$ref"/>
+      </Finished>
+      <xsl:call-template name="noderef-invariant-failed">
+        <xsl:with-param name="ref" select="$ref" />
+      </xsl:call-template>
     </AND>
   </xsl:template>
 
   <xsl:template match="PreconditionFailed">
+    <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished" />
-      <xsl:call-template name="noderef-precondition-failed" />
+      <Finished>
+        <xsl:copy-of select="$ref"/>
+      </Finished>
+      <xsl:call-template name="noderef-precondition-failed">
+        <xsl:with-param name="ref" select="$ref" />
+      </xsl:call-template>
     </AND>
   </xsl:template>
 
@@ -1537,9 +1485,9 @@
   <xsl:template name="PostconditionFailed">
     <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished">
-        <xsl:with-param name="ref" select="$ref" />
-      </xsl:call-template>
+      <Finished>
+        <xsl:copy-of select="$ref" />
+      </Finished>
       <xsl:call-template name="noderef-postcondition-failed">
         <xsl:with-param name="ref" select="$ref" />
       </xsl:call-template>
@@ -1547,9 +1495,14 @@
   </xsl:template>
 
   <xsl:template match="ParentFailed">
+    <xsl:param name="ref" select="*" />
     <AND>
-      <xsl:call-template name="Finished" />
-      <xsl:call-template name="noderef-parent-failed" />
+      <Finished>
+        <xsl:copy-of select="$ref"/>
+      </Finished>
+      <xsl:call-template name="noderef-parent-failed">
+        <xsl:with-param name="ref" select="$ref" />
+      </xsl:call-template>
     </AND>
   </xsl:template>
 
@@ -1599,16 +1552,11 @@
       </xsl:variable>
       <xsl:if test="not($parent_id='')">
         <InvariantCondition>
-          <AND>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeId>
-                  <xsl:value-of select="$parent_id" />
-                </NodeId>
-              </NodeStateVariable>
-              <NodeStateValue>EXECUTING</NodeStateValue>
-            </EQInternal>
-          </AND>
+          <Executing>
+            <NodeId>
+              <xsl:value-of select="$parent_id" />
+            </NodeId>
+          </Executing>
         </InvariantCondition>
       </xsl:if>
       <!-- Msg wait node -->
@@ -1680,16 +1628,11 @@
            it...
       <xsl:if test="not($parent_id='')">
         <InvariantCondition>
-          <AND>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeId>
-                  <xsl:value-of select="$parent_id" />
-                </NodeId>
-              </NodeStateVariable>
-              <NodeStateValue>EXECUTING</NodeStateValue>
-            </EQInternal>
-          </AND>
+          <Executing>
+            <NodeId>
+              <xsl:value-of select="$parent_id" />
+            </NodeId>
+          </Executing>
         </InvariantCondition>
       </xsl:if> -->
       <xsl:copy-of select="NodeId" />

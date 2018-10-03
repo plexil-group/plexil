@@ -71,12 +71,9 @@
                       </StartCondition>
                       <SkipCondition>
                         <AND>
-                          <EQInternal>
-                            <NodeStateVariable>
-                              <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
-                            </NodeStateVariable>
-                            <NodeStateValue>FINISHED</NodeStateValue>
-                          </EQInternal>
+                          <Finished>
+                            <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                          </Finished>
                           <EQInternal>
                             <NodeFailureVariable>
                               <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
@@ -103,12 +100,9 @@
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">ep2cp_While_d1e71</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">ep2cp_While_d1e71</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>
