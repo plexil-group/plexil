@@ -54,8 +54,11 @@ namespace PLEXIL
     const char *exprName() const;
     ValueType valueType() const;
     bool isKnown() const;
+    bool isPropagationSource() const;
     void printValue(std::ostream &s) const;
-    void printSubexpressions(std::ostream &s) const;
+    void printSpecialized(std::ostream &s) const;
+    virtual void doSubexprs(ExprUnaryOperator const &oper);
+
     Value toValue() const;
 
     /**

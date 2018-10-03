@@ -53,11 +53,6 @@ namespace PLEXIL
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished);
 
-    bool checkArgCount(size_t count) const
-    {
-      return true;
-    }
-
     bool operator()(Boolean &result, NodeImpl const *node) const
     {
       std::vector<NodeImpl *> const &kids = node->getChildren();
@@ -72,6 +67,14 @@ namespace PLEXIL
       debugMsg("AllFinished", "result = true");
       result = true;
       return true; // always known
+    }
+
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    {
+      std::vector<NodeImpl *> const &kids = node->getChildren();
+      for (size_t i = 0; i < kids.size(); ++i) {
+        (oper)(kids[i]->getStateVariable());
+      }
     }
 
   private:
@@ -95,11 +98,6 @@ namespace PLEXIL
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished);
 
-    bool checkArgCount(size_t count) const
-    {
-      return true;
-    }
-
     bool operator()(Boolean &result, NodeImpl const *node) const
     {
       std::vector<NodeImpl *> const &kids = node->getChildren();
@@ -119,6 +117,14 @@ namespace PLEXIL
       result = true;
       debugMsg("AllWaitingOrFinished", " result = true");
       return true; // always known
+    }
+
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    {
+      std::vector<NodeImpl *> const &kids = node->getChildren();
+      for (size_t i = 0; i < kids.size(); ++i) {
+        (oper)(kids[i]->getStateVariable());
+      }
     }
 
   private:

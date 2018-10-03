@@ -53,7 +53,7 @@ namespace PLEXIL
     size_t n = std::distance(expr.begin(), expr.end());
     NodeOperator const *oper = this->getOperator();
     assertTrueMsg(oper, "NodeFunctionFactory::check: no operator for " << m_name);
-    checkParserExceptionWithLocation(oper->checkArgCount(n),
+    checkParserExceptionWithLocation(n == 1,
                                      expr,
                                      "Node \"" << nodeId
                                      << "\": Wrong number of operands for operator "

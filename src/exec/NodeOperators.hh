@@ -42,8 +42,8 @@ namespace PLEXIL
     
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeInactive);
 
-    bool checkArgCount(size_t count) const;
     bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
   class NodeWaiting : public NodeOperatorImpl<Boolean>
@@ -56,8 +56,8 @@ namespace PLEXIL
     
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeWaiting);
 
-    bool checkArgCount(size_t count) const;
     bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
   class NodeExecuting : public NodeOperatorImpl<Boolean>
@@ -70,8 +70,8 @@ namespace PLEXIL
     
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeExecuting);
 
-    bool checkArgCount(size_t count) const;
     bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
   class NodeIterationEnded : public NodeOperatorImpl<Boolean>
@@ -84,8 +84,8 @@ namespace PLEXIL
     
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeIterationEnded);
 
-    bool checkArgCount(size_t count) const;
     bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
   class NodeFinished : public NodeOperatorImpl<Boolean>
@@ -98,8 +98,8 @@ namespace PLEXIL
     
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeFinished);
 
-    bool checkArgCount(size_t count) const;
     bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
 }

@@ -54,17 +54,17 @@ namespace PLEXIL
     
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
 
-    bool checkArgCount(size_t count) const
-    {
-      return true;
-    }
-
     bool operator()(Boolean &result, NodeImpl const *node) const
     {
       result =
         (NO_COMMAND_HANDLE !=
          ((CommandNode const *) node)->getCommand()->getCommandHandle());
       return true;
+    }
+
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    {
+      (oper)(((CommandNode *) node)->getCommand()->getAck());
     }
 
   private:
@@ -91,10 +91,7 @@ namespace PLEXIL
     {
     }
 
-    bool checkArgCount(size_t count) const
-    {
-      return true;
-    }
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible)
 
     bool operator()(Boolean &result, NodeImpl const *node) const
     {
@@ -114,7 +111,10 @@ namespace PLEXIL
       return true;
     }
 
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible)
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    {
+      (oper)(((CommandNode *) node)->getCommand()->getAck());
+    }
 
   private:
 

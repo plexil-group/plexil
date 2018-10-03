@@ -28,6 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
+#include "NodeImpl.hh"
 #include "NodeOperator.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
@@ -63,19 +64,31 @@ namespace PLEXIL
     return m_op->calcNative(m_valueCache, m_node);
   }
 
+  // This function is a propagation source as it has no subexpressions in the usual sense.
+  // Its value changes based on node state transitions.
+  bool NodeFunction::isPropagationSource() const
+  {
+    return true;
+  }
+
   void NodeFunction::printValue(std::ostream &s) const
   {
     m_op->printValue(s, m_valueCache, m_node);
   }
 
-  void NodeFunction::printSubexpressions(std::ostream & /* s */) const
+  void NodeFunction::printSpecialized(std::ostream & str) const
   {
-    // TODO
+    str << m_node->getNodeId();
   }
 
   Value NodeFunction::toValue() const
   {
     return m_op->toValue(m_valueCache, m_node);
+  }
+
+  void NodeFunction::doSubexprs(ExprUnaryOperator const &oper)
+  {
+    m_op->doPropagationSources(m_node, oper);
   }
 
 #define DEFINE_NODE_FUNC_GET_VALUE_METHOD(_rtype) \

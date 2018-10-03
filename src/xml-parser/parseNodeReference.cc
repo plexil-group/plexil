@@ -60,6 +60,7 @@ namespace PLEXIL
         return temp;
       }
     }
+
     // Fall-through return
     return pugi::xml_node();
   }
@@ -131,6 +132,7 @@ namespace PLEXIL
         return;
       parent = getContainingNode(parent);
     }
+
     // Not found
     reportParserExceptionWithLocation(nodeRef,
                                       "Invalid node reference: No node named "
@@ -150,8 +152,10 @@ namespace PLEXIL
       checkNodeRef(nodeRef);
     else if (0 == strcmp(tag, NODEID_TAG))
       checkNodeId(nodeRef);
-    reportParserExceptionWithLocation(nodeRef,
-                                      "createExpression: Invalid node reference");
+    else {
+      reportParserExceptionWithLocation(nodeRef,
+                                        "createExpression: Invalid node reference");
+    }
   }
 
   static NodeImpl *parseNodeRef(pugi::xml_node nodeRef, NodeImpl *node)
@@ -205,10 +209,7 @@ namespace PLEXIL
     if (node->getNodeId() == name)
       return node;
     // Check children, if any
-    NodeImpl *result = node->findChild(name);
-    if (result)
-      return result;
-    return NULL;
+    return node->findChild(name);
   }
 
   static NodeImpl *parseNodeId(pugi::xml_node nodeRef, NodeImpl *node)
@@ -237,9 +238,9 @@ namespace PLEXIL
     throw (ParserException)
   {
     const char* tag = nodeRef.name();
-    if (0 == strcmp(tag, NODEREF_TAG))
+    if (!strcmp(tag, NODEREF_TAG))
       return parseNodeRef(nodeRef, node);
-    else if (0 == strcmp(tag, NODEID_TAG))
+    else if (!strcmp(tag, NODEID_TAG))
       return parseNodeId(nodeRef, node);
     // should have been caught by checkNodeReference()
     errorMsg("Internal error: invalid node reference");

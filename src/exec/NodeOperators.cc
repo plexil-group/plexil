@@ -40,15 +40,15 @@ namespace PLEXIL
   {
   }
 
-  bool NodeInactive::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
   bool NodeInactive::operator()(Boolean &result, NodeImpl const *node) const
   {
     result = node->getState() == INACTIVE_STATE;
     return true;
+  }
+
+  void NodeInactive::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getStateVariable());
   }
 
   NodeWaiting::NodeWaiting()
@@ -60,15 +60,15 @@ namespace PLEXIL
   {
   }
 
-  bool NodeWaiting::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
   bool NodeWaiting::operator()(Boolean &result, NodeImpl const *node) const
   {
     result = node->getState() == WAITING_STATE;
     return true;
+  }
+
+  void NodeWaiting::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getStateVariable());
   }
 
   NodeExecuting::NodeExecuting()
@@ -80,15 +80,15 @@ namespace PLEXIL
   {
   }
 
-  bool NodeExecuting::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
   bool NodeExecuting::operator()(Boolean &result, NodeImpl const *node) const
   {
     result = node->getState() == EXECUTING_STATE;
     return true;
+  }
+
+  void NodeExecuting::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getStateVariable());
   }
 
   NodeIterationEnded::NodeIterationEnded()
@@ -100,15 +100,15 @@ namespace PLEXIL
   {
   }
 
-  bool NodeIterationEnded::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
   bool NodeIterationEnded::operator()(Boolean &result, NodeImpl const *node) const
   {
     result = node->getState() == ITERATION_ENDED_STATE;
     return true;
+  }
+
+  void NodeIterationEnded::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getStateVariable());
   }
 
   NodeFinished::NodeFinished()
@@ -120,15 +120,15 @@ namespace PLEXIL
   {
   }
 
-  bool NodeFinished::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
   bool NodeFinished::operator()(Boolean &result, NodeImpl const *node) const
   {
     result = node->getState() == FINISHED_STATE;
     return true;
+  }
+
+  void NodeFinished::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getStateVariable());
   }
 
 }

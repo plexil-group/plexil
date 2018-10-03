@@ -33,6 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class ExpressionListener;
+  class ExprUnaryOperator;
   class NodeImpl;
   class Value;
 
@@ -51,10 +52,6 @@ namespace PLEXIL
     {
       return m_name;
     }
-
-    // Delegated to each individual operator.
-    // Default method returns false.
-    virtual bool checkArgCount(size_t count) const { return false; }
 
     // Delegated to NodeOperatorImpl by default
     virtual ValueType valueType() const = 0;
@@ -79,6 +76,9 @@ namespace PLEXIL
     virtual bool calcNative(void *cache, NodeImpl const *node) const = 0;
     virtual void printValue(std::ostream &s, void *cache, NodeImpl const *node) const = 0;
     virtual Value toValue(void *cache, NodeImpl const *node) const = 0;
+
+    // Helper for notification network
+    virtual void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const = 0;
 
   protected:
     NodeOperator(std::string const &name)
