@@ -116,6 +116,34 @@ namespace PLEXIL
     void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
   };
 
+  class NodeSkipped : public NodeOperatorImpl<Boolean>
+  {
+  private:
+    NodeSkipped();
+
+  public:
+    virtual ~NodeSkipped();
+    
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeSkipped);
+
+    bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+  };
+
+  class NodePostconditionFailed : public NodeOperatorImpl<Boolean>
+  {
+  private:
+    NodePostconditionFailed();
+
+  public:
+    virtual ~NodePostconditionFailed();
+    
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodePostconditionFailed);
+
+    bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+  };
+
 }
 
 #endif // PLEXIL_NODE_OPERATORS_HH

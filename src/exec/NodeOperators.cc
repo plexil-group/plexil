@@ -153,4 +153,44 @@ namespace PLEXIL
     (oper)(node->getStateVariable());
   }
 
+  NodeSkipped::NodeSkipped()
+    : NodeOperatorImpl<Boolean>("Skipped")
+  {
+  }
+
+  NodeSkipped::~NodeSkipped()
+  {
+  }
+
+  bool NodeSkipped::operator()(Boolean &result, NodeImpl const *node) const
+  {
+    result = node->getOutcome() == SKIPPED_OUTCOME;
+    return true;
+  }
+
+  void NodeSkipped::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getOutcomeVariable());
+  }
+
+  NodePostconditionFailed::NodePostconditionFailed()
+    : NodeOperatorImpl<Boolean>("PostconditionFailed")
+  {
+  }
+
+  NodePostconditionFailed::~NodePostconditionFailed()
+  {
+  }
+
+  bool NodePostconditionFailed::operator()(Boolean &result, NodeImpl const *node) const
+  {
+    result = node->getFailureType() == POST_CONDITION_FAILED;
+    return true;
+  }
+
+  void NodePostconditionFailed::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  {
+    (oper)(node->getFailureTypeVariable());
+  }
+
 }

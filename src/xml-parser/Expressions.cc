@@ -149,6 +149,8 @@ namespace PLEXIL
 
       REGISTER_FUNCTION(BooleanOr, OR);
 
+      REGISTER_NODE_FUNCTION(NodePostconditionFailed, PostconditionFailed);
+
       REGISTER_FUNCTION(RealToInteger, REAL_TO_INT);
 
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round()
@@ -158,6 +160,8 @@ namespace PLEXIL
 
       REGISTER_EXPRESSION(RealConstant, RealValue);
       new VariableReferenceFactory("RealVariable", REAL_TYPE); // for effect
+
+      REGISTER_NODE_FUNCTION(NodeSkipped, Skipped);
 
       REGISTER_FUNCTION(SquareRoot<Real>, SQRT);
 
