@@ -11,7 +11,7 @@ List:
 
   CallLibTest1: {
     // force call 1 to occur after call 2
-     StartCondition CallLibTest2.outcome == SUCCESS;
+     StartCondition NodeSucceeded(CallLibTest2);
      LibraryCall LibTest1 (lb = b, li = i, lr = r, ls = s);
   }
   
