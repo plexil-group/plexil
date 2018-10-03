@@ -31,7 +31,11 @@
               </NumericRHS>
             </Assignment>
           </NodeBody></Node>
-        <Node NodeType="Command"><NodeId>check</NodeId><StartCondition><AND><EQInternal><NodeStateVariable><NodeId>xy</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal><EQInternal><NodeStateVariable><NodeId>yx</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></AND></StartCondition><NodeBody>
+        <Node NodeType="Command"><NodeId>check</NodeId><StartCondition><AND><Finished>
+                <NodeId>xy</NodeId>
+              </Finished><Finished>
+                <NodeId>yx</NodeId>
+              </Finished></AND></StartCondition><NodeBody>
             <Command>
               <Name>
 <StringValue>check</StringValue>

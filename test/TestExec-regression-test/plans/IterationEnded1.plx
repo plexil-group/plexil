@@ -20,6 +20,6 @@
             </Assignment>
           </NodeBody></Node>
 <!-- Node Two executes on each successful iteration of node One -->
-        <Node NodeType="Empty"><NodeId>Two</NodeId><RepeatCondition><BooleanValue>1</BooleanValue></RepeatCondition><StartCondition><AND><EQInternal><NodeStateVariable><NodeId>One</NodeId></NodeStateVariable><NodeStateValue>ITERATION_ENDED</NodeStateValue></EQInternal><EQInternal><NodeOutcomeVariable><NodeId>One</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></AND></StartCondition></Node>
+        <Node NodeType="Empty"><NodeId>Two</NodeId><RepeatCondition><BooleanValue>1</BooleanValue></RepeatCondition><StartCondition><AND><IterationEnded><NodeId>One</NodeId></IterationEnded><EQInternal><NodeOutcomeVariable><NodeId>One</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></AND></StartCondition></Node>
       </NodeList>
     </NodeBody></Node></PlexilPlan>

@@ -17,7 +17,9 @@
                 </NodeBody></Node>
             </NodeList>
           </NodeBody></Node>
-        <Node NodeType="NodeList"><NodeId>B</NodeId><StartCondition><EQInternal><NodeStateVariable><NodeId>A</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></StartCondition><NodeBody>
+        <Node NodeType="NodeList"><NodeId>B</NodeId><StartCondition><Finished>
+              <NodeId>A</NodeId>
+            </Finished></StartCondition><NodeBody>
             <NodeList>
               <Node NodeType="Assignment"><NodeId>BB</NodeId><NodeBody>
                   <Assignment>

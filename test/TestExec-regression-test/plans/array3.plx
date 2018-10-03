@@ -14,7 +14,11 @@
         <Type>Boolean</Type>
         <MaxSize>500</MaxSize>
       </DeclareArray>
-    </VariableDeclarations><PostCondition><AND><AND><EQInternal><NodeStateVariable><NodeId>Two</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal><EQInternal><NodeOutcomeVariable><NodeId>Two</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></AND><AND><EQInternal><NodeStateVariable><NodeId>Three</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal><EQInternal><NodeOutcomeVariable><NodeId>Three</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></AND></AND></PostCondition><NodeBody>
+    </VariableDeclarations><PostCondition><AND><Succeeded>
+          <NodeId>Two</NodeId>
+        </Succeeded><Succeeded>
+          <NodeId>Three</NodeId>
+        </Succeeded></AND></PostCondition><NodeBody>
       <NodeList>
         <Node NodeType="Command"><NodeId>Two</NodeId><PostCondition><EQString><ArrayElement>
                 <Name>a2</Name>

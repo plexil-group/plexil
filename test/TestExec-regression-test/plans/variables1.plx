@@ -5,7 +5,7 @@
       </DeclareVariable>
     </VariableDeclarations><NodeBody>
       <NodeList>
-        <Node NodeType="NodeList" epx="Sequence"><NodeId>ep2cp_Sequence_d1e25</NodeId><InvariantCondition><NOT><OR><AND><EQInternal><NodeOutcomeVariable><NodeRef dir="child">plexilisp_Name_1</NodeRef></NodeOutcomeVariable><NodeOutcomeValue>FAILURE</NodeOutcomeValue></EQInternal><EQInternal><NodeStateVariable><NodeRef dir="child">plexilisp_Name_1</NodeRef></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></AND><AND><EQInternal><NodeOutcomeVariable><NodeRef dir="child">plexilisp_Name_4</NodeRef></NodeOutcomeVariable><NodeOutcomeValue>FAILURE</NodeOutcomeValue></EQInternal><EQInternal><NodeStateVariable><NodeRef dir="child">plexilisp_Name_4</NodeRef></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></AND></OR></NOT></InvariantCondition><NodeBody><NodeList><Node NodeType="Assignment"><NodeId>plexilisp_Name_1</NodeId><NodeBody>
+        <Node NodeType="NodeList" epx="Sequence"><NodeId>ep2cp_Sequence_d1e25</NodeId><InvariantCondition><NOT><OR><Failed><NodeRef dir="child">plexilisp_Name_1</NodeRef></Failed><Failed><NodeRef dir="child">plexilisp_Name_4</NodeRef></Failed></OR></NOT></InvariantCondition><NodeBody><NodeList><Node NodeType="Assignment"><NodeId>plexilisp_Name_1</NodeId><NodeBody>
               <Assignment>
                 <IntegerVariable>x</IntegerVariable>
                 <NumericRHS>
@@ -21,7 +21,7 @@
                 <Name>s</Name>
                 <Type>String</Type>
               </DeclareVariable>
-            </VariableDeclarations><StartCondition><EQInternal><NodeStateVariable><NodeRef dir="sibling">plexilisp_Name_1</NodeRef></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></StartCondition><NodeBody>
+            </VariableDeclarations><StartCondition><Finished><NodeRef dir="sibling">plexilisp_Name_1</NodeRef></Finished></StartCondition><NodeBody>
               <NodeList>
                 <Node NodeType="Assignment"><NodeId>plexilisp_Name_2</NodeId><NodeBody>
                     <Assignment>

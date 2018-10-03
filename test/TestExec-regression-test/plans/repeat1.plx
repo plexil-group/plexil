@@ -6,7 +6,9 @@
           <IntegerValue>0</IntegerValue>
         </InitialValue>
       </DeclareVariable>
-    </VariableDeclarations><EndCondition><EQInternal><NodeStateVariable><NodeId>Inc</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></EndCondition><StartCondition><BooleanValue>1</BooleanValue></StartCondition><NodeBody>
+    </VariableDeclarations><EndCondition><Finished>
+        <NodeId>Inc</NodeId>
+      </Finished></EndCondition><StartCondition><BooleanValue>1</BooleanValue></StartCondition><NodeBody>
       <NodeList>
         <Node NodeType="Assignment"><NodeId>Inc</NodeId><RepeatCondition><LT><IntegerVariable>count</IntegerVariable><IntegerValue>4</IntegerValue></LT></RepeatCondition><NodeBody>
             <Assignment>

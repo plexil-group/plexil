@@ -3,7 +3,9 @@
         <Name>name</Name>
         <Type>String</Type>
       </DeclareVariable>
-    </VariableDeclarations><EndCondition><IsKnown><StringVariable>name</StringVariable></IsKnown></EndCondition><PostCondition><AND><EQInternal><NodeStateVariable><NodeId>library6</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal><EQInternal><NodeOutcomeVariable><NodeId>library6</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></AND></PostCondition><NodeBody>
+    </VariableDeclarations><EndCondition><IsKnown><StringVariable>name</StringVariable></IsKnown></EndCondition><PostCondition><Succeeded>
+        <NodeId>library6</NodeId>
+      </Succeeded></PostCondition><NodeBody>
       <LibraryNodeCall>
         <NodeId>library6</NodeId>
         <Alias>

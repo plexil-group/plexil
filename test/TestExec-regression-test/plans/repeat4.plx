@@ -23,7 +23,9 @@
               </BooleanRHS>
             </Assignment>
           </NodeBody></Node>
-        <Node NodeType="Assignment"><NodeId>B</NodeId><StartCondition><EQInternal><NodeStateVariable><NodeId>A</NodeId></NodeStateVariable><NodeStateValue>ITERATION_ENDED</NodeStateValue></EQInternal></StartCondition><RepeatCondition><BooleanValue>1</BooleanValue></RepeatCondition><NodeBody>
+        <Node NodeType="Assignment"><NodeId>B</NodeId><StartCondition><IterationEnded>
+              <NodeId>A</NodeId>
+            </IterationEnded></StartCondition><RepeatCondition><BooleanValue>1</BooleanValue></RepeatCondition><NodeBody>
             <Assignment>
               <BooleanVariable>done</BooleanVariable>
               <BooleanRHS>
