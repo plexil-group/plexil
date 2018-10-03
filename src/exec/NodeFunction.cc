@@ -64,13 +64,6 @@ namespace PLEXIL
     return m_op->calcNative(m_valueCache, m_node);
   }
 
-  // This function is a propagation source as it has no subexpressions in the usual sense.
-  // Its value changes based on node state transitions.
-  bool NodeFunction::isPropagationSource() const
-  {
-    return true;
-  }
-
   void NodeFunction::printValue(std::ostream &s) const
   {
     m_op->printValue(s, m_valueCache, m_node);
@@ -98,10 +91,11 @@ namespace PLEXIL
   }
 
   DEFINE_NODE_FUNC_GET_VALUE_METHOD(Boolean)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(uint16_t)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(String)
+  // Only Boolean operators implemented to date
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(uint16_t)
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(String)
 
 #undef DEFINE_NODE_FUNC_GET_VALUE_METHOD
 
@@ -114,24 +108,9 @@ namespace PLEXIL
     return result; \
   }
 
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
+  // Only Boolean operators implemented to date
+  // DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
   
 #undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
-
-#define DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(_rtype) \
-  bool NodeFunction::getValuePointer(_rtype const *& /* ptr */) const   \
-  { \
-    errorMsg("NodeFunction::getValuePointer not implemented for " \
-             << PlexilValueType<_rtype>::typeName);               \
-    return false; \
-  }
-
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(Array)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(BooleanArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(IntegerArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(RealArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(StringArray)
-  
-#undef DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB
 
 } // namespace PLEXIL

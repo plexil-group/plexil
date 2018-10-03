@@ -54,7 +54,6 @@ namespace PLEXIL
     const char *exprName() const;
     ValueType valueType() const;
     bool isKnown() const;
-    bool isPropagationSource() const;
     void printValue(std::ostream &s) const;
     void printSpecialized(std::ostream &s) const;
     virtual void doSubexprs(ExprUnaryOperator const &oper);
@@ -67,23 +66,21 @@ namespace PLEXIL
      * @return True if result known, false if unknown.
      */
     bool getValue(Boolean &result) const;
-    bool getValue(uint16_t &result) const;
-    bool getValue(Integer &result) const;
-    bool getValue(Real &result) const;
-    bool getValue(String &result) const;
+    // Only Boolean operators implemented to date
+    // bool getValue(uint16_t &result) const;
+    // bool getValue(Integer &result) const;
+    // bool getValue(Real &result) const;
+    // bool getValue(String &result) const;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(String const *&ptr) const;
-    bool getValuePointer(BooleanArray const *&ptr) const;
-    bool getValuePointer(IntegerArray const *&ptr) const;
-    bool getValuePointer(RealArray const *&ptr) const;
-    bool getValuePointer(StringArray const *&ptr) const;
+    // Only Boolean operators implemented to date
+    // bool getValuePointer(String const *&ptr) const;
 
-    bool getValuePointer(Array const *&ptr) const;
+    // Array variants not implemented
 
   protected:
 

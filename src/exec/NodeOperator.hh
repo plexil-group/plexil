@@ -60,9 +60,11 @@ namespace PLEXIL
 
     // Default methods assert
     virtual bool operator()(Boolean &result, NodeImpl const *arg) const;
-    virtual bool operator()(Integer &result, NodeImpl const *node) const;
-    virtual bool operator()(Real &result, NodeImpl const *node) const;
-    virtual bool operator()(String &result, NodeImpl const *node) const;
+    // Only Boolean operators implemented to date
+    // virtual bool operator()(uint16_t &result, NodeImpl const *arg) const;
+    // virtual bool operator()(Integer &result, NodeImpl const *node) const;
+    // virtual bool operator()(Real &result, NodeImpl const *node) const;
+    // virtual bool operator()(String &result, NodeImpl const *node) const;
 
     // Not needed yet
     // virtual bool operator()(Array &result, NodeImpl const *node) const;
@@ -71,7 +73,6 @@ namespace PLEXIL
     // virtual bool operator()(RealArray &result, NodeImpl const *node) const;
     // virtual bool operator()(StringArray &result, NodeImpl const *node) const;
 
-    virtual bool operator()(uint16_t &result, NodeImpl const *arg) const;
 
     virtual bool calcNative(void *cache, NodeImpl const *node) const = 0;
     virtual void printValue(std::ostream &s, void *cache, NodeImpl const *node) const = 0;
