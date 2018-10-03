@@ -38,7 +38,15 @@ namespace PLEXIL
 
   static pugi::xml_node getContainingNode(pugi::xml_node nodeRef)
   {
-    return nodeRef.select_node("ancestor::Node").node();
+    // This didn't work, so do it the hard way
+    // return nodeRef.select_node("ancestor::Node").node();
+    pugi::xml_node temp = nodeRef;
+    while ((temp = temp.parent()))
+      if (!strcmp(NODE_TAG, temp.name()))
+        return temp;
+
+    // Failure return
+    return pugi::xml_node();
   }
 
   // theNode must be a Plexil Node 
@@ -94,18 +102,19 @@ namespace PLEXIL
                                        "Invalid node reference: root node has no siblings");
       checkParserExceptionWithLocation(getNodeChild(parent, name),
                                        nodeRef,
-                                       "Invalid node reference: node has no sibling named "
-                                       << nodeRef.value());
+                                       "Invalid node reference: node "
+                                       << self.child_value(NODEID_TAG)
+                                       << " has no sibling named " << name);
     }
     else if (!strcmp(dirValue, CHILD_VAL)) {
       checkParserExceptionWithLocation(getNodeChild(self, name),
                                        nodeRef,
-                                       "Invalid node reference: node has no child named "
-                                       << nodeRef.value());
+                                       "Invalid node reference: node " 
+                                       << self.child_value(NODEID_TAG)
+                                       << " has no child named " << name);
     }
     else {
-      reportParserExceptionWithLocation(nodeRef,
-                                        "Invalid node reference");
+      reportParserExceptionWithLocation(nodeRef, "Invalid node reference");
     }
   }
 
