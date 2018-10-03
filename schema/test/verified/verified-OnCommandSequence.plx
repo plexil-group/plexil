@@ -5,28 +5,12 @@
     <InvariantCondition>
       <NOT>
         <OR>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">Recv1</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Recv1</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">Recv2</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Recv2</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
+          <Failed>
+            <NodeRef dir="child">Recv1</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">Recv2</NodeRef>
+          </Failed>
         </OR>
       </NOT>
     </InvariantCondition>
@@ -59,83 +43,27 @@
           <InvariantCondition>
             <NOT>
               <OR>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
+                </Failed>
               </OR>
             </NOT>
           </InvariantCondition>
@@ -343,83 +271,27 @@
           <InvariantCondition>
             <NOT>
               <OR>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
+                </Failed>
               </OR>
             </NOT>
           </InvariantCondition>

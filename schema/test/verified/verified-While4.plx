@@ -16,12 +16,9 @@
         <Node NodeType="NodeList" epx="aux">
           <NodeId>ep2cp_WhileBody</NodeId>
           <RepeatCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
+            </Succeeded>
           </RepeatCondition>
           <NodeBody>
             <NodeList>
@@ -37,25 +34,14 @@
               <Node NodeType="Assignment" epx="Action">
                 <NodeId>increment</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                  </EQInternal>
+                  <Succeeded>
+                    <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                  </Succeeded>
                 </StartCondition>
                 <SkipCondition>
-                  <AND>
-                    <Finished>
-                      <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
-                    </Finished>
-                    <EQInternal>
-                      <NodeFailureVariable>
-                        <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
-                      </NodeFailureVariable>
-                      <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-                    </EQInternal>
-                  </AND>
+                  <PostconditionFailed>
+                    <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                  </PostconditionFailed>
                 </SkipCondition>
                 <NodeBody>
                   <Assignment>

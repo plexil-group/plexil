@@ -13,28 +13,12 @@
     </VariableDeclarations>
     <EndCondition>
       <OR>
-        <AND>
-          <Finished>
-            <NodeRef dir="child">One</NodeRef>
-          </Finished>
-          <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-        </AND>
-        <AND>
-          <Finished>
-            <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-          </Finished>
-          <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-        </AND>
+        <Succeeded>
+          <NodeRef dir="child">One</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
+        </Succeeded>
         <Finished>
           <NodeRef dir="child">Three</NodeRef>
         </Finished>
@@ -42,24 +26,15 @@
     </EndCondition>
     <PostCondition>
       <OR>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">One</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">Three</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
+        <Succeeded>
+          <NodeRef dir="child">One</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">Three</NodeRef>
+        </Succeeded>
       </OR>
     </PostCondition>
     <NodeBody>
@@ -81,12 +56,9 @@
             </AND>
           </StartCondition>
           <PostCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Two</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="child">Two</NodeRef>
+            </Succeeded>
           </PostCondition>
           <NodeBody>
             <NodeList>

@@ -40,28 +40,12 @@
                 <InvariantCondition>
                   <NOT>
                     <OR>
-                      <AND>
-                        <Finished>
-                          <NodeRef dir="child">Two</NodeRef>
-                        </Finished>
-                        <EQInternal>
-                          <NodeOutcomeVariable>
-                            <NodeRef dir="child">Two</NodeRef>
-                          </NodeOutcomeVariable>
-                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                      </AND>
-                      <AND>
-                        <Finished>
-                          <NodeRef dir="child">Four</NodeRef>
-                        </Finished>
-                        <EQInternal>
-                          <NodeOutcomeVariable>
-                            <NodeRef dir="child">Four</NodeRef>
-                          </NodeOutcomeVariable>
-                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                      </AND>
+                      <Failed>
+                        <NodeRef dir="child">Two</NodeRef>
+                      </Failed>
+                      <Failed>
+                        <NodeRef dir="child">Four</NodeRef>
+                      </Failed>
                     </OR>
                   </NOT>
                 </InvariantCondition>

@@ -14,28 +14,12 @@
     <InvariantCondition>
       <NOT>
         <OR>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">Wait1</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Wait1</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">Wait2</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Wait2</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
+          <Failed>
+            <NodeRef dir="child">Wait1</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">Wait2</NodeRef>
+          </Failed>
         </OR>
       </NOT>
     </InvariantCondition>

@@ -32,28 +32,12 @@
           <InvariantCondition>
             <NOT>
               <OR>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">DoFirst</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">DoFirst</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <Finished>
-                    <NodeRef dir="child">DoSecond</NodeRef>
-                  </Finished>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">DoSecond</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                </AND>
+                <Failed>
+                  <NodeRef dir="child">DoFirst</NodeRef>
+                </Failed>
+                <Failed>
+                  <NodeRef dir="child">DoSecond</NodeRef>
+                </Failed>
               </OR>
             </NOT>
           </InvariantCondition>

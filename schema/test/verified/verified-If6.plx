@@ -25,39 +25,27 @@
         <Node NodeType="Empty" epx="Then">
           <NodeId>One</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+            </Succeeded>
           </StartCondition>
           <SkipCondition>
-            <EQInternal>
-              <NodeFailureVariable>
-                <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-              </NodeFailureVariable>
-              <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-            </EQInternal>
+            <PostconditionFailed>
+              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+            </PostconditionFailed>
           </SkipCondition>
         </Node>
         <Node NodeType="Empty" epx="ElseIf">
           <NodeId>ep2cp_ElseIf-1</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeFailureVariable>
-                <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-              </NodeFailureVariable>
-              <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-            </EQInternal>
+            <PostconditionFailed>
+              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+            </PostconditionFailed>
           </StartCondition>
           <SkipCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+            </Succeeded>
           </SkipCondition>
           <PostCondition>
             <EQNumeric>
@@ -69,48 +57,33 @@
         <Node NodeType="Empty" epx="Then">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+            </Succeeded>
           </StartCondition>
           <SkipCondition>
             <NOT>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-              </EQInternal>
+              <Succeeded>
+                <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+              </Succeeded>
             </NOT>
           </SkipCondition>
         </Node>
         <Node NodeType="Empty" epx="ElseIf">
           <NodeId>ep2cp_ElseIf-2</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeFailureVariable>
-                <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
-              </NodeFailureVariable>
-              <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-            </EQInternal>
+            <PostconditionFailed>
+              <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+            </PostconditionFailed>
           </StartCondition>
           <SkipCondition>
             <OR>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SKIPPED</NodeOutcomeValue>
-              </EQInternal>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-              </EQInternal>
+              <Skipped>
+                <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+              </Skipped>
+              <Succeeded>
+                <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+              </Succeeded>
             </OR>
           </SkipCondition>
           <PostCondition>
@@ -123,48 +96,33 @@
         <Node NodeType="Empty" epx="Then">
           <NodeId>Three</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+            </Succeeded>
           </StartCondition>
           <SkipCondition>
             <NOT>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-              </EQInternal>
+              <Succeeded>
+                <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+              </Succeeded>
             </NOT>
           </SkipCondition>
         </Node>
         <Node NodeType="Empty" epx="Else">
           <NodeId>Four</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeFailureVariable>
-                <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-              </NodeFailureVariable>
-              <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-            </EQInternal>
+            <PostconditionFailed>
+              <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+            </PostconditionFailed>
           </StartCondition>
           <SkipCondition>
             <OR>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SKIPPED</NodeOutcomeValue>
-              </EQInternal>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-              </EQInternal>
+              <Skipped>
+                <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+              </Skipped>
+              <Succeeded>
+                <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+              </Succeeded>
             </OR>
           </SkipCondition>
         </Node>

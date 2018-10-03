@@ -14,39 +14,15 @@
     <InvariantCondition>
       <NOT>
         <OR>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">One</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">One</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_Sequence_d1e29</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_Sequence_d1e29</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">Three</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Three</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
+          <Failed>
+            <NodeRef dir="child">One</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">ep2cp_Sequence_d1e29</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">Three</NodeRef>
+          </Failed>
         </OR>
       </NOT>
     </InvariantCondition>
@@ -70,17 +46,9 @@
           </StartCondition>
           <InvariantCondition>
             <NOT>
-              <AND>
-                <Finished>
-                  <NodeRef dir="child">Two</NodeRef>
-                </Finished>
-                <EQInternal>
-                  <NodeOutcomeVariable>
-                    <NodeRef dir="child">Two</NodeRef>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                </EQInternal>
-              </AND>
+              <Failed>
+                <NodeRef dir="child">Two</NodeRef>
+              </Failed>
             </NOT>
           </InvariantCondition>
           <NodeBody>

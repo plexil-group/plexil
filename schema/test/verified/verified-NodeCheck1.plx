@@ -33,17 +33,9 @@
         <Node NodeType="Assignment">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <AND>
-              <Finished>
-                <NodeId>One</NodeId>
-              </Finished>
-              <EQInternal>
-                <NodeFailureVariable>
-                  <NodeId>One</NodeId>
-                </NodeFailureVariable>
-                <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-              </EQInternal>
-            </AND>
+            <PostconditionFailed>
+              <NodeId>One</NodeId>
+            </PostconditionFailed>
           </StartCondition>
           <PostCondition>
             <EQNumeric>

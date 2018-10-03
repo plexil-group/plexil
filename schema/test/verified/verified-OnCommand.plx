@@ -19,61 +19,21 @@
     <InvariantCondition>
       <NOT>
         <OR>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
+          <Failed>
+            <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
+          </Failed>
         </OR>
       </NOT>
     </InvariantCondition>

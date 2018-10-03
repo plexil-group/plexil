@@ -11,28 +11,12 @@
     <InvariantCondition>
       <NOT>
         <OR>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <Finished>
-              <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
-            </Finished>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-          </AND>
+          <Failed>
+            <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+          </Failed>
+          <Failed>
+            <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
+          </Failed>
         </OR>
       </NOT>
     </InvariantCondition>

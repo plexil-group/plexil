@@ -26,20 +26,14 @@
         <Node NodeType="Empty" epx="Then">
           <NodeId>A</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+            </Succeeded>
           </StartCondition>
           <SkipCondition>
-            <EQInternal>
-              <NodeFailureVariable>
-                <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-              </NodeFailureVariable>
-              <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-            </EQInternal>
+            <PostconditionFailed>
+              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+            </PostconditionFailed>
           </SkipCondition>
         </Node>
       </NodeList>

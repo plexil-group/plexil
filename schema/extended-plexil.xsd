@@ -345,15 +345,11 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
   <!-- Node Predicates -->
 
-  <xs:element name="Succeeded" type="node-reference"/>
   <xs:element name="IterationSucceeded" type="node-reference"/>
-  <xs:element name="Failed" type="node-reference"/>
   <xs:element name="Interrupted" type="node-reference"/>
   <xs:element name="IterationFailed" type="node-reference"/>
-  <xs:element name="Skipped" type="node-reference"/>
   <xs:element name="InvariantFailed" type="node-reference"/>
   <xs:element name="PreconditionFailed" type="node-reference"/>
-  <xs:element name="PostconditionFailed" type="node-reference"/>
   <xs:element name="ParentFailed" type="node-reference"/>
 
   <!-- Support for message passing between executives -->

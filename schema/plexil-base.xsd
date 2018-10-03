@@ -659,6 +659,8 @@ element.  It is used as an included schema only.
 	  <xs:group ref="NumericComparison"/>
       <xs:group ref="KnownTest"/>
       <xs:group ref="NodeStatePredicate"/>
+      <xs:group ref="NodeOutcomePredicate"/>
+      <xs:group ref="NodeFailurePredicate"/>
       <xs:element ref="BooleanVariable"/>
       <xs:element ref="BooleanValue"/>
     </xs:choice>
@@ -967,6 +969,21 @@ element.  It is used as an included schema only.
     </xs:simpleType>
   </xs:element>
 
+  <!-- Node Outcome Predicates -->
+
+  <xs:group name="NodeOutcomePredicate">
+    <xs:choice>
+      <xs:element ref="Failed"/>
+      <xs:element ref="Skipped"/>
+      <xs:element ref="Succeeded"/>
+      <!-- more to come -->
+    </xs:choice>
+  </xs:group>
+
+  <xs:element name="Failed" type="node-reference"/>
+  <xs:element name="Skipped" type="node-reference"/>
+  <xs:element name="Succeeded" type="node-reference"/>
+
   <xs:group name="NodeFailure">
     <xs:choice>
       <xs:element ref="NodeFailureVariable"/>
@@ -988,6 +1005,17 @@ element.  It is used as an included schema only.
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
+
+  <!-- Node Failure Predicates -->
+
+  <xs:group name="NodeFailurePredicate">
+    <xs:choice>
+      <xs:element ref="PostconditionFailed"/>
+      <!-- more to come -->
+    </xs:choice>
+  </xs:group>
+
+  <xs:element name="PostconditionFailed" type="node-reference"/>
 
   <xs:element name="NodeTimepointValue">
     <xs:complexType>

@@ -4,17 +4,9 @@
     <NodeId>ep2cp_Try_d1e3</NodeId>
     <EndCondition>
       <OR>
-        <AND>
-          <Finished>
-            <NodeRef dir="child">One</NodeRef>
-          </Finished>
-          <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-        </AND>
+        <Succeeded>
+          <NodeRef dir="child">One</NodeRef>
+        </Succeeded>
         <Finished>
           <NodeRef dir="child">Two</NodeRef>
         </Finished>
@@ -22,18 +14,12 @@
     </EndCondition>
     <PostCondition>
       <OR>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">One</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">Two</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
+        <Succeeded>
+          <NodeRef dir="child">One</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">Two</NodeRef>
+        </Succeeded>
       </OR>
     </PostCondition>
     <NodeBody>
