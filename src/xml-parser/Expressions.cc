@@ -165,6 +165,8 @@ namespace PLEXIL
 
       REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB);
 
+      REGISTER_NODE_FUNCTION(NodeSucceeded, Succeeded);
+
       REGISTER_EXPRESSION(StringConstant, StringValue);
       new VariableReferenceFactory("StringVariable", STRING_TYPE); // for effect
 

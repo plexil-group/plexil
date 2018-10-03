@@ -131,15 +131,26 @@ namespace PLEXIL
     // Check against own name
     if (!strcmp(name, theNode.child_value(NODEID_TAG)))
       return;
+
     // Check children
     if (getNodeChild(theNode, name))
       return;
-    // Check ancestors
+
+    // Check parent
     pugi::xml_node parent = getContainingNode(theNode);
-    while (parent) {
+    if (!strcmp(name, parent.child_value(NODEID_TAG)))
+      return;
+
+    // Check siblings
+    if (getNodeChild(parent, name))
+      return;
+
+    // Check ancestors
+    while ((parent = getContainingNode(parent))) {
       if (!strcmp(name, parent.child_value(NODEID_TAG)))
         return;
-      parent = getContainingNode(parent);
+      if (getNodeChild(parent, name))
+        return;
     }
 
     // Not found
