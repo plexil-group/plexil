@@ -32,7 +32,6 @@
 #include "ExecListenerFilterFactory.hh"
 #include "Expression.hh"
 #include "InterfaceSchema.hh"
-#include "NodeTransition.hh"
 
 namespace PLEXIL
 {

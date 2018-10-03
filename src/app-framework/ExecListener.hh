@@ -32,6 +32,8 @@
 
 #include "pugixml.hpp"
 
+#include <vector>
+
 namespace PLEXIL
 {
   // Forward references
