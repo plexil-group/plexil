@@ -54,8 +54,10 @@
        there. -->
 
   <xsl:key name="action"
-           match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|
-                  OnCommand|Wait|SynchronousCommand"
+           match="Node|Concurrence|
+                  Sequence|CheckedSequence|UncheckedSequence|
+                  Try|If|While|For|OnCommand|OnMessage|
+                  Wait|SynchronousCommand"
            use="." />
 
   <!-- Entry point -->
@@ -91,10 +93,19 @@
       <xsl:apply-templates select="NodeBody" />
     </Node>
   </xsl:template>
-  
+
+  <!-- Sequence, CheckedSequence, UncheckedSequence -->
+
   <xsl:template match="UncheckedSequence">
     <xsl:param name="mode" />
-    <Node NodeType="NodeList" epx="UncheckedSequence">
+    <xsl:call-template name="UncheckedSequence">
+      <xsl:with-param name="mode" select="$mode" />
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template name="UncheckedSequence">
+    <xsl:param name="mode" />
+    <Node NodeType="NodeList" epx="{name(.)}">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
       <xsl:call-template name="translate-conditions">
@@ -104,11 +115,16 @@
     </Node>
   </xsl:template>
 
-  <!-- Sequence -->
-
-  <xsl:template match="Sequence">
+  <xsl:template match="Sequence|CheckedSequence">
     <xsl:param name="mode" />
-    <Node NodeType="NodeList" epx="Sequence">
+    <xsl:call-template name="CheckedSequence">
+      <xsl:with-param name="mode" select="$mode" />
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="CheckedSequence">
+    <xsl:param name="mode" />
+    <Node NodeType="NodeList" epx="{name(.)}">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
       <xsl:choose>
@@ -790,20 +806,21 @@
   </xsl:template>
 
   <xsl:template name="wait-end-condition">
+    <xsl:variable name="timeout-test">
+      <xsl:call-template name="timed-out">
+        <xsl:with-param name="element" select="Units/*" />
+      </xsl:call-template>
+    </xsl:variable>
     <EndCondition>
       <xsl:choose>
         <xsl:when test="EndCondition">
           <OR>
-            <xsl:apply-templates select="EndCondition/*"/>
-            <xsl:call-template name="timed-out">
-              <xsl:with-param name="element" select="Units/*"/>
-            </xsl:call-template>
+            <xsl:apply-templates select="EndCondition/*" />
+            <xsl:copy-of select="$timeout-test" />
           </OR>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="timed-out">
-            <xsl:with-param name="element" select="Units/*"/>
-          </xsl:call-template>
+          <xsl:copy-of select="$timeout-test" />
         </xsl:otherwise>
       </xsl:choose>
     </EndCondition>
@@ -822,7 +839,7 @@
           </xsl:when>
           <xsl:otherwise>
             <Tolerance>
-	      <xsl:apply-templates select="$element"/>
+	          <xsl:apply-templates select="$element"/>
             </Tolerance>
           </xsl:otherwise>
         </xsl:choose>
@@ -841,11 +858,8 @@
   <xsl:template match="SynchronousCommand">
     <xsl:param name="mode" />
     <xsl:choose>
-      <xsl:when test="Command/IntegerVariable|
-                      Command/RealVariable|
-                      Command/BooleanVariable|
-                      Command/StringVariable|
-                      Command/ArrayVariable">
+      <xsl:when test="Command/(IntegerVariable|RealVariable|
+                      BooleanVariable|StringVariable|ArrayVariable)">
         <xsl:call-template name="command-with-return">
           <xsl:with-param name="mode" select="$mode" />
         </xsl:call-template>
@@ -1331,8 +1345,11 @@
   <!-- Boolean Expressions -->
 
   <!-- These expressions are translated recursively. -->
-  <xsl:template match="IsKnown|GT|GE|LT|LE|EQNumeric|EQInternal|EQString|
-                       NENumeric|NEInternal|NEString|OR|XOR|AND|NOT|EQBoolean|NEBoolean">
+  <xsl:template match="OR|XOR|AND|NOT|
+                       EQNumeric|EQInternal|EQString|EQBoolean|EQArray|
+                       NENumeric|NEInternal|NEString|NEBoolean|NEArray|
+                       GT|GE|LT|LE|
+                       IsKnown|ALL_KNOWN|ANY_KNOWN">
     <xsl:element name="{name()}">
       <xsl:apply-templates select="*" />
     </xsl:element>

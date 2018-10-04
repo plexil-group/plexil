@@ -41,8 +41,9 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     <xs:group name="Action">
       <xs:choice>
         <xs:element ref="Node"/>
-        <xs:element ref="Sequence"/>
         <xs:element ref="Concurrence"/>
+        <xs:element ref="Sequence"/>
+        <xs:element ref="CheckedSequence"/>
         <xs:element ref="UncheckedSequence"/>
         <xs:element ref="Try"/>
         <xs:element ref="If"/>
@@ -218,6 +219,16 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
        one fails, the Sequence form terminates with failure.
   -->
   <xs:element name="Sequence">
+    <xs:complexType>
+      <xs:group ref="SequenceType"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Each action in the sequence is performed in the given order.  If
+       one fails, the CheckedSequence form terminates with failure.
+  -->
+  <xs:element name="CheckedSequence">
     <xs:complexType>
       <xs:group ref="SequenceType"/>
       <xs:attributeGroup ref="SourceLocators"/>

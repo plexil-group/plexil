@@ -37,6 +37,8 @@ SYNCH =	SynchronousCommand1 SynchronousCommand2 SynchronousCommand3 \
 REST = UncheckedSequence1 UncheckedSequence2 \
 	UncheckedSequence3 UncheckedSequence4 \
 	Sequence1 Sequence2 Sequence3 Sequence4 \
+	CheckedSequence1 CheckedSequence2 \
+	CheckedSequence3 CheckedSequence4 \
 	Concurrence1 Concurrence2 Concurrence3 Concurrence4 Concurrence5 \
     If1 If2 If3 If4 If5 If6 If7 If8 \
 	While1 While2 While3 While4 While5 While6 \
