@@ -37,6 +37,7 @@
                exclude-result-prefixes="xs">
 
   <xsl:output method="xml" indent="no"/>
+  <!-- <xsl:output method="xml" indent="yes"/> FOR TESTING ONLY -->
 
   <!-- This is the "overriding copy idiom", from "XSLT Cookbook" by
        Sal Mangano.  It is the identity transform, covering all
@@ -55,7 +56,7 @@
   <xsl:key name="action"
            match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|
                   OnCommand|Wait|SynchronousCommand"
-           use="."/>
+           use="." />
 
   <!-- Entry point -->
   <xsl:template match="PlexilPlan">
@@ -523,7 +524,7 @@
       <xsl:apply-templates />
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="$expanded-clause/Node/StartCondition|$expanded-clause/Node/SkipCondition">
+      <xsl:when test="$expanded-clause/Node/(StartCondition|SkipCondition)">
         <!-- must create wrapper node -->
         <Node NodeType="NodeList" epx="{name(.)}">
           <NodeId><xsl:value-of select="tr:prefix(name(.))" /></NodeId>
@@ -623,7 +624,7 @@
       <xsl:apply-templates select="Action/*" />
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="$expanded-action/Node/StartCondition|$expanded-action/Node/SkipCondition">
+      <xsl:when test="$expanded-action/Node/(StartCondition|SkipCondition)">
         <!-- must create wrapper node -->
         <Node NodeType="NodeList" epx="Action">
           <NodeId>
@@ -1135,16 +1136,12 @@
 
   <xsl:template name="copy-source-locator-attributes">
     <xsl:param name="context" />
-    <xsl:copy-of select="$context/@FileName" />
-    <xsl:copy-of select="$context/@LineNo" />
-    <xsl:copy-of select="$context/@ColNo" />
+    <xsl:copy-of select="$context/(@FileName|@LineNo|@ColNo)" />
   </xsl:template>
 
   <xsl:template name="handle-common-clauses">
     <xsl:param name="context" />
-    <xsl:copy-of select="$context/Comment" />
-    <xsl:copy-of select="$context/Priority" />
-    <xsl:copy-of select="$context/Permissions" />
+    <xsl:copy-of select="$context/(Comment|Priority)" />
     <xsl:apply-templates select="$context/Interface"/>
   </xsl:template>
 
@@ -1160,16 +1157,16 @@
           <xsl:with-param name="context" select="$context" />
         </xsl:call-template>
         <xsl:apply-templates
-            select="$context/RepeatCondition|$context/PreCondition|
-                    $context/ExitCondition|$context/InvariantCondition|
-                    $context/EndCondition|$context/PostCondition" />
+            select="$context/(RepeatCondition|PreCondition|
+                    ExitCondition|InvariantCondition|
+                    EndCondition|PostCondition)" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates
-            select="$context/StartCondition|$context/SkipCondition|
-                    $context/RepeatCondition|$context/PreCondition|
-                    $context/ExitCondition|$context/InvariantCondition|
-                    $context/EndCondition|$context/PostCondition" />
+            select="$context/(StartCondition|SkipCondition|
+                    RepeatCondition|PreCondition|
+                    ExitCondition|InvariantCondition|
+                    EndCondition|PostCondition)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -1178,12 +1175,7 @@
     <xsl:param name="context" select="." />
     <xsl:choose>
       <xsl:when
-          test="$context/preceding-sibling::Node|$context/preceding-sibling::Sequence|
-                $context/preceding-sibling::UncheckedSequence|$context/preceding-sibling::If|
-                $context/preceding-sibling::While|$context/preceding-sibling::For|
-                $context/preceding-sibling::Try|$context/preceding-sibling::Concurrence|
-                $context/preceding-sibling::OnCommand|$context/preceding-sibling::OnMessage|
-                $context/preceding-sibling::SynchronousCommand|$context/preceding-sibling::Wait">
+          test="key('action', $context/preceding-sibling::element()[1])">
         <xsl:variable name="start-test">
           <xsl:call-template name="ordered-start-test">
             <xsl:with-param name="context" select="$context" />
@@ -1231,12 +1223,7 @@
     <xsl:if test="SkipCondition">
       <xsl:choose>
         <xsl:when
-            test="$context/preceding-sibling::Node|$context/preceding-sibling::Sequence|
-                  $context/preceding-sibling::UncheckedSequence|$context/preceding-sibling::If|
-                  $context/preceding-sibling::While|$context/preceding-sibling::For|
-                  $context/preceding-sibling::Try|$context/preceding-sibling::Concurrence|
-                  $context/preceding-sibling::OnCommand|$context/preceding-sibling::OnMessage|
-                  $context/preceding-sibling::SynchronousCommand|$context/preceding-sibling::Wait">
+            test="key('action', $context/preceding-sibling::element()[1])">
           <SkipCondition>
             <AND>
               <xsl:call-template name="ordered-skip-test">
@@ -1297,9 +1284,9 @@
   </xsl:template>
   
   <xsl:template
-    match="StartCondition|RepeatCondition|PreCondition|
-           PostCondition|InvariantCondition|EndCondition|
-           ExitCondition|SkipCondition">
+      match="StartCondition|RepeatCondition|PreCondition|
+             PostCondition|InvariantCondition|EndCondition|
+             ExitCondition|SkipCondition">
     <xsl:element name="{name()}">
       <xsl:apply-templates select="*" />
     </xsl:element>
