@@ -48,8 +48,11 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  NestedBlocks6 NestedBlocks7 nodeOutcome1 nodeState1 nodeState2 \
  on-command1 on-command2 on-message1 on-message2 \
  preconditionFailed1 \
- resource0 Resource1 Resource2 Resource3 Resource4 RoboSimSimple2 \
- SafeDrive sequence0 sequence1 sequence2 sequence3 \
+ resource0 Resource1 Resource2 Resource3 Resource4 \
+ RoboSimSimple2 SafeDrive \
+ sequence0 sequence1 sequence2 sequence3 \
+ checked-sequence0 checked-sequence1 checked-sequence2 checked-sequence3 \
+ unchecked-sequence0 unchecked-sequence1 unchecked-sequence2 unchecked-sequence3 \
  simpleIf SimpleDrive simpleIfThenElse simpleAssignment skipped1 \
  StringConcat1 StringConcat2 StringConcat3 StringConcat4 StringConcat5 \
  StringConcat6 StringConcat7 StringConcat8 strlen_test \

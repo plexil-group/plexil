@@ -1,6 +1,6 @@
 Command C (String);
 
-Root: {
+Root: UncheckedSequence {
   String s;
   s = "foo";
   C (s);  

@@ -1,6 +1,6 @@
 Command C (String);
 
-Root: {
+Root: CheckedSequence {
   String s;
   s = "foo";
   C (s);  
