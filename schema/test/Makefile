@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ REST = UncheckedSequence1 UncheckedSequence2 \
 	CheckedSequence1 CheckedSequence2 \
 	CheckedSequence3 CheckedSequence4 \
 	Concurrence1 Concurrence2 Concurrence3 Concurrence4 Concurrence5 \
-    If1 If2 If3 If4 If5 If6 If7 If8 \
+    If1 If2 If3 If4 If5 If6 If7 If8 If9 \
 	While1 While2 While3 While4 While5 While6 \
     For1 For2 For3 For4 For5 \
 	Try1 Try2 Try3 Try4 \
@@ -67,6 +67,7 @@ test: output
 	test_failed=0; \
 	for i in $(TESTS); do \
 		echo "$$i" >> $(LOG) ; \
+		rm -f output/$$i.plx output/$$i.plx.formatted ; \
 		$(EPLEXIL) input/$$i.epx output/$$i.plx ; \
 		if [ $$? -ne 0 ] ; then \
 			test_failed=1 ; \
@@ -83,6 +84,7 @@ test: output
 			if [ $$? -ne 0 ] ; then \
 				test_failed=1 ; \
 				echo "*** output/$$i.plx failed verification ***" ; \
+				xmllint --format output/$$i.plx > output/$$i.plx.formatted ; \
 			fi ; \
         fi ; \
 	done ; \

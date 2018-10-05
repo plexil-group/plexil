@@ -11,24 +11,16 @@
     </VariableDeclarations>
     <NodeBody>
       <NodeList>
-        <Node NodeType="Empty" epx="Condition">
-          <NodeId>ep2cp_IfTest</NodeId>
-          <PostCondition>
-            <BooleanVariable>test</BooleanVariable>
-          </PostCondition>
-        </Node>
         <Node NodeType="Empty" epx="Then">
-          <NodeId>One</NodeId>
           <StartCondition>
-            <Succeeded>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </Succeeded>
+            <BooleanVariable>test</BooleanVariable>
           </StartCondition>
           <SkipCondition>
-            <PostconditionFailed>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </PostconditionFailed>
+            <NOT>
+              <BooleanVariable>test</BooleanVariable>
+            </NOT>
           </SkipCondition>
+          <NodeId>One</NodeId>
         </Node>
       </NodeList>
     </NodeBody>

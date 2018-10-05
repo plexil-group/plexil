@@ -13,28 +13,24 @@
     <NodeId>Root</NodeId>
     <NodeBody>
       <NodeList>
-        <Node NodeType="Empty" epx="Condition">
-          <NodeId>ep2cp_IfTest</NodeId>
-          <PostCondition>
+        <Node NodeType="Empty" epx="Then">
+          <StartCondition>
             <LookupNow>
               <Name>
                 <StringValue>flag</StringValue>
               </Name>
             </LookupNow>
-          </PostCondition>
-        </Node>
-        <Node NodeType="Empty" epx="Then">
-          <NodeId>A</NodeId>
-          <StartCondition>
-            <Succeeded>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </Succeeded>
           </StartCondition>
           <SkipCondition>
-            <PostconditionFailed>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </PostconditionFailed>
+            <NOT>
+              <LookupNow>
+                <Name>
+                  <StringValue>flag</StringValue>
+                </Name>
+              </LookupNow>
+            </NOT>
           </SkipCondition>
+          <NodeId>A</NodeId>
         </Node>
       </NodeList>
     </NodeBody>

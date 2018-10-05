@@ -4,37 +4,27 @@
     <NodeId>ep2cp_If_d1e3</NodeId>
     <NodeBody>
       <NodeList>
-        <Node NodeType="Empty" epx="Condition">
-          <NodeId>ep2cp_IfTest</NodeId>
-          <PostCondition>
-            <BooleanValue>false</BooleanValue>
-          </PostCondition>
-        </Node>
         <Node NodeType="Empty" epx="Then">
-          <NodeId>One</NodeId>
           <StartCondition>
-            <Succeeded>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </Succeeded>
+            <BooleanValue>false</BooleanValue>
           </StartCondition>
           <SkipCondition>
-            <PostconditionFailed>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </PostconditionFailed>
+            <NOT>
+              <BooleanValue>false</BooleanValue>
+            </NOT>
           </SkipCondition>
+          <NodeId>One</NodeId>
         </Node>
         <Node NodeType="Empty" epx="Else">
-          <NodeId>Two</NodeId>
           <StartCondition>
-            <PostconditionFailed>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </PostconditionFailed>
+            <NOT>
+              <BooleanValue>false</BooleanValue>
+            </NOT>
           </StartCondition>
           <SkipCondition>
-            <Succeeded>
-              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-            </Succeeded>
+            <BooleanValue>false</BooleanValue>
           </SkipCondition>
+          <NodeId>Two</NodeId>
         </Node>
       </NodeList>
     </NodeBody>
