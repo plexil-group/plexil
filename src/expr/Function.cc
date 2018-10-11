@@ -58,17 +58,17 @@ namespace PLEXIL
 
   bool Function::isKnown() const
   {
-    return m_op->calcNative(m_valueCache, *this);
+    return m_op->isKnown(*this);
   }
 
   void Function::printValue(std::ostream &str) const
   {
-    m_op->printValue(str, m_valueCache, *this);
+    m_op->printValue(str, *this);
   }
 
   Value Function::toValue() const
   {
-    return m_op->toValue(m_valueCache, *this);
+    return m_op->toValue(*this);
   }
 
   bool Function::isPropagationSource() const

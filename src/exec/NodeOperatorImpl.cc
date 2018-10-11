@@ -37,30 +37,31 @@ namespace PLEXIL
   }
 
   // Convenience methods
-
   template <typename R>
-  bool NodeOperatorImpl<R>::calcNative(void *cache, NodeImpl const *node) const
+  bool NodeOperatorImpl<R>::isKnown(NodeImpl const *node) const
   {
-    return (*this)(*(static_cast<R *>(cache)), node);
+    R dummy;
+    return (*this)(dummy, node);
   }
 
   template <typename R>
-  void NodeOperatorImpl<R>::printValue(std::ostream &s, void *cache, NodeImpl const *node) const
+  void NodeOperatorImpl<R>::printValue(std::ostream &s, NodeImpl const *node) const
   {
-    if (calcNative(cache, node))
-      PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
+    R temp;
+    if ((*this)(temp, node))
+      PLEXIL::printValue(temp, s);
     else
-      s << "[unknown_value]";
+      s << "UNKNOWN";
   }
 
   template <typename R>
-  Value NodeOperatorImpl<R>::toValue(void *cache, NodeImpl const *node) const
+  Value NodeOperatorImpl<R>::toValue(NodeImpl const *node) const
   {
-    bool known = calcNative(cache, node);
-    if (known)
-      return Value(*(static_cast<R const *>(cache)));
+    R temp;
+    if ((*this)(temp, node))
+      return Value(temp);
     else
-      return Value();
+      return Value(0, PlexilValueType<R>::value);
   }
  
   // Array variants unlikely to be used any time soon

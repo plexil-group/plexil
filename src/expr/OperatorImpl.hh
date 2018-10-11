@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,9 +51,9 @@ namespace PLEXIL
     void *allocateCache() const;
     void deleteCache(void *ptr) const;
 
-    bool calcNative(void *cache, Function const &exprs) const;
-    void printValue(std::ostream &s, void *cache, Function const &exprs) const;
-    Value toValue(void *cache, Function const &exprs) const;
+    bool isKnown(Function const &exprs) const;
+    void printValue(std::ostream &s, Function const &exprs) const;
+    Value toValue(Function const &exprs) const;
 
     // Delegated to derived classes
     // Default methods issue "wrong argument count" error
@@ -91,9 +91,9 @@ namespace PLEXIL
     void *allocateCache() const;
     void deleteCache(void *ptr) const;
 
-    bool calcNative(void *cache, Function const &exprs) const;
-    void printValue(std::ostream &s, void *cache, Function const &exprs) const;
-    Value toValue(void *cache, Function const &exprs) const;
+    bool isKnown(Function const &exprs) const;
+    void printValue(std::ostream &s, Function const &exprs) const;
+    Value toValue(Function const &exprs) const;
 
     virtual bool calc(Integer &result, Expression const *arg) const;
     virtual bool calc(Integer &result, Expression const *arg0, Expression const *arg1) const;
@@ -124,9 +124,9 @@ namespace PLEXIL
     void *allocateCache() const;
     void deleteCache(void *ptr) const;
 
-    bool calcNative(void *cache, Function const &exprs) const;
-    void printValue(std::ostream &s, void *cache, Function const &exprs) const;
-    Value toValue(void *cache, Function const &exprs) const;
+    bool isKnown(Function const &exprs) const;
+    void printValue(std::ostream &s, Function const &exprs) const;
+    Value toValue(Function const &exprs) const;
 
     // Delegated to derived classes
     virtual bool calc(ArrayImpl<R> &result, Expression const *arg) const = 0;

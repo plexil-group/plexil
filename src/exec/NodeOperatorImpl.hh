@@ -29,7 +29,6 @@
 
 #include "NodeOperator.hh"
 
-#include "allocateCache.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -47,19 +46,19 @@ namespace PLEXIL
     // Default methods, based on R
     ValueType valueType() const;
 
+    // Not needed for Boolean, Integer, Real, internal values
     void *allocateCache() const
     {
-      return static_cast<void *>(PLEXIL::allocateCache<R>());
+      return NULL;
     }
 
     void deleteCache(void *ptr) const
     {
-      PLEXIL::deallocateCache<R>(static_cast<R *>(ptr));
     }
 
-    bool calcNative(void *cache, NodeImpl const *node) const;
-    virtual void printValue(std::ostream &s, void *cache, NodeImpl const *node) const;
-    Value toValue(void *cache, NodeImpl const *node) const;
+    bool isKnown(NodeImpl const *node) const;
+    void printValue(std::ostream &s, NodeImpl const *node) const;
+    Value toValue(NodeImpl const *node) const;
 
   protected:
 

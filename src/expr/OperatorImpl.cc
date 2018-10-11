@@ -71,15 +71,24 @@ namespace PLEXIL
   }
 
   // Allocate small objects from a pool per type
+
+  // Booleans, Integers, Reals, internal values don't use a cache
   template <typename R>
   void *OperatorImpl<R>::allocateCache() const
   {
-    return static_cast<void *>(PLEXIL::allocateCache<R>());
+    return NULL;
   }
 
   void *OperatorImpl<Integer>::allocateCache() const
   {
-    return static_cast<void *>(PLEXIL::allocateCache<Integer>());
+    return NULL;
+  }
+
+  // Strings, arrays need to allocate a cache for getValuePointer()
+  template <>
+  void *OperatorImpl<String>::allocateCache() const
+  {
+    return static_cast<void *>(new String);
   }
 
   template <typename R>
@@ -88,15 +97,21 @@ namespace PLEXIL
     return static_cast<void *>(new ArrayImpl<R>);
   }
 
+  // Booleans, Integers, Reals, internal values don't use a cache
   template <typename R>
   void OperatorImpl<R>::deleteCache(void *ptr) const
   {
-    PLEXIL::deallocateCache(static_cast<R *>(ptr));
   }
 
   void OperatorImpl<Integer>::deleteCache(void *ptr) const
   {
-    PLEXIL::deallocateCache(static_cast<Integer *>(ptr));
+  }
+
+  // Strings, arrays need to allocate a cache for getValuePointer()
+  template <>
+  void OperatorImpl<String>::deleteCache(void *ptr) const
+  {
+    delete static_cast<String *>(ptr);
   }
 
   template <typename R>
@@ -198,78 +213,84 @@ namespace PLEXIL
   // Convenience methods
 
   template <typename R>
-  bool OperatorImpl<R>::calcNative(void *cache, Function const &func) const
+  bool OperatorImpl<R>::isKnown(Function const &func) const
   {
-    return func.getValue(*(static_cast<R *>(cache)));
+    R dummy;
+    // N.B.: We do this roundabout call back to the function
+    // so the function can dispatch to the appropriate calc() method
+    // based on its argument count. See Function.cc.
+    return func.getValue(dummy);
   }
 
-  bool OperatorImpl<Integer>::calcNative(void *cache, Function const &func) const
+  bool OperatorImpl<Integer>::isKnown(Function const &func) const
   {
-    return func.getValue(*(static_cast<Integer *>(cache)));
+    Integer dummy;
+    return func.getValue(dummy);
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Function const &func) const
+  bool OperatorImpl<ArrayImpl<R> >::isKnown(Function const &func) const
   {
-    return func.apply(this, *(static_cast<Array *>(cache)));
+    ArrayImpl<R> dummy;
+    return func.getValue(dummy);
   }
 
   template <typename R>
-  void OperatorImpl<R>::printValue(std::ostream &str,
-                                   void *cache,
-                                   Function const &func) const
+  void OperatorImpl<R>::printValue(std::ostream &s, Function const &exprs) const
   {
-    if (calcNative(cache, func))
-      PLEXIL::printValue(*(static_cast<R const *>(cache)), str);
+    R temp;
+    if (exprs.getValue(temp))
+      PLEXIL::printValue(temp, s);
     else
-      str << "UNKNOWN";
+      s << "UNKNOWN";
   }
 
-  void OperatorImpl<Integer>::printValue(std::ostream &str,
-                                         void *cache,
-                                         Function const &func) const
+  void OperatorImpl<Integer>::printValue(std::ostream &s, Function const &exprs) const
   {
-    if (calcNative(cache, func))
-      PLEXIL::printValue(*(static_cast<Integer const *>(cache)), str);
+    Integer temp;
+    if (exprs.getValue(temp))
+      PLEXIL::printValue(temp, s);
     else
-      str << "UNKNOWN";
+      s << "UNKNOWN";
   }
 
   template <typename R>
-  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &str,
-                                               void *cache,
-                                               Function const &func) const
+  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, Function const &exprs) const
   {
-    if (calcNative(cache, func))
-      PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), str);
+    ArrayImpl<R> temp;
+    if (exprs.getValue(temp))
+      PLEXIL::printValue(temp, s);
     else
-      str << "UNKNOWN";
+      s << "UNKNOWN";
   }
 
   template <typename R>
-  Value OperatorImpl<R>::toValue(void *cache, Function const &func) const
+  Value OperatorImpl<R>::toValue(Function const &exprs) const
   {
-    bool known = calcNative(cache, func);
-    if (known)
-      return Value(*(static_cast<R const *>(cache)));
-    return Value(0, PlexilValueType<R>::value);
+    R temp;
+    if (exprs.getValue(temp))
+      return Value(temp);
+    else
+      return Value(0, PlexilValueType<R>::value);
   }
 
-  Value OperatorImpl<Integer>::toValue(void *cache, Function const &func) const
+  Value OperatorImpl<Integer>::toValue(Function const &exprs) const
   {
-    bool known = calcNative(cache, func);
-    if (known)
-      return Value(*(static_cast<Integer const *>(cache)));
-    return Value(0, INTEGER_TYPE);
+    Integer temp;
+    if (exprs.getValue(temp))
+      return Value(temp);
+    else
+      return Value(0, INTEGER_TYPE);
   }
 
   template <typename R>
-  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, Function const &func) const
+  Value OperatorImpl<ArrayImpl<R> >::toValue(Function const &exprs) const
   {
-    bool known = calcNative(cache, func);
-    if (known)
-      return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
-    return Value(0, PlexilValueType<ArrayImpl<R> >::value);
+    ArrayImpl<R> temp;
+    if (exprs.getValue(temp))
+      return Value(temp);
+    else
+      return Value(0, PlexilValueType<ArrayImpl<R> >::value);
   }
 
   // Default methods

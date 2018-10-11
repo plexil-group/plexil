@@ -61,12 +61,12 @@ namespace PLEXIL
   bool NodeFunction::isKnown() const
   {
     // Delegate to operator
-    return m_op->calcNative(m_valueCache, m_node);
+    return m_op->isKnown(m_node);
   }
 
   void NodeFunction::printValue(std::ostream &s) const
   {
-    m_op->printValue(s, m_valueCache, m_node);
+    m_op->printValue(s, m_node);
   }
 
   void NodeFunction::printSpecialized(std::ostream & str) const
@@ -76,7 +76,7 @@ namespace PLEXIL
 
   Value NodeFunction::toValue() const
   {
-    return m_op->toValue(m_valueCache, m_node);
+    return m_op->toValue(m_node);
   }
 
   void NodeFunction::doSubexprs(ExprUnaryOperator const &oper)

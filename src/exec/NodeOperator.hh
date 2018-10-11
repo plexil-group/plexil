@@ -73,10 +73,9 @@ namespace PLEXIL
     // virtual bool operator()(RealArray &result, NodeImpl const *node) const;
     // virtual bool operator()(StringArray &result, NodeImpl const *node) const;
 
-
-    virtual bool calcNative(void *cache, NodeImpl const *node) const = 0;
-    virtual void printValue(std::ostream &s, void *cache, NodeImpl const *node) const = 0;
-    virtual Value toValue(void *cache, NodeImpl const *node) const = 0;
+    virtual bool isKnown(NodeImpl const *node) const = 0;
+    virtual void printValue(std::ostream &s, NodeImpl const *node) const = 0;
+    virtual Value toValue(NodeImpl const *node) const = 0;
 
     // Helper for notification network
     virtual void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const = 0;
