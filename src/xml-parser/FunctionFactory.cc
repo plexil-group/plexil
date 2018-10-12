@@ -28,6 +28,7 @@
 
 #include "ArithmeticOperators.hh"
 #include "BooleanOperators.hh"
+#include "CachedFunction.hh"
 #include "Comparisons.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
@@ -36,8 +37,9 @@
 
 namespace PLEXIL
 {
-  FunctionFactory::FunctionFactory(std::string const &name)
-    : ExpressionFactory(name)
+  FunctionFactory::FunctionFactory(Operator const *op, std::string const &name)
+    : ExpressionFactory(name),
+      m_op(op)
   {
   }
 
@@ -45,11 +47,20 @@ namespace PLEXIL
   {
   }
 
+  CachedFunctionFactory::CachedFunctionFactory(Operator const *op, std::string const &name)
+    : FunctionFactory(op, name)
+  {
+  }
+
+  CachedFunctionFactory::~CachedFunctionFactory()
+  {
+  }
+
   ValueType FunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
     throw (ParserException)
   {
     size_t n = std::distance(expr.begin(), expr.end());
-    Operator const *oper = this->getOperator();
+    Operator const *oper = m_op;
     assertTrueMsg(oper, "FunctionFactory::check: no operator for " << m_name);
     checkParserExceptionWithLocation(oper->checkArgCount(n),
                                      expr,
@@ -74,8 +85,8 @@ namespace PLEXIL
     throw (ParserException)
   {
     size_t n = std::distance(expr.begin(), expr.end());
-    Operator const *oper = this->getOperator();
-    Function *result = makeFunction(oper, n);
+    Operator const *oper = m_op;
+    Function *result = this->constructFunction(oper, n);
     try {
       size_t i = 0;
       for (pugi::xml_node subexp = expr.first_child();
@@ -102,30 +113,14 @@ namespace PLEXIL
     return result;
   }
 
-  //
-  // Concrete instantiations of class templates
-  //
+  Function *FunctionFactory::constructFunction(Operator const *op, size_t n) const
+  {
+    return makeFunction(op,n);
+  }
 
-  // Convenience macros
-#define ENSURE_FUNCTION_FACTORY(CLASS) template class PLEXIL::FunctionFactoryImpl<CLASS>;
-
-  // Comparisons
-  ENSURE_FUNCTION_FACTORY(Equal);
-  ENSURE_FUNCTION_FACTORY(NotEqual);
-
-  // Not currently in the schema
-  // ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>);
-  // ENSURE_FUNCTION_FACTORY(GreaterEqual<std::string>);
-  // ENSURE_FUNCTION_FACTORY(LessThan<std::string>);
-  // ENSURE_FUNCTION_FACTORY(LessEqual<std::string>);
-
-  // Boolean operators
-  ENSURE_FUNCTION_FACTORY(BooleanNot);
-  ENSURE_FUNCTION_FACTORY(BooleanOr);
-  ENSURE_FUNCTION_FACTORY(BooleanAnd);
-  ENSURE_FUNCTION_FACTORY(BooleanXor);
-  ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
-  ENSURE_FUNCTION_FACTORY(RealToInteger);
-
+  Function *CachedFunctionFactory::constructFunction(Operator const *op, size_t n) const
+  {
+    return makeCachedFunction(op,n);
+  }
 
 } // namespace PLEXIL

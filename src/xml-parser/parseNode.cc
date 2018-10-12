@@ -1,28 +1,28 @@
 /* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "parseNode.hh"
 
@@ -78,48 +78,48 @@ namespace PLEXIL
   static void checkVariableDeclaration(char const *nodeId, xml_node const decl)
     throw (ParserException)
   {
-      checkParserExceptionWithLocation(testTag(DECL_VAR_TAG, decl)
-                                       || testTag(DECL_ARRAY_TAG, decl),
-                                       decl,
-                                       "Node \"" << nodeId
-                                       << "\": \"" << decl.name()
-                                       << "\" is not a valid variable declaration element");
+    checkParserExceptionWithLocation(testTag(DECL_VAR_TAG, decl)
+                                     || testTag(DECL_ARRAY_TAG, decl),
+                                     decl,
+                                     "Node \"" << nodeId
+                                     << "\": \"" << decl.name()
+                                     << "\" is not a valid variable declaration element");
   
     // Common checking for DeclareVariable and DeclareArray
-      xml_node temp = decl.first_child();
-      checkParserExceptionWithLocation(temp,
-                                       decl,
-                                       "Node \"" << nodeId
-                                       << "\": Empty " << decl.name() << " element in " << decl.name());
-      checkTag(NAME_TAG, temp);
-      char const *name = temp.child_value();
-      checkParserExceptionWithLocation(*name,
-                                       temp,
-                                       "Node \"" << nodeId
-                                       << "\": Empty " << temp.name() << " element in " << decl.name());
-      temp = temp.next_sibling();
-      checkParserExceptionWithLocation(temp,
-                                       decl,
-                                       "Node \"" << nodeId
-                                       << "\": " << decl.name() << " missing " << TYPE_TAG
-                                       << " element in "
-                                       << decl.name() << ' ' << decl.child_value(NAME_TAG));
-      checkTag(TYPE_TAG, temp);
-      checkParserExceptionWithLocation(*temp.child_value(),
-                                       temp,
-                                       "Node \"" << nodeId
-                                       << "\": Empty " << temp.name() << " element in "
-                                       << decl.name() << ' ' << decl.child_value(NAME_TAG));
-      ValueType typ = parseValueType(temp.child_value());
-      checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
-                                       temp,
-                                       "Node \"" << nodeId
-                                       << "\": Unknown type name " << temp.child_value()
-                                       << " in " << decl.name() << ' ' << decl.child_value(NAME_TAG));
+    xml_node temp = decl.first_child();
+    checkParserExceptionWithLocation(temp,
+                                     decl,
+                                     "Node \"" << nodeId
+                                     << "\": Empty " << decl.name() << " element in " << decl.name());
+    checkTag(NAME_TAG, temp);
+    char const *name = temp.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     temp,
+                                     "Node \"" << nodeId
+                                     << "\": Empty " << temp.name() << " element in " << decl.name());
+    temp = temp.next_sibling();
+    checkParserExceptionWithLocation(temp,
+                                     decl,
+                                     "Node \"" << nodeId
+                                     << "\": " << decl.name() << " missing " << TYPE_TAG
+                                     << " element in "
+                                     << decl.name() << ' ' << decl.child_value(NAME_TAG));
+    checkTag(TYPE_TAG, temp);
+    checkParserExceptionWithLocation(*temp.child_value(),
+                                     temp,
+                                     "Node \"" << nodeId
+                                     << "\": Empty " << temp.name() << " element in "
+                                     << decl.name() << ' ' << decl.child_value(NAME_TAG));
+    ValueType typ = parseValueType(temp.child_value());
+    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+                                     temp,
+                                     "Node \"" << nodeId
+                                     << "\": Unknown type name " << temp.child_value()
+                                     << " in " << decl.name() << ' ' << decl.child_value(NAME_TAG));
 
-      // Dispatch to specific checks
-      // See UserVariableFactory.cc and ArrayVariableFactory.cc
-      checkExpression(nodeId, decl); // for effect; can throw ParserException
+    // Dispatch to specific checks
+    // See UserVariableFactory.cc and ArrayVariableFactory.cc
+    checkExpression(nodeId, decl); // for effect; can throw ParserException
   }
 
   // Non-error-checking variant of above

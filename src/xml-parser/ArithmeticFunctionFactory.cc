@@ -38,6 +38,7 @@ using pugi::xml_node;
 
 namespace PLEXIL
 {
+
   // Common case logic
   static ValueType arithmeticCommonType(ValueType const types[], size_t len)
   {
@@ -93,12 +94,29 @@ namespace PLEXIL
     return arithmeticCommonType(types, len);
   }
 
-  ArithmeticFunctionFactory::ArithmeticFunctionFactory(std::string const &name)
-    : FunctionFactory(name)
+  ArithmeticFunctionFactory::ArithmeticFunctionFactory(Operator const *integerOp,
+                                                       Operator const *realOp,
+                                                       std::string const &name)
+    : FunctionFactory(NULL, name),
+      m_intOp(integerOp),
+      m_realOp(realOp)
   {
   }
 
   ArithmeticFunctionFactory::~ArithmeticFunctionFactory()
+  {
+  }
+
+  ComparisonFactory::ComparisonFactory(Operator const *integerOp,
+                                       Operator const *realOp,
+                                       Operator const *stringOp,
+                                       std::string const &name)
+    : ArithmeticFunctionFactory(integerOp, realOp, name),
+      m_stringOp(stringOp)
+  {
+  }
+
+  ComparisonFactory::~ComparisonFactory()
   {
   }
 
@@ -127,12 +145,51 @@ namespace PLEXIL
     return arithmeticCommonType(types, n);
   }
 
-  template <template <typename NUM> class OP>
-  ValueType ComparisonFactoryImpl<OP>::check(char const *nodeId, pugi::xml_node const expr) const
+  // Wrapper for comparisons
+  ValueType ComparisonFactory::check(char const *nodeId, pugi::xml_node const expr) const
     throw (ParserException)
   {
     ArithmeticFunctionFactory::check(nodeId, expr);
     return BOOLEAN_TYPE;
+  }
+
+  Operator const *ArithmeticFunctionFactory::selectOperator(ValueType type) const
+  {
+    switch (type) {
+    case INTEGER_TYPE:
+      return m_intOp;
+
+    case REAL_TYPE:
+      return m_realOp;
+      
+    default:
+      checkParserException(false,
+                           "createExpression: invalid or unimplemented type "
+                           << valueTypeName(type)
+                           << " for operator " << this->m_name);
+      return NULL;
+    }
+  }
+
+  Operator const *ComparisonFactory::selectOperator(ValueType type) const
+  {
+    switch (type) {
+    case INTEGER_TYPE:
+      return m_intOp;
+
+    case REAL_TYPE:
+      return m_realOp;
+      
+    case STRING_TYPE:
+      return m_stringOp;
+
+    default:
+      checkParserException(false,
+                           "createExpression: invalid or unimplemented type "
+                           << valueTypeName(type)
+                           << " for comparison operator " << this->m_name);
+      return NULL;
+    }
   }
 
   Expression *ArithmeticFunctionFactory::allocate(xml_node const expr,
@@ -202,34 +259,5 @@ namespace PLEXIL
     wasCreated = true;
     return result;
   }
-
-  // Convenience macro
-#define ENSURE_ARITHMETIC_FUNCTION_FACTORY(CLASS) template class PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>;
-#define ENSURE_COMPARISON_FACTORY(CLASS) template class PLEXIL::ComparisonFactoryImpl<CLASS>;
-
-  // Arithmetic operators
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Addition);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Subtraction);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Multiplication);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Division);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Modulo);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Minimum);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Maximum);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(AbsoluteValue);
-
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Ceiling);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Floor);
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Round);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
-#endif // !defined(__VXWORKS__)
-
-  // Comparisons
-  ENSURE_COMPARISON_FACTORY(GreaterThan);
-  ENSURE_COMPARISON_FACTORY(GreaterEqual);
-  ENSURE_COMPARISON_FACTORY(LessThan);
-  ENSURE_COMPARISON_FACTORY(LessEqual);
-
 
 } // namespace PLEXIL

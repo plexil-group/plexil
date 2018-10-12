@@ -38,8 +38,9 @@
 namespace PLEXIL
 {
 
-  NodeFunctionFactory::NodeFunctionFactory(std::string const &name)
-    : ExpressionFactory(name)
+  NodeFunctionFactory::NodeFunctionFactory(NodeOperator const *op, std::string const &name)
+    : ExpressionFactory(name),
+      m_op(op)
   {
   }
 
@@ -50,19 +51,18 @@ namespace PLEXIL
   ValueType NodeFunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
     throw (ParserException)
   {
+    assertTrueMsg(m_op, "NodeFunctionFactory::check: no operator for " << m_name);
     size_t n = std::distance(expr.begin(), expr.end());
-    NodeOperator const *oper = this->getOperator();
-    assertTrueMsg(oper, "NodeFunctionFactory::check: no operator for " << m_name);
     checkParserExceptionWithLocation(n == 1,
                                      expr,
                                      "Node \"" << nodeId
                                      << "\": Wrong number of operands for operator "
-                                     << oper->getName());
+                                     << m_op->getName());
 
     // KLUDGE: We presume there is only one argument, a node reference.
     // Check argument
     checkNodeReference(expr.first_child());
-    return oper->valueType();
+    return m_op->valueType();
   }
 
   Expression *NodeFunctionFactory::allocate(pugi::xml_node const expr,
@@ -74,12 +74,11 @@ namespace PLEXIL
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
     assertTrueMsg(impl,
                   "NodeFunctionFactory: internal error: node argument is not a NodeImpl");
-    NodeOperator const *oper = this->getOperator(); // damned well better not be NULL!!
     NodeImpl *refNode = parseNodeReference(expr.first_child(), impl);
     assertTrueMsg(refNode,
                   expr.name() << ": Internal error: no node matching node reference");
     wasCreated = true;
-    return new NodeFunction(oper, refNode);
+    return new NodeFunction(m_op, refNode);
   }
 
 }

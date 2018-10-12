@@ -29,21 +29,19 @@
 #include "ArrayImpl.hh"
 #include "Error.hh"
 #include "Operator.hh"
+#include "PlanError.hh"
 #include "Value.hh"
 
 namespace PLEXIL
 {
   Function::Function(Operator const *oper)
     : NotifierImpl(),
-      m_op(oper),
-      m_valueCache(oper->allocateCache())
+      m_op(oper)
   {
   }
 
   Function::~Function()
   {
-    if (m_op && m_valueCache)
-      m_op->deleteCache(m_valueCache);
   }
 
   const char *Function::exprName() const
@@ -92,13 +90,14 @@ namespace PLEXIL
 
 #undef DEFINE_FUNC_DEFAULT_GET_VALUE_METHOD
 
+  // These types must use CachedFunction instead
+
 #define DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD(_type) \
   bool Function::getValuePointer(_type const *&ptr) const \
   { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), *this);    \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
+    reportPlanError("getValuePointer not implemented for type " << #_type \
+                    << " for " << m_op->getName());                     \
+    return false;                                                       \
   }
 
   DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD(String)
@@ -117,11 +116,8 @@ namespace PLEXIL
   }
 
   //
-  // Implementations
-  //
-
-  //
   // NullaryFunction is a function which takes no arguments.
+  //  E.g. random().
   //
 
   class NullaryFunction : public Function
@@ -179,7 +175,6 @@ namespace PLEXIL
     NullaryFunction(NullaryFunction const &);
     NullaryFunction &operator=(NullaryFunction const &);
   };
-
 
   //
   // FixedSizeFunction
@@ -285,25 +280,6 @@ namespace PLEXIL
 
 #undef DEFINE_FIXED_ARG_GET_VALUE_METHOD
 
-// Have to define this so specialized template functions can be defined below
-#define DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(_type) \
-  virtual bool getValuePointer(_type const *&ptr) const \
-  { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), this);    \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
-
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(String)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(Array)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(BooleanArray)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(IntegerArray)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(RealArray)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(StringArray)
-
-#undef DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD
-
     // Default method, overridden in specialized variants
     virtual bool apply(Operator const *oper, Array &result) const
     {
@@ -370,33 +346,11 @@ namespace PLEXIL
   DEFINE_ONE_ARG_GET_VALUE_METHOD(Boolean)
   DEFINE_ONE_ARG_GET_VALUE_METHOD(Integer)
   DEFINE_ONE_ARG_GET_VALUE_METHOD(Real)
-  DEFINE_ONE_ARG_GET_VALUE_METHOD(String)
 
   // Use base class method for now
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(NodeState)
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(NodeOutcome)
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(FailureType)
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(Commandhandlevalue)
+  // DEFINE_ONE_ARG_GET_VALUE_METHOD(uint16_t)
 
 #undef DEFINE_ONE_ARG_GET_VALUE_METHOD
-
-#define DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(_type) \
-  template <> bool FixedSizeFunction<1>::getValuePointer(_type const *&ptr) const   \
-  { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), exprs[0]); \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
-
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(String)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(Array)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(BooleanArray)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(IntegerArray)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(RealArray)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(StringArray)
-  
-#undef DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD
 
   // Specialized method
   template <>
@@ -465,33 +419,11 @@ namespace PLEXIL
   DEFINE_TWO_ARG_GET_VALUE_METHOD(Boolean)
   DEFINE_TWO_ARG_GET_VALUE_METHOD(Integer)
   DEFINE_TWO_ARG_GET_VALUE_METHOD(Real)
-  DEFINE_TWO_ARG_GET_VALUE_METHOD(String)
 
   // Use base class method for now 
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(NodeState)
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(NodeOutcome)
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(FailureType)
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(CommandHandleValue)
+  // DEFINE_TWO_ARG_GET_VALUE_METHOD(uint16_t)
 
 #undef DEFINE_TWO_ARG_GET_VALUE_METHOD
-
-#define DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(_type) \
-  template <> bool FixedSizeFunction<2>::getValuePointer(_type const *&ptr) const \
-  { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), exprs[0], exprs[1]); \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
-
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(String)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(Array)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(BooleanArray)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(IntegerArray)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(RealArray)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(StringArray)
-  
-#undef DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD
 
   // Specialized method
   template <>

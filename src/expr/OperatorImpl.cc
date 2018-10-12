@@ -26,7 +26,6 @@
 
 #include "OperatorImpl.hh"
 
-#include "allocateCache.hh"
 #include "ArrayFwd.hh"
 #include "Expression.hh"
 #include "Function.hh"

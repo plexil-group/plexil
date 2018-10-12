@@ -30,6 +30,7 @@
 #include "Error.hh"
 #include "NodeImpl.hh"
 #include "NodeOperator.hh"
+#include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
@@ -38,14 +39,12 @@ namespace PLEXIL
   NodeFunction::NodeFunction(NodeOperator const *op, NodeImpl *node)
     : NotifierImpl(),
       m_op(op),
-      m_node(node),
-      m_valueCache(op->allocateCache())
+      m_node(node)
   {
   }
 
   NodeFunction::~NodeFunction()
   {
-    m_op->deleteCache(m_valueCache);
   }
 
   const char *NodeFunction::exprName() const
@@ -91,7 +90,8 @@ namespace PLEXIL
   }
 
   DEFINE_NODE_FUNC_GET_VALUE_METHOD(Boolean)
-  // Only Boolean operators implemented to date
+  // Only Boolean operators implemented to date,
+  // uncomment these as necessary
   // DEFINE_NODE_FUNC_GET_VALUE_METHOD(uint16_t)
   // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
   // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
@@ -99,18 +99,18 @@ namespace PLEXIL
 
 #undef DEFINE_NODE_FUNC_GET_VALUE_METHOD
 
-#define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
-  bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
-  { \
-    bool result = (*m_op)(*static_cast<_rtype *>(m_valueCache), m_node); \
-    if (result) \
-      ptr = static_cast<_rtype const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
+// Uncomment this if we ever need String or Array results
+// #define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
+//   bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
+//   { \
+//     reportPlanError("getValuePointer not implemented for type " << #_type \
+//                     << " for " << m_op->getName());                     \
+//     return false;                               \
+//   }
 
-  // Only Boolean operators implemented to date
-  // DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
+//   // Only Boolean operators implemented to date
+//   // DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
   
-#undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
+// #undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
 
 } // namespace PLEXIL

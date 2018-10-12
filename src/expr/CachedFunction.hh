@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,17 +24,34 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PLEXIL_CACHED_FUNCTION_HH
+#define PLEXIL_CACHED_FUNCTION_HH
+
+#include <cstddef> // size_t
+
 namespace PLEXIL
 {
 
-  //
-  // Specialized allocator for Operator result caches
-  //
+  // Forward references
+  class Expression;
+  class Function;
+  class Operator;
 
-  template <typename T>
-  T *allocateCache();
+  // Factory functions
+  extern Function *makeCachedFunction(Operator const *op,
+                                      size_t nargs);
 
-  template <typename T>
-  void deallocateCache(T *);
+  // Convenience wrappers for Node classes and unit test
+  extern Function *makeCachedFunction(Operator const *op,
+                                      Expression *expr,
+                                      bool garbage);
+
+  extern Function *makeCachedFunction(Operator const *op, 
+                                      Expression *expr1,
+                                      Expression *expr2,
+                                      bool garbage1,
+                                      bool garbage2);
 
 }
+
+#endif // PLEXIL_CACHED_FUNCTION_HH

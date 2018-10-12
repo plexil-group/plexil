@@ -34,7 +34,7 @@ namespace PLEXIL
   // StringConcat
   //
   StringConcat::StringConcat()
-    : OperatorImpl<String>("CONCAT")
+    : OperatorImpl<String>("Concat")
   {
   }
   

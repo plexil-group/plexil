@@ -84,7 +84,7 @@ namespace PLEXIL
       new VariableReferenceFactory("BooleanVariable", BOOLEAN_TYPE); // for effect
 
       REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
-      REGISTER_FUNCTION(StringConcat, Concat);
+      REGISTER_CACHED_FUNCTION(StringConcat, Concat);
 
       REGISTER_ARITHMETIC_FUNCTION(Division, DIV);
 

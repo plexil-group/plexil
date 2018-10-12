@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "Constant.hh"
 #include "Function.hh"
+#include "CachedFunction.hh"
 #include "StringOperators.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"
@@ -68,8 +69,8 @@ static bool testStringConcat()
 
   {
     // Unary function of constant
-    Function *fooConc = makeFunction(StringConcat::instance(),
-                                     &foo, false);
+    Function *fooConc = makeCachedFunction(StringConcat::instance(),
+                                           &foo, false);
     fooConc->activate();
     assertTrue_1(fooConc->getValue(result));
     assertTrue_1(foo.getValue(result2));
@@ -80,8 +81,8 @@ static bool testStringConcat()
 
   {
     // Unary of unint'ed variable
-    Function *barConc = makeFunction(StringConcat::instance(),
-                                     &bar, false);
+    Function *barConc = makeCachedFunction(StringConcat::instance(),
+                                           &bar, false);
     barConc->activate();
     assertTrue_1(!barConc->getValue(result));
 
@@ -96,9 +97,9 @@ static bool testStringConcat()
   
   {
     // Binary of constant, variable
-    Function *fooBazConc = makeFunction(StringConcat::instance(),
-                                        &foo, &baz,
-                                        false, false);
+    Function *fooBazConc = makeCachedFunction(StringConcat::instance(),
+                                              &foo, &baz,
+                                              false, false);
     fooBazConc->activate();
     assertTrue_1(!fooBazConc->getValue(result));
 
@@ -118,7 +119,7 @@ static bool testStringConcat()
 
   {
     // N-ary
-    Function *nConc = makeFunction(StringConcat::instance(), 4);
+    Function *nConc = makeCachedFunction(StringConcat::instance(), 4);
     nConc->setArgument(0, &foo, false);
     nConc->setArgument(1, &bar, false);
     nConc->setArgument(2, &baz, false);

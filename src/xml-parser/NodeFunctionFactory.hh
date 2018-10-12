@@ -37,7 +37,7 @@ namespace PLEXIL
   class NodeFunctionFactory : public ExpressionFactory
   {
   public:
-    NodeFunctionFactory(std::string const &name);
+    NodeFunctionFactory(NodeOperator const *op, std::string const &name);
     virtual ~NodeFunctionFactory();
 
     ValueType check(char const *nodeId, pugi::xml_node expr) const
@@ -49,47 +49,18 @@ namespace PLEXIL
                          ValueType returnType) const
       throw (ParserException);
 
-  protected:
-
-    // Delegated to derived class
-    virtual NodeOperator const *getOperator() const = 0;
-
   private:
     // Unimplemented
     NodeFunctionFactory();
     NodeFunctionFactory(NodeFunctionFactory const &);
     NodeFunctionFactory &operator=(NodeFunctionFactory const &);
-  };
 
-  template <class OP>
-  class NodeFunctionFactoryImpl : public NodeFunctionFactory
-  {
-  public:
-    NodeFunctionFactoryImpl(std::string const &name)
-      : NodeFunctionFactory(name)
-    {
-    }
-
-    ~NodeFunctionFactoryImpl()
-    {
-    }
-
-  protected:
-    NodeOperator const *getOperator() const
-    {
-      return OP::instance();
-    }
-
-  private:
-    // Unimplemented
-    NodeFunctionFactoryImpl();
-    NodeFunctionFactoryImpl(NodeFunctionFactoryImpl const &);
-    NodeFunctionFactoryImpl &operator=(NodeFunctionFactoryImpl const &);
+    NodeOperator const *m_op;
   };
 
 } // namespace PLEXIL
 
 // Convenience macros
-#define REGISTER_NODE_FUNCTION(CLASS,NAME) {new PLEXIL::NodeFunctionFactoryImpl<CLASS>(#NAME);}
+#define REGISTER_NODE_FUNCTION(CLASS,NAME) {new PLEXIL::NodeFunctionFactory(CLASS::instance(), #NAME);}
 
 #endif // PLEXIL_NODE_FUNCTION_FACTORY_HH

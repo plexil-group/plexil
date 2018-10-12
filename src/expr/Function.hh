@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@ namespace PLEXIL
 
   /**
    * @class Function
-   * @brief An abstract base class.
-   * Represents a function whose value depends on the value(s) of one or more subexpressions.
+   * @brief Represents an expression whose value depends on
+   *        the value(s) of zero or more subexpressions.
    */
 
   class Function : public NotifierImpl
@@ -120,12 +120,6 @@ namespace PLEXIL
     virtual void doSubexprs(ExprUnaryOperator const &f) = 0;
 
     Operator const *m_op;
-
-    // For implementing getValuePointer().
-    // Must be a pointer to preserve const-ness.
-    // Cache is allocated and deleted by the operator, which knows its size.
-
-    void *m_valueCache;
 
   private:
     // Not implemented
