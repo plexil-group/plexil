@@ -455,9 +455,9 @@ static bool testLookupOnChange()
   assertTrue_1(!changeWithToleranceNotified);
 
   tolerance.setValue(0.25);
+  assertTrue_1(changeWithToleranceNotified);
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 1.4);
-  assertTrue_1(changeWithToleranceNotified);
 
   // Test making tolerance unknown
   tolerance.setUnknown();

@@ -104,6 +104,18 @@ namespace PLEXIL
     virtual void removeListener(ExpressionListener *ptr);
 
     /**
+     * @brief Unconditionally add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     */
+    virtual void addListenerInternal(ExpressionListener *ptr);
+
+    /**
+     * @brief Unconditionally remove a listener.
+     * @param ptr The pointer to the listener to remove.
+     */
+    virtual void removeListenerInternal(ExpressionListener *ptr);
+
+    /**
      * @brief Notify this expression that a subexpression's value has changed.
      * @note This method overrides the one on Expression.
      */
@@ -129,22 +141,16 @@ namespace PLEXIL
   protected:
 
     /**
-     * @brief Report whether the expression has listeners.
-     * @return True if present, false if not.
-     */
-    virtual bool hasListeners() const;
-
-    /**
-     * @brief Unconditionally add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     */
-    virtual void addListenerInternal(ExpressionListener *ptr);
-
-    /**
      * @brief Default constructor.
      * @note Only available to derived classes.
      */
     NotifierImpl();
+
+    /**
+     * @brief Report whether the expression has listeners.
+     * @return True if present, false if not.
+     */
+    bool hasListeners() const;
 
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept

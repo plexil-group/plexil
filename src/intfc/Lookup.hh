@@ -180,6 +180,10 @@ namespace PLEXIL
 
     virtual void doSubexprs(ExprUnaryOperator const &f);
 
+    // Wrappers
+    virtual void addListenerInternal(ExpressionListener *l);
+    virtual void removeListenerInternal(ExpressionListener *l);
+
     // Behavior that needs to be augmented for LookupOnChange
     virtual void invalidateOldState(); // called before updating state to new value
 
@@ -257,6 +261,10 @@ namespace PLEXIL
     virtual void handleActivate();
     virtual void handleDeactivate();
     virtual void handleChange();
+
+    // Wrappers
+    virtual void addListenerInternal(ExpressionListener *l);
+    virtual void removeListenerInternal(ExpressionListener *l);
 
     virtual void doSubexprs(ExprUnaryOperator const &f);
 

@@ -375,10 +375,14 @@ namespace PLEXIL
       if (tolerance->getValue(newTol)) {
         if (newTol < 0)
           newTol = -newTol;
+        debugMsg("LookupOnChange:toleranceChanged",
+                 " returning " << (newTol != m_tolerance));
         return newTol != m_tolerance;
       }
       // Tolerance is unknown, default to 0
       newTol = 0;
+      debugMsg("LookupOnChange:toleranceChanged", " tolerance is unknown, returning "
+               << true);
       return true;
     }
 
@@ -518,6 +522,28 @@ namespace PLEXIL
     return true; // value changes independently of parameters
   }
 
+  // Lookups must explicitly listen to their parameters,
+  // because the lookup value changes when the params change.
+  void Lookup::addListenerInternal(ExpressionListener *l)
+  {
+    if (!hasListeners()) {
+      m_stateName->addListener(this);
+      if (m_paramVec)
+        m_paramVec->addListener(this);
+    }
+    NotifierImpl::addListenerInternal(l);
+  }
+
+  void Lookup::removeListenerInternal(ExpressionListener *l)
+  {
+    NotifierImpl::removeListenerInternal(l);
+    if (!hasListeners()) {
+      if (m_paramVec)
+        m_paramVec->removeListener(this);
+      m_stateName->removeListener(this);
+    }
+  }
+
   void Lookup::doSubexprs(ExprUnaryOperator const &oper)
   {
     (oper)(m_stateName);
@@ -555,8 +581,25 @@ namespace PLEXIL
   // Consider possibility lookup may not be fully activated yet.
   void LookupOnChange::handleChange()
   {
+    debugMsg("LookupOnChange:handleChange", " called");
     if (updateInternal(Lookup::handleChangeInternal()))
       publishChange();
+  }
+
+  // Change lookups must explicitly listen to their tolerance,
+  // because the lookup value can change when the tolerance changes.
+  void LookupOnChange::addListenerInternal(ExpressionListener *l)
+  {
+    if (!hasListeners())
+      m_tolerance->addListener(this);
+    Lookup::addListenerInternal(l);
+  }
+
+  void LookupOnChange::removeListenerInternal(ExpressionListener *l)
+  {
+    Lookup::removeListenerInternal(l);
+    if (!hasListeners())
+      m_tolerance->removeListener(this);
   }
 
   void LookupOnChange::doSubexprs(ExprUnaryOperator const &oper)
@@ -626,8 +669,12 @@ namespace PLEXIL
 
       if (m_tolerance->isKnown()) {
         // Check whether the thresholds have changed
-        if (m_thresholds->toleranceChanged(m_tolerance))
+        if (m_thresholds->toleranceChanged(m_tolerance)) {
+          debugMsg("LookupOnChange:update",
+                   ' ' << this->m_cachedState
+                   << " tolerance changed, updating thresholds");
           m_thresholds->setThresholds(m_cachedValue, m_tolerance);
+        }
 
         // Has the (possibly updated) threshold been exceeded?
         CachedValue const *val = this->m_entry->cachedValue();

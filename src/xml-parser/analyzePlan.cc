@@ -67,7 +67,7 @@ static std::map<size_t, size_t> g_expressionListenerCounts;
 static std::map<size_t, std::vector<NotifierImpl const *> > g_expressions;
 static size_t g_expressionCount = 0;
 static size_t g_listenerHighWater = 0;
-static NotifierImpl const *g_highWaterExpression = NULL;
+static std::vector<NotifierImpl const *> g_highWaterExpressions;
 static bool g_expressionDetailedReport = false;
 #endif
 
@@ -203,7 +203,11 @@ static void recordExpression(NotifierImpl const *exp)
   size_t nListeners = exp->getListenerCount();
   if (nListeners > g_listenerHighWater) {
     g_listenerHighWater = nListeners;
-    g_highWaterExpression = exp;
+    g_highWaterExpressions.clear();
+    g_highWaterExpressions.push_back(exp);
+  }
+  else if (nListeners == g_listenerHighWater) {
+    g_highWaterExpressions.push_back(exp);
   }
   ++g_expressionListenerCounts[nListeners];
   if (g_expressionDetailedReport)
@@ -243,8 +247,11 @@ static void reportExpressionStatistics()
 {
   std::cout << "\n--- Expression Listener Counts --- \n\n";
   std::cout << g_expressionCount << " expressions\n\n";
-  std::cout << "Expression " << *g_highWaterExpression
-            << "\n has largest count of listeners, " << g_listenerHighWater << "\n\n";
+  std::cout << "Maximum number of listeners was " << g_listenerHighWater << '\n';
+  std::cout << "Expressions with maximum listeners:\n";
+  for (size_t i = 0; i < g_highWaterExpressions.size(); ++i)
+    std::cout << "  " << *g_highWaterExpressions[i] << '\n';
+  std::cout << '\n';
 
   for (std::map<size_t, size_t>::const_iterator it = g_expressionListenerCounts.begin();
        it != g_expressionListenerCounts.end();

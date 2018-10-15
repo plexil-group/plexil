@@ -87,24 +87,23 @@ namespace PLEXIL
   }
 
   // Default method.
-  void Expression::addListener(ExpressionListener *ptr)
+  void Expression::addListener(ExpressionListener * /* ptr */)
   {
   }
 
   // Default method.
-  void Expression::removeListener(ExpressionListener *ptr)
+  void Expression::removeListener(ExpressionListener * /* ptr */)
   {
   }
 
   // Default method.
-  void Expression::addListenerInternal(ExpressionListener *ptr)
+  void Expression::addListenerInternal(ExpressionListener * /* ptr */)
   {
   }
 
   // Default method.
-  bool Expression::hasListeners() const
+  void Expression::removeListenerInternal(ExpressionListener * /* ptr */)
   {
-    return false;
   }
 
   // Default method.

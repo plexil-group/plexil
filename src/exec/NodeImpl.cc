@@ -343,6 +343,21 @@ namespace PLEXIL
 
     debugMsg("Node:cleanUpConditions", " for " << m_nodeId);
 
+    // Remove listeners from ancestor invariant and ancestor end conditions
+    if (m_parent) {
+      Expression *ancestorCond = getAncestorExitCondition();
+      if (ancestorCond)
+        ancestorCond->removeListener(this);
+
+      ancestorCond = getAncestorInvariantCondition();
+      if (ancestorCond)
+        ancestorCond->removeListener(this);
+
+      ancestorCond = getAncestorEndCondition();
+      if (ancestorCond)
+        ancestorCond->removeListener(this);
+    }
+
     // Remove condition listeners
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       Expression *cond = getCondition(i);

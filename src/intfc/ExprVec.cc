@@ -99,7 +99,19 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &opr)
+    void addListener(ExpressionListener *l)
+    {
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->addListener(l);
+    }
+
+    void removeListener(ExpressionListener *l)
+    {
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->removeListener(l);
+    }
+
+    void doSubexprs(ExprUnaryOperator const &opr)
     {
       for (size_t i = 0; i < N; ++i)
         (opr)(exprs[i]);
@@ -194,6 +206,18 @@ namespace PLEXIL
         str << ' ';
         exprs[i]->print(str);
       }
+    }
+
+    void addListener(ExpressionListener *l)
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        exprs[i]->addListener(l);
+    }
+
+    void removeListener(ExpressionListener *l)
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        exprs[i]->addListener(l);
     }
 
     virtual void doSubexprs(ExprUnaryOperator const &opr)

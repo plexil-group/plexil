@@ -9,94 +9,94 @@ simple-closedloop-command-multipleAck{
   }
 }
 
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
 [PlexilExec:cycle] ==>Start cycle 1
-[PlexilExec:step][1:0] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7f9d84c04560 for state transition.
-[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7f9d84c04560 on the state change queue in position 1
-[PlexilExec:step][1:0] State change queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:step][1:0:0] Transitioning node simple-closedloop-command-multipleAck 0x7f9d84c04560 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:step][1:1] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7f9d84c04560 for state transition.
-[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7f9d84c04560 on the state change queue in position 2
-[PlexilExec:step][1:1] State change queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:step][1:1:0] Transitioning node simple-closedloop-command-multipleAck 0x7f9d84c04560 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
-[PlexilExec:handleNeedsExecution] Storing action for node simple-closedloop-command-multipleAck 0x7f9d84c04560 of type NodeList to be executed.
-[PlexilExec:step][1:2] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 Drive 0x7f9d84c04840 NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:handleConditionsChanged] Considering node Drive 0x7f9d84c04840 for state transition.
-[PlexilExec:addStateChangeNode] Placing node Drive 0x7f9d84c04840 on the state change queue in position 3
-[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7f9d84c04bd0 for state transition.
-[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7f9d84c04bd0 on the state change queue in position 4
-[PlexilExec:step][1:2] State change queue: Drive 0x7f9d84c04840 NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:step][1:2:0] Transitioning node Drive 0x7f9d84c04840 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:step][1:2:1] Transitioning node NextWaypoint 0x7f9d84c04bd0 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
-[PlexilExec:step][1:3] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 Drive 0x7f9d84c04840 NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:handleConditionsChanged] Considering node Drive 0x7f9d84c04840 for state transition.
-[PlexilExec:addStateChangeNode] Placing node Drive 0x7f9d84c04840 on the state change queue in position 5
-[PlexilExec:step][1:3] State change queue: Drive 0x7f9d84c04840 
-[PlexilExec:step][1:3:0] Transitioning node Drive 0x7f9d84c04840 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:handleNeedsExecution] Storing action for node Drive 0x7f9d84c04840 of type Command to be executed.
+[PlexilExec:step][1:0] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7fb46cc049e0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7fb46cc049e0 on the state change queue in position 1
+[PlexilExec:step][1:0] State change queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:step][1:0:0] Transitioning node simple-closedloop-command-multipleAck 0x7fb46cc049e0 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:step][1:1] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7fb46cc049e0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7fb46cc049e0 on the state change queue in position 2
+[PlexilExec:step][1:1] State change queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:step][1:1:0] Transitioning node simple-closedloop-command-multipleAck 0x7fb46cc049e0 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
+[PlexilExec:handleNeedsExecution] Storing action for node simple-closedloop-command-multipleAck 0x7fb46cc049e0 of type NodeList to be executed.
+[PlexilExec:step][1:2] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 Drive 0x7fb46cc04cc0 NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:handleConditionsChanged] Considering node Drive 0x7fb46cc04cc0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Drive 0x7fb46cc04cc0 on the state change queue in position 3
+[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7fb46cc04ff0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7fb46cc04ff0 on the state change queue in position 4
+[PlexilExec:step][1:2] State change queue: Drive 0x7fb46cc04cc0 NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:step][1:2:0] Transitioning node Drive 0x7fb46cc04cc0 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:step][1:2:1] Transitioning node NextWaypoint 0x7fb46cc04ff0 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
+[PlexilExec:step][1:3] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 Drive 0x7fb46cc04cc0 NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:handleConditionsChanged] Considering node Drive 0x7fb46cc04cc0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Drive 0x7fb46cc04cc0 on the state change queue in position 5
+[PlexilExec:step][1:3] State change queue: Drive 0x7fb46cc04cc0 
+[PlexilExec:step][1:3:0] Transitioning node Drive 0x7fb46cc04cc0 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:handleNeedsExecution] Storing action for node Drive 0x7fb46cc04cc0 of type Command to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](UNKNOWN))
 [PlexilExec:cycle] ==>End cycle 1
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](UNKNOWN))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](UNKNOWN))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [i](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_ACCEPTED
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
 [PlexilExec:cycle] ==>Start cycle 2
-[PlexilExec:step][2:0] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 Drive 0x7f9d84c04840 NextWaypoint 0x7f9d84c04bd0 
+[PlexilExec:step][2:0] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 Drive 0x7fb46cc04cc0 NextWaypoint 0x7fb46cc04ff0 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 2
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_ACCEPTED))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_ACCEPTED))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [i](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
@@ -107,53 +107,53 @@ simple-closedloop-command-multipleAck{
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_ACCEPTED))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_ACCEPTED))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_ACCEPTED)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [i](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
 [PlexilExec:cycle] ==>Start cycle 4
-[PlexilExec:step][4:0] Check queue: Drive 0x7f9d84c04840 NextWaypoint 0x7f9d84c04bd0 
+[PlexilExec:step][4:0] Check queue: Drive 0x7fb46cc04cc0 NextWaypoint 0x7fb46cc04ff0 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 4
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SENT_TO_SYSTEM))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SENT_TO_SYSTEM))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [i](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
@@ -164,124 +164,124 @@ simple-closedloop-command-multipleAck{
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SENT_TO_SYSTEM))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SENT_TO_SYSTEM))
   }
   NextWaypoint{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [a](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [i](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_RCVD_BY_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
 [PlexilExec:cycle] ==>Start cycle 6
-[PlexilExec:step][6:0] Check queue: Drive 0x7f9d84c04840 NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7f9d84c04bd0 for state transition.
-[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7f9d84c04bd0 on the state change queue in position 6
-[PlexilExec:step][6:0] State change queue: NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:step][6:0:0] Transitioning node NextWaypoint 0x7f9d84c04bd0 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
-[PlexilExec:handleNeedsExecution] Storing action for node NextWaypoint 0x7f9d84c04bd0 of type Command to be executed.
+[PlexilExec:step][6:0] Check queue: Drive 0x7fb46cc04cc0 NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7fb46cc04ff0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7fb46cc04ff0 on the state change queue in position 6
+[PlexilExec:step][6:0] State change queue: NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:step][6:0:0] Transitioning node NextWaypoint 0x7fb46cc04ff0 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
+[PlexilExec:handleNeedsExecution] Storing action for node NextWaypoint 0x7fb46cc04ff0 of type Command to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing next_waypoint() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [a](UNKNOWN))
+[Test:testOutput]Executing next_waypoint() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [a](UNKNOWN))
 [PlexilExec:cycle] ==>End cycle 6
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_RCVD_BY_SYSTEM))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_RCVD_BY_SYSTEM))
   }
   NextWaypoint{
    State: EXECUTING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [i](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [a](UNKNOWN))
   }
 }
 
 [PlexilExec:cycle] ==>Start cycle 7
-[PlexilExec:step][7:0] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7f9d84c04bd0 for state transition.
-[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7f9d84c04bd0 on the state change queue in position 7
-[PlexilExec:step][7:0] State change queue: NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:step][7:0:0] Transitioning node NextWaypoint 0x7f9d84c04bd0 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
-[PlexilExec:step][7:1] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 NextWaypoint 0x7f9d84c04bd0 
+[PlexilExec:step][7:0] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7fb46cc04ff0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7fb46cc04ff0 on the state change queue in position 7
+[PlexilExec:step][7:0] State change queue: NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:step][7:0:0] Transitioning node NextWaypoint 0x7fb46cc04ff0 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
+[PlexilExec:step][7:1] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 NextWaypoint 0x7fb46cc04ff0 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 7
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_RCVD_BY_SYSTEM))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_RCVD_BY_SYSTEM))
   }
   NextWaypoint{
    State: FINISHING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [a](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_RCVD_BY_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [a](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [a](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_SUCCESS
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
 [PlexilExec:cycle] ==>Start cycle 8
-[PlexilExec:step][8:0] Check queue: Drive 0x7f9d84c04840 
+[PlexilExec:step][8:0] Check queue: Drive 0x7fb46cc04cc0 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 8
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [a](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [a](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [a](UNKNOWN))
   }
 }
 
@@ -292,64 +292,64 @@ simple-closedloop-command-multipleAck{
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHING (0)
-   StartCondition: (EQ Boolean 0x7f9d84c05240 [i](0) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x109e80f90 [a](COMMAND_RCVD_BY_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7f9d84c04eb0 [a](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04de8 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [a](UNKNOWN))
+   StartCondition: (EQ Boolean 0x7fb46cc05660 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10c1f92d0 [a](COMMAND_RCVD_BY_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean NextWaypoint0x7fb46cc052d0 [a](0))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc05208 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [a](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK next_waypoint() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
 [PlexilExec:cycle] ==>Start cycle 10
-[PlexilExec:step][10:0] Check queue: NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7f9d84c04bd0 for state transition.
-[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7f9d84c04bd0 on the state change queue in position 8
-[PlexilExec:step][10:0] State change queue: NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:step][10:0:0] Transitioning node NextWaypoint 0x7f9d84c04bd0 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
-[PlexilExec:step][10:1] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7f9d84c04bd0 for state transition.
-[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7f9d84c04bd0 on the state change queue in position 9
-[PlexilExec:step][10:1] State change queue: NextWaypoint 0x7f9d84c04bd0 
-[PlexilExec:step][10:1:0] Transitioning node NextWaypoint 0x7f9d84c04bd0 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7f9d84c04bd0
-[PlexilExec:step][10:2] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 NextWaypoint 0x7f9d84c04bd0 
+[PlexilExec:step][10:0] Check queue: NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7fb46cc04ff0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7fb46cc04ff0 on the state change queue in position 8
+[PlexilExec:step][10:0] State change queue: NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:step][10:0:0] Transitioning node NextWaypoint 0x7fb46cc04ff0 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
+[PlexilExec:step][10:1] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:handleConditionsChanged] Considering node NextWaypoint 0x7fb46cc04ff0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node NextWaypoint 0x7fb46cc04ff0 on the state change queue in position 9
+[PlexilExec:step][10:1] State change queue: NextWaypoint 0x7fb46cc04ff0 
+[PlexilExec:step][10:1:0] Transitioning node NextWaypoint 0x7fb46cc04ff0 from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node NextWaypoint 0x7fb46cc04ff0
+[PlexilExec:step][10:2] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 NextWaypoint 0x7fb46cc04ff0 
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 10
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
@@ -360,81 +360,81 @@ simple-closedloop-command-multipleAck{
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04fb0 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7f9d84c04f20 [i](0))
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc053d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-closedloop-command-multipleAck0x7fb46cc05340 [i](0))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7f9d84c05140 [a](0) (Interruptible Boolean Drive0x7f9d84c050f0 [a](0)) (EQ Boolean 0x7f9d84c05030 [a](0) (Constant Integer 0x7f9d84c05000 [a](10)) (Variable Integer retTestFunction 0x7f9d84c047a8 [a](-1))))
-   PostCondition: (EQ Boolean 0x7f9d84c05090 [i](1) (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x109e80fd8 [a](COMMAND_SUCCESS)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7f9d84c04b20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9d84c04a58 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [a](COMMAND_SUCCESS))
+   EndCondition: (OR Boolean 0x7fb46cc05560 [a](0) (Interruptible Boolean Drive0x7fb46cc05510 [a](0)) (EQ Boolean 0x7fb46cc05450 [a](0) (Constant Integer 0x7fb46cc05420 [a](10)) (Variable Integer retTestFunction 0x7fb46cc04c28 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fb46cc054b0 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10c1f9318 [a](COMMAND_SUCCESS)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean Drive0x7fb46cc04fa0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb46cc04ed8 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [a](COMMAND_SUCCESS))
   }
   NextWaypoint{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command result drive() = 10
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
 [PlexilExec:cycle] ==>Start cycle 12
-[PlexilExec:step][12:0] Check queue: Drive 0x7f9d84c04840 
-[PlexilExec:handleConditionsChanged] Considering node Drive 0x7f9d84c04840 for state transition.
-[PlexilExec:addStateChangeNode] Placing node Drive 0x7f9d84c04840 on the state change queue in position 10
-[PlexilExec:step][12:0] State change queue: Drive 0x7f9d84c04840 
-[PlexilExec:step][12:0:0] Transitioning node Drive 0x7f9d84c04840 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:step][12:1] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 Drive 0x7f9d84c04840 
-[PlexilExec:handleConditionsChanged] Considering node Drive 0x7f9d84c04840 for state transition.
-[PlexilExec:addStateChangeNode] Placing node Drive 0x7f9d84c04840 on the state change queue in position 11
-[PlexilExec:step][12:1] State change queue: Drive 0x7f9d84c04840 
-[PlexilExec:step][12:1:0] Transitioning node Drive 0x7f9d84c04840 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:step][12:2] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 Drive 0x7f9d84c04840 
-[PlexilExec:handleConditionsChanged] Considering node Drive 0x7f9d84c04840 for state transition.
-[PlexilExec:addStateChangeNode] Placing node Drive 0x7f9d84c04840 on the state change queue in position 12
-[PlexilExec:step][12:2] State change queue: Drive 0x7f9d84c04840 
-[PlexilExec:step][12:2:0] Transitioning node Drive 0x7f9d84c04840 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7f9d84c04840
-[PlexilExec:step][12:3] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 Drive 0x7f9d84c04840 
-[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7f9d84c04560 for state transition.
-[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7f9d84c04560 on the state change queue in position 13
-[PlexilExec:step][12:3] State change queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:step][12:3:0] Transitioning node simple-closedloop-command-multipleAck 0x7f9d84c04560 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:step][12:4] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7f9d84c04560 for state transition.
-[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7f9d84c04560 on the state change queue in position 14
-[PlexilExec:step][12:4] State change queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:step][12:4:0] Transitioning node simple-closedloop-command-multipleAck 0x7f9d84c04560 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7f9d84c04560
-[PlexilExec:step][12:5] Check queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7f9d84c04560 for state transition.
-[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7f9d84c04560 on the state change queue in position 15
-[PlexilExec:step][12:5] State change queue: simple-closedloop-command-multipleAck 0x7f9d84c04560 
-[PlexilExec:step][12:5:0] Transitioning node simple-closedloop-command-multipleAck 0x7f9d84c04560 from ITERATION_ENDED to FINISHED
+[PlexilExec:step][12:0] Check queue: Drive 0x7fb46cc04cc0 
+[PlexilExec:handleConditionsChanged] Considering node Drive 0x7fb46cc04cc0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Drive 0x7fb46cc04cc0 on the state change queue in position 10
+[PlexilExec:step][12:0] State change queue: Drive 0x7fb46cc04cc0 
+[PlexilExec:step][12:0:0] Transitioning node Drive 0x7fb46cc04cc0 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:step][12:1] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 Drive 0x7fb46cc04cc0 
+[PlexilExec:handleConditionsChanged] Considering node Drive 0x7fb46cc04cc0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Drive 0x7fb46cc04cc0 on the state change queue in position 11
+[PlexilExec:step][12:1] State change queue: Drive 0x7fb46cc04cc0 
+[PlexilExec:step][12:1:0] Transitioning node Drive 0x7fb46cc04cc0 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:step][12:2] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 Drive 0x7fb46cc04cc0 
+[PlexilExec:handleConditionsChanged] Considering node Drive 0x7fb46cc04cc0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Drive 0x7fb46cc04cc0 on the state change queue in position 12
+[PlexilExec:step][12:2] State change queue: Drive 0x7fb46cc04cc0 
+[PlexilExec:step][12:2:0] Transitioning node Drive 0x7fb46cc04cc0 from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:notifyNodeConditionChanged] for node Drive 0x7fb46cc04cc0
+[PlexilExec:step][12:3] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 Drive 0x7fb46cc04cc0 
+[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7fb46cc049e0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7fb46cc049e0 on the state change queue in position 13
+[PlexilExec:step][12:3] State change queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:step][12:3:0] Transitioning node simple-closedloop-command-multipleAck 0x7fb46cc049e0 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:step][12:4] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7fb46cc049e0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7fb46cc049e0 on the state change queue in position 14
+[PlexilExec:step][12:4] State change queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:step][12:4:0] Transitioning node simple-closedloop-command-multipleAck 0x7fb46cc049e0 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node simple-closedloop-command-multipleAck 0x7fb46cc049e0
+[PlexilExec:step][12:5] Check queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:handleConditionsChanged] Considering node simple-closedloop-command-multipleAck 0x7fb46cc049e0 for state transition.
+[PlexilExec:addStateChangeNode] Placing node simple-closedloop-command-multipleAck 0x7fb46cc049e0 on the state change queue in position 15
+[PlexilExec:step][12:5] State change queue: simple-closedloop-command-multipleAck 0x7fb46cc049e0 
+[PlexilExec:step][12:5:0] Transitioning node simple-closedloop-command-multipleAck 0x7fb46cc049e0 from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 12
 [PlexilExec:printPlan]
 simple-closedloop-command-multipleAck{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7f9d84c047a8 [i](UNKNOWN))
+ retTestFunction: (Variable Integer retTestFunction 0x7fb46cc04c28 [i](UNKNOWN))
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04a08 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc04e88 [i](UNKNOWN))
   }
   NextWaypoint{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9d84c04d98 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fb46cc051b8 [i](UNKNOWN))
   }
 }
 

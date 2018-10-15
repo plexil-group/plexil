@@ -292,18 +292,18 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Report whether the expression has listeners.
-     * @return True if present, false if not.
-     * @note The default method returns false.
-     */
-    virtual bool hasListeners() const;
-
-    /**
      * @brief Unconditionally add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      * @note The default method does nothing.
      */
     virtual void addListenerInternal(ExpressionListener *ptr);
+
+    /**
+     * @brief Unconditionally remove a listener.
+     * @param ptr The pointer to the listener to remove.
+     * @note The default method does nothing.
+     */
+    virtual void removeListenerInternal(ExpressionListener *ptr);
 
     /**
      * @brief Call a function on all subexpressions of this one.

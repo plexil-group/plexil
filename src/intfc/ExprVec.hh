@@ -51,6 +51,8 @@ namespace PLEXIL
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
     virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
+    virtual void addListener(ExpressionListener *l) = 0;
+    virtual void removeListener(ExpressionListener *l) = 0;
     virtual void doSubexprs(ExprUnaryOperator const &f) = 0;
     virtual void print(std::ostream &s) const = 0;
 
