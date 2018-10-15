@@ -51,7 +51,6 @@ namespace PLEXIL
 
   Alias::~Alias()
   {
-    m_exp->removeListener(this);
     if (m_garbage)
       delete m_exp;
     free((void *)m_name);
