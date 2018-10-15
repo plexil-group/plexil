@@ -205,7 +205,6 @@ namespace PLEXIL
     {
       for (size_t i = 0; i < N; ++i) {
         if (exprs[i]) {
-          exprs[i]->removeListener(this);
           if (garbage[i])
             delete exprs[i];
         }
@@ -318,7 +317,6 @@ namespace PLEXIL
   FixedSizeFunction<1>::~FixedSizeFunction()
   {
     if (exprs[0]) {
-      exprs[0]->removeListener(this);
       if (garbage[0])
         delete exprs[0];
     }
@@ -384,12 +382,10 @@ namespace PLEXIL
   FixedSizeFunction<2>::~FixedSizeFunction()
   {
     if (exprs[0]) {
-      exprs[0]->removeListener(this);
       if (garbage[0])
         delete exprs[0];
     }
     if (exprs[1]) {
-      exprs[1]->removeListener(this);
       if (garbage[1])
         delete exprs[1];
     }
@@ -463,7 +459,6 @@ namespace PLEXIL
     {
       for (size_t i = 0; i < m_size; ++i) {
         if (exprs[i]) {
-          exprs[i]->removeListener(this);
           if (garbage[i])
             delete exprs[i];
         }
