@@ -33,8 +33,8 @@ libPlexilXmlParser_la_CPPFLAGS = $(AM_CPPFLAGS) \
  -I@top_srcdir@/utils
 
 # Publicly available header files
-include_HEADERS = createExpression.hh ExpressionFactory.hh Expressions.hh \
- parseNode.hh parsePlan.hh parser-utils.hh planLibrary.hh PlexilSchema.hh
+include_HEADERS = createExpression.hh ExpressionFactory.hh parseNode.hh \
+ parsePlan.hh parser-utils.hh planLibrary.hh PlexilSchema.hh
 
 libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
  ArrayLiteralFactory.cc ArrayVariableFactory.cc \
