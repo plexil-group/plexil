@@ -104,12 +104,12 @@ namespace PLEXIL
   NodeImpl *constructPlan(xml_node const xml, SymbolTable *symtab, NodeImpl *parent)
     throw (ParserException)
   {
-    debugMsg("constructPlan", ' ' << xml.child(NODE_TAG).child(NODEID_TAG));
+    xml_node const root = xml.child(NODE_TAG);
+    debugMsg("constructPlan", ' ' << root.child_value(NODEID_TAG));
     pushSymbolTable(symtab);
     NodeImpl *result = NULL;
     try {
       // Construct the plan
-      xml_node const root = xml.child(NODE_TAG);
       try {
         result = constructNode(root, parent);
       }

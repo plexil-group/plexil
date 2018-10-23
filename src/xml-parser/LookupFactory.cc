@@ -175,17 +175,13 @@ namespace PLEXIL
     throw (ParserException)
   {
     // Syntactic checking has been done already
-    xml_node stateNameXml = expr.child(NAME_TAG);
-    xml_node argsXml = expr.child(ARGS_TAG);
-    xml_node tolXml;
-    if (testTag(LOOKUPCHANGE_TAG, expr))
-      tolXml = expr.child(TOLERANCE_TAG);
-
+    xml_node stateNameXml = expr.first_child();
     bool stateNameGarbage = false;
     Expression *stateName = createExpression(stateNameXml.first_child(), node, stateNameGarbage);
     ValueType stateNameType = stateName->valueType();
-    checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
-                         "createExpression: Lookup name must be a string expression");
+    checkParserExceptionWithLocation(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
+                                     stateNameXml.first_child(),
+                                     "createExpression: Lookup name must be a string expression");
 
     // Type checking support
     Symbol const *lkup = NULL;
@@ -203,6 +199,14 @@ namespace PLEXIL
 
     // TODO Warn if undeclared (future)
 
+    // Parse tolerance, arguments if supplied
+    xml_node argsXml = stateNameXml.next_sibling();
+    xml_node tolXml;
+    if (testTag(TOLERANCE_TAG, argsXml)) {
+      tolXml = argsXml;
+      argsXml = argsXml.next_sibling();
+    }
+    
     // Count args, then build ExprVec of appropriate size
     ExprVec *argVec = NULL;
     try {

@@ -53,53 +53,47 @@ namespace PLEXIL
   {
     // We know the declaration has a name and a valid type;
     // see checkVariableDeclaration() in parseNode.cc
-    // Check for a legal scalar variable type.
-    xml_node temp = expr.child(TYPE_TAG);
+    xml_node temp = expr.first_child().next_sibling(); // must be Type element
     ValueType typ = parseValueType(temp.child_value());
-    checkParserExceptionWithLocation(isScalarType(typ),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": Invalid type name " << temp.child_value()
-                                     << " in " << expr.name() << ' ' << expr.child_value(NAME_TAG));
 
     temp = temp.next_sibling();
-    if (!temp)
-      return typ; 
+    if (temp) {
+      // Check that initializer isn't completely bogus
+      checkParserExceptionWithLocation(testTag(INITIALVAL_TAG, temp),
+                                       temp,
+                                       "Node \"" << nodeId
+                                       << "\": Invalid " << temp.name() << " element in "
+                                       << expr.name() << ' ' << expr.child_value(NAME_TAG));
+      checkParserExceptionWithLocation(temp.first_child(),
+                                       temp,
+                                       "Node \"" << nodeId
+                                       << "\": Invalid " << INITIALVAL_TAG << " contents in "
+                                       << expr.name() << ' ' << expr.child_value(NAME_TAG));
+      temp = temp.first_child();
 
-    checkParserExceptionWithLocation(testTag(INITIALVAL_TAG, temp),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": Invalid " << temp.name() << " element in "
-                                     << expr.name() << ' ' << expr.child_value(NAME_TAG));
-    // Check that initializer isn't completely bogus
-    checkParserExceptionWithLocation(temp.first_child(),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": Invalid " << INITIALVAL_TAG << " contents in "
-                                     << expr.name() << ' ' << expr.child_value(NAME_TAG));
-    temp = temp.first_child();
-
-    // *** N.B. ***
-    // The schema used to restrict initializers to literals.
-    // Now restricts to literals and variables
-    // we may choose to broaden this in the future.
-    // Comment out this check if so.
+      // *** N.B. ***
+      // The schema used to restrict initializers to literals.
+      // Now restricts to literals and variables
+      // we may choose to broaden this in the future.
+      // Comment out this check if so.
     
-    checkParserExceptionWithLocation(testTagSuffix(VAL_SUFFIX, temp) || testTagSuffix(VAR_SUFFIX, temp),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": Invalid " << INITIALVAL_TAG << " contents in "
-                                     << expr.name() << ' ' << expr.child_value(NAME_TAG));
+      checkParserExceptionWithLocation(testTagSuffix(VAL_SUFFIX, temp)
+                                       || testTagSuffix(VAR_SUFFIX, temp),
+                                       temp,
+                                       "Node \"" << nodeId
+                                       << "\": Invalid " << INITIALVAL_TAG << " contents in "
+                                       << expr.name() << ' ' << expr.child_value(NAME_TAG));
 
-    // Check initializer type if possible
-    ValueType v = checkExpression(nodeId, temp);
-    checkParserExceptionWithLocation(v == typ || v == UNKNOWN_TYPE,
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": " << valueTypeName(typ)
-                                     << " variable " << expr.child_value(NAME_TAG)
-                                     << " has " << INITIALVAL_TAG
-                                     << " of incompatible type " << valueTypeName(v));
+      // Check initializer type if possible
+      ValueType v = checkExpression(nodeId, temp);
+      checkParserExceptionWithLocation(v == typ || v == UNKNOWN_TYPE,
+                                       temp,
+                                       "Node \"" << nodeId
+                                       << "\": " << valueTypeName(typ)
+                                       << " variable " << expr.child_value(NAME_TAG)
+                                       << " has " << INITIALVAL_TAG
+                                       << " of incompatible type " << valueTypeName(v));
+    }
 
     return typ;
   }
@@ -112,8 +106,10 @@ namespace PLEXIL
                                             ValueType /* returnType */) const
     throw (ParserException)
   {
-    char const *name = expr.child_value(NAME_TAG);
-    ValueType typ = parseValueType(expr.child_value(TYPE_TAG));
+    xml_node temp = expr.first_child();
+    char const *name = temp.child_value();
+    temp = temp.next_sibling();
+    ValueType typ = parseValueType(temp.child_value());
 
     wasCreated = true;
     switch (typ) {

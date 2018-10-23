@@ -117,6 +117,11 @@ namespace PLEXIL
                                      "Node \"" << nodeId
                                      << "\": Unknown type name " << temp.child_value()
                                      << " in " << decl.name() << ' ' << decl.child_value(NAME_TAG));
+    checkParserExceptionWithLocation(isScalarType(typ),
+                                     temp,
+                                     "Node \"" << nodeId
+                                     << "\": Invalid type name " << temp.child_value()
+                                     << " in " << decl.name() << ' ' << decl.child_value(NAME_TAG));
 
     // Dispatch to specific checks
     // See UserVariableFactory.cc and ArrayVariableFactory.cc
@@ -126,7 +131,8 @@ namespace PLEXIL
   // Non-error-checking variant of above
   static char const *getVarDeclName(xml_node const decl)
   {
-    return decl.child_value(NAME_TAG);
+    // Name is always the first element
+    return decl.first_child().child_value();
   }
 
   static void checkVariableDeclarations(char const *nodeId, xml_node const decls)
@@ -590,7 +596,7 @@ namespace PLEXIL
       if (varDecls)
         nVariables += estimateVariableSpace(varDecls);
       if (iface)
-        nVariables += estimateInterfaceSpace(xml.child(INTERFACE_TAG));
+        nVariables += estimateInterfaceSpace(iface);
       node->allocateVariables(nVariables);
     }
 
@@ -944,7 +950,6 @@ namespace PLEXIL
     NodeImpl *parent = node->getParentNode();
     bool isCall = (parent && parent->getType() == NodeType_LibraryNodeCall);
     for (xml_node temp = iface.first_child(); temp; temp = temp.next_sibling()) {
-      checkHasChildElement(temp);
       if (testTag(IN_TAG, temp)) {
         for (xml_node decl = temp.first_child(); decl; decl = decl.next_sibling())
           linkInVar(node, decl, isCall);
@@ -953,9 +958,6 @@ namespace PLEXIL
         for (xml_node decl = temp.first_child(); decl; decl = decl.next_sibling())
           linkInOutVar(node, decl, isCall);
       }
-      else
-        errorMsg("Internal error: Found " << temp.name()
-                 << " element in Interface during second pass");
     }
   }
 

@@ -105,11 +105,12 @@ namespace PLEXIL
   // Simply count the # of aliases in the call
   size_t estimateAliasSpace(pugi::xml_node const callXml)
   {
-    xml_node alias = callXml.child(ALIAS_TAG);
+    xml_node alias = callXml.first_child().next_sibling();
     if (!alias)
       return 0;
+    // checkTag(ALIAS_TAG, alias); // done in checkAlias()
     size_t result = 1;
-    while ((alias = alias.next_sibling(ALIAS_TAG)))
+    while ((alias = alias.next_sibling())) // tag checked in checkAlias()
       result++;
     return result;
   }

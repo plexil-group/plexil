@@ -291,7 +291,6 @@ namespace PLEXIL
       for (xml_node resourceElt = rlist.first_child(); 
            resourceElt;
            resourceElt = resourceElt.next_sibling()) {
-        checkTag(RESOURCE_TAG, resourceElt);
         // Update ResourceSpec in place
         ResourceSpec &rspec = (*resources)[n++];
         for (xml_node rtemp = resourceElt.first_child();
@@ -387,7 +386,7 @@ namespace PLEXIL
     }
 
     // Required command name expression
-    checkTag(NAME_TAG, temp); // belt-and-suspenders check
+    // checkTag(NAME_TAG, temp); // belt-and-suspenders check
     xml_node nameElt = temp.first_child();
     bool nameIsGarbage = false;
     Expression *nameExpr = createExpression(nameElt, node, nameIsGarbage);

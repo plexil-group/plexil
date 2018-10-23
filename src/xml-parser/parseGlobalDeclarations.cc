@@ -47,7 +47,7 @@ namespace PLEXIL
                                      elt,
                                      elt.name() << " with no " << TYPE_TAG << " element");
 
-    char const *typnam = elt.child(TYPE_TAG).child_value();
+    char const *typnam = typeElt.child_value();
     checkParserExceptionWithLocation(typnam && *typnam,
                                      typeElt,
                                      elt.name() << " with empty " << TYPE_TAG << " element");
@@ -61,8 +61,11 @@ namespace PLEXIL
     }
 
     // Is it an array?
-    xml_node maxElt = elt.child(MAX_SIZE_TAG);
+    xml_node maxElt = typeElt.next_sibling();
     if (maxElt) {
+      checkParserExceptionWithLocation(testTag(MAX_SIZE_TAG, maxElt),
+                                       maxElt,
+                                       "Invalid element " << maxElt.name() << " in " << elt.name());
       typ = arrayType(typ);
       checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                        typeElt,

@@ -39,6 +39,8 @@
 #include <cstdlib>
 #include <limits>
 
+using pugi::xml_node;
+
 namespace PLEXIL
 {
   ArrayVariableFactory::ArrayVariableFactory(std::string const &name)
@@ -54,99 +56,99 @@ namespace PLEXIL
   // First pass: XML checks
   //
 
-  ValueType ArrayVariableFactory::check(char const *nodeId, pugi::xml_node expr) const
+  ValueType ArrayVariableFactory::check(char const *nodeId, xml_node expr) const
       throw (ParserException)
   {
     // We know the declaration has a name and a valid type.
-    // Check for a legal type.
-    pugi::xml_node temp = expr.child(TYPE_TAG);
+    // Check for a legal array type.
+    xml_node temp = expr.first_child().next_sibling();
     ValueType typ = parseValueType(temp.child_value());
     checkParserExceptionWithLocation(arrayType(typ) != UNKNOWN_TYPE,
                                      temp,
                                      "Node \"" << nodeId
                                      << "\": Invalid type name " << temp.child_value()
-                                     << " for " << expr.name() << ' ' << expr.child_value(NAME_TAG));
+                                     << " for " << expr.name()
+                                     << ' ' << expr.first_child().child_value());
 
     // Everything after type is optional
     temp = temp.next_sibling();
-    if (!temp)
-      return arrayType(typ);
-
-    // Check for optional MaxSize tag
-    if (testTag(MAX_SIZE_TAG, temp)) {
-      // Check for non-negative integer
-      char const *sz = temp.child_value();
-      checkParserExceptionWithLocation(*sz,
-                                       temp,
-                                       "Node \"" << nodeId
-                                       << "\": Empty " << temp.name()
-                                       << " in " << expr.name() << ' ' << expr.child_value(NAME_TAG));
-      Integer n;
-      checkParserExceptionWithLocation(parseValue<Integer>(sz, n) && n >= 0,
-                                       temp,
-                                       "Node \"" << nodeId
-                                       << "\": " << temp.name()
-                                       << " value " << sz
-                                       << " is not a non-negative integer\n in "
-                                       << expr.name() << ' ' << expr.child_value(NAME_TAG));
-
-      temp = temp.next_sibling();
-      if (!temp)
-        return arrayType(typ);
-    }
-    
-    // Check initial value, if provided
-    checkParserExceptionWithLocation(testTag(INITIALVAL_TAG, temp),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": " << temp.name() << " element invalid in "
-                                     << expr.name() << ' ' << expr.child_value(NAME_TAG));
-
-
-    // Check that initializer isn't completely bogus
-    checkParserExceptionWithLocation(temp.first_child(),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": Invalid " << INITIALVAL_TAG << " element in "
-                                     << expr.name() << ' ' << expr.child_value(NAME_TAG));
-    temp = temp.first_child();
-
-    // *** N.B. ***
-    // The schema used to restrict initializers to literals.
-    // Now restricts to literals and variables
-    // we may choose to broaden this in the future.
-    // Comment out this check if so.
-    
-    checkParserExceptionWithLocation(testTagSuffix(VAL_SUFFIX, temp) || testTagSuffix(VAR_SUFFIX, temp),
-                                     temp,
-                                     "Node \"" << nodeId
-                                     << "\": Invalid " << INITIALVAL_TAG << " contents in "
-                                     << expr.name() << ' ' << expr.child_value(NAME_TAG));
-
-    // Legal initializers are list of scalars, ArrayValue, ArrayVariable
-    if (testTagPrefix("Array", temp)) {
-      ValueType v = checkExpression(nodeId, temp);
-      checkParserExceptionWithLocation(v == arrayType(typ)
-                                       || v == UNKNOWN_TYPE, // FIXME - for variables
-                                       temp,
-                                       "Node \"" << nodeId
-                                       << "\": " << valueTypeName(typ)
-                                       << " array variable " << expr.child_value(NAME_TAG)
-                                       << " has " << INITIALVAL_TAG
-                                       << " of incompatible type " << valueTypeName(v));
-    }
-    else
-      do {
-        ValueType v = checkExpression(nodeId, temp);
-        checkParserExceptionWithLocation(v == typ,
+    if (temp) {
+      // Check for optional MaxSize tag
+      if (testTag(MAX_SIZE_TAG, temp)) {
+        // Check for non-negative integer
+        char const *sz = temp.child_value();
+        checkParserExceptionWithLocation(*sz,
                                          temp,
                                          "Node \"" << nodeId
-                                         << "\": " << valueTypeName(typ)
-                                         << " array variable " << expr.child_value(NAME_TAG)
-                                         << " has " << INITIALVAL_TAG
-                                         << " of incompatible type " << valueTypeName(v));
+                                         << "\": Empty " << temp.name()
+                                         << " in " << expr.name() << ' ' << expr.child_value(NAME_TAG));
+        Integer n;
+        checkParserExceptionWithLocation(parseValue<Integer>(sz, n) && n >= 0,
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": " << temp.name()
+                                         << " value " << sz
+                                         << " is not a non-negative integer\n in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+
         temp = temp.next_sibling();
-      } while (temp);
+      }
+
+      if (temp) {
+        // Check initial value, if provided
+        checkParserExceptionWithLocation(testTag(INITIALVAL_TAG, temp),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": " << temp.name() << " element invalid in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+
+
+        // Check that initializer isn't completely bogus
+        checkParserExceptionWithLocation(temp.first_child(),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Invalid " << INITIALVAL_TAG << " element in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+        temp = temp.first_child();
+
+        // *** N.B. ***
+        // The schema used to restrict initializers to literals.
+        // Now restricts to literals and variables
+        // we may choose to broaden this in the future.
+        // Comment out this check if so.
+    
+        checkParserExceptionWithLocation(testTagSuffix(VAL_SUFFIX, temp) || testTagSuffix(VAR_SUFFIX, temp),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Invalid " << INITIALVAL_TAG << " contents in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+
+        // Legal initializers are list of scalars, ArrayValue, ArrayVariable
+        if (testTagPrefix("Array", temp)) {
+          ValueType v = checkExpression(nodeId, temp);
+          checkParserExceptionWithLocation(v == arrayType(typ)
+                                           || v == UNKNOWN_TYPE, // FIXME - for variables
+                                           temp,
+                                           "Node \"" << nodeId
+                                           << "\": " << valueTypeName(typ)
+                                           << " array variable " << expr.child_value(NAME_TAG)
+                                           << " has " << INITIALVAL_TAG
+                                           << " of incompatible type " << valueTypeName(v));
+        }
+        else
+          do {
+            ValueType v = checkExpression(nodeId, temp);
+            checkParserExceptionWithLocation(v == typ,
+                                             temp,
+                                             "Node \"" << nodeId
+                                             << "\": " << valueTypeName(typ)
+                                             << " array variable " << expr.child_value(NAME_TAG)
+                                             << " has " << INITIALVAL_TAG
+                                             << " of incompatible type " << valueTypeName(v));
+            temp = temp.next_sibling();
+          } while (temp);
+      }
+    }
 
     return arrayType(typ);
   }
@@ -157,19 +159,21 @@ namespace PLEXIL
 
   // N.B. Construction of initializer expression happens later.
 
-  Expression *ArrayVariableFactory::allocate(pugi::xml_node const expr,
+  Expression *ArrayVariableFactory::allocate(xml_node const expr,
                                              NodeConnector *node,
                                              bool &wasCreated,
                                              ValueType /* returnType */) const
     throw (ParserException)
   {
-    char const *name = expr.child_value(NAME_TAG);
-    ValueType typ = parseValueType(expr.child_value(TYPE_TAG));
-    pugi::xml_node sizeElt = expr.child(MAX_SIZE_TAG);
+    xml_node temp = expr.first_child();
+    char const *name = temp.child_value();
+    temp = temp.next_sibling();
+    ValueType typ = parseValueType(temp.child_value());
     Expression *sizeExp = NULL;
     bool sizeIsGarbage = false;
-    if (sizeElt) {
-      char const *sizeStr = sizeElt.child_value();
+    temp = temp.next_sibling();
+    if (testTag(MAX_SIZE_TAG, temp)) {
+      char const *sizeStr = temp.child_value();
       char *end;
       long size = strtol(sizeStr, &end, 10);
       sizeExp = new Constant<int32_t>((int32_t) size);

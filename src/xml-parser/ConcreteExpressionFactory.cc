@@ -227,7 +227,8 @@ namespace PLEXIL
   {
     // Syntax checks
     xml_node arrayXml = expr.first_child();
-    xml_node indexXml = expr.child(INDEX_TAG).first_child();
+    xml_node indexXml = arrayXml.next_sibling();
+    checkTag(INDEX_TAG, indexXml);
 
     // Checks on array
     if (testTag(NAME_TAG, arrayXml)) {
@@ -253,7 +254,7 @@ namespace PLEXIL
     }
 
     // Checks on index
-    indexExpr = createExpression(indexXml, node, indexCreated);
+    indexExpr = createExpression(indexXml.first_child(), node, indexCreated);
     assertTrue_1(indexExpr);
     ValueType indexType = indexExpr->valueType();
     checkParserExceptionWithLocation(indexType == INTEGER_TYPE || indexType == UNKNOWN_TYPE,
