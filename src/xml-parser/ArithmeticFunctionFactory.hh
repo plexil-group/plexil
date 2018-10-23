@@ -100,11 +100,11 @@ namespace PLEXIL
 
 // Convenience macros
 #define REGISTER_ARITHMETIC_FUNCTION(CLASS, NAME) \
-  {new PLEXIL::ArithmeticFunctionFactory(CLASS<Integer>::instance(), CLASS<Real>::instance(), #NAME);}
+  new PLEXIL::ArithmeticFunctionFactory(CLASS<Integer>::instance(), CLASS<Real>::instance(), #NAME)
 #define REGISTER_COMPARISON(CLASS, NAME) \
-  {new PLEXIL::ComparisonFactory(CLASS<Integer>::instance(), \
+  new PLEXIL::ComparisonFactory(CLASS<Integer>::instance(), \
                                  CLASS<Real>::instance(),    \
                                  CLASS<String>::instance(),  \
-                                 #NAME);}
+                                 #NAME)
 
 #endif // PLEXIL_ARITHMETIC_FUNCTION_FACTORY_HH

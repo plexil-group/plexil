@@ -32,6 +32,7 @@
 #include "Command.hh"
 #include "CommandNode.hh"
 #include "commandXmlParser.hh"
+#include "createExpression.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "LibraryCallNode.hh"

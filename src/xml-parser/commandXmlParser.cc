@@ -27,6 +27,7 @@
 #include "Assignable.hh"
 #include "Command.hh"
 #include "CommandNode.hh"
+#include "createExpression.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "ExprVec.hh"

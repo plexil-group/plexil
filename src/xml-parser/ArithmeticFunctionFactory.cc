@@ -28,6 +28,7 @@
 
 #include "ArithmeticOperators.hh"
 #include "Comparisons.hh"
+#include "createExpression.hh"
 #include "Error.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"

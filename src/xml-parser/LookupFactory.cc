@@ -26,6 +26,7 @@
 
 #include "LookupFactory.hh"
 
+#include "createExpression.hh"
 #include "Error.hh"
 #include "ExprVec.hh"
 #include "Lookup.hh"

@@ -25,7 +25,8 @@
 */
 
 #include "ArrayImpl.hh"
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Expression.hh"
 #include "TestSupport.hh"
 #include "test/TrivialNodeConnector.hh"
 

@@ -24,7 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Expression.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "Lookup.hh"
 #include "SymbolTable.hh"

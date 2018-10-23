@@ -81,7 +81,7 @@ namespace PLEXIL
 } // namespace PLEXIL
 
 // Convenience macros
-#define REGISTER_FUNCTION(CLASS,NAME) {new PLEXIL::FunctionFactory(CLASS::instance(), #NAME);}
-#define REGISTER_CACHED_FUNCTION(CLASS,NAME) {new PLEXIL::CachedFunctionFactory(CLASS::instance(), #NAME);}
+#define REGISTER_FUNCTION(CLASS,NAME) new PLEXIL::FunctionFactory(CLASS::instance(), #NAME)
+#define REGISTER_CACHED_FUNCTION(CLASS,NAME) new PLEXIL::CachedFunctionFactory(CLASS::instance(), #NAME)
 
 #endif // PLEXIL_FUNCTION_FACTORY_HH

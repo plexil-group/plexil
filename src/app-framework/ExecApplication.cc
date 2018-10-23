@@ -30,7 +30,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerHub.hh"
-#include "Expressions.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
@@ -118,9 +117,6 @@ namespace PLEXIL
 
     // Load debug configuration from XML
     // *** NYI ***
-
-    // Initialize Exec static data structures
-    initializeExpressions();
 
     // Construct interfaces
     if (!g_configuration->constructInterfaces(configXml)) {

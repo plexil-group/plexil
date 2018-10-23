@@ -26,6 +26,7 @@
 
 #include "UserVariableFactory.hh"
 
+#include "createExpression.hh"
 #include "Error.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"

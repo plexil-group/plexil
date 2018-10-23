@@ -29,6 +29,7 @@
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
+#include "createExpression.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"

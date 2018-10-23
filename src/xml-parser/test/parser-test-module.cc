@@ -25,7 +25,6 @@
 */
 
 #include "Debug.hh"
-#include "Expressions.hh"
 #include "lifecycle-utils.h"
 #include "SymbolTable.hh"
 #include "TestSupport.hh"
@@ -45,9 +44,6 @@ extern bool nodeXmlParserTest();
 
 void runTests()
 {
-  // Initialize factories
-  PLEXIL::initializeExpressions();
-
   // Construct symbol table
   PLEXIL::SymbolTable *symtab = PLEXIL::makeSymbolTable();
   PLEXIL::pushSymbolTable(symtab); 

@@ -73,68 +73,6 @@ namespace PLEXIL
     const std::string m_name; /*!< Name used for lookup and error reporting */
   };
 
-  /**
-   * @brief Check the XML for validity as an expression.
-   * @param nodeId Name of the node to which the expression belongs.
-   * @param expr The XML representation of the expression.
-   * @return The ValueType of the expression; UNKNOWN_TYPE if could not be determined.
-   * @note Throws ParserException if any problems are found.
-   */
-
-  extern ValueType checkExpression(char const *nodeId, pugi::xml_node const expr)
-    throw (ParserException);
-
-  /**
-   * @brief Check the XML for validity as an assignable expression.
-   * @param nodeId Name of the node to which the expression belongs.
-   * @param expr The XML representation of the expression.
-   * @return The ValueType of the expression; UNKNOWN_TYPE if could not be determined.
-   * @note Throws ParserException if any problems are found.
-   */
-
-  extern ValueType checkAssignable(char const *nodeId, pugi::xml_node const expr)
-    throw (ParserException);
-  
-  /**
-   * @brief Creates a new Expression instance with the type associated with the
-   *        given expression specification.
-   * @param expr The expression specification.
-   * @param node Node for name lookup.
-   * @return Pointer to the new Expression. May not be unique.
-   * @note Convenience wrapper.
-   */
-
-  extern Expression *createExpression(pugi::xml_node const expr,
-                                      NodeConnector *node = NULL)
-    throw (ParserException);
-
-  /**
-   * @brief Creates a new Expression instance with the type associated with the
-   *        given expression prototype.
-   * @param expr The expression spec.
-   * @param node Node for name lookup.
-   * @return Pointer to the new Expression. May not be unique.
-   * @param wasCreated Reference to a boolean variable;
-   *                   variable will be set to true if new object created, false otherwise.
-   */
-  // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
-  extern Expression *createExpression(pugi::xml_node const expr,
-                                      NodeConnector *node,
-                                      bool& wasCreated,
-                                      ValueType returnType = UNKNOWN_TYPE)
-    throw (ParserException);
-
-  // Used in AssignmentNode, CommandNode
-  extern Expression *createAssignable(pugi::xml_node const expr,
-                                      NodeConnector *node,
-                                      bool& wasCreated)
-    throw (ParserException);
-
-  /**
-   * @brief Deallocate all factories
-   */
-  extern void purgeExpressionFactories();
-
 } // namespace PLEXIL
 
 #endif // EXPRESSION_FACTORY_HH

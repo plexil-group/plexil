@@ -30,6 +30,7 @@
 #include "BooleanOperators.hh"
 #include "CachedFunction.hh"
 #include "Comparisons.hh"
+#include "createExpression.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
 

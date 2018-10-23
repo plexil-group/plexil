@@ -28,7 +28,6 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "Expressions.hh"
 #include "NodeImpl.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
@@ -144,7 +143,6 @@ int main(int argc, char *argv[])
   try {
     // Initialize infrastructure
     PLEXIL::Error::doThrowExceptions();
-    PLEXIL::initializeExpressions();
     PLEXIL::TransitionExternalInterface intfc;
     PLEXIL::g_interface = &intfc;
 

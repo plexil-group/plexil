@@ -41,6 +41,9 @@ AC_PROG_CC
 
 AM_PROG_CC_C_O
 
+# Required to build the expression parser
+AC_PATH_PROG([GPERF], [gperf])
+
 # Use this with autoconf 2.62 and newer
 LT_INIT([])
 # Use this with autoconf 2.61 and older

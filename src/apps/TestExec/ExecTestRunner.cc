@@ -31,7 +31,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerHub.hh"
-#include "Expressions.hh"
 #include "Logging.hh"
 #include "NodeImpl.hh"
 #include "parseNode.hh"
@@ -271,7 +270,6 @@ int ExecTestRunner::run(int argc, char** argv)
       readDebugConfigStream(config);
   }
 
-  initializeExpressions();
   setLibraryPaths(libraryPaths);
 
   // create external interface

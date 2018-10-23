@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "createExpression.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "parser-utils.hh"

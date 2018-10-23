@@ -24,12 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
 #include "Alias.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Debug.hh"
+#include "Expression.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"

@@ -61,6 +61,6 @@ namespace PLEXIL
 } // namespace PLEXIL
 
 // Convenience macros
-#define REGISTER_NODE_FUNCTION(CLASS,NAME) {new PLEXIL::NodeFunctionFactory(CLASS::instance(), #NAME);}
+#define REGISTER_NODE_FUNCTION(CLASS,NAME) new PLEXIL::NodeFunctionFactory(CLASS::instance(), #NAME)
 
 #endif // PLEXIL_NODE_FUNCTION_FACTORY_HH
