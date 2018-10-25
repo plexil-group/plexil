@@ -56,6 +56,8 @@
 
 #include "pugixml.hpp"
 
+#include <cstring>
+
 using pugi::xml_node;
 
 
