@@ -42,7 +42,7 @@
 
 #include <algorithm> // for std::sort
 #include <cfloat>    // for DBL_MAX
-#include <cstring>   // strcmp()
+#include <cstring>   // strcmp(), strnlen()
 #include <iomanip>   // for std::setprecision
 #include <sstream>
 
@@ -73,14 +73,90 @@ namespace PLEXIL
       "ActionCompleteCondition",
       "AbortCompleteCondition"
     };
-  
+
+  // gperf-inspired version
   static NodeImpl::ConditionIndex getConditionIndex(char const *cName)
   {
-    for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
-      if (!strcmp(NodeImpl::ALL_CONDITIONS[i], cName))
-        return (NodeImpl::ConditionIndex) i;
-    return NodeImpl::conditionIndexMax;
+    NodeImpl::ConditionIndex result = NodeImpl::conditionIndexMax;
+    switch (*cName) {
+    case 'A':
+      // AbortCompleteCondition, ActionCompleteCondition,
+      // AncestorEndCondition, AncestorExitCondition, AncestorInvariantCondition
+      switch (cName[1]) {
+      case 'b':
+        result = NodeImpl::abortCompleteIdx;
+        break;
+
+      case 'c':
+        result = NodeImpl::actionCompleteIdx;
+        break;
+
+      case 'n': 
+        // One of the Ancestor conditions
+        // Check length to ensure there is a cName[10]
+        if (strnlen(cName, 11) < 11)
+          return NodeImpl::conditionIndexMax;
+
+        switch (cName[10]) { // First unique character
+        case 'd':
+          result = NodeImpl::ancestorEndIdx;
+          break;
+
+        case 'i':
+          result = NodeImpl::ancestorExitIdx;
+          break;
+
+        case 'v':
+          result = NodeImpl::ancestorInvariantIdx;
+          break;
+
+        default:
+          return NodeImpl::conditionIndexMax;
+        }
+          
+      default:
+        return NodeImpl::conditionIndexMax;
+      }
+
+      break;
+
+    case 'E': // EndCondition, ExitCondition
+      result = (cName[1] == 'n') ? NodeImpl::endIdx : NodeImpl::exitIdx;
+      break;
+
+    case 'I': // InvariantCondition
+      result = NodeImpl::invariantIdx;
+      break;
+      
+    case 'P': // PostCondition, PreCondition
+      result = (cName[1] == 'o') ? NodeImpl::postIdx : NodeImpl::preIdx;
+      break;
+
+    case 'R': // RepeatCondition
+      result = NodeImpl::repeatIdx;
+      break;
+
+    case 'S': // SkipCondition, StartCondition
+      result = (cName[1] == 'k') ? NodeImpl::skipIdx : NodeImpl::startIdx;
+      break;
+
+    default:
+      return NodeImpl::conditionIndexMax;
+    }
+
+    if (strcmp(cName, NodeImpl::ALL_CONDITIONS[result]))
+      return NodeImpl::conditionIndexMax;
+    return result;
   }
+  
+  // Naive version
+  // static NodeImpl::ConditionIndex getConditionIndex(char const *cName)
+  // {
+  //   for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
+  //     if (!strcmp(NodeImpl::ALL_CONDITIONS[i], cName))
+  //       return (NodeImpl::ConditionIndex) i;
+  //   return NodeImpl::conditionIndexMax;
+  // }
 
   char const *NodeImpl::getConditionName(size_t idx)
   {
@@ -294,11 +370,9 @@ namespace PLEXIL
     assertTrue_2(cname, "Null condition name");
     ConditionIndex which = getConditionIndex(cname);
 
-    // These should have been checked by the parser's check pass
+    // This should have been checked by the parser's check pass
     assertTrueMsg(which >= skipIdx && which <= repeatIdx,
                   "Internal error: Invalid condition name \"" << cname << "\" for user condition");
-    assertTrueMsg(!m_conditions[which],
-                  "Duplicate " << cname << " for Node \"" << m_nodeId << "\"");
 
     m_conditions[which] = cond;
     m_garbageConditions[which] = isGarbage;

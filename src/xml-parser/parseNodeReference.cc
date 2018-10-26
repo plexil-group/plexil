@@ -260,13 +260,10 @@ namespace PLEXIL
     throw (ParserException)
   {
     const char* tag = nodeRef.name();
-    if (!strcmp(tag, NODEREF_TAG))
-      return parseNodeRef(nodeRef, node);
-    else if (!strcmp(tag, NODEID_TAG))
+    // We trust that checkNodeReference() above has been called
+    if (tag[4] == 'I')
       return parseNodeId(nodeRef, node);
-    // should have been caught by checkNodeReference()
-    errorMsg("Internal error: invalid node reference");
-    return NULL;
+    return parseNodeRef(nodeRef, node);
   }
 
 }
