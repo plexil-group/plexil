@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,12 +51,44 @@ namespace PLEXIL
     return sl_names[t];
   }
 
-  // Simple linear search
   PlexilNodeType parseNodeType(char const *typeName)
   {
-    for (size_t t = NodeType_NodeList; t < NodeType_error; ++t)
-      if (NODE_TYPE_NAME(t) == typeName)
-        return (PlexilNodeType) t;
+    switch (*typeName) {
+    case 'A':
+      if (ASSIGNMENT == typeName)
+        return NodeType_Assignment;
+      break;
+
+    case 'C':
+      if (COMMAND == typeName)
+        return NodeType_Command;
+      break;
+
+    case 'E':
+      if (EMPTY == typeName)
+        return NodeType_Empty;
+      break;
+
+    case 'L':
+      if (LIBRARYNODECALL == typeName)
+        return NodeType_LibraryNodeCall;
+      break;
+
+    case 'N':
+      if (LIST == typeName)
+        return NodeType_NodeList;
+      break;
+
+    case 'U':
+      if (UPDATE == typeName)
+        return NodeType_Update;
+      break;
+
+    default:
+      break;
+    }
+
+    // Fall-through return
     return NodeType_error;
   }
 

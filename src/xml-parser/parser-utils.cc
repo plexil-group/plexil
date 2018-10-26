@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,12 +48,13 @@ namespace PLEXIL
     return str == strstr(str, prefix);
   }
 
-  bool testSuffix(char const* suffix, char const *str)
+  bool testSuffix(char const *suffix, char const *str)
   {
-    char const *tail = strstr(str, suffix);
-    if (!tail)
+    int offset = strlen(str) - strlen(suffix);
+    if (offset < 0)
       return false;
-    return !strcmp(tail, suffix);
+
+    return !strcmp(str + offset, suffix);
   }
 
   //

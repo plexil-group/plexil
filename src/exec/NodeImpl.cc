@@ -80,44 +80,39 @@ namespace PLEXIL
     NodeImpl::ConditionIndex result = NodeImpl::conditionIndexMax;
     switch (*cName) {
     case 'A':
-      // AbortCompleteCondition, ActionCompleteCondition,
-      // AncestorEndCondition, AncestorExitCondition, AncestorInvariantCondition
-      switch (cName[1]) {
-      case 'b':
+      // AbortCompleteCondition
+      // ActionCompleteCondition
+      // AncestorEndCondition
+      // AncestorExitCondition
+      // AncestorInvariantCondition
+      // Check length to ensure there is a cName[10]
+      if (strnlen(cName, 11) < 11)
+        return NodeImpl::conditionIndexMax;
+
+      switch (cName[10]) { // First completely unique character
+      case 'd':
+        result = NodeImpl::ancestorEndIdx;
+        break;
+
+      case 'e':
         result = NodeImpl::abortCompleteIdx;
         break;
 
-      case 'c':
-        result = NodeImpl::actionCompleteIdx;
+      case 'i':
+        result = NodeImpl::ancestorExitIdx;
         break;
 
-      case 'n': 
-        // One of the Ancestor conditions
-        // Check length to ensure there is a cName[10]
-        if (strnlen(cName, 11) < 11)
-          return NodeImpl::conditionIndexMax;
+      case 'l':
+        result = NodeImpl::abortCompleteIdx;
+        break;
 
-        switch (cName[10]) { // First unique character
-        case 'd':
-          result = NodeImpl::ancestorEndIdx;
-          break;
+      case 'v':
+        result = NodeImpl::ancestorInvariantIdx;
+        break;
 
-        case 'i':
-          result = NodeImpl::ancestorExitIdx;
-          break;
-
-        case 'v':
-          result = NodeImpl::ancestorInvariantIdx;
-          break;
-
-        default:
-          return NodeImpl::conditionIndexMax;
-        }
-          
       default:
         return NodeImpl::conditionIndexMax;
       }
-
       break;
 
     case 'E': // EndCondition, ExitCondition

@@ -175,6 +175,7 @@ namespace PLEXIL
   static void checkChildNodes(char const *parentId, xml_node const kidsXml)
     throw (ParserException)
   {
+    std::vector<char const *> nodeIds;
     xml_node kidXml = kidsXml.first_child();
     while (kidXml) { // empty list node is legal
       // Basic checks on child
@@ -188,16 +189,17 @@ namespace PLEXIL
                                        << " has a child node with the same NodeId");
 
       // Check that none of siblings has same name
-      for (xml_node nextKid = kidXml.previous_sibling();
-           nextKid;
-           nextKid = nextKid.previous_sibling()) {
-        checkParserExceptionWithLocation(strcmp(kidId, nextKid.child_value(NODEID_TAG)),
+      for (std::vector<char const *>::const_iterator iter = nodeIds.begin();
+           iter != nodeIds.end(); 
+           ++iter) {
+        checkParserExceptionWithLocation(strcmp(kidId, *iter),
                                          kidXml,
                                          "List Node " << parentId
                                          << " has multiple child nodes with the same NodeId "
                                          << kidId);
       }
 
+      nodeIds.push_back(kidId);
       kidXml = kidXml.next_sibling();
     }
   }
@@ -269,6 +271,9 @@ namespace PLEXIL
 
     PlexilNodeType nodeType = checkNodeTypeAttr(xml);
 
+    // For error reporting purposes
+    char const *nodeId = xml.child_value(NODEID_TAG);
+
     // Temps for duplicate checking
     xml_node idXml;
     xml_node ifaceXml;
@@ -290,70 +295,81 @@ namespace PLEXIL
       checkParserExceptionWithLocation(*tag,
                                        xml,
                                        "Non-element found at top level of node");
+      bool validElt = false;
       debugMsg("checkNode", " parsing element " << tag);
       switch (*tag) {
 
       case 'A': // Assume - annotation for analysis, ignored
-        checkParserExceptionWithLocation(!strcmp(ASSUME_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
+        if (!strcmp(ASSUME_TAG, tag))
+          validElt = true;
         break;
         
       case 'C': // Comment
-        checkParserExceptionWithLocation(!strcmp(COMMENT_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
+        if (!strcmp(COMMENT_TAG, tag))
+          validElt = true;
         break;
 
       case 'D': // Desire - annotation for analysis, ignored
-        checkParserExceptionWithLocation(!strcmp(DESIRE_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
+        if (!strcmp(DESIRE_TAG, tag))
+          validElt = true;
         break;
         
       case 'E': // EndCondition, ExitCondition, Expect
-        if (!strcmp(END_CONDITION_TAG, tag)) {
-          checkParserExceptionWithLocation(endXml.empty(),
-                                           temp,
-                                           "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
-          endXml = temp;
-        }
-        else if (!strcmp(EXIT_CONDITION_TAG, tag)) {
-          checkParserExceptionWithLocation(exitXml.empty(),
-                                           temp,
-                                           "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
-          exitXml = temp;
-        }
-        else if (strcmp(EXPECT_TAG, tag)) { // Annotation for analysis, ignored 
-          reportParserExceptionWithLocation(temp,
-                                            "Illegal element \"" << tag << "\" in Node");
+        switch (strlen(tag)) {
+        case 6: // Expect - annotation for analysis, ignored
+          if (!strcmp(EXPECT_TAG, tag))
+            validElt = true;
+          break;
+
+        case 12: // EndCondition
+          if (!strcmp(END_CONDITION_TAG, tag)) {
+            validElt = true;
+            checkParserExceptionWithLocation(endXml.empty(),
+                                             temp,
+                                             "Duplicate " << tag << " element in Node");
+            checkCondition(nodeId, temp);
+            endXml = temp;
+          }
+          break;
+
+        case 13: // ExitCondition
+          if (!strcmp(EXIT_CONDITION_TAG, tag)) {
+            validElt = true;
+            checkParserExceptionWithLocation(exitXml.empty(),
+                                             temp,
+                                             "Duplicate " << tag << " element in Node");
+            checkCondition(nodeId, temp);
+            exitXml = temp;
+          }
+          break;
+
+        default:
+          break;
         }
         break;
 
       case 'I': // Interface, InvariantCondition
         if (!strcmp(INVARIANT_CONDITION_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(invariantXml.empty(),
                                            temp,
                                            "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
+          checkCondition(nodeId, temp);
           invariantXml = temp;
+          break;
         }
-        else if (!strcmp(INTERFACE_TAG, tag)) {
+        if (!strcmp(INTERFACE_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(!ifaceXml,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           ifaceXml = temp;
         }
-        else {
-          reportParserExceptionWithLocation(temp, 
-                                            "Illegal element \"" << tag << "\" in Node");
-        }
         break;
 
       case 'N': // NodeId, NodeBody
         if (!strcmp(NODEID_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(!idXml,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
@@ -362,108 +378,115 @@ namespace PLEXIL
                                            temp,
                                            "Empty or invalid " << tag << " element in Node");
           idXml = temp;
+          break;
         }
-        else if (!strcmp(BODY_TAG, tag)) {
+        if (!strcmp(BODY_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(!bodyXml,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           bodyXml = temp;
         }
-        else {
-          reportParserExceptionWithLocation(temp,
-                                            "Illegal element \"" << tag << "\" in Node");
-        }
         break;
 
       case 'P': // PostCondition, Priority, PreCondition
-        if (!strcmp(POST_CONDITION_TAG, tag)) {
-          checkParserExceptionWithLocation(postXml.empty(),
-                                           temp,
-                                           "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
-          postXml = temp;
-        }
-        else if (!strcmp(PRE_CONDITION_TAG, tag)) {
-          checkParserExceptionWithLocation(preXml.empty(),
-                                           temp,
-                                           "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
-          preXml = temp;
-        }
-        else if (!strcmp(PRIORITY_TAG, tag)) {
-          checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
-                                           temp,
-                                           "Only Assignment nodes may have a Priority element");
-          checkParserExceptionWithLocation(!prioXml,
-                                           temp, 
-                                           "Duplicate " << tag << " element in Node");
-          // TODO: check for non-negative integer
-          prioXml = temp;
+        switch (strlen(tag)) {
+        case 8: // Priority
+          if (!strcmp(PRIORITY_TAG, tag)) {
+            validElt = true;
+            checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
+                                             temp,
+                                             "Only Assignment nodes may have a Priority element");
+            checkParserExceptionWithLocation(!prioXml,
+                                             temp, 
+                                             "Duplicate " << tag << " element in Node");
+            // TODO: check for non-negative integer
+            prioXml = temp;
+          }
           break;
-        }
-        else {
-          reportParserExceptionWithLocation(temp,
-                                            "Illegal element \"" << tag << "\" in Node");
+          
+        case 12: // PreCondition
+          if (!strcmp(PRE_CONDITION_TAG, tag)) {
+            validElt = true;
+            checkParserExceptionWithLocation(preXml.empty(),
+                                             temp,
+                                             "Duplicate " << tag << " element in Node");
+            checkCondition(nodeId, temp);
+            preXml = temp;
+          }
+          break;
+
+        case 13: // PostCondition
+          if (!strcmp(POST_CONDITION_TAG, tag)) {
+            validElt = true;
+            checkParserExceptionWithLocation(postXml.empty(),
+                                             temp,
+                                             "Duplicate " << tag << " element in Node");
+            checkCondition(nodeId, temp);
+            postXml = temp;
+          }
+          break;
+
+        default:
+          break;
         }
         break;
 
       case 'R': // RepeatCondition
-        checkParserExceptionWithLocation(!strcmp(REPEAT_CONDITION_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
-        checkParserExceptionWithLocation(repeatXml.empty(),
-                                         temp,
-                                         "Duplicate " << tag << " element in Node");
-        checkCondition(xml.child_value(NODEID_TAG), temp);
-        repeatXml = temp;
+        if (!strcmp(REPEAT_CONDITION_TAG, tag)) {
+          validElt = true;
+          checkParserExceptionWithLocation(repeatXml.empty(),
+                                           temp,
+                                           "Duplicate " << tag << " element in Node");
+          checkCondition(nodeId, temp);
+          repeatXml = temp;
+        }
         break;
 
       case 'S': // SkipCondition, StartCondition
         if (!strcmp(START_CONDITION_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(startXml.empty(),
                                            temp,
                                            "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
+          checkCondition(nodeId, temp);
           startXml = temp;
         }
         else if (!strcmp(SKIP_CONDITION_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(skipXml.empty(),
                                            temp,
                                            "Duplicate " << tag << " element in Node");
-          checkCondition(xml.child_value(NODEID_TAG), temp);
+          checkCondition(nodeId, temp);
           skipXml = temp;
-        }
-        else {
-          reportParserExceptionWithLocation(temp,
-                                            "Illegal element \"" << tag << "\" in Node");
         }
         break;
 
       case 'V': // VariableDeclarations
         if (!strcmp(VAR_DECLS_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(!varDeclsXml,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           varDeclsXml = temp;
-          break;
         }
-        // else fall thru to parser error
+        break;
 
       default:
-        reportParserExceptionWithLocation(temp,
-                                          "Illegal element \"" << tag << "\" in Node");
         break;
       }
+      // Report all illegal-element errors here
+      checkParserExceptionWithLocation(validElt,
+                                       temp,
+                                       "Illegal element \"" << tag << "\" in Node");
     }
 
+    // Empty NodeId check
     checkParserExceptionWithLocation(idXml,
                                      xml,
                                      "Node missing " << NODEID_TAG << " element");
-
-    // Empty NodeId check
-    char const *nodeId = idXml.child_value();
     checkParserExceptionWithLocation(*nodeId,
-                                     xml.child(NODEID_TAG), 
+                                     idXml,
                                      "Empty " << NODEID_TAG << " element in Node");
 
     // Check variable declarations (if supplied)

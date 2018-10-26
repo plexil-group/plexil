@@ -33,7 +33,6 @@
 #include "Error.hh"
 #include "map-utils.hh"
 #include "NodeConstants.hh"
-#include "SimpleMap.hh"
 #include "stricmp.h"
 
 // TEMP DEBUG
@@ -42,7 +41,7 @@
 #include <cerrno>
 #include <cmath>   // for HUGE_VAL
 #include <cstdlib> // for strtod(), strtol()
-#include <cstring>
+#include <cstring> // strlen(), strcmp() etc.
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -225,55 +224,135 @@ namespace PLEXIL
   // ValueType parsing
   //
 
-  typedef SimpleMap<std::string, ValueType> NameTypeTable;
-
-  // Size argument to constructor should be at least as big as # of entries in table
-  static NameTypeTable s_nameTypeTable(16);
-
-  static void initNameTypeTable()
-  {
-    if (s_nameTypeTable.empty()) {
-      s_nameTypeTable.insert(BOOLEAN_STR, BOOLEAN_TYPE);
-      s_nameTypeTable.insert(INTEGER_STR, INTEGER_TYPE);
-      s_nameTypeTable.insert(REAL_STR, REAL_TYPE);
-      s_nameTypeTable.insert(STRING_STR, STRING_TYPE);
-      s_nameTypeTable.insert(DATE_STR, DATE_TYPE);
-      s_nameTypeTable.insert(DURATION_STR, DURATION_TYPE);
-
-      s_nameTypeTable.insert(ARRAY_STR, ARRAY_TYPE);
-      s_nameTypeTable.insert(BOOLEAN_ARRAY_STR, BOOLEAN_ARRAY_TYPE);
-      s_nameTypeTable.insert(INTEGER_ARRAY_STR, INTEGER_ARRAY_TYPE);
-      s_nameTypeTable.insert(REAL_ARRAY_STR, REAL_ARRAY_TYPE);
-      s_nameTypeTable.insert(STRING_ARRAY_STR, STRING_ARRAY_TYPE);
-
-      s_nameTypeTable.insert(STATE_STR, STATE_TYPE);
-
-      s_nameTypeTable.insert(NODE_STATE_STR, NODE_STATE_TYPE);
-      s_nameTypeTable.insert(NODE_OUTCOME_STR, OUTCOME_TYPE);
-      s_nameTypeTable.insert(NODE_FAILURE_STR, FAILURE_TYPE);
-      s_nameTypeTable.insert(NODE_COMMAND_HANDLE_STR, COMMAND_HANDLE_TYPE);
-    }
-  }
-
+  // Optimized version, makes at most one call to strlen() and one to strcmp()
   ValueType parseValueType(char const *typeStr)
   {
     if (!typeStr)
       return UNKNOWN_TYPE;
-    initNameTypeTable();
-    NameTypeTable::const_iterator iter = 
-      s_nameTypeTable.find<char const *, CStringComparator>(typeStr);
-    if (iter == s_nameTypeTable.end())
-      return UNKNOWN_TYPE;
-    return iter->second;
+    switch (*typeStr) {
+    case 'A': // Array
+      if (!strcmp(typeStr, ARRAY_STR))
+        return ARRAY_TYPE;
+      break;
+
+    case 'B': // Boolean, BooleanArray
+      switch (strlen(typeStr)) {
+      case 7:
+        if (!strcmp(typeStr, BOOLEAN_STR))
+          return BOOLEAN_TYPE;
+        break;
+
+      case 12:
+        if (!strcmp(typeStr, BOOLEAN_ARRAY_STR))
+          return BOOLEAN_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+      
+      break;
+
+    case 'D': // Date, Duration
+      if (!strcmp(typeStr, DATE_STR))
+        return DATE_TYPE;
+      if (!strcmp(typeStr, DURATION_STR))
+        return DURATION_TYPE;
+      break;
+
+    case 'I': // Integer, IntegerArray
+      switch (strlen(typeStr)) {
+      case 7:
+        if (!strcmp(typeStr, INTEGER_STR))
+          return INTEGER_TYPE;
+        break;
+
+      case 12:
+        if (!strcmp(typeStr, INTEGER_ARRAY_STR))
+          return INTEGER_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+
+      break;
+
+    case 'N': // NodeState, NodeOutcome, NodeFailure, NodeCommandHandle
+      switch (strlen(typeStr)) {
+      case 9:
+        if (!strcmp(typeStr, NODE_STATE_STR))
+          return NODE_STATE_TYPE;
+        break;
+
+      case 11:
+        if (typeStr[4] == 'F' && !strcmp(typeStr, NODE_FAILURE_STR))
+          return FAILURE_TYPE;
+        if (!strcmp(typeStr, NODE_OUTCOME_STR))
+          return OUTCOME_TYPE;
+        break;
+
+      case 17:
+        if (!strcmp(typeStr, NODE_COMMAND_HANDLE_STR))
+          return COMMAND_HANDLE_TYPE;
+        break;
+
+      default:
+        break;
+      }
+      break;
+
+    case 'R': // Real, RealArray
+      switch (strlen(typeStr)) {
+      case 4:
+        if (!strcmp(typeStr, REAL_STR))
+          return REAL_TYPE;
+        break;
+
+      case 9:
+        if (!strcmp(typeStr, REAL_ARRAY_STR))
+          return REAL_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+
+      break;
+
+    case 'S': // State, String, StringArray
+      switch (strlen(typeStr)) {
+      case 5:
+        if (!strcmp(typeStr, STATE_STR))
+          return STATE_TYPE;
+        break;
+        
+      case 6:
+        if (!strcmp(typeStr, STRING_STR))
+          return STRING_TYPE;
+        break;
+
+      case 11:
+        if (!strcmp(typeStr, STRING_ARRAY_STR))
+          return STRING_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+
+      break;
+
+    default:
+      break;
+    }
+    // Fall-through return
+    return UNKNOWN_TYPE;
   }
 
   ValueType parseValueType(const std::string& typeStr)
   {
-    initNameTypeTable();
-    NameTypeTable::const_iterator iter = s_nameTypeTable.find(typeStr);
-    if (iter == s_nameTypeTable.end())
-      return UNKNOWN_TYPE;
-    return iter->second;
+    return parseValueType(typeStr.c_str());
   }
 
   template <typename T>
@@ -341,22 +420,25 @@ namespace PLEXIL
       break;
 
     case 4:
-      if (0 == stricmp(str, "true")) {
+      if (!stricmp(str, "true")) {
         result = true;
         return true;
       }
       break;
  
     case 5:
-      if (0 == stricmp(str, "false")) {
+      if (!stricmp(str, "false")) {
         result = false;
         return true;
       }
       break;
 
-    default:
-      if (0 == strcmp(str, "UNKNOWN"))
+    case 7:
+      if (!strcmp(str, "UNKNOWN"))
         return false;
+      break;
+
+    default:
       break;
     }
     // No match
