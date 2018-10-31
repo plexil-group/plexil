@@ -72,7 +72,7 @@ namespace PLEXIL {
     virtual Node **nextPtr() = 0;
 
     // Make the node active.
-    virtual void activate() = 0;
+    virtual void activateNode() = 0;
         
     //
     // NodeConnector API to expressions

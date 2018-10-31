@@ -29,7 +29,7 @@
 
 #include "ArrayFwd.hh"
 #include "Expression.hh"
-#include "NotifierImpl.hh"
+#include "Propagator.hh"
 #include "Value.hh"
 #include "ValueType.hh"
 
@@ -44,7 +44,9 @@ namespace PLEXIL
    *        the value(s) of zero or more subexpressions.
    */
 
-  class Function : public NotifierImpl
+  class Function :
+    public Expression,
+    public Propagator
   {
   public:
     virtual ~Function();
@@ -111,13 +113,18 @@ namespace PLEXIL
     // Constructor only available to derived classes
     Function(Operator const *op);
 
+    // *** FIXME: are the following 3 members needed here?? ***
+
     //
-    // NotifierImpl API
+    // Notifier API
     //
     virtual void handleActivate() = 0;
     virtual void handleDeactivate() = 0;
 
-    virtual void doSubexprs(ExprUnaryOperator const &f) = 0;
+    //
+    // Propagator API
+    //
+    virtual void doSubexprs(ListenableUnaryOperator const &f) = 0;
 
     Operator const *m_op;
 

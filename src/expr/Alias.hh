@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,13 @@
 #ifndef PLEXIL_ALIAS_HH
 #define PLEXIL_ALIAS_HH
 
-#include "Assignable.hh"
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 
 namespace PLEXIL
 {
   // Forward declaration
+  class NodeConnector;
   class Value;
 
   /**
@@ -42,7 +43,8 @@ namespace PLEXIL
    *       read-only access to a mutable expression is needed.
    */
   class Alias :
-    public NotifierImpl
+    public Expression,
+    public Propagator
   {
   public:
     Alias(NodeConnector *node, // *** is this needed?? ***
@@ -98,7 +100,7 @@ namespace PLEXIL
 
   protected:
 
-    virtual void doSubexprs(ExprUnaryOperator const &f);
+    virtual void doSubexprs(ListenableUnaryOperator const &f);
 
     // The expression being aliased.
     Expression *m_exp;

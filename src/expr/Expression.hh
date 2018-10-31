@@ -28,7 +28,7 @@
 #define PLEXIL_EXPRESSION_HH
 
 #include "ValueType.hh"
-#include "ExpressionListener.hh" 
+#include "Listenable.hh" 
 
 //
 // Virtual base classes for the expression system
@@ -48,18 +48,11 @@ namespace PLEXIL
   // Used by Expression::doSubexprs().
   //
 
-  class ExprUnaryOperator
-  {
-  public:
-    virtual void operator()(Expression *) const = 0;
-    virtual ~ExprUnaryOperator() {}
-  };
-
   /**
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression : public ExpressionListener
+  class Expression : virtual public Listenable
   {
   protected:
     Expression();
@@ -111,16 +104,6 @@ namespace PLEXIL
      * @note The default method returns false.
      */
     virtual bool isConstant() const;
-
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     * @note This is generally true for leaf expression nodes that are not constant; however,
-     *       some interior nodes (e.g. Lookup, random generator) may also generate changes
-     *       of their own accord.
-     * @note The default method returns true.
-     */
-    virtual bool isPropagationSource() const;
 
     /**
      * @brief Get the real expression for which this may be an alias or reference.
@@ -237,81 +220,6 @@ namespace PLEXIL
     virtual bool getValuePointer(IntegerArray const *&ptr) const;
     virtual bool getValuePointer(RealArray const *&ptr) const;
     virtual bool getValuePointer(StringArray const *&ptr) const;
-
-    //
-    // Expression notification graph API
-    //
-
-    /**
-     * @brief Parts of the notification graph may be inactive, which mans that value change
-     *        notifications won't propagate through them.  The isActive method controls this.
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const = 0;
-
-    /**
-     * @brief Make this expression active.  It will publish value changes and it
-     *        will propagate incoming change notifications.
-     */
-    virtual void activate() = 0;
-
-    /**
-     * @brief Make this listener inactive.  It will not publish value changes, nor
-     *        will it propagate incoming change notifications.
-     */
-    virtual void deactivate() = 0;
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     * @note The default method does nothing.
-     */
-    virtual void addListener(ExpressionListener *ptr);
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param ptr The pointer to the listener to remove.
-     * @note The default method does nothing.
-     */
-    virtual void removeListener(ExpressionListener *ptr);
-
-    //
-    // ExpressionListener API
-    //
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @note This default method does nothing.
-     */
-    virtual void notifyChanged();
-
-    //
-    // Implementation details for NotifierImpl
-    // Made public here rather than adding another pure virtual class
-    // Should ONLY be called from NotifierImpl methods
-    //
-
-    /**
-     * @brief Unconditionally add a listener for changes to this Expression's value.
-     * @param ptr The pointer to the listener to add.
-     * @note The default method does nothing.
-     */
-    virtual void addListenerInternal(ExpressionListener *ptr);
-
-    /**
-     * @brief Unconditionally remove a listener.
-     * @param ptr The pointer to the listener to remove.
-     * @note The default method does nothing.
-     */
-    virtual void removeListenerInternal(ExpressionListener *ptr);
-
-    /**
-     * @brief Call a function on all subexpressions of this one.
-     * @param f The function.
-     * @note Default method does nothing. 
-     * @note Should be overridden by derived classes with subexpressions.
-     */
-    virtual void doSubexprs(ExprUnaryOperator const &f);
 
   };
 

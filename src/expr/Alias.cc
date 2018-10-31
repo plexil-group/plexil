@@ -41,7 +41,7 @@ namespace PLEXIL
                char const *name,
                Expression *original,
                bool garbage)
-    : NotifierImpl(),
+    : Propagator(),
       m_exp(original),
       m_node(node),
       m_name(strdup(name)),
@@ -192,7 +192,7 @@ namespace PLEXIL
     return m_exp->toValue();
   }
 
-  void Alias::doSubexprs(ExprUnaryOperator const &func)
+  void Alias::doSubexprs(ListenableUnaryOperator const &func)
   {
     (func)(m_exp);
   }

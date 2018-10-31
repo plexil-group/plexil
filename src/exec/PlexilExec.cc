@@ -116,10 +116,10 @@ namespace PLEXIL
     bool addPlan(Node *root)
     {
       m_plan.push_back(root);
-      root->activate();
+      root->activateNode();
       debugMsg("PlexilExec:addPlan",
                "Added plan: " << std::endl << root->toString());
-      addCandidateNode(root); // if redundant, will trigger assertion
+      root->notifyChanged(); // if redundant, will trigger assertion
       return true;
     }
 
@@ -364,12 +364,8 @@ namespace PLEXIL
 
     void addCandidateNode(Node *node)
     {
-      assertTrueMsg(node->getQueueStatus() == QUEUE_NONE,
-                    "PlexilExec::addCandidateNode: " << node->getNodeId() << " is already enqueued");
-
       debugMsg("PlexilExec:notifyNodeConditionChanged",
                " for node " << node->getNodeId() << ' ' << node);
-      node->setQueueStatus(QUEUE_CHECK);
       m_candidateQueue.push(node);
     }
 
@@ -651,7 +647,7 @@ namespace PLEXIL
       m_stateChangeQueue.pop();
       result->setQueueStatus(QUEUE_NONE);
       if (was == QUEUE_TRANSITION_CHECK)
-        addCandidateNode(result);
+        result->notifyChanged();
       return result;
     }
 

@@ -37,7 +37,7 @@
 namespace PLEXIL
 {
   NodeFunction::NodeFunction(NodeOperator const *op, NodeImpl *node)
-    : NotifierImpl(),
+    : Propagator(),
       m_op(op),
       m_node(node)
   {
@@ -78,7 +78,7 @@ namespace PLEXIL
     return m_op->toValue(m_node);
   }
 
-  void NodeFunction::doSubexprs(ExprUnaryOperator const &oper)
+  void NodeFunction::doSubexprs(ListenableUnaryOperator const &oper)
   {
     m_op->doPropagationSources(m_node, oper);
   }

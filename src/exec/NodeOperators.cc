@@ -46,9 +46,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeInactive::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeInactive::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeWaiting::NodeWaiting()
@@ -66,9 +66,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeWaiting::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeWaiting::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeExecuting::NodeExecuting()
@@ -86,9 +86,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeExecuting::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeExecuting::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeIterationEnded::NodeIterationEnded()
@@ -106,9 +106,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeIterationEnded::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeIterationEnded::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeFinished::NodeFinished()
@@ -126,9 +126,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeFinished::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeFinished::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeSucceeded::NodeSucceeded()
@@ -147,10 +147,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeSucceeded::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeSucceeded::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    // It's sufficient to listen to the node state
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeFailed::NodeFailed()
@@ -169,10 +168,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeFailed::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeFailed::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    // It's sufficient to listen to the node state
-    (oper)(node->getStateVariable());
+    (oper)(node);
   }
 
   NodeSkipped::NodeSkipped()
@@ -190,9 +188,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeSkipped::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodeSkipped::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getOutcomeVariable());
+    (oper)(node);
   }
 
   NodePostconditionFailed::NodePostconditionFailed()
@@ -210,9 +208,9 @@ namespace PLEXIL
     return true;
   }
 
-  void NodePostconditionFailed::doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+  void NodePostconditionFailed::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
   {
-    (oper)(node->getFailureTypeVariable());
+    (oper)(node);
   }
 
 }

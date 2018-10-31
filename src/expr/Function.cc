@@ -35,7 +35,7 @@
 namespace PLEXIL
 {
   Function::Function(Operator const *oper)
-    : NotifierImpl(),
+    : Propagator(),
       m_op(oper)
   {
   }
@@ -164,7 +164,7 @@ namespace PLEXIL
     {
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const & /* opr */)
+    virtual void doSubexprs(ListenableUnaryOperator const & /* opr */)
     {
     }
 
@@ -286,7 +286,7 @@ namespace PLEXIL
     }
 
     // Default method, overridden in specialized variants
-    virtual void doSubexprs(ExprUnaryOperator const &oper)
+    virtual void doSubexprs(ListenableUnaryOperator const &oper)
     {
       for (size_t i = 0; i < N; ++i)
         (oper)(exprs[i]);
@@ -359,7 +359,7 @@ namespace PLEXIL
 
   // Specialized method
   template <>
-  void FixedSizeFunction<1>::doSubexprs(ExprUnaryOperator const &oper)
+  void FixedSizeFunction<1>::doSubexprs(ListenableUnaryOperator const &oper)
   {
     (oper)(exprs[0]);
   }
@@ -430,7 +430,7 @@ namespace PLEXIL
 
   // Specialized method
   template <>
-  void FixedSizeFunction<2>::doSubexprs(ExprUnaryOperator const &oper)
+  void FixedSizeFunction<2>::doSubexprs(ListenableUnaryOperator const &oper)
   {
     (oper)(exprs[0]);
     (oper)(exprs[1]);
@@ -515,7 +515,7 @@ namespace PLEXIL
       }
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &oper)
+    virtual void doSubexprs(ListenableUnaryOperator const &oper)
     {
       for (size_t i = 0; i < this->size(); ++i)
         (oper)(exprs[i]);

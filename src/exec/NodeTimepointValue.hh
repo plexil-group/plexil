@@ -29,7 +29,7 @@
 
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 namespace PLEXIL
 {
@@ -37,13 +37,19 @@ namespace PLEXIL
 
   class NodeTimepointValue :
     public GetValueImpl<Real>, // FIXME
-    public NotifierImpl
+    public Notifier
   {
   public:
     NodeTimepointValue(NodeConnector *node,
                        NodeState state,
                        bool isEnd);
     ~NodeTimepointValue();
+
+    // Listenable API
+    virtual bool isPropagationSource() const;
+    virtual bool isActive() const;
+    virtual void activate();
+    virtual void deactivate();
 
     NodeState state() const;
     bool isEnd() const;

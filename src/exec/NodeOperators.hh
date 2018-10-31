@@ -43,7 +43,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeInactive);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeWaiting : public NodeOperatorImpl<Boolean>
@@ -57,7 +57,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeWaiting);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeExecuting : public NodeOperatorImpl<Boolean>
@@ -71,7 +71,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeExecuting);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeIterationEnded : public NodeOperatorImpl<Boolean>
@@ -85,7 +85,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeIterationEnded);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeFinished : public NodeOperatorImpl<Boolean>
@@ -99,7 +99,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeFinished);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeSucceeded : public NodeOperatorImpl<Boolean>
@@ -113,7 +113,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeSucceeded);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeFailed : public NodeOperatorImpl<Boolean>
@@ -127,7 +127,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeFailed);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodeSkipped : public NodeOperatorImpl<Boolean>
@@ -141,7 +141,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeSkipped);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
   class NodePostconditionFailed : public NodeOperatorImpl<Boolean>
@@ -155,7 +155,7 @@ namespace PLEXIL
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodePostconditionFailed);
 
     bool operator()(Boolean &result, NodeImpl const *node) const;
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
 }

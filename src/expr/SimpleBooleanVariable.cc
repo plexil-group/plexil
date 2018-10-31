@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,14 @@ namespace PLEXIL
 {
 
   SimpleBooleanVariable::SimpleBooleanVariable()
-    : NotifierImpl(),
+    : Notifier(),
     m_name(NULL),
     m_value(false)
   {
   }
 
   SimpleBooleanVariable::SimpleBooleanVariable(char const *name)
-    : NotifierImpl(),
+    : Notifier(),
     m_name(name),
     m_value(false)
   {
@@ -49,6 +49,11 @@ namespace PLEXIL
   // Don't delete m_name as it is a pointer to a constant string.
   SimpleBooleanVariable::~SimpleBooleanVariable()
   {
+  }
+
+  bool SimpleBooleanVariable::isPropagationSource() const
+  {
+    return true;
   }
 
   //
@@ -73,7 +78,7 @@ namespace PLEXIL
   }
 
   //
-  // NotifierImpl API
+  // Notifier API
   //
 
   void SimpleBooleanVariable::handleActivate()

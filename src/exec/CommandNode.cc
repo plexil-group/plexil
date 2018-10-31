@@ -62,7 +62,7 @@ namespace PLEXIL
       return true;
     }
 
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
     {
       (oper)(((CommandNode *) node)->getCommand()->getAck());
     }
@@ -111,7 +111,7 @@ namespace PLEXIL
       return true;
     }
 
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
     {
       (oper)(((CommandNode *) node)->getCommand()->getAck());
     }

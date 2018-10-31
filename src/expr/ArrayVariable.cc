@@ -39,7 +39,7 @@ namespace PLEXIL
 {
 
   ArrayVariable::ArrayVariable()
-    : NotifierImpl(),
+    : Notifier(),
       m_value(),
       m_savedValue(),
       m_size(NULL),
@@ -60,7 +60,7 @@ namespace PLEXIL
                                char const *name,
                                Expression *size,
                                bool sizeIsGarbage)
-    : NotifierImpl(),
+    : Notifier(),
       m_value(),
       m_savedValue(),
       m_size(size),
@@ -86,6 +86,11 @@ namespace PLEXIL
       delete m_initializer;
     if (m_sizeIsGarbage)
       delete m_size;
+  }
+
+  bool ArrayVariable::isPropagationSource() const
+  {
+    return true;
   }
 
   //

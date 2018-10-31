@@ -69,7 +69,7 @@ namespace PLEXIL
       return true; // always known
     }
 
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
     {
       std::vector<NodeImpl *> const &kids = node->getChildren();
       for (size_t i = 0; i < kids.size(); ++i) {
@@ -119,7 +119,7 @@ namespace PLEXIL
       return true; // always known
     }
 
-    void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
     {
       std::vector<NodeImpl *> const &kids = node->getChildren();
       for (size_t i = 0; i < kids.size(); ++i) {
@@ -782,7 +782,7 @@ namespace PLEXIL
   {
     // Activate all children
     for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->activate();
+      (*it)->activateNode();
   }
 
 }

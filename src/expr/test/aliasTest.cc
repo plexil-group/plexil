@@ -845,7 +845,7 @@ static bool testArrayAliasPropagation()
   assertTrue_1(aaryChanged);
 
   // Test change propagation from origin to/through alias
-  ary->notifyChanged();
+  ary->publishChange();
   assertTrue_1(aryChanged);
   assertTrue_1(aaryChanged);
 
@@ -914,7 +914,7 @@ static bool testArrayRefAliasPropagation()
   assertTrue_1(arefChanged);
 
   // Test change propagation from origin to/through alias
-  ary->notifyChanged();
+  ary->publishChange();
   assertTrue_1(aryChanged);
   assertTrue_1(atreeChanged);
   assertTrue_1(refChanged);

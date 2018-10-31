@@ -27,7 +27,8 @@
 #ifndef PLEXIL_NODE_FUNCTION_HH
 #define PLEXIL_NODE_FUNCTION_HH
 
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 
 namespace PLEXIL
 {
@@ -41,7 +42,8 @@ namespace PLEXIL
    */
 
   class NodeFunction
-    : public NotifierImpl
+    : public Expression,
+      public Propagator
   {
   public:
     NodeFunction(NodeOperator const *op, NodeImpl *exprs);
@@ -56,7 +58,7 @@ namespace PLEXIL
     bool isKnown() const;
     void printValue(std::ostream &s) const;
     void printSpecialized(std::ostream &s) const;
-    virtual void doSubexprs(ExprUnaryOperator const &oper);
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
     Value toValue() const;
 

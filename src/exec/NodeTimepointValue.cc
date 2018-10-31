@@ -46,7 +46,7 @@ namespace PLEXIL
   NodeTimepointValue::NodeTimepointValue(NodeConnector *node,
                                          NodeState state,
                                          bool isEnd)
-    : NotifierImpl(),
+    : Notifier(),
       m_time(0.0),
       m_next(NULL),
       m_node(node),
@@ -57,6 +57,24 @@ namespace PLEXIL
   }
 
   NodeTimepointValue::~NodeTimepointValue()
+  {
+  }
+
+  bool NodeTimepointValue::isPropagationSource() const
+  {
+    return true;
+  }
+
+  bool NodeTimepointValue::isActive() const
+  {
+    return true;
+  }
+
+  void NodeTimepointValue::activate()
+  {
+  }
+
+  void NodeTimepointValue::deactivate()
   {
   }
 

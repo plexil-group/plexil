@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,22 +33,20 @@
 
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
-#include "NotifierImpl.hh"
 
 namespace PLEXIL {
 
   // Forward references
-  class Node;
+  class NodeImpl;
 
   class StateVariable :
-    public GetValueImpl<uint16_t>,
-    public NotifierImpl
+    public GetValueImpl<uint16_t>
   {
   public:
     /**
      * @brief Constructor.
      */
-    StateVariable(Node const &node);
+    StateVariable(NodeImpl &node);
 
     /**
      * @brief Destructor.
@@ -86,17 +84,17 @@ namespace PLEXIL {
 
     void printSpecialized(std::ostream &s) const;
 
-    // Notifier API
+    // Listenable API
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
+
+    // Listenable API
     inline bool isActive() const
     {
       return true;
     }
 
-    void activate() {}
-    void deactivate() {}
-
-    // For convenience of Node
-    void changed();
+    void addListener(ExpressionListener *l);
+    void removeListener(ExpressionListener *l);
 
   private:
     // Not implemented
@@ -104,18 +102,17 @@ namespace PLEXIL {
     StateVariable(const StateVariable &);
     StateVariable &operator=(const StateVariable &);
 
-    Node const &m_node;
+    NodeImpl &m_node;
   };
 
   class OutcomeVariable :
-    public GetValueImpl<uint16_t>,
-    public NotifierImpl
+    public GetValueImpl<uint16_t>
   {
   public:
     /**
      * @brief Constructor.
      */
-    OutcomeVariable(Node const &node);
+    OutcomeVariable(NodeImpl &node);
 
     /**
      * @brief Destructor.
@@ -150,17 +147,17 @@ namespace PLEXIL {
 
     void printSpecialized(std::ostream &s) const;
 
-    // Notifier API
+    // Listenable API
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
+
+    // Listenable API
     inline bool isActive() const
     {
       return true;
     }
 
-    void activate() {}
-    void deactivate() {}
-
-    // For convenience of Node
-    void changed();
+    void addListener(ExpressionListener *l);
+    void removeListener(ExpressionListener *l);
 
   private:
 
@@ -169,18 +166,17 @@ namespace PLEXIL {
     OutcomeVariable(const OutcomeVariable &);
     OutcomeVariable &operator=(const OutcomeVariable &);
 
-    Node const &m_node;
+    NodeImpl &m_node;
   };
 
   class FailureVariable :
-    public GetValueImpl<uint16_t>,
-    public NotifierImpl
+    public GetValueImpl<uint16_t>
   {
   public:
     /**
      * @brief Constructor.
      */
-    FailureVariable(Node const &node);
+    FailureVariable(NodeImpl &node);
 
     /**
      * @brief Destructor.
@@ -215,17 +211,17 @@ namespace PLEXIL {
 
     void printSpecialized(std::ostream &s) const;
 
-    // Notifier API
+    // Listenable API
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
+
+    // Listenable API
     inline bool isActive() const
     {
       return true;
     }
 
-    void activate() {}
-    void deactivate() {}
-
-    // For convenience of Node
-    void changed();
+    void addListener(ExpressionListener *l);
+    void removeListener(ExpressionListener *l);
 
   private:
 
@@ -234,7 +230,7 @@ namespace PLEXIL {
     FailureVariable(const FailureVariable &);
     FailureVariable &operator=(const FailureVariable &);
 
-    Node const &m_node;
+    NodeImpl &m_node;
   };
 
 } // namespace PLEXIL

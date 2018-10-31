@@ -111,7 +111,7 @@ namespace PLEXIL
         exprs[i]->removeListener(l);
     }
 
-    void doSubexprs(ExprUnaryOperator const &opr)
+    void doSubexprs(ListenableUnaryOperator const &opr)
     {
       for (size_t i = 0; i < N; ++i)
         (opr)(exprs[i]);
@@ -220,7 +220,7 @@ namespace PLEXIL
         exprs[i]->addListener(l);
     }
 
-    virtual void doSubexprs(ExprUnaryOperator const &opr)
+    virtual void doSubexprs(ListenableUnaryOperator const &opr)
     {
       for (size_t i = 0; i < m_size; ++i)
         (opr)(exprs[i]);

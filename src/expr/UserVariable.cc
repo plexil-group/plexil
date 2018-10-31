@@ -43,7 +43,7 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable()
-    : NotifierImpl(),
+    : Notifier(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -53,7 +53,7 @@ namespace PLEXIL {
   }
 
   UserVariable<String>::UserVariable()
-    : NotifierImpl(),
+    : Notifier(),
     m_initializer(NULL),
     m_name(NULL),
     m_node(NULL),
@@ -64,7 +64,7 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable(T const &initVal)
-  : NotifierImpl(),
+  : Notifier(),
     m_initializer(new Constant<T>(initVal)),
     m_name(NULL),
     m_node(NULL),
@@ -75,7 +75,7 @@ namespace PLEXIL {
   }
 
   UserVariable<String>::UserVariable(String const &initVal)
-  : NotifierImpl(),
+  : Notifier(),
     m_initializer(new Constant<String>(initVal)),
     m_name(NULL),
     m_node(NULL),
@@ -88,7 +88,7 @@ namespace PLEXIL {
   // Only two possible constant initializers for BooleanVariable
   template <>
   UserVariable<Boolean>::UserVariable(const Boolean &initVal)
-  : NotifierImpl(),
+  : Notifier(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
     m_name(NULL),
     m_node(NULL),
@@ -101,7 +101,7 @@ namespace PLEXIL {
   template <typename T>
   UserVariable<T>::UserVariable(NodeConnector *node,
                                 char const *name)
-    : NotifierImpl(),
+    : Notifier(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),
@@ -112,8 +112,8 @@ namespace PLEXIL {
   }
 
   UserVariable<String>::UserVariable(NodeConnector *node,
-                                          char const *name)
-    : NotifierImpl(),
+                                     char const *name)
+    : Notifier(),
     m_initializer(NULL),
     m_name(strdup(name)),
     m_node(node),
@@ -142,6 +142,19 @@ namespace PLEXIL {
       delete m_initializer;
   }
 
+  // Listenable API
+
+  template <typename T>
+  bool UserVariable<T>::isPropagationSource() const
+  {
+    return true;
+  }
+
+  bool UserVariable<String>::isPropagationSource() const
+  {
+    return true;
+  }
+  
   //
   // Essential Expression API
   //

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 #define PLEXIL_ARRAY_REFERENCE_HH
 
 #include "Assignable.hh"
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
@@ -36,7 +37,9 @@ namespace PLEXIL {
 
   class ArrayVariable;
 
-  class ArrayReference : public NotifierImpl
+  class ArrayReference :
+    public Expression,
+    public Propagator
   {
   public:
     ArrayReference(Expression *ary,
@@ -94,13 +97,13 @@ namespace PLEXIL {
   protected:
 
     //
-    // NotifierImpl API
+    // Notifier API
     //
 
     void handleActivate();
     void handleDeactivate();
 
-    virtual void doSubexprs(ExprUnaryOperator const &f);
+    virtual void doSubexprs(ListenableUnaryOperator const &f);
 
     // State shared with MutableArrayReference
     Expression *m_array;

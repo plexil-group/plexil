@@ -29,6 +29,7 @@
 
 #include "Node.hh"
 #include "NodeVariables.hh"
+#include "Notifier.hh"
 
 // for int32_t type
 #ifdef HAVE_STDINT_H
@@ -48,7 +49,9 @@ namespace PLEXIL
    *        implementation class for empty nodes.
    */
 
-  class NodeImpl : public Node
+  class NodeImpl :
+    public Node,
+    public Notifier
   {
   public:
 
@@ -98,6 +101,29 @@ namespace PLEXIL
 
     virtual ~NodeImpl();
 
+    //
+    // Listenable API
+    //
+    
+    virtual bool isPropagationSource() const
+    {
+      return true;
+    }
+
+    // Override Notifier method
+    virtual bool isActive() const
+    {
+      return true;
+    }
+
+    virtual void activate()
+    {
+    }
+
+    virtual void deactivate()
+    {
+    }
+
     Node *next() const
     {
       return (Node *) m_next;
@@ -122,7 +148,7 @@ namespace PLEXIL
     void print(std::ostream& stream, const unsigned int indent = 0) const;
 
     // Make the node active.
-    virtual void activate();
+    virtual void activateNode();
 
     std::string const &getNodeId() const { return m_nodeId; }
 

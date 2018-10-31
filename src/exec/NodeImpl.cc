@@ -160,6 +160,7 @@ namespace PLEXIL
 
   NodeImpl::NodeImpl(char const *nodeId, NodeImpl *parent)
     : Node(),
+      Notifier(),
       m_next(NULL),
       m_queueStatus(0),
       m_state(INACTIVE_STATE),
@@ -486,13 +487,15 @@ namespace PLEXIL
   }
 
   // Make the node (and its children, if any) active.
-  void NodeImpl::activate()
+  void NodeImpl::activateNode()
   {
     // Activate conditions needed for INACTIVE state
     transitionToInactive();
 
     // Other initializations as required by node type
     specializedActivate();
+
+    this->publishChange();
   }
 
   // Default method
@@ -557,6 +560,7 @@ namespace PLEXIL
   {
     switch (m_queueStatus) {
     case QUEUE_NONE:              // add to check queue
+      m_queueStatus = QUEUE_CHECK;
       g_exec->addCandidateNode(this);
       return;
       
@@ -649,6 +653,8 @@ namespace PLEXIL
                  "Node:failure",
                  "Failure type of " << m_nodeId << ' ' << this <<
                  " is " << failureTypeName((FailureType) m_failureType));
+
+    this->publishChange();
   }
 
   // Common method 
@@ -1352,7 +1358,6 @@ namespace PLEXIL
       return;
     logTransition(tym, newValue);
     m_state = newValue;
-    m_stateVariable.changed();
     if (m_state == FINISHED_STATE && !m_parent)
       // Mark this node as ready to be deleted -
       // with no parent, it cannot be reset, therefore cannot transition again.
@@ -1398,7 +1403,6 @@ namespace PLEXIL
   void NodeImpl::setNodeOutcome(NodeOutcome o)
   {
     m_outcome = o;
-    m_outcomeVariable.changed();
   }
 
   NodeOutcome NodeImpl::getOutcome() const
@@ -1409,7 +1413,6 @@ namespace PLEXIL
   void NodeImpl::setNodeFailureType(FailureType f)
   {
     m_failureType = f;
-    m_failureTypeVariable.changed();
   }
 
   FailureType NodeImpl::getFailureType() const

@@ -28,6 +28,7 @@
 
 #include "Alias.hh"
 #include "ArrayLiteralFactory.hh"
+#include "Assignable.hh"
 #include "AssignmentNode.hh"
 #include "Command.hh"
 #include "CommandNode.hh"

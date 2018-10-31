@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "CommandHandle.hh"
 #include "GetValueImpl.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 namespace PLEXIL
 {
@@ -38,7 +38,7 @@ namespace PLEXIL
 
   class CommandHandleVariable :
     public GetValueImpl<uint16_t>,
-    public NotifierImpl
+    public Notifier
   {
   public:
     /**
@@ -50,6 +50,9 @@ namespace PLEXIL
      * @brief Destructor.
      */
     ~CommandHandleVariable();
+
+    // Listenable API
+    virtual bool isPropagationSource() const;
 
     char const *getName() const;
 

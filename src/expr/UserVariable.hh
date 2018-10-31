@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "Assignable.hh"
 #include "GetValueImpl.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 namespace PLEXIL 
 {
@@ -44,7 +44,7 @@ namespace PLEXIL
   class UserVariable :
     public Assignable,
     public GetValueImpl<T>,
-    public NotifierImpl
+    public Notifier
   {
   public:
 
@@ -71,6 +71,9 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~UserVariable();
+
+    // Listenable API
+    virtual bool isPropagationSource() const;
 
     //
     // Essential Expression API
@@ -176,7 +179,7 @@ namespace PLEXIL
   class UserVariable<String> :
     public Assignable,
     public GetValueImpl<String>,
-    public NotifierImpl
+    public Notifier
   {
   public:
 
@@ -203,6 +206,9 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~UserVariable();
+
+    // Listenable API
+    virtual bool isPropagationSource() const;
 
     //
     // Essential Expression API

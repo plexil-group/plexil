@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,8 @@
 #ifndef PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 #define PLEXIL_SIMPLE_BOOLEAN_VARIABLE_HH
 
-#include "Expression.hh"
 #include "GetValueImpl.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 namespace PLEXIL {
 
@@ -40,13 +39,16 @@ namespace PLEXIL {
 
   class SimpleBooleanVariable :
     public GetValueImpl<Boolean>,
-    public NotifierImpl
+    public Notifier
   {
   public:
     SimpleBooleanVariable();
     // N.B. Name is owned by some other code (usually a literal value).
     SimpleBooleanVariable(char const *name);
     ~SimpleBooleanVariable();
+
+    // Listenable API
+    virtual bool isPropagationSource() const;
 
     //
     // Essential Expression API
@@ -88,7 +90,7 @@ namespace PLEXIL {
     virtual void printSpecialized(std::ostream &s) const;
 
     //
-    // NotifierImpl API
+    // Notifier API
     //
 
     virtual void handleActivate();

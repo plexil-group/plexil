@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class ExpressionListener;
-  class ExprUnaryOperator;
+  class ListenableUnaryOperator;
   class NodeImpl;
   class Value;
 
@@ -78,7 +78,8 @@ namespace PLEXIL
     virtual Value toValue(NodeImpl const *node) const = 0;
 
     // Helper for notification network
-    virtual void doPropagationSources(NodeImpl *node, ExprUnaryOperator const &oper) const = 0;
+    virtual void doPropagationSources(NodeImpl *node,
+                                      ListenableUnaryOperator const &oper) const = 0;
 
   protected:
     NodeOperator(std::string const &name)

@@ -48,7 +48,7 @@ using PLEXIL::NodeType_error;
 using PLEXIL::NodeType_NodeList;
 using PLEXIL::NodeType_LibraryNodeCall;
 using PLEXIL::nodeTypeString;
-using PLEXIL::NotifierImpl;
+using PLEXIL::Notifier;
 using PLEXIL::PlexilNodeType;
 
 static size_t g_nodeCount = 0;
@@ -63,10 +63,10 @@ static std::vector<size_t> g_nodeChildCounts(16, 0);
 static std::vector<size_t> g_nodeVariableCounts(16, 0);
 #ifdef RECORD_EXPRESSION_STATS
 static std::map<size_t, size_t> g_expressionListenerCounts;
-static std::map<size_t, std::vector<NotifierImpl const *> > g_expressions;
+static std::map<size_t, std::vector<Notifier const *> > g_expressions;
 static size_t g_expressionCount = 0;
 static size_t g_listenerHighWater = 0;
-static std::vector<NotifierImpl const *> g_highWaterExpressions;
+static std::vector<Notifier const *> g_highWaterExpressions;
 static bool g_expressionDetailedReport = false;
 #endif
 
@@ -196,7 +196,7 @@ static void getNodeStatistics(NodeImpl const *node)
 }
 
 #ifdef RECORD_EXPRESSION_STATS
-static void recordExpression(NotifierImpl const *exp)
+static void recordExpression(Notifier const *exp)
 {
   ++g_expressionCount;
   size_t nListeners = exp->getListenerCount();
@@ -215,7 +215,7 @@ static void recordExpression(NotifierImpl const *exp)
 
 static void getExpressionStatistics()
 {
-  for (NotifierImpl const *exp = NotifierImpl::getInstanceList(); exp; exp = exp->next())
+  for (Notifier const *exp = Notifier::getInstanceList(); exp; exp = exp->next())
     recordExpression(exp);
 }
 #endif
@@ -261,7 +261,7 @@ static void reportExpressionStatistics()
               << (it->first == 1 ? "" : "s")
               << '\n';
     if (g_expressionDetailedReport) {
-      std::vector<NotifierImpl const *> &exprs = g_expressions[it->first];
+      std::vector<Notifier const *> &exprs = g_expressions[it->first];
       for (size_t j = 0; j < exprs.size(); ++j) {
         std::cout << "  " << *exprs[j] << '\n';
       }

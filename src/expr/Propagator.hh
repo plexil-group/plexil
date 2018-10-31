@@ -24,59 +24,82 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_EXPR_VEC_HH
-#define PLEXIL_EXPR_VEC_HH
+#ifndef PLEXIL_NOTIFIER_IMPL_HH
+#define PLEXIL_NOTIFIER_IMPL_HH
 
-#include "Expression.hh"
-#include "ValueType.hh"
-
-#include <vector>
+#include "Notifier.hh"
 
 namespace PLEXIL
 {
-  class ExpressionListener;
 
   /**
-   * @class ExprVec
-   * @brief Virtual base class for a family of expression vector classes,
-   * whose representations vary by size.
+   * @class Propagator
+   * @brief Mixin class for expressions whose value may change. Implements expression graph notification.
    */
 
-  class ExprVec
+  //
+  // The expression listener graph (really a forest of trees, there are no cycles)
+  // is built during plan loading. Its purpose is to tell a node when one of its
+  // conditions may have changed, so that it can be considered for a potential node
+  // state transition.
+  //
+
+  class Propagator :
+    public Notifier,
+    virtual public ExpressionListener
   {
   public:
-    virtual ~ExprVec() {}
 
-    virtual size_t size() const = 0;
-    virtual Expression const *operator[](size_t n) const = 0;
-    virtual Expression *operator[](size_t n) = 0;
-    virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
-    virtual void addListener(ExpressionListener *l) = 0;
-    virtual void removeListener(ExpressionListener *l) = 0;
-    virtual void doSubexprs(ListenableUnaryOperator const &f) = 0;
-    virtual void print(std::ostream &s) const = 0;
+    /**
+     * @brief Destructor.
+     */
+    virtual ~Propagator();
 
-    // These are in critical path of exec inner loop, 
-    // so should be optimized for each representation
-    virtual void activate() = 0;
-    virtual void deactivate() = 0;
+    //
+    // Core Propagator behavior
+    //
+
+    /**
+     * @brief Add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     * @note Wraps Notifier method.
+     */
+    virtual void addListener(ExpressionListener *ptr);
+
+    /**
+     * @brief Remove a listener from this Expression.
+     * @param ptr The pointer to the listener to remove.
+     * @note Wraps notifier method.
+     */
+    virtual void removeListener(ExpressionListener *ptr);
+
+    /**
+     * @brief Virtual function for notification that an expression's value has changed.
+     */
+    virtual void notifyChanged();
 
   protected:
 
-    // Only available to derived classes
-    ExprVec() {}
+    /**
+     * @brief Default constructor.
+     * @note Only available to derived classes.
+     */
+    Propagator();
+
+    /**
+     * @brief Called by notifyChanged() when the expression is active.
+     * @note Default method calls publishChange().
+     */
+    virtual void handleChange();
 
   private:
 
     // Not implemented
-    ExprVec(ExprVec const &);
-    ExprVec &operator=(ExprVec const &);
+    Propagator(const Propagator &);
+    Propagator &operator=(const Propagator &);
 
   };
 
-  // Factory function
-  extern ExprVec *makeExprVec(size_t nargs);
-
 } // namespace PLEXIL
 
-#endif // PLEXIL_EXPR_VEC_HH
+#endif // PLEXIL_NOTIFIER_IMPL_HH

@@ -33,15 +33,15 @@ libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh \
  Assignable.hh CachedFunction.hh Constant.hh Expression.hh \
  ExpressionConstants.hh ExpressionListener.hh Function.hh GetValueImpl.hh \
- NodeConnector.hh NodeConstantExpressions.hh NotifierImpl.hh Operator.hh \
- SimpleBooleanVariable.hh UserVariable.hh
+ Listenable.hh NodeConnector.hh NodeConstantExpressions.hh Notifier.hh \
+ Operator.hh Propagator.hh SimpleBooleanVariable.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
  Assignable.cc BooleanOperators.cc CachedFunction.cc Comparisons.cc \
  Constant.cc Expression.cc ExpressionConstants.cc Function.cc GetValueImpl.cc \
- NodeConstantExpressions.cc NotifierImpl.cc Operator.cc OperatorImpl.cc \
- SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
+ NodeConstantExpressions.cc Notifier.cc Operator.cc OperatorImpl.cc \
+ Propagator.cc SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests

@@ -32,7 +32,6 @@
 namespace PLEXIL 
 {
   Expression::Expression()
-    : ExpressionListener()
   {
   }
 
@@ -70,12 +69,6 @@ namespace PLEXIL
   }
 
   // Default method.
-  bool Expression::isPropagationSource() const
-  {
-    return true;
-  }
-
-  // Default method.
   Expression *Expression::getBaseExpression()
   {
     return this;
@@ -84,31 +77,6 @@ namespace PLEXIL
   Expression const *Expression::getBaseExpression() const
   {
     return this;
-  }
-
-  // Default method.
-  void Expression::addListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  // Default method.
-  void Expression::removeListener(ExpressionListener * /* ptr */)
-  {
-  }
-
-  // Default method.
-  void Expression::addListenerInternal(ExpressionListener * /* ptr */)
-  {
-  }
-
-  // Default method.
-  void Expression::removeListenerInternal(ExpressionListener * /* ptr */)
-  {
-  }
-
-  // Default method.
-  void Expression::doSubexprs(ExprUnaryOperator const & /* f */)
-  {
   }
 
   void Expression::print(std::ostream& str) const
@@ -153,11 +121,6 @@ namespace PLEXIL
     std::ostringstream strm;
     this->printValue(strm);
     return strm.str();
-  }
-
-  // Default method does nothing
-  void Expression::notifyChanged()
-  {
   }
 
   // Default methods always throw PlanError

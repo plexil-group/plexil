@@ -37,7 +37,7 @@ namespace PLEXIL
                                  Expression *idx,
                                  bool aryIsGarbage,
                                  bool idxIsGarbage)
-    : NotifierImpl(),
+    : Propagator(),
       m_array(ary),
       m_index(idx),
       m_arrayIsGarbage(aryIsGarbage),
@@ -220,7 +220,7 @@ namespace PLEXIL
     return Value(); // unknown
   }
 
-  void ArrayReference::doSubexprs(ExprUnaryOperator const &opr)
+  void ArrayReference::doSubexprs(ListenableUnaryOperator const &opr)
   {
     (opr)(m_array);
     (opr)(m_index);

@@ -43,7 +43,8 @@ namespace PLEXIL
                  bool stateNameIsGarbage,
                  ValueType declaredType,
                  ExprVec *paramVec)
-    : m_stateName(stateName),
+    : Propagator(),
+      m_stateName(stateName),
       m_paramVec(paramVec),
       m_entry(NULL),
       m_declaredType(declaredType),
@@ -524,19 +525,19 @@ namespace PLEXIL
 
   // Lookups must explicitly listen to their parameters,
   // because the lookup value changes when the params change.
-  void Lookup::addListenerInternal(ExpressionListener *l)
+  void Lookup::addListener(ExpressionListener *l)
   {
     if (!hasListeners()) {
       m_stateName->addListener(this);
       if (m_paramVec)
         m_paramVec->addListener(this);
     }
-    NotifierImpl::addListenerInternal(l);
+    Notifier::addListener(l);
   }
 
-  void Lookup::removeListenerInternal(ExpressionListener *l)
+  void Lookup::removeListener(ExpressionListener *l)
   {
-    NotifierImpl::removeListenerInternal(l);
+    Notifier::removeListener(l);
     if (!hasListeners()) {
       if (m_paramVec)
         m_paramVec->removeListener(this);
@@ -544,7 +545,7 @@ namespace PLEXIL
     }
   }
 
-  void Lookup::doSubexprs(ExprUnaryOperator const &oper)
+  void Lookup::doSubexprs(ListenableUnaryOperator const &oper)
   {
     (oper)(m_stateName);
     if (m_paramVec)
@@ -588,21 +589,21 @@ namespace PLEXIL
 
   // Change lookups must explicitly listen to their tolerance,
   // because the lookup value can change when the tolerance changes.
-  void LookupOnChange::addListenerInternal(ExpressionListener *l)
+  void LookupOnChange::addListener(ExpressionListener *l)
   {
     if (!hasListeners())
       m_tolerance->addListener(this);
-    Lookup::addListenerInternal(l);
+    Lookup::addListener(l);
   }
 
-  void LookupOnChange::removeListenerInternal(ExpressionListener *l)
+  void LookupOnChange::removeListener(ExpressionListener *l)
   {
-    Lookup::removeListenerInternal(l);
+    Lookup::removeListener(l);
     if (!hasListeners())
       m_tolerance->removeListener(this);
   }
 
-  void LookupOnChange::doSubexprs(ExprUnaryOperator const &oper)
+  void LookupOnChange::doSubexprs(ListenableUnaryOperator const &oper)
   {
     (oper)(m_tolerance);
     Lookup::doSubexprs(oper);

@@ -39,7 +39,7 @@ namespace PLEXIL
   //
 
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
-    : NotifierImpl(),
+    : Notifier(),
     m_command(cmd),
     m_name(NULL)
   {
@@ -48,6 +48,11 @@ namespace PLEXIL
   CommandHandleVariable::~CommandHandleVariable()
   {
     free((void *) m_name);
+  }
+
+  bool CommandHandleVariable::isPropagationSource() const
+  {
+    return true;
   }
 
   char const *CommandHandleVariable::getName() const
