@@ -12,19 +12,9 @@
       </DeclareVariable>
     </VariableDeclarations>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <Failed>
-            <NodeRef dir="child">One</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">ep2cp_CheckedSequence_d1e29</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">Three</NodeRef>
-          </Failed>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
@@ -45,11 +35,9 @@
             </AND>
           </StartCondition>
           <InvariantCondition>
-            <NOT>
-              <Failed>
-                <NodeRef dir="child">Two</NodeRef>
-              </Failed>
-            </NOT>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
           </InvariantCondition>
           <NodeBody>
             <NodeList>

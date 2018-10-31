@@ -3,16 +3,9 @@
   <Node NodeType="NodeList" epx="CheckedSequence">
     <NodeId>ep2cp_CheckedSequence_d1e3</NodeId>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <Failed>
-            <NodeRef dir="child">One</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">Two</NodeRef>
-          </Failed>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>

@@ -44,16 +44,9 @@
           </SkipCondition>
           <NodeId>ep2cp_Sequence_d1e58</NodeId>
           <InvariantCondition>
-            <NOT>
-              <OR>
-                <Failed>
-                  <NodeRef dir="child">A</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">B</NodeRef>
-                </Failed>
-              </OR>
-            </NOT>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
           </InvariantCondition>
           <NodeBody>
             <NodeList>

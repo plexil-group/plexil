@@ -940,6 +940,7 @@ element.  It is used as an included schema only.
       <xs:element ref="Inactive"/>
       <xs:element ref="IterationEnded"/>
       <xs:element ref="Waiting"/>
+      <xs:element ref="NoChildFailed"/>
     </xs:choice>
   </xs:group>
 
@@ -948,6 +949,7 @@ element.  It is used as an included schema only.
   <xs:element name="Inactive" type="node-reference"/>
   <xs:element name="IterationEnded" type="node-reference"/>
   <xs:element name="Waiting" type="node-reference"/>
+  <xs:element name="NoChildFailed" type="node-reference"/>
 
   <xs:group name="NodeOutcome">
     <xs:choice>

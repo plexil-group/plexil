@@ -151,47 +151,14 @@
         <xsl:when test="InvariantCondition/*">
           <AND>
             <xsl:apply-templates select="InvariantCondition/*" />
-            <xsl:call-template name="success-test" />
+            <NoChildFailed> <NodeRef dir="self" /> </NoChildFailed>
           </AND>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="success-test" />
+          <NoChildFailed> <NodeRef dir="self" /> </NoChildFailed> 
         </xsl:otherwise>
       </xsl:choose>
     </InvariantCondition>
-  </xsl:template>
-
-  <xsl:template name="success-test">
-    <xsl:variable name="tests">
-      <xsl:for-each select="child::* intersect key('action', *)">
-        <xsl:call-template name="child-failed-test">
-          <xsl:with-param name="id">
-            <xsl:call-template name="node-id" />
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:for-each>
-    </xsl:variable>
-    <NOT>
-      <xsl:choose>
-        <xsl:when test="count($tests/*) = 1">
-          <xsl:sequence select="$tests" />
-        </xsl:when>
-        <xsl:otherwise>
-          <OR>
-            <xsl:sequence select="$tests" />
-          </OR>
-        </xsl:otherwise>
-      </xsl:choose>
-    </NOT>
-  </xsl:template>
-
-  <xsl:template name="child-failed-test">
-    <xsl:param name="id" />
-    <Failed>
-      <NodeRef dir="child">
-        <xsl:value-of select="$id" />
-      </NodeRef>
-    </Failed>
   </xsl:template>
 
   <xsl:template match="Concurrence">

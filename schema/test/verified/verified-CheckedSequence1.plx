@@ -12,16 +12,9 @@
       </DeclareVariable>
     </VariableDeclarations>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <Failed>
-            <NodeRef dir="child">One</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">Two</NodeRef>
-          </Failed>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>

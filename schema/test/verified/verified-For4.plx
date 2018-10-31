@@ -38,16 +38,9 @@
               <Node NodeType="NodeList" epx="Sequence">
                 <NodeId>ep2cp_Sequence_d1e71</NodeId>
                 <InvariantCondition>
-                  <NOT>
-                    <OR>
-                      <Failed>
-                        <NodeRef dir="child">Two</NodeRef>
-                      </Failed>
-                      <Failed>
-                        <NodeRef dir="child">Four</NodeRef>
-                      </Failed>
-                    </OR>
-                  </NOT>
+                  <NoChildFailed>
+                    <NodeRef dir="self"/>
+                  </NoChildFailed>
                 </InvariantCondition>
                 <NodeBody>
                   <NodeList>

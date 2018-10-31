@@ -30,16 +30,9 @@
         <Node NodeType="NodeList" epx="Sequence" FileName="Plan.ple" LineNo="7" ColNo="22">
           <NodeId>One</NodeId>
           <InvariantCondition>
-            <NOT>
-              <OR>
-                <Failed>
-                  <NodeRef dir="child">DoFirst</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">DoSecond</NodeRef>
-                </Failed>
-              </OR>
-            </NOT>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
           </InvariantCondition>
           <NodeBody>
             <NodeList>

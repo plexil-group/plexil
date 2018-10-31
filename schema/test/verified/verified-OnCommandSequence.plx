@@ -3,16 +3,9 @@
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId>TestSequence</NodeId>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <Failed>
-            <NodeRef dir="child">Recv1</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">Recv2</NodeRef>
-          </Failed>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
@@ -41,31 +34,9 @@
             </DeclareVariable>
           </VariableDeclarations>
           <InvariantCondition>
-            <NOT>
-              <OR>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-                </Failed>
-              </OR>
-            </NOT>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
           </InvariantCondition>
           <NodeBody>
             <NodeList>
@@ -269,31 +240,9 @@
             </Finished>
           </StartCondition>
           <InvariantCondition>
-            <NOT>
-              <OR>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg1</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg2</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg3</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdGetParam_arg4</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdAction_recv_test</NodeRef>
-                </Failed>
-                <Failed>
-                  <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-                </Failed>
-              </OR>
-            </NOT>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
           </InvariantCondition>
           <NodeBody>
             <NodeList>

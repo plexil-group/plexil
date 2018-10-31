@@ -17,25 +17,9 @@
       </DeclareVariable>
     </VariableDeclarations>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <Failed>
-            <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">ep2cp_CmdGetParam_distance</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">ep2cp_CmdGetParam_direction</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">ep2cp_CmdAction_moveRover</NodeRef>
-          </Failed>
-          <Failed>
-            <NodeRef dir="child">ep2cp_CmdReturn</NodeRef>
-          </Failed>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
