@@ -158,6 +158,20 @@ namespace PLEXIL
     void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
   };
 
+  class NodeNoChildFailed : public NodeOperatorImpl<Boolean>
+  {
+  private:
+    NodeNoChildFailed();
+
+  public:
+    virtual ~NodeNoChildFailed();
+    
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(NodeNoChildFailed);
+
+    bool operator()(Boolean &result, NodeImpl const *node) const;
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const;
+  };
+
 }
 
 #endif // PLEXIL_NODE_OPERATORS_HH

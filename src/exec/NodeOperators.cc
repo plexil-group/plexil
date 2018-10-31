@@ -213,4 +213,39 @@ namespace PLEXIL
     (oper)(node);
   }
 
+  NodeNoChildFailed::NodeNoChildFailed()
+    : NodeOperatorImpl<Boolean>("NoChildFailed")
+  {
+  }
+
+  NodeNoChildFailed::~NodeNoChildFailed()
+  {
+  }
+
+  bool NodeNoChildFailed::operator()(Boolean &result, NodeImpl const *node) const
+  {
+    std::vector<NodeImpl *> const &kids = node->getChildren();
+    for (std::vector<NodeImpl *>::const_iterator kidIter = kids.begin();
+         kidIter != kids.end();
+         ++kidIter) {
+      NodeImpl const *kid = *kidIter;
+      if (kid->getState() == FINISHED_STATE
+          && kid->getOutcome() == FAILURE_OUTCOME) {
+        result = false;
+        return true;
+      }
+    }
+    result = true;
+    return true;
+  }
+
+  void NodeNoChildFailed::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+  {
+    std::vector<NodeImpl *> &kids = node->getChildren();
+    for (std::vector<NodeImpl *>::iterator kid = kids.begin();
+         kid != kids.end();
+         ++kid)
+      (oper)(*kid);
+  }
+
 }
