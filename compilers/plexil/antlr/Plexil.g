@@ -172,6 +172,7 @@ NODE_PRECONDITION_FAILED_KYWD = 'NodePreconditionFailed';
 NODE_SKIPPED_KYWD = 'NodeSkipped';
 NODE_SUCCEEDED_KYWD = 'NodeSucceeded';
 NODE_WAITING_KYWD = 'NodeWaiting';
+NO_CHILD_FAILED_KYWD = 'NoChildFailed';
 
 // Extended Plexil keywords
 CONCURRENCE_KYWD = 'Concurrence';
@@ -993,6 +994,7 @@ nodeStatePredicate :
   | NODE_SKIPPED_KYWD
   | NODE_SUCCEEDED_KYWD
   | NODE_WAITING_KYWD
+  | NO_CHILD_FAILED_KYWD
  ;
 
 nodeStatePredicateExp : nodeStatePredicate^ LPAREN! nodeReference RPAREN! ;

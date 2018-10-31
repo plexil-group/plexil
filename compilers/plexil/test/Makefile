@@ -45,7 +45,7 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  lookup2 LookupWithComputedStateName \
  maxTest minTest mod1 \
  NestedBlocks1 NestedBlocks2 NestedBlocks3 NestedBlocks4 NestedBlocks5 \
- NestedBlocks6 NestedBlocks7 nodeOutcome1 nodeState1 nodeState2 \
+ NestedBlocks6 NestedBlocks7 NoChildFailedTest nodeOutcome1 nodeState1 nodeState2 \
  on-command1 on-command2 on-message1 on-message2 \
  preconditionFailed1 \
  resource0 Resource1 Resource2 Resource3 Resource4 \
