@@ -116,10 +116,10 @@ namespace PLEXIL
     bool addPlan(Node *root)
     {
       m_plan.push_back(root);
-      root->activateNode();
       debugMsg("PlexilExec:addPlan",
-               "Added plan: " << std::endl << root->toString());
-      root->notifyChanged(); // if redundant, will trigger assertion
+               "Added plan: \n" << root->toString());
+      root->notifyChanged(); // make sure root is considered first
+      root->activateNode();
       return true;
     }
 
