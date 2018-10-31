@@ -1,0 +1,59 @@
+NoChildFailedTest:
+UncheckedSequence
+{
+  Integer foo;
+  
+  PostCondition Case1.outcome == FAILURE
+    && Case2.outcome == FAILURE
+    && Case3.outcome == FAILURE
+    && Case4.outcome == SUCCESS;
+
+ Case1:
+  CheckedSequence {
+  Child1_1:
+    {
+      InvariantCondition false;
+      foo = 1;
+    }
+  }
+
+ Case2:
+  CheckedSequence {
+  Child2_1:
+    {
+      foo = 2;
+    }
+  Child2_2:
+    {
+      InvariantCondition false;
+      foo = 3;
+    }
+  }
+
+ Case3:
+  CheckedSequence {
+  Child3_1:
+    {
+      ExitCondition true;
+      foo = 4;
+    }
+  Child3_2:
+    {
+      InvariantCondition false;
+      foo = 5;
+    }
+  }
+
+ Case4:
+  CheckedSequence {
+  Child4_1:
+    {
+      foo = 6;
+    }
+  Child4_2:
+    {
+      ExitCondition true;
+      foo = 7;
+    }
+  }
+}
