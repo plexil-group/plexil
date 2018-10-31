@@ -6,116 +6,116 @@ AssignToParentExit{
   }
 }
 
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
 [PlexilExec:cycle] ==>Start cycle 1
-[PlexilExec:step][1:0] Check queue: AssignToParentExit 0x7f9951404820 
-[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7f9951404820 for state transition.
-[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7f9951404820 on the state change queue in position 1
-[PlexilExec:step][1:0] State change queue: AssignToParentExit 0x7f9951404820 
-[PlexilExec:step][1:0:0] Transitioning node AssignToParentExit 0x7f9951404820 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7f9951404a90
-[PlexilExec:step][1:1] Check queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7f9951404820 for state transition.
-[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7f9951404820 on the state change queue in position 2
-[PlexilExec:step][1:1] State change queue: AssignToParentExit 0x7f9951404820 
-[PlexilExec:step][1:1:0] Transitioning node AssignToParentExit 0x7f9951404820 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7f9951404a90
-[PlexilExec:handleNeedsExecution] Storing action for node AssignToParentExit 0x7f9951404820 of type NodeList to be executed.
-[PlexilExec:step][1:2] Check queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:handleConditionsChanged] Considering node Kid 0x7f9951404a90 for state transition.
-[PlexilExec:addStateChangeNode] Placing node Kid 0x7f9951404a90 on the state change queue in position 3
-[PlexilExec:step][1:2] State change queue: Kid 0x7f9951404a90 
-[PlexilExec:step][1:2:0] Transitioning node Kid 0x7f9951404a90 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7f9951404a90
-[PlexilExec:step][1:3] Check queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:handleConditionsChanged] Considering node Kid 0x7f9951404a90 for state transition.
-[PlexilExec:handleConditionsChanged] Node Kid 0x7f9951404a90 is an assignment node that could be executing. Adding it to the resource contention list
-[PlexilExec:addToResourceContention]Adding node Kid 0x7f9951404a90 to resource contention.
-[PlexilExec:ensureConflictSet] created new conflict set for (Variable Boolean step_failed 0x7f99514049f8 [a](0))
+[PlexilExec:step][1:0] Check queue: AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7fb52bc04a40 for state transition.
+[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7fb52bc04a40 on the state change queue in position 1
+[PlexilExec:step][1:0] State change queue: AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:step][1:0:0] Transitioning node AssignToParentExit 0x7fb52bc04a40 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
+[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7fb52bc04c90
+[PlexilExec:step][1:1] Check queue: AssignToParentExit 0x7fb52bc04a40 Kid 0x7fb52bc04c90 
+[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7fb52bc04a40 for state transition.
+[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7fb52bc04a40 on the state change queue in position 2
+[PlexilExec:step][1:1] State change queue: AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:step][1:1:0] Transitioning node AssignToParentExit 0x7fb52bc04a40 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
+[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7fb52bc04c90
+[PlexilExec:handleNeedsExecution] Storing action for node AssignToParentExit 0x7fb52bc04a40 of type NodeList to be executed.
+[PlexilExec:step][1:2] Check queue: AssignToParentExit 0x7fb52bc04a40 Kid 0x7fb52bc04c90 
+[PlexilExec:handleConditionsChanged] Considering node Kid 0x7fb52bc04c90 for state transition.
+[PlexilExec:addStateChangeNode] Placing node Kid 0x7fb52bc04c90 on the state change queue in position 3
+[PlexilExec:step][1:2] State change queue: Kid 0x7fb52bc04c90 
+[PlexilExec:step][1:2:0] Transitioning node Kid 0x7fb52bc04c90 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7fb52bc04c90
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
+[PlexilExec:step][1:3] Check queue: Kid 0x7fb52bc04c90 AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:handleConditionsChanged] Considering node Kid 0x7fb52bc04c90 for state transition.
+[PlexilExec:handleConditionsChanged] Node Kid 0x7fb52bc04c90 is an assignment node that could be executing. Adding it to the resource contention list
+[PlexilExec:addToResourceContention]Adding node Kid 0x7fb52bc04c90 to resource contention.
+[PlexilExec:ensureConflictSet] created new conflict set for (Variable Boolean step_failed 0x7fb52bc04c08 [a](0))
 [PlexilExec:resolveResourceConflicts] 1 Assignment node(s) with best priority for variable step_failed
-[PlexilExec:resolveResourceConflicts] Node Kid 0x7f9951404a90 has best priority.
-[PlexilExec:addStateChangeNode] Placing node Kid 0x7f9951404a90 on the state change queue in position 4
-[PlexilExec:step][1:3] State change queue: Kid 0x7f9951404a90 
-[PlexilExec:step][1:3:0] Transitioning node Kid 0x7f9951404a90 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7f9951404a90
-[PlexilExec:handleNeedsExecution] Storing action for node Kid 0x7f9951404a90 of type Assignment to be executed.
+[PlexilExec:resolveResourceConflicts] Node Kid 0x7fb52bc04c90 has best priority.
+[PlexilExec:addStateChangeNode] Placing node Kid 0x7fb52bc04c90 on the state change queue in position 4
+[PlexilExec:step][1:3] State change queue: Kid 0x7fb52bc04c90 
+[PlexilExec:step][1:3:0] Transitioning node Kid 0x7fb52bc04c90 from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7fb52bc04c90
+[PlexilExec:handleNeedsExecution] Storing action for node Kid 0x7fb52bc04c90 of type Assignment to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Boolean step_failed 0x7f99514049f8 [a](0)) to 1
+[Test:testOutput]Assigning (Variable Boolean step_failed 0x7fb52bc04c08 [a](0)) to 1
 [PlexilExec:cycle] ==>End cycle 1
 [PlexilExec:printPlan]
 AssignToParentExit{
  State: EXECUTING (0)
- ExitCondition: (Variable Boolean step_failed 0x7f99514049f8 [a](1))
- EndCondition: (Finished Boolean Kid0x7f9951404d20 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentExit0x7f9951404de0 [i](0))
- step_failed: (Variable Boolean step_failed 0x7f99514049f8 [a](1))
+ ExitCondition: (Variable Boolean step_failed 0x7fb52bc04c08 [a](1))
+ EndCondition: (Finished Boolean Kid0x7fb52bc04e80 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentExit0x7fb52bc04ee0 [i](0))
+ step_failed: (Variable Boolean step_failed 0x7fb52bc04c08 [a](1))
   Kid{
    State: EXECUTING (0)
-   AncestorExitCondition: (Variable Boolean step_failed 0x7f99514049f8 [a](1))
-   AncestorEndCondition: (Finished Boolean Kid0x7f9951404d20 [a](0))
-   ActionCompleteCondition: (InternalVariable Boolean ack 0x7f9951404c50 [a](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9951404ca0 [i](0))
+   AncestorExitCondition: (Variable Boolean step_failed 0x7fb52bc04c08 [a](1))
+   AncestorEndCondition: (Finished Boolean Kid0x7fb52bc04e80 [a](0))
+   ActionCompleteCondition: (InternalVariable Boolean ack 0x7fb52bc04dd0 [a](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb52bc04e10 [i](0))
   }
 }
 
 [PlexilExec:cycle] ==>Start cycle 2
-[PlexilExec:step][2:0] Check queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7f9951404820 for state transition.
-[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7f9951404820 on the state change queue in position 5
-[PlexilExec:handleConditionsChanged] Considering node Kid 0x7f9951404a90 for state transition.
-[PlexilExec:handleConditionsChanged] Node Kid 0x7f9951404a90 is an assignment node that is failing, and is already in the resource contention list
-[PlexilExec:addStateChangeNode] Placing node Kid 0x7f9951404a90 on the state change queue in position 6
+[PlexilExec:step][2:0] Check queue: Kid 0x7fb52bc04c90 AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:handleConditionsChanged] Considering node Kid 0x7fb52bc04c90 for state transition.
+[PlexilExec:handleConditionsChanged] Node Kid 0x7fb52bc04c90 is an assignment node that is failing, and is already in the resource contention list
+[PlexilExec:addStateChangeNode] Placing node Kid 0x7fb52bc04c90 on the state change queue in position 5
+[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7fb52bc04a40 for state transition.
+[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7fb52bc04a40 on the state change queue in position 6
 [PlexilExec:resolveResourceConflicts] Ignoring Assignments for variable step_failed, which has a retraction pending
-[PlexilExec:step][2:0] State change queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:step][2:0:0] Transitioning node AssignToParentExit 0x7f9951404820 from EXECUTING to FAILING
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:step][2:0:1] Transitioning node Kid 0x7f9951404a90 from EXECUTING to FAILING
-[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7f9951404a90
+[PlexilExec:step][2:0] State change queue: Kid 0x7fb52bc04c90 AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:step][2:0:0] Transitioning node Kid 0x7fb52bc04c90 from EXECUTING to FAILING
+[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7fb52bc04c90
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
+[PlexilExec:step][2:0:1] Transitioning node AssignToParentExit 0x7fb52bc04a40 from EXECUTING to FAILING
 [PlexilExec:performAssignments] performing 0 assignments and 1 retractions
-[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7f99514049f8 [a](1))
+[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7fb52bc04c08 [a](1))
 [PlexilExec:cycle] ==>End cycle 2
 [PlexilExec:printPlan]
 AssignToParentExit{
  State: FAILING (0)
- ExitCondition: (Variable Boolean step_failed 0x7f99514049f8 [a](0))
- EndCondition: (Finished Boolean Kid0x7f9951404d20 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentExit0x7f9951404de0 [a](0))
- step_failed: (Variable Boolean step_failed 0x7f99514049f8 [a](0))
+ ExitCondition: (Variable Boolean step_failed 0x7fb52bc04c08 [a](0))
+ EndCondition: (Finished Boolean Kid0x7fb52bc04e80 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentExit0x7fb52bc04ee0 [a](0))
+ step_failed: (Variable Boolean step_failed 0x7fb52bc04c08 [a](0))
   Kid{
    State: FAILING (0)
-   AncestorExitCondition: (Variable Boolean step_failed 0x7f99514049f8 [a](0))
-   AncestorEndCondition: (Finished Boolean Kid0x7f9951404d20 [a](0))
-   ActionCompleteCondition: (InternalVariable Boolean ack 0x7f9951404c50 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9951404ca0 [a](1))
+   AncestorExitCondition: (Variable Boolean step_failed 0x7fb52bc04c08 [a](0))
+   AncestorEndCondition: (Finished Boolean Kid0x7fb52bc04e80 [a](0))
+   ActionCompleteCondition: (InternalVariable Boolean ack 0x7fb52bc04dd0 [i](1))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fb52bc04e10 [a](1))
   }
 }
 
 [PlexilExec:cycle] ==>Start cycle 3
-[PlexilExec:step][3:0] Check queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:handleConditionsChanged] Considering node Kid 0x7f9951404a90 for state transition.
-[PlexilExec:handleConditionsChanged] Node Kid 0x7f9951404a90 is an assignment node that is no longer possibly executing. Removing it from resource contention.
-[PlexilExec:removeFromResourceContention] removing node Kid 0x7f9951404a90 from contention for variable (Variable Boolean step_failed 0x7f99514049f8 [a](0))
-[PlexilExec:removeFromResourceContention] node Kid 0x7f9951404a90 was only node assigning (Variable Boolean step_failed 0x7f99514049f8 [a](0)), removing variable from contention
-[PlexilExec:addStateChangeNode] Placing node Kid 0x7f9951404a90 on the state change queue in position 7
-[PlexilExec:step][3:0] State change queue: Kid 0x7f9951404a90 
-[PlexilExec:step][3:0:0] Transitioning node Kid 0x7f9951404a90 from FAILING to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7f9951404a90
-[PlexilExec:step][3:1] Check queue: AssignToParentExit 0x7f9951404820 Kid 0x7f9951404a90 
-[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7f9951404820 for state transition.
-[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7f9951404820 on the state change queue in position 8
-[PlexilExec:step][3:1] State change queue: AssignToParentExit 0x7f9951404820 
-[PlexilExec:step][3:1:0] Transitioning node AssignToParentExit 0x7f9951404820 from FAILING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7f9951404820
-[PlexilExec:step][3:2] Check queue: AssignToParentExit 0x7f9951404820 
-[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7f9951404820 for state transition.
-[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7f9951404820 on the state change queue in position 9
-[PlexilExec:step][3:2] State change queue: AssignToParentExit 0x7f9951404820 
-[PlexilExec:step][3:2:0] Transitioning node AssignToParentExit 0x7f9951404820 from ITERATION_ENDED to FINISHED
+[PlexilExec:step][3:0] Check queue: Kid 0x7fb52bc04c90 AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:handleConditionsChanged] Considering node Kid 0x7fb52bc04c90 for state transition.
+[PlexilExec:handleConditionsChanged] Node Kid 0x7fb52bc04c90 is an assignment node that is no longer possibly executing. Removing it from resource contention.
+[PlexilExec:removeFromResourceContention] removing node Kid 0x7fb52bc04c90 from contention for variable (Variable Boolean step_failed 0x7fb52bc04c08 [a](0))
+[PlexilExec:removeFromResourceContention] node Kid 0x7fb52bc04c90 was only node assigning (Variable Boolean step_failed 0x7fb52bc04c08 [a](0)), removing variable from contention
+[PlexilExec:addStateChangeNode] Placing node Kid 0x7fb52bc04c90 on the state change queue in position 7
+[PlexilExec:step][3:0] State change queue: Kid 0x7fb52bc04c90 
+[PlexilExec:step][3:0:0] Transitioning node Kid 0x7fb52bc04c90 from FAILING to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node Kid 0x7fb52bc04c90
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
+[PlexilExec:step][3:1] Check queue: Kid 0x7fb52bc04c90 AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7fb52bc04a40 for state transition.
+[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7fb52bc04a40 on the state change queue in position 8
+[PlexilExec:step][3:1] State change queue: AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:step][3:1:0] Transitioning node AssignToParentExit 0x7fb52bc04a40 from FAILING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node AssignToParentExit 0x7fb52bc04a40
+[PlexilExec:step][3:2] Check queue: AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:handleConditionsChanged] Considering node AssignToParentExit 0x7fb52bc04a40 for state transition.
+[PlexilExec:addStateChangeNode] Placing node AssignToParentExit 0x7fb52bc04a40 on the state change queue in position 9
+[PlexilExec:step][3:2] State change queue: AssignToParentExit 0x7fb52bc04a40 
+[PlexilExec:step][3:2:0] Transitioning node AssignToParentExit 0x7fb52bc04a40 from ITERATION_ENDED to FINISHED
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle] ==>End cycle 3
 [PlexilExec:printPlan]
@@ -123,7 +123,7 @@ AssignToParentExit{
  State: FINISHED (0)
  Outcome: INTERRUPTED
  Failure type: EXITED
- step_failed: (Variable Boolean step_failed 0x7f99514049f8 [i](UNKNOWN))
+ step_failed: (Variable Boolean step_failed 0x7fb52bc04c08 [i](UNKNOWN))
   Kid{
    State: FINISHED (0)
    Outcome: INTERRUPTED
