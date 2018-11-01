@@ -73,7 +73,7 @@ namespace PLEXIL
     {
       std::vector<NodeImpl *> const &kids = node->getChildren();
       for (size_t i = 0; i < kids.size(); ++i) {
-        (oper)(kids[i]->getStateVariable());
+        (oper)(kids[i]);
       }
     }
 
@@ -123,7 +123,7 @@ namespace PLEXIL
     {
       std::vector<NodeImpl *> const &kids = node->getChildren();
       for (size_t i = 0; i < kids.size(); ++i) {
-        (oper)(kids[i]->getStateVariable());
+        (oper)(kids[i]);
       }
     }
 
@@ -212,13 +212,6 @@ namespace PLEXIL
   // This method is called after all user-spec'd conditions have been instantiated
   void ListNode::specializedCreateConditionWrappers()
   {
-    // At least one node state function is dependent on child states,
-    // so just add this node as a listener to each state variable.
-    for (std::vector<NodeImpl *>::iterator it = m_children.begin();
-         it != m_children.end();
-         ++it)
-      (*it)->getStateVariable()->addListener(this);
-
     // Not really a "wrapper", but this is best place to add it.
     Expression *cond =
       new NodeFunction(AllWaitingOrFinished::instance(), this);
@@ -334,11 +327,6 @@ namespace PLEXIL
     cleanUpChildConditions();
 
     NodeImpl::cleanUpConditions();
-
-    for (std::vector<NodeImpl *>::iterator it = m_children.begin();
-         it != m_children.end();
-         ++it)
-      (*it)->getStateVariable()->removeListener(this);
   }
 
   void ListNode::cleanUpNodeBody()
