@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-sed_cmd='s/id_[0-9]*/id_/g'
+sed_cmd='s/0x[0-9a-fA-F]*/0x/g'
 
 if [ -z "$1" ]
 then
