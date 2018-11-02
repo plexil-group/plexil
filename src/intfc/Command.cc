@@ -436,7 +436,7 @@ namespace PLEXIL
     checkInterfaceError(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX,
                         "Invalid command handle value");
     m_commandHandle = handle;
-    m_ack.valueChanged();
+    m_ack.publishChange();
   }
 
   void Command::returnValue(Value const &val)

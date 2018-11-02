@@ -76,9 +76,6 @@ namespace PLEXIL
      */
     bool getValue(uint16_t &) const;
 
-    // Command notifies variable when value changes
-    void valueChanged();
-
     /**
      * @brief Print the expression's value to the given stream.
      * @param s The output stream.

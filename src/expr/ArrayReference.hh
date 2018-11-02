@@ -58,7 +58,6 @@ namespace PLEXIL {
     virtual ValueType valueType() const;
     virtual bool isKnown() const;
     virtual bool isConstant() const;
-    virtual bool isPropagationSource() const;
     virtual bool isAssignable() const;
     virtual Expression *getBaseExpression();
     virtual Expression const *getBaseExpression() const;

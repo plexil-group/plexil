@@ -88,11 +88,6 @@ namespace PLEXIL {
     virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
     // Listenable API
-    inline bool isActive() const
-    {
-      return true;
-    }
-
     void addListener(ExpressionListener *l);
     void removeListener(ExpressionListener *l);
 
@@ -151,11 +146,6 @@ namespace PLEXIL {
     virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
     // Listenable API
-    inline bool isActive() const
-    {
-      return true;
-    }
-
     void addListener(ExpressionListener *l);
     void removeListener(ExpressionListener *l);
 
@@ -215,11 +205,6 @@ namespace PLEXIL {
     virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
     // Listenable API
-    inline bool isActive() const
-    {
-      return true;
-    }
-
     void addListener(ExpressionListener *l);
     void removeListener(ExpressionListener *l);
 

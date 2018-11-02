@@ -95,30 +95,6 @@ namespace PLEXIL {
      */
     bool isConstant() const;
 
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate();
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate();
-
   protected:
 
     T m_value;
@@ -195,30 +171,6 @@ namespace PLEXIL {
      */
     bool isConstant() const;
 
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate();
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate();
-
   protected:
 
     String m_value;
@@ -281,30 +233,6 @@ namespace PLEXIL {
      * @return True if constant, false otherwise.
      */
     bool isConstant() const;
-
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate();
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate();
 
   protected:
 

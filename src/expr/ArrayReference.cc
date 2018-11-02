@@ -92,11 +92,6 @@ namespace PLEXIL
     return m_array->isConstant() && m_index->isConstant();
   }
 
-  bool ArrayReference::isPropagationSource() const
-  {
-    return false; // can't change value independently of subexpressions
-  }
-
   bool ArrayReference::isAssignable() const
   {
     return false;

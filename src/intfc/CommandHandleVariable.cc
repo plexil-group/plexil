@@ -84,11 +84,6 @@ namespace PLEXIL
     result = handle;
     return true;
   }
-
-  void CommandHandleVariable::valueChanged()
-  {
-    this->publishChange();
-  }
   
   void CommandHandleVariable::printValue(std::ostream &str) const
   {

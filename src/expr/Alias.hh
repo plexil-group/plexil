@@ -63,7 +63,6 @@ namespace PLEXIL
     virtual bool isKnown() const;
     virtual bool isAssignable() const;
     virtual bool isConstant() const;
-    virtual bool isPropagationSource() const;
     virtual Expression *getBaseExpression();
     virtual Expression const *getBaseExpression() const;
 

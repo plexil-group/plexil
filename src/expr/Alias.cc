@@ -88,11 +88,6 @@ namespace PLEXIL
     return m_exp->isConstant();
   }
 
-  bool Alias::isPropagationSource() const
-  {
-    return false;
-  }
-
   Expression *Alias::getBaseExpression()
   {
     return m_exp->getBaseExpression();

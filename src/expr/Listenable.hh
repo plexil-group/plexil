@@ -102,10 +102,14 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Determine whether this object is active (i.e. propagating change notifications).
+     * @brief Determine whether this object is active.
      * @return true if active, false if not.
+     * @note This default method returns true.
      */
-    virtual bool isActive() const = 0;
+    virtual bool isActive() const
+    {
+      return true;
+    }
 
     //
     // Member functions which derived classes may override

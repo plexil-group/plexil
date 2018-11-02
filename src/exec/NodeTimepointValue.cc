@@ -65,19 +65,6 @@ namespace PLEXIL
     return true;
   }
 
-  bool NodeTimepointValue::isActive() const
-  {
-    return true;
-  }
-
-  void NodeTimepointValue::activate()
-  {
-  }
-
-  void NodeTimepointValue::deactivate()
-  {
-  }
-
   NodeState NodeTimepointValue::state() const
   {
     return m_state;

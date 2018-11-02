@@ -47,9 +47,6 @@ namespace PLEXIL
 
     // Listenable API
     virtual bool isPropagationSource() const;
-    virtual bool isActive() const;
-    virtual void activate();
-    virtual void deactivate();
 
     NodeState state() const;
     bool isEnd() const;
