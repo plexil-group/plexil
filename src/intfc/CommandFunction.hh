@@ -57,7 +57,6 @@ namespace PLEXIL
     ValueType valueType() const;
     bool isKnown() const;
     void printValue(std::ostream &s) const;
-    void printSpecialized(std::ostream &s) const;
     virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
     Value toValue() const;

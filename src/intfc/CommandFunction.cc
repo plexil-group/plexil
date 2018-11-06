@@ -68,11 +68,6 @@ namespace PLEXIL
     m_op->printValue(s, &m_command);
   }
 
-  void CommandFunction::printSpecialized(std::ostream & str) const
-  {
-    str << '0' << this;
-  }
-
   Value CommandFunction::toValue() const
   {
     return m_op->toValue(&m_command);
