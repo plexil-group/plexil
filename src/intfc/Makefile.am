@@ -31,15 +31,16 @@ libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
- CommandHandleVariable.hh ExprVec.hh ExternalInterface.hh \
- InputQueue.hh InterfaceError.hh Lookup.hh \
+ CommandHandleVariable.hh ExprVec.hh \
+ ExternalInterface.hh InputQueue.hh InterfaceError.hh Lookup.hh \
  QueueEntry.hh ResourceArbiterInterface.hh State.hh \
  StateCacheEntry.hh StateCacheMap.hh Update.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
- CommandHandleVariable.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
- Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
- State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc
+ CommandFunction.cc CommandHandleVariable.cc CommandOperator.cc \
+ CommandOperatorImpl.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
+ Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc State.cc \
+ StateCacheEntry.cc StateCacheMap.cc Update.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests

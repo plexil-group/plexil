@@ -31,7 +31,6 @@
 #include "Error.hh"
 #include "ExprVec.hh"
 #include "Function.hh"
-#include "NodeFunction.hh"
 #include "NodeOperatorImpl.hh"
 #include "UserVariable.hh"
 
@@ -144,7 +143,8 @@ namespace PLEXIL
   //
 
   ListNode::ListNode(char const *nodeId, NodeImpl *parent)
-    : NodeImpl(nodeId, parent)
+    : NodeImpl(nodeId, parent),
+      m_actionCompleteFn(AllWaitingOrFinished::instance(), this)
   {
   }
 
@@ -156,7 +156,8 @@ namespace PLEXIL
                      const std::string& name, 
                      NodeState state,
                      NodeImpl *parent)
-    : NodeImpl(type, name, state, parent)
+    : NodeImpl(type, name, state, parent),
+      m_actionCompleteFn(AllWaitingOrFinished::instance(), this)
   {
     checkError(type == LIST || type == LIBRARYNODECALL,
                "Invalid node type " << type << " for a ListNode");
@@ -213,10 +214,8 @@ namespace PLEXIL
   void ListNode::specializedCreateConditionWrappers()
   {
     // Not really a "wrapper", but this is best place to add it.
-    Expression *cond =
-      new NodeFunction(AllWaitingOrFinished::instance(), this);
-    m_conditions[actionCompleteIdx] = cond;
-    m_garbageConditions[actionCompleteIdx] = true;
+    m_conditions[actionCompleteIdx] = &m_actionCompleteFn;
+    m_garbageConditions[actionCompleteIdx] = false;
 
     if (m_parent) {
       if (getExitCondition()) {

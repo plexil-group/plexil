@@ -40,44 +40,6 @@
 
 namespace PLEXIL
 {
-  /**
-   * @class CommandHandleKnown
-   * @brief A NodeOperator that returns true if the command handle is known, false otherwise.
-   */
-
-  class CommandHandleKnown : public NodeOperatorImpl<Boolean>
-  {
-  public:
-    ~CommandHandleKnown()
-    {
-    }
-    
-    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
-
-    bool operator()(Boolean &result, NodeImpl const *node) const
-    {
-      result =
-        (NO_COMMAND_HANDLE !=
-         ((CommandNode const *) node)->getCommand()->getCommandHandle());
-      return true;
-    }
-
-    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
-    {
-      (oper)(((CommandNode *) node)->getCommand()->getAck());
-    }
-
-  private:
-
-    CommandHandleKnown()
-      : NodeOperatorImpl<Boolean>("CommandHandleKnown")
-    {
-    }
-
-    // Disallow copy, assign
-    CommandHandleKnown(CommandHandleKnown const &);
-    CommandHandleKnown &operator=(CommandHandleKnown const &);
-  };
 
   /**
    * @class CommandHandleInterruptible
@@ -93,10 +55,10 @@ namespace PLEXIL
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible)
 
-    bool operator()(Boolean &result, NodeImpl const *node) const
+    bool operator()(Boolean &result, NodeImpl const *command) const
     {
-      switch (((CommandNode const *) node)->getCommand()->getCommandHandle()) {
-        // Cases in which node is terminated early
+      switch (((CommandNode const *) command)->getCommand()->getCommandHandle()) {
+        // Cases in which command is terminated early
       case COMMAND_DENIED:          // Insufficient resources
       case COMMAND_FAILED:          // Couldn't be sent/performed
       case COMMAND_INTERFACE_ERROR: // Error in interface code
@@ -111,9 +73,9 @@ namespace PLEXIL
       return true;
     }
 
-    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+    void doPropagationSources(NodeImpl *command, ListenableUnaryOperator const &oper) const
     {
-      (oper)(((CommandNode *) node)->getCommand()->getAck());
+      (oper)(((CommandNode *) command)->getCommand()->getAck());
     }
 
   private:
@@ -200,7 +162,8 @@ namespace PLEXIL
 
     debugMsg("CommandNode:cleanUpNodeBody", '<' << m_nodeId << "> entered");
     if (m_command) {
-      m_command->getAck()->removeListener(this);
+      m_conditions[actionCompleteIdx] = NULL;
+      m_conditions[abortCompleteIdx] = NULL;
       m_command->cleanUp();
     }
     m_cleanedBody = true;
@@ -212,9 +175,8 @@ namespace PLEXIL
     m_command = cmd;
 
     // Construct action-complete condition
-    m_conditions[actionCompleteIdx] =
-      new NodeFunction(CommandHandleKnown::instance(), this);
-    m_garbageConditions[actionCompleteIdx] = true;
+    m_conditions[actionCompleteIdx] = m_command->getCommandHandleKnownFn();
+    m_garbageConditions[actionCompleteIdx] = false;
 
     // Construct command-aborted condition
     m_conditions[abortCompleteIdx] = m_command->getAbortComplete();
@@ -234,9 +196,6 @@ namespace PLEXIL
                      m_garbageConditions[endIdx]);
       m_garbageConditions[endIdx] = true;
     }
-
-    // Add node as listener on command handle variable
-    m_command->getAck()->addListener(this);
   }
 
   //

@@ -26,6 +26,7 @@
 
 #include "Command.hh"
 
+#include "CommandOperatorImpl.hh"
 #include "Assignable.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh"
@@ -165,8 +166,46 @@ namespace PLEXIL
       releaseAtTermExp->deactivate();
   }
 
+  /**
+   * @class CommandHandleKnown
+   * @brief A CommandOperator that returns true if the command handle is known, false otherwise.
+   */
+
+  class CommandHandleKnown : public CommandOperatorImpl<Boolean>
+  {
+  public:
+    ~CommandHandleKnown()
+    {
+    }
+    
+    DECLARE_COMMAND_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
+
+    bool operator()(Boolean &result, Command const *command) const
+    {
+      result = (NO_COMMAND_HANDLE != command->getCommandHandle());
+      return true;
+    }
+
+    void doPropagationSources(Command *command, ListenableUnaryOperator const &oper) const
+    {
+      (oper)(command->getAck());
+    }
+
+  private:
+
+    CommandHandleKnown()
+      : CommandOperatorImpl<Boolean>("CommandHandleKnown")
+    {
+    }
+
+    // Disallow copy, assign
+    CommandHandleKnown(CommandHandleKnown const &);
+    CommandHandleKnown &operator=(CommandHandleKnown const &);
+  };
+
   Command::Command(std::string const &nodeName)
     : m_next(NULL),
+      m_handleKnownFn(CommandHandleKnown::instance(), *this),
       m_ack(*this),
       m_abortComplete("abortComplete"),
       m_command(),
@@ -251,19 +290,19 @@ namespace PLEXIL
 
   State const &Command::getCommand() const
   {
-    assertTrue_1(m_commandFixed);
+    assertTrue_1(m_commandIsConstant || m_commandFixed);
     return m_command;
   }
 
   std::string const &Command::getName() const
   {
-    assertTrue_1(m_commandFixed);
+    assertTrue_1(m_commandNameIsConstant || m_commandFixed);
     return m_command.name();
   }
 
   std::vector<Value> const &Command::getArgValues() const
   {
-    assertTrue_1(m_commandFixed);
+    assertTrue_1(m_commandIsConstant || m_commandFixed);
     return m_command.parameters();
   }
 
@@ -284,9 +323,14 @@ namespace PLEXIL
     return NULL;
   }
 
+  bool Command::isCommandNameConstant() const
+  {
+    return m_nameExpr->isConstant();
+  }
+
   bool Command::isCommandConstant() const
   {
-    if (!m_nameExpr->isConstant())
+    if (!isCommandNameConstant())
       return false;
     if (m_argVec)
       for (size_t i = 0; i < m_argVec->size(); ++i)
@@ -408,7 +452,8 @@ namespace PLEXIL
 
     // Check for constancy at first activation
     if (!m_checkedConstant) {
-      m_commandIsConstant = isCommandConstant();
+      if ((m_commandNameIsConstant = isCommandNameConstant()))
+        m_commandIsConstant = isCommandConstant(); // defaults to false
       if (m_resourceList)
         m_resourcesAreConstant = areResourcesConstant();
       else

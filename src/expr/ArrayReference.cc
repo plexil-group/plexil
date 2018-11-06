@@ -259,12 +259,12 @@ namespace PLEXIL
 
   Assignable const *MutableArrayReference::asAssignable() const
   {
-    return dynamic_cast<Assignable const *>(this);
+    return static_cast<Assignable const *>(this);
   }
 
   Assignable *MutableArrayReference::asAssignable()
   {
-    return dynamic_cast<Assignable *>(this);
+    return static_cast<Assignable *>(this);
   }
 
   bool MutableArrayReference::mutableSelfCheck(size_t &idx)

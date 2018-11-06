@@ -27,6 +27,7 @@
 #ifndef PLEXIL_COMMAND_HH
 #define PLEXIL_COMMAND_HH
 
+#include "CommandFunction.hh"
 #include "CommandHandleVariable.hh"
 #include "State.hh"
 #include "SimpleBooleanVariable.hh"
@@ -116,6 +117,7 @@ namespace PLEXIL
     std::vector<Value> const &getArgValues() const;
     const ResourceValueList &getResourceValues() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
+    Expression *getCommandHandleKnownFn() { return &m_handleKnownFn; }
     bool isActive() const { return m_active; }
 
     // Interface to plan parser
@@ -164,10 +166,12 @@ namespace PLEXIL
     Command& operator=(const Command&);
 
     // Helpers
+    bool isCommandNameConstant() const;
     bool isCommandConstant() const;
     bool areResourcesConstant() const;
 
     Command *m_next;
+    CommandFunction m_handleKnownFn;
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     State m_command;
@@ -178,7 +182,7 @@ namespace PLEXIL
     ResourceValueList *m_resourceValueList;
     uint16_t m_commandHandle; // accessed by CommandHandleVariable
     bool m_active;
-    bool m_commandFixed, m_commandIsConstant;
+    bool m_commandFixed, m_commandNameIsConstant, m_commandIsConstant;
     bool m_resourcesFixed, m_resourcesAreConstant;
     bool m_nameIsGarbage, m_destIsGarbage;
     bool m_checkedConstant;

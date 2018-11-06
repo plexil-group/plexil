@@ -29,6 +29,8 @@
 
 #include "NodeImpl.hh"
 
+#include "NodeFunction.hh"
+
 namespace PLEXIL
 {
   // forward reference
@@ -127,6 +129,7 @@ namespace PLEXIL
     virtual void transitionToFinishing();
     virtual void transitionToFailing();
 
+    NodeFunction m_actionCompleteFn;
     // Shared with derived class LibraryCallNode
     std::vector<NodeImpl *> m_children; /*<! Vector of child nodes. */
   };
