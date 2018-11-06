@@ -37,13 +37,11 @@ namespace PLEXIL
   // Alias
   //
 
-  Alias::Alias(NodeConnector *node,
-               char const *name,
+  Alias::Alias(char const *name,
                Expression *original,
                bool garbage)
     : Propagator(),
       m_exp(original),
-      m_node(node),
       m_name(strdup(name)),
       m_garbage(garbage)
   {

@@ -114,18 +114,18 @@ namespace PLEXIL
     wasCreated = true;
     switch (typ) {
     case BOOLEAN_TYPE:
-      return new BooleanVariable(node, name);
+      return new BooleanVariable(name);
 
     case INTEGER_TYPE:
-      return new IntegerVariable(node, name);
+      return new IntegerVariable(name);
 
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
     case REAL_TYPE:
-      return new RealVariable(node, name);
+      return new RealVariable(name);
 
     case STRING_TYPE:
-      return new StringVariable(node, name);
+      return new StringVariable(name);
 
     default:
       errorMsg("UserVariableFactory::allocate: Internal type error");

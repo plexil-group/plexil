@@ -32,7 +32,6 @@ namespace PLEXIL {
   // Forward declarations
   class Array;
   class Expression;
-  class NodeConnector;
   class Value;
 
   /**
@@ -71,15 +70,6 @@ namespace PLEXIL {
      * @return The saved value.
      */
     virtual Value getSavedValue() const = 0;
-
-    /**
-     * @brief Get the node that owns this expression.
-     * @return The parent node; may be NULL.
-     * @note Used by LuvFormat::formatAssignment().  
-     * @note Default method returns NULL.
-     */
-    virtual NodeConnector *getNode();
-    virtual NodeConnector const *getNode() const;
 
     /**
      * @brief Get the real variable for which this may be a proxy.

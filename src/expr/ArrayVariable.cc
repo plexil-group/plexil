@@ -46,7 +46,6 @@ namespace PLEXIL
       m_initializer(NULL),
       m_name(NULL),
       m_maxSize(0),
-      m_node(NULL),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -56,8 +55,7 @@ namespace PLEXIL
   {
   }
 
-  ArrayVariable::ArrayVariable(NodeConnector *node,
-                               char const *name,
+  ArrayVariable::ArrayVariable(char const *name,
                                Expression *size,
                                bool sizeIsGarbage)
     : Notifier(),
@@ -67,7 +65,6 @@ namespace PLEXIL
       m_initializer(NULL),
       m_name(strdup(name)),
       m_maxSize(0),
-      m_node(node),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
@@ -224,16 +221,6 @@ namespace PLEXIL
     return Value();
   }
 
-  NodeConnector const *ArrayVariable::getNode() const
-  {
-    return m_node;
-  }
-
-  NodeConnector *ArrayVariable::getNode()
-  {
-    return m_node;
-  }
-
   Expression *ArrayVariable::getBaseVariable()
   {
     return this;
@@ -359,30 +346,27 @@ namespace PLEXIL
   }
 
   template <typename T>
-  ArrayVariableImpl<T>::ArrayVariableImpl(NodeConnector *node,
-                                          char const *name,
+  ArrayVariableImpl<T>::ArrayVariableImpl(char const *name,
                                           Expression *size,
                                           bool sizeIsGarbage)
     : GetValueImpl<ArrayImpl<T> >(),
-    ArrayVariable(node, name, size, sizeIsGarbage)
+    ArrayVariable(name, size, sizeIsGarbage)
   {
   }
 
-  ArrayVariableImpl<Integer>::ArrayVariableImpl(NodeConnector *node,
-                                                char const *name,
+  ArrayVariableImpl<Integer>::ArrayVariableImpl(char const *name,
                                                 Expression *size,
                                                 bool sizeIsGarbage)
     : GetValueImpl<ArrayImpl<Integer> >(),
-    ArrayVariable(node, name, size, sizeIsGarbage)
+    ArrayVariable(name, size, sizeIsGarbage)
   {
   }
 
-  ArrayVariableImpl<String>::ArrayVariableImpl(NodeConnector *node,
-                                                char const *name,
-                                                Expression *size,
-                                                bool sizeIsGarbage)
+  ArrayVariableImpl<String>::ArrayVariableImpl(char const *name,
+                                               Expression *size,
+                                               bool sizeIsGarbage)
     : GetValueImpl<ArrayImpl<String> >(),
-    ArrayVariable(node, name, size, sizeIsGarbage)
+    ArrayVariable(name, size, sizeIsGarbage)
   {
   }
 

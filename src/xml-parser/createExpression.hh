@@ -37,8 +37,8 @@ namespace pugi
 
 namespace PLEXIL
 {
-  class Expression;
   class NodeConnector;
+  class Expression;
 
   /**
    * @brief Check the XML for validity as an expression.

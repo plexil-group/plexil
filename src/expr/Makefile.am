@@ -33,7 +33,7 @@ libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh \
  Assignable.hh CachedFunction.hh Constant.hh Expression.hh \
  ExpressionConstants.hh ExpressionListener.hh Function.hh GetValueImpl.hh \
- Listenable.hh NodeConnector.hh NodeConstantExpressions.hh Notifier.hh \
+ Listenable.hh NodeConstantExpressions.hh Notifier.hh \
  Operator.hh Propagator.hh SimpleBooleanVariable.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \

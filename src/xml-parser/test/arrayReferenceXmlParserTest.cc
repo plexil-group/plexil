@@ -425,7 +425,7 @@ static bool testArrayVariableReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav);
 
@@ -494,7 +494,7 @@ static bool testArrayVariableReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav);
 
@@ -563,7 +563,7 @@ static bool testArrayVariableReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav);
 
@@ -633,7 +633,7 @@ static bool testArrayVariableReferenceXmlParser()
     vs[3] = std::string("three");
 
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav);
 
@@ -710,9 +710,9 @@ static bool testArrayAliasReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
     bav->setInitializer(bc, true);
-    Alias* abav = new Alias(nc, "bul", bav, true);
+    Alias* abav = new Alias("bul", bav, true);
     realNc->storeVariable("bul", abav);
 
     xml_node bart0Xml = doc.append_child("ArrayElement");
@@ -784,9 +784,9 @@ static bool testArrayAliasReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
     iav->setInitializer(ic, true);
-    Alias *aiav = new Alias(nc, "int", iav, true);
+    Alias *aiav = new Alias("int", iav, true);
     realNc->storeVariable("int", aiav);
 
     xml_node iart0Xml = doc.append_child("ArrayElement");
@@ -858,9 +858,9 @@ static bool testArrayAliasReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
     dav->setInitializer(dc, true);
-    Alias *adav = new Alias(nc, "dbl", dav, true);
+    Alias *adav = new Alias("dbl", dav, true);
     realNc->storeVariable("dbl", adav);
 
     xml_node dart0Xml = doc.append_child("ArrayElement");
@@ -932,9 +932,9 @@ static bool testArrayAliasReferenceXmlParser()
     vs[2] = std::string("two");
     vs[3] = std::string("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
     sav->setInitializer(sc, true);
-    Alias *asav = new Alias(nc, "str", sav, true);
+    Alias *asav = new Alias("str", sav, true);
     realNc->storeVariable("str", asav);
 
     xml_node sart0Xml = doc.append_child("ArrayElement");
@@ -1013,7 +1013,7 @@ static bool testMutableArrayReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav);
 
@@ -1150,7 +1150,7 @@ static bool testMutableArrayReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav);
 
@@ -1288,7 +1288,7 @@ static bool testMutableArrayReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav);
 
@@ -1426,7 +1426,7 @@ static bool testMutableArrayReferenceXmlParser()
     vs[2] = std::string("two");
     vs[3] = std::string("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav);
 

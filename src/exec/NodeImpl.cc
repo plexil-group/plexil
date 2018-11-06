@@ -223,7 +223,7 @@ namespace PLEXIL
 
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       std::string varName = m_nodeId + ' ' + ALL_CONDITIONS[i];
-      BooleanVariable *expr = new BooleanVariable(this, varName.c_str());
+      BooleanVariable *expr = new BooleanVariable(varName.c_str());
       expr->setValue(falseValue);
       debugMsg("NodeImpl:NodeImpl", ' ' << m_nodeId
                << " Created internal variable " << varName <<

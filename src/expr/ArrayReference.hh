@@ -165,9 +165,6 @@ namespace PLEXIL {
     virtual void restoreSavedValue();
     virtual Value getSavedValue() const;
 
-    virtual NodeConnector const *getNode() const;
-    virtual NodeConnector *getNode();
-
     virtual Expression *getBaseVariable();
     virtual Expression const *getBaseVariable() const;
 

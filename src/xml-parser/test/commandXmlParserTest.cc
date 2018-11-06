@@ -43,7 +43,7 @@ using pugi::node_pcdata;
 static bool testCommandParserBasics()
 {
   FactoryTestNodeConnector conn;
-  Expression *flagVar = new BooleanVariable(&conn, "flag");
+  Expression *flagVar = new BooleanVariable("flag");
   conn.storeVariable("flag", flagVar);
 
   xml_document doc;

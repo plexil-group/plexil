@@ -33,7 +33,6 @@
 namespace PLEXIL
 {
   // Forward declaration
-  class NodeConnector;
   class Value;
 
   /**
@@ -47,8 +46,7 @@ namespace PLEXIL
     public Propagator
   {
   public:
-    Alias(NodeConnector *node, // *** is this needed?? ***
-          char const *name,
+    Alias(char const *name,
           Expression *original = NULL,
           bool garbage = false);
     virtual ~Alias();
@@ -103,9 +101,7 @@ namespace PLEXIL
 
     // The expression being aliased.
     Expression *m_exp;
-    // Parent node
-    NodeConnector *m_node;
-    // Name in the parent node
+    // Name in the owning node
     char const *m_name;
 
   private:

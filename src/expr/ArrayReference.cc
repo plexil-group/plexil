@@ -326,16 +326,6 @@ namespace PLEXIL
     return Value(m_savedValue);
   }
 
-  NodeConnector const *MutableArrayReference::getNode() const
-  {
-    return getBaseVariable()->asAssignable()->getNode();
-  }
-
-  NodeConnector *MutableArrayReference::getNode()
-  {
-    return getBaseVariable()->asAssignable()->getNode();
-  }
-
   Expression *MutableArrayReference::getBaseVariable() 
   {
     checkPlanError(m_mutableArray,

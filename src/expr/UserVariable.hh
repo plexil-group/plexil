@@ -61,11 +61,9 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      */
-    UserVariable(NodeConnector *node,
-                 char const *name = "");
+    UserVariable(char const *name);
     
     /**
      * @brief Destructor.
@@ -116,9 +114,6 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    NodeConnector *getNode();
-    NodeConnector const *getNode() const;
-
     Expression *getBaseVariable();
     Expression const *getBaseVariable() const;
 
@@ -165,9 +160,6 @@ namespace PLEXIL
     Expression *m_initializer;
     char const *m_name;
 
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
-
     bool m_known;
     bool m_savedKnown;
     bool m_initializerIsGarbage;
@@ -192,15 +184,13 @@ namespace PLEXIL
      * @brief Constructor with initial value.
      * @param val The initial value.
      */
-    UserVariable(String const &initVal);
+    explicit UserVariable(String const &initVal);
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      */
-    UserVariable(NodeConnector *node,
-                 char const *name = "");
+    UserVariable(char const *name);
     
     /**
      * @brief Destructor.
@@ -259,9 +249,6 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    NodeConnector *getNode();
-    NodeConnector const *getNode() const;
-
     Expression *getBaseVariable();
     Expression const *getBaseVariable() const;
 
@@ -297,9 +284,6 @@ namespace PLEXIL
 
     Expression *m_initializer;
     char const *m_name;
-
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;

@@ -33,7 +33,7 @@ libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExprVec.hh \
  ExternalInterface.hh InputQueue.hh InterfaceError.hh Lookup.hh \
- QueueEntry.hh ResourceArbiterInterface.hh State.hh \
+ NodeConnector.hh QueueEntry.hh ResourceArbiterInterface.hh State.hh \
  StateCacheEntry.hh StateCacheMap.hh Update.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \

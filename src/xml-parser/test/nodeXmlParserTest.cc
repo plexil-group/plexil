@@ -385,7 +385,6 @@ static bool emptyNodeXmlParserTest()
     Assignable *simpleVarA = simpleVar->asAssignable();
     assertTrue_1(simpleVarA);
     assertTrue_1(simpleVarA->getBaseVariable() == simpleVar);
-    assertTrue_1(simpleVarA->getNode() == simpleVarDeclNode);
     delete simpleVarDeclNode;
   }
 
@@ -421,7 +420,6 @@ static bool emptyNodeXmlParserTest()
     Assignable *initedVarA = initedVar->asAssignable();
     assertTrue_1(initedVarA);
     assertTrue_1(initedVarA->getBaseVariable() == initedVar);
-    assertTrue_1(initedVarA->getNode() == initedVarDeclNode);
     delete initedVarDeclNode;
   }
 
@@ -452,7 +450,6 @@ static bool emptyNodeXmlParserTest()
     Assignable *simpleArrayVarA = simpleArrayVar->asAssignable();
     assertTrue_1(simpleArrayVarA);
     assertTrue_1(simpleArrayVarA->getBaseVariable() == simpleArrayVar);
-    assertTrue_1(simpleArrayVarA->getNode() == simpleArrayVarDeclNode);
     delete simpleArrayVarDeclNode;
   }
 
@@ -496,7 +493,6 @@ static bool emptyNodeXmlParserTest()
     Assignable *initedArrayVarA = initedArrayVar->asAssignable();
     assertTrue_1(initedArrayVarA);
     assertTrue_1(initedArrayVarA->getBaseVariable() == initedArrayVar);
-    assertTrue_1(initedArrayVarA->getNode() == initedArrayVarDeclNode);
     delete initedArrayVarDeclNode;
   }
 
@@ -636,7 +632,6 @@ static bool listNodeXmlParserTest()
     Expression *rootVar = varAccessList->getLocalVariables()->front();
     assertTrue_1(rootVar);
     assertTrue_1(rootVar->valueType() == INTEGER_TYPE);
-    assertTrue_1(rootVar->asAssignable()->getNode() == varAccessList);
     assertTrue_1(rootVar == varAccessList->findVariable("foo"));
     assertTrue_1(!varAccessList->findVariable("bar"));
 
@@ -646,7 +641,6 @@ static bool listNodeXmlParserTest()
     Expression *kidVar = kid->getLocalVariables()->front();
     assertTrue_1(kidVar);
     assertTrue_1(kidVar->valueType() == INTEGER_TYPE);
-    assertTrue_1(kidVar->asAssignable()->getNode() == kid);
     assertTrue_1(rootVar == kid->findVariable("foo"));
     assertTrue_1(kidVar == kid->findVariable("bar"));
 

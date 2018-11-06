@@ -46,7 +46,6 @@ namespace PLEXIL {
     : Notifier(),
     m_initializer(NULL),
     m_name(NULL),
-    m_node(NULL),
     m_known(false),
     m_savedKnown(false)
   {
@@ -56,7 +55,6 @@ namespace PLEXIL {
     : Notifier(),
     m_initializer(NULL),
     m_name(NULL),
-    m_node(NULL),
     m_known(false),
     m_savedKnown(false)
   {
@@ -67,7 +65,6 @@ namespace PLEXIL {
   : Notifier(),
     m_initializer(new Constant<T>(initVal)),
     m_name(NULL),
-    m_node(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
@@ -78,7 +75,6 @@ namespace PLEXIL {
   : Notifier(),
     m_initializer(new Constant<String>(initVal)),
     m_name(NULL),
-    m_node(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
@@ -91,7 +87,6 @@ namespace PLEXIL {
   : Notifier(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
     m_name(NULL),
-    m_node(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -99,24 +94,20 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  UserVariable<T>::UserVariable(NodeConnector *node,
-                                char const *name)
+  UserVariable<T>::UserVariable(char const *name)
     : Notifier(),
     m_initializer(NULL),
     m_name(strdup(name)),
-    m_node(node),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
   {
   }
 
-  UserVariable<String>::UserVariable(NodeConnector *node,
-                                     char const *name)
+  UserVariable<String>::UserVariable(char const *name)
     : Notifier(),
     m_initializer(NULL),
     m_name(strdup(name)),
-    m_node(node),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -437,28 +428,6 @@ namespace PLEXIL {
   Value UserVariable<String>::getSavedValue() const
   {
     return Value(m_savedValue);
-  }
-
-  template <typename T>
-  NodeConnector *UserVariable<T>::getNode()
-  {
-    return m_node;
-  }
-
-  NodeConnector *UserVariable<String>::getNode()
-  {
-    return m_node;
-  }
-
-  template <typename T>
-  NodeConnector const *UserVariable<T>::getNode() const
-  {
-    return m_node;
-  }
-
-  NodeConnector const *UserVariable<String>::getNode() const
-  {
-    return m_node;
   }
 
   template <typename T>

@@ -183,28 +183,24 @@ namespace PLEXIL
     wasCreated = true;
     switch (typ) {
     case BOOLEAN_TYPE:
-      return new BooleanArrayVariable(node,
-                                      name,
+      return new BooleanArrayVariable(name,
                                       sizeExp,
                                       sizeIsGarbage);
 
     case INTEGER_TYPE:
-      return new IntegerArrayVariable(node,
-                                      name,
+      return new IntegerArrayVariable(name,
                                       sizeExp,
                                       sizeIsGarbage);
 
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
     case REAL_TYPE:
-      return new RealArrayVariable(node,
-                                   name,
+      return new RealArrayVariable(name,
                                    sizeExp,
                                    sizeIsGarbage);
 
     case STRING_TYPE:
-      return new StringArrayVariable(node,
-                                     name,
+      return new StringArrayVariable(name,
                                      sizeExp,
                                      sizeIsGarbage);
 

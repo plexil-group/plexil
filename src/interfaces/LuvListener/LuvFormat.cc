@@ -165,7 +165,7 @@ namespace PLEXIL {
    * @param value The internal representation of the new value.
    */
   void LuvFormat::formatAssignment(std::ostream &s, 
-                                   Expression const *dest,
+                                   Expression const * /* dest */,
                                    std::string const &destName,
                                    Value const &value) {
     simpleStartTag(s, ASSIGNMENT_TAG());
@@ -173,11 +173,7 @@ namespace PLEXIL {
     // format variable name
     simpleStartTag(s, VARIABLE_TAG());
 
-    // get path to node, if any
-    Assignable const *destVar = dest->asAssignable();
-    Node const *node = NULL;
-    if ((node = dynamic_cast<Node const *>(destVar->getNode())))
-      formatNodePath(s, node);
+    // TODO: get path to owning node, if any
 
     // get variable name
     simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());

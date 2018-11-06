@@ -42,22 +42,6 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Get the node that owns this expression.
-   * @return The parent node; may be NULL.
-   * @note Used by LuvFormat::formatAssignment().  
-   * @note Default method.
-   */
-  NodeConnector *Assignable::getNode()
-  {
-    return NULL;
-  }
-
-  NodeConnector const *Assignable::getNode() const
-  {
-    return NULL;
-  }
-
-  /**
    * @brief Set the expression from which this object gets its initial value.
    * @param expr Pointer to an Expression.
    * @param garbage True if the expression should be deleted with this object, false otherwise.

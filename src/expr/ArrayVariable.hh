@@ -83,9 +83,6 @@ namespace PLEXIL
 
     virtual Value getSavedValue() const;
 
-    virtual NodeConnector const *getNode() const;
-    virtual NodeConnector *getNode();
-
     virtual Expression *getBaseVariable();
     virtual Expression const *getBaseVariable() const;
 
@@ -174,14 +171,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariable(NodeConnector *node,
-                  char const *name = "",
+    ArrayVariable(char const *name,
                   Expression *size = NULL,
                   bool sizeIsGarbage = false);
 
@@ -220,9 +215,6 @@ namespace PLEXIL
     Expression *m_initializer;
     char const *m_name;
     size_t m_maxSize;
-    
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;
@@ -250,14 +242,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariableImpl(NodeConnector *node,
-                      char const *name = "",
+    ArrayVariableImpl(char const *name,
                       Expression *size = NULL,
                       bool sizeIsGarbage = false);
 
@@ -358,14 +348,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariableImpl(NodeConnector *node,
-                      char const *name = "",
+    ArrayVariableImpl(char const *name,
                       Expression *size = NULL,
                       bool sizeIsGarbage = false);
 
@@ -471,14 +459,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariableImpl(NodeConnector *node,
-                      char const *name = "",
+    ArrayVariableImpl(char const *name,
                       Expression *size = NULL,
                       bool sizeIsGarbage = false);
 

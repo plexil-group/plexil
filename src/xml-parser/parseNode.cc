@@ -861,7 +861,7 @@ namespace PLEXIL
                  " constructing read-only alias for ancestor variable " << name);
 
         // Ancestor owns the aliased expression, so we can't delete it.
-        Expression *alias = new Alias(node, name, exp, false);
+        Expression *alias = new Alias(name, exp, false);
         if (!node->addLocalVariable(name, alias)) {
           delete alias;
           reportParserExceptionWithLocation(inXml,
@@ -899,7 +899,7 @@ namespace PLEXIL
       // wrap it in an Alias
       if (exp->isAssignable() || !garbage) {
         debugMsg("linkInVar", " constructing read-only alias for default value");
-        exp = new Alias(node, name, exp, garbage);
+        exp = new Alias(name, exp, garbage);
       }
       if (!node->addLocalVariable(name, exp)) {
         delete exp;
