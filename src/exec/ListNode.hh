@@ -130,6 +130,7 @@ namespace PLEXIL
     virtual void transitionToFailing();
 
     NodeFunction m_actionCompleteFn;
+    NodeFunction m_allFinishedFn;
     // Shared with derived class LibraryCallNode
     std::vector<NodeImpl *> m_children; /*<! Vector of child nodes. */
   };

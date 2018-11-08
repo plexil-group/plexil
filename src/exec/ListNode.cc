@@ -144,7 +144,8 @@ namespace PLEXIL
 
   ListNode::ListNode(char const *nodeId, NodeImpl *parent)
     : NodeImpl(nodeId, parent),
-      m_actionCompleteFn(AllWaitingOrFinished::instance(), this)
+      m_actionCompleteFn(AllWaitingOrFinished::instance(), this),
+      m_allFinishedFn(AllFinished::instance(), this)
   {
   }
 
@@ -157,7 +158,8 @@ namespace PLEXIL
                      NodeState state,
                      NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_actionCompleteFn(AllWaitingOrFinished::instance(), this)
+      m_actionCompleteFn(AllWaitingOrFinished::instance(), this),
+      m_allFinishedFn(AllFinished::instance(), this)
   {
     checkError(type == LIST || type == LIBRARYNODECALL,
                "Invalid node type " << type << " for a ListNode");
@@ -244,11 +246,15 @@ namespace PLEXIL
                          false);
           m_garbageConditions[ancestorInvariantIdx] = true;
         }
-        else
+        else {
           m_conditions[ancestorInvariantIdx] = getInvariantCondition();
+          m_garbageConditions[ancestorInvariantIdx] = false;
+        }
       }
-      else 
+      else {
         m_conditions[ancestorInvariantIdx] = getAncestorInvariantCondition(); // could be null
+        m_garbageConditions[ancestorInvariantIdx] = false;
+      }
 
       // End is special
       if (getEndCondition()) {
@@ -261,14 +267,15 @@ namespace PLEXIL
                          false);
           m_garbageConditions[ancestorEndIdx] = true;
         }
-        else
+        else {
           m_conditions[ancestorEndIdx] = getEndCondition();
+          m_garbageConditions[ancestorEndIdx] = false;
+        }
       }
       else {
         // No user-spec'd end condition - build one
-        m_conditions[endIdx] =
-          new NodeFunction(AllFinished::instance(), this);
-        m_garbageConditions[endIdx] = true;
+        m_conditions[endIdx] = &m_allFinishedFn;
+        m_garbageConditions[endIdx] = false;
         // *** N.B. ***
         // Normally ancestor-end is our end condition ORed with parent's ancestor-end.
         // But default all-children-finished end condition will always be false
@@ -277,6 +284,7 @@ namespace PLEXIL
         // Since false OR <anything> == <anything>,
         // just use parent's ancestor-end (which may be empty).
         m_conditions[ancestorEndIdx] = getAncestorEndCondition();
+        m_garbageConditions[ancestorEndIdx] = false;
       }
     }
     else {
@@ -287,12 +295,12 @@ namespace PLEXIL
       if (m_conditions[endIdx]) {
         // User-spec'd end condition doubles as ancestor-end
         m_conditions[ancestorEndIdx] = m_conditions[endIdx];
+        m_garbageConditions[ancestorEndIdx] = false;
       }
       else {
         // No user-spec'd end condition - build one
-        m_conditions[endIdx] =           
-          new NodeFunction(AllFinished::instance(), this);
-        m_garbageConditions[endIdx] = true;
+        m_conditions[endIdx] = &m_allFinishedFn;
+        m_garbageConditions[endIdx] = false;
         // *** N.B. ***
         // Normally for root nodes, ancestor-end is same as end. 
         // But default all-children-finished end condition will always be false
@@ -300,6 +308,7 @@ namespace PLEXIL
         // See node state transition diagrams for proof.
         // So if no parent and no user end condition, just leave ancestor-end empty.
         m_conditions[ancestorEndIdx] = NULL;
+        m_garbageConditions[ancestorEndIdx] = false;
       }
     }
   }
