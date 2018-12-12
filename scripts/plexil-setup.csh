@@ -1,6 +1,6 @@
 #!/bin/csh
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,7 @@
 # Check environment variables and UE executable
 if (! $?PLEXIL_HOME) then
     echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
-
+    echo to the full pathname of your PLEXIL installation directory.
 else
     setenv PATH ${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
 
@@ -43,8 +41,6 @@ else
 
     # Mac
     setenv DYLD_LIBRARY_PATH $_plexil_libpath
-	# Seems to clobber SG's svn binary
-    #setenv DYLD_BIND_AT_LAUNCH YES
-
+		
     unset _plexil_libpath
 endif
