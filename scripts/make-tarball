@@ -57,6 +57,10 @@ export PLEXIL_HOME=$PWD
 # Prebuild 'configure' script
 make src/configure
 
+# Prebuild expression parser core
+# NOTE: this must track the contents of src/xml-parser/Makefile.am
+gperf -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
+
 # Build Java apps users will need (and clean up build leftovers)
 make plexil-compiler
 rm -rf compilers/plexil/classes compilers/plexil/generated
