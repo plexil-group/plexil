@@ -26,31 +26,21 @@
 
 package model.expr;
 
-public class NodeVarRef
+import model.expr.NodeReference.NodeRefDir;
+
+public class NodePredicate
     extends NodeReference {
 
-    public NodeVarRef(ExprType t, String nodeId, NodeRefDir dir) {
-        super(t, nodeId, dir);
+    private String name;
+
+    public NodePredicate(String exprName, String nodeId, NodeRefDir dir) {
+        super(ExprType.Bool, nodeId, dir);
+        name = exprName;
     }
 
     @Override
     protected String referenceName() {
-        switch (type) {
-        case NodeState:
-            return "NodeStateVar";
-            
-        case NodeOutcome:
-            return "NodeOutcomeVar";
-
-        case NodeFailureType:
-            return "NodeFailureVar";
-            
-        case NodeCommandHandle:
-            return "NodeCommandHandleVar";
-
-        default:
-            return "NodeVarRef *ERROR* ";
-        }
+        return name;
     }
 
 }

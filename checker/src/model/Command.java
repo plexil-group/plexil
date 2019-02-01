@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -135,8 +135,10 @@ public class Command
         if (arglist == null) {
             if (decl != null && !decl.getArgs().isEmpty()) {
                 errors.add(Log.error("Command " + decl.getID()
-                                     + " called with no arguments, but expects "
-                                     + decl.getArgs().size()));
+                                     + " requires "
+                                     + (decl.getAnyArguments() ? "at least " : "")
+                                     + decl.getArgs().size()
+                                     + " parameters, but none were supplied"));
             }
         }
         else {
@@ -147,12 +149,16 @@ public class Command
             }
             if (decl != null) {
                 VarList formalArgs = decl.getArgs();
-                if (formalArgs.size() != nargs)
+                if (nargs < formalArgs.size()
+                    || (!decl.getAnyArguments() && nargs > formalArgs.size()))
                     errors.add(Log.error("Command " + decl.getID()
-                                         + " called with " + nargs + " arguments, but expects "
-                                         + decl.getArgs().size()));
+                                         + " requires "
+                                         + (decl.getAnyArguments() ? "at least " : "")
+                                         + decl.getArgs().size()
+                                         + " parameters, but " + nargs + " were supplied"
+                                         ));
                 else {
-                    for (int i = 0; i < nargs; ++i) {
+                    for (int i = 0; i < formalArgs.size(); ++i) {
                         Expr actual = arglist.get(i);
                         Expr.checkType(actual,
                                        actual.getType(),

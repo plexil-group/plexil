@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -176,14 +176,15 @@ public class LookupExpr
         if (decl != null) {
             VarList declArgs = decl.getArgs();
             int declSize = declArgs.size();
-            if (declSize != argSize)
+            if (argSize < declSize)
                 errors.add(Log.error("Lookup " + decl.getID()
-                                     + " requires " + declSize
-                                     + " parameters, but " + argSize
+                                     + " requires "
+                                     + (decl.getAnyArguments() ? "at least " : "")
+                                     + declSize + " parameters, but " + argSize
                                      + " were supplied",
                                      contextMsg));
             else {
-                for (int i = 0; i < argSize; ++i) {
+                for (int i = 0; i < declSize; ++i) {
                     Expr a = arguments.get(i);
                     Expr.checkType(a,
                                    a.getType(),
