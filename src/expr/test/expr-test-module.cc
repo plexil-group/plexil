@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ extern bool arrayReferenceTest();
 extern bool arrayVariableTest();
 extern bool booleanOperatorsTest();
 extern bool comparisonsTest();
+extern bool conversionsTest();
 extern bool constantsTest();
 extern bool functionsTest();
 extern bool listenerTest();
@@ -65,6 +66,7 @@ static void runExprTests()
   runTestSuite(comparisonsTest);
   runTestSuite(booleanOperatorsTest);
   runTestSuite(arithmeticTest);
+  runTestSuite(conversionsTest)
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
 
