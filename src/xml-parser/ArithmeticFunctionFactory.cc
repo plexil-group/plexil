@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #include "ArithmeticFunctionFactory.hh"
 
 #include "ArithmeticOperators.hh"
-#include "Comparisons.hh"
 #include "createExpression.hh"
 #include "Error.hh"
 #include "NodeConnector.hh"
@@ -39,6 +38,19 @@ using pugi::xml_node;
 
 namespace PLEXIL
 {
+
+  ArithmeticFunctionFactory::ArithmeticFunctionFactory(Operator const *integerOp,
+                                                       Operator const *realOp,
+                                                       std::string const &name)
+    : FunctionFactory(NULL, name),
+      m_intOp(integerOp),
+      m_realOp(realOp)
+  {
+  }
+
+  ArithmeticFunctionFactory::~ArithmeticFunctionFactory()
+  {
+  }
 
   // Common case logic
   static ValueType arithmeticCommonType(ValueType const types[], size_t len)
@@ -85,41 +97,6 @@ namespace PLEXIL
       result = REAL_TYPE;
     return result;
   }
-  
-  static ValueType arithmeticCommonType(Expression *exprs[], size_t len)
-  {
-    assertTrue_1(len > 0); // must have at least one operand
-    ValueType types[len];
-    for (size_t i = 0; i < len ; ++i)
-      types[i] = exprs[i]->valueType();
-    return arithmeticCommonType(types, len);
-  }
-
-  ArithmeticFunctionFactory::ArithmeticFunctionFactory(Operator const *integerOp,
-                                                       Operator const *realOp,
-                                                       std::string const &name)
-    : FunctionFactory(NULL, name),
-      m_intOp(integerOp),
-      m_realOp(realOp)
-  {
-  }
-
-  ArithmeticFunctionFactory::~ArithmeticFunctionFactory()
-  {
-  }
-
-  ComparisonFactory::ComparisonFactory(Operator const *integerOp,
-                                       Operator const *realOp,
-                                       Operator const *stringOp,
-                                       std::string const &name)
-    : ArithmeticFunctionFactory(integerOp, realOp, name),
-      m_stringOp(stringOp)
-  {
-  }
-
-  ComparisonFactory::~ComparisonFactory()
-  {
-  }
 
   ValueType ArithmeticFunctionFactory::check(char const *nodeId, xml_node const expr) const
     throw (ParserException)
@@ -146,14 +123,6 @@ namespace PLEXIL
     return arithmeticCommonType(types, n);
   }
 
-  // Wrapper for comparisons
-  ValueType ComparisonFactory::check(char const *nodeId, pugi::xml_node const expr) const
-    throw (ParserException)
-  {
-    ArithmeticFunctionFactory::check(nodeId, expr);
-    return BOOLEAN_TYPE;
-  }
-
   Operator const *ArithmeticFunctionFactory::selectOperator(ValueType type) const
   {
     switch (type) {
@@ -165,30 +134,9 @@ namespace PLEXIL
       
     default:
       checkParserException(false,
-                           "createExpression: invalid or unimplemented type "
+                           "createExpression: invalid or unimplemented return type "
                            << valueTypeName(type)
                            << " for operator " << this->m_name);
-      return NULL;
-    }
-  }
-
-  Operator const *ComparisonFactory::selectOperator(ValueType type) const
-  {
-    switch (type) {
-    case INTEGER_TYPE:
-      return m_intOp;
-
-    case REAL_TYPE:
-      return m_realOp;
-      
-    case STRING_TYPE:
-      return m_stringOp;
-
-    default:
-      checkParserException(false,
-                           "createExpression: invalid or unimplemented type "
-                           << valueTypeName(type)
-                           << " for comparison operator " << this->m_name);
       return NULL;
     }
   }
@@ -218,9 +166,13 @@ namespace PLEXIL
       throw;
     }
 
-    if (returnType == UNKNOWN_TYPE)
+    if (returnType == UNKNOWN_TYPE) {
       // Unspecified - default it from types of parameters
-      returnType = arithmeticCommonType(exprs, n);
+      ValueType types[n];
+      for (size_t i = 0; i < n ; ++i)
+        types[i] = exprs[i]->valueType();
+      returnType = arithmeticCommonType(types, n);
+    }
 
     if (returnType == UNKNOWN_TYPE) {
       // Clean up before throwing

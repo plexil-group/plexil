@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -321,7 +321,19 @@ namespace PLEXIL
                                      "Node \"" << nodeId
                                      << "\": Empty or malformed " << expr.name() << " element");
   
-    // TODO: get type from variable declaration
+    // TODO: check type against variable declaration
+
+    // Get type from XML tag
+    if (testTagPrefix(INTEGER_STR, expr))
+      return INTEGER_TYPE;
+    if (testTagPrefix(STRING_STR, expr))
+      return STRING_TYPE;
+    if (testTagPrefix(REAL_STR, expr))
+      return REAL_TYPE;
+    if (testTagPrefix(DATE_STR, expr))
+      return DATE_TYPE;
+    if (testTagPrefix(DURATION_STR, expr))
+      return DURATION_TYPE;
     return UNKNOWN_TYPE;
   }
 
