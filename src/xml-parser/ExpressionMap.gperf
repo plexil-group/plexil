@@ -5,7 +5,7 @@
 %enum
 %pic
 %{
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ ArrayValue, new ArrayLiteralFactory("ArrayValue")
 ArrayVariable, new ArrayVariableReferenceFactory("ArrayVariable")
 BooleanValue, REGISTER_EXPRESSION(BooleanConstant, BooleanValue)
 BooleanVariable, new VariableReferenceFactory("BooleanVariable", BOOLEAN_TYPE)
-CEIL, REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL)
+CEIL, REGISTER_FUNCTION(Ceiling, CEIL)
 Concat, REGISTER_CACHED_FUNCTION(StringConcat, Concat)
 DIV, REGISTER_ARITHMETIC_FUNCTION(Division, DIV)
 DeclareArray, new ArrayVariableFactory("DeclareArray")
@@ -58,7 +58,7 @@ EQString, REGISTER_FUNCTION(Equal, EQString)
 Executing, REGISTER_NODE_FUNCTION(NodeExecuting, Executing)
 Failed, REGISTER_NODE_FUNCTION(NodeFailed, Failed)
 Finished, REGISTER_NODE_FUNCTION(NodeFinished, Finished)
-FLOOR, REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR)
+FLOOR, REGISTER_FUNCTION(Floor, FLOOR)
 GE, REGISTER_COMPARISON(GreaterEqual, GE)
 GT, REGISTER_COMPARISON(GreaterThan, GT)
 Inactive, REGISTER_NODE_FUNCTION(NodeInactive, Inactive)
@@ -93,7 +93,7 @@ NoChildFailed, REGISTER_NODE_FUNCTION(NodeNoChildFailed, NoChildFailed)
 OR, REGISTER_FUNCTION(BooleanOr, OR)
 PostconditionFailed, REGISTER_NODE_FUNCTION(NodePostconditionFailed, PostconditionFailed)
 REAL_TO_INT, REGISTER_FUNCTION(RealToInteger, REAL_TO_INT)
-ROUND, REGISTER_ARITHMETIC_FUNCTION(Round, ROUND)
+ROUND, REGISTER_FUNCTION(Round, ROUND)
 RealValue, REGISTER_EXPRESSION(RealConstant, RealValue)
 RealVariable, new VariableReferenceFactory("RealVariable", REAL_TYPE)
 SQRT, REGISTER_FUNCTION(SquareRoot<Real>, SQRT)
@@ -103,6 +103,6 @@ Skipped, REGISTER_NODE_FUNCTION(NodeSkipped, Skipped)
 StringValue, REGISTER_EXPRESSION(StringConstant, StringValue)
 StringVariable, new VariableReferenceFactory("StringVariable", STRING_TYPE)
 Succeeded, REGISTER_NODE_FUNCTION(NodeSucceeded, Succeeded)
-TRUNC, REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC)
+TRUNC, REGISTER_FUNCTION(Truncate, TRUNC)
 Waiting, REGISTER_NODE_FUNCTION(NodeWaiting, Waiting)
 XOR, REGISTER_FUNCTION(BooleanXor, XOR)

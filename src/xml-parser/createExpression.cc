@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,10 @@
 #include "ArrayVariableReferenceFactory.hh"
 #include "BooleanOperators.hh"
 #include "Comparisons.hh"
+#include "ComparisonFactory.hh"
 #include "ConcreteExpressionFactory.hh"
 #include "Constant.hh"
+#include "ConversionOperators.hh"
 #include "createExpression.hh"
 #include "Debug.hh"
 #include "Error.hh"
