@@ -27,7 +27,6 @@
 #include "ConversionOperators.hh"
 
 #include "Function.hh"
-// #include "PlanError.hh" // included by OperatorImpl.hh
 
 #include <cmath>
 #include <limits>
@@ -54,153 +53,112 @@ namespace PLEXIL
     return true;
   }
 
-  ConversionOperator::ConversionOperator(std::string const &name)
-    : Operator(name)
+  template <typename NUM>
+  ConversionOperator<NUM>::ConversionOperator(std::string const &name)
+    : OperatorImpl<NUM>(name)
   {
   }
 
-  ConversionOperator::~ConversionOperator()
+  template <typename NUM>
+  ConversionOperator<NUM>::~ConversionOperator()
   {
   }
 
-  void *ConversionOperator::allocateCache() const
-  {
-    return NULL;
-  }
-
-  void ConversionOperator::deleteCache(void * /* ptr */) const
-  {
-  }
-
-  bool ConversionOperator::checkArgCount(size_t count) const
+  template <typename NUM>
+  bool ConversionOperator<NUM>::checkArgCount(size_t count) const
   {
     return count == 1;
   }
 
-  bool ConversionOperator::checkArgTypes(Function const *ev) const
+  template <typename NUM>
+  bool ConversionOperator<NUM>::checkArgTypes(Function const *ev) const
   {
     ValueType typ = (*ev)[0]->valueType();
     return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
-  ValueType ConversionOperator::valueType() const
+  template <typename NUM>
+  bool ConversionOperator<NUM>::operator()(NUM & /* result */,
+                                           Expression const */* arg0 */,
+                                           Expression const */* arg1 */) const
   {
-    return INTEGER_TYPE;
+    reportPlanError("Operator " << this->getName()
+                    << " only implemented for one-argument case");
+    return false;
   }
 
-  bool ConversionOperator::isKnown(Function const &exprs) const
+  template <typename NUM>
+  bool ConversionOperator<NUM>::operator()(NUM & /* result */,
+                                           Function const & /* args */) const
   {
-    return exprs[0]->isKnown();
+    reportPlanError("Operator " << this->getName()
+                    << " only implemented for one-argument case");
+    return false;
   }
 
-  void ConversionOperator::printValue(std::ostream &s, Function const &exprs) const
+  template <>
+  bool ConversionOperator<Integer>::calc(Integer &result, Expression const *arg) const
   {
-    Real temp;
-    if (exprs.getValue(temp))
-      PLEXIL::printValue(temp, s);
-    else
-      s << "UNKNOWN";
-  }
+    if (!arg->isKnown())
+      return false;
 
-  Value ConversionOperator::toValue(Function const &exprs) const
-  {
-    Real temp;
-    if (exprs.getValue(temp)) {
-      // Return Integer value if in range, Real otherwise
-      Integer tempInt;
-      if (RealToInt(temp, tempInt))
-        return Value(tempInt);
-      return Value(temp);
-    }
-    return Value(0, INTEGER_TYPE);
-  }
-
-  bool ConversionOperator::operator()(Integer &result, Expression const *arg) const
-  {
     // Handle possibility of result larger than Integer
     Real realResult;
-    if (this->calc(realResult, arg))
+    if (this->calcInternal(realResult, arg))
       return RealToInt(realResult, result);
     return false;
   }
 
-  bool ConversionOperator::operator()(Real &result, Expression const *arg) const
+  template <>
+  bool ConversionOperator<Real>::calc(Real &result, Expression const *arg) const
   {
-    return this->calc(result, arg);
-  }
-
-  bool ConversionOperator::operator()(Integer & /* result */,
-                                      Expression const */* arg0 */,
-                                      Expression const */* arg1 */) const
-  {
-    reportPlanError("Operator " << this->getName()
-                    << " only implemented for one-argument case");
-    return false;
-  }
-
-  bool ConversionOperator::operator()(Real & /* result */,
-                                      Expression const * /* arg0 */,
-                                      Expression const * /* arg1 */) const
-  {
-    reportPlanError("Operator " << this->getName()
-                    << " only implemented for one-argument case");
-    return false;
-  }
-
-  bool ConversionOperator::operator()(Integer & /* result */,
-                                      Function const & /* args */) const
-  {
-    reportPlanError("Operator " << this->getName()
-                    << " only implemented for one-argument case");
-    return false;
-  }
-
-  bool ConversionOperator::operator()(Real & /* result */,
-                                      Function const & /* args */) const
-  {
-    reportPlanError("Operator " << this->getName()
-                    << " only implemented for one-argument case");
-    return false;
+    if (!arg->isKnown())
+      return false;
+    return this->calcInternal(result, arg);
   }
 
   //
   // Ceiling, Floor, Round, Truncate
   //
 
-  Ceiling::Ceiling()
-    : ConversionOperator("CEIL")
+  template <typename NUM>
+  Ceiling<NUM>::Ceiling()
+    : ConversionOperator<NUM>("CEIL")
   {
   }
 
-  Ceiling::~Ceiling()
+  template <typename NUM>
+  Ceiling<NUM>::~Ceiling()
   {
   }
 
-  bool Ceiling::calc(Real &result,
-                     Expression const *arg) const
+  template <typename NUM>
+  bool Ceiling<NUM>::calcInternal(Real &result,
+                                  Expression const *arg) const
   {
     Real temp;
-    if (!arg->getValue(temp))
-      return false;
+    arg->getValue(temp); // for effect; see ConversionOperator<NUM>::calc()
     result = ceil(temp);
     return true;
   }
 
-  Floor::Floor()
-    : ConversionOperator("FLOOR")
+  template <typename NUM>
+  Floor<NUM>::Floor()
+    : ConversionOperator<NUM>("FLOOR")
   {
   }
 
-  Floor::~Floor()
+  template <typename NUM>
+  Floor<NUM>::~Floor()
   {
   }
 
-  bool Floor::calc(Real &result,
-                   Expression const *arg) const
+  template <typename NUM>
+  bool Floor<NUM>::calcInternal(Real &result,
+                                Expression const *arg) const
   {
     Real temp;
-    if (!arg->getValue(temp))
-      return false;
+    arg->getValue(temp);
     result = floor(temp);
     return true;
   }
@@ -208,40 +166,44 @@ namespace PLEXIL
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
 #if !defined(__VXWORKS__)
 
-  Round::Round()
-    : ConversionOperator("ROUND")
+  template <typename NUM>
+  Round<NUM>::Round()
+    : ConversionOperator<NUM>("ROUND")
   {
   }
 
-  Round::~Round()
+  template <typename NUM>
+  Round<NUM>::~Round()
   {
   }
 
-  bool Round::calc(Real &result,
-                   Expression const *arg) const
+  template <typename NUM>
+  bool Round<NUM>::calcInternal(Real &result,
+                                Expression const *arg) const
   {
     Real temp;
-    if (!arg->getValue(temp))
-      return false;
+    arg->getValue(temp);
     result = round(temp);
     return true;
   }
 
-  Truncate::Truncate()
-    : ConversionOperator("TRUNC")
+  template <typename NUM>
+  Truncate<NUM>::Truncate()
+    : ConversionOperator<NUM>("TRUNC")
   {
   }
 
-  Truncate::~Truncate()
+  template <typename NUM>
+  Truncate<NUM>::~Truncate()
   {
   }
 
-  bool Truncate::calc(Real &result,
-                      Expression const *arg) const
+  template <typename NUM>
+  bool Truncate<NUM>::calcInternal(Real &result,
+                                   Expression const *arg) const
   {
     Real temp;
-    if (!arg->getValue(temp))
-      return false;
+    arg->getValue(temp);
     result = trunc(temp);
     return true;
   }
@@ -279,5 +241,21 @@ namespace PLEXIL
       return false; // unknown/invalid
     return RealToInt(temp, result);
   }
+
+  //
+  // Explicit instantiations
+  //
+
+  template class Ceiling<Real>;
+  template class Ceiling<Integer>;
+  template class Floor<Real>;
+  template class Floor<Integer>;
+
+#if !defined(__VXWORKS__)
+  template class Round<Real>;
+  template class Round<Integer>;
+  template class Truncate<Real>;
+  template class Truncate<Integer>;
+#endif // !defined(__VXWORKS__)
 
 }

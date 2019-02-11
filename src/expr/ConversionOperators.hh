@@ -34,7 +34,8 @@ namespace PLEXIL
 
   // Variant of OperatorImpl specifically for conversion operators
   
-  class ConversionOperator : public Operator
+  template <typename NUM>
+  class ConversionOperator : public OperatorImpl<NUM>
   {
   public:
     virtual ~ConversionOperator();
@@ -42,23 +43,12 @@ namespace PLEXIL
     virtual bool checkArgCount(size_t count) const;
     virtual bool checkArgTypes(Function const *ev) const;
 
-    ValueType valueType() const;
-    void *allocateCache() const;
-    void deleteCache(void *ptr) const;
+    // Overrides
+    virtual bool operator()(NUM &result, Expression const *arg0, Expression const *arg1) const;
+    virtual bool operator()(NUM &result, Function const &args) const;
 
-    bool isKnown(Function const &exprs) const;
-    void printValue(std::ostream &s, Function const &exprs) const;
-    Value toValue(Function const &exprs) const;
-
-    virtual bool operator()(Integer &result, Expression const *arg) const;
-    virtual bool operator()(Integer &result, Expression const *arg0, Expression const *arg1) const;
-    virtual bool operator()(Integer &result, Function const &args) const;
-
-    virtual bool operator()(Real &result, Expression const *arg) const;
-    virtual bool operator()(Real &result, Expression const *arg0, Expression const *arg1) const;
-    virtual bool operator()(Real &result, Function const &args) const;
-
-    virtual bool calc(Real &result, Expression const *arg) const = 0;
+    virtual bool calc(NUM &result, Expression const *arg) const;
+    virtual bool calcInternal(Real &result, Expression const *arg) const = 0;
 
   protected:
     ConversionOperator(std::string const &name);
@@ -74,26 +64,28 @@ namespace PLEXIL
   // Real to Integer conversions
   //
 
-  class Ceiling : public ConversionOperator
+  template <typename NUM>
+  class Ceiling : public ConversionOperator<NUM>
   {
   public:
     Ceiling();
     ~Ceiling();
-    virtual bool calc(Real &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling, Integer);
+    virtual bool calcInternal(Real &result, Expression const *arg) const;
+    DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling, NUM);
 
   private:
     Ceiling(const Ceiling &);
     Ceiling &operator=(const Ceiling &);
   };
 
-  class Floor : public ConversionOperator
+  template <typename NUM>
+  class Floor : public ConversionOperator<NUM>
   {
   public:
     Floor();
     ~Floor();
-    virtual bool calc(Real &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Floor, Integer);
+    virtual bool calcInternal(Real &result, Expression const *arg) const;
+    DECLARE_OPERATOR_STATIC_INSTANCE(Floor, NUM);
 
   private:
     Floor(const Floor &);
@@ -103,26 +95,28 @@ namespace PLEXIL
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
 #if !defined(__VXWORKS__)
 
-  class Round : public ConversionOperator
+  template <typename NUM>
+  class Round : public ConversionOperator<NUM>
   {
   public:
     Round();
     ~Round();
-    virtual bool calc(Real &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Round, Integer);
+    virtual bool calcInternal(Real &result, Expression const *arg) const;
+    DECLARE_OPERATOR_STATIC_INSTANCE(Round, NUM);
 
   private:
     Round(const Round &);
     Round &operator=(const Round &);
   };
 
-  class Truncate : public ConversionOperator
+  template <typename NUM>
+  class Truncate : public ConversionOperator<NUM>
   {
   public:
     Truncate();
     ~Truncate();
-    virtual bool calc(Real &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Truncate, Integer);
+    virtual bool calcInternal(Real &result, Expression const *arg) const;
+    DECLARE_OPERATOR_STATIC_INSTANCE(Truncate, NUM);
 
   private:
     Truncate(const Truncate &);

@@ -36,6 +36,7 @@
 #include "Comparisons.hh"
 #include "ComparisonFactory.hh"
 #include "ConcreteExpressionFactory.hh"
+#include "ConversionFunctionFactory.hh"
 #include "Constant.hh"
 #include "ConversionOperators.hh"
 #include "createExpression.hh"
