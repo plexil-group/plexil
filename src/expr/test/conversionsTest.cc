@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "ConversionOperators.hh"
 #include "Function.hh"
 #include "Constant.hh"
@@ -35,6 +37,7 @@ using namespace PLEXIL;
 
 static bool testCeiling()
 {
+#ifdef HAVE_CEIL
   RealConstant three(3);
   RealConstant pi(3.14);
   RealConstant e(2.718);
@@ -155,13 +158,14 @@ static bool testCeiling()
   
   delete integerCeiling;
   delete realCeiling;
-
+#endif // HAVE_CEIL
 
   return true;
 }
 
 static bool testFloor()
 {
+#ifdef HAVE_FLOOR
   RealConstant three(3);
   RealConstant pi(3.14);
   RealConstant e(2.718);
@@ -282,15 +286,14 @@ static bool testFloor()
 
   delete integerFloor;
   delete realFloor;
+#endif // HAVE_FLOOR
 
   return true;
 }
 
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
-
 static bool testRound()
 {
+#ifdef HAVE_ROUND
   RealConstant three(3);
   RealConstant pi(3.14);
   RealConstant e(2.718);
@@ -411,12 +414,14 @@ static bool testRound()
 
   delete integerRound;
   delete realRound;
+#endif // HAVE_ROUND
 
   return true;
 }
 
 static bool testTruncate()
 {
+#ifdef HAVE_TRUNC
   RealConstant three(3);
   RealConstant pi(3.14);
   RealConstant e(2.718);
@@ -537,11 +542,10 @@ static bool testTruncate()
 
   delete integerTruncate;
   delete realTruncate;
+#endif // HAVE_TRUNC
 
   return true;
 }
-
-#endif // !defined(__VXWORKS__)
 
 static bool testRealToInteger()
 {
@@ -630,13 +634,26 @@ static bool testRealToInteger()
 
 bool conversionsTest()
 {
+  // Don't bother if we lack modf()
+#ifdef HAVE_MODF
+
+#ifdef HAVE_CEIL
   runTest(testCeiling);
+#endif
+
+#ifdef HAVE_FLOOR
   runTest(testFloor);
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
+#endif
+
+#ifdef HAVE_ROUND
   runTest(testRound);
+#endif
+
+#ifdef HAVE_TRUNC
   runTest(testTruncate);
-#endif // !defined(__VXWORKS__)
+#endif
+
   runTest(testRealToInteger);
+#endif // HAVE_MODF
   return true;
 }

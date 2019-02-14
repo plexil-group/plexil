@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "ArithmeticOperators.hh"
 #include "Function.hh"
 // #include "PlanError.hh" // included by OperatorImpl.hh
@@ -469,12 +471,17 @@ namespace PLEXIL
   bool SquareRoot<Real>::calc(Real &result,
                                 Expression const *arg) const
   {
+#ifdef HAVE_SQRT    
     Real temp;
     if (!arg->getValue(temp)
         || temp < 0) // imaginary result
       return false;
     result = sqrt(temp);
     return true;
+#else
+#warning "sqrt() not available on this platform. Plans using it will fail."
+    return false;
+#endif
   }
 
   //

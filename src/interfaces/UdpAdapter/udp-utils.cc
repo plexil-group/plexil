@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,8 @@
 
 #include <cstring>
 #include <cerrno>
-#include <unistd.h> // for close()
+#include <cmath>     // pow()
+#include <unistd.h>  // close()
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
@@ -63,16 +64,15 @@ namespace PLEXIL
   {
     int value = 0;
     int cursor = start_index;
-    for (int i = total_bits - 8 ; i >= 0 ; i -= 8)
-      {
-        if (debug) printf("buffer[%d]==%d; shift>> %d bits; ", cursor, buffer[cursor], i);
-        value += (buffer[cursor++] & 0xff) << i;
-        if (debug) std::cout << "; value=" << value << std::endl;
-      }
-    if (is_signed && (value >= pow(2.0,total_bits)/2.0))
-      {
-        value -= (int) pow(2.0, total_bits);
-      }
+    for (int i = total_bits - 8 ; i >= 0 ; i -= 8) {
+      if (debug) printf("buffer[%d]==%d; shift>> %d bits; ", cursor, buffer[cursor], i);
+      value += (buffer[cursor++] & 0xff) << i;
+      if (debug) std::cout << "; value=" << value << std::endl;
+    }
+    // *** FIXME *** - use << instead of pow()
+    if (is_signed && (value >= pow(2.0,total_bits)/2.0)) {
+      value -= (int) pow(2.0, total_bits);
+    }
     return value;
   }
 

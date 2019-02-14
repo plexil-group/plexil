@@ -26,6 +26,7 @@
 
 #include "ConversionOperators.hh"
 
+#include "plexil-config.h"
 #include "Function.hh"
 
 #include <cmath>
@@ -41,6 +42,7 @@ namespace PLEXIL
   //
   static bool RealToInt(Real reel, Integer &result)
   {
+#ifdef HAVE_MODF
     Real tempInt;
     reel = modf(reel, &tempInt);
     // TODO: allow fraction to be +/- epsilon
@@ -51,6 +53,10 @@ namespace PLEXIL
       return false; // out of range
     result = (Integer) tempInt;
     return true;
+#else
+#warning "modf() not available on this platform. Real-to-Integer conversions will fail."
+    return false;
+#endif
   }
 
   template <typename NUM>
@@ -136,10 +142,15 @@ namespace PLEXIL
   bool Ceiling<NUM>::calcInternal(Real &result,
                                   Expression const *arg) const
   {
+#ifdef HAVE_CEIL
     Real temp;
     arg->getValue(temp); // for effect; see ConversionOperator<NUM>::calc()
     result = ceil(temp);
     return true;
+#else
+#warning "ceil() is not implemented on this platform. Plans using it will fail."
+    return false;
+#endif
   }
 
   template <typename NUM>
@@ -157,14 +168,16 @@ namespace PLEXIL
   bool Floor<NUM>::calcInternal(Real &result,
                                 Expression const *arg) const
   {
+#ifdef HAVE_FLOOR
     Real temp;
     arg->getValue(temp);
     result = floor(temp);
     return true;
+#else
+#warning "floor() is not implemented on this platform. Plans using it will fail."
+    return false;
+#endif
   }
-
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
 
   template <typename NUM>
   Round<NUM>::Round()
@@ -181,10 +194,15 @@ namespace PLEXIL
   bool Round<NUM>::calcInternal(Real &result,
                                 Expression const *arg) const
   {
+#ifdef HAVE_ROUND
     Real temp;
     arg->getValue(temp);
     result = round(temp);
     return true;
+#else
+#warning "round() is not implemented on this platform. Plans using it will fail."
+    return false;
+#endif
   }
 
   template <typename NUM>
@@ -202,12 +220,16 @@ namespace PLEXIL
   bool Truncate<NUM>::calcInternal(Real &result,
                                    Expression const *arg) const
   {
+#ifdef HAVE_TRUNC
     Real temp;
     arg->getValue(temp);
     result = trunc(temp);
     return true;
+#else
+#warning "trunc() is not implemented on this platform. Plans using it will fail."
+    return false;
+#endif
   }
-#endif // !defined(__VXWORKS__)
 
   //
   // RealToInteger

@@ -159,8 +159,10 @@ AC_CHECK_FUNCS([backtrace backtrace_symbols ctime_r])
 # POSIX time
 AC_CHECK_FUNCS([clock_gettime getitimer gettimeofday setitimer socket timer_create timer_delete])
 AC_CHECK_TYPES([suseconds_t])
+# FIXME - only used in UdpUtils, not appropriate there
+AC_CHECK_FUNCS([pow])
 # Standard math functions not found on some platforms
-AC_CHECK_FUNCS([floor modf pow sqrt])
+AC_CHECK_FUNCS([ceil floor modf round sqrt trunc])
 # String parsing
 AC_CHECK_FUNCS([strchr strcspn strspn strstr strtol strtoul])
 # Miscellaneous

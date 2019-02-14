@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -114,6 +114,7 @@ struct timeval operator- (const struct timeval& tv1, const struct timeval& tv2)
 
 void doubleToTimeval(double dbl, timeval& result)
 {
+#ifdef HAVE_MODF
   double seconds = 0;
   double fraction = modf(dbl, &seconds);
 
@@ -125,6 +126,9 @@ void doubleToTimeval(double dbl, timeval& result)
     (long)
 #endif
     (fraction * ONE_MILLION_DOUBLE);
+#else
+#warning "modf() not implemented on this platform. doubleToTimeval() will fail."
+#endif
 }
 
 struct timeval doubleToTimeval(double dbl)

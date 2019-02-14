@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -108,11 +108,15 @@ struct timespec operator-(const struct timespec& ts1, const struct timespec& ts2
 
 void doubleToTimespec(double dbl, timespec& result)
 {
+#ifdef HAVE_MODF
   double seconds = 0;
   double fraction = modf(dbl, &seconds);
 
   result.tv_sec = (time_t) seconds;
   result.tv_nsec = (long) (fraction * ONE_BILLION_DOUBLE);
+#else
+#warning "modf() not implemented on this platform. doubleToTimespec() will fail."
+#endif
 }
 
 struct timespec doubleToTimespec(double dbl)
