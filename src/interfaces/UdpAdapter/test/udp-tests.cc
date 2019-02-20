@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,10 @@
 #include "udp-utils.hh"
 #include "ThreadSpawn.hh"
 
-#include <unistd.h> // for usleep()
+#include <cstdint>    // int32_t
+#include <cinttypes>  // fixed width integer formats
+#include <unistd.h>   // for usleep()
+
 
 using namespace PLEXIL;
 
@@ -35,7 +38,6 @@ int main()
 {
   unsigned char* bytes1 = new unsigned char[32];
   unsigned char* bytes2 = new unsigned char[32];
-  bool debug=false;
 
   bytes1[0] = 0x91;                   // 145
   bytes1[1] = 0x16;                   //  22
@@ -44,8 +46,8 @@ int main()
 
   printf("\nBasic encoding, decoding, and shifting\n");
 
-  printf("\nsizeof(short int): %lu, sizeof(int): %lu, sizeof(long int): %lu, sizeof(float): %lu\n",
-         sizeof(short int), sizeof(int), sizeof(long int), sizeof(float));
+  printf("\nsizeof(short int): %zu, sizeof(int): %zu, sizeof(int32_t): %zu, sizeof(float): %zu\n",
+         sizeof(short int), sizeof(int), sizeof(int32_t), sizeof(float));
 
   printf("\nbytes1==");
   print_buffer(bytes1, 8);
@@ -53,26 +55,26 @@ int main()
   print_buffer(bytes2, 8);
 
   // read the network bytes and extract the 32 bit integer
-  int temp = network_bytes_to_number(bytes1, 0, 32, true, debug);
+  int32_t temp = decode_int32_t(bytes1, 0);
   std::cout << "-1860809244 == " << temp << std::endl << std::endl;
   // convert the 32 bit integer back to a byte stream
-  number_to_network_bytes(temp, bytes2, 0, 32, debug);
+  encode_int32_t(temp, bytes2, 0);
   printf("bytes1==");
   print_buffer(bytes1, 8);
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
   // convert a subset of the network bytes
-  temp = network_bytes_to_number(bytes1, 1, 16, true, debug);
+  temp = decode_short_int(bytes1, 1);
   std::cout << "5709 == " << temp << std::endl;
 
   // and write them back shifted to the next 32 bit boundary
-  number_to_network_bytes(temp, bytes2, 4, 16, debug);
+  encode_short_int(temp, bytes2, 4);
   printf("\nbytes2==");
   print_buffer(bytes2, 8);
 
   // and write them back again shifted to the next 16 bit boundary
-  number_to_network_bytes(temp, &bytes2[6], 0, 16, debug);
+  encode_short_int(temp, &bytes2[6], 0);
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
@@ -85,41 +87,41 @@ int main()
   std::string str = decode_string(bytes1, 0, 8);
   printf("decode_string(bytes1, 0, 8); == \"%s\"\n", str.c_str());
   
-  printf("\nEncode and decode floats and long ints\n\n");
+  printf("\nEncode and decode floats and ints\n\n");
 
   float pif = 3.14159;
-  int pii = float_to_long_int(pif);
-  pif = long_int_to_float(pii);
-  printf("pif=%f, pii=%d\n", pif, pii);
+  int32_t pii = float_to_int32_t(pif);
+  pif = int32_t_to_float(pii);
+  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
 
   encode_float(pif, bytes2, 0);
   printf("\nencode_float(%f, bytes2, 0)\n", pif);
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
-  encode_long_int(pii, bytes2, 4);
-  printf("\nencode_long_int(%d, bytes2, 4)\n", pii);
+  encode_int32_t(pii, bytes2, 4);
+  printf("\nencode_int32_t(%"PRId32", bytes2, 4)\n", pii);
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
-  pii = decode_long_int(bytes2, 4);
-  printf("\npii=decode_long_int(bytes2, 4)\n");
-  printf("pif=%f, pii=%d\n", pif, pii);
+  pii = decode_int32_t(bytes2, 4);
+  printf("\npii=decode_int32_t(bytes2, 4)\n");
+  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
 
   pif = decode_float(bytes2, 0);
   printf("\npif=decode_float(bytes2, 0)\n");
-  printf("pif=%f, pii=%d\n", pif, pii);
+  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
 
   printf("\nSend and receive some UDP buffers\n\n");
 
-  int local_port = 9876;
+  int32_t local_port = 9876;
   char remote_host[] = "localhost";
-  int remote_port = 8031;
+  int32_t remote_port = 8031;
 
   encode_string("  This is yet another test  ", bytes1, 0);
 
   // Socket for the thread waiting for input
-  int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  int32_t sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   // Parameters for the thread waiting for input
   udp_thread_params the_params = { 8031, bytes2, 32, sock, true };
   udp_thread_params* params = &the_params;
@@ -139,7 +141,7 @@ int main()
   }
 
   // Wait for wait_for_input to return
-  int myErrno = pthread_join(thread_handle, NULL);
+  int32_t myErrno = pthread_join(thread_handle, NULL);
   if (myErrno != 0) printf("pthread_join(thread_handle) returned %d\n", myErrno);
 
   printf("\n");

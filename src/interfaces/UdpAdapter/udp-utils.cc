@@ -30,7 +30,6 @@
 
 #include <cstring>
 #include <cerrno>
-#include <cmath>     // pow()
 #include <unistd.h>  // close()
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -45,103 +44,84 @@ namespace PLEXIL
   // 32 bit versions of float and int conversions
   //
 
-  long int float_to_long_int (float num)
+  int32_t float_to_int32_t (float num)
   {
-    //printf("\n\nsizeof(long int) = %d, sizeof(float) = %d\n\n", sizeof(long int), sizeof(float));
+    //printf("\n\nsizeof(int32_t) = %d, sizeof(float) = %d\n\n", sizeof(int32_t), sizeof(float));
     float x = num;
     void* y = &x;
-    return *(long int *) y;
+    return *(int32_t *) y;
   }
 
-  float long_int_to_float (long int num)
+  float int32_t_to_float (int32_t num)
   {
-    long int x = num;
+    int32_t x = num;
     void* y = &x;
     return *(float *) y;
   }
 
-  int network_bytes_to_number(const unsigned char* buffer, int start_index, int total_bits, bool is_signed=true, bool debug)
-  {
-    int value = 0;
-    int cursor = start_index;
-    for (int i = total_bits - 8 ; i >= 0 ; i -= 8) {
-      if (debug) printf("buffer[%d]==%d; shift>> %d bits; ", cursor, buffer[cursor], i);
-      value += (buffer[cursor++] & 0xff) << i;
-      if (debug) std::cout << "; value=" << value << std::endl;
-    }
-    // *** FIXME *** - use << instead of pow()
-    if (is_signed && (value >= pow(2.0,total_bits)/2.0)) {
-      value -= (int) pow(2.0, total_bits);
-    }
-    return value;
-  }
+  // N.B. encode_* and decode_* use an intermediate buffer to get
+  // around potential hardware restrictions on unaligned 32- and
+  // 16-bit loads and stores.
 
-  void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug)
-  {
-    
-    int cursor = start_index;
-    for (int i = total_bits - 8 ; i >= 0 ; i -= 8)
-      {
-        if (debug) std::cout << "number=" << number << ": shift>> " << i << " bits; ";
-        buffer[cursor++] = (int)((number >> i) & 0xff);
-        if (debug) printf("buffer[%d]==%d\n", cursor, buffer[cursor - 1]);
-      }
-  }
-
-  void encode_long_int(long int long_int, unsigned char* buffer, int start_index)
   // Encode a 32 bit integer (in network byte order)
+  void encode_int32_t(int32_t long_int, unsigned char* buffer, size_t start_index)
   {
-    number_to_network_bytes(htonl(long_int), buffer, start_index, 32, false);
+    uint32_t temp = htonl(long_int);
+    unsigned char *tempbuf = (unsigned char *) &temp;
+    memmove(&buffer[start_index], tempbuf, sizeof(uint32_t));
   }
 
-  void encode_short_int(long int long_int, unsigned char* buffer, int start_index)
   // Encode a 16 bit integer (in network byte order)
+  void encode_short_int(short int num, unsigned char* buffer, size_t start_index)
   {
-    number_to_network_bytes(htons(long_int), buffer, start_index, 16, false);
+    uint16_t temp = htons(num);
+    unsigned char *tempbuf = (unsigned char *) &temp;
+    memmove(&buffer[start_index], tempbuf, sizeof(uint16_t));
   }
 
-  long int decode_long_int(const unsigned char* buffer, int start_index)
   // Decode a 32 bit integer from the network bytes in host byte order
+  int32_t decode_int32_t(const unsigned char* buffer, size_t start_index)
   {
-    long int temp;
-    temp = network_bytes_to_number(buffer, start_index, 32, false, false);
-    return ntohl(temp);
+    uint32_t temp;
+    unsigned char *tempbuf = (unsigned char *) &temp;
+    memmove(tempbuf, &buffer[start_index], sizeof(uint32_t));
+    return (int32_t) ntohl(temp);
   }
 
-  short int decode_short_int(const unsigned char* buffer, int start_index)
   // Decode a 32 bit integer from the network bytes in host byte order
+  short int decode_short_int(const unsigned char* buffer, size_t start_index)
   {
-    long int temp;
-    temp = network_bytes_to_number(buffer, start_index, 16, false, false);
-    return ntohs(temp);
+    uint16_t temp;
+    unsigned char *tempbuf = (unsigned char *) &temp;
+    memmove(tempbuf, &buffer[start_index], sizeof(uint16_t));
+    return (short int) ntohs(temp);
   }
 
-  void encode_float(float num, unsigned char* buffer, int start_index)
   // Encode a 32 bit float in network byte order
+  void encode_float(float num, unsigned char* buffer, size_t start_index)
   {
-    long int temp = htonl(float_to_long_int(num));
-    number_to_network_bytes(temp, buffer, start_index, 32, false);
+    encode_int32_t(float_to_int32_t(num), buffer, start_index);
   }
 
-  float decode_float(const unsigned char* buffer, int start_index)
   // Decode a 32 bit float from network byte order
+  float decode_float(const unsigned char* buffer, size_t start_index)
   {
-    // ntohl called in decode_long_int
-    long int temp = decode_long_int(buffer, start_index);
-    return long_int_to_float(temp);
+    // ntohl called in decode_int32_t
+    int32_t temp = decode_int32_t(buffer, start_index);
+    return int32_t_to_float(temp);
   }
 
-  void encode_string(const std::string& str, unsigned char* buffer, int start_index)
+  void encode_string(const std::string& str, unsigned char* buffer, size_t start_index)
   {
     // Note that this DOES NOT encode a c string.  You can do that on your own.
     str.copy((char*)&buffer[start_index], str.length(), 0);
   }
 
-  std::string decode_string(const unsigned char* buffer, int start_index, int length)
+  std::string decode_string(const unsigned char* buffer, size_t start_index, int length)
   {
     // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
     std::string str;
-    for (int i = start_index ; i < start_index + length ; i++ )
+    for (size_t i = start_index ; i < start_index + length ; i++ )
       {
         unsigned char c = buffer[i];
         if (c == 0) break;
@@ -150,19 +130,19 @@ namespace PLEXIL
     return str;
   }
 
-  void print_buffer(const unsigned char* buffer, int bytes, bool fancy)
+  void print_buffer(const unsigned char* buffer, size_t bytes, bool fancy)
   {
     printf("#(");
-    for (int i = 0 ; i < bytes ; i++)
+    for (size_t i = 0 ; i < bytes ; i++) {
+      if (i != 0)
+        printf(" "); // print a space prior to the char to ease reading
       {
-        if (i != 0) printf(" "); // print a space prior to the char to ease reading
-        {
-          if ((fancy==true) && ((32 < buffer[i]) || (buffer[i] > 126)))
-            printf("%c", (unsigned int) buffer[i]);
-          else
-            printf("%d", (unsigned int) buffer[i]);
-        }
+        if ((fancy==true) && ((32 < buffer[i]) || (buffer[i] > 126)))
+          printf("%c", (unsigned int) buffer[i]);
+        else
+          printf("%d", (unsigned int) buffer[i]);
       }
+    }
     printf(")\n");
   }
 
