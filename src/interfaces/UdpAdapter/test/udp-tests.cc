@@ -90,14 +90,13 @@ int main()
   printf("\nEncode and decode floats and ints\n\n");
 
   float pif = 3.14159;
-  int32_t pii = float_to_int32_t(pif);
-  pif = int32_t_to_float(pii);
-  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
-
   encode_float(pif, bytes2, 0);
-  printf("\nencode_float(%f, bytes2, 0)\n", pif);
+  printf("encode_float(%f, bytes2, 0)\n", pif);
   printf("bytes2==");
   print_buffer(bytes2, 8);
+
+  int32_t pii = decode_int32_t(bytes2, 0);
+  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
 
   encode_int32_t(pii, bytes2, 4);
   printf("\nencode_int32_t(%"PRId32", bytes2, 4)\n", pii);
@@ -123,7 +122,7 @@ int main()
   // Socket for the thread waiting for input
   int32_t sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   // Parameters for the thread waiting for input
-  udp_thread_params the_params = { 8031, bytes2, 32, sock, true };
+  udp_thread_params the_params = { bytes2, 32, 8031, sock, true };
   udp_thread_params* params = &the_params;
 
   pthread_t thread_handle;

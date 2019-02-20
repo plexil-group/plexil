@@ -40,11 +40,12 @@
 
 namespace PLEXIL
 {
+
   //
-  // 32 bit versions of float and int conversions
+  // UNSAFE 32 bit versions of float and int conversions
   //
 
-  int32_t float_to_int32_t (float num)
+  static int32_t float_to_int32_t (float num)
   {
     //printf("\n\nsizeof(int32_t) = %d, sizeof(float) = %d\n\n", sizeof(int32_t), sizeof(float));
     float x = num;
@@ -52,7 +53,7 @@ namespace PLEXIL
     return *(int32_t *) y;
   }
 
-  float int32_t_to_float (int32_t num)
+  static float int32_t_to_float (int32_t num)
   {
     int32_t x = num;
     void* y = &x;

@@ -35,16 +35,12 @@ namespace PLEXIL
 
   struct udp_thread_params
   {
-    int local_port;
     unsigned char* buffer;
     size_t size;
+    int local_port;
     int sock;
     bool debug;
   };
-
-  // (UNSAFE) Conversions between integer and float
-  int32_t float_to_int32_t (float num);
-  float int32_t_to_float (int32_t num);
 
   // Encode a 32 bit integer (in network byte order)
   void encode_int32_t(int32_t num, unsigned char* buffer, size_t start_index);
