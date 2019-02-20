@@ -43,6 +43,14 @@ simply change to this top level directory and type:
 
  make all
 
+NOTE: if you have just updated your code checkout, you may need to precede the
+'make all' with either of:
+
+  make clean
+	make squeaky-clean
+
+The latter of these is sometimes needed when make/autotools files have changed.
+
 To build the tool suite without the example applications:
 
  make tools
