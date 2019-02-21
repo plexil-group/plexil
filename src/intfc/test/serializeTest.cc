@@ -27,6 +27,10 @@
 #include "State.hh"
 #include "TestSupport.hh"
 
+#ifdef STDC_HEADERS
+#include <cstring> // memset()
+#endif
+
 using namespace PLEXIL;
 
 static size_t const BUFSIZE = 4096;

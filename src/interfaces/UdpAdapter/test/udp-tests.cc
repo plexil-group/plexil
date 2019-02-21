@@ -38,8 +38,9 @@
 #include <sys/socket.h> // AF_INET, SOCK_DGRAM
 #endif
 
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>   // for usleep()
-
+#endif
 
 using namespace PLEXIL;
 

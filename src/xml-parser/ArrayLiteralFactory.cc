@@ -34,7 +34,7 @@
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERs
+#ifdef STDC_HEADERS
 #include <cstdlib>
 #include <cstring>
 #endif
