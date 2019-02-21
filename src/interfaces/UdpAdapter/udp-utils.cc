@@ -129,19 +129,21 @@ namespace PLEXIL
   void encode_string(const std::string& str, unsigned char* buffer, size_t start_index)
   {
     // Note that this DOES NOT encode a c string.  You can do that on your own.
-    str.copy((char*)&buffer[start_index], str.length(), 0);
+    str.copy((char *) &buffer[start_index], str.length(), 0);
   }
 
   std::string decode_string(const unsigned char* buffer, size_t start_index, int length)
   {
     // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
     std::string str;
-    for (size_t i = start_index ; i < start_index + length ; i++ )
-      {
-        unsigned char c = buffer[i];
-        if (c == 0) break;
-        str += c;
-      }
+    str.reserve(length);
+    const unsigned char *bufptr = &buffer[start_index];
+    for (int i = 0; i < length; i++) {
+      unsigned char c = *bufptr++;
+      if (c == 0)
+	break;
+      str += c;
+    }
     return str;
   }
 
@@ -163,7 +165,9 @@ namespace PLEXIL
 
   int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
-    if (debug) printf("  send_message_bind(%d, %s, %d, buffer, %d) called\n", local_port, peer_host, peer_port, (int) size);
+    if (debug)
+      printf("  send_message_bind(%d, %s, %d, buffer, %zu) called\n",
+	     local_port, peer_host, peer_port, size);
     // Set the local port
     struct sockaddr_in local_addr = {};
     memset((char *) &local_addr, 0, sizeof(local_addr));
@@ -180,7 +184,7 @@ namespace PLEXIL
     hostent *host_ip = gethostbyname(peer_host);
     if (host_ip == NULL) 
       {
-        perror("send_message_connect: gethostbyname failed");
+        perror("send_message_bind: gethostbyname failed");
         return -1;
       }
 
@@ -273,7 +277,7 @@ namespace PLEXIL
   int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
   {
     if (debug)
-      printf("  wait_for_input(%d, buffer, %d, %d) called\n", local_port, (int) size, sock);
+      printf("  wait_for_input(%d, buffer, %zu, %d) called\n", local_port, size, sock);
     // Set up an appropriate local address (port)
     struct sockaddr_in local_addr = {};
     memset((char *) &local_addr, 0, sizeof(local_addr));
@@ -294,6 +298,7 @@ namespace PLEXIL
       char buf[50];
       sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
       perror(buf);
+      close(sock);
       return bind_err;
     }
 
@@ -303,7 +308,7 @@ namespace PLEXIL
 	      inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port), sock);
 
     socklen_t slen = sizeof(struct sockaddr_in);
-    int bytes_read = recvfrom(sock, buffer, size, 0, (struct sockaddr *) &peer_addr, &slen);
+    ssize_t bytes_read = recvfrom(sock, buffer, size, 0, (struct sockaddr *) &peer_addr, &slen);
     if (bytes_read < 0) {
       char buf[80];
       sprintf(buf, "wait_for_input: recvfrom(%d) returned -1, errno %d", sock, errno);
@@ -311,9 +316,10 @@ namespace PLEXIL
       close(sock);
       return bytes_read;
     }
-    if (debug) printf("  wait_for_input(%d, buffer, %d) received %d bytes from %s:%d\n",
-                      local_port, (int) size, bytes_read,
-                      inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
+    if (debug)
+      printf("  wait_for_input(%d, buffer, %zu) received %zd bytes from %s:%d\n",
+	     local_port, size, bytes_read,
+	     inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
     close(sock);
     return 0;
   }

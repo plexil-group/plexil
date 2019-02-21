@@ -44,6 +44,19 @@
 
 using namespace PLEXIL;
 
+static int test_input_wait_thread(udp_thread_params *params)
+{
+  int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (sock < 1) {
+    char buf[50];
+    sprintf(buf, "test_input_wait_thread: socket() returned -1");
+    perror(buf);
+    return sock;
+  }
+  params->sock = sock;
+  return wait_for_input(params->local_port, params->buffer, params->size, sock, params->debug);
+}
+
 int main()
 {
   unsigned char* bytes1 = new unsigned char[32];
@@ -106,20 +119,20 @@ int main()
   print_buffer(bytes2, 8);
 
   int32_t pii = decode_int32_t(bytes2, 0);
-  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
+  printf("pif=%f, pii=%" PRId32 "\n", pif, pii);
 
   encode_int32_t(pii, bytes2, 4);
-  printf("\nencode_int32_t(%"PRId32", bytes2, 4)\n", pii);
+  printf("\nencode_int32_t(%" PRId32 ", bytes2, 4)\n", pii);
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
   pii = decode_int32_t(bytes2, 4);
   printf("\npii=decode_int32_t(bytes2, 4)\n");
-  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
+  printf("pif=%f, pii=%" PRId32 "\n", pif, pii);
 
   pif = decode_float(bytes2, 0);
   printf("\npif=decode_float(bytes2, 0)\n");
-  printf("pif=%f, pii=%"PRId32"\n", pif, pii);
+  printf("pif=%f, pii=%" PRId32 "\n", pif, pii);
 
   printf("\nSend and receive some UDP buffers\n\n");
 
@@ -130,13 +143,15 @@ int main()
   encode_string("  This is yet another test  ", bytes1, 0);
 
   // Socket for the thread waiting for input
-  int32_t sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   // Parameters for the thread waiting for input
-  udp_thread_params the_params = { bytes2, 32, 8031, sock, true };
-  udp_thread_params* params = &the_params;
-
+  udp_thread_params the_params = { bytes2, 32, remote_port, 0, true };
   pthread_t thread_handle;
-  threadSpawn((THREAD_FUNC_PTR) wait_for_input_on_thread, params, thread_handle);
+  threadSpawn((THREAD_FUNC_PTR) test_input_wait_thread, &the_params, thread_handle);
+
+  // Wait for listener to establish socket
+  do {
+    usleep(1000);
+  } while (!the_params.sock);
 
   if (0 > send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true)) {
     printf("send_message_connect failed\n");
@@ -150,8 +165,9 @@ int main()
   }
 
   // Wait for wait_for_input to return
-  int32_t myErrno = pthread_join(thread_handle, NULL);
-  if (myErrno != 0) printf("pthread_join(thread_handle) returned %d\n", myErrno);
+  int myErrno = pthread_join(thread_handle, NULL);
+  if (myErrno != 0)
+    printf("pthread_join(thread_handle) returned %d\n", myErrno);
 
   printf("\n");
   print_buffer(bytes1, 32, true);
