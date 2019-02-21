@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,12 @@
 
 #include <cerrno>
 #include <cmath>   // for HUGE_VAL
+
+#ifdef STDC_HEADERS
 #include <cstdlib> // for strtod(), strtol()
 #include <cstring> // strlen(), strcmp() etc.
+#endif
+
 #include <iomanip>
 #include <iostream>
 #include <limits>

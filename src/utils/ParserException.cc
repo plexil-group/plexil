@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 
 #include "ParserException.hh"
 #include "Logging.hh"
-#include <cstring>
+
 #include <iostream>
 
 namespace PLEXIL

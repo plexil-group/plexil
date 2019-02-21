@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,8 @@
 #include <stdint.h>
 #elif defined(__VXWORKS__)
 #include <vxWorks.h>
+#else
+#error "Platform lacks required C header file stdint.h"
 #endif
 
 namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
       errorMsg("pthread_mutexattr_init failed, errno = " << status);
     }
 
-#if !defined(__VXWORKS__) /* platform lacks function */
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
     if ((status = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL))) {
       assertTrue_2(status != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
       errorMsg("pthread_mutexattr_settype failed, errno = " << status);

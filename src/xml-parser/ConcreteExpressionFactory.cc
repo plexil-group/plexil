@@ -43,7 +43,9 @@
 
 #include <sstream>
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 using pugi::xml_node;
 

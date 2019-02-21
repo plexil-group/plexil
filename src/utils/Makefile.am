@@ -29,14 +29,14 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS = $(AM_CPPFLAGS)
 
-include_HEADERS = ConstantMacros.hh Debug.hh Error.hh \
+include_HEADERS = ConstantMacros.hh Debug.hh DynamicLoader.h Error.hh \
  LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh SimpleMap.hh \
  TestSupport.hh bitsetUtils.hh lifecycle-utils.h map-utils.hh \
  stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
-libPlexilUtils_la_SOURCES = Error.cc Logging.cc ParserException.cc \
- PlanError.cc bitsetUtils.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
- timeval-utils.cc
+libPlexilUtils_la_SOURCES = DynamicLoader.cc Error.cc Logging.cc \
+ ParserException.cc PlanError.cc bitsetUtils.cc lifecycle-utils.c \
+ stricmp.c timespec-utils.cc timeval-utils.cc
 
 if JNI_OPT
   libPlexilUtils_la_CPPFLAGS += -I$(JAVA_HOME)/include -I$(JAVA_HOME)/Headers
@@ -49,11 +49,6 @@ if THREADS_OPT
  ThreadSpawn.hh
   libPlexilUtils_la_SOURCES += RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc \
  ThreadSpawn.cc
-endif
-
-if PLEXIL_DLFCN_H
-  include_HEADERS += DynamicLoader.h
-  libPlexilUtils_la_SOURCES += DynamicLoader.cc
 endif
 
 if DEBUG_LOGGING_OPT

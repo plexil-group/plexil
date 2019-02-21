@@ -29,7 +29,9 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
+#ifdef STDC_HEADERS
 #include <cstring> // memcpy()
+#endif
 
 namespace PLEXIL
 {

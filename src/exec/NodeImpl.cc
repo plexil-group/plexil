@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,12 @@
 #include "map-utils.hh"
 
 #include <algorithm> // for std::sort
+
+#ifdef STDC_HEADERS
 #include <cfloat>    // for DBL_MAX
 #include <cstring>   // strcmp(), strnlen()
+#endif
+
 #include <iomanip>   // for std::setprecision
 #include <sstream>
 
@@ -143,15 +147,6 @@ namespace PLEXIL
       return NodeImpl::conditionIndexMax;
     return result;
   }
-  
-  // Naive version
-  // static NodeImpl::ConditionIndex getConditionIndex(char const *cName)
-  // {
-  //   for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i)
-  //     if (!strcmp(NodeImpl::ALL_CONDITIONS[i], cName))
-  //       return (NodeImpl::ConditionIndex) i;
-  //   return NodeImpl::conditionIndexMax;
-  // }
 
   char const *NodeImpl::getConditionName(size_t idx)
   {

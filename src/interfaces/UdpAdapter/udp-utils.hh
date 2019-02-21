@@ -24,11 +24,16 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cstdint>            // int32_t
+#include "plexil-config.h"
+
 #include <cstdio>
 #include <iostream>           // cout
-#include <arpa/inet.h>        // htonl
-#include <netdb.h>            // gethostbyname
+#ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {

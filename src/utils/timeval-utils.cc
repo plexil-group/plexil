@@ -37,7 +37,7 @@
 #include <sys/times.h>
 #endif
 
-#include <cmath>
+#include <limits>
 
 const long ONE_MILLION = 1000000;
 const double ONE_MILLION_DOUBLE = 1000000.0;
@@ -114,21 +114,20 @@ struct timeval operator- (const struct timeval& tv1, const struct timeval& tv2)
 
 void doubleToTimeval(double dbl, timeval& result)
 {
-#ifdef HAVE_MODF
-  double seconds = 0;
-  double fraction = modf(dbl, &seconds);
-
-  result.tv_sec = (time_t) seconds;
+  if (dbl > std::numeric_limits<time_t>::max()
+      || dbl < std::numeric_limits<time_t>::lowest()) {
+    // TODO: report out-of-range error
+    return;
+  }
+  result.tv_sec = (time_t) dbl;
   result.tv_usec =
 #ifdef HAVE_SUSECONDS_T
     (suseconds_t)
 #else /* e.g. VxWorks */
     (long)
 #endif
-    (fraction * ONE_MILLION_DOUBLE);
-#else
-#warning "modf() not implemented on this platform. doubleToTimeval() will fail."
-#endif
+    (ONE_MILLION_DOUBLE * (dbl - (double) result.tv_sec));
+  timevalNormalize(result);
 }
 
 struct timeval doubleToTimeval(double dbl)

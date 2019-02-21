@@ -26,8 +26,13 @@
 #ifndef RESPONSE_BASE_HH
 #define RESPONSE_BASE_HH
 
+#include "plexil-config.h"
+
 #include <string>
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 
 class ResponseMessageManager;
 

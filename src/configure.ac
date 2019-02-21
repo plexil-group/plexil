@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -134,50 +134,41 @@ AC_CHECK_LIB([rt], [timer_create])
 # Checks for ISO C90 (ANSI C89) header files stdlib.h, stdarg.h, string.h, float.h
 AC_HEADER_STDC
 # time.h and sys/time.h
-AC_HEADER_TIME
-AC_CHECK_HEADERS([sys/time.h])    
+AC_CHECK_HEADERS([time.h sys/time.h])
 # Newer standard C (C95, C99, etc.) headers for PLEXIL core functionality
 # Some platforms (e.g. vxWorks) may lack some of these
 # NOTE: pugixml depends on wchar.h, but does not use these configuration files.
-AC_CHECK_HEADERS([stdint.h])
-# Unix (POSIX) dependencies for core functionality
-AC_CHECK_HEADERS([dlfcn.h execinfo.h unistd.h sys/types.h])
+AC_CHECK_HEADERS([inttypes.h math.h stddef.h stdint.h])
+# glibc backtrace functionality
+AC_CHECK_HEADERS([execinfo.h])
+# POSIX dependencies for core functionality
+AC_CHECK_HEADERS([dlfcn.h unistd.h sys/types.h])
 # POSIX headers for network functionality
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h sys/socket.h])
-
-# Conditional used in utils module Makefile.am
-AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
 
-# Dynamic library loading
-AC_CHECK_FUNCS([dlopen dlclose dlerror dlsym])
-# Logging
-AC_CHECK_FUNCS([backtrace backtrace_symbols ctime_r])
 # POSIX time
-AC_CHECK_FUNCS([clock_gettime getitimer gettimeofday setitimer socket timer_create timer_delete])
+# Defined in sys/time.h if present.
+AC_CHECK_FUNCS([getitimer gettimeofday setitimer])
+# Defined in time.h if present.
+AC_CHECK_FUNCS([clock_gettime ctime_r timer_create timer_delete])
+# Defined in sys/types.h, not present on (e.g.) VxWorks
+# Used only in doubleToTimeval()
 AC_CHECK_TYPES([suseconds_t])
-# FIXME - only used in UdpUtils, not appropriate there
-AC_CHECK_FUNCS([pow])
+
 # Standard math functions not found on some platforms
-AC_CHECK_FUNCS([ceil floor modf round sqrt trunc])
-# String parsing
-AC_CHECK_FUNCS([strchr strcspn strspn strstr strtol strtoul])
-# Miscellaneous
-AC_FUNC_STRTOD
-AC_CHECK_FUNCS([memset])
-# These types have special macros in newer autoconf versions,
-# which aren't present in 2.59
-AC_CHECK_TYPES([int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t])
-AC_CHECK_TYPES([size_t, ssize_t])
+AC_CHECK_FUNCS([ceil floor round sqrt trunc])
 
 # Used by LuvListener, UdpAdapter (and IPC)
-AC_CHECK_FUNCS([gethostbyname inet_ntoa socket])
+# Obsolescent
+AC_CHECK_FUNCS([gethostbyname])
 
 # Only needed by JNI unit tests
 AS_IF([test "x$with_jni" != "x"],[
+# Both defined in time.h
 AC_STRUCT_TM
 AC_CHECK_FUNCS([localtime_r])
 ])

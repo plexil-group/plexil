@@ -35,7 +35,11 @@
 #include "pugixml.hpp"
 
 #include <cerrno>
+
+#ifdef HAVE_STDLIB_H
 #include <cstdlib> // for strtoul()
+#endif
+
 #include <limits>
 
 using pugi::xml_node;

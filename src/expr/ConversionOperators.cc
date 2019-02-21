@@ -29,7 +29,10 @@
 #include "plexil-config.h"
 #include "Function.hh"
 
+#ifdef HAVE_MATH_H
 #include <cmath>
+#endif
+
 #include <limits>
 
 namespace PLEXIL
@@ -42,21 +45,16 @@ namespace PLEXIL
   //
   static bool RealToInt(Real reel, Integer &result)
   {
-#ifdef HAVE_MODF
-    Real tempInt;
-    reel = modf(reel, &tempInt);
-    // TODO: allow fraction to be +/- epsilon
-    if (reel != 0)
-      return false; // not an integer
-    if (tempInt < std::numeric_limits<Integer>::min()
-        || tempInt > std::numeric_limits<Integer>::max())
+    if (reel < std::numeric_limits<Integer>::min()
+        || reel > std::numeric_limits<Integer>::max())
       return false; // out of range
-    result = (Integer) tempInt;
+    Integer tempResult = (Integer) reel;
+    Real fraction = (Real) (reel - (Real) tempResult);
+    // TODO: allow fraction to be +/- epsilon
+    if (fraction != 0)
+      return false; // not an integer
+    result = tempResult;
     return true;
-#else
-#warning "modf() not available on this platform. Real-to-Integer conversions will fail."
-    return false;
-#endif
   }
 
   template <typename NUM>
@@ -272,12 +270,9 @@ namespace PLEXIL
   template class Ceiling<Integer>;
   template class Floor<Real>;
   template class Floor<Integer>;
-
-#if !defined(__VXWORKS__)
   template class Round<Real>;
   template class Round<Integer>;
   template class Truncate<Real>;
   template class Truncate<Integer>;
-#endif // !defined(__VXWORKS__)
 
 }

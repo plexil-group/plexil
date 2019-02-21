@@ -29,7 +29,10 @@
 #include "TestSupport.hh"
 #include "lifecycle-utils.h"
 
+#ifdef STDC_HEADERS
 #include <cstring> // for strcmp()
+#endif
+
 #include <fstream>
 
 using PLEXIL::Error;

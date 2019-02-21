@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plexil-config.h"
-
 #include "Debug.hh"
 #include "Error.hh"
 #include "NodeImpl.hh"
@@ -35,14 +33,19 @@
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
 
-#include <cstring>
-#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
+#ifdef STDC_HEADERS
+#include <cstdlib>
+#include <cstring>
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #if defined(HAVE_GETTIMEOFDAY) && !defined(__VXWORKS__)
 #include <sys/time.h> // for gettimeofday, itimerval

@@ -55,11 +55,12 @@
 #include "StringOperators.hh"
 #include "UserVariable.hh"
 #include "UserVariableFactory.hh"
-// #include "lifecycle-utils.h"
 
 #include "pugixml.hpp"
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 using pugi::xml_node;
 

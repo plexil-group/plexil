@@ -24,11 +24,18 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "lifecycle-utils.h"
 
+#ifdef HAVE_STDDEF_H
 #include <stddef.h> /* for NULL */
+#endif
+
+#ifdef STDC_HEADERS
 #include <stdlib.h> /* malloc(), free() */
 #include <string.h> /* memset() */
+#endif
 
 /* #define LIFECYCLE_DEBUG 1 */
 

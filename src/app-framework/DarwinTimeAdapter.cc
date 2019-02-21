@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,10 @@
 //
 
 #include "plexil-config.h"
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #if defined(HAVE_SETITIMER) && (!defined(_POSIX_TIMERS) || (((_POSIX_TIMERS - 200112L) < 0L) && !defined(PLEXIL_ANDROID)))
 
@@ -39,8 +42,9 @@
 #include "InterfaceError.hh"
 #include "TimeAdapter.hh"
 #include "timeval-utils.hh"
+
+// Since this is only supported on Darwin (macOS), can presume the following are available
 #include <cerrno>
-#include <cmath> // for modf
 #include <iomanip>
 #include <mach/kern_return.h> // for KERN_ABORTED
 #include <sys/time.h> // for gettimeofday, itimerval

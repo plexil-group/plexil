@@ -634,9 +634,6 @@ static bool testRealToInteger()
 
 bool conversionsTest()
 {
-  // Don't bother if we lack modf()
-#ifdef HAVE_MODF
-
 #ifdef HAVE_CEIL
   runTest(testCeiling);
 #endif
@@ -654,6 +651,5 @@ bool conversionsTest()
 #endif
 
   runTest(testRealToInteger);
-#endif // HAVE_MODF
   return true;
 }

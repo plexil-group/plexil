@@ -31,7 +31,7 @@
 #include "plexil-config.h"
 
 #include <ctime>
-#include <cmath>
+#include <limits>
 
 static const long ONE_BILLION = 1000000000;
 static const double ONE_BILLION_DOUBLE = 1000000000.0;
@@ -108,15 +108,15 @@ struct timespec operator-(const struct timespec& ts1, const struct timespec& ts2
 
 void doubleToTimespec(double dbl, timespec& result)
 {
-#ifdef HAVE_MODF
-  double seconds = 0;
-  double fraction = modf(dbl, &seconds);
-
-  result.tv_sec = (time_t) seconds;
-  result.tv_nsec = (long) (fraction * ONE_BILLION_DOUBLE);
-#else
-#warning "modf() not implemented on this platform. doubleToTimespec() will fail."
-#endif
+  if (dbl > std::numeric_limits<time_t>::max()
+      || dbl < std::numeric_limits<time_t>::lowest()) {
+    // TODO: report out-of-range error
+    return;
+  }
+  result.tv_sec = (time_t) dbl;
+  result.tv_nsec =
+    (long) (ONE_BILLION_DOUBLE * (dbl - (double) result.tv_sec));
+  timespecNormalize(result);
 }
 
 struct timespec doubleToTimespec(double dbl)

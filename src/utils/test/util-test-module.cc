@@ -58,8 +58,12 @@
 #include "timeval-utils.hh"
 
 #include <cassert>
+
+#ifdef STDC_HEADERS
 #include <cfloat>
 #include <cstring> // for strcmp
+#endif
+
 #include <iomanip>
 #include <iostream>
 #include <fstream>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,15 +28,14 @@
 
 #include "DynamicLoader.h"
 
+#include "Debug.hh"
+
 #ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
-#endif
 
 #include <cstdlib> // atexit()
 #include <string>
 #include <stack>
-
-#include "Debug.hh"
 
 static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
 
@@ -44,7 +43,7 @@ static std::stack<void *> s_handles;
 
 static void dynamicLoaderCleanUp()
 {
-#ifdef HAVE_DLCLOSE
+#ifdef HAVE_DLFCN_H
   while (!s_handles.empty()) {
     dlclose(s_handles.top());
     s_handles.pop();
@@ -72,7 +71,6 @@ static void ensureFinalizer()
 static void *tryLoadFile(const char *fname)
 {
   void *handle = NULL;
-#ifdef HAVE_DLOPEN
   ensureFinalizer();
   handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
   if (handle) {
@@ -81,15 +79,9 @@ static void *tryLoadFile(const char *fname)
     s_handles.push(handle);
   }
   else {
-#ifdef HAVE_DLERROR
     debugMsg("DynamicLoader:tryLoadFile",
              " dlopen failed on file " << fname << ": " << dlerror());
-#else    
-    debugMsg("DynamicLoader:tryLoadFile",
-             " dlopen failed on file " << fname);
-#endif
   }
-#endif
   return handle;
 }
 
@@ -181,6 +173,7 @@ static int initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT)
            " for module " << moduleName << " succeeded");
   return 1;
 }
+#endif // HAVE_DLFCN_H
 
 /**
  * @brief Call the module's init function (public API).
@@ -191,7 +184,11 @@ static int initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT)
 extern "C"
 int dynamicInitModule(const char *moduleName)
 {
+#ifdef HAVE_DLFCN_H
   return initModule(moduleName, RTLD_DEFAULT);
+#else
+  return 0;
+#endif
 }
 
 /**
@@ -207,6 +204,7 @@ extern "C"
 int dynamicLoadModule(const char* moduleName, 
                       const char* libPath)
 {
+#ifdef HAVE_DLFCN_H
   // Try to initialize it, in hopes it's already loaded
   if (initModule(moduleName)) {
     debugMsg("DynamicLoader:loadModule", " for " << moduleName << " succeeded");
@@ -240,6 +238,7 @@ int dynamicLoadModule(const char* moduleName,
     debugMsg("DynamicLoader:loadModule", " for " << moduleName << " succeeded");
     return 1;
   }
+#endif // HAVE_DLFCN_H
 
   debugMsg("DynamicLoader:loadModule",
            " unable to initialize \"" << moduleName << '\"');

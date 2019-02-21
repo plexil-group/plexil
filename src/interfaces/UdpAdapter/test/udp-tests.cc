@@ -25,10 +25,19 @@
  */
 
 #include "udp-utils.hh"
+
 #include "ThreadSpawn.hh"
 
-#include <cstdint>    // int32_t
-#include <cinttypes>  // fixed width integer formats
+#include <inttypes.h>  // fixed width integer formats
+
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h> // IPPROTO_UDP
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h> // AF_INET, SOCK_DGRAM
+#endif
+
 #include <unistd.h>   // for usleep()
 
 
