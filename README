@@ -23,8 +23,9 @@ installed:
 
  GNU Make
  GNU Bash
+ GNU gperf
  gcc/g++ (default), clang/clang++, or other C99 and C++03 compliant compilers
- OpenJDK 8 or Oracle Java SDK 8 (development package, not just runtime)
+ Java 8 or newer JDK (development package, not just runtime)
  Apache ant, including the antlr module
 
 The robosim example program also requires:
@@ -46,8 +47,8 @@ simply change to this top level directory and type:
 NOTE: if you have just updated your code checkout, you may need to precede the
 'make all' with either of:
 
-  make clean
-	make squeaky-clean
+ make clean
+ make squeaky-clean
 
 The latter of these is sometimes needed when make/autotools files have changed.
 
@@ -80,6 +81,7 @@ is not appropriate for a specific application.
 run the GNU autotools first. This step should be unnecessary if you
 downloaded a release tarball.
 
+  mkdir -p m4
   autoreconf -fi
 
 3. Configure the build using the standard 'configure' script. To get a
