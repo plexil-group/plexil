@@ -83,20 +83,6 @@ namespace PLEXIL
     {
     }
 
-    /**
-     * @brief Get the current time from the operating system.
-     * @return A double representing the current time.
-     */
-    double getCurrentTime() throw (InterfaceError)
-    {
-      timeval tv;
-      checkInterfaceError(0 == gettimeofday(&tv, NULL),
-                          "getCurrentTime: gettimeofday() failed, errno = " << errno);
-      double tym = timevalToDouble(tv);
-      debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
-      return tym;
-    }
-
   protected:
 
     /**

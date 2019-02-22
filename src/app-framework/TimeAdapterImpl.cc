@@ -37,6 +37,18 @@
 #include "ThreadSpawn.hh"
 #endif
 
+#if defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_TIME_H)
+#include <ctime>
+#endif
+#include "timespec-utils.hh"
+#elif defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_SYS_TIME_H)
+#include <sys/time.h>
+#endif
+#include "timeval-utils.hh"
+#endif
+
 #include <iomanip>
 
 namespace PLEXIL
@@ -130,6 +142,34 @@ namespace PLEXIL
 
     debugMsg("TimeAdapter:lookupNow", " called");
     cacheEntry.update(getCurrentTime());
+  }
+
+
+  /**
+   * @brief Get the current time from the operating system.
+   * @return A double representing the current time.
+   * @note Default method. May be overridden.
+   */
+  double TimeAdapterImpl::getCurrentTime()
+      throw (InterfaceError)
+  {
+    double tym;
+
+    // Prefer clock_gettime() due to greater precision
+#if defined(HAVE_CLOCK_GETTIME)
+    timespec ts;
+    checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &ts),
+                        "getCurrentTime: clock_gettime() failed, errno = " << errno);
+    tym = timespecToDouble(ts);
+#elif defined(HAVE_GETTIMEOFDAY)
+    timeval tv;
+    checkInterfaceError(0 == gettimeofday(&tv, NULL),
+                        "getCurrentTime: gettimeofday() failed, errno = " << errno);
+    tym = timevalToDouble(tv);
+#endif
+
+    debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
+    return tym;
   }
 
   void TimeAdapterImpl::subscribe(const State& state)

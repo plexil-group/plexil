@@ -123,8 +123,10 @@ namespace PLEXIL
     /**
      * @brief Get the current time from the operating system.
      * @return A double representing the current time.
+     * @note Default method uses clock_gettime() or gettimeofday() as available;
+     *       specializations may override this method.
      */
-    virtual double getCurrentTime() throw (InterfaceError) = 0;
+    virtual double getCurrentTime() throw (InterfaceError);
 
     /**
      * @brief Initialize signal handling for the process.
