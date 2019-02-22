@@ -30,7 +30,7 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include <errno.h>
+#include <cerrno>
 
 namespace PLEXIL
 {

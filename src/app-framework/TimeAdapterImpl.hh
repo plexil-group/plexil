@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,10 @@
 #ifndef PLEXIL_TIME_ADAPTER_IMPL_HH
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
-#include "TimeAdapter.hh"
+#include "InterfaceAdapter.hh"
+#include "InterfaceError.hh"
 
-#include <queue>
-
-#include <csignal>
+#include <csignal> // sigset_t
 
 #ifdef PLEXIL_WITH_THREADS
 #include <pthread.h>
@@ -40,12 +39,12 @@
 namespace PLEXIL
 {
 
-  class TimeAdapterImpl : public TimeAdapter
+  class TimeAdapterImpl : public InterfaceAdapter
   {
   public:
     TimeAdapterImpl(AdapterExecInterface &);
     TimeAdapterImpl(AdapterExecInterface &,
-		    pugi::xml_node const);
+                    pugi::xml_node const);
 
     virtual ~TimeAdapterImpl();
 
@@ -120,6 +119,12 @@ namespace PLEXIL
     //
     // Internal functions to be implemented by derived classes
     //
+
+    /**
+     * @brief Get the current time from the operating system.
+     * @return A double representing the current time.
+     */
+    virtual double getCurrentTime() throw (InterfaceError) = 0;
 
     /**
      * @brief Initialize signal handling for the process.

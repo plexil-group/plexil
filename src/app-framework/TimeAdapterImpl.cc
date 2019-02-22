@@ -37,22 +37,21 @@
 #include "ThreadSpawn.hh"
 #endif
 
-#include <cerrno>
 #include <iomanip>
 
 namespace PLEXIL
 {
 
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr)
-    : TimeAdapter(mgr),
+    : InterfaceAdapter(mgr),
       m_nextWakeup(0),
       m_stopping(false)
   {
   }
 
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr,
-				   pugi::xml_node const config)
-    : TimeAdapter(mgr, config),
+                                   pugi::xml_node const config)
+    : InterfaceAdapter(mgr, config),
       m_nextWakeup(0),
       m_stopping(false)
   {

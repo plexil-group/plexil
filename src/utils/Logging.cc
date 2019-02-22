@@ -124,8 +124,10 @@ void Logging::print_to_log(const char * fullmsg)
   if (sl_newSession) {
     sl_newSession = false;
     std::cout << "================================================================================\n";
+#ifdef HAVE_GETPID
     std::cout << "Logging Session ID (PID): " << getpid() << "\n";
     std::cout << "================================================================================\n";
+#endif
   }
 
   std::cout << get_date_time() << ": " << fullmsg << "\n";
@@ -205,12 +207,20 @@ static void prompt_user()
 {
   do {
     char buf[16];
-    Error::getStream() << " (pid:" << getpid()
-                       << ") [E]xit, show [S]tack trace or [P]roceed: ";
-
-    if (isatty(0) && isatty(1)) {
+    Error::getStream()
+#ifdef HAVE_GETPID
+      << " (pid:" << getpid() << ")"
+#endif
+      << " [E]xit, show [S]tack trace or [P]roceed: " << std::flush;
+    if (
+#ifdef HAVE_ISATTY
+        isatty(0) && isatty(1)
+#else
+        0
+#endif
+        ) {
       if (!fgets(buf, 8, stdin))
-	strcpy(buf, "E\n"); // go non-interactive if we don't get input
+        strcpy(buf, "E\n"); // go non-interactive if we don't get input
     }
     else
       strcpy(buf, "E\n");

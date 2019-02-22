@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,12 @@
 // *** Ignore this file on systems that do not implement POSIX timers
 //
 
-#include <unistd.h>
-// sigh, Android only defines _POSIX_TIMERS as 1
-#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
+#include "plexil-config.h"
+
+#ifdef HAVE_TIMER_CREATE
 
 #include "PosixTimeAdapter.hh"
+#include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "InterfaceError.hh"
@@ -252,6 +253,11 @@ namespace PLEXIL
     return true;
   }
 
+  void registerTimeAdapter()
+  {
+    REGISTER_ADAPTER(PosixTimeAdapter, "OSNativeTime");
+  }
+
 }
 
-#endif // defined(_POSIX_TIMERS) && (_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
+#endif // HAVE_TIMER_CREATE

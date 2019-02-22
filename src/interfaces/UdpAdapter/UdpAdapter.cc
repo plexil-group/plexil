@@ -43,9 +43,15 @@
 #include "stricmp.h"
 
 #include <cerrno>
+
+#ifdef STDC_HEADERS
 #include <cfloat>
 #include <cstring>
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h> // for close()
+#endif
 
 #ifdef HAVE_STDINT_H
 #define __STDC_LIMIT_MACROS
@@ -57,6 +63,7 @@
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif

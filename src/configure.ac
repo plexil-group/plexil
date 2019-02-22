@@ -145,6 +145,8 @@ AC_CHECK_HEADERS([execinfo.h])
 AC_CHECK_HEADERS([dlfcn.h unistd.h sys/types.h])
 # POSIX headers for network functionality
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h sys/socket.h])
+# Kernel queues (BSD based systems)
+AC_CHECK_HEADERS([sys/event.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -158,6 +160,12 @@ AC_CHECK_FUNCS([clock_gettime ctime_r timer_create timer_delete])
 # Defined in sys/types.h, not present on (e.g.) VxWorks
 # Used only in doubleToTimeval()
 AC_CHECK_TYPES([suseconds_t])
+
+# Other POSIX specifics
+AC_CHECK_FUNCS([getpid isatty])
+
+# Kernel queues
+AC_CHECK_FUNCS([kqueue kevent kevent64])
 
 # Standard math functions not found on some platforms
 AC_CHECK_FUNCS([ceil floor round sqrt trunc])
