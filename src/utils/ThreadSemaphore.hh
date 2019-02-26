@@ -27,6 +27,8 @@
 #ifndef PLEXIL_THREAD_SEMAPHORE_HH
 #define PLEXIL_THREAD_SEMAPHORE_HH
 
+#include "plexil-config.h"
+
 //
 // Does this platform support POSIX thread semaphores?
 //
