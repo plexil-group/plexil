@@ -115,7 +115,7 @@ struct timeval operator- (const struct timeval& tv1, const struct timeval& tv2)
 void doubleToTimeval(double dbl, timeval& result)
 {
   if (dbl > std::numeric_limits<time_t>::max()
-      || dbl < std::numeric_limits<time_t>::lowest()) {
+      || dbl < std::numeric_limits<time_t>::min()) {
     // TODO: report out-of-range error
     return;
   }

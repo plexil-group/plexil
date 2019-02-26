@@ -109,7 +109,7 @@ struct timespec operator-(const struct timespec& ts1, const struct timespec& ts2
 void doubleToTimespec(double dbl, timespec& result)
 {
   if (dbl > std::numeric_limits<time_t>::max()
-      || dbl < std::numeric_limits<time_t>::lowest()) {
+      || dbl < std::numeric_limits<time_t>::min()) {
     // TODO: report out-of-range error
     return;
   }

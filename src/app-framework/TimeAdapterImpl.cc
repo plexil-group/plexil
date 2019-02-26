@@ -37,6 +37,8 @@
 #include "ThreadSpawn.hh"
 #endif
 
+#include <cerrno>
+
 #if defined(HAVE_CLOCK_GETTIME)
 #if defined(HAVE_TIME_H)
 #include <ctime>

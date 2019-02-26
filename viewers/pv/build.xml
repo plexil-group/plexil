@@ -108,7 +108,7 @@
            excludes = "${compile-excludes}">
       <compilerarg value = "-Xlint:deprecation"/>
       <compilerarg value = "-Xlint:unchecked"/>
-      <compilerarg value = "-Xdiags:verbose"/>
+      <!-- <compilerarg value = "-Xdiags:verbose"/> -->
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>
