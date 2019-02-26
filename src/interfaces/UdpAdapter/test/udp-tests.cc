@@ -119,20 +119,20 @@ int main()
   print_buffer(bytes2, 8);
 
   int32_t pii = decode_int32_t(bytes2, 0);
-  printf("pif=%f, pii=%" PRId32 "\n", pif, pii);
+  printf("pif=%f, pii=%d\n", pif, pii);
 
   encode_int32_t(pii, bytes2, 4);
-  printf("\nencode_int32_t(%" PRId32 ", bytes2, 4)\n", pii);
+  printf("\nencode_int32_t(%d, bytes2, 4)\n", pii);
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
   pii = decode_int32_t(bytes2, 4);
   printf("\npii=decode_int32_t(bytes2, 4)\n");
-  printf("pif=%f, pii=%" PRId32 "\n", pif, pii);
+  printf("pif=%f, pii=%d\n", pif, pii);
 
   pif = decode_float(bytes2, 0);
   printf("\npif=decode_float(bytes2, 0)\n");
-  printf("pif=%f, pii=%" PRId32 "\n", pif, pii);
+  printf("pif=%f, pii=%d\n", pif, pii);
 
   printf("\nSend and receive some UDP buffers\n\n");
 
