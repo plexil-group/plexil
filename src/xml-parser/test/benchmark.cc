@@ -43,10 +43,6 @@
 #include <cstring>
 #endif
 
-// #ifdef HAVE_UNISTD_H
-// #include <unistd.h>
-// #endif
-
 #if defined(HAVE_GETTIMEOFDAY) && !defined(__VXWORKS__)
 #include <sys/time.h> // for gettimeofday, itimerval
 #include "timeval-utils.hh"

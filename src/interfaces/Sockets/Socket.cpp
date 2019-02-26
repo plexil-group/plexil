@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,19 +30,35 @@
 
 #include "Debug.hh"
 
-#include <cerrno>
-#include <cstring>
 #include <iostream>
 
-#include <fcntl.h>
-#include <arpa/inet.h>
+#include <cerrno>
 
-#ifdef PLEXIL_VXWORKS
-// VxWorks is not BSD!
-#include <sockLib.h>
+#ifdef STDC_HEADERS
+#include <cstring>
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_SOCKLIB_H
+#include <sockLib.h> // vxWorks
 #else
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // close()
 #endif
 
 Socket::Socket() :

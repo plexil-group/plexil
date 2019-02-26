@@ -31,7 +31,7 @@
 #ifdef HAVE_STDINT_H
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
-#elif defined(__VXWORKS__)
+#elif defined(HAVE_VXWORKS_H)
 #include <vxWorks.h>
 #endif
 

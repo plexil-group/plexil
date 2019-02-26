@@ -144,9 +144,12 @@ AC_CHECK_HEADERS([execinfo.h])
 # POSIX dependencies for core functionality
 AC_CHECK_HEADERS([dlfcn.h unistd.h sys/types.h])
 # POSIX headers for network functionality
-AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h sys/socket.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h sys/socket.h])
 # Kernel queues (BSD based systems)
 AC_CHECK_HEADERS([sys/event.h])
+
+# Non-Unix-like platforms
+AC_CHECK_HEADERS([sockLib.h vxWorks.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
