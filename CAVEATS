@@ -16,17 +16,6 @@ Build:
    You should be able to re-run 'configure' and 'make' successfully at
    this point.
 
- * The following subsystems in the src directory are built by default: 
-     - the Universal Executive
-     - the Test Executive
-     - IPC and IPC Adapter
-     - UDP Adapter
-     - GANTT listener
-     - Plexil Simulator
-
-   The following are not built by default:
-     - module tests
-
    See the "Advanced builds" section in the README file for
    instructions on how to use the 'configure' script to select the
    particular subsystems and applications you need.
