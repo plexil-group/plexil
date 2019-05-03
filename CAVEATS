@@ -56,10 +56,9 @@ Standard Plexil language:
 
 Plexil Viewer: 
 
- * The Plexil Viewer has been completely reimplemented for release
-   4.5. Many old bugs have been squashed, but it is likely many new
-   ones have been introduced. We encourage users to report any
-   problems to plexil-support@sourceforge.net.
+ * May 3, 2019.  For a while now, the Plexil Viewer is not in a good working
+   state.  It has not been actively supported in years, and has a variety of
+   problems.  PLEXIL is still in strong use, in its command line form.
 
 Plexil compiler ('plexilc'): 
 
