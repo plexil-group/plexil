@@ -56,9 +56,16 @@ Standard Plexil language:
 
 Plexil Viewer: 
 
- * May 3, 2019.  For a while now, the Plexil Viewer is not in a good working
-   state.  It has not been actively supported in years, and has a variety of
-   problems.  PLEXIL is still in strong use, in its command line form.
+ * In MacOS, the viewer may not quit from the Plexil Viewer Console window,
+   using the Viewer/Exit selection or the red Apple window button.  These cause
+   the application to hang, and you must kill it's process, e.g. enter 'ps -eaf
+   | grep java' and then 'kill -9 <pid>' where <pid> is the process number.
+ 
+ * June 14, 2019.  In general, the PLEXIL Viewer has not been extensively
+   supported in years, and has a variety of bugs and glitches not mentioned
+   here.  We hope to work on it more soon, and welcome fixes and enhancements
+   from the PLEXIL community.  Note that PLEXIL is still in strong use, in its
+   command line form.
 
 Plexil compiler ('plexilc'): 
 
