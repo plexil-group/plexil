@@ -232,6 +232,7 @@ namespace PLEXIL
   LuvListener::implementNotifyNodeTransition(NodeState prevState, 
 											 Node *node) const 
   {
+    debugMsg("LuvListener:implementNotifyNodeTransition", " for " << node->getNodeId());
 	if (m_socket != NULL) {
 	  std::ostringstream s;
 	  LuvFormat::formatTransition(s, prevState, node);
@@ -248,6 +249,7 @@ namespace PLEXIL
   void
   LuvListener::implementNotifyAddPlan(pugi::xml_node const plan) const 
   {
+    debugMsg("LuvListener:implementNotifyAddPlan", " entered");
 	if (m_socket != NULL) {
       sendPlanInfo();
       std::ostringstream s;
@@ -354,15 +356,14 @@ namespace PLEXIL
   //* Wait for acknowledgement from the viewer.
   void LuvListener::waitForAck() const
   {
-    if (m_block)
-      {
+    debugMsg("LuvListener:waitForAck", " entered");
+    if (m_block) {
         std::string buffer;
 		do
-          {
-            *m_socket >> buffer;
-          }
+          *m_socket >> buffer;
         while (buffer[0] != LUV_END_OF_MESSAGE());
       }
+    debugMsg("LuvListener:waitForAck", " exited");
   }
   
   extern "C"

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ namespace PLEXIL
   void ExecListenerHub::addListener(ExecListener *listener)
   {
     check_error_1(listener);
-    if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end())
+    if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end()) 
       return;
     m_listeners.push_back(listener);
   }
@@ -144,13 +144,13 @@ namespace PLEXIL
          it != m_listeners.end();
          ++it) {
       (*it)->notifyOfTransitions(m_transitions);
-      m_transitions.clear();
       for (std::vector<AssignmentRecord>::const_iterator rit = m_assignments.begin();
            rit != m_assignments.end();
            ++rit)
         (*it)->notifyOfAssignment(rit->dest, rit->destName, rit->value);
-      m_assignments.clear();
     }
+    m_transitions.clear();
+    m_assignments.clear();
   }
 
   //
@@ -170,7 +170,8 @@ namespace PLEXIL
          ++it) {
       success = (*it)->initialize();
       if (!success) {
-        debugMsg("ExecListenerHub:initialize", " failed to initialize all Exec listeners, returning false");
+        debugMsg("ExecListenerHub:initialize",
+                 " failed to initialize all Exec listeners, returning false");
         return false;
       }
     }
