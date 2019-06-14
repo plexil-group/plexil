@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -504,8 +504,6 @@ public class PlexilPlanHandler
                 put(PLEXIL_PLAN, new LuvElementHandler() {
                         public void elementEnd(String tagName, String tweenerText) {
                             // Notify client
-                            if (plan != null && plan.getRootNode() != null)
-                                plan.setName(plan.getRootNode().getNodeName());
                             if (receiver != null) 
                                 receiver.newPlan(plan);
                         }
@@ -513,8 +511,6 @@ public class PlexilPlanHandler
                 put(PLEXIL_LIBRARY, new LuvElementHandler() {
                         public void elementEnd(String tagName, String tweenerText) {
                             // Notify client
-                            if (plan != null && plan.getRootNode() != null)
-                                plan.setName(plan.getRootNode().getNodeName());
                             if (receiver != null) {
                                 receiver.newLibrary(plan);
                             }

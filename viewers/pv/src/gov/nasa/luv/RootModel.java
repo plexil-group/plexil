@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@ import java.util.Set;
 import java.util.Vector;
 
 public class RootModel {
-    private static List<Plan> plans =
-        Collections.synchronizedList(new Vector<Plan>());
+    private static Map<String, Plan> plans =
+        Collections.synchronizedMap(new HashMap<String, Plan>());
     private static Map<String, Plan> libraries =
         Collections.synchronizedMap(new HashMap<String, Plan>());
     private static Map<String, Vector<Plan> > libraryCallers =
@@ -48,41 +48,17 @@ public class RootModel {
 
     public static Plan getPlan(String name) {
         synchronized(plans) {
-            for (Plan p : plans)
-                if (p.getName().equals(name)) 
-                    return p;
+            return plans.get(name);
         }
-        return null;
     }
 
     public static void removePlanNamed(String name) {
         Plan oldPlan = null;
         synchronized(plans) {
-            for (int i = 0; i < plans.size(); ++i) {
-                Plan p = plans.get(i);
-                if (p.getName().equals(name)) {
-                    oldPlan = p;
-                    plans.remove(i);
-                    break;
-                }
-            }
+            oldPlan = plans.get(name);
+            plans.remove(name);
         }
         if (oldPlan != null && oldPlan.hasLibraryCalls())
-            removeFromLibraryCallers(oldPlan);
-    }
-
-    public static void removePlan(Plan oldPlan) {
-        boolean found = false;
-        synchronized(plans) {
-            for (int i = 0; i < plans.size(); ++i) {
-                if (plans.get(i) == oldPlan) {
-                    found = true;
-                    plans.remove(i);
-                    break;
-                }
-            }
-        }
-        if (found && oldPlan.hasLibraryCalls())
             removeFromLibraryCallers(oldPlan);
     }
 
@@ -103,7 +79,7 @@ public class RootModel {
         removePlanNamed(name);
 
         synchronized(plans) {
-            plans.add(plan);
+            plans.put(name, plan);
         }
 
         // Notify library callers, if any
@@ -220,7 +196,7 @@ public class RootModel {
             libraries.put(name, library);
         }
         synchronized(plans) {
-            for (Plan p : plans)
+            for (Plan p : plans.values())
                 p.libraryLoaded(name, library);
         }
     }

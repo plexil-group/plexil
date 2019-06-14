@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -140,91 +140,6 @@ public class FileHandler
     public void setStopSearchForMissingLibs(boolean value)
     {
         stopSearchForMissingLibs = value;
-    }
-    
-    /** Finds the Plexil library needed.
-     * 
-     * @param libraryName the name of the Plexil library to search for
-     * @return Plexil library or null if not found
-     * @throws java.io.InterruptedIOException
-     */
-
-    public Plan searchForLibrary(String libraryName, boolean askUser)
-        throws InterruptedIOException {
-
-        // Try known libraries first
-        Plan p = RootModel.getLibrary(libraryName);
-        if (p != null) {
-            File f = p.getPlanFile();
-            if (f != null)
-                // No file info, have to presume this is the one
-                return p;
-            else if (!f.isFile())
-                // file no longer exists in that location
-                RootModel.removeLibrary(libraryName);
-            else {
-                // Check if current
-                Date newLastMod = new Date(f.lastModified());
-                Date oldLastMod = p.getLastModified();
-                if (oldLastMod == null || newLastMod.after(oldLastMod)) {
-                    p = loadLibraryFile(f);
-                    if (p != null)
-                        return p;
-                }
-                else
-                    return p;
-            }
-        }
-
-        // Try plan directory next
-        String candidateName = libraryName + ".plx";
-        File planLoc = Settings.instance().getPlanLocation();
-        if (planLoc != null) {
-            File libDir = planLoc.getParentFile();
-            File candidate = new File(libDir, candidateName);
-            if (candidate.isFile()) {
-                Plan result = loadLibraryFile(candidate);
-                if (result != null)
-                    return result;
-            }
-        }
-
-        // Check user specified library path
-        for (File entry : Settings.instance().getLibDirs()) {
-            if (entry.isDirectory()) {
-                File candidate = new File(entry, candidateName);
-                if (candidate.isFile()) {
-                    Plan m = loadLibraryFile(candidate);
-                    if (m != null)
-                        return m;
-                }
-            }
-        }
-            
-        // Search failed, ask user
-        if (askUser) {
-            File candidate = unfoundLibrary(libraryName);
-            if (candidate != null && candidate.isFile()) {
-                return loadLibraryFile(candidate);
-            }
-        }
-        return null;
-    }
-
-    private Plan loadLibraryFile(File f) {
-        File location = f.getAbsoluteFile();
-        Plan result = readPlan(location);
-        if (result == null)
-            return null;
-
-        result.setLastModified(new Date(location.lastModified()));
-        Settings.instance().addLib(location); // FIXME: plan needs this too
-        StatusMessageHandler.instance().showStatus("Library "
-                                                          + location.toString()
-                                                          + " loaded",
-                                                          1000);
-        RootModel.libraryLoaded(result);
-        return result;
     }
           
     /** Selects and loads a Plexil library from the disk. This operates on the global model.

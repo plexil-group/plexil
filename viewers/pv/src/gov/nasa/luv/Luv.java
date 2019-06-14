@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,10 +145,9 @@ public class Luv extends JFrame {
         startState();
 
         // Display the plan if one was named on the command line
-        // *** FIXME ***
         if (Settings.instance().getPlanSupplied()
             && Settings.instance().getPlanLocation().isFile()) {
-            loadPlan(Settings.instance().getPlanLocation());
+            loadPlan(Settings.instance());
             readyState();
 
             // Go ahead and run it if requested
@@ -530,8 +529,30 @@ public class Luv extends JFrame {
     // TODO: run as a SwingWorker
     public void loadPlan(File f) {
         Plan m = FileHandler.readPlan(f);
-        if (m != null)
+        if (m != null) {
+            // TODO: default from command line settings?
             handleNewPlan(m);
+        }
+        readyState();
+    }
+
+    public void loadPlan(Settings s) {
+        Plan m = FileHandler.readPlan(s.getPlanLocation());
+        if (m != null) {
+            if (s.getModeSupplied())
+                m.setAppType(s.getAppMode());
+            if (s.getScriptSupplied())
+                m.setScriptFile(s.getScriptLocation());
+            if (s.getConfigSupplied())
+                m.setConfigFile(s.getConfigLocation());
+            if (s.getDebugSupplied())
+                m.setDebugFile(s.getDebugLocation());
+            if (s.getLibDirsSupplied())
+                m.setLibraryPath(s.getLibDirs());
+            if (s.getLibsSupplied())
+                m.setLibraryFiles(s.getLibs());
+            handleNewPlan(m);
+        }
         readyState();
     }
 
@@ -547,8 +568,6 @@ public class Luv extends JFrame {
     //  2. Exec has just transmitted the plan it is about to execute.
     // If the Exec is running as a slave of Luv, both events will happen, in that order. In different threads.
 
-    // FIXME: Move model mangling to RootModel class
-
     public void handleNewPlan(Plan plan) {
         String name = plan.getName();
         Plan existing = RootModel.getPlan(name);
@@ -558,7 +577,6 @@ public class Luv extends JFrame {
                 // same 'plan' already loaded, so use it, 
                 // but refresh view
                 if (view != null) {
-                    //System.out.println("handleNewPlan: Received same plan from exec, refreshing it");
                     view.resetEvent();
                     return;
                 }
@@ -566,8 +584,6 @@ public class Luv extends JFrame {
             }
             else {
                 // plan has changed
-                //System.out.println("handleNewPlan: Received plan has same name but differs, loading new");
-                RootModel.removePlan(existing);
                 RootModel.addPlan(plan);
                 view.newPlanEvent(plan);
                 return;
@@ -581,7 +597,7 @@ public class Luv extends JFrame {
         // or an old plan with no view that is about to run.
         //System.out.println("handleNewPlan: Constructing new PlanView");
         view = new PlanView(plan); // FIXME
-        planViews.put(plan.getRootNode().getNodeName(), view);
+        planViews.put(plan.getName(), view);
         view.setVisible(true);
     }
 
@@ -591,7 +607,7 @@ public class Luv extends JFrame {
         if (p == null)
             return;
         planViews.remove(p.getName());
-        RootModel.removePlan(p);
+        RootModel.removePlanNamed(p.getName());
     }
 
     // Called when a plan is received from the Exec.

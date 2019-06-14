@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -316,12 +316,13 @@ public class ExecutionHandler
      * @return a plexil command generator.
      */
     // TODO: don't construct a new instance for each call
-    // *** FIXME: Only look for ALT_EXECUTIVE when in USER_SPECIFIED mode. ***
     @SuppressWarnings("unchecked")
     private CommandGenerator getCommandGenerator()
         throws CommandGenerationException
     {
-        String alternativeExecutive = System.getenv("ALT_EXECUTIVE");
+        String alternativeExecutive = null;
+        if (Settings.instance().getAppMode() == USER_SPECIFIED)
+            alternativeExecutive = System.getenv("ALT_EXECUTIVE");
         if (alternativeExecutive != null) {
             Class ecgClass;
             try {
