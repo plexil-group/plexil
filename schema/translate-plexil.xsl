@@ -563,11 +563,14 @@
         <xsl:value-of select="$preceding-test-node-id" />
       </NodeRef>
     </xsl:variable>
+    <xsl:variable name="test-node-ref">
+      <NodeRef dir="sibling">
+        <xsl:value-of select="$test-node-id" />
+      </NodeRef>
+    </xsl:variable>
     <xsl:variable name="test-node-succeeded">
       <Succeeded>
-        <NodeRef dir="sibling">
-          <xsl:value-of select="$test-node-id" />
-        </NodeRef>
+        <xsl:sequence select="$test-node-ref" />
       </Succeeded>
     </xsl:variable>
     <Node NodeType="Empty" epx="ElseIf">
@@ -607,9 +610,14 @@
         <xsl:with-param name="start-condition"
                         select="$test-node-succeeded" />
         <xsl:with-param name="skip-condition">
-          <NOT>
-            <xsl:sequence select="$test-node-succeeded" />
-          </NOT>
+          <OR>
+            <Skipped>
+              <xsl:sequence select="$test-node-ref" />
+            </Skipped>
+            <PostconditionFailed>
+              <xsl:sequence select="$test-node-ref" />
+            </PostconditionFailed>
+          </OR>
         </xsl:with-param>
       </xsl:call-template>
     </xsl:for-each>

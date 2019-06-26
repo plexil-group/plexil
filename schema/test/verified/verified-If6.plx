@@ -62,11 +62,14 @@
             </Succeeded>
           </StartCondition>
           <SkipCondition>
-            <NOT>
-              <Succeeded>
+            <OR>
+              <Skipped>
                 <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
-              </Succeeded>
-            </NOT>
+              </Skipped>
+              <PostconditionFailed>
+                <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+              </PostconditionFailed>
+            </OR>
           </SkipCondition>
         </Node>
         <Node NodeType="Empty" epx="ElseIf">
@@ -101,11 +104,14 @@
             </Succeeded>
           </StartCondition>
           <SkipCondition>
-            <NOT>
-              <Succeeded>
+            <OR>
+              <Skipped>
                 <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-              </Succeeded>
-            </NOT>
+              </Skipped>
+              <PostconditionFailed>
+                <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+              </PostconditionFailed>
+            </OR>
           </SkipCondition>
         </Node>
         <Node NodeType="Empty" epx="Else">
