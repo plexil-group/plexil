@@ -207,8 +207,7 @@ compile_plp()
 }
 
 # Parse options
-#while [ "${1:0:1}" = '-' ]
-while grep -q -e '-.*' "$1"
+while ( echo "$1" | grep -q -e '^-.*' )
 do
     case "$1" in
         ( -c | -check )
