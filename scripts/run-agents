@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # File: $SVNROOT/scripts/run-agents
 # Note: Script to run two Plexil agent systems using IPC
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 debug=
 
-function usage ()
+usage ()
 {
 cat <<EOF
 
@@ -72,31 +72,86 @@ ipc_pid=
 no_ipc=
 
 # Show the usage message and/or set up the "mode" to run in
-until [ -z $1 ] ;
+until [ -z "$1" ] ;
 do
-    if [ "$1" = "-h" ] || [ "$1" = "-help" ] ; then usage ; fi
-    if [ "$1" = "-d" ] ; then debug=true ; shift ; fi
-    if [ "$1" = "-v" ] || [ "$1" = "-viewer" ] ; then use_viewer=yes ; shift ;
-    elif [ "$1" = "-x" ] || [ "$1" = "-xterm" ] || [ "$1" = "-xterms" ] ; then use_xterm=yes ; shift ;
-    elif [ "$1" = "-vx" ] || [ "$1" = "-xv" ] ; then use_xterm=yes ; use_viewer=yes ; shift ;
-    elif [ "$1" = "-i" ] || [ "$1" = "-ipc" ] ; then run_ipc_in_background=no ; shift ;
-    elif [ "$1" = "-n" ] || [ "$1" = "-no-ipc" ] ; then no_ipc=yes ; shift ;
-    elif [ "$1" = "-c" ] ; then
-        if [ -z $com1 ] ; then shift ; com1=$1 ; shift;
-        else shift ; com2=$1 ; shift ;
+    # TODO: use case statement
+    if [ "$1" = "-h" ] || [ "$1" = "-help" ]
+    then
+	usage
+	exit 0
+    fi
+    if [ "$1" = "-d" ]
+    then
+	debug=true
+	shift
+    elif [ "$1" = "-v" ] || [ "$1" = "-viewer" ]
+    then
+	use_viewer=yes
+	shift
+    elif [ "$1" = "-x" ] || [ "$1" = "-xterm" ] || [ "$1" = "-xterms" ]
+    then
+	use_xterm=yes
+	shift
+    elif [ "$1" = "-vx" ] || [ "$1" = "-xv" ]
+    then
+	use_xterm=yes
+	use_viewer=yes
+	shift
+    elif [ "$1" = "-i" ] || [ "$1" = "-ipc" ]
+    then
+	run_ipc_in_background=no
+	shift
+    elif [ "$1" = "-n" ] || [ "$1" = "-no-ipc" ]
+    then
+	no_ipc=yes
+	shift
+    elif [ "$1" = "-c" ] 
+    then
+        if [ -z $com1 ]
+	then
+	    shift
+	    com1=$1
+	    shift;
+        else
+	    shift
+	    com2=$1
+	    shift
         fi
-    elif [ "$1" = "-l" ] ; then
-        if [ -z $agent2_raw ] ; then shift ; libs1+=$1 ; libs1+=" " ; shift ;
-        else shift ; libs2+=$1 ; libs2+=" " ; shift ;
+    elif [ "$1" = "-l" ]
+    then
+        if [ -z $agent2_raw ]
+	then
+	    shift
+	    libs1="$libs1$1 "
+	    shift
+        else
+	    shift
+	    libs2="$libs2$1 "
+	    shift
         fi
-    elif [ "$1" = "-L" ] ; then
-        if [ -z $agent2_raw ] ; then libdirs1+=$1 ; libdirs1+=" " ; shift ; libdirs1+=$1 ; libdirs1+=" " ; shift ;
-        else libdirs2+=$1 ; libdirs2+=" "; shift ; libdirs2+=$1 ; libdirs2+=" " ; shift ;
+    elif [ "$1" = "-L" ]
+    then
+        if [ -z $agent2_raw ]
+	then
+	    libdirs1="$libdirs1$1 $2 "
+	    shift 2
+        else
+	    libdirs2="$libdirs1$1 $2 "
+	    shift 2
         fi
     else
-        if [ -z $agent1_raw ] ; then agent1_raw=$1 ; shift ;
-        elif [ -z $agent2_raw ] ; then agent2_raw=$1 ; shift ;
-        else echo "The \"$1\" parameter is ambiguous.  Maybe it is a library missing the -l flag?" ; usage ;
+        if [ -z $agent1_raw ]
+	then
+	    agent1_raw=$1
+	    shift
+        elif [ -z $agent2_raw ]
+	then
+	    agent2_raw=$1
+	    shift
+        else
+	    echo "The \"$1\" parameter is ambiguous.  Maybe it is a library missing the -l flag?"
+	    usage
+	    exit 1
         fi
     fi
 done
@@ -107,8 +162,8 @@ if [ -z $agent1_raw ] || [ -z $agent2_raw ] ; then
 fi
 
 # Allow for either base names or names including extensions
-agent1=`echo $agent1_raw | awk '{ split($0, arr, "."); print(arr[1]) }'` ; shift
-agent2=`echo $agent2_raw | awk '{ split($0, arr, "."); print(arr[1]) }'` ; shift
+agent1=`echo $agent1_raw | awk '{ split($0, arr, "."); print(arr[1]) }'`
+agent2=`echo $agent2_raw | awk '{ split($0, arr, "."); print(arr[1]) }'`
 
 # Guess at what the communications configurations might be for these agents
 # t1-cmd = cmd.xml or t1-cmd.xml = cmd-t1; cmd = cmd.xml
@@ -214,7 +269,7 @@ do
     ${MAKE} $lib.plx
     # stop of the compile fails
     if [ $? != 0 ] ; then echo "Error: $lib.plx failed to compile" ; exit ; fi
-    libraries1+=`echo " -l " $lib.plx`
+    libraries1="$libraries1 -l $lib.plx"
 done
 # And again for the second agent
 for lib in $libs2 ;
@@ -227,7 +282,7 @@ do
     fi
     ${MAKE} $lib.plx
     if [ $? != 0 ] ; then echo "Error: $lib.plx failed to compile" ; exit ; fi
-    libraries2+=`echo " -l " $lib.plx`
+    libraries2="$libraries2 -l $lib.plx"
 done
 
 # Set up the command line and sleep time.  Java on Mac OS is really slow,
@@ -323,11 +378,8 @@ else
     xterm -e $cmd2
 fi
 
-kill_ipc_timeout=20
-
 if [ "$run_ipc_in_background" = "yes" ] && [ "$no_ipc" != "yes" ];
 then
-    read -t $kill_ipc_timeout -p "Press [Return] to kill ipc ($kill_ipc_timeout second timeout): "
     kill -9 "$ipc_pid"
     echo ' '
 fi

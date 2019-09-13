@@ -1,6 +1,6 @@
-#! /usr/bin/env bash
+#! /bin/sh
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -215,37 +215,44 @@ do
     save=$1
     case $1 in
         
-	    -a | -autorun )
+	-a | -autorun )
             auto_run_cmd=$1;;
 
-	    -b | -blocking )
+	-b | -blocking )
             block=$1;;
 
-	    -c | -config )
-	        shift
-	        config_nm=$1;;
+	-c | -config )
+	    shift
+	    config_nm=$1;;
 
-	    -ch | -check )
+	-ch | -check )
             check=$1;;
 
-	    -d | -debug )
+	-d | -debug )
             shift
-	        validate_file "$1" $save
+	    validate_file "$1" $save
             debug_cmd="-d $1";;
 
         --for-viewer )
-            automate=$1;;
+	    automate=$1;;
 
-	    -h | -hostname )
-            shift
-	        host_in="$1";;
+	-h | -hostname )
+	    if [ -n "$2" ]
+	    then
+		shift
+		host_in="$1"
+	    else
+		echo $usage_text
+		echo $help_text
+		exit 0
+	    fi;;
 
-	    -help )
-            echo -e $usage_text
-            echo -e $help_text
-	        exit 0;;
+	-help | --help )
+            echo $usage_text
+            echo $help_text
+	    exit 0;;
 
-	    -L | -libraryPath )
+	-L | -libraryPath )
             shift
             if [ -z "$1" ]
             then
@@ -258,35 +265,35 @@ do
                 exit 1
             else
                 library_dirs="$library_dirs$1 "
-	            lib_dirs_cmd="$lib_dirs_cmd-L $1 "
+	        lib_dirs_cmd="$lib_dirs_cmd-L $1 "
             fi;;
 
-	    -l | -library )
+	-l | -library )
             shift
-	        validate_file "$1" $save
+	    validate_file "$1" $save
             libraries="$libraries$1 "
-	        lib_cmd="$lib_cmd-l $1 ";;
+	    lib_cmd="$lib_cmd-l $1 ";;
 
-	    -n | -port )
+	-n | -port )
             shift
-	        port_in=$1;;	#viewer port
+	    port_in=$1;;	#viewer port
 
-	    -p | -plan )
-	        shift
+	-p | -plan )
+	    shift
             validate_file "$1" $save
-	        plan_nm=$1	
-	        plan_cmd="-p $plan_nm";;
+	    plan_nm=$1	
+	    plan_cmd="-p $plan_nm";;
 
         -q | -quiet )
             quiet=$1;;
 
-	    -v | -viewer )
+	-v | -viewer )
             viewer=$1;;	#viewer listener enabled	
 
-	    * )
+	* )
             echo 'Error: unrecognized option' "'$1'"
-	        usage
-	        exit 2;;  
+	    usage
+	    exit 2;;  
     esac
     shift
 done
