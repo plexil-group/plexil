@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
+# Generalized compiler driver for Plexil source files
 
 # Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 # All rights reserved.
@@ -42,7 +43,7 @@
 #    Plexil scripts (XML)         : .psx
 #
 
-function usage ()
+usage ()
 {
     echo "Usage: $0 [options] <source-file>"
     echo " Compile a Plexil plan or simulator script to XML"
@@ -68,7 +69,7 @@ function usage ()
     echo "  .pst - Plexilscript simulation script"
 }
 
-function check_env()
+check_env()
 {
     if [ -z "$PLEXIL_HOME" ]
     then
@@ -79,7 +80,7 @@ function check_env()
     . ${PLEXIL_HOME}/scripts/plexil-setup.sh
 }
 
-function generate_output_fname()
+generate_output_fname()
 {
     if [ -n "$output" ]
     then
@@ -90,20 +91,21 @@ function generate_output_fname()
     in_ext=`expr $1 : '.*\.\([a-z][a-z][a-z]\)$'`
     case "$in_ext" in
         ( ple | pli | epx )
-        echo ${1/%$in_ext/plx}
+        echo $1 | sed -e "s/$in_ext$/plx/"
         ;;
 
         pst )
-            echo ${1/%$in_ext/psx}
+            echo $1 | sed -e "s/$in_ext$/psx/"
             ;;
         * )
-            echo Unable to generate output filename for "$1" >&2
+            echo Unrecognized filename extension "$in_ext" for "$1" >&2
+            echo Supported extensions are: epx ple pli pst >&2
             exit 1
             ;;
     esac
 }
 
-function compile_std_plexil()
+compile_std_plexil()
 {
     # Plexil plan
     options=""
@@ -133,7 +135,7 @@ function compile_std_plexil()
     fi
 }
 
-function compile_plexilisp()
+compile_plexilisp()
 {
     # Plexilisp plan/script
     if [ -n "$quiet" ]
@@ -157,7 +159,7 @@ function compile_plexilisp()
     fi
 }
 
-function compile_ext_plexil()
+compile_ext_plexil()
 {
     # Extended Plexil XML plan
     output=`generate_output_fname $1`
@@ -175,7 +177,7 @@ function compile_ext_plexil()
     fi
 }
 
-function compile_plexilscript()
+compile_plexilscript()
 {
     # Plexilscript
     output=`generate_output_fname $1`
@@ -188,7 +190,7 @@ function compile_plexilscript()
     fi
 }
 
-function compile_plp()
+compile_plp()
 {
     # Standard Plexil w/ preprocessing
     ple_fname="${1/%plp/ple}"
@@ -205,7 +207,8 @@ function compile_plp()
 }
 
 # Parse options
-while [ "${1:0:1}" = '-' ]
+#while [ "${1:0:1}" = '-' ]
+while grep -q -e '-.*' "$1"
 do
     case "$1" in
         ( -c | -check )
