@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Generalized compiler driver for Plexil source files
 
 # Copyright (c) 2006-2019, Universities Space Research Association (USRA).
