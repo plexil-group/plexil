@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -65,8 +65,9 @@ SAXON_JAR			:= $(THIRD_PARTY_JAR_DIR)/saxon.jar
 JAVAC_CLASSPATH	:= $(ANTLR3_RUNTIME_JAR):$(NANOXML_JAR):$(SAXON_JAR):$(CLASSES_DIR)
 
 # Java compiler options
-# Support ancient Java versions
-JAVAC_OPTIONS	:= -source 1.6 -target 1.6
+# Stop supporting ancient Java versions
+#JAVAC_OPTIONS	:= -source 1.6 -target 1.6
+JAVAC_OPTIONS	:=
 
 plexil-default: $(PLEXILC_JAR)
 
