@@ -23,17 +23,16 @@ installed:
 
  GNU Make
  GNU Bash
- GNU gperf
- gcc/g++ (default), clang/clang++, or other C99 and C++03 compliant compilers
+ gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
  Java 8 or newer JDK (development package, not just runtime)
  Apache ant, including the antlr module
+
+If you are building from an SVN checkout, the GNU autotools (autoconf,
+automake, and libtool) and gperf are also required.
 
 The robosim example program also requires:
 
  X11 libraries freeglut, libxi, libxmu and their header files
-
-In addition, if you are building from an SVN checkout, the GNU
-autotools (autoconf, automake, and libtool) are required.
 
 
 How to build PLEXIL - Simple version
@@ -44,13 +43,14 @@ simply change to this top level directory and type:
 
  make all
 
-NOTE: if you have just updated your code checkout, you may need to precede the
-'make all' with either of:
+NOTE: if you have just updated your code checkout, you may need to
+precede the 'make all' with either of:
 
  make clean
  make squeaky-clean
 
-The latter of these is sometimes needed when make/autotools files have changed.
+The latter of these is sometimes needed when make/autotools files have
+changed.
 
 To build the tool suite without the example applications:
 
@@ -70,8 +70,8 @@ Advanced builds
 ---------------
 
 The PLEXIL Executive uses the GNU autotools to allow for easy
-customization and cross-compilation when the standard build (above)
-is not appropriate for a specific application.
+customization and cross-compilation when the standard build (above) is
+not appropriate for a specific application.
 
 1. Change to the build directory.
 
@@ -118,9 +118,9 @@ embedded Linux tool suite on an ARM processor.
 Running PLEXIL
 --------------
 
-1. Set up your environment. The PLEXIL shell scripts depend on the
+1. Set up your environment.  The PLEXIL shell scripts depend on the
 setting of PLEXIL_HOME, and for convenience you may wish to add the
-PLEXIL scripts and binaries to your shell's path. This example is for
+PLEXIL scripts and binaries to your shell's path.  This example is for
 the Bourne/bash shells or similar.
 
   export PLEXIL_HOME='/location/of/plexil'
@@ -129,7 +129,7 @@ the Bourne/bash shells or similar.
 You may wish to add these two lines to your shell init file.
 
 2. The 'plexil' script launches the Plexil Viewer, in which you can
-examine, run, and debug plans. You may wish to use the plans in the
+examine, run, and debug plans.  You may wish to use the plans in the
 'examples' directory as a starting point.
 
   plexil
