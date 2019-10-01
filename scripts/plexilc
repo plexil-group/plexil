@@ -231,7 +231,7 @@ do
             ;;
         
         ( -o | -output )
-        if [ -z "$2" -o "${2:0:1}" = '-' ]
+        if [ -z "$2" ] || ( echo "$2" | grep -q -e '^-.*' )
         then
             echo "Error: output filename missing for $1 option"
             usage
