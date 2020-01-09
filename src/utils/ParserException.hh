@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,8 @@
 
 #ifndef PARSER_EXCEPTION_H
 #define PARSER_EXCEPTION_H
+
+#include "Error.hh" // PLEXIL_NOEXCEPT
 
 #include <exception>
 #include <sstream>
@@ -62,17 +64,17 @@ namespace PLEXIL
   class ParserException : public std::exception
   {
   public:
-    ParserException() throw();
+    ParserException() PLEXIL_NOEXCEPT;
 
-    ParserException(const char* msg) throw ();
-    ParserException(const char* msg, const char* filename, int offset) throw();
-    ParserException(const char* msg, const char* filename, int line, int col) throw();
+    ParserException(const char* msg) PLEXIL_NOEXCEPT;
+    ParserException(const char* msg, const char* filename, int offset) PLEXIL_NOEXCEPT;
+    ParserException(const char* msg, const char* filename, int line, int col) PLEXIL_NOEXCEPT;
 
-    ParserException& operator=(const ParserException&) throw();
+    ParserException& operator=(const ParserException&) PLEXIL_NOEXCEPT;
 
-    virtual ~ParserException() throw();
+    virtual ~ParserException() PLEXIL_NOEXCEPT;
 
-    virtual const char *what() const throw();
+    virtual const char *what() const PLEXIL_NOEXCEPT;
 
   private:
     std::string m_what;

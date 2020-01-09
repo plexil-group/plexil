@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -67,13 +67,27 @@
 #include <stdexcept>
 
 // Helper macro for telling compiler that error handler won't return
-#ifdef __GNUC__
+// Oh fooey, syntax is different between C++ standard and GCC extension.
+// C++11 on expects [[noreturn]] immediately after function name.
+// GCC expects __attribute__ after prototype.
+// Yecch. Punt for now.
+#if __GNUC__
 // This version for g++ and clang++
-#define PLEXIL_NORETURN __attribute__((__noreturn__))
+#define PLEXIL_NORETURN __attribute__((noreturn))
 #else
-// TODO: Support other compilers here
 // fallback (no-op)
 #define PLEXIL_NORETURN
+#endif
+
+// Helper macro for noexcept specification
+// Some compilers use non-standard _NOEXCEPT and declare it to be more stringent
+// than the C++11 standard 'noexpect' keyword.
+#if defined(_NOEXCEPT)
+#define PLEXIL_NOEXCEPT _NOEXCEPT
+#elif __cplusplus >= 201103L
+#define PLEXIL_NOEXCEPT noexcept
+#else // older than C++11
+#define PLEXIL_NOEXCEPT throw ()
 #endif
 
 /**
@@ -135,7 +149,7 @@ namespace PLEXIL
      * The Error destructor.
      * @note Should only be used implicitly.
      */
-    virtual ~Error() throw ();
+    virtual ~Error() PLEXIL_NOEXCEPT;
 
     /**
        @brief Assignment operator.
@@ -145,8 +159,7 @@ namespace PLEXIL
     /**
        @brief Return the message as a character string.
     */
-    virtual char const *what() const
-      throw ();
+    virtual char const *what() const PLEXIL_NOEXCEPT;
 
     /**
        @brief Return whether all error information should be printed when detected.

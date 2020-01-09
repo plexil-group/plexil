@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,7 @@
 namespace PLEXIL
 {
 
-  ParserException::ParserException()
-    throw ()
+  ParserException::ParserException() PLEXIL_NOEXCEPT
     : std::exception(), 
       m_what("Unspecified parser exception"),
       m_file(),
@@ -44,8 +43,7 @@ namespace PLEXIL
   }
 
   // Must copy the message as it may be stack or dynamically allocated.
-  ParserException::ParserException(const char * msg)
-    throw()
+  ParserException::ParserException(const char * msg) PLEXIL_NOEXCEPT
     : std::exception(),
       m_what(),
       m_file(),
@@ -60,8 +58,7 @@ namespace PLEXIL
   }
   
   // Used to report (e.g.) pugixml errors.
-  ParserException::ParserException(const char * msg, const char * file, int offset)
-    throw()
+  ParserException::ParserException(const char * msg, const char * file, int offset) PLEXIL_NOEXCEPT
     : std::exception(),
       m_what(),
       m_file(),
@@ -78,8 +75,7 @@ namespace PLEXIL
   }
   
   // When we have complete information about the location.
-  ParserException::ParserException(const char * msg, const char * file, int line, int col)
-    throw()
+  ParserException::ParserException(const char * msg, const char * file, int line, int col) PLEXIL_NOEXCEPT
     : std::exception(),
       m_what(),
       m_file(),
@@ -95,8 +91,7 @@ namespace PLEXIL
     Logging::handle_message(Logging::LOG_ERROR, file, line, col, m_what.c_str());
   }
   
-  ParserException& ParserException::operator=(const ParserException& other)
-    throw()
+  ParserException& ParserException::operator=(const ParserException& other) PLEXIL_NOEXCEPT
   {
     this->std::exception::operator=(other);
     m_what = other.m_what;
@@ -106,13 +101,11 @@ namespace PLEXIL
     return *this;
   }
 
-  ParserException::~ParserException()
-  throw()
+  ParserException::~ParserException() PLEXIL_NOEXCEPT
   {
   }
 
-  const char* ParserException::what() const
-    throw()
+  const char* ParserException::what() const PLEXIL_NOEXCEPT
   {
     return m_what.c_str();
   }
