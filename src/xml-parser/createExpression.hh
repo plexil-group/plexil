@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,7 @@ namespace PLEXIL
    * @note Throws ParserException if any problems are found.
    */
 
-  extern ValueType checkExpression(char const *nodeId, pugi::xml_node const expr)
-    throw (ParserException);
+  extern ValueType checkExpression(char const *nodeId, pugi::xml_node const expr);
 
   /**
    * @brief Check the XML for validity as an assignable expression.
@@ -59,8 +58,7 @@ namespace PLEXIL
    * @note Throws ParserException if any problems are found.
    */
 
-  extern ValueType checkAssignable(char const *nodeId, pugi::xml_node const expr)
-    throw (ParserException);
+  extern ValueType checkAssignable(char const *nodeId, pugi::xml_node const expr);
   
   /**
    * @brief Creates a new Expression instance with the type associated with the
@@ -72,8 +70,7 @@ namespace PLEXIL
    */
 
   extern Expression *createExpression(pugi::xml_node const expr,
-                                      NodeConnector *node = NULL)
-    throw (ParserException);
+                                      NodeConnector *node = NULL);
 
   /**
    * @brief Creates a new Expression instance with the type associated with the
@@ -88,14 +85,12 @@ namespace PLEXIL
   extern Expression *createExpression(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated,
-                                      ValueType returnType = UNKNOWN_TYPE)
-    throw (ParserException);
+                                      ValueType returnType = UNKNOWN_TYPE);
 
   // Used in AssignmentNode, CommandNode
   extern Expression *createAssignable(pugi::xml_node const expr,
                                       NodeConnector *node,
-                                      bool& wasCreated)
-    throw (ParserException);
+                                      bool& wasCreated);
 
   /**
    * @brief Deallocate all factories

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,6 @@ namespace PLEXIL
 
   // Load a file and extract the top-level XML element from it.
   xml_document *loadXmlFile(std::string const &filename)
-    throw (ParserException)
   {
     debugMsg("loadXmlFile", ' ' << filename);
     xml_document *doc = new xml_document;
@@ -67,7 +66,6 @@ namespace PLEXIL
 
   // First pass: surface check of XML
   SymbolTable *checkPlan(xml_node const xml)
-    throw (ParserException)
   {
     debugMsg("checkPlan", " entered");
     checkTag(PLEXIL_PLAN_TAG, xml);
@@ -102,7 +100,6 @@ namespace PLEXIL
   }
 
   NodeImpl *constructPlan(xml_node const xml, SymbolTable *symtab, NodeImpl *parent)
-    throw (ParserException)
   {
     xml_node const root = xml.child(NODE_TAG);
     debugMsg("constructPlan", ' ' << root.child_value(NODEID_TAG));
@@ -131,7 +128,6 @@ namespace PLEXIL
   }
 
   NodeImpl *parsePlan(xml_node const xml)
-    throw (ParserException)
   {
     debugMsg("parsePlan", "entered");
     // Perform surface checks & log global symbols

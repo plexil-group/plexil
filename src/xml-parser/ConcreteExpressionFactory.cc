@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,6 @@ namespace PLEXIL
   // General case. For all but string types, the value string may not be empty.
   template <typename T>
   ValueType ConcreteExpressionFactory<Constant<T> >::check(char const *nodeId, pugi::xml_node const expr) const
-      throw (ParserException)
   {
     checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
@@ -79,7 +78,6 @@ namespace PLEXIL
                                                                 NodeConnector * /* node */,
                                                                 bool &wasCreated,
                                                                 ValueType /* returnType */) const
-    throw (ParserException)
   {
     wasCreated = true;
     T value;
@@ -95,7 +93,6 @@ namespace PLEXIL
                                                                    NodeConnector * /* node */,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
-    throw (ParserException)
   {
     bool value;
     bool known = parseValue(expr.child_value(), value);
@@ -115,7 +112,6 @@ namespace PLEXIL
                                                                       NodeConnector * /* node */,
                                                                       bool &wasCreated,
                                                                       ValueType /* returnType */) const
-    throw (ParserException)
   {
     // check for empty value
     int32_t value;
@@ -149,7 +145,6 @@ namespace PLEXIL
   template <>
   ValueType ConcreteExpressionFactory<Constant<String> >::check(char const *nodeId,
                                                                 pugi::xml_node const expr) const
-      throw (ParserException)
   {
     return STRING_TYPE;
   }
@@ -159,7 +154,6 @@ namespace PLEXIL
                                                                      NodeConnector * /* node */,
                                                                      bool &wasCreated,
                                                                      ValueType /* returnType */) const
-    throw (ParserException)
   {
     wasCreated = true;
     return new Constant<String>(expr.child_value());
@@ -177,7 +171,6 @@ namespace PLEXIL
 
   ValueType ConcreteExpressionFactory<ArrayReference>::check(char const *nodeId,
                                                              pugi::xml_node const expr) const
-      throw (ParserException)
   {
     // Syntax checks
     checkHasChildElement(expr);
@@ -225,7 +218,6 @@ namespace PLEXIL
                                 Expression *&indexExpr,
                                 bool &arrayCreated,
                                 bool &indexCreated)
-    throw (ParserException)
   {
     // Syntax checks
     xml_node arrayXml = expr.first_child();
@@ -269,7 +261,6 @@ namespace PLEXIL
                                                       NodeConnector *node,
                                                       bool & wasCreated,
                                                       ValueType /* returnType */) const
-    throw (ParserException)
   {
     Expression *arrayExpr = NULL;
     Expression *indexExpr = NULL;
@@ -285,7 +276,6 @@ namespace PLEXIL
   Expression *createMutableArrayReference(xml_node const expr,
                                           NodeConnector *node,
                                           bool & wasCreated)
-    throw (ParserException)
   {
     Expression *arrayExpr = NULL;
     Expression *indexExpr = NULL;
@@ -314,7 +304,6 @@ namespace PLEXIL
   //
 
   ValueType VariableReferenceFactory::check(char const *nodeId, xml_node const expr) const
-    throw (ParserException)
   {
     checkNotEmpty(expr);
     char const *varName = expr.child_value();
@@ -344,7 +333,6 @@ namespace PLEXIL
                                      NodeConnector *node,
                                      bool & wasCreated,
                                      ValueType /* returnType */) const
-    throw (ParserException)
   {
     assertTrue_1(node); // internal error
     checkNotEmpty(expr);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -404,7 +404,6 @@ namespace PLEXIL
 
   template <>
   bool parseValue(char const *str, Boolean &result)
-    throw (ParserException)
   {
     assertTrue_1(str);
     // TEMP DEBUG
@@ -451,7 +450,6 @@ namespace PLEXIL
 
   template <>
   bool parseValue<Integer>(char const *str, Integer &result)
-    throw (ParserException)
   {
     assertTrue_1(str);
     if (!*str || 0 == strcmp(str, "UNKNOWN"))
@@ -472,7 +470,6 @@ namespace PLEXIL
 
   template <>
   bool parseValue<Real>(char const *str, Real &result)
-    throw (ParserException)
   {
     assertTrue_1(str);
     if (!*str || 0 == strcmp(str, "UNKNOWN"))
@@ -492,7 +489,6 @@ namespace PLEXIL
   // Empty string is valid
   template <>
   bool parseValue(char const *str, String &result)
-    throw (ParserException)
   {
     assertTrue_1(str);
     result = str;

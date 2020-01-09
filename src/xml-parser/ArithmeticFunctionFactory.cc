@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,6 @@ namespace PLEXIL
   }
 
   ValueType ArithmeticFunctionFactory::check(char const *nodeId, xml_node const expr) const
-    throw (ParserException)
   {
     // Check arg count
     size_t n = std::distance(expr.begin(), expr.end());
@@ -145,7 +144,6 @@ namespace PLEXIL
                                                   NodeConnector *node,
                                                   bool & wasCreated,
                                                   ValueType returnType) const
-    throw (ParserException)
   {
     // Need to check operands to determine operator type
     size_t n = std::distance(expr.begin(), expr.end());

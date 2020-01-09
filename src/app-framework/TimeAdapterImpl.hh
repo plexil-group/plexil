@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -126,7 +126,7 @@ namespace PLEXIL
      * @note Default method uses clock_gettime() or gettimeofday() as available;
      *       specializations may override this method.
      */
-    virtual double getCurrentTime() throw (InterfaceError);
+    virtual double getCurrentTime();
 
     /**
      * @brief Initialize signal handling for the process.
@@ -145,7 +145,7 @@ namespace PLEXIL
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    virtual bool setTimer(double date) throw (InterfaceError) = 0;
+    virtual bool setTimer(double date) = 0;
 
     /**
      * @brief Stop the timer.

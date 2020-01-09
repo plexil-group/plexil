@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,6 @@ namespace PLEXIL
   // General case
   template <typename T>
   void checkArrayLiteral(char const *eltTypeName, pugi::xml_node const expr)
-    throw (ParserException)
   {
     pugi::xml_node thisElement = expr.first_child();
     while (thisElement) {
@@ -82,7 +81,6 @@ namespace PLEXIL
   // Specialization for String
   template <>
   void checkArrayLiteral<String>(char const *eltTypeName, pugi::xml_node const expr)
-    throw (ParserException)
   {
     // gather elements
     pugi::xml_node thisElement = expr.first_child();
@@ -97,7 +95,6 @@ namespace PLEXIL
   }
 
   ValueType ArrayLiteralFactory::check(char const *nodeId, pugi::xml_node expr) const
-    throw (ParserException)
   {
     // confirm that we have an array value
     checkTag(ARRAY_VAL_TAG, expr);
@@ -198,7 +195,6 @@ namespace PLEXIL
                                             NodeConnector * /* node */,
                                             bool &wasCreated,
                                             ValueType /* returnType */) const
-    throw (ParserException)
   {
     const char* valueType = expr.attribute(TYPE_TAG).value();
     ValueType valtyp = parseValueType(valueType);

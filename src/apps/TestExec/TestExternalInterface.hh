@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,7 @@ namespace PLEXIL
     TestExternalInterface();
     ~TestExternalInterface();
 
-    void run(pugi::xml_node const input)
-    throw(ParserException);
+    void run(pugi::xml_node const input);
 
     void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 

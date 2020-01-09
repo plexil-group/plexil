@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,6 @@ namespace PLEXIL
   //
 
   static void checkAlias(std::string const &callerId, xml_node const aliasXml)
-    throw (ParserException)
   {
     checkTag(ALIAS_TAG, aliasXml);
     xml_node nameXml = aliasXml.first_child();
@@ -90,7 +89,6 @@ namespace PLEXIL
   }
 
   void checkLibraryCall(char const *callerId, xml_node const callXml)
-    throw (ParserException)
   {
     checkTag(LIBRARYNODECALL_TAG, callXml);
     xml_node temp = callXml.first_child();
@@ -119,14 +117,12 @@ namespace PLEXIL
   }
 
   static void allocateAliases(LibraryCallNode *node, xml_node const callXml)
-    throw (ParserException)
   {
     // Preallocate, but don't populate, aliases
     node->allocateAliasMap(estimateAliasSpace(callXml));
   }
 
   void constructLibraryCall(LibraryCallNode *node, xml_node const callXml)
-    throw (ParserException)
   {
     assertTrue_1(node);
     debugMsg("constructLibraryCall", " caller " << node->getNodeId());
@@ -147,7 +143,6 @@ namespace PLEXIL
 
   // Second pass
   static void finalizeAliases(LibraryCallNode *node, xml_node const callXml)
-    throw (ParserException)
   {
     debugMsg("finalizeAliases", " caller " << node->getNodeId());
     // Skip over NodeId
@@ -165,7 +160,6 @@ namespace PLEXIL
 
   // Second pass
   void finalizeLibraryCall(LibraryCallNode *node, xml_node const callXml)
-    throw (ParserException)
   {
     assertTrue_1(node);
     debugMsg("finalizeLibraryCall", " caller " << node->getNodeId());

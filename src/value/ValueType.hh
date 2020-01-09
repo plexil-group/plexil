@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -153,12 +153,10 @@ namespace PLEXIL
    * @note If false, the result variable will not be modified.
    */
   template <typename T>
-  bool parseValue(char const *s, T &result)
-    throw (ParserException);
+  bool parseValue(char const *s, T &result);
 
   template <typename T>
   bool parseValue(std::string const &s, T &result)
-    throw (ParserException)
   {
     return parseValue<T>(s.c_str(), result);
   }

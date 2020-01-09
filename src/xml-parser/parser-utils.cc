@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,6 @@ namespace PLEXIL
   }
 
   void checkTag(const char* t, xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(testTag(t, e),
                                      e,
@@ -95,7 +94,6 @@ namespace PLEXIL
   }
 
   void checkAttr(const char* t, xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(e && e.type() == node_element && e.attribute(t),
                                      e,
@@ -103,7 +101,6 @@ namespace PLEXIL
   }
 
   void checkTagSuffix(const char* t, xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(testTagSuffix(t, e),
                                      e,
@@ -112,7 +109,6 @@ namespace PLEXIL
 
   // N.B. presumes e is not empty
   void checkNotEmpty(xml_node const e)
-    throw (ParserException)
   {
     xml_node temp = e.first_child();
     checkParserExceptionWithLocation(temp
@@ -124,7 +120,6 @@ namespace PLEXIL
 
   // N.B. presumes e is not empty
   void checkHasChildElement(xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(hasChildElement(e),
                                      e,
@@ -318,7 +313,6 @@ namespace PLEXIL
   }
 
   void throwParserException(std::string const &msg, xml_node location)
-    throw (ParserException)
   {
     char const *sourcefile = NULL;
     int line = 0, col = 0;

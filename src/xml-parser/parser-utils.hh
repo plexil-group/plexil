@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,16 +48,11 @@ namespace PLEXIL
   extern bool testTagPrefix(const char* prefix, pugi::xml_node const e);
   extern bool testTagSuffix(const char* suffix, pugi::xml_node const e);
   extern bool hasChildElement(pugi::xml_node const e);
-  extern void checkTag(const char* t, pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkAttr(const char* t, pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkTagSuffix(const char* t, pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkNotEmpty(pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkHasChildElement(pugi::xml_node const e)
-    throw (ParserException);
+  extern void checkTag(const char* t, pugi::xml_node const e);
+  extern void checkAttr(const char* t, pugi::xml_node const e);
+  extern void checkTagSuffix(const char* t, pugi::xml_node const e);
+  extern void checkNotEmpty(pugi::xml_node const e);
+  extern void checkHasChildElement(pugi::xml_node const e);
   extern bool isBoolean(const char* initval);
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
@@ -65,8 +60,7 @@ namespace PLEXIL
   extern char const *typeNameAsValue(ValueType ty);
 
   // Helper for checkParserExceptionWithLocation
-  extern void throwParserException(std::string const &msg, pugi::xml_node location)
-    throw (ParserException) PLEXIL_NORETURN;
+  extern void throwParserException(std::string const &msg, pugi::xml_node location) PLEXIL_NORETURN;
 
 } // namespace PLEXIL
 

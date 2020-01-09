@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ namespace PLEXIL
   }
 
   ValueType UserVariableFactory::check(char const *nodeId, pugi::xml_node const expr) const
-    throw (ParserException)
   {
     // We know the declaration has a name and a valid type;
     // see checkVariableDeclaration() in parseNode.cc
@@ -104,7 +103,6 @@ namespace PLEXIL
                                             NodeConnector *node,
                                             bool &wasCreated,
                                             ValueType /* returnType */) const
-    throw (ParserException)
   {
     xml_node temp = expr.first_child();
     char const *name = temp.child_value();

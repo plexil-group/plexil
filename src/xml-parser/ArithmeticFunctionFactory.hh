@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,14 +46,12 @@ namespace PLEXIL
                               std::string const &name);
     ~ArithmeticFunctionFactory();
     
-    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const
-      throw (ParserException);
+    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated,
-                         ValueType returnType = UNKNOWN_TYPE) const
-      throw (ParserException);
+                         ValueType returnType = UNKNOWN_TYPE) const;
 
   protected:
     virtual Operator const *selectOperator(ValueType type) const;

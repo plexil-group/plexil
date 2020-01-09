@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ namespace PLEXIL
 
   // Check pass
   void checkPriority(char const *nodeId, xml_node const prioXml)
-    throw (ParserException)
   {
     char const *prioString = prioXml.child_value();
     checkParserExceptionWithLocation(*prioString,
@@ -75,7 +74,6 @@ namespace PLEXIL
 
   // Check pass
   void checkAssignmentBody(char const *nodeId, xml_node const assnXml)
-    throw (ParserException)
   {
     checkTag(ASSN_TAG, assnXml);
 
@@ -121,7 +119,6 @@ namespace PLEXIL
 
   // Second pass
   void constructAssignment(AssignmentNode *anode, xml_node const xml)
-    throw (ParserException)
   {
     assertTrue_1(anode);
     parsePriority(anode, xml);
@@ -132,7 +129,6 @@ namespace PLEXIL
 
   // Third pass
   void finalizeAssignment(AssignmentNode *anode, xml_node const assn)
-    throw (ParserException)
   {
     assertTrue_1(anode);
     Assignment *assign = anode->getAssignment();

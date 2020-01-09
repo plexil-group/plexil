@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,7 @@ namespace PLEXIL
    * @param xml The DOM representation of the node's XML.
    * @note Throws ParserException in the event of a parse error.
    */
-  extern void checkNode(pugi::xml_node const xml)
-    throw (ParserException);
+  extern void checkNode(pugi::xml_node const xml);
 
   /**
    * @brief Construct the node and all its children from the given XML DOM.
@@ -54,16 +53,14 @@ namespace PLEXIL
    * @return The node represented by the XML, with all its children and variables populated.
    * @note Presumes that checkNode() has already been called.
    */
-  extern NodeImpl *constructNode(pugi::xml_node const xml, NodeImpl *parent)
-    throw (ParserException);
+  extern NodeImpl *constructNode(pugi::xml_node const xml, NodeImpl *parent);
 
   /**
    * @brief Construct all the expressions for the node and its children from the given XML DOM.
    * @param node The node to finalize.
    * @param xml The DOM representation of the node's XML.
    */
-  extern void finalizeNode(NodeImpl *node, pugi::xml_node const xml)
-    throw (ParserException);
+  extern void finalizeNode(NodeImpl *node, pugi::xml_node const xml);
 
 } // namespace PLEXIL
 

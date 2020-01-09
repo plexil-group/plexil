@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -143,7 +143,6 @@ namespace PLEXIL
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
     bool setTimer(double date)
-      throw (InterfaceError)
     {
       // Get the current time
       timespec now;

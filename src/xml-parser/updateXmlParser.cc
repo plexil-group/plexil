@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ namespace PLEXIL
 {
 
   void checkUpdateBody(char const *nodeId, pugi::xml_node const updXml)
-    throw (ParserException)
   {
     checkTag(UPDATE_TAG, updXml);
     for (xml_node pr = updXml.first_child(); pr; pr = pr.next_sibling()) {
@@ -90,7 +89,6 @@ namespace PLEXIL
   // Unit test entry point
 
   void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const updXml)
-    throw (ParserException)
   {
     xml_node pr = updXml.last_child();
     while (pr) {

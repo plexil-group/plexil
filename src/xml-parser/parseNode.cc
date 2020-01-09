@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,6 @@ namespace PLEXIL
   //
 
   PlexilNodeType checkNodeTypeAttr(xml_node const xml)
-    throw (ParserException)
   {
     xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
     checkParserExceptionWithLocation(typeAttr,
@@ -80,7 +79,6 @@ namespace PLEXIL
 
   // Used for VariableDeclarations and In, InOut interface declarations
   static void checkVariableDeclaration(char const *nodeId, xml_node const decl)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(testTag(DECL_VAR_TAG, decl)
                                      || testTag(DECL_ARRAY_TAG, decl),
@@ -139,7 +137,6 @@ namespace PLEXIL
   }
 
   static void checkVariableDeclarations(char const *nodeId, xml_node const decls)
-    throw (ParserException)
   {
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       checkVariableDeclaration(nodeId, decl);
@@ -158,7 +155,6 @@ namespace PLEXIL
 
   // Early (superficial) interface checking
   static void checkInterface(char const *nodeId, xml_node const iface)
-    throw (ParserException)
   {
     for (xml_node elt = iface.first_child(); elt; elt = elt.next_sibling()) {
       char const *name = elt.name();
@@ -176,7 +172,6 @@ namespace PLEXIL
   }
 
   static void checkChildNodes(char const *parentId, xml_node const kidsXml)
-    throw (ParserException)
   {
     std::vector<char const *> nodeIds;
     xml_node kidXml = kidsXml.first_child();
@@ -208,7 +203,6 @@ namespace PLEXIL
   }
 
   static void checkNodeBody(char const *nodeId, xml_node const bodyXml, PlexilNodeType nodeType)
-    throw (ParserException)
   {
     xml_node const child = bodyXml.first_child();
     checkParserExceptionWithLocation(child,
@@ -248,7 +242,6 @@ namespace PLEXIL
   }
 
   static void checkCondition(char const *nodeId, xml_node const xml)
-    throw (ParserException)
   {
     xml_node const expr = xml.first_child();
     checkParserExceptionWithLocation(expr && expr.type() == node_element,
@@ -268,7 +261,6 @@ namespace PLEXIL
   }
 
   void checkNode(xml_node const xml)
-    throw (ParserException)
   {
     checkTag(NODE_TAG, xml);
 
@@ -527,7 +519,6 @@ namespace PLEXIL
 
   // For Interface specs; may have other uses.
   static ValueType getVarDeclType(xml_node const decl)
-    throw (ParserException)
   {
     ValueType typ = parseValueType(decl.child_value(TYPE_TAG));
     if (testTag(DECL_ARRAY_TAG, decl))
@@ -558,7 +549,6 @@ namespace PLEXIL
 
   // Second pass checking of one In interface variable
   static void parseInDecl(NodeImpl *node, xml_node const inXml, bool isCall)
-    throw (ParserException)
   {
     char const *name = getVarDeclName(inXml);
     checkParserExceptionWithLocation(!node->findLocalVariable(name),
@@ -569,7 +559,6 @@ namespace PLEXIL
 
   // Second pass checking of one InOut interface
   static void parseInOutDecl(NodeImpl *node, xml_node const inOutXml, bool isCall)
-    throw (ParserException)
   {
     char const *name = getVarDeclName(inOutXml);
     checkParserExceptionWithLocation(!node->findLocalVariable(name),
@@ -580,7 +569,6 @@ namespace PLEXIL
 
   // Second pass
   static void parseInterface(NodeImpl *node, xml_node const iface)
-    throw (ParserException)
   {
     // Figure out if this is a library node expansion
     NodeImpl *parent = node->getParentNode();
@@ -598,7 +586,6 @@ namespace PLEXIL
   }
 
   static void parseVariableDeclarations(NodeImpl *node, xml_node const decls)
-    throw (ParserException)
   {
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       // Variables are always created here, no need for "garbage" flag.
@@ -640,7 +627,6 @@ namespace PLEXIL
   }
 
   static void constructChildNodes(ListNode *node, xml_node const kidsXml)
-    throw (ParserException)
   {
     assertTrue_1(node);
 
@@ -662,7 +648,6 @@ namespace PLEXIL
   }
 
   NodeImpl *constructNode(xml_node const xml, NodeImpl *parent)
-    throw (ParserException)
   {
     xml_attribute attr = xml.attribute(NODETYPE_ATTR);
     PlexilNodeType nodeType = parseNodeType(attr.value());
@@ -738,7 +723,6 @@ namespace PLEXIL
   // 
 
   static void parseVariableInitializer(NodeImpl *node, xml_node const decl)
-    throw (ParserException)
   {
     xml_node initXml = decl.child(INITIALVAL_TAG);
     if (initXml) {
@@ -823,7 +807,6 @@ namespace PLEXIL
 
   // Process variable declarations, if any
   static void constructVariableInitializers(NodeImpl *node, xml_node const xml)
-    throw (ParserException)
   {
     xml_node temp = xml.child(VAR_DECLS_TAG);
     if (!temp)
@@ -838,7 +821,6 @@ namespace PLEXIL
   }
 
   static void linkInVar(NodeImpl *node, xml_node const inXml, bool isCall)
-    throw (ParserException)
   {
     char const *name = getVarDeclName(inXml);
 
@@ -914,7 +896,6 @@ namespace PLEXIL
   }
 
   static void linkInOutVar(NodeImpl *node, xml_node const inOutXml, bool isCall)
-    throw (ParserException)
   {
     char const *name = getVarDeclName(inOutXml);
     ValueType typ = getVarDeclType(inOutXml);
@@ -966,7 +947,6 @@ namespace PLEXIL
   }
 
   static void linkAndInitializeInterfaceVars(NodeImpl *node, xml_node const nodeXml)
-    throw (ParserException)
   {
     xml_node const iface = nodeXml.child(INTERFACE_TAG);
     if (!iface)
@@ -988,7 +968,6 @@ namespace PLEXIL
   }
 
   static void createConditions(NodeImpl *node, xml_node const xml)
-    throw (ParserException)
   {
     for (xml_node elt = xml.first_child(); elt; elt = elt.next_sibling()) {
       char const *tag = elt.name();
@@ -1012,7 +991,6 @@ namespace PLEXIL
   }
 
   static void finalizeListNode(ListNode *node, xml_node const listXml)
-    throw (ParserException)
   {
     assertTrue_1(node);
     std::vector<NodeImpl *> &kids = node->getChildren();
@@ -1026,7 +1004,6 @@ namespace PLEXIL
   }
 
   void finalizeNode(NodeImpl *node, xml_node const xml)
-    throw (ParserException)
   {
     debugMsg("finalizeNode", " node " << node->getNodeId());
     linkAndInitializeInterfaceVars(node, xml);

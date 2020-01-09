@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,6 @@ namespace PLEXIL
   }
 
   static void checkNodeRef(pugi::xml_node nodeRef)
-    throw (ParserException)
   {
     checkAttr(DIR_ATTR, nodeRef);
     char const *dirValue = nodeRef.attribute(DIR_ATTR).value();
@@ -123,7 +122,6 @@ namespace PLEXIL
   }
 
   static void checkNodeId(pugi::xml_node nodeRef)
-    throw (ParserException)
   {
     char const *name = nodeRef.child_value();
     checkParserExceptionWithLocation(*name,
@@ -166,7 +164,6 @@ namespace PLEXIL
   }
 
   void checkNodeReference(pugi::xml_node nodeRef)
-    throw (ParserException)
   {
     const char* tag = nodeRef.name();
     checkParserExceptionWithLocation(*tag,
@@ -183,7 +180,6 @@ namespace PLEXIL
   }
 
   static NodeImpl *parseNodeRef(pugi::xml_node nodeRef, NodeImpl *node)
-    throw (ParserException)
   {
     // parse directional reference
     const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
@@ -237,7 +233,6 @@ namespace PLEXIL
   }
 
   static NodeImpl *parseNodeId(pugi::xml_node nodeRef, NodeImpl *node)
-    throw (ParserException)
   {
     // search for node ID
     char const *name = nodeRef.child_value();
@@ -259,7 +254,6 @@ namespace PLEXIL
   }
 
   NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node)
-    throw (ParserException)
   {
     const char* tag = nodeRef.name();
     // We trust that checkNodeReference() above has been called

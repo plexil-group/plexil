@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,6 @@ namespace PLEXIL
   }
 
   ValueType ComparisonFactory::check(char const *nodeId, pugi::xml_node const expr) const
-    throw (ParserException)
   {
     // Check arg count
     checkParserExceptionWithLocation(std::distance(expr.begin(), expr.end()) == 2,
@@ -156,7 +155,6 @@ namespace PLEXIL
                                           NodeConnector *node,
                                           bool & wasCreated,
                                           ValueType returnType) const
-    throw (ParserException)
   {
     // Check for internal error
     assertTrue_1(std::distance(expr.begin(), expr.end()) == 2);

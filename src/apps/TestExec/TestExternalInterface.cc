@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,6 @@ namespace PLEXIL
   }
 
   void TestExternalInterface::run(pugi::xml_node const input)
-    throw(ParserException)
   {
     checkError(g_exec, "Attempted to run a script without an executive.");
 

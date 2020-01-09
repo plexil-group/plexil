@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,6 @@ namespace PLEXIL
     // https://stackoverflow.com/questions/40967594/does-gettimeofday-on-macos-use-a-system-call
 
     bool setTimer(double date)
-      throw (InterfaceError)
     {
       static timeval const sl_timezero = {0, 0};
       struct timeval dateval = doubleToTimeval(date);

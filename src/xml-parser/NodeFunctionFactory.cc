@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ namespace PLEXIL
   }
 
   ValueType NodeFunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
-    throw (ParserException)
   {
     assertTrueMsg(m_op, "NodeFunctionFactory::check: no operator for " << m_name);
     size_t n = std::distance(expr.begin(), expr.end());
@@ -69,7 +68,6 @@ namespace PLEXIL
                                             NodeConnector *node,
                                             bool &wasCreated,
                                             ValueType returnType) const
-    throw (ParserException)
   {
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
     assertTrueMsg(impl,

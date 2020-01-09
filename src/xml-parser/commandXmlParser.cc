@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,6 @@ namespace PLEXIL
 
   // First pass
   static void checkResource(char const *nodeId, xml_node const resourceElt)
-    throw (ParserException)
   {
     checkTag(RESOURCE_TAG, resourceElt);
     xml_node nameXml, prioXml;
@@ -185,7 +184,6 @@ namespace PLEXIL
   
   // First pass
   static void checkResourceList(char const *nodeId, xml_node const resourceXml)
-    throw (ParserException)
   {
     // Process resource list
     for (xml_node resourceElt = resourceXml.first_child(); 
@@ -218,7 +216,6 @@ namespace PLEXIL
 
   // First pass: XML checks
   void checkCommandBody(char const *nodeId, pugi::xml_node const cmdXml)
-    throw (ParserException)
   {
     checkHasChildElement(cmdXml);
     xml_node temp = cmdXml.first_child();
@@ -284,7 +281,6 @@ namespace PLEXIL
   static void finalizeResourceList(NodeConnector *node,
                                    Command *cmd,
                                    xml_node const rlist)
-    throw (ParserException)
   {
     ResourceList *resources =
       new ResourceList(std::distance(rlist.begin(), rlist.end()));
@@ -366,7 +362,6 @@ namespace PLEXIL
 
   // Pass 3
   void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const cmdXml)
-    throw (ParserException)
   {
     xml_node temp = cmdXml.first_child();
 

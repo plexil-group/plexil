@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,6 @@ namespace PLEXIL
   #include "ExpressionMap.hh"
 
   ValueType checkExpression(char const *nodeId, xml_node const expr)
-    throw (ParserException)
   {
     char const *name = expr.name();
     checkParserExceptionWithLocation(*name,
@@ -95,7 +94,6 @@ namespace PLEXIL
   }
 
   ValueType checkAssignable(char const *nodeId, xml_node const expr)
-    throw (ParserException)
   {
     char const *name = expr.name();
     checkParserExceptionWithLocation(*name,
@@ -112,7 +110,6 @@ namespace PLEXIL
   
   Expression *createExpression(xml_node const expr,
                                NodeConnector *node)
-    throw (ParserException)
   {
     bool dummy;
     return createExpression(expr, node, dummy, UNKNOWN_TYPE);
@@ -122,7 +119,6 @@ namespace PLEXIL
                                NodeConnector *node,
                                bool& wasCreated,
                                ValueType returnType)
-    throw (ParserException)
   {
     char const *name = expr.name();
     checkParserExceptionWithLocation(*name, 
@@ -148,7 +144,6 @@ namespace PLEXIL
   Expression *createAssignable(xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated)
-    throw (ParserException)
   {
     assertTrue_2(node, "createAssignable: Internal error: Null node argument");
     char const *name = expr.name();

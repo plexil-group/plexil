@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,6 @@ namespace PLEXIL
 
   ValueType ConcreteExpressionFactory<StateVariable>::check(char const * nodeId,
                                                             pugi::xml_node const expr) const
-      throw (ParserException)
   {
     // TODO
     return NODE_STATE_TYPE;
@@ -60,7 +59,6 @@ namespace PLEXIL
                                                                  NodeConnector *node,
                                                                  bool &wasCreated,
                                                                  ValueType /* returnType */) const
-    throw (ParserException)
   {
     checkHasChildElement(expr);
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
@@ -73,7 +71,6 @@ namespace PLEXIL
 
   ValueType ConcreteExpressionFactory<OutcomeVariable>::check(char const *nodeId,
                                                               pugi::xml_node const expr) const
-      throw (ParserException)
   {
     // TODO
     return OUTCOME_TYPE;
@@ -83,7 +80,6 @@ namespace PLEXIL
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
-    throw (ParserException)
   {
     checkHasChildElement(expr);
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
@@ -97,7 +93,6 @@ namespace PLEXIL
 
   ValueType ConcreteExpressionFactory<FailureVariable>::check(char const *nodeId,
                                                               pugi::xml_node const expr) const
-      throw (ParserException)
   {
     // TODO
     return FAILURE_TYPE;
@@ -107,7 +102,6 @@ namespace PLEXIL
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
-    throw (ParserException)
   {
     checkHasChildElement(expr);
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
@@ -120,7 +114,6 @@ namespace PLEXIL
 
   ValueType ConcreteExpressionFactory<CommandHandleVariable>::check(char const *nodeId,
                                                                     pugi::xml_node const expr) const
-      throw (ParserException)
   {
     // TODO
     return COMMAND_HANDLE_TYPE;
@@ -130,7 +123,6 @@ namespace PLEXIL
                                                                          NodeConnector *node,
                                                                          bool &wasCreated,
                                                                          ValueType /* returnType */) const
-    throw (ParserException)
   {
     checkHasChildElement(expr);
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
@@ -152,7 +144,6 @@ namespace PLEXIL
 
   ValueType ConcreteExpressionFactory<NodeTimepointValue>::check(char const *nodeId,
                                                                  pugi::xml_node const expr) const
-      throw (ParserException)
   {
     // TODO
     return DATE_TYPE;
@@ -162,7 +153,6 @@ namespace PLEXIL
                                                                       NodeConnector *node,
                                                                       bool &wasCreated,
                                                                       ValueType /* returnType */) const
-    throw (ParserException)
   {
     checkHasChildElement(expr);
     NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
@@ -209,7 +199,6 @@ namespace PLEXIL
   template <>
   ValueType NamedConstantExpressionFactory<NodeStateConstant>::check(char const *nodeId,
                                                                      pugi::xml_node const expr) const
-    throw (ParserException)
   {
     checkNotEmpty(expr);
     switch (parseNodeState(expr.child_value())) {
@@ -234,7 +223,6 @@ namespace PLEXIL
                                                                           NodeConnector * /* node */,
                                                                           bool &wasCreated,
                                                                           ValueType /* returnType */) const
-    throw (ParserException)
   {
     wasCreated = false;
     switch (parseNodeState(expr.child_value())) {
@@ -269,7 +257,6 @@ namespace PLEXIL
   template <>
   ValueType NamedConstantExpressionFactory<NodeOutcomeConstant>::check(char const *nodeId,
                                                                        pugi::xml_node const expr) const
-    throw (ParserException)
   {
     checkNotEmpty(expr);
     switch (parseNodeOutcome(expr.child_value())) {
@@ -291,7 +278,6 @@ namespace PLEXIL
                                                                             NodeConnector * /* node */,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
-    throw (ParserException)
   {
     wasCreated = false;
     switch (parseNodeOutcome(expr.child_value())) {
@@ -317,7 +303,6 @@ namespace PLEXIL
   template <>
   ValueType NamedConstantExpressionFactory<FailureTypeConstant>::check(char const *nodeId,
                                                                        pugi::xml_node const expr) const
-    throw (ParserException)
   {
     checkNotEmpty(expr);
     switch (parseFailureType(expr.child_value())) {
@@ -341,7 +326,6 @@ namespace PLEXIL
                                                                             NodeConnector * /* node */,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
-    throw (ParserException)
   {
     wasCreated = false;
     switch (parseFailureType(expr.child_value())) {
@@ -373,7 +357,6 @@ namespace PLEXIL
   template <>
   ValueType NamedConstantExpressionFactory<CommandHandleConstant>::check(char const *nodeId,
                                                                          pugi::xml_node const expr) const
-    throw (ParserException)
   {
     checkNotEmpty(expr);
     switch (parseCommandHandleValue(expr.child_value())) {
@@ -397,7 +380,6 @@ namespace PLEXIL
                                                                               NodeConnector * /* node */,
                                                                               bool &wasCreated,
                                                                               ValueType /* returnType */) const
-    throw (ParserException)
   {
     wasCreated = false;
     switch (parseCommandHandleValue(expr.child_value())) {

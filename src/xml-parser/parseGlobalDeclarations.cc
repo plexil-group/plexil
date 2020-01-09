@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ namespace PLEXIL
 {
 
   static void checkValueDeclaration(xml_node const elt)
-    throw (ParserException)
   {
     // We only care about Type and MaxSize
     xml_node typeElt = elt.child(TYPE_TAG);
@@ -76,7 +75,6 @@ namespace PLEXIL
   }
 
   static void checkCommandDeclaration(xml_node const declXml)
-    throw (ParserException)
   {
     xml_node elt = declXml.first_child();
     checkTag(NAME_TAG, elt);
@@ -110,7 +108,6 @@ namespace PLEXIL
   }
 
   static void checkStateDeclaration(xml_node const declXml)
-    throw (ParserException)
   {
     xml_node elt = declXml.first_child();
     checkTag(NAME_TAG, elt);
@@ -141,7 +138,6 @@ namespace PLEXIL
   }
 
   static void checkInterfaceVariable(xml_node const varDecl, bool isInOut)
-    throw (ParserException)
   {
     xml_node elt = varDecl.first_child();
     checkTag(NAME_TAG, elt);
@@ -173,7 +169,6 @@ namespace PLEXIL
   }
 
   static void checkInterfaceArrayVariable(xml_node const varDecl, bool isInOut)
-    throw (ParserException)
   {
     xml_node elt = varDecl.first_child();
     checkTag(NAME_TAG, elt);
@@ -206,7 +201,6 @@ namespace PLEXIL
   }
 
   static void checkInDeclaration(xml_node const inDecl, char const *name)
-    throw (ParserException)
   {
     for (xml_node decl = inDecl.first_child(); decl; decl = decl.next_sibling()) {
       if (testTag(DECL_VAR_TAG, decl))
@@ -222,7 +216,6 @@ namespace PLEXIL
   }
 
   static void checkInOutDeclaration(xml_node const inOutDecl, char const *name)
-    throw (ParserException)
   {
     for (xml_node decl = inOutDecl.first_child(); decl; decl = decl.next_sibling()) {
       if (testTag(DECL_VAR_TAG, decl))
@@ -238,7 +231,6 @@ namespace PLEXIL
   }
   
   static void checkLibraryNodeDeclaration(xml_node const declXml)
-    throw (ParserException)
   {
     xml_node elt = declXml.first_child();
     checkTag(NAME_TAG, elt);
@@ -269,7 +261,6 @@ namespace PLEXIL
   }
 
   void checkGlobalDeclarations(xml_node const &declsXml)
-    throw (ParserException)
   {
     for (xml_node decl = declsXml.first_child();
          decl;
@@ -292,7 +283,6 @@ namespace PLEXIL
   //
 
   static ValueType parseValueDeclaration(xml_node const elt)
-    throw (ParserException)
   {
     // We only care about Type and MaxSize
     ValueType typ = parseValueType(elt.child_value(TYPE_TAG));
@@ -306,7 +296,6 @@ namespace PLEXIL
   }
 
   static void parseCommandDeclaration(xml_node const declXml, SymbolTable *symtab)
-    throw (ParserException)
   {
     char const *name = declXml.child_value(NAME_TAG);
     Symbol *cmd = symtab->addCommand(name);
@@ -337,7 +326,6 @@ namespace PLEXIL
   }
 
   static void parseStateDeclaration(xml_node const declXml, SymbolTable *symtab)
-    throw (ParserException)
   {
     char const *name = declXml.child_value(NAME_TAG);
     Symbol *state = symtab->addLookup(name);
@@ -360,7 +348,6 @@ namespace PLEXIL
   }
 
   static void parseInterfaceVariable(xml_node const varDecl, bool isInOut, LibraryNodeSymbol *lib)
-    throw (ParserException)
   {
     char const *varName = varDecl.child_value(NAME_TAG);
     checkParserExceptionWithLocation(!lib->isParameterDeclared(varName),
@@ -372,7 +359,6 @@ namespace PLEXIL
   }
 
   static void parseInterfaceArrayVariable(xml_node const varDecl, bool isInOut, LibraryNodeSymbol *lib)
-    throw (ParserException)
   {
     char const *varName = varDecl.child_value(NAME_TAG);
     checkParserExceptionWithLocation(!lib->isParameterDeclared(varName),
@@ -384,7 +370,6 @@ namespace PLEXIL
   }
 
   static void parseInDeclaration(xml_node const inDecl, LibraryNodeSymbol *lib)
-    throw (ParserException)
   {
     for (xml_node decl = inDecl.first_child(); decl; decl = decl.next_sibling()) {
       if (testTag(DECL_VAR_TAG, decl))
@@ -395,7 +380,6 @@ namespace PLEXIL
   }
 
   static void parseInOutDeclaration(xml_node const inOutDecl, LibraryNodeSymbol *lib)
-    throw (ParserException)
   {
     for (xml_node decl = inOutDecl.first_child(); decl; decl = decl.next_sibling()) {
       if (testTag(DECL_VAR_TAG, decl))
@@ -406,7 +390,6 @@ namespace PLEXIL
   }
   
   static void parseLibraryNodeDeclaration(xml_node const declXml, SymbolTable *symtab)
-    throw (ParserException)
   {
     char const *name = declXml.child_value(NAME_TAG);
     LibraryNodeSymbol *lib = symtab->addLibraryNode(name);
@@ -429,7 +412,6 @@ namespace PLEXIL
   }
 
   SymbolTable *parseGlobalDeclarations(xml_node const &declsXml)
-    throw (ParserException)
   {
     SymbolTable *symtab = makeSymbolTable();
     try {
