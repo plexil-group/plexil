@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -740,12 +740,6 @@ namespace PLEXIL
   //
   template void printValue(Boolean const &, std::ostream &);
   template void printValue(Integer const &, std::ostream &);
-  template void printValue(Real const &, std::ostream &);
   template void printValue(String const &, std::ostream &);
-
-  template void printValue(BooleanArray const &, std::ostream &);
-  template void printValue(IntegerArray const &, std::ostream &);
-  template void printValue(RealArray const &, std::ostream &);
-  template void printValue(StringArray const &, std::ostream &);
 
 }

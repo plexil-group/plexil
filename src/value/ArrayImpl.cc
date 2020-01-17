@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -1072,20 +1072,5 @@ namespace PLEXIL
   template std::ostream &operator<<(std::ostream &s, ArrayImpl<Integer> const &);
   template std::ostream &operator<<(std::ostream &s, ArrayImpl<Real> const &);
   template std::ostream &operator<<(std::ostream &s, ArrayImpl<String> const &);
-
-  template char *serialize(ArrayImpl<Boolean> const &, char *);
-  template char *serialize(ArrayImpl<Integer> const &, char *);
-  template char *serialize(ArrayImpl<Real> const &, char *);
-  template char *serialize(ArrayImpl<String> const &, char *);
-
-  template char const *deserialize(ArrayImpl<Boolean> &, char const *);
-  template char const *deserialize(ArrayImpl<Integer> &, char const *);
-  template char const *deserialize(ArrayImpl<Real> &, char const *);
-  template char const *deserialize(ArrayImpl<String> &, char const *);
-
-  template size_t serialSize(ArrayImpl<Boolean> const &);
-  template size_t serialSize(ArrayImpl<Integer> const &);
-  template size_t serialSize(ArrayImpl<Real> const &);
-  template size_t serialSize(ArrayImpl<String> const &);
 
 } // namespace PLEXIL

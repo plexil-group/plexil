@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -1246,7 +1246,7 @@ namespace PLEXIL
 
     case STRING_TYPE:
       if (m_type != STRING_TYPE || !stringValue)
-        stringValue = std::unique_ptr<String>(new String());
+        stringValue.reset(new String());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize(*stringValue, b);
@@ -1258,28 +1258,28 @@ namespace PLEXIL
 
     case BOOLEAN_ARRAY_TYPE:
       if (m_type != BOOLEAN_ARRAY_TYPE || !arrayValue)
-        arrayValue = std::unique_ptr<Array>(new BooleanArray());
+        arrayValue.reset(new BooleanArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((BooleanArray &) *arrayValue, b);
 
     case INTEGER_ARRAY_TYPE:
       if (m_type != INTEGER_ARRAY_TYPE || !arrayValue)
-        arrayValue = std::unique_ptr<Array>(new IntegerArray());
+        arrayValue.reset(new IntegerArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((IntegerArray &) *arrayValue, b);
 
     case REAL_ARRAY_TYPE:
       if (m_type != REAL_ARRAY_TYPE || !arrayValue)
-        arrayValue = std::unique_ptr<Array>(new RealArray());
+        arrayValue.reset(new RealArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((RealArray &) *arrayValue, b);
 
     case STRING_ARRAY_TYPE:
       if (m_type != STRING_ARRAY_TYPE || !arrayValue)
-        arrayValue = std::unique_ptr<Array>(new StringArray());
+        arrayValue.reset(new StringArray());
       m_type = t;
       m_known = true;
       return PLEXIL::deserialize((StringArray &) *arrayValue, b);
