@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="Concurrence">
     <NodeId>ep2cp_Concurrence_d1e3</NodeId>
     <VariableDeclarations>
@@ -63,12 +63,9 @@
                     <Node NodeType="Assignment" epx="aux">
                       <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
                       <StartCondition>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
+                        <Finished>
+                          <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
+                        </Finished>
                       </StartCondition>
                       <NodeBody>
                         <Assignment>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="For">
     <NodeId>Root</NodeId>
     <VariableDeclarations>
@@ -38,38 +38,9 @@
               <Node NodeType="NodeList" epx="Sequence">
                 <NodeId>ep2cp_Sequence_d1e71</NodeId>
                 <InvariantCondition>
-                  <NOT>
-                    <OR>
-                      <AND>
-                        <EQInternal>
-                          <NodeOutcomeVariable>
-                            <NodeRef dir="child">Two</NodeRef>
-                          </NodeOutcomeVariable>
-                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="child">Two</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
-                      </AND>
-                      <AND>
-                        <EQInternal>
-                          <NodeOutcomeVariable>
-                            <NodeRef dir="child">Four</NodeRef>
-                          </NodeOutcomeVariable>
-                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="child">Four</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
-                      </AND>
-                    </OR>
-                  </NOT>
+                  <NoChildFailed>
+                    <NodeRef dir="self"/>
+                  </NoChildFailed>
                 </InvariantCondition>
                 <NodeBody>
                   <NodeList>
@@ -79,12 +50,9 @@
                     <Node NodeType="Empty">
                       <NodeId>Four</NodeId>
                       <StartCondition>
-                        <EQInternal>
-                          <NodeStateVariable>
-                            <NodeRef dir="sibling">Two</NodeRef>
-                          </NodeStateVariable>
-                          <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
+                        <Finished>
+                          <NodeRef dir="sibling">Two</NodeRef>
+                        </Finished>
                       </StartCondition>
                     </Node>
                   </NodeList>
@@ -93,12 +61,9 @@
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">ep2cp_Sequence_d1e71</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">ep2cp_Sequence_d1e71</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>

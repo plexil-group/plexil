@@ -41,8 +41,9 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     <xs:group name="Action">
       <xs:choice>
         <xs:element ref="Node"/>
-        <xs:element ref="Sequence"/>
         <xs:element ref="Concurrence"/>
+        <xs:element ref="Sequence"/>
+        <xs:element ref="CheckedSequence"/>
         <xs:element ref="UncheckedSequence"/>
         <xs:element ref="Try"/>
         <xs:element ref="If"/>
@@ -225,6 +226,16 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
+  <!-- Each action in the sequence is performed in the given order.  If
+       one fails, the CheckedSequence form terminates with failure.
+  -->
+  <xs:element name="CheckedSequence">
+    <xs:complexType>
+      <xs:group ref="SequenceType"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
   <!-- Like Sequence, except the actions are not checked for success.
        They will all be executed -->
   <xs:element name="UncheckedSequence">
@@ -346,20 +357,11 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
   <!-- Node Predicates -->
 
-  <xs:element name="Finished" type="node-reference"/>
-  <xs:element name="IterationEnded" type="node-reference"/>
-  <xs:element name="Executing" type="node-reference"/>
-  <xs:element name="Waiting" type="node-reference"/>
-  <xs:element name="Inactive" type="node-reference"/>
-  <xs:element name="Succeeded" type="node-reference"/>
   <xs:element name="IterationSucceeded" type="node-reference"/>
-  <xs:element name="Failed" type="node-reference"/>
   <xs:element name="Interrupted" type="node-reference"/>
   <xs:element name="IterationFailed" type="node-reference"/>
-  <xs:element name="Skipped" type="node-reference"/>
   <xs:element name="InvariantFailed" type="node-reference"/>
   <xs:element name="PreconditionFailed" type="node-reference"/>
-  <xs:element name="PostconditionFailed" type="node-reference"/>
   <xs:element name="ParentFailed" type="node-reference"/>
 
   <!-- Support for message passing between executives -->

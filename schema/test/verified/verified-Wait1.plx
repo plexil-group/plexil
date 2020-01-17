@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="Empty" epx="Wait" FileName="foo.ple" LineNo="104" ColNo="1">
     <NodeId>Wait1</NodeId>
     <EndCondition>

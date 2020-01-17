@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId>ep2cp_Sequence_d1e5</NodeId>
     <VariableDeclarations>
@@ -12,38 +12,9 @@
       </DeclareVariable>
     </VariableDeclarations>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">One</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">One</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Two</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">Two</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
@@ -73,21 +44,15 @@
         <Node NodeType="Assignment">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">One</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">One</NodeRef>
+            </Finished>
           </StartCondition>
           <SkipCondition>
             <AND>
-              <EQInternal>
-                <NodeStateVariable>
-                  <NodeRef dir="sibling">One</NodeRef>
-                </NodeStateVariable>
-                <NodeStateValue>FINISHED</NodeStateValue>
-              </EQInternal>
+              <Finished>
+                <NodeRef dir="sibling">One</NodeRef>
+              </Finished>
               <EQNumeric>
                 <IntegerVariable>foo</IntegerVariable>
                 <IntegerValue>0</IntegerValue>

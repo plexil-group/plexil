@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="Try">
     <NodeId>ep2cp_Try_d1e3</NodeId>
     <VariableDeclarations>
@@ -13,62 +13,28 @@
     </VariableDeclarations>
     <EndCondition>
       <OR>
-        <AND>
-          <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-          <EQInternal>
-            <NodeStateVariable>
-              <NodeRef dir="child">One</NodeRef>
-            </NodeStateVariable>
-            <NodeStateValue>FINISHED</NodeStateValue>
-          </EQInternal>
-        </AND>
-        <AND>
-          <EQInternal>
-            <NodeOutcomeVariable>
-              <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-            </NodeOutcomeVariable>
-            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-          </EQInternal>
-          <EQInternal>
-            <NodeStateVariable>
-              <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-            </NodeStateVariable>
-            <NodeStateValue>FINISHED</NodeStateValue>
-          </EQInternal>
-        </AND>
-        <EQInternal>
-          <NodeStateVariable>
-            <NodeRef dir="child">Three</NodeRef>
-          </NodeStateVariable>
-          <NodeStateValue>FINISHED</NodeStateValue>
-        </EQInternal>
+        <Succeeded>
+          <NodeRef dir="child">One</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
+        </Succeeded>
+        <Finished>
+          <NodeRef dir="child">Three</NodeRef>
+        </Finished>
       </OR>
     </EndCondition>
     <PostCondition>
       <OR>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">One</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
-        <EQInternal>
-          <NodeOutcomeVariable>
-            <NodeRef dir="child">Three</NodeRef>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
+        <Succeeded>
+          <NodeRef dir="child">One</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">ep2cp_Try_d1e29</NodeRef>
+        </Succeeded>
+        <Succeeded>
+          <NodeRef dir="child">Three</NodeRef>
+        </Succeeded>
       </OR>
     </PostCondition>
     <NodeBody>
@@ -80,12 +46,9 @@
           <NodeId>ep2cp_Try_d1e29</NodeId>
           <StartCondition>
             <AND>
-              <EQInternal>
-                <NodeStateVariable>
-                  <NodeRef dir="sibling">One</NodeRef>
-                </NodeStateVariable>
-                <NodeStateValue>FINISHED</NodeStateValue>
-              </EQInternal>
+              <Finished>
+                <NodeRef dir="sibling">One</NodeRef>
+              </Finished>
               <EQNumeric>
                 <IntegerVariable>foo</IntegerVariable>
                 <IntegerValue>0</IntegerValue>
@@ -93,12 +56,9 @@
             </AND>
           </StartCondition>
           <PostCondition>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Two</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
+            <Succeeded>
+              <NodeRef dir="child">Two</NodeRef>
+            </Succeeded>
           </PostCondition>
           <NodeBody>
             <NodeList>
@@ -111,12 +71,9 @@
         <Node NodeType="Empty">
           <NodeId>Three</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_Try_d1e29</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_Try_d1e29</NodeRef>
+            </Finished>
           </StartCondition>
         </Node>
       </NodeList>

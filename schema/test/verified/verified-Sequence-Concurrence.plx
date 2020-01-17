@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan FileName="Plan.ple">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator" FileName="Plan.ple">
   <Node NodeType="NodeList" LineNo="2" ColNo="1">
     <NodeId>Interface</NodeId>
     <VariableDeclarations>
@@ -30,38 +30,9 @@
         <Node NodeType="NodeList" epx="Sequence" LineNo="7" ColNo="22">
           <NodeId>One</NodeId>
           <InvariantCondition>
-            <NOT>
-              <OR>
-                <AND>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">DoFirst</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="child">DoFirst</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
-                </AND>
-                <AND>
-                  <EQInternal>
-                    <NodeOutcomeVariable>
-                      <NodeRef dir="child">DoSecond</NodeRef>
-                    </NodeOutcomeVariable>
-                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="child">DoSecond</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
-                </AND>
-              </OR>
-            </NOT>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
           </InvariantCondition>
           <NodeBody>
             <NodeList>
@@ -82,12 +53,9 @@
               <Node NodeType="Assignment" LineNo="9" ColNo="35">
                 <NodeId>DoSecond</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">DoFirst</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">DoFirst</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>

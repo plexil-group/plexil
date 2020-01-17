@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId>ep2cp_Sequence_d1e3</NodeId>
     <VariableDeclarations>
@@ -12,38 +12,9 @@
       </DeclareVariable>
     </VariableDeclarations>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Wait1</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">Wait1</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">Wait2</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">Wait2</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
@@ -76,12 +47,9 @@
         <Node NodeType="Empty" epx="Wait" FileName="foo.ple" LineNo="108" ColNo="1">
           <NodeId>Wait2</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">Wait1</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">Wait1</NodeRef>
+            </Finished>
           </StartCondition>
           <EndCondition>
             <GE>

@@ -1,40 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId>ep2cp_Sequence_d1e3</NodeId>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">A</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">A</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">B</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">B</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
@@ -101,12 +72,9 @@
         <Node NodeType="NodeList" epx="SynchronousCommand">
           <NodeId>B</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">A</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">A</NodeRef>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <NodeList>

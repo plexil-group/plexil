@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="For">
     <NodeId>ep2cp_For_d1e3</NodeId>
     <VariableDeclarations>
@@ -44,12 +44,9 @@
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
-                  <EQInternal>
-                    <NodeStateVariable>
-                      <NodeRef dir="sibling">ep2cp_Concurrence_d1e49</NodeRef>
-                    </NodeStateVariable>
-                    <NodeStateValue>FINISHED</NodeStateValue>
-                  </EQInternal>
+                  <Finished>
+                    <NodeRef dir="sibling">ep2cp_Concurrence_d1e49</NodeRef>
+                  </Finished>
                 </StartCondition>
                 <NodeBody>
                   <Assignment>

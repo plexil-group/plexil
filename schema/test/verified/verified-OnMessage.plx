@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId>ep2cp_Sequence_d2e1</NodeId>
     <VariableDeclarations>
@@ -9,38 +9,9 @@
       </DeclareVariable>
     </VariableDeclarations>
     <InvariantCondition>
-      <NOT>
-        <OR>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-          <AND>
-            <EQInternal>
-              <NodeOutcomeVariable>
-                <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
-              </NodeOutcomeVariable>
-              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
-          </AND>
-        </OR>
-      </NOT>
+      <NoChildFailed>
+        <NodeRef dir="self"/>
+      </NoChildFailed>
     </InvariantCondition>
     <NodeBody>
       <NodeList>
@@ -66,12 +37,9 @@
         <Node NodeType="NodeList">
           <NodeId>ep2cp_MsgAction_</NodeId>
           <StartCondition>
-            <EQInternal>
-              <NodeStateVariable>
-                <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
-              </NodeStateVariable>
-              <NodeStateValue>FINISHED</NodeStateValue>
-            </EQInternal>
+            <Finished>
+              <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
+            </Finished>
           </StartCondition>
           <NodeBody>
             <NodeList>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<PlexilPlan>
+  <GlobalDeclarations>
+    <StateDeclaration>
+      <Name>X</Name>
+      <Return>
+        <Name>_return_0</Name>
+        <Type>Integer</Type>
+      </Return>
+    </StateDeclaration>
+  </GlobalDeclarations>
+  <While>
+    <NodeId>Root</NodeId>
+    <Condition>
+      <EQNumeric>
+        <IntegerValue>2</IntegerValue>
+        <Lookup>
+          <Name>
+            <StringValue>X</StringValue>
+          </Name>
+        </Lookup>
+      </EQNumeric>
+    </Condition>
+    <Action>
+      <Node NodeType="Empty">
+        <NodeId>A</NodeId>
+      </Node>
+    </Action>
+  </While>
+</PlexilPlan>
