@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,42 @@ element.  It is used as an included schema only.
       <!-- Plexil v1 doesn't have this -->
       <xs:attribute name="version" type="xs:decimal" use="required" />
       <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- This is overridden in Extended Plexil -->
+  <xs:group name="Action">
+    <xs:choice>
+      <xs:group ref="BasicNodes"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="node-reference">
+    <xs:choice>
+      <xs:element ref="NodeId" />
+      <xs:element ref="NodeRef" />
+    </xs:choice>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <xs:element name="NodeId" type="xs:NCName"/>
+
+  <xs:element name="NodeRef">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="NCNameOrEmpty">
+          <xs:attribute name="dir">
+            <xs:simpleType>
+              <xs:restriction base="xs:NMTOKEN">
+                <xs:enumeration value="parent"/>
+                <xs:enumeration value="sibling"/>
+                <xs:enumeration value="child"/>
+                <xs:enumeration value="self"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
     </xs:complexType>
   </xs:element>
 
@@ -129,12 +165,15 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <!-- This is overridden in Extended Plexil -->
-  <xs:group name="Action">
-    <xs:choice>
-      <xs:group ref="BasicNodes"/>
-    </xs:choice>
-  </xs:group>
+  <xs:simpleType name="NCNameOrEmpty">
+    <xs:union memberTypes="xs:NCName">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value=""/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
 
   <xs:group name="BasicNodes">
     <xs:choice>
@@ -147,7 +186,7 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="NodeBase">
+  <xs:complexType name="node-base">
     <xs:sequence>
       <xs:element name="Comment" type="xs:string" minOccurs="0"/>
       <xs:group ref="Conditions" minOccurs="0" maxOccurs="8" />
@@ -158,9 +197,7 @@ element.  It is used as an included schema only.
       <xs:element ref="UsingMutex" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="Priority" type="xs:nonNegativeInteger" use="optional"/>
-
     <xs:attribute name="NodeId" type="xs:NMTOKEN" use="required" />
-
     <!-- The epx attribute indicates a node that is a translation of an
          Extended Plexil construct (i.e. macro).  Its value is the type of
          this construct, or 'aux' indicating it is an auxilliary generated
@@ -169,12 +206,12 @@ element.  It is used as an included schema only.
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="EmptyNode" type="NodeBase" />
+  <xs:element name="EmptyNode" type="node-base" />
 
   <xs:element name="Assignment">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBase">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:group ref="DeclaredVariable"/>
             <xs:group ref="Expression" />
@@ -187,7 +224,7 @@ element.  It is used as an included schema only.
   <xs:element name="CommandNode">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBase">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:element ref="Command" />
           </xs:sequence>
@@ -199,7 +236,7 @@ element.  It is used as an included schema only.
   <xs:element name="UpdateNode">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBase">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:element ref="Update" />
           </xs:sequence>
@@ -208,33 +245,10 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="LibraryCall">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="NodeBase">
-          <xs:sequence>
-            <xs:element name="Library" type="xs:NCName" />
-            <xs:element ref="Alias" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="Alias">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:group ref="Expression"/>
-      </xs:sequence>
-      <xs:attribute name="NodeParameter" type="xs:NCName" use="required" />
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
   <!-- Used several places in Extended Plexil schema -->
-  <xs:complexType name="SequenceType">
+  <xs:complexType name="sequence-type">
     <xs:complexContent>
-      <xs:extension base="NodeBase">
+      <xs:extension base="node-base">
         <xs:sequence>
           <xs:group ref="Action" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
@@ -242,7 +256,7 @@ element.  It is used as an included schema only.
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:element name="ListNode" type="SequenceType" />
+  <xs:element name="ListNode" type="sequence-type" />
 
   <xs:group name="Conditions">
     <xs:choice>
@@ -273,19 +287,19 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="Condition">
+  <xs:complexType name="condition">
     <xs:group ref="GeneralizedBooleanExpression"/>
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="EndCondition" type="Condition" />
-  <xs:element name="ExitCondition" type="Condition" />
-  <xs:element name="InvariantCondition" type="Condition" />
-  <xs:element name="PostCondition" type="Condition" />
-  <xs:element name="PreCondition" type="Condition" />
-  <xs:element name="RepeatCondition" type="Condition" />
-  <xs:element name="SkipCondition" type="Condition" />
-  <xs:element name="StartCondition" type="Condition" />
+  <xs:element name="EndCondition" type="condition" />
+  <xs:element name="ExitCondition" type="condition" />
+  <xs:element name="InvariantCondition" type="condition" />
+  <xs:element name="PostCondition" type="condition" />
+  <xs:element name="PreCondition" type="condition" />
+  <xs:element name="RepeatCondition" type="condition" />
+  <xs:element name="SkipCondition" type="condition" />
+  <xs:element name="StartCondition" type="condition" />
 
   <xs:group name="Interface">
     <xs:choice>
@@ -294,7 +308,7 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="InterfaceSpec">
+  <xs:complexType name="interface-spec">
     <xs:choice maxOccurs="unbounded">
       <xs:element ref="DeclareVariable"/>
       <xs:element ref="DeclareArray"/>
@@ -302,22 +316,14 @@ element.  It is used as an included schema only.
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="In" type="InterfaceSpec" />
+  <xs:element name="In" type="interface-spec" />
 
-  <xs:element name="InOut" type="InterfaceSpec" />
+  <xs:element name="InOut" type="interface-spec" />
 
   <xs:element name="UsingMutex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Name" maxOccurs="unbounded">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:NCName">
-                <xs:attributeGroup ref="SourceLocators"/>
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="Name" type="VariableReferenceType" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -367,24 +373,16 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="VariableReferenceType">
+  <xs:complexType name="variable-reference">
     <xs:attribute name="Name" type="xs:NCName" use="required" />
     <xs:attributeGroup ref="SourceLocators" />
   </xs:complexType>
 
-  <xs:element name="IntegerVariable" type="VariableReferenceType"/>
-  <xs:element name="RealVariable" type="VariableReferenceType"/>
-  <xs:element name="BooleanVariable" type="VariableReferenceType"/>
-  <xs:element name="StringVariable" type="VariableReferenceType"/>
-  <xs:element name="ArrayVariable" type="VariableReferenceType"/>
-
-  <xs:group name="VariableDeclaration">
-    <xs:choice>
-      <xs:element ref="DeclareVariable" />
-      <xs:element ref="DeclareArray" />
-      <xs:element ref="DeclareMutex" />
-    </xs:choice>
-  </xs:group>
+  <xs:element name="IntegerVariable" type="variable-reference"/>
+  <xs:element name="RealVariable" type="variable-reference"/>
+  <xs:element name="BooleanVariable" type="variable-reference"/>
+  <xs:element name="StringVariable" type="variable-reference"/>
+  <xs:element name="ArrayVariable" type="variable-reference"/>
 
   <xs:element name="DeclareVariable">
     <xs:complexType>
@@ -411,7 +409,7 @@ element.  It is used as an included schema only.
       <xs:group ref="BooleanExpression" />
       <xs:group ref="NumericExpression" />
       <xs:group ref="StringExpression" />
-      <xs:group ref="LookupGroup"/>
+      <xs:element ref="Lookup"/>
       <xs:element ref="ArrayElement"/>
     </xs:choice>
   </xs:group>
@@ -420,6 +418,14 @@ element.  It is used as an included schema only.
   <xs:group name="InitialArrayValue">
     <xs:choice>
       <xs:group ref="GeneralizedArrayExpression" />
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="VariableDeclaration">
+    <xs:choice>
+      <xs:element ref="DeclareVariable" />
+      <xs:element ref="DeclareArray" />
+      <xs:element ref="DeclareMutex" />
     </xs:choice>
   </xs:group>
 
@@ -442,7 +448,7 @@ element.  It is used as an included schema only.
 	  <xs:group ref="NumericExpression" />
 	  <xs:group ref="StringExpression" />
 	  <xs:group ref="ArrayExpression" />
-      <xs:group ref="LookupGroup" />
+      <xs:element ref="Lookup" />
       <xs:element ref="ArrayElement" />
     </xs:choice>
   </xs:group>
@@ -460,6 +466,29 @@ element.  It is used as an included schema only.
     <xs:complexType>
       <xs:group ref="Expression"/>
       <xs:attribute name="Name" type="xs:NCName" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="LibraryCall">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="node-base">
+          <xs:sequence>
+            <xs:element name="Library" type="xs:NCName" />
+            <xs:element ref="Alias" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="Expression"/>
+      </xs:sequence>
+      <xs:attribute name="NodeParameter" type="xs:NCName" use="required" />
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
@@ -505,7 +534,7 @@ element.  It is used as an included schema only.
   <xs:group name="GeneralizedArrayExpression">
     <xs:choice>
       <xs:group ref="ArrayExpression"/>
-      <xs:group ref="LookupGroup"/>
+      <xs:element ref="Lookup"/>
     </xs:choice>
   </xs:group>
 
@@ -527,7 +556,7 @@ element.  It is used as an included schema only.
   <xs:group name="GeneralizedBooleanExpression">
     <xs:choice>
       <xs:group ref="BooleanExpression"/>
-      <xs:group ref="LookupGroup"/>
+      <xs:element ref="Lookup"/>
       <xs:element ref="ArrayElement"/>
     </xs:choice>
   </xs:group>
@@ -538,6 +567,9 @@ element.  It is used as an included schema only.
 	  <xs:group ref="Equality"/>
 	  <xs:group ref="NumericComparison"/>
       <xs:group ref="KnownTest"/>
+      <xs:group ref="NodeStatePredicate"/>
+      <xs:group ref="NodeOutcomePredicate"/>
+      <xs:group ref="NodeFailurePredicate"/>
       <xs:element ref="BooleanVariable"/>
       <xs:element ref="Boolean"/>
     </xs:choice>
@@ -561,10 +593,12 @@ element.  It is used as an included schema only.
       <xs:element ref="EQNumeric"/>
       <xs:element ref="EQInternal"/>
       <xs:element ref="EQString"/>
+      <xs:element ref="EQArray"/>
       <xs:element ref="NEBoolean"/>
       <xs:element ref="NENumeric"/>
       <xs:element ref="NEInternal"/>
       <xs:element ref="NEString"/>
+      <xs:element ref="NEArray"/>
 	</xs:choice>
   </xs:group>
 
@@ -611,52 +645,43 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="UnaryNumericOp">
-    <xs:group ref="GeneralizedNumericExpression" />
+  <xs:complexType name="unary-boolean-op">
+    <xs:group ref="GeneralizedBooleanExpression"/>
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:complexType name="BinaryNumericOp">
+  <xs:complexType name="nary-boolean-op">
+    <xs:group ref="GeneralizedBooleanExpression"
+              minOccurs="1" maxOccurs="unbounded"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <xs:element name="NOT" type="unary-boolean-op" />
+    
+  <xs:element name="OR" type="nary-boolean-op" />
+  <xs:element name="XOR" type="nary-boolean-op" />
+  <xs:element name="AND" type="nary-boolean-op" />
+
+  <xs:complexType name="binary-numeric-op">
     <xs:group ref="GeneralizedNumericExpression"
               minOccurs="2" maxOccurs="2"/>
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:complexType name="NaryNumericOp">
-    <xs:group ref="GeneralizedNumericExpression"
-              minOccurs="1" maxOccurs="unbounded"/>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
+  <xs:element name="GT" type="binary-numeric-op" />
+  <xs:element name="GE" type="binary-numeric-op" />
+  <xs:element name="LT" type="binary-numeric-op" />
+  <xs:element name="LE" type="binary-numeric-op" />
 
-  <xs:complexType name="UnaryBooleanOp">
-    <xs:group ref="GeneralizedBooleanExpression"/>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
-
-  <xs:complexType name="NaryBooleanOp">
-    <xs:group ref="GeneralizedBooleanExpression"
-              minOccurs="1" maxOccurs="unbounded"/>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
-    
-  <xs:element name="OR" type="NaryBooleanOp" />
-  <xs:element name="XOR" type="NaryBooleanOp" />
-  <xs:element name="AND" type="NaryBooleanOp" />
-
-  <xs:element name="NOT" type="UnaryBooleanOp" />
-
-  <xs:element name="GT" type="BinaryNumericOp" />
-  <xs:element name="GE" type="BinaryNumericOp" />
-  <xs:element name="LT" type="BinaryNumericOp" />
-  <xs:element name="LE" type="BinaryNumericOp" />
-
-  <xs:complexType name="EqualityOperator">
+  <xs:complexType name="equality-operator">
     <xs:choice>
       <xs:group ref="GeneralizedBooleanExpression"
                 minOccurs="2" maxOccurs="2"/>
       <xs:group ref="GeneralizedNumericExpression"
                 minOccurs="2" maxOccurs="2"/>
       <xs:group ref="GeneralizedStringExpression"
+                minOccurs="2" maxOccurs="2"/>
+      <xs:group ref="GeneralizedArrayExpression"
                 minOccurs="2" maxOccurs="2"/>
       <xs:group ref="NodeState"
                 minOccurs="2" maxOccurs="2"/>
@@ -670,59 +695,22 @@ element.  It is used as an included schema only.
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <!-- <xs:element name="EQ" type="EqualityOperator" /> -->
-  <!-- <xs:element name="NE" type="EqualityOperator" /> -->
-  <xs:element name="EQBoolean" type="EqualityOperator" />
-  <xs:element name="EQNumeric" type="EqualityOperator" />
-  <xs:element name="EQString" type="EqualityOperator" />
-  <xs:element name="EQInternal" type="EqualityOperator" />
-  <xs:element name="NEBoolean" type="EqualityOperator" />
-  <xs:element name="NENumeric" type="EqualityOperator" />
-  <xs:element name="NEString" type="EqualityOperator" />
-  <xs:element name="NEInternal" type="EqualityOperator" />
+  <!-- <xs:element name="EQ" type="equality-operator" /> -->
+  <!-- <xs:element name="NE" type="equality-operator" /> -->
+  <xs:element name="EQBoolean" type="equality-operator" />
+  <xs:element name="EQNumeric" type="equality-operator" />
+  <xs:element name="EQString" type="equality-operator" />
+  <xs:element name="EQArray" type="equality-operator" />
+  <xs:element name="EQInternal" type="equality-operator" />
+  <xs:element name="NEBoolean" type="equality-operator" />
+  <xs:element name="NENumeric" type="equality-operator" />
+  <xs:element name="NEString" type="equality-operator" />
+  <xs:element name="NEArray" type="equality-operator" />
+  <xs:element name="NEInternal" type="equality-operator" />
 
   <!-- Node references -->
 
-  <xs:simpleType name="NCNameOrEmpty">
-    <xs:union memberTypes="xs:NCName">
-      <xs:simpleType>
-        <xs:restriction base="xs:string">
-          <xs:enumeration value=""/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:union>
-  </xs:simpleType>
-
-  <xs:element name="NodeId" type="xs:NCName"/>
-
-  <xs:element name="NodeRef">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="NCNameOrEmpty">
-          <xs:attribute name="dir">
-            <xs:simpleType>
-              <xs:restriction base="xs:NMTOKEN">
-                <xs:enumeration value="parent"/>
-                <xs:enumeration value="sibling"/>
-                <xs:enumeration value="child"/>
-                <xs:enumeration value="self"/>
-              </xs:restriction>
-            </xs:simpleType>
-          </xs:attribute>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:complexType name="NodeReference">
-    <xs:choice>
-      <xs:element ref="NodeId" />
-      <xs:element ref="NodeRef" />
-    </xs:choice>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
-
-  <xs:element name="NodeCommandHandleVariable" type="NodeReference" />
+  <xs:element name="NodeCommandHandleVariable" type="node-reference" />
 
   <xs:simpleType name="NodeCommandHandleValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -754,7 +742,7 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeStateVariable" type="NodeReference" />
+  <xs:element name="NodeStateVariable" type="node-reference" />
 
   <xs:simpleType name="NodeStateValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -774,6 +762,26 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- Node State Predicates -->
+
+  <xs:group name="NodeStatePredicate">
+    <xs:choice>
+      <xs:element ref="Executing"/>
+      <xs:element ref="Finished"/>
+      <xs:element ref="Inactive"/>
+      <xs:element ref="IterationEnded"/>
+      <xs:element ref="Waiting"/>
+      <xs:element ref="NoChildFailed"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:element name="Executing" type="node-reference"/>
+  <xs:element name="Finished" type="node-reference"/>
+  <xs:element name="Inactive" type="node-reference"/>
+  <xs:element name="IterationEnded" type="node-reference"/>
+  <xs:element name="Waiting" type="node-reference"/>
+  <xs:element name="NoChildFailed" type="node-reference"/>
+
   <xs:group name="NodeOutcome">
     <xs:choice>
       <xs:element ref="NodeOutcomeVariable"/>
@@ -781,7 +789,7 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeOutcomeVariable" type="NodeReference" />
+  <xs:element name="NodeOutcomeVariable" type="node-reference" />
 
   <xs:simpleType name="NodeOutcomeValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -798,6 +806,20 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- Node Outcome Predicates -->
+
+  <xs:group name="NodeOutcomePredicate">
+    <xs:choice>
+      <xs:element ref="Failed"/>
+      <xs:element ref="Skipped"/>
+      <xs:element ref="Succeeded"/>
+      <!-- more to come -->
+    </xs:choice>
+  </xs:group>
+
+  <xs:element name="Failed" type="node-reference"/>
+  <xs:element name="Skipped" type="node-reference"/>
+  <xs:element name="Succeeded" type="node-reference"/>
 
   <xs:group name="NodeFailure">
     <xs:choice>
@@ -806,7 +828,7 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeFailureVariable" type="NodeReference" />
+  <xs:element name="NodeFailureVariable" type="node-reference" />
 
   <xs:simpleType name="NodeFailureValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -825,10 +847,21 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- Node Failure Predicates -->
+
+  <xs:group name="NodeFailurePredicate">
+    <xs:choice>
+      <xs:element ref="PostconditionFailed"/>
+      <!-- more to come -->
+    </xs:choice>
+  </xs:group>
+
+  <xs:element name="PostconditionFailed" type="node-reference"/>
+
   <xs:element name="NodeTimepoint">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeReference">
+        <xs:extension base="node-reference">
           <xs:attribute name="NodeState" use="required" type="NodeStateValues" />
           <xs:attribute name="Timepoint" use="required">
             <xs:simpleType>
@@ -846,7 +879,7 @@ element.  It is used as an included schema only.
   <xs:group name="GeneralizedStringExpression">
     <xs:choice>
       <xs:group ref="StringExpression"/>
-      <xs:group ref="LookupGroup"/>
+      <xs:element ref="Lookup"/>
       <xs:element ref="ArrayElement"/>
     </xs:choice>
   </xs:group>
@@ -875,7 +908,7 @@ element.  It is used as an included schema only.
   <xs:group name="GeneralizedNumericExpression">
     <xs:choice>
       <xs:group ref="NumericExpression"/>
-      <xs:group ref="LookupGroup"/>
+      <xs:element ref="Lookup"/>
       <xs:element ref="ArrayElement"/>
     </xs:choice>
   </xs:group>
@@ -924,23 +957,33 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="ADD" type="NaryNumericOp" />
-  <xs:element name="SUB" type="NaryNumericOp" />
-  <xs:element name="MUL" type="NaryNumericOp" />
-  <xs:element name="DIV" type="BinaryNumericOp" />
+  <xs:element name="DIV" type="binary-numeric-op" />
+  <xs:element name="MOD" type="binary-numeric-op" />
 
-  <xs:element name="MOD" type="BinaryNumericOp" />
+  <xs:complexType name="nary-numeric-op">
+    <xs:group ref="GeneralizedNumericExpression"
+              minOccurs="1" maxOccurs="unbounded"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xs:element name="MAX" type="NaryNumericOp" />
-  <xs:element name="MIN" type="NaryNumericOp" />
+  <xs:element name="ADD" type="nary-numeric-op" />
+  <xs:element name="SUB" type="nary-numeric-op" />
+  <xs:element name="MUL" type="nary-numeric-op" />
+  <xs:element name="MAX" type="nary-numeric-op" />
+  <xs:element name="MIN" type="nary-numeric-op" />
 
-  <xs:element name="SQRT" type="UnaryNumericOp" />
-  <xs:element name="ABS" type="UnaryNumericOp" />
-  <xs:element name="CEIL" type="UnaryNumericOp" />
-  <xs:element name="FLOOR" type="UnaryNumericOp" />
-  <xs:element name="ROUND" type="UnaryNumericOp" />
-  <xs:element name="TRUNC" type="UnaryNumericOp" />
-  <xs:element name="REAL_TO_INT" type="UnaryNumericOp" />
+  <xs:complexType name="unary-numeric-op">
+    <xs:group ref="GeneralizedNumericExpression" />
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <xs:element name="SQRT" type="unary-numeric-op" />
+  <xs:element name="ABS" type="unary-numeric-op" />
+  <xs:element name="CEIL" type="unary-numeric-op" />
+  <xs:element name="FLOOR" type="unary-numeric-op" />
+  <xs:element name="ROUND" type="unary-numeric-op" />
+  <xs:element name="TRUNC" type="unary-numeric-op" />
+  <xs:element name="REAL_TO_INT" type="unary-numeric-op" />
 
   <xs:element name="STRLEN">
     <xs:complexType>
@@ -963,33 +1006,14 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:group name="LookupGroup">
-    <xs:choice>
-      <xs:element ref="LookupOnChange"/>
-      <xs:element ref="LookupNow"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:element name="Tolerance" minOccurs="0">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:complexType name="GeneralLookup">
-    <xs:sequence>
-      <xs:element ref="Tolerance" minOccurs="0" />
-      <xs:element ref="Name" />
-      <xs:group ref="Expression" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
-
-  <xs:element name="LookupOnChange" type="GeneralLookup" />
-
-  <xs:element name="LookupNow">
+  <xs:element name="Lookup">
     <xs:complexType>
       <xs:sequence>
+        <xs:element ref="Tolerance" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="GeneralizedNumericExpression"/>
+          </xs:complexType>
+        </xs:element>
         <xs:element ref="Name" />
         <xs:group ref="Expression" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>

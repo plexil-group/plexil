@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -79,14 +79,6 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xs:element ref="PostconditionFailed"/>
         <xs:element ref="ParentFailed"/>
         <xs:element ref="MessageReceived"/>
-      </xs:choice>
-    </xs:group>
-
-    <xs:group name="LookupGroup">
-      <xs:choice>
-        <xs:element ref="LookupOnChange"/>
-        <xs:element ref="LookupNow"/>
-        <xs:element ref="Lookup"/>
       </xs:choice>
     </xs:group>
 
@@ -193,19 +185,19 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
   <!-- Sequence variants -->
 
   <!-- Actions are performed concurrently. This is just a List Node. -->
-  <xs:element name="Concurrence" type="SequenceType" />
+  <xs:element name="Concurrence" type="sequence-type" />
 
   <!-- Each action in the sequence is performed in the given order. -->
-  <xs:element name="Sequence" type="SequenceType" />
+  <xs:element name="Sequence" type="sequence-type" />
 
   <!-- Like Sequence, except the actions are checked for success.  If
        one fails, the CheckedSequence form terminates with failure. -->
-  <xs:element name="CheckedSequence" type="SequenceType" />
+  <xs:element name="CheckedSequence" type="sequence-type" />
   
   <!-- Each action in the sequence is performed in turn, until one of
        them succeeds; the rest are ignored.  The Try form fails if and
        only if all its actions fail. -->
-  <xs:element name="Try" type="SequenceType" />
+  <xs:element name="Try" type="sequence-type" />
 
   <!-- Conditionals and loops -->
 
@@ -381,8 +373,5 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-
-  <!-- Generic lookup form -->
-  <xs:element name="Lookup" type="GeneralLookup" />
 
 </xs:schema>
