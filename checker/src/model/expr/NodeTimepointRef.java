@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,10 @@
 
 package model.expr;
 
-
-import java.util.Vector;
-
-import main.Log;
-import model.expr.NodeVarRef.NodeRefDir;
-import model.GlobalDeclList;
-import model.Node;
+import model.expr.NodeReference.NodeRefDir;
 
 public class NodeTimepointRef
-    extends NodeVarRef {
+    extends NodeReference {
 
     // We don't have to do anything with these, yet.
     // Assume parser takes care of them.
@@ -51,8 +45,7 @@ public class NodeTimepointRef
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder("(");
-        s.append(typeAsExprName());
-        s.append(" ");
+        s.append("NodeTimepointValue ");
         s.append(nodeRefToString());
         s.append(" ");
         s.append(stateName);

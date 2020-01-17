@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -89,6 +89,7 @@ public abstract class Expr {
                                  Vector<Log> errors) {
         if (t == null)
             return;
+
         if (t == ExprType.A)
             logUnknownTypeWarning(parentDesc,
                                   e.toString(),
@@ -101,13 +102,19 @@ public abstract class Expr {
                              parentDesc,
                              contextMsg,
                              errors);
+        else if (expected == ExprType.GenericArray) 
+            checkArrayType(e,
+                           t,
+                           parentDesc,
+                           contextMsg,
+                           errors);
         else if (t != expected)
-                logTypeError(parentDesc,
-                             e.toString(),
-                             t,
-                             expected,
-                             contextMsg,
-                             errors);
+            logTypeError(parentDesc,
+                         e.toString(),
+                         t,
+                         expected,
+                         contextMsg,
+                         errors);
     }
 
     // Checks expression e with type t for a numeric type.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import model.Plan;
 import model.Var;
 import model.VarList;
 import model.expr.*;
-import model.expr.NodeVarRef.NodeRefDir;
+import model.expr.NodeReference.NodeRefDir;
 
 public class ExprReader {
 
@@ -117,6 +117,18 @@ public class ExprReader {
         case "IsKnown":
             return parseIsKnown(xml, decls, node);
 
+        case "Executing":
+        case "Failed":
+        case "Finished":
+        case "Inactive":
+        case "IterationEnded":
+        case "NoChildFailed":
+        case "PostconditionFailed":
+        case "Skipped":
+        case "Succeeded":
+        case "Waiting":
+            return parseNodeReference(xml, node);
+
         default:
             System.out.println("Reader error: Unknown expression element " + tag);
             return null;
@@ -131,7 +143,7 @@ public class ExprReader {
             return parseArrayLiteral(xml, node); // special case
 
         case "NodeTimepointValue":
-            return parseNodeVarRef(xml, node); // not a literal
+            return parseNodeReference(xml, node); // not a literal
             
         case "BooleanValue":
             type = ExprType.Bool;
@@ -244,7 +256,7 @@ public class ExprReader {
 
         default:
             if (xml.getName().startsWith("Node"))
-                return parseNodeVarRef(xml, node);
+                return parseNodeReference(xml, node);
             System.out.println("Reader error: found " + xml.getName()
                                + " element, was expecting variable reference");
             return null;
@@ -268,151 +280,192 @@ public class ExprReader {
         return new VarRef(type, id, decl);
     }
 
-    private Expr parseNodeVarRef(IXMLElement xml, Node node) {
-        ExprType type = null;
-        switch (xml.getName()) {
-        case "NodeCommandHandleVariable":
-            type = ExprType.NodeCommandHandle;
-            break;
-            
-        case "NodeFailureVariable":
-            type = ExprType.NodeFailureType;
-            break;
-            
-        case "NodeOutcomeVariable":
-            type = ExprType.NodeOutcome;
-            break;
-            
-        case "NodeStateVariable":
-            type = ExprType.NodeState;
-            break;
-
-        case "NodeTimepointValue":
-            type = ExprType.NodeTimepointValue;
-            break;
-
-        default:
-            System.out.println("Reader error: found " + xml.getName()
-                               + " element, was expecting node variable reference");
+    private Expr parseNodeReference(IXMLElement xml, Node node) {
+        ExprType type = getNodeReferenceType(xml.getName());
+        if (type == null)
             return null;
-        }
 
-        if (type == ExprType.NodeTimepointValue) {
-            if (xml.getChildrenCount() != 3) {
-                System.out.println("Reader error: ill-formed " + xml.getName() + " element");
+        IXMLElement nodeRef = xml.getChildAtIndex(0);
+        String nodeId = nodeRef.getContent();
+        NodeRefDir dir = null;
+
+        if (nodeRef.getName() == "NodeId") {
+            if (nodeId == null || nodeId.isEmpty()) {
+                System.out.println("Reader error: ill-formed " + nodeRef.getName()
+                                   + " element");
                 return null;
             }
         }
-        else if (xml.getChildrenCount() != 1) {
+        else if (nodeRef.getName() == "NodeRef") {
+            dir = parseNodeRefDirection(nodeRef);
+            if (dir == null)
+                return null;
+        }
+
+        if (type == ExprType.NodeTimepointValue)
+            return parseNodeTimepointVariable(xml, nodeId, dir);
+
+        if (xml.getChildrenCount() != 1) {
             System.out.println("Reader error: ill-formed " + xml.getName()
                                + " element");
             return null;
         }
 
-        IXMLElement noderef = xml.getChildAtIndex(0);
-        String nodeId = noderef.getContent();
-        String dirname = null;
-        NodeRefDir dir = null;
-
-        switch (noderef.getName()) {
-        case "NodeId":
-            nodeId = noderef.getContent();
-            if (nodeId == null || nodeId.isEmpty()) {
-                System.out.println("Reader error: ill-formed " + noderef.getName()
-                                   + " element");
-                return null;
-            }
-            break;
-            
-        case "NodeRef":
-            dirname = noderef.getAttribute("dir", null);
-            if (dirname == null || dirname.isEmpty()) {
-                System.out.println("Reader error: missing dir attribute in " + noderef.getName()
-                                   + " element");
-                return null;
-            }
-            switch (dirname) {
-            case "self":
-                dir = NodeRefDir.Self;
-                if (nodeId != null && !nodeId.isEmpty())
-                    System.out.println("Reader warning: ignoring content in " + noderef.getName()
-                                       + " element with dir = \"" + dirname + "\"");
-                nodeId = null;
-                break;
-
-            case "parent":
-                dir = NodeRefDir.Parent;
-                if (nodeId != null && !nodeId.isEmpty())
-                    System.out.println("Reader warning: ignoring content in " + noderef.getName()
-                                       + " element with dir = \"" + dirname + "\"");
-                nodeId = null;
-                break;
-
-            case "child":   // TODO
-                dir = NodeRefDir.Child;
-                if (nodeId != null && nodeId.isEmpty()) {
-                    System.out.println("Reader error: " + noderef.getName()
-                                       + " element with dir = \"" + dirname
-                                       + "\" missing required node name");
-                    return null;
-                }
-                break;
-
-            case "sibling": // TODO
-                dir = NodeRefDir.Sibling;
-                if (nodeId != null && nodeId.isEmpty()) {
-                    System.out.println("Reader error: " + noderef.getName()
-                                       + " element with dir = \"" + dirname
-                                       + "\" missing required node name");
-                    return null;
-                }
-                break;
-
-            default:
-                System.out.println("Reader error: invalid value "
-                                   + nodeId + " for dir attribute in " + noderef.getName());
-                return null;
-            }
-        }
-
-        if (type == ExprType.NodeTimepointValue) {
-            IXMLElement stateXml = xml.getChildAtIndex(1);
-            if (!"NodeStateValue".equals(stateXml.getName())) {
-                System.out.println("Reader error: " + xml.getName()
-                                   + " missing required NodeStateName element");
-                return null;
-            }
-            if (!stateXml.isLeaf()) {
-                System.out.println("Reader error: ill-formed " + stateXml.getName() + " element");
-                return null;
-            }
-            String state = stateXml.getContent();
-            if (state == null || state.isEmpty()) {
-                System.out.println("Reader error: ill-formed " + stateXml.getName() + " element");
-                return null;
-            }
-            // TODO: check state name content
-            
-            IXMLElement whichXml = xml.getChildAtIndex(2);
-            if (!"Timepoint".equals(whichXml.getName())) {
-                System.out.println("Reader error: " + xml.getName()
-                                   + " missing required Timepoint element");
-                return null;
-            }
-            if (!whichXml.isLeaf()) {
-                System.out.println("Reader error: ill-formed " + whichXml.getName() + " element");
-                return null;
-            }
-            String which = whichXml.getContent();
-            if (which == null || which.isEmpty()) {
-                System.out.println("Reader error: ill-formed " + whichXml.getName() + " element");
-                return null;
-            }
-            // TODO: check timepoint name content
-
-            return new NodeTimepointRef(nodeId, dir, state, which);
-        }
+        if (type == ExprType.Bool)
+            return new NodePredicate(xml.getName(), nodeId, dir);
         return new NodeVarRef(type, nodeId, dir);
+    }
+
+    private ExprType getNodeReferenceType(String name) {
+        switch (name) {
+        case "NodeCommandHandleVariable":
+            return ExprType.NodeCommandHandle;
+            
+        case "NodeFailureVariable":
+            return ExprType.NodeFailureType;
+            
+        case "NodeOutcomeVariable":
+            return ExprType.NodeOutcome;
+            
+        case "NodeStateVariable":
+            return ExprType.NodeState;
+
+        case "NodeTimepointValue":
+            return ExprType.NodeTimepointValue;
+
+        case "Executing":
+        case "Failed":
+        case "Finished":
+        case "Inactive":
+        case "IterationEnded":
+        case "NoChildFailed":
+        case "PostconditionFailed":
+        case "Skipped":
+        case "Succeeded":
+        case "Waiting":
+            return ExprType.Bool;
+
+        default:
+            System.out.println("Reader error: found " + name
+                               + " element, was expecting node reference");
+            return null;
+        }
+    }
+
+    private NodeRefDir parseNodeRefDirection(IXMLElement noderef) {
+        String dirname = noderef.getAttribute("dir", null);
+        if (dirname == null || dirname.isEmpty()) {
+            System.out.println("Reader error: missing dir attribute in " + noderef.getName()
+                               + " element");
+            return null;
+        }
+
+        String nodeId = noderef.getContent();
+        switch (dirname) {
+        case "self":
+            if (nodeId != null && !nodeId.isEmpty())
+                System.out.println("Reader warning: ignoring content in " + noderef.getName()
+                                   + " element with dir = \"" + dirname + "\"");
+            return NodeRefDir.Self;
+
+        case "parent":
+            if (nodeId != null && !nodeId.isEmpty())
+                System.out.println("Reader warning: ignoring content in " + noderef.getName()
+                                   + " element with dir = \"" + dirname + "\"");
+            return NodeRefDir.Parent;
+
+        case "child":
+            if (nodeId != null && nodeId.isEmpty()) {
+                System.out.println("Reader error: " + noderef.getName()
+                                   + " element with dir = \"" + dirname
+                                   + "\" missing required node name");
+                return null;
+            }
+            return NodeRefDir.Child;
+
+        case "sibling":
+            if (nodeId != null && nodeId.isEmpty()) {
+                System.out.println("Reader error: " + noderef.getName()
+                                   + " element with dir = \"" + dirname
+                                   + "\" missing required node name");
+                return null;
+            }
+            return NodeRefDir.Sibling;
+
+        default:
+            System.out.println("Reader error: invalid value "
+                               + dirname + " for dir attribute in " + noderef.getName());
+            return null;
+        }
+    }
+
+    private Expr parseNodeTimepointVariable(IXMLElement xml, String nodeId, NodeRefDir dir) {
+        if (xml.getChildrenCount() != 3) {
+            System.out.println("Reader error: ill-formed " + xml.getName() + " element");
+            return null;
+        }
+        IXMLElement stateXml = xml.getChildAtIndex(1);
+        if (!"NodeStateValue".equals(stateXml.getName())) {
+            System.out.println("Reader error: " + xml.getName()
+                               + " missing required NodeStateName element");
+            return null;
+        }
+        if (!stateXml.isLeaf()) {
+            System.out.println("Reader error: ill-formed " + stateXml.getName() + " element");
+            return null;
+        }
+        String state = stateXml.getContent();
+        if (state == null || state.isEmpty()) {
+            System.out.println("Reader error: ill-formed " + stateXml.getName() + " element");
+            return null;
+        }
+        // Check state name
+        switch (state) {
+        case "EXECUTING":
+        case "FAILING":
+        case "FINISHED":
+        case "FINISHING":
+        case "INACTIVE":
+        case "ITERATION_ENDED":
+        case "WAITING":
+            break;
+
+        default:
+            System.out.println("Reader error: Invalid node state name "
+                               + state + " in "
+                               + stateXml.getName() + " element");
+            return null;
+        }
+
+            
+        IXMLElement whichXml = xml.getChildAtIndex(2);
+        if (!"Timepoint".equals(whichXml.getName())) {
+            System.out.println("Reader error: " + xml.getName()
+                               + " missing required Timepoint element");
+            return null;
+        }
+        if (!whichXml.isLeaf()) {
+            System.out.println("Reader error: ill-formed " + whichXml.getName() + " element");
+            return null;
+        }
+        String which = whichXml.getContent();
+        if (which == null || which.isEmpty()) {
+            System.out.println("Reader error: ill-formed " + whichXml.getName() + " element");
+            return null;
+        }
+        switch (which) {
+        case "START":
+        case "END":
+            break;
+
+        default:
+            System.out.println("Reader error: Invalid timepoint name "
+                               + which + " in "
+                               + whichXml.getName() + " element");
+            return null;
+        }
+
+        return new NodeTimepointRef(nodeId, dir, state, which);
     }
 
     private Expr parseEqualityExpr(IXMLElement xml, GlobalDeclList decls, Node node) {

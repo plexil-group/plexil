@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,11 @@ public class Equality
         ExprType rt = re.check(n, decls, contextMsg, errors);
 
         switch (operator) {
+        case "EQArray":
+        case "NEArray":
+            checkArray(le, lt, re, rt, contextMsg, errors);
+            break;
+
         case "EQBoolean":
         case "NEBoolean":
             checkBoolean(le, lt, re, rt, contextMsg, errors);
@@ -88,6 +93,14 @@ public class Equality
         }
 
         return ExprType.Bool;
+    }
+
+    private void checkArray(Expr le, ExprType lt,
+                            Expr re, ExprType rt,
+                            String contextMsg,
+                            Vector<Log> errors) {
+        checkType(le, lt, ExprType.GenericArray, operator, contextMsg, errors);
+        checkType(re, rt, lt, operator, contextMsg, errors);
     }
 
     private void checkBoolean(Expr le, ExprType lt,

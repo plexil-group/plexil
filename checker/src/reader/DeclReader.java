@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,9 +88,14 @@ public class DeclReader {
 		String id = null;
 		VarList params = new VarList();
 		VarList rets = new VarList();
+        boolean anyArgs = false;
 		for (IXMLElement child : getChildren(xml)) {
 			String text = child.getName();
             switch (text) {
+            case "AnyParameters":
+                anyArgs = true;
+                break;
+
             case "Parameter":
                 params.add(convertXmlToParam(child));
                 break;
@@ -121,16 +126,21 @@ public class DeclReader {
             return null;
         }
 
-		return new GlobalDecl(CallType.Command, id, params, rets);
+		return new GlobalDecl(CallType.Command, id, params, rets, anyArgs);
     }
 
 	private GlobalDecl parseStateDec(IXMLElement xml) {
 		String id = null;
 		VarList params = new VarList();
 		VarList rets = new VarList();
+        boolean anyArgs = false;
 		for (IXMLElement child : getChildren(xml)) {
 			String text = child.getName();
             switch (text) {
+            case "AnyParameters":
+                anyArgs = true;
+                break;
+
             case "Parameter":
                 params.add(convertXmlToParam(child));
                 break;
@@ -157,7 +167,7 @@ public class DeclReader {
             return null;
         }
 
-		return new GlobalDecl(CallType.Lookup, id, params, rets);
+		return new GlobalDecl(CallType.Lookup, id, params, rets, anyArgs);
     }
 
 	private GlobalDecl parseLibraryDec(IXMLElement xml) {

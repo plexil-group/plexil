@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,13 @@ public class GlobalDecl {
 	private String id;
 	private VarList arguments;
 	private VarList returns;
+    private boolean anyArguments;
 	
-	public CallType getType() { return type; }
-	public String   getID()   { return id; }
-	public VarList  getArgs() { return arguments; }
-	public VarList  getRets() { return returns; }
+	public CallType getType()         { return type; }
+	public String   getID()           { return id; }
+	public VarList  getArgs()         { return arguments; }
+	public VarList  getRets()         { return returns; }
+    public boolean  getAnyArguments() { return anyArguments; }
 
     public Var getReturn() {
         if (returns.isEmpty())
@@ -64,6 +66,7 @@ public class GlobalDecl {
 		id = i;
 		arguments = new VarList();
 		returns = new VarList();
+        anyArguments = false;
 	}
 
 	public GlobalDecl(CallType d, String i, VarList args)
@@ -72,6 +75,7 @@ public class GlobalDecl {
 		id = i;
 		arguments = args;
 		returns = new VarList();
+        anyArguments = false;
 	}
 
 	public GlobalDecl(CallType d, String i, VarList args, VarList ret)
@@ -80,6 +84,16 @@ public class GlobalDecl {
 		id = i;
 		arguments = args;
 		returns = ret;
+        anyArguments = false;
+	}
+
+	public GlobalDecl(CallType d, String i, VarList args, VarList ret, boolean anyArgs)
+	{
+		type = d;
+		id = i;
+		arguments = args;
+		returns = ret;
+        anyArguments = anyArgs;
 	}
 
 	public void print()
@@ -91,6 +105,9 @@ public class GlobalDecl {
 			for (int j = 0; j < arguments.size(); j++)
 				System.out.println("    " + arguments.elementAt(j).toString());
 		}
+        if (anyArguments) {
+			System.out.println("  Any Arguments");
+        }
 		if (returns != null)
 		{
 			System.out.println("  Returns = ");
@@ -101,7 +118,11 @@ public class GlobalDecl {
 	
 	@Override
 	public String toString() {
-		return type.toString() + " " + id.toString() + "(" + arguments.toTypeString() + ")";
+		return type.toString()
+            + " " + id.toString()
+            + "(" + arguments.toTypeString()
+            + (anyArguments ? " ..." : "")
+            + ")";
 	}
 
 }
