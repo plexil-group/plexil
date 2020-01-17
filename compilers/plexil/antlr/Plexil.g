@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -174,6 +174,7 @@ NODE_PRECONDITION_FAILED_KYWD = 'NodePreconditionFailed';
 NODE_SKIPPED_KYWD = 'NodeSkipped';
 NODE_SUCCEEDED_KYWD = 'NodeSucceeded';
 NODE_WAITING_KYWD = 'NodeWaiting';
+NO_CHILD_FAILED_KYWD = 'NoChildFailed';
 
 // Extended Plexil keywords
 CONCURRENCE_KYWD = 'Concurrence';
@@ -183,6 +184,7 @@ SYNCHRONOUS_COMMAND_KYWD = 'SynchronousCommand';
 TIMEOUT_KYWD = 'Timeout';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
+CHECKED_SEQUENCE_KYWD = 'CheckedSequence';
 SEQUENCE_KYWD = 'Sequence';
 WAIT_KYWD = 'Wait';
 
@@ -544,6 +546,7 @@ block
 sequenceVariantKywd : 
     CONCURRENCE_KYWD
   | SEQUENCE_KYWD
+  | CHECKED_SEQUENCE_KYWD
   | UNCHECKED_SEQUENCE_KYWD
   | TRY_KYWD
  ;
@@ -926,6 +929,7 @@ unaryOp : NOT_KYWD ;
 
 unaryMinus : (MINUS i=INT) -> ^(NEG_INT $i)
            | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
+           | MINUS^ quantity
            ;
 
 dateLiteral : (DATE_KYWD LPAREN s=STRING RPAREN) -> ^(DATE_LITERAL $s) ;
@@ -1004,6 +1008,7 @@ nodeStatePredicate :
   | NODE_SKIPPED_KYWD
   | NODE_SUCCEEDED_KYWD
   | NODE_WAITING_KYWD
+  | NO_CHILD_FAILED_KYWD
  ;
 
 nodeStatePredicateExp : nodeStatePredicate^ LPAREN! nodeReference RPAREN! ;
@@ -1096,10 +1101,8 @@ lookupOnChange
 @init { m_paraphrases.push("in \"LookupOnChange\" expression"); }
 @after { m_paraphrases.pop(); }
  :
-       LOOKUP_ON_CHANGE_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
+       LOOKUP_ON_CHANGE_KYWD^ LPAREN! lookupInvocation (COMMA! expression)? RPAREN!
 ;
-
-tolerance : realValue | durationLiteral | variable ;
 
 // should produce an AST of the form
 // #(LOOKUP_NOW_KYWD stateNameExp (argumentList)? )
@@ -1119,7 +1122,7 @@ lookup
 @init { m_paraphrases.push("in \"Lookup\" expression"); }
 @after { m_paraphrases.pop(); }
  :
-    LOOKUP_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
+    LOOKUP_KYWD^ LPAREN! lookupInvocation (COMMA! expression)? RPAREN!
   ;
 
 lookupInvocation :

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -86,14 +86,6 @@ public class LookupNode extends ExpressionNode
         }
 
         if (m_tolerance != null) {
-            // Enforce variable reference or literal restriction
-            if (!(m_tolerance instanceof LiteralNode || m_tolerance instanceof VariableNode)) {
-                state.addDiagnostic(m_tolerance,
-                                    "Tolerance argument to " + this.getToken().getText()
-                                    + " must be a variable reference or a literal",
-                                    Severity.ERROR);
-            }
-            // Do additional checks
             m_tolerance.earlyCheck(context, state);
         }
 
@@ -172,19 +164,38 @@ public class LookupNode extends ExpressionNode
 
             // Type check tolerance if supplied and if state name is known
             if (m_tolerance != null) {
-                if (m_dataType == PlexilDataType.DATE_TYPE &&
-                    !m_tolerance.assumeType (PlexilDataType.DURATION_TYPE, state)) {
+                if (m_dataType == PlexilDataType.ANY_TYPE) {
+                    // Lookup state name is computed or undeclared -
+                    // check that expression is numeric
+                    if (m_tolerance.getDataType().isNumeric()) {
+                        // that's all we can check here
+                    }
+                    else if (m_tolerance.getDataType() == PlexilDataType.ANY_TYPE) {
+                        // e.g. another undeclared/computed Lookup
+                        state.addDiagnostic(m_tolerance,
+                                            "Lookup tolerance has indeterminate type",
+                                            Severity.WARNING);
+                    }
+                    else {
+                        state.addDiagnostic(m_tolerance,
+                                            "Lookup tolerance has non-numeric type "
+                                            + m_tolerance.getDataType().typeName(),
+                                            Severity.ERROR);
+                    }
+                }
+                else if (m_dataType == PlexilDataType.DATE_TYPE &&
+                    !m_tolerance.assumeType(PlexilDataType.DURATION_TYPE, state)) {
                     state.addDiagnostic(m_tolerance,
                                         "Tolerance supplied for state \"" + m_state.getName()
                                         + "\" has type " + m_tolerance.getDataType().typeName()
-                                        + ", instead of Duration type ", Severity.ERROR);
+                                        + ", instead of Duration type", Severity.ERROR);
                 }
-                else if (m_dataType.isNumeric() && !m_tolerance.assumeType (m_dataType, state)) {
-                    state.addDiagnostic (m_tolerance,
-                                         "Tolerance supplied for state \"" + m_state.getName()
-                                         + "\" has type " + m_tolerance.getDataType().typeName()
-                                         + ", which doesn't match the lookup's type " +
-                                         m_dataType.typeName(), Severity.ERROR);
+                else if (m_dataType.isNumeric() && !m_tolerance.assumeType(m_dataType, state)) {
+                    state.addDiagnostic(m_tolerance,
+                                        "Tolerance supplied for state \"" + m_state.getName()
+                                        + "\" has type " + m_tolerance.getDataType().typeName()
+                                        + ", which doesn't match the lookup's type " +
+                                        m_dataType.typeName(), Severity.ERROR);
                 }
             }
         }

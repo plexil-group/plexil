@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PLEXIL_HOME			?= ../..
+
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 # Program defaults
@@ -64,13 +65,14 @@ SAXON_JAR			:= $(THIRD_PARTY_JAR_DIR)/saxon.jar
 JAVAC_CLASSPATH	:= $(ANTLR3_RUNTIME_JAR):$(NANOXML_JAR):$(SAXON_JAR):$(CLASSES_DIR)
 
 # Java compiler options
-# Support ancient Java versions
-JAVAC_OPTIONS	:= -source 1.6 -target 1.6
+# Stop supporting ancient Java versions
+#JAVAC_OPTIONS	:= -source 1.6 -target 1.6
+JAVAC_OPTIONS	:=
 
 plexil-default: $(PLEXILC_JAR)
 
 $(PLEXILC_JAR): $(JAVA_CLASSES) $(PARSER_CLASSES) Makefile
-	$(RM) $@
+	$(RM) -f $@
 	$(JAR) cf $@ -C $(CLASSES_DIR) .
 
 # Hack: After initial build, comment out the following for incremental.
@@ -97,12 +99,7 @@ $(PARSER_CLASSES): $(CLASSES_DIR)/plexil/%.class : $(PARSER_JAVA_SRC_DIR)/%.java
              -sourcepath "$(PARSER_JAVA_DIR):$(JAVA_SRCPATH)" \
              -d $(CLASSES_DIR) $(JAVAC_OPTIONS) $<
 
-test: $(PLEXILC_JAR)
-	$(MAKE) -C test all
-
-clean: localclean
-
 localclean::
-	$(RM) $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
+	@$(RM) -rf $(PLEXILC_JAR) $(PARSER_JAVA_DIR) $(CLASSES_DIR)
 
-.PHONY: all plexil-default clean localclean test
+include $(PLEXIL_HOME)/makeinclude/standard-targets.make

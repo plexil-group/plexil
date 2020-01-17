@@ -1,1 +1,47 @@
-diff valid/valid-$1.epx output/$1.epx
+#! /bin/sh
+
+outfile="output/$1.epx"
+validfile="valid/valid-$1.epx"
+
+if [ ! -r "$outfile" ]
+then
+    echo "$0: Error: Output file $outfile was not found or is not readable." >&2
+    exit 1
+fi
+
+if [ ! -r "$validfile" ]
+then
+    echo "$0: Error: Valid file $validfile was not found or is not readable." >&2
+    exit 1
+fi
+
+# Create named FIFOs for the formatted output
+outfmt="/tmp/$1.epx.fmt"
+validfmt="/tmp/valid-$1.epx.fmt"
+
+rm -f "$outfmt" "$validfmt"
+
+if ! mkfifo "$outfmt" "$validfmt"
+then
+    echo "$0: Error: mkfifo failed. Exiting." >&2
+    exit 1
+fi
+
+trap cleanup 1 2 3 6
+
+cleanup()
+{
+    rm -f "$outfmt" "$validfmt"
+    echo "Exiting due to error." >&2
+    exit 1
+}
+
+xmllint --format "$outfile" > "$outfmt" &
+xmllint --format "$validfile" > "$validfmt" &
+
+diff -B -w "$outfmt" "$validfmt"
+result=$?
+
+rm -f "$outfmt" "$validfmt"
+
+exit $result

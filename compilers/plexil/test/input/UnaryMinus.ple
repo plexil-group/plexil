@@ -1,0 +1,9 @@
+Command pprint(...);
+
+UnaryMinus:
+{
+  Integer i;
+  Integer j = 2;
+  i = -j;
+  pprint("i is", i);
+}

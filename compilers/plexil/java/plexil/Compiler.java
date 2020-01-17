@@ -44,9 +44,7 @@ public class Compiler
         // Pass 1: Parse plan
         PlexilTreeNode plan1 = pass1(state);
         if (plan1 == null) {
-            for (Diagnostic d : state.getDiagnostics()) {
-                System.err.println(d.toString());
-            }
+            state.displayDiagnostics();
             System.out.println("Syntax error(s) detected. Compilation aborted.");
             System.exit(-1);
         }
@@ -55,20 +53,20 @@ public class Compiler
             System.err.println(plan1.toStringTree());
         }
         if (state.syntaxOnly) {
+            state.displayDiagnostics();
             System.exit(0);
         }
 
         // Pass 2: semantic checks
         if (!pass2(plan1, state)) {
-            for (Diagnostic d : state.getDiagnostics()) {
-                System.err.println(d.toString());
-            }
+            state.displayDiagnostics();
             System.out.println("Semantic error(s) detected. Compilation aborted.");
             System.exit(-1);
         }
         if (state.debug)
             System.err.println("Semantic checks succeeded"); 
         if (state.semanticsOnly) {
+            state.displayDiagnostics();
             System.exit(0);
         }
 
@@ -81,6 +79,7 @@ public class Compiler
 
         // Pass 4: generate Extended Plexil XML
         if (!pass4(plan2, state)) {
+            state.displayDiagnostics();
             System.out.println("Internal error: XML generation failed. Compilation aborted.");
             System.exit(-1);
         }
@@ -88,11 +87,13 @@ public class Compiler
         // Pass 5: translate Extended Plexil to Core Plexil
         if (!state.epxOnly) {
             if (!pass5(plan2, state)) {
+                state.displayDiagnostics();
                 System.out.println("Internal error: translation from Extended Plexil XML failed. Compilation aborted.");
                 System.exit(-1);
             }
         }
 
+        state.displayDiagnostics();
         System.exit(0);
     }
 

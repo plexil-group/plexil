@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -218,32 +218,53 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
     private PlexilDataType checkMinus (CompilerState state)
     {
-        // MINUS has exactly two children
-
+        // MINUS has at most two children
         PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
-        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+        if (this.getChildCount() == 1) {
+            if (ltype.isNumeric()
+                || ltype == PlexilDataType.DURATION_TYPE)
+                return ltype;
+            else {
+                state.addDiagnostic (this,
+                                     ltype.toString() + " is not a valid argument type for unary - ",
+                                     Severity.ERROR);
+                return PlexilDataType.ERROR_TYPE;
+            }
+        }
+        else if (this.getChildCount() == 2) {
+            PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
 
-        // They can be numbers...
+            // They can be numbers...
+            if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype)
+                return ltype;
+            else if (ltype.isNumeric() && rtype.isNumeric())
+                return rtype;
 
-        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
-        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
+            // They can be certain combinations of duration and date...
+            else if (ltype == PlexilDataType.DATE_TYPE &&
+                     rtype == PlexilDataType.DURATION_TYPE)
+                return ltype;
+            else if (ltype == PlexilDataType.DATE_TYPE &&
+                     rtype == ltype)
+                return PlexilDataType.DURATION_TYPE;
+            else if (ltype == PlexilDataType.DURATION_TYPE &&
+                     rtype == ltype)
+                return rtype;
 
-        // They can be certain combinations of duration and date...
-
-        else if (ltype == PlexilDataType.DATE_TYPE &&
-                 rtype == PlexilDataType.DURATION_TYPE) return ltype;
-        else if (ltype == PlexilDataType.DATE_TYPE &&
-                 rtype == ltype) return PlexilDataType.DURATION_TYPE;
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype == ltype) return rtype;
-
-        // Otherwise, no good...
-
+            // Otherwise, no good...
+            else {
+                state.addDiagnostic (this,
+                                     "MINUS given invalid argument pair: " +
+                                     ltype.toString() + ", " + rtype.toString(),
+                                     Severity.ERROR);
+                return PlexilDataType.ERROR_TYPE;
+            }
+        }
         else {
+            // Shouldn't happen/not implemented
             state.addDiagnostic (this,
-                                 "MINUS given invalid argument pair: " +
-                                 ltype.toString() + ", " + rtype.toString(),
-                                 Severity.ERROR);
+                                 "Internal error: MINUS given too many arguments",
+                                 Severity.FATAL);
             return PlexilDataType.ERROR_TYPE;
         }
     }

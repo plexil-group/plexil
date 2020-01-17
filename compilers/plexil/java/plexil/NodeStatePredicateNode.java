@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -139,6 +139,9 @@ public class NodeStatePredicateNode extends ExpressionNode
 
 		case PlexilLexer.NODE_WAITING_KYWD:
 			return "Waiting";
+
+        case PlexilLexer.NO_CHILD_FAILED_KYWD:
+            return "NoChildFailed";
 
 		default:
 			return "_INVALID_NODE_STATE_PREDICATE__" + this.getToken().getText();

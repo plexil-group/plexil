@@ -1,3 +1,5 @@
+  Real Lookup engine_temperature;
+
   VerifyTemp:
   {
     PostCondition Lookup(engine_temperature) > 100.0;

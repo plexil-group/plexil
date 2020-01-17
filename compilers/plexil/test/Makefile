@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,18 +45,21 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  lookup2 LookupWithComputedStateName \
  maxTest minTest mod1 MultipleMutex MutexBasics MutexTest \
  NestedBlocks1 NestedBlocks2 NestedBlocks3 NestedBlocks4 NestedBlocks5 \
- NestedBlocks6 NestedBlocks7 nodeOutcome1 nodeState1 nodeState2 \
+ NestedBlocks6 NestedBlocks7 NoChildFailedTest nodeOutcome1 nodeState1 nodeState2 \
  on-command1 on-command2 on-message1 on-message2 \
  preconditionFailed1 \
- resource0 Resource1 Resource2 Resource3 Resource4 RoboSimSimple2 \
- SafeDrive sequence0 sequence1 sequence2 sequence3 \
+ resource0 Resource1 Resource2 Resource3 Resource4 \
+ RoboSimSimple2 SafeDrive \
+ sequence0 sequence1 sequence2 sequence3 \
+ checked-sequence0 checked-sequence1 checked-sequence2 checked-sequence3 \
+ unchecked-sequence0 unchecked-sequence1 unchecked-sequence2 unchecked-sequence3 \
  simpleIf SimpleDrive simpleIfThenElse simpleAssignment skipped1 \
  StringConcat1 StringConcat2 StringConcat3 StringConcat4 StringConcat5 \
  StringConcat6 StringConcat7 StringConcat8 strlen_test \
  succeeded1 Sum sync-cmd-test sync-cmd-test1 \
  test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
  timed-iteration tolerance1 try1 \
- update1 update2 update3 \
+ UnaryMinus update1 update2 update3 \
  wait1 waiting1 while1
 
 SYNTAX_ERROR_TESTS   = array-library-call
@@ -79,7 +82,7 @@ EPX_SCHEMA := $(PLEXIL_HOME)/schema/extended-plexil.xsd
 all: test syntax-error-tests semantic-error-tests
 
 setup:
-	@-$(RM) tempRegressionResults ; touch tempRegressionResults
+	@rm -f tempRegressionResults ; touch tempRegressionResults
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$
@@ -174,8 +177,9 @@ output:
 	@mkdir -p output
 	@$(RM) -f output/*.epx
 
-clean:
-#	-$(RM) -r output
-	-$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
+clean::
+	-@$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
 
-.PHONY: setup output
+dust:: ;
+
+.PHONY: setup output clean dust
