@@ -1,6 +1,6 @@
-#! /usr/bin/env bash
+#! /bin/sh
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ set -e
 usage()
 {
     echo "usage: $0 release-id [svn-rev]"
+    echo "Best to run this in an empty temporary directory"
 }
 
 if [ -z "$1" ]
@@ -49,12 +50,31 @@ then
     rev=$2
 fi
 
-echo "Checking out revision $rev into temporary directory $relid"
+set -e # exit on error
+
 svn export -r $rev https://svn.code.sf.net/p/plexil/code/branches/plexil-x "$relid"
 
 echo "Installing autotools files and building configure script"
 cd "$relid"
 PLEXIL_HOME="$PWD" make src/configure
+
+# Prebuild expression parser core
+# NOTE: this must track the contents of src/xml-parser/Makefile.am
+gperf -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
+
+# Build Java apps users will need (and clean up build leftovers)
+make plexil-compiler
+rm -rf compilers/plexil/classes compilers/plexil/generated
+
+make plexilscript
+rm -rf compilers/plexilscript/classes compilers/plexilscript/generated
+
+make pv
+rm -rf viewers/pv/build
+
+make checker
+rm -rf checker/build
+
 cd ..
 
 echo "Generating tar file ${relid}.tar.gz"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,39 @@
 #   1 Checking Error(s) Found
 #   2 Unhandled Exception
 
+usage()
+{
+    echo "Usage: `basename $0` [-d] file.plx"
+}
+
+# Check for -d (debug) option
+if [ '-d' = "$1" ]
+then
+    shift
+fi
+
+# Check that a file name is provided
+if [ ! $1 ]
+then
+    echo "Error: no file name supplied"
+    usage
+    exit 2
+fi
+
+# Make sure a true input file is added as argument
+if [ ! -f $1 ]
+then
+    echo "Error: Cannot find file" $1
+    exit 2
+fi
+
+if [ -z `which xmllint` ]
+then
+    echo "Error: program 'xmllint' not found."
+    echo "Ensure that it can be found in PATH."
+    exit 2
+fi
+
 if [ -z "$PLEXIL_HOME" ]
 then
     echo Error: Please set environment variable PLEXIL_HOME
@@ -50,32 +83,13 @@ then
     JAVA=$JAVA_HOME/bin/java
 fi
 
-# Make sure jar file exists
+# Make sure checker jar file exists
 if [ ! -f "${prog}" ]
 then
   echo "Cannot find file ${prog}. To build it:"
   echo "  cd ${PLEXIL_HOME}/checker"
   echo "  ant jar"
   echo "If JAR is located elsewhere, please update the location in the script."
-  exit 2
-fi
-
-if [ '-d' = "$1" ]
-  then
-    shift
-fi
-
- #Make sure a true input file is added as argument
-if [ ! -f $1 ]
-then
-  echo "Cannot find file" $1
-  exit 2
-fi
-
-# No input file selected, exit
-if [ ! $1 ]
-then
-  echo "Usage: checkDecls [-d] file.plx"
   exit 2
 fi
 

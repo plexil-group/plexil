@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Determine the home directory of PLEXIL by the location of this file.
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,32 +31,21 @@
 handle_dot()
 {
     # echo 'handle_dot_slash' "${1}" 1>&2 # debug
-
-    local thestring="${1}"
-
-    # strip intermediate 
-    local newstring="${thestring/\/.\///}"
-    while [ -n "${thestring}" ] && [ "${newstring}" != "${thestring}" ]
+    
+    # strip intermediate first
+    local thestring="$1"
+    local newstring=`echo "$1" | sed -e 's|/./|/|g'`
+    while [ "x$newstring" != "x$thestring" ]
     do
-	thestring="${newstring}"
-	newstring="${thestring/\/.\///}"
+	thestring="$newstring"
+	newstring=`echo "$thestring" | sed -e 's|/./|/|g'`
     done
 
-    # strip leading
-    # should be at most one
-    if [ './' == "${thestring:0:2}" ]
-    then
-	thestring="${thestring:2}"
-    fi
+    # strip leading ./ and trailing /.
+    # should be at most one of each
+    thestring=`echo $thestring | sed -e 's|^./||' -e 's|/.$||'`
 
-    # strip trailing
-    # should be at most one
-    if [ '/.' = "${thestring:(-2)}" ]
-    then
-	thestring="${thestring:0:${#thestring}-2}"
-    fi
-
-    echo "${thestring}"
+    echo "$thestring"
     return
 }
 
@@ -65,18 +54,18 @@ handle_dot()
 handle_dot_dot()
 {
     # handle intervening
-    local val="${1}"
-    local newval=`echo "${val}" | sed -e 's|/[^\./]*/\.\./|/|'`
-    while [ -n "${val}" ] && [ "${val}" != "${newval}" ]
+    local val="$1"
+    local newval=`echo "$1" | sed -e 's|/[^\./]*/\.\./|/|'`
+    while [ -n "$val" ] && [ "$val" != "$newval" ]
     do
-	val="${newval}"
-	newval=`echo "${val}" | sed -e 's|/[^\./]*/\.\./|/|'`
+	val="$newval"
+	newval=`echo "$val" | sed -e 's|/[^\./]*/\.\./|/|'`
     done
 
     # handle trailing
-    val=`echo "${val}" | sed -e 's|/[^\./]*/\.\.$||'`
+    val=`echo "$val" | sed -e 's|/[^\./]*/\.\.$||'`
 
-    echo "${val}"
+    echo "$val"
     return
 }
 
@@ -88,39 +77,39 @@ to_absolute()
     # echo 'to_absolute' "${1}" 1>&2 # debug
 
     # strip trailing slash
-    local thepath="${1%\/}"
+    local thepath=`echo $1 | sed -e 's|/$||'`
 
     # strip '.'
-    thepath=`handle_dot "${thepath}"`
+    thepath=`handle_dot "$thepath"`
 
     # strip '..'
-    thepath=`handle_dot_dot "${thepath}"`
+    thepath=`handle_dot_dot "$thepath"`
 
-    if [ '/' == "${thepath:0:1}" ]
+    if ( echo "$thepath" | grep -q '^/' )
     then
 	# already absolute
-	echo "${thepath}"
+	echo "$thepath"
 	return
     fi
 
     # Below this line is a relative pathname 
     local base
-    if [ -n "${2}" ]
+    if [ -n "$2" ]
     then
-	base=`to_absolute "${2}"`
+	base=`to_absolute "$2"`
     fi
 
-    if [ -z "${base}" ]
+    if [ -z "$base" ]
     then
-	base="${PWD}"
+	base="$PWD"
     fi
 
-    if [ -z "${thepath}" ] || [ '.' == "${thepath}" ]
+    if [ -z "$thepath" ] || [ '.' == "$thepath" ]
     then
-	echo "${base}"
+	echo "$base"
     else 
 	# Simply append to base and handle leading .. on thepath
-	handle_dot_dot "${base}/${thepath}"
+	handle_dot_dot "$base/$thepath"
     fi
     return
 }
@@ -130,14 +119,14 @@ to_absolute()
 # $1 is the path to chase. 
 follow_soft_links()
 {
-    local path=`to_absolute "${1}"`
-    while [ -L "${path}" ]
+    local path=`to_absolute "$1"`
+    while [ -L "$path" ]
     do
-	local dir=`dirname "${path}"`
-	local target=`readlink "${path}"`
-	path=`to_absolute "${target}" "${dir}"`
+	local dir=`dirname "$path"`
+	local target=`readlink "$path"`
+	path=`to_absolute "$target" "$dir"`
     done
-    echo "${path}"
+    echo "$path"
     return
 }
 
