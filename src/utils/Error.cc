@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,17 +53,10 @@
 
 namespace PLEXIL
 {
-
-  std::ostream *Error::s_os = 0;
-  bool Error::s_throw = false;
-  bool Error::s_printErrors = true;
-  bool Error::s_printWarnings = true;
-
-  Error::Error(const Error& err)
-    : std::exception(err),
-      m_condition(err.m_condition), m_msg(err.m_msg), m_file(err.m_file), m_line(err.m_line) 
-  {
-  }
+  static std::ostream *Error_os = 0;      /**<The stream to write all error data to. */
+  static bool Error_throw = false;        /**<Set to throw exception. */
+  static bool Error_printErrors = true;   /**<Set to print errors when detetected */
+  static bool Error_printWarnings = true; /**<Set to print warnings */
 
   Error::Error(const std::string& msg)
     : std::exception(),
@@ -74,43 +67,27 @@ namespace PLEXIL
   Error::Error(const std::string& condition, const std::string& file, const int& line)
     : std::exception(),
       m_condition(condition), m_file(file), m_line(line) {
-    if (s_os == 0)
-      s_os = &(std::cerr);
+    if (Error_os == 0)
+      Error_os = &(std::cerr);
   }
 
   Error::Error(const std::string& condition, const std::string& msg,
                const std::string& file, const int& line)
     : std::exception(),
       m_condition(condition), m_msg(msg), m_file(file), m_line(line) {
-    if (s_os == 0)
-      s_os = &(std::cerr);
+    if (Error_os == 0)
+      Error_os = &(std::cerr);
   }
 
   Error::Error(const std::string& condition, const Error& exception,
                const std::string& file, const int& line)
     : std::exception(),
       m_condition(condition), m_msg(exception.m_msg), m_file(file), m_line(line) {
-    if (s_os == 0)
-      s_os = &(std::cerr);
+    if (Error_os == 0)
+      Error_os = &(std::cerr);
   }
 
-  Error::~Error()
-    throw ()
-  {
-  }
-
-  Error& Error::operator=(const Error& err) 
-  {
-    std::exception::operator=(err);
-    m_condition = err.m_condition;
-    m_msg = err.m_msg;
-    m_file = err.m_file;
-    m_line = err.m_line;
-    return *this;
-  }
-
-  char const *Error::what() const
-    throw ()
+  char const *Error::what() const PLEXIL_NOEXCEPT
   {
     return m_msg.c_str();
   }
@@ -120,10 +97,10 @@ namespace PLEXIL
   */
   bool Error::operator==(const Error& err) const 
   {
-    return(m_condition == err.m_condition &&
+    return m_condition == err.m_condition &&
            m_msg == err.m_msg &&
            m_file == err.m_file &&
-           m_line == err.m_line);
+           m_line == err.m_line;
   }
 
   /**
@@ -131,9 +108,9 @@ namespace PLEXIL
      "match": are the same except for possibly the line numbers.
   */
   bool Error::matches(const Error& err) const {
-    return(m_condition == err.m_condition &&
+    return m_condition == err.m_condition &&
            m_msg == err.m_msg &&
-           m_file == err.m_file);
+           m_file == err.m_file;
   }
 
   void Error::handleAssert() {
@@ -162,11 +139,13 @@ namespace PLEXIL
     Logging::handle_message(Logging::WARNING, file.c_str(), line, msg.c_str());
   }
 
-  void Error::print(std::ostream& os) const {
-    os << "Error(\"" << m_condition << "\", \"";
+  void Error::print(std::ostream& ostr) const {
+    ostr << "Error(";
+    if (!m_condition.empty())
+      ostr << '"' << m_condition << "\", \"";
     if (!m_msg.empty())
-      os << m_msg << "\", \"";
-    os << m_file << "\", " << m_line << ")";
+      ostr << m_msg << "\", \"";
+    ostr << m_file << "\", " << m_line << ")";
   }
 
   //
@@ -178,7 +157,7 @@ namespace PLEXIL
   */
   bool Error::displayWarnings()
   {
-    return s_printWarnings;
+    return Error_printWarnings;
   }
 
   /**
@@ -186,7 +165,7 @@ namespace PLEXIL
    */
   void Error::doDisplayWarnings()
   {
-    s_printWarnings = true;
+    Error_printWarnings = true;
   }
 
   /**
@@ -194,7 +173,7 @@ namespace PLEXIL
    */
   void Error::doNotDisplayWarnings()
   {
-    s_printWarnings = false;
+    Error_printWarnings = false;
   }
 
   /**
@@ -203,7 +182,7 @@ namespace PLEXIL
    */
   void Error::doThrowExceptions()
   {
-    s_throw = true;
+    Error_throw = true;
   }
 
   /**
@@ -212,7 +191,7 @@ namespace PLEXIL
    */
   void Error::doNotThrowExceptions()
   {
-    s_throw = false;
+    Error_throw = false;
   }
 
 
@@ -222,7 +201,7 @@ namespace PLEXIL
    */
   bool Error::throwEnabled()
   {
-    return s_throw;
+    return Error_throw;
   }
 
 
@@ -230,42 +209,42 @@ namespace PLEXIL
      @brief Return whether all error information should be printed when detected.
   */
   bool Error::printingErrors() {
-    return(s_printErrors);
+    return(Error_printErrors);
   }
 
   /**
      @brief Indicate that error information should be printed at detection.
   */
   void Error::doDisplayErrors() {
-    s_printErrors = true;
+    Error_printErrors = true;
   }
 
   /**
      @brief Indicate that nothing should be printed when an error is detected.
   */
   void Error::doNotDisplayErrors() {
-    s_printErrors = false;
+    Error_printErrors = false;
   }
 
   /**
      @brief Return the output stream to which error information should be sent.
   */
   std::ostream& Error::getStream() {
-    if (s_os == 0)
-      s_os = &(std::cerr);
-    return(*s_os);
+    if (Error_os == 0)
+      Error_os = &(std::cerr);
+    return *Error_os;
   }
 
   /**
      @brief Indicate where output related to errors should be directed.
   */
-  void Error::setStream(std::ostream& os) {
-    s_os = &os;
+  void Error::setStream(std::ostream& ostr) {
+    Error_os = &ostr;
   }
 
-  std::ostream& operator<<(std::ostream& os, const Error& err) {
-    err.print(os);
-    return(os);
+  std::ostream& operator<<(std::ostream& ostr, const Error& err) {
+    err.print(ostr);
+    return ostr;
   }
 
 #endif /* PLEXIL_NO_ERROR_EXCEPTIONS */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,94 +27,73 @@
 
 #include "ParserException.hh"
 #include "Logging.hh"
-#include <cstring>
+
 #include <iostream>
 
 namespace PLEXIL
 {
 
-  ParserException::ParserException()
-    throw ()
+  ParserException::ParserException() PLEXIL_NOEXCEPT
     : std::exception(), 
-      m_what("Unspecified parser exception"),
-      m_file(),
-      m_line(0),
-      m_char(0)
+      message("Unspecified parser exception"),
+      file(),
+      line(0),
+      column(0)
   {
   }
 
   // Must copy the message as it may be stack or dynamically allocated.
-  ParserException::ParserException(const char * msg)
-    throw()
+  ParserException::ParserException(const char * msg) PLEXIL_NOEXCEPT
     : std::exception(),
-      m_what(),
-      m_file(),
-      m_line(0),
-      m_char(0)
+      message(),
+      file(),
+      line(0),
+      column(0)
   {
     if (msg)
-      m_what = msg;
+      message = msg;
     else
-      m_what = "Message not specified";
-    Logging::handle_message(Logging::LOG_ERROR, m_what.c_str());
+      message = "Message not specified";
+    Logging::handle_message(Logging::LOG_ERROR, message.c_str());
   }
   
   // Used to report (e.g.) pugixml errors.
-  ParserException::ParserException(const char * msg, const char * file, int offset)
-    throw()
+  ParserException::ParserException(const char * msg, const char * fyle, int offset) PLEXIL_NOEXCEPT
     : std::exception(),
-      m_what(),
-      m_file(),
-      m_line(0),
-      m_char(offset)
+      message(),
+      file(),
+      line(0),
+      column(offset)
   {
     if (msg)
-      m_what = msg;
+      message = msg;
     else
-      m_what = "Message not specified";
-    if (file)
-      m_file = file;
-    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
+      message = "Message not specified";
+    if (fyle)
+      file = fyle;
+    Logging::handle_message(Logging::LOG_ERROR, fyle, offset, message.c_str());
   }
   
   // When we have complete information about the location.
-  ParserException::ParserException(const char * msg, const char * file, int line, int col)
-    throw()
+  ParserException::ParserException(const char * msg, const char * fyle, int lyne, int col) PLEXIL_NOEXCEPT
     : std::exception(),
-      m_what(),
-      m_file(),
-      m_line(line),
-      m_char(col)
+      message(),
+      file(),
+      line(lyne),
+      column(col)
   {
     if (msg)
-      m_what = msg;
+      message = msg;
     else
-      m_what = "Message not specified";
-    if (file)
-      m_file = file;
-    Logging::handle_message(Logging::LOG_ERROR, file, line, col, m_what.c_str());
-  }
-  
-  ParserException& ParserException::operator=(const ParserException& other)
-    throw()
-  {
-    this->std::exception::operator=(other);
-    m_what = other.m_what;
-    m_file = other.m_file;
-    m_line = other.m_line;
-    m_char = other.m_char;
-    return *this;
+      message = "Message not specified";
+    if (fyle)
+      file = fyle;
+    Logging::handle_message(Logging::LOG_ERROR, fyle, lyne, col, message.c_str());
   }
 
-  ParserException::~ParserException()
-  throw()
+  const char* ParserException::what() const PLEXIL_NOEXCEPT
   {
-  }
-
-  const char* ParserException::what() const
-    throw()
-  {
-    return m_what.c_str();
+    return message.c_str();
   }
 
 }

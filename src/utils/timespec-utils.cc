@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,15 +30,11 @@
 
 #include "plexil-config.h"
 
-#ifdef HAVE_SYS_TIME_H 
-#include <sys/time.h>
-#else
-#include <time.h>
-#endif
-#include <cmath>
+#include <ctime>
+#include <limits>
 
-const long ONE_BILLION = 1000000000;
-const double ONE_BILLION_DOUBLE = 1000000000.0;
+static const long ONE_BILLION = 1000000000;
+static const double ONE_BILLION_DOUBLE = 1000000000.0;
 
 //
 // General utility for normalizing timespecs after arithmetic
@@ -54,81 +50,85 @@ const double ONE_BILLION_DOUBLE = 1000000000.0;
 // of two valid timespecs?
 //
 
-void timespecNormalize(struct timespec& tv)
+void timespecNormalize(struct timespec& tspec)
 {
   // check for nsec over/underflow
-  if (tv.tv_nsec >= ONE_BILLION) {
-    tv.tv_sec += 1;
-    tv.tv_nsec -= ONE_BILLION;
+  if (tspec.tv_nsec >= ONE_BILLION) {
+    tspec.tv_sec += 1;
+    tspec.tv_nsec -= ONE_BILLION;
   }
-  else if (tv.tv_nsec + ONE_BILLION <= 0) {
-    tv.tv_sec -= 1;
-    tv.tv_nsec += ONE_BILLION;
+  else if (tspec.tv_nsec + ONE_BILLION <= 0) {
+    tspec.tv_sec -= 1;
+    tspec.tv_nsec += ONE_BILLION;
   }
 
   // now check that signs are consistent
-  if (tv.tv_sec > 0 && tv.tv_nsec < 0) {
-    tv.tv_sec -= 1;
-    tv.tv_nsec += ONE_BILLION;
+  if (tspec.tv_sec > 0 && tspec.tv_nsec < 0) {
+    tspec.tv_sec -= 1;
+    tspec.tv_nsec += ONE_BILLION;
   }
-  else if (tv.tv_sec < 0 && tv.tv_nsec > 0) {
-    tv.tv_sec += 1;
-    tv.tv_nsec -= ONE_BILLION;
+  else if (tspec.tv_sec < 0 && tspec.tv_nsec > 0) {
+    tspec.tv_sec += 1;
+    tspec.tv_nsec -= ONE_BILLION;
   }
 }
 
-bool operator<(const struct timespec& t1, const struct timespec& t2)
+bool operator<(const struct timespec& ts1, const struct timespec& ts2)
 {
-  return ((t1.tv_sec < t2.tv_sec) || 
-          ((t1.tv_sec == t2.tv_sec) && (t1.tv_nsec < t2.tv_nsec)));
+  return ts1.tv_sec < ts2.tv_sec || 
+          (ts1.tv_sec == ts2.tv_sec && ts1.tv_nsec < ts2.tv_nsec);
 }
 
-bool operator>(const struct timespec& t1, const struct timespec& t2)
+bool operator>(const struct timespec& ts1, const struct timespec& ts2)
 {
-  return ((t1.tv_sec > t2.tv_sec) || 
-          ((t1.tv_sec == t2.tv_sec) && (t1.tv_nsec > t2.tv_nsec)));
+  return ts1.tv_sec > ts2.tv_sec || 
+    (ts1.tv_sec == ts2.tv_sec && ts1.tv_nsec > ts2.tv_nsec);
 }
 
-bool operator==(const struct timespec& t1, const struct timespec& t2)
+bool operator==(const struct timespec& ts1, const struct timespec& ts2)
 {
-  return (t1.tv_sec == t2.tv_sec) && (t1.tv_nsec == t2.tv_nsec);
+  return ts1.tv_sec == ts2.tv_sec && ts1.tv_nsec == ts2.tv_nsec;
 }
 
-struct timespec operator+(const struct timespec& t1, const struct timespec& t2)
+struct timespec operator+(const struct timespec& ts1, const struct timespec& ts2)
 {
-  struct timespec time = {t1.tv_sec + t2.tv_sec,
-                          t1.tv_nsec + t2.tv_nsec};
+  struct timespec time = {ts1.tv_sec + ts2.tv_sec,
+                          ts1.tv_nsec + ts2.tv_nsec};
   timespecNormalize(time);
   return time;
 }
 
-struct timespec operator-(const struct timespec& t1, const struct timespec& t2)
+struct timespec operator-(const struct timespec& ts1, const struct timespec& ts2)
 {
-  struct timespec time = {t1.tv_sec - t2.tv_sec,
-                          t1.tv_nsec - t2.tv_nsec};
+  struct timespec time = {ts1.tv_sec - ts2.tv_sec,
+                          ts1.tv_nsec - ts2.tv_nsec};
   timespecNormalize(time);
   return time;
 }
 
-void doubleToTimespec(double d, timespec& result)
+void doubleToTimespec(double dbl, timespec& result)
 {
-  double seconds = 0;
-  double fraction = modf(d, &seconds);
-
-  result.tv_sec = (time_t) seconds;
-  result.tv_nsec = (long) (fraction * ONE_BILLION_DOUBLE);
+  if (dbl > std::numeric_limits<time_t>::max()
+      || dbl < std::numeric_limits<time_t>::min()) {
+    // TODO: report out-of-range error
+    return;
+  }
+  result.tv_sec = (time_t) dbl;
+  result.tv_nsec =
+    (long) (ONE_BILLION_DOUBLE * (dbl - (double) result.tv_sec));
+  timespecNormalize(result);
 }
 
-struct timespec doubleToTimespec(double d)
+struct timespec doubleToTimespec(double dbl)
 {
   timespec result;
-  doubleToTimespec(d, result);
+  doubleToTimespec(dbl, result);
   return result;
 }
 
-double timespecToDouble(const struct timespec& tv)
+double timespecToDouble(const struct timespec& tspec)
 {
-  double result = ((double) tv.tv_nsec / ONE_BILLION_DOUBLE);
-  result += (double) tv.tv_sec;
+  double result = (double) tspec.tv_nsec / ONE_BILLION_DOUBLE;
+  result += (double) tspec.tv_sec;
   return result;
 }

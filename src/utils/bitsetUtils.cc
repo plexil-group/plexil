@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,9 @@
 namespace PLEXIL
 {
 
-  int findFirstOne(unsigned long const b)
+  int findFirstOne(unsigned long const bits)
   {
-    if (!b)
+    if (!bits)
       return -1;
 
     // Must be at least one 1 bit
@@ -41,12 +41,12 @@ namespace PLEXIL
     unsigned long tmp, tmp2;
 
 #if (ULONG_MAX > UINT32_MAX)
-    if (!(tmp = b & 0xFFFFFFFFUL)) {
+    if (!(tmp = bits & 0xFFFFFFFFUL)) {
       n += 32;
-      tmp = b >> 32;
+      tmp = bits >> 32;
     }
 #else
-    tmp = b;
+    tmp = bits;
 #endif
 
     tmp2 = tmp;
@@ -76,13 +76,12 @@ namespace PLEXIL
 
     if (tmp & 1UL)
       return n;
-    else
-      return n + 1;
+    return n + 1;
   }
 
-  int findFirstZero(unsigned long const b)
+  int findFirstZero(unsigned long const bits)
   {
-    return findFirstOne(~b);
+    return findFirstOne(~bits);
   }
 
 }

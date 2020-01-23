@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef PLEXIL_DEBUG_MESSAGE_HH
 #define PLEXIL_DEBUG_MESSAGE_HH
 
-#include <iosfwd> // redundant with #include <iostream> in Debug.hh
+#include <iosfwd>
 #include <string>
 
 namespace PLEXIL
@@ -39,7 +39,6 @@ namespace PLEXIL
   {
     friend void enableMatchingDebugMessages(std::string &&);
 
-  public:
     /**
      * @brief Construct a DebugMessage.
      * @param marker Name for the particular instance (not required to be unique within the process).

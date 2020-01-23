@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ jint Java_gov_nasa_plexil_android_UtilsModuleTest_run(JNIEnv *env, jobject /* ja
   if (log.fail()) {
 
     delete logName;
-    delete[] logdir;
+    delete[] logDir;
 	return -1;
   }
   PLEXIL::ScopedOstreamRedirect coutRedirect(std::cout, log);

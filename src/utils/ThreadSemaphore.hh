@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,15 @@
 #ifndef PLEXIL_THREAD_SEMAPHORE_HH
 #define PLEXIL_THREAD_SEMAPHORE_HH
 
+#include "plexil-config.h"
+
 //
 // Does this platform support POSIX thread semaphores?
 //
 
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #if !defined(_POSIX_SEMAPHORES) || _POSIX_SEMAPHORES == -1
 // OS doesn't advertise it provides POSIX semaphores, or they're broken somehow

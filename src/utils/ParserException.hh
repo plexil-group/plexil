@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,27 @@
 #ifndef PARSER_EXCEPTION_H
 #define PARSER_EXCEPTION_H
 
+#include "Error.hh" // PLEXIL_NOEXCEPT
+
 #include <exception>
 #include <sstream>
+
+/**
+ * @def reportParserException
+ * @brief Unconditionally throw a ParserException with the given message
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define reportParserException(msg) { \
+    std::ostringstream whatstr; \
+    whatstr << msg; \
+    throw PLEXIL::ParserException(whatstr.str().c_str()); \
+}
 
 /**
  * @def checkParserException
  * @brief If the condition is false, throw a ParserException
  * @param cond The condition to test; if false, throw the exception
- * @param msg An expression which writes the required message to a stream
+ * @param msg Anything suitable as the right-hand side of <<.
  */
 #define checkParserException(cond, msg) { \
   if (!(cond)) \
@@ -48,26 +61,27 @@
 namespace PLEXIL
 {
 
-  class ParserException : public std::exception
+  struct ParserException : public std::exception
   {
-  public:
-    ParserException() throw();
+    ParserException() PLEXIL_NOEXCEPT;
+    ParserException(const char* msg) PLEXIL_NOEXCEPT;
+    ParserException(const char* msg, const char* filename, int offset) PLEXIL_NOEXCEPT;
+    ParserException(const char* msg, const char* filename, int line, int col) PLEXIL_NOEXCEPT;
 
-    ParserException(const char* msg) throw ();
-    ParserException(const char* msg, const char* filename, int offset) throw();
-    ParserException(const char* msg, const char* filename, int line, int col) throw();
+    ParserException(ParserException const &) = default;
+    ParserException(ParserException &&) PLEXIL_NOEXCEPT = default;
 
-    ParserException& operator=(const ParserException&) throw();
+    ParserException& operator=(ParserException const &) = default;
+    ParserException& operator=(ParserException &&) PLEXIL_NOEXCEPT = default;
 
-    virtual ~ParserException() throw();
+    virtual ~ParserException() PLEXIL_NOEXCEPT = default;
 
-    virtual const char *what() const throw();
+    virtual const char *what() const PLEXIL_NOEXCEPT override;
 
-  private:
-    std::string m_what;
-    std::string m_file; /**<The source file in which the error was detected (__FILE__). */
-    int m_line; /**< Line number of the error */
-	int m_char; /**< The character offset of the error */
+    std::string message;
+    std::string file; /**<The source file in which the error was detected (__FILE__). */
+    int line;         /**< Line number of the error */
+	int column;       /**< The character offset of the error */
   };
 
 }

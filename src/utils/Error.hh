@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@
    @note This is presently only the "interface for programmers";
    nothing has been tested.
 
-   @note Think of the first section, #ifdef PLEXIL_FAST, as the
+   @note Think of the first section, #ifdef PLEXIL_UNSAFE, as the
    "prototypes" and documentation as well as the "production" variant.
 */
 
@@ -71,9 +71,19 @@
 // This version for modern compilers
 #define PLEXIL_NORETURN [[noreturn]]
 #else
-// TODO: Support other compilers here
 // fallback (no-op for now)
 #define PLEXIL_NORETURN
+#endif
+
+// Helper macro for noexcept specification
+// Some compilers use non-standard _NOEXCEPT and declare it to be more stringent
+// than the C++11 standard 'noexpect' keyword.
+#if defined(_NOEXCEPT)
+#define PLEXIL_NOEXCEPT _NOEXCEPT
+#elif __cplusplus >= 201103L
+#define PLEXIL_NOEXCEPT noexcept
+#else // older than C++11
+#define PLEXIL_NOEXCEPT throw ()
 #endif
 
 /**
@@ -94,7 +104,7 @@ namespace PLEXIL
      @class Error
      @brief Used whenever a C++ exception is thrown.
   */
-  class Error : public std::exception
+  struct Error : public std::exception
   {
   public:
 
@@ -129,24 +139,33 @@ namespace PLEXIL
     /**
        @brief Copy constructor.
     */
-    Error(const Error& err);
+    Error(const Error &err) = default;
+
+    /**
+       @brief Move constructor.
+    */
+    Error(Error &&err) = default;
 
     /**
      * The Error destructor.
      * @note Should only be used implicitly.
      */
-    virtual ~Error() throw ();
+    virtual ~Error() PLEXIL_NOEXCEPT = default;
 
     /**
        @brief Assignment operator.
     */
-    Error& operator=(const Error& err);
+    Error& operator=(const Error &err) = default;
+
+    /**
+       @brief Move assignment operator.
+    */
+    Error& operator=(Error &&err) = default;
 
     /**
        @brief Return the message as a character string.
     */
-    virtual char const *what() const
-      throw ();
+    virtual char const *what() const PLEXIL_NOEXCEPT override;
 
     /**
        @brief Return whether all error information should be printed when detected.
@@ -254,12 +273,7 @@ namespace PLEXIL
     int m_line; /**<The source line on which the error detected (__LINE__). */
 
   private:
-
-    static bool s_throw; /**<Set to throw exception. */
-    static bool s_printErrors; /**<Set to print errors when detetected */
-    static bool s_printWarnings; /**<Set to print warnings */
-    static std::ostream *s_os; /**<The stream to write all error data to. */
-    Error(); /**<The zero argument constructor should not be used. */
+    Error() = delete; /**<The zero argument constructor should not be used. */
   };
 
   std::ostream& operator<<(std::ostream& os, const Error& err);
@@ -306,6 +320,17 @@ namespace PLEXIL
 }
 
 /**
+ * @def errorMsg
+ * @brief Create and report an error unconditionally.
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define errorMsg(msg) { \
+  std::ostringstream sstr; \
+  sstr << msg; \
+  PLEXIL::Error("", sstr.str(), __FILE__, __LINE__).handleAssert(); \
+} 
+
+/**
  * @def assertTrueMsg
  * @brief Test a condition and create an error if false.
  * @param cond Expression that yields a true/false result.
@@ -319,11 +344,10 @@ namespace PLEXIL
   } \
 }
 
-#ifdef PLEXIL_FAST
+#ifdef PLEXIL_UNSAFE
 
 #define check_error_1(cond)
 #define check_error_2(cond, msg)
-#define check_error_1(cond, msg1, msg2)
 
 #define checkError(cond, msg)
 
@@ -331,7 +355,7 @@ namespace PLEXIL
  * @def warn
  * Print a warning if such is enabled.
  * @param msg The information to print.
- * @note When PLEXIL_FAST is defined, these are ignored
+ * @note When PLEXIL_UNSAFE is defined, these are ignored
  */
 #define warn(msg)
 
@@ -378,6 +402,6 @@ namespace PLEXIL
       PLEXIL::Error::printWarning(sstr.str(), __FILE__, __LINE__);  \
 }
 
-#endif /* PLEXIL_FAST */
+#endif /* PLEXIL_UNSAFE */
 
 #endif /* PLEXIL_ERROR_HH */

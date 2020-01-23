@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -75,5 +75,5 @@ bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id)
   //  else
   //    pthread_detach(thread_id); // TODO: do we need this
 
-  return (nRet == 0);
+  return nRet == 0;
 }

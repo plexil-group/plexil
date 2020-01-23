@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,44 +24,43 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int stricmp(const char * s1, const char * s2)
+int stricmp(const char *str1, const char *str2)
 {
-  if (!s1) {
-    if (!s2 || !*s2)
-      return 0; /* null equals null or empty string */
-    else
+  if (!str1) {
+    if (str2 && *str2)
       return -1;
+    return 0; /* null equals null or empty string */
   }
-  if (!s2) {
-    if (!*s1)
-      return 0; /* null equals empty string */
-    else
+  if (!str2) {
+    if (*str1)
       return 1;
+    return 0; /* null equals empty string */
   }
-  while (*s1 && *s2) {
-    if (*s1 != *s2) {
-      /* coerce alpha to upper case */
-      char c1 = *s1;
-      char c2 = *s2;
-      if (c1 >= 'a' && c1 <= 'z')
-        c1 = c1 - 0x20;
-      if (c2 >= 'a' && c2 <= 'z')
-        c2 = c2 - 0x20;
 
-      if (c1 > c2)
+  char ch1 = *str1++;
+  char ch2 = *str2++;
+  while (ch1 && ch2) {
+    if (ch1 != ch2) {
+      /* coerce alpha to upper case */
+      if (ch1 >= 'a' && ch1 <= 'z')
+        ch1 = ch1 - 0x20;
+      if (ch2 >= 'a' && ch2 <= 'z')
+        ch2 = ch2 - 0x20;
+
+      if (ch1 > ch2)
         return 1;
-      if (c1 < c2)
+      if (ch2 > ch1)
         return -1;
     }
 
-    s1++;
-    s2++;
+    ch1 = *str1++;
+    ch2 = *str2++;
   }
 
-  /* if we got here, either s1 or s2 is pointing at a terminating null */
-  if (*s1 == *s2)
+  /* if we got here, either ch1 or ch2 is a terminating null */
+  if (ch1 == ch2) /* only if both are null */
     return 0; /* strings are equal */
-  if (*s1)
-    return 1; /* s1 is longer, therefore greater */
+  if (ch1)
+    return 1; /* str1 is longer, therefore greater */
   return -1;
 }

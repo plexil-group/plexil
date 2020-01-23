@@ -45,14 +45,23 @@ extern "C" {
   /**
    * @brief Dynamically load the shared library containing the module name, using the library name if provided.
    * @param moduleName The name of the module
-   * @param libPath The library name containing the module; defaults to NULL.
-   * @return true if successful, false otherwise.
+   * @param libPath The library name containing the module, if available, NULL otherwise.
+   * @return 1 if successful, 0 otherwise.
    * @note If libPath is not provided, attempts to load 'lib<moduleName><LIB_EXT>'.
    * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
    */
   
-  bool dynamicLoadModule(const char* moduleName, 
-                         const char* libPath);
+  int dynamicLoadModule(const char* moduleName, 
+                        const char* libPath);
+
+  /**
+   * @brief Call the module's init function.
+   * @param moduleName The name of the module
+   * @return 1 if the function was found and called, 0 otherwise.
+   * @note Expects to call init<moduleName>() with no args.
+   */
+
+  int dynamicInitModule(const char *moduleName);
   
 #ifdef __cplusplus
 }

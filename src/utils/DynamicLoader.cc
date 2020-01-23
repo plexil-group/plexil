@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,15 +24,18 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "DynamicLoader.h"
 
-#include <dlfcn.h> 
+#include "Debug.hh"
+
+#ifdef HAVE_DLFCN_H
+#include <dlfcn.h>
 
 #include <cstdlib> // atexit()
 #include <string>
 #include <stack>
-
-#include "Debug.hh"
 
 static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
 
@@ -40,10 +43,12 @@ static std::stack<void *> s_handles;
 
 static void dynamicLoaderCleanUp()
 {
+#ifdef HAVE_DLFCN_H
   while (!s_handles.empty()) {
     dlclose(s_handles.top());
     s_handles.pop();
   }
+#endif
 }
 
 static void ensureFinalizer()
@@ -65,8 +70,9 @@ static void ensureFinalizer()
  */
 static void *tryLoadFile(const char *fname)
 {
+  void *handle = NULL;
   ensureFinalizer();
-  void *handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
+  handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
   if (handle) {
     debugMsg("DynamicLoader:tryLoadFile",
              " dlopen of " << fname << " successful");
@@ -144,46 +150,65 @@ static void *findSymbol(char const *symName, void *dl_handle)
 /**
  * @brief Call the module's init function.
  * @param moduleName The name of the module
- * @param dl_handle If supplied, the return value from dlopen() or loadLibrary() below.
+ * @param dl_handle If supplied, the return value from dlopen() or loadLibrary().
  * @return true if the function was found and called, false otherwise.
  * @note Expects to call init<moduleName>() with no args.
  */
 
-static bool initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT) 
+static int initModule(const char *moduleName, void *dl_handle = RTLD_DEFAULT) 
 {
-  std::string funcName = (std::string("init") + moduleName);
-  void (*func)() = NULL;
-  *(void **)(&func) = findSymbol(funcName.c_str(), dl_handle);
-  if (!func) {
+  std::string funcName = std::string("init") + moduleName;
+  void *func_as_void_ptr = findSymbol(funcName.c_str(), dl_handle);
+  if (!func_as_void_ptr) {
     debugMsg("DynamicLoader:initModule",
              " failed; init function for module " << moduleName << " not found");
-    return false;
+    return 0;
   }
 
+  void (*func)() = reinterpret_cast<void (*)()>(func_as_void_ptr);
   // FIXME - Could blow up spectacularly, how to defend?
   (*func)();
 
   debugMsg("DynamicLoader:initModule",
            " for module " << moduleName << " succeeded");
-  return true;
+  return 1;
+}
+#endif // HAVE_DLFCN_H
+
+/**
+ * @brief Call the module's init function (public API).
+ * @param moduleName The name of the module
+ * @return 1 if the function was found and called, 0 otherwise.
+ * @note Expects to call init<moduleName>() with no args.
+ */
+extern "C"
+int dynamicInitModule(const char *moduleName)
+{
+#ifdef HAVE_DLFCN_H
+  return initModule(moduleName, RTLD_DEFAULT);
+#else
+  return 0;
+#endif
 }
 
 /**
- * @brief Dynamically load the shared library containing the module name, using the library name if provided.
+ * @brief Dynamically load the shared library containing the module name,
+ *        using the library name if provided.
  * @param typeName The name of the module
  * @param libPath The library name containing the module, or NULL.
- * @return true if successful, false otherwise.
+ * @return 1 if successful, 0 otherwise.
  * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
  */
 
 extern "C"
-bool dynamicLoadModule(const char* moduleName, 
-                       const char* libPath)
+int dynamicLoadModule(const char* moduleName, 
+                      const char* libPath)
 {
+#ifdef HAVE_DLFCN_H
   // Try to initialize it, in hopes it's already loaded
   if (initModule(moduleName)) {
     debugMsg("DynamicLoader:loadModule", " for " << moduleName << " succeeded");
-    return true;
+    return 1;
   }
 
   // Try to load it.
@@ -202,7 +227,7 @@ bool dynamicLoadModule(const char* moduleName,
   if (!dl_handle) {
     debugMsg("DynamicLoader:loadModule",
              " for " << moduleName << " failed; library " << libPath << " not found");
-    return false;
+    return 0;
   }
 
   debugMsg("DynamicLoader:loadModule",
@@ -211,11 +236,12 @@ bool dynamicLoadModule(const char* moduleName,
   // Try to initialize it again
   if (initModule(moduleName, dl_handle)) {
     debugMsg("DynamicLoader:loadModule", " for " << moduleName << " succeeded");
-    return true;
+    return 1;
   }
+#endif // HAVE_DLFCN_H
 
   debugMsg("DynamicLoader:loadModule",
            " unable to initialize \"" << moduleName << '\"');
-  return false;
+  return 0;
 }
 

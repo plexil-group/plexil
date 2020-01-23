@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,90 +33,85 @@ namespace PLEXIL
   ThreadMutex::ThreadMutex()
   {
     pthread_mutexattr_t m_mta;
-    int rv = pthread_mutexattr_init(&m_mta);
-    if (rv != 0)
-      {
-        assertTrue_2(rv != ENOMEM, "No memory for mutex attribute init.");
-        assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_init failed, errno = " << rv);
-      }
+    int status;
+    if ((status = pthread_mutexattr_init(&m_mta))) {
+      assertTrue_2(status != ENOMEM, "No memory for mutex attribute init.");
+      errorMsg("pthread_mutexattr_init failed, errno = " << status);
+    }
 
-#if !defined(__VXWORKS__) /* platform lacks function */
-    rv = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL);
-    if (rv != 0)
-      {
-        assertTrue_2(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
-        assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << rv);
-      }
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
+    if ((status = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL))) {
+      assertTrue_2(status != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
+      errorMsg("pthread_mutexattr_settype failed, errno = " << status);
+    }
 #endif
 
     // this may not be implemented, skip it if not
     // Android claims it is, but lies
 #if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT >= 0 && !defined(PLEXIL_ANDROID)
-    rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
-    if (rv != 0)
-      {
-        assertTrue_2(rv != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
-        assertTrue_2(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
-        assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << rv);
-      }
+    if ((status = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT))) {
+      assertTrue_2(status != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
+      assertTrue_2(status != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
+      errorMsg("pthread_mutexattr_setprotocol failed, errno = " << status);
+    }
 #endif
 
-    rv = pthread_mutex_init(&m_mutex, &m_mta);
-    if (rv != 0)
-      {
-        assertTrue_2(rv != EINVAL, "Mutex pointer or attribute pointer invalid.");
-        assertTrue_2(rv != EPERM, "Insufficient permissions for mutex initialization.");
-        assertTrue_2(rv != EBUSY, "Attempt to initialize mutex which was already initialized.");
-        assertTrue_2(rv != ENOMEM, "No memory for mutex initialization.");
-        assertTrue_2(rv != EAGAIN, "Insufficient system resources for mutex initialization.");
-        assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_init failed, errno = " << rv);
-      }
+    if ((status = pthread_mutex_init(&m_mutex, &m_mta))) {
+      assertTrue_2(status != EINVAL, "Mutex pointer or attribute pointer invalid.");
+      assertTrue_2(status != EPERM, "Insufficient permissions for mutex initialization.");
+      assertTrue_2(status != EBUSY, "Attempt to initialize mutex which was already initialized.");
+      assertTrue_2(status != ENOMEM, "No memory for mutex initialization.");
+      assertTrue_2(status != EAGAIN, "Insufficient system resources for mutex initialization.");
+      errorMsg("pthread_mutex_init failed, errno = " << status);
+    }
     
     // Clean up
-    rv = pthread_mutexattr_destroy(&m_mta);
-    assertTrueMsg(rv == 0, "pthread_mutexattr_destroy failed, errno = " << rv);
+    status = pthread_mutexattr_destroy(&m_mta);
+    assertTrueMsg(status == 0, "pthread_mutexattr_destroy failed, errno = " << status);
   }
 
   ThreadMutex::~ThreadMutex()
   {
-    int rv = pthread_mutex_destroy(&m_mutex);
-    if (rv == 0)
+    int status = pthread_mutex_destroy(&m_mutex);
+    if (status == 0)
       return;
-    assertTrue_2(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
-    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_destroy failed, errno = " << rv);
+    assertTrue_2(status != EBUSY, "Attempted to destroy mutex while locked or referenced.");
+    errorMsg("pthread_mutex_destroy failed, errno = " << status);
   }
 
   void ThreadMutex::lock()
   {
-    int rv = pthread_mutex_lock(&m_mutex);
-    if (rv == 0)
+    int status = pthread_mutex_lock(&m_mutex);
+    if (status == 0)
       return;
 
-    assertTrue_2(rv != EDEADLK, "Deadlock detected, or attempt to lock mutex that is already locked by this thread.");
-    assertTrue_2(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
-    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_lock failed, errno = " << rv);
+    assertTrue_2(status != EDEADLK,
+                 "Deadlock detected, or attempt to lock mutex "
+                 "that is already locked by this thread.");
+    assertTrue_2(status != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
+    errorMsg("pthread_mutex_lock failed, errno = " << status);
   }
 
   bool ThreadMutex::trylock()
   {
-    int rv = pthread_mutex_trylock(&m_mutex);
-    if (rv == 0)
+    int status = pthread_mutex_trylock(&m_mutex);
+    if (status == 0)
       return true;
-    if (rv == EBUSY)
+    if (status == EBUSY)
       // mutex already locked
       return false;
-    assertTrue_2(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
-    assertTrueMsg(ALWAYS_FAIL,  "pthread_mutex_trylock failed, errno = " << rv);
+    assertTrue_2(status != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
+    errorMsg( "pthread_mutex_trylock failed, errno = " << status);
     return false; // to make compiler happy
   }
 
   void ThreadMutex::unlock()
   {
-    int rv = pthread_mutex_unlock(&m_mutex);
-    if (rv == 0)
+    int status = pthread_mutex_unlock(&m_mutex);
+    if (status == 0)
       return;
-    assertTrue_2(rv != EPERM, "Attempt to unlock mutex that is locked by another thread.");
-    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_unlock failed, errno = " << rv);
+    assertTrue_2(status != EPERM, "Attempt to unlock mutex that is locked by another thread.");
+    errorMsg("pthread_mutex_unlock failed, errno = " << status);
   }
 
   ThreadMutexGuard::ThreadMutexGuard(ThreadMutex& mutex)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 namespace PLEXIL
 {
 
-  class PlanError : public Error
+  struct PlanError : public Error
   {
   public:
 
@@ -44,11 +44,13 @@ namespace PLEXIL
               const std::string& file,
               const int& line);
     
-    PlanError(const PlanError &orig);
+    PlanError(PlanError const &orig) = default;
+    PlanError(PlanError &&orig) = default;
 
-    PlanError &operator=(const PlanError &other);
+    virtual ~PlanError() PLEXIL_NOEXCEPT = default;
 
-    virtual ~PlanError() throw ();
+    PlanError &operator=(PlanError const &other) = default;
+    PlanError &operator=(PlanError &&other) = default;
 
     bool operator==(const PlanError &other);
 
@@ -79,12 +81,21 @@ namespace PLEXIL
 
     PlanError(); // not implemented
 
-    static bool s_throw; /**<Set to throw exception. */
-
   };
 
 } // namespace PLEXIL
 
+
+/**
+ * @def reportPlanError
+ * @brief Unconditionally create an error message.
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define reportPlanError(msg) { \
+  std::ostringstream sstr; \
+  sstr << msg; \
+  PLEXIL::PlanError("", sstr.str(), __FILE__, __LINE__).report(); \
+}
 
 /**
  * @def checkPlanError

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,10 @@
 
 #include "Error.hh"
 
+#ifdef STDC_HEADERS
 #include <cstring> // strstr()
+#endif
+
 #include <iostream>
 #include <vector>
 
@@ -52,18 +55,11 @@ namespace PLEXIL
     allDebugMessages = this;
   }
 
-  std::ostream &operator<<(std::ostream &os, DebugMessage const &dm)
+  std::ostream &operator<<(std::ostream &ostr, DebugMessage const &msg)
   {
-    try {
-      os.exceptions(std::ostream::badbit);
-      os << dm.marker << " ("
-         << (dm.enabled ? "en" : "dis") << "abled)";
-    }
-    catch (std::ios_base::failure& exc) {
-      check_error_2(ALWAYS_FAIL, exc.what());
-      throw;
-    }
-    return os;
+    ostr << msg.marker << " ("
+         << (msg.enabled ? "en" : "dis") << "abled)";
+    return ostr;
   }
 
   //
@@ -82,11 +78,11 @@ namespace PLEXIL
     return *debugStream;
   }
 
-  bool setDebugOutputStream(std::ostream &os)
+  bool setDebugOutputStream(std::ostream &ostr)
   {
-    if (!os.good())
+    if (!ostr.good())
       return false;
-    debugStream = &os;
+    debugStream = &ostr;
     return true;
   }
 
@@ -117,10 +113,10 @@ namespace PLEXIL
     return NULL != strstr(marker, pattern.c_str());
   }
 
-  static bool matchesPatterns(char const *m)
+  static bool matchesPatterns(char const *marker)
   {
-    for (std::string const pat : allDebugPatterns)
-      if (markerMatches(m, pat))
+    for (std::string const &pat : allDebugPatterns)
+      if (markerMatches(marker, pat))
         return true;
     return false;
   }
@@ -137,19 +133,19 @@ namespace PLEXIL
     allDebugPatterns.push_back(std::move(pattern));
   }
 
-  bool readDebugConfigStream(std::istream& is)
+  bool readDebugConfigStream(std::istream& istr)
   {
     static const char *sl_whitespace = " \f\n\r\t\v";
     static const char *sl_comment = "#/";
 
     ensureDebugInited();
 
-    assertTrue_2(is.good(),
+    assertTrue_2(istr.good(),
                  "Cannot read debug configuration from invalid/error'd stream");
 
-    while (is.good() && !is.eof()) {
+    while (istr.good() && !istr.eof()) {
       std::string input;
-      getline(is, input);
+      getline(istr, input);
       if (input.empty())
         continue;
 
@@ -175,9 +171,9 @@ namespace PLEXIL
       enableMatchingDebugMessages(input.substr(left, right - left));
     }
 
-    assertTrue_2(is.eof(),
+    assertTrue_2(istr.eof(),
                  "I/O error while reading debug configuration file");
-    return is.eof();
+    return istr.eof();
   }
 
 } // namespace PLEXIL

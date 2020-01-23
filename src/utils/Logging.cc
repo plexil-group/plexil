@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,22 @@
 #include "lifecycle-utils.h"
 #include <iostream>
 #include <fstream>
+
+#ifdef STDC_HEADERS
 #include <cstdlib>
 #include <cstring>
+#endif
+
+#ifdef HAVE_TIME_H
 #include <ctime>
+#endif
+
 #include <string>
 #include <sstream>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h> // for getpid(), isatty()
+#endif
 
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
@@ -114,8 +124,10 @@ void Logging::print_to_log(const char * fullmsg)
   if (sl_newSession) {
     sl_newSession = false;
     std::cout << "================================================================================\n";
+#ifdef HAVE_GETPID
     std::cout << "Logging Session ID (PID): " << getpid() << "\n";
     std::cout << "================================================================================\n";
+#endif
   }
 
   std::cout << get_date_time() << ": " << fullmsg << "\n";
@@ -195,12 +207,20 @@ static void prompt_user()
 {
   do {
     char buf[16];
-    Error::getStream() << " (pid:" << getpid()
-                       << ") [E]xit, show [S]tack trace or [P]roceed: ";
-
-    if (isatty(0) && isatty(1)) {
+    Error::getStream()
+#ifdef HAVE_GETPID
+      << " (pid:" << getpid() << ")"
+#endif
+      << " [E]xit, show [S]tack trace or [P]roceed: " << std::flush;
+    if (
+#ifdef HAVE_ISATTY
+        isatty(0) && isatty(1)
+#else
+        0
+#endif
+        ) {
       if (!fgets(buf, 8, stdin))
-	strcpy(buf, "E\n"); // go non-interactive if we don't get input
+        strcpy(buf, "E\n"); // go non-interactive if we don't get input
     }
     else
       strcpy(buf, "E\n");
@@ -225,7 +245,7 @@ static const char *get_date_time()
   time_t sl_rawtime;
   time(&sl_rawtime);
 #ifdef HAVE_CTIME_R
-#if defined(__VXWORKS__)
+#if defined(__VXWORKS__) // Platform has unique definition of ctime_r
   static size_t sl_len = LOG_TIME_STRING_LEN;
   ctime_r(&sl_rawtime, sl_log_time, &sl_len);
 #else
@@ -257,7 +277,7 @@ static void print_stack()
       Logging::print_to_log(messages[i]);
   }
   free(messages);
-#endif
+#endif // HAVE_EXECINFO_H
 }
 
 static void ensure_log_file_name()

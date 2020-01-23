@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,12 @@
 #include "timeval-utils.hh"
 
 #include <cassert>
+
+#ifdef STDC_HEADERS
 #include <cfloat>
 #include <cstring> // for strcmp
+#endif
+
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -155,8 +159,8 @@ private:
       __x__(e);
       success = false;
     }
-    // check_error will not throw the errors for PLEXIL_FAST
-#if !defined(PLEXIL_FAST) && !defined(__CYGWIN__)
+    // check_error will not throw the errors for PLEXIL_UNSAFE
+#if !defined(PLEXIL_UNSAFE) && !defined(__CYGWIN__)
     assertTrue_1(Error::throwEnabled());
     /* Do not print errors that we are provoking on purpose to ensure they are noticed. */
     try {
@@ -205,8 +209,8 @@ private:
 
   static bool testDebugError() {
     bool success = true;
-    // check_error will not throw the errors for PLEXIL_FAST
-#if !defined(PLEXIL_FAST) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
+    // check_error will not throw the errors for PLEXIL_UNSAFE
+#if !defined(PLEXIL_UNSAFE) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
     Error::doThrowExceptions();
     assertTrue_1(Error::throwEnabled());
     //!!Add a test of DebugMessage that should throw an error here.
@@ -224,7 +228,7 @@ private:
   }
 
   static void runDebugTest(int cfgNum) {
-#if !defined(PLEXIL_FAST) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
+#if !defined(PLEXIL_UNSAFE) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
     std::stringstream cfgName;
     cfgName << "debug" << cfgNum << ".cfg";
     std::string cfgFile(cfgName.str());
