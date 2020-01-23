@@ -93,8 +93,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value copy constructor: invalid or unknown type");
-      break;
+      errorMsg("Value copy constructor: unknown type");
+      return;
     }
   }
 
@@ -150,7 +150,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value move constructor: unknown type");
+      errorMsg("Value move constructor: unknown type");
       break;
     }
   }
@@ -237,6 +237,7 @@ namespace PLEXIL
     default:
       assertTrue_2(ALWAYS_FAIL, "Value constructor: illegal value for type");
       return;
+      break;
     }
   }
       
@@ -320,8 +321,7 @@ namespace PLEXIL
       else if (eltType == INTEGER_TYPE && itype == REAL_TYPE)
         eltType = itype; // promote int to real
       else if (eltType != itype) {
-        checkPlanError(ALWAYS_FAIL,
-                       "Value constructor: Inconsistent value types in vector");
+        reportPlanError("Value constructor: Inconsistent value types in vector");
         m_known = false;
       }
       // else type is consistent
@@ -393,7 +393,8 @@ namespace PLEXIL
     }
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value constructor: Unknown or unimplemented element type");
+      errorMsg("Value constructor: Unknown or unimplemented element type");
+      break;
     }
   }
 
@@ -473,7 +474,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value copy assignment: invalid or unknown type");
+      errorMsg("Value copy assignment: invalid or unknown type");
       break;
     }
     m_known = true;
@@ -546,7 +547,7 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value move assignment: invalid or unknown type");
+      errorMsg("Value move assignment: invalid or unknown type");
       break;
     }
     m_known = true;
@@ -838,9 +839,8 @@ namespace PLEXIL
       return true;
 
     default:
-      checkPlanError(ALWAYS_FAIL,
-                     "Attempt to get a Real value from a "
-                     << valueTypeName(m_type) << " Value");
+      reportPlanError("Attempt to get a Real value from a "
+                      << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -880,9 +880,8 @@ namespace PLEXIL
       return true;
 
     default:
-      checkPlanError(ALWAYS_FAIL,
-                     "Attempt to get an Array value from a "
-                     << valueTypeName(m_type) << " Value");
+      reportPlanError("Attempt to get an Array value from a "
+                      << valueTypeName(m_type) << " Value");
       return false;
     }
   }
@@ -1001,10 +1000,10 @@ namespace PLEXIL
     }
   }
 
-  std::ostream &operator<<(std::ostream &s, Value const &v)
+  std::ostream &operator<<(std::ostream &str, Value const &val)
   {
-    v.printValue(s);
-    return s;
+    val.printValue(str);
+    return str;
   }
 
   std::string Value::valueToString() const
@@ -1033,8 +1032,7 @@ namespace PLEXIL
           return true;
         return other.realValue == (Real) integerValue;
       }
-      else
-        return false; // type mismatch
+      return false; // type mismatch
       
     case REAL_TYPE:
       if (other.m_type == m_type) {
@@ -1047,8 +1045,7 @@ namespace PLEXIL
           return true;
         return realValue == (Real) other.integerValue;
       }
-      else
-        return false; // type mismatch
+      return false; // type mismatch
 
     default: 
       if (other.m_type != m_type)
@@ -1081,7 +1078,7 @@ namespace PLEXIL
         return *arrayValue == *other.arrayValue;
 
       default:
-        assertTrue_2(ALWAYS_FAIL, "Value::equals: unknown value type");
+        errorMsg("Value::equals: unknown value type");
         return false;
       }
     }
@@ -1100,33 +1097,27 @@ namespace PLEXIL
       if (m_type == other.m_type) {
         if (m_known)
           return integerValue < other.integerValue;
-        else 
-          return false; // unknown integer values are equal
+        return false; // unknown integer values are equal
       }
       else if (REAL_TYPE == other.m_type) {
         if (m_known)
           return ((Real) integerValue) < other.realValue;
-        else 
-          return true; // real unknown > int unknown
+        return true; // real unknown > int unknown
       }
-      else 
-        return m_type < other.m_type;
+      return m_type < other.m_type;
 
     case REAL_TYPE:
       if (m_type == other.m_type) {
         if (m_known)
           return realValue < other.realValue;
-        else
-          return false; // unknown real values are equal
+        return false; // unknown real values are equal
       }
       else if (INTEGER_TYPE == other.m_type) {
         if (m_known)
           return realValue < (Real) other.integerValue;
-        else
-          return false; // real unknown > int unknown
+        return false; // real unknown > int unknown
       }
-      else 
-        return m_type < other.m_type;
+      return m_type < other.m_type;
 
     default:
       // Unequal types 
@@ -1134,6 +1125,7 @@ namespace PLEXIL
         return true;
       else if (m_type > other.m_type)
         return false;
+      break;
     }
 
     // Types are equal
@@ -1180,109 +1172,109 @@ namespace PLEXIL
         *dynamic_cast<StringArray const *>(other.arrayValue.get());
 
       default:
-        assertTrue_2(ALWAYS_FAIL, "Value::lessThan: unknown value type");
+        errorMsg("Value::lessThan: unknown value type");
         return false;
       }
   }
 
-  char *Value::serialize(char *b) const
+  char *Value::serialize(char *buf) const
   {
     if (!m_known) {
-      *b++ = UNKNOWN_TYPE;
-      return b;
+      *buf++ = UNKNOWN_TYPE;
+      return buf;
     }
     switch (m_type) {
     case BOOLEAN_TYPE:
-      return PLEXIL::serialize(booleanValue, b);
+      return PLEXIL::serialize(booleanValue, buf);
 
     case INTEGER_TYPE:
-      return PLEXIL::serialize(integerValue, b);
+      return PLEXIL::serialize(integerValue, buf);
       
     case REAL_TYPE:
-      return PLEXIL::serialize(realValue, b);
+      return PLEXIL::serialize(realValue, buf);
 
     case STRING_TYPE:
-      return PLEXIL::serialize(*stringValue, b);
+      return PLEXIL::serialize(*stringValue, buf);
 
     case COMMAND_HANDLE_TYPE:
-      return PLEXIL::serialize(commandHandleValue, b);
+      return PLEXIL::serialize(commandHandleValue, buf);
 
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
     case STRING_ARRAY_TYPE:
-      return PLEXIL::serialize(*arrayValue, b);
+      return PLEXIL::serialize(*arrayValue, buf);
 
     default: // invalid/unimplemented
       return NULL;
     }
   }
   
-  char const *Value::deserialize(char const *b)
+  char const *Value::deserialize(char const *buf)
   {
-    ValueType t = (ValueType) *b;
-    if (t != m_type)
+    ValueType typ = (ValueType) *buf;
+    if (typ != m_type)
       cleanup();
 
-    switch (t) {
+    switch (typ) {
     case UNKNOWN_TYPE:
       setUnknown();
-      return ++b;
+      return ++buf;
 
     case BOOLEAN_TYPE:
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize(booleanValue, b);
+      return PLEXIL::deserialize(booleanValue, buf);
 
     case INTEGER_TYPE:
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize(integerValue, b);
+      return PLEXIL::deserialize(integerValue, buf);
 
     case REAL_TYPE:
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize(realValue, b);
+      return PLEXIL::deserialize(realValue, buf);
 
     case STRING_TYPE:
       if (m_type != STRING_TYPE || !stringValue)
         stringValue.reset(new String());
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize(*stringValue, b);
+      return PLEXIL::deserialize(*stringValue, buf);
 
     case COMMAND_HANDLE_TYPE:
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize(commandHandleValue, b);
+      return PLEXIL::deserialize(commandHandleValue, buf);
 
     case BOOLEAN_ARRAY_TYPE:
       if (m_type != BOOLEAN_ARRAY_TYPE || !arrayValue)
         arrayValue.reset(new BooleanArray());
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize((BooleanArray &) *arrayValue, b);
+      return PLEXIL::deserialize((BooleanArray &) *arrayValue, buf);
 
     case INTEGER_ARRAY_TYPE:
       if (m_type != INTEGER_ARRAY_TYPE || !arrayValue)
         arrayValue.reset(new IntegerArray());
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize((IntegerArray &) *arrayValue, b);
+      return PLEXIL::deserialize((IntegerArray &) *arrayValue, buf);
 
     case REAL_ARRAY_TYPE:
       if (m_type != REAL_ARRAY_TYPE || !arrayValue)
         arrayValue.reset(new RealArray());
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize((RealArray &) *arrayValue, b);
+      return PLEXIL::deserialize((RealArray &) *arrayValue, buf);
 
     case STRING_ARRAY_TYPE:
       if (m_type != STRING_ARRAY_TYPE || !arrayValue)
         arrayValue.reset(new StringArray());
-      m_type = t;
+      m_type = typ;
       m_known = true;
-      return PLEXIL::deserialize((StringArray &) *arrayValue, b);
+      return PLEXIL::deserialize((StringArray &) *arrayValue, buf);
 
     default: // invalid
       return NULL;
@@ -1321,19 +1313,19 @@ namespace PLEXIL
     }
   }
 
-  template <> char *serialize(Value const &o, char *b)
+  template <> char *serialize(Value const &val, char *buf)
   {
-    return o.serialize(b);
+    return val.serialize(buf);
   }
 
-  template <> char const *deserialize(Value &o, char const *b)
+  template <> char const *deserialize(Value &val, char const *buf)
   {
-    return o.deserialize(b);
+    return val.deserialize(buf);
   }
 
-  template <> size_t serialSize(Value const &o)
+  template <> size_t serialSize(Value const &val)
   {
-    return o.serialSize();
+    return val.serialSize();
   }
 
 } // namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -74,10 +74,8 @@ namespace PLEXIL
 
   bool Array::elementKnown(size_t index) const
   {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "Array::elementKnown: Index exceeds array size");
-      return false;
-    }
+    checkPlanError(checkIndex(index),
+                   "Array::elementKnown: Index exceeds array size");
     return m_known[index];
   }
 
@@ -88,10 +86,8 @@ namespace PLEXIL
 
   void Array::setElementUnknown(size_t index)
   {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "Array::setElementUnknown: Index exceeds array size");
-      return;
-    }
+    checkPlanError(checkIndex(index),
+                   "Array::setElementUnknown: Index exceeds array size");
     m_known[index] = false;
   }
 
@@ -130,11 +126,10 @@ namespace PLEXIL
 #define DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(_TYPE_) \
   bool Array::getElement(size_t /* index */, _TYPE_ & /* result */) const \
   { \
-    checkPlanError(ALWAYS_FAIL, \
-                   "Type error: can't get element of type " \
-                   << PlexilValueType<_TYPE_>::typeName \
-                   << " from array of " \
-                   << valueTypeName(this->getElementType()));   \
+    reportPlanError("Type error: can't get element of type "    \
+                    << PlexilValueType<_TYPE_>::typeName        \
+                    << " from array of "                        \
+                    << valueTypeName(this->getElementType()));  \
     return false; \
   }
 
@@ -147,21 +142,19 @@ namespace PLEXIL
 
   bool Array::getElementPointer(size_t /* index */, String const *& /* result */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Type error: can't get pointer to String element "
-                   << " from array of "
-                   << valueTypeName(this->getElementType()));
+    reportPlanError("Type error: can't get pointer to String element "
+                    << " from array of "
+                    << valueTypeName(this->getElementType()));
     return false;
   }
 
 #define DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(_TYPE_) \
   void Array::setElement(size_t /* index */, _TYPE_ const & /* newval */) \
   { \
-    checkPlanError(ALWAYS_FAIL, \
-                   "Type error: can't assign element of type " \
-                   << valueTypeName(PlexilValueType<_TYPE_>::value) \
-                   << " to array of " \
-                   << valueTypeName(this->getElementType()));  \
+    reportPlanError("Type error: can't assign element of type " \
+                    << valueTypeName(PlexilValueType<_TYPE_>::value)    \
+                    << " to array of "                                  \
+                    << valueTypeName(this->getElementType()));          \
   }
 
   DEFINE_SET_ELEMENT_TYPE_ERROR_METHOD(Boolean)
@@ -173,32 +166,32 @@ namespace PLEXIL
 
   std::string Array::toString() const
   {
-    std::ostringstream s;
-    this->print(s);
-    return s.str();
+    std::ostringstream strm;
+    this->print(strm);
+    return strm.str();
   }
 
-  std::ostream &operator<<(std::ostream &s, Array const &a)
+  std::ostream &operator<<(std::ostream &str, Array const &ary)
   {
-    a.print(s);
-    return s;
-  }
-
-  template <>
-  char *serialize<Array>(Array const &o, char *b)
-  {
-    return o.serialize(b);
+    ary.print(str);
+    return str;
   }
 
   template <>
-  char const *deserialize<Array>(Array &o, char const *b)
+  char *serialize<Array>(Array const &val, char *buf)
   {
-    return o.deserialize(b);
+    return val.serialize(buf);
   }
 
-  template <> size_t serialSize(Array const &o)
+  template <>
+  char const *deserialize<Array>(Array &val, char const *buf)
   {
-    return o.serialSize();
+    return val.deserialize(buf);
+  }
+
+  template <> size_t serialSize(Array const &val)
+  {
+    return val.serialSize();
   }
 
 } // namespace PLEXIL

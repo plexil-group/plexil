@@ -33,13 +33,19 @@
 #include "Error.hh"
 #include "map-utils.hh"
 #include "NodeConstants.hh"
-#include "SimpleMap.hh"
 #include "stricmp.h"
+
+// TEMP DEBUG
+#include "Debug.hh"
 
 #include <cerrno>
 #include <cmath>   // for HUGE_VAL
+
+#ifdef STDC_HEADERS
 #include <cstdlib> // for strtod(), strtol()
-#include <cstring>
+#include <cstring> // strlen(), strcmp() etc.
+#endif
+
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -48,9 +54,9 @@
 namespace PLEXIL
 {
 
-  const std::string &valueTypeName(ValueType ty)
+  const std::string &valueTypeName(ValueType typ)
   {
-    switch (ty) {
+    switch (typ) {
     case BOOLEAN_TYPE:
       static std::string const sl_boolean(BOOLEAN_STR);
       return sl_boolean;
@@ -119,87 +125,19 @@ namespace PLEXIL
     }
   }
 
-  const std::string &typeNameAsValue(ValueType ty)
+  bool isUserType(ValueType typ)
   {
-    static std::string const sl_val = VAL_SUFFIX;
-
-    switch (ty) {
-    case BOOLEAN_TYPE:
-      static std::string const sl_boolval = BOOLEAN_STR + sl_val;
-      return sl_boolval;
-
-    case INTEGER_TYPE:
-      static std::string const sl_intval = INTEGER_STR + sl_val;
-      return sl_intval;
-
-    case REAL_TYPE:
-      static std::string const sl_realval = REAL_STR + sl_val;
-      return sl_realval;
-      
-    case STRING_TYPE:
-      static std::string const sl_stringval = STRING_STR + sl_val;
-      return sl_stringval;
-
-    case DATE_TYPE:
-      static std::string const sl_dateval = DATE_STR + sl_val;
-      return sl_dateval;
-
-    case DURATION_TYPE:
-      static std::string const sl_durval = DURATION_STR + sl_val;
-      return sl_durval;
-
-      // Array types
-    case BOOLEAN_ARRAY_TYPE:
-      static std::string const sl_boolarrval = BOOLEAN_ARRAY_STR + sl_val;
-      return sl_boolarrval;
-
-    case INTEGER_ARRAY_TYPE:
-      static std::string const sl_intarrval = INTEGER_ARRAY_STR + sl_val;
-      return sl_intarrval;
-
-    case REAL_ARRAY_TYPE:
-      static std::string const sl_realarrval = REAL_ARRAY_STR + sl_val;
-      return sl_realarrval;
-
-    case STRING_ARRAY_TYPE:
-      static std::string const sl_stringarrval = STRING_ARRAY_STR + sl_val;
-      return sl_stringarrval;
-
-      // Internal types
-    case NODE_STATE_TYPE:
-      static std::string const sl_nsval = NODE_STATE_STR + sl_val;
-      return sl_nsval;
-
-    case OUTCOME_TYPE:
-      static std::string const sl_outcomeval = NODE_OUTCOME_STR + sl_val;
-      return sl_outcomeval;
-
-    case FAILURE_TYPE:
-      static std::string const sl_failval = NODE_FAILURE_STR + sl_val;
-      return sl_failval;
-
-    case COMMAND_HANDLE_TYPE:
-      static std::string const sl_handleval = NODE_COMMAND_HANDLE_STR + sl_val;
-      return sl_handleval;
-
-    default:
-      return sl_val;
-    }
+    return typ > UNKNOWN_TYPE && typ < ARRAY_TYPE_MAX;
   }
   
-  bool isUserType(ValueType ty)
+  bool isInternalType(ValueType typ)
   {
-    return (ty > UNKNOWN_TYPE && ty < ARRAY_TYPE_MAX);
+    return typ > INTERNAL_TYPE_OFFSET && typ < TYPE_MAX;
   }
   
-  bool isInternalType(ValueType ty)
+  bool isNumericType(ValueType typ)
   {
-    return (ty > INTERNAL_TYPE_OFFSET && ty < TYPE_MAX);
-  }
-  
-  bool isNumericType(ValueType ty)
-  {
-    switch (ty) {
+    switch (typ) {
     case INTEGER_TYPE:
     case REAL_TYPE:
     case DATE_TYPE:
@@ -211,21 +149,21 @@ namespace PLEXIL
     }
   }
 
-  bool isScalarType(ValueType ty)
+  bool isScalarType(ValueType typ)
   {
-    return (ty > UNKNOWN_TYPE && ty < SCALAR_TYPE_MAX);
+    return typ > UNKNOWN_TYPE && typ < SCALAR_TYPE_MAX;
   }
 
-  bool isArrayType(ValueType ty)
+  bool isArrayType(ValueType typ)
   {
-    return (ty > ARRAY_TYPE && ty < ARRAY_TYPE_MAX);
+    return typ > ARRAY_TYPE && typ < ARRAY_TYPE_MAX;
   }
 
-  ValueType arrayElementType(ValueType ty)
+  ValueType arrayElementType(ValueType typ)
   {
-    if (ty <= ARRAY_TYPE || ty >= ARRAY_TYPE_MAX)
+    if (typ <= ARRAY_TYPE || typ >= ARRAY_TYPE_MAX)
       return UNKNOWN_TYPE;
-    return (ValueType) (ty - ARRAY_TYPE);
+    return (ValueType) (typ - ARRAY_TYPE);
   }
 
   ValueType arrayType(ValueType elTy)
@@ -269,70 +207,148 @@ namespace PLEXIL
   // ValueType parsing
   //
 
-  typedef SimpleMap<std::string, ValueType> NameTypeTable;
-
-  // Size argument to constructor should be at least as big as # of entries in table
-  static NameTypeTable s_nameTypeTable(16);
-
-  static void initNameTypeTable()
-  {
-    if (s_nameTypeTable.empty()) {
-      s_nameTypeTable.insert(BOOLEAN_STR, BOOLEAN_TYPE);
-      s_nameTypeTable.insert(INTEGER_STR, INTEGER_TYPE);
-      s_nameTypeTable.insert(REAL_STR, REAL_TYPE);
-      s_nameTypeTable.insert(STRING_STR, STRING_TYPE);
-      s_nameTypeTable.insert(DATE_STR, DATE_TYPE);
-      s_nameTypeTable.insert(DURATION_STR, DURATION_TYPE);
-
-      s_nameTypeTable.insert(ARRAY_STR, ARRAY_TYPE);
-      s_nameTypeTable.insert(BOOLEAN_ARRAY_STR, BOOLEAN_ARRAY_TYPE);
-      s_nameTypeTable.insert(INTEGER_ARRAY_STR, INTEGER_ARRAY_TYPE);
-      s_nameTypeTable.insert(REAL_ARRAY_STR, REAL_ARRAY_TYPE);
-      s_nameTypeTable.insert(STRING_ARRAY_STR, STRING_ARRAY_TYPE);
-
-      s_nameTypeTable.insert(STATE_STR, STATE_TYPE);
-
-      s_nameTypeTable.insert(NODE_STATE_STR, NODE_STATE_TYPE);
-      s_nameTypeTable.insert(NODE_OUTCOME_STR, OUTCOME_TYPE);
-      s_nameTypeTable.insert(NODE_FAILURE_STR, FAILURE_TYPE);
-      s_nameTypeTable.insert(NODE_COMMAND_HANDLE_STR, COMMAND_HANDLE_TYPE);
-    }
-  }
-
+  // Optimized version, makes at most one call to strlen() and one to strcmp()
   ValueType parseValueType(char const *typeStr)
   {
     if (!typeStr)
       return UNKNOWN_TYPE;
-    initNameTypeTable();
-    NameTypeTable::const_iterator it = 
-      s_nameTypeTable.find<char const *, CStringComparator>(typeStr);
-    if (it == s_nameTypeTable.end())
-      return UNKNOWN_TYPE;
-    else
-      return it->second;
+    switch (*typeStr) {
+    case 'A': // Array
+      if (!strcmp(typeStr, ARRAY_STR))
+        return ARRAY_TYPE;
+      break;
+
+    case 'B': // Boolean, BooleanArray
+      switch (strlen(typeStr)) {
+      case 7:
+        if (!strcmp(typeStr, BOOLEAN_STR))
+          return BOOLEAN_TYPE;
+        break;
+
+      case 12:
+        if (!strcmp(typeStr, BOOLEAN_ARRAY_STR))
+          return BOOLEAN_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+      
+      break;
+
+    case 'D': // Date, Duration
+      if (!strcmp(typeStr, DATE_STR))
+        return DATE_TYPE;
+      if (!strcmp(typeStr, DURATION_STR))
+        return DURATION_TYPE;
+      break;
+
+    case 'I': // Integer, IntegerArray
+      switch (strlen(typeStr)) {
+      case 7:
+        if (!strcmp(typeStr, INTEGER_STR))
+          return INTEGER_TYPE;
+        break;
+
+      case 12:
+        if (!strcmp(typeStr, INTEGER_ARRAY_STR))
+          return INTEGER_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+
+      break;
+
+    case 'N': // NodeState, NodeOutcome, NodeFailure, NodeCommandHandle
+      switch (strlen(typeStr)) {
+      case 9:
+        if (!strcmp(typeStr, NODE_STATE_STR))
+          return NODE_STATE_TYPE;
+        break;
+
+      case 11:
+        if (typeStr[4] == 'F' && !strcmp(typeStr, NODE_FAILURE_STR))
+          return FAILURE_TYPE;
+        if (!strcmp(typeStr, NODE_OUTCOME_STR))
+          return OUTCOME_TYPE;
+        break;
+
+      case 17:
+        if (!strcmp(typeStr, NODE_COMMAND_HANDLE_STR))
+          return COMMAND_HANDLE_TYPE;
+        break;
+
+      default:
+        break;
+      }
+      break;
+
+    case 'R': // Real, RealArray
+      switch (strlen(typeStr)) {
+      case 4:
+        if (!strcmp(typeStr, REAL_STR))
+          return REAL_TYPE;
+        break;
+
+      case 9:
+        if (!strcmp(typeStr, REAL_ARRAY_STR))
+          return REAL_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+
+      break;
+
+    case 'S': // State, String, StringArray
+      switch (strlen(typeStr)) {
+      case 5:
+        if (!strcmp(typeStr, STATE_STR))
+          return STATE_TYPE;
+        break;
+        
+      case 6:
+        if (!strcmp(typeStr, STRING_STR))
+          return STRING_TYPE;
+        break;
+
+      case 11:
+        if (!strcmp(typeStr, STRING_ARRAY_STR))
+          return STRING_ARRAY_TYPE;
+        break;
+
+      default:
+        break;
+      }
+
+      break;
+
+    default:
+      break;
+    }
+    // Fall-through return
+    return UNKNOWN_TYPE;
   }
 
   ValueType parseValueType(const std::string& typeStr)
   {
-    initNameTypeTable();
-    NameTypeTable::const_iterator it = s_nameTypeTable.find(typeStr);
-    if (it == s_nameTypeTable.end())
-      return UNKNOWN_TYPE;
-    else
-      return it->second;
+    return parseValueType(typeStr.c_str());
   }
 
   template <typename T>
-  void printValue(const T &val, std::ostream &s)
+  void printValue(const T &val, std::ostream &str)
   {
-    s << val;
+    str << val;
   }
 
   // Specialization for Real
   template <>
-  void printValue(const Real &val, std::ostream &s)
+  void printValue(const Real &val, std::ostream &str)
   {
-    s << std::setprecision(15) << val;
+    str << std::setprecision(15) << val;
   }
   
   // Specializations for internal enums
@@ -395,82 +411,85 @@ namespace PLEXIL
    */
 
   template <>
-  bool parseValue(char const *s, Boolean &result)
-    throw (ParserException)
+  bool parseValue(char const *str, Boolean &result)
   {
-    assertTrue_1(s);
-    switch (strlen(s)) {
+    assertTrue_1(str);
+    // TEMP DEBUG
+    debugMsg("parseValue<Boolean>",
+             " value = \"" << str << "\" length = " << strlen(str));
+
+    switch (strlen(str)) {
     case 1:
-      if (*s == '0') {
+      if (*str == '0') {
         result = false;
         return true;
       }
-      if (*s == '1') {
+      if (*str == '1') {
         result = true;
         return true;
       }
       break;
 
     case 4:
-      if (0 == stricmp(s, "true")) {
+      if (!stricmp(str, "true")) {
         result = true;
         return true;
       }
       break;
  
     case 5:
-      if (0 == stricmp(s, "false")) {
+      if (!stricmp(str, "false")) {
         result = false;
         return true;
       }
       break;
 
-    default:
-      if (0 == strcmp(s, "UNKNOWN"))
+    case 7:
+      if (!strcmp(str, "UNKNOWN"))
         return false;
+      break;
+
+    default:
       break;
     }
     // No match
-    checkParserException(ALWAYS_FAIL,
-                         "parseValue: \"" << s << "\" is not a valid Boolean value");
+    reportParserException("parseValue: \"" << str << "\" is not a valid Boolean value");
   }
 
   template <>
-  bool parseValue<Integer>(char const *s, Integer &result)
-    throw (ParserException)
+  bool parseValue<Integer>(char const *str, Integer &result)
   {
-    assertTrue_1(s);
-    if (!*s || 0 == strcmp(s, "UNKNOWN"))
+    assertTrue_1(str);
+    if (!*str || 0 == strcmp(str, "UNKNOWN"))
       return false;
 
     char * ends;
     errno = 0;
-    long temp = strtol(s, &ends, 0);
-    checkParserException(ends != s && *ends == '\0',
-                         "parseValue: \"" << s << "\" is an invalid value for an Integer");
+    long temp = strtol(str, &ends, 0);
+    checkParserException(ends != str && *ends == '\0',
+                         "parseValue: \"" << str << "\" is an invalid value for an Integer");
     checkParserException(errno == 0
                          && temp <= std::numeric_limits<Integer>::max()
                          && temp >= std::numeric_limits<Integer>::min(),
-                         "parseValue: " << s << " is out of range for an Integer");
+                         "parseValue: " << str << " is out of range for an Integer");
     result = (Integer) temp;
     return true;
   }
 
   template <>
-  bool parseValue<Real>(char const *s, Real &result)
-    throw (ParserException)
+  bool parseValue<Real>(char const *str, Real &result)
   {
-    assertTrue_1(s);
-    if (!*s || 0 == strcmp(s, "UNKNOWN"))
+    assertTrue_1(str);
+    if (!*str || 0 == strcmp(str, "UNKNOWN"))
       return false;
 
     char * ends;
     errno = 0;
-    Real temp = strtod(s, &ends);
-    checkParserException(ends != s && *ends == '\0',
-                         "parseValue: \"" << s << "\" is an invalid value for a Real");
+    Real temp = strtod(str, &ends);
+    checkParserException(ends != str && *ends == '\0',
+                         "parseValue: \"" << str << "\" is an invalid value for a Real");
     checkParserException(temp != HUGE_VAL && temp != -HUGE_VAL,
-                         "parseValue: " << s << " is out of range for a Real");
+                         "parseValue: " << str << " is out of range for a Real");
     result = temp;
     return true;
   }
@@ -478,7 +497,6 @@ namespace PLEXIL
   // Empty string is valid
   template <>
   bool parseValue(char const *s, std::string &result)
-    throw (ParserException)
   {
     assertTrue_1(s);
     result = s;
@@ -491,7 +509,7 @@ namespace PLEXIL
 
   // Default methods
   template <typename T>
-  char *serialize(T const &/* o */, char */* b */)
+  char *serialize(T const &/* o */, char */* buf */)
   {
     return NULL;
   }
@@ -503,7 +521,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  char const *deserialize(T &o, char const *b)
+  char const *deserialize(T &o, char const *buf)
   {
     return NULL;
   }
@@ -513,20 +531,20 @@ namespace PLEXIL
   //
 
   template <>
-  char *serialize<Boolean>(Boolean const &o, char *b)
+  char *serialize<Boolean>(Boolean const &o, char *buf)
   {
-    *b++ = BOOLEAN_TYPE;
-    *b++ = (char) o;
-    return b;
+    *buf++ = BOOLEAN_TYPE;
+    *buf++ = (char) o;
+    return buf;
   }
 
   template <>
-  char const *deserialize<Boolean>(Boolean &o, char const *b)
+  char const *deserialize<Boolean>(Boolean &o, char const *buf)
   {
-    if (BOOLEAN_TYPE != (ValueType) *b++)
+    if (BOOLEAN_TYPE != (ValueType) *buf++)
       return NULL;
-    o = (Boolean) *b++;
-    return b;
+    o = (Boolean) *buf++;
+    return buf;
   }
 
   template <>
@@ -540,11 +558,11 @@ namespace PLEXIL
   //
 
   template <>
-  char *serialize<CommandHandleValue>(CommandHandleValue const &o, char *b)
+  char *serialize<CommandHandleValue>(CommandHandleValue const &o, char *buf)
   {
-    *b++ = COMMAND_HANDLE_TYPE;
-    *b++ = (char) o;
-    return b;
+    *buf++ = COMMAND_HANDLE_TYPE;
+    *buf++ = (char) o;
+    return buf;
   }
 
   template <>
@@ -557,7 +575,7 @@ namespace PLEXIL
   }
 
   template <>
-  size_t serialSize<CommandHandleValue>(CommandHandleValue const &o)
+  size_t serialSize<CommandHandleValue>(CommandHandleValue const &/* o */)
   {
     return 2;
   }
@@ -568,28 +586,28 @@ namespace PLEXIL
   //
 
   template <>
-  char *serialize<Integer>(Integer const &o, char *b)
+  char *serialize<Integer>(Integer const &o, char *buf)
   {
-    *b++ = INTEGER_TYPE;
+    *buf++ = INTEGER_TYPE;
     // Store in big-endian format
-    *b++ = (char) (0xFF & (o >> 24));
-    *b++ = (char) (0xFF & (o >> 16));
-    *b++ = (char) (0xFF & (o >> 8));
-    *b++ = (char) (0xFF & o);
-    return b;
+    *buf++ = (char) (0xFF & (o >> 24));
+    *buf++ = (char) (0xFF & (o >> 16));
+    *buf++ = (char) (0xFF & (o >> 8));
+    *buf++ = (char) (0xFF & o);
+    return buf;
   }
 
   template <>
-  char const *deserialize<Integer>(Integer &o, char const *b)
+  char const *deserialize<Integer>(Integer &o, char const *buf)
   {
-    if (INTEGER_TYPE != (ValueType) *b++)
+    if (INTEGER_TYPE != (ValueType) *buf++)
       return NULL;
-    uint32_t n = ((uint32_t) (unsigned char) *b++) << 8;
-    n = (n + (uint32_t) (unsigned char) *b++) << 8;
-    n = (n + (uint32_t) (unsigned char) *b++) << 8;
-    n = (n + (uint32_t) (unsigned char) *b++);
-    o = (Integer) n;
-    return b;
+    uint32_t result = ((uint32_t) (unsigned char) *buf++) << 8;
+    result = (result + (uint32_t) (unsigned char) *buf++) << 8;
+    result = (result + (uint32_t) (unsigned char) *buf++) << 8;
+    result = (result + (uint32_t) (unsigned char) *buf++);
+    o = (Integer) result;
+    return buf;
   }
 
   template <>
@@ -603,45 +621,45 @@ namespace PLEXIL
   //
 
   template <>
-  char *serialize<Real>(Real const &o, char *b)
+  char *serialize<Real>(Real const &o, char *buf)
   {
-    *b++ = REAL_TYPE;
+    *buf++ = REAL_TYPE;
     union {
       Real r;
       uint64_t l;
     };
     r = o;
     // Store in big-endian format
-    *b++ = (char) (0xFF & (l >> 56));
-    *b++ = (char) (0xFF & (l >> 48));
-    *b++ = (char) (0xFF & (l >> 40));
-    *b++ = (char) (0xFF & (l >> 32));
-    *b++ = (char) (0xFF & (l >> 24));
-    *b++ = (char) (0xFF & (l >> 16));
-    *b++ = (char) (0xFF & (l >> 8));
-    *b++ = (char) (0xFF & l);
-    return b;
+    *buf++ = (char) (0xFF & (l >> 56));
+    *buf++ = (char) (0xFF & (l >> 48));
+    *buf++ = (char) (0xFF & (l >> 40));
+    *buf++ = (char) (0xFF & (l >> 32));
+    *buf++ = (char) (0xFF & (l >> 24));
+    *buf++ = (char) (0xFF & (l >> 16));
+    *buf++ = (char) (0xFF & (l >> 8));
+    *buf++ = (char) (0xFF & l);
+    return buf;
   }
 
   template <>
-  char const *deserialize<Real>(Real &o, char const *b)
+  char const *deserialize<Real>(Real &o, char const *buf)
   {
-    if (REAL_TYPE != (ValueType) *b++)
+    if (REAL_TYPE != (ValueType) *buf++)
       return NULL;
     union {
       Real r;
       uint64_t l;
     };
-    l = (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++;
+    l = (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++; l = l << 8;
+    l += (uint64_t) (unsigned char) *buf++;
     o = r;
-    return b;
+    return buf;
   }
 
   template <>
@@ -655,34 +673,34 @@ namespace PLEXIL
   //
 
   template <>
-  char *serialize<String>(String const &o, char *b)
+  char *serialize<String>(String const &o, char *buf)
   {
-    size_t s = o.size();
-    if (s > 0xFFFFFF)
+    size_t siz = o.size();
+    if (siz > 0xFFFFFF)
       return NULL; // too big
 
-    *b++ = STRING_TYPE;
+    *buf++ = STRING_TYPE;
     // Put 3 bytes of size first - std::string may contain embedded NUL
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
-    memcpy(b, o.c_str(), s);
-    return b + s;
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
+    memcpy(buf, o.c_str(), siz);
+    return buf + siz;
   }
 
   template <>
-  char const *deserialize<String>(String &o, char const *b)
+  char const *deserialize<String>(String &o, char const *buf)
   {
-    if (STRING_TYPE != (ValueType) *b++)
+    if (STRING_TYPE != (ValueType) *buf++)
       return NULL;
 
     // Get 3 bytes of size
-    size_t s = ((size_t) (unsigned char) *b++) << 8;
-    s = (s + (size_t) (unsigned char) *b++) << 8;
-    s = s + (size_t) (unsigned char) *b++;
+    size_t siz = ((size_t) (unsigned char) *buf++) << 8;
+    siz = (siz + (size_t) (unsigned char) *buf++) << 8;
+    siz = siz + (size_t) (unsigned char) *buf++;
 
-    o.replace(o.begin(), o.end(), b, s);
-    return b + s;
+    o.replace(o.begin(), o.end(), buf, siz);
+    return buf + siz;
   }
 
   template <>
@@ -696,37 +714,37 @@ namespace PLEXIL
   //
 
   template <>
-  char *serialize<char const *>(char const * const &o, char *b)
+  char *serialize<char const *>(char const * const &o, char *buf)
   {
-    size_t s = strlen(o);
-    if (s > 0xFFFFFF)
+    size_t siz = strlen(o);
+    if (siz > 0xFFFFFF)
       return NULL; // too big
 
-    *b++ = STRING_TYPE;
+    *buf++ = STRING_TYPE;
     // Put 3 bytes of size first
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
-    memcpy(b, o, s);
-    return b + s;
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
+    memcpy(buf, o, siz);
+    return buf + siz;
   }
 
   template <>
-  char const *deserialize<char *>(char *&o, char const *b)
+  char const *deserialize<char *>(char *&o, char const *buf)
   {
-    if (STRING_TYPE != (ValueType) *b++)
+    if (STRING_TYPE != (ValueType) *buf++)
       return NULL;
 
     // Get 3 bytes of size
-    size_t s = ((size_t) (unsigned char) *b++) << 8;
-    s = (s + (size_t) (unsigned char) *b++) << 8;
-    s = s + (size_t) (unsigned char) *b++;
+    size_t siz = ((size_t) (unsigned char) *buf++) << 8;
+    siz = (siz + (size_t) (unsigned char) *buf++) << 8;
+    siz = siz + (size_t) (unsigned char) *buf++;
 
-    o = (char *) malloc(s + 1);
-    memcpy(o, b, s);
-    o[s] = '\0'; 
+    o = (char *) malloc(siz + 1);
+    memcpy(o, buf, siz);
+    o[siz] = '\0'; 
 
-    return b + s;
+    return buf + siz;
   }
 
   template <>

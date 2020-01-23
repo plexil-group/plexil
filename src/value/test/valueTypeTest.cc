@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,6 @@
 
 #include "TestSupport.hh"
 #include "ValueType.hh"
-
-#include <cstring>
 
 using namespace PLEXIL;
 

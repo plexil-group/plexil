@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -97,32 +97,30 @@ namespace PLEXIL
     };
 
   // Type name string constants
-  constexpr char const *BOOLEAN_STR = "Boolean";
-  constexpr char const *INTEGER_STR = "Integer";
-  constexpr char const *REAL_STR = "Real";
-  constexpr char const *DATE_STR = "Date";
-  constexpr char const *DURATION_STR = "Duration";
-  constexpr char const *STRING_STR = "String";
-  constexpr char const *ARRAY_STR = "Array";
-  constexpr char const *BOOLEAN_ARRAY_STR = "BooleanArray";
-  constexpr char const *INTEGER_ARRAY_STR = "IntegerArray";
-  constexpr char const *REAL_ARRAY_STR = "RealArray";
-  constexpr char const *STRING_ARRAY_STR = "StringArray";
-  constexpr char const *STATE_STR = "State";
-  constexpr char const *NODE_STATE_STR = "NodeState";
-  constexpr char const *NODE_OUTCOME_STR = "NodeOutcome";
-  constexpr char const *NODE_FAILURE_STR = "NodeFailure";
-  constexpr char const *NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
+  constexpr char const BOOLEAN_STR[] = "Boolean";
+  constexpr char const INTEGER_STR[] = "Integer";
+  constexpr char const REAL_STR[] = "Real";
+  constexpr char const DATE_STR[] = "Date";
+  constexpr char const DURATION_STR[] = "Duration";
+  constexpr char const STRING_STR[] = "String";
+  constexpr char const ARRAY_STR[] = "Array";
+  constexpr char const BOOLEAN_ARRAY_STR[] = "BooleanArray";
+  constexpr char const INTEGER_ARRAY_STR[] = "IntegerArray";
+  constexpr char const REAL_ARRAY_STR[] = "RealArray";
+  constexpr char const STRING_ARRAY_STR[] = "StringArray";
+  constexpr char const STATE_STR[] = "State";
+  constexpr char const NODE_STATE_STR[] = "NodeState";
+  constexpr char const NODE_OUTCOME_STR[] = "NodeOutcome";
+  constexpr char const NODE_FAILURE_STR[] = "NodeFailure";
+  constexpr char const NODE_COMMAND_HANDLE_STR[] = "NodeCommandHandle";
 
-  constexpr char const *VAL_SUFFIX = "Value";
-  constexpr char const *VAR_SUFFIX = "Variable";
+  constexpr char const VAL_SUFFIX[] = "Value";
+  constexpr char const VAR_SUFFIX[] = "Variable";
 
-  constexpr char const *UNKNOWN_STR = "UNKNOWN";
+  constexpr char const UNKNOWN_STR[] = "UNKNOWN";
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
-  // still used by XML parser for array initialization
-  const std::string &typeNameAsValue(ValueType ty);
 
   extern bool isUserType(ValueType ty);
   extern bool isInternalType(ValueType ty);
@@ -153,12 +151,10 @@ namespace PLEXIL
    * @note If false, the result variable will not be modified.
    */
   template <typename T>
-  bool parseValue(char const *s, T &result)
-    throw (ParserException);
+  bool parseValue(char const *s, T &result);
 
   template <typename T>
   bool parseValue(std::string const &s, T &result)
-    throw (ParserException)
   {
     return parseValue<T>(s.c_str(), result);
   }

@@ -29,8 +29,11 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#include <cstring> // memcpy()
 #include <memory>  // std::move()
+
+#ifdef STDC_HEADERS
+#include <cstring> // memcpy()
+#endif
 
 namespace PLEXIL
 {
@@ -239,18 +242,16 @@ namespace PLEXIL
   template <typename T>
   Value ArrayImpl<T>::getElementValue(size_t index) const
   {
-    if (!(this->checkIndex(index) && this->m_known[index]))
-      return Value(); // unknown
-    else
+    if (this->checkIndex(index) && this->m_known[index])
       return Value(m_contents[index]);
+    return Value(); // unknown
   }
 
   Value ArrayImpl<String>::getElementValue(size_t index) const
   {
-    if (!(this->checkIndex(index) && this->m_known[index]))
-      return Value(); // unknown
-    else
+    if (this->checkIndex(index) && this->m_known[index])
       return Value(m_contents[index]);
+    return Value(); // unknown
   }
 
   template <typename T>
@@ -373,9 +374,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayImpl<T>::print(std::ostream &s) const
+  void ArrayImpl<T>::print(std::ostream &str) const
   {
-    s << "#(";
+    str << "#(";
 
     size_t len = this->size();
     size_t i = 0;
@@ -383,20 +384,20 @@ namespace PLEXIL
     while (i < len) {
       T temp;
       if (getElement(i, temp))
-        printValue<T>(temp, s);
+        printValue<T>(temp, str);
       else
-        s << "UNKNOWN";
+        str << "UNKNOWN";
       if (++i < len)
-        s << ' ';
+        str << ' ';
     }
     // Print tail
-    s << ')';
+    str << ')';
   }
 
   // Slight optimization for String
-  void ArrayImpl<String>::print(std::ostream &s) const
+  void ArrayImpl<String>::print(std::ostream &str) const
   {
-    s << "#(";
+    str << "#(";
 
     size_t len = this->size();
     size_t i = 0;
@@ -404,14 +405,14 @@ namespace PLEXIL
     while (i < len) {
       String const *temp;
       if (getElementPointer(i, temp))
-        printValue(*temp, s);
+        printValue(*temp, str);
       else
-        s << "UNKNOWN";
+        str << "UNKNOWN";
       if (++i < len)
-        s << ' ';
+        str << ' ';
     }
     // Print tail
-    s << ')';
+    str << ')';
   }
 
   //
@@ -419,35 +420,35 @@ namespace PLEXIL
   //
 
   template <typename T>
-  bool operator==(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  bool operator==(ArrayImpl<T> const &arya, ArrayImpl<T> const &aryb)
   {
-    if (!(a.getKnownVector() == b.getKnownVector()))
+    if (!(arya.getKnownVector() == aryb.getKnownVector()))
       return false;
     std::vector<T> const *avec, *bvec;
-    a.getContentsVector(avec);
-    b.getContentsVector(bvec);
+    arya.getContentsVector(avec);
+    aryb.getContentsVector(bvec);
     return *avec == *bvec;
   }
 
   // Generic
   template <typename T>
-  bool operator!=(ArrayImpl<T> const &a, Array const &b)
+  bool operator!=(ArrayImpl<T> const &arya, Array const &aryb)
   {
-    return !(a == b);
+    return !(arya == aryb);
   }
 
   // Specific
   template <typename T>
-  bool operator!=(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  bool operator!=(ArrayImpl<T> const &arya, ArrayImpl<T> const &aryb)
   {
-    return !(a == b);
+    return !(arya == aryb);
   }
 
   template <typename T>
-  bool operator<(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  bool operator<(ArrayImpl<T> const &arya, ArrayImpl<T> const &aryb)
   {
-    std::vector<bool> const &aKnownVec = a.getKnownVector();
-    std::vector<bool> const &bKnownVec = b.getKnownVector();
+    std::vector<bool> const &aKnownVec = arya.getKnownVector();
+    std::vector<bool> const &bKnownVec = aryb.getKnownVector();
     // Shorter is less
     size_t aSize = aKnownVec.size();
     size_t bSize = bKnownVec.size();
@@ -458,8 +459,8 @@ namespace PLEXIL
 
     // Same size
     std::vector<T> const *aVec, *bVec;
-    a.getContentsVector(aVec);
-    b.getContentsVector(bVec);
+    arya.getContentsVector(aVec);
+    aryb.getContentsVector(bVec);
 
     for (size_t i = 0; i < aSize; ++i) {
       // Unknown is less than known
@@ -483,10 +484,10 @@ namespace PLEXIL
 
   // Specialization for bool
   template <>
-  bool operator< <Boolean>(ArrayImpl<Boolean> const &a, ArrayImpl<Boolean> const &b)
+  bool operator< <Boolean>(ArrayImpl<Boolean> const &arya, ArrayImpl<Boolean> const &aryb)
   {
-    std::vector<bool> const &aKnownVec = a.getKnownVector();
-    std::vector<bool> const &bKnownVec = b.getKnownVector();
+    std::vector<bool> const &aKnownVec = arya.getKnownVector();
+    std::vector<bool> const &bKnownVec = aryb.getKnownVector();
     // Shorter is less
     size_t aSize = aKnownVec.size();
     size_t bSize = bKnownVec.size();
@@ -497,8 +498,8 @@ namespace PLEXIL
 
     // Same size
     std::vector<Boolean> const *aVec, *bVec;
-    a.getContentsVector(aVec);
-    b.getContentsVector(bVec);
+    arya.getContentsVector(aVec);
+    aryb.getContentsVector(bVec);
 
     for (size_t i = 0; i < aSize; ++i) {
       // Unknown is less than known
@@ -521,29 +522,29 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool operator<=(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  bool operator<=(ArrayImpl<T> const &arya, ArrayImpl<T> const &aryb)
   {
-    return !(b < a);
+    return !(aryb < arya);
   }
 
   template <typename T>
-  bool operator>(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  bool operator>(ArrayImpl<T> const &arya, ArrayImpl<T> const &aryb)
   {
-    return b < a;
+    return aryb < arya;
   }
 
   template <typename T>
-  bool operator>=(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  bool operator>=(ArrayImpl<T> const &arya, ArrayImpl<T> const &aryb)
   {
-    return !(a < b);
+    return !(arya < aryb);
   }
 
 
   template <typename T>
-  std::ostream &operator<<(std::ostream &s, ArrayImpl<T> const &ary)
+  std::ostream &operator<<(std::ostream &str, ArrayImpl<T> const &ary)
   {
-    ary.print(s);
-    return s;
+    ary.print(str);
+    return str;
   }
 
   //
@@ -552,21 +553,21 @@ namespace PLEXIL
 
   // Internal template
   template <typename T>
-  size_t elementSerialSize(T const &o)
+  size_t elementSerialSize(T const & /* o */)
   {
     return 0;
   }
 
   // Internal template
   template <typename T>
-  char *serializeElement(T const &o, char *b)
+  char *serializeElement(T const & /* o */, char * /* buf */)
   {
     return NULL;
   }
 
   // Internal template
   template <typename T>
-  char const *deserializeElement(T &o, char const *b)
+  char const *deserializeElement(T & /* o */, char const * /* buf */)
   {
     return NULL;
   }
@@ -576,17 +577,17 @@ namespace PLEXIL
   //
 
   template <>
-  char *serializeElement<Boolean>(Boolean const &o, char *b)
+  char *serializeElement<Boolean>(Boolean const &val, char *buf)
   {
-    *b++ = (char) o;
-    return b;
+    *buf++ = (char) val;
+    return buf;
   }
 
   template <>
-  char const *deserializeElement<Boolean>(Boolean &o, char const *b)
+  char const *deserializeElement<Boolean>(Boolean &val, char const *buf)
   {
-    o = (Boolean) *b++;
-    return b;
+    val = (Boolean) *buf++;
+    return buf;
   }
 
   template <>
@@ -600,25 +601,25 @@ namespace PLEXIL
   //
 
   template <>
-  char *serializeElement<Integer>(Integer const &o, char *b)
+  char *serializeElement<Integer>(Integer const &val, char *buf)
   {
     // Store in big-endian format
-    *b++ = (char) (0xFF & (o >> 24));
-    *b++ = (char) (0xFF & (o >> 16));
-    *b++ = (char) (0xFF & (o >> 8));
-    *b++ = (char) (0xFF & o);
-    return b;
+    *buf++ = (char) (0xFF & (val >> 24));
+    *buf++ = (char) (0xFF & (val >> 16));
+    *buf++ = (char) (0xFF & (val >> 8));
+    *buf++ = (char) (0xFF & val);
+    return buf;
   }
 
   template <>
-  char const *deserializeElement<Integer>(Integer &o, char const *b)
+  char const *deserializeElement<Integer>(Integer &val, char const *buf)
   {
-    uint32_t n = ((uint32_t) (unsigned char) *b++) << 8;
-    n = (n + (uint32_t) (unsigned char) *b++) << 8;
-    n = (n + (uint32_t) (unsigned char) *b++) << 8;
-    n = (n + (uint32_t) (unsigned char) *b++);
-    o = (Integer) n;
-    return b;
+    uint32_t result = ((uint32_t) (unsigned char) *buf++) << 8;
+    result = (result + (uint32_t) (unsigned char) *buf++) << 8;
+    result = (result + (uint32_t) (unsigned char) *buf++) << 8;
+    result = (result + (uint32_t) (unsigned char) *buf++);
+    val = (Integer) result;
+    return buf;
   }
 
   template <>
@@ -632,42 +633,42 @@ namespace PLEXIL
   //
 
   template <>
-  char *serializeElement<Real>(Real const &o, char *b)
+  char *serializeElement<Real>(Real const &val, char *buf)
   {
     union {
-      Real r;
-      uint64_t l;
+      Real reel;
+      uint64_t lung;
     };
-    r = o;
+    reel = val;
     // Store in big-endian format
-    *b++ = (char) (0xFF & (l >> 56));
-    *b++ = (char) (0xFF & (l >> 48));
-    *b++ = (char) (0xFF & (l >> 40));
-    *b++ = (char) (0xFF & (l >> 32));
-    *b++ = (char) (0xFF & (l >> 24));
-    *b++ = (char) (0xFF & (l >> 16));
-    *b++ = (char) (0xFF & (l >> 8));
-    *b++ = (char) (0xFF & l);
-    return b;
+    *buf++ = (char) (0xFF & (lung >> 56));
+    *buf++ = (char) (0xFF & (lung >> 48));
+    *buf++ = (char) (0xFF & (lung >> 40));
+    *buf++ = (char) (0xFF & (lung >> 32));
+    *buf++ = (char) (0xFF & (lung >> 24));
+    *buf++ = (char) (0xFF & (lung >> 16));
+    *buf++ = (char) (0xFF & (lung >> 8));
+    *buf++ = (char) (0xFF & lung);
+    return buf;
   }
 
   template <>
-  char const *deserializeElement<Real>(Real &o, char const *b)
+  char const *deserializeElement<Real>(Real &val, char const *buf)
   {
     union {
-      Real r;
-      uint64_t l;
+      Real reel;
+      uint64_t lung;
     };
-    l = (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++; l = l << 8;
-    l += (uint64_t) (unsigned char) *b++;
-    o = r;
-    return b;
+    lung = (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++; lung = lung << 8;
+    lung += (uint64_t) (unsigned char) *buf++;
+    val = reel;
+    return buf;
   }
 
   template <>
@@ -681,149 +682,149 @@ namespace PLEXIL
   //
 
   template <>
-  char *serializeElement<String>(String const &o, char *b)
+  char *serializeElement<String>(String const &val, char *buf)
   {
-    size_t s = o.size();
-    if (s > 0xFFFFFF)
+    size_t siz = val.size();
+    if (siz > 0xFFFFFF)
       return NULL; // too big
 
     // Put 3 bytes of size first - std::string may contain embedded NUL
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
-    memcpy(b, o.c_str(), s);
-    return b + s;
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
+    memcpy(buf, val.c_str(), siz);
+    return buf + siz;
   }
 
   template <>
-  char const *deserializeElement<String>(String &o, char const *b)
+  char const *deserializeElement<String>(String &val, char const *buf)
   {
     // Get 3 bytes of size
-    size_t s = ((size_t) (unsigned char) *b++) << 8;
-    s = (s + (size_t) (unsigned char) *b++) << 8;
-    s = s + (size_t) (unsigned char) *b++;
+    size_t siz = ((size_t) (unsigned char) *buf++) << 8;
+    siz = (siz + (size_t) (unsigned char) *buf++) << 8;
+    siz = siz + (size_t) (unsigned char) *buf++;
 
-    o.replace(o.begin(), o.end(), b, s);
-    return b + s;
+    val.replace(val.begin(), val.end(), buf, siz);
+    return buf + siz;
   }
 
   template <>
-  size_t elementSerialSize<String>(String const &o)
+  size_t elementSerialSize<String>(String const &val)
   {
-    return 3 + o.size();
+    return 3 + val.size();
   }
 
   // Internal function
   // Big-endian by bit, little-endian by byte
-  static char *serializeBoolVector(std::vector<bool> const &o, char *b)
+  static char *serializeBoolVector(std::vector<bool> const &val, char *buf)
   {
-    int s = o.size();
+    int siz = val.size();
     size_t i = 0;
-    while (s > 0) {
+    while (siz > 0) {
       uint8_t tmp = 0;
       uint8_t mask = 0x80;
-      switch (s) {
-      default: // s >= 8
-	if (o[i++])
+      switch (siz) {
+      default: // siz >= 8
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 7:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 6:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 5:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 4:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 3:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 2:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	mask = mask >> 1;
 
       case 1:
-	if (o[i++])
+	if (val[i++])
 	  tmp |= mask;
 	break;
       }
 
-      *b++ = tmp;
-      s -= 8;
+      *buf++ = tmp;
+      siz -= 8;
     }
     
-    return b;
+    return buf;
   }
 
   // Internal function
   // Read from buffer in big-endian form
   // Presumes vector size has already been set.
-  static char const *deserializeBoolVector(std::vector<bool> &o, char const *b)
+  static char const *deserializeBoolVector(std::vector<bool> &val, char const *buf)
   {
-    int s = o.size();
+    int siz = val.size();
     size_t i = 0;
-    while (s > 0) {
-      uint8_t tmp = *b++;
+    while (siz > 0) {
+      uint8_t tmp = *buf++;
       uint8_t mask = 0x80;
-      switch (s) {
-      default: // s >= 8
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+      switch (siz) {
+      default: // siz >= 8
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 7:
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 6:
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 5:
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 4:
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 3:
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 2:
-	o[i++] = (tmp & mask) ? true : false;
-	mask = mask >> 1;
+        val[i++] = tmp & mask;
+        mask = mask >> 1;
 
       case 1:
-	o[i++] = (tmp & mask) ? true : false;
-	break;
+        val[i++] = tmp & mask;
+        break;
       }
-      s -= 8;
+      siz -= 8;
     }
-    return b;
+    return buf;
   }
 
   // Internal function
-  static size_t bitVectorSize(size_t n)
+  static size_t bitVectorSize(size_t nbits)
   {
-    size_t result = n / 8; // integer division, rounds towards 0
-    if (n % 8)
+    size_t result = nbits / 8; // integer division, rounds towards 0
+    if (nbits % 8)
       result++;
     return result;
   }
@@ -836,148 +837,148 @@ namespace PLEXIL
    */
 
   template <typename T>
-  char *ArrayImpl<T>::serialize(char *b) const
+  char *ArrayImpl<T>::serialize(char *buf) const
   {
-    size_t s = this->size();
-    if (s > 0xFFFFFF)
+    size_t siz = this->size();
+    if (siz > 0xFFFFFF)
       return NULL; // too big to serialize
 
     // Write type code
-    *b++ = (char) PlexilValueType<T>::arrayValue;
+    *buf++ = (char) PlexilValueType<T>::arrayValue;
 
     // Write 3 bytes of size
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
 
     // Write known vector
-    b = serializeBoolVector(this->m_known, b);
+    buf = serializeBoolVector(this->m_known, buf);
 
     // Write array contents
-    for (size_t i = 0; i < s; ++i) {
-      b = serializeElement(m_contents[i], b);
-      if (!b)
+    for (size_t i = 0; i < siz; ++i) {
+      buf = serializeElement(m_contents[i], buf);
+      if (!buf)
         return NULL; // serializeElement failed
     }
-    return b;
+    return buf;
   }
 
   template <>
-  char *ArrayImpl<Boolean>::serialize(char *b) const
+  char *ArrayImpl<Boolean>::serialize(char *buf) const
   {
-    size_t s = this->size();
-    if (s > 0xFFFFFF)
+    size_t siz = this->size();
+    if (siz > 0xFFFFFF)
       return NULL; // too big to serialize
 
     // Write type code
-    *b++ = BOOLEAN_ARRAY_TYPE;
+    *buf++ = BOOLEAN_ARRAY_TYPE;
 
     // Write 3 bytes of size
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
 
     // Write known vector
-    b = serializeBoolVector(this->m_known, b);
+    buf = serializeBoolVector(this->m_known, buf);
 
     // Write array contents
-    b = serializeBoolVector(m_contents, b);
+    buf = serializeBoolVector(m_contents, buf);
 
-    return b;
+    return buf;
   }
 
-  char *ArrayImpl<String>::serialize(char *b) const
+  char *ArrayImpl<String>::serialize(char *buf) const
   {
-    size_t s = this->size();
-    if (s > 0xFFFFFF)
+    size_t siz = this->size();
+    if (siz > 0xFFFFFF)
       return NULL; // too big to serialize
 
     // Write type code
-    *b++ = (char) PlexilValueType<String>::arrayValue;
+    *buf++ = (char) PlexilValueType<String>::arrayValue;
 
     // Write 3 bytes of size
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
 
     // Write known vector
-    b = serializeBoolVector(this->m_known, b);
+    buf = serializeBoolVector(this->m_known, buf);
 
     // Write array contents
-    for (size_t i = 0; i < s; ++i) {
-      b = serializeElement(m_contents[i], b);
-      if (!b)
+    for (size_t i = 0; i < siz; ++i) {
+      buf = serializeElement(m_contents[i], buf);
+      if (!buf)
         return NULL; // serializeElement failed
     }
-    return b;
+    return buf;
   }
 
   /**
    * @brief Read a binary representation from the buffer and store it to the result object.
    * @param o The result object.
-   * @param b Pointer to the representation in the buffer.
+   * @param buf Pointer to the representation in the buffer.
    * @return Pointer to first byte after the object; NULL if failed.
    */
 
   // General case
   template <typename T>
-  char const *ArrayImpl<T>::deserialize(char const *b)
+  char const *ArrayImpl<T>::deserialize(char const *buf)
   {
     // Check type code
-    if (PlexilValueType<T>::arrayValue != (ValueType) *b++)
+    if (PlexilValueType<T>::arrayValue != (ValueType) *buf++)
       return NULL; // not an appropriate array
 
     // Get 3 bytes of size
-    size_t s = (size_t) *b++; s = s << 8;
-    s += (size_t) *b++; s = s << 8;
-    s += (size_t) *b++;
+    size_t siz = (size_t) *buf++; siz = siz << 8;
+    siz += (size_t) *buf++; siz = siz << 8;
+    siz += (size_t) *buf++;
     
-    this->resize(s);
+    this->resize(siz);
     
-    b = deserializeBoolVector(this->m_known, b);
-    for (size_t i = 0; i < s; ++i)
-      b = deserializeElement(m_contents[i], b);
+    buf = deserializeBoolVector(this->m_known, buf);
+    for (size_t i = 0; i < siz; ++i)
+      buf = deserializeElement(m_contents[i], buf);
 
-    return b;
+    return buf;
   }
 
   // Special case for Boolean
   template <>
-  char const *ArrayImpl<Boolean>::deserialize(char const *b)
+  char const *ArrayImpl<Boolean>::deserialize(char const *buf)
   {
-    if (BOOLEAN_ARRAY_TYPE != (ValueType) *b++)
+    if (BOOLEAN_ARRAY_TYPE != (ValueType) *buf++)
       return NULL; // not a Boolean array
 
     // Get 3 bytes of size
-    size_t s = (size_t) *b++; s = s << 8;
-    s += (size_t) *b++; s = s << 8;
-    s += (size_t) *b++;
-    this->resize(s);
+    size_t siz = (size_t) *buf++; siz = siz << 8;
+    siz += (size_t) *buf++; siz = siz << 8;
+    siz += (size_t) *buf++;
+    this->resize(siz);
     
-    b = deserializeBoolVector(this->m_known, b);
-    b = deserializeBoolVector(m_contents, b);
+    buf = deserializeBoolVector(this->m_known, buf);
+    buf = deserializeBoolVector(m_contents, buf);
     
-    return b;
+    return buf;
   }
 
-  char const *ArrayImpl<String>::deserialize(char const *b)
+  char const *ArrayImpl<String>::deserialize(char const *buf)
   {
     // Check type code
-    if (PlexilValueType<String>::arrayValue != (ValueType) *b++)
+    if (PlexilValueType<String>::arrayValue != (ValueType) *buf++)
       return NULL; // not an appropriate array
 
     // Get 3 bytes of size
-    size_t s = (size_t) *b++; s = s << 8;
-    s += (size_t) *b++; s = s << 8;
-    s += (size_t) *b++;
+    size_t siz = (size_t) *buf++; siz = siz << 8;
+    siz += (size_t) *buf++; siz = siz << 8;
+    siz += (size_t) *buf++;
     
-    this->resize(s);
+    this->resize(siz);
     
-    b = deserializeBoolVector(this->m_known, b);
-    for (size_t i = 0; i < s; ++i)
-      b = deserializeElement(m_contents[i], b);
+    buf = deserializeBoolVector(this->m_known, buf);
+    for (size_t i = 0; i < siz; ++i)
+      buf = deserializeElement(m_contents[i], buf);
 
-    return b;
+    return buf;
   }
 
   /**
@@ -991,8 +992,8 @@ namespace PLEXIL
   size_t ArrayImpl<NUM>::serialSize() const
   {
     NUM const dummy = 0;
-    size_t s = this->size();
-    return 4 + bitVectorSize(s) + s * elementSerialSize(dummy);
+    size_t siz = this->size();
+    return 4 + bitVectorSize(siz) + siz * elementSerialSize(dummy);
   }
 
   template <>
@@ -1004,9 +1005,9 @@ namespace PLEXIL
   // Requires traversing entire array
   size_t ArrayImpl<String>::serialSize() const
   {
-    size_t s = this->size();
-    size_t result = 4 + bitVectorSize(s);
-    for (size_t i = 0; i < s; ++i)
+    size_t siz = this->size();
+    size_t result = 4 + bitVectorSize(siz);
+    for (size_t i = 0; i < siz; ++i)
       result += 3 + m_contents[i].size();
     return result;
   }
@@ -1018,11 +1019,11 @@ namespace PLEXIL
   // Seems template functions can't be partially specialized. Fooey.
 
 #define DEF_ARRAY_SERDES_WRAPPERS(typ) \
-  template <> char *serialize(ArrayImpl<typ> const &o, char *b)	\
-  {return o.serialize(b);} \
+  template <> char *serialize(ArrayImpl<typ> const &o, char *buf)	\
+  {return o.serialize(buf);} \
 \
-  template <> char const *deserialize(ArrayImpl<typ> &o, char const *b) \
-  {return o.deserialize(b);} \
+  template <> char const *deserialize(ArrayImpl<typ> &o, char const *buf) \
+  {return o.deserialize(buf);} \
 \
   template <> size_t serialSize(ArrayImpl<typ> const &o) \
   {return o.serialSize();}

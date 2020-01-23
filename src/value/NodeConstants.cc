@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -84,11 +84,11 @@ namespace PLEXIL
     return NO_NODE_STATE;
   }
 
-  std::string const &nodeStateName(NodeState s)
+  std::string const &nodeStateName(NodeState state)
   {
-    if (s >= NODE_STATE_MAX)
+    if (state >= NODE_STATE_MAX)
       return ALL_STATE_NAMES[NO_NODE_STATE];
-    return ALL_STATE_NAMES[s];
+    return ALL_STATE_NAMES[state];
   }
 
   bool isNodeStateValid(unsigned int val)
@@ -109,11 +109,11 @@ namespace PLEXIL
     return NO_OUTCOME;
   }
 
-  std::string const &outcomeName(NodeOutcome o)
+  std::string const &outcomeName(NodeOutcome outcome)
   {
-    if (o <= NO_OUTCOME || o >= OUTCOME_MAX)
+    if (outcome <= NO_OUTCOME || outcome >= OUTCOME_MAX)
       return ALL_OUTCOME_NAMES[0];
-    return ALL_OUTCOME_NAMES[o - NO_OUTCOME];
+    return ALL_OUTCOME_NAMES[outcome - NO_OUTCOME];
   }
 
   bool isNodeOutcomeValid(unsigned int val)
@@ -134,11 +134,11 @@ namespace PLEXIL
     return NO_FAILURE;
   }
 
-  std::string const &failureTypeName(FailureType f)
+  std::string const &failureTypeName(FailureType fail)
   {
-    if (f <= NO_FAILURE || f >= FAILURE_TYPE_MAX)
+    if (fail <= NO_FAILURE || fail >= FAILURE_TYPE_MAX)
       return ALL_FAILURE_NAMES[0];
-    return ALL_FAILURE_NAMES[f - NO_FAILURE];
+    return ALL_FAILURE_NAMES[fail - NO_FAILURE];
   }
 
   bool isFailureTypeValid(unsigned int val)

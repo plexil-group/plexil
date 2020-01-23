@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,16 +52,16 @@ namespace PLEXIL
     return NO_COMMAND_HANDLE;
   }
 
-  std::string const &commandHandleValueName(CommandHandleValue c)
+  std::string const &commandHandleValueName(CommandHandleValue handle)
   {
-    if (c <= NO_COMMAND_HANDLE || c >= COMMAND_HANDLE_MAX)
+    if (handle <= NO_COMMAND_HANDLE || handle >= COMMAND_HANDLE_MAX)
       return ALL_COMMAND_HANDLE_NAMES[0];
-    return ALL_COMMAND_HANDLE_NAMES[c - NO_COMMAND_HANDLE];
+    return ALL_COMMAND_HANDLE_NAMES[handle - NO_COMMAND_HANDLE];
   }
 
   bool isCommandHandleValid(unsigned int val)
   {
-    return (val > NO_COMMAND_HANDLE && val < COMMAND_HANDLE_MAX);
+    return val > NO_COMMAND_HANDLE && val < COMMAND_HANDLE_MAX;
   }
 
 } // namespace PLEXIL
