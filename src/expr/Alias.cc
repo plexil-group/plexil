@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,10 @@
 #include "Error.hh"
 #include "Value.hh"
 
+#ifdef STDC_HEADERS
 #include <cstdlib> // free()
 #include <cstring> // strdup()
+#endif
 
 namespace PLEXIL
 {
@@ -37,13 +39,11 @@ namespace PLEXIL
   // Alias
   //
 
-  Alias::Alias(NodeConnector *node,
-               char const *name,
+  Alias::Alias(char const *name,
                Expression *original,
                bool garbage)
-    : NotifierImpl(),
+    : Propagator(),
       m_exp(original),
-      m_node(node),
       m_name(strdup(name)),
       m_garbage(garbage)
   {
@@ -51,7 +51,6 @@ namespace PLEXIL
 
   Alias::~Alias()
   {
-    m_exp->removeListener(this);
     if (m_garbage)
       delete m_exp;
     free((void *)m_name);
@@ -87,11 +86,6 @@ namespace PLEXIL
     return m_exp->isConstant();
   }
 
-  bool Alias::isPropagationSource() const
-  {
-    return false;
-  }
-
   Expression *Alias::getBaseExpression()
   {
     return m_exp->getBaseExpression();
@@ -102,9 +96,9 @@ namespace PLEXIL
     return m_exp->getBaseExpression();
   }
 
-  void Alias::printValue(std::ostream &s) const
+  void Alias::printValue(std::ostream &str) const
   {
-    m_exp->printValue(s);
+    m_exp->printValue(str);
   }
 
   bool Alias::getValue(Boolean &var) const
@@ -182,9 +176,9 @@ namespace PLEXIL
     return m_exp->toValue();
   }
 
-  void Alias::doSubexprs(std::function<void(Expression *)> const &f)
+  void Alias::doSubexprs(ListenableUnaryOperator const &func)
   {
-    (f)(m_exp);
+    (func)(m_exp);
   }
 
 

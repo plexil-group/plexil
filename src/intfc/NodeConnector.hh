@@ -24,77 +24,34 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CommandHandleVariable.hh"
+#ifndef NODE_CONNECTOR_HH
+#define NODE_CONNECTOR_HH
 
-#include "Command.hh"
+#include "plexil-config.h" // ???
 
-#ifdef STDC_HEADERS
-#include <cstdlib> // free()
-#include <cstring> // strdup()
-#endif
+#include <string>
 
 namespace PLEXIL
 {
+  // Forward reference
+  class Expression;
 
-  //
-  // CommandHandleVariable
-  //
+  /**
+   * @class NodeConnector
+   * @brief Represents the part of the Node API needed by the expression subsystem.
+   */
 
-  CommandHandleVariable::CommandHandleVariable(Command const &cmd)
-    : Notifier(),
-    m_command(cmd),
-    m_name(NULL)
+  class NodeConnector 
   {
-  }
+  public:
+    NodeConnector() = default;
+    virtual ~NodeConnector() = default;
 
-  CommandHandleVariable::~CommandHandleVariable()
-  {
-    free((void *) m_name);
-  }
-
-  bool CommandHandleVariable::isPropagationSource() const
-  {
-    return true;
-  }
-
-  char const *CommandHandleVariable::getName() const
-  {
-    if (m_name)
-      return m_name;
-    return "";
-  }
-
-  void CommandHandleVariable::setName(std::string const &name)
-  {
-    if (m_name)
-      free((void *) m_name);
-    m_name = strdup(name.c_str());
-  }
-
-  bool CommandHandleVariable::isKnown() const
-  {
-    return NO_COMMAND_HANDLE != m_command.getCommandHandle();
-  }
-
-  bool CommandHandleVariable::getValue(CommandHandleValue &result) const
-  {
-    if (!isActive())
-      return false;
-    CommandHandleValue handle = m_command.getCommandHandle();
-    if (handle == NO_COMMAND_HANDLE)
-      return false;
-    result = handle;
-    return true;
-  }
-  
-  void CommandHandleVariable::printValue(std::ostream &str) const
-  {
-    CommandHandleValue handle;
-    if (!isActive()
-        || (handle = m_command.getCommandHandle()) == NO_COMMAND_HANDLE)
-      str << "[unknown_value]";
-    else
-      str << commandHandleValueName(handle);
-  }
+    // Used by parser tests
+    virtual std::string const &getNodeId() const = 0;
+    virtual Expression *findVariable(char const *name) = 0;
+  };
 
 } // namespace PLEXIL
+
+#endif // NODE_CONNECTOR_HH

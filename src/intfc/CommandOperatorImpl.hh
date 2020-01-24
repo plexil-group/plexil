@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,43 +24,70 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef NODE_CONNECTOR_HH
-#define NODE_CONNECTOR_HH
+#ifndef PLEXIL_COMMAND_OPERATOR_IMPL_HH
+#define PLEXIL_COMMAND_OPERATOR_IMPL_HH
 
-#include "ValueType.hh"
+#include "CommandOperator.hh"
 
-#include <string>
+#include "Value.hh"
 
 namespace PLEXIL
 {
-  // Forward references
-  class Expression;
-  class Node;
+  class Command;
 
-  // NOTE: this used to be 100000000, which somehow gets printed as
-  // scientific notation in XML and doesn't parse correctly.
-  const Integer WORST_PRIORITY = 100000;
-
-  /**
-   * @class NodeConnector
-   * @brief Represents the part of the Node API needed by the expression subsystem.
-   */
-
-  class NodeConnector 
+  template <typename R>
+  class CommandOperatorImpl : public CommandOperator
   {
   public:
+    virtual ~CommandOperatorImpl()
+    {
+    }
 
-    virtual ~NodeConnector() {}
+    // Default methods, based on R
+    ValueType valueType() const;
 
-    virtual Expression *findVariable(char const *name) = 0;
-    virtual std::string const &getNodeId() const = 0;
-    virtual Node const *findChild(char const * childName) const = 0;
-    virtual Node *findChild(char const * childName) = 0;
-    virtual Node *getParent() = 0;
-    virtual Node const *getParent() const = 0;
-    virtual Integer getPriority() const = 0;
+    // Not needed for Boolean, Integer, Real, internal values
+    void *allocateCache() const
+    {
+      return NULL;
+    }
+
+    void deleteCache(void *ptr) const
+    {
+    }
+
+    bool isKnown(Command const *command) const;
+    void printValue(std::ostream &s, Command const *command) const;
+    Value toValue(Command const *command) const;
+
+  protected:
+
+    // Base class shouldn't be instantiated by itself
+    CommandOperatorImpl(std::string const &name)
+      : CommandOperator(name)
+    {
+    }
+
+  private:
+
+    // Unimplemented
+    CommandOperatorImpl();
+    CommandOperatorImpl(CommandOperatorImpl const &);
+    CommandOperatorImpl &operator=(CommandOperatorImpl const &);
+
   };
 
 } // namespace PLEXIL
 
-#endif // NODE_CONNECTOR_HH
+/**
+ * @brief Helper macro, intended to implement "boilerplate" singleton accessors
+ *        for classes derived from CommandOperatorImpl<R>.
+ */
+#define DECLARE_COMMAND_OPERATOR_STATIC_INSTANCE(CLASS) \
+  static PLEXIL::CommandOperator const *instance() \
+  { \
+    static CLASS const sl_instance; \
+    return static_cast<PLEXIL::CommandOperator const *>(&sl_instance); \
+  }
+
+#endif // PLEXIL_COMMAND_OPERATOR_IMPL_HH

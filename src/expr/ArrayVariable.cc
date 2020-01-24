@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,21 +32,22 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
+#ifdef STDC_HEADERS
 #include <cstdlib> // free()
 #include <cstring> // strdup()
+#endif
 
 namespace PLEXIL
 {
 
   ArrayVariable::ArrayVariable()
-    : NotifierImpl(),
+    : Notifier(),
       m_value(),
       m_savedValue(),
       m_size(nullptr),
       m_initializer(nullptr),
       m_name(nullptr),
       m_maxSize(0),
-      m_node(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -56,18 +57,16 @@ namespace PLEXIL
   {
   }
 
-  ArrayVariable::ArrayVariable(NodeConnector *node,
-                               char const *name,
+  ArrayVariable::ArrayVariable(char const *name,
                                Expression *size,
                                bool sizeIsGarbage)
-    : NotifierImpl(),
+    : Notifier(),
       m_value(),
       m_savedValue(),
       m_size(size),
       m_initializer(nullptr),
       m_name(strdup(name)),
       m_maxSize(0),
-      m_node(node),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
@@ -86,6 +85,11 @@ namespace PLEXIL
       delete m_initializer;
     if (m_sizeIsGarbage)
       delete m_size;
+  }
+
+  bool ArrayVariable::isPropagationSource() const
+  {
+    return true;
   }
 
   //
@@ -111,8 +115,7 @@ namespace PLEXIL
   {
     if (m_name)
       return m_name;
-    static char const *sl_anon = "anonymous";
-    return sl_anon;
+    return "anonymous";
   }
 
   const char *ArrayVariable::exprName() const
@@ -188,11 +191,11 @@ namespace PLEXIL
       m_size->deactivate();
   }
 
-  void ArrayVariable::printSpecialized(std::ostream &s) const
+  void ArrayVariable::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
+    str << getName() << ' ';
     if (m_size)
-      s << "size = " << m_maxSize << ' ';
+      str << "size = " << m_maxSize << ' ';
   }
 
   void ArrayVariable::setUnknown()
@@ -218,18 +221,7 @@ namespace PLEXIL
   {
     if (m_savedValue)
       return Value(*m_savedValue);
-    else
-      return Value();
-  }
-
-  NodeConnector const *ArrayVariable::getNode() const
-  {
-    return m_node;
-  }
-
-  NodeConnector *ArrayVariable::getNode()
-  {
-    return m_node;
+    return Value();
   }
 
   Expression *ArrayVariable::getBaseVariable()
@@ -281,17 +273,16 @@ namespace PLEXIL
 
   bool ArrayVariable::elementIsKnown(size_t idx) const
   {
-    if (!this->isActive() || !m_known)
-      return false;
-    return m_value->elementKnown(idx);
+    if (this->isActive() && m_known)
+      return m_value->elementKnown(idx);
+    return false;
   }
 
 #define DEFINE_GET_ELEMENT_TYPE_ERROR_METHOD(_TYPE_) \
   bool ArrayVariable::getElement(size_t /* idx */, _TYPE_ & /* result */) const \
   { \
-    checkPlanError(ALWAYS_FAIL, \
-                   "Can't get element of type " << PlexilValueType<_TYPE_>::typeName \
-                   << " from a " << valueTypeName(arrayElementType(valueType())) << " array"); \
+    reportPlanError("Can't get element of type " << PlexilValueType<_TYPE_>::typeName \
+                    << " from a " << valueTypeName(arrayElementType(valueType())) << " array"); \
     return false; \
   }
 
@@ -304,9 +295,8 @@ namespace PLEXIL
 
   bool ArrayVariable::getElementPointer(size_t /* idx */, String const *& /* ptr */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Can't get String element from a "
-                   << valueTypeName(arrayElementType(valueType())) << " array");
+    reportPlanError("Can't get String element from a "
+                    << valueTypeName(arrayElementType(valueType())) << " array");
     return false;
   }
 
@@ -359,30 +349,27 @@ namespace PLEXIL
   }
 
   template <typename T>
-  ArrayVariableImpl<T>::ArrayVariableImpl(NodeConnector *node,
-                                          char const *name,
+  ArrayVariableImpl<T>::ArrayVariableImpl(char const *name,
                                           Expression *size,
                                           bool sizeIsGarbage)
     : GetValueImpl<ArrayImpl<T> >(),
-    ArrayVariable(node, name, size, sizeIsGarbage)
+    ArrayVariable(name, size, sizeIsGarbage)
   {
   }
 
-  ArrayVariableImpl<Integer>::ArrayVariableImpl(NodeConnector *node,
-                                                char const *name,
+  ArrayVariableImpl<Integer>::ArrayVariableImpl(char const *name,
                                                 Expression *size,
                                                 bool sizeIsGarbage)
     : GetValueImpl<ArrayImpl<Integer> >(),
-    ArrayVariable(node, name, size, sizeIsGarbage)
+    ArrayVariable(name, size, sizeIsGarbage)
   {
   }
 
-  ArrayVariableImpl<String>::ArrayVariableImpl(NodeConnector *node,
-                                                char const *name,
-                                                Expression *size,
-                                                bool sizeIsGarbage)
+  ArrayVariableImpl<String>::ArrayVariableImpl(char const *name,
+                                               Expression *size,
+                                               bool sizeIsGarbage)
     : GetValueImpl<ArrayImpl<String> >(),
-    ArrayVariable(node, name, size, sizeIsGarbage)
+    ArrayVariable(name, size, sizeIsGarbage)
   {
   }
 
@@ -610,8 +597,7 @@ namespace PLEXIL
       result = (Real) temp;
       return true;
     }
-    else
-      return false;
+    return false;
   }
 
   bool ArrayVariableImpl<String>::getElement(size_t idx, String &result) const
@@ -629,9 +615,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayVariableImpl<T>::setValueImpl(Array const *a)
+  void ArrayVariableImpl<T>::setValueImpl(Array const *aryVal)
   {
-    ArrayImpl<T> const *ary = dynamic_cast<ArrayImpl<T> const *>(a);
+    ArrayImpl<T> const *ary = dynamic_cast<ArrayImpl<T> const *>(aryVal);
     checkPlanError(ary,
                    "Assigning wrong type array to " << this->getName());
 
@@ -665,9 +651,9 @@ namespace PLEXIL
       publishChange();
   }
 
-  void ArrayVariableImpl<Integer>::setValueImpl(Array const *a)
+  void ArrayVariableImpl<Integer>::setValueImpl(Array const *aryVal)
   {
-    ArrayImpl<Integer> const *ary = dynamic_cast<ArrayImpl<Integer> const *>(a);
+    ArrayImpl<Integer> const *ary = dynamic_cast<ArrayImpl<Integer> const *>(aryVal);
     checkPlanError(ary,
                    "Assigning wrong type array to " << this->getName());
 
@@ -697,9 +683,9 @@ namespace PLEXIL
       publishChange();
   }
 
-  void ArrayVariableImpl<String>::setValueImpl(Array const *a)
+  void ArrayVariableImpl<String>::setValueImpl(Array const *aryVal)
   {
-    ArrayImpl<String> const *ary = dynamic_cast<ArrayImpl<String> const *>(a);
+    ArrayImpl<String> const *ary = dynamic_cast<ArrayImpl<String> const *>(aryVal);
     checkPlanError(ary,
                    "Assigning wrong type array to " << this->getName());
 
@@ -733,7 +719,7 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariableImpl<T>::restoreSavedValue()
   {
-    bool changed = (m_known != m_savedKnown);
+    bool changed = m_known != m_savedKnown;
     if (m_known && m_savedKnown
         && !equals(m_savedValue.get())) {
       changed = true;
@@ -749,7 +735,7 @@ namespace PLEXIL
 
   void ArrayVariableImpl<Integer>::restoreSavedValue()
   {
-    bool changed = (m_known != m_savedKnown);
+    bool changed = m_known != m_savedKnown;
     if (m_known && m_savedKnown
         && !equals(m_savedValue.get())) {
       changed = true;
@@ -765,7 +751,7 @@ namespace PLEXIL
 
   void ArrayVariableImpl<String>::restoreSavedValue()
   {
-    bool changed = (m_known != m_savedKnown);
+    bool changed = m_known != m_savedKnown;
     if (m_known && m_savedKnown
         && !equals(m_savedValue.get())) {
       changed = true;

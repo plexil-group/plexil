@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -181,89 +181,6 @@ namespace PLEXIL
   private:
     SquareRoot(const SquareRoot &);
     SquareRoot &operator=(const SquareRoot &);
-  };
-
-
-  //
-  // Real to Integer conversions
-  //
-
-  template <typename NUM>
-  class Ceiling : public OperatorImpl<NUM>
-  {
-  public:
-    Ceiling();
-    ~Ceiling();
-    bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling<NUM>, NUM);
-
-  private:
-    Ceiling(const Ceiling &);
-    Ceiling &operator=(const Ceiling &);
-  };
-
-  template <typename NUM>
-  class Floor : public OperatorImpl<NUM>
-  {
-  public:
-    Floor();
-    ~Floor();
-    bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Floor<NUM>, NUM);
-
-  private:
-    Floor(const Floor &);
-    Floor &operator=(const Floor &);
-  };
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
-
-  template <typename NUM>
-  class Round : public OperatorImpl<NUM>
-  {
-  public:
-    Round();
-    ~Round();
-    bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Round<NUM>, NUM);
-
-  private:
-    Round(const Round &);
-    Round &operator=(const Round &);
-  };
-
-  template <typename NUM>
-  class Truncate : public OperatorImpl<NUM>
-  {
-  public:
-    Truncate();
-    ~Truncate();
-    bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(Truncate<NUM>, NUM);
-
-  private:
-    Truncate(const Truncate &);
-    Truncate &operator=(const Truncate &);
-  };
-#endif // !defined(__VXWORKS__)
-
-  class RealToInteger : public OperatorImpl<Integer>
-  {
-  public:
-    RealToInteger();
-    ~RealToInteger();
-    bool checkArgCount(size_t count) const;
-    bool checkArgTypes(Function const *ev) const;
-    bool calc(Integer &result, Expression const *arg) const;
-    DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, Integer);
-
-  private:
-    RealToInteger(const RealToInteger &);
-    RealToInteger &operator=(const RealToInteger &);
   };
 
 }

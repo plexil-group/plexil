@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ namespace PLEXIL
   //*
   // @class GetValueImpl
   template <typename T>
-  class GetValueImpl : public virtual Expression
+  class GetValueImpl : virtual public Expression
   {
   protected:
     GetValueImpl() = default;
@@ -81,7 +81,7 @@ namespace PLEXIL
 
   // Specialization for Integer
   template <>
-  class GetValueImpl<Integer> : public virtual Expression
+  class GetValueImpl<Integer> : virtual public Expression
   {
   protected:
     GetValueImpl() = default;
@@ -134,7 +134,7 @@ namespace PLEXIL
 
   // Specialization for string
   template <>
-  class GetValueImpl<String> : public virtual Expression
+  class GetValueImpl<String> : virtual public Expression
   {
   protected:
     GetValueImpl() = default;
@@ -186,7 +186,7 @@ namespace PLEXIL
 
   // Specialization for array types
   template <typename T>
-  class GetValueImpl<ArrayImpl<T> > : public virtual Expression
+  class GetValueImpl<ArrayImpl<T> > : virtual public Expression
   {
   protected:
     GetValueImpl() = default;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,77 +36,83 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
+#ifdef STDC_HEADERS
 #include <cstdlib> // free()
 #include <cstring> // strdup()
+#endif
 
 namespace PLEXIL
 {
 
   template <typename T>
   UserVariable<T>::UserVariable()
-    : NotifierImpl(),
-    m_initializer(NULL),
-    m_name(NULL),
-    m_node(NULL),
-    m_known(false),
-    m_savedKnown(false)
-  {
-  }
-
-  UserVariable<Integer>::UserVariable()
-    : NotifierImpl(),
-    m_initializer(NULL),
-    m_name(NULL),
-    m_node(NULL),
-    m_known(false),
-    m_savedKnown(false)
+    : Notifier(),
+      m_initializer(nullptr),
+      m_name(nullptr),
+      m_known(false),
+      m_savedKnown(false)
   {
   }
 
   UserVariable<String>::UserVariable()
-    : NotifierImpl(),
-    m_initializer(NULL),
-    m_name(NULL),
-    m_node(NULL),
-    m_known(false),
-    m_savedKnown(false)
+    : Notifier(),
+      m_initializer(nullptr),
+      m_name(nullptr),
+      m_known(false),
+      m_savedKnown(false)
   {
   }
 
   template <typename T>
-  UserVariable<T>::UserVariable(NodeConnector *node,
-                                char const *name)
-    : NotifierImpl(),
-    m_initializer(NULL),
-    m_name(strdup(name)),
-    m_node(node),
-    m_known(false),
-    m_savedKnown(false),
-    m_initializerIsGarbage(false)
+  UserVariable<T>::UserVariable(T const &initVal)
+    : Notifier(),
+      m_initializer(new Constant<T>(initVal)),
+      m_name(nullptr),
+      m_known(false),
+      m_savedKnown(false)
   {
   }
 
-  UserVariable<Integer>::UserVariable(NodeConnector *node,
-                                      char const *name)
-    : NotifierImpl(),
-    m_initializer(NULL),
-    m_name(strdup(name)),
-    m_node(node),
-    m_known(false),
-    m_savedKnown(false),
-    m_initializerIsGarbage(false)
+  UserVariable<String>::UserVariable(String const &initVal)
+    : Notifier(),
+      m_initializer(new Constant<String>(initVal)),
+      m_name(nullptr),
+      m_known(false),
+      m_savedKnown(false),
+      m_initializerIsGarbage(true)
   {
   }
 
-  UserVariable<String>::UserVariable(NodeConnector *node,
-                                     char const *name)
-    : NotifierImpl(),
-    m_initializer(NULL),
-    m_name(strdup(name)),
-    m_node(node),
-    m_known(false),
-    m_savedKnown(false),
-    m_initializerIsGarbage(false)
+  // Only two possible constant initializers for BooleanVariable
+  template <>
+  UserVariable<Boolean>::UserVariable(const Boolean &initVal)
+    : Notifier(),
+      m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
+      m_name(nullptr),
+      m_known(false),
+      m_savedKnown(false),
+      m_initializerIsGarbage(false)
+  {
+  }
+
+  template <typename T>
+  UserVariable<T>::UserVariable(char const *name)
+    : Notifier(),
+      m_initializer(nullptr),
+      m_name(strdup(name)),
+      m_known(false),
+      m_savedKnown(false),
+      m_initializerIsGarbage(false)
+  {
+  }
+
+  UserVariable<String>::UserVariable(char const *name)
+    : Notifier(),
+      m_initializer(nullptr),
+      m_name(strdup(name)),
+      m_known(false),
+      m_savedKnown(false),
+      m_initializerIsGarbage(false)
   {
   }
     
@@ -122,13 +128,6 @@ namespace PLEXIL
       delete m_initializer;
   }
 
-  UserVariable<Integer>::~UserVariable()
-  {
-    free((void *) m_name);
-    if (m_initializerIsGarbage)
-      delete m_initializer;
-  }
-
   UserVariable<String>::~UserVariable()
   {
     free((void *) m_name);
@@ -136,17 +135,25 @@ namespace PLEXIL
       delete m_initializer;
   }
 
+  // Listenable API
+
+  template <typename T>
+  bool UserVariable<T>::isPropagationSource() const
+  {
+    return true;
+  }
+
+  bool UserVariable<String>::isPropagationSource() const
+  {
+    return true;
+  }
+  
   //
   // Essential Expression API
   //
 
   template <typename T>
   bool UserVariable<T>::isAssignable() const
-  {
-    return true;
-  }
-
-  bool UserVariable<Integer>::isAssignable() const
   {
     return true;
   }
@@ -162,11 +169,6 @@ namespace PLEXIL
     return static_cast<Assignable const *>(this);
   }
 
-  Assignable const *UserVariable<Integer>::asAssignable() const
-  {
-    return static_cast<Assignable const *>(this);
-  }
-
   Assignable const *UserVariable<String>::asAssignable() const
   {
     return static_cast<Assignable const *>(this);
@@ -174,11 +176,6 @@ namespace PLEXIL
 
   template <typename T>
   Assignable *UserVariable<T>::asAssignable()
-  {
-    return static_cast<Assignable *>(this);
-  }
-
-  Assignable *UserVariable<Integer>::asAssignable()
   {
     return static_cast<Assignable *>(this);
   }
@@ -193,33 +190,18 @@ namespace PLEXIL
   {
     if (m_name)
       return m_name;
-    static char const *sl_anon = "anonymous";
-    return sl_anon;
-  }
-
-  char const *UserVariable<Integer>::getName() const
-  {
-    if (m_name)
-      return m_name;
-    static char const *sl_anon = "anonymous";
-    return sl_anon;
+    return "anonymous";
   }
 
   char const *UserVariable<String>::getName() const
   {
     if (m_name)
       return m_name;
-    static char const *sl_anon = "anonymous";
-    return sl_anon;
+    return "anonymous";
   }
 
   template <typename T>
   const char *UserVariable<T>::exprName() const
-  {
-    return "Variable";
-  }
-
-  const char *UserVariable<Integer>::exprName() const
   {
     return "Variable";
   }
@@ -231,11 +213,6 @@ namespace PLEXIL
 
   template <typename T>
   bool UserVariable<T>::isKnown() const
-  {
-    return this->isActive() && m_known;
-  }
-
-  bool UserVariable<Integer>::isKnown() const
   {
     return this->isActive() && m_known;
   }
@@ -255,15 +232,6 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool UserVariable<Integer>::getValue(Integer &result) const
-  {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
   bool UserVariable<String>::getValue(String &result) const
   {
     if (!this->isActive())
@@ -273,7 +241,7 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool UserVariable<String>::getValuePointer(std::string const *&ptr) const
+  bool UserVariable<String>::getValuePointer(String const *&ptr) const
   {
     if (!this->isActive())
       return false;
@@ -282,24 +250,17 @@ namespace PLEXIL
     return m_known;
   }
 
+  template <typename U>
+  bool UserVariable<String>::getValuePointer(U const *&ptr) const
+  {
+    errorMsg("UserVariable::getValuePointer type error");
+    return false;
+  }
+
   // A variable takes its initial value when activated.
   // If no initializer, its initial value is unknown.
   template <typename T>
   void UserVariable<T>::handleActivate()
-  {
-    m_savedKnown = false;
-
-    if (m_initializer) {
-      m_initializer->activate();
-      m_known = m_initializer->getValue(m_value);
-      if (m_known)
-        publishChange();
-    }
-    else
-      m_known = false;
-  }
-
-  void UserVariable<Integer>::handleActivate()
   {
     m_savedKnown = false;
 
@@ -337,12 +298,6 @@ namespace PLEXIL
       m_initializer->deactivate();
   }
 
-  void UserVariable<Integer>::handleDeactivate()
-  {
-    if (m_initializer)
-      m_initializer->deactivate();
-  }
-
   void UserVariable<String>::handleDeactivate()
   {
     if (m_initializer)
@@ -350,23 +305,37 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void UserVariable<T>::printSpecialized(std::ostream &s) const
+  void UserVariable<T>::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
+    str << getName() << ' ';
   }
 
-  void UserVariable<Integer>::printSpecialized(std::ostream &s) const
+  void UserVariable<String>::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
-  }
-
-  void UserVariable<String>::printSpecialized(std::ostream &s) const
-  {
-    s << getName() << ' ';
+    str << getName() << ' ';
   }
 
   template <typename T>
   void UserVariable<T>::setValue(Value const &val)
+  {
+   T temp;
+   if (val.getValue(temp))
+     setValueImpl(temp);
+   else
+     this->setUnknown();
+  }
+
+  void UserVariable<String>::setValue(Value const &val)
+  {
+   String temp;
+   if (val.getValue(temp))
+     setValueImpl(temp);
+   else
+     this->setUnknown();
+  }
+
+  template <typename T>
+  void UserVariable<T>::setValue(Expression const &val)
   {
     T temp;
     if (val.getValue(temp))
@@ -375,16 +344,7 @@ namespace PLEXIL
       this->setUnknown();
   }
 
-  void UserVariable<Integer>::setValue(Value const &val)
-  {
-    Integer temp;
-    if (val.getValue(temp))
-      setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  void UserVariable<String>::setValue(Value const &val)
+  void UserVariable<String>::setValue(Expression const &val)
   {
     String temp;
     if (val.getValue(temp))
@@ -396,150 +356,81 @@ namespace PLEXIL
   template <typename T>
   void UserVariable<T>::setValueImpl(T const &value)
   {
-    bool changed = !m_known || value != m_value;
-    m_value = value;
-    m_known = true;
-    if (changed)
-      publishChange();
-  }
-
-  void UserVariable<Integer>::setValueImpl(Integer const &value)
-  {
-    bool changed = !m_known || value != m_value;
-    m_value = value;
-    m_known = true;
-    if (changed)
-      publishChange();
+   bool changed = !m_known || value != m_value;
+   m_value = value;
+   m_known = true;
+   if (changed)
+     publishChange();
   }
 
   void UserVariable<String>::setValueImpl(std::string const &value)
   {
-    bool changed = !m_known || value != m_value;
-    m_value = value;
-    m_known = true;
-    if (changed)
-      publishChange();
+   bool changed = !m_known || value != m_value;
+   m_value = value;
+   m_known = true;
+   if (changed)
+     publishChange();
   }
 
   template <typename T>
   void UserVariable<T>::setUnknown()
   {
-    bool changed = m_known;
-    m_known = false;
-    if (changed)
-      publishChange();
-  }
-
-  void UserVariable<Integer>::setUnknown()
-  {
-    bool changed = m_known;
-    m_known = false;
-    if (changed)
-      publishChange();
+   bool changed = m_known;
+   m_known = false;
+   if (changed)
+     publishChange();
   }
 
   void UserVariable<String>::setUnknown()
   {
-    bool changed = m_known;
-    m_known = false;
-    if (changed)
-      publishChange();
+   bool changed = m_known;
+   m_known = false;
+   if (changed)
+     publishChange();
   }
 
   template <typename T>
   void UserVariable<T>::saveCurrentValue()
   {
-    m_savedValue = m_value;
-    m_savedKnown = m_known;
-  }
-
-  void UserVariable<Integer>::saveCurrentValue()
-  {
-    m_savedValue = m_value;
-    m_savedKnown = m_known;
+   m_savedValue = m_value;
+   m_savedKnown = m_known;
   }
 
   void UserVariable<String>::saveCurrentValue()
   {
-    m_savedValue = m_value;
-    m_savedKnown = m_known;
+   m_savedValue = m_value;
+   m_savedKnown = m_known;
   }
 
   // Should only be called when active.
   template <typename T>
   void UserVariable<T>::restoreSavedValue()
   {
-    bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
-    m_value = m_savedValue;
-    m_known = m_savedKnown;
-    if (changed)
-      publishChange();
-  }
-
-  void UserVariable<Integer>::restoreSavedValue()
-  {
-    bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
-    m_value = m_savedValue;
-    m_known = m_savedKnown;
-    if (changed)
-      publishChange();
+   bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
+   m_value = m_savedValue;
+   m_known = m_savedKnown;
+   if (changed)
+     publishChange();
   }
 
   void UserVariable<String>::restoreSavedValue()
   {
-    bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
-    m_value = m_savedValue;
-    m_known = m_savedKnown;
-    if (changed)
-      publishChange();
+   bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
+   m_value = m_savedValue;
+   m_known = m_savedKnown;
+   if (changed)
+     publishChange();
   }
 
   template <typename T>
   Value UserVariable<T>::getSavedValue() const
   {
-    return Value(m_savedValue);
-  }
-
-  Value UserVariable<Integer>::getSavedValue() const
-  {
-    return Value(m_savedValue);
+   return Value(m_savedValue);
   }
 
   Value UserVariable<String>::getSavedValue() const
   {
-    return Value(m_savedValue);
-  }
-
-  template <typename T>
-  NodeConnector *UserVariable<T>::getNode()
-  {
-    return m_node;
-  }
-
-  NodeConnector *UserVariable<Integer>::getNode()
-  {
-    return m_node;
-  }
-
-  NodeConnector *UserVariable<String>::getNode()
-  {
-    return m_node;
-  }
-
-  template <typename T>
-  NodeConnector const *UserVariable<T>::getNode() const
-  {
-    return m_node;
-  }
-
-  NodeConnector const *UserVariable<Integer>::getNode() const
-  {
-    return m_node;
-  }
-
-  NodeConnector const *UserVariable<String>::getNode() const
-  {
-    return m_node;
+   return Value(m_savedValue);
   }
 
   template <typename T>
@@ -548,76 +439,55 @@ namespace PLEXIL
     return this;
   }
 
-  Expression *UserVariable<Integer>::getBaseVariable()
-  {
-    return this;
-  }
-
   Expression *UserVariable<String>::getBaseVariable()
   {
-    return this;
+   return this;
   }
 
   template <typename T>
   Expression const *UserVariable<T>::getBaseVariable() const
   {
-    return this;
-  }
-
-  Expression const *UserVariable<Integer>::getBaseVariable() const
-  {
-    return this;
+   return this;
   }
 
   Expression const *UserVariable<String>::getBaseVariable() const
   {
-    return this;
+   return this;
   }
 
   template <typename T>
   void UserVariable<T>::setInitializer(Expression *expr, bool garbage)
   {
-    checkPlanError(expr->valueType() == PlexilValueType<T>::value
-                   || expr->valueType() == UNKNOWN_TYPE,
-                   "Variable " << this->getName()
-                   << " of type " << valueTypeName(PlexilValueType<T>::value)
-                   << " cannot have initializer of type " << valueTypeName(expr->valueType()));
-    m_initializer = expr;
-    m_initializerIsGarbage = garbage;
-  }
-
-  void UserVariable<Integer>::setInitializer(Expression *expr, bool garbage)
-  {
-    checkPlanError(expr->valueType() == PlexilValueType<Integer>::value
-                   || expr->valueType() == UNKNOWN_TYPE,
-                   "Variable " << this->getName()
-                   << " of type " << valueTypeName(PlexilValueType<Integer>::value)
-                   << " cannot have initializer of type " << valueTypeName(expr->valueType()));
-    m_initializer = expr;
-    m_initializerIsGarbage = garbage;
+   checkPlanError(expr->valueType() == PlexilValueType<T>::value
+                  || expr->valueType() == UNKNOWN_TYPE,
+                  "Variable " << this->getName()
+                  << " of type " << valueTypeName(PlexilValueType<T>::value)
+                  << " cannot have initializer of type " << valueTypeName(expr->valueType()));
+   m_initializer = expr;
+   m_initializerIsGarbage = garbage;
   }
 
   template <>
   void UserVariable<Real>::setInitializer(Expression *expr, bool garbage)
   {
-    checkPlanError(expr->valueType() == REAL_TYPE
-                   || expr->valueType() == INTEGER_TYPE
-                   || expr->valueType() == UNKNOWN_TYPE,
-                   "Variable " << this->getName()
-                   << " of type Real cannot have initializer of type "
-                   << valueTypeName(expr->valueType()));
-    m_initializer = expr;
-    m_initializerIsGarbage = garbage;
+   checkPlanError(expr->valueType() == REAL_TYPE
+                  || expr->valueType() == INTEGER_TYPE
+                  || expr->valueType() == UNKNOWN_TYPE,
+                  "Variable " << this->getName()
+                  << " of type Real cannot have initializer of type "
+                  << valueTypeName(expr->valueType()));
+   m_initializer = expr;
+   m_initializerIsGarbage = garbage;
   }
 
   void UserVariable<String>::setInitializer(Expression *expr, bool garbage)
   {
-    checkPlanError(expr->valueType() == STRING_TYPE || expr->valueType() == UNKNOWN_TYPE,
-                   "Variable " << this->getName()
-                   << " of type String cannot have initializer of type "
-                   << valueTypeName(expr->valueType()));
-    m_initializer = expr;
-    m_initializerIsGarbage = garbage;
+   checkPlanError(expr->valueType() == STRING_TYPE || expr->valueType() == UNKNOWN_TYPE,
+                  "Variable " << this->getName()
+                  << " of type String cannot have initializer of type "
+                  << valueTypeName(expr->valueType()));
+   m_initializer = expr;
+   m_initializerIsGarbage = garbage;
   }
   
   //
@@ -625,7 +495,7 @@ namespace PLEXIL
   //
 
   template class UserVariable<Boolean>;
-  // template class UserVariable<Integer>;
+  template class UserVariable<Integer>;
   template class UserVariable<Real>;
 
 } // namespace PLEXIL

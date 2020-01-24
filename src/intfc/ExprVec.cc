@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -99,17 +99,29 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    virtual void addListener(ExpressionListener *l) override
     {
       for (size_t i = 0; i < N; ++i)
-        (f)(exprs[i]);
+        exprs[i]->addListener(l);
     }
 
-    virtual void print(std::ostream & s) const override
+    virtual void removeListener(ExpressionListener *l) override
+    {
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->removeListener(l);
+    }
+
+    virtual void doSubexprs(ListenableUnaryOperator const &opr) override
+    {
+      for (size_t i = 0; i < N; ++i)
+        (opr)(exprs[i]);
+    }
+
+    virtual void print(std::ostream & str) const override
     {
       for (size_t i = 0; i < N; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
@@ -189,18 +201,30 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void print(std::ostream & s) const override
+    virtual void print(std::ostream & str) const override
     {
       for (size_t i = 0; i < m_size; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    virtual void addListener(ExpressionListener *l) override
     {
       for (size_t i = 0; i < m_size; ++i)
-        (f)(exprs[i]);
+        exprs[i]->addListener(l);
+    }
+
+    virtual void removeListener(ExpressionListener *l) override
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        exprs[i]->addListener(l);
+    }
+
+    virtual void doSubexprs(ListenableUnaryOperator const &opr) override
+    {
+      for (size_t i = 0; i < m_size; ++i)
+        (opr)(exprs[i]);
     }
 
   private:

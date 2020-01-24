@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,13 +29,15 @@
 #include "TestSupport.hh"
 #include "lifecycle-utils.h"
 
+#ifdef STDC_HEADERS
 #include <cstring> // for strcmp()
+#endif
+
 #include <fstream>
 
 using PLEXIL::Error;
 
 extern bool aliasTest();
-extern bool allocatorTest();
 extern bool arithmeticTest();
 extern bool arrayConstantTest();
 extern bool arrayOperatorsTest();
@@ -43,6 +45,7 @@ extern bool arrayReferenceTest();
 extern bool arrayVariableTest();
 extern bool booleanOperatorsTest();
 extern bool comparisonsTest();
+extern bool conversionsTest();
 extern bool constantsTest();
 extern bool functionsTest();
 extern bool listenerTest();
@@ -56,7 +59,6 @@ static void runExprTests()
 
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
-  runTestSuite(allocatorTest);
   runTestSuite(simpleBooleanVariableTest);
   runTestSuite(variablesTest);
   runTestSuite(arrayConstantTest);
@@ -67,6 +69,7 @@ static void runExprTests()
   runTestSuite(comparisonsTest);
   runTestSuite(booleanOperatorsTest);
   runTestSuite(arithmeticTest);
+  runTestSuite(conversionsTest)
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
 

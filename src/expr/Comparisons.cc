@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -130,8 +130,7 @@ namespace PLEXIL
       return compareEqual<CommandHandleValue>(result, argA, argB);
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "isEqual: Invalid or unimplemented expression type " << argA->valueType());
+      errorMsg("isEqual: Invalid or unimplemented expression type " << argA->valueType());
       return false;
     }
   }
@@ -147,15 +146,15 @@ namespace PLEXIL
   }
 
   // Called at plan load time, so some expressions (e.g. Lookups) may not know their own types
-  bool Equal::checkArgTypes(Function const *ev) const
+  bool Equal::checkArgTypes(Function const *func) const
   {
-    ValueType t0 = (*ev)[0]->valueType();
-    if (t0 == UNKNOWN_TYPE)
+    ValueType typ0 = (*func)[0]->valueType();
+    if (typ0 == UNKNOWN_TYPE)
       return true;
-    ValueType t1 = (*ev)[1]->valueType();
-    return (t1 == UNKNOWN_TYPE
-            || t0 == t1
-            || (isNumericType(t0) && isNumericType(t1)));
+    ValueType typ1 = (*func)[1]->valueType();
+    return typ1 == UNKNOWN_TYPE
+      || typ0 == typ1
+      || (isNumericType(typ0) && isNumericType(typ1));
   }
 
   bool Equal::operator()(bool &result, Expression const *argA, Expression const *argB) const
@@ -177,15 +176,15 @@ namespace PLEXIL
     return count == 2;
   }
 
-  bool NotEqual::checkArgTypes(Function const *ev) const
+  bool NotEqual::checkArgTypes(Function const *func) const
   {
-    ValueType t0 = (*ev)[0]->valueType();
-    if (t0 == UNKNOWN_TYPE)
+    ValueType typ0 = (*func)[0]->valueType();
+    if (typ0 == UNKNOWN_TYPE)
       return true;
-    ValueType t1 = (*ev)[1]->valueType();
-    return (t1 == UNKNOWN_TYPE
-            || t0 == t1
-            || (isNumericType(t0) && isNumericType(t1)));
+    ValueType typ1 = (*func)[1]->valueType();
+    return typ1 == UNKNOWN_TYPE
+      || typ0 == typ1
+      || (isNumericType(typ0) && isNumericType(typ1));
   }
 
   bool NotEqual::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
@@ -214,13 +213,15 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterThan<T>::checkArgTypes(Function const *ev) const
+  bool GreaterThan<T>::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <typename T>
-  bool GreaterThan<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool GreaterThan<T>::operator()(bool &result,
+                                  Expression const *argA,
+                                  Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -246,13 +247,15 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterEqual<T>::checkArgTypes(Function const *ev) const
+  bool GreaterEqual<T>::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <typename T>
-  bool GreaterEqual<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool GreaterEqual<T>::operator()(bool &result,
+                                   Expression const *argA,
+                                   Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -278,13 +281,15 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessThan<T>::checkArgTypes(Function const *ev) const
+  bool LessThan<T>::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <typename T>
-  bool LessThan<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool LessThan<T>::operator()(bool &result,
+                               Expression const *argA,
+                               Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -310,9 +315,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessEqual<T>::checkArgTypes(Function const *ev) const
+  bool LessEqual<T>::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
   }
 
   template <typename T>

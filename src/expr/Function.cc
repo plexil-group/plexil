@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,21 +29,19 @@
 #include "ArrayImpl.hh"
 #include "Error.hh"
 #include "Operator.hh"
+#include "PlanError.hh"
 #include "Value.hh"
 
 namespace PLEXIL
 {
-  Function::Function(Operator const *op)
-    : NotifierImpl(),
-      m_op(op),
-      m_valueCache(op->allocateCache())
+  Function::Function(Operator const *oper)
+    : Propagator(),
+      m_op(oper)
   {
   }
 
   Function::~Function()
   {
-    if (m_op && m_valueCache)
-      m_op->deleteCache(m_valueCache);
   }
 
   const char *Function::exprName() const
@@ -58,17 +56,17 @@ namespace PLEXIL
 
   bool Function::isKnown() const
   {
-    return m_op->calcNative(m_valueCache, *this);
+    return m_op->isKnown(*this);
   }
 
-  void Function::printValue(std::ostream &s) const
+  void Function::printValue(std::ostream &str) const
   {
-    m_op->printValue(s, m_valueCache, *this);
+    m_op->printValue(str, *this);
   }
 
   Value Function::toValue() const
   {
-    return m_op->toValue(m_valueCache, *this);
+    return m_op->toValue(*this);
   }
 
   bool Function::isPropagationSource() const
@@ -95,13 +93,14 @@ namespace PLEXIL
 
 #undef DEFINE_FUNC_DEFAULT_GET_VALUE_METHOD
 
+  // These types must use CachedFunction instead
+
 #define DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD(_type) \
   bool Function::getValuePointer(_type const *&ptr) const \
   { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), *this);    \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
+    reportPlanError("getValuePointer not implemented for type " << #_type \
+                    << " for " << m_op->getName());                     \
+    return false;                                                       \
   }
 
   DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD(String)
@@ -114,24 +113,21 @@ namespace PLEXIL
 #undef DEFINE_FUNC_DEFAULT_GET_VALUE_PTR_METHOD
   
   // Default method
-  bool Function::apply(Operator const *op, Array &result) const
+  bool Function::apply(Operator const *opr, Array &result) const
   {
-    return (*op)(result, *this);
+    return (*opr)(result, *this);
   }
 
   //
-  // Implementations
-  //
-
-  //
   // NullaryFunction is a function which takes no arguments.
+  //  E.g. random().
   //
 
   class NullaryFunction final : public Function
   {
   public:
-    NullaryFunction(Operator const *op)
-      : Function(op)
+    NullaryFunction(Operator const *oper)
+      : Function(oper)
     {
     }
 
@@ -144,14 +140,14 @@ namespace PLEXIL
       return 0;
     }
       
-    virtual Expression const *operator[](size_t n) const override
+    virtual Expression const *operator[](size_t /* n */) const override
     {
-      assertTrue_2(ALWAYS_FAIL, "operator[]: no arguments in NullaryFunction");
+      errorMsg("operator[]: no arguments in NullaryFunction");
     }
 
     virtual void setArgument(size_t i, Expression * /* exp */, bool /* garbage */) override
     {
-      assertTrue_2(ALWAYS_FAIL, "setArgument(): no arguments to set in NullaryFunction");
+      errorMsg("setArgument(): no arguments to set in NullaryFunction");
     }
 
     virtual bool allSameTypeOrUnknown(ValueType /* vt */) const override
@@ -171,7 +167,7 @@ namespace PLEXIL
     {
     }
 
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    virtual void doSubexprs(ListenableUnaryOperator const & /* opr */) override
     {
     }
 
@@ -184,7 +180,6 @@ namespace PLEXIL
     NullaryFunction &operator=(NullaryFunction const &) = delete;
     NullaryFunction &operator=(NullaryFunction &&) = delete;
   };
-
 
   //
   // FixedSizeFunction
@@ -202,11 +197,11 @@ namespace PLEXIL
   class FixedSizeFunction final : public Function
   {
   public:
-    FixedSizeFunction(Operator const *op)
-      : Function(op)
+    FixedSizeFunction(Operator const *oper)
+      : Function(oper)
     {
       for (size_t i = 0; i < N; ++i)
-        exprs[i] = NULL;
+        exprs[i] = nullptr;
       for (size_t i = 0; i < N; ++i)
         garbage[i] = false;
     }
@@ -215,7 +210,6 @@ namespace PLEXIL
     {
       for (size_t i = 0; i < N; ++i) {
         if (exprs[i]) {
-          exprs[i]->removeListener(this);
           if (garbage[i])
             delete exprs[i];
         }
@@ -223,11 +217,11 @@ namespace PLEXIL
     }
 
     // Not worth optimizing this, it's only used once per function at load time.
-    virtual bool allSameTypeOrUnknown(ValueType vt) const override
+    virtual bool allSameTypeOrUnknown(ValueType vtyp) const override
     {
       for (size_t i = 0; i < N; ++i) {
         ValueType vti = exprs[i]->valueType();
-        if (vti != vt && vti != UNKNOWN_TYPE)
+        if (vti != vtyp && vti != UNKNOWN_TYPE)
           return false;
       }
       return true;
@@ -262,11 +256,11 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void printSubexpressions(std::ostream & s) const override
+    virtual void printSubexpressions(std::ostream & str) const override
     {
       for (size_t i = 0; i < N; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
@@ -290,36 +284,17 @@ namespace PLEXIL
 
 #undef DEFINE_FIXED_ARG_GET_VALUE_METHOD
 
-// Have to define this so specialized template functions can be defined below
-#define DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(_type) \
-  virtual bool getValuePointer(_type const *&ptr) const override \
-  { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), this);    \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
-
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(String)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(Array)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(BooleanArray)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(IntegerArray)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(RealArray)
-    DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD(StringArray)
-
-#undef DEFINE_FIXED_ARG_GET_VALUE_PTR_METHOD
-
     // Default method, overridden in specialized variants
-    virtual bool apply(Operator const *op, Array &result) const override
+    virtual bool apply(Operator const *oper, Array &result) const override
     {
-      return (*op)(result, this);
+      return (*oper)(result, this);
     }
 
     // Default method, overridden in specialized variants
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    virtual void doSubexprs(ListenableUnaryOperator const &oper) override
     {
       for (size_t i = 0; i < N; ++i)
-        (f)(exprs[i]);
+        (oper)(exprs[i]);
     }
 
   private:
@@ -338,10 +313,10 @@ namespace PLEXIL
   // One-arg variants
 
   template <>
-  FixedSizeFunction<1>::FixedSizeFunction(Operator const *op)
-    : Function(op)
+  FixedSizeFunction<1>::FixedSizeFunction(Operator const *oper)
+    : Function(oper)
   {
-    exprs[0] = NULL;
+    exprs[0] = nullptr;
     garbage[0] = false;
   }
 
@@ -349,7 +324,6 @@ namespace PLEXIL
   FixedSizeFunction<1>::~FixedSizeFunction()
   {
     if (exprs[0]) {
-      exprs[0]->removeListener(this);
       if (garbage[0])
         delete exprs[0];
     }
@@ -377,46 +351,24 @@ namespace PLEXIL
   DEFINE_ONE_ARG_GET_VALUE_METHOD(Boolean)
   DEFINE_ONE_ARG_GET_VALUE_METHOD(Integer)
   DEFINE_ONE_ARG_GET_VALUE_METHOD(Real)
-  DEFINE_ONE_ARG_GET_VALUE_METHOD(String)
 
   // Use base class method for now
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(NodeState)
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(NodeOutcome)
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(FailureType)
-  // DEFINE_ONE_ARG_GET_VALUE_METHOD(Commandhandlevalue)
+  // DEFINE_ONE_ARG_GET_VALUE_METHOD(uint16_t)
 
 #undef DEFINE_ONE_ARG_GET_VALUE_METHOD
 
-#define DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(_type) \
-  template <> bool FixedSizeFunction<1>::getValuePointer(_type const *&ptr) const \
-  { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), exprs[0]); \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
-
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(String)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(Array)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(BooleanArray)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(IntegerArray)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(RealArray)
-  DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD(StringArray)
-  
-#undef DEFINE_ONE_ARG_GET_VALUE_PTR_METHOD
-
   // Specialized method
   template <>
-  bool FixedSizeFunction<1>::apply(Operator const *op, Array &result) const
+  bool FixedSizeFunction<1>::apply(Operator const *oper, Array &result) const
   {
-    return (*op)(result, exprs[0]);
+    return (*oper)(result, exprs[0]);
   }
 
   // Specialized method
   template <>
-  void FixedSizeFunction<1>::doSubexprs(std::function<void (Expression *)> const &f)
+  void FixedSizeFunction<1>::doSubexprs(ListenableUnaryOperator const &oper)
   {
-    (f)(exprs[0]);
+    (oper)(exprs[0]);
   }
 
   //
@@ -424,11 +376,11 @@ namespace PLEXIL
   //
 
   template <>
-  FixedSizeFunction<2>::FixedSizeFunction(Operator const *op)
-    : Function(op)
+  FixedSizeFunction<2>::FixedSizeFunction(Operator const *oper)
+    : Function(oper)
   {
-    exprs[0] = NULL;
-    exprs[1] = NULL;
+    exprs[0] = nullptr;
+    exprs[1] = nullptr;
     garbage[0] = false;
     garbage[1] = false;
   }
@@ -437,12 +389,10 @@ namespace PLEXIL
   FixedSizeFunction<2>::~FixedSizeFunction()
   {
     if (exprs[0]) {
-      exprs[0]->removeListener(this);
       if (garbage[0])
         delete exprs[0];
     }
     if (exprs[1]) {
-      exprs[1]->removeListener(this);
       if (garbage[1])
         delete exprs[1];
     }
@@ -472,47 +422,25 @@ namespace PLEXIL
   DEFINE_TWO_ARG_GET_VALUE_METHOD(Boolean)
   DEFINE_TWO_ARG_GET_VALUE_METHOD(Integer)
   DEFINE_TWO_ARG_GET_VALUE_METHOD(Real)
-  DEFINE_TWO_ARG_GET_VALUE_METHOD(String)
 
   // Use base class method for now 
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(NodeState)
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(NodeOutcome)
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(FailureType)
-  // DEFINE_TWO_ARG_GET_VALUE_METHOD(CommandHandleValue)
+  // DEFINE_TWO_ARG_GET_VALUE_METHOD(uint16_t)
 
 #undef DEFINE_TWO_ARG_GET_VALUE_METHOD
 
-#define DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(_type) \
-  template <> bool FixedSizeFunction<2>::getValuePointer(_type const *&ptr) const \
-  { \
-    bool result = (*m_op)(*static_cast<_type *>(m_valueCache), exprs[0], exprs[1]); \
-    if (result) \
-      ptr = static_cast<_type const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
-
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(String)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(Array)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(BooleanArray)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(IntegerArray)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(RealArray)
-  DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD(StringArray)
-  
-#undef DEFINE_TWO_ARG_GET_VALUE_PTR_METHOD
-
   // Specialized method
   template <>
-  bool FixedSizeFunction<2>::apply(Operator const *op, Array &result) const
+  bool FixedSizeFunction<2>::apply(Operator const *oper, Array &result) const
   {
-    return (*op)(result, exprs[0], exprs[1]);
+    return (*oper)(result, exprs[0], exprs[1]);
   }
 
   // Specialized method
   template <>
-  void FixedSizeFunction<2>::doSubexprs(std::function<void (Expression *)> const &f)
+  void FixedSizeFunction<2>::doSubexprs(ListenableUnaryOperator const &oper)
   {
-    (f)(exprs[0]);
-    (f)(exprs[1]);
+    (oper)(exprs[0]);
+    (oper)(exprs[1]);
   }
 
   //
@@ -526,8 +454,8 @@ namespace PLEXIL
   class NaryFunction final : public Function
   {
   public:
-    NaryFunction(Operator const *op, size_t n)
-      : Function(op),
+    NaryFunction(Operator const *oper, size_t n)
+      : Function(oper),
         m_size(n),
         exprs(new Expression*[n]()),
         garbage(new bool[n]())
@@ -538,7 +466,6 @@ namespace PLEXIL
     {
       for (size_t i = 0; i < m_size; ++i) {
         if (exprs[i]) {
-          exprs[i]->removeListener(this);
           if (garbage[i])
             delete exprs[i];
         }
@@ -565,11 +492,11 @@ namespace PLEXIL
       garbage[i] = isGarbage;
     }
 
-    virtual bool allSameTypeOrUnknown(ValueType vt) const override
+    virtual bool allSameTypeOrUnknown(ValueType vtyp) const override
     {
       for (size_t i = 0; i < m_size; ++i) {
         ValueType vti = exprs[i]->valueType();
-        if (vti != vt && vti != UNKNOWN_TYPE)
+        if (vti != vtyp && vti != UNKNOWN_TYPE)
           return false;
       }
       return true;
@@ -587,18 +514,18 @@ namespace PLEXIL
         exprs[i]->deactivate();
     }
 
-    virtual void printSubexpressions(std::ostream & s) const override
+    void printSubexpressions(std::ostream & str) const override
     {
       for (size_t i = 0; i < m_size; ++i) {
-        s << ' ';
-        exprs[i]->print(s);
+        str << ' ';
+        exprs[i]->print(str);
       }
     }
 
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override
+    virtual void doSubexprs(ListenableUnaryOperator const &oper) override
     {
       for (size_t i = 0; i < this->size(); ++i)
-        (f)(exprs[i]);
+        (oper)(exprs[i]);
     }
 
   private:
@@ -618,45 +545,45 @@ namespace PLEXIL
   // Factory functions
   //
   
-  Function *makeFunction(Operator const *op,
+  Function *makeFunction(Operator const *oper,
                          size_t n)
   {
-    assertTrue_2(op, "makeFunction: null operator");
+    assertTrue_2(oper, "makeFunction: null operator");
 
     switch (n) {
     case 0:
-      return static_cast<Function *>(new NullaryFunction(op));
+      return static_cast<Function *>(new NullaryFunction(oper));
     case 1:
-      return static_cast<Function *>(new FixedSizeFunction<1>(op));
+      return static_cast<Function *>(new FixedSizeFunction<1>(oper));
     case 2:
-      return static_cast<Function *>(new FixedSizeFunction<2>(op));
+      return static_cast<Function *>(new FixedSizeFunction<2>(oper));
     case 3:
-      return static_cast<Function *>(new FixedSizeFunction<3>(op));
+      return static_cast<Function *>(new FixedSizeFunction<3>(oper));
     case 4:
-      return static_cast<Function *>(new FixedSizeFunction<4>(op));
+      return static_cast<Function *>(new FixedSizeFunction<4>(oper));
     default: // anything greater than 4
-      return static_cast<Function *>(new NaryFunction(op, n));
+      return static_cast<Function *>(new NaryFunction(oper, n));
     }
   }
 
-  Function *makeFunction(Operator const *op,
+  Function *makeFunction(Operator const *oper,
                          Expression *expr,
                          bool garbage)
   {
-    assertTrue_2(op && expr, "makeFunction: operator or argument is null");
-    Function *result = new FixedSizeFunction<1>(op);
+    assertTrue_2(oper && expr, "makeFunction: operator or argument is null");
+    Function *result = new FixedSizeFunction<1>(oper);
     result->setArgument(0, expr, garbage);
     return result;
   }
 
-  Function *makeFunction(Operator const *op, 
+  Function *makeFunction(Operator const *oper, 
                          Expression *expr1,
                          Expression *expr2,
                          bool garbage1,
                          bool garbage2)
   {
-    assertTrue_2(op && expr1 && expr2, "makeFunction: operator or argument is null");
-    Function *result = new FixedSizeFunction<2>(op);
+    assertTrue_2(oper && expr1 && expr2, "makeFunction: operator or argument is null");
+    Function *result = new FixedSizeFunction<2>(oper);
     result->setArgument(0, expr1, garbage1);
     result->setArgument(1, expr2, garbage2);
     return result;

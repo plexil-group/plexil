@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "Command.hh"
 
+#include "CommandOperatorImpl.hh"
 #include "Assignable.hh"
 #include "ExprVec.hh"
 #include "ExternalInterface.hh"
@@ -39,33 +40,33 @@ namespace PLEXIL
   // ResourceSpec implementation
   //
 
-  void ResourceSpec::setNameExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setNameExpression(Expression *exp, bool isGarbage)
   {
-    nameExp = e;
+    nameExp = exp;
     nameIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setPriorityExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setPriorityExpression(Expression *exp, bool isGarbage)
   {
-    priorityExp = e;
+    priorityExp = exp;
     priorityIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setLowerBoundExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setLowerBoundExpression(Expression *exp, bool isGarbage)
   {
-    lowerBoundExp = e;
+    lowerBoundExp = exp;
     lowerBoundIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setUpperBoundExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setUpperBoundExpression(Expression *exp, bool isGarbage)
   {
-    upperBoundExp = e;
+    upperBoundExp = exp;
     upperBoundIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setReleaseAtTerminationExpression(Expression *e, bool isGarbage)
+  void ResourceSpec::setReleaseAtTerminationExpression(Expression *exp, bool isGarbage)
   {
-    releaseAtTermExp = e;
+    releaseAtTermExp = exp;
     releaseIsGarbage = isGarbage;
   }
 
@@ -121,8 +122,46 @@ namespace PLEXIL
       releaseAtTermExp->deactivate();
   }
 
+  /**
+   * @class CommandHandleKnown
+   * @brief A CommandOperator that returns true if the command handle is known, false otherwise.
+   */
+
+  class CommandHandleKnown : public CommandOperatorImpl<Boolean>
+  {
+  public:
+    ~CommandHandleKnown()
+    {
+    }
+    
+    DECLARE_COMMAND_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
+
+    bool operator()(Boolean &result, Command const *command) const
+    {
+      result = (NO_COMMAND_HANDLE != command->getCommandHandle());
+      return true;
+    }
+
+    void doPropagationSources(Command *command, ListenableUnaryOperator const &oper) const
+    {
+      (oper)(command->getAck());
+    }
+
+  private:
+
+    CommandHandleKnown()
+      : CommandOperatorImpl<Boolean>("CommandHandleKnown")
+    {
+    }
+
+    // Disallow copy, assign
+    CommandHandleKnown(CommandHandleKnown const &);
+    CommandHandleKnown &operator=(CommandHandleKnown const &);
+  };
+
   Command::Command(std::string const &nodeName)
     : m_next(nullptr),
+      m_handleKnownFn(CommandHandleKnown::instance(), *this),
       m_ack(*this),
       m_abortComplete("abortComplete"),
       m_command(),
@@ -188,38 +227,37 @@ namespace PLEXIL
     m_nameIsGarbage = isGarbage;
   }
 
-  void Command::setResourceList(ResourceList *l)
+  void Command::setResourceList(ResourceList *lst)
   {
-    if (m_resourceList && m_resourceList != l) // unlikely, but...
+    if (m_resourceList && m_resourceList != lst) // unlikely, but...
       delete m_resourceList;
 
-    m_resourceList = l;
+    m_resourceList = lst;
     m_resourcesAreConstant = false; // must check
   }
 
   void Command::setArgumentVector(ExprVec *vec)
   {
-    if (m_argVec)
-      delete m_argVec;
+    delete m_argVec;
     m_argVec = vec;
     // TODO: check whether argument vector is constant
   }
 
   State const &Command::getCommand() const
   {
-    assertTrue_1(m_commandFixed);
+    assertTrue_1(m_commandIsConstant || m_commandFixed);
     return m_command;
   }
 
   std::string const &Command::getName() const
   {
-    assertTrue_1(m_commandFixed);
+    assertTrue_1(m_commandNameIsConstant || m_commandFixed);
     return m_command.name();
   }
 
   std::vector<Value> const &Command::getArgValues() const
   {
-    assertTrue_1(m_commandFixed);
+    assertTrue_1(m_commandIsConstant || m_commandFixed);
     return m_command.parameters();
   }
 
@@ -228,23 +266,26 @@ namespace PLEXIL
     static ResourceValueList const sl_emptyList;
 
     assertTrue_1(m_resourcesFixed);
-    if (!m_resourceList)
-      return sl_emptyList;
-    else
+    if (m_resourceList)
       return *m_resourceValueList;
+    return sl_emptyList;
   }
 
   Expression *Command::getDest()
   {
     if (m_dest)
       return m_dest;
-    else
-      return NULL;
+    return NULL;
+  }
+
+  bool Command::isCommandNameConstant() const
+  {
+    return m_nameExpr->isConstant();
   }
 
   bool Command::isCommandConstant() const
   {
-    if (!m_nameExpr->isConstant())
+    if (!isCommandNameConstant())
       return false;
     if (m_argVec)
       for (size_t i = 0; i < m_argVec->size(); ++i)
@@ -361,7 +402,8 @@ namespace PLEXIL
 
     // Check for constancy at first activation
     if (!m_checkedConstant) {
-      m_commandIsConstant = isCommandConstant();
+      if ((m_commandNameIsConstant = isCommandNameConstant()))
+        m_commandIsConstant = isCommandConstant(); // defaults to false
       if (m_resourceList)
         m_resourcesAreConstant = areResourcesConstant();
       else
@@ -389,7 +431,7 @@ namespace PLEXIL
     checkInterfaceError(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX,
                         "Invalid command handle value");
     m_commandHandle = handle;
-    m_ack.valueChanged();
+    m_ack.publishChange();
   }
 
   void Command::returnValue(Value const &val)
@@ -431,7 +473,7 @@ namespace PLEXIL
       m_dest->deactivate();
 
     // Don't deactivate if resources are constant
-    if (m_resourceList) {
+    if (m_resourceList && !m_resourcesAreConstant) {
       if (!m_resourcesAreConstant) {
         for (ResourceSpec &res : *m_resourceList)
           res.deactivate();

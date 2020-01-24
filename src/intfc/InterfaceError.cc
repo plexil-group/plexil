@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 namespace PLEXIL
 {
 
-  bool InterfaceError::s_throw = false;
+  static bool InterfaceError_throw = false;
 
   //
   // Static member functions
@@ -41,17 +41,17 @@ namespace PLEXIL
 
   void InterfaceError::doThrowExceptions()
   {
-    s_throw = true;
+    InterfaceError_throw = true;
   }
 
   void InterfaceError::doNotThrowExceptions()
   {
-    s_throw = false;
+    InterfaceError_throw = false;
   }
 
   bool InterfaceError::throwEnabled()
   {
-    return s_throw;
+    return InterfaceError_throw;
   }
 
   InterfaceError::InterfaceError(const std::string& condition,
@@ -73,8 +73,7 @@ namespace PLEXIL
     return *this;
   }
 
-  InterfaceError::~InterfaceError()
-    throw ()
+  InterfaceError::~InterfaceError() PLEXIL_NOEXCEPT
   {
   }
 
@@ -88,8 +87,7 @@ namespace PLEXIL
     Logging::handle_message(Logging::LOG_ERROR, m_file.c_str(), m_line, m_msg.c_str());
     if (throwEnabled())
       throw *this;
-    else
-      assert(false);
+    assert(false);
   }
 
 }

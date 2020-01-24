@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,8 +88,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   Value GetValueImpl<Integer>::toValue() const
@@ -98,8 +97,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
   
   Value GetValueImpl<String>::toValue() const
@@ -108,8 +106,7 @@ namespace PLEXIL
     bool known = this->getValuePointer(ptr);
     if (known)
       return Value(*ptr);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   template <typename T>
@@ -119,8 +116,7 @@ namespace PLEXIL
     bool known = this->getValuePointer(ptr);
     if (known)
       return Value(*ptr);
-    else
-      return Value(0, this->valueType());
+    return Value(0, this->valueType());
   }
 
   // Type conversion for Integer
@@ -146,41 +142,41 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void GetValueImpl<T>::printValue(std::ostream &s) const
+  void GetValueImpl<T>::printValue(std::ostream &str) const
   {
     T val;
     if (this->getValue(val))
-      PLEXIL::printValue(val, s);
+      PLEXIL::printValue(val, str);
     else
-      s << "[unknown_value]"; 
+      str << "[unknown_value]"; 
   }
 
-  void GetValueImpl<Integer>::printValue(std::ostream &s) const
+  void GetValueImpl<Integer>::printValue(std::ostream &str) const
   {
     Integer val;
     if (this->getValue(val))
-      PLEXIL::printValue(val, s);
+      PLEXIL::printValue(val, str);
     else
-      s << "[unknown_value]"; 
+      str << "[unknown_value]"; 
   }
 
-  void GetValueImpl<String>::printValue(std::ostream &s) const
+  void GetValueImpl<String>::printValue(std::ostream &str) const
   {
     String const *val;
     if (this->getValuePointer(val))
-      PLEXIL::printValue(*val, s);
+      PLEXIL::printValue(*val, str);
     else
-      s << "[unknown_value]"; 
+      str << "[unknown_value]"; 
   }
 
   template <typename T>
-  void GetValueImpl<ArrayImpl<T> >::printValue(std::ostream &s) const
+  void GetValueImpl<ArrayImpl<T> >::printValue(std::ostream &str) const
   {
     ArrayImpl<T> const *val;
     if (this->getValuePointer(val))
-      PLEXIL::printValue(*val, s);
+      PLEXIL::printValue(*val, str);
     else
-      s << "[unknown_value]"; 
+      str << "[unknown_value]"; 
   }
 
   // Explicit instantiations

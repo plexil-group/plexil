@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "ArrayFwd.hh"
 #include "Expression.hh"
-#include "NotifierImpl.hh"
+#include "Propagator.hh"
 #include "Value.hh"
 #include "ValueType.hh"
 
@@ -40,11 +40,13 @@ namespace PLEXIL
 
   /**
    * @class Function
-   * @brief An abstract base class.
-   * Represents a function whose value depends on the value(s) of one or more subexpressions.
+   * @brief Represents an expression whose value depends on
+   *        the value(s) of zero or more subexpressions.
    */
 
-  class Function : public NotifierImpl
+  class Function :
+    public Expression,
+    public Propagator
   {
   public:
     virtual ~Function();
@@ -114,30 +116,21 @@ namespace PLEXIL
     // Constructor only available to derived classes
     Function(Operator const *op);
 
+    // *** FIXME: are the following 3 members needed here?? ***
+
     //
-    // Expression internal API
+    // Notifier API
     // Implemented by derived classes
     //
-
-    virtual void printSubexpressions(std::ostream &s) const override = 0;
-
-    //
-    // NotifierImpl API
-    // Implemented by derived classes
-    //
-
     virtual void handleActivate() override = 0;
     virtual void handleDeactivate() override = 0;
 
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) override = 0;
+    //
+    // Propagator API
+    //
+    virtual void doSubexprs(ListenableUnaryOperator const &f) override = 0;
 
     Operator const *m_op;
-
-    // For implementing getValuePointer().
-    // Must be a pointer to preserve const-ness.
-    // Cache is allocated and deleted by the operator, which knows its size.
-
-    void *m_valueCache;
 
   private:
 

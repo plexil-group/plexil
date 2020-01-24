@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -95,127 +95,9 @@ namespace PLEXIL {
      */
     virtual bool isConstant() const override;
 
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const override;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const override;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate() override;
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate() override;
-
   protected:
 
     T m_value;
-    bool m_known;
-
-  private:
-
-    // Disallow assignment
-    Constant &operator=(const Constant &) = delete;
-    Constant &operator=(Constant &&) = delete;
-  };
-
-  // Base template class is explicitly specialized
-  template <>
-  class Constant<Integer> :
-    public GetValueImpl<Integer>
-  {
-  public:
-
-    /**
-     * @brief Default constructor.
-     */
-    Constant();
-
-    /**
-     * @brief Copy constructor.
-     */
-    Constant(const Constant &other);
-
-    /**
-     * @brief Constructor from value type.
-     */
-    Constant(const Integer &value);
-
-    /**
-     * @brief Constructor from char *.
-     * @note Unimplemented conversions will cause a link time error.
-     */
-    Constant(const char * value);
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~Constant();
-
-    /**
-     * @brief Return a print name for the expression type.
-     * @return A constant character string.
-     */
-    virtual const char *exprName() const override;
-
-    /**
-     * @brief Retrieve the value of this Expression in its native type.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown.
-     */
-    virtual bool getValue(Integer &result) const override;
-
-    /**
-     * @brief Query whether the expression's value is known.
-     * @return True if known, false otherwise.
-     */
-    virtual bool isKnown() const override;
-
-    /**
-     * @brief Query whether this expression is constant, i.e. incapable of change.
-     * @return True if constant, false otherwise.
-     */
-    virtual bool isConstant() const override;
-
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const override;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const override;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate() override;
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate() override;
-
-  protected:
-
-    Integer m_value;
     bool m_known;
 
   private:
@@ -290,30 +172,6 @@ namespace PLEXIL {
      */
     virtual bool isConstant() const override;
 
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const override;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const override;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate() override;
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate() override;
-
   protected:
 
     String m_value;
@@ -377,30 +235,6 @@ namespace PLEXIL {
      * @return True if constant, false otherwise.
      */
     virtual bool isConstant() const override;
-
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const override;
-
-    /**
-     * @brief Is this expression active (i.e. propagating value changes?)
-     * @return true if this Expression is active, false if it is not.
-     */
-    virtual bool isActive() const override;
-
-    /**
-     * @brief Make this expression active.
-     * @note No-op for constants.
-     */
-    virtual void activate() override;
-
-    /**
-     * @brief Make this expression inactive.
-     * @note No-op for constants.
-     */
-    virtual void deactivate() override;
 
   protected:
 

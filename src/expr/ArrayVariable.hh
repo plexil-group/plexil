@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "Assignable.hh"
 #include "GetValueImpl.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 #include <memory> // std::unique_ptr
 
@@ -46,11 +46,15 @@ namespace PLEXIL
 
   class ArrayVariable :
     public Assignable,
-    public NotifierImpl
+    virtual public Expression,
+    public Notifier
   {
   public:
 
     virtual ~ArrayVariable();
+
+    // Listenable API
+    virtual bool isPropagationSource() const override;
 
     //
     // Essential Expression API
@@ -80,9 +84,6 @@ namespace PLEXIL
     // virtual void restoreSavedValue() = 0;
 
     virtual Value getSavedValue() const override;
-
-    virtual NodeConnector const *getNode() const override;
-    virtual NodeConnector *getNode() override;
 
     virtual Expression *getBaseVariable() override;
     virtual Expression const *getBaseVariable() const override;
@@ -179,14 +180,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariable(NodeConnector *node,
-                  char const *name = "",
+    ArrayVariable(char const *name,
                   Expression *size = nullptr,
                   bool sizeIsGarbage = false);
 
@@ -225,9 +224,6 @@ namespace PLEXIL
     Expression *m_initializer;
     char const *m_name;
     size_t m_maxSize;
-    
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;
@@ -255,14 +251,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariableImpl(NodeConnector *node,
-                      char const *name = "",
+    ArrayVariableImpl(char const *name,
                       Expression *size = nullptr,
                       bool sizeIsGarbage = false);
 
@@ -363,14 +357,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariableImpl(NodeConnector *node,
-                      char const *name = "",
+    ArrayVariableImpl(char const *name,
                       Expression *size = nullptr,
                       bool sizeIsGarbage = false);
 
@@ -476,14 +468,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      * @param size Expression whose value is the initial size of the array.
      * @param sizeIsGarbage True if the size expression should be deleted 
      *                      with the array variable.
      */
-    ArrayVariableImpl(NodeConnector *node,
-                      char const *name = "",
+    ArrayVariableImpl(char const *name,
                       Expression *size = nullptr,
                       bool sizeIsGarbage = false);
 

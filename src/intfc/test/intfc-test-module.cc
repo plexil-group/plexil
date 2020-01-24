@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,10 @@
 #include "lifecycle-utils.h"
 #include "TestSupport.hh"
 
-#include <cstring>
+#ifdef STDC_HEADERS
+#include <cstring> // strcmp()
+#endif
+
 #include <fstream>
 #include <iostream>
 
@@ -52,8 +55,8 @@ int main(int argc, char *argv[]) {
   std::string debugConfig("Debug.cfg");
   
   for (int i = 1; i < argc; ++i) {
-      if (strcmp(argv[i], "-d") == 0)
-          debugConfig = std::string(argv[++i]);
+    if (strcmp(argv[i], "-d") == 0)
+      debugConfig = std::string(argv[++i]);
   }
   
   std::ifstream config(debugConfig.c_str());

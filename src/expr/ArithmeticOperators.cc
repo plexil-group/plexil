@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,12 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "ArithmeticOperators.hh"
 #include "Function.hh"
 // #include "PlanError.hh" // included by OperatorImpl.hh
 
 #include <cmath>
-#include <limits>
 
 namespace PLEXIL
 {
@@ -53,7 +54,7 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Addition<NUM>::checkArgCount(size_t count) const
+  bool Addition<NUM>::checkArgCount(size_t /* count */) const
   {
     return true;
   }
@@ -460,236 +461,28 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool SquareRoot<NUM>::checkArgTypes(Function const *ev) const
+  bool SquareRoot<NUM>::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return isNumericType(ty) || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
   template <>
   bool SquareRoot<Real>::calc(Real &result,
                                 Expression const *arg) const
   {
+#ifdef HAVE_SQRT    
     Real temp;
     if (!arg->getValue(temp)
         || temp < 0) // imaginary result
       return false;
     result = sqrt(temp);
     return true;
+#else
+#warning "sqrt() not available on this platform. Plans using it will fail."
+    return false;
+#endif
   }
-
-  //
-  // Helper function for Real -> int conversions
-  // Returns true if conversion successful,
-  // false if x is out of range or not an integer.
-  //
-  static bool RealToInt(Real x, Integer &result)
-  {
-    Real tempInt;
-    x = modf(x, &tempInt);
-    // TODO: allow fraction to be +/- epsilon
-    if (x != 0)
-      return false; // not an integer
-    if (tempInt < std::numeric_limits<Integer>::min()
-        || tempInt > std::numeric_limits<Integer>::max())
-      return false; // out of range
-    result = (Integer) tempInt;
-    return true;
-  }
-
-  //
-  // Ceiling, Floor, Round, Truncate
-  //
-
-  template <typename NUM>
-  Ceiling<NUM>::Ceiling()
-    : OperatorImpl<NUM>("CEIL")
-  {
-  }
-
-  template <typename NUM>
-  Ceiling<NUM>::~Ceiling()
-  {
-  }
-
-  template <typename NUM>
-  bool Ceiling<NUM>::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  template <>
-  bool Ceiling<Real>::calc(Real &result,
-                             Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    result = ceil(temp);
-    return true;
-  }
-
-  template <>
-  bool Ceiling<Integer>::calc(Integer &result,
-                              Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    return RealToInt(ceil(temp), result);
-  }
-
-  template <typename NUM>
-  Floor<NUM>::Floor()
-    : OperatorImpl<NUM>("FLOOR")
-  {
-  }
-
-  template <typename NUM>
-  Floor<NUM>::~Floor()
-  {
-  }
-
-  template <typename NUM>
-  bool Floor<NUM>::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  template <>
-  bool Floor<Real>::calc(Real &result,
-                           Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    result = floor(temp);
-    return true;
-  }
-
-  template <>
-  bool Floor<Integer>::calc(Integer &result,
-                            Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    return RealToInt(floor(temp), result);
-  }
-
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
-
-  template <typename NUM>
-  Round<NUM>::Round()
-    : OperatorImpl<NUM>("ROUND")
-  {
-  }
-
-  template <typename NUM>
-  Round<NUM>::~Round()
-  {
-  }
-
-  template <typename NUM>
-  bool Round<NUM>::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  template <>
-  bool Round<Real>::calc(Real &result,
-                           Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    result = round(temp);
-    return true;
-  }
-
-  template <>
-  bool Round<Integer>::calc(Integer &result,
-                            Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    return RealToInt(round(temp), result);
-  }
-
-  template <typename NUM>
-  Truncate<NUM>::Truncate()
-    : OperatorImpl<NUM>("TRUNC")
-  {
-  }
-
-  template <typename NUM>
-  Truncate<NUM>::~Truncate()
-  {
-  }
-
-  template <typename NUM>
-  bool Truncate<NUM>::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  template <>
-  bool Truncate<Real>::calc(Real &result,
-                              Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    result = trunc(temp);
-    return true;
-  }
-
-  template <>
-  bool Truncate<Integer>::calc(Integer &result,
-                               Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false;
-    return RealToInt(trunc(temp), result);
-  }
-#endif // !defined(__VXWORKS__)
-
-  //
-  // RealToInteger
-  //
-
-  RealToInteger::RealToInteger()
-    : OperatorImpl<Integer>("REAL_TO_INT")
-  {
-  }
-
-  RealToInteger::~RealToInteger()
-  {
-  }
-
-  bool RealToInteger::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool RealToInteger::checkArgTypes(Function const *ev) const
-  {
-    ValueType ty = (*ev)[0]->valueType();
-    return isNumericType(ty) || ty == UNKNOWN_TYPE;
-  }
-
-  bool RealToInteger::calc(Integer & result,
-                           Expression const *arg) const
-  {
-    Real temp;
-    if (!arg->getValue(temp))
-      return false; // unknown/invalid
-    return RealToInt(temp, result);
-  }
-
 
   //
   // Explicit instantiations
@@ -712,16 +505,5 @@ namespace PLEXIL
   template class AbsoluteValue<Integer>;
   // Only implemented for floating point types
   template class SquareRoot<Real>;
-  template class Ceiling<Real>;
-  template class Ceiling<Integer>;
-  template class Floor<Real>;
-  template class Floor<Integer>;
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
-  template class Round<Real>;
-  template class Round<Integer>;
-  template class Truncate<Real>;
-  template class Truncate<Integer>;
-#endif // !defined(__VXWORKS__)
 
 } // namespace PLEXIL

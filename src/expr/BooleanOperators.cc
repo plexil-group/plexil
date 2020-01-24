@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,10 +44,10 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool BooleanNot::checkArgTypes(Function const *ev) const
+  bool BooleanNot::checkArgTypes(Function const *func) const
   {
-    ValueType ty = (*ev)[0]->valueType();
-    return ty == BOOLEAN_TYPE || ty == UNKNOWN_TYPE;
+    ValueType typ = (*func)[0]->valueType();
+    return typ == BOOLEAN_TYPE || typ == UNKNOWN_TYPE;
   }
 
   bool BooleanNot::operator()(bool &result, Expression const *arg) const
@@ -73,9 +73,9 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanOr::checkArgTypes(Function const *ev) const
+  bool BooleanOr::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
+    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
 
   bool BooleanOr::operator()(bool &result, Expression const *arg) const
@@ -143,9 +143,9 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanAnd::checkArgTypes(Function const *ev) const
+  bool BooleanAnd::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
+    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
 
   bool BooleanAnd::operator()(bool &result, Expression const *arg) const
@@ -211,9 +211,9 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanXor::checkArgTypes(Function const *ev) const
+  bool BooleanXor::checkArgTypes(Function const *func) const
   {
-    return ev->allSameTypeOrUnknown(BOOLEAN_TYPE);
+    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
   }
 
   bool BooleanXor::operator()(bool &result, Expression const *arg) const

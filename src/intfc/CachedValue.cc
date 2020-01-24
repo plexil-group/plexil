@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,8 @@ namespace PLEXIL
 #define DEFINE_DEFAULT_GET_VALUE_METHOD(_rtype_) \
   bool CachedValue::getValue(_rtype_ & /* result */) const   \
   { \
-    assertTrueMsg(ALWAYS_FAIL, \
-                  "getValue: trying to get a " << PlexilValueType<_rtype_>::typeName \
-                  << " value from a " << valueTypeName(this->valueType()) << " typed object"); \
+    errorMsg("getValue: trying to get a " << PlexilValueType<_rtype_>::typeName \
+             << " value from a " << valueTypeName(this->valueType()) << " typed object"); \
     return false; \
   }
 
@@ -56,9 +55,8 @@ namespace PLEXIL
 #define DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(_rtype_) \
   bool CachedValue::getValuePointer(_rtype_ const *& /* ptr */) const   \
   { \
-    assertTrueMsg(ALWAYS_FAIL, \
-                  "getValuePointer: trying to get a " << PlexilValueType<_rtype_>::typeName \
-                  << " pointer value from a " << valueTypeName(this->valueType()) << " typed object"); \
+    errorMsg("getValuePointer: trying to get a " << PlexilValueType<_rtype_>::typeName \
+             << " pointer value from a " << valueTypeName(this->valueType()) << " typed object"); \
     return false; \
   }
 
@@ -74,9 +72,8 @@ namespace PLEXIL
 #define DEFINE_DEFAULT_UPDATE_METHOD(_type_) \
   bool CachedValue::update(unsigned int timestamp, _type_ const & /* val */) \
   { \
-    checkInterfaceError(ALWAYS_FAIL, \
-                        "Attempt to update a " << valueTypeName(this->valueType()) \
-                        << " CachedValue with a " << PlexilValueType<_type_>::typeName); \
+    reportInterfaceError("Attempt to update a " << valueTypeName(this->valueType()) \
+                         << " CachedValue with a " << PlexilValueType<_type_>::typeName); \
     return false; \
   }
 
@@ -90,9 +87,8 @@ namespace PLEXIL
 #define DEFINE_DEFAULT_UPDATE_PTR_METHOD(_type_) \
   bool CachedValue::updatePtr(unsigned int /* timestamp */, _type_ const * /* ptr */) \
   { \
-    checkInterfaceError(ALWAYS_FAIL, \
-                        "Attempt to update a " << valueTypeName(this->valueType()) \
-                        << " CachedValue with a " << PlexilValueType<_type_>::typeName); \
+    reportInterfaceError("Attempt to update a " << valueTypeName(this->valueType()) \
+                         << " CachedValue with a " << PlexilValueType<_type_>::typeName); \
     return false; \
   } 
 

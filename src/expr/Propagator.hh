@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,77 +24,82 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_COMMAND_HANDLE_VARIABLE_HH
-#define PLEXIL_COMMAND_HANDLE_VARIABLE_HH
+#ifndef PLEXIL_NOTIFIER_IMPL_HH
+#define PLEXIL_NOTIFIER_IMPL_HH
 
-#include "CommandHandle.hh"
-#include "GetValueImpl.hh"
 #include "Notifier.hh"
 
 namespace PLEXIL
 {
-  // Forward reference
-  class Command;
 
-  class CommandHandleVariable final :
-    public GetValueImpl<CommandHandleValue>,
-    public Notifier
+  /**
+   * @class Propagator
+   * @brief Mixin class for expressions whose value may change. Implements expression graph notification.
+   */
+
+  //
+  // The expression listener graph (really a forest of trees, there are no cycles)
+  // is built during plan loading. Its purpose is to tell a node when one of its
+  // conditions may have changed, so that it can be considered for a potential node
+  // state transition.
+  //
+
+  class Propagator :
+    public Notifier,
+    virtual public ExpressionListener
   {
   public:
-    /**
-     * @brief Constructor.
-     */
-    CommandHandleVariable(Command const &cmd);
 
     /**
      * @brief Destructor.
      */
-    ~CommandHandleVariable();
+    virtual ~Propagator();
 
-    // Listenable API
-    virtual bool isPropagationSource() const;
-
-    char const *getName() const;
-
-    char const *exprName() const
-    {
-      return "CommandHandleVariable";
-    }
+    //
+    // Core Propagator behavior
+    //
 
     /**
-     * @brief Get the type of the expression's value.
+     * @brief Add a listener for changes to this Expression's value.
+     * @param ptr The pointer to the listener to add.
+     * @note Wraps Notifier method.
      */
-    ValueType valueType() const
-    {
-      return COMMAND_HANDLE_TYPE;
-    }
-
-    bool isKnown() const;
+    virtual void addListener(ExpressionListener *ptr);
 
     /**
-     * @brief Get the current value of the command handle.
+     * @brief Remove a listener from this Expression.
+     * @param ptr The pointer to the listener to remove.
+     * @note Wraps notifier method.
      */
-    bool getValue(CommandHandleValue &) const;
+    virtual void removeListener(ExpressionListener *ptr);
 
     /**
-     * @brief Print the expression's value to the given stream.
-     * @param s The output stream.
+     * @brief Virtual function for notification that an expression's value has changed.
      */
-    void printValue(std::ostream& s) const;
+    virtual void notifyChanged();
 
-    void setName(const std::string &);
+  protected:
+
+    /**
+     * @brief Default constructor.
+     * @note Only available to derived classes.
+     */
+    Propagator();
+
+    /**
+     * @brief Called by notifyChanged() when the expression is active.
+     * @note Default method calls publishChange().
+     */
+    virtual void handleChange();
 
   private:
 
     // Not implemented
-    CommandHandleVariable();
-    CommandHandleVariable(const CommandHandleVariable &);
-    CommandHandleVariable &operator=(const CommandHandleVariable &);
+    Propagator(const Propagator &);
+    Propagator &operator=(const Propagator &);
 
-    Command const & m_command;
-    char const *m_name;
   };
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_COMMAND_HANDLE_VARIABLE_HH
+#endif // PLEXIL_NOTIFIER_IMPL_HH

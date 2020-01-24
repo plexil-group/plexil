@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,19 +41,13 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant()
     : GetValueImpl<T>(),
-    m_known(false)
-  {
-  }
-
-  Constant<Integer>::Constant()
-    : GetValueImpl<Integer>(),
-    m_known(false)
+      m_known(false)
   {
   }
 
   Constant<String>::Constant()
     : GetValueImpl<String>(),
-    m_known(false)
+      m_known(false)
   {
   }
 
@@ -70,13 +64,6 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const Constant &other)
     : GetValueImpl<T>(),
-    m_value(other.m_value),
-    m_known(other.m_known)
-  {
-  }
-
-  Constant<Integer>::Constant(const Constant &other)
-    : GetValueImpl<Integer>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -103,13 +90,6 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const T &value)
     : GetValueImpl<T>(),
-    m_value(value),
-    m_known(true)
-  {
-  }
-
-  Constant<Integer>::Constant(const Integer &value)
-    : GetValueImpl<Integer>(),
     m_value(value),
     m_known(true)
   {
@@ -150,10 +130,6 @@ namespace PLEXIL
   {
   }
 
-  Constant<Integer>::~Constant()
-  {
-  }
-
   Constant<String>::~Constant()
   {
   }
@@ -169,11 +145,6 @@ namespace PLEXIL
    */
   template <typename T>
   const char *Constant<T>::exprName() const
-  {
-    return "Constant";
-  }
-
-  const char *Constant<Integer>::exprName() const
   {
     return "Constant";
   }
@@ -196,13 +167,6 @@ namespace PLEXIL
    */
   template <typename T>
   bool Constant<T>::getValue(T &result) const
-  {
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
-  bool Constant<Integer>::getValue(Integer &result) const
   {
     if (m_known)
       result = m_value;
@@ -246,11 +210,6 @@ namespace PLEXIL
     return m_known;
   }
 
-  bool Constant<Integer>::isKnown() const
-  {
-    return m_known;
-  }
-
   bool Constant<String>::isKnown() const
   {
     return m_known;
@@ -272,11 +231,6 @@ namespace PLEXIL
     return true;
   }
 
-  bool Constant<Integer>::isConstant() const
-  {
-    return true;
-  }
-
   bool Constant<String>::isConstant() const
   {
     return true;
@@ -288,107 +242,11 @@ namespace PLEXIL
     return true;
   }
 
-  /**
-   * @brief Query whether this expression is a source of change events.
-   * @return True if the value may change independently of any subexpressions, false otherwise.
-   */
-  template <typename T>
-  bool Constant<T>::isPropagationSource() const
-  {
-    return false;
-  }
-
-  bool Constant<Integer>::isPropagationSource() const
-  {
-    return false;
-  }
-
-  bool Constant<String>::isPropagationSource() const
-  {
-    return false;
-  }
-
-  template <typename T>
-  bool Constant<ArrayImpl<T> >::isPropagationSource() const
-  {
-    return false;
-  }
-
-  /**
-   * @brief Is this expression active (i.e. propagating value changes?)
-   * @return true if this Expression is active, false if it is not.
-   */
-  template <typename T>
-  bool Constant<T>::isActive() const
-  {
-    return true; // constants are always active
-  }
- 
-  bool Constant<Integer>::isActive() const
-  {
-    return true; // constants are always active
-  }
- 
-  bool Constant<String>::isActive() const
-  {
-    return true; // constants are always active
-  }
- 
-  template <typename T>
-  bool Constant<ArrayImpl<T> >::isActive() const
-  {
-    return true; // constants are always active
-  }
-
-  /**
-   * @brief Make this expression active.
-   * @note No-op for constants.
-   */
-  template <typename T>
-  void Constant<T>::activate()
-  {
-  }
-
-  void Constant<Integer>::activate()
-  {
-  }
-
-  void Constant<String>::activate()
-  {
-  }
-
-  template <typename T>
-  void Constant<ArrayImpl<T> >::activate()
-  {
-  }
-
-  /**
-   * @brief Make this expression inactive.
-   * @note No-op for constants.
-   */
-  template <typename T>
-  void Constant<T>::deactivate()
-  {
-  }
-
-  void Constant<Integer>::deactivate()
-  {
-  }
-
-  void Constant<String>::deactivate()
-  {
-  }
-
-  template <typename T>
-  void Constant<ArrayImpl<T> >::deactivate()
-  {
-  }
-
   //
   // Explicit instantiations
   //
   template class Constant<Boolean>;
-  //  template class Constant<Integer>;
+  template class Constant<Integer>;
   template class Constant<Real>;
   template class Constant<NodeState>;
   template class Constant<NodeOutcome>;

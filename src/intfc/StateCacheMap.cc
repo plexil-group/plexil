@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,27 +53,26 @@ namespace PLEXIL
 
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
     {
-      EntryMap::iterator it = m_map.find(state);
-      if (it == m_map.end())
-	it = m_map.insert(std::make_pair(state, StateCacheEntry())).first;
-      return &(it->second);
+      EntryMap::iterator iter = m_map.find(state);
+      if (iter == m_map.end())
+        iter = m_map.insert(std::make_pair(state, StateCacheEntry())).first;
+      return &(iter->second);
     }
 
     virtual StateCacheEntry *findStateCacheEntry(State const &state)
     {
-      EntryMap::iterator it = m_map.find(state);
-      if (it == m_map.end())
-	return NULL;
-      else
-	return &(it->second);
+      EntryMap::iterator iter = m_map.find(state);
+      if (iter == m_map.end())
+        return NULL;
+      return &(iter->second);
     }
 
     virtual void removeStateCacheEntry(State const &state)
     {
-      EntryMap::iterator it = m_map.find(state);
-      if (it == m_map.end())
-	return;
-      m_map.erase(it);
+      EntryMap::iterator iter = m_map.find(state);
+      if (iter == m_map.end())
+        return;
+      m_map.erase(iter);
     }
   };
 

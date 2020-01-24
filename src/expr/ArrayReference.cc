@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ namespace PLEXIL
                                  Expression *idx,
                                  bool aryIsGarbage,
                                  bool idxIsGarbage)
-    : NotifierImpl(),
+    : Propagator(),
       m_array(ary),
       m_index(idx),
       m_arrayIsGarbage(aryIsGarbage),
@@ -59,13 +59,12 @@ namespace PLEXIL
   {
     Expression const *base = getBaseExpression();
     if (base) {
-      std::ostringstream s;
-      s << base->getName() << '[' << m_index->valueString() << ']';
-      *m_namePtr = s.str();
+      std::ostringstream strm;
+      strm << base->getName() << '[' << m_index->valueString() << ']';
+      *m_namePtr = strm.str();
       return m_namePtr->c_str();
     }
-    static char const *sl_dummy = "";
-    return sl_dummy;
+    return "";
   }
 
   char const *ArrayReference::exprName() const
@@ -76,10 +75,9 @@ namespace PLEXIL
   ValueType ArrayReference::valueType() const
   {
     ValueType aryType = m_array->valueType();
-    if (!isArrayType(aryType))
-      return UNKNOWN_TYPE;
-    else
+    if (isArrayType(aryType))
       return arrayElementType(aryType);
+    return UNKNOWN_TYPE;
   }
 
   bool ArrayReference::isKnown() const
@@ -92,11 +90,6 @@ namespace PLEXIL
   bool ArrayReference::isConstant() const
   {
     return m_array->isConstant() && m_index->isConstant();
-  }
-
-  bool ArrayReference::isPropagationSource() const
-  {
-    return false; // can't change value independently of subexpressions
   }
 
   bool ArrayReference::isAssignable() const
@@ -114,29 +107,34 @@ namespace PLEXIL
     return m_array->getBaseExpression();
   }
 
-  void ArrayReference::printValue(std::ostream &s) const
+  void ArrayReference::printValue(std::ostream &str) const
   {
     Array const *ary;
     size_t idx;
     if (!selfCheck(ary, idx)) {
-      s << "[unknown_value]";
+      str << "[unknown_value]";
       return;
     }
 
     // Punt for now
-    s << ary->getElementValue(idx);
+    str << ary->getElementValue(idx);
   }
 
-  bool ArrayReference::selfCheck(Array const *&ary, size_t &idx) const
+  bool ArrayReference::selfCheck(Array const *&valuePtr,
+                                 size_t &idx) const
   {
     Integer idxTemp;
     if (!m_index->getValue(idxTemp))
       return false; // index is unknown
     checkPlanError(idxTemp >= 0, "Array index " << idxTemp << " is negative");
     idx = (size_t) idxTemp;
-    if (!m_array->getValuePointer(ary))
-      return false; // array is unknown
-    return ary->elementKnown(idx);
+    if (!m_array->getValuePointer(valuePtr))
+      return false; // array unknown or invalid
+    std::vector<bool> const &knownVec = valuePtr->getKnownVector();
+    checkPlanError(idx < knownVec.size(),
+                   "Array index " << idx
+                   << " equals or exceeds array size " << knownVec.size());
+    return knownVec[idx];
   }
 
   // Local macro
@@ -153,7 +151,6 @@ namespace PLEXIL
   // getValue explicit instantiations
   DEFINE_AREF_GET_VALUE_METHOD(Boolean)
   DEFINE_AREF_GET_VALUE_METHOD(Integer)
-  DEFINE_AREF_GET_VALUE_METHOD(Real)
   DEFINE_AREF_GET_VALUE_METHOD(String)
 
 #undef DEFINE_AREF_GET_VALUE_METHOD
@@ -169,7 +166,25 @@ namespace PLEXIL
     DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(FailureType)
     DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(CommandHandleValue)
 
+  
 #undef DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD
+
+  // Allow Real result from accessing Integer array
+  bool ArrayReference::getValue(Real &result) const
+  { 
+    Array const *ary; 
+    size_t idx;
+    if (!selfCheck(ary, idx))
+      return false;
+    if (ary->getElementType() == INTEGER_TYPE) {
+      Integer intResult;
+      bool success = ary->getElement(idx, intResult);
+      if (success)
+        result = (Real) intResult;
+      return success;
+    }
+    return ary->getElement(idx, result);
+  }
 
   bool ArrayReference::getValuePointer(String const *&ptr) const
   {
@@ -184,9 +199,8 @@ namespace PLEXIL
 #define DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(_type_) \
   bool ArrayReference::getValuePointer(_type_ const *&ptr) const \
   { \
-    assertTrueMsg(ALWAYS_FAIL, \
-                  "getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
-                  << " pointer value from an ArrayReference"); \
+    errorMsg("getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
+             << " pointer value from an ArrayReference"); \
     return false; \
   }
 
@@ -202,16 +216,15 @@ namespace PLEXIL
   {
     Array const *ary;
     size_t idx;
-    if (!selfCheck(ary, idx))
-      return Value(); // unknown
-    else
+    if (selfCheck(ary, idx))
       return ary->getElementValue(idx);
+    return Value(); // unknown
   }
 
-  void ArrayReference::doSubexprs(std::function<void(Expression *)> const &f)
+  void ArrayReference::doSubexprs(ListenableUnaryOperator const &opr)
   {
-    (f)(m_array);
-    (f)(m_index);
+    (opr)(m_array);
+    (opr)(m_index);
   }
 
   void ArrayReference::handleActivate()
@@ -252,12 +265,12 @@ namespace PLEXIL
 
   Assignable const *MutableArrayReference::asAssignable() const
   {
-    return dynamic_cast<Assignable const *>(this);
+    return static_cast<Assignable const *>(this);
   }
 
   Assignable *MutableArrayReference::asAssignable()
   {
-    return dynamic_cast<Assignable *>(this);
+    return static_cast<Assignable *>(this);
   }
 
   bool MutableArrayReference::mutableSelfCheck(size_t &idx)
@@ -316,16 +329,6 @@ namespace PLEXIL
   Value MutableArrayReference::getSavedValue() const
   {
     return Value(m_savedValue);
-  }
-
-  NodeConnector const *MutableArrayReference::getNode() const
-  {
-    return getBaseVariable()->asAssignable()->getNode();
-  }
-
-  NodeConnector *MutableArrayReference::getNode()
-  {
-    return getBaseVariable()->asAssignable()->getNode();
   }
 
   Expression *MutableArrayReference::getBaseVariable() 

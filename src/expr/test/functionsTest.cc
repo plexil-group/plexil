@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,7 @@
 */
 
 #include "ArithmeticOperators.hh"
+#include "CachedFunction.hh"
 #include "Constant.hh"
 #include "ExpressionConstants.hh"
 #include "Function.hh"
@@ -125,7 +126,7 @@ static bool testUnaryBasics()
 
   {
     StringConstant fou("Foo");
-    Function *str = makeFunction(&pts, 1);
+    Function *str = makeCachedFunction(&pts, 1);
     str->setArgument(0, &fou, false);
     assertTrue_1(str->isKnown());
     str->activate();
@@ -248,7 +249,7 @@ static bool testUnaryPropagation()
   {
     StringVariable fou;
     fou.setValue("Foo");
-    Function *str = makeFunction(&pts, 1);
+    Function *str = makeCachedFunction(&pts, 1);
     str->setArgument(0, &fou, false);
     bool schanged = false;
     TrivialListener sl(schanged);

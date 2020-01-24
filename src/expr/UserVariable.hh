@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "Assignable.hh"
 #include "GetValueImpl.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 namespace PLEXIL 
 {
@@ -42,9 +42,9 @@ namespace PLEXIL
   // Scalar case
   template <typename T>
   class UserVariable final :
-    public GetValueImpl<T>,
     public Assignable,
-    public NotifierImpl
+    public GetValueImpl<T>,
+    public Notifier
   {
   public:
 
@@ -54,43 +54,50 @@ namespace PLEXIL
     UserVariable();
 
     /**
+     * @brief Constructor with initial value.
+     * @param val The initial value.
+     */
+    UserVariable(T const &initVal);
+
+    /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      */
-    UserVariable(NodeConnector *node,
-                 char const *name = "");
+    UserVariable(char const *name);
     
     /**
      * @brief Destructor.
      */
     virtual ~UserVariable();
 
+    // Listenable API
+    virtual bool isPropagationSource() const override;
+
     //
     // Essential Expression API
     //
 
-    bool isAssignable() const override;
+    virtual bool isAssignable() const override;
 
-    Assignable const *asAssignable() const override;
-    Assignable *asAssignable() override;
+    virtual Assignable const *asAssignable() const override;
+    virtual Assignable *asAssignable() override;
 
-    char const *getName() const override;
+    virtual char const *getName() const override;
 
-    char const *exprName() const override;
+    virtual char const *exprName() const override;
 
     //
     // GetValueImpl API
     //
 
-    bool isKnown() const override;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValue(T &result) const override;
+    virtual bool getValue(T &result) const override;
 
     //
     // Assignable API
@@ -99,19 +106,16 @@ namespace PLEXIL
     /**
      * @brief Set the current value unknown.
      */
-    void setUnknown() override;
+    virtual void setUnknown() override;
 
-    void saveCurrentValue() override;
+    virtual void saveCurrentValue() override;
 
-    void restoreSavedValue() override;
+    virtual void restoreSavedValue() override;
 
-    Value getSavedValue() const override;
+    virtual Value getSavedValue() const override;
 
-    NodeConnector *getNode() override;
-    NodeConnector const *getNode() const override;
-
-    Expression *getBaseVariable() override;
-    Expression const *getBaseVariable() const override;
+    virtual Expression *getBaseVariable() override;
+    virtual Expression const *getBaseVariable() const override;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -125,6 +129,18 @@ namespace PLEXIL
      * @param val The new value for this object.
      */
     virtual void setValue(Value const &val) override;
+
+    /**
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
+     */
+    virtual void setValue(Expression const &val);
+
+    virtual void handleActivate() override;
+
+    virtual void handleDeactivate() override;
+
+    virtual void printSpecialized(std::ostream &s) const override;
 
   protected:
     
@@ -134,158 +150,15 @@ namespace PLEXIL
      */
     void setValueImpl(T const &value);
 
-    //
-    // Expression internal API
-    //
-
-    void printSpecialized(std::ostream &s) const override;
-
-    //
-    // NotifierImpl API
-    //
-
-    void handleActivate() override;
-    void handleDeactivate() override;
-
   private:
 
     // N.B. Ordering is suboptimal for bool because of required padding;
-    // fine for int32_t and double
+    // fine for Integer and Real
     T m_value;
     T m_savedValue;   // for undoing assignment 
 
     Expression *m_initializer;
     char const *m_name;
-
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
-
-    bool m_known;
-    bool m_savedKnown;
-    bool m_initializerIsGarbage;
-
-  };
-
-  // Integer case - base template class is specialized
-  template <>
-  class UserVariable<Integer> final :
-    public GetValueImpl<Integer>,
-    public Assignable,
-    public NotifierImpl
-  {
-  public:
-
-    /**
-     * @brief Default constructor.
-     */
-    UserVariable();
-
-    /**
-     * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
-     * @param name The name of this variable in the parent node.
-     */
-    UserVariable(NodeConnector *node,
-                 char const *name = "");
-    
-    /**
-     * @brief Destructor.
-     */
-    virtual ~UserVariable();
-
-    //
-    // Essential Expression API
-    //
-
-    bool isAssignable() const override;
-
-    Assignable const *asAssignable() const override;
-    Assignable *asAssignable() override;
-
-    char const *getName() const override;
-
-    char const *exprName() const override;
-
-    //
-    // GetValueImpl API
-    //
-
-    bool isKnown() const override;
-
-    /**
-     * @brief Get the expression's value.
-     * @param result The variable where the value will be stored.
-     * @return True if known, false if unknown.
-     */
-    bool getValue(Integer &result) const override;
-
-    //
-    // Assignable API
-    //
-
-    /**
-     * @brief Set the current value unknown.
-     */
-    void setUnknown() override;
-
-    void saveCurrentValue() override;
-
-    void restoreSavedValue() override;
-
-    Value getSavedValue() const override;
-
-    NodeConnector *getNode() override;
-    NodeConnector const *getNode() const override;
-
-    Expression *getBaseVariable() override;
-    Expression const *getBaseVariable() const override;
-
-    /**
-     * @brief Set the expression from which this object gets its initial value.
-     * @param expr Pointer to an Expression.
-     * @param garbage True if the expression should be deleted with this object, false otherwise.
-     */
-    virtual void setInitializer(Expression *expr, bool garbage) override;
-
-    /**
-     * @brief Set the value for this object.
-     * @param val The new value for this object.
-     */
-    virtual void setValue(Value const &val) override;
-
-  protected:
-
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     */
-    void setValueImpl(Integer const &value);
-
-    //
-    // Expression internal API
-    //
-
-    void printSpecialized(std::ostream &s) const override;
-    
-    //
-    // NotifierImpl API
-    //
-
-    void handleActivate() override;
-    void handleDeactivate() override;
-
-  private:
-
-    // N.B. Ordering is suboptimal for bool because of required padding;
-    // fine for int32_t and double
-    Integer m_value;
-    Integer m_savedValue;   // for undoing assignment 
-
-    Expression *m_initializer;
-    char const *m_name;
-
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;
@@ -296,9 +169,9 @@ namespace PLEXIL
   // String case
   template <>
   class UserVariable<String> final :
-    public GetValueImpl<String>,
     public Assignable,
-    public NotifierImpl
+    public GetValueImpl<String>,
+    public Notifier
   {
   public:
 
@@ -308,72 +181,83 @@ namespace PLEXIL
     UserVariable();
 
     /**
+     * @brief Constructor with initial value.
+     * @param val The initial value.
+     */
+    explicit UserVariable(String const &initVal);
+
+    /**
      * @brief Constructor for plan loading.
-     * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      */
-    UserVariable(NodeConnector *node,
-                 char const *name = "");
+    UserVariable(char const *name);
 
     /**
      * @brief Destructor.
      */
     virtual ~UserVariable();
 
+    // Listenable API
+    virtual bool isPropagationSource() const override;
+
     //
     // Essential Expression API
     //
 
-    bool isAssignable() const override;
+    virtual bool isAssignable() const override;
 
-    Assignable const *asAssignable() const override;
-    Assignable *asAssignable() override;
+    virtual Assignable const *asAssignable() const override;
+    virtual Assignable *asAssignable() override;
 
-    char const *getName() const override;
+    virtual char const *getName() const override;
 
-    char const *exprName() const override;
+    virtual char const *exprName() const override;
 
-    bool isKnown() const override;
+    virtual bool isKnown() const override;
 
     /**
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValue(String &result) const override;
+    virtual bool getValue(String &result) const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(String const *&ptr) const override;
+    virtual bool getValuePointer(String const *&ptr) const override;
     template <typename U>
     bool getValuePointer(U const *&ptr) const;
 
     /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     * @note Type conversions must go on derived classes.
+     */
+    virtual void setValueImpl(String const &value);
+
+    /**
      * @brief Set the current value unknown.
      */
-    void setUnknown() override;
+    virtual void setUnknown() override;
 
-    void saveCurrentValue() override;
+    virtual void saveCurrentValue() override;
 
-    void restoreSavedValue() override;
+    virtual void restoreSavedValue() override;
 
-    Value getSavedValue() const override;
+    virtual Value getSavedValue() const override;
 
-    NodeConnector *getNode() override;
-    NodeConnector const *getNode() const override;
-
-    Expression *getBaseVariable() override;
-    Expression const *getBaseVariable() const override;
+    virtual Expression *getBaseVariable() override;
+    virtual Expression const *getBaseVariable() const override;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
      */
-    void setInitializer(Expression *expr, bool garbage) override;
+    virtual void setInitializer(Expression *expr, bool garbage) override;
 
     /**
      * @brief Set the value for this object.
@@ -381,27 +265,17 @@ namespace PLEXIL
      */
     virtual void setValue(Value const &val) override;
 
-  protected:
-
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
+     * @brief Set the value for this object.
+     * @param val The expression with the new value for this object.
      */
-    void setValueImpl(String const &value);
+    virtual void setValue(Expression const &val);
 
-    //
-    // Expression internal API
-    //
+    virtual void handleActivate() override;
 
-    void printSpecialized(std::ostream &s) const override;
-    
-    //
-    // NotifierImpl API
-    //
+    virtual void handleDeactivate() override;
 
-    void handleActivate() override;
-    void handleDeactivate() override;
+    virtual void printSpecialized(std::ostream &s) const override;
 
   private:
 
@@ -410,9 +284,6 @@ namespace PLEXIL
 
     Expression *m_initializer;
     char const *m_name;
-
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;

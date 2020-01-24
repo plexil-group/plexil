@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ namespace PLEXIL {
   
   // Forward declarations
   class Array;
-  class NodeConnector;
   class Value;
 
   /**
@@ -70,15 +69,6 @@ namespace PLEXIL {
      * @return The saved value.
      */
     virtual Value getSavedValue() const = 0;
-
-    /**
-     * @brief Get the node that owns this expression.
-     * @return The parent node; may be null.
-     * @note Used by LuvFormat::formatAssignment().  
-     * @note Default method returns nullptr.
-     */
-    virtual NodeConnector *getNode();
-    virtual NodeConnector const *getNode() const;
 
     /**
      * @brief Get the real variable for which this may be a proxy.

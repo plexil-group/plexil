@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,21 +29,20 @@
 // ExpressionListener tests
 //
 
-#include "Expression.hh"
 #include "Error.hh"
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
 #include "Value.hh"
 
 using namespace PLEXIL;
 
-class PropagatingListener : public PLEXIL::ExpressionListener
+class PropagatingListener : public ExpressionListener
 {
 public:
-  PropagatingListener(PLEXIL::ExpressionListener &owner)
-  : PLEXIL::ExpressionListener(),
-    m_owner(owner)
+  PropagatingListener(Propagator &owner)
+  : m_owner(owner)
   {
   }
 
@@ -54,16 +53,16 @@ protected:
   }
 
 private:
-  PLEXIL::ExpressionListener &m_owner;
+  Propagator &m_owner;
 };
 
-
 class TrivialExpression :
-  public PLEXIL::NotifierImpl
+  public Expression,
+  public Propagator
 {
 public:
   TrivialExpression()
-    : PLEXIL::NotifierImpl(),
+    : Propagator(),
       changed(false)
   {
   }
@@ -99,7 +98,7 @@ public:
   }
 
   const char *exprName() const { return "trivial"; }
-  PLEXIL::ValueType valueType() const { return PLEXIL::UNKNOWN_TYPE; }
+  ValueType valueType() const { return UNKNOWN_TYPE; }
 
   void print(std::ostream& s) const {}
   void printValue(std::ostream& s) const {}
@@ -107,7 +106,7 @@ public:
   bool isConstant() const { return true; }
   bool isKnown() const { return false; }
 
-  PLEXIL::Value toValue() const { return PLEXIL::Value(); }
+  Value toValue() const { return Value(); }
 
 public:
   bool changed;
@@ -134,10 +133,10 @@ static bool testListenerPropagation()
   assertTrue_1(!dest.changed);
 
   // Test that notifications do nothing when expressions inactive
-  source.notifyChanged();
+  source.publishChange();
   assertTrue_1(!source.changed);
   assertTrue_1(!dest.changed);
-  dest.notifyChanged();
+  dest.publishChange();
   assertTrue_1(!dest.changed);
   assertTrue_1(!transitiveChanged);
 
@@ -169,7 +168,7 @@ static bool testListenerPropagation()
 
   // Test no propagation through dest when inactive
   dest.deactivate();
-  source.notifyChanged();
+  source.publishChange();
   assertTrue_1(!dest.changed);
   assertTrue_1(!transitiveChanged);
 
@@ -197,10 +196,10 @@ static bool testDirectPropagation()
   assertTrue_1(!dest.changed);
 
   // Test that notifications do nothing when expressions inactive
-  source.notifyChanged();
+  source.publishChange();
   assertTrue_1(!source.changed);
   assertTrue_1(!dest.changed);
-  dest.notifyChanged();
+  dest.publishChange();
   assertTrue_1(!dest.changed);
 
   // Activate dest, ensure it is active
@@ -229,7 +228,7 @@ static bool testDirectPropagation()
 
   // Test no propagation through dest when inactive
   dest.deactivate();
-  source.notifyChanged();
+  source.publishChange();
   assertTrue_1(!dest.changed);
 
   // Clean up
@@ -244,9 +243,3 @@ bool listenerTest()
   runTest(testDirectPropagation);
   return true;
 }
-
-
-
-
-
-

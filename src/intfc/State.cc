@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -142,70 +142,70 @@ namespace PLEXIL
     m_parameters[i] = val;
   }
 
-  void State::print(std::ostream &s) const
+  void State::print(std::ostream &str) const
   {
-    s << m_name << '(';
+    str << m_name << '(';
     size_t i = 0;
     while (i < m_parameters.size()) {
-      s << m_parameters[i];
+      str << m_parameters[i];
       if (++i < m_parameters.size())
-        s << ", ";
+        str << ", ";
     }
-    s << ')';
+    str << ')';
   }
 
   std::string State::toString() const
   {
-    std::ostringstream s;
-    print(s);
-    return s.str();
+    std::ostringstream strm;
+    print(strm);
+    return strm.str();
   }
 
-  std::ostream &operator<<(std::ostream &s, State const &st)
+  std::ostream &operator<<(std::ostream &str, State const &state)
   {
-    st.print(s);
-    return s;
+    state.print(str);
+    return str;
   }
 
-  char *State::serialize(char *b) const
+  char *State::serialize(char *buf) const
   {
-    *b++ = STATE_TYPE;
-    b = PLEXIL::serialize(m_name, b);
+    *buf++ = STATE_TYPE;
+    buf = PLEXIL::serialize(m_name, buf);
     // Put 3 bytes of parameter count
-    size_t s = m_parameters.size();
-    *b++ = (char) (0xFF & (s >> 16));
-    *b++ = (char) (0xFF & (s >> 8));
-    *b++ = (char) (0xFF & s);
-    for (size_t i = 0; b != NULL && i < s; ++i)
-      b = PLEXIL::serialize(m_parameters[i], b);
-    return b;
+    size_t siz = m_parameters.size();
+    *buf++ = (char) (0xFF & (siz >> 16));
+    *buf++ = (char) (0xFF & (siz >> 8));
+    *buf++ = (char) (0xFF & siz);
+    for (size_t i = 0; buf != NULL && i < siz; ++i)
+      buf = PLEXIL::serialize(m_parameters[i], buf);
+    return buf;
   }
 
   template <>
-  char *serialize<State>(State const &o, char *b)
+  char *serialize<State>(State const &val, char *buf)
   {
-    return o.serialize(b);
+    return val.serialize(buf);
   }
 
-  char const *State::deserialize(char const *b)
+  char const *State::deserialize(char const *buf)
   {
-    if (STATE_TYPE != (ValueType) *b++)
+    if (STATE_TYPE != (ValueType) *buf++)
       return NULL;
-    b = PLEXIL::deserialize(m_name, b);
+    buf = PLEXIL::deserialize(m_name, buf);
     // Get parameter count
-    size_t s = ((size_t) (unsigned char) *b++) << 8;
-    s = (s + (size_t) (unsigned char) *b++) << 8;
-    s = s + (size_t) (unsigned char) *b++;
-    m_parameters.resize(s);
-    for (size_t i = 0; b != NULL && i < s; ++i)
-      b = PLEXIL::deserialize(m_parameters[i], b);
-    return b;
+    size_t siz = ((size_t) (unsigned char) *buf++) << 8;
+    siz = (siz + (size_t) (unsigned char) *buf++) << 8;
+    siz = siz + (size_t) (unsigned char) *buf++;
+    m_parameters.resize(siz);
+    for (size_t i = 0; buf != NULL && i < siz; ++i)
+      buf = PLEXIL::deserialize(m_parameters[i], buf);
+    return buf;
   }
 
   template <>
-  char const *deserialize<State>(State &o, char const *b)
+  char const *deserialize<State>(State &val, char const *buf)
   {
-    return o.deserialize(b);
+    return val.deserialize(buf);
   }
 
   size_t State::serialSize() const
@@ -217,36 +217,36 @@ namespace PLEXIL
   }
 
   template <>
-  size_t serialSize<State>(State const &o)
+  size_t serialSize<State>(State const &val)
   {
-    return o.serialSize();
+    return val.serialSize();
   }
 
-  bool operator==(State const &a, State const &b)
+  bool operator==(State const &sta, State const &stb)
   {
-    return (a.name() == b.name()
-            && a.parameters() == b.parameters());
+    return sta.name() == stb.name()
+      && sta.parameters() == stb.parameters();
   }
 
-  bool operator<(State const &a, State const &b)
+  bool operator<(State const &sta, State const &stb)
   {
-    if (a.m_name < b.m_name)
+    if (sta.m_name < stb.m_name)
       return true;
-    if (a.m_name > b.m_name)
+    if (sta.m_name > stb.m_name)
       return false;
     // Same name
-    size_t aSize = a.m_parameters.size();
-    if (aSize < b.m_parameters.size())
+    size_t aSize = sta.m_parameters.size();
+    if (aSize < stb.m_parameters.size())
       return true;
-    if (aSize > b.m_parameters.size())
+    if (aSize > stb.m_parameters.size())
       return false;
     // Same # params
-    for (size_t i = 0; i < a.parameterCount(); ++i) {
-      Value const &av = a.m_parameters[i];
-      Value const &bv = b.m_parameters[i];
-      if (av < bv)
+    for (size_t i = 0; i < sta.parameterCount(); ++i) {
+      Value const &aval = sta.m_parameters[i];
+      Value const &bval = stb.m_parameters[i];
+      if (aval < bval)
         return true;
-      if (av > bv)
+      if (aval > bval)
         return false;
     }
     return false; // states are equal

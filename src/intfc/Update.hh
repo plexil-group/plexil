@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,8 +52,7 @@ namespace PLEXIL
     //
 
     void reservePairs(size_t n);
-    // Return true if OK, false if name is a duplicate
-    bool addPair(std::string const &name, Expression *exp, bool garbage);
+    void addPair(std::string const &name, Expression *exp, bool expIsGarbage);
 
     Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}

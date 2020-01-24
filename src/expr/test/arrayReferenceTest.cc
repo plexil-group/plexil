@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -790,7 +790,7 @@ bool testArrayRefNotification()
   sar.addListener(&sarl);
 
   // Check that nothing propagates while inactive
-  ivar.notifyChanged();
+  ivar.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -841,7 +841,7 @@ bool testArrayRefNotification()
 
   // Changing array should propagate to refs but not ivar
   ivarChanged = barChanged = iarChanged = darChanged = sarChanged = false;
-  bv.notifyChanged();
+  bv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(bvChanged);
   assertTrue_1(!ivChanged);
@@ -853,7 +853,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   bvChanged = barChanged = false;
-  iv.notifyChanged();
+  iv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -865,7 +865,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   ivChanged = iarChanged = false;
-  dv.notifyChanged();
+  dv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -877,7 +877,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   dvChanged = darChanged = false;
-  sv.notifyChanged();
+  sv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -997,7 +997,7 @@ bool testMutableNotification()
   sar.addListener(&sarl);
 
   // Check that nothing propagates while inactive
-  ivar.notifyChanged();
+  ivar.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1048,7 +1048,7 @@ bool testMutableNotification()
 
   // Changing array should propagate to refs but not ivar
   ivarChanged = barChanged = iarChanged = darChanged = sarChanged = false;
-  bv.notifyChanged();
+  bv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(bvChanged);
   assertTrue_1(!ivChanged);
@@ -1060,7 +1060,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   bvChanged = barChanged = false;
-  iv.notifyChanged();
+  iv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -1072,7 +1072,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   ivChanged = iarChanged = false;
-  dv.notifyChanged();
+  dv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1084,7 +1084,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   dvChanged = darChanged = false;
-  sv.notifyChanged();
+  sv.publishChange();
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,16 @@
 
 #include "Command.hh"
 #include "Debug.hh"
-//#include "Error.hh"
-#include "LinkedQueue.hh" // includes Error.hh
+#include "LinkedQueue.hh"
 
 #include <algorithm> // std::stable_sort()
 #include <cctype>
-#include <cmath>
+
+#ifdef STDC_HEADERS
 #include <cstdlib> // strtod()
 #include <cstring> // strspn(), strcspn() et al
+#endif
+
 #include <map>
 #include <set>
 

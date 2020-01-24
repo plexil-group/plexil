@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ namespace PLEXIL
 {
   class Expression;
   class ExpressionListener;
+  class ListenableUnaryOperator;
 
   /**
    * @class ExprVec
@@ -53,7 +54,9 @@ namespace PLEXIL
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
     virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
-    virtual void doSubexprs(std::function<void (Expression *)> const &f) = 0;
+    virtual void addListener(ExpressionListener *l) = 0;
+    virtual void removeListener(ExpressionListener *l) = 0;
+    virtual void doSubexprs(ListenableUnaryOperator const &f) = 0;
     virtual void print(std::ostream &s) const = 0;
 
     // These are in critical path of exec inner loop, 

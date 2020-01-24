@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,9 @@ namespace PLEXIL
     type = Q_UNINITED;
   }
 
-  void QueueEntry::initForLookup(State const &st, Value const &val)
+  void QueueEntry::initForLookup(State const &stat, Value const &val)
   {
-    state = new State(st); // have to copy 
+    state = new State(stat); // have to copy 
     value = val;
     type = Q_LOOKUP;
   }
@@ -76,9 +76,9 @@ namespace PLEXIL
     type = Q_UPDATE_ACK;
   }
 
-  void QueueEntry::initForAddPlan(Node *p)
+  void QueueEntry::initForAddPlan(NodeImpl *node)
   {
-    plan = p;
+    plan = node;
     type = Q_ADD_PLAN;
   }
 

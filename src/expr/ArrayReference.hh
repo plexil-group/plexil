@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,17 +28,18 @@
 #define PLEXIL_ARRAY_REFERENCE_HH
 
 #include "Assignable.hh"
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-namespace PLEXIL
-{
+namespace PLEXIL {
 
-  // Forward reference
   class ArrayVariable;
 
-  class ArrayReference : public NotifierImpl
+  class ArrayReference :
+    virtual public Expression,
+    public Propagator
   {
   public:
     ArrayReference(Expression *ary,
@@ -57,7 +58,6 @@ namespace PLEXIL
     virtual ValueType valueType() const override;
     virtual bool isKnown() const override;
     virtual bool isConstant() const override;
-    virtual bool isPropagationSource() const override;
     virtual bool isAssignable() const override;
     virtual Expression *getBaseExpression() override;
     virtual Expression const *getBaseExpression() const override;
@@ -99,13 +99,13 @@ namespace PLEXIL
   protected:
 
     //
-    // NotifierImpl API
+    // Notifier API
     //
 
     virtual void handleActivate() override;
     virtual void handleDeactivate() override;
 
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+    virtual void doSubexprs(ListenableUnaryOperator const &f) override;
 
     // State shared with MutableArrayReference
     Expression *m_array;
@@ -124,7 +124,8 @@ namespace PLEXIL
     ArrayReference &operator=(const ArrayReference &);
 
     // Internal function
-    bool selfCheck(Array const *&ary, size_t &idx) const;
+    bool selfCheck(Array const *&ary,
+                   size_t &idx) const;
   };
 
   /**
@@ -167,9 +168,6 @@ namespace PLEXIL
     virtual void restoreSavedValue() override;
     virtual Value getSavedValue() const override;
 
-    virtual NodeConnector const *getNode() const override;
-    virtual NodeConnector *getNode() override;
-
     virtual Expression *getBaseVariable() override;
     virtual Expression const *getBaseVariable() const override;
 
@@ -179,7 +177,7 @@ namespace PLEXIL
     MutableArrayReference(const MutableArrayReference &);
     MutableArrayReference &operator=(const MutableArrayReference &);
 
-    // Internal functions
+    // Internal function
     bool mutableSelfCheck(size_t &idx);
 
     ArrayVariable *m_mutableArray;

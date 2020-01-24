@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@
 #ifndef PLEXIL_LOOKUP_HH
 #define PLEXIL_LOOKUP_HH
 
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 #include "State.hh"
 
 namespace PLEXIL
@@ -61,7 +62,9 @@ namespace PLEXIL
   //  - frequently active for many Exec cycles
   //
 
-  class Lookup : public NotifierImpl
+  class Lookup :
+    public Expression,
+    public Propagator
   {
   public:
     Lookup(Expression *stateName,
@@ -76,6 +79,10 @@ namespace PLEXIL
     virtual const char *exprName() const override;
     virtual void printValue(std::ostream &s) const override;
     virtual void printSubexpressions(std::ostream &s) const override;
+
+    // Wrappers
+    virtual void addListener(ExpressionListener *l) override;
+    virtual void removeListener(ExpressionListener *l) override;
 
     /**
      * @brief Query whether this expression is a source of change events.
@@ -181,7 +188,7 @@ namespace PLEXIL
     virtual void handleDeactivate() override;
     virtual void handleChange() override;
 
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+    virtual void doSubexprs(ListenableUnaryOperator const &f) override;
 
     // Behavior that needs to be augmented for LookupOnChange
     virtual void invalidateOldState(); // called before updating state to new value
@@ -232,6 +239,10 @@ namespace PLEXIL
     virtual bool getThresholds(Integer &high, Integer &low) override;
     virtual bool getThresholds(Real &high, Real &low) override;
 
+    // Wrappers
+    virtual void addListener(ExpressionListener *l) override;
+    virtual void removeListener(ExpressionListener *l) override;
+
     /**
      * @brief Retrieve the value of this Expression.
      * @param The appropriately typed place to put the result.
@@ -264,7 +275,7 @@ namespace PLEXIL
     virtual void handleDeactivate() override;
     virtual void handleChange() override;
 
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+    virtual void doSubexprs(ListenableUnaryOperator const &f) override;
 
   private:
     // Prohibit default constructor, copy, assign

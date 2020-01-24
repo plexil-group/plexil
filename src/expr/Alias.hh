@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,8 @@
 #ifndef PLEXIL_ALIAS_HH
 #define PLEXIL_ALIAS_HH
 
-#include "Assignable.hh"
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 
 namespace PLEXIL
 {
@@ -42,12 +42,12 @@ namespace PLEXIL
    *       read-only access to a mutable expression is needed.
    */
   class Alias :
-    public NotifierImpl
+    public Expression,
+    public Propagator
   {
   public:
-    Alias(NodeConnector *node, // *** is this needed?? ***
-          char const *name,
-          Expression *original = NULL,
+    Alias(char const *name,
+          Expression *original = nullptr,
           bool garbage = false);
     virtual ~Alias();
 
@@ -61,7 +61,6 @@ namespace PLEXIL
     virtual bool isKnown() const override;
     virtual bool isAssignable() const override;
     virtual bool isConstant() const override;
-    virtual bool isPropagationSource() const override;
     virtual Expression *getBaseExpression() override;
     virtual Expression const *getBaseExpression() const override;
 
@@ -101,13 +100,11 @@ namespace PLEXIL
 
   protected:
 
-    virtual void doSubexprs(std::function<void(Expression *)> const &f) override;
+    virtual void doSubexprs(ListenableUnaryOperator const &f) override;
 
     // The expression being aliased.
     Expression *m_exp;
-    // Parent node
-    NodeConnector *m_node;
-    // Name in the parent node
+    // Name in the owning node
     char const *m_name;
 
   private:

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,12 +51,12 @@ namespace PLEXIL
     return false;
   }
 
-  bool Operator::checkArgCount(size_t count) const
+  bool Operator::checkArgCount(size_t /* count */) const
   {
     return false;
   }
 
-  bool Operator::checkArgTypes(Function const *ev) const
+  bool Operator::checkArgTypes(Function const * /* func */) const
   {
     return true;
   }
@@ -64,32 +64,31 @@ namespace PLEXIL
 #define DEFINE_OPERATOR_DEFAULT_METHODS(_rtype_) \
   bool Operator::operator()(_rtype_ & /* result */, Expression const * /* arg */) const \
   { \
-      checkPlanError(ALWAYS_FAIL, \
-                     m_name << ": Attempt to get " \
-                     << valueTypeName(PlexilValueType<_rtype_>::value) \
-                     << " result from a " \
-                     << valueTypeName(this->valueType()) \
-                     << " expression"); \
+      reportPlanError(m_name << ": Attempt to get " \
+                      << valueTypeName(PlexilValueType<_rtype_>::value) \
+                      << " result from a "                              \
+                      << valueTypeName(this->valueType())               \
+                      << " expression");                                \
       return false; \
   } \
-  bool Operator::operator()(_rtype_ & /* result */, Expression const * /* arg0 */, Expression const * /* arg1 */) const \
+  bool Operator::operator()(_rtype_ & /* result */, \
+                            Expression const * /* arg0 */, \
+                            Expression const * /* arg1 */) const \
   { \
-      checkPlanError(ALWAYS_FAIL, \
-                     m_name << ": Attempt to get " \
-                     << valueTypeName(PlexilValueType<_rtype_>::value) \
-                     << " result from a " \
-                     << valueTypeName(this->valueType()) \
-                     << " expression"); \
+      reportPlanError(m_name << ": Attempt to get " \
+                      << valueTypeName(PlexilValueType<_rtype_>::value) \
+                      << " result from a "                              \
+                      << valueTypeName(this->valueType())               \
+                      << " expression");                                \
       return false; \
   } \
   bool Operator::operator()(_rtype_ & /* result */, Function const & /* args */) const \
   { \
-      checkPlanError(ALWAYS_FAIL, \
-                     m_name << ": Attempt to get " \
-                     << valueTypeName(PlexilValueType<_rtype_>::value) \
-                     << " result from a " \
-                     << valueTypeName(this->valueType()) \
-                     << " expression"); \
+      reportPlanError(m_name << ": Attempt to get " \
+                      << valueTypeName(PlexilValueType<_rtype_>::value) \
+                      << " result from a "                              \
+                      << valueTypeName(this->valueType())               \
+                      << " expression");                                \
       return false; \
   }
 

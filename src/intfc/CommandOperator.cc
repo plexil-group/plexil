@@ -24,25 +24,36 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Assignable.hh"
-#include "PlanError.hh"
-#include "ValueType.hh"
+//
+// Define default operator() methods
+//
 
-namespace PLEXIL {
+#include "CommandOperator.hh"
 
-  //
-  // Assignable
-  //
+#include "Error.hh"
 
-  /**
-   * @brief Set the expression from which this object gets its initial value.
-   * @param expr Pointer to an Expression.
-   * @param garbage True if the expression should be deleted with this object, false otherwise.
-   * @note Default method.
-   */
-  void Assignable::setInitializer(Expression * /* expr */, bool /* garbage */)
-  {
-    errorMsg("setInitializer() called on Assignable that doesn't have an initializer");
-  }
+namespace PLEXIL
+{
 
-} // namespace PLEXIL
+#define DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(_rtype_) \
+  bool CommandOperator::operator()(_rtype_ & /* result */, Command const * /* command */) const \
+  { errorMsg("No method defined for" #_rtype_); return false; }
+
+  DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(Boolean)
+  // Only Boolean operators implemented to date
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(uint16_t)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(Integer)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(Real)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(String)
+
+  // Not needed yet
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(Array)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(BooleanArray)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(IntegerArray)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(RealArray)
+  // DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(StringArray)
+
+  
+#undef DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD
+
+}

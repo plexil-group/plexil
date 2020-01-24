@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,14 @@ namespace PLEXIL
 {
 
   SimpleBooleanVariable::SimpleBooleanVariable()
-    : NotifierImpl(),
-    m_name(NULL),
+    : Notifier(),
+    m_name(nullptr),
     m_value(false)
   {
   }
 
   SimpleBooleanVariable::SimpleBooleanVariable(char const *name)
-    : NotifierImpl(),
+    : Notifier(),
     m_name(name),
     m_value(false)
   {
@@ -49,6 +49,11 @@ namespace PLEXIL
   // Don't delete m_name as it is a pointer to a constant string.
   SimpleBooleanVariable::~SimpleBooleanVariable()
   {
+  }
+
+  bool SimpleBooleanVariable::isPropagationSource() const
+  {
+    return true;
   }
 
   //
@@ -64,17 +69,16 @@ namespace PLEXIL
   {
     if (m_name)
       return m_name;
-    static char const *sl_dummy = "";
-    return sl_dummy;
+    return "";
   }
 
-  void SimpleBooleanVariable::printSpecialized(std::ostream &s) const
+  void SimpleBooleanVariable::printSpecialized(std::ostream &str) const
   {
-    s << getName() << ' ';
+    str << getName() << ' ';
   }
 
   //
-  // NotifierImpl API
+  // Notifier API
   //
 
   void SimpleBooleanVariable::handleActivate()
@@ -104,11 +108,9 @@ namespace PLEXIL
 
   void SimpleBooleanVariable::setValue(Boolean const &val)
   {
-    if (this->isActive()) {
-      if (m_value != val) {
-        m_value = val;
-        publishChange();
-      }
+    if (this->isActive() && m_value != val) {
+      m_value = val;
+      publishChange();
     }
   }
 

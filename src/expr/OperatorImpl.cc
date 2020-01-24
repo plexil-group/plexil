@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,6 @@
 
 #include "OperatorImpl.hh"
 
-#include "allocateCache.hh"
 #include "ArrayFwd.hh"
 #include "Expression.hh"
 #include "Function.hh"
@@ -71,15 +70,24 @@ namespace PLEXIL
   }
 
   // Allocate small objects from a pool per type
+
+  // Booleans, Integers, Reals, internal values don't use a cache
   template <typename R>
   void *OperatorImpl<R>::allocateCache() const
   {
-    return static_cast<void *>(PLEXIL::allocateCache<R>());
+    return nullptr;
   }
 
   void *OperatorImpl<Integer>::allocateCache() const
   {
-    return static_cast<void *>(PLEXIL::allocateCache<Integer>());
+    return nullptr;
+  }
+
+  // Strings, arrays need to allocate a cache for getValuePointer()
+  template <>
+  void *OperatorImpl<String>::allocateCache() const
+  {
+    return static_cast<void *>(new String);
   }
 
   template <typename R>
@@ -88,15 +96,21 @@ namespace PLEXIL
     return static_cast<void *>(new ArrayImpl<R>);
   }
 
+  // Booleans, Integers, Reals, internal values don't use a cache
   template <typename R>
   void OperatorImpl<R>::deleteCache(void *ptr) const
   {
-    PLEXIL::deallocateCache(static_cast<R *>(ptr));
   }
 
   void OperatorImpl<Integer>::deleteCache(void *ptr) const
   {
-    PLEXIL::deallocateCache(static_cast<Integer *>(ptr));
+  }
+
+  // Strings, arrays need to allocate a cache for getValuePointer()
+  template <>
+  void OperatorImpl<String>::deleteCache(void *ptr) const
+  {
+    delete static_cast<String *>(ptr);
   }
 
   template <typename R>
@@ -198,73 +212,82 @@ namespace PLEXIL
   // Convenience methods
 
   template <typename R>
-  bool OperatorImpl<R>::calcNative(void *cache, Function const &f) const
+  bool OperatorImpl<R>::isKnown(Function const &func) const
   {
-    return f.getValue(*(static_cast<R *>(cache)));
+    R dummy;
+    // N.B.: We do this roundabout call back to the function
+    // so the function can dispatch to the appropriate calc() method
+    // based on its argument count. See Function.cc.
+    return func.getValue(dummy);
   }
 
-  bool OperatorImpl<Integer>::calcNative(void *cache, Function const &f) const
+  bool OperatorImpl<Integer>::isKnown(Function const &func) const
   {
-    return f.getValue(*(static_cast<Integer *>(cache)));
+    Integer dummy;
+    return func.getValue(dummy);
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Function const &f) const
+  bool OperatorImpl<ArrayImpl<R> >::isKnown(Function const &func) const
   {
-    return f.apply(this, *(static_cast<Array *>(cache)));
+    ArrayImpl<R> dummy;
+    return func.getValue(dummy);
   }
 
   template <typename R>
-  void OperatorImpl<R>::printValue(std::ostream &s, void *cache, Function const &f) const
+  void OperatorImpl<R>::printValue(std::ostream &s, Function const &exprs) const
   {
-    if (calcNative(cache, f))
-      PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
+    R temp;
+    if (exprs.getValue(temp))
+      PLEXIL::printValue(temp, s);
     else
       s << "[unknown_value]";
   }
 
-  void OperatorImpl<Integer>::printValue(std::ostream &s, void *cache, Function const &f) const
+  void OperatorImpl<Integer>::printValue(std::ostream &s, Function const &exprs) const
   {
-    if (calcNative(cache, f))
-      PLEXIL::printValue(*(static_cast<Integer const *>(cache)), s);
+    Integer temp;
+    if (exprs.getValue(temp))
+      PLEXIL::printValue(temp, s);
     else
       s << "[unknown_value]";
   }
 
   template <typename R>
-  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Function const &f) const
+  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, Function const &exprs) const
   {
-    if (calcNative(cache, f))
-      PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
+    ArrayImpl<R> temp;
+    if (exprs.getValue(temp))
+      PLEXIL::printValue(temp, s);
     else
       s << "[unknown_value]";
   }
 
   template <typename R>
-  Value OperatorImpl<R>::toValue(void *cache, Function const &f) const
+  Value OperatorImpl<R>::toValue(Function const &exprs) const
   {
-    bool known = calcNative(cache, f);
-    if (known)
-      return Value(*(static_cast<R const *>(cache)));
+    R temp;
+    if (exprs.getValue(temp))
+      return Value(temp);
     else
       return Value(0, PlexilValueType<R>::value);
   }
 
-  Value OperatorImpl<Integer>::toValue(void *cache, Function const &f) const
+  Value OperatorImpl<Integer>::toValue(Function const &exprs) const
   {
-    bool known = calcNative(cache, f);
-    if (known)
-      return Value(*(static_cast<Integer const *>(cache)));
+    Integer temp;
+    if (exprs.getValue(temp))
+      return Value(temp);
     else
       return Value(0, INTEGER_TYPE);
   }
 
   template <typename R>
-  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, Function const &f) const
+  Value OperatorImpl<ArrayImpl<R> >::toValue(Function const &exprs) const
   {
-    bool known = calcNative(cache, f);
-    if (known)
-      return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
+    ArrayImpl<R> temp;
+    if (exprs.getValue(temp))
+      return Value(temp);
     else
       return Value(0, PlexilValueType<ArrayImpl<R> >::value);
   }
@@ -273,8 +296,8 @@ namespace PLEXIL
   template <typename R>
   bool OperatorImpl<R>::calc(R & /* result */, Expression const * /* arg */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for one-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for one-arg case");
     return false;
   }
 
@@ -283,23 +306,23 @@ namespace PLEXIL
                              Expression const * /* arg0 */,
                              Expression const * /* arg1 */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for two-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for two-arg case");
     return false;
   }
 
   template <typename R>
   bool OperatorImpl<R>::calc(R & /* result */, Function const & /* args */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for three or more arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for three or more arg case");
     return false;
   }
 
   bool OperatorImpl<Integer>::calc(Integer & /* result */, Expression const */* arg */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for one-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for one-arg case");
     return false;
   }
 
@@ -307,23 +330,24 @@ namespace PLEXIL
                                    Expression const * /* arg1 */,
                                    Expression const * /* arg2 */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for one-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for one-arg case");
     return false;
   }
 
   bool OperatorImpl<Integer>::calc(Integer & /* result */, Function const &/* args */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for one-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for one-arg case");
     return false;
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> & /* result */, Expression const * /* arg */) const
+  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> & /* result */,
+                                         Expression const * /* arg */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for one-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for one-arg case");
     return false;
   }
 
@@ -332,16 +356,17 @@ namespace PLEXIL
                                          Expression const * /* arg0 */,
                                          Expression const * /* arg1 */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for two-arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for two-arg case");
     return false;
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> & /* result */, Function const & /* args */) const
+  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> & /* result */,
+                                         Function const & /* args */) const
   {
-    checkPlanError(ALWAYS_FAIL,
-                   "Operator " << this->getName() << " not implemented for three or more arg case");
+    reportPlanError("Operator " << this->getName()
+                    << " not implemented for three or more arg case");
     return false;
   }
 
