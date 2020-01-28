@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,14 @@
 #ifndef ASSIGNMENT_NODE_HH
 #define ASSIGNMENT_NODE_HH
 
-#include "Node.hh"
+#include "NodeImpl.hh"
 
 namespace PLEXIL
 {
   // Forward references
   class Assignment;
 
-  class AssignmentNode final : public Node
+  class AssignmentNode final : public NodeImpl
   {
   public:
 
@@ -43,7 +43,7 @@ namespace PLEXIL
      * @param nodeId The name of this node.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    AssignmentNode(char const *nodeId, Node *parent = NULL);
+    AssignmentNode(char const *nodeId, NodeImpl *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -51,7 +51,7 @@ namespace PLEXIL
     AssignmentNode(const std::string &type,
                    const std::string &name,
                    NodeState state,
-                   Node *parent = NULL);
+                   NodeImpl *parent = NULL);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -98,9 +98,6 @@ namespace PLEXIL
 
     virtual void transitionToExecuting();
     virtual void transitionToFailing();
-
-    // Node state limit
-    virtual NodeState nodeStateMax() const { return FAILING_STATE; }
 
   private:
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,22 +33,20 @@
 
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
-#include "NotifierImpl.hh"
 
 namespace PLEXIL {
 
   // Forward references
-  class Node;
+  class NodeImpl;
 
   class StateVariable final :
-    public GetValueImpl<NodeState>,
-    public NotifierImpl
+    public GetValueImpl<NodeState>
   {
   public:
     /**
      * @brief Constructor.
      */
-    StateVariable(Node const &node);
+    StateVariable(NodeImpl &node);
 
     /**
      * @brief Destructor.
@@ -84,17 +82,12 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
-    // Notifier API
-    inline bool isActive() const
-    {
-      return true;
-    }
+    // Listenable API
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
-    void activate() {}
-    void deactivate() {}
-
-    // For convenience of Node
-    void changed();
+    // Listenable API
+    void addListener(ExpressionListener *l);
+    void removeListener(ExpressionListener *l);
 
   protected:
 
@@ -106,22 +99,23 @@ namespace PLEXIL {
 
   private:
     // Not implemented
-    StateVariable();
-    StateVariable(const StateVariable &);
-    StateVariable &operator=(const StateVariable &);
+    StateVariable() = delete;
+    StateVariable(const StateVariable &) = delete;
+    StateVariable(StateVariable &&) = delete;
+    StateVariable &operator=(const StateVariable &) = delete;
+    StateVariable &operator=(StateVariable &&) = delete;
 
-    Node const &m_node;
+    NodeImpl &m_node;
   };
 
   class OutcomeVariable final :
-    public GetValueImpl<NodeOutcome>,
-    public NotifierImpl
+    public GetValueImpl<NodeOutcome>
   {
   public:
     /**
      * @brief Constructor.
      */
-    OutcomeVariable(Node const &node);
+    OutcomeVariable(NodeImpl &node);
 
     /**
      * @brief Destructor.
@@ -154,17 +148,12 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
-    // Notifier API
-    inline bool isActive() const
-    {
-      return true;
-    }
+    // Listenable API
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
-    void activate() {}
-    void deactivate() {}
-
-    // For convenience of Node
-    void changed();
+    // Listenable API
+    void addListener(ExpressionListener *l);
+    void removeListener(ExpressionListener *l);
 
   protected:
 
@@ -177,22 +166,23 @@ namespace PLEXIL {
   private:
 
     // Not implemented
-    OutcomeVariable();
-    OutcomeVariable(const OutcomeVariable &);
-    OutcomeVariable &operator=(const OutcomeVariable &);
+    OutcomeVariable() = delete;
+    OutcomeVariable(const OutcomeVariable &) = delete;
+    OutcomeVariable(OutcomeVariable &&) = delete;
+    OutcomeVariable &operator=(const OutcomeVariable &) = delete;
+    OutcomeVariable &operator=(OutcomeVariable &&) = delete;
 
-    Node const &m_node;
+    NodeImpl &m_node;
   };
 
   class FailureVariable final :
-    public GetValueImpl<FailureType>,
-    public NotifierImpl
+    public GetValueImpl<FailureType>
   {
   public:
     /**
      * @brief Constructor.
      */
-    FailureVariable(Node const &node);
+    FailureVariable(NodeImpl &node);
 
     /**
      * @brief Destructor.
@@ -225,17 +215,12 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
-    // Notifier API
-    inline bool isActive() const
-    {
-      return true;
-    }
+    // Listenable API
+    virtual void doSubexprs(ListenableUnaryOperator const &oper);
 
-    void activate() {}
-    void deactivate() {}
-
-    // For convenience of Node
-    void changed();
+    // Listenable API
+    void addListener(ExpressionListener *l);
+    void removeListener(ExpressionListener *l);
 
   protected:
 
@@ -248,11 +233,13 @@ namespace PLEXIL {
   private:
 
     // Not implemented
-    FailureVariable();
-    FailureVariable(const FailureVariable &);
-    FailureVariable &operator=(const FailureVariable &);
+    FailureVariable() = delete;
+    FailureVariable(const FailureVariable &) = delete;
+    FailureVariable(FailureVariable &&) = delete;
+    FailureVariable &operator=(const FailureVariable &) = delete;
+    FailureVariable &operator=(FailureVariable &&) = delete;
 
-    Node const &m_node;
+    NodeImpl &m_node;
   };
 
 } // namespace PLEXIL

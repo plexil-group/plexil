@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "NodeTimepointValue.hh"
 
-#include "Node.hh"
+#include "NodeConnector.hh"
 
 #include <iomanip> // for std::setprecision()
 
@@ -43,10 +43,10 @@ namespace PLEXIL
      {"FINISHING.START", "FINISHING.END"}};
       
 
-  NodeTimepointValue::NodeTimepointValue(Node *node,
+  NodeTimepointValue::NodeTimepointValue(NodeConnector *node,
                                          NodeState state,
                                          bool isEnd)
-    : NotifierImpl(),
+    : Notifier(),
       m_time(0.0),
       m_next(NULL),
       m_node(node),
@@ -60,6 +60,10 @@ namespace PLEXIL
   {
   }
 
+  bool NodeTimepointValue::isPropagationSource() const
+  {
+    return true;
+  }
 
   NodeState NodeTimepointValue::state() const
   {

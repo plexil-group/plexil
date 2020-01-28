@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,30 +29,48 @@
 
 using std::vector;
 using std::cout;
-using std::endl;
 using std::flush;
 
 namespace PLEXIL {
 
-  static void print_aux (const vector<Value>& args, bool pretty)
+  static void print_aux (std::ostream & s, const vector<Value>& args, bool pretty)
   {
     for (vector<Value>::const_iterator iter = args.begin();
          iter != args.end();
          ++iter) {
-      cout << *iter;
-      cout << (pretty ? " " : "") << flush;
+      s << *iter;
+      s << (pretty ? " " : "");
     }
-    if (pretty) cout << endl << flush;
+    if (pretty)
+      s << '\n';
+    s << flush;
+  }
+
+  static Value printToString_aux (const vector<Value>& args, bool pretty)
+  {
+    std::stringstream ss;
+    print_aux(ss, args, pretty);
+    return Value(ss.str());
   }
 
   void print (const vector<Value>& args)
   {
-    print_aux (args, false);
+    print_aux (cout, args, false);
   }
 
   void pprint (const vector<Value>& args)
   {
-    print_aux (args, true);
+    print_aux (cout, args, true);
+  }
+  
+  Value printToString(const std::vector<Value>& args)
+  {
+    return printToString_aux(args, false);
+  }
+
+  Value pprintToString(const std::vector<Value>& args)
+  {
+    return printToString_aux(args, true);
   }
 
 }

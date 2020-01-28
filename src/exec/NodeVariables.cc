@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "NodeVariables.hh"
 
-#include "Node.hh"
+#include "NodeImpl.hh"
 
 namespace PLEXIL
 {
@@ -34,10 +34,8 @@ namespace PLEXIL
   // StateVariable
   //
 
-  StateVariable::StateVariable(Node const &node)
-    : GetValueImpl<NodeState>(),
-    NotifierImpl(),
-    m_node(node)
+  StateVariable::StateVariable(NodeImpl &node)
+    : m_node(node)
   {
   }
 
@@ -61,19 +59,28 @@ namespace PLEXIL
     s << m_node.getNodeId() << ' ';
   }
 
-  void StateVariable::changed()
+  void StateVariable::doSubexprs(ListenableUnaryOperator const &oper)
   {
-    publishChange();
+    (oper)(&m_node);
+  }
+
+  // Don't listen to me, listen to the boss.
+  void StateVariable::addListener(ExpressionListener *ptr)
+  {
+    m_node.addListener(ptr);
+  }
+
+  void StateVariable::removeListener(ExpressionListener *ptr)
+  {
+    m_node.removeListener(ptr);
   }
 
   //
   // OutcomeVariable
   //
 
-  OutcomeVariable::OutcomeVariable(Node const &node)
-    : GetValueImpl<NodeOutcome>(),
-    NotifierImpl(),
-    m_node(node)
+  OutcomeVariable::OutcomeVariable(NodeImpl &node)
+    : m_node(node)
   {
   }
 
@@ -110,19 +117,28 @@ namespace PLEXIL
     s << m_node.getNodeId() << ' ';
   }
 
-  void OutcomeVariable::changed()
+  void OutcomeVariable::doSubexprs(ListenableUnaryOperator const &oper)
   {
-    publishChange();
+    (oper)(&m_node);
+  }
+
+  // Don't listen to me, listen to the boss.
+  void OutcomeVariable::addListener(ExpressionListener *ptr)
+  {
+    m_node.addListener(ptr);
+  }
+
+  void OutcomeVariable::removeListener(ExpressionListener *ptr)
+  {
+    m_node.removeListener(ptr);
   }
 
   //
   // FailureVariable
   //
 
-  FailureVariable::FailureVariable(Node const &node)
-    : GetValueImpl<FailureType>(),
-    NotifierImpl(),
-    m_node(node)
+  FailureVariable::FailureVariable(NodeImpl &node)
+    : m_node(node)
   {
   }
 
@@ -155,9 +171,20 @@ namespace PLEXIL
     s << m_node.getNodeId() << ' ';
   }
 
-  void FailureVariable::changed()
+  void FailureVariable::doSubexprs(ListenableUnaryOperator const &oper)
   {
-    publishChange();
+    (oper)(&m_node);
+  }
+
+  // Don't listen to me, listen to the boss.
+  void FailureVariable::addListener(ExpressionListener *ptr)
+  {
+    m_node.addListener(ptr);
+  }
+
+  void FailureVariable::removeListener(ExpressionListener *ptr)
+  {
+    m_node.removeListener(ptr);
   }
 
 } // namespace PLEXIL

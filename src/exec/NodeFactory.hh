@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 namespace PLEXIL
 {
 
-  class Node;
+  class NodeImpl;
 
   /**
    * @brief Abstract factory class for Node instances.
@@ -47,17 +47,17 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
-    static Node *createNode(char const *name,
-                            PlexilNodeType type,
-                            Node *parent = NULL);
+    static NodeImpl *createNode(char const *name,
+                                PlexilNodeType type,
+                                NodeImpl *parent = NULL);
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
-    static Node *createNode(const std::string& type, 
-                            const std::string& name, 
-                            NodeState state,
-                            Node *parent = NULL);
+    static NodeImpl *createNode(const std::string& type, 
+                                const std::string& name, 
+                                NodeState state,
+                                NodeImpl *parent = NULL);
 
   protected:
 
@@ -67,16 +67,16 @@ namespace PLEXIL
     /**
      * @brief Primary factory method delegated to derived classes.
      */
-    virtual Node *create(char const *name, 
-                         Node *parent = NULL) const = 0;
+    virtual NodeImpl *create(char const *name, 
+                             NodeImpl *parent = NULL) const = 0;
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
-    virtual Node *create(const std::string& type,
-                         const std::string& name,
-                         NodeState state,
-                         Node *parent = NULL) const = 0;
+    virtual NodeImpl *create(const std::string& type,
+                             const std::string& name,
+                             NodeState state,
+                             NodeImpl *parent = NULL) const = 0;
 
   private:
     // Deliberately unimplemented

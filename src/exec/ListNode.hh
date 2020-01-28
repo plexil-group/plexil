@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,16 @@
 #ifndef LIST_NODE_HH
 #define LIST_NODE_HH
 
-#include "Node.hh"
+#include "NodeImpl.hh"
+
+#include "NodeFunction.hh"
 
 namespace PLEXIL
 {
   // forward reference
   class ExprVec;
 
-  class ListNode : public Node
+  class ListNode : public NodeImpl
   {
   public:
 
@@ -43,7 +45,7 @@ namespace PLEXIL
      * @param nodeId The name of this node.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    ListNode(char const *nodeId, Node *parent = NULL);
+    ListNode(char const *nodeId, NodeImpl *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -51,7 +53,7 @@ namespace PLEXIL
     ListNode(const std::string& type,
              const std::string& name,
              NodeState state,
-             Node *parent = NULL);
+             NodeImpl *parent = NULL);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -67,12 +69,12 @@ namespace PLEXIL
       return NodeType_NodeList;
     }
 
-    virtual std::vector<Node *>& getChildren() override
+    virtual std::vector<NodeImpl *>& getChildren() override
     {
       return m_children;
     }
 
-    virtual const std::vector<Node *>& getChildren() const override
+    virtual const std::vector<NodeImpl *>& getChildren() const override
     {
       return m_children; 
     }
@@ -82,13 +84,13 @@ namespace PLEXIL
      * @param node The child.
      * @note Intended for use by the plan parser and unit tests.
      */
-    void addChild(Node *node)
+    void addChild(NodeImpl *node)
     {
       m_children.push_back(node);
     }
 
-    virtual Node *findChild(char const *childName) override; 
-    virtual Node const *findChild(char const *childName) const override;
+    virtual NodeImpl *findChild(char const *childName) override;
+    virtual NodeImpl const *findChild(char const *childName) const override;
 
     /**
      * @brief Reserve space for the given number of children.
@@ -127,11 +129,10 @@ namespace PLEXIL
     virtual void transitionToFinishing() override;
     virtual void transitionToFailing() override;
 
+    NodeFunction m_actionCompleteFn;
+    NodeFunction m_allFinishedFn;
     // Shared with derived class LibraryCallNode
-    std::vector<Node *> m_children; /*<! Vector of child nodes. */
-
-    // Node state limit, shared with LibraryCallNode
-    virtual NodeState nodeStateMax() const override { return FINISHING_STATE; }
+    std::vector<NodeImpl *> m_children; /*<! Vector of child nodes. */
   };
 
 }

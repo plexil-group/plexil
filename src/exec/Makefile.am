@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,29 +27,31 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExec.la
 
-libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
+ -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
- LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh NodeFactory.hh \
+ LibraryCallNode.hh ListNode.hh Node.hh NodeImpl.hh NodeFactory.hh \
  NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
- NodeTimepointValue.hh NodeTransition.hh \
+ NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh \
  NodeVariableMap.hh NodeVariables.hh \
  PlexilExec.hh PlexilNodeType.hh UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
- ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Mutex.cc \
- Node.cc NodeFactory.cc NodeFunction.cc NodeOperator.cc NodeOperatorImpl.cc \
- NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
+ ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
+ ListNode.cc NodeImpl.cc NodeFactory.cc \
+ NodeFunction.cc NodeOperator.cc NodeOperatorImpl.cc \
+ NodeOperators.cc NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
   noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
-  test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
- ../expr/libPlexilExpr.la ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+  test_exec_module_tests_LDADD = libPlexilExec.la @top_srcdir@/intfc/libPlexilIntfc.la \
+ @top_srcdir@/expr/libPlexilExpr.la @top_srcdir@/value/libPlexilValue.la \
+ @top_srcdir@/utils/libPlexilUtils.la
   test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 if JNI_OPT

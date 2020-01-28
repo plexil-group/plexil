@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,13 @@
 #ifndef UPDATE_NODE_HH
 #define UPDATE_NODE_HH
 
-#include "Node.hh"
+#include "NodeImpl.hh"
 
 namespace PLEXIL
 {
   class Update;
 
-  class UpdateNode final : public Node
+  class UpdateNode final : public NodeImpl
   {
   public:
 
@@ -42,7 +42,7 @@ namespace PLEXIL
      * @param nodeId The name of this node.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    UpdateNode(char const *nodeId, Node *parent = NULL);
+    UpdateNode(char const *nodeId, NodeImpl *parent = nullptr);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -50,7 +50,7 @@ namespace PLEXIL
     UpdateNode(const std::string& type,
                const std::string& name,
                NodeState state,
-               Node *parent = NULL);
+               NodeImpl *parent = nullptr);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -100,10 +100,15 @@ namespace PLEXIL
 
     virtual void cleanUpNodeBody() override;
 
-    // Node state limit
-    virtual NodeState nodeStateMax() const override { return FAILING_STATE; }
-
   private:
+
+    // Not implemented
+    UpdateNode() = delete;
+    UpdateNode(UpdateNode const &) = delete;
+    UpdateNode(UpdateNode &&) = delete;
+    UpdateNode &operator=(UpdateNode const &) = delete;
+    UpdateNode &operator=(UpdateNode &&) = delete;
+
     void createDummyUpdate(); // for unit test
 
     Update *m_update;

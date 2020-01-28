@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,12 @@
 #ifndef PLEXIL_NODE_FUNCTION_HH
 #define PLEXIL_NODE_FUNCTION_HH
 
-#include "ArrayFwd.hh"
-#include "NotifierImpl.hh"
+#include "Expression.hh"
+#include "Propagator.hh"
 
 namespace PLEXIL
 {
-  class Node;
+  class NodeImpl;
   class NodeOperator;
 
   /**
@@ -42,56 +42,54 @@ namespace PLEXIL
    */
 
   class NodeFunction
-    : public NotifierImpl
+    : public Expression,
+      public Propagator
   {
   public:
-    NodeFunction(NodeOperator const *op, Node *exprs);
+    NodeFunction(NodeOperator const *op, NodeImpl *exprs);
     virtual ~NodeFunction();
 
     //
     // Expression API
     //
 
-    const char *exprName() const;
-    ValueType valueType() const;
-    bool isKnown() const;
-    void printValue(std::ostream &s) const;
-    Value toValue() const;
+    virtual char const *exprName() const override;
+    virtual ValueType valueType() const override;
+    virtual bool isKnown() const override;
+    virtual Value toValue() const override;
+    virtual void printValue(std::ostream &s) const override;
+
+    virtual void printSpecialized(std::ostream &s) const override;
 
     /**
      * @brief Retrieve the value of this Expression in its native form.
      * @param The appropriately typed place to put the result.
      * @return True if result known, false if unknown.
      */
-    bool getValue(Boolean &result) const;
-    bool getValue(NodeState &result) const;
-    bool getValue(NodeOutcome &result) const;
-    bool getValue(FailureType &result) const;
-    bool getValue(CommandHandleValue &result) const;
-    bool getValue(Integer &result) const;
-    bool getValue(Real &result) const;
-    bool getValue(String &result) const;
+    virtual bool getValue(Boolean &result) const override;
+    // Only Boolean operators implemented to date
+    // virtual bool getValue(uint16_t &result) const override;
+    // virtual bool getValue(Integer &result) const override;
+    // virtual bool getValue(Real &result) const override;
+    // virtual bool getValue(String &result) const override;
 
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
-    bool getValuePointer(String const *&ptr) const;
-    bool getValuePointer(BooleanArray const *&ptr) const;
-    bool getValuePointer(IntegerArray const *&ptr) const;
-    bool getValuePointer(RealArray const *&ptr) const;
-    bool getValuePointer(StringArray const *&ptr) const;
+    // Only Boolean operators implemented to date
+    // virtual bool getValuePointer(String const *&ptr) const override;
 
-    bool getValuePointer(Array const *&ptr) const;
+    // Array variants not implemented
+
+    //
+    // Listenable API
+    //
+
+    virtual void doSubexprs(ListenableUnaryOperator const &oper) override;
 
   protected:
-
-    //
-    // Expression internal API
-    //
-
-    void printSubexpressions(std::ostream &s) const;
 
     NodeOperator const *m_op;
 
@@ -104,12 +102,7 @@ namespace PLEXIL
     NodeFunction &operator=(NodeFunction const &) = delete;
     NodeFunction &operator=(NodeFunction &&) = delete;
 
-    Node *m_node;
-
-    // For implementing getValuePointer().
-    // Must be a pointer to preserve const-ness.
-    // Cache is allocated and deleted by the operator, which knows its size.
-    void *m_valueCache;
+    NodeImpl *m_node;
   };
 
 } // namespace PLEXIL

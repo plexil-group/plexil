@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,21 +29,24 @@
 
 #include "GetValueImpl.hh"
 #include "NodeConstants.hh"
-#include "NotifierImpl.hh"
+#include "Notifier.hh"
 
 namespace PLEXIL
 {
-  class Node;
+  class NodeConnector;
 
   class NodeTimepointValue final :
     public GetValueImpl<Real>, // FIXME
-    public NotifierImpl
+    public Notifier
   {
   public:
-    NodeTimepointValue(Node *node,
+    NodeTimepointValue(NodeConnector *node,
                        NodeState state,
                        bool isEnd);
     ~NodeTimepointValue();
+
+    // Listenable API
+    virtual bool isPropagationSource() const;
 
     NodeState state() const;
     bool isEnd() const;
@@ -79,7 +82,7 @@ namespace PLEXIL
 
     Real m_time; // FIXME
     NodeTimepointValue *m_next;
-    Node *m_node;
+    NodeConnector *m_node;
     NodeState const m_state; // only set at constructor time
     bool const m_end;        // only set at constructor time
     bool m_known;

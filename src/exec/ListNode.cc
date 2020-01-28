@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 #include "Error.hh"
 #include "ExprVec.hh"
 #include "Function.hh"
-#include "NodeFunction.hh"
 #include "NodeOperatorImpl.hh"
 #include "UserVariable.hh"
 
@@ -53,14 +52,9 @@ namespace PLEXIL
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished);
 
-    bool checkArgCount(size_t count) const
+    bool operator()(Boolean &result, NodeImpl const *node) const
     {
-      return true;
-    }
-
-    bool operator()(Boolean &result, Node const *node) const
-    {
-      std::vector<Node *> const &kids = node->getChildren();
+      std::vector<NodeImpl *> const &kids = node->getChildren();
       size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
         if (kids[i]->getState() != FINISHED_STATE) {
@@ -72,6 +66,14 @@ namespace PLEXIL
       debugMsg("AllFinished", "result = true");
       result = true;
       return true; // always known
+    }
+
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+    {
+      std::vector<NodeImpl *> const &kids = node->getChildren();
+      for (size_t i = 0; i < kids.size(); ++i) {
+        (oper)(kids[i]);
+      }
     }
 
   private:
@@ -98,14 +100,9 @@ namespace PLEXIL
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished);
 
-    bool checkArgCount(size_t count) const
+    bool operator()(Boolean &result, NodeImpl const *node) const
     {
-      return true;
-    }
-
-    bool operator()(Boolean &result, Node const *node) const
-    {
-      std::vector<Node *> const &kids = node->getChildren();
+      std::vector<NodeImpl *> const &kids = node->getChildren();
       size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
         switch (kids[i]->getState()) {
@@ -124,6 +121,14 @@ namespace PLEXIL
       return true; // always known
     }
 
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+    {
+      std::vector<NodeImpl *> const &kids = node->getChildren();
+      for (size_t i = 0; i < kids.size(); ++i) {
+        (oper)(kids[i]);
+      }
+    }
+
   private:
     // Should only be called from instance() static member function
     AllWaitingOrFinished()
@@ -140,8 +145,10 @@ namespace PLEXIL
   // ListNode member functions
   //
 
-  ListNode::ListNode(char const *nodeId, Node *parent)
-    : Node(nodeId, parent)
+  ListNode::ListNode(char const *nodeId, NodeImpl *parent)
+    : NodeImpl(nodeId, parent),
+      m_actionCompleteFn(AllWaitingOrFinished::instance(), this),
+      m_allFinishedFn(AllFinished::instance(), this)
   {
   }
 
@@ -152,9 +159,14 @@ namespace PLEXIL
   ListNode::ListNode(const std::string& type,
                      const std::string& name, 
                      NodeState state,
-                     Node *parent)
-    : Node(type, name, state, parent)
+                     NodeImpl *parent)
+    : NodeImpl(type, name, state, parent),
+      m_actionCompleteFn(AllWaitingOrFinished::instance(), this),
+      m_allFinishedFn(AllFinished::instance(), this)
   {
+    checkError(type == LIST || type == LIBRARYNODECALL,
+               "Invalid node type " << type << " for a ListNode");
+
     switch (m_state) {
     case EXECUTING_STATE:
       deactivatePostCondition();
@@ -192,7 +204,7 @@ namespace PLEXIL
       return m_variablesByName;
 
     // Search ancestors for first in chain
-    Node *n = m_parent;
+    NodeImpl *n = m_parent;
     NodeVariableMap const *map = NULL;
     while (n && !map) {
       map = n->getVariableMap();
@@ -206,18 +218,9 @@ namespace PLEXIL
   // This method is called after all user-spec'd conditions have been instantiated
   void ListNode::specializedCreateConditionWrappers()
   {
-    // At least one node state function is dependent on child states,
-    // so just add this node as a listener to each state variable.
-    for (std::vector<Node *>::iterator it = m_children.begin();
-         it != m_children.end();
-         ++it)
-      (*it)->getStateVariable()->addListener(this);
-
     // Not really a "wrapper", but this is best place to add it.
-    Expression *cond =
-      new NodeFunction(AllWaitingOrFinished::instance(), this);
-    m_conditions[actionCompleteIdx] = cond;
-    m_garbageConditions[actionCompleteIdx] = true;
+    m_conditions[actionCompleteIdx] = &m_actionCompleteFn;
+    m_garbageConditions[actionCompleteIdx] = false;
 
     if (m_parent) {
       if (getExitCondition()) {
@@ -246,11 +249,15 @@ namespace PLEXIL
                          false);
           m_garbageConditions[ancestorInvariantIdx] = true;
         }
-        else
+        else {
           m_conditions[ancestorInvariantIdx] = getInvariantCondition();
+          m_garbageConditions[ancestorInvariantIdx] = false;
+        }
       }
-      else 
+      else {
         m_conditions[ancestorInvariantIdx] = getAncestorInvariantCondition(); // could be null
+        m_garbageConditions[ancestorInvariantIdx] = false;
+      }
 
       // End is special
       if (getEndCondition()) {
@@ -263,14 +270,15 @@ namespace PLEXIL
                          false);
           m_garbageConditions[ancestorEndIdx] = true;
         }
-        else
+        else {
           m_conditions[ancestorEndIdx] = getEndCondition();
+          m_garbageConditions[ancestorEndIdx] = false;
+        }
       }
       else {
         // No user-spec'd end condition - build one
-        m_conditions[endIdx] =
-          new NodeFunction(AllFinished::instance(), this);
-        m_garbageConditions[endIdx] = true;
+        m_conditions[endIdx] = &m_allFinishedFn;
+        m_garbageConditions[endIdx] = false;
         // *** N.B. ***
         // Normally ancestor-end is our end condition ORed with parent's ancestor-end.
         // But default all-children-finished end condition will always be false
@@ -279,6 +287,7 @@ namespace PLEXIL
         // Since false OR <anything> == <anything>,
         // just use parent's ancestor-end (which may be empty).
         m_conditions[ancestorEndIdx] = getAncestorEndCondition();
+        m_garbageConditions[ancestorEndIdx] = false;
       }
     }
     else {
@@ -289,12 +298,12 @@ namespace PLEXIL
       if (m_conditions[endIdx]) {
         // User-spec'd end condition doubles as ancestor-end
         m_conditions[ancestorEndIdx] = m_conditions[endIdx];
+        m_garbageConditions[ancestorEndIdx] = false;
       }
       else {
         // No user-spec'd end condition - build one
-        m_conditions[endIdx] =           
-          new NodeFunction(AllFinished::instance(), this);
-        m_garbageConditions[endIdx] = true;
+        m_conditions[endIdx] = &m_allFinishedFn;
+        m_garbageConditions[endIdx] = false;
         // *** N.B. ***
         // Normally for root nodes, ancestor-end is same as end. 
         // But default all-children-finished end condition will always be false
@@ -302,6 +311,7 @@ namespace PLEXIL
         // See node state transition diagrams for proof.
         // So if no parent and no user end condition, just leave ancestor-end empty.
         m_conditions[ancestorEndIdx] = NULL;
+        m_garbageConditions[ancestorEndIdx] = false;
       }
     }
   }
@@ -327,12 +337,7 @@ namespace PLEXIL
 
     cleanUpChildConditions();
 
-    Node::cleanUpConditions();
-
-    for (std::vector<Node *>::iterator it = m_children.begin();
-         it != m_children.end();
-         ++it)
-      (*it)->getStateVariable()->removeListener(this);
+    NodeImpl::cleanUpConditions();
   }
 
   void ListNode::cleanUpNodeBody()
@@ -343,7 +348,7 @@ namespace PLEXIL
     debugMsg("ListNode:cleanUpNodeBody", " for " << m_nodeId);
 
     // Delete children
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       delete (Node*) (*it);
     m_children.clear();
     m_cleanedBody = true;
@@ -352,15 +357,15 @@ namespace PLEXIL
   void ListNode::cleanUpChildConditions()
   {
     debugMsg("ListNode:cleanUpChildConditions", " for " << m_nodeId);
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpConditions();
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpNodeBody();
   }
 
-  Node const *ListNode::findChild(char const *childName) const
+  NodeImpl const *ListNode::findChild(char const *childName) const
   {
-    for (std::vector<Node *>::const_iterator it = m_children.begin();
+    for (std::vector<NodeImpl *>::const_iterator it = m_children.begin();
          it != m_children.end();
          ++it)
       if ((*it)->getNodeId() == childName)
@@ -368,9 +373,9 @@ namespace PLEXIL
     return NULL;
   }
 
-  Node *ListNode::findChild(char const *childName)
+  NodeImpl *ListNode::findChild(char const *childName)
   {
-    for (std::vector<Node *>::const_iterator it = m_children.begin();
+    for (std::vector<NodeImpl *>::const_iterator it = m_children.begin();
          it != m_children.end();
          ++it)
       if ((*it)->getNodeId() == childName)
@@ -390,11 +395,11 @@ namespace PLEXIL
    */
   void ListNode::setState(NodeState newValue, double tym)
   {
-    Node::setState(newValue, tym);
+    NodeImpl::setState(newValue, tym);
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:
-      for (std::vector<Node *>::iterator it = m_children.begin();
+      for (std::vector<NodeImpl *>::iterator it = m_children.begin();
            it != m_children.end();
            ++it)
         if ((*it)->getState() == FINISHED_STATE)
@@ -403,7 +408,7 @@ namespace PLEXIL
 
     case EXECUTING_STATE:
     case FINISHED_STATE:
-      for (std::vector<Node *>::iterator it = m_children.begin();
+      for (std::vector<NodeImpl *>::iterator it = m_children.begin();
            it != m_children.end();
            ++it)
         if ((*it)->getState() == INACTIVE_STATE)
@@ -454,11 +459,12 @@ namespace PLEXIL
     if ((cond = getAncestorExitCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Ancestor exit for " << m_nodeId << " is inactive.");
+                 "Ancestor exit for " << m_nodeId << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = PARENT_EXITED;
@@ -469,11 +475,12 @@ namespace PLEXIL
     if ((cond = getExitCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Exit condition for " << m_nodeId << " is inactive.");
+                 "Exit condition for " << m_nodeId << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and EXIT_CONDITION true.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and EXIT_CONDITION true.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = EXITED;
@@ -484,11 +491,12 @@ namespace PLEXIL
     if ((cond = getAncestorInvariantCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Ancestor invariant for " << getNodeId() << " is inactive.");
+                 "Ancestor invariant for " << getNodeId() << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = PARENT_FAILED;
@@ -499,11 +507,12 @@ namespace PLEXIL
     if ((cond = getInvariantCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Invariant for " << getNodeId() << " is inactive.");
+                 "Invariant for " << getNodeId() << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and INVARIANT_CONDITION false.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and INVARIANT_CONDITION false.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = INVARIANT_CONDITION_FAILED;
@@ -514,15 +523,17 @@ namespace PLEXIL
     if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "End for " << getNodeId() << " is inactive.");
+                 "End for " << getNodeId() << ' ' << this << " is inactive.");
 #endif
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: no state.");
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> no change.");
       return false;
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: FINISHING. List node and END_CONDITION true.");
+             ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+             << " -> FINISHING. List node and END_CONDITION true.");
     m_nextState = FINISHING_STATE;
     return true;
   }
@@ -544,9 +555,9 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition NodeList/LibraryNodeCall "
+               "from EXECUTING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -572,11 +583,12 @@ namespace PLEXIL
     if ((cond = getAncestorExitCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Ancestor exit for " << m_nodeId << " is inactive.");
+                 "Ancestor exit for " << m_nodeId << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = PARENT_EXITED;
@@ -587,11 +599,12 @@ namespace PLEXIL
     if ((cond = getExitCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Exit condition for " << m_nodeId << " is inactive.");
+                 "Exit condition for " << m_nodeId << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and EXIT_CONDITION true.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and EXIT_CONDITION true.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = INTERRUPTED_OUTCOME;
         m_nextFailureType = EXITED;
@@ -602,11 +615,12 @@ namespace PLEXIL
     if ((cond = getAncestorInvariantCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Ancestor invariant for " << getNodeId() << " is inactive.");
+                 "Ancestor invariant for " << getNodeId() << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = PARENT_FAILED;
@@ -617,11 +631,12 @@ namespace PLEXIL
     if ((cond = getInvariantCondition())) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
       checkError(cond->isActive(),
-                 "Invariant for " << getNodeId() << " is inactive.");
+                 "Invariant for " << getNodeId() << ' ' << this << " is inactive.");
 #endif
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FAILING. List node and INVARIANT_CONDITION false.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FAILING. List node and INVARIANT_CONDITION false.");
         m_nextState = FAILING_STATE;
         m_nextOutcome = FAILURE_OUTCOME;
         m_nextFailureType = INVARIANT_CONDITION_FAILED;
@@ -632,15 +647,15 @@ namespace PLEXIL
     cond = getActionCompleteCondition();
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
     checkError(cond->isActive(),
-               "Children waiting or finished for " << getNodeId() <<
-               " is inactive.");
+               "Children waiting or finished for " << getNodeId() << ' ' << this
+               << " is inactive.");
 #endif
     cond->getValue(temp); // cannot be unknown, see above
     if (temp) {
       m_nextState = ITERATION_ENDED_STATE;
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: ITERATION_ENDED. List node " <<
-               "and ALL_CHILDREN_WAITING_OR_FINISHED true.");
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> ITERATION_ENDED. List node and ALL_CHILDREN_WAITING_OR_FINISHED true.");
       if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) {
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
         checkError(cond->isActive(),
@@ -655,7 +670,8 @@ namespace PLEXIL
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: no state. ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
+             ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+             << " -> no change. List node, ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
     return false;
   }
 
@@ -686,9 +702,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition List node from FINISHING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition List node from FINISHING to invalid state "
+               << nodeStateName(m_nextState));
     }
   }
 
@@ -712,37 +727,39 @@ namespace PLEXIL
     Expression *cond = getActionCompleteCondition();
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
     checkError(cond->isActive(),
-               "Children waiting or finished for " << getNodeId() <<
-               " is inactive.");
+               "Children waiting or finished for " << getNodeId() << ' ' << this
+               << " is inactive.");
 #endif
     bool tempb;
     cond->getValue(tempb); // AllWaitingOrFinished is always known
     if (tempb) {
       if (this->getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. "
-                 << "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FINISHED. "
+                 "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent exited.");
         m_nextState = FINISHED_STATE;
         return true;
       }
       if (this->getFailureType() == PARENT_FAILED) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: FINISHED. List node and ALL_CHILDREN_WAITING_OR_FINISHED" <<
-                 " true and parent failed.");
+                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+                 << " -> FINISHED. "
+                 "List node, ALL_CHILDREN_WAITING_OR_FINISHED true and parent failed.");
         m_nextState = FINISHED_STATE;
         return true;
       }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: ITERATION_ENDED. List node and "
-                 << (this->getFailureType() == EXITED ? "self-exited" : "self-failure."));
-        m_nextState = ITERATION_ENDED_STATE;
-        return true;
-      }
+      debugMsg("Node:getDestState",
+               ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+               << " -> ITERATION_ENDED. List node and "
+               << (this->getFailureType() == EXITED ? "self-exited" : "self-failure."));
+      m_nextState = ITERATION_ENDED_STATE;
+      return true;
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: no state.");
+             ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
+             << " -> no change.");
     return false;
   }
 
@@ -771,9 +788,9 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state "
-                    << nodeStateName(m_nextState));
+      errorMsg("Attempting to transition NodeList/LibraryNodeCall node "
+               "from FAILING to invalid state "
+               << nodeStateName(m_nextState));
       break;
     }
   }
@@ -786,8 +803,8 @@ namespace PLEXIL
   void ListNode::specializedActivate()
   {
     // Activate all children
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->activate();
+    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+      (*it)->activateNode();
   }
 
 }

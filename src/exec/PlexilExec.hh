@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,9 @@
 #define PLEXIL_EXEC_HH
 
 #include "ExecConnector.hh"
-#include "LinkedQueue.hh"
 #include "NodeTransition.hh"
 
 #include <list>
-#include <map>
-#include <queue>
 
 namespace PLEXIL 
 {
@@ -42,103 +39,98 @@ namespace PLEXIL
   class ExecListenerBase;
 
   /**
-   * @brief The core PLEXIL executive.
+   * @brief The API of the core PLEXIL executive.
    */
-  class PlexilExec final : public ExecConnector
+  class PlexilExec : public ExecConnector
   {
   public:
     /**
      * @brief Default constructor.
      */
-    PlexilExec();
+    PlexilExec()
+      : ExecConnector()
+    {
+    }
 
     /**
      * @brief Destructor.
      */
-    ~PlexilExec();
+    virtual ~PlexilExec() = default;
 
     //
     // API to application
     //
 
     /**
+     * @brief Set the ExecListener instance.
+     */
+    virtual void setExecListener(ExecListenerBase *l) = 0;
+
+    /**
+     * @brief Get the ExecListener instance.
+     * @return The ExecListener. May be nullptr.
+     */
+    virtual ExecListenerBase *getExecListener() = 0;
+
+    /**
+     * @brief Get the list of active plans.
+     */
+    virtual std::list<Node *> const &getPlans() const = 0;
+
+    /**
      * @brief Prepare the given plan for execution.
      * @param The plan's root node.
      * @return True if succesful, false otherwise.
      */
-    virtual bool addPlan(Node *root);
-
-    /**
-     * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
-     */
-    virtual void step(double startTime); // *** FIXME: use real time type ***
-
-    /**
-     * @brief Returns true if the Exec needs to be stepped.
-     */
-    virtual bool needsStep() const;
-
-    /**
-     * @brief Set the ExecListener instance.
-     */
-    virtual void setExecListener(ExecListenerBase *l)
-    {
-      m_listener = l;
-    }
-
-    /**
-     * @brief Get the ExecListener instance.
-     * @return The ExecListener. May be NULL.
-     */
-    virtual ExecListenerBase *getExecListener()
-    {
-      return m_listener;
-    }
+    virtual bool addPlan(Node *root) = 0;
 
     /**
      * @brief Queries whether all plans are finished.
      * @return true if all finished, false otherwise.
      */
-    virtual bool allPlansFinished() const;
+    virtual bool allPlansFinished() const = 0;
 
     /**
      * @brief Deletes any finished root nodes.
      */
-    virtual void deleteFinishedPlans();
+    virtual void deleteFinishedPlans() = 0;
+
+    /**
+     * @brief Returns true if the Exec needs to be stepped.
+     */
+    virtual bool needsStep() const = 0;
+
+    /**
+     * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
+     */
+    virtual void step(double startTime) = 0; // *** FIXME: use real time type ***
 
     //
     // API to Node classes
     //
 
     /**
+     * @brief Consider a node for potential state transition.
+     * @param node Pointer to the node.
+     * @note Node's queue status must be QUEUE_NONE.
+     * @note Known callers are Node::notifyChanged(), PlexilExec::addPlan(), PlexilExec::getStateChangeNode().
+     */
+    virtual void addCandidateNode(Node *node) = 0;
+
+    /**
      * @brief Schedule this assignment for execution.
      */
-    virtual void enqueueAssignment(Assignment *assign);
+    virtual void enqueueAssignment(Assignment *assign) = 0;
 
     /**
      * @brief Schedule this assignment for retraction.
      */
-    virtual void enqueueAssignmentForRetraction(Assignment *assign);
+    virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
-    virtual void markRootNodeFinished(Node *node);
-
-    /**
-     * @brief Place a node in the candidate queue.
-     * @param node The node which is eligible for state change.
-     */
-    virtual void addCandidateNode(Node *node); // used by Node
-
-    //
-    // Used by Launcher
-    //
-
-    /**
-     * @brief Get the list of active plans.
-     */
-    virtual std::list<Node *> const &getPlans() const;
+    virtual void markRootNodeFinished(Node *node) = 0;
 
   private:
 
@@ -147,63 +139,13 @@ namespace PLEXIL
     PlexilExec(PlexilExec &&) = delete;
     PlexilExec &operator=(PlexilExec const &) = delete;
     PlexilExec &operator=(PlexilExec &&) = delete;
-
-    // Comparison function for pending queue
-    struct PendingCompare
-    {
-      bool operator() (Node const &x, Node const &y) const;
-    };
-
-    /**
-     * @brief Check the node for its role in resource conflicts (mutex or variable)
-     * @param node The node that is eligible to transition.
-     * @return true if conflict possible, false if not.
-     * @note Puts nodes with potential conflict roles into a special queue.
-     */
-    bool checkResourceConflicts(Node *node);
-
-    /**
-     * @brief Resolve conflicts among potentially executing variables.
-     */
-    void resolveResourceConflicts();
-
-    //
-    // Internal queue management
-    //
-
-    Node *getCandidateNode();
-
-    void addPendingNode(Node *node);
-    void removePendingNode(Node *node);
-
-    void addStateChangeNode(Node *node);
-    Node *getStateChangeNode();
-
-    void addFinishedRootNode(Node *node);
-    Node *getFinishedRootNode();
-
-    void printConditionCheckQueue() const;
-    void printPendingQueue() const;
-    void printStateChangeQueue() const;
-
-    /**
-     * @brief Batch-perform internal assignments queued up from a quiescence step.
-     */
-    void performAssignments();
-
-    LinkedQueue<Node> m_candidateQueue;    /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    PriorityQueue<Node, PendingCompare> m_pendingQueue; /*<! Nodes waiting to acquire a mutex. */ 
-    LinkedQueue<Node> m_stateChangeQueue;  /*<! Nodes awaiting state transition.*/
-    LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
-
-    LinkedQueue<Assignment> m_assignmentsToExecute;
-    LinkedQueue<Assignment> m_assignmentsToRetract;
-    std::list<Node *> m_plan; /*<! The root of the plan.*/
-    std::vector<NodeTransition> m_transitionsToPublish;
-    ExecListenerBase *m_listener;
-    unsigned int m_queuePos;
-    bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
+
+  /**
+   * @brief Construct a PlexilExec instance.
+   * @return Pointer to the new PlexilExec instance.
+   */
+  extern PlexilExec *makePlexilExec();
 
 }
 

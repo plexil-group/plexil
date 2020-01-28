@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,27 @@ namespace PLEXIL
   /**
    * @brief A data structure for recording or reporting node state transitions.
    */
-  struct NodeTransition {
+  struct NodeTransition
+  {
     Node *node;
-    NodeState state;
+    NodeState oldState, newState;
+
     // default constructor
-    NodeTransition() : node(), state(INACTIVE_STATE) {}
+    NodeTransition()
+      : node(), oldState(INACTIVE_STATE), newState(INACTIVE_STATE)
+    {}
+
     // trivial constructor
-    NodeTransition(Node *nod, NodeState stat) : node(nod), state(stat) {}
+    NodeTransition(Node *nod, NodeState oldStat, NodeState newStat)
+      : node(nod), oldState(oldStat), newState(newStat)
+    {}
+
+    NodeTransition(NodeTransition const &) = default;
+    NodeTransition(NodeTransition &&) = default;
+    NodeTransition &operator=(NodeTransition const &) = default;
+    NodeTransition &operator=(NodeTransition &&) = default;
+
+    ~NodeTransition() = default;
   };
 
 } // namespace PLEXIL

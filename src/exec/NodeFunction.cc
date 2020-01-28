@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,23 +28,23 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
+#include "NodeImpl.hh"
 #include "NodeOperator.hh"
+#include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
 {
-  NodeFunction::NodeFunction(NodeOperator const *op, Node *node)
-    : NotifierImpl(),
+  NodeFunction::NodeFunction(NodeOperator const *op, NodeImpl *node)
+    : Propagator(),
       m_op(op),
-      m_node(node),
-      m_valueCache(op->allocateCache())
+      m_node(node)
   {
   }
 
   NodeFunction::~NodeFunction()
   {
-    m_op->deleteCache(m_valueCache);
   }
 
   const char *NodeFunction::exprName() const
@@ -60,22 +60,27 @@ namespace PLEXIL
   bool NodeFunction::isKnown() const
   {
     // Delegate to operator
-    return m_op->calcNative(m_valueCache, m_node);
+    return m_op->isKnown(m_node);
   }
 
   void NodeFunction::printValue(std::ostream &s) const
   {
-    m_op->printValue(s, m_valueCache, m_node);
+    m_op->printValue(s, m_node);
   }
 
-  void NodeFunction::printSubexpressions(std::ostream & /* s */) const
+  void NodeFunction::printSpecialized(std::ostream & str) const
   {
-    // TODO
+    str << m_node->getNodeId();
   }
 
   Value NodeFunction::toValue() const
   {
-    return m_op->toValue(m_valueCache, m_node);
+    return m_op->toValue(m_node);
+  }
+
+  void NodeFunction::doSubexprs(ListenableUnaryOperator const &oper)
+  {
+    m_op->doPropagationSources(m_node, oper);
   }
 
 #define DEFINE_NODE_FUNC_GET_VALUE_METHOD(_rtype) \
@@ -85,44 +90,27 @@ namespace PLEXIL
   }
 
   DEFINE_NODE_FUNC_GET_VALUE_METHOD(Boolean)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(NodeState)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(NodeOutcome)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(FailureType)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(CommandHandleValue)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(String)
+  // Only Boolean operators implemented to date,
+  // uncomment these as necessary
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(uint16_t)
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
+  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(String)
 
 #undef DEFINE_NODE_FUNC_GET_VALUE_METHOD
 
-#define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
-  bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
-  { \
-    bool result = (*m_op)(*static_cast<_rtype *>(m_valueCache), m_node); \
-    if (result) \
-      ptr = static_cast<_rtype const *>(m_valueCache); /* trust me */ \
-    return result; \
-  }
+// Uncomment this if we ever need String or Array results
+// #define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
+//   bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
+//   { \
+//     reportPlanError("getValuePointer not implemented for type " << #_type \
+//                     << " for " << m_op->getName());                     \
+//     return false;                               \
+//   }
 
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
+//   // Only Boolean operators implemented to date
+//   // DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
   
-#undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
-
-#define DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(_rtype) \
-  bool NodeFunction::getValuePointer(_rtype const *& /* ptr */) const   \
-  { \
-    checkError(ALWAYS_FAIL, \
-               "NodeFunction::getValuePointer not implemented for " \
-               << PlexilValueType<_rtype>::typeName); \
-    return false; \
-  }
-
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(Array)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(BooleanArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(IntegerArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(RealArray)
-  DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB(StringArray)
-  
-#undef DEFINE_NODE_FUNC_GET_VALUE_PTR_STUB
+// #undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
 
 } // namespace PLEXIL

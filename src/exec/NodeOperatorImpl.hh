@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
 
 #include "NodeOperator.hh"
 
-#include "allocateCache.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
@@ -49,19 +48,19 @@ namespace PLEXIL
     // Default methods, based on R
     ValueType valueType() const;
 
+    // Not needed for Boolean, Integer, Real, internal values
     void *allocateCache() const
     {
-      return static_cast<void *>(PLEXIL::allocateCache<R>());
+      return NULL;
     }
 
     void deleteCache(void *ptr) const
     {
-      PLEXIL::deallocateCache<R>(static_cast<R *>(ptr));
     }
 
-    bool calcNative(void *cache, Node const *node) const;
-    virtual void printValue(std::ostream &s, void *cache, Node const *node) const;
-    Value toValue(void *cache, Node const *node) const;
+    bool isKnown(NodeImpl const *node) const;
+    void printValue(std::ostream &s, NodeImpl const *node) const;
+    Value toValue(NodeImpl const *node) const;
 
   protected:
 

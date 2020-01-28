@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,8 @@ namespace PLEXIL
 {
   // Forward references
   class ExpressionListener;
-  class Node;
+  class ListenableUnaryOperator;
+  class NodeImpl;
   class Value;
 
   // TODO:
@@ -51,35 +52,37 @@ namespace PLEXIL
       return m_name;
     }
 
-    // Delegated to each individual operator.
-    // Default method returns false.
-    virtual bool checkArgCount(size_t count) const { return false; }
-
     // Delegated to NodeOperatorImpl by default
     virtual ValueType valueType() const = 0;
     virtual void *allocateCache() const = 0;
     virtual void deleteCache(void *Ptr) const = 0;
 
     // Default methods assert
-    virtual bool operator()(Boolean &result, Node const *arg) const;
-    virtual bool operator()(Integer &result, Node const *node) const;
-    virtual bool operator()(Real &result, Node const *node) const;
-    virtual bool operator()(String &result, Node const *node) const;
+    virtual bool operator()(Boolean &result, NodeImpl const *arg) const;
+    // Only Boolean operators implemented to date
+    // virtual bool operator()(Integer &result, NodeImpl const *node) const;
+    // virtual bool operator()(Real &result, NodeImpl const *node) const;
+    // virtual bool operator()(String &result, NodeImpl const *node) const;
 
-    virtual bool operator()(Array &result, Node const *node) const;
-    virtual bool operator()(BooleanArray &result, Node const *node) const;
-    virtual bool operator()(IntegerArray &result, Node const *node) const;
-    virtual bool operator()(RealArray &result, Node const *node) const;
-    virtual bool operator()(StringArray &result, Node const *node) const;
+    // Not needed yet
+    // virtual bool operator()(Array &result, NodeImpl const *node) const;
+    // virtual bool operator()(BooleanArray &result, NodeImpl const *node) const;
+    // virtual bool operator()(IntegerArray &result, NodeImpl const *node) const;
+    // virtual bool operator()(RealArray &result, NodeImpl const *node) const;
+    // virtual bool operator()(StringArray &result, NodeImpl const *node) const;
 
-    virtual bool operator()(NodeState &result, Node const *arg) const;
-    virtual bool operator()(NodeOutcome &result, Node const *arg) const;
-    virtual bool operator()(FailureType &result, Node const *arg) const;
-    virtual bool operator()(CommandHandleValue &result, Node const *arg) const;
+    virtual bool operator()(NodeState &result, NodeImpl const *arg) const;
+    virtual bool operator()(NodeOutcome &result, NodeImpl const *arg) const;
+    virtual bool operator()(FailureType &result, NodeImpl const *arg) const;
+    virtual bool operator()(CommandHandleValue &result, NodeImpl const *arg) const;
 
-    virtual bool calcNative(void *cache, Node const *node) const = 0;
-    virtual void printValue(std::ostream &s, void *cache, Node const *node) const = 0;
-    virtual Value toValue(void *cache, Node const *node) const = 0;
+    virtual bool isKnown(NodeImpl const *node) const = 0;
+    virtual void printValue(std::ostream &s, NodeImpl const *node) const = 0;
+    virtual Value toValue(NodeImpl const *node) const = 0;
+
+    // Helper for notification network
+    virtual void doPropagationSources(NodeImpl *node,
+                                      ListenableUnaryOperator const &oper) const = 0;
 
   protected:
     NodeOperator(std::string const &name)

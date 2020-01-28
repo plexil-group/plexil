@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,7 @@ namespace PLEXIL
   class Assignment final
   {
   public:
-    Assignment(std::string const &nodeId);
-
+    Assignment();
     ~Assignment();
 
     Expression *getDest();
@@ -66,7 +65,6 @@ namespace PLEXIL
 
   private:
     // Explicitly not implemented
-    Assignment() = delete;
     Assignment(Assignment const &) = delete;
     Assignment(Assignment &&) = delete;
     Assignment& operator=(Assignment const &) = delete;

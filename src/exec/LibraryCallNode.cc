@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 namespace PLEXIL
 {
 
-  LibraryCallNode::LibraryCallNode(char const *nodeId, Node *parent)
+  LibraryCallNode::LibraryCallNode(char const *nodeId, NodeImpl *parent)
     : ListNode(nodeId, parent),
       m_aliasMap(NULL)
   {
@@ -45,10 +45,12 @@ namespace PLEXIL
   LibraryCallNode::LibraryCallNode(const std::string& type,
                                    const std::string& name, 
                                    NodeState state,
-                                   Node *parent)
+                                   NodeImpl *parent)
     : ListNode(type, name, state, parent),
       m_aliasMap(NULL)
   {
+    checkError(type == LIBRARYNODECALL,
+               "Invalid node type " << type << " for a LibraryCallNode");
   }
 
   /**
@@ -88,8 +90,11 @@ namespace PLEXIL
     (*m_aliasMap)[name] = exp;
     if (isGarbage) {
       if (!m_localVariables)
-        m_localVariables = new std::vector<std::unique_ptr<Expression> >();
-      m_localVariables->emplace_back(std::unique_ptr<Expression>(exp));
+        m_localVariables = new std::vector<std::unique_ptr<Expression>>();
+      // N.B. Aliases can refer to local variables,
+      // so ensure the alias gets cleaned up first by inserting it in the front.
+      m_localVariables->insert(m_localVariables->begin(),
+                               std::unique_ptr<Expression>(exp)); // std::make_unique() is C++14
     }
     return true;
   }

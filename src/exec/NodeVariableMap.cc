@@ -26,8 +26,13 @@
 
 #include "NodeVariableMap.hh"
 
+#ifdef HAVE_STDDEF_H
 #include <cstddef>
-#include <cstdlib>
+#endif
+
+#ifdef STDC_HEADERS
+#include <cstring> // strdup()
+#endif
 
 namespace PLEXIL
 {

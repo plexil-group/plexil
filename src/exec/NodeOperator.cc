@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,24 +36,25 @@ namespace PLEXIL
 {
 
 #define DEFINE_NODE_OPERATOR_DEFAULT_METHOD(_rtype_) \
-  bool NodeOperator::operator()(_rtype_ & /* result */, Node const * /* node */) const \
-  { assertTrueMsg(ALWAYS_FAIL, "No method defined for _rtype_"); return false; }
+  bool NodeOperator::operator()(_rtype_ & /* result */, NodeImpl const * /* node */) const \
+  { errorMsg("No method defined for" #_rtype_); return false; }
 
   DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Boolean)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Integer)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Real)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(String)
+  // Only Boolean operators implemented to date
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Integer)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Real)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(String)
 
   DEFINE_NODE_OPERATOR_DEFAULT_METHOD(NodeState)
   DEFINE_NODE_OPERATOR_DEFAULT_METHOD(NodeOutcome)
   DEFINE_NODE_OPERATOR_DEFAULT_METHOD(FailureType)
   DEFINE_NODE_OPERATOR_DEFAULT_METHOD(CommandHandleValue)
 
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Array)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(BooleanArray)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(IntegerArray)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(RealArray)
-  DEFINE_NODE_OPERATOR_DEFAULT_METHOD(StringArray)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(Array)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(BooleanArray)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(IntegerArray)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(RealArray)
+  // DEFINE_NODE_OPERATOR_DEFAULT_METHOD(StringArray)
   
 #undef DEFINE_NODE_OPERATOR_DEFAULT_METHOD
 

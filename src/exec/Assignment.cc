@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 namespace PLEXIL
 {
 
-  Assignment::Assignment(const std::string &nodeId)
+  Assignment::Assignment()
     : m_ack("ack"),
       m_abortComplete("abortComplete"),
       m_value(),
@@ -136,9 +136,9 @@ namespace PLEXIL
     debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
     m_dest->asAssignable()->setValue(m_value);
     m_ack.setValue(true);
-    ExecListenerBase *l = g_exec->getExecListener();
-    if (l)
-      l->notifyOfAssignment(m_dest, m_dest->getName(), m_value);
+    ExecListenerBase *listener = g_exec->getExecListener();
+    if (listener)
+      listener->notifyOfAssignment(m_dest, m_dest->getName(), m_value);
   }
 
   void Assignment::retract()
@@ -147,9 +147,11 @@ namespace PLEXIL
              "Restoring previous value of " << m_dest->toString());
     m_dest->asAssignable()->restoreSavedValue();
     m_abortComplete.setValue(true);
-    ExecListenerBase *l = g_exec->getExecListener();
-    if (l)
-      l->notifyOfAssignment(m_dest, m_dest->getName(), m_dest->asAssignable()->getSavedValue());
+    ExecListenerBase *listener = g_exec->getExecListener();
+    if (listener)
+      listener->notifyOfAssignment(m_dest,
+                                   m_dest->getName(),
+                                   m_dest->asAssignable()->getSavedValue());
   }
 
 }
