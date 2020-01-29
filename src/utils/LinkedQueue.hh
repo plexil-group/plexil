@@ -43,10 +43,100 @@ namespace PLEXIL
   template <typename T>
   class LinkedQueue
   {
-  protected: // for use by PriorityQueue
+  protected:
+
     T *m_head;
     T *m_tail;
     size_t m_count;
+
+    //
+    // Iterator classes
+    //
+
+    class Iterator
+    {
+    private:
+      T *m_ptr;
+
+    public:
+      Iterator(T *ptr) : m_ptr(ptr) {}
+      Iterator() : m_ptr(nullptr) {}
+      Iterator(Iterator const &) = default;
+      Iterator(Iterator &&) = default;
+
+      ~Iterator() = default;
+
+      Iterator operator=(Iterator const &) = default;
+      Iterator operator=(Iterator &&) = default;
+      
+      T &operator*()
+      {
+        return *m_ptr;
+      }
+
+      T &operator->()
+      {
+        return *m_ptr;
+      }
+
+      Iterator &operator++()
+      {
+        m_ptr = m_ptr->next();
+      }
+
+      bool operator==(Iterator const &other) const
+      {
+        return m_ptr = other.m_ptr;
+      }
+
+      operator bool() const
+      {
+        return m_ptr == nullptr;
+      }
+
+    };
+
+    class ConstIterator
+    {
+    private:
+      T const *m_ptr;
+
+    public:
+      ConstIterator(T const *ptr) : m_ptr(ptr) {}
+      ConstIterator() : m_ptr(nullptr) {}
+      ConstIterator(ConstIterator const &) = default;
+      ConstIterator(ConstIterator &&) = default;
+
+      ~ConstIterator() = default;
+
+      ConstIterator operator=(ConstIterator const &) = default;
+      ConstIterator operator=(ConstIterator &&) = default;
+      
+      T const &operator*()
+      {
+        return *m_ptr;
+      }
+
+      T const &operator->()
+      {
+        return *m_ptr;
+      }
+
+      ConstIterator &operator++()
+      {
+        m_ptr = m_ptr->next();
+      }
+
+      bool operator==(ConstIterator const &other) const
+      {
+        return m_ptr = other.m_ptr;
+      }
+
+      operator bool() const
+      {
+        return m_ptr == nullptr;
+      }
+    };
 
   private:
     LinkedQueue(LinkedQueue const &) = delete;
@@ -55,6 +145,10 @@ namespace PLEXIL
     LinkedQueue &operator=(LinkedQueue &&) = delete;
 
   public:
+
+    using iterator = Iterator;
+    using const_iterator = ConstIterator;
+    
     LinkedQueue()
       : m_head(nullptr),
         m_tail(nullptr),
@@ -79,6 +173,26 @@ namespace PLEXIL
     bool empty() const
     {
       return (m_head == nullptr);
+    }
+
+    Iterator begin()
+    {
+      return Iterator(m_head);
+    }
+
+    Iterator end()
+    {
+      return Iterator();
+    }
+
+    ConstIterator begin() const
+    {
+      return ConstIterator(m_head);
+    }
+
+    ConstIterator end() const
+    {
+      return ConstIterator();
     }
 
     void pop()
@@ -114,6 +228,21 @@ namespace PLEXIL
         *(m_tail->nextPtr()) = item;
       m_tail = item;
       ++m_count;
+    }
+
+    Iterator insert_after(ConstIterator it, T* item)
+    {
+      if (!it) {
+        this->push(item);
+      }
+      else {
+        T const *nxt = (*it)->next();
+        T **nxtPtr = (*it)->nextPtr();
+        *nxtPtr = item;
+        *(item->nextPtr()) = nxt;
+        if (!nxt)
+          m_tail = nxt;
+      }
     }
 
     void remove(T *item)
@@ -202,6 +331,7 @@ namespace PLEXIL
       return result;
     }
 
+    // FIXME - Unlink all in queue
     void clear()
     {
       m_head = m_tail = nullptr;
@@ -215,7 +345,6 @@ namespace PLEXIL
    * @brief A variant of LinkedQueue that stores its entries in nondecreasing sorted order
    *        as determined by Compare.
    * @note Compare must implement a strict less-than comparison.
-   * @note Callers should not use push() member function!!
    */
 
   template <typename T, typename Compare = std::less<T> >
@@ -223,6 +352,7 @@ namespace PLEXIL
     public LinkedQueue<T>
   {
   public:
+
     PriorityQueue()
       : LinkedQueue<T>()
     {
@@ -237,7 +367,7 @@ namespace PLEXIL
     {
       if (!this->m_head) {
         // Is empty - trivial case
-        LinkedQueue<T>::push(item);
+        push(item);
         return;
       }
 
@@ -288,12 +418,16 @@ namespace PLEXIL
 
   private:
 
+    // For internal use only
+    inline void push(T *item)
+    {
+      LinkedQueue<T>::push(item);
+    }
+      
     PriorityQueue(PriorityQueue const &) = delete;
     PriorityQueue(PriorityQueue &&) = delete;
     PriorityQueue &operator=(PriorityQueue const &) = delete;
     PriorityQueue &operator=(PriorityQueue &&) = delete;
-
-    void push(T *); // callers should not use this base class member function
   };
 
 }
