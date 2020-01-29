@@ -360,18 +360,21 @@ static bool testPriorityQueue()
   assertTrue_1(testpq.empty());
   assertTrue_1(testpq.size() == 0);
   assertTrue_1(testpq.front() == nullptr);
+  assertTrue_1(testpq.front_count() == 0);
 
   // Pop empty queue should be safe
   testpq.pop();
   assertTrue_1(testpq.empty());
   assertTrue_1(testpq.size() == 0);
   assertTrue_1(testpq.front() == nullptr);
+  assertTrue_1(testpq.front_count() == 0);
 
   // Remove of nullptr should be safe
   testpq.remove(nullptr);
   assertTrue_1(testpq.empty());
   assertTrue_1(testpq.size() == 0);
   assertTrue_1(testpq.front() == nullptr);
+  assertTrue_1(testpq.front_count() == 0);
 
   {
     QueueTest *won = new QueueTest(1);
@@ -382,6 +385,7 @@ static bool testPriorityQueue()
     assertTrue_1(testpq.empty());
     assertTrue_1(testpq.size() == 0);
     assertTrue_1(testpq.front() == nullptr);
+    assertTrue_1(testpq.front_count() == 0);
     
     // Test insert on empty queue
     testpq.insert(won);
@@ -390,12 +394,14 @@ static bool testPriorityQueue()
     assertTrue_1(testpq.front() != nullptr);
     assertTrue_1(testpq.front()->value == 1);
     assertTrue_1(testpq.front()->next() == nullptr);
+    assertTrue_1(testpq.front_count() == 1);
 
     // Test pop
     testpq.pop();
     assertTrue_1(testpq.empty());
     assertTrue_1(testpq.size() == 0);
     assertTrue_1(testpq.front() == nullptr);
+    assertTrue_1(testpq.front_count() == 0);
 
     // Insert again
     testpq.insert(won);
@@ -404,24 +410,28 @@ static bool testPriorityQueue()
     assertTrue_1(testpq.front() != nullptr);
     assertTrue_1(testpq.front()->value == 1);
     assertTrue_1(testpq.front()->next() == nullptr);
+    assertTrue_1(testpq.front_count() == 1);
 
     // Remove of nullptr should be safe
     testpq.remove(nullptr);
     assertTrue_1(!testpq.empty());
     assertTrue_1(testpq.size() == 1);
     assertTrue_1(testpq.front()->value == 1);
+    assertTrue_1(testpq.front_count() == 1);
 
     // Test removal of only item
     testpq.remove(won);
     assertTrue_1(testpq.empty());
     assertTrue_1(testpq.size() == 0);
     assertTrue_1(testpq.front() == nullptr);
+    assertTrue_1(testpq.front_count() == 0);
 
     // Pop empty queue should still be safe
     testpq.pop();
     assertTrue_1(testpq.empty());
     assertTrue_1(testpq.size() == 0);
     assertTrue_1(testpq.front() == nullptr);
+    assertTrue_1(testpq.front_count() == 0);
 
     delete won;
   }
@@ -433,6 +443,7 @@ static bool testPriorityQueue()
     assertTrue_1(!testpq.empty());
     assertTrue_1(testpq.size() == (size_t) i);
     assertTrue_1(testpq.front() != nullptr);
+    assertTrue_1(testpq.front_count() == 1);
   }
 
   // Pop and delete all the items,
@@ -442,12 +453,14 @@ static bool testPriorityQueue()
   while (!testpq.empty()) {
     QueueTest *item = testpq.front();
     assertTrue_1(item);
+    assertTrue_1(testpq.front_count() == 1);
     ++count;
     assertTrue_1(item->value == count);
     testpq.pop();
     delete item;
   }
   assertTrue_1(count == n);
+  assertTrue_1(testpq.front_count() == 0);
 
   // Insert a bunch of items in reverse order
   for (int i = 1; i <= n; ++i) {
@@ -455,6 +468,7 @@ static bool testPriorityQueue()
     assertTrue_1(!testpq.empty());
     assertTrue_1(testpq.size() == (size_t) i);
     assertTrue_1(testpq.front() != nullptr);
+    assertTrue_1(testpq.front_count() == 1);
   }
 
   // Pop and delete all the items,
@@ -464,12 +478,14 @@ static bool testPriorityQueue()
   while (!testpq.empty()) {
     QueueTest *item = testpq.front();
     assertTrue_1(item);
+    assertTrue_1(testpq.front_count() == 1);
     ++count;
     assertTrue_1(item->value == count);
     testpq.pop();
     delete item;
   }
   assertTrue_1(count == n);
+  assertTrue_1(testpq.front_count() == 0);
 
   // Insert a bunch of items again, but in a mixed-up order
   for (int i = 1; i <= n/2; ++i) {
@@ -478,6 +494,7 @@ static bool testPriorityQueue()
     assertTrue_1(!testpq.empty());
     assertTrue_1(testpq.size() == (size_t) (2 * i));
     assertTrue_1(testpq.front() != nullptr);
+    assertTrue_1(testpq.front_count() == 1);
   }
 
   // Step through the queue,
@@ -501,12 +518,14 @@ static bool testPriorityQueue()
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n - 1);
   assertTrue_1(testpq.front() == temp);
+  assertTrue_1(testpq.front_count() == 1);
 
   // Reinsert and check that it winds up in front
   testpq.insert(item);
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n);
   assertTrue_1(item == testpq.front());
+  assertTrue_1(testpq.front_count() == 1);
 
   // Remove from middle
   item = testpq.front()->next()->next()->next();
@@ -514,12 +533,14 @@ static bool testPriorityQueue()
   testpq.remove(item);
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n - 1);
+  assertTrue_1(testpq.front_count() == 1);
 
   // Reinsert and check that it winds up where it was
   testpq.insert(item);
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n);
   assertTrue_1(item == testpq.front()->next()->next()->next());
+  assertTrue_1(testpq.front_count() == 1);
 
   // Remove from end
   item = testpq.find_if([](QueueTest const *t) { return t->next() == nullptr; });
@@ -527,11 +548,13 @@ static bool testPriorityQueue()
   testpq.remove(item);
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n - 1);
+  assertTrue_1(testpq.front_count() == 1);
 
   // Insert it back and check it winds up at the end
   testpq.insert(item);
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n);
+  assertTrue_1(testpq.front_count() == 1);
   temp = testpq.find_if([](QueueTest const *t) { return t->next() == nullptr; });
   assertTrue_1(temp == item);
 
@@ -540,6 +563,7 @@ static bool testPriorityQueue()
   testpq.remove(item);
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n);
+  assertTrue_1(testpq.front_count() == 1);
   delete item;
 
   // Insert duplicate items and check they wind up behind originals
@@ -549,21 +573,30 @@ static bool testPriorityQueue()
   assertTrue_1(!testpq.empty());
   assertTrue_1(testpq.size() == n + 1);
   assertTrue_1(item->next() == temp);
+  assertTrue_1(testpq.front_count() == 2);
 
   testpq.remove(temp);
   assertTrue_1(testpq.size() == n);
+  assertTrue_1(testpq.front_count() == 1);
   item = testpq.find_if([](QueueTest const *it) {return it->value == 6;});
   assertTrue_1(item->value == 6);
+  assertTrue_1(testpq.front_count() == 1);
   temp->value = 6;
   testpq.insert(temp);
   assertTrue_1(testpq.size() == n + 1);
   assertTrue_1(item->next() == temp);
+  assertTrue_1(testpq.front_count() == 1);
+  testpq.remove(temp);
+  assertTrue_1(testpq.size() == n);
+  assertTrue_1(item->next() != temp);
+  assertTrue_1(testpq.front_count() == 1);
 
   temp = nullptr;
 
   // Pop and delete remaining
   while (!testpq.empty()) {
     assertTrue_1(testpq.front() != nullptr);
+    assertTrue_1(testpq.front_count() == 1);
     item = testpq.front();
     testpq.pop();
     delete item;
@@ -573,6 +606,7 @@ static bool testPriorityQueue()
   assertTrue_1(testpq.empty());
   assertTrue_1(testpq.size() == 0);
   assertTrue_1(testpq.front() == nullptr);
+  assertTrue_1(testpq.front_count() == 0);
 
   return true;
 }
@@ -587,4 +621,3 @@ bool LinkedQueueTest()
   runTest(testPriorityQueue);
   return true;
 }
-

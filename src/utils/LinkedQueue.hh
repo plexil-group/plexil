@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -263,6 +263,27 @@ namespace PLEXIL
         this->m_tail = item;
       }
       ++this->m_count;
+    }
+
+    /**
+     * @brief Get count of items that compare equal to front().
+     * @return 0 if empty, otherwise the count.
+     */
+    size_t front_count() const
+    {
+      if (this->m_count <= 1)
+        return this->m_count;
+
+      size_t result = 1;
+      T const *cur = this->m_head;
+      T const *nxt = cur->next();
+      static Compare comp;
+      while (nxt && !comp(*cur, *nxt)) {
+        ++result;
+        cur = nxt;
+        nxt = nxt->next();
+      }
+      return result;
     }
 
   private:
