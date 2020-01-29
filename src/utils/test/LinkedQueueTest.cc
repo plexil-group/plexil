@@ -235,6 +235,96 @@ static bool testLinkedQueueBasics()
   return true;
 }
 
+static bool testLinkedQueueIterators()
+{
+  LinkedQueue<QueueTest> testq;
+
+  // To invoke the methods returning const_iterator directly,
+  // we have to cast testq to a const reference.
+  LinkedQueue<QueueTest> const &const_testq =
+    const_cast<LinkedQueue<QueueTest> const &>(testq);
+
+  QueueTest *t = nullptr;
+  // QueueTest const *ct = nullptr;
+
+  LinkedQueue<QueueTest>::iterator it = testq.begin();
+  assertTrue_1(!it);
+  assertTrue_1(it == testq.end());
+
+  LinkedQueue<QueueTest>::const_iterator cit = const_testq.begin();
+  assertTrue_1(!it);
+  assertTrue_1(cit == const_testq.end());
+  assertTrue_1(cit == it);
+  assertTrue_1(it == cit);
+
+  testq.push(new QueueTest(0));
+  testq.push(new QueueTest(1));
+
+  it = testq.begin();
+  assertTrue_1(it);
+  assertTrue_1(it != testq.end());
+  assertTrue_1(it->value == 0);
+
+  cit = const_testq.begin();
+  assertTrue_1(it);
+  assertTrue_1(cit != const_testq.end());
+  assertTrue_1(cit->value == 0);
+  assertTrue_1(cit == it);
+  assertTrue_1(it == cit);
+
+  // Test prefix increment
+  t = testq.front()->next();
+
+  ++it;
+  assertTrue_1(it);
+  assertTrue_1(it.operator*() == t);
+  assertTrue_1(it->value == 1);
+
+  ++cit;
+  assertTrue_1(cit);
+  assertTrue_1(cit.operator*() == t);
+  assertTrue_1(cit->value == 1);
+  assertTrue_1(cit == it);
+  assertTrue_1(it == cit);
+
+  // Test postfix increment
+  it++;
+  assertTrue_1(!it);
+  assertTrue_1(it == testq.end());
+
+  cit++;
+  assertTrue_1(!cit);
+  assertTrue_1(cit == const_testq.end());
+  assertTrue_1(cit == it);
+  assertTrue_1(it == cit);
+
+  // Test insert_after
+  t = new QueueTest(3);
+  it = testq.insert_after(testq.begin(), t);
+  assertTrue_1(testq.size() == 3);
+  assertTrue_1(testq.begin()->value == 0);
+  assertTrue_1(testq.begin()->next()->value == 3);
+  assertTrue_1(testq.begin()->next()->next()->value == 1);
+  assertTrue_1(it->value == 3);
+
+  t = new QueueTest(5);
+  it = testq.insert_after(testq.end(), t);
+  assertTrue_1(testq.size() == 4);
+  assertTrue_1(testq.begin()->value == 0);
+  assertTrue_1(testq.begin()->next()->value == 3);
+  assertTrue_1(testq.begin()->next()->next()->value == 1);
+  assertTrue_1(testq.begin()->next()->next()->next()->value == 5);
+  assertTrue_1(it->value == 5);
+
+  while (!testq.empty()) {
+    t = testq.front();
+    testq.pop();
+    delete t;
+  }
+
+  return true;
+}
+
 static bool testLinkedQueueFindIf()
 {
   LinkedQueue<QueueTest> testq;
@@ -616,6 +706,7 @@ bool LinkedQueueTest()
   Error::doThrowExceptions();
 
   runTest(testLinkedQueueBasics);
+  runTest(testLinkedQueueIterators);
   runTest(testLinkedQueueFindIf);
   runTest(testLinkedQueueRemoveIf);
   runTest(testPriorityQueue);

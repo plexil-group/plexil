@@ -31,8 +31,16 @@
 
 #include <cstddef> // size_t
 
+namespace
+{
+  // Forward references
+  template <typename T> class LinkedQueueIterator;
+  template <typename T> class LinkedQueueConstIterator;
+}
+
 namespace PLEXIL
 {
+
   //*
   // @class LinkedQueue
   // @brief Simple unidirectional linked-list queue implementation.
@@ -43,100 +51,14 @@ namespace PLEXIL
   template <typename T>
   class LinkedQueue
   {
+    template <typename> friend class LinkedQueueIterator;
+    template <typename> friend class LinkedQueueConstIterator;
+
   protected:
 
     T *m_head;
     T *m_tail;
     size_t m_count;
-
-    //
-    // Iterator classes
-    //
-
-    class Iterator
-    {
-    private:
-      T *m_ptr;
-
-    public:
-      Iterator(T *ptr) : m_ptr(ptr) {}
-      Iterator() : m_ptr(nullptr) {}
-      Iterator(Iterator const &) = default;
-      Iterator(Iterator &&) = default;
-
-      ~Iterator() = default;
-
-      Iterator operator=(Iterator const &) = default;
-      Iterator operator=(Iterator &&) = default;
-      
-      T &operator*()
-      {
-        return *m_ptr;
-      }
-
-      T &operator->()
-      {
-        return *m_ptr;
-      }
-
-      Iterator &operator++()
-      {
-        m_ptr = m_ptr->next();
-      }
-
-      bool operator==(Iterator const &other) const
-      {
-        return m_ptr = other.m_ptr;
-      }
-
-      operator bool() const
-      {
-        return m_ptr == nullptr;
-      }
-
-    };
-
-    class ConstIterator
-    {
-    private:
-      T const *m_ptr;
-
-    public:
-      ConstIterator(T const *ptr) : m_ptr(ptr) {}
-      ConstIterator() : m_ptr(nullptr) {}
-      ConstIterator(ConstIterator const &) = default;
-      ConstIterator(ConstIterator &&) = default;
-
-      ~ConstIterator() = default;
-
-      ConstIterator operator=(ConstIterator const &) = default;
-      ConstIterator operator=(ConstIterator &&) = default;
-      
-      T const &operator*()
-      {
-        return *m_ptr;
-      }
-
-      T const &operator->()
-      {
-        return *m_ptr;
-      }
-
-      ConstIterator &operator++()
-      {
-        m_ptr = m_ptr->next();
-      }
-
-      bool operator==(ConstIterator const &other) const
-      {
-        return m_ptr = other.m_ptr;
-      }
-
-      operator bool() const
-      {
-        return m_ptr == nullptr;
-      }
-    };
 
   private:
     LinkedQueue(LinkedQueue const &) = delete;
@@ -146,8 +68,8 @@ namespace PLEXIL
 
   public:
 
-    using iterator = Iterator;
-    using const_iterator = ConstIterator;
+    using iterator = LinkedQueueIterator<T>;
+    using const_iterator = LinkedQueueConstIterator<T>;
     
     LinkedQueue()
       : m_head(nullptr),
@@ -175,24 +97,24 @@ namespace PLEXIL
       return (m_head == nullptr);
     }
 
-    Iterator begin()
+    iterator begin()
     {
-      return Iterator(m_head);
+      return iterator(m_head);
     }
 
-    Iterator end()
+    iterator end()
     {
-      return Iterator();
+      return iterator();
     }
 
-    ConstIterator begin() const
+    const_iterator begin() const
     {
-      return ConstIterator(m_head);
+      return const_iterator(m_head);
     }
 
-    ConstIterator end() const
+    const_iterator end() const
     {
-      return ConstIterator();
+      return const_iterator();
     }
 
     void pop()
@@ -230,19 +152,21 @@ namespace PLEXIL
       ++m_count;
     }
 
-    Iterator insert_after(ConstIterator it, T* item)
+    iterator insert_after(iterator it, T* item)
     {
       if (!it) {
         this->push(item);
       }
       else {
-        T const *nxt = (*it)->next();
+        T *nxt = (*it)->next();
         T **nxtPtr = (*it)->nextPtr();
         *nxtPtr = item;
         *(item->nextPtr()) = nxt;
         if (!nxt)
           m_tail = nxt;
+        ++m_count;
       }
+      return iterator(item);
     }
 
     void remove(T *item)
@@ -334,11 +258,140 @@ namespace PLEXIL
     // FIXME - Unlink all in queue
     void clear()
     {
-      m_head = m_tail = nullptr;
+      m_head = nullptr;
+      m_tail = nullptr;
       m_count = 0;
     }
 
   };
+}
+
+namespace
+{
+  template <typename T>
+  class LinkedQueueIterator final
+  {
+  private:
+    T *m_ptr;
+
+  public:
+    LinkedQueueIterator(T *ptr) : m_ptr(ptr) {}
+    LinkedQueueIterator() : m_ptr(nullptr) {}
+    LinkedQueueIterator(LinkedQueueIterator const &) = default;
+    LinkedQueueIterator(LinkedQueueIterator &&) = default;
+
+    ~LinkedQueueIterator() = default;
+
+    LinkedQueueIterator &operator=(LinkedQueueIterator const &) = default;
+    LinkedQueueIterator &operator=(LinkedQueueIterator &&) = default;
+      
+    T *operator*() const
+    {
+      return m_ptr;
+    }
+
+    T *operator->() const
+    {
+      return m_ptr;
+    }
+
+    // prefix ++
+    LinkedQueueIterator &operator++()
+    {
+      m_ptr = m_ptr->next();
+      return *this;
+    }
+
+    // postfix ++
+    LinkedQueueIterator operator++(int)
+    {
+      LinkedQueueIterator result(*this);
+      m_ptr = m_ptr->next();
+      return result;
+    }
+
+    bool operator==(LinkedQueueIterator const &other) const
+    {
+      return m_ptr == other.m_ptr;
+    }
+
+    bool operator==(LinkedQueueConstIterator<T> const &other) const
+    {
+      return m_ptr == other.operator*();
+    }
+
+    operator bool() const
+    {
+      return m_ptr != nullptr;
+    }
+
+  };
+
+  template <typename T>
+  class LinkedQueueConstIterator final
+  {
+  private:
+    T const *m_ptr;
+
+  public:
+    LinkedQueueConstIterator(T const *ptr) : m_ptr(ptr) {}
+    LinkedQueueConstIterator() : m_ptr(nullptr) {}
+    LinkedQueueConstIterator(LinkedQueueConstIterator const &) = default;
+    LinkedQueueConstIterator(LinkedQueueConstIterator &&) = default;
+
+    // Conversion constructors
+    LinkedQueueConstIterator(LinkedQueueIterator<T> const &it) : m_ptr(it.operator*()) {}
+    LinkedQueueConstIterator(LinkedQueueIterator<T> &&it) : m_ptr(std::move(it.operator*())) {}
+
+    ~LinkedQueueConstIterator() = default;
+
+    LinkedQueueConstIterator &operator=(LinkedQueueConstIterator const &) = default;
+    LinkedQueueConstIterator &operator=(LinkedQueueConstIterator &&) = default;
+      
+    T const *operator*() const
+    {
+      return m_ptr;
+    }
+
+    T const *operator->() const
+    {
+      return m_ptr;
+    }
+
+    // prefix ++
+    LinkedQueueConstIterator &operator++()
+    {
+      m_ptr = m_ptr->next();
+      return *this;
+    }
+
+    // postfix ++
+    LinkedQueueConstIterator operator++(int)
+    {
+      LinkedQueueConstIterator result(*this);
+      m_ptr = m_ptr->next();
+      return result;
+    }
+
+    bool operator==(LinkedQueueConstIterator const &other) const
+    {
+      return m_ptr == other.m_ptr;
+    }
+
+    bool operator==(LinkedQueueIterator<T> const &other) const
+    {
+      return m_ptr == other.operator*();
+    }
+
+    operator bool() const
+    {
+      return m_ptr != nullptr;
+    }
+  };
+}
+
+namespace PLEXIL
+{
 
   /**
    * @class PriorityQueue
@@ -348,7 +401,7 @@ namespace PLEXIL
    */
 
   template <typename T, typename Compare = std::less<T> >
-  class PriorityQueue :
+  class PriorityQueue final :
     public LinkedQueue<T>
   {
   public:
