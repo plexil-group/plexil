@@ -29,15 +29,12 @@
 
 namespace PLEXIL
 {
-  //
-  // Forward declarations
-  //
-  class Expression;
 
   /**
    * @brief Stateless abstract base class for listeners in the expression notification graph.
    * An expression listener may listen to multiple expressions.
    */
+
   class ExpressionListener
   {
   public:
