@@ -1788,17 +1788,9 @@ namespace PLEXIL
     return retval.str();
   }
 
-  // Defined here because Node.cc is no more
-  std::ostream& operator<<(std::ostream &stream, Node const &node)
-  {
-    node.print(stream, 0);
-    return stream;
-  }
-
   void NodeImpl::print(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');
-
     stream << indentStr << m_nodeId << "{\n";
     stream << indentStr << " State: " << nodeStateName(m_state) <<
       " (" << getCurrentStateStartTime() << ")\n";
@@ -1850,7 +1842,5 @@ namespace PLEXIL
         *(it->second) << '\n';
     }
   }
-
-
 
 }

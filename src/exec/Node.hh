@@ -60,8 +60,10 @@ namespace PLEXIL {
   enum QueueStatus : uint8_t {
     QUEUE_NONE = 0,          // not in any queue
     QUEUE_CHECK,             // in check-conditions queue
-    QUEUE_PENDING_TRY,       // just added, or waiting for a mutex which was just released
-    QUEUE_PENDING_TRY_CHECK, // just added, or waiting for a mutex which was just released
+    QUEUE_PENDING_TRY,       // just added to pending queue,
+                             // or waiting for a mutex which was just released
+    QUEUE_PENDING_TRY_CHECK, // just added to pending queue,
+                             // or waiting for a mutex which was just released,
                              // AND check-conditions requested
     QUEUE_PENDING,           // waiting for a mutex
     QUEUE_PENDING_CHECK,     // waiting for a mutex AND check-conditions requested
@@ -206,8 +208,11 @@ namespace PLEXIL {
     Node &operator=(Node &&) = delete;
   };
 
-  // See implementation in NodeImpl.cc
-  std::ostream& operator<<(std::ostream &stream, Node const &node);
+  std::ostream& operator<<(std::ostream &stream, Node const &node)
+  {
+    node.print(stream, 0);
+    return stream;
+  }
 
 }
 
