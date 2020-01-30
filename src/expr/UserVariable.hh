@@ -31,6 +31,8 @@
 #include "GetValueImpl.hh"
 #include "Notifier.hh"
 
+#include <vector>
+
 namespace PLEXIL 
 {
 
@@ -103,32 +105,27 @@ namespace PLEXIL
     // Assignable API
     //
 
-    /**
-     * @brief Set the current value unknown.
-     */
-    virtual void setUnknown() override;
-
     virtual void saveCurrentValue() override;
 
     virtual void restoreSavedValue() override;
 
     virtual Value getSavedValue() const override;
 
-    virtual Expression *getBaseVariable() override;
-    virtual Expression const *getBaseVariable() const override;
-
-    /**
-     * @brief Set the expression from which this object gets its initial value.
-     * @param expr Pointer to an Expression.
-     * @param garbage True if the expression should be deleted with this object, false otherwise.
-     */
     virtual void setInitializer(Expression *expr, bool garbage) override;
 
-    /**
-     * @brief Set the value for this object.
-     * @param val The new value for this object.
-     */
+    virtual void setUnknown() override;
+
     virtual void setValue(Value const &val) override;
+
+    virtual Assignable *getBaseVariable() override;
+    virtual Assignable const *getBaseVariable() const override;
+
+    virtual bool isInUse() const override;
+    virtual bool reserve(Node *node) override;
+    virtual void release() override;
+
+    virtual void addWaitingNode(Node *node) override;
+    virtual void removeWaitingNode(Node *node) override;
 
     /**
      * @brief Set the value for this object.
@@ -152,6 +149,9 @@ namespace PLEXIL
 
   private:
 
+    //! Nodes waiting to assign to this variable. Usually empty.
+    std::vector<Node *> m_waiters;
+
     // N.B. Ordering is suboptimal for bool because of required padding;
     // fine for Integer and Real
     T m_value;
@@ -159,6 +159,8 @@ namespace PLEXIL
 
     Expression *m_initializer;
     char const *m_name;
+
+    Node *m_user;
 
     bool m_known;
     bool m_savedKnown;
@@ -231,17 +233,9 @@ namespace PLEXIL
     template <typename U>
     bool getValuePointer(U const *&ptr) const;
 
-    /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
-     */
-    virtual void setValueImpl(String const &value);
-
-    /**
-     * @brief Set the current value unknown.
-     */
-    virtual void setUnknown() override;
+    //
+    // Assignable API
+    //
 
     virtual void saveCurrentValue() override;
 
@@ -249,21 +243,21 @@ namespace PLEXIL
 
     virtual Value getSavedValue() const override;
 
-    virtual Expression *getBaseVariable() override;
-    virtual Expression const *getBaseVariable() const override;
-
-    /**
-     * @brief Set the expression from which this object gets its initial value.
-     * @param expr Pointer to an Expression.
-     * @param garbage True if the expression should be deleted with this object, false otherwise.
-     */
     virtual void setInitializer(Expression *expr, bool garbage) override;
 
-    /**
-     * @brief Set the value for this object.
-     * @param val The new value for this object.
-     */
+    virtual void setUnknown() override;
+
     virtual void setValue(Value const &val) override;
+
+    virtual Assignable *getBaseVariable() override;
+    virtual Assignable const *getBaseVariable() const override;
+
+    virtual bool isInUse() const override;
+    virtual bool reserve(Node *node) override;
+    virtual void release() override;
+
+    virtual void addWaitingNode(Node *node) override;
+    virtual void removeWaitingNode(Node *node) override;
 
     /**
      * @brief Set the value for this object.
@@ -277,13 +271,26 @@ namespace PLEXIL
 
     virtual void printSpecialized(std::ostream &s) const override;
 
+  protected:
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    virtual void setValueImpl(String const &value);
+
   private:
+
+    //! Nodes waiting to assign to this variable. Usually empty.
+    std::vector<Node *> m_waiters;
 
     String m_value;
     String m_savedValue;   // for undoing assignment 
 
     Expression *m_initializer;
     char const *m_name;
+
+    Node *m_user;
 
     bool m_known;
     bool m_savedKnown;

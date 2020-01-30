@@ -28,7 +28,6 @@
 #define PLEXIL_ARRAY_REFERENCE_HH
 
 #include "Assignable.hh"
-#include "Expression.hh"
 #include "Propagator.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
@@ -168,8 +167,8 @@ namespace PLEXIL {
     virtual void restoreSavedValue() override;
     virtual Value getSavedValue() const override;
 
-    virtual Expression *getBaseVariable() override;
-    virtual Expression const *getBaseVariable() const override;
+    virtual Assignable *getBaseVariable() override;
+    virtual Assignable const *getBaseVariable() const override;
 
   private:
     // Default, copy, assignment disallowed

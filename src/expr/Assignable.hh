@@ -33,6 +33,7 @@ namespace PLEXIL {
   
   // Forward declarations
   class Array;
+  class Node;
   class Value;
 
   /**
@@ -71,14 +72,6 @@ namespace PLEXIL {
     virtual Value getSavedValue() const = 0;
 
     /**
-     * @brief Get the real variable for which this may be a proxy.
-     * @return Pointer to the base variable.
-     * @note Used by the assignment node conflict resolution logic.
-     */
-    virtual Expression *getBaseVariable() = 0;
-    virtual Expression const *getBaseVariable() const = 0;
-
-    /**
      * @brief Set the expression from which this object gets its initial value.
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
@@ -100,6 +93,58 @@ namespace PLEXIL {
      * @param val The new value for this object.
      */
     virtual void setValue(Value const &val) = 0;
+
+    //
+    // Interface to PlexilExec conflict resolution logic
+    //
+
+    //! @brief Get the real variable for which this may be a proxy.
+    //! @return Pointer to the base variable, as an Assignable.
+
+    virtual Assignable *getBaseVariable() = 0;
+    virtual Assignable const *getBaseVariable() const = 0;
+
+    //! @brief Determine whether this object is currently in use by a Node.
+    //! @return true if in use, false if not.
+    //! @note The default method returns false.
+
+    virtual bool isInUse() const
+    {
+      return false;
+    }
+
+    //! @brief Tell this object it is being reserved by a Node.
+    //! @param The Node wishing to reserve this object.
+    //! @return true if the object was successfully reserved.
+    //! @note The default method does nothing and returns false.
+
+    virtual bool reserve(Node *node)
+    {
+      return false;
+    }
+      
+    //! @brief Release the object from its reservation by a Node.
+    //! @note The default method does nothing.
+
+    virtual void release()
+    {
+    }
+
+    //! @brief Add a node to the list of nodes waiting on the mutex.
+    //! @param node Pointer to the node.
+    //! @note The default method does nothing.
+
+    virtual void addWaitingNode(Node *node)
+    {
+    }
+
+    //! @brief Remove a node from the list of nodes waiting on the mutex.
+    //! @param node Pointer to the node.
+    //! @note The default method does nothing.
+
+    virtual void removeWaitingNode(Node *node)
+    {
+    }
 
   private:
     // Not implemented

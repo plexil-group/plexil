@@ -36,6 +36,8 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
+#include <algorithm> // std::remove
+
 #ifdef STDC_HEADERS
 #include <cstdlib> // free()
 #include <cstring> // strdup()
@@ -49,6 +51,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(nullptr),
       m_name(nullptr),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false)
   {
@@ -58,6 +61,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(nullptr),
       m_name(nullptr),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false)
   {
@@ -68,6 +72,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(new Constant<T>(initVal)),
       m_name(nullptr),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false)
   {
@@ -77,6 +82,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(new Constant<String>(initVal)),
       m_name(nullptr),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_initializerIsGarbage(true)
@@ -89,6 +95,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
       m_name(nullptr),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_initializerIsGarbage(false)
@@ -100,6 +107,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(nullptr),
       m_name(strdup(name)),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_initializerIsGarbage(false)
@@ -110,6 +118,7 @@ namespace PLEXIL
     : Notifier(),
       m_initializer(nullptr),
       m_name(strdup(name)),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_initializerIsGarbage(false)
@@ -434,25 +443,88 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *UserVariable<T>::getBaseVariable()
+  Assignable *UserVariable<T>::getBaseVariable()
   {
     return this;
   }
 
-  Expression *UserVariable<String>::getBaseVariable()
+  Assignable *UserVariable<String>::getBaseVariable()
   {
    return this;
   }
 
   template <typename T>
-  Expression const *UserVariable<T>::getBaseVariable() const
+  Assignable const *UserVariable<T>::getBaseVariable() const
   {
    return this;
   }
 
-  Expression const *UserVariable<String>::getBaseVariable() const
+  Assignable const *UserVariable<String>::getBaseVariable() const
   {
    return this;
+  }
+
+  template <typename T>
+  bool UserVariable<T>::isInUse() const
+  {
+    return m_user != nullptr;
+  }
+
+  bool UserVariable<String>::isInUse() const
+  {
+    return m_user != nullptr;
+  }
+ 
+  template <typename T>
+  bool UserVariable<T>::reserve(Node *node)
+  {
+    if (m_user)
+      return false;
+    m_user = node;
+    return true;
+  }
+
+  bool UserVariable<String>::reserve(Node *node)
+  {
+    if (m_user)
+      return false;
+    m_user = node;
+    return true;
+  }
+
+  template <typename T>
+  void UserVariable<T>::release()
+  {
+    m_user = nullptr;
+    // TODO: notify waiters
+  }
+
+  void UserVariable<String>::release()
+  {
+    m_user = nullptr;
+    // TODO: notify waiters
+  }
+
+  template <typename T>
+  void UserVariable<T>::addWaitingNode(Node *node)
+  {
+    m_waiters.push_back(node);
+  }
+
+  void UserVariable<String>::addWaitingNode(Node *node)
+  {
+    m_waiters.push_back(node);
+  }
+
+  template <typename T>
+  void UserVariable<T>::removeWaitingNode(Node *node)
+  {
+    std::remove(m_waiters.begin(), m_waiters.end(), node);
+  }
+
+  void UserVariable<String>::removeWaitingNode(Node *node)
+  {
+    std::remove(m_waiters.begin(), m_waiters.end(), node);
   }
 
   template <typename T>

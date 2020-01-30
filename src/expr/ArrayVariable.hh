@@ -32,6 +32,7 @@
 #include "Notifier.hh"
 
 #include <memory> // std::unique_ptr
+#include <vector>
 
 namespace PLEXIL
 {
@@ -78,39 +79,38 @@ namespace PLEXIL
      */
     virtual bool getValuePointer(Array const *&ptr) const override;
 
+    //
+    // Assignable API
+    //
+
     virtual void saveCurrentValue() override;
 
     // Provided by derived class
-    // virtual void restoreSavedValue() = 0;
+    // virtual void restoreSavedValue() override;
 
     virtual Value getSavedValue() const override;
 
-    virtual Expression *getBaseVariable() override;
-    virtual Expression const *getBaseVariable() const override;
+    virtual void setInitializer(Expression *expr, bool garbage) override;
 
-    /**
-     * @brief Set the expression from which this object gets its initial value.
-     * @param expr Pointer to an Expression.
-     * @param garbage True if the expression should be deleted with this object, false otherwise.
-     */
-    void setInitializer(Expression *expr, bool garbage) override;
+    virtual void setUnknown() override;
 
-    /**
-     * @brief Set the value for this object.
-     * @param val The new value for this object.
-     */
     virtual void setValue(Value const &val) override;
+
+    virtual Assignable *getBaseVariable() override;
+    virtual Assignable const *getBaseVariable() const override;
+
+    virtual bool isInUse() const override;
+    virtual bool reserve(Node *node) override;
+    virtual void release() override;
+
+    virtual void addWaitingNode(Node *node) override;
+    virtual void removeWaitingNode(Node *node) override;
 
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
      */
     virtual void setValue(Expression const &val);
-
-    /**
-     * @brief Set the current value unknown.
-     */
-    virtual void setUnknown() override;
 
     //
     // Access needed by ArrayReference
@@ -217,6 +217,9 @@ namespace PLEXIL
     // Member variables
     //
 
+    //! Nodes waiting to assign to this variable. Usually empty.
+    std::vector<Node *> m_waiters;
+
     std::unique_ptr<Array> m_value;
     std::unique_ptr<Array> m_savedValue;   // for undoing assignment 
 
@@ -224,6 +227,8 @@ namespace PLEXIL
     Expression *m_initializer;
     char const *m_name;
     size_t m_maxSize;
+
+    Node *m_user;
 
     bool m_known;
     bool m_savedKnown;

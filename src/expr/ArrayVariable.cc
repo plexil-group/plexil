@@ -37,6 +37,8 @@
 #include <cstring> // strdup()
 #endif
 
+#include <algorithm> // std::remove()
+
 namespace PLEXIL
 {
 
@@ -48,6 +50,7 @@ namespace PLEXIL
       m_initializer(nullptr),
       m_name(nullptr),
       m_maxSize(0),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -67,6 +70,7 @@ namespace PLEXIL
       m_initializer(nullptr),
       m_name(strdup(name)),
       m_maxSize(0),
+      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
@@ -224,14 +228,43 @@ namespace PLEXIL
     return Value();
   }
 
-  Expression *ArrayVariable::getBaseVariable()
+  Assignable *ArrayVariable::getBaseVariable()
   {
     return this;
   }
 
-  Expression const *ArrayVariable::getBaseVariable() const
+  Assignable const *ArrayVariable::getBaseVariable() const
   {
     return this;
+  }
+
+  bool ArrayVariable::isInUse() const
+  {
+    return m_user != nullptr;
+  }
+
+  bool ArrayVariable::reserve(Node *node)
+  {
+    if (m_user)
+      return false;
+    m_user = node;
+    return true;
+  }
+
+  void ArrayVariable::release()
+  {
+    m_user = nullptr;
+    // TODO: notify waiters
+  }
+
+  void ArrayVariable::addWaitingNode(Node *node)
+  {
+    m_waiters.push_back(node);
+  }
+
+  void ArrayVariable::removeWaitingNode(Node *node)
+  {
+    std::remove(m_waiters.begin(), m_waiters.end(), node);
   }
 
   // *** FIXME ***
