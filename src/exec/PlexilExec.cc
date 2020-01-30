@@ -40,6 +40,8 @@
 
 #include "lifecycle-utils.h"
 
+#include <algorithm> // std::find
+
 namespace PLEXIL 
 {
 
