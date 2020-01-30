@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -157,7 +157,8 @@ AC_CHECK_LIB([execinfo], [backtrace])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h dlfcn.h execinfo.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([dlfcn.h execinfo.h float.h limits.h math.h stddef.h stdint.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h sys/socket.h])
 
 AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 
@@ -182,7 +183,8 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([clock_gettime ctime_r floor gettimeofday localtime_r memmove memset modf pow setitimer socket sqrt])
+AC_CHECK_FUNCS([ceil floor modf pow round sqrt trunc])
+AC_CHECK_FUNCS([clock_gettime ctime_r gettimeofday localtime_r memmove memset setitimer socket])
 AC_CHECK_FUNCS([strchr strcspn strspn strstr strtol strtoll strtoul strtoull])
 # Used by UdpAdapter (and IPC)
 AC_CHECK_FUNCS([gethostbyname inet_ntoa])
