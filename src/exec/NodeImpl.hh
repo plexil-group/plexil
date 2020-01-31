@@ -194,13 +194,12 @@ namespace PLEXIL
     void transition(double time = 0.0) override; // FIXME - need a better time representation
 
     /**
-     * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
+     * @brief Get the priority of a node.
      * @return the priority of this node.
-     * @note Default method; only assignment nodes care about priority.
      */
     virtual int32_t getPriority() const override
     {
-      return WORST_PRIORITY;
+      return m_priority;
     }
 
     /**
@@ -280,6 +279,16 @@ namespace PLEXIL
     //
     // Local to this class and derived classes
     //
+
+    /**
+     * @brief Set priority of a node.
+     * @param prio The new priority.
+     * @note Used by parser.
+     */
+    void setPriority(int32_t prio)
+    {
+      m_priority = prio;
+    }
 
     /**
      * @brief Mark the node as eligible for recheck of conditions.
@@ -562,6 +571,7 @@ namespace PLEXIL
 
     NodeVariableMap *m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
+    int32_t m_priority;
 
   private:
     

@@ -57,11 +57,6 @@ namespace PLEXIL
   // Static member initialization
   //
 
-  // *** DELETE THIS AFTER TESTING ***
-  // NOTE: this used to be 100000000, which somehow gets printed as
-  // scientific notation in XML and doesn't parse correctly.
-  // const int32_t NodeImpl::WORST_PRIORITY = 100000;
-
   char const * const NodeImpl::ALL_CONDITIONS[] =
     {
       "AncestorExitCondition",
@@ -174,6 +169,7 @@ namespace PLEXIL
       m_failureTypeVariable(*this),
       m_variablesByName(NULL),
       m_nodeId(nodeId),
+      m_priority(WORST_PRIORITY),
       m_currentStateStartTime(0.0),
       m_timepoints(NULL),
       m_garbageConditions(),
@@ -207,6 +203,7 @@ namespace PLEXIL
       m_failureTypeVariable(*this),
       m_variablesByName(NULL),
       m_nodeId(name),
+      m_priority(WORST_PRIORITY),
       m_currentStateStartTime(0.0),
       m_timepoints(NULL),
       m_garbageConditions(),
@@ -1841,6 +1838,15 @@ namespace PLEXIL
       stream << indentStr << ' ' << it->first << ": " <<
         *(it->second) << '\n';
     }
+  }
+
+  // Here because there is no Node.cc
+  // and putting the function definition in Node.hh causes
+  // 'duplicate symbol' linker errors.
+  std::ostream& operator<<(std::ostream &stream, Node const &node)
+  {
+    node.print(stream, 0);
+    return stream;
   }
 
 }

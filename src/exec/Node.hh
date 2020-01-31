@@ -208,11 +208,7 @@ namespace PLEXIL {
     Node &operator=(Node &&) = delete;
   };
 
-  std::ostream& operator<<(std::ostream &stream, Node const &node)
-  {
-    node.print(stream, 0);
-    return stream;
-  }
+  std::ostream& operator<<(std::ostream &stream, Node const &node);
 
 }
 
