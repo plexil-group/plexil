@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 
 #include "ArrayVariable.hh"
 #include "Constant.hh"
+#include "createExpression.hh"
 #include "Error.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
@@ -37,6 +38,8 @@
 
 #include <cstdlib>
 #include <limits>
+
+using pugi::xml_node;
 
 namespace PLEXIL
 {
@@ -49,49 +52,128 @@ namespace PLEXIL
   {
   }
 
+  //
+  // First pass: XML checks
+  //
+
+  ValueType ArrayVariableFactory::check(char const *nodeId, xml_node expr) const
+  {
+    // We know the declaration has a name and a valid type.
+    // Check for a legal array type.
+    xml_node temp = expr.first_child().next_sibling();
+    ValueType typ = parseValueType(temp.child_value());
+    checkParserExceptionWithLocation(arrayType(typ) != UNKNOWN_TYPE,
+                                     temp,
+                                     "Node \"" << nodeId
+                                     << "\": Invalid type name " << temp.child_value()
+                                     << " for " << expr.name()
+                                     << ' ' << expr.first_child().child_value());
+
+    // Everything after type is optional
+    temp = temp.next_sibling();
+    if (temp) {
+      // Check for optional MaxSize tag
+      if (testTag(MAX_SIZE_TAG, temp)) {
+        // Check for non-negative integer
+        char const *sz = temp.child_value();
+        checkParserExceptionWithLocation(*sz,
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Empty " << temp.name()
+                                         << " in " << expr.name() << ' ' << expr.child_value(NAME_TAG));
+        Integer n;
+        checkParserExceptionWithLocation(parseValue<Integer>(sz, n) && n >= 0,
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": " << temp.name()
+                                         << " value " << sz
+                                         << " is not a non-negative integer\n in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+
+        temp = temp.next_sibling();
+      }
+
+      if (temp) {
+        // Check initial value, if provided
+        checkParserExceptionWithLocation(testTag(INITIALVAL_TAG, temp),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": " << temp.name() << " element invalid in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+
+
+        // Check that initializer isn't completely bogus
+        checkParserExceptionWithLocation(temp.first_child(),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Invalid " << INITIALVAL_TAG << " element in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+        temp = temp.first_child();
+
+        // *** N.B. ***
+        // The schema used to restrict initializers to literals.
+        // Now restricts to literals and variables
+        // we may choose to broaden this in the future.
+        // Comment out this check if so.
+    
+        checkParserExceptionWithLocation(testTagSuffix(VAL_SUFFIX, temp) || testTagSuffix(VAR_SUFFIX, temp),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Invalid " << INITIALVAL_TAG << " contents in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG));
+
+        // Legal initializers are list of scalars, ArrayValue, ArrayVariable
+        if (testTagPrefix("Array", temp)) {
+          ValueType v = checkExpression(nodeId, temp);
+          checkParserExceptionWithLocation(v == arrayType(typ)
+                                           || v == UNKNOWN_TYPE, // FIXME - for variables
+                                           temp,
+                                           "Node \"" << nodeId
+                                           << "\": " << valueTypeName(typ)
+                                           << " array variable " << expr.child_value(NAME_TAG)
+                                           << " has " << INITIALVAL_TAG
+                                           << " of incompatible type " << valueTypeName(v));
+        }
+        else
+          do {
+            ValueType v = checkExpression(nodeId, temp);
+            checkParserExceptionWithLocation(v == typ,
+                                             temp,
+                                             "Node \"" << nodeId
+                                             << "\": " << valueTypeName(typ)
+                                             << " array variable " << expr.child_value(NAME_TAG)
+                                             << " has " << INITIALVAL_TAG
+                                             << " of incompatible type " << valueTypeName(v));
+            temp = temp.next_sibling();
+          } while (temp);
+      }
+    }
+
+    return arrayType(typ);
+  }
+
+  //
+  // Second pass: construction
+  //
+
   // N.B. Construction of initializer expression happens later.
 
-  Expression *ArrayVariableFactory::allocate(pugi::xml_node const expr,
+  Expression *ArrayVariableFactory::allocate(xml_node const expr,
                                              NodeConnector *node,
                                              bool &wasCreated,
                                              ValueType /* returnType */) const
   {
-    pugi::xml_node nameElt = expr.first_child();
-    checkTag(NAME_TAG, nameElt);
-    char const *name = nameElt.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     expr,
-                                     "createExpression: DeclareArray with empty or malformed Name element");
-
-    pugi::xml_node typeElt = nameElt.next_sibling();
-    checkParserExceptionWithLocation(typeElt,
-                                     expr,
-                                     "createExpression: DeclareArray missing Type element");
-    checkTag(TYPE_TAG, typeElt);
-    ValueType typ = parseValueType(typeElt.child_value());
-    checkParserExceptionWithLocation(isScalarType(typ),
-                                     typeElt,
-                                     "createExpression: Type " << typeElt.child_value()
-                                     << " is invalid for DeclareArray");
-    pugi::xml_node sizeElt = typeElt.next_sibling();
+    xml_node temp = expr.first_child();
+    char const *name = temp.child_value();
+    temp = temp.next_sibling();
+    ValueType typ = parseValueType(temp.child_value());
     Expression *sizeExp = NULL;
     bool sizeIsGarbage = false;
-    if (testTag(MAX_SIZE_TAG, sizeElt)) {
-      char const *sizeStr = sizeElt.child_value();
-      // Syntactic check
-      checkParserExceptionWithLocation(isInteger(sizeStr),
-                                       sizeElt,
-                                       "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
-
+    temp = temp.next_sibling();
+    if (testTag(MAX_SIZE_TAG, temp)) {
+      char const *sizeStr = temp.child_value();
       char *end;
       long size = strtol(sizeStr, &end, 10);
-      checkParserExceptionWithLocation(!*end,
-                                       sizeElt,
-                                       "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
-      checkParserExceptionWithLocation(size >= 0
-				       && size < std::numeric_limits<int32_t>::max(),
-                                       sizeElt,
-                                       "createExpression: MaxSize value " << sizeStr << " is not a non-negative integer");
       sizeExp = new Constant<int32_t>((int32_t) size);
       sizeIsGarbage = true;
     }
@@ -99,34 +181,29 @@ namespace PLEXIL
     wasCreated = true;
     switch (typ) {
     case BOOLEAN_TYPE:
-      return new BooleanArrayVariable(node,
-                                      name,
+      return new BooleanArrayVariable(name,
                                       sizeExp,
                                       sizeIsGarbage);
 
     case INTEGER_TYPE:
-      return new IntegerArrayVariable(node,
-                                      name,
+      return new IntegerArrayVariable(name,
                                       sizeExp,
                                       sizeIsGarbage);
 
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
     case REAL_TYPE:
-      return new RealArrayVariable(node,
-                                   name,
+      return new RealArrayVariable(name,
                                    sizeExp,
                                    sizeIsGarbage);
 
     case STRING_TYPE:
-      return new StringArrayVariable(node,
-                                     name,
+      return new StringArrayVariable(name,
                                      sizeExp,
                                      sizeIsGarbage);
 
     default:
-      assertTrue_2(ALWAYS_FAIL,
-                   "ArrayVariableFactory::allocate: Internal type error");
+      errorMsg("ArrayVariableFactory::allocate: Internal type error");
       return NULL;
     }
   }

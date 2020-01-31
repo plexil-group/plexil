@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 #define PLEXIL_FUNCTION_FACTORY_HH
 
 #include "ExpressionFactory.hh"
-#include "ExprVec.hh"
 #include "Function.hh"
 
 namespace PLEXIL
@@ -38,18 +37,18 @@ namespace PLEXIL
   class FunctionFactory : public ExpressionFactory
   {
   public:
-    FunctionFactory(std::string const &name);
+    FunctionFactory(Operator const *op, std::string const &name);
     virtual ~FunctionFactory() = default;
 
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool & wasCreated,
-                         ValueType returnType) const;
+    virtual ValueType check(char const *nodeId, pugi::xml_node expr) const;
+
+    virtual Expression *allocate(pugi::xml_node const expr,
+                                 NodeConnector *node,
+                                 bool & wasCreated,
+                                 ValueType returnType) const;
 
   protected:
-
-    // Delegated to derived class
-    virtual Operator const *getOperator() const = 0;
+    virtual Function *constructFunction(Operator const *op, size_t n) const;
 
   private:
     // Unimplemented
@@ -58,37 +57,33 @@ namespace PLEXIL
     FunctionFactory(FunctionFactory &&) = delete;
     FunctionFactory &operator=(FunctionFactory const &) = delete;
     FunctionFactory &operator=(FunctionFactory &&) = delete;
+
+    Operator const *m_op;
   };
 
-  template <class OP>
-  class FunctionFactoryImpl : public FunctionFactory
+  // Derived class for functions requiring a cache
+  class CachedFunctionFactory : public FunctionFactory
   {
   public:
-    FunctionFactoryImpl(std::string const &name)
-      : FunctionFactory(name)
-    {
-    }
-
-    ~FunctionFactoryImpl() = default;
+    CachedFunctionFactory(Operator const *op, std::string const &name);
+    virtual ~CachedFunctionFactory();
 
   protected:
-    Operator const *getOperator() const
-    {
-      return OP::instance();
-    }
+    virtual Function *constructFunction(Operator const *op, size_t n) const;
 
   private:
     // Unimplemented
-    FunctionFactoryImpl() = delete;
-    FunctionFactoryImpl(FunctionFactoryImpl const &) = delete;
-    FunctionFactoryImpl(FunctionFactoryImpl &&) = delete;
-    FunctionFactoryImpl &operator=(FunctionFactoryImpl const &) = delete;
-    FunctionFactoryImpl &operator=(FunctionFactoryImpl &&) = delete;
+    CachedFunctionFactory() = delete;
+    CachedFunctionFactory(CachedFunctionFactory const &) = delete;
+    CachedFunctionFactory(CachedFunctionFactory &&) = delete;
+    CachedFunctionFactory &operator=(CachedFunctionFactory const &) = delete;
+    CachedFunctionFactory &operator=(CachedFunctionFactory &&) = delete;
   };
 
 } // namespace PLEXIL
 
 // Convenience macros
-#define REGISTER_FUNCTION(CLASS,NAME) {new PLEXIL::FunctionFactoryImpl<CLASS>(#NAME);}
+#define REGISTER_FUNCTION(CLASS,NAME) new PLEXIL::FunctionFactory(CLASS::instance(), #NAME)
+#define REGISTER_CACHED_FUNCTION(CLASS,NAME) new PLEXIL::CachedFunctionFactory(CLASS::instance(), #NAME)
 
 #endif // PLEXIL_FUNCTION_FACTORY_HH

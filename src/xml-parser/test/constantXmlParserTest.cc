@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,8 @@
 */
 
 #include "ArrayImpl.hh"
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Expression.hh"
 #include "TestSupport.hh"
 #include "test/TrivialNodeConnector.hh"
 
@@ -46,61 +47,113 @@ static bool booleanConstantXmlParserTest()
   xml_document doc;
 
   bool wasCreated;
-  bool temp;
+  Boolean temp;
 
   pugi::xml_node falseXml = doc.append_child("BooleanValue");
   pugi::xml_node falseText = falseXml.append_child(node_pcdata);
   falseText.set_value("false");
 
-  Expression *falseConstant = createExpression(falseXml, nc, wasCreated);
-  assertTrue_1(falseConstant);
-  assertTrue_1(!wasCreated);
-  assertTrue_1(!falseConstant->isAssignable());
-  assertTrue_1(falseConstant->valueType() == BOOLEAN_TYPE);
-  assertTrue_1(falseConstant->getValue(temp));
-  assertTrue_1(!temp);
+  {
+    Expression *falseConstant = NULL;
+    try {
+      checkExpression("false", falseXml);
+      falseConstant = createExpression(falseXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
+    assertTrue_1(falseConstant);
+    assertTrue_1(!wasCreated);
+    assertTrue_1(!falseConstant->isAssignable());
+    assertTrue_1(falseConstant->valueType() == BOOLEAN_TYPE);
+    assertTrue_1(falseConstant->getValue(temp));
+    assertTrue_1(!temp);
+
+    if (wasCreated)
+      delete falseConstant;
+  }
 
   pugi::xml_node zeroXml = doc.append_child("BooleanValue");
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
-  Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
-  assertTrue_1(zeroConstant);
-  assertTrue_1(!wasCreated);
-  assertTrue_1(!zeroConstant->isAssignable());
-  assertTrue_1(zeroConstant->valueType() == BOOLEAN_TYPE);
-  assertTrue_1(zeroConstant->getValue(temp));
-  assertTrue_1(!temp);
+  {
+    Expression *zeroConstant = NULL;
+
+    try {
+      checkExpression("zero", zeroXml);
+      zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
+    assertTrue_1(zeroConstant);
+    assertTrue_1(!wasCreated);
+    assertTrue_1(!zeroConstant->isAssignable());
+    assertTrue_1(zeroConstant->valueType() == BOOLEAN_TYPE);
+    assertTrue_1(zeroConstant->getValue(temp));
+    assertTrue_1(!temp);
+
+    if (wasCreated)
+      delete zeroConstant;
+  }
 
   pugi::xml_node trueXml = doc.append_child("BooleanValue");
   pugi::xml_node trueText = trueXml.append_child(node_pcdata);
   trueText.set_value("true");
 
-  Expression *trueConstant = createExpression(trueXml, nc, wasCreated);
-  assertTrue_1(trueConstant);
-  assertTrue_1(!wasCreated);
-  assertTrue_1(!trueConstant->isAssignable());
-  assertTrue_1(trueConstant->valueType() == BOOLEAN_TYPE);
-  assertTrue_1(trueConstant->getValue(temp));
-  assertTrue_1(temp);
+  {
+    Expression *trueConstant = NULL;
+
+    try {
+      checkExpression("true", trueXml);
+      trueConstant = createExpression(trueXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
+    assertTrue_1(trueConstant);
+    assertTrue_1(!wasCreated);
+    assertTrue_1(!trueConstant->isAssignable());
+    assertTrue_1(trueConstant->valueType() == BOOLEAN_TYPE);
+    assertTrue_1(trueConstant->getValue(temp));
+    assertTrue_1(temp);
+
+    if (wasCreated)
+      delete trueConstant;
+  }
 
   pugi::xml_node oneXml = doc.append_child("BooleanValue");
   pugi::xml_node oneText = oneXml.append_child(node_pcdata);
   oneText.set_value("1");
 
-  Expression *oneConstant = createExpression(trueXml, nc, wasCreated);
-  assertTrue_1(oneConstant);
-  assertTrue_1(!wasCreated);
-  assertTrue_1(!oneConstant->isAssignable());
-  assertTrue_1(oneConstant->valueType() == BOOLEAN_TYPE);
-  assertTrue_1(oneConstant->getValue(temp));
-  assertTrue_1(temp);
+  {
+    Expression *oneConstant = NULL;
+
+    try {
+      checkExpression("one", oneXml);
+      oneConstant = createExpression(oneXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
+    assertTrue_1(oneConstant);
+    assertTrue_1(!wasCreated);
+    assertTrue_1(!oneConstant->isAssignable());
+    assertTrue_1(oneConstant->valueType() == BOOLEAN_TYPE);
+    assertTrue_1(oneConstant->getValue(temp));
+    assertTrue_1(temp);
+
+    if (wasCreated)
+      delete oneConstant;
+  }
 
   pugi::xml_node bogusXml = doc.append_child("BooleanValue");
   pugi::xml_node bogusText = bogusXml.append_child(node_pcdata);
   bogusText.set_value("bogus");
 
   try {
+    checkExpression("bogus", bogusXml);
     Expression *bogusConstant = createExpression(bogusXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
@@ -116,16 +169,24 @@ static bool integerConstantXmlParserTest()
   xml_document doc;
 
   bool wasCreated;
-  int32_t temp;
+  Integer temp;
 
   pugi::xml_node zeroXml = doc.append_child("IntegerValue");
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
   {
-    Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    Expression *zeroConstant = NULL;
+
+    try {
+      checkExpression("zero", zeroXml);
+      zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(zeroConstant);
-    assertTrue_1(!wasCreated);
+    assertTrue_1(!wasCreated); // Every integer 0 is the same object
     assertTrue_1(!zeroConstant->isAssignable());
     assertTrue_1(zeroConstant->valueType() == INTEGER_TYPE);
     assertTrue_1(zeroConstant->getValue(temp));
@@ -139,9 +200,17 @@ static bool integerConstantXmlParserTest()
   oneText.set_value("1");
 
   {
-    Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
+    Expression *oneConstant = NULL;
+
+    try {
+      checkExpression("one", oneXml);
+      oneConstant = createExpression(oneXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneConstant);
-    assertTrue_1(!wasCreated);
+    assertTrue_1(!wasCreated); // Every integer 1 is the same object
     assertTrue_1(!oneConstant->isAssignable());
     assertTrue_1(oneConstant->valueType() == INTEGER_TYPE);
     assertTrue_1(oneConstant->getValue(temp));
@@ -155,9 +224,17 @@ static bool integerConstantXmlParserTest()
   minusOneText.set_value("-1");
 
   {
-    Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
+    Expression *minusOneConstant = NULL;
+
+    try {
+      checkExpression("minusOne", minusOneXml);
+      minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(minusOneConstant);
-    assertTrue_1(!wasCreated);
+    assertTrue_1(!wasCreated); // Every integer -1 is the same object
     assertTrue_1(!minusOneConstant->isAssignable());
     assertTrue_1(minusOneConstant->valueType() == INTEGER_TYPE);
     assertTrue_1(minusOneConstant->getValue(temp));
@@ -171,7 +248,15 @@ static bool integerConstantXmlParserTest()
   hexText.set_value("0x42");
 
   {
-    Expression *hexConstant = createExpression(hexXml, nc, wasCreated);
+    Expression *hexConstant = NULL;
+
+    try {
+      checkExpression("hex", hexXml);
+      hexConstant = createExpression(hexXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(hexConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!hexConstant->isAssignable());
@@ -187,6 +272,7 @@ static bool integerConstantXmlParserTest()
   hexWithJunkText.set_value("0x42r");
 
   try {
+    checkExpression("hexWithJunk", hexWithJunkXml);
     Expression *hexWithJunkConstant = createExpression(hexWithJunkXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect number followed by junk");
   }
@@ -199,6 +285,7 @@ static bool integerConstantXmlParserTest()
   tooBigText.set_value("3000000000");
 
   try {
+    checkExpression("tooBig", tooBigXml);
     Expression *tooBigConstant = createExpression(tooBigXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer overflow");
   }
@@ -211,6 +298,7 @@ static bool integerConstantXmlParserTest()
   wayTooBigText.set_value("0x30000000000000000000000");
 
   try {
+    checkExpression("wayTooBig", wayTooBigXml);
     Expression *wayTooBigConstant = createExpression(wayTooBigXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer overflow");
   }
@@ -223,6 +311,7 @@ static bool integerConstantXmlParserTest()
   tooSmallText.set_value("-3000000000");
 
   try {
+    checkExpression("tooSmall", tooSmallXml);
     Expression *tooSmallConstant = createExpression(tooSmallXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer underflow");
   }
@@ -234,6 +323,7 @@ static bool integerConstantXmlParserTest()
   emptyXml.append_child(node_pcdata);
 
   try {
+    checkExpression("empty", emptyXml);
     Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty input");
   }
@@ -246,6 +336,7 @@ static bool integerConstantXmlParserTest()
   bogusText.set_value("bogus");
 
   try {
+    checkExpression("bogus", bogusXml);
     Expression *bogusConstant = createExpression(bogusXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
@@ -261,14 +352,22 @@ static bool realConstantXmlParserTest()
   xml_document doc;
 
   bool wasCreated;
-  double temp;
+  Real temp;
 
   pugi::xml_node zeroXml = doc.append_child("RealValue");
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
   {
-    Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    Expression *zeroConstant = NULL;
+
+    try {
+      checkExpression("zero", zeroXml);
+      zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(zeroConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!zeroConstant->isAssignable());
@@ -279,12 +378,19 @@ static bool realConstantXmlParserTest()
       delete zeroConstant;
   }
 
-  pugi::xml_node minusZeroXml = doc.append_child("RealValue");
-  pugi::xml_node minusZeroText = minusZeroXml.append_child(node_pcdata);
-  minusZeroText.set_value("-0");
-
   {
-    Expression *minusZeroConstant = createExpression(minusZeroXml, nc, wasCreated);
+    pugi::xml_node minusZeroXml = doc.append_child("RealValue");
+    pugi::xml_node minusZeroText = minusZeroXml.append_child(node_pcdata);
+    minusZeroText.set_value("-0");
+    Expression *minusZeroConstant = NULL;
+
+    try {
+      checkExpression("minusZero", minusZeroXml);
+      minusZeroConstant = createExpression(minusZeroXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(minusZeroConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!minusZeroConstant->isAssignable());
@@ -300,7 +406,15 @@ static bool realConstantXmlParserTest()
   oneText.set_value("1");
 
   {
-    Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
+    Expression *oneConstant = NULL;
+
+    try {
+      checkExpression("one", oneXml);
+      oneConstant = createExpression(oneXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!oneConstant->isAssignable());
@@ -316,7 +430,15 @@ static bool realConstantXmlParserTest()
   minusOneText.set_value("-1");
 
   {
-    Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
+    Expression *minusOneConstant = NULL;
+
+    try {
+      checkExpression("minusOne", minusOneXml);
+      minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(minusOneConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!minusOneConstant->isAssignable());
@@ -330,9 +452,16 @@ static bool realConstantXmlParserTest()
   pugi::xml_node piXml = doc.append_child("RealValue");
   pugi::xml_node piText = piXml.append_child(node_pcdata);
   piText.set_value("3.14");
-
   {
-    Expression *piConstant = createExpression(piXml, nc, wasCreated);
+    Expression *piConstant = NULL;
+
+    try {
+      checkExpression("pi", piXml);
+      piConstant = createExpression(piXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(piConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!piConstant->isAssignable());
@@ -348,6 +477,7 @@ static bool realConstantXmlParserTest()
   piWithJunkText.set_value("3.14T");
 
   try {
+    checkExpression("piWithJunk", piWithJunkXml);
     Expression *piWithJunkConstant = createExpression(piWithJunkXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect junk after valid real");
   }
@@ -360,7 +490,15 @@ static bool realConstantXmlParserTest()
   expNotationText.set_value("1e-100");
 
   {
-    Expression *expNotationConstant = createExpression(expNotationXml, nc, wasCreated);
+    Expression *expNotationConstant = NULL;
+
+    try {
+      checkExpression("expNotation", expNotationXml);
+      expNotationConstant = createExpression(expNotationXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(expNotationConstant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(!expNotationConstant->isAssignable());
@@ -378,6 +516,7 @@ static bool realConstantXmlParserTest()
   tooBigText.set_value("1e10000000");
 
   try {
+    checkExpression("tooBig", tooBigXml);
     Expression *tooBigConstant = createExpression(tooBigXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect real overflow");
   }
@@ -390,6 +529,7 @@ static bool realConstantXmlParserTest()
   emptyXml.append_child(node_pcdata);
 
   try {
+    checkExpression("empty", emptyXml);
     Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty input");
   }
@@ -402,6 +542,7 @@ static bool realConstantXmlParserTest()
   bogusText.set_value("bogus");
 
   try {
+    checkExpression("bogus", bogusXml);
     Expression *bogusConstant = createExpression(bogusXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
@@ -417,13 +558,21 @@ static bool stringConstantXmlParserTest()
   xml_document doc;
 
   bool wasCreated;
-  std::string temp;
+  String temp;
 
   xml_node emptyXml = doc.append_child("StringValue");
   emptyXml.append_child(node_pcdata);
 
   {
-    Expression *s1Constant = createExpression(emptyXml, nc, wasCreated);
+    Expression *s1Constant = NULL;
+
+    try {
+      checkExpression("empty", emptyXml);
+      s1Constant = createExpression(emptyXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(s1Constant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(s1Constant->getValue(temp));
@@ -436,7 +585,15 @@ static bool stringConstantXmlParserTest()
   s2Text.set_value("foo");
 
   {
-    Expression *s2Constant = createExpression(s2Xml, nc, wasCreated);
+    Expression *s2Constant = NULL;
+
+    try {
+      checkExpression("foo", s2Xml);
+      s2Constant = createExpression(s2Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(s2Constant);
     assertTrue_1(wasCreated); // was created - may not be true in future
     assertTrue_1(s2Constant->getValue(temp));
@@ -459,7 +616,15 @@ static bool booleanArrayConstantXmlParserTest()
   typeAttr.set_value("Boolean");
 
   {
-    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    Expression *emptyConstant = NULL;
+
+    try {
+      checkExpression("empty", emptyXml);
+      emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(emptyConstant);
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
@@ -487,9 +652,17 @@ static bool booleanArrayConstantXmlParserTest()
   elementTemp = validXml.append_copy(elementTemp);
   elementTemp.first_child().set_value("FALSE");
 
-  bool temp;
   {
-    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    Expression *validValConstant = NULL;
+    Boolean temp;
+
+    try {
+      checkExpression("valid", validXml);
+      validValConstant = createExpression(validXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(validValConstant);
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
@@ -519,6 +692,7 @@ static bool booleanArrayConstantXmlParserTest()
   errorElement.first_child().set_value("bOgUs");
 
   try {
+    checkExpression("elementContentError", elementContentErrorXml);
     Expression *elementContentErrorConstant = createExpression(elementContentErrorXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bad element value");
   }
@@ -533,6 +707,7 @@ static bool booleanArrayConstantXmlParserTest()
   typeErrorElement.first_child().set_value("0");
 
   try {
+    checkExpression("elementTypeError", elementTypeErrorXml);
     Expression *elementTypeErrorConstant = createExpression(elementTypeErrorXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bad element type");
   }
@@ -549,13 +724,22 @@ static bool integerArrayConstantXmlParserTest()
   IntegerArray const *aryTemp = NULL;
 
   xml_document doc;
+  xml_node elementTemp;
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("Integer");
 
   {
-    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    Expression *emptyConstant = NULL;
+
+    try {
+      checkExpression("empty", emptyXml);
+      emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(emptyConstant);
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
@@ -567,7 +751,7 @@ static bool integerArrayConstantXmlParserTest()
   }
 
   xml_node validXml = doc.append_copy(emptyXml);
-  xml_node elementTemp = validXml.append_child("IntegerValue");
+  elementTemp = validXml.append_child("IntegerValue");
   elementTemp.append_child(node_pcdata);
   elementTemp.first_child().set_value("0");
   elementTemp = validXml.append_copy(elementTemp);
@@ -581,9 +765,17 @@ static bool integerArrayConstantXmlParserTest()
   elementTemp = validXml.append_copy(elementTemp);
   elementTemp.first_child().set_value("0x69");
 
-  int32_t temp;
   {
-    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    Expression *validValConstant = NULL;
+    Integer temp;
+
+    try {
+      checkExpression("valid", validXml);
+      validValConstant = createExpression(validXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(validValConstant);
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
@@ -610,6 +802,7 @@ static bool integerArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("bOgUs");
 
   try {
+    checkExpression("bogusValue", bogusValueXml);
     Expression *bogusValueConstant = createExpression(bogusValueXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect element with bogus value");
   }
@@ -623,6 +816,7 @@ static bool integerArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("0");
 
   try {
+    checkExpression("bogusType", bogusTypeXml);
     Expression *bogusTypeConstant = createExpression(bogusTypeXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect element with bogus type");
   }
@@ -636,6 +830,7 @@ static bool integerArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("-3000000000");
 
   try {
+    checkExpression("rangeError", rangeErrorXml);
     Expression *rangeErrConstant = createExpression(rangeErrorXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
   }
@@ -652,13 +847,22 @@ static bool realArrayConstantXmlParserTest()
   RealArray const *aryTemp = NULL;
 
   xml_document doc;
+  xml_node elementTemp;
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("Real");
 
   {
-    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    Expression *emptyConstant = NULL;
+
+    try {
+      checkExpression("empty", emptyXml);
+      emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(emptyConstant);
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == REAL_ARRAY_TYPE);
@@ -670,7 +874,7 @@ static bool realArrayConstantXmlParserTest()
   }
 
   xml_node validXml = doc.append_copy(emptyXml);
-  xml_node elementTemp = validXml.append_child("RealValue");
+  elementTemp = validXml.append_child("RealValue");
   elementTemp.append_child(node_pcdata).set_value("0");
   elementTemp = validXml.append_copy(elementTemp);
   elementTemp.first_child().set_value("1");
@@ -683,9 +887,17 @@ static bool realArrayConstantXmlParserTest()
   elementTemp = validXml.append_copy(elementTemp);
   elementTemp.first_child().set_value("6.0221413e+23");
 
-  double temp;
   {
-    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    Expression *validValConstant = NULL;
+    Real temp;
+  
+    try {
+      checkExpression("valid", validXml);
+      validValConstant = createExpression(validXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(validValConstant);
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == REAL_ARRAY_TYPE);
@@ -711,6 +923,7 @@ static bool realArrayConstantXmlParserTest()
   elementTemp.append_child(node_pcdata).set_value("bOgUs");
 
   try {
+    checkExpression("bogusValue", bogusValueXml);
     Expression *bogusValueConstant = createExpression(bogusValueXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus element value");
   }
@@ -723,6 +936,7 @@ static bool realArrayConstantXmlParserTest()
   elementTemp.append_child(node_pcdata).set_value("1");
 
   try {
+    checkExpression("bogusType", bogusTypeXml);
     Expression *bogusTypeConstant = createExpression(bogusTypeXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus element type");
   }
@@ -736,6 +950,7 @@ static bool realArrayConstantXmlParserTest()
   elementTemp.append_child(node_pcdata).set_value("-3e1000000000");
 
   try {
+    checkExpression("rangeErr", rangeErrXml);
     Expression *rangeErrConstant = createExpression(rangeErrXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
   }
@@ -753,13 +968,22 @@ static bool stringArrayConstantXmlParserTest()
   StringArray const *aryTemp = NULL;
 
   xml_document doc;
+  xml_node elementTemp;
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("String");
 
   {
-    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    Expression *emptyConstant = NULL;
+
+    try {
+      checkExpression("empty", emptyXml);
+      emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(emptyConstant);
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == STRING_ARRAY_TYPE);
@@ -771,7 +995,7 @@ static bool stringArrayConstantXmlParserTest()
   }
 
   xml_node validXml = doc.append_copy(emptyXml);
-  xml_node elementTemp = validXml.append_child("StringValue");
+  elementTemp = validXml.append_child("StringValue");
   elementTemp.append_child(node_pcdata);
   elementTemp = validXml.append_copy(elementTemp);
   elementTemp.first_child().set_value("0");
@@ -786,9 +1010,17 @@ static bool stringArrayConstantXmlParserTest()
   elementTemp = validXml.append_copy(elementTemp);
   elementTemp.first_child().set_value("6.0221413e+23");
 
-  std::string const *temp;
   {
-    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    Expression *validValConstant = NULL;
+    String const *temp;
+
+    try {
+      checkExpression("valid", validXml);
+      validValConstant = createExpression(validXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(validValConstant);
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == STRING_ARRAY_TYPE);
@@ -817,6 +1049,7 @@ static bool stringArrayConstantXmlParserTest()
   elementTemp.append_child(node_pcdata).set_value("true");
   
   try {
+    checkExpression("bogusType", bogusTypeXml);
     Expression *bogusTypeConstant = createExpression(bogusTypeXml, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus element type");
   }

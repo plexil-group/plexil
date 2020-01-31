@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,8 @@ namespace PLEXIL
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated,
@@ -76,6 +78,8 @@ namespace PLEXIL
     ~ConcreteExpressionFactory()
     {
     }
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -102,6 +106,8 @@ namespace PLEXIL
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated,
@@ -127,6 +133,8 @@ namespace PLEXIL
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated,
@@ -151,6 +159,8 @@ namespace PLEXIL
     ~ConcreteExpressionFactory()
     {
     }
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -180,6 +190,8 @@ namespace PLEXIL
     ~NamedConstantExpressionFactory()
     {
     }
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,

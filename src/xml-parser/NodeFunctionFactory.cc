@@ -24,54 +24,59 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayVariableReferenceFactory.hh"
+#include "NodeFunctionFactory.hh"
 
 #include "Error.hh"
-#include "NodeConnector.hh"
+#include "NodeFunction.hh"
+#include "NodeImpl.hh"
+#include "NodeOperator.hh"
+#include "parseNodeReference.hh"
 #include "parser-utils.hh"
 
 #include "pugixml.hpp"
 
 namespace PLEXIL
 {
-  ArrayVariableReferenceFactory::ArrayVariableReferenceFactory(const std::string& name)
-    : ExpressionFactory(name)
+
+  NodeFunctionFactory::NodeFunctionFactory(NodeOperator const *op, std::string const &name)
+    : ExpressionFactory(name),
+      m_op(op)
   {
   }
 
-  ArrayVariableReferenceFactory::~ArrayVariableReferenceFactory()
+  NodeFunctionFactory::~NodeFunctionFactory()
   {
   }
 
-  ValueType ArrayVariableReferenceFactory::check(char const *nodeId, pugi::xml_node expr) const
+  ValueType NodeFunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
   {
-    checkNotEmpty(expr);
-    char const *varName = expr.child_value();
-    checkParserExceptionWithLocation(*varName,
+    assertTrueMsg(m_op, "NodeFunctionFactory::check: no operator for " << m_name);
+    size_t n = std::distance(expr.begin(), expr.end());
+    checkParserExceptionWithLocation(n == 1,
                                      expr,
                                      "Node \"" << nodeId
-                                     << "\": Empty or malformed " << expr.name() << " element");
+                                     << "\": Wrong number of operands for operator "
+                                     << m_op->getName());
 
-    // TODO: determine type from context
-    return UNKNOWN_TYPE;
+    // KLUDGE: We presume there is only one argument, a node reference.
+    // Check argument
+    checkNodeReference(expr.first_child());
+    return m_op->valueType();
   }
 
-  Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
-                                                      NodeConnector *node,
-                                                      bool & wasCreated,
-                                                      ValueType /* returnType */) const
+  Expression *NodeFunctionFactory::allocate(pugi::xml_node const expr,
+                                            NodeConnector *node,
+                                            bool &wasCreated,
+                                            ValueType returnType) const
   {
-    assertTrue_1(node); // internal error
-    char const *varName = expr.child_value();
-    Expression *result = node->findVariable(varName);
-    checkParserExceptionWithLocation(result,
-                                     expr,
-                                     "No variable named " << varName << " accessible in this context");
-    checkParserExceptionWithLocation(isArrayType(result->valueType()),
-                                     expr,
-                                     "Variable " << varName << " is not an array variable");
-    wasCreated = false;
-    return result;
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "NodeFunctionFactory: internal error: node argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl);
+    assertTrueMsg(refNode,
+                  expr.name() << ": Internal error: no node matching node reference");
+    wasCreated = true;
+    return new NodeFunction(m_op, refNode);
   }
 
 }

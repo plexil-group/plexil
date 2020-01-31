@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,26 +24,24 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plexil-config.h"
-
 #include "Debug.hh"
 #include "Error.hh"
-#include "Expressions.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
 #include "planLibrary.hh"
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
 
-#include <cstring>
-#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include <unistd.h>
+#ifdef STDC_HEADERS
+#include <cstdlib>
+#include <cstring>
+#endif
 
 #if defined(HAVE_GETTIMEOFDAY) && !defined(__VXWORKS__)
 #include <sys/time.h> // for gettimeofday, itimerval
@@ -70,7 +68,7 @@ void loadPlanBenchmark(std::string const &planFile)
   pugi::xml_document *doc = PLEXIL::loadXmlFile(planFile);
   checkParserException(doc, "File " << planFile << " not found");
   
-  PLEXIL::Node *root = PLEXIL::parsePlan(doc->document_element());
+  PLEXIL::NodeImpl *root = PLEXIL::parsePlan(doc->document_element());
   checkParserException(root, "parsePlan returned NULL");
 
   delete root;
@@ -144,7 +142,6 @@ int main(int argc, char *argv[])
   try {
     // Initialize infrastructure
     PLEXIL::Error::doThrowExceptions();
-    PLEXIL::initializeExpressions();
     PLEXIL::TransitionExternalInterface intfc;
     PLEXIL::g_interface = &intfc;
 

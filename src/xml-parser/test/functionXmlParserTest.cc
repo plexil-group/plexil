@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,8 @@
 */
 
 #include "ArrayImpl.hh"
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Expression.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "TestSupport.hh"
@@ -54,6 +55,7 @@ static bool isKnownXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("known0", knownXml);
     Expression *zeroArgExp = createExpression(knownXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -64,7 +66,14 @@ static bool isKnownXmlParserTest()
   // Check one-arg form
   knownXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *oneArgExp = createExpression(knownXml, nc, wasCreated);
+    Expression *oneArgExp = NULL;
+    try {
+      checkExpression("known1", knownXml);
+      oneArgExp = createExpression(knownXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgExp);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgExp->valueType() == BOOLEAN_TYPE);
@@ -78,6 +87,7 @@ static bool isKnownXmlParserTest()
   // Check two-arg form
   knownXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   try {
+    checkExpression("known2", knownXml);
     Expression *twoArgExp = createExpression(knownXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
@@ -100,6 +110,7 @@ static bool stringFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("strlen0", lenXml);
     Expression *zeroArgExp = createExpression(lenXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -110,7 +121,14 @@ static bool stringFunctionXmlParserTest()
   // Check one-arg form
   lenXml.append_child("StringValue").append_child(node_pcdata).set_value("Foo");
   {
-    Expression *oneArgExp = createExpression(lenXml, nc, wasCreated);
+    Expression *oneArgExp = NULL;
+    try {
+      checkExpression("strlen1", lenXml);
+      oneArgExp = createExpression(lenXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgExp);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgExp->valueType() == INTEGER_TYPE);
@@ -124,6 +142,7 @@ static bool stringFunctionXmlParserTest()
   // Check two-arg form
   lenXml.append_child("StringValue").append_child(node_pcdata).set_value("1");
   try {
+    checkExpression("strlen2", lenXml);
     Expression *twoArgExp = createExpression(lenXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
@@ -138,7 +157,14 @@ static bool stringFunctionXmlParserTest()
 
   // No-arg form
   {
-    Expression *noArgCat = createExpression(catXml, nc, wasCreated);
+    Expression *noArgCat = NULL;
+    try {
+      checkExpression("cat0", catXml);
+      noArgCat = createExpression(catXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(noArgCat);
     assertTrue_1(wasCreated);
     assertTrue_1(noArgCat->valueType() == STRING_TYPE);
@@ -153,7 +179,15 @@ static bool stringFunctionXmlParserTest()
   // One-arg form
   catXml.append_child("StringValue").append_child(node_pcdata).set_value("Foo");
   {
-    Expression *oneArgCat = createExpression(catXml, nc, wasCreated);
+    Expression *oneArgCat = NULL;
+
+    try {
+      checkExpression("cat1", catXml);
+      oneArgCat = createExpression(catXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgCat);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgCat->valueType() == STRING_TYPE);
@@ -168,7 +202,15 @@ static bool stringFunctionXmlParserTest()
   // Two-arg form
   catXml.append_child("StringValue").append_child(node_pcdata).set_value("Bar");
   {
-    Expression *twoArgCat = createExpression(catXml, nc, wasCreated);
+    Expression *twoArgCat = NULL;
+    
+    try {
+      checkExpression("cat2", catXml);
+      twoArgCat = createExpression(catXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(twoArgCat);
     assertTrue_1(wasCreated);
     assertTrue_1(twoArgCat->valueType() == STRING_TYPE);
@@ -183,7 +225,15 @@ static bool stringFunctionXmlParserTest()
   // Three-arg form
   catXml.append_child("StringValue").append_child(node_pcdata).set_value("Baz");
   {
-    Expression *threeArgCat = createExpression(catXml, nc, wasCreated);
+    Expression *threeArgCat = NULL;
+
+    try {
+      checkExpression("cat3", catXml);
+      threeArgCat = createExpression(catXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(threeArgCat);
     assertTrue_1(wasCreated);
     assertTrue_1(threeArgCat->valueType() == STRING_TYPE);
@@ -208,6 +258,7 @@ static bool booleanFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("not0", notOpXml);
     Expression *zeroArgNot = createExpression(notOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -218,7 +269,15 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   notOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *oneArgNot = createExpression(notOpXml, nc, wasCreated);
+    Expression *oneArgNot = NULL;
+
+    try {
+      checkExpression("not1", notOpXml);
+      oneArgNot = createExpression(notOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgNot);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgNot->valueType() == BOOLEAN_TYPE);
@@ -232,6 +291,7 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   notOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   try {
+    checkExpression("not2", notOpXml);
     Expression *twoArgNot = createExpression(notOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
@@ -243,6 +303,7 @@ static bool booleanFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("or0", orOpXml);
     Expression *zeroArgOr = createExpression(orOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -253,7 +314,15 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   orOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("0");
   {
-    Expression *oneArgOr = createExpression(orOpXml, nc, wasCreated);
+    Expression *oneArgOr = NULL;
+    
+    try {
+      checkExpression("or1", orOpXml);
+      oneArgOr = createExpression(orOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgOr);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgOr->valueType() == BOOLEAN_TYPE);
@@ -267,7 +336,15 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   orOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *twoArgOr = createExpression(orOpXml, nc, wasCreated);
+    Expression *twoArgOr = NULL;
+
+    try {
+      checkExpression("or2", orOpXml);
+      twoArgOr = createExpression(orOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(twoArgOr);
     assertTrue_1(wasCreated);
     assertTrue_1(twoArgOr->valueType() == BOOLEAN_TYPE);
@@ -281,7 +358,15 @@ static bool booleanFunctionXmlParserTest()
   // check 3-arg
   orOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *threeArgOr = createExpression(orOpXml, nc, wasCreated);
+    Expression *threeArgOr = NULL;
+
+    try {
+      checkExpression("or3", orOpXml);
+      threeArgOr = createExpression(orOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(threeArgOr);
     assertTrue_1(wasCreated);
     assertTrue_1(threeArgOr->valueType() == BOOLEAN_TYPE);
@@ -296,6 +381,7 @@ static bool booleanFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("and0", andOpXml);
     Expression *zeroArgAnd = createExpression(andOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -306,7 +392,15 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   andOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("0");
   {
-    Expression *oneArgAnd = createExpression(andOpXml, nc, wasCreated);
+    Expression *oneArgAnd = NULL;
+
+    try {
+      checkExpression("and1", andOpXml);
+      oneArgAnd = createExpression(andOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgAnd);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgAnd->valueType() == BOOLEAN_TYPE);
@@ -320,7 +414,15 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   andOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *twoArgAnd = createExpression(andOpXml, nc, wasCreated);
+    Expression *twoArgAnd = NULL;
+
+    try {
+      checkExpression("and2", andOpXml);
+      twoArgAnd = createExpression(andOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(twoArgAnd);
     assertTrue_1(wasCreated);
     assertTrue_1(twoArgAnd->valueType() == BOOLEAN_TYPE);
@@ -334,7 +436,15 @@ static bool booleanFunctionXmlParserTest()
   // check 3-arg
   andOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *threeArgAnd = createExpression(andOpXml, nc, wasCreated);
+    Expression *threeArgAnd = NULL;
+
+    try {
+      checkExpression("and3", andOpXml);
+      threeArgAnd = createExpression(andOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(threeArgAnd);
     assertTrue_1(wasCreated);
     assertTrue_1(threeArgAnd->valueType() == BOOLEAN_TYPE);
@@ -349,6 +459,7 @@ static bool booleanFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("xor0", xorOpXml);
     Expression *zeroArgXor = createExpression(xorOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -359,7 +470,15 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   xorOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("0");
   {
-    Expression *oneArgXor = createExpression(xorOpXml, nc, wasCreated);
+    Expression *oneArgXor = NULL;
+
+    try {
+      checkExpression("xor1", xorOpXml);
+      oneArgXor = createExpression(xorOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgXor);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgXor->valueType() == BOOLEAN_TYPE);
@@ -373,7 +492,15 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   xorOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *twoArgXor = createExpression(xorOpXml, nc, wasCreated);
+    Expression *twoArgXor = NULL;
+
+    try {
+      checkExpression("xor2", xorOpXml);
+      twoArgXor = createExpression(xorOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(twoArgXor);
     assertTrue_1(wasCreated);
     assertTrue_1(twoArgXor->valueType() == BOOLEAN_TYPE);
@@ -387,7 +514,15 @@ static bool booleanFunctionXmlParserTest()
   // check 3-arg
   xorOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *threeArgXor = createExpression(xorOpXml, nc, wasCreated);
+    Expression *threeArgXor = NULL;
+
+    try {
+      checkExpression("xor3", xorOpXml);
+      threeArgXor = createExpression(xorOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(threeArgXor);
     assertTrue_1(wasCreated);
     assertTrue_1(threeArgXor->valueType() == BOOLEAN_TYPE);
@@ -412,6 +547,7 @@ static bool arithmeticFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("sqrt0", sqrtOpXml);
     Expression *zeroArgSqrt = createExpression(sqrtOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -422,7 +558,15 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   sqrtOpXml.append_child("RealValue").append_child(node_pcdata).set_value("4");
   {
-    Expression *oneArgSqrt = createExpression(sqrtOpXml, nc, wasCreated);
+    Expression *oneArgSqrt = NULL;
+
+    try{
+      checkExpression("sqrt1", sqrtOpXml);
+      oneArgSqrt = createExpression(sqrtOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgSqrt);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgSqrt->valueType() == REAL_TYPE);
@@ -436,6 +580,7 @@ static bool arithmeticFunctionXmlParserTest()
   // check 2-arg
   sqrtOpXml.append_child("RealValue").append_child(node_pcdata).set_value("0");
   try {
+    checkExpression("sqrt2", sqrtOpXml);
     Expression *twoArgSqrt = createExpression(sqrtOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
@@ -447,6 +592,7 @@ static bool arithmeticFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("rti0", realToIntegerOpXml);
     Expression *zeroArgRealToInteger = createExpression(realToIntegerOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -457,7 +603,15 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   realToIntegerOpXml.append_child("RealValue").append_child(node_pcdata).set_value("4");
   {
-    Expression *oneArgRealToInteger = createExpression(realToIntegerOpXml, nc, wasCreated);
+    Expression *oneArgRealToInteger = NULL;
+
+    try {
+      checkExpression("rti1", realToIntegerOpXml);
+      oneArgRealToInteger = createExpression(realToIntegerOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgRealToInteger);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgRealToInteger->valueType() == INTEGER_TYPE);
@@ -471,6 +625,7 @@ static bool arithmeticFunctionXmlParserTest()
   // check 2-arg
   realToIntegerOpXml.append_child("RealValue").append_child(node_pcdata).set_value("0");
   try {
+    checkExpression("rti2", realToIntegerOpXml);
     Expression *twoArgRealToInteger = createExpression(realToIntegerOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
@@ -482,6 +637,7 @@ static bool arithmeticFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("ABS0", absOpXml);
     Expression *zeroArgAbs = createExpression(absOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -492,7 +648,15 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   absOpXml.append_child("RealValue").append_child(node_pcdata).set_value("-2");
   {
-    Expression *oneArgAbs = createExpression(absOpXml, nc, wasCreated);
+    Expression *oneArgAbs = NULL;
+
+    try {
+      checkExpression("ABS1", absOpXml);
+      oneArgAbs = createExpression(absOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgAbs);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgAbs->valueType() == REAL_TYPE);
@@ -506,6 +670,7 @@ static bool arithmeticFunctionXmlParserTest()
   // check 2-arg
   absOpXml.append_child("RealValue").append_child(node_pcdata).set_value("0");
   try {
+    checkExpression("ABS2", absOpXml);
     Expression *twoArgAbs = createExpression(absOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
@@ -517,6 +682,7 @@ static bool arithmeticFunctionXmlParserTest()
 
   // Check no-arg error detection
   try {
+    checkExpression("SUB0", subOpXml);
     Expression *zeroArgSub = createExpression(subOpXml, nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
@@ -527,7 +693,15 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   subOpXml.append_child("IntegerValue").append_child(node_pcdata).set_value("-2");
   {
-    Expression *oneArgSub = createExpression(subOpXml, nc, wasCreated);
+    Expression *oneArgSub = NULL;
+
+    try {
+      checkExpression("SUB1", subOpXml);
+      oneArgSub = createExpression(subOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(oneArgSub);
     assertTrue_1(wasCreated);
     assertTrue_1(oneArgSub->valueType() == INTEGER_TYPE);
@@ -541,7 +715,15 @@ static bool arithmeticFunctionXmlParserTest()
   // Check two-arg form
   subOpXml.append_child("RealValue").append_child(node_pcdata).set_value("-2.5");
   {
-    Expression *twoArgSub = createExpression(subOpXml, nc, wasCreated);
+    Expression *twoArgSub = NULL;
+
+    try {
+      checkExpression("SUB2", subOpXml);
+      twoArgSub = createExpression(subOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(twoArgSub);
     assertTrue_1(wasCreated);
     assertTrue_1(twoArgSub->valueType() == REAL_TYPE);
@@ -555,7 +737,15 @@ static bool arithmeticFunctionXmlParserTest()
   // Check three-arg form
   subOpXml.append_child("IntegerValue").append_child(node_pcdata).set_value("3");
   {
-    Expression *threeArgSub = createExpression(subOpXml, nc, wasCreated);
+    Expression *threeArgSub = NULL;
+
+    try {
+      checkExpression("SUB3", subOpXml);
+      threeArgSub = createExpression(subOpXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(threeArgSub);
     assertTrue_1(wasCreated);
     assertTrue_1(threeArgSub->valueType() == REAL_TYPE);

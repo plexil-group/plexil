@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ using pugi::node_pcdata;
 static bool testCommandParserBasics()
 {
   FactoryTestNodeConnector conn;
-  Expression *flagVar = new BooleanVariable(&conn, "flag");
+  Expression *flagVar = new BooleanVariable("flag");
   conn.storeVariable("flag", flagVar);
 
   xml_document doc;
@@ -53,9 +53,14 @@ static bool testCommandParserBasics()
     xml_node simpleXml = doc.append_child("Command");
     simpleXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
   
-    Command *simple = constructCommand(&conn, simpleXml);
-    assertTrue_1(simple);
+    try {
+      checkCommandBody("simple", simpleXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
 
+    Command *simple = new Command("simple");
     finalizeCommand(simple, &conn, simpleXml);
     assertTrue_1(!simple->getDest());
     simple->activate();
@@ -73,8 +78,15 @@ static bool testCommandParserBasics()
     xml_node emptyXml = doc.append_child("Command");
     emptyXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("empty");
     emptyXml.append_child("Arguments");
-    Command *empty = constructCommand(&conn, emptyXml);
-    assertTrue_1(empty);
+  
+    try {
+      checkCommandBody("empty", emptyXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
+    
+    Command *empty = new Command("empty");
     finalizeCommand(empty, &conn, emptyXml);
     assertTrue_1(!empty->getDest());
     empty->activate();
@@ -92,8 +104,15 @@ static bool testCommandParserBasics()
     xml_node arghXml = doc.append_child("Command");
     arghXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("argh");
     arghXml.append_child("Arguments").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Command *argh = constructCommand(&conn, arghXml);
-    assertTrue_1(argh);
+  
+    try {
+      checkCommandBody("argh", arghXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
+
+    Command *argh = new Command("argh");
     finalizeCommand(argh, &conn, arghXml);
     assertTrue_1(!argh->getDest());
     argh->activate();
@@ -113,8 +132,15 @@ static bool testCommandParserBasics()
     xml_node resultantXml = doc.append_child("Command");
     resultantXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
     resultantXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resultant");
-    Command *resultant = constructCommand(&conn, resultantXml);
-    assertTrue_1(resultant);
+  
+    try {
+      checkCommandBody("resultant", resultantXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
+
+    Command *resultant = new Command("resultant");
     finalizeCommand(resultant, &conn, resultantXml);
     assertTrue_1(resultant->getDest() == flagVar);
     resultant->activate();
@@ -132,8 +158,15 @@ static bool testCommandParserBasics()
     xml_node resourcelessXml = doc.append_child("Command");
     resourcelessXml.append_child("ResourceList");
     resourcelessXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceless");
-    Command *resourceless = constructCommand(&conn, resourcelessXml);
-    assertTrue_1(resourceless);
+  
+    try {
+      checkCommandBody("resourceless", resourcelessXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
+
+    Command *resourceless = new Command("resourceless");
     finalizeCommand(resourceless, &conn, resourcelessXml);
     assertTrue_1(!resourceless->getDest());
     resourceless->activate();
@@ -154,8 +187,15 @@ static bool testCommandParserBasics()
     resource.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("a");
     resource.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
     resourcefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceful");
-    Command *resourceful = constructCommand(&conn, resourcefulXml);
-    assertTrue_1(resourceful);
+  
+    try {
+      checkCommandBody("resourceful", resourcefulXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
+
+    Command *resourceful = new Command("resourceful");
     finalizeCommand(resourceful, &conn, resourcefulXml);
     assertTrue_1(!resourceful->getDest());
     resourceful->activate();
@@ -181,9 +221,15 @@ static bool testCommandParserBasics()
     remorse.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("1");
     remorsefulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
     remorsefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("remorseful");
+  
+    try {
+      checkCommandBody("remorseful", remorsefulXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
 
-    Command *remorseful = constructCommand(&conn, remorsefulXml);
-    assertTrue_1(remorseful);
+    Command *remorseful = new Command("remorseful");
     finalizeCommand(remorseful, &conn, remorsefulXml);
     assertTrue_1(remorseful->getDest() == flagVar);
     remorseful->activate();
@@ -210,8 +256,15 @@ static bool testCommandParserBasics()
     regretfulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
     regretfulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("regretful");
     regretfulXml.append_child("Arguments").append_child("BooleanValue").append_child(node_pcdata).set_value("true");
-    Command *regretful = constructCommand(&conn, regretfulXml);
-    assertTrue_1(regretful);
+  
+    try {
+      checkCommandBody("regretful", regretfulXml);
+    }
+    catch (ParserException const & exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
+    }
+
+    Command *regretful = new Command("regretful");
     finalizeCommand(regretful, &conn, regretfulXml);
     assertTrue_1(regretful->getDest() == flagVar);
     regretful->activate();
@@ -242,7 +295,7 @@ static bool testCommandParserErrorHandling()
 
   xml_node mtCmd = doc.append_child("Command");
   try {
-    Command *mtCmdCmd = constructCommand(&conn, mtCmd);
+    checkCommandBody("mt", mtCmd);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty Command element");
   }
   catch (ParserException const & /* exc */) {
@@ -253,7 +306,7 @@ static bool testCommandParserErrorHandling()
   xml_node mtName = doc.append_child("Command");
   mtName.append_child("Name");
   try {
-    Command *mtNameCmd = constructCommand(&conn, mtName);
+    checkCommandBody("mtName", mtName);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty Name element");
   }
   catch (ParserException const & /* exc */) {
@@ -264,8 +317,10 @@ static bool testCommandParserErrorHandling()
   xml_node wrongTypeName = doc.append_child("Command");
   wrongTypeName.append_child("Name").append_child("RealValue").append_child(node_pcdata).set_value("3.14");
   {
-    Command *wrongTypeNameCmd = constructCommand(&conn, wrongTypeName);
+    Command *wrongTypeNameCmd = NULL;
     try {
+      checkCommandBody("wrongTypeName", wrongTypeName);
+      wrongTypeNameCmd = new Command("wrongTypeName");
       finalizeCommand(wrongTypeNameCmd, &conn, wrongTypeName);
       assertTrue_2(ALWAYS_FAIL, "Failed to detect non-string Name value");
     }
@@ -283,7 +338,8 @@ static bool testCommandParserErrorHandling()
   {
     Command *invalidReturnCmd = NULL;
     try {
-      invalidReturnCmd = constructCommand(&conn, invalidReturn);
+      checkCommandBody("invalidReturn", invalidReturn);
+      invalidReturnCmd = new Command("invalidReturn");
       finalizeCommand(invalidReturnCmd, &conn, invalidReturn);
       assertTrue_2(ALWAYS_FAIL, "Failed to detect invalid return expression");
     }

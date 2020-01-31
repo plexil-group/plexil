@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
+#include "createExpression.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "parser-utils.hh"
@@ -34,7 +35,11 @@
 #include "pugixml.hpp"
 
 #include <cerrno>
+
+#ifdef HAVE_STDLIB_H
 #include <cstdlib> // for strtoul()
+#endif
+
 #include <limits>
 
 using pugi::xml_node;
@@ -42,37 +47,53 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  static void checkAssignment(std::string const &nodeId, xml_node const nodeXml)
-    throw (ParserException)
+  // Check pass
+  void checkAssignmentBody(char const *nodeId, xml_node const assnXml)
   {
-    xml_node const assn = nodeXml.child(BODY_TAG).first_child();
-    checkTag(ASSN_TAG, assn);
+    checkTag(ASSN_TAG, assnXml);
 
-    xml_node const varXml = assn.first_child();
+    xml_node const varXml = assnXml.first_child();
+    checkParserExceptionWithLocation(varXml,
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Malformed Assignment element");
+
+    checkParserExceptionWithLocation(testTagSuffix(VAR_SUFFIX, varXml)
+                                     || testTag(ARRAYELEMENT_TAG, varXml),
+                                     varXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": invalid left hand side for Assignment");
+    ValueType lht = checkExpression(nodeId, varXml);
+
     xml_node const rhsXml = varXml.next_sibling();
     checkParserExceptionWithLocation(rhsXml,
-                                     assn,
-                                     "Assignment Node " << nodeId
-                                     << ": Malformed Assignment element");
-    checkTagSuffix(RHS_TAG, rhsXml);
-  }
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Malformed Assignment element");
+    checkParserExceptionWithLocation(testTagSuffix(RHS_TAG, rhsXml),
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Invalid right hand side for Assignment");
+    ValueType rht = checkExpression(nodeId, rhsXml.first_child());
 
-  // First pass
-  void constructAssignment(AssignmentNode *anode, xml_node const xml)
-    throw (ParserException)
-  {
-    assertTrue_1(anode);
-
-    // Can throw ParserException
-    checkAssignment(anode->getNodeId(), xml);
-    
-    // Just construct it, will be populated in second pass
-    anode->setAssignment(new Assignment(anode->getNodeId()));
+    // Check type consistency between variable (or array elt) and RHS expression
+    checkParserExceptionWithLocation(areTypesCompatible(lht, rht),
+                                     assnXml,
+                                     "Assignment Node \"" << nodeId
+                                     << "\": Type error; variable has type " << valueTypeName(lht)
+                                     << " but right hand side has type " << valueTypeName(rht));
   }
 
   // Second pass
+  void constructAssignment(AssignmentNode *anode, xml_node const xml)
+  {
+    assertTrue_1(anode);
+    // Just construct it, will be populated in second pass
+    anode->setAssignment(new Assignment());
+  }
+
+  // Third pass
   void finalizeAssignment(AssignmentNode *anode, xml_node const assn)
-    throw (ParserException)
   {
     assertTrue_1(anode);
     Assignment *assign = anode->getAssignment();
@@ -101,11 +122,9 @@ namespace PLEXIL
       if (rhsGarbage)
         delete rhs;
       reportParserExceptionWithLocation(assn,
-                                        "Assignment Node " << anode->getNodeId()
-                                        << ": RHS expression type "
-                                        << valueTypeName(rhsType)
-                                        << " incompatible with variable of type "
-                                        << valueTypeName(varType));
+                                        "Assignment Node \"" << anode->getNodeId()
+                                        << "\": Type error; variable has type " << valueTypeName(varType)
+                                        << " but right hand side has type " << valueTypeName(rhsType));
     }
     assign->setVariable(var, varGarbage);
     assign->setExpression(rhs, rhsGarbage);

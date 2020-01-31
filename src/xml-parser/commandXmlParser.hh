@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,29 +40,17 @@ namespace PLEXIL
   // Forward declarations
   class Command;
   class CommandNode;
+  class NodeConnector;
 
   //
   // Parser entry points
   //
 
-  extern void constructAndSetCommand(CommandNode *node, pugi::xml_node const cmdXml)
-    throw (ParserException);
-
-  extern void finalizeCommandNode(CommandNode *node, pugi::xml_node const cmdXml)
-    throw (ParserException);
-
-  //
-  // Unit test entry points
-  //
-
-  extern Command *constructCommand(NodeConnector *node,
-                                   pugi::xml_node const cmdXml)
-    throw (ParserException);
+  extern void checkCommandBody(char const *nodeId, pugi::xml_node const cmdXml);
 
   extern void finalizeCommand(Command *cmd,
                               NodeConnector *node,
-                              pugi::xml_node const cmdXml)
-    throw (ParserException);
+                              pugi::xml_node const cmdXml);
 
 } // namespace PLEXIL
 

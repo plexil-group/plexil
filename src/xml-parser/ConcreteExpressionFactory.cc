@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
+#include "createExpression.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
@@ -42,7 +43,11 @@
 
 #include <sstream>
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
+
+using pugi::xml_node;
 
 // Local convenience macros
 #define ENSURE_EXPRESSION_FACTORY(CLASS) template class PLEXIL::ConcreteExpressionFactory<CLASS >;
@@ -56,15 +61,24 @@ namespace PLEXIL
 
   // General case. For all but string types, the value string may not be empty.
   template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<T> >::allocate(pugi::xml_node const expr,
+  ValueType ConcreteExpressionFactory<Constant<T> >::check(char const *nodeId, pugi::xml_node const expr) const
+  {
+    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Empty value is not valid for \"" << expr.name() << "\"");
+    T dummy;
+    parseValue(expr.child_value(), dummy); // for effect
+    return PlexilValueType<T>::value;
+  }
+
+  // General case. For all but string types, the value string may not be empty.
+  template <typename T>
+  Expression *ConcreteExpressionFactory<Constant<T> >::allocate(xml_node const expr,
                                                                 NodeConnector * /* node */,
                                                                 bool &wasCreated,
                                                                 ValueType /* returnType */) const
   {
-    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
-                                     expr,
-                                     "Empty value is not valid for \"" << expr.name() << "\"");
-
     wasCreated = true;
     T value;
     if (parseValue(expr.child_value(), value))
@@ -75,15 +89,11 @@ namespace PLEXIL
 
   // Since there are exactly 3 possible Boolean constants, return references to them.
   template <>
-  Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(pugi::xml_node const expr,
+  Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(xml_node const expr,
                                                                    NodeConnector * /* node */,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
   {
-    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
-                                     expr,
-                                     "Empty value is not valid for \"" << expr.name() << "\"");
-
     bool value;
     bool known = parseValue(expr.child_value(), value);
     // if we got here, there was no parsing exception
@@ -98,21 +108,17 @@ namespace PLEXIL
 
   // Look for common Integer values, e.g. 1, 0, -1
   template <>
-  Expression *ConcreteExpressionFactory<Constant<int32_t> >::allocate(pugi::xml_node const expr,
+  Expression *ConcreteExpressionFactory<Constant<Integer> >::allocate(xml_node const expr,
                                                                       NodeConnector * /* node */,
                                                                       bool &wasCreated,
                                                                       ValueType /* returnType */) const
   {
     // check for empty value
-    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
-                                     expr,
-                                     "Empty value is not valid for \"" << expr.name() << "\"");
-
     int32_t value;
-    if (!parseValue<int32_t>(expr.child_value(), value)) {
+    if (!parseValue<Integer>(expr.child_value(), value)) {
       // Unknown
       wasCreated = true;
-      return new Constant<int32_t>();
+      return new Constant<Integer>();
     }
 
     // Known
@@ -131,27 +137,82 @@ namespace PLEXIL
 
     default:
       wasCreated = true;
-      return new Constant<int32_t>(value);
+      return new Constant<Integer>(value);
     }
   }
 
   // String can be empty, don't care about contents
   template <>
-  Expression *ConcreteExpressionFactory<Constant<std::string> >::allocate(pugi::xml_node const expr,
-                                                                          NodeConnector * /* node */,
-                                                                          bool &wasCreated,
-                                                                          ValueType /* returnType */) const
+  ValueType ConcreteExpressionFactory<Constant<String> >::check(char const *nodeId,
+                                                                pugi::xml_node const expr) const
+  {
+    return STRING_TYPE;
+  }
+
+  template <>
+  Expression *ConcreteExpressionFactory<Constant<String> >::allocate(xml_node const expr,
+                                                                     NodeConnector * /* node */,
+                                                                     bool &wasCreated,
+                                                                     ValueType /* returnType */) const
   {
     wasCreated = true;
-    return new Constant<std::string>(expr.child_value());
+    return new Constant<String>(expr.child_value());
   }
+
+  // Explicit instantiations
+  ENSURE_EXPRESSION_FACTORY(BooleanConstant);
+  ENSURE_EXPRESSION_FACTORY(IntegerConstant);
+  ENSURE_EXPRESSION_FACTORY(RealConstant);
+  ENSURE_EXPRESSION_FACTORY(StringConstant);
 
   //
   // Array references
   //
 
+  ValueType ConcreteExpressionFactory<ArrayReference>::check(char const *nodeId,
+                                                             pugi::xml_node const expr) const
+  {
+    // Syntax checks
+    checkHasChildElement(expr);
+    xml_node arrayXml = expr.first_child();
+    checkParserExceptionWithLocation(arrayXml && arrayXml.type() == pugi::node_element,
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Ill-formed ArrayElement expression");
+    // TODO: type check "array"
+    if (testTag(NAME_TAG, arrayXml)) {
+      // Array is named explicitly
+      checkNotEmpty(arrayXml);
+      // TODO: get array type from declaration
+    }
+    else {
+      // Array-valued expression
+      // TODO: get type
+      checkExpression(nodeId, arrayXml);
+    }
+
+    xml_node indexXml = arrayXml.next_sibling();
+    checkParserExceptionWithLocation(indexXml && testTag(INDEX_TAG, indexXml),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": ArrayElement has no Index element");
+    checkHasChildElement(indexXml);
+    indexXml = indexXml.first_child();
+    checkParserExceptionWithLocation(indexXml.type() == pugi::node_element,
+                                     indexXml,
+                                     "Node \"" << nodeId
+                                     << "\": ArrayElement Index expression is not an element");
+    // Check index
+    // TODO: check index is an Integer
+    checkExpression(nodeId, indexXml);
+
+    // Return element type of array
+    // TODO
+    return UNKNOWN_TYPE;
+  }
+
   // Common subroutine
-  static void parseArrayElement(pugi::xml_node const expr,
+  static void parseArrayElement(xml_node const expr,
                                 NodeConnector *node,
                                 Expression *&arrayExpr,
                                 Expression *&indexExpr,
@@ -159,24 +220,12 @@ namespace PLEXIL
                                 bool &indexCreated)
   {
     // Syntax checks
-    checkHasChildElement(expr);
-    pugi::xml_node arrayXml = expr.first_child();
-    checkParserExceptionWithLocation(arrayXml && arrayXml.type() == pugi::node_element,
-                                     expr,
-                                     "Ill-formed ArrayElement expression");
-    pugi::xml_node indexXml = arrayXml.next_sibling();
-    checkParserExceptionWithLocation(indexXml && testTag(INDEX_TAG, indexXml),
-                                     expr,
-                                     "ArrayElement has no Index element");
-    checkHasChildElement(indexXml);
-    indexXml = indexXml.first_child();
-    checkParserExceptionWithLocation(indexXml.type() == pugi::node_element,
-                                     indexXml,
-                                     "ArrayElement Index is not an element");
+    xml_node arrayXml = expr.first_child();
+    xml_node indexXml = arrayXml.next_sibling();
+    checkTag(INDEX_TAG, indexXml);
 
     // Checks on array
     if (testTag(NAME_TAG, arrayXml)) {
-      checkNotEmpty(arrayXml);
       const char *arrayName = arrayXml.child_value();
       arrayExpr = node->findVariable(arrayName);
       checkParserExceptionWithLocation(arrayExpr,
@@ -199,7 +248,7 @@ namespace PLEXIL
     }
 
     // Checks on index
-    indexExpr = createExpression(indexXml, node, indexCreated);
+    indexExpr = createExpression(indexXml.first_child(), node, indexCreated);
     assertTrue_1(indexExpr);
     ValueType indexType = indexExpr->valueType();
     checkParserExceptionWithLocation(indexType == INTEGER_TYPE || indexType == UNKNOWN_TYPE,
@@ -208,7 +257,7 @@ namespace PLEXIL
   }
 
   Expression *
-  ConcreteExpressionFactory<ArrayReference>::allocate(pugi::xml_node const expr,
+  ConcreteExpressionFactory<ArrayReference>::allocate(xml_node const expr,
                                                       NodeConnector *node,
                                                       bool & wasCreated,
                                                       ValueType /* returnType */) const
@@ -224,7 +273,7 @@ namespace PLEXIL
     return new ArrayReference(arrayExpr, indexExpr, arrayCreated, indexCreated);
   }
 
-  Expression *createMutableArrayReference(pugi::xml_node const expr,
+  Expression *createMutableArrayReference(xml_node const expr,
                                           NodeConnector *node,
                                           bool & wasCreated)
   {
@@ -250,9 +299,37 @@ namespace PLEXIL
     return new MutableArrayReference(arrayExpr, indexExpr, arrayCreated, indexCreated);
   }
 
+  //
   // Generic variable references
+  //
+
+  ValueType VariableReferenceFactory::check(char const *nodeId, xml_node const expr) const
+  {
+    checkNotEmpty(expr);
+    char const *varName = expr.child_value();
+    checkParserExceptionWithLocation(*varName,
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Empty or malformed " << expr.name() << " element");
+  
+    // TODO: check type against variable declaration
+
+    // Get type from XML tag
+    if (testTagPrefix(INTEGER_STR, expr))
+      return INTEGER_TYPE;
+    if (testTagPrefix(STRING_STR, expr))
+      return STRING_TYPE;
+    if (testTagPrefix(REAL_STR, expr))
+      return REAL_TYPE;
+    if (testTagPrefix(DATE_STR, expr))
+      return DATE_TYPE;
+    if (testTagPrefix(DURATION_STR, expr))
+      return DURATION_TYPE;
+    return UNKNOWN_TYPE;
+  }
+
   Expression *
-  VariableReferenceFactory::allocate(pugi::xml_node const expr,
+  VariableReferenceFactory::allocate(xml_node const expr,
                                      NodeConnector *node,
                                      bool & wasCreated,
                                      ValueType /* returnType */) const
@@ -283,20 +360,4 @@ namespace PLEXIL
     return result;
   }
 
-  // Explicit instantiations
-  ENSURE_EXPRESSION_FACTORY(BooleanConstant);
-  ENSURE_EXPRESSION_FACTORY(IntegerConstant);
-  ENSURE_EXPRESSION_FACTORY(RealConstant);
-  ENSURE_EXPRESSION_FACTORY(StringConstant);
-
-  ENSURE_EXPRESSION_FACTORY(BooleanVariable);
-  ENSURE_EXPRESSION_FACTORY(IntegerVariable);
-  ENSURE_EXPRESSION_FACTORY(RealVariable);
-  ENSURE_EXPRESSION_FACTORY(StringVariable);
-  ENSURE_EXPRESSION_FACTORY(BooleanArrayVariable);
-  ENSURE_EXPRESSION_FACTORY(IntegerArrayVariable);
-  ENSURE_EXPRESSION_FACTORY(RealArrayVariable);
-  ENSURE_EXPRESSION_FACTORY(StringArrayVariable);
-
 } // namespace PLEXIL
-

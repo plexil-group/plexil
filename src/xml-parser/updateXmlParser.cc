@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "createExpression.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "parser-utils.hh"
@@ -33,76 +34,72 @@
 
 #include "pugixml.hpp"
 
+#ifdef STDC_HEADERS
+#include <cstring>
+#endif
+
 using pugi::node_element;
 using pugi::xml_node;
 
 namespace PLEXIL
 {
 
-  // Unit test entry point
-
-  Update *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
-    throw (ParserException)
+  void checkUpdateBody(char const *nodeId, pugi::xml_node const updXml)
   {
     checkTag(UPDATE_TAG, updXml);
-    size_t n = 0;
     for (xml_node pr = updXml.first_child(); pr; pr = pr.next_sibling()) {
       checkTag(PAIR_TAG, pr);
       xml_node temp = pr.first_child();
       checkTag(NAME_TAG, temp);
       checkParserExceptionWithLocation(*(temp.child_value()),
                                        temp,
-                                       "Update " << NAME_TAG << " element empty or malformed");
+                                       "Node \"" << nodeId
+                                       << "\": Update " << NAME_TAG << " element empty or malformed");
       temp = temp.next_sibling();
       checkParserExceptionWithLocation(temp,
                                        pr,
-                                       "Update pair without a value expression");
+                                       "Node \"" << nodeId
+                                       << "\": Update pair without a value expression");
+      checkExpression(nodeId, temp);
     }
-    Update *result = new Update(node);
-    result->reservePairs(n);
-    return result;
+
+    // Check for duplicates
+    for (xml_node pr = updXml.first_child(); pr; pr = pr.next_sibling()) {
+      char const *prName = pr.child_value(NAME_TAG);
+      xml_node temp = pr.next_sibling();
+      while (temp) {
+        checkParserExceptionWithLocation(strcmp(prName, temp.child_value(NAME_TAG)),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Duplicate Update " << NAME_TAG
+                                         << " \"" << prName << '"');
+        temp = temp.next_sibling();
+      }
+    }
   }
 
-  // Parser entry point wrapper
-
-  void constructAndSetUpdate(UpdateNode *node, pugi::xml_node const updXml)
-    throw (ParserException)
+  // Pass 2
+  Update *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
   {
-    assertTrue_1(node);
-    node->setUpdate(constructUpdate(node, updXml));
+    Update *result = new Update(node);
+    result->reservePairs(std::distance(updXml.begin(), updXml.end()));
+    return result;
   }
 
   // Unit test entry point
 
   void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const updXml)
-    throw (ParserException)
   {
-    xml_node pr = updXml.first_child();
+    xml_node pr = updXml.last_child();
     while (pr) {
-      checkTag(PAIR_TAG, pr);
       xml_node temp = pr.first_child();
       std::string pairName(temp.child_value());
       temp = temp.next_sibling();
       bool wasCreated;
       Expression *exp = createExpression(temp, node, wasCreated);
-      if (!update->addPair(pairName, exp, wasCreated)) {
-        if (wasCreated)
-          delete exp;
-        reportParserExceptionWithLocation(pr,
-                                          "Duplicate Update pair name " << pairName);
-      }
-      pr = pr.next_sibling();
+      update->addPair(pairName, exp, wasCreated);
+      pr = pr.previous_sibling();
     }
-  }
-
-  // Parser entry point wrapper
-
-  void finalizeUpdateNode(UpdateNode *node, pugi::xml_node const updXml)
-    throw (ParserException)
-  {
-    assertTrue_1(node);
-    Update *update = node->getUpdate();
-    finalizeUpdate(update, node, updXml);
   }
 
 } // namespace PLEXIL

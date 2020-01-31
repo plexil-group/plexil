@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 
 #include "Error.hh" // PLEXIL_NORETURN macro
 #include "ParserException.hh"
+#include "ValueType.hh"
 
 //
 // General purpose xml parsing utilities
@@ -41,28 +42,25 @@ namespace pugi
 
 namespace PLEXIL
 {
-  extern bool testPrefix(char const *prefix, char const *str);
-  extern bool testSuffix(char const *suffix, char const *str);
-  extern bool testTag(const char* t, pugi::xml_node const e);
-  extern bool testTagPrefix(const char* prefix, pugi::xml_node const e);
-  extern bool testTagSuffix(const char* suffix, pugi::xml_node const e);
-  extern bool hasChildElement(pugi::xml_node const e);
-  extern void checkTag(const char* t, pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkAttr(const char* t, pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkTagSuffix(const char* t, pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkNotEmpty(pugi::xml_node const e)
-    throw (ParserException);
-  extern void checkHasChildElement(pugi::xml_node const e)
-    throw (ParserException);
-  extern bool isBoolean(const char* initval);
-  extern bool isInteger(const char* initval);
-  extern bool isDouble(const char* initval);
+  bool testPrefix(char const *prefix, char const *str);
+  bool testSuffix(char const *suffix, char const *str);
+  bool testTag(const char* t, pugi::xml_node const e);
+  bool testTagPrefix(const char* prefix, pugi::xml_node const e);
+  bool testTagSuffix(const char* suffix, pugi::xml_node const e);
+  bool hasChildElement(pugi::xml_node const e);
+  void checkTag(const char* t, pugi::xml_node const e);
+  void checkAttr(const char* t, pugi::xml_node const e);
+  void checkTagSuffix(const char* t, pugi::xml_node const e);
+  void checkNotEmpty(pugi::xml_node const e);
+  void checkHasChildElement(pugi::xml_node const e);
+  bool isBoolean(const char* initval);
+  bool isInteger(const char* initval);
+  bool isDouble(const char* initval);
+
+  char const *typeNameAsValue(ValueType ty);
+
   // Helper for checkParserExceptionWithLocation
-  PLEXIL_NORETURN extern void reportParserException(std::string const &msg, pugi::xml_node location)
-    throw (ParserException);
+  PLEXIL_NORETURN void throwParserException(std::string const &msg, pugi::xml_node location);
 
 } // namespace PLEXIL
 
@@ -75,7 +73,7 @@ namespace PLEXIL
 #define reportParserExceptionWithLocation(loc, msg) { \
   std::ostringstream whatstr; \
   whatstr << msg; \
-  reportParserException(whatstr.str().c_str(), loc); \
+  throwParserException(whatstr.str().c_str(), loc); \
 }
 
 /**

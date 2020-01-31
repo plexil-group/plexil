@@ -24,35 +24,41 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_ARRAY_VARIABLE_FACTORY_HH
-#define PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+#ifndef PLEXIL_NODE_FUNCTION_FACTORY_HH
+#define PLEXIL_NODE_FUNCTION_FACTORY_HH
 
 #include "ExpressionFactory.hh"
 
 namespace PLEXIL
 {
+  class NodeOperator;
 
-  class ArrayVariableFactory : public ExpressionFactory
+  // Base class
+  class NodeFunctionFactory : public ExpressionFactory
   {
   public:
-    ArrayVariableFactory(std::string const &name);
-    ~ArrayVariableFactory();
+    NodeFunctionFactory(NodeOperator const *op, std::string const &name);
+    virtual ~NodeFunctionFactory();
 
     ValueType check(char const *nodeId, pugi::xml_node expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
-                         bool &wasCreated,
+                         bool & wasCreated,
                          ValueType returnType) const;
 
   private:
-    // Default, copy, assign all prohibited
-    ArrayVariableFactory();
-    ArrayVariableFactory(ArrayVariableFactory const &);
-    ArrayVariableFactory & operator=(ArrayVariableFactory const &);
+    // Unimplemented
+    NodeFunctionFactory();
+    NodeFunctionFactory(NodeFunctionFactory const &);
+    NodeFunctionFactory &operator=(NodeFunctionFactory const &);
+
+    NodeOperator const *m_op;
   };
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+// Convenience macros
+#define REGISTER_NODE_FUNCTION(CLASS,NAME) new PLEXIL::NodeFunctionFactory(CLASS::instance(), #NAME)
 
+#endif // PLEXIL_NODE_FUNCTION_FACTORY_HH

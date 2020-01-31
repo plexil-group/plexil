@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,19 +24,22 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
 #include "Alias.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Debug.hh"
+#include "Expression.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"
 
 #include "pugixml.hpp"
 
+#ifdef STDC_HEADERS
 #include <cstring> // for strcmp()
+#endif
 
 using namespace PLEXIL;
 
@@ -71,8 +74,16 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node bart0Xml = doc.append_child("ArrayElement");
       bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Expression *bar0 = NULL;      
 
-      Expression *bar0 = createExpression(bart0Xml, nc, wasCreated);
+      try {
+        checkExpression("bart0", bart0Xml);
+        bar0 = createExpression(bart0Xml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
+
       assertTrue_1(bar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
@@ -91,8 +102,15 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node bartv0Xml = doc.append_child("ArrayElement");
       bartv0Xml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartv0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Expression *barv0 = NULL;
 
-      Expression *barv0 = createExpression(bartv0Xml, nc, wasCreated);
+      try {
+        checkExpression("bartv", bartv0Xml);
+        barv0 = createExpression(bartv0Xml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(barv0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", barv0->exprName()));
@@ -108,15 +126,21 @@ static bool testArrayConstantReferenceXmlParser()
     }
 
     {
-
       xml_node barliXml = doc.append_child("ArrayElement");
       xml_node arrayXml = barliXml.append_child("ArrayValue");
       arrayXml.append_attribute("Type").set_value("Boolean");
       arrayXml.append_child("BooleanValue").append_child(node_pcdata).set_value("false");
       arrayXml.append_child("BooleanValue").append_child(node_pcdata).set_value("true");
       barliXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Expression *barl = NULL;
 
-      Expression *barl = createExpression(barliXml, nc, wasCreated);
+      try {
+        checkExpression("barli", barliXml);
+        barl = createExpression(barliXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(barl);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", barl->exprName()));
@@ -148,8 +172,15 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node bartviXml = doc.append_child("ArrayElement");
       bartviXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartviXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Expression *barvi = NULL;
 
-      Expression *barvi = createExpression(bartviXml, nc, wasCreated);
+      try {
+        checkExpression("bartvi", bartviXml);
+        barvi = createExpression(bartviXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(barvi);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", barvi->exprName()));
@@ -189,8 +220,15 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node iart0Xml = doc.append_child("ArrayElement");
       iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
       iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Expression *iar0 = NULL;
 
-      Expression *iar0 = createExpression(iart0Xml, nc, wasCreated);
+      try {
+        checkExpression("iart0", iart0Xml);
+        iar0 = createExpression(iart0Xml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(iar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
@@ -209,8 +247,15 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node iartiXml = doc.append_child("ArrayElement");
       iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
       iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Expression *iari = NULL;
 
-      Expression *iari = createExpression(iartiXml, nc, wasCreated);
+      try {
+        checkExpression("iarti", iartiXml);
+        iari = createExpression(iartiXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(iari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
@@ -246,8 +291,15 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+    Expression *dar0 = NULL;
 
-    Expression *dar0 = createExpression(dart0Xml, nc, wasCreated);
+    try {
+      checkExpression("dart0", dart0Xml);
+      dar0 = createExpression(dart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(dar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
@@ -257,8 +309,15 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+    Expression *dari = NULL;
 
-    Expression *dari = createExpression(dartiXml, nc, wasCreated);
+    try {
+      checkExpression("darti", dartiXml);
+      dari = createExpression(dartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(dari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
@@ -300,8 +359,15 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
     sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+    Expression *sar0 = NULL;
 
-    Expression *sar0 = createExpression(sart0Xml, nc, wasCreated);
+    try {
+      checkExpression("sart0", sart0Xml);
+      sar0 = createExpression(sart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(sar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
@@ -311,8 +377,15 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
     sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+    Expression *sari = NULL;
 
-    Expression *sari = createExpression(sartiXml, nc, wasCreated);
+    try {
+      checkExpression("sarti", sartiXml);
+      sari = createExpression(sartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(sari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -354,15 +427,22 @@ static bool testArrayVariableReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav); // will be deleted by node connector
 
     xml_node bart0Xml = doc.append_child("ArrayElement");
     bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+    Expression *bar0 = NULL;
 
-    Expression *bar0 = createExpression(bart0Xml, nc, wasCreated);
+    try {
+      checkExpression("bart0", bart0Xml);
+      bar0 = createExpression(bart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(bar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
@@ -372,8 +452,15 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node bartiXml = doc.append_child("ArrayElement");
     bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+    Expression *bari = NULL;
 
-    Expression *bari = createExpression(bartiXml, nc, wasCreated);
+    try {
+      checkExpression("barti", bartiXml);
+      bari = createExpression(bartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(bari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
@@ -409,14 +496,22 @@ static bool testArrayVariableReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav);
 
     xml_node iart0Xml = doc.append_child("ArrayElement");
     iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
     iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *iar0 = createExpression(iart0Xml, nc, wasCreated);
+    Expression *iar0 = NULL;
+
+    try {
+      checkExpression("iart0", iart0Xml);
+      iar0 = createExpression(iart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(iar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
@@ -426,8 +521,15 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node iartiXml = doc.append_child("ArrayElement");
     iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
     iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+    Expression *iari = NULL;
 
-    Expression *iari = createExpression(iartiXml, nc, wasCreated);
+    try {
+      checkExpression("iarti", iartiXml);
+      iari = createExpression(iartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(iari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
@@ -463,14 +565,22 @@ static bool testArrayVariableReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav);
 
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *dar0 = createExpression(dart0Xml, nc, wasCreated);
+    Expression *dar0 = NULL;
+
+    try {
+      checkExpression("dart0", dart0Xml);
+      dar0 = createExpression(dart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(dar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
@@ -480,7 +590,15 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *dari = createExpression(dartiXml, nc, wasCreated);
+    Expression *dari = NULL;
+
+    try {
+      checkExpression("darti", dartiXml);
+      dari = createExpression(dartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(dari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
@@ -517,7 +635,7 @@ static bool testArrayVariableReferenceXmlParser()
     vs[3] = std::string("three");
 
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav);
 
@@ -525,7 +643,15 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
     sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *sar0 = createExpression(sart0Xml, nc, wasCreated);
+    Expression *sar0 = NULL;
+
+    try {
+      checkExpression("sart0", sart0Xml);
+      sar0 = createExpression(sart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(sar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
@@ -535,7 +661,15 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
     sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *sari = createExpression(sartiXml, nc, wasCreated);
+    Expression *sari = NULL;
+
+    try {
+      checkExpression("sarti", sartiXml);
+      sari = createExpression(sartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(sari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -578,15 +712,23 @@ static bool testArrayAliasReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
     bav->setInitializer(bc, true);
-    Alias* abav = new Alias(nc, "bul", bav, true);
+    Alias* abav = new Alias("bul", bav, true);
     realNc->storeVariable("bul", abav);
 
     xml_node bart0Xml = doc.append_child("ArrayElement");
     bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *bar0 = createExpression(bart0Xml, nc, wasCreated);
+    Expression *bar0 = NULL;
+
+    try {
+      checkExpression("bart0", bart0Xml);
+      bar0 = createExpression(bart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(bar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
@@ -596,7 +738,15 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node bartiXml = doc.append_child("ArrayElement");
     bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *bari = createExpression(bartiXml, nc, wasCreated);
+    Expression *bari = NULL;
+
+    try {
+      checkExpression("barti", bartiXml);
+      bari = createExpression(bartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(bari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
@@ -636,15 +786,23 @@ static bool testArrayAliasReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
     iav->setInitializer(ic, true);
-    Alias *aiav = new Alias(nc, "int", iav, true);
+    Alias *aiav = new Alias("int", iav, true);
     realNc->storeVariable("int", aiav);
 
     xml_node iart0Xml = doc.append_child("ArrayElement");
     iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
     iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *iar0 = createExpression(iart0Xml, nc, wasCreated);
+    Expression *iar0 = NULL;
+
+    try {
+      checkExpression("iart0", iart0Xml);
+      iar0 = createExpression(iart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(iar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
@@ -654,7 +812,15 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node iartiXml = doc.append_child("ArrayElement");
     iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
     iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *iari = createExpression(iartiXml, nc, wasCreated);
+    Expression *iari;
+
+    try {
+      checkExpression("iarti", iartiXml);
+      iari = createExpression(iartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(iari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
@@ -694,15 +860,23 @@ static bool testArrayAliasReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
     dav->setInitializer(dc, true);
-    Alias *adav = new Alias(nc, "dbl", dav, true);
+    Alias *adav = new Alias("dbl", dav, true);
     realNc->storeVariable("dbl", adav);
 
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *dar0 = createExpression(dart0Xml, nc, wasCreated);
+    Expression *dar0 = NULL;
+
+    try {
+      checkExpression("dart0", dart0Xml);
+      dar0 = createExpression(dart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(dar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
@@ -712,7 +886,15 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *dari = createExpression(dartiXml, nc, wasCreated);
+    Expression *dari = NULL;
+    
+    try {
+      checkExpression("darti", dartiXml);
+      dari = createExpression(dartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(dari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
@@ -752,15 +934,23 @@ static bool testArrayAliasReferenceXmlParser()
     vs[2] = std::string("two");
     vs[3] = std::string("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
     sav->setInitializer(sc, true);
-    Alias *asav = new Alias(nc, "str", sav, true);
+    Alias *asav = new Alias("str", sav, true);
     realNc->storeVariable("str", asav);
 
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
     sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *sar0 = createExpression(sart0Xml, nc, wasCreated);
+    Expression *sar0 = NULL;
+
+    try {
+      checkExpression("sart0", sart0Xml);
+      sar0 = createExpression(sart0Xml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(sar0);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
@@ -770,7 +960,15 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
     sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *sari = createExpression(sartiXml, nc, wasCreated);
+    Expression *sari = NULL;
+    
+    try {
+      checkExpression("sarti", sartiXml);
+      sari = createExpression(sartiXml, nc, wasCreated);
+    }
+    catch (ParserException const &exc) {
+      assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+    }
     assertTrue_1(sari);
     assertTrue_1(wasCreated);
     assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -817,7 +1015,7 @@ static bool testMutableArrayReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav);
 
@@ -828,7 +1026,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bart0Xml = doc.append_child("ArrayElement");
       bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *bar0 = createAssignable(bart0Xml, nc, wasCreated);
+      Expression *bar0 = NULL;
+
+      try {
+        checkExpression("bart0", bart0Xml);
+        bar0 = createAssignable(bart0Xml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(bar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
@@ -848,7 +1054,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bartiXml = doc.append_child("ArrayElement");
       bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *bari = createAssignable(bartiXml, nc, wasCreated);
+      Expression *bari = NULL;
+
+      try {
+        checkExpression("barti", bartiXml);
+        bari = createAssignable(bartiXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(bari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
@@ -887,7 +1101,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bartvXml = doc.append_child("ArrayElement");
       bartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *barv = createAssignable(bartvXml, nc, wasCreated);
+      Expression *barv = NULL;
+      
+      try {
+        checkExpression("bartv", bartvXml);
+        barv = createAssignable(bartvXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(barv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", barv->exprName()));
@@ -931,7 +1153,7 @@ static bool testMutableArrayReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav); // will be deleted by node connector
 
@@ -941,7 +1163,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iart0Xml = doc.append_child("ArrayElement");
       iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
       iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *iar0 = createAssignable(iart0Xml, nc, wasCreated);
+      Expression *iar0 = NULL;
+      
+      try {
+        checkExpression("iart0", iart0Xml);
+        iar0 = createAssignable(iart0Xml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(iar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
@@ -960,7 +1190,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iartiXml = doc.append_child("ArrayElement");
       iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
       iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *iari = createAssignable(iartiXml, nc, wasCreated);
+      Expression *iari = NULL;
+
+      try {
+        checkExpression("iarti", iartiXml);
+        iari = createAssignable(iartiXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(iari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
@@ -1000,7 +1238,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iartvXml = doc.append_child("ArrayElement");
       iartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("int");
       iartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *iarv = createAssignable(iartvXml, nc, wasCreated);
+      Expression *iarv = NULL;
+
+      try {
+        checkExpression("iartv", iartvXml);
+        iarv = createAssignable(iartvXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(iarv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", iarv->exprName()));
@@ -1045,7 +1291,7 @@ static bool testMutableArrayReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav); // will be deleted by node connector
 
@@ -1055,7 +1301,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dart0Xml = doc.append_child("ArrayElement");
       dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *dar0 = createAssignable(dart0Xml, nc, wasCreated);
+      Expression *dar0 = NULL;
+
+      try {
+        checkExpression("dart0", dart0Xml);
+        dar0 = createAssignable(dart0Xml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(dar0);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
@@ -1074,7 +1328,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dartiXml = doc.append_child("ArrayElement");
       dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *dari = createAssignable(dartiXml, nc, wasCreated);
+      Expression *dari = NULL;
+
+      try {
+        checkExpression("darti", dartiXml);
+        dari = createAssignable(dartiXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(dari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
@@ -1114,7 +1376,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dartvXml = doc.append_child("ArrayElement");
       dartvXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *darv = createAssignable(dartvXml, nc, wasCreated);
+      Expression *darv = NULL;
+
+      try {
+        checkExpression("dartv", dartvXml);
+        darv = createAssignable(dartvXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(darv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", darv->exprName()));
@@ -1159,7 +1429,7 @@ static bool testMutableArrayReferenceXmlParser()
     vs[2] = std::string("two");
     vs[3] = std::string("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav); // will be deleted by node connector
 
@@ -1188,7 +1458,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sartiXml = doc.append_child("ArrayElement");
       sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
       sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *sari = createAssignable(sartiXml, nc, wasCreated);
+      Expression *sari = NULL;
+
+      try {
+        checkExpression("sarti", sartiXml);
+        sari = createAssignable(sartiXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(sari);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -1227,7 +1505,15 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sartvXml = doc.append_child("ArrayElement");
       sartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("str");
       sartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *sarv = createAssignable(sartvXml, nc, wasCreated);
+      Expression *sarv = NULL;
+
+      try {
+        checkExpression("sartv", sartvXml);
+        sarv = createAssignable(sartvXml, nc, wasCreated);
+      }
+      catch (ParserException const &exc) {
+        assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception " << exc.what());
+      }
       assertTrue_1(sarv);
       assertTrue_1(wasCreated);
       assertTrue_1(!strcmp("ArrayReference", sarv->exprName()));

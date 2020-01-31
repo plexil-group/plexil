@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 #define PLEXIL_CONCRETE_EXPRESSION_FACTORY_HH
 
 #include "ExpressionFactory.hh"
-#include "NodeConnector.hh"
 
 namespace PLEXIL
 {
@@ -51,10 +50,13 @@ namespace PLEXIL
     {
     }
 
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated,
-                         ValueType returnType) const = 0;
+                         ValueType returnType) const
+    = 0;
 
   private:
     // Default, copy, assign all prohibited
@@ -75,6 +77,8 @@ namespace PLEXIL
     ~ConcreteExpressionFactory()
     {
     }
+    
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -96,9 +100,12 @@ namespace PLEXIL
       : ExpressionFactory(name)
     {
     }
+
     ~ConcreteExpressionFactory()
     {
     }
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
@@ -129,6 +136,8 @@ namespace PLEXIL
     ~VariableReferenceFactory()
     {
     }
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,

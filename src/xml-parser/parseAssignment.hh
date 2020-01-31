@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,14 @@ namespace PLEXIL
 {
   class AssignmentNode;
 
-  extern void constructAssignment(AssignmentNode *node, pugi::xml_node const xml)
-    throw (ParserException);
+  // Check pass
+  extern void checkAssignmentBody(char const *nodeId, pugi::xml_node const assnXml);
 
-  extern void finalizeAssignment(AssignmentNode *node, pugi::xml_node const assn)
-    throw (ParserException);
+  // First pass
+  extern void constructAssignment(AssignmentNode *node, pugi::xml_node const xml);
+
+  // Second pass
+  extern void finalizeAssignment(AssignmentNode *node, pugi::xml_node const assn);
 }
 
 #endif // PLEXIL_PARSE_ASSIGNMENT_HH

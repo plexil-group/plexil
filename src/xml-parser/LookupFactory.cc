@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,15 +26,23 @@
 
 #include "LookupFactory.hh"
 
+#include "createExpression.hh"
 #include "Error.hh"
 #include "ExprVec.hh"
 #include "Lookup.hh"
+#include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
 
+#include "pugixml.hpp"
+
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
+
+using pugi::xml_node;
 
 namespace PLEXIL
 {
@@ -48,36 +56,132 @@ namespace PLEXIL
   {
   }
 
-  Expression *LookupFactory::allocate(pugi::xml_node const expr,
+  ValueType LookupFactory::check(char const *nodeId, xml_node const expr) const
+  {
+    xml_node stateNameXml = expr.first_child();
+    checkParserExceptionWithLocation(testTag(NAME_TAG, stateNameXml),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": " << expr.name()
+                                     << " without a " << NAME_TAG << " element");
+    checkParserExceptionWithLocation(stateNameXml.first_child().type() == pugi::node_element,
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Malformed " << NAME_TAG
+                                     << " element in " << expr.name());
+
+    // Name can be any legal String expression
+    xml_node nameXml = stateNameXml.first_child();
+    ValueType nameType = checkExpression(nodeId, nameXml);
+    checkParserExceptionWithLocation(nameType == STRING_TYPE || nameType == UNKNOWN_TYPE,
+                                     stateNameXml,
+                                     "Node \"" << nodeId
+                                     << "\": " << NAME_TAG
+                                     << " is not a String expression in " << expr.name());
+
+    // If name is a literal, look up result type
+    ValueType resultType = UNKNOWN_TYPE;
+    Symbol const *lkup = NULL;
+    if (testTag(STRING_VAL_TAG, nameXml)) {
+        lkup = getLookupSymbol(nameXml.child_value());
+        if (lkup)
+          resultType = lkup->returnType();
+    }
+    
+    xml_node temp = stateNameXml.next_sibling();
+    if (!temp)
+      return resultType; // everything past here is optional
+
+    if (testTag(TOLERANCE_TAG, temp)) {
+      checkParserExceptionWithLocation(testTag(LOOKUPCHANGE_TAG, expr),
+                                       temp,
+                                       "Node \"" << nodeId
+                                       << "\": " << temp.name()
+                                       << " may not appear in a " << expr.name());
+
+      // Can be any valid numeric expression
+      ValueType tolType = checkExpression(nodeId, temp.first_child());
+      checkParserExceptionWithLocation(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
+                                       temp,
+                                       "Node \"" << nodeId
+                                       << "\": " << temp.name()
+                                       << " is not a numeric expression");
+      temp = temp.next_sibling();
+      if (!temp)
+        return resultType;
+    }
+
+    // Check arguments
+    checkParserExceptionWithLocation(testTag(ARGS_TAG, temp),
+                                     temp,
+                                     "Node \"" << nodeId
+                                     << "\": " << temp.name()
+                                     << " may not appear in a " << expr.name());
+    
+    xml_node args = temp;
+    temp = args.first_child();
+    if (lkup) {
+      // Check count and types of args if name is known and declared
+      size_t i;
+      size_t reqd = lkup->parameterCount();
+      for (i = 0; i < reqd && temp; ++i) {
+        // Check required parameters
+        ValueType reqType = lkup->parameterType(i);
+        ValueType hasType = checkExpression(nodeId, temp);
+        checkParserExceptionWithLocation(areTypesCompatible(reqType, hasType),
+                                         temp,
+                                         "Node \"" << nodeId
+                                         << "\": Argument type error for lookup "
+                                         << nameXml.child_value()
+                                         << "; argument " << i + 1
+                                         << " expects " << valueTypeName(reqType)
+                                         << " but expression has type " << valueTypeName(hasType));
+        temp = temp.next_sibling();
+      }
+
+      // Did we get enough?
+      checkParserExceptionWithLocation(i == reqd,
+                                       args,
+                                       "Node \"" << nodeId
+                                       << "\": Not enough arguments for lookup "
+                                       << nameXml.child_value()
+                                       << "; expected "
+                                       << (lkup->anyParameters() ? "at least" : "")
+                                       << reqd
+                                       << " arguments, but " << i << " were supplied");
+
+      // Any unexpected leftovers?
+      checkParserExceptionWithLocation(lkup->anyParameters() || !temp,
+                                       args,
+                                       "Node \"" << nodeId
+                                       << "\": Too many arguments for lookup "
+                                       << nameXml.child_value()
+                                       << "; expected " << reqd
+                                       << " arguments, but more were supplied");
+    }
+    // Fall through to here if known lookup allows any parameters
+    while (temp) {
+      checkExpression(nodeId, temp); // for effect
+      temp = temp.next_sibling();
+    }
+
+    // TODO
+    return resultType;
+  }
+
+  Expression *LookupFactory::allocate(xml_node const expr,
                                       NodeConnector *node,
                                       bool & wasCreated,
                                       ValueType /* returnType */) const
   {
-    pugi::xml_node stateNameXml = expr.first_child();
-    checkTag(NAME_TAG, stateNameXml);
-    pugi::xml_node argsXml = stateNameXml.next_sibling();
-    pugi::xml_node tolXml;
-    if (argsXml) {
-      // Tolerance tag is supposed to come between name and args, sigh
-      if (0 == strcmp(TOLERANCE_TAG, argsXml.name())) {
-        tolXml = argsXml;
-        if (0 == strcmp(LOOKUPNOW_TAG, expr.name())) {
-          checkParserExceptionWithLocation(tolXml,
-                                           tolXml,
-                                           "LookupNow may not have a Tolerance element");
-        }
-        argsXml = tolXml.next_sibling();
-      }
-    }
-    if (argsXml) {
-      checkTag(ARGS_TAG, argsXml);
-    }
-
+    // Syntactic checking has been done already
+    xml_node stateNameXml = expr.first_child();
     bool stateNameGarbage = false;
     Expression *stateName = createExpression(stateNameXml.first_child(), node, stateNameGarbage);
     ValueType stateNameType = stateName->valueType();
-    checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
-                         "createExpression: Lookup name must be a string expression");
+    checkParserExceptionWithLocation(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
+                                     stateNameXml.first_child(),
+                                     "createExpression: Lookup name must be a string expression");
 
     // Type checking support
     Symbol const *lkup = NULL;
@@ -87,7 +191,7 @@ namespace PLEXIL
       std::string const *nameStr;
       if (stateName->getValuePointer(nameStr)) {
         // Check whether it's declared
-        lkup = g_symbolTable->getLookup(nameStr->c_str());
+        lkup = getLookupSymbol(nameStr->c_str());
         if (lkup)
           returnType = lkup->returnType();
       }
@@ -95,6 +199,14 @@ namespace PLEXIL
 
     // TODO Warn if undeclared (future)
 
+    // Parse tolerance, arguments if supplied
+    xml_node argsXml = stateNameXml.next_sibling();
+    xml_node tolXml;
+    if (testTag(TOLERANCE_TAG, argsXml)) {
+      tolXml = argsXml;
+      argsXml = argsXml.next_sibling();
+    }
+    
     // Count args, then build ExprVec of appropriate size
     ExprVec *argVec = NULL;
     try {
@@ -112,7 +224,7 @@ namespace PLEXIL
       if (nargs) {
         argVec = makeExprVec(nargs);
         size_t i = 0;
-        for (pugi::xml_node arg = argsXml.first_child();
+        for (xml_node arg = argsXml.first_child();
              arg;
              arg = arg.next_sibling(), ++i) {
           bool garbage = false;

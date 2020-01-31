@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,12 @@ namespace PLEXIL
   class ArithmeticFunctionFactory : public FunctionFactory
   {
   public:
-    ArithmeticFunctionFactory(std::string const &name);
+    ArithmeticFunctionFactory(Operator const *integerOp,
+                              Operator const *realOp,
+                              std::string const &name);
     ~ArithmeticFunctionFactory() = default;
+    
+    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -50,11 +54,10 @@ namespace PLEXIL
                          ValueType returnType = UNKNOWN_TYPE) const;
 
   protected:
-    // Override base class virtual method
-    Operator const *getOperator() const { return NULL ;}
+    virtual Operator const *selectOperator(ValueType type) const;
 
-    // Delegate to derived classes
-    virtual Operator const *selectOperator(ValueType type) const = 0;
+    Operator const *m_intOp;
+    Operator const *m_realOp;
 
   private:
     // Not implemented
@@ -65,52 +68,10 @@ namespace PLEXIL
     ArithmeticFunctionFactory &operator=(ArithmeticFunctionFactory &&) = delete;
   };
 
-  template <template <typename NUM> class OP>
-  class ArithmeticFunctionFactoryImpl
-    : public ArithmeticFunctionFactory
-  {
-  public:
-    ArithmeticFunctionFactoryImpl(std::string const &name)
-      : ArithmeticFunctionFactory(name)
-    {
-    }
-
-    ~ArithmeticFunctionFactoryImpl() = default;
-
-  protected:
-
-    // Default methods, can be overridden as required
-    Operator const *selectOperator(ValueType type) const
-    {
-      switch (type) {
-      case INTEGER_TYPE:
-        return OP<int32_t>::instance();
-
-      case REAL_TYPE:
-        return OP<double>::instance();
-      
-      default:
-        checkParserException(false,
-                             "createExpression: invalid or unimplemented type "
-                             << valueTypeName(type)
-                             << " for operator " << this->m_name);
-        return NULL;
-      }
-    }
-
-  private:
-
-    // Not implemented
-    ArithmeticFunctionFactoryImpl() = delete;
-    ArithmeticFunctionFactoryImpl(ArithmeticFunctionFactoryImpl const &) = delete;
-    ArithmeticFunctionFactoryImpl(ArithmeticFunctionFactoryImpl &&) = delete;
-    ArithmeticFunctionFactoryImpl &operator=(ArithmeticFunctionFactoryImpl const &) = delete;
-    ArithmeticFunctionFactoryImpl &operator=(ArithmeticFunctionFactoryImpl &&) = delete;
-  };
-
 } // namespace PLEXIL
 
-// Convenience macros
-#define REGISTER_ARITHMETIC_FUNCTION(CLASS,NAME) {new PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>(#NAME);}
+// Convenience macro
+#define REGISTER_ARITHMETIC_FUNCTION(CLASS, NAME) \
+  new PLEXIL::ArithmeticFunctionFactory(CLASS<Integer>::instance(), CLASS<Real>::instance(), #NAME)
 
 #endif // PLEXIL_ARITHMETIC_FUNCTION_FACTORY_HH

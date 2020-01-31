@@ -1,0 +1,108 @@
+%language=C++
+%define class-name ExpressionMap
+%define lookup-function-name getFactory
+%struct-type
+%enum
+%pic
+%{
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+%}
+struct ExpressionEntry {int name; ExpressionFactory const *factory; }; 
+%%
+ABS, REGISTER_ARITHMETIC_FUNCTION(AbsoluteValue, ABS)
+ADD, REGISTER_ARITHMETIC_FUNCTION(Addition, ADD)
+ALL_KNOWN, REGISTER_FUNCTION(AllElementsKnown, ALL_KNOWN)
+AND, REGISTER_FUNCTION(BooleanAnd, AND)
+ANY_KNOWN, REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN)
+ArraySize, REGISTER_FUNCTION(ArraySize, ArraySize)
+ArrayMaxSize, REGISTER_FUNCTION(ArrayMaxSize, ArrayMaxSize)
+ArrayElement, REGISTER_EXPRESSION(ArrayReference, ArrayElement)
+ArrayValue, new ArrayLiteralFactory("ArrayValue")
+ArrayVariable, new ArrayVariableReferenceFactory("ArrayVariable")
+BooleanValue, REGISTER_EXPRESSION(BooleanConstant, BooleanValue)
+BooleanVariable, new VariableReferenceFactory("BooleanVariable", BOOLEAN_TYPE)
+CEIL, REGISTER_CONVERSION_FUNCTION(Ceiling, CEIL)
+Concat, REGISTER_CACHED_FUNCTION(StringConcat, Concat)
+DIV, REGISTER_ARITHMETIC_FUNCTION(Division, DIV)
+DeclareArray, new ArrayVariableFactory("DeclareArray")
+DeclareVariable, new UserVariableFactory("DeclareVariable")
+EQArray, REGISTER_FUNCTION(Equal, EQArray)
+EQBoolean, REGISTER_FUNCTION(Equal, EQBoolean)
+EQInternal, REGISTER_FUNCTION(Equal, EQInternal)
+EQNumeric, REGISTER_FUNCTION(Equal, EQNumeric)
+EQString, REGISTER_FUNCTION(Equal, EQString)
+Executing, REGISTER_NODE_FUNCTION(NodeExecuting, Executing)
+Failed, REGISTER_NODE_FUNCTION(NodeFailed, Failed)
+Finished, REGISTER_NODE_FUNCTION(NodeFinished, Finished)
+FLOOR, REGISTER_CONVERSION_FUNCTION(Floor, FLOOR)
+GE, REGISTER_COMPARISON(GreaterEqual, GE)
+GT, REGISTER_COMPARISON(GreaterThan, GT)
+Inactive, REGISTER_NODE_FUNCTION(NodeInactive, Inactive)
+IntegerValue, REGISTER_EXPRESSION(IntegerConstant, IntegerValue)
+IntegerVariable, new VariableReferenceFactory("IntegerVariable", INTEGER_TYPE)
+IterationEnded, REGISTER_NODE_FUNCTION(NodeIterationEnded, IterationEnded)
+IsKnown, REGISTER_FUNCTION(IsKnown, IsKnown)
+LE, REGISTER_COMPARISON(LessEqual, LE)
+LT, REGISTER_COMPARISON(LessThan, LT)
+LookupNow, new LookupFactory("LookupNow")
+LookupOnChange, new LookupFactory("LookupOnChange")
+MAX, REGISTER_ARITHMETIC_FUNCTION(Maximum, MAX)
+MIN, REGISTER_ARITHMETIC_FUNCTION(Minimum, MIN)
+MOD, REGISTER_ARITHMETIC_FUNCTION(Modulo, MOD)
+MUL, REGISTER_ARITHMETIC_FUNCTION(Multiplication, MUL)
+NEArray, REGISTER_FUNCTION(NotEqual, NEArray)
+NEBoolean, REGISTER_FUNCTION(NotEqual, NEBoolean)
+NEInternal, REGISTER_FUNCTION(NotEqual, NEInternal)
+NENumeric, REGISTER_FUNCTION(NotEqual, NENumeric)
+NEString, REGISTER_FUNCTION(NotEqual, NEString)
+NOT, REGISTER_FUNCTION(BooleanNot, NOT)
+NodeCommandHandleValue, REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue)
+NodeCommandHandleVariable, REGISTER_EXPRESSION(CommandHandleVariable, NodeCommandHandleVariable)
+NodeFailureValue, REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue)
+NodeFailureVariable, REGISTER_EXPRESSION(FailureVariable, NodeFailureVariable)
+NodeOutcomeValue, REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue)
+NodeOutcomeVariable, REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeVariable)
+NodeStateValue, REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue)
+NodeStateVariable, REGISTER_EXPRESSION(StateVariable, NodeStateVariable)
+NodeTimepointValue, REGISTER_EXPRESSION(NodeTimepointValue, NodeTimepointValue)
+NoChildFailed, REGISTER_NODE_FUNCTION(NodeNoChildFailed, NoChildFailed)
+OR, REGISTER_FUNCTION(BooleanOr, OR)
+PostconditionFailed, REGISTER_NODE_FUNCTION(NodePostconditionFailed, PostconditionFailed)
+REAL_TO_INT, REGISTER_FUNCTION(RealToInteger, REAL_TO_INT)
+ROUND, REGISTER_CONVERSION_FUNCTION(Round, ROUND)
+RealValue, REGISTER_EXPRESSION(RealConstant, RealValue)
+RealVariable, new VariableReferenceFactory("RealVariable", REAL_TYPE)
+SQRT, REGISTER_FUNCTION(SquareRoot<Real>, SQRT)
+STRLEN, REGISTER_FUNCTION(StringLength, STRLEN)
+SUB, REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB)
+Skipped, REGISTER_NODE_FUNCTION(NodeSkipped, Skipped)
+StringValue, REGISTER_EXPRESSION(StringConstant, StringValue)
+StringVariable, new VariableReferenceFactory("StringVariable", STRING_TYPE)
+Succeeded, REGISTER_NODE_FUNCTION(NodeSucceeded, Succeeded)
+TRUNC, REGISTER_CONVERSION_FUNCTION(Truncate, TRUNC)
+Waiting, REGISTER_NODE_FUNCTION(NodeWaiting, Waiting)
+XOR, REGISTER_FUNCTION(BooleanXor, XOR)

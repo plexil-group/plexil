@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@
 namespace PLEXIL
 {
   template <typename T>
+  void checkArrayLiteral(char const *eltTypeName, pugi::xml_node const expr);
+
+  template <typename T>
   Expression *createArrayLiteral(char const *eltTypeName, pugi::xml_node const expr);
 
   class ArrayLiteralFactory : public ExpressionFactory
@@ -39,6 +42,8 @@ namespace PLEXIL
   public:
     ArrayLiteralFactory(std::string const &name);
     ~ArrayLiteralFactory();
+
+    ValueType check(char const *nodeId, pugi::xml_node expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,

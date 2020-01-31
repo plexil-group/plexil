@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -100,8 +100,7 @@ namespace PLEXIL
 
     SymbolType symbolType() const;
 
-    void addParameter(char const *pname, ValueType t, bool isInOut)
-      throw (ParserException);
+    void addParameter(char const *pname, ValueType t, bool isInOut);
 
     bool isParameterDeclared(char const *pname);
     bool isParameterInOut(char const *pname);
@@ -146,7 +145,19 @@ namespace PLEXIL
 
   extern SymbolTable *makeSymbolTable();
 
-  extern SymbolTable *g_symbolTable;
+  // Set the current symbol table, saving the old value to restore later.
+  extern void pushSymbolTable(SymbolTable *s);
+
+  // Restore the previous symbol table.
+  extern void popSymbolTable();
+
+  //
+  // Parser queries
+  //
+
+  extern Symbol const *getLookupSymbol(char const *name);
+  extern Symbol const *getCommandSymbol(char const *name);
+  extern LibraryNodeSymbol const *getLibraryNodeSymbol(char const *name);
 
 }
 

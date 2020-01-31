@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #define PLEXIL_PARSE_NODE_HH
 
 #include "ParserException.hh"
+#include "PlexilNodeType.hh"
 
 namespace pugi
 {
@@ -36,24 +37,30 @@ namespace pugi
 
 namespace PLEXIL
 {
-  class Node;
+  class NodeImpl;
 
   /**
-   * @brief Parse the node and all its children from the given XML DOM.
+   * @brief Check the node's XML before taking any action
+   * @param xml The DOM representation of the node's XML.
+   * @note Throws ParserException in the event of a parse error.
+   */
+  extern void checkNode(pugi::xml_node const xml);
+
+  /**
+   * @brief Construct the node and all its children from the given XML DOM.
    * @param xml The DOM representation of the node's XML.
    * @param parent The node which is the parent of the returned value.
    * @return The node represented by the XML, with all its children and variables populated.
+   * @note Presumes that checkNode() has already been called.
    */
-  extern Node *parseNode(pugi::xml_node const xml, Node *parent)
-    throw (ParserException);
+  extern NodeImpl *constructNode(pugi::xml_node const xml, NodeImpl *parent);
 
   /**
    * @brief Construct all the expressions for the node and its children from the given XML DOM.
    * @param node The node to finalize.
    * @param xml The DOM representation of the node's XML.
    */
-  extern void finalizeNode(Node *node, pugi::xml_node const xml)
-    throw (ParserException);
+  extern void finalizeNode(NodeImpl *node, pugi::xml_node const xml);
 
 } // namespace PLEXIL
 

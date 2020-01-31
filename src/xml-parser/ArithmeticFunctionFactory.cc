@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,24 +27,38 @@
 #include "ArithmeticFunctionFactory.hh"
 
 #include "ArithmeticOperators.hh"
-#include "Comparisons.hh"
+#include "createExpression.hh"
 #include "Error.hh"
+#include "NodeConnector.hh"
 #include "parser-utils.hh"
 
 #include "pugixml.hpp"
 
+using pugi::xml_node;
+
 namespace PLEXIL
 {
+
+  ArithmeticFunctionFactory::ArithmeticFunctionFactory(Operator const *integerOp,
+                                                       Operator const *realOp,
+                                                       std::string const &name)
+    : FunctionFactory(NULL, name),
+      m_intOp(integerOp),
+      m_realOp(realOp)
+  {
+  }
+
   // Common case logic
-  static ValueType arithmeticCommonType(Expression **exprs, size_t len)
+  static ValueType arithmeticCommonType(ValueType const types[], size_t len)
   {
     assertTrue_1(len > 0); // must have at least one operand
+
     ValueType result = UNKNOWN_TYPE;
-    switch (exprs[0]->valueType()) {
+    switch (types[0]) {
     case REAL_TYPE:
     case DATE_TYPE:
     case DURATION_TYPE:
-    case UNKNOWN_TYPE: // e.g. lookup, command - assume the worst
+    case UNKNOWN_TYPE: // e.g. undeclared/indeterminate
       result = REAL_TYPE;
       break;
 
@@ -52,16 +66,16 @@ namespace PLEXIL
       result = INTEGER_TYPE;
       break;
 
-    default: // not a valid type in an arithmetic expression
+    default: // anything else is not a valid type in an arithmetic expression
       return UNKNOWN_TYPE;
     }
 
     for (size_t i = 1; i < len; ++i) {
-      switch (exprs[i]->valueType()) {
+      switch (types[i]) {
       case REAL_TYPE:
       case DATE_TYPE:
       case DURATION_TYPE:
-      case UNKNOWN_TYPE: // e.g. lookup, command - assume the worst
+      case UNKNOWN_TYPE:
         result = REAL_TYPE;
         break;
 
@@ -80,28 +94,60 @@ namespace PLEXIL
     return result;
   }
 
-  ArithmeticFunctionFactory::ArithmeticFunctionFactory(std::string const &name)
-    : FunctionFactory(name)
+  ValueType ArithmeticFunctionFactory::check(char const *nodeId, xml_node const expr) const
   {
+    // Check arg count
+    size_t n = std::distance(expr.begin(), expr.end());
+    // *** FIXME ***
+    // Kludge: can't determine operator's type without any parameters
+    checkParserExceptionWithLocation(n > 0,
+                                     expr,
+                                     "Wrong number of operands for operator "
+                                     << expr.name());
+    
+
+    // Recurse over children
+    ValueType types[n];
+    xml_node subexp = expr.first_child();
+    for (size_t i = 0; i < n; ++i) {
+      types[i] = checkExpression(nodeId, subexp);
+      subexp = subexp.next_sibling();
+    }
+
+    // Determine return type if possible
+    return arithmeticCommonType(types, n);
   }
 
-  Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const expr,
+  Operator const *ArithmeticFunctionFactory::selectOperator(ValueType type) const
+  {
+    switch (type) {
+    case INTEGER_TYPE:
+      return m_intOp;
+
+    case REAL_TYPE:
+      return m_realOp;
+      
+    default:
+      checkParserException(false,
+                           "createExpression: invalid or unimplemented return type "
+                           << valueTypeName(type)
+                           << " for operator " << this->m_name);
+      return NULL;
+    }
+  }
+
+  Expression *ArithmeticFunctionFactory::allocate(xml_node const expr,
                                                   NodeConnector *node,
                                                   bool & wasCreated,
                                                   ValueType returnType) const
   {
-    // Count subexpressions
-    size_t n = std::distance(expr.begin(), expr.end());
-    checkParserExceptionWithLocation(n,
-                                     expr,
-                                     "Arithmetic function " << expr.name() << " has no arguments");
-
     // Need to check operands to determine operator type
+    size_t n = std::distance(expr.begin(), expr.end());
     Expression *exprs[n];
     bool garbage[n];
     size_t i = 0;
     try {
-      for (pugi::xml_node subexp = expr.first_child();
+      for (xml_node subexp = expr.first_child();
            subexp && i < n;
            subexp = subexp.next_sibling(), ++i)
         exprs[i] = createExpression(subexp, node, garbage[i]);
@@ -114,9 +160,13 @@ namespace PLEXIL
       throw;
     }
 
-    if (returnType == UNKNOWN_TYPE)
+    if (returnType == UNKNOWN_TYPE) {
       // Unspecified - default it from types of parameters
-      returnType = arithmeticCommonType(exprs, n);
+      ValueType types[n];
+      for (size_t i = 0; i < n ; ++i)
+        types[i] = exprs[i]->valueType();
+      returnType = arithmeticCommonType(types, n);
+    }
 
     if (returnType == UNKNOWN_TYPE) {
       // Clean up before throwing
@@ -156,32 +206,5 @@ namespace PLEXIL
     wasCreated = true;
     return result;
   }
-
-  // Convenience macro
-#define ENSURE_ARITHMETIC_FUNCTION_FACTORY(CLASS) template class PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>;
-
-  // Comparisons
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterThan);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterEqual);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessThan);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessEqual);
-
-  // Arithmetic operators
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Addition);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Subtraction);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Multiplication);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Division);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Modulo);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Minimum);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Maximum);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(AbsoluteValue);
-
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Ceiling);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Floor);
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
-#if !defined(__VXWORKS__)
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Round);
-  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
-#endif // !defined(__VXWORKS__)
 
 } // namespace PLEXIL

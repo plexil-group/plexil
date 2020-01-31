@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,122 +26,22 @@
 
 #include "ExpressionFactory.hh"
 
-#include "ArrayReference.hh"
-#include "ConcreteExpressionFactory.hh"
-#include "Debug.hh"
-#include "Error.hh"
-#include "map-utils.hh"
-#include "NodeConnector.hh"
-#include "ParserException.hh"
-#include "parser-utils.hh"
-#include "PlexilSchema.hh"
-#include "SimpleMap.hh"
-
 #include "pugixml.hpp"
 
-#include <cstring>
+using pugi::xml_node;
 
 namespace PLEXIL
 {
 
-  // Revise this when we have the actual number.
-  // See purgeExpressionFactories() below and Expressions.cc in this directory.
-  static size_t const EST_N_EXPR_FACTORIES = 60;
-
-  typedef SimpleMap<char const *, ExpressionFactory *, CStringComparator>
-  ExpressionFactoryMap;
-
-  static ExpressionFactoryMap s_expressionFactoryMap(EST_N_EXPR_FACTORIES);
-
-  static void registerExpressionFactory(char const *name,
-                                        ExpressionFactory *factory) 
-  {
-    check_error_1(factory != NULL);
-    checkError(s_expressionFactoryMap.find(name) == s_expressionFactoryMap.end(),
-               "Error:  Attempted to register a factory for name \"" << name <<
-               "\" twice.");
-    s_expressionFactoryMap[name] = factory;
-    debugMsg("ExpressionFactory:registerFactory",
-             "Registered factory for name \"" << name << "\"");
-  }
-
   ExpressionFactory::ExpressionFactory(const std::string& name)
     : m_name(name)
   {
-    registerExpressionFactory(m_name.c_str(), this);
   }
 
-  Expression *createExpression(pugi::xml_node const expr,
-                               NodeConnector *node)
-    throw (ParserException)
+  // Default method
+  ValueType ExpressionFactory::check(char const *nodeId, xml_node const expr) const
   {
-    bool dummy;
-    return createExpression(expr, node, dummy, UNKNOWN_TYPE);
-  }
-
-  Expression *createExpression(pugi::xml_node const expr,
-                               NodeConnector *node,
-                               bool& wasCreated,
-                               ValueType returnType)
-    throw (ParserException)
-  {
-    char const *name = expr.name();
-    checkParserException(*name, "createExpression: Not an XML element");
-    // Delegate to factory
-    debugMsg("createExpression", " name = " << name);
-    ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
-    checkParserException(it != s_expressionFactoryMap.end(),
-                         "createExpression: No factory registered for name \"" << name << "\".");
-
-    Expression *retval = it->second->allocate(expr, node, wasCreated, returnType);
-    debugMsg("createExpression",
-             " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
-    return retval;
-  }
-
-  //
-  // createAssignable
-  //
-
-  Expression *createAssignable(pugi::xml_node const expr,
-                               NodeConnector *node,
-                               bool& wasCreated)
-    throw (ParserException)
-  {
-    assertTrue_2(node, "createAssignable: Internal error: Null node argument");
-    char const *name = expr.name();
-    checkParserException(*name, "createAssignable: Not an XML element");
-    Expression *resultExpr = NULL;
-    if (testSuffix(VAR_SUFFIX, name))
-      resultExpr = createExpression(expr, node, wasCreated);
-    else if (!strcmp(ARRAYELEMENT_TAG, name))
-      resultExpr = createMutableArrayReference(expr, node, wasCreated);
-    else
-      reportParserExceptionWithLocation(expr,
-                                        "Invalid Assignment or InOut alias target");
-    assertTrue_2(resultExpr, "createAssignable: Internal error: Null expression");
-    if (!resultExpr->isAssignable()) {
-      if (wasCreated)
-        delete resultExpr;
-      reportParserExceptionWithLocation(expr,
-                                        "Expression is not assignable");
-    }
-    return resultExpr;
-  }
-
-  void purgeExpressionFactories()
-  {
-    // Uncomment this to get a better estimate of factory map size.
-    // std::cout << "ExpressionFactory map has " << s_expressionFactoryMap.size() << " entries" << std::endl;
-
-    for (ExpressionFactoryMap::iterator it = s_expressionFactoryMap.begin();
-         it != s_expressionFactoryMap.end();
-         ++it) {
-      ExpressionFactory* tmp = it->second;
-      it->second = NULL;
-      delete tmp;
-    }
-    s_expressionFactoryMap.clear();
+    return UNKNOWN_TYPE;
   }
 
 }

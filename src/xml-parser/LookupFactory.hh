@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@
 
 #include "ExpressionFactory.hh"
 
-#include "pugixml.hpp"
-
 namespace PLEXIL
 {
   
@@ -39,10 +37,14 @@ namespace PLEXIL
   public:
     LookupFactory(std::string const &name);
     virtual ~LookupFactory();
+
+    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated,
                          ValueType returnType) const;
+    
   private:
     // Unimplemented
     LookupFactory();

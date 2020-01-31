@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ExpressionFactory.hh"
+#include "createExpression.hh"
+#include "Expression.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "Lookup.hh"
 #include "SymbolTable.hh"
@@ -32,7 +33,9 @@
 
 #include "pugixml.hpp"
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 using namespace PLEXIL;
 
@@ -96,31 +99,34 @@ static bool testBasics()
 static bool testDeclaredReturnTypes()
 {
   // Set up symbol table
+  SymbolTable *symtab = makeSymbolTable();
+
   {
-    Symbol *returnsBoolean = g_symbolTable->addLookup("returnsBoolean");
+    Symbol *returnsBoolean = symtab->addLookup("returnsBoolean");
     returnsBoolean->setReturnType(BOOLEAN_TYPE);
 
-    Symbol *returnsInteger = g_symbolTable->addLookup("returnsInteger");
+    Symbol *returnsInteger = symtab->addLookup("returnsInteger");
     returnsInteger->setReturnType(INTEGER_TYPE);
 
-    Symbol *returnsReal = g_symbolTable->addLookup("returnsReal");
+    Symbol *returnsReal = symtab->addLookup("returnsReal");
     returnsReal->setReturnType(REAL_TYPE);
 
-    Symbol *returnsString = g_symbolTable->addLookup("returnsString");
+    Symbol *returnsString = symtab->addLookup("returnsString");
     returnsString->setReturnType(STRING_TYPE);
 
-    Symbol *returnsBooleanArray = g_symbolTable->addLookup("returnsBooleanArray");
+    Symbol *returnsBooleanArray = symtab->addLookup("returnsBooleanArray");
     returnsBooleanArray->setReturnType(BOOLEAN_ARRAY_TYPE);
 
-    Symbol *returnsIntegerArray = g_symbolTable->addLookup("returnsIntegerArray");
+    Symbol *returnsIntegerArray = symtab->addLookup("returnsIntegerArray");
     returnsIntegerArray->setReturnType(INTEGER_ARRAY_TYPE);
 
-    Symbol *returnsRealArray = g_symbolTable->addLookup("returnsRealArray");
+    Symbol *returnsRealArray = symtab->addLookup("returnsRealArray");
     returnsRealArray->setReturnType(REAL_ARRAY_TYPE);
 
-    Symbol *returnsStringArray = g_symbolTable->addLookup("returnsStringArray");
+    Symbol *returnsStringArray = symtab->addLookup("returnsStringArray");
     returnsStringArray->setReturnType(STRING_ARRAY_TYPE);
   }
+  pushSymbolTable(symtab);
 
   // Other setup
   FactoryTestNodeConnector conn;
@@ -245,6 +251,8 @@ static bool testDeclaredReturnTypes()
 
     delete lookup8;
   }
+  popSymbolTable();
+  delete symtab;
 
   return true;
 }
@@ -252,27 +260,30 @@ static bool testDeclaredReturnTypes()
 static bool testDeclaredParameters()
 {
   // Set up symbol table
+  SymbolTable *symtab = makeSymbolTable();
+
   {
-    Symbol *anyTest = g_symbolTable->addLookup("anyTest");
+    Symbol *anyTest = symtab->addLookup("anyTest");
     anyTest->setReturnType(BOOLEAN_TYPE);
     anyTest->addParameterType(UNKNOWN_TYPE);
 
-    Symbol *scalarTest = g_symbolTable->addLookup("scalarTest");
+    Symbol *scalarTest = symtab->addLookup("scalarTest");
     scalarTest->setReturnType(BOOLEAN_TYPE);
     scalarTest->addParameterType(BOOLEAN_TYPE);
     scalarTest->addParameterType(INTEGER_TYPE);
     scalarTest->addParameterType(REAL_TYPE);
     scalarTest->addParameterType(STRING_TYPE);
 
-    Symbol *anyArgsNoReqdTest = g_symbolTable->addLookup("anyArgsNoReqdTest");
+    Symbol *anyArgsNoReqdTest = symtab->addLookup("anyArgsNoReqdTest");
     anyArgsNoReqdTest->setReturnType(BOOLEAN_TYPE);
     anyArgsNoReqdTest->setAnyParameters();
 
-    Symbol *anyArgsOneReqdTest = g_symbolTable->addLookup("anyArgsOneReqdTest");
+    Symbol *anyArgsOneReqdTest = symtab->addLookup("anyArgsOneReqdTest");
     anyArgsOneReqdTest->setReturnType(BOOLEAN_TYPE);
     anyArgsOneReqdTest->addParameterType(STRING_TYPE);
     anyArgsOneReqdTest->setAnyParameters();
   }
+  pushSymbolTable(symtab);
 
   // Other setup
   FactoryTestNodeConnector conn;
@@ -378,6 +389,9 @@ static bool testDeclaredParameters()
 
     delete lookup5;
   }
+
+  popSymbolTable();
+  delete symtab;
 
   return true;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "parseGlobalDeclarations.hh"
 #include "parseNode.hh"
 #include "parser-utils.hh"
@@ -34,8 +34,6 @@
 #include "SymbolTable.hh"
 
 #include "pugixml.hpp"
-
-#include <stack>
 
 using pugi::xml_document;
 using pugi::xml_node;
@@ -48,8 +46,8 @@ namespace PLEXIL
 
   // Load a file and extract the top-level XML element from it.
   xml_document *loadXmlFile(std::string const &filename)
-    throw (ParserException)
   {
+    debugMsg("loadXmlFile", ' ' << filename);
     xml_document *doc = new xml_document;
     xml_parse_result parseResult = doc->load_file(filename.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status == pugi::status_file_not_found) {
@@ -66,64 +64,88 @@ namespace PLEXIL
     return doc;
   }
 
-  static std::stack<SymbolTable *> sl_symtabStack;
-
-  static void pushSymbolTable()
+  // First pass: surface check of XML
+  SymbolTable *checkPlan(xml_node const xml)
   {
-    if (g_symbolTable)
-      sl_symtabStack.push(g_symbolTable);
-    g_symbolTable = makeSymbolTable();
-  }
-
-  static void popSymbolTable()
-  {
-    delete g_symbolTable;
-    if (sl_symtabStack.empty()) {
-      // Back at top level
-      g_symbolTable = NULL;
-      return;
-    }
-    else {
-      g_symbolTable = sl_symtabStack.top();
-      sl_symtabStack.pop();
-    }
-  }
-
-  Node *parsePlan(xml_node const xml)
-    throw (ParserException)
-  {
+    debugMsg("checkPlan", " entered");
     checkTag(PLEXIL_PLAN_TAG, xml);
     checkHasChildElement(xml);
 
-    // Construct a symbol table for this plan
-    pushSymbolTable();
-    Node *result = NULL;
+    xml_node elt = xml.first_child();
+    SymbolTable *result = NULL;
+    if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
+      checkGlobalDeclarations(elt);
+      result = parseGlobalDeclarations(elt);
+
+      elt = elt.next_sibling();
+    }
+    else {
+      // Create an empty symbol table
+      result = makeSymbolTable();
+    }
+
+    // Check the node using the context of the global declarations
+    pushSymbolTable(result);
     try {
-      xml_node elt = xml.first_child();
+      checkNode(elt);
+    }
+    catch (...) {
+      delete result;
+      popSymbolTable();
+      throw;
+    }
+    popSymbolTable();
 
-      // Handle global declarations
-      if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
-        parseGlobalDeclarations(elt);
-        elt = elt.next_sibling();
-      }
+    return result;
+  }
 
-      checkTag(NODE_TAG, elt);
-      result = parseNode(elt, NULL);
+  NodeImpl *constructPlan(xml_node const xml, SymbolTable *symtab, NodeImpl *parent)
+  {
+    xml_node const root = xml.child(NODE_TAG);
+    debugMsg("constructPlan", ' ' << root.child_value(NODEID_TAG));
+    pushSymbolTable(symtab);
+    NodeImpl *result = NULL;
+    try {
+      // Construct the plan
       try {
-        finalizeNode(result, elt);
+        result = constructNode(root, parent);
       }
-      catch (ParserException &e) {
+      catch (...) {
         delete result;
         result = NULL;
         throw;
       }
     }
-    catch (ParserException &e) {
+    catch (...) {
       popSymbolTable();
       throw;
     }
 
     popSymbolTable();
+
+    // Normal return
+    return result;
+  }
+
+  NodeImpl *parsePlan(xml_node const xml)
+  {
+    debugMsg("parsePlan", "entered");
+    // Perform surface checks & log global symbols
+    SymbolTable *symtab = checkPlan(xml);
+    NodeImpl *result = NULL;
+    result = constructPlan(xml, symtab, NULL); // can throw ParserException
+    pushSymbolTable(symtab);
+    try {
+      finalizeNode(result, xml.child(NODE_TAG));
+    }
+    catch (...) {
+      popSymbolTable();
+      delete symtab;
+      throw;
+    }
+
+    popSymbolTable();
+    delete symtab;
 
     // Normal return
     return result;

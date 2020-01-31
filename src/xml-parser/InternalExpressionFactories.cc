@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,126 +29,31 @@
 #include "Command.hh"
 #include "CommandNode.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "NodeConstantExpressions.hh"
+#include "parseNodeReference.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 namespace PLEXIL
 {
-  // Utility routines
-  static Node *parseNodeRef(pugi::xml_node nodeRef, NodeConnector *node)
-  {
-    // parse directional reference
-    checkAttr(DIR_ATTR, nodeRef);
-    const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
-
-    if (!strcmp(dirValue, SELF_VAL))
-      return dynamic_cast<Node *>(node);
-
-    Node *result = NULL;
-    if (0 == strcmp(dirValue, PARENT_VAL)) {
-      result = node->getParent();
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: Parent node reference in root node "
-                                       << node->getNodeId());
-      return result;
-    }
-
-    const char *name = nodeRef.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nodeRef,
-                                     "createExpression: Empty node name");
-    if (!strcmp(dirValue, CHILD_VAL)) {
-      result = node->findChild(name);
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: No child node named " << name 
-                                       << " in node " << node->getNodeId());
-      return result;
-    }
-    if (!strcmp(dirValue, SIBLING_VAL)) {
-      Node *parent = node->getParent();
-      checkParserExceptionWithLocation(parent,
-                                       nodeRef,
-                                       "createExpression: Sibling node reference from root node "
-                                       << node->getNodeId());
-      result = parent->findChild(name);
-      checkParserExceptionWithLocation(result,
-                                       nodeRef,
-                                       "createExpression: No sibling node named " << name 
-                                       << " for node " << node->getNodeId());
-      return result;
-    }
-    else {
-      reportParserExceptionWithLocation(nodeRef,
-                                        "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
-                                        << dirValue << "\"");
-      return NULL;
-    }
-  }
-
-  static Node *findLocalNodeId(char const *name, NodeConnector *node)
-  {
-    // search for node ID
-    if (node->getNodeId() == name)
-      return dynamic_cast<Node *>(node);
-    // Check children, if any
-    Node *result = node->findChild(name);
-    if (result)
-      return result;
-    return NULL;
-  }
-
-  static Node *parseNodeId(pugi::xml_node nodeRef, NodeConnector *node)
-  {
-    // search for node ID
-    char const *name = nodeRef.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nodeRef,
-                                     "Empty or invalid " << nodeRef.name() << " element");
-    Node *result = findLocalNodeId(name, node);
-    if (result)
-      return result;
-
-    Node *parent = node->getParent();
-    while (parent) {
-      result = findLocalNodeId(name, parent);
-      if (result)
-        return result;
-      parent = parent->getParent();
-    }
-    reportParserExceptionWithLocation(nodeRef.first_child(),
-                                      "createExpression: No node named "
-                                      << name
-                                      << " reachable from node " << node->getNodeId());
-    return NULL;
-  }
-
-  static Node *parseNodeReference(pugi::xml_node nodeRef, NodeConnector *node)
-  {
-    const char* tag = nodeRef.name();
-    checkParserExceptionWithLocation(*tag,
-                                     nodeRef.parent(),
-                                     "createExpression: Node reference is not an element");
-    if (0 == strcmp(tag, NODEREF_TAG))
-      return parseNodeRef(nodeRef, node);
-    else if (0 == strcmp(tag, NODEID_TAG))
-      return parseNodeId(nodeRef, node);
-    reportParserExceptionWithLocation(nodeRef,
-                                      "createExpression: Invalid node reference");
-    return NULL;
-  }
-  
   //
   // Specializations for internal variables
   //
+
+  ValueType ConcreteExpressionFactory<StateVariable>::check(char const * nodeId,
+                                                            pugi::xml_node const expr) const
+  {
+    // TODO
+    return NODE_STATE_TYPE;
+  }    
 
   Expression *ConcreteExpressionFactory<StateVariable>::allocate(pugi::xml_node const expr,
                                                                  NodeConnector *node,
@@ -156,21 +61,42 @@ namespace PLEXIL
                                                                  ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
-    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "StateVariable factory: internal error: argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl); // can throw ParserException
     wasCreated = false;
     return refNode->getStateVariable();
   }
 
+  ValueType ConcreteExpressionFactory<OutcomeVariable>::check(char const *nodeId,
+                                                              pugi::xml_node const expr) const
+  {
+    // TODO
+    return OUTCOME_TYPE;
+  }    
+  
   Expression *ConcreteExpressionFactory<OutcomeVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
                                                                    bool &wasCreated,
                                                                    ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
-    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "OutcomeVariable factory: internal error: argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl); // can throw ParserException
     wasCreated = false;
     return refNode->getOutcomeVariable();
   }
+
+
+  ValueType ConcreteExpressionFactory<FailureVariable>::check(char const *nodeId,
+                                                              pugi::xml_node const expr) const
+  {
+    // TODO
+    return FAILURE_TYPE;
+  }    
 
   Expression *ConcreteExpressionFactory<FailureVariable>::allocate(pugi::xml_node const expr,
                                                                    NodeConnector *node,
@@ -178,10 +104,20 @@ namespace PLEXIL
                                                                    ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
-    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "FailureVariable factory: internal error: argument is not a NodeImpl");
+    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl); // can throw ParserException
     wasCreated = false;
     return refNode->getFailureTypeVariable();
   }
+
+  ValueType ConcreteExpressionFactory<CommandHandleVariable>::check(char const *nodeId,
+                                                                    pugi::xml_node const expr) const
+  {
+    // TODO
+    return COMMAND_HANDLE_TYPE;
+  }    
 
   Expression *ConcreteExpressionFactory<CommandHandleVariable>::allocate(pugi::xml_node const expr,
                                                                          NodeConnector *node,
@@ -189,8 +125,11 @@ namespace PLEXIL
                                                                          ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "CommandHandleVariable factory: internal error: argument is not a NodeImpl");
     pugi::xml_node nodeRef = expr.first_child();
-    Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+    NodeImpl *refNode = parseNodeReference(nodeRef, impl); // can throw ParserException
     checkParserExceptionWithLocation(refNode->getType() == NodeType_Command,
                                      expr.first_child(),
                                      "createExpression: Node " << refNode->getNodeId()
@@ -203,14 +142,24 @@ namespace PLEXIL
   
   // Specialization for node timepoint references
 
+  ValueType ConcreteExpressionFactory<NodeTimepointValue>::check(char const *nodeId,
+                                                                 pugi::xml_node const expr) const
+  {
+    // TODO
+    return DATE_TYPE;
+  }    
+
   Expression *ConcreteExpressionFactory<NodeTimepointValue>::allocate(pugi::xml_node const expr,
                                                                       NodeConnector *node,
                                                                       bool &wasCreated,
                                                                       ValueType /* returnType */) const
   {
     checkHasChildElement(expr);
+    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+    assertTrueMsg(impl,
+                  "NodeTimepointValue factory: internal error: argument is not a NodeImpl");
     pugi::xml_node nodeRef = expr.first_child();
-    Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+    NodeImpl *refNode = parseNodeReference(nodeRef, impl); // can throw ParserException
     pugi::xml_node stateName = nodeRef.next_sibling();
     checkParserExceptionWithLocation(stateName && testTag(STATEVAL_TAG, stateName),
                                      expr,
@@ -248,12 +197,33 @@ namespace PLEXIL
   //
 
   template <>
+  ValueType NamedConstantExpressionFactory<NodeStateConstant>::check(char const *nodeId,
+                                                                     pugi::xml_node const expr) const
+  {
+    checkNotEmpty(expr);
+    switch (parseNodeState(expr.child_value())) {
+    case INACTIVE_STATE:
+    case WAITING_STATE:
+    case EXECUTING_STATE:
+    case ITERATION_ENDED_STATE:
+    case FINISHED_STATE:
+    case FAILING_STATE:
+    case FINISHING_STATE:
+      return NODE_STATE_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr.first_child(),
+                                        "Invalid NodeStateValue");
+      return UNKNOWN_TYPE;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
-                                                                          NodeConnector *node,
+                                                                          NodeConnector * /* node */,
                                                                           bool &wasCreated,
                                                                           ValueType /* returnType */) const
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseNodeState(expr.child_value())) {
     case INACTIVE_STATE:
@@ -278,19 +248,37 @@ namespace PLEXIL
       return FINISHING_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid NodeStateValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid NodeStateValue");
       return NULL;
     }
   }
 
   template <>
+  ValueType NamedConstantExpressionFactory<NodeOutcomeConstant>::check(char const *nodeId,
+                                                                       pugi::xml_node const expr) const
+  {
+    checkNotEmpty(expr);
+    switch (parseNodeOutcome(expr.child_value())) {
+    case SUCCESS_OUTCOME:
+    case FAILURE_OUTCOME:
+    case SKIPPED_OUTCOME:
+    case INTERRUPTED_OUTCOME:
+      return OUTCOME_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid NodeOutcomeValue");
+      return UNKNOWN_TYPE;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const expr,
-                                                                            NodeConnector *node,
+                                                                            NodeConnector * /* node */,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseNodeOutcome(expr.child_value())) {
     case SUCCESS_OUTCOME:
@@ -306,19 +294,39 @@ namespace PLEXIL
       return INTERRUPTED_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid NodeOutcomeValue");
       return NULL;
     }
   }
 
   template <>
+  ValueType NamedConstantExpressionFactory<FailureTypeConstant>::check(char const *nodeId,
+                                                                       pugi::xml_node const expr) const
+  {
+    checkNotEmpty(expr);
+    switch (parseFailureType(expr.child_value())) {
+    case PRE_CONDITION_FAILED:
+    case POST_CONDITION_FAILED:
+    case INVARIANT_CONDITION_FAILED:
+    case PARENT_FAILED:
+    case EXITED:
+    case PARENT_EXITED:
+      return FAILURE_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid FailureTypeValue");
+      return UNKNOWN_TYPE;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const expr,
-                                                                            NodeConnector *node,
+                                                                            NodeConnector * /* node */,
                                                                             bool &wasCreated,
                                                                             ValueType /* returnType */) const
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseFailureType(expr.child_value())) {
     case PRE_CONDITION_FAILED:
@@ -340,19 +348,39 @@ namespace PLEXIL
       return PARENT_EXITED_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "createExpression: Invalid FailureTypeValue");
       return NULL;
     }
   }
 
   template <>
+  ValueType NamedConstantExpressionFactory<CommandHandleConstant>::check(char const *nodeId,
+                                                                         pugi::xml_node const expr) const
+  {
+    checkNotEmpty(expr);
+    switch (parseCommandHandleValue(expr.child_value())) {
+    case COMMAND_SENT_TO_SYSTEM:
+    case COMMAND_ACCEPTED:
+    case COMMAND_RCVD_BY_SYSTEM:
+    case COMMAND_FAILED:
+    case COMMAND_DENIED:
+    case COMMAND_SUCCESS:
+      return COMMAND_HANDLE_TYPE; // is OK
+
+    default:
+      reportParserExceptionWithLocation(expr,
+                                        "Invalid CommandHandleValue");
+      return UNKNOWN_TYPE;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const expr,
-                                                                              NodeConnector *node,
+                                                                              NodeConnector * /* node */,
                                                                               bool &wasCreated,
                                                                               ValueType /* returnType */) const
   {
-    checkNotEmpty(expr);
     wasCreated = false;
     switch (parseCommandHandleValue(expr.child_value())) {
     case COMMAND_SENT_TO_SYSTEM:
@@ -374,8 +402,8 @@ namespace PLEXIL
       return COMMAND_SUCCESS_CONSTANT();
 
     default:
-      reportParserExceptionWithLocation(expr.first_child(),
-                                        "createExpression: Invalid CommandHandleValue \"" << expr.child_value() << "\"");
+      reportParserExceptionWithLocation(expr,
+                                        "createExpression: Invalid CommandHandleValue");
       return NULL;
     }
   }

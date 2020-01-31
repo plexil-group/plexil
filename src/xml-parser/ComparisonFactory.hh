@@ -24,35 +24,56 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_ARRAY_VARIABLE_FACTORY_HH
-#define PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+#ifndef PLEXIL_COMPARISON_FACTORY_HH
+#define PLEXIL_COMPARISON_FACTORY_HH
 
-#include "ExpressionFactory.hh"
+#include "FunctionFactory.hh"
+#include "ParserException.hh"
 
 namespace PLEXIL
 {
 
-  class ArrayVariableFactory : public ExpressionFactory
+  // Special case for comparisons
+  class ComparisonFactory : public FunctionFactory
   {
   public:
-    ArrayVariableFactory(std::string const &name);
-    ~ArrayVariableFactory();
+    ComparisonFactory(Operator const *integerOp,
+                      Operator const *realOp,
+                      Operator const *stringOp,
+                      std::string const &name);
+    ~ComparisonFactory();
 
-    ValueType check(char const *nodeId, pugi::xml_node expr) const;
+    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const;
+    virtual Expression *allocate(pugi::xml_node const expr,
+                                 NodeConnector *node,
+                                 bool & wasCreated,
+                                 ValueType returnType = UNKNOWN_TYPE) const;
+
+  protected:
+
+    // Default methods, can be overridden as required
+    virtual Operator const *selectOperator(ValueType type) const;
+
+    Operator const *m_intOp;
+    Operator const *m_realOp;
+    Operator const *m_stringOp;
 
   private:
-    // Default, copy, assign all prohibited
-    ArrayVariableFactory();
-    ArrayVariableFactory(ArrayVariableFactory const &);
-    ArrayVariableFactory & operator=(ArrayVariableFactory const &);
+
+    // Not implemented
+    ComparisonFactory();
+    ComparisonFactory(ComparisonFactory const &);
+    ComparisonFactory &operator=(ComparisonFactory const &);
   };
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+// Convenience macro
+#define REGISTER_COMPARISON(CLASS, NAME) \
+  new PLEXIL::ComparisonFactory(CLASS<Integer>::instance(), \
+                                 CLASS<Real>::instance(),    \
+                                 CLASS<String>::instance(),  \
+                                 #NAME)
 
+#endif // PLEXIL_COMPARISON_FACTORY_HH

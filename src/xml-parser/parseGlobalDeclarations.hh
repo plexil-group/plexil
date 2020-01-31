@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,11 @@ namespace pugi
 
 namespace PLEXIL
 {
-  extern void parseGlobalDeclarations(pugi::xml_node const &declsXml)
-    throw (ParserException);
+  class SymbolTable;
+
+  extern void checkGlobalDeclarations(pugi::xml_node const &declsXml);
+
+  extern SymbolTable *parseGlobalDeclarations(pugi::xml_node const &declsXml);
 }
 
 #endif // PLEXIL_PARSE_GLOBAL_DECLARATIONS_HH

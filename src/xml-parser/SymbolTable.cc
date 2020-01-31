@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,10 @@
 
 #include "SymbolTable.hh"
 #include "Mutex.hh"
+
+#include "Debug.hh"
+
+#include <stack>
 
 namespace PLEXIL
 {
@@ -171,7 +175,6 @@ namespace PLEXIL
   void LibraryNodeSymbol::addParameter(char const *pname,
                                        ValueType t,
                                        bool isInOut)
-    throw (ParserException)
   {
     std::string const pnameStr(pname);
     std::map<std::string, bool>::const_iterator it =
@@ -273,7 +276,6 @@ namespace PLEXIL
     }
 
     Symbol *addLookup(char const *name)
-      throw (ParserException)
     {
       std::string const namestr(name);
       SymbolMap::const_iterator it =
@@ -298,7 +300,6 @@ namespace PLEXIL
     }
 
     LibraryNodeSymbol *addLibraryNode(char const *name)
-      throw (ParserException)
     {
       std::string const namestr(name);
       LibraryMap::const_iterator it =
@@ -355,6 +356,54 @@ namespace PLEXIL
     return new SymbolTableImpl();
   }
 
-  SymbolTable *g_symbolTable = NULL;
-  
+  static std::stack<SymbolTable *> s_symtabStack;
+
+  static SymbolTable *s_symbolTable = NULL;
+
+  void pushSymbolTable(SymbolTable *s)
+  {
+    debugMsg("pushSymbolTable", ' ' << s);
+    if (s_symbolTable)
+      s_symtabStack.push(s_symbolTable);
+    s_symbolTable = s;
+  }
+
+  void popSymbolTable()
+  {
+    debugMsg("popSymbolTable", ' ' << s_symbolTable);
+    if (s_symtabStack.empty()) {
+      // Back at top level
+      s_symbolTable = NULL;
+      return;
+    }
+    else {
+      s_symbolTable = s_symtabStack.top();
+      s_symtabStack.pop();
+    }
+  }
+
+  extern Symbol const *getLookupSymbol(char const *name)
+  {
+    if (s_symbolTable)
+      return s_symbolTable->getLookup(name);
+    else
+      return NULL;
+  }
+
+  extern Symbol const *getCommandSymbol(char const *name)
+  {
+    if (s_symbolTable)
+      return s_symbolTable->getCommand(name);
+    else
+      return NULL;
+  }
+
+  extern LibraryNodeSymbol const *getLibraryNodeSymbol(char const *name)
+  {
+    if (s_symbolTable)
+      return s_symbolTable->getLibraryNode(name);
+    else
+      return NULL;
+  }
+
 }

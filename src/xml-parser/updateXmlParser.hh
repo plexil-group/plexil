@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,24 +46,14 @@ namespace PLEXIL
   // Parser entry points
   //
 
-  extern void constructAndSetUpdate(UpdateNode *node, pugi::xml_node const updXml)
-    throw (ParserException);
-
-  extern void finalizeUpdateNode(UpdateNode *node, pugi::xml_node const updXml)
-    throw (ParserException);
-
-  //
-  // Unit test entry points
-  //
+  extern void checkUpdateBody(char const *nodeId, pugi::xml_node const updXml);
 
   extern Update *constructUpdate(NodeConnector *node,
-                                 pugi::xml_node const updXml)
-    throw (ParserException);
+                                 pugi::xml_node const updXml);
 
   extern void finalizeUpdate(Update *upd,
                              NodeConnector *node,
-                             pugi::xml_node const updXml)
-    throw (ParserException);
+                             pugi::xml_node const updXml);
 
 } // namespace PLEXIL
 

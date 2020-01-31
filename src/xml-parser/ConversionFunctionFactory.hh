@@ -24,35 +24,51 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_ARRAY_VARIABLE_FACTORY_HH
-#define PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+#ifndef PLEXIL_CONVERSION_FUNCTION_FACTORY_HH
+#define PLEXIL_CONVERSION_FUNCTION_FACTORY_HH
 
-#include "ExpressionFactory.hh"
+#include "FunctionFactory.hh"
 
 namespace PLEXIL
 {
 
-  class ArrayVariableFactory : public ExpressionFactory
+  /**
+   * @class ConversionFunctionFactory
+   * @brief A specialization of ExpressionFactory which selects the appropriate
+   * Function and Operator templates, based on the parameter type(s).
+   */
+  class ConversionFunctionFactory : public FunctionFactory
   {
   public:
-    ArrayVariableFactory(std::string const &name);
-    ~ArrayVariableFactory();
-
-    ValueType check(char const *nodeId, pugi::xml_node expr) const;
+    ConversionFunctionFactory(Operator const *integerOp,
+                              Operator const *realOp,
+                              std::string const &name);
+    ~ConversionFunctionFactory();
+    
+    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const;
+                         bool & wasCreated,
+                         ValueType returnType = UNKNOWN_TYPE) const;
+
+  protected:
+    virtual Operator const *selectOperator(ValueType type) const;
+
+    Operator const *m_intOp;
+    Operator const *m_realOp;
 
   private:
-    // Default, copy, assign all prohibited
-    ArrayVariableFactory();
-    ArrayVariableFactory(ArrayVariableFactory const &);
-    ArrayVariableFactory & operator=(ArrayVariableFactory const &);
+    // Not implemented
+    ConversionFunctionFactory();
+    ConversionFunctionFactory(ConversionFunctionFactory const &);
+    ConversionFunctionFactory &operator=(ConversionFunctionFactory const &);
   };
 
-} // namespace PLEXIL
+// Convenience macro
+#define REGISTER_CONVERSION_FUNCTION(CLASS, NAME) \
+  new PLEXIL::ConversionFunctionFactory(CLASS<Integer>::instance(), CLASS<Real>::instance(), #NAME)
 
-#endif // PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+}
 
+#endif // PLEXIL_CONVERSION_FUNCTION_FACTORY_HH

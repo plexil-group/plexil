@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,10 @@
 #include "pugixml.hpp"
 
 #include <cctype>
+
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 using pugi::node_element;
 using pugi::node_pcdata;
@@ -48,12 +51,13 @@ namespace PLEXIL
     return str == strstr(str, prefix);
   }
 
-  bool testSuffix(char const* suffix, char const *str)
+  bool testSuffix(char const *suffix, char const *str)
   {
-    char const *tail = strstr(str, suffix);
-    if (!tail)
+    int offset = strlen(str) - strlen(suffix);
+    if (offset < 0)
       return false;
-    return !strcmp(tail, suffix);
+
+    return !strcmp(str + offset, suffix);
   }
 
   //
@@ -83,7 +87,6 @@ namespace PLEXIL
   }
 
   void checkTag(const char* t, xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(testTag(t, e),
                                      e,
@@ -91,7 +94,6 @@ namespace PLEXIL
   }
 
   void checkAttr(const char* t, xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(e && e.type() == node_element && e.attribute(t),
                                      e,
@@ -99,7 +101,6 @@ namespace PLEXIL
   }
 
   void checkTagSuffix(const char* t, xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(testTagSuffix(t, e),
                                      e,
@@ -108,7 +109,6 @@ namespace PLEXIL
 
   // N.B. presumes e is not empty
   void checkNotEmpty(xml_node const e)
-    throw (ParserException)
   {
     xml_node temp = e.first_child();
     checkParserExceptionWithLocation(temp
@@ -120,7 +120,6 @@ namespace PLEXIL
 
   // N.B. presumes e is not empty
   void checkHasChildElement(xml_node const e)
-    throw (ParserException)
   {
     checkParserExceptionWithLocation(hasChildElement(e),
                                      e,
@@ -230,6 +229,49 @@ namespace PLEXIL
     return true;
   }
 
+
+  char const *typeNameAsValue(ValueType ty)
+  {
+    switch (ty) {
+      // Scalar types
+    case BOOLEAN_TYPE:
+      return BOOLEAN_VAL_TAG;
+
+    case INTEGER_TYPE:
+      return INTEGER_VAL_TAG;
+
+    case REAL_TYPE:
+      return REAL_VAL_TAG;
+      
+    case STRING_TYPE:
+      return STRING_VAL_TAG;
+
+    case DATE_TYPE:
+      return DATE_VAL_TAG;
+
+    case DURATION_TYPE:
+      return DURATION_VAL_TAG;
+
+      // Internal types
+    case NODE_STATE_TYPE:
+      return NODE_STATE_VAL_TAG;
+
+    case OUTCOME_TYPE:
+      return NODE_OUTCOME_VAL_TAG;
+
+    case FAILURE_TYPE:
+      return NODE_FAILURE_VAL_TAG;
+
+    case COMMAND_HANDLE_TYPE:
+      return NODE_COMMAND_HANDLE_VAL_TAG;
+
+      // Array types not yet implemented
+
+    default:
+      return "";
+    }
+  }
+  
   static bool findSourceLocation(xml_node here, char const *&filename, int &line, int &col)
   {
     // File name is now only on PlexilPlan node
@@ -270,8 +312,7 @@ namespace PLEXIL
     return (lineSeen || colSeen);
   }
 
-  void reportParserException(std::string const &msg, xml_node location)
-    throw (ParserException)
+  void throwParserException(std::string const &msg, xml_node location)
   {
     char const *sourcefile = NULL;
     int line = 0, col = 0;

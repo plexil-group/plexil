@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,17 +24,23 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_INITIALIZE_EXPRESSIONS_HH
-#define PLEXIL_INITIALIZE_EXPRESSIONS_HH
+#ifndef PLEXIL_PARSE_NODE_REFERENCE_HH
+#define PLEXIL_PARSE_NODE_REFERENCE_HH
 
-namespace PLEXIL {
+#include "ParserException.hh"
 
-  /**
-   * @brief Performs registration of the default expression classes.
-   */
-
-  extern void initializeExpressions();
-
+namespace pugi
+{
+  class xml_node;
 }
 
-#endif
+namespace PLEXIL
+{
+  class NodeImpl;
+
+  extern void checkNodeReference(pugi::xml_node nodeRef);
+
+  extern NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node);
+}
+
+#endif // PLEXIL_PARSE_NODE_REFERENCE_HH
