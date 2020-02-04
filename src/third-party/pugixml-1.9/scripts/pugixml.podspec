@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name         = "pugixml"
-  s.version      = "1.8"
+  s.version      = "1.9"
   s.summary      = "C++ XML parser library."
   s.homepage     = "http://pugixml.org"
   s.license      = { :type => 'MIT', :text => <<-qwertyuiop
 The MIT License (MIT)
 
-Copyright (c) 2006-2016 Arseny Kapoulkine
+Copyright (c) 2006-2018 Arseny Kapoulkine
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
