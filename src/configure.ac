@@ -26,35 +26,52 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-AC_PREREQ(2.59)
-AC_INIT(Plexil, 6.0.0d1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+# Because an ancient version of vxWorks only offered this version
+#AC_PREREQ(2.59)
+AC_PREREQ(2.62)
+AC_INIT(Plexil, 6.0.0d2, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-#LT_INIT
-AC_PROG_LIBTOOL
+# Note that these two commands set default CFLAGS/CXXFLAGS to '-g -O2'
+AC_PROG_CXX
+AC_PROG_CC
+
+AM_PROG_CC_C_O
+
+# Required to build the expression parser
+AC_PATH_PROG([GPERF], [gperf], [gperf])
+
+# Use this with autoconf 2.62 and newer
+LT_INIT([])
+# Use this with autoconf 2.61 and older
+#AC_PROG_LIBTOOL
+
 AC_SUBST([LIBTOOL_DEPS])
 AM_INIT_AUTOMAKE
 
+# Comment out this line to see the gory details of the build process
+AM_SILENT_RULES([yes])
+
 # Configuration options
 AC_ARG_WITH([jni],
-        AS_HELP_STRING([--with-jni], [Include utilties for Java Native Interface (default=no)]))
+        AS_HELP_STRING([--with-jni=JAVA_HOME],
+        [Include utilities for Java Native Interface in JAVA_HOME]),
+        [AC_SUBST([JAVA_HOME], ["$with_jni"])])
 AC_ARG_WITH([unix-time],
         AS_HELP_STRING([--with-unix-time], [Use Unix time facilities (default=yes)]))
 AC_ARG_WITH([threads],
         AS_HELP_STRING([--with-threads], [Build for multithreaded use (default=yes)]))
 AC_ARG_ENABLE([debug-listener],
-        AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=no)]))
+        AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=yes)]))
 AC_ARG_ENABLE([debug-logging],
         AS_HELP_STRING([--enable-debug-logging], [Allow debug output (default=yes)]))
 AC_ARG_ENABLE([gantt],
         AS_HELP_STRING([--enable-gantt], [Build GanttListener interface (default=no)]))
 AC_ARG_ENABLE([ipc],
         AS_HELP_STRING([--enable-ipc], [Build IPC and IpcAdapter library (default=no)]))
-AC_ARG_ENABLE([launcher],
-        AS_HELP_STRING([--enable-launcher], [Build Launcher adapter (default=yes)]))
 AC_ARG_ENABLE([module-tests],
         AS_HELP_STRING([--enable-module-tests], [Build module tests (default=no)]))
 AC_ARG_ENABLE([viewer],
@@ -70,18 +87,17 @@ AC_ARG_ENABLE([universal-exec],
 
 # Conditionals for makefiles
 # These default to enabled (with)
+AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([DEBUG_LOGGING_OPT], [test "x$enable_debug_logging" != "xno"])
-AM_CONDITIONAL([LAUNCHER_OPT], [test "x$enable_launcher" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
 
 # These default to disabled (without)
-AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" = "xyes"])
 AM_CONDITIONAL([GANTT_OPT], [test "x$enable_gantt" = "xyes"])
 AM_CONDITIONAL([IPC_OPT], [test "x$enable_ipc" = "xyes"])
-AM_CONDITIONAL([JNI_OPT], [test "x$with_jni" = "xyes"])
+AM_CONDITIONAL([JNI_OPT], [test "x$with_jni" != "x"])
 AM_CONDITIONAL([MODULE_TESTS_OPT], [test "x$enable_module_tests" = "xyes"])
 AM_CONDITIONAL([SAS_OPT], [test "x$enable_sas" = "xyes"])
 AM_CONDITIONAL([TEST_EXEC_OPT], [test "x$enable_test_exec" = "xyes"])
@@ -97,127 +113,112 @@ AS_IF([test "x$with_threads" != "xno"],[
 AS_IF([test "x$with_unix_time" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_UNIX_TIME],[1],[Define to 1 if Unix native time facilities are enabled.])
 ])
-
-
-# C preprocessor defines with custom definitions
-#
-# *** NOTE WELL: These comparisons MUST be identical to the ones above!
-# E.g. if this appears above:
-#  AM_CONDITIONAL([FOO_OPT], [test "x$with_foo" != "xno"])
-# then the corresponding AC_DEFINE_UNQUOTED must use the exact same test:
-#  [` iftest "x$with_foo" != "xno" then ... fi`])
-# Failure to make them consistent will result in references to undefined symbols.
-#
-
-AC_DEFINE_UNQUOTED([HAVE_DEBUG_LISTENER],
-  [`if test "x$enable_debug_listener" = "xyes" 
-    then 
-      echo 1
-    else
-      echo 0
-    fi`],
-  [Define to 1 if PlanDebugListener is enabled in the build.])
-AC_DEFINE_UNQUOTED([HAVE_GANTT_LISTENER], 
-  [`if test "x$enable_gantt" = "xyes" 
-    then 
-      echo 1
-    else
-      echo 0
-    fi`],
-  [Define to 1 if GanttListener is enabled in the build.])
-AC_DEFINE_UNQUOTED([HAVE_LUV_LISTENER], 
-  [`if test "x$enable_viewer" != "xno" 
-    then 
-      echo 1
-    else
-      echo 0
-    fi`],
-  [Define to 1 if LuvListener is enabled in the build.])
-
-# Checks for programs.
-AC_PROG_CXX
-AC_PROG_CC
-AM_PROG_CC_C_O
-AC_PROG_LIBTOOL
-# Required by IPC
-AS_IF([test "x$enable_ipc" = "xyes"], [
-AC_PROG_LEX
-AC_PROG_YACC
+AS_IF([test "x$enable_debug_listener" != "xno"],[
+  AC_DEFINE([HAVE_DEBUG_LISTENER],[1],[Define to 1 if PlanDebugListener is enabled in the build.])
 ])
-#AC_PROG_INSTALL
-AC_PROG_MAKE_SET
+AS_IF([test "x$enable_viewer" != "xno"],[
+  AC_DEFINE([HAVE_LUV_LISTENER],[1],[Define to 1 if LuvListener is enabled in the build.])
+])
 
 # Checks for libraries.
 
+# implied by header check for dlfcn.h
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([rt], [timer_create])
 AC_CHECK_LIB([m], [sqrt])
-AC_CHECK_LIB([execinfo], [backtrace])
+# Used by UdpAdapter (and IPC)
+AC_CHECK_LIB([nsl], [inet_ntoa])
+# POSIX timer - not present on macOS
+AC_CHECK_LIB([rt], [timer_create])
 
 # Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS([dlfcn.h execinfo.h float.h limits.h math.h stddef.h stdint.h sys/time.h unistd.h wchar.h])
-AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h sys/socket.h])
 
-AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
+# Checks for ISO C90 (ANSI C89) header files stdlib.h, stdarg.h, string.h, float.h
+AC_HEADER_STDC
+# time.h and sys/time.h
+AC_CHECK_HEADERS([time.h sys/time.h])
+# Newer standard C (C95, C99, etc.) headers for PLEXIL core functionality
+# Some platforms (e.g. vxWorks) may lack some of these
+# NOTE: pugixml depends on wchar.h, but does not use these configuration files.
+AC_CHECK_HEADERS([inttypes.h math.h stddef.h stdint.h])
+# glibc backtrace functionality
+AC_CHECK_HEADERS([execinfo.h])
+# POSIX dependencies for core functionality
+AC_CHECK_HEADERS([dlfcn.h unistd.h sys/types.h])
+# POSIX headers for network functionality
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h sys/socket.h])
+# Kernel queues (BSD based systems)
+AC_CHECK_HEADERS([sys/event.h])
+
+# Non-Unix-like platforms
+AC_CHECK_HEADERS([sockLib.h vxWorks.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
-# These types have special macros in newer autoconf versions,
-# which aren't present in older autoconf versions
-AC_CHECK_TYPES([int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t])
-AC_CHECK_TYPES([size_t, ssize_t])
-AC_HEADER_TIME
-AC_STRUCT_TM
-AC_C_VOLATILE
+
+# POSIX time
+# Defined in sys/time.h if present.
+AC_CHECK_FUNCS([getitimer gettimeofday setitimer])
+# Defined in time.h if present.
+AC_CHECK_FUNCS([clock_gettime ctime_r timer_create timer_delete])
+# Defined in sys/types.h, not present on (e.g.) VxWorks
+# Used only in doubleToTimeval()
 AC_CHECK_TYPES([suseconds_t])
 
-# Checks for library functions.
-AC_FUNC_ERROR_AT_LINE
-AC_PROG_GCC_TRADITIONAL
-AC_FUNC_MKTIME
-AC_FUNC_SELECT_ARGTYPES
-AC_TYPE_SIGNAL
-AC_FUNC_STRFTIME
-AC_FUNC_STRTOD
-AC_CHECK_FUNCS([ceil floor modf pow round sqrt trunc])
-AC_CHECK_FUNCS([clock_gettime ctime_r gettimeofday localtime_r memmove memset setitimer socket])
-AC_CHECK_FUNCS([strchr strcspn strspn strstr strtol strtoll strtoul strtoull])
-# Used by UdpAdapter (and IPC)
-AC_CHECK_FUNCS([gethostbyname inet_ntoa])
+# Other POSIX specifics
+AC_CHECK_FUNCS([getpid isatty])
+
+# Kernel queues
+AC_CHECK_FUNCS([kqueue kevent kevent64])
+
+# Standard math functions not found on some platforms
+AC_CHECK_FUNCS([ceil floor round sqrt trunc])
+
+# Used by LuvListener, UdpAdapter (and IPC)
+AC_CHECK_FUNCS([gethostbyname])
+
+# Only needed by JNI unit tests
+AS_IF([test "x$with_jni" != "x"],[
+# Both defined in time.h
+AC_STRUCT_TM
+AC_CHECK_FUNCS([localtime_r])
+])
 
 # Only needed by threads (and IPC)
 AS_IF([test "x$with_threads" != "xno"],[
 AC_CHECK_FUNCS([pthread_mutexattr_settype])
 ])
 
-# FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if unistd.h contains a suitable value of _POSIX_TIMERS
+# FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if appropriate functions found
 
 # Used only in GanttListener
 AS_IF([test "x$enable_gantt" = "xyes"], [
-AC_CHECK_TYPES([pid_t])
 AC_CHECK_FUNCS([getcwd])
-])
-
-# Used only in IPC
-AS_IF([test "x$enable_ipc" = "xyes"], [
-AC_CHECK_LIB([nsl], [inet_ntoa])
-AC_CHECK_LIB([wrap], [hosts_ctl])
-AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
 AC_CHECK_TYPES([pid_t])
-AC_FUNC_FORK
-AC_FUNC_SETPGRP
-AC_FUNC_SETVBUF_REVERSED
-AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk])
 ])
 
-# This is the core set of Makefiles to build.
-AC_CONFIG_FILES([Makefile
+# Used only in IPC, which uses a separate build system
+# AS_IF([test "x$enable_ipc" = "xyes"], [
+# AC_PROG_GCC_TRADITIONAL
+# AC_PROG_LEX
+# AC_PROG_YACC
+# AC_CHECK_LIB([wrap], [hosts_ctl])
+# AC_HEADER_SYS_WAIT
+# AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
+# AC_FUNC_FORK
+# AC_FUNC_SELECT_ARGTYPES
+# AC_FUNC_SETPGRP
+# AC_FUNC_SETVBUF_REVERSED
+# AC_FUNC_STRFTIME
+# AC_FUNC_VPRINTF
+# AC_TYPE_SIGNAL
+# AC_CHECK_FUNCS([bzero dup2 gethostname mkdir select strpbrk])
+# AC_STRUCT_TM
+#])
+
+AC_CONFIG_FILES([configure.env
+                 Makefile
                  utils/Makefile
                  value/Makefile
                  expr/Makefile
@@ -225,25 +226,26 @@ AC_CONFIG_FILES([Makefile
                  exec/Makefile
                  third-party/pugixml/src/Makefile
                  xml-parser/Makefile
-                 app-framework/Makefile])
+                 app-framework/Makefile
+                 interfaces/Launcher/Makefile])
 
-#
-# Conditionally make these Makefiles
-#
-# *** NOTE WELL: These comparisons MUST be identical to the ones above!
-# E.g. if this appears above:
-#  AM_CONDITIONAL([FOO_OPT], [test "x$with_foo" != "xno"])
-# then the corresponding AS_IF must use the exact same test:
-#  AS_IF([test "x$with_foo" != "xno"], [ ... ])
-# Failure to make them consistent will result in missing Makefiles.
-#
-
-AS_IF([test "x$enable_debug_listener" = "xyes"], [
+# Options that are normally on
+AS_IF([test "x$enable_debug_listener" != "xno"], [
 AC_CONFIG_FILES([interfaces/PlanDebugListener/Makefile])
 ])
 
-AS_IF([test "x$enable_gantt" = "xyes"], [
-AC_CONFIG_FILES([interfaces/GanttListener/Makefile])
+AS_IF([test "x$enable_viewer" != "xno"], [
+AC_CONFIG_FILES([interfaces/Sockets/Makefile
+                 interfaces/LuvListener/Makefile])
+])
+
+AS_IF([test "x$enable_universal_exec" != "xno"], [
+AC_CONFIG_FILES([universal-exec/Makefile])
+])
+
+# Options that are normally off
+AS_IF([test "x$enable_test_exec" = "xyes"], [
+AC_CONFIG_FILES([apps/TestExec/Makefile])
 ])
 
 AS_IF([test "x$enable_ipc" = "xyes"], [
@@ -252,29 +254,16 @@ AC_CONFIG_FILES([third-party/ipc/Makefile
                  interfaces/IpcUtils/Makefile])
 ])
 
-AS_IF([test "x$enable_launcher" != "xno"], [
-AC_CONFIG_FILES([interfaces/Launcher/Makefile])
-])
-
 AS_IF([test "x$enable_sas" = "xyes"], [
 AC_CONFIG_FILES([apps/StandAloneSimulator/Makefile])
-])
-
-AS_IF([test "x$enable_test_exec" = "xyes"], [
-AC_CONFIG_FILES([apps/TestExec/Makefile])
 ])
 
 AS_IF([test "x$enable_udp" = "xyes"], [
 AC_CONFIG_FILES([interfaces/UdpAdapter/Makefile])
 ])
 
-AS_IF([test "x$enable_universal_exec" != "xno"], [
-AC_CONFIG_FILES([universal-exec/Makefile])
-])
-
-AS_IF([test "x$enable_viewer" != "xno"], [
-AC_CONFIG_FILES([interfaces/LuvListener/Makefile
-                 interfaces/Sockets/Makefile])
+AS_IF([test "x$enable_gantt" = "xyes"], [
+AC_CONFIG_FILES([interfaces/GanttListener/Makefile])
 ])
 
 AC_OUTPUT
