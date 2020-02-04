@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ namespace PLEXIL
      * @return true if successful, false if the mutex is already held.
      */
 
-    void acquire(Node const *acquirer);
+    bool acquire(Node *acquirer);
 
     /**
      * @brief Release the mutex so another node can use it.

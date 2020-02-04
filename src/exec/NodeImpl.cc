@@ -31,6 +31,7 @@
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
+#include "Mutex.hh"
 #include "NodeConstants.hh"
 #include "NodeTimepointValue.hh"
 #include "PlexilExec.hh"
@@ -153,7 +154,7 @@ namespace PLEXIL
   NodeImpl::NodeImpl(char const *nodeId, NodeImpl *parent)
     : Node(),
       Notifier(),
-      m_next(NULL),
+      m_next(nullptr),
       m_queueStatus(QUEUE_NONE),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
@@ -163,15 +164,16 @@ namespace PLEXIL
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_localVariables(NULL),
+      m_localVariables(nullptr),
+      m_usingMutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
-      m_variablesByName(NULL),
+      m_variablesByName(nullptr),
       m_nodeId(nodeId),
       m_priority(WORST_PRIORITY),
       m_currentStateStartTime(0.0),
-      m_timepoints(NULL),
+      m_timepoints(nullptr),
       m_garbageConditions(),
       m_cleanedConditions(false),
       m_cleanedVars(false),
@@ -187,7 +189,7 @@ namespace PLEXIL
                      NodeState state,
                      NodeImpl *parent)
     : Node(),
-      m_next(NULL),
+      m_next(nullptr),
       m_queueStatus(QUEUE_NONE),
       m_state(state),
       m_outcome(NO_OUTCOME),
@@ -197,15 +199,16 @@ namespace PLEXIL
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_localVariables(NULL),
+      m_localVariables(nullptr),
+      m_usingMutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
-      m_variablesByName(NULL),
+      m_variablesByName(nullptr),
       m_nodeId(name),
       m_priority(WORST_PRIORITY),
       m_currentStateStartTime(0.0),
-      m_timepoints(NULL),
+      m_timepoints(nullptr),
       m_garbageConditions(),
       m_cleanedConditions(false), 
       m_cleanedVars(false),
@@ -225,7 +228,7 @@ namespace PLEXIL
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
       // N.B. Ancestor-end, ancestor-exit, and ancestor-invariant belong to parent;
-      // will be NULL if this node has no parent
+      // will be nullptr if this node has no parent
       if (i != preIdx && i != postIdx && getCondition(i))
         getCondition(i)->addListener(this);
     }
@@ -293,14 +296,14 @@ namespace PLEXIL
     m_localVariables = new std::vector<std::unique_ptr<Expression>>();
     m_localVariables->reserve(n);
     m_variablesByName =
-      new NodeVariableMap(m_parent ? m_parent->getChildVariableMap() : NULL);
+      new NodeVariableMap(m_parent ? m_parent->getChildVariableMap() : nullptr);
     m_variablesByName->grow(n);
   }
 
   // Default method.
   NodeVariableMap const *NodeImpl::getChildVariableMap() const
   {
-    return NULL; // this node has no children
+    return nullptr; // this node has no children
   }
 
   bool NodeImpl::addLocalVariable(char const *name, Expression *var)
@@ -438,7 +441,7 @@ namespace PLEXIL
                  "<" << m_nodeId << "> Removing condition " << getConditionName(i));
         delete m_conditions[i];
       }
-      m_conditions[i] = NULL;
+      m_conditions[i] = nullptr;
       m_garbageConditions[i] = false;
     }
 
@@ -504,7 +507,7 @@ namespace PLEXIL
     case ancestorInvariantIdx:
       if (m_parent)
         return m_parent->m_conditions[idx];
-      return NULL;
+      return nullptr;
 
     default:
       return m_conditions[idx];
@@ -520,7 +523,7 @@ namespace PLEXIL
     case ancestorInvariantIdx:
       if (m_parent)
         return m_parent->m_conditions[idx];
-      return NULL;
+      return nullptr;
 
     default:
       return m_conditions[idx];
@@ -571,27 +574,27 @@ namespace PLEXIL
     }
   }
 
-  void NodeImpl::notifyMutexAvailable()
+  void NodeImpl::notifyResourceAvailable()
   {
     switch (m_queueStatus) {
     case QUEUE_PENDING_TRY:
-      // already marked - ignore - can happen when multiple mutexes in use by one node
+      // already marked - ignore - can happen when multiple resources in use by one node
       return;
 
     case QUEUE_PENDING:
       m_queueStatus = QUEUE_PENDING_TRY;
-      debugMsg("Node:notifyMutexAvailable",
+      debugMsg("Node:notifyResourceAvailable",
                " " << m_nodeId << " will retry");
       return;
 
     case QUEUE_PENDING_CHECK:
       m_queueStatus = QUEUE_PENDING_TRY_CHECK;
-      debugMsg("Node:notifyMutexAvailable",
+      debugMsg("Node:notifyResourceAvailable",
                " " << m_nodeId << " will retry after checking conditions");
       return;
 
     default:
-      debugMsg("Node:notifyMutexAvailable",
+      debugMsg("Node:notifyResourceAvailable",
                " " << m_nodeId << " not in pending queue, ignoring");
       return;
     }
@@ -1234,6 +1237,11 @@ namespace PLEXIL
   // Common method
   void NodeImpl::transitionToIterationEnded() 
   {
+    // Release any mutexes held by this node
+    if (m_usingMutexes && m_state != WAITING_STATE) {
+      for (Mutex *m : *m_usingMutexes)
+        m->release();
+    }
     activateRepeatCondition();
   }
 
@@ -1529,7 +1537,7 @@ namespace PLEXIL
   {
     debugMsg("Node:findVariable",
              " node " << m_nodeId << ", for " << name);
-    Expression *result = NULL;
+    Expression *result = nullptr;
     if (m_variablesByName) {
       result = m_variablesByName->findVariable(name); // searches ancestor maps
       condDebugMsg(result,
@@ -1558,13 +1566,13 @@ namespace PLEXIL
     debugMsg("Node:findVariable",
              " node " << m_nodeId
              << " not found, no local map and no ancestor map");
-    return NULL;
+    return nullptr;
   }
 
   Expression *NodeImpl::findLocalVariable(char const *name)
   {
     if (!m_variablesByName)
-      return NULL;
+      return nullptr;
 
     NodeVariableMap::const_iterator it = m_variablesByName->find(name);
     if (it != m_variablesByName->end()) {
@@ -1574,18 +1582,18 @@ namespace PLEXIL
     }
 
     debugMsg("Node:findLocalVariable", ' ' << m_nodeId << ' ' << name << " not found");
-    return NULL;
+    return nullptr;
   }
 
   // Default methods
   NodeImpl const *NodeImpl::findChild(char const * /* childName */) const
   {
-    return NULL;
+    return nullptr;
   }
 
   NodeImpl *NodeImpl::findChild(char const * /* childName */)
   {
-    return NULL;
+    return nullptr;
   }
 
   //

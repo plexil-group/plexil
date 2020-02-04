@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,17 +48,21 @@ namespace PLEXIL
   {
   }
 
-  void Mutex::acquire(Node const *acquirer)
+  bool Mutex::acquire(Node *acquirer)
   {
     assertTrue_2(acquirer, "Mutex::acquire: null argument!");
-    assertTrueMsg(!m_holder,
-                  "Mutex::acquire: mutex " << m_name
-                  << " already held by node " << acquirer->getNodeId());
-
+    if (m_holder) {
+      debugMsg("Mutex:acquire",
+               ' ' << m_name << " node " << acquirer->getNodeId()
+               << " failed; mutex held by node " << m_holder->getNodeId());
+      addWaitingNode(acquirer);
+      return false;
+    }
     m_holder = acquirer;
     std::remove(m_waiters.begin(), m_waiters.end(), acquirer);
     debugMsg("Mutex:acquire",
              ' ' << m_name << " node " << acquirer->getNodeId() << " succeeded");
+    return true;
   }
 
   void Mutex::release()
@@ -67,7 +71,7 @@ namespace PLEXIL
     debugMsg("Mutex:release",' ' << m_name << " by node " << m_holder->getNodeId());
     m_holder = nullptr;
     for (Node *n : m_waiters)
-      n->notifyMutexAvailable();
+      n->notifyResourceAvailable();
   }
 
   std::string const &Mutex::getName() const
@@ -82,7 +86,8 @@ namespace PLEXIL
 
   void Mutex::addWaitingNode(Node *node)
   {
-    m_waiters.push_back(node);
+    if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end())
+      m_waiters.push_back(node);
   }
 
   void Mutex::removeWaitingNode(Node *node)

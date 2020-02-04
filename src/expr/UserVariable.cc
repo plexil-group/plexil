@@ -478,16 +478,20 @@ namespace PLEXIL
   template <typename T>
   bool UserVariable<T>::reserve(Node *node)
   {
-    if (m_user)
+    if (m_user) {
+      addWaitingNode(node);
       return false;
+    }
     m_user = node;
     return true;
   }
 
   bool UserVariable<String>::reserve(Node *node)
   {
-    if (m_user)
+    if (m_user) {
+      addWaitingNode(node);
       return false;
+    }
     m_user = node;
     return true;
   }
@@ -496,24 +500,24 @@ namespace PLEXIL
   void UserVariable<T>::release()
   {
     m_user = nullptr;
-    // TODO: notify waiters
   }
 
   void UserVariable<String>::release()
   {
     m_user = nullptr;
-    // TODO: notify waiters
   }
 
   template <typename T>
   void UserVariable<T>::addWaitingNode(Node *node)
   {
-    m_waiters.push_back(node);
+    if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end())
+      m_waiters.push_back(node);
   }
 
   void UserVariable<String>::addWaitingNode(Node *node)
   {
-    m_waiters.push_back(node);
+    if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end())
+      m_waiters.push_back(node);
   }
 
   template <typename T>
@@ -525,6 +529,17 @@ namespace PLEXIL
   void UserVariable<String>::removeWaitingNode(Node *node)
   {
     std::remove(m_waiters.begin(), m_waiters.end(), node);
+  }
+
+  template <typename T>
+  std::vector<Node *> const *UserVariable<T>::getWaitingNodes() const
+  {
+    return &m_waiters;
+  }
+
+  std::vector<Node *> const *UserVariable<String>::getWaitingNodes() const
+  {
+    return &m_waiters;
   }
 
   template <typename T>

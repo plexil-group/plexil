@@ -62,17 +62,15 @@ namespace PLEXIL
      * @brief Gets the type of this node.
      * @return The type of this node.
      */
-    virtual PlexilNodeType getType() const
+    virtual PlexilNodeType getType() const override
     {
       return NodeType_Assignment;
     }
 
-    // *** TODO - remove if no longer needed ***
-
     /**
      * @brief Accessor for the assigned variable.
      */
-    Expression *getAssignmentVariable() const;
+    virtual Expression *getAssignmentVariable() const override;
 
     // Intended for plan parser only
     Assignment *getAssignment() { return m_assignment; }
@@ -87,22 +85,25 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedHandleExecution();
-    virtual void specializedDeactivateExecutable();
+    virtual void specializedHandleExecution() override;
+    virtual void specializedDeactivateExecutable() override;
 
-    virtual bool getDestStateFromExecuting();
-    virtual bool getDestStateFromFailing();
+    virtual bool getDestStateFromExecuting() override;
+    virtual bool getDestStateFromFailing() override;
 
-    virtual void transitionFromExecuting();
-    virtual void transitionFromFailing();
+    virtual void transitionFromExecuting() override;
+    virtual void transitionFromFailing() override;
 
-    virtual void transitionToExecuting();
-    virtual void transitionToFailing();
+    virtual void transitionToExecuting() override;;
+    virtual void transitionToFailing() override;
+
+    virtual void transitionToIterationEnded() override;
+
+    virtual void abort() override;
 
   private:
 
     void createDummyAssignment(); // unit test variant
-    void abort();
 
     Assignment *m_assignment;
   };

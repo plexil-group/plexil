@@ -146,6 +146,15 @@ namespace PLEXIL {
     {
     }
 
+    //! @brief Get a pointer to the vector of nodes waiting on the mutex.
+    //! @return Pointer to the vector.
+    //! @note The default method returns nullptr.
+
+    virtual std::vector<Node *> const *getWaitingNodes() const
+    {
+      return nullptr;
+    }
+
   private:
     // Not implemented
     Assignable(Assignable const &) = delete;

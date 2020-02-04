@@ -48,7 +48,8 @@ namespace PLEXIL {
   // QueueStatus - Used by PlexilExec and Node classes for queue management
   // There are four queues:
   //  - the candidate queue, scheduled for condition evaluation;
-  //  - the pending queue, eligible for execution and waiting on one or more mutexes;
+  //  - the pending queue, eligible for execution and waiting on one or more resources
+  //    (either a mutex or an assignment variable);
   //  - the transition queue, nodes in the process of state transition; and
   //  - the deletion queue, top level nodes which have run and are no longer active.
   //
@@ -61,12 +62,12 @@ namespace PLEXIL {
     QUEUE_NONE = 0,          // not in any queue
     QUEUE_CHECK,             // in check-conditions queue
     QUEUE_PENDING_TRY,       // just added to pending queue,
-                             // or waiting for a mutex which was just released
+                             // or waiting for a resource which was just released
     QUEUE_PENDING_TRY_CHECK, // just added to pending queue,
-                             // or waiting for a mutex which was just released,
+                             // or waiting for a resource which was just released,
                              // AND check-conditions requested
-    QUEUE_PENDING,           // waiting for a mutex
-    QUEUE_PENDING_CHECK,     // waiting for a mutex AND check-conditions requested
+    QUEUE_PENDING,           // waiting for a resource
+    QUEUE_PENDING_CHECK,     // waiting for a resource AND check-conditions requested
     QUEUE_TRANSITION,        // in state transition queue
     QUEUE_TRANSITION_CHECK,  // in state transition queue AND check-conditions requested
     QUEUE_DELETE             // no longer eligible to transition
@@ -105,7 +106,7 @@ namespace PLEXIL {
     /**
      * @brief Gets the previously calculated destination state of this node.
      * @return The destination state.
-     * @note Should only be called by PlexilExec::resolveVariableConflicts() and unit tests.
+     * @note Should only be called by PlexilExec::resolveResourceConflicts() and unit tests.
      */
     virtual NodeState getNextState() const = 0;
 
@@ -176,10 +177,10 @@ namespace PLEXIL {
     virtual std::vector<Mutex *> const *getUsingMutexes() const = 0;
 
     /**
-     * @brief Notify that some mutex on which we're pending is now available.
-     * @note Used by Mutex class only.
+     * @brief Notify that some resource on which we're pending is now available.
+     * @note Used by Mutex and AssignmentNode.
      */
-    virtual void notifyMutexAvailable() = 0;
+    virtual void notifyResourceAvailable() = 0;
 
     //
     // For convenience of PlexilExec queue management

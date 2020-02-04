@@ -126,6 +126,7 @@ namespace PLEXIL
 
     virtual void addWaitingNode(Node *node) override;
     virtual void removeWaitingNode(Node *node) override;
+    virtual std::vector<Node *> const *getWaitingNodes() const override;
 
     /**
      * @brief Set the value for this object.
@@ -258,6 +259,7 @@ namespace PLEXIL
 
     virtual void addWaitingNode(Node *node) override;
     virtual void removeWaitingNode(Node *node) override;
+    virtual std::vector<Node *> const *getWaitingNodes() const override;
 
     /**
      * @brief Set the value for this object.

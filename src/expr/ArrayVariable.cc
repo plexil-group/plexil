@@ -254,17 +254,22 @@ namespace PLEXIL
   void ArrayVariable::release()
   {
     m_user = nullptr;
-    // TODO: notify waiters
   }
 
   void ArrayVariable::addWaitingNode(Node *node)
   {
-    m_waiters.push_back(node);
+    if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end())
+      m_waiters.push_back(node);
   }
 
   void ArrayVariable::removeWaitingNode(Node *node)
   {
     std::remove(m_waiters.begin(), m_waiters.end(), node);
+  }
+
+  std::vector<Node *> const *ArrayVariable::getWaitingNodes() const
+  {
+    return &m_waiters;
   }
 
   // *** FIXME ***

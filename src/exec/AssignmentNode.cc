@@ -358,6 +358,25 @@ namespace PLEXIL
       break;
     }
   }
+
+  //
+  // ITERATION_ENDED
+  //
+  // Legal predecessor states: EXECUTING, FAILING, FINISHING, WAITING
+  // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Repeat
+  // Legal successor states: FINISHED, WAITING
+
+  // This is a wrapper around the common method
+
+  void AssignmentNode::transitionToIterationEnded() 
+  {
+    // Notify any nodes waiting on the assignment variable
+    if (m_state != WAITING_STATE ) {
+      for (Node *n : *getAssignmentVariable()->asAssignable()->getWaitingNodes())
+        n->notifyResourceAvailable();
+    }
+    NodeImpl::transitionToIterationEnded();
+  }
     
   void AssignmentNode::abort()
   {

@@ -253,9 +253,9 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Notify that a mutex on which we're pending is now available.
+     * @brief Notify that a resource on which we're pending is now available.
      */
-    virtual void notifyMutexAvailable() override;
+    virtual void notifyResourceAvailable() override;
 
     virtual QueueStatus getQueueStatus() const override
     {
@@ -533,7 +533,7 @@ namespace PLEXIL
     virtual void transitionToFinishing();
     void transitionToFinished();
     virtual void transitionToFailing();
-    void transitionToIterationEnded(); 
+    virtual void transitionToIterationEnded(); 
 
     // Phases of destructor
     // Not useful if called from base class destructor!
