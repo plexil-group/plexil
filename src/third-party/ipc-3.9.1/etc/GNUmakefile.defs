@@ -318,7 +318,8 @@ INC_PATH_OSF1	= -I/usr/local/include
 INC_PATH_Mach	= 
 INC_PATH_SunOS	= -I/usr/local/include -I/usr/openwin/include
 INC_PATH_Solaris	= -I/usr/local/include -I/usr/openwin/include
-INC_PATH_Linux	= -I/usr/include/bsd
+# No longer necessary
+#INC_PATH_Linux	= -I/usr/include/bsd
 INC_PATH_DBMALLOC= -I$(DBMALLOC_DIR)/include
 INC_PATH	= -I. -I$(PUBLIC_INC_DIR)  \
 		$(INC_PATH_$(THIS_OS)) $(INC_PATH_$(DBMALLOC))

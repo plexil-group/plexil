@@ -2,7 +2,8 @@
 IPC_LOCATIONS = PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir) \
  PUBLIC_INC_DIR=$(includedir) PUBLIC_MAN_DIR=$(mandir) PUBLIC_DOC_DIR=$(docdir) 
 
-IPC_SUBDIRS = SUBDIRS='etc src doc'
+#IPC_SUBDIRS = SUBDIRS='etc src doc'
+IPC_SUBDIRS = SUBDIRS='src'
 
 IPC_OPTIONS = THREADED=1 MAKE_SHARED_LIBS=1
 
