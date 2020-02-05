@@ -35,7 +35,7 @@ namespace PLEXIL
 
   LibraryCallNode::LibraryCallNode(char const *nodeId, NodeImpl *parent)
     : ListNode(nodeId, parent),
-      m_aliasMap(NULL)
+      m_aliasMap()
   {
   }
 
@@ -47,7 +47,7 @@ namespace PLEXIL
                                    NodeState state,
                                    NodeImpl *parent)
     : ListNode(type, name, state, parent),
-      m_aliasMap(NULL)
+      m_aliasMap()
   {
     checkError(type == LIBRARYNODECALL,
                "Invalid node type " << type << " for a LibraryCallNode");
@@ -72,12 +72,12 @@ namespace PLEXIL
 
     ListNode::cleanUpNodeBody();
 
-    delete m_aliasMap;
+    delete m_aliasMap.release();
   }
 
   void LibraryCallNode::allocateAliasMap(size_t n)
   {
-    m_aliasMap = new NodeVariableMap(NULL);
+    m_aliasMap = NodeVariableMapPtr(new NodeVariableMap(nullptr));
     m_aliasMap->grow(n);
   }
 
@@ -102,7 +102,7 @@ namespace PLEXIL
   // LibraryCall nodes don't allow children to refer to ancestor environment
   NodeVariableMap const *LibraryCallNode::getChildVariableMap() const
   {
-    return m_aliasMap;
+    return m_aliasMap.get();
   }
 
 }

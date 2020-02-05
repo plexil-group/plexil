@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -224,11 +224,7 @@ namespace PLEXIL
 
   bool NodeNoChildFailed::operator()(Boolean &result, NodeImpl const *node) const
   {
-    std::vector<NodeImpl *> const &kids = node->getChildren();
-    for (std::vector<NodeImpl *>::const_iterator kidIter = kids.begin();
-         kidIter != kids.end();
-         ++kidIter) {
-      NodeImpl const *kid = *kidIter;
+    for (NodeImplPtr const &kid : node->getChildren()) {
       if (kid->getState() == FINISHED_STATE
           && kid->getOutcome() == FAILURE_OUTCOME) {
         result = false;
@@ -239,13 +235,11 @@ namespace PLEXIL
     return true;
   }
 
-  void NodeNoChildFailed::doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+  void NodeNoChildFailed::doPropagationSources(NodeImpl *node,
+                                               ListenableUnaryOperator const &oper) const
   {
-    std::vector<NodeImpl *> &kids = node->getChildren();
-    for (std::vector<NodeImpl *>::iterator kid = kids.begin();
-         kid != kids.end();
-         ++kid)
-      (oper)(*kid);
+    for (NodeImplPtr &kid : node->getChildren())
+      (oper)(kid.get());
   }
 
 }

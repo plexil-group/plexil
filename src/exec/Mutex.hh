@@ -101,7 +101,7 @@ namespace PLEXIL
   /**
    * @brief Find the named global Mutex, if it exists.
    * @param name The name of the mutex.
-   * @return Pointer to the named Mutex, or NULL.
+   * @return Pointer to the named Mutex, or nullptr.
    */
 
   Mutex *getGlobalMutex(char const *name);

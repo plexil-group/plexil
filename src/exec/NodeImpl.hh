@@ -27,6 +27,10 @@
 #ifndef NODE_IMPL_HH
 #define NODE_IMPL_HH
 
+// *** For debug use only ***
+// Uncomment this if we don't trust the condition activation/deactivation logic
+// #define PARANOID_ABOUT_CONDITION_ACTIVATION 1
+
 #include "Node.hh"
 #include "NodeVariables.hh"
 #include "Notifier.hh"
@@ -36,9 +40,19 @@
 namespace PLEXIL
 {
 
+  using ExpressionPtr = std::unique_ptr<Expression>;
+
   class Mutex;
+  using MutexPtr = std::unique_ptr<Mutex>;
+
   class NodeVariableMap;
+  using NodeVariableMapPtr = std::unique_ptr<NodeVariableMap>;
+
   class NodeTimepointValue;
+  using NodeTimepointValuePtr = std::unique_ptr<NodeTimepointValue>;
+
+  class NodeImpl;
+  using NodeImplPtr = std::unique_ptr<NodeImpl>;
 
   /**
    * @class NodeImpl
@@ -108,12 +122,12 @@ namespace PLEXIL
     
     virtual Node *next() const override
     {
-      return dynamic_cast<Node *>(m_next);
+      return static_cast<Node *>(m_next);
     }
 
     virtual Node **nextPtr() override
     {
-      return (Node **) (&m_next);
+      return static_cast<Node **>(&m_next);
     }
         
     //
@@ -128,7 +142,7 @@ namespace PLEXIL
     /**
      * @brief Looks up a variable by name.
      * @param name Name of the variable.
-     * @return The variable, or NULL if not found.
+     * @return The variable, or nullptr if not found.
      * @note Used only by XML parser.
      */
     virtual Expression *findVariable(char const *name) override;
@@ -273,7 +287,7 @@ namespace PLEXIL
      */
     virtual QueueStatus conditionsChecked() override;
 
-    virtual std::string toString(const unsigned int indent = 0) override;
+    virtual std::string toString(const unsigned int indent = 0) const override;
     virtual void print(std::ostream& stream, const unsigned int indent = 0) const override;
 
     //
@@ -324,13 +338,13 @@ namespace PLEXIL
     /**
      * @brief Find the named variable in this node, ignoring its ancestors.
      * @param name Name of the variable.
-     * @return The variable, or NULL if not found.
+     * @return The variable, or nullptr if not found.
      * @note Used only by XML parser.
      */
     Expression *findLocalVariable(char const *name);
   
-    virtual std::vector<NodeImpl *>& getChildren();
-    virtual const std::vector<NodeImpl *>& getChildren() const;
+    virtual std::vector<NodeImplPtr> &getChildren();
+    virtual const std::vector<NodeImplPtr> &getChildren() const;
 
     virtual NodeImpl const *findChild(char const *childName) const;
     virtual NodeImpl *findChild(char const *childName);
@@ -362,21 +376,13 @@ namespace PLEXIL
     /**
      * @brief Looks up a mutex by name. Searches ancestors and globals.
      * @param name Name of the mutex.
-     * @return The mutex, or NULL if not found.
+     * @return The mutex, or nullptr if not found.
      */
-    Mutex *findMutex(char const *name);
+    Mutex *findMutex(char const *name) const;
 
-    /**
-     * @brief Find the named mutex in this node, ignoring its ancestors
-     *        and any global declarations.
-     * @param name Name of the mutex.
-     * @return The mutex, or NULL if not found.
-     */
-    Mutex *findLocalMutex(char const *name);
-
-    // May return NULL.
+    // May return nullptr.
     // Used by GanttListener.
-    NodeVariableMap const *getVariableMap() const { return m_variablesByName; }
+    NodeVariableMap const *getVariableMap() const { return m_variablesByName.get(); }
 
     /**
      * @brief Add a condition expression to the node.
@@ -405,9 +411,9 @@ namespace PLEXIL
     // For use of plan parser.
     Expression *ensureTimepoint(NodeState st, bool isEnd);
 
-    // May return NULL.
+    // May return nullptr.
     // Used by plan analyzer and plan parser module test only.
-    const std::vector<std::unique_ptr<Expression>> *getLocalVariables() const
+    const std::vector<ExpressionPtr> *getLocalVariables() const
     {
       return m_localVariables;
     }
@@ -562,14 +568,15 @@ namespace PLEXIL
     NodeImpl *m_parent;                          /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
  
-    std::vector<std::unique_ptr<Expression>> *m_localVariables; /*!< Variables created in this node. */
+    std::vector<ExpressionPtr> *m_localVariables; /*!< Variables created in this node. */
+    std::vector<MutexPtr> *m_localMutexes;        /*!< Mutexes created in this node. */
     std::vector<Mutex *> *m_usingMutexes;
 
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
 
-    NodeVariableMap *m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
+    NodeVariableMapPtr m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
     int32_t m_priority;
 
@@ -577,7 +584,7 @@ namespace PLEXIL
     
     // Node transition history trace
     double m_currentStateStartTime;
-    NodeTimepointValue *m_timepoints;
+    NodeTimepointValuePtr m_timepoints;
 
   protected:
 

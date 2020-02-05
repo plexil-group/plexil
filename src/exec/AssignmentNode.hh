@@ -43,7 +43,7 @@ namespace PLEXIL
      * @param nodeId The name of this node.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    AssignmentNode(char const *nodeId, NodeImpl *parent = NULL);
+    AssignmentNode(char const *nodeId, NodeImpl *parent = nullptr);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -51,7 +51,7 @@ namespace PLEXIL
     AssignmentNode(const std::string &type,
                    const std::string &name,
                    NodeState state,
-                   NodeImpl *parent = NULL);
+                   NodeImpl *parent = nullptr);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.

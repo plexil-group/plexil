@@ -31,9 +31,14 @@
 #include "NodeConstants.hh"
 #include "Notifier.hh"
 
+#include <memory> // std::unique_ptr
+
 namespace PLEXIL
 {
   class NodeConnector;
+
+  class NodeTimepointValue;
+  using NodeTimepointValuePtr = std::unique_ptr<NodeTimepointValue>;
 
   class NodeTimepointValue final :
     public GetValueImpl<Real>, // FIXME
@@ -81,7 +86,7 @@ namespace PLEXIL
     NodeTimepointValue &operator=(NodeTimepointValue const &);
 
     Real m_time; // FIXME
-    NodeTimepointValue *m_next;
+    NodeTimepointValuePtr m_next;
     NodeConnector *m_node;
     NodeState const m_state; // only set at constructor time
     bool const m_end;        // only set at constructor time

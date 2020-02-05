@@ -54,7 +54,7 @@ namespace PLEXIL
 
     bool operator()(Boolean &result, NodeImpl const *node) const
     {
-      std::vector<NodeImpl *> const &kids = node->getChildren();
+      std::vector<NodeImplPtr> const &kids = node->getChildren();
       size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
         if (kids[i]->getState() != FINISHED_STATE) {
@@ -70,10 +70,8 @@ namespace PLEXIL
 
     void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
     {
-      std::vector<NodeImpl *> const &kids = node->getChildren();
-      for (size_t i = 0; i < kids.size(); ++i) {
-        (oper)(kids[i]);
-      }
+      for (NodeImplPtr &child : node->getChildren())
+        (oper)(child.get());
     }
 
   private:
@@ -102,7 +100,7 @@ namespace PLEXIL
 
     bool operator()(Boolean &result, NodeImpl const *node) const
     {
-      std::vector<NodeImpl *> const &kids = node->getChildren();
+      std::vector<NodeImplPtr> const &kids = node->getChildren();
       size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
         switch (kids[i]->getState()) {
@@ -123,10 +121,8 @@ namespace PLEXIL
 
     void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
     {
-      std::vector<NodeImpl *> const &kids = node->getChildren();
-      for (size_t i = 0; i < kids.size(); ++i) {
-        (oper)(kids[i]);
-      }
+      for (NodeImplPtr &child : node->getChildren())
+        (oper)(child.get());
     }
 
   private:
@@ -201,11 +197,11 @@ namespace PLEXIL
   NodeVariableMap const *ListNode::getChildVariableMap() const
   {
     if (m_variablesByName)
-      return m_variablesByName;
+      return m_variablesByName.get();
 
     // Search ancestors for first in chain
     NodeImpl *n = m_parent;
-    NodeVariableMap const *map = NULL;
+    NodeVariableMap const *map = nullptr;
     while (n && !map) {
       map = n->getVariableMap();
       if (!map)
@@ -310,7 +306,7 @@ namespace PLEXIL
         // when child evaluates ancestor-end.
         // See node state transition diagrams for proof.
         // So if no parent and no user end condition, just leave ancestor-end empty.
-        m_conditions[ancestorEndIdx] = NULL;
+        m_conditions[ancestorEndIdx] = nullptr;
         m_garbageConditions[ancestorEndIdx] = false;
       }
     }
@@ -348,8 +344,8 @@ namespace PLEXIL
     debugMsg("ListNode:cleanUpNodeBody", " for " << m_nodeId);
 
     // Delete children
-    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      delete (Node*) (*it);
+    for (NodeImplPtr &child : m_children)
+      delete (Node*) child.release();
     m_children.clear();
     m_cleanedBody = true;
   }
@@ -357,35 +353,36 @@ namespace PLEXIL
   void ListNode::cleanUpChildConditions()
   {
     debugMsg("ListNode:cleanUpChildConditions", " for " << m_nodeId);
-    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->cleanUpConditions();
-    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->cleanUpNodeBody();
+    for (NodeImplPtr &child : m_children)
+      child->cleanUpConditions();
+    for (NodeImplPtr &child : m_children)
+      child->cleanUpNodeBody();
   }
 
   NodeImpl const *ListNode::findChild(char const *childName) const
   {
-    for (std::vector<NodeImpl *>::const_iterator it = m_children.begin();
-         it != m_children.end();
-         ++it)
-      if ((*it)->getNodeId() == childName)
-        return *it;
-    return NULL;
+    for (NodeImplPtr const &child : m_children)
+      if (child->getNodeId() == childName)
+        return child.get();
+    return nullptr;
   }
 
   NodeImpl *ListNode::findChild(char const *childName)
   {
-    for (std::vector<NodeImpl *>::const_iterator it = m_children.begin();
-         it != m_children.end();
-         ++it)
-      if ((*it)->getNodeId() == childName)
-        return *it;
-    return NULL;
+    for (NodeImplPtr &child : m_children)
+      if (child->getNodeId() == childName)
+        return child.get();
+    return nullptr;
   }
 
   void ListNode::reserveChildren(size_t n)
   {
     m_children.reserve(n);
+  }
+
+  void ListNode::addChild(NodeImpl *node)
+  {
+    m_children.emplace_back(NodeImplPtr(node));
   }
 
   /**
@@ -399,20 +396,16 @@ namespace PLEXIL
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:
-      for (std::vector<NodeImpl *>::iterator it = m_children.begin();
-           it != m_children.end();
-           ++it)
-        if ((*it)->getState() == FINISHED_STATE)
-          (*it)->notifyChanged();
+      for (NodeImplPtr &child : m_children)
+        if (child->getState() == FINISHED_STATE)
+          child->notifyChanged();
       break;
 
     case EXECUTING_STATE:
     case FINISHED_STATE:
-      for (std::vector<NodeImpl *>::iterator it = m_children.begin();
-           it != m_children.end();
-           ++it)
-        if ((*it)->getState() == INACTIVE_STATE)
-          (*it)->notifyChanged();
+      for (NodeImplPtr &child : m_children)
+        if (child->getState() == INACTIVE_STATE)
+          child->notifyChanged();
       break;
 
     default:
@@ -803,8 +796,8 @@ namespace PLEXIL
   void ListNode::specializedActivate()
   {
     // Activate all children
-    for (std::vector<NodeImpl *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->activateNode();
+    for (NodeImplPtr &child : m_children)
+      child->activateNode();
   }
 
 }

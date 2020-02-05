@@ -86,7 +86,7 @@ namespace PLEXIL
 
     /**
      * @brief Get the ExecListener instance.
-     * @return The ExecListener. May be NULL.
+     * @return The ExecListener. May be nullptr.
      */
     virtual ExecListenerBase *getExecListener() = 0;
 

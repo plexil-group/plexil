@@ -41,7 +41,7 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(char const *nodeId, 
                                  NodeImpl *parent)
     : NodeImpl(nodeId, parent),
-      m_assignment(NULL)
+      m_assignment(nullptr)
   {
   }
 
@@ -51,7 +51,7 @@ namespace PLEXIL
                                  NodeState state,
                                  NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_assignment(NULL)
+      m_assignment(nullptr)
   {
     checkError(type == ASSIGNMENT,
                "Invalid node type " << type << " for an AssignmentNode");
@@ -86,7 +86,7 @@ namespace PLEXIL
     if (m_assignment) {
       debugMsg("AssignmentNode:~AssignmentNode", "<" << m_nodeId << "> Removing assignment.");
       delete m_assignment;
-      m_assignment = NULL;
+      m_assignment = nullptr;
     }
   }
 

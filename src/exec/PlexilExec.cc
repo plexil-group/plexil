@@ -175,7 +175,7 @@ namespace PLEXIL
 
       VariableConflictSet *result = s_freeList;
       s_freeList = s_freeList->m_next;
-      result->m_next = NULL;
+      result->m_next = nullptr;
       return result;
     }
 
@@ -862,7 +862,7 @@ namespace PLEXIL
     //   }
 
     //   // Only look at nodes with the highest priority
-    //   Node *nodeToExecute = NULL;
+    //   Node *nodeToExecute = nullptr;
     //   NodeState destState = NO_NODE_STATE;
     //   size_t count = conflict->front_count(); // # of nodes with best priority
     //   debugMsg("PlexilExec:resolveResourceConflicts",
@@ -965,7 +965,7 @@ namespace PLEXIL
     //       return result;
     //     result = result->next();
     //   }
-    //   return NULL;
+    //   return nullptr;
     // }
 
     // VariableConflictSet *ensureConflictSet(Expression *a)
@@ -1017,12 +1017,12 @@ namespace PLEXIL
 
     /**
      * @brief Dequeue a node from the candidate queue.
-     * @return Pointer to the top node in the queue, or NULL if queue empty.
+     * @return Pointer to the top node in the queue, or nullptr if queue empty.
      */
     Node *getCandidateNode() {
       Node *result = m_candidateQueue.front();
       if (!result)
-        return NULL;
+        return nullptr;
 
       m_candidateQueue.pop();
       result->setQueueStatus(QUEUE_NONE);
@@ -1032,7 +1032,7 @@ namespace PLEXIL
     Node *getStateChangeNode() {
       Node *result = m_stateChangeQueue.front();
       if (!result)
-        return NULL;
+        return nullptr;
     
       QueueStatus was = (QueueStatus) result->getQueueStatus();
       m_stateChangeQueue.pop();
@@ -1104,7 +1104,7 @@ namespace PLEXIL
     Node *getFinishedRootNode() {
       Node *result = m_finishedRootNodes.front();
       if (!result)
-        return NULL;
+        return nullptr;
     
       m_finishedRootNodes.pop();
       result->setQueueStatus(QUEUE_NONE);

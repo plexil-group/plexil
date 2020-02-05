@@ -35,10 +35,6 @@
 // Take care of annoying VxWorks macro
 #undef UPDATE
 
-// *** For debug use only ***
-// Uncomment this if we don't trust the condition activation/deactivation logic
-// #define PARANOID_ABOUT_CONDITION_ACTIVATION 1
-
 namespace PLEXIL {
 
   // Forward references
@@ -189,7 +185,7 @@ namespace PLEXIL {
     virtual QueueStatus getQueueStatus() const = 0;
     virtual void setQueueStatus(QueueStatus newval) = 0;
 
-    virtual std::string toString(const unsigned int indent = 0) = 0;
+    virtual std::string toString(const unsigned int indent = 0) const = 0;
     virtual void print(std::ostream& stream, const unsigned int indent = 0) const = 0;
 
   protected:

@@ -165,15 +165,16 @@ namespace PLEXIL
       m_parent(parent),
       m_conditions(),
       m_localVariables(nullptr),
+      m_localMutexes(nullptr),
       m_usingMutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
-      m_variablesByName(nullptr),
+      m_variablesByName(),
       m_nodeId(nodeId),
       m_priority(WORST_PRIORITY),
       m_currentStateStartTime(0.0),
-      m_timepoints(nullptr),
+      m_timepoints(),
       m_garbageConditions(),
       m_cleanedConditions(false),
       m_cleanedVars(false),
@@ -200,15 +201,16 @@ namespace PLEXIL
       m_parent(parent),
       m_conditions(),
       m_localVariables(nullptr),
+      m_localMutexes(nullptr),
       m_usingMutexes(nullptr),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
-      m_variablesByName(nullptr),
+      m_variablesByName(),
       m_nodeId(name),
       m_priority(WORST_PRIORITY),
       m_currentStateStartTime(0.0),
-      m_timepoints(nullptr),
+      m_timepoints(),
       m_garbageConditions(),
       m_cleanedConditions(false), 
       m_cleanedVars(false),
@@ -293,10 +295,12 @@ namespace PLEXIL
   void NodeImpl::allocateVariables(size_t n)
   {
     assertTrue_1(!m_localVariables); // illegal to call this twice
-    m_localVariables = new std::vector<std::unique_ptr<Expression>>();
+    m_localVariables = new std::vector<ExpressionPtr>();
     m_localVariables->reserve(n);
     m_variablesByName =
-      new NodeVariableMap(m_parent ? m_parent->getChildVariableMap() : nullptr);
+      NodeVariableMapPtr(new NodeVariableMap(m_parent
+                                             ? m_parent->getChildVariableMap()
+                                             : nullptr));
     m_variablesByName->grow(n);
   }
 
@@ -313,8 +317,36 @@ namespace PLEXIL
     if (m_variablesByName->find(name) != m_variablesByName->end())
       return false; // duplicate
     (*m_variablesByName)[name] = var;
-    m_localVariables->push_back(std::unique_ptr<Expression>(var));
+    m_localVariables->emplace_back(ExpressionPtr(var));
     return true;
+  }
+
+  void NodeImpl::allocateMutexes(size_t n)
+  {
+    assertTrue_1(!m_localMutexes); // illegal to call this twice
+    m_localMutexes = new std::vector<MutexPtr>();
+    m_localMutexes->reserve(n);
+  }
+
+  void NodeImpl::addMutex(Mutex *m)
+  {
+    assertTrueMsg(m_localMutexes,
+                  "Internal error: failed to allocate local mutex vector");
+    m_localMutexes->emplace_back(MutexPtr(m));
+  }
+
+  void NodeImpl::allocateUsingMutexes(size_t n)
+  {
+    assertTrue_1(!m_usingMutexes); // illegal to call this twice
+    m_usingMutexes = new std::vector<Mutex *>();
+    m_usingMutexes->reserve(n);
+  }
+
+  void NodeImpl::addUsingMutex(Mutex *m)
+  {
+    assertTrueMsg(m_localMutexes,
+                  "Internal error: failed to allocate using mutex vector");
+    m_usingMutexes->push_back(m);
   }
 
   void NodeImpl::finalizeConditions()
@@ -395,12 +427,10 @@ namespace PLEXIL
     cleanUpVars();
 
     // Delete timepoints, if any
-    NodeTimepointValue *temp = m_timepoints;
-    while (temp) {
-      m_timepoints = temp->next();
-      delete temp;
-      temp = m_timepoints;
-    }
+    delete m_timepoints.release();
+
+    delete m_usingMutexes;
+    delete m_localMutexes;
   }
 
   void NodeImpl::cleanUpConditions() 
@@ -465,13 +495,14 @@ namespace PLEXIL
     debugMsg("Node:cleanUpVars", " for " << m_nodeId);
 
     // Delete map
-    delete m_variablesByName;
+    delete m_variablesByName.release();
 
     // Delete user-spec'd variables
     if (m_localVariables) {
-      for (std::unique_ptr<Expression> &var : *m_localVariables) {
+      for (ExpressionPtr &var : *m_localVariables) {
         debugMsg("Node:cleanUpVars",
                  "<" << m_nodeId << "> Removing " << *var);
+        // FIXME This is redundant with unique_ptr destructor
         delete var.release();
       }
       delete m_localVariables;
@@ -531,15 +562,15 @@ namespace PLEXIL
   }
 
   // Default methods.
-  std::vector<NodeImpl *>& NodeImpl::getChildren()
+  std::vector<NodeImplPtr>& NodeImpl::getChildren()
   {
-    static std::vector<NodeImpl *> sl_emptyNodeVec;
+    static std::vector<NodeImplPtr> sl_emptyNodeVec;
     return sl_emptyNodeVec;
   }
 
-  const std::vector<NodeImpl *>& NodeImpl::getChildren() const
+  const std::vector<NodeImplPtr>& NodeImpl::getChildren() const
   {
-    static const std::vector<NodeImpl *> sl_emptyNodeVec;
+    static const std::vector<NodeImplPtr> sl_emptyNodeVec;
     return sl_emptyNodeVec;
   }
 
@@ -1472,14 +1503,14 @@ namespace PLEXIL
     if (!m_timepoints)
       return;
 
-    NodeTimepointValue *tp = m_timepoints;
+    NodeTimepointValue *tp = m_timepoints.get();
     if (newState == INACTIVE_STATE) {
       // Reset timepoints
       while (tp) {
         tp->reset();
         tp = tp->next();
       }
-      tp = m_timepoints;
+      tp = m_timepoints.get();
     }
 
     // Update relevant timepoints
@@ -1518,7 +1549,7 @@ namespace PLEXIL
 
   Expression *NodeImpl::ensureTimepoint(NodeState st, bool isEnd)
   {
-    NodeTimepointValue *result = m_timepoints;
+    NodeTimepointValue *result = m_timepoints.get();
     while (result) {
       if (st == result->state() && isEnd == result->isEnd())
         return result;
@@ -1527,8 +1558,8 @@ namespace PLEXIL
 
     // Not found, create it
     result = new NodeTimepointValue(this, st, isEnd);
-    result->setNext(m_timepoints);
-    m_timepoints = result;
+    result->setNext(m_timepoints.release());
+    m_timepoints.reset(result);
     return result;
   }
 
@@ -1582,6 +1613,48 @@ namespace PLEXIL
     }
 
     debugMsg("Node:findLocalVariable", ' ' << m_nodeId << ' ' << name << " not found");
+    return nullptr;
+  }
+
+  // Helper for the below
+  static Mutex *findMutexInVector(char const *name,
+                                  std::vector<MutexPtr> const &mutexes)
+  {
+    Mutex *result = nullptr;
+    std::vector<MutexPtr>::const_iterator it =
+      std::find_if(mutexes.begin(), mutexes.end(),
+                   [name] (MutexPtr const &m) -> bool
+                   { return m->getName() == name; });
+    if (it != mutexes.end())
+      result = it->get();
+    return result;
+  }
+
+  // Searches ancestors when required
+  Mutex *NodeImpl::findMutex(char const *name) const
+  {
+    debugMsg("Node:findMutex",
+             " node " << m_nodeId << ", for " << name);
+    Mutex *result = nullptr;
+    NodeImpl const *node = this;
+    while (node) {
+      std::vector<MutexPtr> const *mutexvec = node->m_localMutexes;
+      if (node->m_localMutexes) {
+        result = findMutexInVector(name, *mutexvec);
+        if (result) {
+          debugMsg("Node:findMutex",
+                   " returning mutex " << name << " from node " << node->m_nodeId);
+          return result;
+        }
+      }
+      node = node->m_parent;
+    }
+
+    // Search global mutexes
+    // TODO
+
+    // Fall through
+    debugMsg("Node:findMutex", ' ' << name << " not found");
     return nullptr;
   }
 
@@ -1729,7 +1802,7 @@ namespace PLEXIL
   void NodeImpl::activateLocalVariables()
   {
     if (m_localVariables) {
-      for (std::unique_ptr<Expression> &var : *m_localVariables)
+      for (ExpressionPtr &var : *m_localVariables)
         var->activate();
     }
   }
@@ -1737,7 +1810,7 @@ namespace PLEXIL
   void NodeImpl::deactivateLocalVariables()
   {
     if (m_localVariables) {
-      for (std::unique_ptr<Expression> &var : *m_localVariables)
+      for (ExpressionPtr &var : *m_localVariables)
         var->deactivate();
     }
   }
@@ -1786,7 +1859,7 @@ namespace PLEXIL
   {
   }
 
-  std::string NodeImpl::toString(const unsigned int indent)
+  std::string NodeImpl::toString(const unsigned int indent) const
   {
     std::ostringstream retval;
     print(retval, indent);
@@ -1821,10 +1894,8 @@ namespace PLEXIL
       printVariables(stream, indent);
     }
     // print children
-    for (std::vector<NodeImpl *>::const_iterator it = getChildren().begin();
-         it != getChildren().end();
-         ++it)
-      (*it)->print(stream, indent + 2);
+    for (NodeImplPtr const &child : this->getChildren())
+      child->print(stream, indent + 2);
     stream << indentStr << "}" << std::endl;
   }
 

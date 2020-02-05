@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ namespace PLEXIL
   {
     plexilAddFinalizer(&purgeNodeFactories);
     // Ensure entire map is correctly initialized
-    s_nodeFactories[NodeType_uninitialized] = NULL;
+    s_nodeFactories[NodeType_uninitialized] = nullptr;
     s_nodeFactories[NodeType_NodeList] = new ConcreteNodeFactory<ListNode>();
     s_nodeFactories[NodeType_Command] = new ConcreteNodeFactory<CommandNode>();
     s_nodeFactories[NodeType_Assignment] = new ConcreteNodeFactory<AssignmentNode>();

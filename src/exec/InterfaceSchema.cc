@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ namespace PLEXIL
     static const char * whitespace = " \t\n";
     std::vector<std::string> * result = new std::vector<std::string>();
     const char * next = argString;
-    while ((next != NULL) && (strlen(next) > 0))
+    while ((next != nullptr) && (strlen(next) > 0))
       {
 	// skip leading whitespace
 	unsigned int offset = strspn(next, whitespace);
@@ -58,14 +58,14 @@ namespace PLEXIL
 	// look for comma or end of string
 	const char * comma = strchr(next, ',');
 	unsigned int len = 
-	  (comma == NULL) ? 
+	  (comma == nullptr) ? 
 	  strcspn(next, whitespace) /* strip trailing whitespace */ :
 	  comma - next;
 
 	// construct result string
 	result->push_back(std::string(next, len));
 	next =
-	  (comma == NULL) ? NULL : comma + 1;
+	  (comma == nullptr) ? nullptr : comma + 1;
       }
     return result;
   }

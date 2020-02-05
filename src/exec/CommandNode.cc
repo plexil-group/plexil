@@ -95,7 +95,7 @@ namespace PLEXIL
 
   CommandNode::CommandNode(char const *nodeId, NodeImpl *parent)
     : NodeImpl(nodeId, parent),
-      m_command(NULL)
+      m_command(nullptr)
   {
   }
 
@@ -107,7 +107,7 @@ namespace PLEXIL
                            NodeState state,
                            NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_command(NULL)
+      m_command(nullptr)
   {
     // Create dummy command for unit test
     createDummyCommand();
@@ -154,7 +154,7 @@ namespace PLEXIL
     if (m_command) {
       debugMsg("CommandNode:~CommandNode", '<' << m_nodeId << "> Removing command.");
       delete m_command;
-      m_command = NULL;
+      m_command = nullptr;
     }
   }
 
@@ -165,8 +165,8 @@ namespace PLEXIL
 
     debugMsg("CommandNode:cleanUpNodeBody", '<' << m_nodeId << "> entered");
     if (m_command) {
-      m_conditions[actionCompleteIdx] = NULL;
-      m_conditions[abortCompleteIdx] = NULL;
+      m_conditions[actionCompleteIdx] = nullptr;
+      m_conditions[abortCompleteIdx] = nullptr;
       m_command->cleanUp();
     }
     m_cleanedBody = true;

@@ -45,7 +45,7 @@ namespace PLEXIL
      * @param nodeId The name of this node.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    ListNode(char const *nodeId, NodeImpl *parent = NULL);
+    ListNode(char const *nodeId, NodeImpl *parent = nullptr);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -53,7 +53,7 @@ namespace PLEXIL
     ListNode(const std::string& type,
              const std::string& name,
              NodeState state,
-             NodeImpl *parent = NULL);
+             NodeImpl *parent = nullptr);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -69,12 +69,12 @@ namespace PLEXIL
       return NodeType_NodeList;
     }
 
-    virtual std::vector<NodeImpl *>& getChildren() override
+    virtual std::vector<NodeImplPtr>& getChildren() override
     {
       return m_children;
     }
 
-    virtual const std::vector<NodeImpl *>& getChildren() const override
+    virtual const std::vector<NodeImplPtr>& getChildren() const override
     {
       return m_children; 
     }
@@ -84,10 +84,7 @@ namespace PLEXIL
      * @param node The child.
      * @note Intended for use by the plan parser and unit tests.
      */
-    void addChild(NodeImpl *node)
-    {
-      m_children.push_back(node);
-    }
+    void addChild(NodeImpl *node);
 
     virtual NodeImpl *findChild(char const *childName) override;
     virtual NodeImpl const *findChild(char const *childName) const override;
@@ -132,7 +129,7 @@ namespace PLEXIL
     NodeFunction m_actionCompleteFn;
     NodeFunction m_allFinishedFn;
     // Shared with derived class LibraryCallNode
-    std::vector<NodeImpl *> m_children; /*<! Vector of child nodes. */
+    std::vector<NodeImplPtr> m_children; /*<! Vector of child nodes. */
   };
 
 }

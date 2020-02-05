@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ jint Java_gov_nasa_plexil_android_ExecModuleTest_run(JNIEnv *env, jobject /* jav
 {
   JNIUtils jni(env);
   char* logDir = jni.getJavaStringCopy(logDirJstring);
-  if (logDir == NULL)
+  if (logDir == nullptr)
 	return -1;
 
   // Route cout and cerr to a log file.

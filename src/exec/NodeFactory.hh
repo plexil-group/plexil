@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ namespace PLEXIL
      */
     static NodeImpl *createNode(char const *name,
                                 PlexilNodeType type,
-                                NodeImpl *parent = NULL);
+                                NodeImpl *parent = nullptr);
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
@@ -57,7 +57,7 @@ namespace PLEXIL
     static NodeImpl *createNode(const std::string& type, 
                                 const std::string& name, 
                                 NodeState state,
-                                NodeImpl *parent = NULL);
+                                NodeImpl *parent = nullptr);
 
   protected:
 
@@ -68,7 +68,7 @@ namespace PLEXIL
      * @brief Primary factory method delegated to derived classes.
      */
     virtual NodeImpl *create(char const *name, 
-                             NodeImpl *parent = NULL) const = 0;
+                             NodeImpl *parent = nullptr) const = 0;
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
@@ -76,7 +76,7 @@ namespace PLEXIL
     virtual NodeImpl *create(const std::string& type,
                              const std::string& name,
                              NodeState state,
-                             NodeImpl *parent = NULL) const = 0;
+                             NodeImpl *parent = nullptr) const = 0;
 
   private:
     // Deliberately unimplemented

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ namespace PLEXIL
          it != BaseMap::m_store.end();
          ++it) {
       free(const_cast<char *>(it->first));
-      it->first = NULL;
+      it->first = nullptr;
     }
   }
 
@@ -73,7 +73,7 @@ namespace PLEXIL
       if (it != ancestor->end())
         return it->second;
     }
-    return NULL;
+    return nullptr;
   }
    
   // Copy key on insert

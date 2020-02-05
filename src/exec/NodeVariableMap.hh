@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
     public SimpleMap<char const *, Expression *, CStringComparator>
   {
   public:
-    NodeVariableMap(NodeVariableMap const *parentMap = NULL);
+    NodeVariableMap(NodeVariableMap const *parentMap = nullptr);
     virtual ~NodeVariableMap();
     
     virtual void clear();

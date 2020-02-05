@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL
      * @param nodeId The name of this node.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    LibraryCallNode(char const *nodeId, NodeImpl *parent = NULL);
+    LibraryCallNode(char const *nodeId, NodeImpl *parent = nullptr);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -49,7 +49,7 @@ namespace PLEXIL
     LibraryCallNode(const std::string& type,
                     const std::string& name,
                     NodeState state,
-                    NodeImpl *parent = NULL);
+                    NodeImpl *parent = nullptr);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -76,7 +76,7 @@ namespace PLEXIL
     void allocateAliasMap(size_t n);
 
   private:
-    NodeVariableMap *m_aliasMap;
+    NodeVariableMapPtr m_aliasMap;
   };
 
 }

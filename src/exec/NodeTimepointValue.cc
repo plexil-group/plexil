@@ -48,7 +48,7 @@ namespace PLEXIL
                                          bool isEnd)
     : Notifier(),
       m_time(0.0),
-      m_next(NULL),
+      m_next(),
       m_node(node),
       m_state(state),
       m_end(isEnd),
@@ -133,12 +133,12 @@ namespace PLEXIL
 
   NodeTimepointValue *NodeTimepointValue::next() const
   {
-    return m_next;
+    return m_next.get();
   }
 
   void NodeTimepointValue::setNext(NodeTimepointValue *nxt)
   {
-    m_next = nxt;
+    m_next.reset(nxt);
   }
 
 } // namespace PLEXIL
