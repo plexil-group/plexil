@@ -31,12 +31,15 @@
 #include "NodeTransition.hh"
 
 #include <list>
+#include <memory>
 
 namespace PLEXIL 
 {
   // Forward references
   class Expression;
   class ExecListenerBase;
+
+  using NodePtr = std::unique_ptr<Node>;
 
   /**
    * @brief The API of the core PLEXIL executive.
@@ -75,7 +78,7 @@ namespace PLEXIL
     /**
      * @brief Get the list of active plans.
      */
-    virtual std::list<Node *> const &getPlans() const = 0;
+    virtual std::list<NodePtr> const &getPlans() const = 0;
 
     /**
      * @brief Prepare the given plan for execution.

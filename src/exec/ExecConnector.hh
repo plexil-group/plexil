@@ -28,6 +28,7 @@
 #define EXEC_CONNECTOR_HH
 
 #include <list>
+#include <memory>
 
 namespace PLEXIL
 {
@@ -36,6 +37,7 @@ namespace PLEXIL
   class ExecListenerBase;
   class ExternalInterface;
   class Node;
+  using NodePtr = std::unique_ptr<Node>;
 
   /**
    * @brief Stateless abstract base class declaring the public API of the PlexilExec.
@@ -106,7 +108,7 @@ namespace PLEXIL
     /**
      * @brief Get the list of active plans.
      */
-    virtual std::list<Node *> const &getPlans() const = 0;
+    virtual std::list<NodePtr> const &getPlans() const = 0;
 
   };
 

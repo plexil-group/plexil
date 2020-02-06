@@ -218,7 +218,7 @@ namespace PLEXIL
     LinkedQueue<Assignment> m_assignmentsToRetract;
     std::vector<Expression *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
 
-    std::list<Node *> m_plan; /*<! The root of the plan.*/
+    std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
     ExecListenerBase *m_listener;
     unsigned int m_queuePos;
@@ -254,9 +254,6 @@ namespace PLEXIL
       m_assignmentsToExecute.clear();
       m_assignmentsToRetract.clear();
       m_variablesToRetract.clear();
-
-      for (std::list<Node *>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
-        delete (Node*) (*it);
     }
 
     virtual void setExecListener(ExecListenerBase *l) override
@@ -272,14 +269,14 @@ namespace PLEXIL
     /**
      * @brief Get the list of active plans.
      */
-    virtual std::list<Node *> const &getPlans() const override
+    virtual std::list<NodePtr> const &getPlans() const override
     {
       return m_plan;
     }
 
     virtual bool addPlan(Node *root) override
     {
-      m_plan.push_back(root);
+      m_plan.emplace_back(NodePtr(root));
       debugMsg("PlexilExec:addPlan",
                "Added plan: \n" << root->toString());
       root->notifyChanged(); // make sure root is considered first
@@ -296,7 +293,7 @@ namespace PLEXIL
     {
       bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
-      for (Node const *root : m_plan) {
+      for (NodePtr const &root : m_plan) {
         if (root->getState() == FINISHED_STATE)
           result = true;
         else
@@ -312,7 +309,9 @@ namespace PLEXIL
         m_finishedRootNodes.pop();
         debugMsg("PlexilExec:deleteFinishedPlans",
                  " deleting node " << node->getNodeId() << ' ' << node);
-        m_plan.remove(node);
+        std::remove_if(m_plan.begin(), m_plan.end(),
+                       [node] (NodePtr const &n) -> bool
+                       { return node == n.get(); });
         delete node;
       }
       m_finishedRootNodesDeleted = true;
@@ -459,8 +458,9 @@ namespace PLEXIL
         m_listener->stepComplete(cycleNum);
 
       debugMsg("PlexilExec:cycle", " ==>End cycle " << cycleNum);
-      for (Node const *node: m_plan)
-        debugMsg("PlexilExec:printPlan", std::endl << *node);
+      for (NodePtr const &node: m_plan)
+        debugMsg("PlexilExec:printPlan",
+                 std::endl << const_cast<Node const *>(node.get()));
 
       //
       // *** END CRITICAL SECTION ***
