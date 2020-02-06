@@ -177,7 +177,7 @@ namespace PLEXIL
 
     pushSymbolTable(l->symtab);
     try {
-      finalizeNode(node->getChildren().front(), calleeXml);
+      finalizeNode(node->getChildren().front().get(), calleeXml);
     }
     catch (...) {
       popSymbolTable();

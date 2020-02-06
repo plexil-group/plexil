@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@
 
 using PLEXIL::Expression;
 using PLEXIL::NodeImpl;
+using PLEXIL::NodeImplPtr;
 using PLEXIL::NodeType_error;
 using PLEXIL::NodeType_NodeList;
 using PLEXIL::NodeType_LibraryNodeCall;
@@ -123,25 +124,25 @@ static void initializeStatistics()
   g_calledLibs.clear();
 }
 
-static Expression const *getNodeCondition(NodeImpl const *node, size_t idx)
+static Expression const *getNodeCondition(NodeImplPtr const &node, size_t idx)
 {
   switch (idx) {
   case NodeImpl::ancestorExitIdx:
   case NodeImpl::ancestorInvariantIdx:
   case NodeImpl::ancestorEndIdx: {
-    std::vector<NodeImpl *> const &kids = node->getChildren();
+    std::vector<NodeImplPtr> const &kids = node->getChildren();
     if (kids.empty())
       return NULL;
-    return (const_cast<NodeImpl const *>(kids.front()))->getCondition(idx);
+    return const_cast<NodeImpl const *>(kids.front().get())->getCondition(idx);
   }
 
   default:
-    return node->getCondition(idx);
+    return const_cast<NodeImpl const *>(node.get())->getCondition(idx);
   }
 
 }
 
-static void getConditionStatistics(NodeImpl const *node)
+static void getConditionStatistics(NodeImplPtr const &node)
 {
   // Count total conditions on this node
   size_t nConds = 0;
@@ -156,7 +157,7 @@ static void getConditionStatistics(NodeImpl const *node)
 }
 
 // Recursive function for plan traversal
-static void getNodeStatistics(NodeImpl const *node)
+static void getNodeStatistics(NodeImplPtr const &node)
 {
   ++g_nodeCount;
 
@@ -171,7 +172,7 @@ static void getNodeStatistics(NodeImpl const *node)
   getConditionStatistics(node);
 
   // Count children
-  std::vector<NodeImpl *> const &kids = node->getChildren();
+  std::vector<NodeImplPtr> const &kids = node->getChildren();
   incrementNodeChildCount(kids.size());
 
   switch (typ) {
@@ -188,10 +189,8 @@ static void getNodeStatistics(NodeImpl const *node)
     break;
 
   default:
-    for (std::vector<NodeImpl *>::const_iterator it = kids.begin();
-         it != kids.end();
-         ++it)
-      getNodeStatistics(*it);
+    for (NodeImplPtr const & kid : kids)
+      getNodeStatistics(kid);
     break;
   }
 }
@@ -332,7 +331,7 @@ static void loadAndAnalyzePlan(std::string const &planFile)
   pugi::xml_document *doc = PLEXIL::loadXmlFile(planFile);
   checkParserException(doc, "File " << planFile << " not found");
   
-  NodeImpl *root = PLEXIL::parsePlan(doc->document_element());
+  NodeImplPtr root = NodeImplPtr(PLEXIL::parsePlan(doc->document_element()));
   checkParserException(root, "parsePlan returned NULL");
 
   // Analyze plan
@@ -345,7 +344,7 @@ static void loadAndAnalyzePlan(std::string const &planFile)
   reportStatistics();
 
   // Clean up
-  delete root;
+  delete root.release();
   delete doc;
 }
 

@@ -1148,11 +1148,11 @@ namespace PLEXIL
   static void finalizeListNode(ListNode *node, xml_node const listXml)
   {
     assertTrue_1(node);
-    std::vector<NodeImpl *> &kids = node->getChildren();
-    std::vector<NodeImpl *>::iterator kid = kids.begin();
+    std::vector<NodeImplPtr> &kids = node->getChildren();
+    std::vector<NodeImplPtr>::iterator kid = kids.begin();
     xml_node kidXml = listXml.first_child();
     while (kid != kids.end() && kidXml) {
-      finalizeNode(*kid, kidXml);
+      finalizeNode(kid->get(), kidXml);
       ++kid;
       kidXml = kidXml.next_sibling();
     }
