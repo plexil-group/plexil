@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,10 @@
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecListenerFactory.hh"
 #include "Expression.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "NodeVariableMap.hh"
 
 #include <fstream>
@@ -49,7 +50,9 @@
    #include <direct.h>
    #define GetCurrentDir _getcwd
 #else
+#ifdef HAVE_UNISTD_H
    #include <unistd.h>
+#endif
    #define GetCurrentDir getcwd
 #endif
 
@@ -168,32 +171,32 @@ namespace PLEXIL
             "A. (ARC-TI); originally authored by " <<
             "Swanson, Keith J. (ARC-TI)\"> " << br << br <<
             "<!-- jQuery is required --> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory << "jq/jquery-1.6.2.js\" " <<
+            "<script src=\"file://" << m_plexilGanttDirectory << "jq/jquery-1.6.2.js\" " <<
             "type=\"text/javascript\"></script> " << br <<
             "<link type=\"text/css\" href=\"" << m_plexilGanttDirectory << 
             "jq/jquery-ui-1.8.15.custom.css\" " <<
             "rel=\"Stylesheet\" /> " << br <<
-            "<script type=\"text/javascript\" src=\"" << m_plexilGanttDirectory <<
+            "<script type=\"text/javascript\" src=\"file://" << m_plexilGanttDirectory <<
             "jq/jquery-ui-1.8.15.custom.min.js\"></script> " << br << br <<
             "<!-- Load data locally --> " << br <<
-            "<script src=\"" << m_currentWorkingDir << "/" << myTokenFileName << 
+            "<script src=\"file://" << m_currentWorkingDir << "/" << myTokenFileName << 
             "\" type=\"text/javascript\"></script> " << br << br <<
             "<!-- Application code --> " << br <<      
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "addons.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "getAndConvertTokens.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "showTokens.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "detailsBox.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "grid.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "sizing.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "main.js\" type=\"text/javascript\"></script> " << br <<
-            "<script src=\"" << m_plexilGanttDirectory <<
+            "<script src=\"file://" << m_plexilGanttDirectory <<
             "shortcuts.js\" type=\"text/javascript\"></script> " << br << br <<
             "<!-- My styles --> " << br <<
             "<link rel=\"stylesheet\" href=\"" << m_plexilGanttDirectory << 
@@ -283,7 +286,7 @@ namespace PLEXIL
          "JSON tokens file written to "+ outputFileName);
    }
 
-   static string getLocalVarInExecStateFromMap(Node *nodeId, 
+   static string getLocalVarInExecStateFromMap(NodeImpl *nodeId, 
                                                vector<string>& myLocalVariableMapValues)
    {
       NodeVariableMap const *tempLocalVariablesMap = nodeId->getVariableMap();
@@ -308,18 +311,18 @@ namespace PLEXIL
       return myLocalVars.str();
    }
 
-   static string getChildNode(Node *nodeId)
+   static string getChildNode(NodeImpl *nodeId)
    {
       std::ostringstream myChildNode;
       //get child nodes
-      const vector<Node *>& tempChildList = nodeId->getChildren();
+      const vector<NodeImpl *>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
          return std::string();
       }
       else
       {
-         for (vector<Node *>::const_iterator i = tempChildList.begin(); 
+         for (vector<NodeImpl *>::const_iterator i = tempChildList.begin(); 
             i != tempChildList.end(); i++) 
            myChildNode << (*i)->getNodeId() << ", ";
       }
@@ -337,14 +340,18 @@ namespace PLEXIL
    {
       vector<string> myLocalVariableMapValues;
 
+      NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+      assertTrueMsg(node, "GanttListener: not a node");
+
       //startTime is when first node executes
       if (m_startTime == -1) {
-         m_startTime = nodeId->getCurrentStateStartTime();
+         m_startTime = node->getCurrentStateStartTime();
       }
 
       m_parent.clear();
 
-      double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
+
+      double myStartValdbl = ((node->getCurrentStateStartTime()) - m_startTime) * 100;
 
       if (nodeId->getParent())
          m_parent = nodeId->getParent()->getNodeId();
@@ -363,8 +370,8 @@ namespace PLEXIL
          m_counterMap[nodeId] = m_actualId;
 
       //get local variables from map in state 'EXECUTING'
-      string myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
-      string myChildren = getChildNode(nodeId); //get child nodes
+      string myLocalVars = getLocalVarInExecStateFromMap(node, myLocalVariableMapValues);
+      string myChildren = getChildNode(node); //get child nodes
       return NodeObj(myStartValdbl,
                      -1,
                      -1,
@@ -447,18 +454,19 @@ namespace PLEXIL
 
    void GanttListener::getFinalLocalVar(Node *nodeId)
    {
-      NodeVariableMap const *tempLocalVariableMapAfter = nodeId->getVariableMap();
-      vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
-      vector<string> thisLocalVarsVectorKeys;
-      vector<string> thisLocalVarsVectorValues;
+     NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+     NodeVariableMap const *tempLocalVariableMapAfter = node->getVariableMap();
+     vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
+     vector<string> thisLocalVarsVectorKeys;
+     vector<string> thisLocalVarsVectorValues;
 
-      if(!m_nodes[m_index].localvariables.empty() &&
-         m_nodes[m_index].localvarsvector.size() > 0) 
-      {
+     if(!m_nodes[m_index].localvariables.empty() &&
+        m_nodes[m_index].localvarsvector.size() > 0) 
+       {
          if (!tempLocalVariableMapAfter || tempLocalVariableMapAfter->empty())
-         {
-            m_nodes[m_index].localvariables = "";
-         }
+           {
+             m_nodes[m_index].localvariables = "";
+           }
          else {
            for (NodeVariableMap::const_iterator it = tempLocalVariableMapAfter->begin(); 
                 it != tempLocalVariableMapAfter->end(); it++) 
@@ -469,17 +477,18 @@ namespace PLEXIL
          }
          processLocalVar(prevLocalVarsVector, thisLocalVarsVectorValues, 
                          thisLocalVarsVectorKeys);
-      }
-      else 
-      {
+       }
+     else 
+       {
          m_nodes[m_index].localvariables = "";
-      }
+       }
    }
 
    void GanttListener::processTempValsForNode(Node *nodeId)
    {
       m_parent.clear();
-      m_nodes[m_index].end = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
+      NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
+      m_nodes[m_index].end = ((node->getCurrentStateStartTime()) - m_startTime) * 100;
       m_nodes[m_index].duration = m_nodes[m_index].end - m_nodes[m_index].start;
       //doesn't exist until node is finished     
       if (nodeId->getParent()) {

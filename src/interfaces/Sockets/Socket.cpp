@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,19 +30,39 @@
 
 #include "Debug.hh"
 
-#include <cerrno>
-#include <cstring>
 #include <iostream>
 
-#include <fcntl.h>
-#include <arpa/inet.h>
+#include <cerrno>
 
-#ifdef PLEXIL_VXWORKS
-// VxWorks is not BSD!
-#include <sockLib.h>
+#ifdef STDC_HEADERS
+#include <cstring>
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_SOCKLIB_H
+#include <sockLib.h> // vxWorks
 #else
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // close()
 #endif
 
 Socket::Socket() :
@@ -244,23 +264,40 @@ int Socket::recv (std::string& s) const
 //    return ret_val == 0;
 //}
 
-bool Socket::connect (const std::string host, const uint16_t port)
+bool Socket::connect(const std::string host, const uint16_t port)
 {
-   if (! is_valid()) return false;
-   
-   m_addr.sin_family = AF_INET;
-   m_addr.sin_port = htons (port);
-   
-   int status = inet_pton (AF_INET, host.c_str(), &m_addr.sin_addr);
-   if (status != 1 || errno == EAFNOSUPPORT)
+   if (!is_valid())
      return false;
    
-   status = ::connect (m_sock, (sockaddr *) &m_addr, sizeof (m_addr));
+   m_addr.sin_family = AF_INET;
+   m_addr.sin_port = htons(port);
+   
+   // TODO - handle IPv6
+   struct hostent *hostent = gethostbyname(host.c_str());
+   if (!hostent) {
+     std::cerr << "Socket::connect: gethostbyname() failed for " << host
+               << ", h_errno = " << h_errno << ": " << hstrerror(h_errno)
+               << std::endl;
+     return false;
+   }
+   if (hostent->h_addrtype != AF_INET) {
+     std::cerr << "Socket::connect: gethostbyname() for  " << host
+               << " returned unimplemented addrtype = " << hostent->h_addrtype
+               << std::endl;
+     return false;
+   }
+   memcpy((void *) &m_addr.sin_addr, (void *) hostent->h_addr, sizeof(hostent->h_addr));
+   
+   int status = ::connect (m_sock, (sockaddr *) &m_addr, sizeof (m_addr));
    
    if (status == 0)
       return true;
-   else
-      return false;
+   else {
+     std::cerr << "Socket::connect: connect() failed, errno = "
+               << errno << ": " << strerror(errno)
+               << std::endl;
+     return false;
+   }
 }
 
 void Socket::set_non_blocking (const bool b)

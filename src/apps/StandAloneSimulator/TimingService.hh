@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,12 @@
 #ifndef TIMING_SERVICE_HH
 #define TIMING_SERVICE_HH
 
+#include "plexil-config.h"
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
 #include <csignal>
 
 #define TIMING_SERVICE_MAX_N_SIGNALS 8

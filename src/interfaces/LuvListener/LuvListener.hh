@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -85,12 +85,9 @@ namespace PLEXIL
 
     /**
      * @brief Notify that a node has changed state.
-     * @param prevState The old state.
-     * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
+     * @param transition Record of the state transition.
      */
-    void implementNotifyNodeTransition(NodeState prevState, 
-									   Node *node) const;
+    void implementNotifyNodeTransition(NodeTransition const &transition) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.

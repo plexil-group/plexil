@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -106,15 +106,14 @@ namespace PLEXIL
      * @param planXml The TinyXML representation of the new plan.
      */
     virtual void handleAddPlan(pugi::xml_node const planXml)
-      throw (ParserException)
       = 0;
 
     /**
      * @brief Notify the executive of a new library node.
      * @param planXml The XML document containing the new library node
+     * @return true if successful, false otherwise.
      */
-    virtual void handleAddLibrary(pugi::xml_document *planXml)
-      throw (ParserException)
+    virtual bool handleAddLibrary(pugi::xml_document *planXml)
       = 0;
 
     /**

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,17 +48,6 @@ namespace PLEXIL
   {
   public: 
 
-    /**
-     * @brief Default constructor.
-     */
-	ExecListenerBase()
-	{
-	}
-
-	virtual ~ExecListenerBase()
-	{
-	}
-
 	//
 	// API to Exec
 	//
@@ -66,16 +55,10 @@ namespace PLEXIL
 	/**
 	 * @brief Notify that some nodes have changed state.
 	 * @param Vector of NodeTransition instances.
-     * @note This is called synchronously from the inner loop of the Exec.
-     *       Listeners should not do any I/O during this call.
-     * @note Derived classes should specialize this member function rather
-     *       than notifyNodeTransition().
+     * @note This is called synchronously from the outer loop of the Exec.
+     *       As such it should not block on I/O.
 	 */
-    virtual void notifyOfTransitions(std::vector<NodeTransition> const &transitions)
-    {
-      for (NodeTransition const &n : transitions)
-        this->notifyNodeTransition(n.node, n.oldState, n.newState);
-    }
+    virtual void notifyOfTransitions(std::vector<NodeTransition> const &transitions) = 0;
 
     /**
      * @brief Notify that a variable assignment has been performed.
@@ -94,22 +77,6 @@ namespace PLEXIL
      *        may publish transitions and assignments.
      */
     virtual void stepComplete(unsigned int cycleNum) = 0;
-
-  protected:
-    //
-    // For backward compatibility
-    //
-    
-	/**
-	 * @brief Notify that a node has changed state.
-	 * @param node Pointer to the node.
-     * @param oldState State being transitioned from.
-     * @param newState State being transitioned to.
-	 */
-    virtual void notifyNodeTransition(Node *node,
-                                      NodeState oldState,
-                                      NodeState newState) = 0;
-
 
   };
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -329,9 +329,8 @@ namespace PLEXIL {
 
     /**
      * @brief Unsubscribe the given listener from the listener map.
-     * @return True if found and unsubscribed. False if not found.
      */
-    bool unsubscribeGlobal(const LocalListenerRef& listener);
+    void unsubscribeGlobal(const LocalListenerRef& listener);
 
     //
     // Static utility methods

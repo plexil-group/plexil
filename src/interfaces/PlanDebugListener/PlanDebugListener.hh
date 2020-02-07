@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,23 +39,25 @@ namespace PLEXIL
 
     PlanDebugListener();
     PlanDebugListener(pugi::xml_node const xml);
-    virtual ~PlanDebugListener();
+    virtual ~PlanDebugListener() = default;
 
     // These methods have no special function.
-    virtual bool initialize() { return true; }
-    virtual bool start() { return true; }
-    virtual bool stop() { return true; }
-    virtual bool reset() { return true; }
-    virtual bool shutdown() { return true; }
+    virtual bool initialize() override { return true; }
+    virtual bool start() override { return true; }
+    virtual bool stop() override { return true; }
+    virtual bool reset() override { return true; }
+    virtual bool shutdown() override { return true; }
 
     // Capture and report about useful node state transitions.
-    void implementNotifyNodeTransition(NodeState prevState,
-                                       Node *node) const;
+    void implementNotifyNodeTransition(NodeTransition const &transition) const override;
 
   private:
     // Disallow copy, and assignment
-    PlanDebugListener(const PlanDebugListener&);
-    PlanDebugListener& operator= (const PlanDebugListener&);
+    PlanDebugListener(PlanDebugListener const &) = delete;
+    PlanDebugListener(PlanDebugListener &&) = delete;
+
+    PlanDebugListener &operator=(PlanDebugListener const &) = delete;
+    PlanDebugListener &operator=(PlanDebugListener &&) = delete;
   };
 }
 

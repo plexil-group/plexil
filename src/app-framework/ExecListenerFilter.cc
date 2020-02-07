@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,13 +45,6 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Destructor.
-   */
-  ExecListenerFilter::~ExecListenerFilter()
-  {
-  }
-
-  /**
    * @brief Parses configuration XML.
    * @return true if successful, false otherwise.
    */
@@ -62,14 +55,11 @@ namespace PLEXIL
 
   /**
    * @brief Determine whether this node transition event should be reported.
-   * @param prevState The node's previous state.
-   * @param node Smart pointer to the node that changed state.
+   * @param Const reference to the state transition record.
    * @return true to notify on this event, false to ignore it.
-   * @note The default method simply returns true.
    */
   bool 
-  ExecListenerFilter::reportNodeTransition(NodeState /* prevState */, 
-                                           Node * /* node */)
+  ExecListenerFilter::reportNodeTransition(NodeTransition const & /* transition */)
   {
     return true;
   }
@@ -78,7 +68,6 @@ namespace PLEXIL
    * @brief Determine whether this AddPlan event should be reported.
    * @param plan Smart pointer to the plan's intermediate representation.
    * @return true to notify on this event, false to ignore it.
-   * @note The default method simply returns true.
    */
   bool
   ExecListenerFilter::reportAddPlan(pugi::xml_node const /* plan */)
@@ -90,7 +79,6 @@ namespace PLEXIL
    * @brief Determine whether this AddLibraryNode event should be reported.
    * @param plan Smart pointer to the library's intermediate representation.
    * @return true to notify on this event, false to ignore it.
-   * @note The default method simply returns true.
    */
   bool 
   ExecListenerFilter::reportAddLibrary(pugi::xml_node const /* libNode */)

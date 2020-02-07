@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,10 @@
 #include "PlanDebugListener.hh"
 
 #include "Debug.hh"
-#include "Node.hh"
+#include "Error.hh"
+#include "ExecListenerFactory.hh"
+#include "NodeImpl.hh"
+#include "NodeTransition.hh"
 
 #include "pugixml.hpp"
 
@@ -35,13 +38,15 @@
 
 namespace PLEXIL
 {
-  PlanDebugListener::PlanDebugListener () { }
+  PlanDebugListener::PlanDebugListener ()
+    : ExecListener()
+  {
+  }
 
   PlanDebugListener::PlanDebugListener (pugi::xml_node const xml)
-    : ExecListener (xml)
-  { }
-
-  PlanDebugListener::~PlanDebugListener () { }
+    : ExecListener(xml)
+  {
+  }
 
   // For now, use the DebugMsg facilities (really intended for debugging the
   // *executive* and not plans) to display messages of interest.  Later, a more
@@ -49,19 +54,28 @@ namespace PLEXIL
   // interface may be in order.
 
   void PlanDebugListener::
-  implementNotifyNodeTransition (NodeState /* prevState */, Node *nodeId) const
+  implementNotifyNodeTransition(NodeTransition const &trans) const
   {
-    condDebugMsg((nodeId->getState() == FINISHED_STATE),
+    NodeImpl *node = dynamic_cast<NodeImpl *>(trans.node);
+    assertTrueMsg(node,
+                  "PlanDebugListener:implementNotifyNodeTransition: not a node");
+    condDebugMsg((trans.newState == FINISHED_STATE),
                  "Node:clock",
-                 "Node '" << nodeId->getNodeId() <<
+                 "Node '" << node->getNodeId() <<
                  "' finished at " << std::setprecision(15) <<
-                 nodeId->getCurrentStateStartTime() << " (" <<
-                 nodeId->getOutcome() << ")");
-    condDebugMsg((nodeId->getState() == EXECUTING_STATE),
+                 node->getCurrentStateStartTime() << " (" <<
+                 node->getOutcome() << ")");
+    condDebugMsg((trans.newState == EXECUTING_STATE),
                  "Node:clock",
-                 "Node '" << nodeId->getNodeId() <<
+                 "Node '" << node->getNodeId() <<
                  "' started at " << std::setprecision(15) <<
-                 nodeId->getCurrentStateStartTime());
+                 node->getCurrentStateStartTime());
+  }
+  
+  extern "C"
+  void initPlanDebugListener()
+  {
+    REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
   }
 
 }

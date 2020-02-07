@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,13 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ExecListenerFilter.hh"
 
 #include "Error.hh" // warn() macro
+#include "ExecListenerFilter.hh"
 #include "ExecListenerFilterFactory.hh"
 #include "InterfaceSchema.hh"
 #include "Node.hh"
-#include "NodeConstants.hh"
+#include "NodeTransition.hh"
 
 #define STATES_TAG "States"
 #define IGNORED_STATES_TAG "IgnoredStates"
@@ -103,9 +103,9 @@ namespace PLEXIL
     }
 
     // Return true if either the previous or new state is in the filter.
-    bool reportNodeTransition(NodeState prevState, Node *node)
+    bool reportNodeTransition(NodeTransition const &trans)
     {
-      return m_stateEnabled[prevState] || m_stateEnabled[node->getState()];
+      return m_stateEnabled[trans.oldState] || m_stateEnabled[trans.newState];
     }
 
   private:

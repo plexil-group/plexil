@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ namespace PLEXIL {
   // Forward references in PLEXIL namespace
   class Expression;
   class Node;
+  struct NodeTransition;
 
   class LuvFormat {
   public:
@@ -87,12 +88,10 @@ namespace PLEXIL {
     /**
      * @brief Construct the node state transition XML.
      * @param s The stream to write the XML to.
-     * @param prevState The state from which the node is transitioning.
-     * @param node The node.
+     * @param trans Const reference to the node state transition record.
      */
     static void formatTransition(std::ostream &s, 
-                                 NodeState prevState,
-                                 Node *node);
+                                 NodeTransition const &trans);
 
     /**
      * @brief Construct the assignment XML.

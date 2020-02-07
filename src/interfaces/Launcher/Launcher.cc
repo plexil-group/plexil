@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@
 #include "Array.hh"
 #include "Command.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "Node.hh"
+#include "parser-utils.hh"
+#include "PlexilExec.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 
@@ -63,18 +64,16 @@ namespace PLEXIL
 
     /**
      * @brief Notify that a node has changed state.
-     * @param prevState The old state.
-     * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
+     * @param trans Const reference to the transition record.
      */
-    virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               Node * node) const
+    virtual void implementNotifyNodeTransition(NodeTransition const &trans) const
     {
+      Node const *node = trans.node;
       if (node->getParent())
         return;
       Value const nodeIdValue(node->getNodeId());
       g_manager->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
-                                   Value(nodeStateName(node->getState())));
+                                   Value(nodeStateName(trans.newState)));
       NodeOutcome o = node->getOutcome();
       if (o != NO_OUTCOME) {
         g_manager->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
@@ -92,7 +91,7 @@ namespace PLEXIL
     ValueType vt = v.valueType();
     if (isArrayType(vt)) {
       pugi::xml_node aryxml = parent.append_child("ArrayValue");
-      char const *eltType = typeNameAsValue(arrayElementType(vt)).c_str();
+      char const *eltType = typeNameAsValue(arrayElementType(vt));
       aryxml.append_attribute("Type").set_value(eltType);
       Array const *ary;
       v.getValuePointer(ary); // better succeed!
@@ -103,7 +102,7 @@ namespace PLEXIL
     }
     else {
       // Scalar value
-      parent.append_child(typeNameAsValue(vt).c_str()).append_child(pugi::node_pcdata).set_value(v.valueToString().c_str());
+      parent.append_child(typeNameAsValue(vt)).append_child(pugi::node_pcdata).set_value(v.valueToString().c_str());
     }
   }
 
@@ -196,15 +195,15 @@ namespace PLEXIL
   static Node *findNode(std::string const &nodeName)
   {
     // Find the named node
-    auto pred = [&nodeName] (Node const *n) { return n->getNodeId() == nodeName; } ;
-    std::list<Node *> const &allNodes = g_exec->getPlans();
-    std::list<Node *>::const_iterator it =
+    auto pred = [&nodeName] (NodePtr const &n) { return n->getNodeId() == nodeName; } ;
+    std::list<NodePtr> const &allNodes = g_exec->getPlans();
+    std::list<NodePtr>::const_iterator it =
       std::find_if(allNodes.begin(), allNodes.end(), pred);
     if (it == allNodes.end()) {
       warn("No such node"); // FIXME
       return NULL;
     }
-    Node *result = *it;
+    Node *result = it->get();
     if (allNodes.end() !=
         std::find_if(++it, allNodes.end(), pred)) {
       warn("Multiple nodes named " << nodeName); // FIXME

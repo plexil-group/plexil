@@ -44,6 +44,9 @@
 namespace PLEXIL 
 {
 
+  // Initialization of global variable
+  PlexilExec *g_exec = nullptr;
+
   //
   // Local classes
   //
@@ -312,7 +315,7 @@ namespace PLEXIL
         std::remove_if(m_plan.begin(), m_plan.end(),
                        [node] (NodePtr const &n) -> bool
                        { return node == n.get(); });
-        delete node;
+        // delete node; // redundant?
       }
       m_finishedRootNodesDeleted = true;
     }

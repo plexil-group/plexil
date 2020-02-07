@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 #include "Node.hh"
 #include "lifecycle-utils.h"
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
 #endif
 
@@ -61,7 +61,7 @@ int main_internal(int argc, char** argv)
                     [+d]                         (disable debug messages)\n");
   bool luvRequest = false;
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
   std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
   bool luvBlock = false;
@@ -140,7 +140,7 @@ int main_internal(int argc, char** argv)
 		std::cout << usage << std::endl;
 		return 0;
 	  }
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
 	  else if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
@@ -186,7 +186,7 @@ int main_internal(int argc, char** argv)
       resourceFile.clear();
       useResourceFile = false;
     }
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
     else if (strcmp(argv[i], "-n") == 0) {
@@ -248,7 +248,7 @@ int main_internal(int argc, char** argv)
 	}
   }
 
-#if HAVE_LUV_LISTENER
+#ifdef HAVE_LUV_LISTENER
   // if a luv viewer is to be attached,
   // command line arguments must override config file
   if (luvRequest) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ void Simulator::stop()
 	// we tried the gentle approach already -
 	// take more drastic action
 	if (m_SimulatorThread == pthread_self()) {
-	  assertTrue_2(ALWAYS_FAIL, "Simulator:stop: Emergency stop!");
+	  errorMsg("Simulator:stop: Emergency stop!");
 	}
 	else {
 	  int pthread_errno = pthread_cancel(m_SimulatorThread);
@@ -93,7 +93,7 @@ void Simulator::stop()
 		return;
 	  }
 	  else if (pthread_errno != 0) {
-		assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_cancel returned " << pthread_errno);
+		errorMsg("Simulator::stop: fatal error: pthread_cancel returned " << pthread_errno);
 	  }
 
 	  // successfully canceled, wait for it to exit
@@ -105,7 +105,7 @@ void Simulator::stop()
 		m_Started = false;
 	  }
 	  else {
-		assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
+		errorMsg("Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
 	  }
 	}
   }
@@ -126,7 +126,7 @@ void Simulator::stop()
 		  m_Started = false;
 		}
 		else {
-		  assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
+		  errorMsg("Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
 		}
 	  }
 	  else if (pthread_errno != ESRCH) {
@@ -135,7 +135,7 @@ void Simulator::stop()
 		m_Started = false;
 	  }
 	  else {
-		assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_kill returned " << pthread_errno);
+		errorMsg("Simulator::stop: fatal error: pthread_kill returned " << pthread_errno);
 	  }
 	}
   }

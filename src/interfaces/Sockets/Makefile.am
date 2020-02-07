@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilSockets.la
 include_HEADERS = ClientSocket.h ServerSocket.h Socket.h SocketException.h
 libPlexilSockets_la_SOURCES = ClientSocket.cpp ServerSocket.cpp Socket.cpp
-libPlexilSockets_la_CPPFLAGS = -I@top_srcdir@/utils
+libPlexilSockets_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
 if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/simple_client_main test/simple_server_main

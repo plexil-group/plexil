@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,17 +28,24 @@
 #define EXEC_LISTENER_HUB_HH
 
 #include "PlexilListener.hh"
+#include "Value.hh"
+
+#include <memory>
 
 namespace PLEXIL
 {
+  class ExecListener;
+  using ExecListenerPtr = std::unique_ptr<ExecListener>;
+  
   /**
-   * @brief A central dispatcher for multiple exec listeners.
+   * @brief A central dispatcher for multiple exec listeners,
+   *        and an adapter between the old ExecListener API and the current Exec API.
    */
   class ExecListenerHub : public PlexilListener
   {
   public:
     ExecListenerHub();
-    virtual ~ExecListenerHub();
+    virtual ~ExecListenerHub() = default;
 
     //
     // Interface management API
@@ -47,45 +54,54 @@ namespace PLEXIL
     /**
      * @brief Adds an Exec listener for publication of plan events.
      */
-    void addListener(PlexilListener *listener);
+    void addListener(ExecListener *listener);
 
     /**
      * @brief Removes an Exec listener.
      */
-    void removeListener(PlexilListener *listener);
+    void removeListener(ExecListener *listener);
 
     //
     // API to Exec
     //
 
     /**
-     * @brief Notify that nodes have changed state.
-     * @param Vector of node state transition info.
-     * @note Current states are accessible via the node.
-     */
-    void notifyOfTransitions(std::vector<NodeTransition> const &transitions) const;
-
-    /**
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      */
-    void notifyOfAddPlan(pugi::xml_node const plan) const;
+    void notifyOfAddPlan(pugi::xml_node const plan);
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    void notifyOfAddLibrary(pugi::xml_node const libNode) const;
+    void notifyOfAddLibrary(pugi::xml_node const libNode);
+
+	/**
+	 * @brief Notify that some set of nodes has changed state.
+	 * @param transitions Const reference to vector of node transition records.
+     * @note This is called synchronously from the outer loop of the Exec.
+     *       Listeners should not do any I/O during this call.
+	 */
+    void notifyOfTransitions(std::vector<NodeTransition> const &transitions);
 
     /**
      * @brief Notify that a variable assignment has been performed.
      * @param dest The Expression being assigned to.
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
+     * @note This is called synchronously from the inner loop of the Exec.
+     *       Listeners should not do any I/O during this call.
      */
     void notifyOfAssignment(Expression const *dest,
                             std::string const &destName,
-                            Value const &value) const;
+                            Value const &value);
+
+    /**
+     * @brief Notify that a step is complete and the listener
+     *        may publish transitions and assignments.
+     */
+    void stepComplete(unsigned int cycleNum);
 
     //
     // API to InterfaceManager
@@ -127,11 +143,35 @@ namespace PLEXIL
     bool shutdown();
 
   private:
+
+    // Internal data type
+    struct AssignmentRecord {
+      Value value;
+      std::string destName;
+      Expression const *dest;
+
+      AssignmentRecord(Expression const *dst,
+                       std::string const &name,
+                       Value const &val)
+        : value(val),
+          destName(name),
+          dest(dst)
+      {}
+
+      // use default destructor, copy constructor, assignment
+    };
+
     // Deliberately unimplemented
     ExecListenerHub(const ExecListenerHub&);
     ExecListenerHub& operator=(const ExecListenerHub&);
 
-    std::vector<PlexilListener *> m_listeners;
+    // Clients
+    std::vector<ExecListenerPtr> m_listeners;
+
+    // Queues
+    std::vector<NodeTransition> m_transitions;
+    std::vector<AssignmentRecord> m_assignments;
+
   };
 
 }

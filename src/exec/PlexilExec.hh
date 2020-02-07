@@ -27,7 +27,6 @@
 #ifndef PLEXIL_EXEC_HH
 #define PLEXIL_EXEC_HH
 
-#include "ExecConnector.hh"
 #include "NodeTransition.hh"
 
 #include <list>
@@ -36,77 +35,28 @@
 namespace PLEXIL 
 {
   // Forward references
+  class Assignment;
+  class ExecListenerBase; 
+  class ExternalInterface;
   class Expression;
-  class ExecListenerBase;
-
+  class Node;
   using NodePtr = std::unique_ptr<Node>;
 
   /**
    * @brief The API of the core PLEXIL executive.
    */
-  class PlexilExec : public ExecConnector
+  class PlexilExec
   {
   public:
     /**
      * @brief Default constructor.
      */
-    PlexilExec()
-      : ExecConnector()
-    {
-    }
+    PlexilExec() = default;
 
     /**
      * @brief Destructor.
      */
     virtual ~PlexilExec() = default;
-
-    //
-    // API to application
-    //
-
-    /**
-     * @brief Set the ExecListener instance.
-     */
-    virtual void setExecListener(ExecListenerBase *l) = 0;
-
-    /**
-     * @brief Get the ExecListener instance.
-     * @return The ExecListener. May be nullptr.
-     */
-    virtual ExecListenerBase *getExecListener() = 0;
-
-    /**
-     * @brief Get the list of active plans.
-     */
-    virtual std::list<NodePtr> const &getPlans() const = 0;
-
-    /**
-     * @brief Prepare the given plan for execution.
-     * @param The plan's root node.
-     * @return True if succesful, false otherwise.
-     */
-    virtual bool addPlan(Node *root) = 0;
-
-    /**
-     * @brief Queries whether all plans are finished.
-     * @return true if all finished, false otherwise.
-     */
-    virtual bool allPlansFinished() const = 0;
-
-    /**
-     * @brief Deletes any finished root nodes.
-     */
-    virtual void deleteFinishedPlans() = 0;
-
-    /**
-     * @brief Returns true if the Exec needs to be stepped.
-     */
-    virtual bool needsStep() const = 0;
-
-    /**
-     * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
-     */
-    virtual void step(double startTime) = 0; // *** FIXME: use real time type ***
 
     //
     // API to Node classes
@@ -116,7 +66,6 @@ namespace PLEXIL
      * @brief Consider a node for potential state transition.
      * @param node Pointer to the node.
      * @note Node's queue status must be QUEUE_NONE.
-     * @note Known callers are Node::notifyChanged(), PlexilExec::addPlan(), PlexilExec::getStateChangeNode().
      */
     virtual void addCandidateNode(Node *node) = 0;
 
@@ -126,7 +75,7 @@ namespace PLEXIL
     virtual void enqueueAssignment(Assignment *assign) = 0;
 
     /**
-     * @brief Schedule this assignment for retraction.
+     * @brief Schedule this assignment for execution.
      */
     virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
 
@@ -135,6 +84,58 @@ namespace PLEXIL
      */
     virtual void markRootNodeFinished(Node *node) = 0;
 
+    //
+    // API to application
+    //
+
+    /**
+     * @brief Add the plan under the node named by the parent.
+     * @param root The internal representation of the plan.
+     * @return True if succesful, false otherwise.
+     */
+    virtual bool addPlan(Node *root) = 0;
+
+    /**
+     * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
+     */
+    virtual void step(double startTime) = 0; // *** FIXME: use real time type ***
+
+    /**
+     * @brief Returns true if the Exec needs to be stepped.
+     */
+    virtual bool needsStep() const = 0;
+
+    /**
+     * @brief Set the ExecListener instance.
+     */
+    virtual void setExecListener(ExecListenerBase * l) = 0;
+
+    /**
+     * @brief Get the ExecListener instance.
+     * @return The ExecListener. May be nullptr.
+     */
+    virtual ExecListenerBase *getExecListener() = 0;
+
+    /**
+     * @brief Deletes any finished root nodes.
+     */
+    virtual void deleteFinishedPlans() = 0;
+
+    /**
+     * @brief Queries whether all plans are finished.
+     * @return true if all finished, false otherwise.
+     */
+    virtual bool allPlansFinished() const = 0;
+
+    //
+    // Introspection
+    //
+    
+    /**
+     * @brief Get the list of active plans.
+     */
+    virtual std::list<NodePtr> const &getPlans() const = 0;
+    
   private:
 
     // Not implemented
@@ -143,6 +144,9 @@ namespace PLEXIL
     PlexilExec &operator=(PlexilExec const &) = delete;
     PlexilExec &operator=(PlexilExec &&) = delete;
   };
+
+  // Global pointer to the exec instance
+  extern PlexilExec *g_exec;
 
   /**
    * @brief Construct a PlexilExec instance.

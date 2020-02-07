@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,10 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh" // g_exec
-#include "Node.hh"
+#include "NodeImpl.hh"
 #include "NodeConstants.hh"
+#include "ParserException.hh"
+#include "PlexilExec.hh"
 #include "StateCacheEntry.hh"
 #include "Update.hh"
 #include "parsePlan.hh"
@@ -39,10 +40,12 @@
 #include "pugixml.hpp"
 #include "stricmp.h"
 
-#include <cmath>
-#include <cstring>
 #include <limits>
 #include <sstream>
+
+#ifdef STDC_HEADERS
+#include <cstring>
+#endif
 
 namespace PLEXIL
 {
@@ -72,12 +75,11 @@ namespace PLEXIL
   {
   }
 
-  void TestExternalInterface::run(pugi::xml_node const input)
-    throw(ParserException)
+  void TestExternalInterface::run(PlexilExec *exec, pugi::xml_node const input)
   {
-    checkError(g_exec, "Attempted to run a script without an executive.");
+    checkError(exec, "Attempted to run a script without an executive.");
 
-    handleInitialState(input); // steps once
+    handleInitialState(exec, input); // steps exec once
     
     pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");
@@ -115,7 +117,7 @@ namespace PLEXIL
 
       // send plan
       else if (strcmp(scriptElement.name(), "SendPlan") == 0) {
-        handleSendPlan(scriptElement);
+        handleSendPlan(exec, scriptElement);
       }
 
       // simultaneous
@@ -130,24 +132,25 @@ namespace PLEXIL
 
       // report unknown script element
       else {
-        checkError(ALWAYS_FAIL, "Unknown script element '" << scriptElement.name() << "'");
+        reportParserException("Unknown script element '" << scriptElement.name() << "'");
         return;
       }
          
       // step the exec forward
-      if (true /* g_exec->processQueue() */ ) // *** FIXME ***
-        g_exec->step(currentTime());
+      if (true /* exec->processQueue() */ ) // *** FIXME ***
+        exec->step(currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
     // Script is complete
     // Continue stepping the Exec til quiescent
-    while (g_exec->needsStep()) {
-      g_exec->step(currentTime());
+    while (exec->needsStep()) {
+      exec->step(currentTime());
     }
   }
 
-  void TestExternalInterface::handleInitialState(pugi::xml_node const input)
+  void TestExternalInterface::handleInitialState(PlexilExec *exec,
+                                                 pugi::xml_node const input)
   {
     pugi::xml_node initialState = input.child("InitialState");
     if (initialState) {
@@ -165,7 +168,7 @@ namespace PLEXIL
         }
       }
     }
-    g_exec->step(currentTime());
+    exec->step(currentTime());
   }
 
   void TestExternalInterface::handleState(pugi::xml_node const elt)
@@ -237,7 +240,7 @@ namespace PLEXIL
     m_waitingUpdates.erase(it);
   }
 
-  void TestExternalInterface::handleSendPlan(pugi::xml_node const elt)
+  void TestExternalInterface::handleSendPlan(PlexilExec *exec, pugi::xml_node const elt)
   {
     const char* filename = elt.attribute("file").value();
     checkError(strlen(filename) > 0,
@@ -251,7 +254,7 @@ namespace PLEXIL
 
     debugMsg("Test:testOutput",
              "Sending plan from file " << elt.attribute("file").value());
-    Node *root = NULL;
+    NodeImpl *root = NULL;
     try {
       root = parsePlan(doc->document_element().child("PlexilPlan"));
     }
@@ -259,7 +262,7 @@ namespace PLEXIL
       std::cerr << "Error parsing plan XML: \n" << e.what() << std::endl;
     }
     if (root)
-      g_exec->addPlan(root);
+      exec->addPlan(root);
   }
 
   void TestExternalInterface::handleSimultaneous(pugi::xml_node const elt)
@@ -293,8 +296,8 @@ namespace PLEXIL
       }
       // report unknown script element
       else {
-        checkError(ALWAYS_FAIL,
-                   "Unknown script element '" << item.name() << "' inside <Simultaneous>");
+        reportParserException("Unknown script element '" << item.name()
+                              << "' inside <Simultaneous>");
         return;
       }
       item = item.next_sibling();
@@ -488,7 +491,7 @@ namespace PLEXIL
       }
     }
     else {
-      checkError(ALWAYS_FAIL, "Unknown type attribute \"" << type << "\"");
+      reportParserException("Unknown type attribute \"" << type << "\"");
       return Value();
     }
   }
@@ -554,6 +557,14 @@ namespace PLEXIL
     }
     else if (cmdName == "pprint") {
       pprint(command.parameters());
+      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+    }
+    else if (cmdName == "printToString") {
+      this->commandReturn(cmd, printToString(command.parameters()));
+      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+    }
+    else if (cmdName == "pprintToString") {
+      this->commandReturn(cmd, pprintToString(command.parameters()));
       this->commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else {

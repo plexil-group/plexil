@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,21 @@
 #include "stricmp.h"
 
 #include <cerrno>
+
+#ifdef STDC_HEADERS
 #include <cfloat>
 #include <cstdint>
 #include <cstring>
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h> // for close()
+#endif
+
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
@@ -839,7 +847,7 @@ namespace PLEXIL
           return -1;
         }
         int num;
-        num = (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
+        num = (len == 2) ? decode_short_int(buffer, offset) : decode_int32_t(buffer, offset);
         if (debug)
           std::cout << num << std::endl;
         debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) parameter " << num);
@@ -853,7 +861,7 @@ namespace PLEXIL
         }
         IntegerArray array(size);
         for (int i = 0 ; i < size ; i++) {
-          array.setElement(i, (int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset)));
+          array.setElement(i, (int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_int32_t(buffer, offset)));
           offset += len;
         }
         if (debug)
@@ -892,13 +900,14 @@ namespace PLEXIL
         int num;
         switch (len) {
         case 1:
-          num = network_bytes_to_number(buffer, offset, 8, false); break;
+          num = buffer[offset];
+          break;
 
         case 2:
           num = decode_short_int(buffer, offset); break;
 
         case 4:
-          num = decode_long_int(buffer, offset); break;
+          num = decode_int32_t(buffer, offset); break;
 
         default:
           warn("handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
@@ -915,11 +924,11 @@ namespace PLEXIL
         for (int i = 0 ; i < size ; i++) {
           switch (len) {
           case 1: 
-            array.setElement(i, 0 != network_bytes_to_number(buffer, offset, 8, false)); break;
+            array.setElement(i, 0 != buffer[offset]); break;
           case 2:
             array.setElement(i, 0 != decode_short_int(buffer, offset)); break;
           case 4:
-            array.setElement(i, 0 != decode_long_int(buffer, offset)); break;
+            array.setElement(i, 0 != decode_int32_t(buffer, offset)); break;
           default:
             warn("handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
             return -1;
@@ -1023,11 +1032,14 @@ namespace PLEXIL
           std::cout << len << " byte bool starting at buffer[" << start_index << "]: " << temp;
         switch (len) {
         case 1: 
-          number_to_network_bytes(temp, buffer, start_index, 8, false); break;
+          buffer[start_index] = (unsigned char) temp;
+          break;
         case 2:
-          encode_short_int(temp, buffer, start_index); break;
+          encode_short_int(temp, buffer, start_index);
+          break;
         case 4:
-          encode_long_int(temp, buffer, start_index); break;
+          encode_int32_t(temp, buffer, start_index);
+          break;
         default:
           warn("buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
           return -1;
@@ -1057,7 +1069,7 @@ namespace PLEXIL
           encode_short_int(temp, buffer, start_index);
         }
         else
-          encode_long_int(temp, buffer, start_index);
+          encode_int32_t(temp, buffer, start_index);
         start_index += len;
       }
       else if (type.compare("float") == 0) {
@@ -1131,11 +1143,14 @@ namespace PLEXIL
           }
           switch (len) {
           case 1:
-            number_to_network_bytes(temp, buffer, start_index, 8, false); break;
+            buffer[start_index] = (unsigned char) temp;
+            break;
           case 2:
-            encode_short_int(temp, buffer, start_index); break;
+            encode_short_int(temp, buffer, start_index);
+            break;
           default:
-            encode_long_int(temp, buffer, start_index);
+            encode_int32_t(temp, buffer, start_index);
+            break;
           }
           start_index += len;
         }
@@ -1178,7 +1193,7 @@ namespace PLEXIL
             encode_short_int(temp, buffer, start_index);
           }
           else
-            encode_long_int(temp, buffer, start_index);
+            encode_int32_t(temp, buffer, start_index);
           start_index += len;
         }
       }

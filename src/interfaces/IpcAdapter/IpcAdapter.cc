@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "InterfaceError.hh"
 #include "InterfaceSchema.hh"
 #include "NodeConnector.hh"
 #include "parsePlan.hh"
@@ -687,8 +688,7 @@ namespace PLEXIL
       for (size_t i = 0; i < n; ++i) {
         Boolean b = false;
         if (!parseValue<Boolean>((*args)[i], b)) {
-          assertTrueMsg(ALWAYS_FAIL,
-                        "IpcAdapter: \"" << (*args)[i] << "\" is not a valid Boolean");
+          reportInterfaceError("IpcAdapter: \"" << (*args)[i] << "\" is not a valid Boolean");
           return Value();
         }
         ba.setElement(i, b);
@@ -705,8 +705,7 @@ namespace PLEXIL
       for (size_t i = 0; i < n; ++i) {
         Integer in = 0;
         if (!parseValue<Integer>((*args)[i], in)) {
-          assertTrueMsg(ALWAYS_FAIL,
-                        "IpcAdapter: \"" << (*args)[i] << "\" is not a valid Integer");
+          reportInterfaceError("IpcAdapter: \"" << (*args)[i] << "\" is not a valid Integer");
           return Value();
         }
         ia.setElement(i, in);
@@ -723,8 +722,7 @@ namespace PLEXIL
       for (size_t i = 0; i < n; ++i) {
         Real d = 0.0;
         if (!parseValue<Real>((*args)[i], d)) {
-          assertTrueMsg(ALWAYS_FAIL,
-                        "IpcAdapter: \"" << (*args)[i] << "\" is not a valid Real number");
+          reportInterfaceError("IpcAdapter: \"" << (*args)[i] << "\" is not a valid Real number");
           return Value();
         }
         ra.setElement(i, d);
@@ -742,8 +740,8 @@ namespace PLEXIL
         String s = (*args)[i];
         // TODO: handle escapes?
         if (s[0] != '"' || s[s.size() - 1] != '"') {
-          assertTrueMsg(ALWAYS_FAIL,
-                        "IpcAdapter: String \"" << (*args)[i] << "\" lacks leading or trailing double-quote character(s)");
+          reportInterfaceError("IpcAdapter: String \"" << (*args)[i]
+                               << "\" lacks leading or trailing double-quote character(s)");
           return Value();
         }
         s = s.substr(1, s.size() - 2);
@@ -754,8 +752,7 @@ namespace PLEXIL
     }
       
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "IpcAdapter: invalid or unimplemented lookup value type " << type);
+      errorMsg("IpcAdapter: invalid or unimplemented lookup value type " << type);
       return Value();
     }
   }
@@ -820,7 +817,7 @@ namespace PLEXIL
       // parse into XML document
       try {
         pugi::xml_document doc;
-        pugi::xml_parse_result result = doc.load(stringMsg->stringValue);
+        pugi::xml_parse_result result = doc.load_string(stringMsg->stringValue);
         if (result.status == pugi::status_ok) {
           m_execInterface.handleAddPlan(doc.document_element());
           // Always notify immediately when adding a plan
@@ -867,7 +864,7 @@ namespace PLEXIL
       // parse XML into node structure
       try {
         pugi::xml_document *doc = new pugi::xml_document;
-        pugi::xml_parse_result result = doc->load(stringMsg->stringValue);
+        pugi::xml_parse_result result = doc->load_string(stringMsg->stringValue);
         if (result.status == pugi::status_ok)
           m_execInterface.handleAddLibrary(doc);
         else {
@@ -901,9 +898,8 @@ namespace PLEXIL
       break;
 
     default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "IpcAdapter::enqueueMessage: invalid message type " << msgData->msgType)
-        ;
+      reportInterfaceError("IpcAdapter::enqueueMessage: invalid message type " << msgData->msgType);
+      break;
     }
   }
 

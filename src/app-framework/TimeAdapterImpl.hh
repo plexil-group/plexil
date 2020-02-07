@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,10 @@
 #ifndef PLEXIL_TIME_ADAPTER_IMPL_HH
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
-#include "TimeAdapter.hh"
+#include "plexil-config.h"
+#include "InterfaceAdapter.hh"
 
-#include <queue>
-
-#include <csignal>
+#include <csignal> // sigset_t
 
 #ifdef PLEXIL_WITH_THREADS
 #include <pthread.h>
@@ -40,12 +39,12 @@
 namespace PLEXIL
 {
 
-  class TimeAdapterImpl : public TimeAdapter
+  class TimeAdapterImpl : public InterfaceAdapter
   {
   public:
     TimeAdapterImpl(AdapterExecInterface &);
     TimeAdapterImpl(AdapterExecInterface &,
-		    pugi::xml_node const);
+                    pugi::xml_node const);
 
     virtual ~TimeAdapterImpl();
 
@@ -122,6 +121,14 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Get the current time from the operating system.
+     * @return A double representing the current time.
+     * @note Default method uses clock_gettime() or gettimeofday() as available;
+     *       specializations may override this method.
+     */
+    virtual double getCurrentTime();
+
+    /**
      * @brief Initialize signal handling for the process.
      * @return True if successful, false otherwise.
      */
@@ -138,7 +145,7 @@ namespace PLEXIL
      * @param date The Unix-epoch wakeup time, as a Real.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    virtual bool setTimer(Real date) throw (InterfaceError) = 0;
+    virtual bool setTimer(Real date) = 0;
 
     /**
      * @brief Stop the timer.
@@ -196,9 +203,12 @@ namespace PLEXIL
     // Wait thread
     pthread_t m_waitThread;
 #endif
+
+    // Next scheduled wakeup
+    double m_nextWakeup;
+
     // Flag to wait thread
     bool m_stopping;
-
 
   }; // class TimeAdapterImpl
 

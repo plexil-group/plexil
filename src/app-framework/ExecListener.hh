@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,23 +27,28 @@
 #ifndef PLEXIL_EXEC_LISTENER_HH
 #define PLEXIL_EXEC_LISTENER_HH
 
-#include "PlexilListener.hh"
+#include "ExecListenerFilter.hh"
 #include "NodeConstants.hh"
+#include "NodeTransition.hh"
 
 #include "pugixml.hpp"
 
+#include <memory>
+#include <vector>
+
 namespace PLEXIL
 {
-  // Forward references
-  class ExecListenerFilter;
+  using ExecListenerFilterPtr = std::unique_ptr<ExecListenerFilter>;
 
+  class Expression;
   class Node;
+  class Value;
 
   /**
    * @brief A base class for implementing notifications to external agents about exec state changes.
    * @note Provides event filtering hooks.
    */
-  class ExecListener : public PlexilListener
+  class ExecListener
   {
   public:
 
@@ -61,7 +66,7 @@ namespace PLEXIL
     /**
      * @brief Destructor.
      */
-    virtual ~ExecListener();
+    virtual ~ExecListener() = default;
 
     //
     // API to Exec
@@ -159,18 +164,17 @@ namespace PLEXIL
      * @note ExecListener provides a default method for backward commpatibility.
      *       Derived classes may implement their own method.
      */
-    virtual void implementNotifyNodeTransitions(std::vector<NodeTransition> const & /* transitions */) const;
+    virtual void
+    implementNotifyNodeTransitions(std::vector<NodeTransition> const & /* transitions */) const;
 
     /**
      * @brief Notify that a node has changed state.
-     * @param prevState The old state.
-     * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
+     * @param Const reference to one NodeTransition record.
      * @note The default method does nothing.
      * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
      */
-    virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               Node * /* node */) const;
+    virtual void
+    implementNotifyNodeTransition(NodeTransition const & /* transition */) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
@@ -215,9 +219,15 @@ namespace PLEXIL
     /**
      * @brief This instance's filter.
      */
-    ExecListenerFilter *m_filter;
+    ExecListenerFilterPtr m_filter;
 
   private:
+
+    // Not implemented
+    ExecListener(ExecListener const &) = delete;
+    ExecListener(ExecListener &&) = delete;
+    ExecListener &operator=(ExecListener const &) = delete;
+    ExecListener &operator=(ExecListener &&) = delete;
 
     pugi::xml_node const m_xml;
   };

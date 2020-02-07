@@ -31,8 +31,8 @@
 #include "Assignment.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
+#include "PlexilExec.hh" // g_exec
 #include "UserVariable.hh"
 
 namespace PLEXIL

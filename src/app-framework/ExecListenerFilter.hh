@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ namespace PLEXIL
   // Forward references
   class Expression;
   class Node;
+  struct NodeTransition;
   class Value;
 
   //* Abstract base class for defining transition event filters
@@ -54,7 +55,7 @@ namespace PLEXIL
     /**
      * @brief Destructor.
      */
-    virtual ~ExecListenerFilter();
+    virtual ~ExecListenerFilter() = default;
 
     /**
      * @brief Parses configuration XML.
@@ -74,17 +75,15 @@ namespace PLEXIL
 
     /**
      * @brief Determine whether this node transition event should be reported.
-     * @param prevState The node's previous state.
-     * @param node Smart pointer to the node that changed state.
+     * @param transition Const reference to a transition record.
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportNodeTransition(NodeState prevState, 
-                                      Node *node);
+    virtual bool reportNodeTransition(NodeTransition const &/* transition */);
 
     /**
      * @brief Determine whether this AddPlan event should be reported.
-     * @param plan Smart pointer to the plan's intermediate representation.
+     * @param plan XML representation of the plan.
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
@@ -92,7 +91,7 @@ namespace PLEXIL
 
     /**
      * @brief Determine whether this AddLibraryNode event should be reported.
-     * @param plan Smart pointer to the library's intermediate representation.
+     * @param plan XML representation of the plan.
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */

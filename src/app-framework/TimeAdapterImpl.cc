@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh" // for g_interface
+#include "InterfaceError.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 #ifdef PLEXIL_WITH_THREADS
@@ -38,21 +39,35 @@
 #endif
 
 #include <cerrno>
-#include <cmath> // for modf
+
+#if defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_TIME_H)
+#include <ctime>
+#endif
+#include "timespec-utils.hh"
+#elif defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_SYS_TIME_H)
+#include <sys/time.h>
+#endif
+#include "timeval-utils.hh"
+#endif
+
 #include <iomanip>
 
 namespace PLEXIL
 {
 
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr)
-    : TimeAdapter(mgr),
+    : InterfaceAdapter(mgr),
+      m_nextWakeup(0),
       m_stopping(false)
   {
   }
 
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr,
-				   pugi::xml_node const config)
-    : TimeAdapter(mgr, config),
+                                   pugi::xml_node const config)
+    : InterfaceAdapter(mgr, config),
+      m_nextWakeup(0),
       m_stopping(false)
   {
   }
@@ -132,6 +147,33 @@ namespace PLEXIL
     cacheEntry.update(getCurrentTime());
   }
 
+
+  /**
+   * @brief Get the current time from the operating system.
+   * @return A double representing the current time.
+   * @note Default method. May be overridden.
+   */
+  double TimeAdapterImpl::getCurrentTime()
+  {
+    double tym;
+
+    // Prefer clock_gettime() due to greater precision
+#if defined(HAVE_CLOCK_GETTIME)
+    timespec ts;
+    checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &ts),
+                        "getCurrentTime: clock_gettime() failed, errno = " << errno);
+    tym = timespecToDouble(ts);
+#elif defined(HAVE_GETTIMEOFDAY)
+    timeval tv;
+    checkInterfaceError(0 == gettimeofday(&tv, NULL),
+                        "getCurrentTime: gettimeofday() failed, errno = " << errno);
+    tym = timevalToDouble(tv);
+#endif
+
+    debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
+    return tym;
+  }
+
   void TimeAdapterImpl::subscribe(const State& state)
   {
     debugMsg("TimeAdapter:subscribe", " called");
@@ -152,12 +194,13 @@ namespace PLEXIL
 
     debugMsg("TimeAdapter:setThresholds", " setting wakeup at " << std::setprecision(15) << hi);
     if (setTimer(hi)) {
+      m_nextWakeup = hi;
       debugMsg("TimeAdapter:setThresholds",
-               " timer set for " << hi);
+               " timer set for " << std::setprecision(15) << hi);
     }
     else {
       debugMsg("TimeAdapter:setThresholds",
-               " sending wakeup for missed timer at " << hi);
+               " sending wakeup for missed timer at " << std::setprecision(15) << hi);
       timerTimeout();
     }
   }
@@ -165,7 +208,7 @@ namespace PLEXIL
   void TimeAdapterImpl::setThresholds(const State& state, Integer hi, Integer lo)
   {
     // This is an internal error, shouldn't be reachable from a plan
-    assertTrue_2(ALWAYS_FAIL, "setThresholds of integer thresholds not implemented");
+    errorMsg("setThresholds of integer thresholds not implemented");
   }
 
 
@@ -236,6 +279,18 @@ namespace PLEXIL
    */
   void TimeAdapterImpl::timerTimeout()
   {
+    double now = getCurrentTime();
+    debugMsg("TimeAdapter:timerTimeout", " at " << std::setprecision(15) << getCurrentTime());
+    if (m_nextWakeup) {
+      if (now < m_nextWakeup) {
+        // Alarm went off too early. Hit the snooze button.
+        debugMsg("TimeAdapter:timerTimeout", " early wakeup, resetting");
+        setTimer(m_nextWakeup);
+      }
+      else
+        m_nextWakeup = 0;
+    }
+    // Notify in any case
     m_execInterface.notifyOfExternalEvent();
   }
 

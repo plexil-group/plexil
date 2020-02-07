@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,9 +46,6 @@ namespace PLEXIL
   class PlexilListener : public ExecListenerBase
   {
   public:
-    PlexilListener() {}
-    ~PlexilListener() {}
-
     //
     // API to application
     //
@@ -57,13 +54,13 @@ namespace PLEXIL
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      */
-    virtual void notifyOfAddPlan(pugi::xml_node const plan) const = 0;
+    virtual void notifyOfAddPlan(pugi::xml_node const plan) = 0;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    virtual void notifyOfAddLibrary(pugi::xml_node const libNode) const = 0;
+    virtual void notifyOfAddLibrary(pugi::xml_node const libNode) = 0;
 
     /**
      * @brief Perform listener-specific initialization.

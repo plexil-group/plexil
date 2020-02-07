@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,14 @@
 #ifndef Socket_class
 #define Socket_class
 
+#include "plexil-config.h"
 
-#include <netinet/in.h>
-#include <unistd.h>
 #include <string>
 #include <iostream>
+
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h> // sockaddr_in
+#endif
 
 #include "SocketException.h"
 

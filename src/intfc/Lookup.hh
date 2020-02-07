@@ -45,9 +45,6 @@ namespace PLEXIL
   //
   // FORMERLY OPEN QUESTIONS -
   // - Local cache for last value? (Yes, for now; revisit when we can profile)
-  // - Access to Exec "globals":
-  //  StateCacheMap instance - via singleton pattern
-  //  cycle count (timestamp) - via g_exec global var
 
   //
   // Lookup use cases

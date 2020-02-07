@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,9 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecListenerFilter.hh"
 #include "ExecListenerFilterFactory.hh"
 #include "Expression.hh"
 #include "InterfaceSchema.hh"
-#include "NodeTransition.hh"
 
 namespace PLEXIL
 {
@@ -41,8 +39,8 @@ namespace PLEXIL
    * @brief Default constructor.
    */
   ExecListener::ExecListener()
-    : PlexilListener(),
-      m_filter(NULL)
+    : m_filter(),
+      m_xml()
   {
   }
 
@@ -50,17 +48,9 @@ namespace PLEXIL
    * @brief Constructor from configuration XML.
    */
   ExecListener::ExecListener(pugi::xml_node const xml)
-    : PlexilListener(),
-      m_filter(NULL)
+    : m_filter(),
+      m_xml()
   {
-  }
-
-  /**
-   * @brief Destructor.
-   */
-  ExecListener::~ExecListener() 
-  { 
-    delete m_filter;
   }
 
   /**
@@ -69,7 +59,6 @@ namespace PLEXIL
    */
   void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
   {
-    debugMsg("ExecListener:notifyOfTransitions", " reporting " << transitions.size() << " transitions");
     this->implementNotifyNodeTransitions(transitions);
   }
 
@@ -164,7 +153,7 @@ namespace PLEXIL
       delete f;
       return false;
     }
-    m_filter = f;
+    m_filter.reset(f);
     return true;
   }
 
@@ -226,7 +215,7 @@ namespace PLEXIL
    */
   void ExecListener::setFilter(ExecListenerFilter *fltr)
   {
-    m_filter = fltr;
+    m_filter.reset(fltr);
   }
 
   //
@@ -236,7 +225,7 @@ namespace PLEXIL
 
   /**
    * @brief Notify that nodes have changed state.
-   * @param Vector of node state transition info.
+   * @param transitions Const reference to vector of node state transition info.
    * @note Current states are accessible via the node.
    * @note This default method is a convenience for backward compatibility.
    */
@@ -244,29 +233,23 @@ namespace PLEXIL
   {
     debugMsg("ExecListener:implementNotifyNodeTransitions", " default method called");
     if (!m_filter) {
-      for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
-           it != transitions.end();
-           ++it) 
-        this->implementNotifyNodeTransition(it->state, it->node);
+      for (NodeTransition const &transition : transitions)
+        this->implementNotifyNodeTransition(transition);
     }
     else {
-      for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
-           it != transitions.end();
-           ++it)
-        if (m_filter->reportNodeTransition(it->state, it->node))
-          this->implementNotifyNodeTransition(it->state, it->node);
+      for (NodeTransition const &transition : transitions)
+        if (m_filter->reportNodeTransition(transition))
+          this->implementNotifyNodeTransition(transition);
     }
   }
 
   /**
    * @brief Notify that a node has changed state.
-   * @param prevState The old state.
-   * @param node The node that has transitioned.
-   * @note The current state is accessible via the node.
-   * @note The default method does nothing.
+   * @param transition Const reference to one node transition record.
+   * @note This default method does nothing.
    */
-  void ExecListener::implementNotifyNodeTransition(NodeState /* prevState */,
-                                                   Node * /* node */) const
+  void
+  ExecListener::implementNotifyNodeTransition(NodeTransition const & /* transition */) const
   {
     debugMsg("ExecListener:implementNotifyNodeTransition", " default method called");
   }

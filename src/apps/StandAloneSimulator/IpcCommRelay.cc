@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,9 +101,9 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
     break;
 
   default:
-    assertTrueMsg(ALWAYS_FAIL,
-        "IpcCommRelay::sendResponse: invalid message type " << respMsg->getMessageType())
-    ;
+    errorMsg("IpcCommRelay::sendResponse: invalid message type "
+             << respMsg->getMessageType());
+    break;    
   }
   debugMsg("IpcCommRelay:sendResponse", " completed");
 }
@@ -159,8 +159,8 @@ void IpcCommRelay::MessageListener::ReceiveMessage(const std::vector<const Plexi
     break;
 
   default:
-    assertTrueMsg(ALWAYS_FAIL,
-        "IpcCommRelay::processMessageSequence: invalid leader message type " << leader->msgType)
-    ;
+    errorMsg("IpcCommRelay::processMessageSequence: invalid leader message type "
+             << leader->msgType);
+    break;
   }
 }

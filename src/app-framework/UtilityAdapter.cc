@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,8 @@ bool UtilityAdapter::initialize()
 {
   g_configuration->registerCommandInterface("print", this);
   g_configuration->registerCommandInterface("pprint", this);
+  g_configuration->registerCommandInterface("printToString",this);
+  g_configuration->registerCommandInterface("pprintToString",this);
   debugMsg("UtilityAdapter", " initialized.");
   return true;
 }
@@ -85,10 +87,17 @@ void UtilityAdapter::executeCommand(Command * cmd)
     print(cmd->getArgValues());
   else if (name == "pprint") 
     pprint(cmd->getArgValues());
-  else
-    std::cerr <<
-      "Error in Utility Adapter: invalid command (should never happen!): "
+  else if (name == "printToString")
+    m_execInterface.handleCommandReturn(cmd, printToString(cmd->getArgValues()));
+  else if (name == "pprintToString")
+    m_execInterface.handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
+  else {
+    std::cerr << "UtilityAdapter: invalid command "
               << name << std::endl;
+    m_execInterface.handleCommandAck(cmd, COMMAND_FAILED);
+    m_execInterface.notifyOfExternalEvent();
+    return;
+  }
 
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
@@ -96,12 +105,8 @@ void UtilityAdapter::executeCommand(Command * cmd)
 
 void UtilityAdapter::invokeAbort(Command *cmd)
 {
-  const std::string& name = cmd->getName();
-  if (name != "print" && name != "pprint") {
-    std::cerr << "Error in Utility Adapter: aborting invalid command \"" 
-              << name << "\" (should never happen!)" << std::endl;
-  }
-  m_execInterface.handleCommandAbortAck(cmd, true);
+  // Just silently acknowledge
+  m_execInterface.handleCommandAbortAck(cmd, false);
   m_execInterface.notifyOfExternalEvent();
 }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,38 +24,54 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
+#include "plexil-config.h"
+
+#include <cstdio>
 #include <iostream>           // cout
-#include <math.h>             // pow()
-#include <arpa/inet.h>        // htonl
-#include <netdb.h>            // gethostbyname
+#ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
+#elif defined(HAVE_VXWORKS_H)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {
 
   struct udp_thread_params
   {
-    int local_port;
     unsigned char* buffer;
     size_t size;
+    int local_port;
     int sock;
     bool debug;
   };
 
-  long int float_to_long_int (float num);
-  float long_int_to_float (long int num);
-  int network_bytes_to_number(const unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug=false);
-  void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug=false);
-  void encode_long_int(long int num, unsigned char* buffer, int start_index);
-  void encode_short_int(long int num, unsigned char* buffer, int start_index);
-  long int decode_long_int(const unsigned char* buffer, int start_index);
-  short int decode_short_int(const unsigned char* buffer, int start_index);
-  void encode_float(float num, unsigned char* buffer, int start_index);
-  float decode_float(const unsigned char* buffer, int start_index);
-  void encode_string(const std::string& str, unsigned char* buffer, int start_index);
-  std::string decode_string(const unsigned char* buffer, int start_index, int length);
-  int udp_tests(void);
-  void print_buffer(const unsigned char* buffer, int bytes, bool fancy=false);
+  // Encode a 32 bit integer (in network byte order)
+  void encode_int32_t(int32_t num, unsigned char* buffer, size_t start_index);
+
+  // Encode a 16 bit integer (in network byte order)
+  void encode_short_int(short int num, unsigned char* buffer, size_t start_index);
+
+  // Decode a 32 bit integer from the network bytes in host byte order
+  int32_t decode_int32_t(const unsigned char* buffer, size_t start_index);
+
+  // Decode a 32 bit integer from the network bytes in host byte order
+  short int decode_short_int(const unsigned char* buffer, size_t start_index);
+
+  // Encode a 32 bit float in network byte order
+  void encode_float(float num, unsigned char* buffer, size_t start_index);
+
+  // Decode a 32 bit float from network byte order
+  float decode_float(const unsigned char* buffer, size_t start_index);
+
+  // Note that this DOES NOT encode a c string.  You can do that on your own.
+  void encode_string(const std::string& str, unsigned char* buffer, size_t start_index);
+
+  // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
+  std::string decode_string(const unsigned char* buffer, size_t start_index, int length);
+
+  void print_buffer(const unsigned char* buffer, size_t bytes, bool fancy=false);
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
   int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);

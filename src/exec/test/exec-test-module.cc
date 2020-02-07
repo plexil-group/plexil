@@ -26,11 +26,11 @@
 
 #include "Assignable.hh"
 #include "Debug.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
 #include "ExternalInterface.hh"
 #include "NodeImpl.hh"
 #include "NodeFactory.hh"
+#include "PlexilExec.hh"
 #include "TestSupport.hh"
 #include "test/TransitionExternalInterface.hh"
 #include "lifecycle-utils.h"
@@ -49,7 +49,7 @@ using namespace PLEXIL;
 std::list<NodePtr> const g_dummyPlanList;
 
 class TransitionExecConnector :
-  public ExecConnector
+  public PlexilExec
 {
 public:
   TransitionExecConnector() = default;

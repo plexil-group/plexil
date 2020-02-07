@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #include "LuvFormat.hh"
 
 #include "Debug.hh"
+#include "ExecListenerFactory.hh"
 #include "Expression.hh"
 #include "Node.hh"
 
@@ -36,8 +37,10 @@
 
 #include <sstream>
 
-#include <cstring>
+#ifdef STDC_HEADERS
 #include <cstdlib>
+#include <cstring> // strdup()
+#endif
 
 namespace PLEXIL
 {
@@ -222,16 +225,16 @@ namespace PLEXIL
   /**
    * @brief Notify that a node has changed state.
    * @param prevState The old state.
-   * @param node The node that has transitioned.
-   * @note The current state is accessible via the node.
+   * @param transition Const reference to the transition record.
    */
   void 
-  LuvListener::implementNotifyNodeTransition(NodeState prevState, 
-											 Node *node) const 
+  LuvListener::implementNotifyNodeTransition(NodeTransition const &trans) const 
   {
+    debugMsg("LuvListener:implementNotifyNodeTransition",
+             " for " << trans.node->getNodeId());
 	if (m_socket != NULL) {
 	  std::ostringstream s;
-	  LuvFormat::formatTransition(s, prevState, node);
+	  LuvFormat::formatTransition(s, trans);
 	  sendMessage(s.str());
 	}
   }
@@ -245,6 +248,7 @@ namespace PLEXIL
   void
   LuvListener::implementNotifyAddPlan(pugi::xml_node const plan) const 
   {
+    debugMsg("LuvListener:implementNotifyAddPlan", " entered");
 	if (m_socket != NULL) {
       sendPlanInfo();
       std::ostringstream s;
@@ -351,15 +355,20 @@ namespace PLEXIL
   //* Wait for acknowledgement from the viewer.
   void LuvListener::waitForAck() const
   {
-    if (m_block)
-      {
+    debugMsg("LuvListener:waitForAck", " entered");
+    if (m_block) {
         std::string buffer;
 		do
-          {
-            *m_socket >> buffer;
-          }
+          *m_socket >> buffer;
         while (buffer[0] != LUV_END_OF_MESSAGE());
       }
+    debugMsg("LuvListener:waitForAck", " exited");
+  }
+  
+  extern "C"
+  void initLuvListener()
+  {
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
   }
 
 }

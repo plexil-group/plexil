@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 
 #include "Assignable.hh"
 #include "Error.hh"
-#include "Node.hh"
+#include "NodeImpl.hh"
+#include "NodeTransition.hh"
 
 #include <iostream>
 
@@ -90,16 +91,20 @@ namespace PLEXIL {
    * @param node The node whose conditions are being extracted.
    */
   void formatConditions(std::ostream& s, 
-                        Node const *node)
+                        Node const *nptr)
   {
+    NodeImpl const *node = dynamic_cast<NodeImpl const *>(nptr);
+    assertTrueMsg(node,
+                  "LuvFormat::formatConditions: not a node");
+
     simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
-    for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+    for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
       Expression const *cond = node->getCondition(i);
       if (cond) {
         std::string const valueStr = cond->valueString();
         simpleTextElement(s, 
-                          Node::ALL_CONDITIONS[i], 
+                          NodeImpl::ALL_CONDITIONS[i],
                           valueStr.c_str());
       }
     }
@@ -128,27 +133,28 @@ namespace PLEXIL {
    * @param node The node.
    */
   void LuvFormat::formatTransition(std::ostream& s, 
-                                   NodeState /* prevState */,
-                                   Node* node) {
-
+                                   NodeTransition const &trans)
+  {
     simpleStartTag(s, NODE_STATE_UPDATE_TAG());
 
     // add state
-    simpleTextElement(s, NODE_STATE_TAG(), nodeStateName(node->getState()).c_str());
+    simpleTextElement(s, NODE_STATE_TAG(), nodeStateName(trans.newState).c_str());
 
     // add outcome
-    if (node->getOutcome() != NO_OUTCOME)
-      simpleTextElement(s, NODE_OUTCOME_TAG(), outcomeName(node->getOutcome()).c_str());
+    if (trans.node->getOutcome() != NO_OUTCOME)
+      simpleTextElement(s, NODE_OUTCOME_TAG(),
+                        outcomeName(trans.node->getOutcome()).c_str());
 
     // add failure type
-    if (node->getFailureType() != NO_FAILURE)
-      simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), failureTypeName(node->getFailureType()).c_str());
+    if (trans.node->getFailureType() != NO_FAILURE)
+      simpleTextElement(s, NODE_FAILURE_TYPE_TAG(),
+                        failureTypeName(trans.node->getFailureType()).c_str());
       
     // add the condition states
-    formatConditions(s, node);
+    formatConditions(s, trans.node);
 
     // add the path
-    formatNodePath(s, node);
+    formatNodePath(s, trans.node);
 
     endTag(s, NODE_STATE_UPDATE_TAG());
   }
@@ -161,7 +167,7 @@ namespace PLEXIL {
    * @param value The internal representation of the new value.
    */
   void LuvFormat::formatAssignment(std::ostream &s, 
-                                   Expression const *dest,
+                                   Expression const * /* dest */,
                                    std::string const &destName,
                                    Value const &value) {
     simpleStartTag(s, ASSIGNMENT_TAG());
@@ -169,11 +175,7 @@ namespace PLEXIL {
     // format variable name
     simpleStartTag(s, VARIABLE_TAG());
 
-    // get path to node, if any
-    Assignable const *destVar = dest->asAssignable();
-    Node const *node = NULL;
-    if ((node = dynamic_cast<Node const *>(destVar->getNode())))
-      formatNodePath(s, node);
+    // TODO: get path to owning node, if any
 
     // get variable name
     simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());

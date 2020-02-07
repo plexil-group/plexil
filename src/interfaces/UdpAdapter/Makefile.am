@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,18 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libUdpUtils.la libUdpAdapter.la
 include_HEADERS = MessageQueueMap.hh UdpAdapter.hh udp-utils.hh
 libUdpUtils_la_SOURCES = udp-utils.cc
-libUdpUtils_la_CPPFLAGS = -I@top_srcdir@/utils
+libUdpUtils_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
 libUdpAdapter_la_SOURCES = MessageQueueMap.cc UdpAdapter.cc
 libUdpAdapter_la_LIBADD = libUdpUtils.la
-libUdpAdapter_la_CPPFLAGS = -I@top_srcdir@/interfaces/UpdUtils \
+libUdpAdapter_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/interfaces/UpdUtils \
  -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/app-framework \
  -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
-
-# TODO: libraries to link against (?)
 
 if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/udp-tests
   test_udp_tests_SOURCES = test/udp-tests.cc
   test_udp_tests_CPPFLAGS = -I@top_srcdir@/utils
-  test_udp_tests_LDADD = libUdpUtils.la ../../utils/libPlexilUtils.la
+  test_udp_tests_LDADD = libUdpUtils.la @top_srcdir@/utils/libPlexilUtils.la
 endif
