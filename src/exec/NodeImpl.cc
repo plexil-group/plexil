@@ -344,7 +344,7 @@ namespace PLEXIL
 
   void NodeImpl::addUsingMutex(Mutex *m)
   {
-    assertTrueMsg(m_localMutexes,
+    assertTrueMsg(m_usingMutexes,
                   "Internal error: failed to allocate using mutex vector");
     m_usingMutexes->push_back(m);
   }

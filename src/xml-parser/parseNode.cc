@@ -706,10 +706,13 @@ namespace PLEXIL
 
   static void parseVariableDeclarations(NodeImpl *node, xml_node const decls)
   {
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
-      // Variables are always created here, no need for "garbage" flag.
-      node->addLocalVariable(getVarDeclName(decl),
-                             createExpression(decl, node));
+    for (xml_node decl : decls) {
+      if (testTag(DECLARE_MUTEX_TAG, decl))
+        node->addMutex(new Mutex(decl.child(NAME_TAG).child_value(STRING_VAL_TAG)));
+      else
+        // Variables are always created here, no need for "garbage" flag.
+        node->addLocalVariable(getVarDeclName(decl),
+                               createExpression(decl, node));
     }
   }
 
