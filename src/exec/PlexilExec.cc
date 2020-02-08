@@ -463,7 +463,7 @@ namespace PLEXIL
       debugMsg("PlexilExec:cycle", " ==>End cycle " << cycleNum);
       for (NodePtr const &node: m_plan)
         debugMsg("PlexilExec:printPlan",
-                 std::endl << const_cast<Node const *>(node.get()));
+                 std::endl << *const_cast<Node const *>(node.get()));
 
       //
       // *** END CRITICAL SECTION ***
@@ -625,6 +625,8 @@ namespace PLEXIL
     // If resource(s) busy, leave node on pending queue
     void tryResourceAcquisition(Node *node)
     {
+      debugMsg("PlexilExec:tryResourceAcquisition", ' ' << node->getNodeId() << ' ' << node);
+
       // Mutexes first
       std::vector<Mutex *> const *uses = node->getUsingMutexes();
       bool success = true;
@@ -645,6 +647,9 @@ namespace PLEXIL
           var->addWaitingNode(node);
         }
       }
+
+      debugMsg("PlexilExec:tryResourceAcquisition",
+               ' ' << (success ? "succeeded" : "failed") << " for " << node->getNodeId() << ' ' << node);
 
       if (success) {
         // Node can transition now
@@ -670,12 +675,19 @@ namespace PLEXIL
       if (m_pendingQueue.empty())
         return;
 
+      debugMsg("PlexilExec:resolveResourceConflicts",
+               ' ' << m_pendingQueue.size() << " nodes in pending queue");
+
       Node *priorityHead = m_pendingQueue.front();
       std::vector<Node *> priorityNodes;
       while (priorityHead) {
         // Gather nodes at same priority 
         priorityNodes.clear();
         int32_t thisPriority = priorityHead->getPriority();
+
+        debugMsg("PlexilExec:resolveResourceConflicts",
+                 " processing nodes at priority " << thisPriority);
+
         Node *temp = priorityHead;
         do {
           if (resourceCheckEligible(temp)) 
@@ -688,10 +700,12 @@ namespace PLEXIL
         // or pointing to node with higher (numerical) priority
         priorityHead = temp; // for next iteration
 
+        debugMsg("PlexilExec:resolveResourceConflicts",
+                 ' ' << priorityNodes.size() << " nodes eligible to acquire resources");
+
         if (priorityNodes.size() > 1) {
           // Must check for variable conflicts
           // TODO
-
         }
 
         // Acquire the resources and transition the remaining nodes, if possible
@@ -1046,7 +1060,7 @@ namespace PLEXIL
         result->notifyChanged();
       return result;
     }
-
+      
     void addStateChangeNode(Node *node) {
       switch (node->getQueueStatus()) {
       case QUEUE_NONE:   // normal case
@@ -1060,6 +1074,13 @@ namespace PLEXIL
       case QUEUE_CHECK:   // shouldn't happen
         errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
                  << " to transition queue, is still in candidate queue");
+        return;
+
+      case QUEUE_PENDING:
+      case QUEUE_PENDING_CHECK:
+      case QUEUE_PENDING_TRY_CHECK:
+        errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
+                 << " to transition queue, is in pending queue");
         return;
 
       case QUEUE_TRANSITION:   // already in queue, shouldn't get here

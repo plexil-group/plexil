@@ -589,12 +589,21 @@ namespace PLEXIL
       m_queueStatus = QUEUE_CHECK;
       g_exec->addCandidateNode(this);
       return;
+
+    case QUEUE_PENDING:           // will be checked while on pending queue
+      m_queueStatus = QUEUE_PENDING_CHECK;
+      return;
+
+    case QUEUE_PENDING_TRY:       // will be checked while on pending queue
+      m_queueStatus = QUEUE_PENDING_TRY_CHECK;
+      return;
       
     case QUEUE_TRANSITION:        // state transition pending, defer adding to queue
       m_queueStatus = QUEUE_TRANSITION_CHECK;
       return;
 
-    case QUEUE_CHECK:             // already a candidate, nothing to do
+    case QUEUE_CHECK:             // already a candidate
+    case QUEUE_PENDING_CHECK:     // already a candidate
     case QUEUE_TRANSITION_CHECK:  // will become a candidate after pending transition
     case QUEUE_DELETE:            // cannot possibly be a candidate, silently ignore (?)
       return;

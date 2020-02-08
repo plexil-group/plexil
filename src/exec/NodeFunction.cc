@@ -70,7 +70,7 @@ namespace PLEXIL
 
   void NodeFunction::printSpecialized(std::ostream & str) const
   {
-    str << m_node->getNodeId();
+    str << m_node->getNodeId() << ' ';
   }
 
   Value NodeFunction::toValue() const

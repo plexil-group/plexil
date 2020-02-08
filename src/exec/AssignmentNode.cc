@@ -372,7 +372,9 @@ namespace PLEXIL
   {
     // Notify any nodes waiting on the assignment variable
     if (m_state != WAITING_STATE ) {
-      for (Node *n : *getAssignmentVariable()->asAssignable()->getWaitingNodes())
+      Assignable *var = getAssignmentVariable()->asAssignable();
+      var->release();
+      for (Node *n : *var->getWaitingNodes())
         n->notifyResourceAvailable();
     }
     NodeImpl::transitionToIterationEnded();
