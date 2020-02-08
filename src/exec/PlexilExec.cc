@@ -654,11 +654,13 @@ namespace PLEXIL
       else {
         // If we couldn't get all the resources, release the mutexes we got
         // and set pending status
-        for (Mutex *m : *uses)
-          if (node == m->getHolder()) {
-            m->release();
-            m->addWaitingNode(node);
-          }
+        if (uses) {
+          for (Mutex *m : *uses)
+            if (node == m->getHolder()) {
+              m->release();
+              m->addWaitingNode(node);
+            }
+        }
         node->setQueueStatus(QUEUE_PENDING);
       }
     }
@@ -1089,8 +1091,10 @@ namespace PLEXIL
     {
       node->setQueueStatus(QUEUE_PENDING_TRY);
       m_pendingQueue.insert(node);
-      for (Mutex *m : *node->getUsingMutexes())
-        m->addWaitingNode(node);
+      std::vector<Mutex *> const *uses = node->getUsingMutexes();
+      if (uses)
+        for (Mutex *m : *uses)
+          m->addWaitingNode(node);
     }
 
     // Should only happen in QUEUE_PENDING and QUEUE_PENDING_TRY.
@@ -1098,8 +1102,10 @@ namespace PLEXIL
     {
       m_pendingQueue.remove(node);
       node->setQueueStatus(QUEUE_NONE);
-      for (Mutex *m : *node->getUsingMutexes())
-        m->removeWaitingNode(node);
+      std::vector<Mutex *> const *uses = node->getUsingMutexes();
+      if (uses)
+        for (Mutex *m : *uses)
+          m->removeWaitingNode(node);
       if (node->getType() == NodeType_Assignment)
         node->getAssignmentVariable()->asAssignable()->removeWaitingNode(node);
     }
