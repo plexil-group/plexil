@@ -702,10 +702,13 @@
                    (cons (xml "MaxSize" size)
                          (if values
                              (list (xml "InitialValue"
-                                        (mapcar
-                                         (lambda (x)
-                                           (xml (format "%sValue" type) x))
-                                         values)))))))))
+                                        (xml "ArrayValue"
+                                             (mapcar
+                                              (lambda (x)
+                                                (xml (format "%sValue" type) x))
+                                              values)
+                                             (list (cons "Type" type))
+                                             )))))))))
 
 ;;; Conditions, all: xml -> xml
 

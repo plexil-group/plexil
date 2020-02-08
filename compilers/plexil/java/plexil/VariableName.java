@@ -200,9 +200,12 @@ public class VariableName extends PlexilName
             result.addChild(init);
             if (m_initialValue.getDataType().isArray()) {
                 // handle array initial value
+                IXMLElement val = new XMLElement("ArrayValue");
+                val.setAttribute("Type", getArrayElementTypeName());
                 for (int i = 0; i < m_initialValue.getChildCount(); i++) {
-                    init.addChild(m_initialValue.getChild(i).getXML());
+                    val.addChild(m_initialValue.getChild(i).getXML());
                 }
+                init.addChild(val);
             }
             else {
                 init.addChild(m_initialValue.getXML());
