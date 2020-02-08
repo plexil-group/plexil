@@ -41,8 +41,6 @@ namespace pugi
 
 namespace PLEXIL 
 {
-  // Forward reference
-  class PlexilExec;
 
   class TestExternalInterface : public ExternalInterface 
   {
@@ -50,7 +48,7 @@ namespace PLEXIL
     TestExternalInterface();
     ~TestExternalInterface();
 
-    void run(PlexilExec *exec, pugi::xml_node const input);
+    void run(pugi::xml_node const input);
 
     virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) override;
 
@@ -77,13 +75,13 @@ namespace PLEXIL
     typedef std::map<State, Command *> StateCommandMap;
     typedef std::map<State, Value>        StateMap;
 
-    void handleInitialState(PlexilExec *exec, pugi::xml_node const input);
+    void handleInitialState(pugi::xml_node const input);
     void handleState(pugi::xml_node const elt);
     void handleCommand(pugi::xml_node const elt);
     void handleCommandAck(pugi::xml_node const elt);
     void handleCommandAbort(pugi::xml_node const elt);
     void handleUpdateAck(pugi::xml_node const elt);
-    void handleSendPlan(PlexilExec *exec, pugi::xml_node const elt);
+    void handleSendPlan(pugi::xml_node const elt);
     void handleSimultaneous(pugi::xml_node const elt);
 
     std::map<std::string, Update *> m_waitingUpdates;

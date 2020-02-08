@@ -75,11 +75,11 @@ namespace PLEXIL
   {
   }
 
-  void TestExternalInterface::run(PlexilExec *exec, pugi::xml_node const input)
+  void TestExternalInterface::run(pugi::xml_node const input)
   {
-    checkError(exec, "Attempted to run a script without an executive.");
+    checkError(g_exec, "Attempted to run a script without an executive.");
 
-    handleInitialState(exec, input); // steps exec once
+    handleInitialState(input); // steps exec once
     
     pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");
@@ -117,7 +117,7 @@ namespace PLEXIL
 
       // send plan
       else if (strcmp(scriptElement.name(), "SendPlan") == 0) {
-        handleSendPlan(exec, scriptElement);
+        handleSendPlan(scriptElement);
       }
 
       // simultaneous
@@ -137,20 +137,19 @@ namespace PLEXIL
       }
          
       // step the exec forward
-      if (true /* exec->processQueue() */ ) // *** FIXME ***
-        exec->step(currentTime());
+      if (true /* g_exec->processQueue() */ ) // *** FIXME ***
+        g_exec->step(currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
     // Script is complete
     // Continue stepping the Exec til quiescent
-    while (exec->needsStep()) {
-      exec->step(currentTime());
+    while (g_exec->needsStep()) {
+      g_exec->step(currentTime());
     }
   }
 
-  void TestExternalInterface::handleInitialState(PlexilExec *exec,
-                                                 pugi::xml_node const input)
+  void TestExternalInterface::handleInitialState(pugi::xml_node const input)
   {
     pugi::xml_node initialState = input.child("InitialState");
     if (initialState) {
@@ -168,7 +167,7 @@ namespace PLEXIL
         }
       }
     }
-    exec->step(currentTime());
+    g_exec->step(currentTime());
   }
 
   void TestExternalInterface::handleState(pugi::xml_node const elt)
@@ -240,7 +239,7 @@ namespace PLEXIL
     m_waitingUpdates.erase(it);
   }
 
-  void TestExternalInterface::handleSendPlan(PlexilExec *exec, pugi::xml_node const elt)
+  void TestExternalInterface::handleSendPlan(pugi::xml_node const elt)
   {
     const char* filename = elt.attribute("file").value();
     checkError(strlen(filename) > 0,
@@ -262,7 +261,7 @@ namespace PLEXIL
       std::cerr << "Error parsing plan XML: \n" << e.what() << std::endl;
     }
     if (root)
-      exec->addPlan(root);
+      g_exec->addPlan(root);
   }
 
   void TestExternalInterface::handleSimultaneous(pugi::xml_node const elt)

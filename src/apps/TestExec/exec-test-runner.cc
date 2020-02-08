@@ -291,9 +291,9 @@ int run(int argc, char** argv)
 
   // create the exec
 
-  std::unique_ptr<PlexilExec> exec(makePlexilExec());
+  g_exec = makePlexilExec();
   ExecListenerHub hub;
-  exec->setExecListener(&hub);
+  g_exec->setExecListener(&hub);
 
 
 #ifdef HAVE_DEBUG_LISTENER
@@ -332,13 +332,23 @@ int run(int argc, char** argv)
       l = loadLibraryNode(fname.c_str());
       if (!l) {
         warn("Unable to find file for library " << *libraryName);
+        
+        // Clean up
+        delete g_exec;
+        g_exec = nullptr;
         g_interface = NULL;
+
         return 1;
       }
     }
     catch (ParserException const &e) {
       warn("Error while reading library " << *libraryName << ": \n" << e.what());
+
+      // Clean up
+      delete g_exec;
+      g_exec = nullptr;
       g_interface = NULL;
+
       return 1;
     }
   }
@@ -357,7 +367,11 @@ int run(int argc, char** argv)
     }
 
     if (!planDoc) {
+      // Clean up
+      delete g_exec;
+      g_exec = nullptr;
       g_interface = NULL;
+
       return 1;
     }
 
@@ -370,14 +384,24 @@ int run(int argc, char** argv)
     catch (ParserException& e) {
       warn("Error parsing plan '" << planName << "':\n" << e.what());
       delete planDoc;
+      
+      // Clean up
+      delete g_exec;
+      g_exec = nullptr;
       g_interface = NULL;
+
       return 1;
     }
 
-    if (!exec->addPlan(root)) {
+    if (!g_exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
       delete root;
+
+      // Clean up
+      delete g_exec;
+      g_exec = nullptr;
       g_interface = NULL;
+
       return 1;
     }
   }
@@ -395,7 +419,11 @@ int run(int argc, char** argv)
            << e.what());
     }
     if (!scriptDoc) {
+      // Clean up
+      delete g_exec;
+      g_exec = nullptr;
       g_interface = NULL;
+      
       return 1;
     }
 
@@ -406,16 +434,23 @@ int run(int argc, char** argv)
         || !testTag("PLEXILScript", scriptElement)) {
       warn("File " << scriptName << " is not a valid PLEXIL simulator script");
       delete scriptDoc;
+
+      // Clean up
+      delete g_exec;
+      g_exec = nullptr;
       g_interface = NULL;
+
       return 1;
     }
-    intf.run(exec.get(), scriptElement);
+    intf.run(scriptElement);
     debugMsg("Time", "Time spent in execution: " << clock() - time);
     delete scriptDoc;
   }
 
   // clean up
 
+  delete g_exec;
+  g_exec = nullptr;
   g_interface = NULL;
 
   return 0;
