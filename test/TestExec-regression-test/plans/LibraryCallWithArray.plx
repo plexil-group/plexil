@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <GlobalDeclarations>
@@ -22,10 +23,12 @@
 		<Type>Real</Type>
 		<MaxSize>4</MaxSize>
 		<InitialValue>
-		  <RealValue>70000.0</RealValue>
-		  <RealValue>2000.0</RealValue>
-		  <RealValue>250.0</RealValue>
-		  <RealValue>0.0</RealValue>
+          <ArrayValue Type="Real">
+		    <RealValue>70000.0</RealValue>
+		    <RealValue>2000.0</RealValue>
+		    <RealValue>250.0</RealValue>
+		    <RealValue>0.0</RealValue>
+          </ArrayValue>
 		</InitialValue>
 	  </DeclareArray>
 	</VariableDeclarations>

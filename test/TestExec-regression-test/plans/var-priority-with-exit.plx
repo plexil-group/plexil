@@ -19,7 +19,7 @@
         </InitialValue>
       </DeclareVariable>
       <DeclareMutex>
-        <Name>n</Name>
+        <Name>m</Name>
       </DeclareMutex>
     </VariableDeclarations>
     <PostCondition>
@@ -35,7 +35,7 @@
           <Priority>0</Priority>
           <UsingMutex>
             <Name>
-              <StringValue>n</StringValue>
+              <StringValue>m</StringValue>
             </Name>
           </UsingMutex>
           <NodeBody>
@@ -52,7 +52,7 @@
           <Priority>1</Priority>
           <UsingMutex>
             <Name>
-              <StringValue>n</StringValue>
+              <StringValue>m</StringValue>
             </Name>
           </UsingMutex>
           <ExitCondition>

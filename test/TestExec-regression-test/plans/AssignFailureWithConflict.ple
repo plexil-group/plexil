@@ -3,13 +3,13 @@ Concurrence
 {
   Integer n = 0;
   Boolean spoil = false;
-  Mutex n;
+  Mutex m;
   PostCondition n == 2;
 
 theFailure:
   {
     Priority 2;
-    Using n;
+    Using m;
     InvariantCondition !spoil;
     n = n + 1;
   }
@@ -20,7 +20,7 @@ theSpoiler:
 theConflict:
   {
     Priority 1;
-    Using n;
+    Using m;
     StartCondition spoil;
     n = 2;
   }

@@ -36,8 +36,10 @@
         <Type>String</Type>
         <MaxSize>3</MaxSize>
         <InitialValue>
-          <StringValue>string 1</StringValue>
-          <StringValue>string 2</StringValue>
+          <ArrayValue Type="String">
+            <StringValue>string 1</StringValue>
+            <StringValue>string 2</StringValue>
+          </ArrayValue>
         </InitialValue>
       </DeclareArray>
 
@@ -48,8 +50,10 @@
         <Type>Real</Type>
         <MaxSize>3</MaxSize>
         <InitialValue>
-          <RealValue>1.1</RealValue>
-          <RealValue>2.2</RealValue>
+          <ArrayValue Type="Real">
+            <RealValue>1.1</RealValue>
+            <RealValue>2.2</RealValue>
+          </ArrayValue>
         </InitialValue>
       </DeclareArray>
 
@@ -60,8 +64,10 @@
         <Type>Integer</Type>
         <MaxSize>3</MaxSize>
         <InitialValue>
-          <IntegerValue>1</IntegerValue>
-          <IntegerValue>2</IntegerValue>
+          <ArrayValue Type="Integer">
+            <IntegerValue>1</IntegerValue>
+            <IntegerValue>2</IntegerValue>
+          </ArrayValue>
         </InitialValue>
       </DeclareArray>
 
@@ -72,8 +78,10 @@
         <Type>Boolean</Type>
         <MaxSize>3</MaxSize>
         <InitialValue>
-          <BooleanValue>1</BooleanValue>
-          <BooleanValue>0</BooleanValue>
+          <ArrayValue Type="Boolean">
+            <BooleanValue>1</BooleanValue>
+            <BooleanValue>0</BooleanValue>
+          </ArrayValue>
         </InitialValue>
       </DeclareArray>
     </VariableDeclarations>
