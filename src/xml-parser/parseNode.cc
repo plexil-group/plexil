@@ -238,11 +238,18 @@ namespace PLEXIL
                                        << " element in " << usingXml.name()
                                        << " in node " << nodeId);
 
-      // Confirm element is non-empty
-      char const *name = nameXml.child_value();
+      // Confirm element has StringValue child
+      // FIX THE SCHEMA - this is silly
+      xml_node const strval = nameXml.first_child();
+      checkParserExceptionWithLocation(strval && testTag(STRING_VAL_TAG, strval),
+                                       nameXml,
+                                       "Invalid or illegal contents in " << nameXml.name()
+                                       << " in node " << nodeId);
+
+      char const *name = strval.child_value();
       checkParserExceptionWithLocation(name && *name,
                                        nameXml,
-                                       "Empty " << nameXml.name()
+                                       "Empty " << strval.name()
                                        << " element in " << usingXml.name()
                                        << " in node " << nodeId);
 
@@ -552,6 +559,7 @@ namespace PLEXIL
 
       case 'U': // UsingMutex
         if (!strcmp(USING_MUTEX_TAG, tag)) {
+          validElt = true;
           checkParserExceptionWithLocation(!usingXml,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
