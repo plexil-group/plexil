@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -601,19 +601,15 @@ namespace PLEXIL
   ExecApplication::waitForPlanFinished()
   {
 #ifdef PLEXIL_WITH_THREADS
-    // Should never happen, but just in case...
-    assertTrueMsg(!m_execMutex.isLockedByCurrentThread(),
-                  "Internal error: waitForPlanFinished: called with Exec mutex locked!");
     bool finished = false;
-    while (!finished)
-      {
-        // sleep for a bit so as not to hog the CPU
-        sleep(1);
+    while (!finished) {
+      // sleep for a bit so as not to hog the CPU
+      sleep(1);
     
-        // grab the exec and find out if it's finished yet
-        RTMutexGuard guard(m_execMutex);
-        finished = g_exec->allPlansFinished();
-      }
+      // grab the exec and find out if it's finished yet
+      RTMutexGuard guard(m_execMutex);
+      finished = g_exec->allPlansFinished();
+    }
 #else // !defined(PLEXIL_WITH_THREADS)
     warn("waitForPlanFinished: threads not enabled in build");
 #endif // PLEXIL_WITH_THREADS
@@ -974,7 +970,13 @@ namespace PLEXIL
   ExecApplication::notifyExec()
   {
 #ifdef PLEXIL_WITH_THREADS
-    if (m_runExecInBkgndOnly || m_execMutex.isLocked()) {
+    if (m_execMutex.try_lock()) {
+      // Exec is idle, so run it
+      debugMsg("ExecApplication:notify", " exec was idle, stepping it");
+      this->runExec();
+      m_execMutex.unlock();
+    }
+    else {
       // Some thread currently owns the exec. Could be this thread.
       // runExec() could notice, or not.
       // Post to semaphore to ensure event is not lost.
@@ -985,12 +987,7 @@ namespace PLEXIL
       else {
         debugMsg("ExecApplication:notify", " released semaphore");
       }
-      return;
     }
-    // Exec is idle, so run it
-    // If another thread grabs it first, no worries.
-    debugMsg("ExecApplication:notify", " exec was idle, stepping it");
-    this->runExec();
 #else
     // Don't do a thing - caller will tell us when to run
 #endif

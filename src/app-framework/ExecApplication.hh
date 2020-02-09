@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,12 @@
 #include <plexil-config.h>
 
 #ifdef PLEXIL_WITH_THREADS
-#include "ThreadMutex.hh"
-#include "RecursiveThreadMutex.hh"
 #include "ThreadSemaphore.hh"
 #include <pthread.h>
+
+#include <mutex>
 #endif
 
-// STL
 #include <set>
 #include <string>
 #include <vector>
@@ -44,6 +43,11 @@
 #include <csignal>
 
 #define EXEC_APPLICATION_MAX_N_SIGNALS 8
+
+#ifdef PLEXIL_WITH_THREADS
+using ThreadMutexGuard = std::lock_guard<std::mutex>;
+using RTMutexGuard = std::lock_guard<std::recursive_mutex>;
+#endif
 
 // Forward references
 namespace pugi
@@ -359,10 +363,10 @@ namespace PLEXIL
     pthread_t m_execThread;
 
     // Serialize execution in exec to guarantee in-order processing of events
-    RecursiveThreadMutex m_execMutex;
+    std::recursive_mutex m_execMutex;
 
     // Mutex for application state
-    ThreadMutex m_stateMutex;
+    std::mutex m_stateMutex;
 
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;

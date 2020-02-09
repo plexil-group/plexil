@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,11 @@
 
 #include "InputQueue.hh"
 
+#include <memory>
+#include <mutex>
+
 namespace PLEXIL
 {
-  // Forward reference
-  class ThreadMutex;
 
   /**
    * @class SerializedInputQueue
@@ -81,7 +82,7 @@ namespace PLEXIL
     QueueEntry *m_queuePut;
     QueueEntry *m_freeList;
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutex *m_mutex;
+    std::unique_ptr<std::mutex> m_mutex;
 #endif
   };
 

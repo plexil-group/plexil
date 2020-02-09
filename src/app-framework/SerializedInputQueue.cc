@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL
       m_freeList(NULL)
 #ifdef PLEXIL_WITH_THREADS
                       ,
-      m_mutex(new ThreadMutex())
+      m_mutex(new std::mutex())
 #endif
   {
   }
@@ -49,7 +49,7 @@ namespace PLEXIL
   SerializedInputQueue::~SerializedInputQueue()
   {
 #ifdef PLEXIL_WITH_THREADS
-    m_mutex->lock();
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     m_queuePut = NULL;
     while (m_queueGet) {
@@ -62,16 +62,12 @@ namespace PLEXIL
       m_freeList = temp->next;
       delete temp;
     }
-#ifdef PLEXIL_WITH_THREADS
-    m_mutex->unlock();
-    delete m_mutex;
-#endif
   }
 
   bool SerializedInputQueue::isEmpty() const
   {
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutexGuard guard(*m_mutex);
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     return m_queueGet == NULL;
   }
@@ -79,7 +75,7 @@ namespace PLEXIL
   QueueEntry *SerializedInputQueue::allocate()
   {
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutexGuard guard(*m_mutex);
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     QueueEntry* result = m_freeList;
     if (result)
@@ -93,7 +89,7 @@ namespace PLEXIL
   {
     assertTrue_1(entry);
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutexGuard guard(*m_mutex);
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     entry->reset(); // ??
     entry->next = m_freeList;
@@ -104,7 +100,7 @@ namespace PLEXIL
   {
     assertTrue_1(entry);
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutexGuard guard(*m_mutex);
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     entry->next = NULL;
     if (m_queuePut)
@@ -117,7 +113,7 @@ namespace PLEXIL
   QueueEntry *SerializedInputQueue::get()
   {
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutexGuard guard(*m_mutex);
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     if (!m_queueGet)
       return NULL; // empty
@@ -133,7 +129,7 @@ namespace PLEXIL
   void SerializedInputQueue::flush()
   {
 #ifdef PLEXIL_WITH_THREADS
-    ThreadMutexGuard guard(*m_mutex);
+    std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     QueueEntry *temp;
     while ((temp = m_queueGet)) {
