@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 
 #include <ipc.h>
 
+#include <atomic>
 #include <list>
 
 // Forward declarations outside of namespace
@@ -335,14 +336,17 @@ namespace PLEXIL
     //* @brief Listener instance to receive messages.
     MessageListener m_listener;
 
+    /**
+     * @brief Mutexes used to hold the processing of incoming return values while commands
+     * are being sent and recorded.
+     */
+    std::mutex m_cmdMutex;
+
     //* @brief Semaphore for return values from LookupNow
     ThreadSemaphore m_lookupSem;
 
-    /**
-     * @brief Mutex used to hold the processing of incoming return values while commands
-     * are being sent and recorded.
-     */
-    ThreadMutex m_cmdMutex;
+    //* @brief Mutex to prevent contention for the following resources
+    std::mutex m_lookupMutex;
 
     //* @brief Place to store result of current pending LookupNow request
     Value m_pendingLookupResult;
@@ -351,6 +355,6 @@ namespace PLEXIL
     State m_pendingLookupState;
 
     //* @brief Serial # of current pending LookupNow request, or 0
-    uint32_t m_pendingLookupSerial;
+    std::atomic_uint32_t m_pendingLookupSerial;
   };
 }

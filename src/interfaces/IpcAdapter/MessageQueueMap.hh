@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,14 @@
 #ifndef MESSAGEQUEUEMAP_H_
 #define MESSAGEQUEUEMAP_H_
 
-#include "ThreadMutex.hh"
-#include "ExecListener.hh"
 #include "AdapterExecInterface.hh"
+#include "ExecListener.hh"
+#include "Value.hh"
+
+#include <list>
 #include <map>
+#include <mutex>
+#include <queue>
 
 namespace PLEXIL 
 {
@@ -55,19 +59,6 @@ namespace PLEXIL
      * @param cmd Pointer to the command requesting the message.
      */
     void addRecipient(const std::string &message, Command *cmd);
-
-    /**
-     * @brief Removes the given recipient waiting on the given message string associated with
-     * the given acknowledgment.
-     * @param message The message the recipient is waiting for
-     * @param cmd Pointer to the command requesting the message.
-     */
-    void removeRecipient(const std::string &message, Command const *cmd);
-
-    /**
-     * @brief Removes all recipients waiting on the given message string.
-     */
-    void clearRecipientsForMessage(const std::string &message);
 
     /**
      * @brief Adds the given message to its queue. If there is a recipient
@@ -107,47 +98,36 @@ namespace PLEXIL
 
   private:
 
-    //forward declarations
-    typedef std::vector<Value> MessageQueue;
+    //* @brief Data structure containing the value being returned.
+    using MessageQueue = std::queue<Value, std::list<Value>>;
 
-    //* @brief Data structure containing an acknowledgment expression and a destination expression, for identifying and storing recipients
-    struct Recipient
-    {
-      Command *m_cmd;
-
-      Recipient(Command *cmd)
-      : m_cmd(cmd)
-      {}
-
-      Recipient(const Recipient& rec)
-      : m_cmd(rec.m_cmd)
-      {}
-
-      ~Recipient() {}
-    };
-
-    typedef std::vector<Recipient> RecipientQueue;
+    //* @brief Data structure containing the invoking command, for identifying and storing recipients
+    using RecipientQueue = std::queue<Command *, std::list<Command *>>;
 
     //* @brief Data queue structure associating a message string with a queue of recipients and a queue of messages. Only one queue should have items at a time. */
     struct PairingQueue
     {
       std::string m_name;
-      bool m_allowDuplicateMessages;
       RecipientQueue m_recipientQueue;
       MessageQueue m_messageQueue;
-      PairingQueue(const std::string &name, bool allowDuplicateMessages)
+
+      PairingQueue(const std::string &name)
         : m_name(name),
-          m_allowDuplicateMessages(allowDuplicateMessages),
           m_recipientQueue(),
           m_messageQueue() {}
       ~PairingQueue() {}
     };
 
     /**
+     * @brief Private function that returns the queue for the given message, if it exists.
+     */
+    PairingQueue* getQueue(const std::string& message);
+
+    /**
      * @brief Private function that returns the queue for the given message. Creates a new queue
      * if one does not already exist.
      */
-    PairingQueue* getQueue(const std::string& message);
+    PairingQueue* ensureQueue(const std::string& message);
 
     /**
      * @brief Resolves matches between messages and recipients. Should be called whenever updates occur to a queue.
@@ -158,7 +138,7 @@ namespace PLEXIL
     std::map<std::string, PairingQueue*> m_map;
 
     //* @brief Semaphore for return values from LookupNow
-    ThreadMutex m_mutex;
+    std::mutex m_mutex;
 
     //* @brief The interface
     AdapterExecInterface& m_execInterface;

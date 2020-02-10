@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -484,11 +484,6 @@ namespace PLEXIL
     if (m_isInitialized) {
       shutdown();
     }
-    // *** why is this necessary?? ***
-    if (m_mutex.isLockedByCurrentThread()) {
-      debugMsg("IpcFacade", " destructor: unlocking mutex");
-      m_mutex.unlock();
-    }
   }
 
   const std::string& IpcFacade::getUID() {
@@ -509,13 +504,10 @@ namespace PLEXIL
     if (taskName != NULL && taskName != m_myUID)
       m_myUID = taskName;
 
-    IPC_RETURN_TYPE result = IPC_OK;
-    debugMsg("IpcFacade:initialize", " locking mutex");
-    RTMutexGuard guard(m_mutex);
-
     // perform global initialization
     // Initialize IPC
     // possibly redundant, but always safe
+    IPC_RETURN_TYPE result = IPC_OK;
     debugMsg("IpcFacade:initialize", " calling IPC_initialize()");
     result = IPC_initialize();
     if (result != IPC_OK) {
@@ -559,8 +551,6 @@ namespace PLEXIL
     IPC_RETURN_TYPE result = IPC_OK;
     if (!m_isInitialized || !IPC_isConnected())
       result = IPC_Error;
-    debugMsg("IpcFacade:start", " locking mutex");
-    RTMutexGuard guard(m_mutex);
     //perform only when this instance is the only started instance of the class
     if (result == IPC_OK && !m_isStarted) {
       // Subscribe to messages
@@ -587,8 +577,6 @@ namespace PLEXIL
     if (!m_isStarted) {
       return;
     }
-    debugMsg("IpcFacade:stop", " locking mutex");
-    RTMutexGuard guard(m_mutex);
 
     // Cancel IPC dispatch thread first to prevent deadlocks
     debugMsg("IpcFacade:stop", " cancelling dispatch thread");
@@ -611,8 +599,6 @@ namespace PLEXIL
    * being initialized.
    */
   void IpcFacade::shutdown() {
-    debugMsg("IpcFacade::shutdown", "locking mutex");
-    RTMutexGuard guard(m_mutex);
     if (m_isInitialized) {
       if (m_isStarted) {
         stop();
@@ -677,7 +663,7 @@ namespace PLEXIL
 
   void IpcFacade::unsubscribeAll(IpcMessageListener* listener) {
     //prevent modification and access while removing
-    RTMutexGuard guard(m_mutex);
+    std::lock_guard<std::mutex> guard(m_listenersMutex);
     for (LocalListenerList::iterator it = m_localRegisteredHandlers.begin();
          it != m_localRegisteredHandlers.end();
          it++)
@@ -839,7 +825,7 @@ namespace PLEXIL
         m_myUID.c_str()},
        nodeName.c_str()};
     IPC_RETURN_TYPE status = IPC_publishData(STRING_VALUE_MSG, (void*) &updatePacket);
-    if(status == IPC_OK) {
+    if (status == IPC_OK) {
       status = sendPairs(update, serial);
     }
     setError(status);
@@ -1186,6 +1172,8 @@ namespace PLEXIL
     IpcMessageId msgId(msgData->senderUID, msgData->serial);
 
     // Check that this isn't a duplicate header
+    debugMsg("IpcFacade:cacheMessageLeader", " locking incompletes mutex");
+    std::lock_guard<std::mutex> g(m_incompletesMutex);
     IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
     assertTrueMsg(it == m_incompletes.end(),
                   "IpcFacade::cacheMessageLeader: internal error: found existing sequence for sender "
@@ -1211,6 +1199,8 @@ namespace PLEXIL
 
   void IpcFacade::cacheMessageTrailer(const PlexilMsgBase* msgData) {
     IpcMessageId msgId(msgData->senderUID, msgData->serial);
+    debugMsg("IpcFacade:cacheMessageTrailer", " locking incompletes mutex");
+    std::lock_guard<std::mutex> g(m_incompletesMutex);
     IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
     if (it == m_incompletes.end()) {
       debugMsg("IpcFacade::cacheMessageTrailer",
@@ -1235,17 +1225,21 @@ namespace PLEXIL
   void IpcFacade::deliverMessage(const std::vector<const PlexilMsgBase*>& msgs) {
     if (!msgs.empty()) {
       //send to listeners for all
-      ListenerMap::iterator map_it = m_registeredListeners.find(ALL_MSG_TYPE());
-      if (map_it != m_registeredListeners.end()) {
-        for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
-          (*it)->ReceiveMessage(msgs);
+      {
+        debugMsg("IpcFacade:deliverMessage", " locking listeners mutex");
+        std::lock_guard<std::mutex> guard(m_listenersMutex);
+        ListenerMap::iterator map_it = m_registeredListeners.find(ALL_MSG_TYPE());
+        if (map_it != m_registeredListeners.end()) {
+          for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
+            (*it)->ReceiveMessage(msgs);
+          }
         }
-      }
-      //send to listeners for msg type
-      map_it = m_registeredListeners.find(msgs.front()->msgType);
-      if (map_it != m_registeredListeners.end()) {
-        for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
-          (*it)->ReceiveMessage(msgs);
+        //send to listeners for msg type
+        map_it = m_registeredListeners.find(msgs.front()->msgType);
+        if (map_it != m_registeredListeners.end()) {
+          for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
+            (*it)->ReceiveMessage(msgs);
+          }
         }
       }
 
@@ -1258,6 +1252,8 @@ namespace PLEXIL
   }
 
   void IpcFacade::subscribeGlobal(const LocalListenerRef& listener) {
+    debugMsg("IpcFacade:subscribeGlobal", " locking listeners mutex");
+    std::lock_guard<std::mutex> guard(m_listenersMutex);
     //creates a new entry if one does not already exist
     m_registeredListeners[listener.first].push_back(listener.second);
   }
@@ -1266,6 +1262,8 @@ namespace PLEXIL
    * @brief Unsubscribe the given listener from the listener map.
    */
   void IpcFacade::unsubscribeGlobal(const LocalListenerRef& listener) {
+    debugMsg("IpcFacade:unsubscribeGlobal", " locking listeners mutex");
+    std::lock_guard<std::mutex> guard(m_listenersMutex);
     ListenerMap::iterator map_it = m_registeredListeners.find(listener.first);
     if (map_it != m_registeredListeners.end()) {
       for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++)

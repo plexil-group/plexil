@@ -65,8 +65,9 @@ namespace PLEXIL
     m_externalLookupNames(),
     m_externalLookups(),
     m_listener(*this),
-    m_lookupSem(),
     m_cmdMutex(),
+    m_lookupSem(),
+    m_lookupMutex(),
     m_pendingLookupResult(),
     m_pendingLookupState(),
     m_pendingLookupSerial(0)
@@ -86,8 +87,9 @@ namespace PLEXIL
     m_externalLookupNames(),
     m_externalLookups(),
     m_listener(*this),
-    m_lookupSem(),
     m_cmdMutex(),
+    m_lookupSem(),
+    m_lookupMutex(),
     m_pendingLookupResult(),
     m_pendingLookupState(),
     m_pendingLookupSerial(0)
@@ -224,63 +226,65 @@ namespace PLEXIL
    * @brief Perform an immediate lookup on an existing state.
    * @param state The state.
    * @param entry The state cache entry in which to store the result.
+   * @note Called from the Exec thread. Blocks Exec until value is returned.
    */
 
   void IpcAdapter::lookupNow(const State& state, StateCacheEntry &entry) 
   {
-    ExternalLookupMap::iterator it = m_externalLookups.find(state);
-    if (it != m_externalLookups.end()) {
-      debugMsg("IpcAdapter:lookupNow",
-               " returning external lookup " << state
-               << " with internal value " << it->second);
-      entry.update(it->second);
-    }
-    else {
-      const std::string& stateName = state.name();
-      const std::vector<Value>& params = state.parameters();
-      size_t nParams = params.size();
-      debugMsg("IpcAdapter:lookupNow",
-               " for state " << stateName
-               << " with " << nParams << " parameters");
-
-      //send lookup message
-      m_pendingLookupResult.setUnknown();
-      size_t sep_pos = stateName.find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
-      //decide to direct or publish lookup
-      {
-        ThreadMutexGuard g(m_cmdMutex);
-        if (sep_pos != std::string::npos) {
-          std::string const dest(stateName.substr(0, sep_pos));
-          std::string const sentStateName = stateName.substr(sep_pos + 1);
-          m_pendingLookupState = state;
-          m_pendingLookupState.setName(sentStateName);
-          m_pendingLookupSerial = m_ipcFacade.sendLookupNow(sentStateName,
-                                                            dest,
-                                                            params);
-        }
-        else {
-          m_pendingLookupState = state;
-          m_pendingLookupSerial = m_ipcFacade.publishLookupNow(stateName, params);
-        }
+    {
+      std::lock_guard<std::mutex> g(m_lookupMutex);
+      ExternalLookupMap::iterator it = m_externalLookups.find(state);
+      if (it != m_externalLookups.end()) {
+        debugMsg("IpcAdapter:lookupNow",
+                 " returning external lookup " << state
+                 << " with internal value " << it->second);
+        entry.update(it->second);
+        return;
       }
-
-      // Wait for results
-      // N.B. shouldn't have to worry about signals causing wait to be interrupted -
-      // ExecApplication blocks most of the common ones
-      int errnum = m_lookupSem.wait();
-      assertTrueMsg(errnum == 0,
-                    "IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
-
-      entry.update(m_pendingLookupResult);
-
-      // Clean up
-      {
-        ThreadMutexGuard g(m_cmdMutex);
-        m_pendingLookupSerial = 0;
-        m_pendingLookupState = State();
-      }
-      m_pendingLookupResult.setUnknown();
     }
+
+    const std::string& stateName = state.name();
+    const std::vector<Value>& params = state.parameters();
+    size_t nParams = params.size();
+    debugMsg("IpcAdapter:lookupNow",
+             " for state " << stateName
+             << " with " << nParams << " parameters");
+
+    //send lookup message
+    size_t sep_pos = stateName.find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
+    //decide to direct or publish lookup
+    {
+      std::lock_guard<std::mutex> g(m_lookupMutex);
+      m_pendingLookupResult.setUnknown();
+      if (sep_pos != std::string::npos) {
+        std::string const dest(stateName.substr(0, sep_pos));
+        std::string const sentStateName = stateName.substr(sep_pos + 1);
+        m_pendingLookupState = state;
+        m_pendingLookupState.setName(sentStateName);
+        m_pendingLookupSerial = m_ipcFacade.sendLookupNow(sentStateName,
+                                                          dest,
+                                                          params);
+      }
+      else {
+        m_pendingLookupState = state;
+        m_pendingLookupSerial = m_ipcFacade.publishLookupNow(stateName, params);
+      }
+    }
+
+    // Wait for results
+    // N.B. shouldn't have to worry about signals causing wait to be interrupted -
+    // ExecApplication blocks most of the common ones
+    int errnum = m_lookupSem.wait();
+    assertTrueMsg(errnum == 0,
+                  "IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
+
+    std::lock_guard<std::mutex> g(m_lookupMutex);
+    entry.update(m_pendingLookupResult);
+
+    // Clean up
+    m_pendingLookupSerial = 0;
+    m_pendingLookupState = State();
+    m_pendingLookupResult.setUnknown();
   }
 
   /**
@@ -322,6 +326,7 @@ namespace PLEXIL
   /**
    * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
    * @param update The Update object.
+   * @note Called from the Exec thread.
    */
 
   void IpcAdapter::sendPlannerUpdate(Update* update)
@@ -335,7 +340,6 @@ namespace PLEXIL
       return;
     }
 
-    ThreadMutexGuard guard(m_cmdMutex);
     uint32_t serial = m_ipcFacade.publishUpdate(name, args);
     assertTrueMsg(serial != IpcFacade::ERROR_SERIAL(),
                   "IpcAdapter::sendPlannerUpdate: IPC Error, IPC_errno = " <<
@@ -349,6 +353,7 @@ namespace PLEXIL
   /**
    * @brief Execute a command with the requested arguments.
    * @param command The Command object.
+   * @note Called from the Exec thread.
    */
 
   void IpcAdapter::executeCommand(Command *command) 
@@ -379,27 +384,11 @@ namespace PLEXIL
   /**
    * @brief Abort the pending command.
    * @param command The Command object.
+   * @note Called from the Exec thread.
    */
 
   void IpcAdapter::invokeAbort(Command *command) {
-    //TODO: implement unique command IDs for referencing command instances
-    std::string const &cmdName = command->getName();
-    assertTrueMsg(cmdName == RECEIVE_MESSAGE_COMMAND() || cmdName == RECEIVE_COMMAND_COMMAND(),
-                  "IpcAdapter: Attempt to abort \"" << cmdName
-                  << "\" command.\n Only ReceiveMessage and ReceiveCommand commands can be aborted.");
-    std::vector<Value> const &cmdArgs = command->getArgValues();
-    assertTrueMsg(cmdArgs.size() == 1,
-                  "IpcAdapter: Aborting ReceiveMessage requires exactly one argument");
-    assertTrueMsg(cmdArgs.front().isKnown() && cmdArgs.front().valueType() == STRING_TYPE,
-                  "IpcAdapter: The argument to the ReceiveMessage abort, "
-                  << cmdArgs.front()
-                  << ", is not a valid String value");
-
-    std::string const *theMessage;
-    cmdArgs.front().getValuePointer(theMessage);
-
-    debugMsg("IpcAdapter:invokeAbort", "Aborting command listener " << *theMessage << std::endl);
-    m_messageQueues.removeRecipient(*theMessage, command);
+    // Just acknowledge it and ignore (for now)
     m_execInterface.handleCommandAbortAck(command, true);
     m_execInterface.notifyOfExternalEvent();
   }
@@ -499,7 +488,7 @@ namespace PLEXIL
   }
 
   /**
-   * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
+   * @brief handles RECEIVE_MESSAGE_COMMAND commands from the exec
    */
   void IpcAdapter::executeReceiveMessageCommand(Command *command) 
   {
@@ -516,7 +505,7 @@ namespace PLEXIL
     m_messageQueues.addRecipient(*theMessage, command);
     m_execInterface.handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("IpcAdapter:executeCommand", " message handler for \"" << *theMessage << "\" registered.");
+    debugMsg("IpcAdapter:executeReceiveMessageCommand", " message handler for \"" << *theMessage << "\" registered.");
   }
 
   /**
@@ -538,7 +527,7 @@ namespace PLEXIL
     m_messageQueues.addRecipient(msgName, command);
     m_execInterface.handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("IpcAdapter:executeCommand", " message handler for \"" << msgName << "\" registered.");
+    debugMsg("IpcAdapter:executeReceiveCommandCommand", " command handler for \"" << msgName << "\" registered.");
   }
 
   /**
@@ -571,7 +560,7 @@ namespace PLEXIL
     m_messageQueues.addRecipient(msgName, command);
     m_execInterface.handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("IpcAdapter:executeCommand", " message handler for \"" << msgName << "\" registered.");
+    debugMsg("IpcAdapter:executeGetParameterCommand", " message handler for \"" << msgName << "\" registered.");
   }
 
   void IpcAdapter::executeUpdateLookupCommand(Command *command) 
@@ -583,11 +572,11 @@ namespace PLEXIL
     assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
                   "IpcAdapter: The argument to the " << UPDATE_LOOKUP_COMMAND().c_str()
                   << " command, " << args.front() << ", is not a string");
-    ThreadMutexGuard guard(m_cmdMutex);
 
     // Extract state from command parameters
     std::string const *lookupName;
     args.front().getValuePointer(lookupName);
+
     // Warn, but do not crash, if not declared
     if (std::find(m_externalLookupNames.begin(),
                   m_externalLookupNames.end(),
@@ -603,8 +592,11 @@ namespace PLEXIL
     for (size_t i = 2; i < nargs; ++i)
       state.setParameter(i - 2, args[i]);
 
-    //Set value internally
-    m_externalLookups[state] = args[1];
+    {
+      std::lock_guard<std::mutex> guard(m_cmdMutex);
+      //Set value internally
+      m_externalLookups[state] = args[1];
+    }
     // Notify internal users, if any
     m_execInterface.handleValueChange(state, args[1]);
 
@@ -612,8 +604,8 @@ namespace PLEXIL
     std::vector<Value> result_and_args(nargs - 1);
     for (size_t i = 1; i < nargs; ++i)
       result_and_args[i - 1] = args[i];
-    if (m_ipcFacade.publishTelemetry(*lookupName, result_and_args)
-        == IpcFacade::ERROR_SERIAL()) {
+    uint32_t publishStatus = m_ipcFacade.publishTelemetry(*lookupName, result_and_args);
+    if (publishStatus == IpcFacade::ERROR_SERIAL()) {
       warn("IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
       m_execInterface.handleCommandAck(command, COMMAND_FAILED);
     }
@@ -621,7 +613,6 @@ namespace PLEXIL
       // Notify of success
       m_execInterface.handleCommandAck(command, COMMAND_SUCCESS);
     }
-    
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -640,20 +631,20 @@ namespace PLEXIL
 
     uint32_t serial;
     size_t sep_pos = name.find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
-    //lock mutex to ensure no return values are processed while the command is being
-    //sent and logged
-    ThreadMutexGuard guard(m_cmdMutex);
-    //decide to direct or publish command
-    if (sep_pos != std::string::npos) {
-      serial = m_ipcFacade.sendCommand(name.substr(sep_pos + 1), name.substr(0, sep_pos), args);
+    {
+      //decide to direct or publish command
+      if (sep_pos != std::string::npos) {
+        serial = m_ipcFacade.sendCommand(name.substr(sep_pos + 1), name.substr(0, sep_pos), args);
+      }
+      else {
+        serial = m_ipcFacade.publishCommand(name, args);
+      }
+      // log ack and return variables in case we get values for them
+      assertTrueMsg(serial != IpcFacade::ERROR_SERIAL(),
+                    "IpcAdapter::executeCommand: IPC Error, IPC_errno = " << m_ipcFacade.getError());
+      std::lock_guard<std::mutex> guard(m_cmdMutex);
+      m_pendingCommands[serial] = command;
     }
-    else {
-      serial = m_ipcFacade.publishCommand(name, args);
-    }
-    // log ack and return variables in case we get values for them
-    assertTrueMsg(serial != IpcFacade::ERROR_SERIAL(),
-                  "IpcAdapter::executeCommand: IPC Error, IPC_errno = " << m_ipcFacade.getError());
-    m_pendingCommands[serial] = command;
     // store ack
     m_execInterface.handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
@@ -968,7 +959,7 @@ namespace PLEXIL
 
     // Check to see if a LookupNow is waiting on this value
     {
-      ThreadMutexGuard g(m_cmdMutex);
+      std::lock_guard<std::mutex> g(m_lookupMutex);
       if (m_pendingLookupState == state) {
         m_pendingLookupResult = result;
         m_lookupSem.post();
@@ -988,9 +979,9 @@ namespace PLEXIL
   {
     const PlexilReturnValuesMsg* rv = (const PlexilReturnValuesMsg*) msgs[0];
     //lock mutex to ensure all sending procedures are complete.
-    ThreadMutexGuard guard(m_cmdMutex);
     if (rv->requestSerial == m_pendingLookupSerial) {
       // LookupNow for which we are awaiting data
+      std::lock_guard<std::mutex> guard(m_lookupMutex);
       debugMsg("IpcAdapter:handleReturnValuesSequence",
                " processing value(s) for a pending LookupNow");
       m_pendingLookupResult = parseReturnValue(msgs);
@@ -999,52 +990,51 @@ namespace PLEXIL
       return;
     }
 
-    PendingCommandsMap::iterator cit = m_pendingCommands.find(rv->requestSerial);
-    if (cit != m_pendingCommands.end()) {
-      Command *cmd = cit->second;
+    Command *cmd = nullptr;
+    {
+      std::lock_guard<std::mutex> guard(m_cmdMutex);
+      PendingCommandsMap::iterator cit = m_pendingCommands.find(rv->requestSerial);
+      if (cit == m_pendingCommands.end()) {
+        debugMsg("IpcAdapter:handleReturnValuesSequence",
+                 " no lookup or command found for sequence");
+        return;
+      }
+
+      cmd = cit->second;
       assertTrue_1(cmd);
-      size_t nValues = msgs[0]->count;
-      if (msgs[1]->count == MSG_COUNT_CMD_ACK) {
-        assertTrueMsg(nValues == 1,
-                      "IpcAdapter::handleReturnValuesSequence: command ack requires 1 value, received "
-                      << nValues);
-        if (!cmd->isActive()) {
-          debugMsg("IpcAdapter:handleReturnValuesSequence",
-                   " ignoring command handle value for inactive command");
-          m_pendingCommands.erase(rv->requestSerial);
-          return;
-        }
-        debugMsg("IpcAdapter:handleReturnValuesSequence",
-                 " processing command acknowledgment for command " << cmd->getName());
-        Value ack = parseReturnValue(msgs);
-        assertTrue_2(ack.isKnown() && ack.valueType() == COMMAND_HANDLE_TYPE,
-                     "IpcAdapter:handleReturnValuesSequence received a command acknowledgment which is not a CommandHandle value");
-        CommandHandleValue handle;
-        ack.getValue(handle);
-        m_execInterface.handleCommandAck(cmd, handle);
-        m_execInterface.notifyOfExternalEvent();
+      if (!cmd->isActive()) {
+        debugMsg("IpcAdapter:handleReturnValuesSequence", " ignoring messages for inactive command");
+        m_pendingCommands.erase(rv->requestSerial);
+        return;
       }
-      else {
-        if (!cmd->isActive()) {
-          debugMsg("IpcAdapter:handleReturnValuesSequence",
-                   " ignoring return value for inactive command");
-          m_pendingCommands.erase(rv->requestSerial);
-          return;
-        }
-        debugMsg("IpcAdapter:handleReturnValuesSequence",
-                 " processing command return value for command " << cmd->getName());
-        m_execInterface.handleCommandReturn(cmd, parseReturnValue(msgs));
-        m_execInterface.notifyOfExternalEvent();
-      }
+    }
+
+    size_t nValues = msgs[0]->count;
+    if (msgs[1]->count == MSG_COUNT_CMD_ACK) {
+      assertTrueMsg(nValues == 1,
+                    "IpcAdapter::handleReturnValuesSequence: command ack requires 1 value, received "
+                    << nValues);
+      debugMsg("IpcAdapter:handleReturnValuesSequence",
+               " processing command acknowledgment for command " << cmd->getName());
+      Value ack = parseReturnValue(msgs);
+      assertTrue_2(ack.isKnown() && ack.valueType() == COMMAND_HANDLE_TYPE,
+                   "IpcAdapter:handleReturnValuesSequence received a command acknowledgment which is not a CommandHandle value");
+      CommandHandleValue handle;
+      ack.getValue(handle);
+      m_execInterface.handleCommandAck(cmd, handle);
+      m_execInterface.notifyOfExternalEvent();
     }
     else {
       debugMsg("IpcAdapter:handleReturnValuesSequence",
-               " no lookup or command found for sequence");
+               " processing command return value for command " << cmd->getName());
+      m_execInterface.handleCommandReturn(cmd, parseReturnValue(msgs));
+      m_execInterface.notifyOfExternalEvent();
     }
   }
-
+  
   /**
-   * @brief Process a LookupNow. Ignores any lookups that are not defined in config or published.
+   * @brief Process an external LookupNow request. Ignores lookups that are not defined in config or published.
+   * @note Executed in IPC handler thread.
    */
   void IpcAdapter::handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs) 
   {
@@ -1056,26 +1046,37 @@ namespace PLEXIL
     for (size_t i = 1 ; i <= nParms ; ++i)
       lookup.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
 
-    ThreadMutexGuard guard(m_cmdMutex);
-      
-    ExternalLookupMap::iterator it = m_externalLookups.find(lookup);
-    if (it != m_externalLookups.end()) {
+    Value const *resultPtr = nullptr;
+    ExternalLookupMap::const_iterator it;
+    {
+      std::lock_guard<std::mutex> guard(m_lookupMutex);      
+      it = m_externalLookups.find(lookup);
+      if (it != m_externalLookups.end())
+        resultPtr = &it->second;
+    }
+
+    if (resultPtr) {
       debugMsg("IpcAdapter:handleLookupNow", " Publishing value of external lookup \"" << lookup
-               << "\" with internal value '" << (*it).second << "'");
-      m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, (*it).second);
+               << "\" with internal value '" << *resultPtr << "'");
+      m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, *resultPtr);
       return;
     }
 
     if (nParms > 0) {
-      // See if name is declared, and return default value
+      // See if name is declared, and return default value if so
       lookup.setParameterCount(0);
-      it = m_externalLookups.find(lookup);
-      if (it != m_externalLookups.end()) {
+      {
+        std::lock_guard<std::mutex> guard(m_lookupMutex);      
+        it = m_externalLookups.find(lookup);
+        if (it != m_externalLookups.end())
+          resultPtr = &it->second;
+      }
+      if (resultPtr) {
         debugMsg("IpcAdapter:handleLookupNow", " Publishing default value of external lookup \"" << name
                  << "\" = '" << (*it).second << "'");
-        m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, (*it).second);
+        m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, *resultPtr);
         return;
-      }      
+      } 
     }
 
     // Ignore silently if we're not declared to handle it
@@ -1156,8 +1157,7 @@ namespace PLEXIL
       // Followed by 0 (?) or more values
     case PlexilMsgType_ReturnValues:
       // Only pay attention to our return values
-      debugMsg("IpcAdapter:handleIpcMessage", " processing as return value")
-        ;
+      debugMsg("IpcAdapter:handleIpcMessage", " processing as return value");
       m_adapter.handleReturnValuesSequence(msgs);
       break;
 

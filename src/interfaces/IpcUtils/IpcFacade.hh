@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,12 @@
 #include "ipc-data-formats.h"
 
 #include "ConstantMacros.hh"
-#include "RecursiveThreadMutex.hh"
 #include "Value.hh"
 
 #include <limits>
 #include <list>
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -373,8 +373,10 @@ namespace PLEXIL {
     LocalListenerList m_localRegisteredHandlers;
     //* @brief The handle for the message thread
     pthread_t m_threadHandle;
-    //* @brief The mutex used for synchronizing initialization/shutdown methods
-    RecursiveThreadMutex m_mutex;
+    //* @brief Mutex for incomplete message data
+    std::mutex m_incompletesMutex;
+    //* @brief Mutex for registered listener table
+    std::mutex m_listenersMutex;
     //* @brief Cache of incomplete received message data
     IncompleteMessageMap m_incompletes;
     //* @brief Map of message type to list of listeners for that type
