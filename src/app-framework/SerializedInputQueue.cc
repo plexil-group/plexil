@@ -29,7 +29,6 @@
 #include "SerializedInputQueue.hh"
 
 #include "Error.hh"
-#include "ThreadMutex.hh"
 #include "QueueEntry.hh"
 
 namespace PLEXIL

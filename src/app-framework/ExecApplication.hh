@@ -31,9 +31,8 @@
 
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadSemaphore.hh"
-#include <pthread.h>
-
 #include <mutex>
+#include <pthread.h>
 #endif
 
 #include <set>

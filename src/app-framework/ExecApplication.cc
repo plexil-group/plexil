@@ -173,7 +173,7 @@ namespace PLEXIL
       g_manager->processQueue();           // for effect
       double now = g_manager->queryTime(); // update time before attempting to step
       if (g_exec->needsStep()) {
-	g_exec->step(now);
+        g_exec->step(now);
         debugMsg("ExecApplication:step", " complete");
       }
       else {
@@ -216,7 +216,7 @@ namespace PLEXIL
       while (g_exec->needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
         g_exec->step(now);
-	now = g_manager->queryTime(); // update time before attempting to step again
+        now = g_manager->queryTime(); // update time before attempting to step again
       }
       g_exec->deleteFinishedPlans();
     }
@@ -556,7 +556,6 @@ namespace PLEXIL
 
     // Clean up
     g_exec->deleteFinishedPlans();
-
   }
 
 #ifdef PLEXIL_WITH_THREADS
@@ -970,7 +969,7 @@ namespace PLEXIL
   ExecApplication::notifyExec()
   {
 #ifdef PLEXIL_WITH_THREADS
-    if (m_execMutex.try_lock()) {
+    if (!m_runExecInBkgndOnly && m_execMutex.try_lock()) {
       // Exec is idle, so run it
       debugMsg("ExecApplication:notify", " exec was idle, stepping it");
       this->runExec();
