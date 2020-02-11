@@ -59,6 +59,7 @@
 
 using pugi::xml_attribute;
 using pugi::xml_node;
+using pugi::xpath_node;
 using pugi::node_element;
 
 namespace PLEXIL
@@ -227,6 +228,33 @@ namespace PLEXIL
                                      << nodeId << "\": Priority element contains out-of-range integer");
   }
 
+  // ref is assumed to be the 'Name' element referencing this mutex
+  static bool isMutexInScope(char const *mutexName, xml_node ref)
+  {
+    // Search containing nodes first
+    xml_node container = ref.parent().parent();
+    while (container) {
+      checkParserExceptionWithLocation(container && !strcmp(NODE_TAG, container.name()),
+                                       container,
+                                       "isMutexInScope internal error: Expected " << NODE_TAG
+                                       << ", got " << container.name());
+      for (xpath_node const xnode : container.select_nodes("./VariableDeclarations/DeclareMutex/Name")) {
+        if (!strcmp(mutexName, xnode.node().child_value()))
+          return true;
+      }
+      container = container.parent().parent().parent(); // NodeList, NodeBody, Node
+    }
+
+    // Check global decls
+    xml_node const doc = ref.root();
+    for (xpath_node const xnode : doc.select_nodes("/PlexilPlan/GlobalDeclarations/DeclareMutex")) {
+      if (!strcmp(mutexName, xnode.node().child_value()))
+        return true;
+    }
+
+    return false;
+  }
+  
   static void checkUsingMutex(char const *nodeId, xml_node const usingXml)
   {
     std::vector<char const *> names;
@@ -238,25 +266,18 @@ namespace PLEXIL
                                        << " element in " << usingXml.name()
                                        << " in node " << nodeId);
 
-      // Confirm element has StringValue child
-      // FIX THE SCHEMA - this is silly
-      xml_node const strval = nameXml.first_child();
-      checkParserExceptionWithLocation(strval && testTag(STRING_VAL_TAG, strval),
-                                       nameXml,
-                                       "Invalid or illegal contents in " << nameXml.name()
-                                       << " in node " << nodeId);
-
-      char const *name = strval.child_value();
+      // Confirm element has text child
+      char const *name = nameXml.child_value();
       checkParserExceptionWithLocation(name && *name,
                                        nameXml,
-                                       "Empty " << strval.name()
+                                       "Empty " << nameXml.name()
                                        << " element in " << usingXml.name()
                                        << " in node " << nodeId);
 
       // Check whether it's a duplicate
       checkParserExceptionWithLocation(std::find_if(names.begin(),
                                                     names.end(),
-                                                    [name](const char *other)
+                                                    [name] (const char *other) -> bool
                                                     {return !strcmp(name, other);})
                                        == names.end(),
                                        nameXml,
@@ -264,8 +285,11 @@ namespace PLEXIL
                                        <<  " name \"" << name
                                        << "\" in node " << nodeId);
 
-      // TODO: Check whether the named mutex is accessible
-                                       
+      // Check whether the named mutex is accessible
+      checkParserExceptionWithLocation(isMutexInScope(name, nameXml),
+                                       nameXml,
+                                       "No mutex named \"" << name
+                                       << "\" is reachable from node " << nodeId);
       names.push_back(name);
     }
   }
@@ -708,7 +732,7 @@ namespace PLEXIL
   {
     for (xml_node decl : decls) {
       if (testTag(DECLARE_MUTEX_TAG, decl))
-        node->addMutex(new Mutex(decl.child(NAME_TAG).child_value(STRING_VAL_TAG)));
+        node->addMutex(new Mutex(decl.child_value(NAME_TAG)));
       else
         // Variables are always created here, no need for "garbage" flag.
         node->addLocalVariable(getVarDeclName(decl),
@@ -774,11 +798,11 @@ namespace PLEXIL
     // Now populate them
     for (xml_node nm : mtx.children(NAME_TAG)) {
       char const *name = nm.child_value();
-      Mutex * m = node->findMutex(name);
-      // TODO: move this check to first pass
+      Mutex *m = node->findMutex(name);
+      // Belt-and-suspenders check
       checkParserExceptionWithLocation(m,
                                        nm,
-                                       "No mutex named \"" << name
+                                       "Internal error: No mutex named \"" << name
                                        << "\" accessible from node "
                                        << node->getNodeId());
       names.push_back(name);

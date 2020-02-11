@@ -637,7 +637,8 @@ namespace PLEXIL
 
       // Variables next
       if (node->getType() == NodeType_Assignment) {
-        Assignable *var = node->getAssignmentVariable()->asAssignable();
+        Assignable *var =
+          node->getAssignmentVariable()->asAssignable()->getBaseVariable();
         if (success) {
           // Try to reserve the variable
           success = var->reserve(node);
