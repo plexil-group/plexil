@@ -379,9 +379,9 @@ element.  It is used as an included schema only.
       <xs:sequence>
         <xs:element name="Name" maxOccurs="unbounded">
           <xs:complexType>
-            <xs:sequence>
-              <xs:element name="StringValue" type="xs:NCName" />
-            </xs:sequence>
+            <xs:simpleContent>
+              <xs:restriction base="xs:NCName"/>
+            </xs:simpleContent>
             <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
