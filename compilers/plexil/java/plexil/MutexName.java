@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,9 +62,7 @@ public class MutexName extends PlexilName
     public IXMLElement asReference()
     {
         IXMLElement result = new XMLElement("Name");
-        IXMLElement valXML = new XMLElement("StringValue");
-        valXML.setContent(getName());
-        result.addChild(valXML);
+        result.setContent(getName());
         return result;
     }
 }
