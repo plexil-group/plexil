@@ -34,9 +34,7 @@
           <NodeId>set-to-1</NodeId>
           <Priority>0</Priority>
           <UsingMutex>
-            <Name>
-              <StringValue>m</StringValue>
-            </Name>
+            <Name>m</Name>
           </UsingMutex>
           <NodeBody>
             <Assignment>
@@ -51,9 +49,7 @@
           <NodeId>set-to-2</NodeId>
           <Priority>1</Priority>
           <UsingMutex>
-            <Name>
-              <StringValue>m</StringValue>
-            </Name>
+            <Name>m</Name>
           </UsingMutex>
           <SkipCondition>
             <BooleanVariable>flag</BooleanVariable>
