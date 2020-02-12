@@ -32,13 +32,13 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
+#include <fstream>
 #include <map>
 
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
 
-// ooid classes
-#include "uuid_gen.h"
-#include "system/devrand.h"
 
 namespace PLEXIL 
 {
@@ -1274,17 +1274,48 @@ namespace PLEXIL
     }
   }
 
+
+// UUID generation constants
+// 128 bits, in 8-bit bytes
+#define UUID_BINARY_SIZE 16
+
+// 8-4-4-4-12 format
+#define UUID_STRING_SIZE (8 + 1 + 4 + 1 + 4 + 1 + 4 + 1 + 12)
+
   /**
    * @brief Initialize unique ID string
    */
-  std::string IpcFacade::generateUID() {
-    kashmir::system::DevRand randomStream;
-    kashmir::uuid_t uuid;
-    randomStream >> uuid;
-    std::ostringstream s;
-    s << uuid;
-    debugMsg("IpcFacade:generateUID", " generated UUID " << s.str());
-    return s.str();
+  std::string IpcFacade::generateUID()
+  {
+    std::ifstream randumb("/dev/random", std::ios::in | std::ios::binary);
+    if (!randumb)
+      return std::string();
+
+    uint8_t randomBits[UUID_BINARY_SIZE];
+    if (!randumb.read(reinterpret_cast<char *>(randomBits), UUID_BINARY_SIZE))
+      return std::string();
+
+    char resultbuf[UUID_STRING_SIZE + 1];
+    snprintf(resultbuf, UUID_STRING_SIZE + 1,
+             "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+             randomBits[0],
+             randomBits[1],
+             randomBits[2],
+             randomBits[3],
+             randomBits[4],
+             randomBits[5],
+             (randomBits[6] & 0xf) | 0x40, // version 4 - random
+             randomBits[7],
+             (randomBits[8] & 0x3f) | 0x80, // variant 1 - big-endian
+             randomBits[9],
+             randomBits[10],
+             randomBits[11],
+             randomBits[12],
+             randomBits[13],
+             randomBits[14],
+             randomBits[15]);
+
+    return std::string(resultbuf);
   }
 
   /**
