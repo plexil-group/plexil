@@ -471,7 +471,9 @@ namespace PLEXIL
     m_isStarted(false),
     m_stopDispatchThread(false),
     m_nextSerial(1),
-    m_myUID(generateUID())
+    m_myUID(generateUID()),
+    m_incompletesMutex(),
+    m_listenersMutex()
   {
     debugMsg("IpcFacade", " constructor");
   }
@@ -589,9 +591,11 @@ namespace PLEXIL
     debugMsg("IpcFacade:stop", " unsubscribing from messages");
     unsubscribeFromMsgs();
 
+    debugMsg("IpcFacade:stop", " unsubscribing all");
     m_isStarted = false;
     unsubscribeAll();
 
+    debugMsg("IpcFacade:stop", " complete");
   }
 
   /**
@@ -1260,10 +1264,9 @@ namespace PLEXIL
 
   /**
    * @brief Unsubscribe the given listener from the listener map.
+   * @note Caller must hold m_listenersMutex.
    */
   void IpcFacade::unsubscribeGlobal(const LocalListenerRef& listener) {
-    debugMsg("IpcFacade:unsubscribeGlobal", " locking listeners mutex");
-    std::lock_guard<std::mutex> guard(m_listenersMutex);
     ListenerMap::iterator map_it = m_registeredListeners.find(listener.first);
     if (map_it != m_registeredListeners.end()) {
       for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++)
@@ -1276,8 +1279,7 @@ namespace PLEXIL
 
 
 // UUID generation constants
-// 128 bits, in 8-bit bytes
-#define UUID_BINARY_SIZE 16
+#define UUID_SIZE_BITS 128
 
 // 8-4-4-4-12 format
 #define UUID_STRING_SIZE (8 + 1 + 4 + 1 + 4 + 1 + 4 + 1 + 12)
@@ -1287,33 +1289,26 @@ namespace PLEXIL
    */
   std::string IpcFacade::generateUID()
   {
-    std::ifstream randumb("/dev/random", std::ios::in | std::ios::binary);
-    if (!randumb)
-      return std::string();
+    uint16_t randomBits[UUID_SIZE_BITS/16];
+    {
+      std::ifstream randumb("/dev/random", std::ios::in | std::ios::binary);
+      if (!randumb)
+        return std::string();
 
-    uint8_t randomBits[UUID_BINARY_SIZE];
-    if (!randumb.read(reinterpret_cast<char *>(randomBits), UUID_BINARY_SIZE))
-      return std::string();
-
+      if (!randumb.read(reinterpret_cast<char *>(randomBits), UUID_SIZE_BITS/8))
+        return std::string();
+    }
     char resultbuf[UUID_STRING_SIZE + 1];
     snprintf(resultbuf, UUID_STRING_SIZE + 1,
-             "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+             "%04X%04X-%04X-%04X-%04X-%04X%04X%04X",
              randomBits[0],
              randomBits[1],
              randomBits[2],
-             randomBits[3],
-             randomBits[4],
+             (randomBits[3] & 0xfff) | 0x4000,  // version 4 - random
+             (randomBits[4] & 0x3fff) | 0x8000, // variant 1 - big-endian
              randomBits[5],
-             (randomBits[6] & 0xf) | 0x40, // version 4 - random
-             randomBits[7],
-             (randomBits[8] & 0x3f) | 0x80, // variant 1 - big-endian
-             randomBits[9],
-             randomBits[10],
-             randomBits[11],
-             randomBits[12],
-             randomBits[13],
-             randomBits[14],
-             randomBits[15]);
+             randomBits[6],
+             randomBits[7]);
 
     return std::string(resultbuf);
   }
