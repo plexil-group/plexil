@@ -604,11 +604,14 @@ namespace PLEXIL
     while (!finished) {
       // sleep for a bit so as not to hog the CPU
       sleep(1);
+
+      debugMsg("ExecApplication:waitForPlanFinished", " checking");
     
       // grab the exec and find out if it's finished yet
       RTMutexGuard guard(m_execMutex);
       finished = g_exec->allPlansFinished();
     }
+    debugMsg("ExecApplication:waitForPlanFinished", " succeeded");
 #else // !defined(PLEXIL_WITH_THREADS)
     warn("waitForPlanFinished: threads not enabled in build");
 #endif // PLEXIL_WITH_THREADS

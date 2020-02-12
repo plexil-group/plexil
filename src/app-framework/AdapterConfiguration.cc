@@ -271,11 +271,14 @@ namespace PLEXIL {
 
     // halt adapters
     bool success = true;
-    for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
-         it != m_adapters.end();
-         ++it)
-      success = (*it)->stop() && success;
+    for (InterfaceAdapter *intf : m_adapters) {
+      debugMsg("AdapterConfiguration:stop",
+               " stopping "
+               << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value());
+      success = intf->stop() && success;
+    }
 
+    debugMsg("AdapterConfiguration:stop", " stopping listener hub");
     success = m_listenerHub->stop() && success;
 
     debugMsg("AdapterConfiguration:stop", " completed");
