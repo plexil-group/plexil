@@ -337,6 +337,8 @@ int main_internal(int argc, char** argv)
 	_app.waitForPlanFinished();
   }
 
+  std::cout << "UniversalExec " << planName << " finished, cleaning up" << std::endl;
+
   // clean up
   if (!_app.stop()) {
 	std::cout << "ERROR: failed to stop Exec" << std::endl;
