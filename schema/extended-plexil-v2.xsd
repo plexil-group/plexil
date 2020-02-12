@@ -63,20 +63,11 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xs:group ref="KnownTest"/>
         <xs:element ref="BooleanVariable"/>
         <xs:element ref="Boolean"/>
-        <xs:element ref="Finished"/>
-        <xs:element ref="IterationEnded"/>
-        <xs:element ref="Executing"/>
-        <xs:element ref="Waiting"/>
-        <xs:element ref="Inactive"/>
-        <xs:element ref="Succeeded"/>
         <xs:element ref="IterationSucceeded"/>
-        <xs:element ref="Failed"/>
         <xs:element ref="Interrupted"/>
         <xs:element ref="IterationFailed"/>
-        <xs:element ref="Skipped"/>
         <xs:element ref="InvariantFailed"/>
         <xs:element ref="PreconditionFailed"/>
-        <xs:element ref="PostconditionFailed"/>
         <xs:element ref="ParentFailed"/>
         <xs:element ref="MessageReceived"/>
       </xs:choice>
@@ -281,20 +272,11 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
   <!-- Node Predicates -->
 
-  <xs:element name="Finished" type="NodeReference"/>
-  <xs:element name="IterationEnded" type="NodeReference"/>
-  <xs:element name="Executing" type="NodeReference"/>
-  <xs:element name="Waiting" type="NodeReference"/>
-  <xs:element name="Inactive" type="NodeReference"/>
-  <xs:element name="Succeeded" type="NodeReference"/>
   <xs:element name="IterationSucceeded" type="NodeReference"/>
-  <xs:element name="Failed" type="NodeReference"/>
   <xs:element name="Interrupted" type="NodeReference"/>
   <xs:element name="IterationFailed" type="NodeReference"/>
-  <xs:element name="Skipped" type="NodeReference"/>
   <xs:element name="InvariantFailed" type="NodeReference"/>
   <xs:element name="PreconditionFailed" type="NodeReference"/>
-  <xs:element name="PostconditionFailed" type="NodeReference"/>
   <xs:element name="ParentFailed" type="NodeReference"/>
 
   <!-- Support for message passing between executives -->
@@ -365,7 +347,11 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
                 <xs:group ref="GeneralizedNumericExpression"/>
               </xs:complexType>
             </xs:element>
-            <xs:element ref="Tolerance" minOccurs="0"/>
+            <xs:element name="Tolerance" minOccurs="0">
+              <xs:complexType>
+                <xs:group ref="GeneralizedNumericExpression"/>
+              </xs:complexType>
+            </xs:element>
             <xs:element ref="Command"/>
           </xs:sequence>
           <xs:attributeGroup ref="SourceLocators"/>

@@ -380,9 +380,10 @@ element.  It is used as an included schema only.
         <xs:element name="Name" maxOccurs="unbounded">
           <xs:complexType>
             <xs:simpleContent>
-              <xs:restriction base="xs:NCName"/>
+              <xs:extension base="xs:NCName">
+                <xs:attributeGroup ref="SourceLocators"/>
+              </xs:extension>
             </xs:simpleContent>
-            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>

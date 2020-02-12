@@ -1009,7 +1009,7 @@ element.  It is used as an included schema only.
   <xs:element name="Lookup">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="Tolerance" minOccurs="0">
+        <xs:element name="Tolerance" minOccurs="0">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>
           </xs:complexType>

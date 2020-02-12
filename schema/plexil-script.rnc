@@ -1,100 +1,58 @@
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
-default namespace = ""
+namespace xs = "http://www.w3.org/2001/XMLSchema"
 
 start =
-  CommandAck
-  | Script
-  | SendPlan
-  | UpdateAck
-  | CommandAbort
-  | InitialState
-  | Command
-  | State
-  | Param
-  | (notAllowed
-     | element PLEXILScript { InitialState?, Script })
-  | Simultaneous
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
-InitialState =
-  notAllowed
-  | element InitialState { State* }
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
-    }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
-    }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
+  element xs:schema {
+    attribute attributeFormDefault { xsd:NCName },
+    attribute blockDefault { text },
+    attribute elementFormDefault { xsd:NCName },
+    attribute finalDefault { text },
+    attribute xml:lang { xsd:NCName },
+    \element+,
+    complexType,
+    \attribute
   }
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
-Script =
-  notAllowed
-  | element Script {
-      (State
-       | UpdateAck
-       | Command
-       | CommandAck
-       | CommandAbort
-       | Simultaneous
-       | SendPlan
-       | element Delay {
-           mixed {
-             (attribute * { text }
-              | element0)*
-           }
-         })*
-    }
-SendPlan =
-  notAllowed
-  | element SendPlan {
-      attribute file { xsd:string }?
-    }
-type =
-  attribute type {
-    xsd:NMTOKEN "string-array"
-    | xsd:NMTOKEN "bool"
-    | xsd:NMTOKEN "string"
-    | xsd:NMTOKEN "bool-array"
-    | xsd:NMTOKEN "real-array"
-    | xsd:NMTOKEN "int-array"
-    | xsd:NMTOKEN "real"
-    | xsd:NMTOKEN "int"
+\element =
+  element xs:element {
+    attribute maxOccurs { xsd:NCName }?,
+    attribute minOccurs { xsd:integer }?,
+    attribute name { xsd:NCName }?,
+    attribute ref { xsd:NCName }?,
+    attribute type { xsd:NMTOKEN }?,
+    complexType?
   }
-\string = xsd:string
-Command =
-  notAllowed
-  | element Command { command-type }
-Simultaneous =
-  notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
+complexType =
+  element xs:complexType {
+    attribute mixed { xsd:boolean },
+    attribute name { xsd:NCName }?,
+    element xs:sequence { \element+ }?,
+    (element xs:choice {
+       attribute maxOccurs { xsd:NCName },
+       attribute minOccurs { xsd:integer },
+       \element+
+     }
+     | element xs:simpleContent {
+         element xs:extension {
+           attribute base { xsd:NMTOKEN },
+           \attribute
+         }
+       }
+     | \attribute*)
+  }
+\attribute =
+  element xs:attribute {
+    attribute name { xsd:NCName }?,
+    attribute ref { xsd:NCName }?,
+    attribute type { xsd:NMTOKEN }?,
+    element xs:simpleType {
+      element xs:restriction {
+        attribute base { xsd:NMTOKEN },
+        element xs:enumeration {
+          attribute value { xsd:NCName }
+        }+
+      }
+    }?
+  }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

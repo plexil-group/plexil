@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -77,35 +77,45 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # My bone head script to fix up the generated RELAX-NG Compact schema.
 RNCFIX := ./rncfix
 
-SCHEMA_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd \
- core-plexil-v2.xsd extended-plexil-v2.xsd \
- plexil-script.xsd
-SCHEMA_RNG =    $(SCHEMA_XSD:.xsd=.rng)
-SCHEMA_RNC =    $(SCHEMA_XSD:.xsd=.rnc)
-SCHEMA_RNC_IN = $(SCHEMA_XSD:.xsd=.rnc.in)
+SCHEMA_V1_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd plexil-script.xsd
+SCHEMA_V1_RNG    = $(SCHEMA_V1_XSD:.xsd=.rng)
+SCHEMA_V1_RNC    = $(SCHEMA_V1_XSD:.xsd=.rnc)
+SCHEMA_V1_RNC_IN = $(SCHEMA_V1_XSD:.xsd=.rnc.in)
 
-plexil-default: rng rnc
+SCHEMA_V2_XSD = core-plexil-v2.xsd extended-plexil-v2.xsd
+SCHEMA_V2_RNG =    $(SCHEMA_V2_XSD:.xsd=.rng)
+SCHEMA_V2_RNC =    $(SCHEMA_V2_XSD:.xsd=.rnc)
+SCHEMA_V2_RNC_IN = $(SCHEMA_V2_XSD:.xsd=.rnc.in)
 
-rnc: $(SCHEMA_RNC)
+TRANG_JAR = ./trang-20181222/trang.jar
 
-rng: $(SCHEMA_RNG)
+# Until there's time to fix up the V2 schema
+plexil-default: schema-v1
+#plexil-default: schema-v1 schema-v2
+
+schema-v1: schema-v1-rng schema-v1-rnc
+schema-v1-rng: plexil-base.xsd $(SCHEMA_V1_XSD:.xsd=.rng)
+schema-v1-rnc: $(SCHEMA_V1_XSD:.xsd=.rnc)
+
+schema-v2: schema-v2-rng schema-v2-rnc
+schema-v2-rng: plexil-base-v2.xsd $(SCHEMA_V2_XSD:.xsd=.rng)
+schema-v2-rnc: $(SCHEMA_V2_XSD:.xsd=.rnc)
 
 dust:
-	@$(RM) -f $(SCHEMA_RNG)
-	@$(RM) -f $(SCHEMA_RNC_IN)
+	@$(RM) -f $(SCHEMA_V1_RNG) $(SCHEMA_V2_RNG)
+	@$(RM) -f *.rnc.in
 
 clean: dust
-	@$(RM) -f $(SCHEMA_RNC)
+	@$(RM) -f $(SCHEMA_V1_RNC) $(SCHEMA_V2_RNC)
 	@$(RM) -f plexil-formatted.xsd
 
 # The rule creates a RELAX-NG schema from a XML Schema.
-%.rng: %.xsd plexil-base.xsd
-	$(JAVA) -jar $(PLEXIL_HOME)/jars/rngconv.jar $< > $@
+%.rng: %.xsd
+	$(JAVA) -jar $(TRANG_JAR) -I xml -O rng $< $@
 
 # The rule creates a RELAX-NG compact schema from a RELAX-NG schema.
-%.rnc.in: %.rng
-	$(JAVA) -jar $(PLEXIL_HOME)/jars/trang.jar $< $@.rnc
-	mv $@.rnc $@
+%.rnc.in: %.xsd
+	$(JAVA) -jar $(TRANG_JAR) -I xml -O rnc $< $@
 
 # The rule makes some fixes to the generated RELAX-NG compact schema.
 %.rnc: %.rnc.in
