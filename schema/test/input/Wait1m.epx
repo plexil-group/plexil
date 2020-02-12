@@ -9,9 +9,7 @@
     <NodeId>Wait1</NodeId>
 
     <UsingMutex>
-      <Name>
-        <StringValue>m</StringValue>
-      </Name>
+      <Name>m</Name>
     </UsingMutex>
 
     <Units><RealValue>23.9</RealValue></Units>

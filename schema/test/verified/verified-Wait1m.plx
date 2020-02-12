@@ -8,9 +8,7 @@
   <Node NodeType="Empty" epx="Wait" FileName="foo.ple" LineNo="104" ColNo="1">
     <NodeId>Wait1</NodeId>
     <UsingMutex>
-      <Name>
-        <StringValue>m</StringValue>
-      </Name>
+      <Name>m</Name>
     </UsingMutex>
     <EndCondition>
       <GE>

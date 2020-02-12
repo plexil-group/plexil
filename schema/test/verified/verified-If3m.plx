@@ -8,9 +8,7 @@
   <Node NodeType="NodeList" epx="If">
     <NodeId>ep2cp_If_d1e12</NodeId>
     <UsingMutex>
-      <Name>
-        <StringValue>m</StringValue>
-      </Name>
+      <Name>m</Name>
     </UsingMutex>
     <NodeBody>
       <NodeList>

@@ -17,9 +17,7 @@
       </DeclareVariable>
     </VariableDeclarations>
     <UsingMutex>
-      <Name>
-        <StringValue>m</StringValue>
-      </Name>
+      <Name>m</Name>
     </UsingMutex>
     <NodeBody>
       <NodeList>
@@ -41,9 +39,7 @@
               <Node NodeType="Empty" epx="Action">
                 <NodeId>One</NodeId>
                 <UsingMutex>
-                  <Name>
-                    <StringValue>m</StringValue>
-                  </Name>
+                  <Name>m</Name>
                 </UsingMutex>
                 <StartCondition>
                   <Succeeded>

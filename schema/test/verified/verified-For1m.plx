@@ -24,9 +24,7 @@
       </DeclareVariable>
     </VariableDeclarations>
     <UsingMutex>
-      <Name>
-        <StringValue>m</StringValue>
-      </Name>
+      <Name>m</Name>
     </UsingMutex>
     <NodeBody>
       <NodeList>

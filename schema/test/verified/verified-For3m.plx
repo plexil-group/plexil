@@ -36,9 +36,7 @@
               <Node NodeType="NodeList" epx="Concurrence">
                 <NodeId>ep2cp_Concurrence_d1e58</NodeId>
                 <UsingMutex>
-                  <Name>
-                    <StringValue>m</StringValue>
-                  </Name>
+                  <Name>m</Name>
                 </UsingMutex>
                 <NodeBody>
                   <NodeList>

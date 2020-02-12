@@ -9,9 +9,7 @@
     <Message><StringValue>moveRover</StringValue></Message>
 
     <UsingMutex>
-      <Name>
-        <StringValue>m</StringValue>
-      </Name>
+      <Name>m</Name>
     </UsingMutex>
 
     <Node NodeType= "Empty">
