@@ -263,7 +263,7 @@ namespace PLEXIL
 
     virtual std::vector<Mutex *> const *getUsingMutexes() const override
     {
-      return m_usingMutexes;
+      return m_usingMutexes.get();
     }
 
     /**
@@ -415,7 +415,7 @@ namespace PLEXIL
     // Used by plan analyzer and plan parser module test only.
     const std::vector<ExpressionPtr> *getLocalVariables() const
     {
-      return m_localVariables;
+      return m_localVariables.get();
     }
 
     // Condition accessors
@@ -568,9 +568,9 @@ namespace PLEXIL
     NodeImpl *m_parent;                          /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
  
-    std::vector<ExpressionPtr> *m_localVariables; /*!< Variables created in this node. */
-    std::vector<MutexPtr> *m_localMutexes;        /*!< Mutexes created in this node. */
-    std::vector<Mutex *> *m_usingMutexes;
+    std::unique_ptr<std::vector<ExpressionPtr>> m_localVariables; /*!< Variables created in this node. */
+    std::unique_ptr<std::vector<MutexPtr>> m_localMutexes;        /*!< Mutexes created in this node. */
+    std::unique_ptr<std::vector<Mutex *>> m_usingMutexes;         /*!< Mutexes to be acquired by this node. */
 
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
@@ -607,6 +607,7 @@ namespace PLEXIL
     //
 
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
+    void printMutexes(std::ostream& stream, const unsigned int indent = 0) const;
 
   };
 

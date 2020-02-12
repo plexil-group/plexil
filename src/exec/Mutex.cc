@@ -95,6 +95,22 @@ namespace PLEXIL
     std::remove(m_waiters.begin(), m_waiters.end(), node);
   }
 
+  void Mutex::print(std::ostream &stream, const unsigned int indent) const
+  {
+    std::string indentStr(indent, ' ');
+    stream << indentStr << "Mutex " << m_name;
+    if (m_holder) {
+      stream << ", held by " << m_holder->getNodeId();
+    }
+    else {
+      stream << " (available)";
+    }
+    if (!m_waiters.empty()) {
+      stream << ", " << m_waiters.size() << " node(s) waiting";
+    }
+    stream << '\n';
+  }
+
   //
   // Global Mutex management
   //

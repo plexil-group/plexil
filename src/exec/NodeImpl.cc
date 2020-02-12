@@ -164,9 +164,9 @@ namespace PLEXIL
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_localVariables(nullptr),
-      m_localMutexes(nullptr),
-      m_usingMutexes(nullptr),
+      m_localVariables(),
+      m_localMutexes(),
+      m_usingMutexes(),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -200,9 +200,9 @@ namespace PLEXIL
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_localVariables(nullptr),
-      m_localMutexes(nullptr),
-      m_usingMutexes(nullptr),
+      m_localVariables(),
+      m_localMutexes(),
+      m_usingMutexes(),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -295,7 +295,7 @@ namespace PLEXIL
   void NodeImpl::allocateVariables(size_t n)
   {
     assertTrue_1(!m_localVariables); // illegal to call this twice
-    m_localVariables = new std::vector<ExpressionPtr>();
+    m_localVariables.reset(new std::vector<ExpressionPtr>());
     m_localVariables->reserve(n);
     m_variablesByName =
       NodeVariableMapPtr(new NodeVariableMap(m_parent
@@ -324,7 +324,7 @@ namespace PLEXIL
   void NodeImpl::allocateMutexes(size_t n)
   {
     assertTrue_1(!m_localMutexes); // illegal to call this twice
-    m_localMutexes = new std::vector<MutexPtr>();
+    m_localMutexes.reset(new std::vector<MutexPtr>());
     m_localMutexes->reserve(n);
   }
 
@@ -338,7 +338,7 @@ namespace PLEXIL
   void NodeImpl::allocateUsingMutexes(size_t n)
   {
     assertTrue_1(!m_usingMutexes); // illegal to call this twice
-    m_usingMutexes = new std::vector<Mutex *>();
+    m_usingMutexes.reset(new std::vector<Mutex *>());
     m_usingMutexes->reserve(n);
   }
 
@@ -428,9 +428,10 @@ namespace PLEXIL
 
     // Delete timepoints, if any
     delete m_timepoints.release();
-
-    delete m_usingMutexes;
-    delete m_localMutexes;
+    
+    // Delete mutex vectors
+    delete m_usingMutexes.release();
+    delete m_localMutexes.release();
   }
 
   void NodeImpl::cleanUpConditions() 
@@ -502,10 +503,9 @@ namespace PLEXIL
       for (ExpressionPtr &var : *m_localVariables) {
         debugMsg("Node:cleanUpVars",
                  "<" << m_nodeId << "> Removing " << *var);
-        // FIXME This is redundant with unique_ptr destructor
         delete var.release();
       }
-      delete m_localVariables;
+      delete m_localVariables.release();
     }
 
     // Delete internal variables
@@ -1647,8 +1647,8 @@ namespace PLEXIL
     Mutex *result = nullptr;
     NodeImpl const *node = this;
     while (node) {
-      std::vector<MutexPtr> const *mutexvec = node->m_localMutexes;
-      if (node->m_localMutexes) {
+      std::vector<MutexPtr> const *mutexvec = node->m_localMutexes.get();
+      if (mutexvec) {
         result = findMutexInVector(name, *mutexvec);
         if (result) {
           debugMsg("Node:findMutex",
@@ -1901,6 +1901,7 @@ namespace PLEXIL
       // Print variables, starting with command handle
       printCommandHandle(stream, indent);
       printVariables(stream, indent);
+      printMutexes(stream, indent);
     }
     // print children
     for (NodeImplPtr const &child : this->getChildren())
@@ -1927,6 +1928,26 @@ namespace PLEXIL
         *(it->second) << '\n';
     }
   }
+
+  // Print mutexes
+  void NodeImpl::printMutexes(std::ostream& stream, const unsigned int indent) const
+  {
+    if (!m_localMutexes && !m_usingMutexes)
+      return;
+
+    std::string indentStr(indent, ' ');
+    if (m_localMutexes) {
+      stream << indentStr << " Mutexes owned:\n";
+      for (MutexPtr const &mp : *m_localMutexes)
+        mp->print(stream, indent + 2);
+    }
+    if (m_usingMutexes) {
+      stream << indentStr << " Mutexes used:\n";
+      for (Mutex const *m : *m_usingMutexes)
+        m->print(stream, indent + 2);
+    }
+  }
+  
 
   // Here because there is no Node.cc
   // and putting the function definition in Node.hh causes

@@ -89,8 +89,10 @@ namespace PLEXIL
       return false; // duplicate
     (*m_aliasMap)[name] = exp;
     if (isGarbage) {
+      // Allocate a place to store alias if it doesn't already exist.
       if (!m_localVariables)
-        m_localVariables = new std::vector<std::unique_ptr<Expression>>();
+        m_localVariables.reset(new std::vector<std::unique_ptr<Expression>>());
+
       // N.B. Aliases can refer to local variables,
       // so ensure the alias gets cleaned up first by inserting it in the front.
       m_localVariables->insert(m_localVariables->begin(),

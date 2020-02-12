@@ -27,6 +27,7 @@
 #ifndef PLEXIL_MUTEX_HH
 #define PLEXIL_MUTEX_HH
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -84,6 +85,11 @@ namespace PLEXIL
      */
     void removeWaitingNode(Node *node);
 
+    /**
+     * @brief Print the node's name and state.
+     */
+    void print(std::ostream &stream, const unsigned int indent = 0) const;
+
   private:
 
     // Not implemented
@@ -97,6 +103,8 @@ namespace PLEXIL
     std::vector<Node *> m_waiters;
     Node const *m_holder;
   };
+
+  std::ostream& operator<<(std::ostream &stream, Mutex const &m);
 
   /**
    * @brief Find the named global Mutex, if it exists.
