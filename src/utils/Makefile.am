@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,9 +45,8 @@ if JNI_OPT
 endif
 
 if THREADS_OPT
-  include_HEADERS += RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh \
- ThreadSpawn.hh
-  libPlexilUtils_la_SOURCES += RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc \
+  include_HEADERS += ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh
+  libPlexilUtils_la_SOURCES += ThreadMutex.cc ThreadSemaphore.cc \
  ThreadSpawn.cc
 endif
 
