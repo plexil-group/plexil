@@ -323,7 +323,7 @@ element.  It is used as an included schema only.
   <xs:element name="UsingMutex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Name" type="VariableReferenceType" maxOccurs="unbounded"/>
+        <xs:element name="Mutex" type="variable-reference" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>

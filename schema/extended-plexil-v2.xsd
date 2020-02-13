@@ -135,8 +135,8 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:element name="DurationVariable" type="VariableReferenceType"/>
-  <xs:element name="DateVariable" type="VariableReferenceType"/>
+  <xs:element name="DurationVariable" type="variable-reference"/>
+  <xs:element name="DateVariable" type="variable-reference"/>
   
   <xs:element name="Date">
     <xs:simpleType>

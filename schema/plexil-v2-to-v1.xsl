@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -179,11 +179,20 @@
       <xsl:value-of select="@NodeId" />
     </NodeId>
     <xsl:copy-of select="Comment" />
-    <xsl:for-each select="EndCondition|ExitCondition|InvariantCondition|PostCondition|
-                          PreCondition|RepeatCondition|SkipCondition|StartCondition">
+    <!-- Only these expression contexts allow LookupOnChange -->
+    <xsl:for-each select="EndCondition|ExitCondition|InvariantCondition|
+                          SkipCondition|StartCondition">
       <xsl:element name="{name()}">
-        <xsl:apply-templates select="*" />
         <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+        <xsl:apply-templates select="*">
+          <xsl:with-param name="lookupMode" tunnel="yes" select="'change'" />
+        </xsl:apply-templates>
+      </xsl:element>
+    </xsl:for-each> 
+    <xsl:for-each select="PostCondition|PreCondition|RepeatCondition">
+      <xsl:element name="{name()}">
+        <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+        <xsl:apply-templates select="*" />
       </xsl:element>
     </xsl:for-each> 
     <xsl:if test="In|InOut">
@@ -310,6 +319,7 @@ in assignment node <xsl:value-of select="@NodeId" />
   <xsl:template match="Command">
     <NodeBody>
       <Command>
+        <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
         <xsl:if test="Resource">
           <ResourceList>
             <xsl:apply-templates select="Resource" />
@@ -470,12 +480,10 @@ in assignment node <xsl:value-of select="@NodeId" />
   <!-- UsingMutex -->
   <xsl:template match="UsingMutex">
     <UsingMutex>
-      <xsl:for-each select="Name">
+      <xsl:for-each select="Mutex">
         <Name>
-          <StringValue>
-            <xsl:value-of select="." />
-          </StringValue>
           <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+          <xsl:value-of select="@Name" />
         </Name>
       </xsl:for-each>
     </UsingMutex>
@@ -509,8 +517,24 @@ in assignment node <xsl:value-of select="@NodeId" />
     </ArrayElement>
   </xsl:template>
 
-  <xsl:template match="LookupOnChange">
+  <xsl:template match="Lookup">
+    <xsl:param name="lookupMode" tunnel="yes" />
+    <xsl:choose>
+      <xsl:when test="Tolerance">
+        <xsl:call-template name="LookupOnChange" />
+      </xsl:when>
+      <xsl:when test="$lookupMode='change'">
+        <xsl:call-template name="LookupOnChange" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="LookupNow" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="LookupOnChange">
     <LookupOnChange>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:apply-templates select="Name" />
       <xsl:if test="Tolerance">
         <Tolerance>
@@ -525,8 +549,9 @@ in assignment node <xsl:value-of select="@NodeId" />
     </LookupOnChange>
   </xsl:template>
 
-  <xsl:template match="LookupNow">
+  <xsl:template name="LookupNow">
     <LookupNow>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:apply-templates select="Name" />
       <xsl:if test="*[preceding-sibling::Name]">
         <Arguments>

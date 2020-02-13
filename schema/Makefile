@@ -82,6 +82,8 @@ SCHEMA_V1_RNG    = $(SCHEMA_V1_XSD:.xsd=.rng)
 SCHEMA_V1_RNC    = $(SCHEMA_V1_XSD:.xsd=.rnc)
 SCHEMA_V1_RNC_IN = $(SCHEMA_V1_XSD:.xsd=.rnc.in)
 
+
+
 SCHEMA_V2_XSD = core-plexil-v2.xsd extended-plexil-v2.xsd
 SCHEMA_V2_RNG =    $(SCHEMA_V2_XSD:.xsd=.rng)
 SCHEMA_V2_RNC =    $(SCHEMA_V2_XSD:.xsd=.rnc)
@@ -89,31 +91,37 @@ SCHEMA_V2_RNC_IN = $(SCHEMA_V2_XSD:.xsd=.rnc.in)
 
 TRANG_JAR = ./trang-20181222/trang.jar
 
-# Until there's time to fix up the V2 schema
-plexil-default: schema-v1
-#plexil-default: schema-v1 schema-v2
+plexil-default: schema-v1 schema-v2 plexil-script
 
 schema-v1: schema-v1-rng schema-v1-rnc
-schema-v1-rng: plexil-base.xsd $(SCHEMA_V1_XSD:.xsd=.rng)
+schema-v1-rng: $(SCHEMA_V1_XSD:.xsd=.rng)
 schema-v1-rnc: $(SCHEMA_V1_XSD:.xsd=.rnc)
 
 schema-v2: schema-v2-rng schema-v2-rnc
 schema-v2-rng: plexil-base-v2.xsd $(SCHEMA_V2_XSD:.xsd=.rng)
 schema-v2-rnc: $(SCHEMA_V2_XSD:.xsd=.rnc)
 
+plexil-script: plexil-script.rng plexil-script.rnc
+
 dust:
-	@$(RM) -f $(SCHEMA_V1_RNG) $(SCHEMA_V2_RNG)
 	@$(RM) -f *.rnc.in
+	@$(RM) -f $(SCHEMA_V1_RNG) $(SCHEMA_V2_RNG) plexil-script.rng
 
 clean: dust
-	@$(RM) -f $(SCHEMA_V1_RNC) $(SCHEMA_V2_RNC)
+	@$(RM) -f $(SCHEMA_V1_RNC) $(SCHEMA_V2_RNC) plexil-script.rnc
 	@$(RM) -f plexil-formatted.xsd
 
-# The rule creates a RELAX-NG schema from a XML Schema.
+$(SCHEMA_V1_RNG) : plexil-base.xsd
+$(SCHEMA_V1_RNC_IN) : plexil-base.xsd
+
+$(SCHEMA_V2_RNG) : plexil-base-v2.xsd
+$(SCHEMA_V2_RNC_IN) : plexil-base-v2.xsd
+
+# The rule creates a RELAX-NG schema from an XML Schema.
 %.rng: %.xsd
 	$(JAVA) -jar $(TRANG_JAR) -I xml -O rng $< $@
 
-# The rule creates a RELAX-NG compact schema from a RELAX-NG schema.
+# The rule creates a RELAX-NG compact schema from an XML schema.
 %.rnc.in: %.xsd
 	$(JAVA) -jar $(TRANG_JAR) -I xml -O rnc $< $@
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -203,6 +203,11 @@
     <xsl:attribute name="NodeId">
       <xsl:value-of select="NodeId" />
     </xsl:attribute>
+    <xsl:if test="Priority">
+      <xsl:attribute name="Priority">
+        <xsl:value-of select="Priority" />
+      </xsl:attribute>
+    </xsl:if>
     <xsl:copy-of select="@epx|@FileName|@LineNo|@ColNo" />
     <xsl:apply-templates select="Comment" />
     <xsl:for-each select="EndCondition|ExitCondition|InvariantCondition|PostCondition|
@@ -228,11 +233,6 @@
 
   <xsl:template name="Assignment">
     <Assignment>
-      <xsl:if test="Priority">
-        <xsl:attribute name="Priority">
-          <xsl:value-of select="Priority" />
-        </xsl:attribute>
-      </xsl:if>
       <xsl:call-template name="NodeCommon" />
       <xsl:apply-templates select="NodeBody/Assignment/*[1]" />
       <xsl:apply-templates
@@ -249,6 +249,7 @@
 
   <xsl:template match="Command">
     <Command>
+      <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
       <xsl:apply-templates select="ResourceList" />
       <xsl:apply-templates select="ArrayElement|ArrayVariable|BooleanVariable|
                                    IntegerVariable|RealVariable|StringVariable" />
@@ -396,10 +397,12 @@
   <xsl:template match="UsingMutex">
     <UsingMutex>
       <xsl:for-each select="Name">
-        <Name>
+        <Mutex>
+          <xsl:attribute name="Name">
+            <xsl:value-of select="." />
+          </xsl:attribute>
           <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
-          <xsl:value-of select="StringValue" />
-        </Name>
+        </Mutex>
       </xsl:for-each>
     </UsingMutex>
   </xsl:template>
@@ -435,7 +438,7 @@
   </xsl:template>
 
   <xsl:template match="LookupOnChange">
-    <LookupOnChange>
+    <Lookup>
       <xsl:if test="Tolerance">
         <Tolerance>
           <xsl:apply-templates select="Tolerance/*" />
@@ -443,14 +446,14 @@
       </xsl:if>
       <xsl:apply-templates select="Name" />
       <xsl:apply-templates select="Arguments/*" />
-    </LookupOnChange>
+    </Lookup>
   </xsl:template>
 
   <xsl:template match="LookupNow">
-    <LookupNow>
+    <Lookup>
       <xsl:apply-templates select="Name" />
       <xsl:apply-templates select="Arguments/*" />
-    </LookupNow>
+    </Lookup>
   </xsl:template>
 
   <xsl:template match="NodeTimepointValue">
