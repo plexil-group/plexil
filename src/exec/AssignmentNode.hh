@@ -99,6 +99,8 @@ namespace PLEXIL
 
     virtual void transitionToIterationEnded() override;
 
+    virtual void transitionToFinished() override;
+
     virtual void abort() override;
 
   private:

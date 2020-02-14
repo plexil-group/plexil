@@ -537,7 +537,7 @@ namespace PLEXIL
     void transitionToWaiting();
     virtual void transitionToExecuting();
     virtual void transitionToFinishing();
-    void transitionToFinished();
+    virtual void transitionToFinished();
     virtual void transitionToFailing();
     virtual void transitionToIterationEnded(); 
 

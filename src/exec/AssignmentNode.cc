@@ -370,14 +370,34 @@ namespace PLEXIL
 
   void AssignmentNode::transitionToIterationEnded() 
   {
-    // Notify any nodes waiting on the assignment variable
-    if (m_state != WAITING_STATE ) {
+    if (m_state != WAITING_STATE) { 
+      // Notify any nodes waiting on the assignment variable
       Assignable *var = getAssignmentVariable()->asAssignable()->getBaseVariable();
       var->release();
       for (Node *n : *var->getWaitingNodes())
         n->notifyResourceAvailable();
     }
     NodeImpl::transitionToIterationEnded();
+  }
+
+  //
+  // FINISHED
+  //
+  // Description and methods here apply only to Assignment nodes
+  //
+  // Legal predecessor states: FAILING, INACTIVE, ITERATION_ENDED, WAITING
+  // Conditions active:
+  // Legal successor states: INACTIVE
+
+  void AssignmentNode::transitionToFinished()
+  {
+    if (m_state == FAILING_STATE) {
+      // Notify any nodes waiting on the assignment variable
+      Assignable *var = getAssignmentVariable()->asAssignable()->getBaseVariable();
+      var->release();
+      for (Node *n : *var->getWaitingNodes())
+        n->notifyResourceAvailable();
+    }
   }
     
   void AssignmentNode::abort()

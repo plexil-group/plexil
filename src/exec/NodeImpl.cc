@@ -469,7 +469,7 @@ namespace PLEXIL
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (m_garbageConditions[i]) {
         debugMsg("Node:cleanUpConds",
-                 "<" << m_nodeId << "> Removing condition " << getConditionName(i));
+                 ' ' << m_nodeId << " Removing condition " << getConditionName(i));
         delete m_conditions[i];
       }
       m_conditions[i] = nullptr;
@@ -502,7 +502,7 @@ namespace PLEXIL
     if (m_localVariables) {
       for (ExpressionPtr &var : *m_localVariables) {
         debugMsg("Node:cleanUpVars",
-                 "<" << m_nodeId << "> Removing " << *var);
+                 ' ' << m_nodeId << " Removing " << *var);
         delete var.release();
       }
       delete m_localVariables.release();
@@ -624,18 +624,18 @@ namespace PLEXIL
     case QUEUE_PENDING:
       m_queueStatus = QUEUE_PENDING_TRY;
       debugMsg("Node:notifyResourceAvailable",
-               " " << m_nodeId << " will retry");
+               ' ' << m_nodeId << " will retry");
       return;
 
     case QUEUE_PENDING_CHECK:
       m_queueStatus = QUEUE_PENDING_TRY_CHECK;
       debugMsg("Node:notifyResourceAvailable",
-               " " << m_nodeId << " will retry after checking conditions");
+               ' ' << m_nodeId << " will retry after checking conditions");
       return;
 
     default:
       debugMsg("Node:notifyResourceAvailable",
-               " " << m_nodeId << " not in pending queue, ignoring");
+               ' ' << m_nodeId << " not in pending queue, ignoring");
       return;
     }
   }
@@ -718,7 +718,7 @@ namespace PLEXIL
   bool NodeImpl::getDestState()
   {
     debugMsg("Node:getDestState",
-             "Getting destination state for " << m_nodeId << ' ' << this << " from state " <<
+             " Getting destination state for " << m_nodeId << ' ' << this << " from state " <<
              nodeStateName(m_state));
 
     // clear this for sake of unit test
@@ -762,7 +762,7 @@ namespace PLEXIL
     if (m_nextState == m_state)
       return;
 
-    debugMsg("Node:transition", "Transitioning " << m_nodeId << ' ' << this
+    debugMsg("Node:transition", " Transitioning " << m_nodeId << ' ' << this
              << " from " << nodeStateName(m_state)
              << " to " << nodeStateName(m_nextState)
              << " at " << std::setprecision(15) << time);
@@ -777,12 +777,12 @@ namespace PLEXIL
 
     condDebugMsg(m_state == FINISHED_STATE || m_state == ITERATION_ENDED_STATE,
                  "Node:outcome",
-                 "Outcome of " << m_nodeId << ' ' << this <<
+                 " Outcome of " << m_nodeId << ' ' << this <<
                  " is " << outcomeName((NodeOutcome) m_outcome));
     condDebugMsg(m_outcome == FAILURE_OUTCOME
                  && (m_state == FINISHED_STATE || m_state == ITERATION_ENDED_STATE),
                  "Node:failure",
-                 "Failure type of " << m_nodeId << ' ' << this <<
+                 " Failure type of " << m_nodeId << ' ' << this <<
                  " is " << failureTypeName((FailureType) m_failureType));
 
     this->publishChange();
@@ -1392,7 +1392,8 @@ namespace PLEXIL
   // Conditions active:
   // Legal successor states: INACTIVE
 
-  // Common method
+  // Default method
+  // Overridden by AssignmentNode
   void NodeImpl::transitionToFinished()
   {
   }
@@ -1826,13 +1827,14 @@ namespace PLEXIL
 
   void NodeImpl::execute() 
   {
-    debugMsg("Node:execute", " Executing node " << m_nodeId);
+    debugMsg("Node:execute",
+             " Executing " << nodeTypeString(this->getType())
+             << " node " << m_nodeId << ' ' << this);
 
     // legacy message for unit test
-    debugMsg("PlexilExec:handleNeedsExecution",
-             " Storing action for node " << m_nodeId << ' ' << this <<
-             " of type " << nodeTypeString(this->getType()) << 
-             " to be executed.");
+    debugMsg("PlexilExec:handleNeedsExecution", 
+             " Executing " << nodeTypeString(this->getType())
+             << " node " << m_nodeId << ' ' << this);
 
     specializedHandleExecution();
   }
@@ -1844,7 +1846,7 @@ namespace PLEXIL
 
   void NodeImpl::reset()
   {
-    debugMsg("Node:reset", " Re-setting node " << m_nodeId);
+    debugMsg("Node:reset", ' ' << m_nodeId << ' ' << this);
 
     //reset outcome and failure type
     m_outcome = NO_OUTCOME;
