@@ -57,30 +57,29 @@ UncheckedSequence
     if (SendCommand1.command_handle != COMMAND_SUCCESS)
       print("\n>>> test_send: command 1 failed\n\n");
     endif
-  }
+      }
 
  WaitForAckOrTimeout1:
   Concurrence
     {
-      InvariantCondition !ackTimedOut;
 
     HandleAck1:
-      OnCommand "ack_msg" (String ack)
-        {
-          print ("\ntest_send: received ack\n\n");
-          ackReceived = true;
-        }
+      {
+        InvariantCondition !ackTimedOut;
+        OnCommand "ack_msg" (String ack)
+          {
+            print ("\ntest_send: received ack\n\n");
+            ackReceived = true;
+          }
+      }
 
     HandleTimeout1:
       UncheckedSequence
         {
           StartCondition Lookup(time, 1) > WaitForAckOrTimeout1.EXECUTING.START + 4;
           SkipCondition ackReceived;
-
-          print ("\ntest_send: ack timed out\n\n");
-
-        SignalTimeout:
           ackTimedOut = true;
+          print ("\ntest_send: ack timed out\n\n");
         }
     }
 
@@ -95,30 +94,29 @@ UncheckedSequence
     if (SendCommand2.command_handle != COMMAND_SUCCESS)
       print("\n>>> test_send: command 2 failed\n\n");
     endif
-  }
+      }
 
  WaitForAckOrTimeout2:
   Concurrence
     {
-      InvariantCondition !ackTimedOut;
 
     HandleAck2:
-      OnCommand "ack_msg" (String ack)
-        {
-          print ("\ntest_send: received ack\n\n");
-          ackReceived = true;
-        }
+      {
+        InvariantCondition !ackTimedOut;
+        OnCommand "ack_msg" (String ack)
+          {
+            print ("\ntest_send: received ack\n\n");
+            ackReceived = true;
+          }
+      }
 
     HandleTimeout2:
       UncheckedSequence
         {
           StartCondition Lookup(time, 1) > WaitForAckOrTimeout2.EXECUTING.START + 4;
           SkipCondition ackReceived;
-
-          print ("\ntest_send: ack timed out\n\n");
-
-        SignalTimeout2:
           ackTimedOut = true;
+          print ("\ntest_send: ack timed out\n\n");
         }
     }
 
@@ -130,7 +128,7 @@ UncheckedSequence
     if (SendQuit.command_handle != COMMAND_SUCCESS)
       print("\n>>> test_send: send quit failed\n\n");
     endif
-  }
+      }
 }
 
 // EOF
