@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include "InterfaceError.hh"
 #include "Node.hh"              // struct PLEXIL::Node
 #include "StateCacheEntry.hh"
+#include "ThreadSpawn.hh"
 #include "Update.hh"
 #include "pugixml.hpp"
 #include "stricmp.h"
@@ -233,8 +234,7 @@ namespace PLEXIL
     debugMsg("UdpAdapter:invokeAbort", " called for " << cmdName);
     int status;                        // The return status of the calls to pthread_cancel() and close()
     // First, find the active thread for this message, cancel and erase it
-    ThreadMap::iterator thread;
-    thread = m_activeThreads.find(msgName); // recorded by startUdpMessageReceiver
+    ThreadMap::iterator thread = m_activeThreads.find(msgName); // recorded by startUdpMessageReceiver
     if (thread == m_activeThreads.end()) {
       warn("UdpAdapter:invokeAbort: no thread found for " << msgName);
       m_execInterface.handleCommandAbortAck(cmd, false);
@@ -263,8 +263,7 @@ namespace PLEXIL
              << " listener thread (" << thread->second << ") cancelled");
     m_activeThreads.erase(thread); // erase the cancelled thread
     // Second, find the open socket for this message and close it
-    SocketMap::iterator socket;
-    socket=m_activeSockets.find(msgName); // recorded by startUdpMessageReceiver
+    SocketMap::iterator socket = m_activeSockets.find(msgName); // recorded by startUdpMessageReceiver
     if (socket == m_activeSockets.end()) {
       warn("UdpAdapter:invokeAbort: no socket found for " << msgName);
       m_execInterface.handleCommandAbortAck(cmd, false);
@@ -286,7 +285,6 @@ namespace PLEXIL
              << " socket (" << socket->second << ") closed");
     m_activeSockets.erase(socket); // erase the closed socket
     // Let the exec know that we believe things are cleaned up
-    m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmd);
     m_execInterface.handleCommandAbortAck(cmd, true);
     m_execInterface.notifyOfExternalEvent();
   }
@@ -316,9 +314,8 @@ namespace PLEXIL
     std::string const &msgName = cmd->getName();
     debugMsg("UdpAdapter:executeDefaultCommand",
              " called for \"" << msgName << "\" with " << args.size() << " args");
-    ThreadMutexGuard guard(m_cmdMutex);
-    MessageMap::iterator msg;
-    msg = m_messages.find(msgName);
+    std::lock_guard<std::mutex> guard(m_cmdMutex);
+    MessageMap::const_iterator msg = m_messages.find(msgName);
     // Check for an obviously bogus port
     if (msg->second.peer_port == 0) {
       warn("executeDefaultCommand: bad peer port (0) given for " << msgName << " message");
@@ -470,8 +467,7 @@ namespace PLEXIL
     size_t pos;
     pos = msgName.find(":");
     std::string const baseName = msgName.substr(0, pos);
-    MessageMap::iterator msg;
-    msg = m_messages.find(baseName);
+    MessageMap::const_iterator msg = m_messages.find(baseName);
     if (msg == m_messages.end()) {
       warn("UdpAdapter:executeGetParameterCommand: no message definition found for "
            << baseName);
@@ -690,43 +686,34 @@ namespace PLEXIL
   void UdpAdapter::printMessageDefinitions()
   {
     // print all of the stuff in m_message for debugging
-    MessageMap::iterator msg;
     std::string indent = "             ";
-    int i = 0;
-    for (msg=m_messages.begin(); msg != m_messages.end(); msg++, i++)
-      {
-        std::cout << "UDP Message: " << msg->first;
-        std::vector<Parameter>::iterator param;
-        for (param=msg->second.parameters.begin(); param != msg->second.parameters.end(); param++)
-          {
-            std::string temp = param->desc.empty() ? " (no description)" : " (" + param->desc + ")";
-            if (param->elements == 1)
-              {
-                std::cout << "\n" << indent << param->len << " byte " << param->type << temp;
-              }
-            else
-              {
-                size_t pos = param->type.find("-");
-                std::cout << "\n" << indent << param->elements << " element array of " << param->len << " byte "
-                          << param->type.substr(0, pos) << "s" << temp;
-              }
-          }
-        std::cout << std::endl << indent << "length: " << msg->second.len << " (bytes)";
-        std::cout << ", peer: " << msg->second.peer << ", peer_port: " << msg->second.peer_port;
-        std::cout << ", local_port: " << msg->second.local_port;
-        std::cout << std::endl;
+    for (std::pair<std::string, UdpMessage> const &msg : m_messages) {
+      std::cout << "UDP Message: " << msg.first;
+      for (Parameter const &param : msg.second.parameters) {
+        std::string temp = param.desc.empty() ? " (no description)" : " (" + param.desc + ")";
+        if (param.elements == 1) {
+          std::cout << "\n" << indent << param.len << " byte " << param.type << temp;
+        }
+        else {
+          size_t pos = param.type.find("-");
+          std::cout << "\n" << indent << param.elements << " element array of " << param.len << " byte "
+                    << param.type.substr(0, pos) << "s" << temp;
+        }
       }
+      std::cout << std::endl << indent << "length: " << msg.second.len << " (bytes)";
+      std::cout << ", peer: " << msg.second.peer << ", peer_port: " << msg.second.peer_port;
+      std::cout << ", local_port: " << msg.second.local_port;
+      std::cout << std::endl;
+    }
   }
 
   // Start a UDP Message Handler for a node waiting on a UDP message
   int UdpAdapter::startUdpMessageReceiver(const std::string& name, Command * /* cmd */)
   {
-    //ThreadMutexGuard guard(m_cmdMutex);
     debugMsg("UdpAdapter:startUdpMessageReceiver",
              " entered for " << name);
     // Find the message definition to get the message port and size
-    MessageMap::iterator msg;
-    msg=m_messages.find(name);
+    MessageMap::iterator msg = m_messages.find(name);
     if (msg == m_messages.end()) {
       warn("UdpAdapter:startUdpMessageReceiver: no message found for " << name);
       return -1;
@@ -1100,7 +1087,7 @@ namespace PLEXIL
           warn("buildUdpBuffer: Format requires String, but supplied value is not");
           return -1;
         }
-        std::string const *str = NULL;
+        std::string const *str = nullptr;
         plexil_val.getValuePointer(str);
         if (str->length() > len) {
           warn("buildUdpBuffer: declared string length (" << len <<
@@ -1123,7 +1110,7 @@ namespace PLEXIL
           return -1;
         }
         unsigned int size = param->elements;
-        BooleanArray const *array = NULL;
+        BooleanArray const *array = nullptr;
         plexil_val.getValuePointer(array);
         if (debug)
           std::cout << size << " element array of "
@@ -1166,7 +1153,7 @@ namespace PLEXIL
           return -1;
         }
         unsigned int size = param->elements;
-        IntegerArray const *array = NULL;
+        IntegerArray const *array = nullptr;
         plexil_val.getValuePointer(array);
         if (debug)
           std::cout << size << " element array of " << len << " byte ints starting at ["
@@ -1212,7 +1199,7 @@ namespace PLEXIL
           warn("buildUdpBuffer: all scalars and arrays must be of at least size 1, not " << size);
           return -1;
         }
-        RealArray const *array = NULL;
+        RealArray const *array = nullptr;
         plexil_val.getValuePointer(array);
         if (debug)
           std::cout << size << " element array of " << len << " byte floats starting at buffer["
@@ -1246,7 +1233,7 @@ namespace PLEXIL
           return -1;
         }
         unsigned int size = param->elements;
-        StringArray const *array = NULL;
+        StringArray const *array = nullptr;
         plexil_val.getValuePointer(array);
         if (debug)
           std::cout << size << " element array of " << len << " byte strings starting at buffer["
@@ -1257,7 +1244,7 @@ namespace PLEXIL
           return -1;
         }
         for (unsigned int i = 0 ; i < size ; i++) {
-          std::string const *temp = NULL;
+          std::string const *temp = nullptr;
           if (!array->getElementPointer(i, temp)) {
             warn("buildUdpBuffer: Array element at index " << i << " is unknown");
             return -1;
@@ -1298,7 +1285,7 @@ namespace PLEXIL
       std::cout << " ";
       if (it->valueType() == STRING_TYPE) { 
         // Extract strings
-        std::string const *temp = NULL;
+        std::string const *temp = nullptr;
         if (it->getValuePointer(temp))
           std::cout << "\"" << *temp << "\"";
         else

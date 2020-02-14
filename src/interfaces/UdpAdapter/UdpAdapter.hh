@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 #include "InterfaceAdapter.hh"
 #include "MessageQueueMap.hh"
 #include "udp-utils.hh"
-#include "ThreadSpawn.hh"
+
+#include <mutex>
 
 namespace PLEXIL
 {
@@ -58,7 +59,7 @@ namespace PLEXIL
       : name(),
 	peer(),
 	parameters(),
-	self(NULL),
+	self(nullptr),
 	len(0),
 	local_port(0),
 	peer_port(0),
@@ -110,7 +111,7 @@ namespace PLEXIL
     // Abort the given command.  Store the abort-complete into ack
     void invokeAbort(Command *cmd);
 
-    ThreadMutex m_cmdMutex;
+    std::mutex m_cmdMutex;
 
     // Somewhere to hang the messages, default ports and peers, threads and sockets
     unsigned int m_default_local_port;
