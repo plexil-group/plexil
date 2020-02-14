@@ -18,14 +18,11 @@
           <BooleanValue>false</BooleanValue>
         </InitialValue>
       </DeclareVariable>
-      <DeclareMutex>
-        <Name>m</Name>
-      </DeclareMutex>
     </VariableDeclarations>
     <PostCondition>
       <EQInternal>
         <NodeOutcomeVariable><NodeId>set-to-2</NodeId></NodeOutcomeVariable>
-        <NodeOutcomeValue>INTERRUPTED</NodeOutcomeValue>
+        <NodeOutcomeValue>SKIPPED</NodeOutcomeValue>
       </EQInternal>
     </PostCondition>
     <NodeBody>
@@ -33,9 +30,6 @@
         <Node NodeType="Assignment">
           <NodeId>set-to-1</NodeId>
           <Priority>0</Priority>
-          <UsingMutex>
-            <Name>m</Name>
-          </UsingMutex>
           <NodeBody>
             <Assignment>
               <IntegerVariable>n</IntegerVariable>
@@ -48,9 +42,6 @@
         <Node NodeType="Assignment">
           <NodeId>set-to-2</NodeId>
           <Priority>1</Priority>
-          <UsingMutex>
-            <Name>m</Name>
-          </UsingMutex>
           <ExitCondition>
             <BooleanVariable>flag</BooleanVariable>
           </ExitCondition>
