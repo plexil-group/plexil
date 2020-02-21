@@ -29,8 +29,8 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # Platform-dependent configuration
 
 ifeq (Darwin,$(TARGET_OS))
-DEFINES += -DDarwin
 OPENGL_EXTRA_FLAGS	:= -framework OpenGL -framework GLUT
+CPPFLAGS            += -DGL_SILENCE_DEPRECATION
 endif
 
 ifeq (Linux,$(TARGET_OS))
@@ -48,8 +48,7 @@ EXECUTABLE := robotSimulator
 
 # External dependencies
 LIB_PATH	+= $(OPENGL_LIB_PATH)
-LIBS		+= pugixml IpcUtils ipc \
- PlexilExpr PlexilUtils PlexilValue $(PTHREAD_LIB) $(OPENGL_LIBS)
+LIBS		+= IpcUtils ipc PlexilUtils PlexilValue $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 
 SRC		:= $(wildcard *.cc)
