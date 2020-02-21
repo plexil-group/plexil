@@ -56,7 +56,6 @@
     <State name="time" type="real">
       <Value>7.0</Value>
     </State>
-    <Delay />
     <CommandAck name="turn_on_wipers" type="string">
       <Result>COMMAND_SUCCESS</Result>
     </CommandAck>

@@ -1,6 +1,5 @@
 <PLEXILScript>
-  <InitialState>
-  </InitialState>
+  <InitialState/>
   <Script>
     <Command name="c1" type="int">
       <Result>10</Result>
