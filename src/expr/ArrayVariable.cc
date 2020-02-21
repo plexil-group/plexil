@@ -245,16 +245,11 @@ namespace PLEXIL
 
   bool ArrayVariable::reserve(Node *node)
   {
-    // TEMP DEBUG
-    std::cout << "ArrayVariable::reserve, m_user is " << m_user << std::endl;
-
     if (m_user) {
       addWaitingNode(node);
-      std::cout << "ArrayVariable::reserve failed" << std::endl;
       return false;
     }
     m_user = node;
-    std::cout << "ArrayVariable::reserve succeeded" << std::endl;
     return true;
   }
 
