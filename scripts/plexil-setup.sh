@@ -1,7 +1,7 @@
 #!/bin/sh
 # Source or include this script to set up Plexil environment.
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ fi
 export PATH=${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
 _plexil_libpath=$PLEXIL_HOME/lib
 
-if [ `uname` = 'Darwin' ]
+if [ "$(uname)" = 'Darwin' ]
 then
     # Mac
     if [ -z "$DYLD_LIBRARY_PATH" ]
