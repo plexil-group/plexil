@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -234,27 +234,27 @@ PLEXIL::Value Robot::processCommand(const std::string& cmd, int32_t parameter)
 
 void Robot::getRobotPositionLocal(int& row, int& col)
 {
-  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
+  std::lock_guard<std::mutex> mg(m_RobotPositionMutex);
   row = m_Row;
   col = m_Col;
 }
 
 void Robot::setRobotPositionLocal(int row, int col)
 {
-  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
+  std::lock_guard<std::mutex> mg(m_RobotPositionMutex);
   m_Row = row;
   m_Col = col;
 }
 
 const double& Robot::readRobotEnergyLevel()
 {
-  PLEXIL::ThreadMutexGuard mg(m_RobotEnergyLevelMutex);
+  std::lock_guard<std::mutex> mg(m_RobotEnergyLevelMutex);
   return m_EnergyLevel;
 }
 
 void Robot::updateRobotEnergyLevel(double energyLevel)
 {
-  PLEXIL::ThreadMutexGuard mg(m_RobotEnergyLevelMutex);
+  std::lock_guard<std::mutex> mg(m_RobotEnergyLevelMutex);
   m_EnergyLevel = std::max(0.0, std::min(1.0, m_EnergyLevel + energyLevel));
 }
 

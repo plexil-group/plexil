@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,10 +28,9 @@
 #define ROBOT_POSITION_SERVER
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
-
-#include "ThreadMutex.hh"
 
 class RobotPositionServer
 {
@@ -50,7 +49,7 @@ private:
   std::vector<std::vector<std::string> > m_OccupancyGrid;
   std::map<std::string, std::vector<int> > m_NameToPositionMap;
   std::map<std::string, std::vector<int> >::iterator m_NameToPositionMapIter;
-  PLEXIL::ThreadMutex m_RobotPositionMutex;
+  std::mutex m_RobotPositionMutex;
 };
 
 #endif // ROBOT_POSITION_SERVER

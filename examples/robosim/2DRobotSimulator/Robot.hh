@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,9 @@
 #ifndef ROBOT_HH
 #define ROBOT_HH
 
-#include "RobotBase.hh"
+#include <mutex>
 
-#include "ThreadMutex.hh"
+#include "RobotBase.hh"
 
 class IpcRobotAdapter;
 
@@ -94,8 +94,8 @@ private:
   std::vector<std::vector<int> > m_DirOffset;
   const std::string m_Name;
 
-  PLEXIL::ThreadMutex m_RobotPositionMutex;
-  PLEXIL::ThreadMutex m_RobotEnergyLevelMutex;
+  std::mutex m_RobotPositionMutex;
+  std::mutex m_RobotEnergyLevelMutex;
 
   double m_Red;
   double m_Green;

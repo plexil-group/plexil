@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ double EnergySources::acquireEnergySource(int row, int col)
   
   bool found = false;
   double resLevel = 0.0;
-  PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
+  std::lock_guard<std::mutex> mg(m_EnergySourceListMutex);
   
   for (std::vector<std::vector<int> >::iterator iter = m_EnergySourceLocations.begin();
        (iter != m_EnergySourceLocations.end()) && !found; ++iter)
@@ -78,7 +78,7 @@ double EnergySources::determineEnergySourceLevel(int rowCurr, int colCurr)
 {
   // Loop through each resource and return the max.
   
-  PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
+  std::lock_guard<std::mutex> mg(m_EnergySourceListMutex);
   
   double maxValue = -1.0 * static_cast<double>(INT_MAX);
   
@@ -104,7 +104,7 @@ void EnergySources::displayEnergySources()
   double rWidth = 2.0 / static_cast<double>(m_Size);
   double radius = m_Radius * rWidth;
   
-  PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
+  std::lock_guard<std::mutex> mg(m_EnergySourceListMutex);
   for (unsigned int i = 0; i < m_EnergySourceLocations.size(); ++i)
     {
       int row = m_EnergySourceLocations[i][0];

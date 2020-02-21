@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ bool RobotPositionServer::setRobotPosition(const std::string& name, int row, int
 {
   std::vector<int> pos2d(2);
   bool registered = false;
-  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
+  std::lock_guard<std::mutex> mg(m_RobotPositionMutex);
   
   m_NameToPositionMapIter = m_NameToPositionMap.find(name);
   
@@ -86,7 +86,7 @@ bool RobotPositionServer::gridOccupied(int row, int col) const
 
 void RobotPositionServer::getRobotPosition(const std::string& name, int& row, int& col)
 {
-  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
+  std::lock_guard<std::mutex> mg(m_RobotPositionMutex);
   
   m_NameToPositionMapIter = m_NameToPositionMap.find(name);
   

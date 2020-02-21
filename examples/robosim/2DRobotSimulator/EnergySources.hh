@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,8 @@
 #define ENERGY_SOURCES_HH
 
 #include <iostream>
+#include <mutex>
 #include <vector>
-
-#include "ThreadMutex.hh"
 
 class EnergySources
 {
@@ -55,7 +54,7 @@ private:
                        std::string::size_type& pos, std::string& result);
   void readEnergySourceLocations(const std::string& fName);
 
-  PLEXIL::ThreadMutex m_EnergySourceListMutex;
+  std::mutex m_EnergySourceListMutex;
   std::vector<std::vector<int> > m_EnergySourceLocations;
   int m_Size;
   double m_Radius;
