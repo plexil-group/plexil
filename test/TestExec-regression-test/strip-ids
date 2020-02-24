@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/sh
 
 sed_cmd='s/id_[0-9]*/id_/g'
 
@@ -9,9 +9,8 @@ then
 elif [ -z "$2" ]
 then
 	# read from $1, write to stdout
-	sed -e "$sed_cmd" $1
+	sed -e "$sed_cmd" "$1"
 else
 	# read from $1, write to $2
-	sed -e "$sed_cmd" $1 > $2
+	sed -e "$sed_cmd" "$1" > "$2"
 fi
-

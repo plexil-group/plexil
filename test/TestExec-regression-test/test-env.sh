@@ -1,7 +1,7 @@
-#! /usr/bin/env bash
+#! /bin/sh
 # Environment setup for TestExec regression tests
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,13 +29,13 @@
 # Defining library path redundantly for both Mac and Linux
 
 # Linux
-LD_LIBRARY_PATH=${PLEXIL_HOME}/lib
+LD_LIBRARY_PATH="$PLEXIL_HOME"/lib
 
 # Mac
-DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
+DYLD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH DYLD_LIBRARY_PATH
 
-TEST_DIR=${PLEXIL_HOME}/test/TestExec-regression-test
+TEST_DIR="$PLEXIL_HOME"/test/TestExec-regression-test
 
 EMPTY_SCRIPT=scripts/empty.psx
 REGRESSION_PL=regression.pl
@@ -43,7 +43,9 @@ TEST_DEBUG_CFG=.TestDebug.cfg
 
 if [ -z "$EXEC_PROG" ]
 then
-    EXEC_PROG=${PLEXIL_HOME}/src/apps/TestExec/TestExec
+    # Point at the copy in the source directory
+    # in case 'make install' hasn't been run
+    EXEC_PROG="$PLEXIL_HOME"/src/apps/TestExec/TestExec
 fi
 
 export EMPTY_SCRIPT EXEC_PROG REGRESSION_PL TEST_DEBUG_CFG TEST_DIR

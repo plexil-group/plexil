@@ -1,7 +1,7 @@
-#! /usr/bin/env bash
+#! /bin/sh
 # Run all TestExec regression tests on both original and doubly converted plans
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,41 +32,42 @@ then
     exit 1
 fi
 
-. ${PLEXIL_HOME}/test/TestExec-regression-test/test-env.sh
+# shellcheck source=test-env.sh
+. "$PLEXIL_HOME"/test/TestExec-regression-test/test-env.sh
 
-schema_dir="${PLEXIL_HOME}/schema"
-export PATH=${TEST_DIR}:${PATH}:${schema_dir}/test
+schema_dir="$PLEXIL_HOME"/schema
+export PATH="$TEST_DIR":"$PATH":"$schema_dir"/test
 
 conversion_dir=/tmp/plexil/plans
 
 original_planfile()
 {
-    echo "${TEST_DIR}/plans/$1.plx"
+    echo "$TEST_DIR/plans/$1.plx"
 }
 
 v1_planfile()
 {
-    echo "${conversion_dir}/$1.px1"
+    echo "$conversion_dir/$1.px1"
 }
 
 v2_planfile()
 {
-    echo "${conversion_dir}/$1.px2"
+    echo "$conversion_dir/$1.px2"
 }
 
 script_file()
 {
-    echo "${TEST_DIR}/scripts/$1.psx"
+    echo "$TEST_DIR/scripts/$1.psx"
 }
 
 original_outfile()
 {
-    echo "${TEST_DIR}/output/$1.out"
+    echo "$TEST_DIR/output/$1.out"
 }
 
 converted_outfile()
 {
-    echo "${TEST_DIR}/output/$1.converted.out"
+    echo "$TEST_DIR/output/$1.converted.out"
 }
 
 empty_script_valid_file()
@@ -76,20 +77,20 @@ empty_script_valid_file()
 
 convert()
 {
-    mkdir -p "${conversion_dir}"
-    v2=`v2_planfile $1`
-    saxon "${schema_dir}/plexil-v1-to-v2.xsl" `original_planfile $1` "${v2}"
-    if [ ! -r "${v2}" ]
+    mkdir -p "$conversion_dir"
+    v2="$(v2_planfile $1)"
+    saxon "$schema_dir/plexil-v1-to-v2.xsl" "$(original_planfile $1)" "$v2"
+    if [ ! -r "$v2" ]
     then
-        echo '***' Conversion of plan $1 to PLEXIL V2 failed
+        echo "*** Conversion of plan $1 to PLEXIL V2 failed"
         return 1
     fi
     
-    v1=`v1_planfile $1`
-    saxon "${schema_dir}/plexil-v2-to-v1.xsl" "${v2}" "${v1}"
-    if [ ! -r "${v1}" ]
+    v1="$(v1_planfile "$1")"
+    saxon "$schema_dir/plexil-v2-to-v1.xsl" "$v2" "$v1"
+    if [ ! -r "$v1" ]
     then
-        echo '***' Conversion of plan $1 from PLEXIL V2 back to PLEXIL V1 failed
+        echo "*** Conversion of plan $1 from PLEXIL V2 back to PLEXIL V1 failed"
         return 1
     fi
 
@@ -99,53 +100,53 @@ convert()
 # Shamelessly copied from script file of same name
 run_empty_script_test()
 {
-    PLAN_FILE=`original_planfile "$1"`
-    if [ ! -r $PLAN_FILE ]
+    PLAN_FILE="$(original_planfile "$1")"
+    if [ ! -r "$PLAN_FILE" ]
     then
         echo "$0: Plan file $PLAN_FILE not found"
         return 1
     fi
 
-    OUT_FILE=`original_outfile "$1"`
+    OUT_FILE="$(original_outfile "$1")"
 
-    echo $1 >> tempConversionResults
-    $EXEC_PROG -L plans -d $TEST_DEBUG_CFG -p $PLAN_FILE -s $EMPTY_SCRIPT > $OUT_FILE 2>> tempConversionResults
-    declare -i execstatus=$?
+    echo "$1" >> tempConversionResults
+    "$EXEC_PROG" -L plans -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>> tempConversionResults
+    execstatus=$?
     if [ $execstatus -gt 128 ]
     then
-        declare -i sig=$execstatus-128
-        echo '***' Test $1 exited on signal $sig >> ConversionResults
-        echo '***' Test $1 exited on signal $sig
+        sig=$execstatus-128
+        echo "*** Test $1 exited on signal $sig" >> ConversionResults
+        echo "*** Test $1 exited on signal $sig"
     elif [ $execstatus -ne 0 ]
     then
-        echo '***' Test $1 exited with status $execstatus >> ConversionResults
-        echo '***' Test $1 exited with status $execstatus
+        echo "*** Test $1 exited with status $execstatus" >> ConversionResults
+        echo "*** Test $1 exited with status $execstatus"
     fi
 
-    perl $REGRESSION_PL $OUT_FILE
+    perl "$REGRESSION_PL" "$OUT_FILE"
 }
 
 compare_empty_script_test()
 {
-    OUT_FILE_BEFORE=`original_outfile "$1"`
-    OUT_FILE_AFTER=`converted_outfile "$1"`
+    OUT_FILE_BEFORE="$(original_outfile "$1")"
+    OUT_FILE_AFTER="$(converted_outfile "$1")"
 
-    PLAN_FILE_AFTER=`v1_planfile "$1"`
+    PLAN_FILE_AFTER="$(v1_planfile "$1")"
 
-    $EXEC_PROG -L "${conversion_dir}" -d $TEST_DEBUG_CFG -p $PLAN_FILE_AFTER -s $EMPTY_SCRIPT > $OUT_FILE_AFTER 2>> tempConversionResults
-    declare -i execstatus=$?
+    "$EXEC_PROG" -L "$conversion_dir" -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE_AFTER" -s "$EMPTY_SCRIPT" > "$OUT_FILE_AFTER" 2>> tempConversionResults
+    execstatus=$?
     if [ $execstatus -gt 128 ]
     then
-        declare -i sig=$execstatus-128
-        echo '***' Test $1 exited on signal $sig >> ConversionResults
-        echo '***' Test $1 exited on signal $sig
+        sig=$execstatus-128
+        echo "*** Test $1 exited on signal $sig" >> ConversionResults
+        echo "*** Test $1 exited on signal $sig"
     elif [ $execstatus -ne 0 ]
     then
-        echo '***' Test $1 exited with status $execstatus >> ConversionResults
-        echo '***' Test $1 exited with status $execstatus
+        echo "*** Test $1 exited with status $execstatus" >> ConversionResults
+        echo "*** Test $1 exited with status $execstatus"
     fi
 
-    perl $REGRESSION_PL $OUT_FILE_AFTER $OUT_FILE_BEFORE
+    perl "$REGRESSION_PL" "$OUT_FILE_AFTER" "$OUT_FILE_BEFORE"
 }
 
 compare_empty_script_valid_test()
