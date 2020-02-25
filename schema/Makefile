@@ -41,14 +41,10 @@
 #
 # This makefile requires the following tools:
 #
-# rngconv - Sun RELAX NX Converter.  This software converts, among
-# other things, an XML Schema to a RELAX NG schema.  After
-# registering, you can get it at
-# http://wwws.sun.com/software/xml/developers/relaxngconverter/.
-#
 # trang - Trang converts, among other things, a RELAX NG schema to
-# RELAX NG Compact form.  Get it at
-# http://www.thaiopensource.com/download/trang-20030619.zip.
+# RELAX NG and RELAX NG Compact form.  As of 2020, get the latest
+# release as a zipped jar file at:
+# https://github.com/relaxng/jing-trang/releases
 #
 # rncfix - My simple bash script for fixing up the generated
 # PlexilPlan RELAX NG Compact schema.
@@ -58,11 +54,11 @@
 # Given a PlexilPlan XML Schema called PLEXIL_schema.xsd, the steps to
 # convert are as follows:
 #
-# $ java -jar rngconv.jar PLEXIL_schema.xsd > PLEXIL_schema.rng
+# $ java -jar trang.jar -I xml -O rng PLEXIL_schema.xsd PLEXIL_schema.rng
 #
 # PLEXIL_schema.rng is the RELAX NG form.
 #
-# $ java -jar trang.jar PLEXIL_schema.rng PLEXIL_schema.rnc
+# $ java -jar trang.jar -I xml -O rnc PLEXIL_schema.rng PLEXIL_schema.rnc
 # 
 # PLEXIL_schema.rnc is the RELAX NG compact form.  But a few fixes
 # have to be made, so the final step is:
@@ -89,7 +85,8 @@ SCHEMA_V2_RNG =    $(SCHEMA_V2_XSD:.xsd=.rng)
 SCHEMA_V2_RNC =    $(SCHEMA_V2_XSD:.xsd=.rnc)
 SCHEMA_V2_RNC_IN = $(SCHEMA_V2_XSD:.xsd=.rnc.in)
 
-TRANG_JAR = ./trang-20181222/trang.jar
+# Most recent version is 20181222
+TRANG_JAR = ../jars/trang.jar
 
 plexil-default: schema-v1 schema-v2 plexil-script
 
@@ -105,11 +102,10 @@ plexil-script: plexil-script.rng plexil-script.rnc
 
 dust:
 	@$(RM) -f *.rnc.in
-	@$(RM) -f $(SCHEMA_V1_RNG) $(SCHEMA_V2_RNG) plexil-script.rng
 
 clean: dust
 	@$(RM) -f $(SCHEMA_V1_RNC) $(SCHEMA_V2_RNC) plexil-script.rnc
-	@$(RM) -f plexil-formatted.xsd
+	@$(RM) -f $(SCHEMA_V1_RNG) $(SCHEMA_V2_RNG) plexil-script.rng
 
 $(SCHEMA_V1_RNG) : plexil-base.xsd
 $(SCHEMA_V1_RNC_IN) : plexil-base.xsd
