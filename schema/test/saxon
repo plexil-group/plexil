@@ -33,13 +33,17 @@ if [ -z "$PLEXIL_HOME" ]
     exit 1
 fi
 
-if [ $# = 3 ]
+if [ $# = 2 ]
+then
+    schema_file="$1"
+    input_file="$2"
+elif [ $# = 3 ]
 then
     schema_file="$1"
     input_file="$2"
     output_file="$3"
 else
-    echo "Usage: saxon xslt-file input-file output_file"
+    echo "Usage: saxon xslt-file input-file [output_file]"
     exit 1
 fi
 
@@ -49,4 +53,9 @@ then
     JAVA="$JAVA_HOME"/bin/java
 fi
 
-exec "$JAVA" -jar "$PLEXIL_HOME"/jars/saxon9he.jar -xsl:"$schema_file" -s:"$input_file" -o:"$output_file"
+if [ -z "$output_file" ]
+then
+    exec "$JAVA" -cp "$PLEXIL_HOME"/jars/saxon9he.jar net.sf.saxon.Transform -xsl:"$schema_file" -s:"$input_file"
+else
+    exec "$JAVA" -cp "$PLEXIL_HOME"/jars/saxon9he.jar net.sf.saxon.Transform -xsl:"$schema_file" -s:"$input_file" -o:"$output_file"
+fi

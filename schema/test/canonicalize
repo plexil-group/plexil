@@ -34,9 +34,9 @@ if [ -z "$PLEXIL_HOME" ]
     exit 1
 fi
 
-if [ $# != 2 ]
+if [ $# -lt 1 ] || [ $# -gt 2 ]
 then
-    echo "Usage: canonicalize input-file output_file"
+    echo "Usage: canonicalize input-file [output_file]"
     exit 1
 fi
 
