@@ -1,6 +1,6 @@
-#! /usr/bin/env bash
+#! /bin/sh
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,52 +39,51 @@ then
     exit 1
 fi
 
-outdir="${PLEXIL_HOME}/schema/test/output"
+outdir="$PLEXIL_HOME"/schema/test/output
 
-mkdir -p "${outdir}"
+mkdir -p "$outdir"
 
-px1file="${outdir}/`basename -s .plx $1`.px1"
-px2file="${outdir}/`basename -s .plx $1`.px2"
-rm -f "${px2file}" "${px1file}"
-${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v1-to-v2.xsl" "$1" "${px2file}"
-if [ $? -ne 0 ]
+px1file="$outdir"/"$(basename "$1" .plx)".px1
+px2file="$outdir"/"$(basename "$1" .plx)".px2
+rm -f "$px2file" "$px1file"
+
+if ! "$PLEXIL_HOME"/schema/test/saxon "$PLEXIL_HOME"/schema/plexil-v1-to-v2.xsl "$1" "$px2file"
 then
-    echo '***' Translation error converting `basename "$1"` to `basename "${px2file}"` '***'
-    echo
-    exit 1
-fi
-xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil-v2.xsd" "${px2file}"
-if [ $? -ne 0 ]
-then
-    echo '***' `basename "${px2file}"` fails to validate '***'
+    echo "*** Translation error converting $(basename "$1") to $(basename "$px2file") ***"
     echo
     exit 1
 fi
 
-${PLEXIL_HOME}/schema/test/saxon "${PLEXIL_HOME}/schema/plexil-v2-to-v1.xsl" "${px2file}" "${px1file}"
-if [ $? -ne 0 ]
+if ! xmllint --noout --schema "$PLEXIL_HOME"/schema/core-plexil-v2.xsd "$px2file"
 then
-    echo '***' Translation error converting `basename "$1"` to `basename "${px2file}"` '***'
-    echo
-    exit 1
-fi
-xmllint --noout --schema "${PLEXIL_HOME}/schema/core-plexil.xsd" "${px1file}"
-if [ $? -ne 0 ]
-then
-    echo '***' `basename "${px1file}"` fails to validate '***'
+    echo "*** $(basename "$px2file") fails to validate ***"
     echo
     exit 1
 fi
 
-canonical_before="${outdir}/`basename -s .plx $1`.canonical.plx"
-canonical_after="${outdir}/`basename -s .plx $1`.canonical.px1"
-
-${PLEXIL_HOME}/schema/test/canonicalize "$1" "${canonical_before}"
-${PLEXIL_HOME}/schema/test/canonicalize "${px1file}" "${canonical_after}"
-diff "${canonical_before}" "${canonical_after}"
-if [ $? = 1 ]
+if ! "$PLEXIL_HOME"/schema/test/saxon "$PLEXIL_HOME"/schema/plexil-v2-to-v1.xsl "$px2file" "$px1file"
 then
-    echo '***' Files `basename "${canonical_before}"` and `basename "${canonical_after}"` differ '***'
+    echo "*** Translation error converting $(basename "$px2file") to $(basename "$px1file") ***"
+    echo
+    exit 1
+fi
+
+if ! xmllint --noout --schema "$PLEXIL_HOME"/schema/core-plexil.xsd "$px1file"
+then
+    echo "*** $(basename "$px1file") fails to validate ***"
+    echo
+    exit 1
+fi
+
+canonical_before="$outdir"/"$(basename -s .plx "$1")".canonical.plx
+canonical_after="$outdir"/"$(basename -s .plx "$1")".canonical.px1
+
+"$PLEXIL_HOME"/schema/test/canonicalize "$1" "$canonical_before"
+"$PLEXIL_HOME"/schema/test/canonicalize "$px1file" "$canonical_after"
+
+if ! diff "$canonical_before" "$canonical_after"
+then
+    echo "*** Files $(basename "$canonical_before") and $(basename "$canonical_after") differ ***"
     echo
     exit 1
 fi

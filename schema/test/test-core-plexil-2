@@ -33,12 +33,8 @@ if [ -z "$PLEXIL_HOME" ]
     exit 1
 fi
 
-outdir="${PLEXIL_HOME}/schema/test/output"
-
-mkdir -p "${outdir}"
-
-for f in `ls -f ${PLEXIL_HOME}/test/TestExec-regression-test/plans/*.plx`
+for f in "$PLEXIL_HOME"/test/TestExec-regression-test/plans/*.plx
 do
     echo "$f"
-    "${PLEXIL_HOME}/schema/test/check-plexil-1-2-translation" "$f"
+    "${PLEXIL_HOME}"/schema/test/check-plexil-1-2-translation "$f"
 done

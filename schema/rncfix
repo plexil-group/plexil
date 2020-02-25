@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/sh
 #------------------------------------------------------------------------------
 # rncfix
 # 
@@ -29,7 +29,6 @@ parse()
 	case $1 in
 	    -h | --help)
 		usage_msg
-		help_opt=1
 		exit 0
 		;;
 
@@ -42,11 +41,11 @@ parse()
 		exit 1
 		;;
 
-	    [^-]*)
-                if [ "${parsed_arg_count}" -eq 0 ]; then
-		    infile="${1}"
-		elif [ "${parsed_arg_count}" -eq 1 ]; then
-		    outfile="${1}"
+	    [!-]*)
+                if [ "$parsed_arg_count" -eq 0 ]; then
+		    infile="$1"
+		elif [ "$parsed_arg_count" -eq 1 ]; then
+		    outfile="$1"
 		else
 		    echo "Too many arguments!"
 		    exit 1
@@ -64,29 +63,29 @@ parse()
 
 # Parse the command line.
 
-parse $*
+parse "$@"
 
 # Do some error checking.
 
-if [ -z "${infile}" ]; then
+if [ -z "$infile" ]; then
     echo "You must specify an input file!"
     usage_msg
     exit 1
 fi
 
-if [ -z "${outfile}" ]; then
+if [ -z "$outfile" ]; then
     echo "You must specify an output file!"
     usage_msg
     exit 1
 fi
 
-if ! [ -f "${infile}" ]; then
-    echo "Cannot read input file ${infile}"
+if ! [ -f "$infile" ]; then
+    echo "Cannot read input file $infile"
     usage_msg
     exit 1
 fi
 
-if [ -f "${outfile}" ] && [ -z "${force_opt}" ]; then
+if [ -f "$outfile" ] && [ -z "$force_opt" ]; then
     echo "Output file ${outfile} already exists."
     echo "Use -f to force an overwrite."
     exit 1
@@ -98,7 +97,7 @@ fi
 
 # Add the xsi namespace to the beginning of the schema.
 
-cat > ${outfile} <<EOF
+cat > "$outfile" <<EOF
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 EOF
 
@@ -112,11 +111,11 @@ EOF
 #     | element PlexilPlan { PlexilPlanAttributes?, * })
 #
 
-sed -e 's:\(element[[:space:]]*PlexilPlan[[:space:]]*{[[:space:]]*\)\(.*\)\(}.*\):\1 PlexilPlanAttributes?, \2\3:' ${infile} >> ${outfile}
+sed -e 's:\(element[[:space:]]*PlexilPlan[[:space:]]*{[[:space:]]*\)\(.*\)\(}.*\):\1 PlexilPlanAttributes?, \2\3:' "$infile" >> "$outfile"
 
 # Append the PlexilPlanAttributes pattern to the end of the schema.
 
-cat >> ${outfile} <<EOF
+cat >> "$outfile" <<EOF
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*
