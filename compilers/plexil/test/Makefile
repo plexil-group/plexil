@@ -91,39 +91,12 @@ test: | setup output
 	@ echo Translating Standard Plexil tests...
 	@ failure=0;\
 	echo '--- Begin validation and verification tests ---' ; \
-	for i in $(TESTS); do \
-		thisFailure=0; \
-		../PlexilCompiler --epx-only -o output/$$i.epx input/$$i.ple ; \
-		if [ $$? -ne 0 ] ; then \
-			echo "*** Compilation of $$i.ple failed ***" >> tempRegressionResults; \
-			echo "*** Compilation of $$i.ple failed ***"; \
-			thisFailure=1; failure=1; \
-        fi; \
-		if [ $${thisFailure} -eq 0 ]; then \
-			xmllint --noout --schema $(EPX_SCHEMA) output/$$i.epx 2>>tempRegressionResults 1>&2 ; \
-			if [ $$? -ne 0 ] ; then \
-				echo "*** Validation of $$i.epx failed ***" >> tempRegressionResults ; \
-				echo "*** Validation of $$i.epx failed ***" ; \
-				thisFailure=1; failure=1 ; \
-			fi ; \
-		fi ; \
-		if [ $${thisFailure} -eq 0 ]; then \
-			if [ -f valid/valid-$$i.epx ] ; then \
-				diff output/$$i.epx valid/valid-$$i.epx > $(DIFF) ; \
-				diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
-				if [ $$diffsize -eq 0 ] ; then \
-					echo "Verified $$i.epx" >> tempRegressionResults ; \
-					echo "Verified $$i.epx" ; \
-				else \
-					cat $(DIFF) >> tempRegressionResults ; \
-					echo "*** Verification of $$i.epx failed ***" >> tempRegressionResults ; \
-					echo "*** Verification of $$i.epx failed ***" ; \
-					thisFailure=1; failure=1 ; \
-				fi ; \
-			else \
-				echo "Validated $$i.epx; no valid file, skipping verification" ; \
-			fi ; \
-		fi ; \
+	for i in $(TESTS) ; \
+	do \
+		if ! ./compile-validate "$$i" ; \
+	    then \
+			failure=1 ; \
+		fi; \
 	done ; \
     if [ $${failure} -ne 0 ] ; then \
 		echo '*** Validation tests failed ***' ; \
