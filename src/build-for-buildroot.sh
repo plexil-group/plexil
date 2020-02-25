@@ -1,7 +1,10 @@
 #! /usr/bin/env bash
 # How to cross-compile Plexil with buildroot
+# This file is derived from an actual project which used buildroot.
+# However, it has not been tested on recent versions of buildroot.
+# USE AT YOUR OWN RISK.
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,56 +36,55 @@ TARGET=arm-unknown-linux-uclibcgnueabi
 #TARGET=arm-linux-uclibcgnueabi
 
 # Substitute the appropriate paths.
-PLEXIL_HOME=/home/JRandomUser/src/plexil-4
-BUILDROOT_HOME=/home/JRandomUser/src/buildroot/buildroot-2012.08
+PLEXIL_HOME=/home/JRandomUser/src/plexil-x
+BUILDROOT_HOME=/home/JRandomUser/src/buildroot/buildroot-2019.02.9
 # Newer buildroot versions
-TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/host
+TOOLCHAIN_ROOT="$BUILDROOT_HOME"/output/host
 # Older buildroot versions
-#TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/staging
+#TOOLCHAIN_ROOT="$BUILDROOT_HOME"/output/staging
 
 # Uncomment this to build module tests and TestExec regression tests.
 #BUILD_TESTS=1
 
 # These should not need to be changed.
-TARGET_GCC=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-gcc
-TARGET_GXX=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-g++
-TARGET_NM=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-nm
-BUILD_ROOT=${TOOLCHAIN_ROOT}/output/build/plexil-4.0
-TARGET_ROOT=${BUILDROOT_HOME}/output/target
-TARGET_INCLUDES=${TARGET_ROOT}/usr/include
-TARGET_SHARE=${TARGET_ROOT}/usr/share
+TARGET_GCC="$TOOLCHAIN_ROOT"/usr/bin/"$TARGET"-gcc
+TARGET_GXX="$TOOLCHAIN_ROOT"/usr/bin/"$TARGET"-g++
+TARGET_NM="$TOOLCHAIN_ROOT"/usr/bin/"$TARGET"-nm
+BUILD_ROOT="$TOOLCHAIN_ROOT"/output/build/plexil-6.0
+TARGET_ROOT="$BUILDROOT_HOME"/output/target
+TARGET_SHARE="$TARGET_ROOT"/usr/local/share
 
 TEST_CONFIGURE_OPTS=
-if (-n "$BUILD_TESTS")
+if [ -n "$BUILD_TESTS" ]
 then
     TEST_CONFIGURE_OPTS='-enable-module-tests -enable-test-exec'
 fi
 
-export PATH=${PLEXIL_HOME}/src:${TOOLCHAIN_ROOT}/usr/bin:${TOOLCHAIN_ROOT}/usr/sbin:${PATH}
+export PATH="$PLEXIL_HOME"/src:"$TOOLCHAIN_ROOT"/usr/bin:"$TOOLCHAIN_ROOT"/usr/sbin:"$PATH"
 
 # Exit on error
 set -e
 
 # Build PLEXIL for target
-mkdir -p $BUILD_ROOT
-cd $BUILD_ROOT
-${PLEXIL_HOME}/src/configure --target=$TARGET --host=$TARGET \
- CC=$TARGET_GCC \
- CXX=$TARGET_GXX \
- NM=$TARGET_NM \
- --prefix=${TARGET_ROOT}/usr \
+mkdir -p "$BUILD_ROOT"
+cd "$BUILD_ROOT"
+"$PLEXIL_HOME"/src/configure --target="$TARGET" --host="$TARGET" \
+ CC="$TARGET_GCC" \
+ CXX="$TARGET_GXX" \
+ NM="$TARGET_NM" \
+ --prefix="$TARGET_ROOT"/usr/local \
  $TEST_CONFIGURE_OPTS
 make
 
 # Copy files to target filesystem
 make install
-mkdir -p ${TARGET_SHARE}/plexil
-cd ${TARGET_SHARE}/plexil
-svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/scripts
-if ( -n "$BUILD_TESTS" )
+mkdir -p "$TARGET_SHARE"/plexil
+cd "$TARGET_SHARE"/plexil
+svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-x/scripts
+if [ -n "$BUILD_TESTS" ]
 then
-    svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/examples
-    svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/test
+    svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-x/examples
+    svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-x/test
     # The utils and exec module tests require certain files in the working directory
     mkdir -p test/utils-module-tests test/exec-module-tests
     cp ${PLEXIL_HOME}/src/utils/test/debug*.cfg test/utils-module-tests/
