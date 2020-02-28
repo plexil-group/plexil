@@ -562,14 +562,14 @@ namespace PLEXIL
   template <typename T>
   char *serializeElement(T const & /* o */, char * /* buf */)
   {
-    return NULL;
+    return nullptr;
   }
 
   // Internal template
   template <typename T>
   char const *deserializeElement(T & /* o */, char const * /* buf */)
   {
-    return NULL;
+    return nullptr;
   }
 
   //
@@ -686,7 +686,7 @@ namespace PLEXIL
   {
     size_t siz = val.size();
     if (siz > 0xFFFFFF)
-      return NULL; // too big
+      return nullptr; // too big
 
     // Put 3 bytes of size first - std::string may contain embedded NUL
     *buf++ = (char) (0xFF & (siz >> 16));
@@ -833,7 +833,7 @@ namespace PLEXIL
    * @brief Write a binary version of the object to the given buffer.
    * @param o The object.
    * @param b Pointer to the insertion point in the buffer.
-   * @return Pointer to first byte after the object; NULL if failed.
+   * @return Pointer to first byte after the object; nullptr if failed.
    */
 
   template <typename T>
@@ -841,7 +841,7 @@ namespace PLEXIL
   {
     size_t siz = this->size();
     if (siz > 0xFFFFFF)
-      return NULL; // too big to serialize
+      return nullptr; // too big to serialize
 
     // Write type code
     *buf++ = (char) PlexilValueType<T>::arrayValue;
@@ -858,7 +858,7 @@ namespace PLEXIL
     for (size_t i = 0; i < siz; ++i) {
       buf = serializeElement(m_contents[i], buf);
       if (!buf)
-        return NULL; // serializeElement failed
+        return nullptr; // serializeElement failed
     }
     return buf;
   }
@@ -868,7 +868,7 @@ namespace PLEXIL
   {
     size_t siz = this->size();
     if (siz > 0xFFFFFF)
-      return NULL; // too big to serialize
+      return nullptr; // too big to serialize
 
     // Write type code
     *buf++ = BOOLEAN_ARRAY_TYPE;
@@ -891,7 +891,7 @@ namespace PLEXIL
   {
     size_t siz = this->size();
     if (siz > 0xFFFFFF)
-      return NULL; // too big to serialize
+      return nullptr; // too big to serialize
 
     // Write type code
     *buf++ = (char) PlexilValueType<String>::arrayValue;
@@ -908,7 +908,7 @@ namespace PLEXIL
     for (size_t i = 0; i < siz; ++i) {
       buf = serializeElement(m_contents[i], buf);
       if (!buf)
-        return NULL; // serializeElement failed
+        return nullptr; // serializeElement failed
     }
     return buf;
   }
@@ -917,7 +917,7 @@ namespace PLEXIL
    * @brief Read a binary representation from the buffer and store it to the result object.
    * @param o The result object.
    * @param buf Pointer to the representation in the buffer.
-   * @return Pointer to first byte after the object; NULL if failed.
+   * @return Pointer to first byte after the object; nullptr if failed.
    */
 
   // General case
@@ -926,7 +926,7 @@ namespace PLEXIL
   {
     // Check type code
     if (PlexilValueType<T>::arrayValue != (ValueType) *buf++)
-      return NULL; // not an appropriate array
+      return nullptr; // not an appropriate array
 
     // Get 3 bytes of size
     size_t siz = (size_t) *buf++; siz = siz << 8;
@@ -947,7 +947,7 @@ namespace PLEXIL
   char const *ArrayImpl<Boolean>::deserialize(char const *buf)
   {
     if (BOOLEAN_ARRAY_TYPE != (ValueType) *buf++)
-      return NULL; // not a Boolean array
+      return nullptr; // not a Boolean array
 
     // Get 3 bytes of size
     size_t siz = (size_t) *buf++; siz = siz << 8;
@@ -965,7 +965,7 @@ namespace PLEXIL
   {
     // Check type code
     if (PlexilValueType<String>::arrayValue != (ValueType) *buf++)
-      return NULL; // not an appropriate array
+      return nullptr; // not an appropriate array
 
     // Get 3 bytes of size
     size_t siz = (size_t) *buf++; siz = siz << 8;

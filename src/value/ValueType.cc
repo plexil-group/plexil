@@ -511,7 +511,7 @@ namespace PLEXIL
   template <typename T>
   char *serialize(T const &/* o */, char */* buf */)
   {
-    return NULL;
+    return nullptr;
   }
 
   template <typename T>
@@ -523,7 +523,7 @@ namespace PLEXIL
   template <typename T>
   char const *deserialize(T &o, char const *buf)
   {
-    return NULL;
+    return nullptr;
   }
 
   //
@@ -542,7 +542,7 @@ namespace PLEXIL
   char const *deserialize<Boolean>(Boolean &o, char const *buf)
   {
     if (BOOLEAN_TYPE != (ValueType) *buf++)
-      return NULL;
+      return nullptr;
     o = (Boolean) *buf++;
     return buf;
   }
@@ -569,7 +569,7 @@ namespace PLEXIL
   char const *deserialize<CommandHandleValue>(CommandHandleValue &o, char const *b)
   {
     if (COMMAND_HANDLE_TYPE != (ValueType) *b++)
-      return NULL;
+      return nullptr;
     o = (CommandHandleValue) *b++;
     return b;
   }
@@ -601,7 +601,7 @@ namespace PLEXIL
   char const *deserialize<Integer>(Integer &o, char const *buf)
   {
     if (INTEGER_TYPE != (ValueType) *buf++)
-      return NULL;
+      return nullptr;
     uint32_t result = ((uint32_t) (unsigned char) *buf++) << 8;
     result = (result + (uint32_t) (unsigned char) *buf++) << 8;
     result = (result + (uint32_t) (unsigned char) *buf++) << 8;
@@ -645,7 +645,7 @@ namespace PLEXIL
   char const *deserialize<Real>(Real &o, char const *buf)
   {
     if (REAL_TYPE != (ValueType) *buf++)
-      return NULL;
+      return nullptr;
     union {
       Real r;
       uint64_t l;
@@ -677,7 +677,7 @@ namespace PLEXIL
   {
     size_t siz = o.size();
     if (siz > 0xFFFFFF)
-      return NULL; // too big
+      return nullptr; // too big
 
     *buf++ = STRING_TYPE;
     // Put 3 bytes of size first - std::string may contain embedded NUL
@@ -692,7 +692,7 @@ namespace PLEXIL
   char const *deserialize<String>(String &o, char const *buf)
   {
     if (STRING_TYPE != (ValueType) *buf++)
-      return NULL;
+      return nullptr;
 
     // Get 3 bytes of size
     size_t siz = ((size_t) (unsigned char) *buf++) << 8;
@@ -718,7 +718,7 @@ namespace PLEXIL
   {
     size_t siz = strlen(o);
     if (siz > 0xFFFFFF)
-      return NULL; // too big
+      return nullptr; // too big
 
     *buf++ = STRING_TYPE;
     // Put 3 bytes of size first
@@ -733,7 +733,7 @@ namespace PLEXIL
   char const *deserialize<char *>(char *&o, char const *buf)
   {
     if (STRING_TYPE != (ValueType) *buf++)
-      return NULL;
+      return nullptr;
 
     // Get 3 bytes of size
     size_t siz = ((size_t) (unsigned char) *buf++) << 8;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ static char const *bogus = "bOgUs";
 static bool parseValueTypeTest()
 {
   // Test bogus input
-  assertTrue_1(parseValueType(NULL) == UNKNOWN_TYPE);
+  assertTrue_1(parseValueType(nullptr) == UNKNOWN_TYPE);
   assertTrue_1(parseValueType(mt) == UNKNOWN_TYPE);
   assertTrue_1(parseValueType(std::string()) == UNKNOWN_TYPE);
   assertTrue_1(parseValueType(bogus) == UNKNOWN_TYPE);

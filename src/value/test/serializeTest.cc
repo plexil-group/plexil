@@ -55,7 +55,7 @@ static bool testBooleanSerDes()
   Boolean const treu = true;
 
   bufptr = serialize(falls, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(falls);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -63,7 +63,7 @@ static bool testBooleanSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(treu, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(treu);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -121,7 +121,7 @@ static bool testCommandHandleSerDes()
   CommandHandleValue const err = COMMAND_INTERFACE_ERROR;
 
   bufptr = serialize(sts, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(sts);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -129,7 +129,7 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(acc, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(acc);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -137,7 +137,7 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(rcv, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(rcv);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -145,7 +145,7 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(fal, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(fal);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -153,7 +153,7 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(den, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(den);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -161,7 +161,7 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(suc, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(suc);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -169,7 +169,7 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(err, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(err);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -260,7 +260,7 @@ static bool testIntegerSerDes()
   size_t offset = 0;
 
   bufptr = serialize(zero, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(zero);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -268,7 +268,7 @@ static bool testIntegerSerDes()
 
   char *oldbufptr = bufptr;
   bufptr = serialize(one, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(one);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -276,7 +276,7 @@ static bool testIntegerSerDes()
 
   oldbufptr = bufptr;
   bufptr = serialize(minusOne, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(minusOne);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -284,7 +284,7 @@ static bool testIntegerSerDes()
 
   oldbufptr = bufptr;
   bufptr = serialize(largeInt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(largeInt);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -292,7 +292,7 @@ static bool testIntegerSerDes()
 
   oldbufptr = bufptr;
   bufptr = serialize(largeNegInt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(largeNegInt);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -364,7 +364,7 @@ static bool testRealSerDes()
   size_t offset = 0;
 
   bufptr = serialize(zero, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(zero);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -372,7 +372,7 @@ static bool testRealSerDes()
 
   char *oldbufptr = bufptr;
   bufptr = serialize(one, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(one);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -380,7 +380,7 @@ static bool testRealSerDes()
 
   oldbufptr = bufptr;
   bufptr = serialize(minusOne, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(minusOne);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -388,7 +388,7 @@ static bool testRealSerDes()
 
   oldbufptr = bufptr;
   bufptr = serialize(largeReal, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(largeReal);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -396,7 +396,7 @@ static bool testRealSerDes()
 
   oldbufptr = bufptr;
   bufptr = serialize(smallNegReal, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(smallNegReal);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -465,7 +465,7 @@ static bool testStringSerDes()
 
   // Write
   bufptr = serialize(mt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   assertTrueMsg(serialSize(mt) == 4, "serialSize returned wrong size for empty string");
   offset += serialSize(mt); 
@@ -473,7 +473,7 @@ static bool testStringSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(simple, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > offset + (char *) buffer, "serialize didn't return incremented pointer");
   assertTrueMsg(serialSize(simple) == 10, "serialSize returned wrong size for simple string");
   offset += serialSize(simple); 
@@ -524,7 +524,7 @@ static bool testCharStringSerDes()
 
   // Write
   bufptr = serialize(mt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   assertTrueMsg(serialSize(mt) == 4, "serialSize returned wrong size for empty string");
   offset += serialSize(mt); 
@@ -532,7 +532,7 @@ static bool testCharStringSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(simple, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > offset + (char *) buffer, "serialize didn't return incremented pointer");
   assertTrueMsg(serialSize(simple) == 10, "serialSize returned wrong size for simple string");
   offset += serialSize(simple); 
@@ -542,7 +542,7 @@ static bool testCharStringSerDes()
   // Read
 
   char const *cbufptr = buffer;
-  char *stringRead = NULL;
+  char *stringRead = nullptr;
   offset = 0;
 
   cbufptr = deserialize(stringRead, cbufptr);
@@ -554,7 +554,7 @@ static bool testCharStringSerDes()
   assertTrueMsg(!strlen(stringRead), "deserialize put garbage in empty string");
 
   delete stringRead;
-  stringRead = NULL;
+  stringRead = nullptr;
   cbufptr = deserialize(stringRead, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
   assertTrueMsg(cbufptr > offset + (char *) buffer, "deserialize didn't return incremented pointer");
@@ -565,10 +565,10 @@ static bool testCharStringSerDes()
 
   // Test reading junk
   delete stringRead;
-  stringRead = NULL;
+  stringRead = nullptr;
   cbufptr = deserialize(stringRead, cbufptr);
   assertTrueMsg(!cbufptr, "deserialize failed to return null buffer pointer on bogus input");
-  assertTrueMsg(stringRead == NULL, "deserialize modified result on bogus input");
+  assertTrueMsg(!stringRead, "deserialize modified result on bogus input");
 
   return true;
 }
@@ -892,7 +892,7 @@ static bool testBooleanValueSerDes()
 
   assertTrueMsg(serialSize((Boolean) false) == serialSize(falls), "serialSize differs between Value & Boolean");
   bufptr = serialize(falls, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(falls);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -901,7 +901,7 @@ static bool testBooleanValueSerDes()
 
   assertTrueMsg(serialSize((Boolean) true) == serialSize(treu), "serialSize differs between Value & Boolean");
   bufptr = serialize(treu, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(treu);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -998,7 +998,7 @@ static bool testCommandHandleValueSerDes()
 		"serialSize differs between Value " << serialSize(vsts)
 		<< " and CommandHandleValue " << serialSize(sts));
   bufptr = serialize(vsts, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vsts);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -1007,7 +1007,7 @@ static bool testCommandHandleValueSerDes()
 
   assertTrueMsg(serialSize(acc) == serialSize(vacc), "serialSize differs between Value & CommandHandleValue");
   bufptr = serialize(vacc, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vacc);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -1016,7 +1016,7 @@ static bool testCommandHandleValueSerDes()
 
   assertTrueMsg(serialSize(rcv) == serialSize(vrcv), "serialSize differs between Value & CommandHandleValue");
   bufptr = serialize(vrcv, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vrcv);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -1025,7 +1025,7 @@ static bool testCommandHandleValueSerDes()
 
   assertTrueMsg(serialSize(fal) == serialSize(vfal), "serialSize differs between Value & CommandHandleValue");
   bufptr = serialize(vfal, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vfal);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -1034,7 +1034,7 @@ static bool testCommandHandleValueSerDes()
 
   assertTrueMsg(serialSize(den) == serialSize(vden), "serialSize differs between Value & CommandHandleValue");
   bufptr = serialize(vden, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vden);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -1043,7 +1043,7 @@ static bool testCommandHandleValueSerDes()
 
   assertTrueMsg(serialSize(suc) == serialSize(vsuc), "serialSize differs between Value & CommandHandleValue");
   bufptr = serialize(vsuc, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vsuc);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -1185,7 +1185,7 @@ static bool testIntegerValueSerDes()
 
   assertTrueMsg(serialSize(zero) == serialSize((Integer) 0), "serialSize differs between Value and Integer");
   bufptr = serialize(zero, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(zero);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1194,7 +1194,7 @@ static bool testIntegerValueSerDes()
   assertTrueMsg(serialSize(one) == serialSize((Integer) 1), "serialSize differs between Value and Integer");
   char *oldbufptr = bufptr;
   bufptr = serialize(one, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(one);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1203,7 +1203,7 @@ static bool testIntegerValueSerDes()
   assertTrueMsg(serialSize(minusOne) == serialSize((Integer) -1), "serialSize differs between Value and Integer");
   oldbufptr = bufptr;
   bufptr = serialize(minusOne, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(minusOne);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1212,7 +1212,7 @@ static bool testIntegerValueSerDes()
   assertTrueMsg(serialSize(largeInt) == serialSize((Integer) 2000000000), "serialSize differs between Value and Integer");
   oldbufptr = bufptr;
   bufptr = serialize(largeInt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(largeInt);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1221,7 +1221,7 @@ static bool testIntegerValueSerDes()
   assertTrueMsg(serialSize(largeNegInt) == serialSize((Integer) -2000000000), "serialSize differs between Value and Integer");
   oldbufptr = bufptr;
   bufptr = serialize(largeNegInt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(largeNegInt);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1359,7 +1359,7 @@ static bool testRealValueSerDes()
 
   assertTrueMsg(serialSize(zero) == serialSize((Real) 0), "serialSize differs between Value and Real");
   bufptr = serialize(zero, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(zero);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1368,7 +1368,7 @@ static bool testRealValueSerDes()
   assertTrueMsg(serialSize(one) == serialSize((Real) 1), "serialSize differs between Value and Real");
   char *oldbufptr = bufptr;
   bufptr = serialize(one, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(one);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1377,7 +1377,7 @@ static bool testRealValueSerDes()
   assertTrueMsg(serialSize(minusOne) == serialSize((Real) -1), "serialSize differs between Value and Real");
   oldbufptr = bufptr;
   bufptr = serialize(minusOne, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(minusOne);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1386,7 +1386,7 @@ static bool testRealValueSerDes()
   assertTrueMsg(serialSize(largeReal) == serialSize((Real) 2e100), "serialSize differs between Value and Real");
   oldbufptr = bufptr;
   bufptr = serialize(largeReal, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(largeReal);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1395,7 +1395,7 @@ static bool testRealValueSerDes()
   assertTrueMsg(serialSize(smallNegReal) == serialSize((Real) -2e-100), "serialSize differs between Value and Real");
   oldbufptr = bufptr;
   bufptr = serialize(smallNegReal, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > oldbufptr, "serialize didn't return incremented pointer");
   offset += serialSize(smallNegReal);
   assertTrueMsg(bufptr == offset + (char *) buffer, "serialize didn't increment pointer by expected number");
@@ -1529,7 +1529,7 @@ static bool testStringValueSerDes()
 
   // Write
   bufptr = serialize(mt, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   assertTrueMsg(serialSize(mt) == 4, "serialSize returned wrong size for empty string");
   offset += serialSize(mt); 
@@ -1537,7 +1537,7 @@ static bool testStringValueSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(simple, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > offset + (char *) buffer, "serialize didn't return incremented pointer");
   assertTrueMsg(serialSize(simple) == 10, "serialSize returned wrong size for simple string");
   offset += serialSize(simple); 
@@ -1683,7 +1683,7 @@ static bool testBooleanArrayValueSerDes()
   // Read again as Value
   cbufptr = buffer;
   Value v;
-  BooleanArray const *bap = NULL;
+  BooleanArray const *bap = nullptr;
   offset = 0;
 
   cbufptr = deserialize(v, cbufptr);
@@ -1697,7 +1697,7 @@ static bool testBooleanArrayValueSerDes()
   assertTrueMsg(*bap == b0, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  bap = NULL;
+  bap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -1709,7 +1709,7 @@ static bool testBooleanArrayValueSerDes()
   assertTrueMsg(*bap == b10f, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  bap = NULL;
+  bap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -1798,7 +1798,7 @@ static bool testIntegerArrayValueSerDes()
   // Read again as Value
   cbufptr = buffer;
   Value v;
-  IntegerArray const *iap = NULL;
+  IntegerArray const *iap = nullptr;
   offset = 0;
 
   cbufptr = deserialize(v, cbufptr);
@@ -1812,7 +1812,7 @@ static bool testIntegerArrayValueSerDes()
   assertTrueMsg(*iap == i0, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  iap = NULL;
+  iap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -1824,7 +1824,7 @@ static bool testIntegerArrayValueSerDes()
   assertTrueMsg(*iap == i10_0, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  iap = NULL;
+  iap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -1913,7 +1913,7 @@ static bool testRealArrayValueSerDes()
   // Read again as Value
   cbufptr = buffer;
   Value v;
-  RealArray const *rap = NULL;
+  RealArray const *rap = nullptr;
   offset = 0;
 
   cbufptr = deserialize(v, cbufptr);
@@ -1927,7 +1927,7 @@ static bool testRealArrayValueSerDes()
   assertTrueMsg(*rap == r0, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  rap = NULL;
+  rap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -1939,7 +1939,7 @@ static bool testRealArrayValueSerDes()
   assertTrueMsg(*rap == r10_0, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  rap = NULL;
+  rap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -2028,7 +2028,7 @@ static bool testStringArrayValueSerDes()
   // Read again as Value
   cbufptr = buffer;
   Value v;
-  StringArray const *sap = NULL;
+  StringArray const *sap = nullptr;
   offset = 0;
 
   cbufptr = deserialize(v, cbufptr);
@@ -2042,7 +2042,7 @@ static bool testStringArrayValueSerDes()
   assertTrueMsg(*sap == s0, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  sap = NULL;
+  sap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");
@@ -2054,7 +2054,7 @@ static bool testStringArrayValueSerDes()
   assertTrueMsg(*sap == s10_e, "deserialize failed to extract data correctly");
 
   v.setUnknown();
-  sap = NULL;
+  sap = nullptr;
   cbufptr = deserialize(v, cbufptr);
   assertTrueMsg(cbufptr, "deserialize returned null pointer");
   assertTrueMsg(cbufptr > (char *) buffer, "deserialize failed to increment pointer");

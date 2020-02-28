@@ -163,7 +163,7 @@ namespace PLEXIL
    * @brief Write a binary version of the object to the given buffer.
    * @param o The object.
    * @param b Pointer to the insertion point in the buffer.
-   * @return Pointer to first byte after the object; NULL if failed.
+   * @return Pointer to first byte after the object; nullptr if failed.
    */
 
   template <typename T>
@@ -173,7 +173,7 @@ namespace PLEXIL
    * @brief Read a binary representation from the buffer and store it to the result object.
    * @param o The result object.
    * @param b Pointer to the representation in the buffer.
-   * @return Pointer to first byte after the object; NULL if failed.
+   * @return Pointer to first byte after the object; nullptr if failed.
    */
 
   template <typename T>

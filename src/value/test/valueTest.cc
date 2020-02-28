@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -569,7 +569,7 @@ static bool testMoveConstructors()
 static bool testScalarEquality()
 {
   // Basics
-  Value *stringv = NULL;
+  Value *stringv = nullptr;
   {
     std::string foo("Foo");
     stringv = new Value(foo);
@@ -750,7 +750,7 @@ static bool testScalarEquality()
 
 static bool testBooleanArrayEquality()
 {
-  Value *bav = NULL;
+  Value *bav = nullptr;
   {
     BooleanArray *emptyBool = new BooleanArray;
     bav = new Value(*emptyBool);
@@ -760,7 +760,7 @@ static bool testBooleanArrayEquality()
   assertTrue_1(*bav == *bav);
   assertTrue_1(!(*bav != *bav));
 
-  Value *sbav = NULL;
+  Value *sbav = nullptr;
   {
     BooleanArray *sizedBool = new BooleanArray(2);
     sbav = new Value(*sizedBool);
@@ -775,7 +775,7 @@ static bool testBooleanArrayEquality()
   assertTrue_1(!(*sbav == *bav));
   assertTrue_1(*sbav != *bav);
 
-  Value *ibav = NULL;
+  Value *ibav = nullptr;
   {
     std::vector<bool> bv(2);
     bv[0] = false;
@@ -846,7 +846,7 @@ static bool testBooleanArrayEquality()
 
 static bool testIntegerArrayEquality()
 {
-  Value *iav = NULL;
+  Value *iav = nullptr;
   {
     IntegerArray *emptyInt = new IntegerArray;
     iav = new Value(*emptyInt);
@@ -856,7 +856,7 @@ static bool testIntegerArrayEquality()
   assertTrue_1(*iav == *iav);
   assertTrue_1(!(*iav != *iav));
 
-  Value *siav = NULL;
+  Value *siav = nullptr;
   {
     IntegerArray *sizedInt = new IntegerArray(2);
     siav = new Value(*sizedInt);
@@ -871,7 +871,7 @@ static bool testIntegerArrayEquality()
   assertTrue_1(!(*siav == *iav));
   assertTrue_1(*siav != *iav);
 
-  Value *iiav = NULL;
+  Value *iiav = nullptr;
   {
     std::vector<int32_t> iv(2);
     iv[0] = 42;
@@ -943,7 +943,7 @@ static bool testIntegerArrayEquality()
 
 static bool testRealArrayEquality()
 {
-  Value *rav = NULL;
+  Value *rav = nullptr;
   {
     RealArray *emptyReal = new RealArray;
     rav = new Value(*emptyReal);
@@ -953,7 +953,7 @@ static bool testRealArrayEquality()
   assertTrue_1(*rav == *rav);
   assertTrue_1(!(*rav != *rav));
 
-  Value *srav = NULL;
+  Value *srav = nullptr;
   {
     RealArray *sizedReal = new RealArray(2);
     srav = new Value(*sizedReal);
@@ -968,7 +968,7 @@ static bool testRealArrayEquality()
   assertTrue_1(!(*srav == *rav));
   assertTrue_1(*srav != *rav);
 
-  Value *irav = NULL;
+  Value *irav = nullptr;
   {
     std::vector<double> dv(2);
     dv[0] = 3.14;
@@ -1040,7 +1040,7 @@ static bool testRealArrayEquality()
 
 static bool testStringArrayEquality()
 {
-  Value *sav = NULL;
+  Value *sav = nullptr;
   {
     StringArray *emptyString = new StringArray;
     sav = new Value(*emptyString);
@@ -1065,7 +1065,7 @@ static bool testStringArrayEquality()
   assertTrue_1(!(*ssav == *sav));
   assertTrue_1(*ssav != *sav);
 
-  Value *isav = NULL;
+  Value *isav = nullptr;
   {
     std::vector<std::string> sv(2);
     sv[0] = std::string("yo ");
@@ -1138,14 +1138,14 @@ static bool testStringArrayEquality()
 // Cross-type testing of array equality
 static bool testEmptyArrayEquality()
 {
-  Value *sav = NULL;
+  Value *sav = nullptr;
   {
     StringArray *emptyString = new StringArray;
     sav = new Value(*emptyString);
     delete emptyString;
   }
 
-  Value *rav = NULL;
+  Value *rav = nullptr;
   {
     RealArray *emptyReal = new RealArray;
     rav = new Value(*emptyReal);
@@ -1153,7 +1153,7 @@ static bool testEmptyArrayEquality()
   }
 
   {
-    Value *iav = NULL;
+    Value *iav = nullptr;
     {
       IntegerArray *emptyInt = new IntegerArray;
       iav = new Value(*emptyInt);
@@ -1161,7 +1161,7 @@ static bool testEmptyArrayEquality()
     }
 
     {
-      Value *bav = NULL;
+      Value *bav = nullptr;
       {
 	BooleanArray *emptyBool = new BooleanArray;
 	bav = new Value(*emptyBool);
@@ -1213,19 +1213,19 @@ static bool testEmptyArrayEquality()
 static bool testScalarBooleanArrayEquality()
 {
   // Boolean arrays
-  Value *bav = NULL;
+  Value *bav = nullptr;
   {
     BooleanArray *emptyBool = new BooleanArray;
     bav = new Value(*emptyBool);
     delete emptyBool;
   }
-  Value *sbav = NULL;
+  Value *sbav = nullptr;
   {
     BooleanArray *sizedBool = new BooleanArray(2);
     sbav = new Value(*sizedBool);
     delete sizedBool;
   }
-  Value *ibav = NULL;
+  Value *ibav = nullptr;
   {
     std::vector<bool> bv(2);
     bv[0] = false;
@@ -1328,19 +1328,19 @@ static bool testScalarBooleanArrayEquality()
 
 static bool testScalarIntegerArrayEquality()
 {
-  Value *iav = NULL;
+  Value *iav = nullptr;
   {
     IntegerArray *emptyInt = new IntegerArray;
     iav = new Value(*emptyInt);
     delete emptyInt;
   }
-  Value *siav = NULL;
+  Value *siav = nullptr;
   {
     IntegerArray *sizedInt = new IntegerArray(2);
     siav = new Value(*sizedInt);
     delete sizedInt;
   }
-  Value *iiav = NULL;
+  Value *iiav = nullptr;
   {
     std::vector<int32_t> iv(2);
     iv[0] = 42;
@@ -1443,19 +1443,19 @@ static bool testScalarIntegerArrayEquality()
 
 static bool testScalarRealArrayEquality()
 {
-  Value *rav = NULL;
+  Value *rav = nullptr;
   {
     RealArray *emptyReal = new RealArray;
     rav = new Value(*emptyReal);
     delete emptyReal;
   }
-  Value *srav = NULL;
+  Value *srav = nullptr;
   {
     RealArray *sizedReal = new RealArray(2);
     srav = new Value(*sizedReal);
     delete sizedReal;
   }
-  Value *irav = NULL;
+  Value *irav = nullptr;
   {
     std::vector<double> dv(2);
     dv[0] = 3.14;
@@ -1558,7 +1558,7 @@ static bool testScalarRealArrayEquality()
 
 static bool testScalarStringArrayEquality()
 {
-  Value *sav = NULL;
+  Value *sav = nullptr;
   {
     StringArray *emptyString = new StringArray;
     sav = new Value(*emptyString);
@@ -1570,7 +1570,7 @@ static bool testScalarStringArrayEquality()
     ssav = new Value(*sizedString);
     delete sizedString;
   }
-  Value *isav = NULL;
+  Value *isav = nullptr;
   {
     std::vector<std::string> sv(2);
     sv[0] = std::string("yo ");
@@ -1922,7 +1922,7 @@ static bool testBooleanArrayLessThan()
   Value *ubav = new Value(0, BOOLEAN_ARRAY_TYPE);
   assertTrue_1(!(*ubav < *ubav));
 
-  Value *ebav = NULL;
+  Value *ebav = nullptr;
   {
     BooleanArray *emptyBool = new BooleanArray;
     ebav = new Value(*emptyBool);
@@ -1933,7 +1933,7 @@ static bool testBooleanArrayLessThan()
   assertTrue_1(*ubav < *ebav);
   assertTrue_1(!(*ebav < *ubav));
 
-  Value *sbav = NULL;
+  Value *sbav = nullptr;
   {
     BooleanArray *sizedBool = new BooleanArray(2);
     sbav = new Value(*sizedBool);
@@ -1947,7 +1947,7 @@ static bool testBooleanArrayLessThan()
   assertTrue_1(*ebav < *sbav);
   assertTrue_1(!(*sbav < *ebav));
 
-  Value *ibav = NULL;
+  Value *ibav = nullptr;
   {
     std::vector<bool> bv(2);
     bv[0] = false;
@@ -1967,7 +1967,7 @@ static bool testBooleanArrayLessThan()
   assertTrue_1(*sbav < *ibav);
   assertTrue_1(!(*ibav < *sbav));
 
-  Value *ibav2 = NULL;
+  Value *ibav2 = nullptr;
   {
     std::vector<bool> bv2(2);
     bv2[0] = false;
@@ -2005,7 +2005,7 @@ static bool testIntegerArrayLessThan()
   Value *uiav = new Value(0, INTEGER_ARRAY_TYPE);
   assertTrue_1(!(*uiav < *uiav));
 
-  Value *eiav = NULL;
+  Value *eiav = nullptr;
   {
     IntegerArray *emptyInt = new IntegerArray;
     eiav = new Value(*emptyInt);
@@ -2016,7 +2016,7 @@ static bool testIntegerArrayLessThan()
   assertTrue_1(*uiav < *eiav);
   assertTrue_1(!(*eiav < *uiav));
 
-  Value *siav = NULL;
+  Value *siav = nullptr;
   {
     IntegerArray *sizedInt = new IntegerArray(2);
     siav = new Value(*sizedInt);
@@ -2030,7 +2030,7 @@ static bool testIntegerArrayLessThan()
   assertTrue_1(*eiav < *siav);
   assertTrue_1(!(*siav < *eiav));
 
-  Value *iiav = NULL;
+  Value *iiav = nullptr;
   {
     std::vector<int32_t> iv(2);
     iv[0] = 42;
@@ -2050,7 +2050,7 @@ static bool testIntegerArrayLessThan()
   assertTrue_1(*siav < *iiav);
   assertTrue_1(!(*iiav < *siav));
 
-  Value *iiav2 = NULL;
+  Value *iiav2 = nullptr;
   {
     std::vector<int32_t> iv2(2);
     iv2[0] = 42;
@@ -2087,7 +2087,7 @@ static bool testRealArrayLessThan()
   Value *urav = new Value(0, REAL_ARRAY_TYPE);
   assertTrue_1(!(*urav < *urav));
 
-  Value *erav = NULL;
+  Value *erav = nullptr;
   {
     RealArray *emptyReal = new RealArray;
     erav = new Value(*emptyReal);
@@ -2098,7 +2098,7 @@ static bool testRealArrayLessThan()
   assertTrue_1(*urav < *erav);
   assertTrue_1(!(*erav < *urav));
 
-  Value *srav = NULL;
+  Value *srav = nullptr;
   {
     RealArray *sizedReal = new RealArray(2);
     srav = new Value(*sizedReal);
@@ -2112,7 +2112,7 @@ static bool testRealArrayLessThan()
   assertTrue_1(*erav < *srav);
   assertTrue_1(!(*srav < *erav));
 
-  Value *irav = NULL;
+  Value *irav = nullptr;
   {
     std::vector<double> dv(2);
     dv[0] = 3.14;
@@ -2132,7 +2132,7 @@ static bool testRealArrayLessThan()
   assertTrue_1(*srav < *irav);
   assertTrue_1(!(*irav < *srav));
 
-  Value *irav2 = NULL;
+  Value *irav2 = nullptr;
   {
     std::vector<double> dv2(2);
     dv2[0] = 3.14;
@@ -2173,7 +2173,7 @@ static bool testStringArrayLessThan()
   Value *usav = new Value(0, STRING_ARRAY_TYPE);
   assertTrue_1(!(*usav < *usav));
 
-  Value *esav = NULL;
+  Value *esav = nullptr;
   {
     StringArray *emptyString = new StringArray;
     esav = new Value(*emptyString);
@@ -2184,7 +2184,7 @@ static bool testStringArrayLessThan()
   assertTrue_1(*usav < *esav);
   assertTrue_1(!(*esav < *usav));
 
-  Value *ssav = NULL;
+  Value *ssav = nullptr;
   {
     StringArray *sizedString = new StringArray(2);
     ssav = new Value(*sizedString);
@@ -2198,7 +2198,7 @@ static bool testStringArrayLessThan()
   assertTrue_1(*esav < *ssav);
   assertTrue_1(!(*ssav < *esav));
 
-  Value *isav = NULL;
+  Value *isav = nullptr;
   {
     std::vector<std::string> sv(2);
     sv[0] = std::string("yo ");
@@ -2217,7 +2217,7 @@ static bool testStringArrayLessThan()
   assertTrue_1(*ssav < *isav);
   assertTrue_1(!(*isav < *ssav));
 
-  Value *isav2 = NULL;
+  Value *isav2 = nullptr;
   {
     std::vector<std::string> sv2(2);
     sv2[0] = std::string("yo ");

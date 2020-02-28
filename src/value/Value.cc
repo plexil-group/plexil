@@ -1206,7 +1206,7 @@ namespace PLEXIL
       return PLEXIL::serialize(*arrayValue, buf);
 
     default: // invalid/unimplemented
-      return NULL;
+      return nullptr;
     }
   }
   
@@ -1277,7 +1277,7 @@ namespace PLEXIL
       return PLEXIL::deserialize((StringArray &) *arrayValue, buf);
 
     default: // invalid
-      return NULL;
+      return nullptr;
     }
   }
 
