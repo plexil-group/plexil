@@ -33,11 +33,14 @@
 #ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
 
+#ifdef STDC_HEADERS
 #include <cstdlib> // atexit()
+#endif 
+
 #include <string>
 #include <stack>
 
-static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
+static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", nullptr};
 
 static std::stack<void *> s_handles;
 
@@ -65,12 +68,12 @@ static void ensureFinalizer()
 /**
  * @brief Attempt to dynamically load the named file.
  * @param fname The file name.
- * @return The dlopen() handle if successful, NULL otherwise.
+ * @return The dlopen() handle if successful, nullptr otherwise.
  * @note Caller must call dlclose() on the handle.
  */
 static void *tryLoadFile(const char *fname)
 {
-  void *handle = NULL;
+  void *handle = nullptr;
   ensureFinalizer();
   handle = dlopen(fname, RTLD_NOW | RTLD_GLOBAL);
   if (handle) {
@@ -88,7 +91,7 @@ static void *tryLoadFile(const char *fname)
 /**
  * @brief Load the named library.
  * @param libName The library name, with or without the appropriate extension.
- * @return The dlopen() handle if successful, NULL otherwise.
+ * @return The dlopen() handle if successful, nullptr otherwise.
  * @note Caller must call dlclose() on the handle.
  */
 
@@ -116,31 +119,31 @@ static void *loadLibrary(const char *libName)
 
   debugMsg("DynamicLoader:loadLibrary",
            " unable to find library \"" << libName << "\"");
-  return NULL;
+  return nullptr;
 }
 
 /**
  * @brief Find the named symbol.
  * @param symName The name of the symbol to locate.
  * @param dl_handle If supplied, the return value from dlopen() or loadLibrary() above.
- * @return The symbol value if successful, NULL otherwise.
- * @note If NULL may be a valid result, you should be calling dlsym() directly
+ * @return The symbol value if successful, nullptr otherwise.
+ * @note If nullptr may be a valid result, you should be calling dlsym() directly
  *       instead of this convenience wrapper.
  */
 static void *findSymbol(char const *symName, void *dl_handle)
 {
   void *sym = dlsym(dl_handle, symName);
   if (!sym) {
-    // error,  or is symbol actually NULL?
+    // error,  or is symbol actually nullptr?
     char const *err = dlerror();
     condDebugMsg(err,
                  "DynamicLoader:findSymbol",
                  " dlsym failed for symbol \"" << symName << "\": " << err);
     condDebugMsg(!err,
                  "DynamicLoader:findSymbol",
-                 " succeeded, symbol \"" << symName << "\" is NULL");
-    // either way, return NULL
-    return NULL;
+                 " succeeded, symbol \"" << symName << "\" is null");
+    // either way, return nullptr
+    return nullptr;
   }
   debugMsg("DynamicLoader:findSymbol",
            " succeeded for \"" << symName << '"');
@@ -195,7 +198,7 @@ int dynamicInitModule(const char *moduleName)
  * @brief Dynamically load the shared library containing the module name,
  *        using the library name if provided.
  * @param typeName The name of the module
- * @param libPath The library name containing the module, or NULL.
+ * @param libPath The library name containing the module, or nullptr.
  * @return 1 if successful, 0 otherwise.
  * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
  */

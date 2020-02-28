@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -471,11 +471,11 @@ public:
 private:
   static bool testNullArgs()
   {
-    assertTrue_1(0 == stricmp(NULL, NULL));
-    assertTrue_1(0 == stricmp(NULL, ""));
-    assertTrue_1(-1 == stricmp(NULL, " "));
-    assertTrue_1(0 == stricmp("", NULL));
-    assertTrue_1(1 == stricmp(" ", NULL));
+    assertTrue_1(0 == stricmp(nullptr, nullptr));
+    assertTrue_1(0 == stricmp(nullptr, ""));
+    assertTrue_1(-1 == stricmp(nullptr, " "));
+    assertTrue_1(0 == stricmp("", nullptr));
+    assertTrue_1(1 == stricmp(" ", nullptr));
     assertTrue_1(0 == stricmp("", ""));
     return true;
   }

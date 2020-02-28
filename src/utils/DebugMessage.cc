@@ -110,7 +110,7 @@ namespace PLEXIL
    */
   static bool markerMatches(char const *marker, std::string const &pattern)
   {
-    return NULL != strstr(marker, pattern.c_str());
+    return nullptr != strstr(marker, pattern.c_str());
   }
 
   static bool matchesPatterns(char const *marker)

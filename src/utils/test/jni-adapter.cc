@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,8 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "plexil-config.h"
+
 #include "JNIUtils.hh"
 #include "ScopedOstreamRedirect.hh"
 #include "util-test-module.hh"
@@ -31,7 +33,10 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <time.h>
+
+#ifdef STDC_HEADERS
+#include <ctime>
+#endif
 
 using PLEXIL::JNIUtils;
 
@@ -63,7 +68,7 @@ jint Java_gov_nasa_plexil_android_UtilsModuleTest_run(JNIEnv *env, jobject /* ja
 {
   JNIUtils jni(env);
   char* logDir = jni.getJavaStringCopy(workingDirPath);
-  if (logDir == NULL)
+  if (!logDir)
 	return -1;
 
   // Route cout and cerr to a log file.

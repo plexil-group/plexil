@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ namespace PLEXIL {
 	/**
 	 * @brief Returns a freshly allocated copy of the Java string.
 	 * @param javaString The JNI string object.
-	 * @return A freshly allocated copy of the Java string, or NULL.
+	 * @return A freshly allocated copy of the Java string, or nullptr.
 	 */
 	char* getJavaStringCopy(jstring javaString);
 
@@ -99,7 +99,11 @@ namespace PLEXIL {
   private:
 
 	// Deliberately unimplemented
-	JNIUtils(); 
+	JNIUtils() = delete;
+	JNIUtils(JNIUtils const &) = delete;
+	JNIUtils(JNIUtils &&) = delete;
+	JNIUtils &operator=(JNIUtils const &) = delete;
+	JNIUtils &operator=(JNIUtils &&) = delete;
 
 	//* A pointer to the JNI environment object.
 	JNIEnv* m_env;

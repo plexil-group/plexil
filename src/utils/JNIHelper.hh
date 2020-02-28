@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 #define JNI_HELPER_H
 
 #include <jni.h>
-#include <cstddef> // for NULL
 
 /**
  * @brief A class which helps provide access to key JNI pointers.
@@ -145,18 +144,18 @@ protected:
 class JavaObject
 {
 public:
-  JavaObject() : m_jobj(NULL) {}
+  JavaObject() : m_jobj(nullptr) {}
   JavaObject(jobject obj) : m_jobj(obj) {}
 
   virtual ~JavaObject()
   {
-	if (m_jobj != NULL)
+	if (m_jobj)
 	  JNIHelper::getJNIEnv()->DeleteLocalRef(m_jobj);
   }
 
   JavaObject& operator=(const jobject& obj)
   {
- 	if (m_jobj != NULL) {
+ 	if (m_jobj) {
 	  JNIHelper::getJNIEnv()->DeleteLocalRef(m_jobj);
  	}
  	m_jobj = obj;
@@ -169,8 +168,12 @@ public:
 
 private:
   // Deliberately unimplemented
-  JavaObject(const JavaObject&);
-  JavaObject& operator=(const JavaObject&);
+  JavaObject(const JavaObject &) = delete;
+  JavaObject& operator=(const JavaObject &) = delete;
+
+  // TODO implement these if they prove useful
+  JavaObject(JavaObject &&) = delete;
+  JavaObject& operator=(JavaObject &&) = delete;
 
 protected:
   // Shared with derived classes
@@ -204,8 +207,10 @@ public:
 
 private:
   // Deliberately unimplemented
-  JavaClass(const JavaClass&);
-  JavaClass& operator=(const JavaClass&);
+  JavaClass(const JavaClass &) = delete;
+  JavaClass(JavaClass &&) = delete;
+  JavaClass &operator=(const JavaClass &) = delete;
+  JavaClass &operator=(JavaClass &&) = delete;
 };
 
 #endif // JNI_HELPER_H
