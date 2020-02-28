@@ -70,7 +70,7 @@ namespace PLEXIL
    */
 
   extern Expression *createExpression(pugi::xml_node const expr,
-                                      NodeConnector *node = NULL);
+                                      NodeConnector *node = nullptr);
 
   /**
    * @brief Creates a new Expression instance with the type associated with the

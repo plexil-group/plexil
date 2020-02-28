@@ -132,7 +132,7 @@ static Expression const *getNodeCondition(NodeImplPtr const &node, size_t idx)
   case NodeImpl::ancestorEndIdx: {
     std::vector<NodeImplPtr> const &kids = node->getChildren();
     if (kids.empty())
-      return NULL;
+      return nullptr;
     return const_cast<NodeImpl const *>(kids.front().get())->getCondition(idx);
   }
 
@@ -332,7 +332,7 @@ static void loadAndAnalyzePlan(std::string const &planFile)
   checkParserException(doc, "File " << planFile << " not found");
   
   NodeImplPtr root = NodeImplPtr(PLEXIL::parsePlan(doc->document_element()));
-  checkParserException(root, "parsePlan returned NULL");
+  checkParserException(root, "parsePlan returned null");
 
   // Analyze plan
   initializeStatistics();
@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
 
     loadAndAnalyzePlan(planFile);
 
-    PLEXIL::g_interface = NULL;
+    PLEXIL::g_interface = nullptr;
     plexilRunFinalizers();
   }
   catch (PLEXIL::ParserException const &e) {

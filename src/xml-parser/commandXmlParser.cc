@@ -246,7 +246,7 @@ namespace PLEXIL
                                      << "\": " << temp.name()
                                      << " expression is not a String expression");
 
-    Symbol const *cmdSym = NULL;
+    Symbol const *cmdSym = nullptr;
     if (testTag(STRING_VAL_TAG, temp.first_child())) {
       // Command name is a literal, see if we can grab command info
       cmdSym = getCommandSymbol(temp.first_child().child_value());
@@ -297,7 +297,7 @@ namespace PLEXIL
           char const* tag = rtemp.name();
           size_t taglen = strlen(tag);
           bool isGarbage = false;
-          Expression *exp = NULL;
+          Expression *exp = nullptr;
           switch (taglen) {
           case 12: // ResourceName
             assertTrueMsg(!strcmp(RESOURCE_NAME_TAG, tag),
@@ -373,7 +373,7 @@ namespace PLEXIL
 
     // Optional destination expression
     xml_node destXml;
-    Expression *dest = NULL;
+    Expression *dest = nullptr;
     if (!testTag(NAME_TAG, temp)) {
       destXml = temp;
       bool destIsGarbage = false;
@@ -398,7 +398,7 @@ namespace PLEXIL
     cmd->setNameExpr(nameExpr, nameIsGarbage);
 
     // Get symbol table entry, if name is constant and declared as command
-    Symbol const *cmdSym = NULL;
+    Symbol const *cmdSym = nullptr;
     if (nameExpr->isConstant() && nameType == STRING_TYPE) {
       std::string cmdName = nameExpr->valueString();
       cmdSym = getCommandSymbol(cmdName.c_str());

@@ -186,7 +186,7 @@ namespace PLEXIL
       reportParserExceptionWithLocation(which,
                                         "createExpression: Invalid Timepoint value \""
                                         << whichStr << "\"");
-      return NULL;
+      return nullptr;
     }
     wasCreated = false;
     return refNode->ensureTimepoint(state, isEnd);
@@ -250,7 +250,7 @@ namespace PLEXIL
     default:
       reportParserExceptionWithLocation(expr,
                                         "Invalid NodeStateValue");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -296,7 +296,7 @@ namespace PLEXIL
     default:
       reportParserExceptionWithLocation(expr,
                                         "Invalid NodeOutcomeValue");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -350,7 +350,7 @@ namespace PLEXIL
     default:
       reportParserExceptionWithLocation(expr,
                                         "createExpression: Invalid FailureTypeValue");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -404,7 +404,7 @@ namespace PLEXIL
     default:
       reportParserExceptionWithLocation(expr,
                                         "createExpression: Invalid CommandHandleValue");
-      return NULL;
+      return nullptr;
     }
   }
 

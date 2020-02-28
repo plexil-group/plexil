@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -317,7 +317,7 @@ static bool testCommandParserErrorHandling()
   xml_node wrongTypeName = doc.append_child("Command");
   wrongTypeName.append_child("Name").append_child("RealValue").append_child(node_pcdata).set_value("3.14");
   {
-    Command *wrongTypeNameCmd = NULL;
+    Command *wrongTypeNameCmd = nullptr;
     try {
       checkCommandBody("wrongTypeName", wrongTypeName);
       wrongTypeNameCmd = new Command("wrongTypeName");
@@ -336,7 +336,7 @@ static bool testCommandParserErrorHandling()
   invalidReturn.append_child("Name").append_child(node_pcdata).set_value("legal");
   // Do it this way because we may not detect error in first pass
   {
-    Command *invalidReturnCmd = NULL;
+    Command *invalidReturnCmd = nullptr;
     try {
       checkCommandBody("invalidReturn", invalidReturn);
       invalidReturnCmd = new Command("invalidReturn");

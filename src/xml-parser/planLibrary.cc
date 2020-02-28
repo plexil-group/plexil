@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -81,9 +81,9 @@ namespace PLEXIL
     for (LibraryMap::iterator it = s_libraryMap.begin(); it != s_libraryMap.end(); ++it) {
       Library &l = it->second;
       delete l.doc;
-      l.doc = NULL;
+      l.doc = nullptr;
       delete l.symtab;
-      l.symtab = NULL;
+      l.symtab = nullptr;
     }
     s_libraryMap.clear();
   }
@@ -105,7 +105,7 @@ namespace PLEXIL
         return result;
       ++it;
     }
-    return NULL;
+    return nullptr;
   }
 
   // name could be node name, file name w/ or w/o directory, w/ w/o .plx
@@ -124,7 +124,7 @@ namespace PLEXIL
 
     xml_document *doc = loadLibraryFile(fname);
     if (!doc)
-      return NULL;
+      return nullptr;
     
     // Check whether document actually contains the named plan
     char const *nodeId = doc->document_element().child(NODE_TAG).child_value(NODEID_TAG);
@@ -132,7 +132,7 @@ namespace PLEXIL
       warn("Unable to load library node \"" << nodeName
            << "\": file " << fname << " does not contain " << nodeId);
       delete doc;
-      return NULL;
+      return nullptr;
     }
 
     return loadLibraryDocument(doc);
@@ -145,7 +145,7 @@ namespace PLEXIL
     if (it != s_libraryMap.end())
       return &it->second;
     else
-      return NULL;
+      return nullptr;
   }
 
   Library const *loadLibraryDocument(xml_document *doc)
@@ -161,7 +161,7 @@ namespace PLEXIL
       return l;
     }
 
-    SymbolTable *symtab = NULL;
+    SymbolTable *symtab = nullptr;
     try {
       symtab = checkPlan(plan);
     }
@@ -169,7 +169,7 @@ namespace PLEXIL
       delete doc;
       warn("Unable to load library node \"" << nodeId << "\": "
            << exc.what());
-      return NULL;
+      return nullptr;
     }
     catch (...) {
       delete doc;
@@ -213,7 +213,7 @@ namespace PLEXIL
     else if (loadIfNotFound)
       return loadLibraryNode(name);
     else
-      return NULL;
+      return nullptr;
   }
 
 } // namespace PLEXIL

@@ -186,7 +186,7 @@ namespace PLEXIL
     if (!strcmp(dirValue, SELF_VAL))
       return node;
 
-    NodeImpl *result = NULL;
+    NodeImpl *result = nullptr;
     if (!strcmp(dirValue, PARENT_VAL)) {
       result = node->getParentNode();
       assertTrueMsg(result,
@@ -219,7 +219,7 @@ namespace PLEXIL
       // Should have been caught by check()
       errorMsg("Internal error: Invalid value for "
                << DIR_ATTR << " attibute \"" << dirValue << "\"");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -250,7 +250,7 @@ namespace PLEXIL
     // Should have been caught by checkNodeId()
     errorMsg("Internal error: No node named " << name
              << " reachable from node " << node->getNodeId());
-    return NULL;
+    return nullptr;
   }
 
   NodeImpl *parseNodeReference(pugi::xml_node nodeRef, NodeImpl *node)

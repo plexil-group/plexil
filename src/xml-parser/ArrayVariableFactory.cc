@@ -36,8 +36,11 @@
 
 #include "pugixml.hpp"
 
-#include <cstdlib>
 #include <limits>
+
+#ifdef STDC_HEADERS
+#include <cstdlib>
+#endif
 
 using pugi::xml_node;
 
@@ -167,7 +170,7 @@ namespace PLEXIL
     char const *name = temp.child_value();
     temp = temp.next_sibling();
     ValueType typ = parseValueType(temp.child_value());
-    Expression *sizeExp = NULL;
+    Expression *sizeExp = nullptr;
     bool sizeIsGarbage = false;
     temp = temp.next_sibling();
     if (testTag(MAX_SIZE_TAG, temp)) {
@@ -204,7 +207,7 @@ namespace PLEXIL
 
     default:
       errorMsg("ArrayVariableFactory::allocate: Internal type error");
-      return NULL;
+      return nullptr;
     }
   }
 

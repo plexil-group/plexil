@@ -81,7 +81,7 @@ namespace PLEXIL
 
     // If name is a literal, look up result type
     ValueType resultType = UNKNOWN_TYPE;
-    Symbol const *lkup = NULL;
+    Symbol const *lkup = nullptr;
     if (testTag(STRING_VAL_TAG, nameXml)) {
         lkup = getLookupSymbol(nameXml.child_value());
         if (lkup)
@@ -184,7 +184,7 @@ namespace PLEXIL
                                      "createExpression: Lookup name must be a string expression");
 
     // Type checking support
-    Symbol const *lkup = NULL;
+    Symbol const *lkup = nullptr;
     ValueType returnType = UNKNOWN_TYPE;
     if (stateName->isConstant()) {
       // Check whether it's known
@@ -208,7 +208,7 @@ namespace PLEXIL
     }
     
     // Count args, then build ExprVec of appropriate size
-    ExprVec *argVec = NULL;
+    ExprVec *argVec = nullptr;
     try {
       size_t nargs = std::distance(argsXml.begin(), argsXml.end());
       if (lkup) {

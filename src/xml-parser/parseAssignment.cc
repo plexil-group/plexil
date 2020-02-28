@@ -105,7 +105,7 @@ namespace PLEXIL
     ValueType varType = var->valueType();
     temp = temp.next_sibling().first_child();
     bool rhsGarbage = false;
-    Expression *rhs = NULL;
+    Expression *rhs = nullptr;
     try {
       rhs = createExpression(temp, anode, rhsGarbage, varType);
     }

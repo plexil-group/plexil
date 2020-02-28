@@ -262,8 +262,8 @@ namespace PLEXIL
                                                       bool & wasCreated,
                                                       ValueType /* returnType */) const
   {
-    Expression *arrayExpr = NULL;
-    Expression *indexExpr = NULL;
+    Expression *arrayExpr = nullptr;
+    Expression *indexExpr = nullptr;
     bool arrayCreated = false;
     bool indexCreated = false;
     
@@ -277,8 +277,8 @@ namespace PLEXIL
                                           NodeConnector *node,
                                           bool & wasCreated)
   {
-    Expression *arrayExpr = NULL;
-    Expression *indexExpr = NULL;
+    Expression *arrayExpr = nullptr;
+    Expression *indexExpr = nullptr;
     bool arrayCreated = false;
     bool indexCreated = false;
     

@@ -41,7 +41,7 @@ namespace PLEXIL
   ConversionFunctionFactory::ConversionFunctionFactory(Operator const *integerOp,
                                                        Operator const *realOp,
                                                        std::string const &name)
-    : FunctionFactory(NULL, name),
+    : FunctionFactory(nullptr, name),
       m_intOp(integerOp),
       m_realOp(realOp)
   {
@@ -87,7 +87,7 @@ namespace PLEXIL
                            "createExpression: invalid or unimplemented return type "
                            << valueTypeName(returnType)
                            << " for operator " << this->m_name);
-      return NULL;
+      return nullptr;
     }
   }
 

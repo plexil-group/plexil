@@ -210,7 +210,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(*prioString,
                                      prioXml,
                                      "Node \"" << nodeId << "\": Priority element is empty");
-    char *endptr = NULL;
+    char *endptr = nullptr;
     errno = 0;
     // TODO: check for junk after the number
     unsigned long prioValue = strtoul(prioString, &endptr, 10);
@@ -725,7 +725,7 @@ namespace PLEXIL
   {
     xml_node const prio = nodeXml.child(PRIORITY_TAG);
     if (prio)
-      node->setPriority((int32_t) strtoul(prio.child_value(), NULL, 10));
+      node->setPriority((int32_t) strtoul(prio.child_value(), nullptr, 10));
   }
 
   static void parseVariableDeclarations(NodeImpl *node, xml_node const decls)
@@ -977,7 +977,7 @@ namespace PLEXIL
         // Check whether initial value is larger than declared size
         int sizeSpec = decl.child(MAX_SIZE_TAG).text().as_int(-1);
         if (sizeSpec >= 0) {
-          Array const *initArray = NULL;
+          Array const *initArray = nullptr;
           assertTrueMsg(init->getValuePointer(initArray),
                         "Internal error: array initial value is unknown");
           if (initArray->size() > (size_t) sizeSpec) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL
          it != m_variableMap.end();
          ++it) {
       Expression *tmp = it->second;
-      it->second = NULL;
+      it->second = nullptr;
       delete tmp;
     }
     m_variableMap.clear();
@@ -53,7 +53,7 @@ namespace PLEXIL
     if (it != m_variableMap.end())
       return it->second;
     else
-      return NULL;
+      return nullptr;
   }
 
   std::string const &FactoryTestNodeConnector::getNodeId() const

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ using pugi::xml_node;
 using pugi::node_pcdata;
 
 // Global variable for convenience
-static NodeConnector *nc = NULL;
+static NodeConnector *nc = nullptr;
 
 static bool booleanConstantXmlParserTest()
 {
@@ -54,7 +54,7 @@ static bool booleanConstantXmlParserTest()
   falseText.set_value("false");
 
   {
-    Expression *falseConstant = NULL;
+    Expression *falseConstant = nullptr;
     try {
       checkExpression("false", falseXml);
       falseConstant = createExpression(falseXml, nc, wasCreated);
@@ -78,7 +78,7 @@ static bool booleanConstantXmlParserTest()
   zeroText.set_value("0");
 
   {
-    Expression *zeroConstant = NULL;
+    Expression *zeroConstant = nullptr;
 
     try {
       checkExpression("zero", zeroXml);
@@ -103,7 +103,7 @@ static bool booleanConstantXmlParserTest()
   trueText.set_value("true");
 
   {
-    Expression *trueConstant = NULL;
+    Expression *trueConstant = nullptr;
 
     try {
       checkExpression("true", trueXml);
@@ -128,7 +128,7 @@ static bool booleanConstantXmlParserTest()
   oneText.set_value("1");
 
   {
-    Expression *oneConstant = NULL;
+    Expression *oneConstant = nullptr;
 
     try {
       checkExpression("one", oneXml);
@@ -176,7 +176,7 @@ static bool integerConstantXmlParserTest()
   zeroText.set_value("0");
 
   {
-    Expression *zeroConstant = NULL;
+    Expression *zeroConstant = nullptr;
 
     try {
       checkExpression("zero", zeroXml);
@@ -200,7 +200,7 @@ static bool integerConstantXmlParserTest()
   oneText.set_value("1");
 
   {
-    Expression *oneConstant = NULL;
+    Expression *oneConstant = nullptr;
 
     try {
       checkExpression("one", oneXml);
@@ -224,7 +224,7 @@ static bool integerConstantXmlParserTest()
   minusOneText.set_value("-1");
 
   {
-    Expression *minusOneConstant = NULL;
+    Expression *minusOneConstant = nullptr;
 
     try {
       checkExpression("minusOne", minusOneXml);
@@ -248,7 +248,7 @@ static bool integerConstantXmlParserTest()
   hexText.set_value("0x42");
 
   {
-    Expression *hexConstant = NULL;
+    Expression *hexConstant = nullptr;
 
     try {
       checkExpression("hex", hexXml);
@@ -359,7 +359,7 @@ static bool realConstantXmlParserTest()
   zeroText.set_value("0");
 
   {
-    Expression *zeroConstant = NULL;
+    Expression *zeroConstant = nullptr;
 
     try {
       checkExpression("zero", zeroXml);
@@ -382,7 +382,7 @@ static bool realConstantXmlParserTest()
     pugi::xml_node minusZeroXml = doc.append_child("RealValue");
     pugi::xml_node minusZeroText = minusZeroXml.append_child(node_pcdata);
     minusZeroText.set_value("-0");
-    Expression *minusZeroConstant = NULL;
+    Expression *minusZeroConstant = nullptr;
 
     try {
       checkExpression("minusZero", minusZeroXml);
@@ -406,7 +406,7 @@ static bool realConstantXmlParserTest()
   oneText.set_value("1");
 
   {
-    Expression *oneConstant = NULL;
+    Expression *oneConstant = nullptr;
 
     try {
       checkExpression("one", oneXml);
@@ -430,7 +430,7 @@ static bool realConstantXmlParserTest()
   minusOneText.set_value("-1");
 
   {
-    Expression *minusOneConstant = NULL;
+    Expression *minusOneConstant = nullptr;
 
     try {
       checkExpression("minusOne", minusOneXml);
@@ -453,7 +453,7 @@ static bool realConstantXmlParserTest()
   pugi::xml_node piText = piXml.append_child(node_pcdata);
   piText.set_value("3.14");
   {
-    Expression *piConstant = NULL;
+    Expression *piConstant = nullptr;
 
     try {
       checkExpression("pi", piXml);
@@ -490,7 +490,7 @@ static bool realConstantXmlParserTest()
   expNotationText.set_value("1e-100");
 
   {
-    Expression *expNotationConstant = NULL;
+    Expression *expNotationConstant = nullptr;
 
     try {
       checkExpression("expNotation", expNotationXml);
@@ -564,7 +564,7 @@ static bool stringConstantXmlParserTest()
   emptyXml.append_child(node_pcdata);
 
   {
-    Expression *s1Constant = NULL;
+    Expression *s1Constant = nullptr;
 
     try {
       checkExpression("empty", emptyXml);
@@ -585,7 +585,7 @@ static bool stringConstantXmlParserTest()
   s2Text.set_value("foo");
 
   {
-    Expression *s2Constant = NULL;
+    Expression *s2Constant = nullptr;
 
     try {
       checkExpression("foo", s2Xml);
@@ -609,14 +609,14 @@ static bool booleanArrayConstantXmlParserTest()
   xml_document doc;
 
   bool wasCreated;
-  BooleanArray const *aryTemp = NULL;
+  BooleanArray const *aryTemp = nullptr;
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("Boolean");
 
   {
-    Expression *emptyConstant = NULL;
+    Expression *emptyConstant = nullptr;
 
     try {
       checkExpression("empty", emptyXml);
@@ -629,7 +629,7 @@ static bool booleanArrayConstantXmlParserTest()
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
     assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 0);
     if (wasCreated)
       delete emptyConstant;
@@ -653,7 +653,7 @@ static bool booleanArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("FALSE");
 
   {
-    Expression *validValConstant = NULL;
+    Expression *validValConstant = nullptr;
     Boolean temp;
 
     try {
@@ -667,7 +667,7 @@ static bool booleanArrayConstantXmlParserTest()
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
     assertTrue_1(validValConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 7);
     assertTrue_1(aryTemp->getElement(0, temp));
     assertTrue_1(!temp);
@@ -721,7 +721,7 @@ static bool booleanArrayConstantXmlParserTest()
 static bool integerArrayConstantXmlParserTest()
 {
   bool wasCreated;
-  IntegerArray const *aryTemp = NULL;
+  IntegerArray const *aryTemp = nullptr;
 
   xml_document doc;
   xml_node elementTemp;
@@ -731,7 +731,7 @@ static bool integerArrayConstantXmlParserTest()
   typeAttr.set_value("Integer");
 
   {
-    Expression *emptyConstant = NULL;
+    Expression *emptyConstant = nullptr;
 
     try {
       checkExpression("empty", emptyXml);
@@ -744,7 +744,7 @@ static bool integerArrayConstantXmlParserTest()
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
     assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 0);
     if (wasCreated)
       delete emptyConstant;
@@ -766,7 +766,7 @@ static bool integerArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("0x69");
 
   {
-    Expression *validValConstant = NULL;
+    Expression *validValConstant = nullptr;
     Integer temp;
 
     try {
@@ -780,7 +780,7 @@ static bool integerArrayConstantXmlParserTest()
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
     assertTrue_1(validValConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 6);
     assertTrue_1(aryTemp->getElement(0, temp));
     assertTrue_1(temp == 0);
@@ -844,7 +844,7 @@ static bool integerArrayConstantXmlParserTest()
 static bool realArrayConstantXmlParserTest()
 {
   bool wasCreated;
-  RealArray const *aryTemp = NULL;
+  RealArray const *aryTemp = nullptr;
 
   xml_document doc;
   xml_node elementTemp;
@@ -854,7 +854,7 @@ static bool realArrayConstantXmlParserTest()
   typeAttr.set_value("Real");
 
   {
-    Expression *emptyConstant = NULL;
+    Expression *emptyConstant = nullptr;
 
     try {
       checkExpression("empty", emptyXml);
@@ -867,7 +867,7 @@ static bool realArrayConstantXmlParserTest()
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == REAL_ARRAY_TYPE);
     assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 0);
     if (wasCreated)
       delete emptyConstant;
@@ -888,7 +888,7 @@ static bool realArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("6.0221413e+23");
 
   {
-    Expression *validValConstant = NULL;
+    Expression *validValConstant = nullptr;
     Real temp;
   
     try {
@@ -902,7 +902,7 @@ static bool realArrayConstantXmlParserTest()
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == REAL_ARRAY_TYPE);
     assertTrue_1(validValConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 6);
     assertTrue_1(aryTemp->getElement(0, temp));
     assertTrue_1(temp == 0);
@@ -965,7 +965,7 @@ static bool realArrayConstantXmlParserTest()
 static bool stringArrayConstantXmlParserTest()
 {
   bool wasCreated;
-  StringArray const *aryTemp = NULL;
+  StringArray const *aryTemp = nullptr;
 
   xml_document doc;
   xml_node elementTemp;
@@ -975,7 +975,7 @@ static bool stringArrayConstantXmlParserTest()
   typeAttr.set_value("String");
 
   {
-    Expression *emptyConstant = NULL;
+    Expression *emptyConstant = nullptr;
 
     try {
       checkExpression("empty", emptyXml);
@@ -988,7 +988,7 @@ static bool stringArrayConstantXmlParserTest()
     assertTrue_1(wasCreated); // may not be true in future
     assertTrue_1(emptyConstant->valueType() == STRING_ARRAY_TYPE);
     assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 0);
     if (wasCreated)
       delete emptyConstant;
@@ -1011,7 +1011,7 @@ static bool stringArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("6.0221413e+23");
 
   {
-    Expression *validValConstant = NULL;
+    Expression *validValConstant = nullptr;
     String const *temp;
 
     try {
@@ -1025,7 +1025,7 @@ static bool stringArrayConstantXmlParserTest()
     assertTrue_1(wasCreated);
     assertTrue_1(validValConstant->valueType() == STRING_ARRAY_TYPE);
     assertTrue_1(validValConstant->getValuePointer(aryTemp));
-    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp != nullptr);
     assertTrue_1(aryTemp->size() == 7);
     assertTrue_1(aryTemp->getElementPointer(0, temp));
     assertTrue_1(temp->empty());
@@ -1076,6 +1076,6 @@ bool constantXmlParserTest()
   runTest(realArrayConstantXmlParserTest);
   runTest(stringArrayConstantXmlParserTest);
 
-  nc = NULL;
+  nc = nullptr;
   return true;
 }

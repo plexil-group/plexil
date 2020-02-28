@@ -127,7 +127,7 @@ namespace PLEXIL
 
     default:
       errorMsg("UserVariableFactory::allocate: Internal type error");
-      return NULL;
+      return nullptr;
     }
   }
 

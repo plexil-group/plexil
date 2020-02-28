@@ -120,7 +120,7 @@ namespace PLEXIL
     {
     }
 
-    // These return NULL if name is a duplicate.
+    // These return nullptr if name is a duplicate.
     virtual Symbol *addCommand(char const *name) = 0;
     virtual Symbol *addLookup(char const *name) = 0;
     virtual Symbol *addMutex(char const *name) = 0;
@@ -137,10 +137,12 @@ namespace PLEXIL
     }
 
   private:
-    // Not implemented
-    SymbolTable(SymbolTable const &);
-    SymbolTable &operator=(SymbolTable const &);
 
+    // Not implemented
+    SymbolTable(SymbolTable const &) = delete;
+    SymbolTable(SymbolTable &&) = delete;
+    SymbolTable &operator=(SymbolTable const &) = delete;
+    SymbolTable &operator=(SymbolTable &&) = delete;
   };
 
   extern SymbolTable *makeSymbolTable();

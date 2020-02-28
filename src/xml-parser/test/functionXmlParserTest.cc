@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ using pugi::node_pcdata;
 
 // Global for convenience
 
-static NodeConnector *nc = NULL;
+static NodeConnector *nc = nullptr;
 
 static bool isKnownXmlParserTest()
 {
@@ -66,7 +66,7 @@ static bool isKnownXmlParserTest()
   // Check one-arg form
   knownXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *oneArgExp = NULL;
+    Expression *oneArgExp = nullptr;
     try {
       checkExpression("known1", knownXml);
       oneArgExp = createExpression(knownXml, nc, wasCreated);
@@ -121,7 +121,7 @@ static bool stringFunctionXmlParserTest()
   // Check one-arg form
   lenXml.append_child("StringValue").append_child(node_pcdata).set_value("Foo");
   {
-    Expression *oneArgExp = NULL;
+    Expression *oneArgExp = nullptr;
     try {
       checkExpression("strlen1", lenXml);
       oneArgExp = createExpression(lenXml, nc, wasCreated);
@@ -151,13 +151,13 @@ static bool stringFunctionXmlParserTest()
   }
 
   // String concatenation
-  std::string const *stemp = NULL;
+  std::string const *stemp = nullptr;
 
   xml_node catXml = doc.append_child("Concat");
 
   // No-arg form
   {
-    Expression *noArgCat = NULL;
+    Expression *noArgCat = nullptr;
     try {
       checkExpression("cat0", catXml);
       noArgCat = createExpression(catXml, nc, wasCreated);
@@ -172,14 +172,14 @@ static bool stringFunctionXmlParserTest()
     assertTrue_1(noArgCat->isKnown());
     assertTrue_1(noArgCat->getValuePointer(stemp));
     assertTrue_1(stemp->empty());
-    stemp = NULL;
+    stemp = nullptr;
     delete noArgCat;
   }
 
   // One-arg form
   catXml.append_child("StringValue").append_child(node_pcdata).set_value("Foo");
   {
-    Expression *oneArgCat = NULL;
+    Expression *oneArgCat = nullptr;
 
     try {
       checkExpression("cat1", catXml);
@@ -195,14 +195,14 @@ static bool stringFunctionXmlParserTest()
     assertTrue_1(oneArgCat->isKnown());
     assertTrue_1(oneArgCat->getValuePointer(stemp));
     assertTrue_1(*stemp == "Foo");
-    stemp = NULL;
+    stemp = nullptr;
     delete oneArgCat;
   }
 
   // Two-arg form
   catXml.append_child("StringValue").append_child(node_pcdata).set_value("Bar");
   {
-    Expression *twoArgCat = NULL;
+    Expression *twoArgCat = nullptr;
     
     try {
       checkExpression("cat2", catXml);
@@ -218,14 +218,14 @@ static bool stringFunctionXmlParserTest()
     assertTrue_1(twoArgCat->isKnown());
     assertTrue_1(twoArgCat->getValuePointer(stemp));
     assertTrue_1(*stemp == "FooBar");
-    stemp = NULL;
+    stemp = nullptr;
     delete twoArgCat;
   }
 
   // Three-arg form
   catXml.append_child("StringValue").append_child(node_pcdata).set_value("Baz");
   {
-    Expression *threeArgCat = NULL;
+    Expression *threeArgCat = nullptr;
 
     try {
       checkExpression("cat3", catXml);
@@ -241,7 +241,7 @@ static bool stringFunctionXmlParserTest()
     assertTrue_1(threeArgCat->isKnown());
     assertTrue_1(threeArgCat->getValuePointer(stemp));
     assertTrue_1(*stemp == "FooBarBaz");
-    stemp = NULL;
+    stemp = nullptr;
     delete threeArgCat;
   }
 
@@ -269,7 +269,7 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   notOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *oneArgNot = NULL;
+    Expression *oneArgNot = nullptr;
 
     try {
       checkExpression("not1", notOpXml);
@@ -314,7 +314,7 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   orOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("0");
   {
-    Expression *oneArgOr = NULL;
+    Expression *oneArgOr = nullptr;
     
     try {
       checkExpression("or1", orOpXml);
@@ -336,7 +336,7 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   orOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *twoArgOr = NULL;
+    Expression *twoArgOr = nullptr;
 
     try {
       checkExpression("or2", orOpXml);
@@ -358,7 +358,7 @@ static bool booleanFunctionXmlParserTest()
   // check 3-arg
   orOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *threeArgOr = NULL;
+    Expression *threeArgOr = nullptr;
 
     try {
       checkExpression("or3", orOpXml);
@@ -392,7 +392,7 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   andOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("0");
   {
-    Expression *oneArgAnd = NULL;
+    Expression *oneArgAnd = nullptr;
 
     try {
       checkExpression("and1", andOpXml);
@@ -414,7 +414,7 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   andOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *twoArgAnd = NULL;
+    Expression *twoArgAnd = nullptr;
 
     try {
       checkExpression("and2", andOpXml);
@@ -436,7 +436,7 @@ static bool booleanFunctionXmlParserTest()
   // check 3-arg
   andOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *threeArgAnd = NULL;
+    Expression *threeArgAnd = nullptr;
 
     try {
       checkExpression("and3", andOpXml);
@@ -470,7 +470,7 @@ static bool booleanFunctionXmlParserTest()
   // Check one-arg form
   xorOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("0");
   {
-    Expression *oneArgXor = NULL;
+    Expression *oneArgXor = nullptr;
 
     try {
       checkExpression("xor1", xorOpXml);
@@ -492,7 +492,7 @@ static bool booleanFunctionXmlParserTest()
   // Check two-arg form
   xorOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("1");
   {
-    Expression *twoArgXor = NULL;
+    Expression *twoArgXor = nullptr;
 
     try {
       checkExpression("xor2", xorOpXml);
@@ -514,7 +514,7 @@ static bool booleanFunctionXmlParserTest()
   // check 3-arg
   xorOpXml.append_child("BooleanValue").append_child(node_pcdata).set_value("UNKNOWN");
   {
-    Expression *threeArgXor = NULL;
+    Expression *threeArgXor = nullptr;
 
     try {
       checkExpression("xor3", xorOpXml);
@@ -558,7 +558,7 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   sqrtOpXml.append_child("RealValue").append_child(node_pcdata).set_value("4");
   {
-    Expression *oneArgSqrt = NULL;
+    Expression *oneArgSqrt = nullptr;
 
     try{
       checkExpression("sqrt1", sqrtOpXml);
@@ -603,7 +603,7 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   realToIntegerOpXml.append_child("RealValue").append_child(node_pcdata).set_value("4");
   {
-    Expression *oneArgRealToInteger = NULL;
+    Expression *oneArgRealToInteger = nullptr;
 
     try {
       checkExpression("rti1", realToIntegerOpXml);
@@ -648,7 +648,7 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   absOpXml.append_child("RealValue").append_child(node_pcdata).set_value("-2");
   {
-    Expression *oneArgAbs = NULL;
+    Expression *oneArgAbs = nullptr;
 
     try {
       checkExpression("ABS1", absOpXml);
@@ -693,7 +693,7 @@ static bool arithmeticFunctionXmlParserTest()
   // Check one-arg form
   subOpXml.append_child("IntegerValue").append_child(node_pcdata).set_value("-2");
   {
-    Expression *oneArgSub = NULL;
+    Expression *oneArgSub = nullptr;
 
     try {
       checkExpression("SUB1", subOpXml);
@@ -715,7 +715,7 @@ static bool arithmeticFunctionXmlParserTest()
   // Check two-arg form
   subOpXml.append_child("RealValue").append_child(node_pcdata).set_value("-2.5");
   {
-    Expression *twoArgSub = NULL;
+    Expression *twoArgSub = nullptr;
 
     try {
       checkExpression("SUB2", subOpXml);
@@ -737,7 +737,7 @@ static bool arithmeticFunctionXmlParserTest()
   // Check three-arg form
   subOpXml.append_child("IntegerValue").append_child(node_pcdata).set_value("3");
   {
-    Expression *threeArgSub = NULL;
+    Expression *threeArgSub = nullptr;
 
     try {
       checkExpression("SUB3", subOpXml);
@@ -770,6 +770,6 @@ bool functionXmlParserTest()
   runTest(arithmeticFunctionXmlParserTest);
 
   delete nc;
-  nc = NULL;
+  nc = nullptr;
   return true;
 }

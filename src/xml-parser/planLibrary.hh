@@ -48,7 +48,7 @@ namespace PLEXIL
     SymbolTable *symtab;
 
     Library()
-      : doc(NULL), symtab(NULL)
+      : doc(nullptr), symtab(nullptr)
     {}
     Library(pugi::xml_document *d, SymbolTable *s)
       : doc(d), symtab(s)
@@ -90,7 +90,7 @@ namespace PLEXIL
    * @brief Return the named Library, if found.
    * @param name The name of the library sought.
    * @param loadIfNotFound When true, attempt to load the named library from a file.
-   * @return Pointer to the Library descriptor; NULL if not found.
+   * @return Pointer to the Library descriptor; nullptr if not found.
    */
   extern Library const *getLibraryNode(char const *name,
                                        bool loadIfNotFound = true);
@@ -99,14 +99,14 @@ namespace PLEXIL
    * @brief Load the requested library node from a file,
    *        using the current library path.
    * @param nodeName Name of the library to load.
-   * @return Pointer to the requested Library, or NULL.
+   * @return Pointer to the requested Library, or nullptr.
    */
   extern Library const *loadLibraryNode(char const *nodeName);
 
   /**
    * @brief Load the library node definition contained in the given XML document.
    * @param Pointer to the XML document.
-   * @return The Library if successful, NULL otherwise.
+   * @return The Library if successful, nullptr otherwise.
    * @note Ownership of the document is transferred in this call.
    */
   extern Library const *loadLibraryDocument(pugi::xml_document *doc);

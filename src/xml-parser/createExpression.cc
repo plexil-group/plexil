@@ -149,7 +149,7 @@ namespace PLEXIL
     char const *name = expr.name();
     // Should have been caught in checkAssignable()
     assertTrueMsg(*name, "createAssignable: Not an XML element");
-    Expression *resultExpr = NULL;
+    Expression *resultExpr = nullptr;
     if (testSuffix(VAR_SUFFIX, name))
       resultExpr = createExpression(expr, node, wasCreated);
     else if (!strcmp(ARRAYELEMENT_TAG, name))
@@ -161,7 +161,7 @@ namespace PLEXIL
     if (!resultExpr->isAssignable()) {
       if (wasCreated)
         delete resultExpr;
-      resultExpr = NULL;
+      resultExpr = nullptr;
       reportParserExceptionWithLocation(expr,
                                         "Expression is not assignable");
     }
@@ -178,7 +178,7 @@ namespace PLEXIL
   //        it != s_expressionFactoryMap.end();
   //        ++it) {
   //     ExpressionFactory* tmp = it->second;
-  //     it->second = NULL;
+  //     it->second = nullptr;
   //     delete tmp;
   //   }
   //   s_expressionFactoryMap.clear();

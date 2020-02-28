@@ -128,7 +128,7 @@ namespace PLEXIL
 
   bool isBoolean(const char* initval)
   {
-    if (initval == NULL)
+    if (!initval)
       return false;
 
     switch (*initval) {
@@ -152,7 +152,7 @@ namespace PLEXIL
 
   bool isInteger(const char* initval)
   {
-    if (initval == NULL || !*initval)
+    if (!initval || !*initval)
       return false;
 
     // Check against XML 'integer'
@@ -174,7 +174,7 @@ namespace PLEXIL
 
   bool isDouble(const char* initval)
   {
-    if (initval == NULL || !*initval)
+    if (!initval || !*initval)
       return false;
       
     // Check against XML 'double'
@@ -275,7 +275,7 @@ namespace PLEXIL
   static bool findSourceLocation(xml_node here, char const *&filename, int &line, int &col)
   {
     // File name is now only on PlexilPlan node
-    filename = NULL;
+    filename = nullptr;
     pugi::xml_node planNode = here.root().child(PLEXIL_PLAN_TAG); // should be PlexilPlan node
     if (planNode) {
       xml_attribute fileAttr = planNode.attribute(FILE_NAME_ATTR);
@@ -314,7 +314,7 @@ namespace PLEXIL
 
   void throwParserException(std::string const &msg, xml_node location)
   {
-    char const *sourcefile = NULL;
+    char const *sourcefile = nullptr;
     int line = 0, col = 0;
     if (findSourceLocation(location, sourcefile, line, col))
       throw ParserException(msg.c_str(), sourcefile, line, col);

@@ -43,7 +43,7 @@ namespace PLEXIL
                                        Operator const *realOp,
                                        Operator const *stringOp,
                                        std::string const &name)
-    : FunctionFactory(NULL, name),
+    : FunctionFactory(nullptr, name),
       m_intOp(integerOp),
       m_realOp(realOp),
       m_stringOp(stringOp)
@@ -147,7 +147,7 @@ namespace PLEXIL
                            "createExpression: invalid or unimplemented argument type "
                            << valueTypeName(type)
                            << " for comparison operator " << this->m_name);
-      return NULL;
+      return nullptr;
     }
   }
 

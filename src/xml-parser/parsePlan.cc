@@ -52,11 +52,11 @@ namespace PLEXIL
     xml_parse_result parseResult = doc->load_file(filename.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status == pugi::status_file_not_found) {
       delete doc;
-      return NULL;
+      return nullptr;
     }
     if (parseResult.status != pugi::status_ok) {
       delete doc;
-      doc = NULL;
+      doc = nullptr;
       checkParserException(false,
                            "Error reading XML file " << filename
                            << ": " << parseResult.description());
@@ -72,7 +72,7 @@ namespace PLEXIL
     checkHasChildElement(xml);
 
     xml_node elt = xml.first_child();
-    SymbolTable *result = NULL;
+    SymbolTable *result = nullptr;
     if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
       checkGlobalDeclarations(elt);
       result = parseGlobalDeclarations(elt);
@@ -104,7 +104,7 @@ namespace PLEXIL
     xml_node const root = xml.child(NODE_TAG);
     debugMsg("constructPlan", ' ' << root.child_value(NODEID_TAG));
     pushSymbolTable(symtab);
-    NodeImpl *result = NULL;
+    NodeImpl *result = nullptr;
     try {
       // Construct the plan
       try {
@@ -112,7 +112,7 @@ namespace PLEXIL
       }
       catch (...) {
         delete result;
-        result = NULL;
+        result = nullptr;
         throw;
       }
     }
@@ -132,8 +132,8 @@ namespace PLEXIL
     debugMsg("parsePlan", "entered");
     // Perform surface checks & log global symbols
     SymbolTable *symtab = checkPlan(xml);
-    NodeImpl *result = NULL;
-    result = constructPlan(xml, symtab, NULL); // can throw ParserException
+    NodeImpl *result = nullptr;
+    result = constructPlan(xml, symtab, nullptr); // can throw ParserException
     pushSymbolTable(symtab);
     try {
       finalizeNode(result, xml.child(NODE_TAG));

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ using pugi::xml_node;
 using pugi::node_pcdata;
 
 // Global variables for convenience
-static NodeConnector *nc = NULL;
-static FactoryTestNodeConnector *realNc = NULL;
+static NodeConnector *nc = nullptr;
+static FactoryTestNodeConnector *realNc = nullptr;
 
 static bool testArrayConstantReferenceXmlParser()
 {
@@ -74,7 +74,7 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node bart0Xml = doc.append_child("ArrayElement");
       bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *bar0 = NULL;      
+      Expression *bar0 = nullptr;      
 
       try {
         checkExpression("bart0", bart0Xml);
@@ -102,7 +102,7 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node bartv0Xml = doc.append_child("ArrayElement");
       bartv0Xml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartv0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *barv0 = NULL;
+      Expression *barv0 = nullptr;
 
       try {
         checkExpression("bartv", bartv0Xml);
@@ -132,7 +132,7 @@ static bool testArrayConstantReferenceXmlParser()
       arrayXml.append_child("BooleanValue").append_child(node_pcdata).set_value("false");
       arrayXml.append_child("BooleanValue").append_child(node_pcdata).set_value("true");
       barliXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *barl = NULL;
+      Expression *barl = nullptr;
 
       try {
         checkExpression("barli", barliXml);
@@ -172,7 +172,7 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node bartviXml = doc.append_child("ArrayElement");
       bartviXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartviXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *barvi = NULL;
+      Expression *barvi = nullptr;
 
       try {
         checkExpression("bartvi", bartviXml);
@@ -220,7 +220,7 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node iart0Xml = doc.append_child("ArrayElement");
       iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
       iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *iar0 = NULL;
+      Expression *iar0 = nullptr;
 
       try {
         checkExpression("iart0", iart0Xml);
@@ -247,7 +247,7 @@ static bool testArrayConstantReferenceXmlParser()
       xml_node iartiXml = doc.append_child("ArrayElement");
       iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
       iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *iari = NULL;
+      Expression *iari = nullptr;
 
       try {
         checkExpression("iarti", iartiXml);
@@ -291,7 +291,7 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *dar0 = NULL;
+    Expression *dar0 = nullptr;
 
     try {
       checkExpression("dart0", dart0Xml);
@@ -309,7 +309,7 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *dari = NULL;
+    Expression *dari = nullptr;
 
     try {
       checkExpression("darti", dartiXml);
@@ -359,7 +359,7 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
     sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *sar0 = NULL;
+    Expression *sar0 = nullptr;
 
     try {
       checkExpression("sart0", sart0Xml);
@@ -377,7 +377,7 @@ static bool testArrayConstantReferenceXmlParser()
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
     sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *sari = NULL;
+    Expression *sari = nullptr;
 
     try {
       checkExpression("sarti", sartiXml);
@@ -427,14 +427,14 @@ static bool testArrayVariableReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", nullptr, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav); // will be deleted by node connector
 
     xml_node bart0Xml = doc.append_child("ArrayElement");
     bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *bar0 = NULL;
+    Expression *bar0 = nullptr;
 
     try {
       checkExpression("bart0", bart0Xml);
@@ -452,7 +452,7 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node bartiXml = doc.append_child("ArrayElement");
     bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *bari = NULL;
+    Expression *bari = nullptr;
 
     try {
       checkExpression("barti", bartiXml);
@@ -496,14 +496,14 @@ static bool testArrayVariableReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", nullptr, false);
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav);
 
     xml_node iart0Xml = doc.append_child("ArrayElement");
     iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
     iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *iar0 = NULL;
+    Expression *iar0 = nullptr;
 
     try {
       checkExpression("iart0", iart0Xml);
@@ -521,7 +521,7 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node iartiXml = doc.append_child("ArrayElement");
     iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
     iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *iari = NULL;
+    Expression *iari = nullptr;
 
     try {
       checkExpression("iarti", iartiXml);
@@ -565,14 +565,14 @@ static bool testArrayVariableReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", nullptr, false);
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav);
 
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *dar0 = NULL;
+    Expression *dar0 = nullptr;
 
     try {
       checkExpression("dart0", dart0Xml);
@@ -590,7 +590,7 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *dari = NULL;
+    Expression *dari = nullptr;
 
     try {
       checkExpression("darti", dartiXml);
@@ -635,7 +635,7 @@ static bool testArrayVariableReferenceXmlParser()
     vs[3] = std::string("three");
 
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", nullptr, false);
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav);
 
@@ -643,7 +643,7 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
     sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *sar0 = NULL;
+    Expression *sar0 = nullptr;
 
     try {
       checkExpression("sart0", sart0Xml);
@@ -661,7 +661,7 @@ static bool testArrayVariableReferenceXmlParser()
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
     sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *sari = NULL;
+    Expression *sari = nullptr;
 
     try {
       checkExpression("sarti", sartiXml);
@@ -712,7 +712,7 @@ static bool testArrayAliasReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", nullptr, false);
     bav->setInitializer(bc, true);
     Alias* abav = new Alias("bul", bav, true);
     realNc->storeVariable("bul", abav);
@@ -720,7 +720,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node bart0Xml = doc.append_child("ArrayElement");
     bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *bar0 = NULL;
+    Expression *bar0 = nullptr;
 
     try {
       checkExpression("bart0", bart0Xml);
@@ -738,7 +738,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node bartiXml = doc.append_child("ArrayElement");
     bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
     bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *bari = NULL;
+    Expression *bari = nullptr;
 
     try {
       checkExpression("barti", bartiXml);
@@ -786,7 +786,7 @@ static bool testArrayAliasReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", nullptr, false);
     iav->setInitializer(ic, true);
     Alias *aiav = new Alias("int", iav, true);
     realNc->storeVariable("int", aiav);
@@ -794,7 +794,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node iart0Xml = doc.append_child("ArrayElement");
     iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
     iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *iar0 = NULL;
+    Expression *iar0 = nullptr;
 
     try {
       checkExpression("iart0", iart0Xml);
@@ -860,7 +860,7 @@ static bool testArrayAliasReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", nullptr, false);
     dav->setInitializer(dc, true);
     Alias *adav = new Alias("dbl", dav, true);
     realNc->storeVariable("dbl", adav);
@@ -868,7 +868,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node dart0Xml = doc.append_child("ArrayElement");
     dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *dar0 = NULL;
+    Expression *dar0 = nullptr;
 
     try {
       checkExpression("dart0", dart0Xml);
@@ -886,7 +886,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node dartiXml = doc.append_child("ArrayElement");
     dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
     dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *dari = NULL;
+    Expression *dari = nullptr;
     
     try {
       checkExpression("darti", dartiXml);
@@ -934,7 +934,7 @@ static bool testArrayAliasReferenceXmlParser()
     vs[2] = std::string("two");
     vs[3] = std::string("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", nullptr, false);
     sav->setInitializer(sc, true);
     Alias *asav = new Alias("str", sav, true);
     realNc->storeVariable("str", asav);
@@ -942,7 +942,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node sart0Xml = doc.append_child("ArrayElement");
     sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
     sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Expression *sar0 = NULL;
+    Expression *sar0 = nullptr;
 
     try {
       checkExpression("sart0", sart0Xml);
@@ -960,7 +960,7 @@ static bool testArrayAliasReferenceXmlParser()
     xml_node sartiXml = doc.append_child("ArrayElement");
     sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
     sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Expression *sari = NULL;
+    Expression *sari = nullptr;
     
     try {
       checkExpression("sarti", sartiXml);
@@ -1015,7 +1015,7 @@ static bool testMutableArrayReferenceXmlParser()
     vb[0] = false;
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
-    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", NULL, false);
+    BooleanArrayVariable *bav = new BooleanArrayVariable("bul", nullptr, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav);
 
@@ -1026,7 +1026,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bart0Xml = doc.append_child("ArrayElement");
       bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *bar0 = NULL;
+      Expression *bar0 = nullptr;
 
       try {
         checkExpression("bart0", bart0Xml);
@@ -1054,7 +1054,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bartiXml = doc.append_child("ArrayElement");
       bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
       bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *bari = NULL;
+      Expression *bari = nullptr;
 
       try {
         checkExpression("barti", bartiXml);
@@ -1101,7 +1101,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node bartvXml = doc.append_child("ArrayElement");
       bartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
       bartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *barv = NULL;
+      Expression *barv = nullptr;
       
       try {
         checkExpression("bartv", bartvXml);
@@ -1153,7 +1153,7 @@ static bool testMutableArrayReferenceXmlParser()
     vi[2] = 2;
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
-    IntegerArrayVariable *iav = new IntegerArrayVariable("int", NULL, false);
+    IntegerArrayVariable *iav = new IntegerArrayVariable("int", nullptr, false);
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav); // will be deleted by node connector
 
@@ -1163,7 +1163,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iart0Xml = doc.append_child("ArrayElement");
       iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
       iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *iar0 = NULL;
+      Expression *iar0 = nullptr;
       
       try {
         checkExpression("iart0", iart0Xml);
@@ -1190,7 +1190,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iartiXml = doc.append_child("ArrayElement");
       iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
       iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *iari = NULL;
+      Expression *iari = nullptr;
 
       try {
         checkExpression("iarti", iartiXml);
@@ -1238,7 +1238,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node iartvXml = doc.append_child("ArrayElement");
       iartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("int");
       iartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *iarv = NULL;
+      Expression *iarv = nullptr;
 
       try {
         checkExpression("iartv", iartvXml);
@@ -1291,7 +1291,7 @@ static bool testMutableArrayReferenceXmlParser()
     vd[2] = 2;
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
-    RealArrayVariable *dav = new RealArrayVariable("dbl", NULL, false);
+    RealArrayVariable *dav = new RealArrayVariable("dbl", nullptr, false);
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav); // will be deleted by node connector
 
@@ -1301,7 +1301,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dart0Xml = doc.append_child("ArrayElement");
       dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-      Expression *dar0 = NULL;
+      Expression *dar0 = nullptr;
 
       try {
         checkExpression("dart0", dart0Xml);
@@ -1328,7 +1328,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dartiXml = doc.append_child("ArrayElement");
       dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *dari = NULL;
+      Expression *dari = nullptr;
 
       try {
         checkExpression("darti", dartiXml);
@@ -1376,7 +1376,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node dartvXml = doc.append_child("ArrayElement");
       dartvXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
       dartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *darv = NULL;
+      Expression *darv = nullptr;
 
       try {
         checkExpression("dartv", dartvXml);
@@ -1429,7 +1429,7 @@ static bool testMutableArrayReferenceXmlParser()
     vs[2] = std::string("two");
     vs[3] = std::string("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
-    StringArrayVariable *sav = new StringArrayVariable("str", NULL, false);
+    StringArrayVariable *sav = new StringArrayVariable("str", nullptr, false);
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav); // will be deleted by node connector
 
@@ -1458,7 +1458,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sartiXml = doc.append_child("ArrayElement");
       sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
       sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *sari = NULL;
+      Expression *sari = nullptr;
 
       try {
         checkExpression("sarti", sartiXml);
@@ -1505,7 +1505,7 @@ static bool testMutableArrayReferenceXmlParser()
       xml_node sartvXml = doc.append_child("ArrayElement");
       sartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("str");
       sartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-      Expression *sarv = NULL;
+      Expression *sarv = nullptr;
 
       try {
         checkExpression("sartv", sartvXml);
@@ -1565,7 +1565,7 @@ bool arrayReferenceXmlParserTest()
 
   runTest(testMutableArrayReferenceXmlParser);
 
-  nc = NULL;
+  nc = nullptr;
   delete realNc;
   return true;
 }

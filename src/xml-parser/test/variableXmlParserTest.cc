@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -505,7 +505,7 @@ static bool stringVariableXmlParserTest()
   NodeConnector *nc = &realNc;
 
   bool wasCreated;
-  std::string const *temp = NULL;
+  std::string const *temp = nullptr;
 
   xml_document doc;
   doc.set_name("stringVariableXmlParserTest");
@@ -523,7 +523,7 @@ static bool stringVariableXmlParserTest()
   unkExp->activate();
   assertTrue_1(!unkExp->isKnown());
   assertTrue_1(!unkExp->getValuePointer(temp));
-  assertTrue_1(temp == NULL);
+  assertTrue_1(!temp);
   realNc.storeVariable("unk", unkExp);
 
   // initialized empty
@@ -652,7 +652,7 @@ static bool booleanArrayVariableXmlParserTest()
   NodeConnector *nc = &realNc;
 
   bool wasCreated, temp;
-  BooleanArray const *aryTemp = NULL;
+  BooleanArray const *aryTemp = nullptr;
 
   xml_document doc;
   doc.set_name("booleanArrayVariableXmlParserTest");
@@ -759,7 +759,7 @@ static bool integerArrayVariableXmlParserTest()
   NodeConnector *nc = &realNc;
 
   bool wasCreated;
-  IntegerArray const *aryTemp = NULL;
+  IntegerArray const *aryTemp = nullptr;
 
   xml_document doc;
   doc.set_name("integerArrayVariableXmlParserTest");
@@ -781,7 +781,7 @@ static bool integerArrayVariableXmlParserTest()
   emptyExp->activate();
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 2);
   realNc.storeVariable("empty", emptyExp);
 
@@ -810,7 +810,7 @@ static bool integerArrayVariableXmlParserTest()
   validValExp->activate();
   assertTrue_1(validValExp->isKnown());
   assertTrue_1(validValExp->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 6);
   assertTrue_1(aryTemp->getElement(0, temp));
   assertTrue_1(temp == 0);
@@ -894,7 +894,7 @@ static bool realArrayVariableXmlParserTest()
   NodeConnector *nc = &realNc;
 
   bool wasCreated;
-  RealArray const *aryTemp = NULL;
+  RealArray const *aryTemp = nullptr;
   double temp;
 
   xml_document doc;
@@ -917,7 +917,7 @@ static bool realArrayVariableXmlParserTest()
   emptyExp->activate();
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 0);
   realNc.storeVariable("emmty", emptyExp);
 
@@ -944,7 +944,7 @@ static bool realArrayVariableXmlParserTest()
   validVarExp->activate();
   assertTrue_1(validVarExp->isKnown());
   assertTrue_1(validVarExp->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 6);
   assertTrue_1(aryTemp->getElement(0, temp));
   assertTrue_1(temp == 0);
@@ -999,7 +999,7 @@ static bool stringArrayVariableXmlParserTest()
   NodeConnector *nc = &realNc;
 
   bool wasCreated;
-  StringArray const *aryTemp = NULL;
+  StringArray const *aryTemp = nullptr;
   std::string const *temp;
 
   xml_document doc;
@@ -1022,7 +1022,7 @@ static bool stringArrayVariableXmlParserTest()
   emptyExp->activate();
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 0);
   realNc.storeVariable("mty", emptyExp);
 
@@ -1049,7 +1049,7 @@ static bool stringArrayVariableXmlParserTest()
   validValExp->activate();
   assertTrue_1(validValExp->isKnown());
   assertTrue_1(validValExp->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 6);
   assertTrue_1(aryTemp->getElementPointer(0, temp));
   assertTrue_1(*temp == "0");

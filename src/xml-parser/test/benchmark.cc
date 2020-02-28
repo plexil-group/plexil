@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@
 #include "timeval-utils.hh"
 
 #define TIME_STRUCT struct timeval
-#define GET_WALL_TIME(timestruct) do { gettimeofday(timestruct, NULL); } while (0)
+#define GET_WALL_TIME(timestruct) do { gettimeofday(timestruct, nullptr); } while (0)
 #define REPORT_TIME(start, finish) do { \
   struct timeval interval = finish - start; \
   std::cout << "Time elapsed " << interval.tv_sec << '.' \
@@ -69,7 +69,7 @@ void loadPlanBenchmark(std::string const &planFile)
   checkParserException(doc, "File " << planFile << " not found");
   
   PLEXIL::NodeImpl *root = PLEXIL::parsePlan(doc->document_element());
-  checkParserException(root, "parsePlan returned NULL");
+  checkParserException(root, "parsePlan returned null");
 
   delete root;
   delete doc;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
       loadPlanBenchmark(planFile);
     GET_WALL_TIME(&finish);
 
-    PLEXIL::g_interface = NULL;
+    PLEXIL::g_interface = nullptr;
     plexilRunFinalizers();
 
     REPORT_TIME(start, finish);

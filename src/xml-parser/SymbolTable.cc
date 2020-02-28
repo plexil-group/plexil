@@ -271,7 +271,7 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_commandMap.find(namestr);
       if (it != m_commandMap.end())
-        return NULL; // duplicate
+        return nullptr; // duplicate
       return (m_commandMap[namestr] = new Symbol(name, COMMAND_TYPE));
     }
 
@@ -281,7 +281,7 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_lookupMap.find(namestr);
       if (it != m_lookupMap.end())
-        return NULL; // duplicate
+        return nullptr; // duplicate
       return (m_lookupMap[namestr] = new Symbol(name, LOOKUP_TYPE));
     }
 
@@ -292,7 +292,7 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_mutexMap.find(namestr);
       if (it != m_mutexMap.end())
-        return NULL; // duplicate
+        return nullptr; // duplicate
 
       ensureGlobalMutex(name); // for effect
 
@@ -305,7 +305,7 @@ namespace PLEXIL
       LibraryMap::const_iterator it =
         m_libraryMap.find(namestr);
       if (it != m_libraryMap.end())
-        return NULL; // duplicate
+        return nullptr; // duplicate
       return (m_libraryMap[namestr] = new LibraryNodeSymbol(name));
     }
 
@@ -315,7 +315,7 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_commandMap.find(namestr);
       if (it == m_commandMap.end())
-        return NULL;
+        return nullptr;
       return it->second;
     }
 
@@ -325,7 +325,7 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_lookupMap.find(namestr);
       if (it == m_lookupMap.end())
-        return NULL;
+        return nullptr;
       return it->second;
     }
 
@@ -335,7 +335,7 @@ namespace PLEXIL
       SymbolMap::const_iterator it =
         m_mutexMap.find(namestr);
       if (it == m_mutexMap.end())
-        return NULL;
+        return nullptr;
       return it->second;
     }
 
@@ -345,7 +345,7 @@ namespace PLEXIL
       LibraryMap::const_iterator it =
         m_libraryMap.find(namestr);
       if (it == m_libraryMap.end())
-        return NULL;
+        return nullptr;
       return it->second;
     }
 
@@ -358,7 +358,7 @@ namespace PLEXIL
 
   static std::stack<SymbolTable *> s_symtabStack;
 
-  static SymbolTable *s_symbolTable = NULL;
+  static SymbolTable *s_symbolTable = nullptr;
 
   void pushSymbolTable(SymbolTable *s)
   {
@@ -373,7 +373,7 @@ namespace PLEXIL
     debugMsg("popSymbolTable", ' ' << s_symbolTable);
     if (s_symtabStack.empty()) {
       // Back at top level
-      s_symbolTable = NULL;
+      s_symbolTable = nullptr;
       return;
     }
     else {
@@ -387,7 +387,7 @@ namespace PLEXIL
     if (s_symbolTable)
       return s_symbolTable->getLookup(name);
     else
-      return NULL;
+      return nullptr;
   }
 
   extern Symbol const *getCommandSymbol(char const *name)
@@ -395,7 +395,7 @@ namespace PLEXIL
     if (s_symbolTable)
       return s_symbolTable->getCommand(name);
     else
-      return NULL;
+      return nullptr;
   }
 
   extern LibraryNodeSymbol const *getLibraryNodeSymbol(char const *name)
@@ -403,7 +403,7 @@ namespace PLEXIL
     if (s_symbolTable)
       return s_symbolTable->getLibraryNode(name);
     else
-      return NULL;
+      return nullptr;
   }
 
 }

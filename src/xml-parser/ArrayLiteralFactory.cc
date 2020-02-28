@@ -217,7 +217,7 @@ namespace PLEXIL
       reportParserExceptionWithLocation(expr, // should be attribute
                                         "Invalid or unimplemented array element Type value \""
                                         << valueType << "\"");
-      return NULL;
+      return nullptr;
     }
   }
 

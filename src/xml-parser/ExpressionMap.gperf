@@ -5,7 +5,7 @@
 %enum
 %pic
 %{
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,10 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/* Eliminate 'register storage class specifier is deprecated' warnings */
+#define register
+
 %}
 struct ExpressionEntry {int name; ExpressionFactory const *factory; }; 
 %%
