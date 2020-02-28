@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ static bool testBasicStateSerDes()
   State const s("foo");
   
   bufptr = serialize(s, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(s);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -91,7 +91,7 @@ static bool testParamSerDes()
   s3.setParameter(2, Value("three"));
 
   bufptr = serialize(s1, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(s1);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -99,7 +99,7 @@ static bool testParamSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(s2, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(s2);
   assertTrueMsg(bufptr == offset + (char *) buffer,
@@ -107,7 +107,7 @@ static bool testParamSerDes()
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
 
   bufptr = serialize(s3, bufptr);
-  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr, "serialize returned null");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(s3);
   assertTrueMsg(bufptr == offset + (char *) buffer,

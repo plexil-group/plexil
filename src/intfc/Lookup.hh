@@ -67,7 +67,7 @@ namespace PLEXIL
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
            ValueType declaredType,
-           ExprVec *paramVec = NULL);
+           ExprVec *paramVec = nullptr);
 
     virtual ~Lookup();
 
@@ -224,7 +224,7 @@ namespace PLEXIL
                    ValueType declaredType,
                    Expression *tolerance,
                    bool toleranceIsGarbage = false,
-                   ExprVec *paramVec = NULL);
+                   ExprVec *paramVec = nullptr);
 
     ~LookupOnChange();
 

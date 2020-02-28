@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -291,7 +291,7 @@ namespace PLEXIL
         data += ws;
         len -= ws;
 
-        char * endptr = NULL;
+        char * endptr = nullptr;
         double maxCons = strtod(data, &endptr); // skips whitespace
         if (!maxCons && endptr == data) {
           std::cerr << "Error reading second element (consumable amount) of resource file: \n"

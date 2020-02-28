@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ namespace PLEXIL
     *buf++ = (char) (0xFF & (siz >> 16));
     *buf++ = (char) (0xFF & (siz >> 8));
     *buf++ = (char) (0xFF & siz);
-    for (size_t i = 0; buf != NULL && i < siz; ++i)
+    for (size_t i = 0; buf && i < siz; ++i)
       buf = PLEXIL::serialize(m_parameters[i], buf);
     return buf;
   }
@@ -190,14 +190,14 @@ namespace PLEXIL
   char const *State::deserialize(char const *buf)
   {
     if (STATE_TYPE != (ValueType) *buf++)
-      return NULL;
+      return nullptr;
     buf = PLEXIL::deserialize(m_name, buf);
     // Get parameter count
     size_t siz = ((size_t) (unsigned char) *buf++) << 8;
     siz = (siz + (size_t) (unsigned char) *buf++) << 8;
     siz = siz + (size_t) (unsigned char) *buf++;
     m_parameters.resize(siz);
-    for (size_t i = 0; buf != NULL && i < siz; ++i)
+    for (size_t i = 0; buf && i < siz; ++i)
       buf = PLEXIL::deserialize(m_parameters[i], buf);
     return buf;
   }

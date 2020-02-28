@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ namespace PLEXIL
     /**
      * @brief Find the cache entry for this state.
      * @param state The state being looked up.
-     * @return Pointer to the StateCacheEntry for the state; NULL if not found.
+     * @return Pointer to the StateCacheEntry for the state; nullptr if not found.
      */
     virtual StateCacheEntry *findStateCacheEntry(State const &state) = 0;
 
@@ -71,6 +71,14 @@ namespace PLEXIL
      * @param state The state being looked up.
      */
     virtual void removeStateCacheEntry(State const &state) = 0;
+
+  private:
+
+    // Unimplemented
+    StateCacheMap(StateCacheMap const &) = delete;
+    StateCacheMap(StateCacheMap &&) = delete;
+    StateCacheMap &operator=(StateCacheMap const &) = delete;
+    StateCacheMap &operator=(StateCacheMap &&) = delete;
   };
 
 } // namespace PLEXIL

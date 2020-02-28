@@ -43,7 +43,7 @@ namespace PLEXIL
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
     : Notifier(),
     m_command(cmd),
-    m_name(NULL)
+    m_name(nullptr)
   {
   }
 

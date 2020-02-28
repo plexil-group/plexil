@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public:
     }
     else if (state.name() == "test2") {
       check_error_1(state.parameters().size() == 1);
-      std::string const *param = NULL;
+      std::string const *param = nullptr;
       state.parameters()[0].getValuePointer(param);
       if (*param == "high") {
         entry.update((Real) 1.0);
@@ -230,7 +230,7 @@ private:
   std::map<Expression const *, Value> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
 };
 
-static TestInterface *theInterface = NULL;
+static TestInterface *theInterface = nullptr;
 
 // TODO:
 // - test state parameter changes
@@ -781,6 +781,6 @@ bool lookupsTest()
   runTest(testLookupNow);
   runTest(testLookupOnChange);
   runTest(testThresholdUpdate);
-  g_interface = NULL;
+  g_interface = nullptr;
   return true;
 }

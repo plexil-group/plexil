@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,17 +39,17 @@
 namespace PLEXIL
 {
   StateCacheEntry::StateCacheEntry()
-    : m_value(NULL),
-      m_lowThreshold(NULL),
-      m_highThreshold(NULL)
+    : m_value(nullptr),
+      m_lowThreshold(nullptr),
+      m_highThreshold(nullptr)
   {
   }
 
   // Copy constructor, used ONLY by StateCacheMap
   StateCacheEntry::StateCacheEntry(StateCacheEntry const & /* orig */)
-    : m_value(NULL),
-      m_lowThreshold(NULL),
-      m_highThreshold(NULL)
+    : m_value(nullptr),
+      m_lowThreshold(nullptr),
+      m_highThreshold(nullptr)
   {
   }
 
@@ -120,7 +120,7 @@ namespace PLEXIL
       if (m_lowThreshold || m_highThreshold) {
         delete m_lowThreshold;
         delete m_highThreshold;
-        m_lowThreshold = m_highThreshold = NULL;
+        m_lowThreshold = m_highThreshold = nullptr;
       }
     }
     else if (m_lowThreshold || m_highThreshold) {
@@ -239,7 +239,7 @@ namespace PLEXIL
                ' ' << state << " no change lookups remaining, clearing thresholds");
       delete m_lowThreshold;
       delete m_highThreshold;
-      m_lowThreshold = m_highThreshold = NULL;
+      m_lowThreshold = m_highThreshold = nullptr;
     }
   }
 

@@ -46,7 +46,7 @@ namespace PLEXIL
     : Propagator(),
       m_stateName(stateName),
       m_paramVec(paramVec),
-      m_entry(NULL),
+      m_entry(nullptr),
       m_declaredType(declaredType),
       m_known(false),
       m_stateKnown(false),
@@ -79,7 +79,7 @@ namespace PLEXIL
   {
     if (m_entry) {
       unregister();
-      m_entry = NULL;
+      m_entry = nullptr;
     }
     delete m_paramVec;
     if (m_stateNameIsGarbage)
@@ -127,7 +127,7 @@ namespace PLEXIL
     if (!m_entry && m_stateKnown) {
       m_entry =
         StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
-      assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
+      assertTrue_2(m_entry, "Lookup::handleActivate: Failed to get state cache entry");
     }
     if (m_entry)
       ensureRegistered();
@@ -145,7 +145,7 @@ namespace PLEXIL
 
     // Preserve cache entry if state is known constant
     if (!m_stateIsConstant)
-      m_entry = NULL;
+      m_entry = nullptr;
   }
 
   // Called whenever state name or parameter changes
@@ -171,7 +171,7 @@ namespace PLEXIL
       m_cachedState = newState;
       m_entry =
         StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
-      assertTrue_2(m_entry != NULL, "Lookup::handleChange: Failed to get state cache entry");
+      assertTrue_2(m_entry, "Lookup::handleChange: Failed to get state cache entry");
       ensureRegistered();
     }
     else if (oldKnown)
@@ -201,7 +201,7 @@ namespace PLEXIL
   void Lookup::invalidateOldState()
   {
     unregister();
-    m_entry = NULL;
+    m_entry = nullptr;
   }
 
   ValueType Lookup::valueType() const
@@ -486,7 +486,7 @@ namespace PLEXIL
 
     default:
       errorMsg("ThresholdCacheFactory: invalid or unimplemented type");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -497,8 +497,8 @@ namespace PLEXIL
                                  bool toleranceIsGarbage,
                                  ExprVec *paramVec)
     : Lookup(stateName, stateNameIsGarbage, declaredType, paramVec),
-      m_thresholds(NULL),
-      m_cachedValue(NULL),
+      m_thresholds(nullptr),
+      m_cachedValue(nullptr),
       m_tolerance(tolerance),
       m_toleranceIsGarbage(toleranceIsGarbage)
   {
@@ -617,9 +617,9 @@ namespace PLEXIL
     Lookup::invalidateOldState();
     if (m_thresholds) {
       delete m_thresholds;
-      m_thresholds = NULL;
+      m_thresholds = nullptr;
       delete m_cachedValue;
-      m_cachedValue = NULL;
+      m_cachedValue = nullptr;
     }
   }
 
@@ -700,9 +700,9 @@ namespace PLEXIL
       debugMsg("LookupOnChange:update",
                ' ' << this->m_cachedState << " tolerance no longer known, deleting thresholds");
       delete m_thresholds;
-      m_thresholds = NULL;
+      m_thresholds = nullptr;
       delete m_cachedValue;
-      m_cachedValue = NULL;
+      m_cachedValue = nullptr;
       // Tell the cache entry about it
       m_entry->updateThresholds(m_cachedState);
     }

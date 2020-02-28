@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ namespace PLEXIL
     // Not needed for Boolean, Integer, Real, internal values
     void *allocateCache() const
     {
-      return NULL;
+      return nullptr;
     }
 
     void deleteCache(void *ptr) const
@@ -71,9 +71,11 @@ namespace PLEXIL
   private:
 
     // Unimplemented
-    CommandOperatorImpl();
-    CommandOperatorImpl(CommandOperatorImpl const &);
-    CommandOperatorImpl &operator=(CommandOperatorImpl const &);
+    CommandOperatorImpl() = delete;
+    CommandOperatorImpl(CommandOperatorImpl const &) = delete;
+    CommandOperatorImpl(CommandOperatorImpl &&) = delete;
+    CommandOperatorImpl &operator=(CommandOperatorImpl const &) = delete;
+    CommandOperatorImpl &operator=(CommandOperatorImpl &&) = delete;
 
   };
 

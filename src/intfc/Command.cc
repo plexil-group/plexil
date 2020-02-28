@@ -275,7 +275,7 @@ namespace PLEXIL
   {
     if (m_dest)
       return m_dest;
-    return NULL;
+    return nullptr;
   }
 
   bool Command::isCommandNameConstant() const

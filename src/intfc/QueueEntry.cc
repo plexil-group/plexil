@@ -33,10 +33,10 @@ namespace PLEXIL
 
   void QueueEntry::reset()
   {
-    next = NULL;
+    next = nullptr;
     if (type == Q_LOOKUP)
       delete state;
-    state = NULL;
+    state = nullptr;
     value.setUnknown();
     type = Q_UNINITED;
   }

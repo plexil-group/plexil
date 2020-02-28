@@ -816,7 +816,7 @@ namespace PLEXIL
 
     default:
       errorMsg("CachedValueFactory: Invalid or unimplemented value type");
-      return NULL;
+      return nullptr;
     }
   }
 
