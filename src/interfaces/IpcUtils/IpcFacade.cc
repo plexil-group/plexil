@@ -35,10 +35,11 @@
 #include <fstream>
 #include <map>
 
+#ifdef STDC_HEADERS
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-
+#endif
 
 namespace PLEXIL 
 {
@@ -143,7 +144,7 @@ namespace PLEXIL
       break;
 
     default:
-      return NULL;
+      return nullptr;
       break;
     }
   }
@@ -152,7 +153,7 @@ namespace PLEXIL
    * @brief Utility function to create a value message from a PLEXIL Value.
    * @param val The Value to encode in the message.
    * @return Pointer to newly allocated IPC message.
-   * @note Returns NULL for unimplemented/invalid Values.
+   * @note Returns nullptr for unimplemented/invalid Values.
    */
   struct PlexilMsgBase *constructPlexilValueMsg(Value const &val)
   {
@@ -204,7 +205,7 @@ namespace PLEXIL
       }
 
       case BOOLEAN_ARRAY_TYPE: {
-        BooleanArray const *ba = NULL;
+        BooleanArray const *ba = nullptr;
         val.getValuePointer(ba);
         assertTrue_1(ba);
         size_t size = ba->size();
@@ -228,7 +229,7 @@ namespace PLEXIL
       }
 
       case INTEGER_ARRAY_TYPE: {
-        IntegerArray const *ia = NULL;
+        IntegerArray const *ia = nullptr;
         val.getValuePointer(ia);
         assertTrue_1(ia);
         size_t size = ia->size();
@@ -248,7 +249,7 @@ namespace PLEXIL
       }
 
       case REAL_ARRAY_TYPE: {
-        RealArray const *ra = NULL;
+        RealArray const *ra = nullptr;
         val.getValuePointer(ra);
         assertTrue_1(ra);
         size_t size = ra->size();
@@ -268,13 +269,13 @@ namespace PLEXIL
       }
 
       case STRING_ARRAY_TYPE: {
-        StringArray const *sa = NULL;
+        StringArray const *sa = nullptr;
         val.getValuePointer(sa);
         assertTrue_1(sa);
         size_t size = sa->size();
         const char **strings = new const char*[size];
         for (size_t i = 0; i < size; i++) {
-          std::string const *temp = NULL;
+          std::string const *temp = nullptr;
           assertTrue_1(sa->getElementPointer(i, temp));
           strings[i] = temp->c_str();
         }
@@ -292,7 +293,7 @@ namespace PLEXIL
 
       default:
         errorMsg("Invalid or unimplemented PLEXIL data type");
-        return NULL;
+        return nullptr;
       }
     else {
       // Unknown
@@ -305,7 +306,7 @@ namespace PLEXIL
 
   struct PlexilMsgBase* constructPlexilPairMsg(std::string const& name,
                                                Value const val) {
-    PlexilMsgBase* result = NULL;
+    PlexilMsgBase* result = nullptr;
     if(val.isKnown()) {
       switch(val.valueType()) {
       case BOOLEAN_TYPE: {
@@ -351,7 +352,7 @@ namespace PLEXIL
       default:
         break;
       }
-      if(result != NULL)
+      if(result)
         reinterpret_cast<PairHeader*>(result)->pairName = name.c_str();
     }
     else {
@@ -503,7 +504,7 @@ namespace PLEXIL
       return IPC_OK;
     }
 
-    if (taskName != NULL && taskName != m_myUID)
+    if (taskName && taskName != m_myUID)
       m_myUID = taskName;
 
     // perform global initialization
@@ -583,7 +584,7 @@ namespace PLEXIL
     // Cancel IPC dispatch thread first to prevent deadlocks
     debugMsg("IpcFacade:stop", " cancelling dispatch thread");
     m_stopDispatchThread = true;
-    int myErrno = pthread_join(m_threadHandle, NULL);
+    int myErrno = pthread_join(m_threadHandle, nullptr);
     if (myErrno != 0) {
       debugMsg("IpcUtil:stop", "Error in pthread_join; errno = " << myErrno);
     }
@@ -883,7 +884,7 @@ namespace PLEXIL
     // free the parameter packets
     for (size_t i = 0; i < nParams; i++) {
       PlexilMsgBase* m = paramMsgs[i];
-      paramMsgs[i] = NULL;
+      paramMsgs[i] = nullptr;
       switch (m->msgType) {
       case PlexilMsgType_UnknownValue:
         delete (PlexilUnknownValueMsg*) m;
@@ -1087,7 +1088,7 @@ namespace PLEXIL
   void IpcFacade::myIpcDispatch(void * this_as_void_ptr)
   {
     IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
-    assertTrueMsg(facade != NULL,
+    assertTrueMsg(facade,
                   "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
     debugMsg("IpcFacade:myIpcDispatch", " started");
     IPC_RETURN_TYPE ipcStatus = IPC_OK;
@@ -1108,10 +1109,10 @@ namespace PLEXIL
                                  void * unmarshalledMsg,
                                  void * this_as_void_ptr) {
     const PlexilMsgBase* msgData = reinterpret_cast<const PlexilMsgBase*> (unmarshalledMsg);
-    assertTrueMsg(msgData != NULL,
+    assertTrueMsg(msgData,
                   "IpcFacade::messageHandler: pointer to message data is null!");
     IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
-    assertTrueMsg(facade != NULL,
+    assertTrueMsg(facade,
                   "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
 
     PlexilMsgType msgType = (PlexilMsgType) msgData->msgType;

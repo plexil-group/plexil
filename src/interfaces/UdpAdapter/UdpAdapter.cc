@@ -43,9 +43,8 @@
 #include "pugixml.hpp"
 #include "stricmp.h"
 
-#include <cerrno>
-
 #ifdef STDC_HEADERS
+#include <cerrno>
 #include <cfloat>
 #include <cstdint>
 #include <cstring>
@@ -251,7 +250,7 @@ namespace PLEXIL
     }
 
     // Wait for cancelled thread to finish
-    if ((status = pthread_join(thread->second, NULL))) {
+    if ((status = pthread_join(thread->second, nullptr))) {
       warn("UdpAdapter:invokeAbort: pthread_join(" << thread->second
            << ") returned " << status << ", errno " << errno);
       m_execInterface.handleCommandAbortAck(cmd, false);
@@ -742,7 +741,7 @@ namespace PLEXIL
     threadSpawn((THREAD_FUNC_PTR) waitForUdpMessage, &msg->second, thread_handle);
     // Check to see if the thread got started correctly
     if (thread_handle == 0) {
-      warn("UdpAdapter:startUdpMessageReceiver: threadSpawn returned NULL");
+      warn("UdpAdapter:startUdpMessageReceiver: threadSpawn returned null");
       return -1;
     }
 

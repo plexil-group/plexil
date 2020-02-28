@@ -175,9 +175,11 @@ namespace PLEXIL
   private:
 
     // Deliberately unimplemented
-    IpcAdapter();
-    IpcAdapter(const IpcAdapter &);
-    IpcAdapter & operator=(const IpcAdapter &);
+    IpcAdapter() = delete;
+    IpcAdapter(IpcAdapter const &) = delete;
+    IpcAdapter(IpcAdapter &&) = delete;
+    IpcAdapter &operator=(IpcAdapter const &) = delete;
+    IpcAdapter &operator=(IpcAdapter &&) = delete;
 
     //
     // Implementation methods
@@ -220,7 +222,7 @@ namespace PLEXIL
 
     /**
      * @brief Parses external lookups from xml and puts them in the lookup map.
-     * If external is NULL, does nothing.
+     * If external is nullptr, does nothing.
      */
     void parseExternalLookups(pugi::xml_node const external);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,8 @@ namespace PLEXIL
    */
   LuvListener::LuvListener(pugi::xml_node const xml)
 	: ExecListener(xml),
-	  m_socket(NULL),
-	  m_host(NULL),
+	  m_socket(nullptr),
+	  m_host(nullptr),
 	  m_port(0),
 	  m_block(false),
 	  m_ignoreConnectFailure(true)
@@ -80,7 +80,7 @@ namespace PLEXIL
 						   const bool block,
 						   const bool ignoreConnectionFailure)
 	: ExecListener(),
-	  m_socket(NULL),
+	  m_socket(nullptr),
 	  m_host(strdup(host.c_str())),
 	  m_port(port),
 	  m_block(block),
@@ -232,7 +232,7 @@ namespace PLEXIL
   {
     debugMsg("LuvListener:implementNotifyNodeTransition",
              " for " << trans.node->getNodeId());
-	if (m_socket != NULL) {
+	if (m_socket) {
 	  std::ostringstream s;
 	  LuvFormat::formatTransition(s, trans);
 	  sendMessage(s.str());
@@ -249,7 +249,7 @@ namespace PLEXIL
   LuvListener::implementNotifyAddPlan(pugi::xml_node const plan) const 
   {
     debugMsg("LuvListener:implementNotifyAddPlan", " entered");
-	if (m_socket != NULL) {
+	if (m_socket) {
       sendPlanInfo();
       std::ostringstream s;
       LuvFormat::formatPlan(s, plan);
@@ -265,7 +265,7 @@ namespace PLEXIL
   void
   LuvListener::implementNotifyAddLibrary(pugi::xml_node const libNode) const 
   {
-	if (m_socket != NULL) {
+	if (m_socket) {
 	  sendPlanInfo();
       std::ostringstream s;
       LuvFormat::formatLibrary(s, libNode);
@@ -284,7 +284,7 @@ namespace PLEXIL
 										 std::string const &destName,
 										 Value const &value) const
   {
-	if (m_socket != NULL) {
+	if (m_socket) {
 	  std::ostringstream s;
 	  LuvFormat::formatAssignment(s, dest, destName, value);
 	  sendMessage(s.str());
@@ -314,7 +314,7 @@ namespace PLEXIL
 	  debugMsg("LuvListener:start",
 			   " socket error: " << e.description());
 	  delete m_socket;
-	  m_socket = NULL;
+	  m_socket = nullptr;
 	  return ignoreFailure;
 	}
 
@@ -327,13 +327,13 @@ namespace PLEXIL
   void LuvListener::closeSocket()
   {
 	delete m_socket;
-	m_socket = NULL;
+	m_socket = nullptr;
   }
 
   //* Report whether the listener is connected to the viewer.
   bool LuvListener::isConnected()
   {
-	return m_socket != NULL;
+	return m_socket != nullptr;
   }
 
   //* Send a plan info header to the viewer.

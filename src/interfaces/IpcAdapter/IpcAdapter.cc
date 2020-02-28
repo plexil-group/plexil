@@ -46,10 +46,13 @@
 #include "pugixml.hpp"
 
 #include <algorithm>
-#include <cstdlib>
-#include <cstring>
 #include <string>
 #include <sstream>
+
+#ifdef STDC_HEADERS
+#include <cstdlib>
+#include <cstring>
+#endif
 
 namespace PLEXIL 
 {
@@ -94,8 +97,8 @@ namespace PLEXIL
     m_pendingLookupState(),
     m_pendingLookupSerial(0)
   {
-    condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
-    condDebugMsg(xml != NULL, "IpcAdapter:IpcAdapter", " configuration XML = " << xml);
+    condDebugMsg(!xml, "IpcAdapter:IpcAdapter", " configuration XML not provided");
+    condDebugMsg(xml, "IpcAdapter:IpcAdapter", " configuration XML = " << xml);
   }
 
   /**
@@ -169,7 +172,7 @@ namespace PLEXIL
       for (size_t i = 0; !sl_internalCommands[i].empty(); ++i) {
         std::string const &cmd = sl_internalCommands[i];
         InterfaceAdapter const *adapter = g_configuration->getCommandInterface(cmd);
-        if (adapter == NULL || adapter != this)
+        if (!adapter || adapter != this)
           g_configuration->registerCommandInterface(cmd, this);
       }
     }
@@ -521,7 +524,7 @@ namespace PLEXIL
                   "IpcAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND()
                   << " command, " << args.front()
                   << ", is not a string");
-    std::string const *cmdName = NULL;
+    std::string const *cmdName = nullptr;
     args.front().getValuePointer(cmdName);
     std::string msgName(formatMessageName(*cmdName, RECEIVE_COMMAND_COMMAND()));
     m_messageQueues.addRecipient(msgName, command);
@@ -554,7 +557,7 @@ namespace PLEXIL
                     "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND() << " command, " << args[1]
                     << ", is not a valid index");
     }
-    std::string const *cmdName = NULL;
+    std::string const *cmdName = nullptr;
     args.front().getValuePointer(cmdName);
     std::string msgName(formatMessageName(*cmdName, GET_PARAMETER_COMMAND(), id));
     m_messageQueues.addRecipient(msgName, command);
@@ -802,7 +805,7 @@ namespace PLEXIL
       // AddPlan is a PlexilStringValueMsg
     case PlexilMsgType_AddPlan: {
       const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
-      assertTrueMsg(stringMsg->stringValue != NULL,
+      assertTrueMsg(stringMsg->stringValue,
                     "IpcAdapter::enqueueMessage: AddPlan message contains null plan string");
 
       // parse into XML document
@@ -826,7 +829,7 @@ namespace PLEXIL
       // AddPlanFile is a PlexilStringValueMsg
     case PlexilMsgType_AddPlanFile: {
       const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
-      assertTrueMsg(stringMsg->stringValue != NULL,
+      assertTrueMsg(stringMsg->stringValue,
                     "IpcAdapter::enqueueMessage: AddPlanFile message contains null file name");
 
       // parse into XML document
@@ -849,7 +852,7 @@ namespace PLEXIL
       // AddLibrary is a PlexilStringValueMsg
     case PlexilMsgType_AddLibrary: {
       const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
-      assertTrueMsg(stringMsg->stringValue != NULL,
+      assertTrueMsg(stringMsg->stringValue,
                     "IpcAdapter::enqueueMessage: AddLibrary message contains null library node string");
 
       // parse XML into node structure
@@ -871,7 +874,7 @@ namespace PLEXIL
       // AddLibraryFile is a PlexilStringValueMsg
     case PlexilMsgType_AddLibraryFile: {
       const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
-      assertTrueMsg(stringMsg->stringValue != NULL,
+      assertTrueMsg(stringMsg->stringValue,
                     "IpcAdapter::enqueueMessage: AddLibraryFile message contains null file name");
 
       // parse XML into node structure
@@ -898,9 +901,9 @@ namespace PLEXIL
    * @brief Process a PlexilMsgType_Message packet and free the message
    */
   void IpcAdapter::handleMessageMessage(const PlexilStringValueMsg* msgData) {
-    assertTrueMsg(msgData != NULL,
+    assertTrueMsg(msgData,
                   "IpcAdapter::handleMessageMessage: msgData is null")
-      assertTrueMsg(msgData->stringValue != NULL,
+      assertTrueMsg(msgData->stringValue,
                     "IpcAdapter::handleMessageMessage: stringValue is null")
       m_messageQueues.addMessage(msgData->stringValue);
   }

@@ -39,13 +39,8 @@
 #include "NodeVariableMap.hh"
 
 #include <fstream>
-#include <cmath>
-#include <ctime>
-#include <sys/stat.h>
-
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
+
 #ifdef WINDOWS
    #include <direct.h>
    #define GetCurrentDir _getcwd
@@ -54,6 +49,17 @@
    #include <unistd.h>
 #endif
    #define GetCurrentDir getcwd
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#ifdef STDC_HEADERS
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #endif
 
 using std::cout;
@@ -115,7 +121,7 @@ namespace PLEXIL
    void GanttListener::setCurrDir()
    {
       char * buffer;
-      if (!(buffer = getcwd(NULL, FILENAME_MAX)))
+      if (!(buffer = getcwd(nullptr, FILENAME_MAX)))
       {
          m_continueOutputingData = false;
          debugMsg("GanttViewer:printErrors", "Output path is not defined");

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,9 @@
 
 #include "ThreadSpawn.hh"
 
-#include <inttypes.h>  // fixed width integer formats
+#ifdef STDC_HEADERS
+#include <cinttypes>  // fixed width integer formats
+#endif
 
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h> // IPPROTO_UDP
@@ -165,7 +167,7 @@ int main()
   }
 
   // Wait for wait_for_input to return
-  int myErrno = pthread_join(thread_handle, NULL);
+  int myErrno = pthread_join(thread_handle, nullptr);
   if (myErrno != 0)
     printf("pthread_join(thread_handle) returned %d\n", myErrno);
 

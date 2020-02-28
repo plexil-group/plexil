@@ -222,6 +222,13 @@ namespace PLEXIL {
     IPC_RETURN_TYPE getError();
 
   private:
+
+    // Disallow copy, assignment, move
+    IpcFacade(IpcFacade const &) = delete;
+    IpcFacade(IpcFacade &&) = delete;
+    IpcFacade& operator=(IpcFacade const &) = delete;
+    IpcFacade& operator=(IpcFacade &&) = delete;
+
     //
     // Private types
     //
@@ -399,7 +406,7 @@ namespace PLEXIL {
    * @brief Utility function to create a value message from a PLEXIL Value.
    * @param val The Value to encode in the message.
    * @return Pointer to newly allocated IPC message.
-   * @note Returns NULL for unimplemented/invalid Values.
+   * @note Returns nullptr for unimplemented/invalid Values.
    */
   extern struct PlexilMsgBase *constructPlexilValueMsg(Value const &val);
 
@@ -408,7 +415,7 @@ namespace PLEXIL {
    * @param name The name of the pair.
    * @param val The Value to encode in the message.
    * @return Pointer to newly allocated IPC message.
-   * @note Returns NULL for unimplemented/invalid Values.
+   * @note Returns nullptr for unimplemented/invalid Values.
    */
   extern struct PlexilMsgBase* constructPlexilPairMsg(std::string const& name,
                                                       Value const val);

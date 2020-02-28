@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,13 @@
 
 #include "udp-utils.hh"
 
-#include <cerrno>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>        // htonl(), htons(), ntohl(), ntohs()
 #endif
 
 #ifdef STDC_HEADERS
+#include <cerrno>
 #include <cstring>            // memset()
 #endif
 
@@ -182,11 +182,10 @@ namespace PLEXIL
 
     // handle either "localhost" or "127.0.0.1" addresses
     hostent *host_ip = gethostbyname(peer_host);
-    if (host_ip == NULL) 
-      {
-        perror("send_message_bind: gethostbyname failed");
-        return -1;
-      }
+    if (!host_ip) {
+      perror("send_message_bind: gethostbyname failed");
+      return -1;
+    }
 
     in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
     std::string ip_addr = inet_ntoa(*network_ip_address);
@@ -231,11 +230,10 @@ namespace PLEXIL
 
     // handle either "localhost" or "127.0.0.1" addresses
     hostent *host_ip = gethostbyname(peer_host);
-    if (host_ip == NULL) 
-      {
-        perror("send_message_connect: gethostbyname failed");
-        return -1;
-      }
+    if (!host_ip) {
+      perror("send_message_connect: gethostbyname failed");
+      return -1;
+    }
 
     in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
     std::string ip_addr = inet_ntoa(*network_ip_address);

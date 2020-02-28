@@ -133,7 +133,7 @@ namespace PLEXIL
 	g_manager->notifyOfExternalEvent();
         return;
       }
-      std::string const *formal = NULL;
+      std::string const *formal = nullptr;
       if (!args[i].getValuePointer(formal)) {
         warn("StartPlan command argument " << i << " is UNKNOWN");
         g_manager->handleCommandAck(cmd, COMMAND_FAILED);
@@ -152,7 +152,7 @@ namespace PLEXIL
     }
     
     // Construct XML for LibraryNodeCall node
-    std::string const *nodeName = NULL;
+    std::string const *nodeName = nullptr;
     args[0].getValuePointer(nodeName);
     std::ostringstream s;
     s << *nodeName << '_' << nextSerialNumber();
@@ -201,13 +201,13 @@ namespace PLEXIL
       std::find_if(allNodes.begin(), allNodes.end(), pred);
     if (it == allNodes.end()) {
       warn("No such node"); // FIXME
-      return NULL;
+      return nullptr;
     }
     Node *result = it->get();
     if (allNodes.end() !=
         std::find_if(++it, allNodes.end(), pred)) {
       warn("Multiple nodes named " << nodeName); // FIXME
-      return NULL;
+      return nullptr;
     }
     return result;
   }
@@ -284,7 +284,7 @@ namespace PLEXIL
         g_manager->handleCommandAck(cmd, COMMAND_FAILED);
       }
       else {
-        std::string const *nodeName = NULL;
+        std::string const *nodeName = nullptr;
         if (!args[0].getValuePointer(nodeName)) {
           warn("Node name parameter value to " << cmd->getName() << " command is UNKNOWN");
           g_manager->handleCommandAck(cmd, COMMAND_FAILED);
