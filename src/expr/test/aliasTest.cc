@@ -137,7 +137,7 @@ static bool testAliasToArrayConstant()
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
     Alias *abc = new Alias("abc", bc);
-    BooleanArray const *pab = NULL, *paab = NULL;
+    BooleanArray const *pab = nullptr, *paab = nullptr;
     assertTrue_1(!abc->isAssignable());
     assertTrue_1(abc->isConstant() == bc->isConstant());
     assertTrue_1(abc->valueType() == bc->valueType());
@@ -163,7 +163,7 @@ static bool testAliasToArrayConstant()
     vi[3] = 3;
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
     Alias *aic = new Alias("aic", ic);
-    IntegerArray const *pai = NULL, *paai = NULL;
+    IntegerArray const *pai = nullptr, *paai = nullptr;
     assertTrue_1(!aic->isAssignable());
     assertTrue_1(aic->isConstant() == ic->isConstant());
     assertTrue_1(aic->valueType() == ic->valueType());
@@ -188,7 +188,7 @@ static bool testAliasToArrayConstant()
     vd[3] = 3;
     RealArrayConstant *dc = new RealArrayConstant(vd);
     Alias *adc = new Alias("adc", dc);
-    RealArray const *pad = NULL, *paad = NULL;
+    RealArray const *pad = nullptr, *paad = nullptr;
     assertTrue_1(!adc->isAssignable());
     assertTrue_1(adc->isConstant() == dc->isConstant());
     assertTrue_1(adc->valueType() == dc->valueType());
@@ -213,7 +213,7 @@ static bool testAliasToArrayConstant()
     vs[3] = String("three");
     StringArrayConstant *sc = new StringArrayConstant(vs);
     Alias *asc = new Alias("asc", sc);
-    StringArray const *pas = NULL, *paas = NULL;
+    StringArray const *pas = nullptr, *paas = nullptr;
     assertTrue_1(!asc->isAssignable());
     assertTrue_1(asc->isConstant() == sc->isConstant());
     assertTrue_1(asc->valueType() == sc->valueType());
@@ -349,7 +349,7 @@ static bool testAliasToArrayVariable()
     vb[1] = true;
     bc->setInitializer(new BooleanArrayConstant(BooleanArray(vb)), true);
     Alias *abc = new Alias("abc", bc);
-    BooleanArray const *pab = NULL, *paab = NULL;
+    BooleanArray const *pab = nullptr, *paab = nullptr;
     assertTrue_1(!abc->isAssignable());
     assertTrue_1(abc->isConstant() == bc->isConstant());
     assertTrue_1(abc->valueType() == bc->valueType());
@@ -392,7 +392,7 @@ static bool testAliasToArrayVariable()
     vi[3] = 3;
     ic->setInitializer(new IntegerArrayConstant(IntegerArray(vi)), true);
     Alias *aic = new Alias("aic", ic);
-    IntegerArray const *pai = NULL, *paai = NULL;
+    IntegerArray const *pai = nullptr, *paai = nullptr;
     assertTrue_1(!aic->isAssignable());
     assertTrue_1(aic->isConstant() == ic->isConstant());
     assertTrue_1(aic->valueType() == ic->valueType());
@@ -434,7 +434,7 @@ static bool testAliasToArrayVariable()
     vd[3] = 3;
     dc->setInitializer(new RealArrayConstant(RealArray(vd)), true);
     Alias *adc = new Alias("adc", dc);
-    RealArray const *pad = NULL, *paad = NULL;
+    RealArray const *pad = nullptr, *paad = nullptr;
     assertTrue_1(!adc->isAssignable());
     assertTrue_1(adc->isConstant() == dc->isConstant());
     assertTrue_1(adc->valueType() == dc->valueType());
@@ -476,7 +476,7 @@ static bool testAliasToArrayVariable()
     vs[3] = String("three");
     sc->setInitializer(new StringArrayConstant(StringArray(vs)), true);
     Alias *asc = new Alias("asc", sc);
-    StringArray const *pas = NULL, *paas = NULL;
+    StringArray const *pas = nullptr, *paas = nullptr;
     assertTrue_1(!asc->isAssignable());
     assertTrue_1(asc->isConstant() == sc->isConstant());
     assertTrue_1(asc->valueType() == sc->valueType());

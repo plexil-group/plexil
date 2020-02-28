@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -516,10 +516,10 @@ static bool testAssignablePointer()
   Assignable *es(vs.asAssignable());
 
   // Confirm that we actually got pointers
-  assertTrue_1(eb != NULL);
-  assertTrue_1(ei != NULL);
-  assertTrue_1(ed != NULL);
-  assertTrue_1(es != NULL);
+  assertTrue_1(eb);
+  assertTrue_1(ei);
+  assertTrue_1(ed);
+  assertTrue_1(es);
 
   // Test that they are assignable and not constant
   assertTrue_1(vb.isAssignable());

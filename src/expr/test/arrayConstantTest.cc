@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,19 +51,19 @@ static bool testArrayConstants()
   assertTrue_1(!us.isKnown());
 
   // getValuePointer test
-  BooleanArray const *pbool = NULL;
-  IntegerArray const *pint = NULL;
-  RealArray const *preal = NULL;
-  StringArray const *pstr = NULL;
+  BooleanArray const *pbool = nullptr;
+  IntegerArray const *pint = nullptr;
+  RealArray const *preal = nullptr;
+  StringArray const *pstr = nullptr;
 
   assertTrue_1(!ub.getValuePointer(pbool));
-  assertTrue_1(pbool == NULL);
+  assertTrue_1(!pbool);
   assertTrue_1(!ui.getValuePointer(pint));
-  assertTrue_1(pint == NULL);
+  assertTrue_1(!pint);
   assertTrue_1(!ud.getValuePointer(preal));
-  assertTrue_1(preal == NULL);
+  assertTrue_1(!preal);
   assertTrue_1(!us.getValuePointer(pstr));
-  assertTrue_1(pstr == NULL);
+  assertTrue_1(!pstr);
   
   // Constants with values
   std::vector<bool> oob;
@@ -114,37 +114,37 @@ static bool testArrayConstants()
 
   // Access via getValuePointer
   assertTrue_1(troo.getValuePointer(pbool));
-  assertTrue_1(pbool != NULL);
+  assertTrue_1(pbool);
   assertTrue_1(pbool->allElementsKnown());
   pbool->getContentsVector(pvb);
-  assertTrue_1(pvb != NULL);
+  assertTrue_1(pvb);
   assertTrue_1(oob == *pvb);
 
   assertTrue_1(too.getValuePointer(pint));
-  assertTrue_1(pint != NULL);
+  assertTrue_1(pint);
   assertTrue_1(pint->allElementsKnown());
   pint->getContentsVector(pvi);
-  assertTrue_1(pvi != NULL);
+  assertTrue_1(pvi);
   assertTrue_1(ooi == *pvi);
 
   assertTrue_1(doo.getValuePointer(preal));
-  assertTrue_1(preal != NULL);
+  assertTrue_1(preal);
   assertTrue_1(preal->allElementsKnown());
   preal->getContentsVector(pvd);
-  assertTrue_1(pvd != NULL);
+  assertTrue_1(pvd);
   assertTrue_1(ood == *pvd);
 
   assertTrue_1(soo.getValuePointer(pstr));
-  assertTrue_1(pstr != NULL);
+  assertTrue_1(pstr);
   assertTrue_1(pstr->allElementsKnown());
   pstr->getContentsVector(pvs);
-  assertTrue_1(pvs != NULL);
+  assertTrue_1(pvs);
   assertTrue_1(oos == *pvs);
 
-  pbool = NULL;
-  pint = NULL;
-  preal = NULL;
-  pstr = NULL;
+  pbool = nullptr;
+  pint = nullptr;
+  preal = nullptr;
+  pstr = nullptr;
 
   return true;
 }
