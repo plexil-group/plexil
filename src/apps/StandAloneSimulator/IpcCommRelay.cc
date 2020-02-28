@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,9 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 
 /**
  * @brief Constructor. Opens the connection and spawns a listener thread.
@@ -73,8 +75,8 @@ IpcCommRelay::~IpcCommRelay() {
 void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
   // Get the response message
   const GenericResponse* gr = dynamic_cast<const GenericResponse*> (respMsg->getResponseBase());
-  assertTrueMsg(gr != NULL,
-      "IpcCommRelay::sendResponse: invalid ResponseBase object");
+  assertTrueMsg(gr,
+                "IpcCommRelay::sendResponse: invalid ResponseBase object");
   const std::vector<PLEXIL::Value>& values = gr->getReturnValue();
   std::vector<PLEXIL::Value> ret_list(values.begin(), values.end());
 
@@ -128,7 +130,7 @@ void IpcCommRelay::processLookupNow(const std::vector<const PlexilMsgBase*>& msg
         " ignoring parameters for state \"" << stateName << "\"");
   IpcMessageId* transId = new IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
   ResponseMessage* response = m_Simulator->getLookupNowResponse(stateName, static_cast<void*> (transId));
-  if (response != NULL) {
+  if (response) {
     // Simply send the response
     debugMsg("IpcCommRelay:lookupNow", " sending response for " << stateName);
   } else {

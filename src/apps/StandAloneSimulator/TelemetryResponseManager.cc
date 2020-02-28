@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 
 TelemetryResponseManager::TelemetryResponseManager(const std::string& id)
   : ResponseMessageManager(id),
-    m_LastResponse(NULL)
+    m_LastResponse(nullptr)
 {
   debugMsg("TelemetryResponseManager:constructor", " " << id);
   // Counter starts from 0 for telemetry
@@ -42,7 +42,7 @@ TelemetryResponseManager::TelemetryResponseManager(const std::string& id)
 
 TelemetryResponseManager::~TelemetryResponseManager()
 {
-  m_LastResponse = NULL;
+  m_LastResponse = nullptr;
 }
 
 MsgType TelemetryResponseManager::getType()
@@ -74,10 +74,10 @@ void TelemetryResponseManager::scheduleInitialEvents(Simulator* sim)
        it != m_CmdIdToResponse.end();
        ++it) {
     const ResponseBase* base = it->second;
-    checkError(base != NULL,
+    checkError(base,
                "TelemetryResponseManager: event list entry is null!");
     const timeval& delay = base->getDelay();
-    ResponseMessage* msg = new ResponseMessage(base, NULL, MSG_TELEMETRY);
+    ResponseMessage* msg = new ResponseMessage(base, nullptr, MSG_TELEMETRY);
     debugMsg("TelemetryResponseManager:scheduleInitialEvents",
              " scheduling telemetry message for \"" << m_Identifier << "\" at " << delay.tv_sec);
     sim->scheduleMessage(delay, msg);

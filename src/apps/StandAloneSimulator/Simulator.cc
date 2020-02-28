@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,11 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
-#include <cerrno>
 #include <iomanip>
+
+#ifdef STDC_HEADERS
+#include <cerrno>
+#endif
 
 Simulator::Simulator(CommRelayBase* commRelay, ResponseManagerMap& map) : 
   m_CommRelay(commRelay),
@@ -97,7 +100,7 @@ void Simulator::stop()
 	  }
 
 	  // successfully canceled, wait for it to exit
-	  pthread_errno = pthread_join(m_SimulatorThread, NULL);
+	  pthread_errno = pthread_join(m_SimulatorThread, nullptr);
 	  if (pthread_errno == 0 || pthread_errno == ESRCH) {
 		// thread joined or died before it could be joined
 		// either way we succeeded
@@ -118,7 +121,7 @@ void Simulator::stop()
 	  int pthread_errno = pthread_kill(m_SimulatorThread, SIGTERM);
 	  if (pthread_errno == 0) {
 		// wait for thread to terminate
-		pthread_errno = pthread_join(m_SimulatorThread, NULL);
+		pthread_errno = pthread_join(m_SimulatorThread, nullptr);
 		if (pthread_errno == 0 || pthread_errno == ESRCH) {
 		  // thread joined or died before it could be joined
 		  // either way we succeeded
@@ -145,7 +148,7 @@ void* Simulator::run(void* this_as_void_ptr)
 {
   Simulator* _this = reinterpret_cast<Simulator*>(this_as_void_ptr);
   _this->simulatorTopLevel();
-  return NULL;
+  return nullptr;
 }
 
 void Simulator::simulatorTopLevel()
@@ -161,7 +164,7 @@ void Simulator::simulatorTopLevel()
   m_Started = true;
 
   timeval now;
-  gettimeofday(&now, NULL);
+  gettimeofday(&now, nullptr);
   debugMsg("Simulator:start", " at "
 		   << std::setiosflags(std::ios_base::fixed) 
 		   << timevalToDouble(now));
@@ -255,14 +258,14 @@ ResponseMessageManager* Simulator::getResponseMessageManager(const std::string& 
   if (m_CmdToRespMgr.find(cmdName) != m_CmdToRespMgr.end())
     return m_CmdToRespMgr.find(cmdName)->second;
 
-  return NULL;
+  return nullptr;
 }
 
 void Simulator::scheduleResponseForCommand(const std::string& command,
                                            void* uniqueId)
 {
   timeval time;
-  gettimeofday(&time, NULL);
+  gettimeofday(&time, nullptr);
   debugMsg("Simulator:scheduleResponseForCommand",
 	   " for : " << command);
   bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
@@ -288,7 +291,7 @@ bool Simulator::constructNextResponse(const std::string& command,
   ResponseMessageManager* msgMgr = iter->second;
   timeval tDelay;
   const ResponseBase* respBase = msgMgr->getResponses(tDelay);
-  if (respBase == NULL) 
+  if (!respBase) 
     {
       debugMsg("Simulator:constructNextResponse",
 	       " No more responses for \"" << command << "\"");
@@ -304,16 +307,16 @@ bool Simulator::constructNextResponse(const std::string& command,
 /**
  * @brief Get the current value of the named state.
  * @param stateName The state name to which we are responding.
- * @return Pointer to a const ResponseBase object, or NULL.
+ * @return Pointer to a const ResponseBase object, or nullptr.
  */
 ResponseMessage* Simulator::getLookupNowResponse(const std::string& stateName, void* uniqueId) const
 {
   ResponseManagerMap::const_iterator it = m_CmdToRespMgr.find(stateName);
   if (it == m_CmdToRespMgr.end())
-    return NULL; // Name not known
+    return nullptr; // Name not known
   const ResponseBase* response =  it->second->getLastResponse();
-  if (response == NULL)
-    return NULL; // Command name (not a state), or no "last" value established
+  if (!response)
+    return nullptr; // Command name (not a state), or no "last" value established
   return new ResponseMessage(response, uniqueId, MSG_LOOKUP);
 }
 
@@ -325,7 +328,7 @@ ResponseMessage* Simulator::getLookupNowResponse(const std::string& stateName, v
 void Simulator::scheduleMessage(const timeval& delay, ResponseMessage* msg)
 {
   timeval now;
-  gettimeofday(&now, NULL);
+  gettimeofday(&now, nullptr);
   timeval eventTime = now + delay;
   scheduleMessageAbsolute(eventTime, msg);
 }
@@ -372,7 +375,7 @@ void Simulator::scheduleNextResponse(const timeval& time)
 void Simulator::handleWakeUp()
 {
   timeval now;
-  gettimeofday(&now, NULL);
+  gettimeofday(&now, nullptr);
   debugMsg("Simulator:handleWakeUp",
            " entered at "
            << std::setiosflags(std::ios_base::fixed) 
@@ -384,7 +387,7 @@ void Simulator::handleWakeUp()
   bool moreEvents = false;
   do {
 	moreEvents = false;
-	ResponseMessage* resp = NULL;
+	ResponseMessage* resp = nullptr;
 
 	// begin critical section
 	{
@@ -401,7 +404,7 @@ void Simulator::handleWakeUp()
 	}
 	// end critical section
 	
-	if (resp != NULL) {
+	if (resp) {
 	  m_CommRelay->sendResponse(resp);
 	  ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
 	  manager->notifyMessageSent(resp->getResponseBase());

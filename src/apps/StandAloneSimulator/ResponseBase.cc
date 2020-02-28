@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
  */
 ResponseBase::ResponseBase() 
-  : m_Manager(NULL),
+  : m_Manager(nullptr),
     m_NumberOfResponses(0)
 {
 }
@@ -52,7 +52,7 @@ ResponseMessageManager* ResponseBase::getManager() const
 
 void ResponseBase::notifyMessageSent()
 {
-  if (m_Manager != NULL)
+  if (m_Manager)
     m_Manager->notifyMessageSent(this);
 }
 

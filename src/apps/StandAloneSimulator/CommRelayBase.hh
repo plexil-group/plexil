@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,15 @@ class ResponseMessage;
 class CommRelayBase
 {
 public:
-  CommRelayBase(const std::string& id) : m_Identifier(id), m_Simulator(NULL) {}
-  virtual ~CommRelayBase(){}
+  CommRelayBase(const std::string& id)
+    : m_Identifier(id), m_Simulator(nullptr)
+  {
+  }
+
+  virtual ~CommRelayBase()
+  {
+  }
+
   void registerSimulator(Simulator* sim)
   {
     m_Simulator = sim;
@@ -43,8 +50,18 @@ public:
   virtual void sendResponse(const ResponseMessage* respMsg) = 0;
 
 protected:
+
   const std::string m_Identifier;
   Simulator* m_Simulator;
+
+private:
+
+  // Disallow copy, assign, move
+  CommRelayBase(CommRelayBase const &) = delete;
+  CommRelayBase(CommRelayBase &&) = delete;
+  CommRelayBase &operator=(CommRelayBase const &) = delete;
+  CommRelayBase &operator=(CommRelayBase &&) = delete;
+
 };
 
 #endif // COMM_RELAY_BASE_HH

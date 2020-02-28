@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,11 +30,14 @@
 #include "Debug.hh"
 #include "Error.hh"
 
+#include <iomanip>
+
+#ifdef STDC_HEADERS
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iomanip>
+#endif
 
 TimingService::TimingService() 
   : m_nBlockedSignals(0)
@@ -149,7 +152,7 @@ bool TimingService::restoreSignalHandling()
   //
   // Restore old mask
   //
-  int errnum = sigprocmask(SIG_SETMASK, &m_restoreSigset, NULL);
+  int errnum = sigprocmask(SIG_SETMASK, &m_restoreSigset, nullptr);
   assertTrueMsg(errnum == 0, 
 				"TimingService::restoreSignalHandling: Fatal error: sigprocmask returned " << errnum);
 
@@ -157,7 +160,7 @@ bool TimingService::restoreSignalHandling()
   // Restore old signal handlers
   //
   for (size_t i = 0; i < m_nBlockedSignals; i++) {
-	errnum = sigaction(m_blockedSignals[i], &m_restoreHandlers[i], NULL);
+	errnum = sigaction(m_blockedSignals[i], &m_restoreHandlers[i], nullptr);
 	if (errnum != 0) {
 	  debugMsg("TimingService:restoreSignalHandling", " sigaction returned " << errnum);
 	  return errnum;
@@ -177,7 +180,7 @@ bool TimingService::setTimer(const timeval& time)
 				"TimingService::setTimer: Fatal error: signal handling has not been initialized");
 
   timeval now;
-  gettimeofday(&now, NULL);
+  gettimeofday(&now, nullptr);
   itimerval myTimer;
   myTimer.it_interval.tv_sec = myTimer.it_interval.tv_usec = 0;
   myTimer.it_value = time - now;
@@ -188,7 +191,7 @@ bool TimingService::setTimer(const timeval& time)
 	return false;
   }
       
-  int status = setitimer(ITIMER_REAL, &myTimer, NULL);
+  int status = setitimer(ITIMER_REAL, &myTimer, nullptr);
   assertTrueMsg(status == 0,
 				"TimingService::setTimer: Fatal error: setitimer failed, errno = " << errno);
   debugMsg("TimingService:setTimer",
@@ -216,7 +219,7 @@ void TimingService::getTimer(timeval& result)
 
   // compute result based on current time of day
   timeval now;
-  status = gettimeofday(&now, NULL);
+  status = gettimeofday(&now, nullptr);
   assertTrueMsg(status == 0, 
 				"TimingService::getTimer: Fatal error: gettimeofday failed, status = " << status);
   result = now + itime.it_value;
@@ -232,7 +235,7 @@ void TimingService::stopTimer()
   itimerval myTimer;
   myTimer.it_interval.tv_sec = myTimer.it_interval.tv_usec = 0;
   myTimer.it_value.tv_sec = myTimer.it_value.tv_usec = 0;
-  int status = setitimer(ITIMER_REAL, &myTimer, NULL);
+  int status = setitimer(ITIMER_REAL, &myTimer, nullptr);
   assertTrueMsg(status == 0,
 				"TimingService::stopTimer: Fatal error: setitimer failed, errno = " << errno);
 }

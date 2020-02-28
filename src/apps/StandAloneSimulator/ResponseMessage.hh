@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,6 @@
 #ifndef RESPONSE_MESSAGE_HH
 #define RESPONSE_MESSAGE_HH
 
-#include <cstddef> // NULL
 #include <string>
 
 class ResponseBase;
@@ -48,7 +47,7 @@ class ResponseMessage
 {
 public:
   ResponseMessage(const ResponseBase* _base,
-		  void* _id = NULL, 
+		  void* _id = nullptr, 
 		  int _type=MSG_COMMAND);
   virtual ~ResponseMessage();
 
@@ -61,8 +60,13 @@ public:
   const std::string& getName() const;
 
 private:  
+
   // deliberately not implemented
-  ResponseMessage();
+  ResponseMessage() = delete;
+  ResponseMessage(ResponseMessage const &) = delete;
+  ResponseMessage(ResponseMessage &&) = delete;
+  ResponseMessage &operator=(ResponseMessage const &) = delete;
+  ResponseMessage &operator=(ResponseMessage &&) = delete;
 
   const ResponseBase* base;
   void* id;

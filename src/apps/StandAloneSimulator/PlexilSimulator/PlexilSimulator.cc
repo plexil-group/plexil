@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,12 @@
 #include "Debug.hh"
 
 #include <fstream>
-#include <cstring>
 
-Simulator* _the_simulator_ = NULL;
+#ifdef STDC_HEADERS
+#include <cstring>
+#endif
+
+Simulator* _the_simulator_ = nullptr;
 
 int main(int argc, char** argv)
 {
@@ -139,7 +142,7 @@ at the top of the script."
   _the_simulator_->simulatorTopLevel();
 
   delete plexilRelay;
-  _the_simulator_ = NULL;
+  _the_simulator_ = nullptr;
 
   return 0;
 }

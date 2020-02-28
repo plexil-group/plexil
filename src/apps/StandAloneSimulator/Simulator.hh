@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -68,12 +68,12 @@ public:
    * @param uniqueId Caller-specified identifier, passed through the simulator to the comm relay.
    */
   void scheduleResponseForCommand(const std::string& command, 
-                                  void* uniqueId = NULL);
+                                  void* uniqueId = nullptr);
 
   /**
    * @brief Get the current value of the named state.
    * @param stateName The state name to which we are responding.
-   * @return Pointer to a const ResponseBase object, or NULL.
+   * @return Pointer to a const ResponseBase object, or nullptr.
    */
   ResponseMessage* getLookupNowResponse(const std::string& stateName, void* uniqueId) const;
   
@@ -94,9 +94,11 @@ public:
 private:
 
   // Deliberately not implemented
-  Simulator();
-  Simulator(const Simulator&);
-  Simulator& operator=(const Simulator&);
+  Simulator() = delete;
+  Simulator(Simulator const &) = delete;
+  Simulator(Simulator &&) = delete;
+  Simulator &operator=(Simulator const &) = delete;
+  Simulator &operator=(Simulator &&) = delete;
 
   // Thread function for pthread_create
   static void* run(void * this_as_void_ptr);

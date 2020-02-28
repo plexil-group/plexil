@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ public:
    * @brief Parse the line and return the corresponding response object.
    * @param line The line to parse.
    * @param lineCount Line number; intended for use in error reporting.
-   * @return The response object, or NULL if a parse error was encountered.
+   * @return The response object, or nullptr if a parse error was encountered.
    */
   virtual ResponseBase* parseResponseValues(const std::string& cmdName,
 					    const std::string& line,
@@ -53,8 +53,11 @@ public:
 private:
 
   // deliberately not implemented
-  ResponseFactory(const ResponseFactory&);
-  ResponseFactory& operator=(const ResponseFactory&);
+  ResponseFactory(ResponseFactory const &) = delete;
+  ResponseFactory(ResponseFactory &&) = delete;
+  ResponseFactory& operator=(ResponseFactory const &) = delete;
+  ResponseFactory& operator=(ResponseFactory &&) = delete;
+
 };
 
 #endif // RESPONSE_FACTORY_HH

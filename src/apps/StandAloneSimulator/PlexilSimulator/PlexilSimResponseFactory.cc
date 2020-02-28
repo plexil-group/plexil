@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& c
 	{
 	  std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
 		    << cmdName << "\"" << std::endl;
-	  return NULL;
+	  return nullptr;
 	}
       return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
     }
@@ -63,7 +63,7 @@ ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& c
 	{
 	  std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
 		    << cmdName << "\"" << std::endl;
-	  return NULL;
+	  return nullptr;
 	}
       return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
     }
@@ -84,7 +84,7 @@ ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& c
               std::cout << "Error: The return value structure neither matches "
                         << " any customization nor the generic structure."
                         << std::endl;
-              return NULL;
+              return nullptr;
             }
         }
       debugMsg("PlexilSimResponseFactory:parse", 
@@ -92,5 +92,5 @@ ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& c
       return new GenericResponse(returnValue);
     }
   // fall-thru return
-  return NULL;
+  return nullptr;
 }

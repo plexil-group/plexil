@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,11 +30,13 @@
 #include "Debug.hh"
 #include "Error.hh"
 
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 
 ResponseMessageManager::ResponseMessageManager(const std::string& id)
   : m_Identifier(id), 
-    m_DefaultResponse(NULL),
+    m_DefaultResponse(nullptr),
     m_Counter(1)
 {
 }
@@ -55,7 +57,7 @@ MsgType ResponseMessageManager::getType()
 
 const ResponseBase* ResponseMessageManager::getLastResponse() const
 {
-  return NULL;
+  return nullptr;
 }
 
 const std::string& ResponseMessageManager::getIdentifier() const 
@@ -111,7 +113,7 @@ const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
   ++m_Counter;
 
   // This shouldn't happen, but check anyway just in case
-  assertTrueMsg(respBase != NULL,
+  assertTrueMsg(respBase,
                 "ResponseMessageManager::getResponses: Internal error: No response found for \""
                 << m_Identifier << "\"");
 
@@ -120,7 +122,7 @@ const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
       tDelay = respBase->getDelay();
       return respBase;
     }
-  return NULL;
+  return nullptr;
 }
 
 const ResponseBase* ResponseMessageManager::getDefaultResponse()
