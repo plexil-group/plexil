@@ -38,11 +38,19 @@
 #include "ThreadSpawn.hh"
 #endif
 
+#include <iomanip>
+
+#if defined(STDC_HEADERS)
 #include <cerrno>
+#endif
 
 #if defined(HAVE_CLOCK_GETTIME)
 #if defined(HAVE_TIME_H)
+#if defined(STDC_HEADERS)
 #include <ctime>
+#else
+#include <time.h>
+#endif
 #endif
 #include "timespec-utils.hh"
 #elif defined(HAVE_GETTIMEOFDAY)
@@ -51,8 +59,6 @@
 #endif
 #include "timeval-utils.hh"
 #endif
-
-#include <iomanip>
 
 namespace PLEXIL
 {
@@ -113,7 +119,7 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
     m_stopping = true;
     pthread_kill(m_waitThread, SIGUSR1);
-    pthread_join(m_waitThread, NULL);
+    pthread_join(m_waitThread, nullptr);
 #endif
     m_stopping = false;
     debugMsg("TimeAdapter:stop", " complete");
@@ -165,7 +171,7 @@ namespace PLEXIL
     tym = timespecToDouble(ts);
 #elif defined(HAVE_GETTIMEOFDAY)
     timeval tv;
-    checkInterfaceError(0 == gettimeofday(&tv, NULL),
+    checkInterfaceError(0 == gettimeofday(&tv, nullptr),
                         "getCurrentTime: gettimeofday() failed, errno = " << errno);
     tym = timevalToDouble(tv);
 #endif
@@ -219,7 +225,7 @@ namespace PLEXIL
    */
   void* TimeAdapterImpl::timerWaitThread(void* this_as_void_ptr)
   {
-    assertTrue_2(this_as_void_ptr != NULL,
+    assertTrue_2(this_as_void_ptr,
                  "TimeAdapterImpl::timerWaitThread: argument is null!");
     TimeAdapterImpl* myInstance = reinterpret_cast<TimeAdapterImpl*>(this_as_void_ptr);
     return myInstance->timerWaitThreadImpl();
@@ -237,7 +243,7 @@ namespace PLEXIL
       return (void *) 0;
     }
     int errnum;
-    if ((errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL))) {
+    if ((errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, nullptr))) {
       warn ("TimeAdapter: pthread_sigmask failed, result = " << errnum
             << "; unable to start timer thread");
       return (void *) 0;

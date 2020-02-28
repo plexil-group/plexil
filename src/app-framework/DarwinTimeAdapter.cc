@@ -39,8 +39,11 @@
 #include "TimeAdapterImpl.hh"
 #include "timeval-utils.hh"
 
-#include <cerrno>
 #include <iomanip>
+
+#ifdef STDC_HEADERS
+#include <cerrno>
+#endif
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h> // for gettimeofday, itimerval
@@ -142,7 +145,7 @@ namespace PLEXIL
       struct timeval dateval = doubleToTimeval(date);
 
       struct timeval now;
-      checkInterfaceError(0 == gettimeofday(&now, NULL),
+      checkInterfaceError(0 == gettimeofday(&now, nullptr),
                           "TimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
 
       // Check if we're already past the desired time
@@ -169,7 +172,7 @@ namespace PLEXIL
       // Compute the interval and set the timer
       myItimerval.it_interval = sl_timezero;
       myItimerval.it_value = dateval;
-      checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
+      checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, nullptr),
                           "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
       debugMsg("TimeAdapter:setTimer",
                " set timer for " << std::setprecision(15) << date);
@@ -183,7 +186,7 @@ namespace PLEXIL
     bool stopTimer()
     {
       static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
-      int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
+      int status = setitimer(ITIMER_REAL, & sl_disableItimerval, nullptr);
       condDebugMsg(status != 0,
                    "TimeAdapter:stopTimer",
                    " setitimer() failed, errno = " << errno);

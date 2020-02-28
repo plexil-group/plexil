@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ namespace PLEXIL
 		debugMsg("ExecListenerFilterFactory:createInstance",
 				 " unable to load module for filter type \""
 				 << name.c_str() << "\"");
-		return NULL;
+		return nullptr;
 	  }
 	  // See if it's registered now
 	  it = factoryMap().find(name);
@@ -102,7 +102,7 @@ namespace PLEXIL
       debugMsg("ExecListenerFilterFactory:createInstance", 
                " No exec listener filter factory registered for name \""
                << name.c_str() << "\".");
-      return NULL;
+      return nullptr;
     }
     ExecListenerFilter *retval = it->second->create(xml);
     debugMsg("ExecListenerFilterFactory:createInstance",
@@ -147,15 +147,14 @@ namespace PLEXIL
   void ExecListenerFilterFactory::registerFactory(std::string const &name,
                                                   ExecListenerFilterFactory* factory)
   {
-    assertTrue_1(factory != NULL);
-    if (factoryMap().find(name) != factoryMap().end())
-      {
-        warn("Attempted to register an exec listener filter factory for name \""
-             << name.c_str()
-             << "\" twice, ignoring.");
-        delete factory;
-        return;
-      }
+    assertTrue_1(factory);
+    if (factoryMap().find(name) != factoryMap().end()) {
+      warn("Attempted to register an exec listener filter factory for name \""
+           << name.c_str()
+           << "\" twice, ignoring.");
+      delete factory;
+      return;
+    }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFilterFactory:registerFactory",
              " Registered exec listener filter factory for name \"" << name.c_str() << "\"");

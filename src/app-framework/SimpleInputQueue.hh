@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ namespace PLEXIL
     // Reader side
     //
 
-    // Get the head of the queue. If empty, returns NULL.
+    // Get the head of the queue. If empty, returns nullptr.
     virtual QueueEntry *get();
 
     // Flush the queue without examining it.
@@ -70,8 +70,10 @@ namespace PLEXIL
 
   private:
     // Disallow copy, assign
-    SimpleInputQueue(SimpleInputQueue const &);
-    SimpleInputQueue &operator=(SimpleInputQueue const &);
+    SimpleInputQueue(SimpleInputQueue const &) = delete;
+    SimpleInputQueue(SimpleInputQueue &&) = delete;
+    SimpleInputQueue &operator=(SimpleInputQueue const &) = delete;
+    SimpleInputQueue &operator=(SimpleInputQueue &&) = delete;
 
     QueueEntry *m_queueGet;
     QueueEntry *m_queuePut;

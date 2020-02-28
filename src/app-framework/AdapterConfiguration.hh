@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -185,20 +185,20 @@ namespace PLEXIL {
 
     /**
      * @brief Return the interface adapter in effect for this command, whether
-     specifically registered or default. May return NULL.
+     specifically registered or default. May return nullptr.
      * @param commandName The command.
      */
     InterfaceAdapter *getCommandInterface(std::string const &commandName);
 
     /**
      * @brief Return the current default interface adapter for commands.
-              May return NULL.
+              May return nullptr.
      */
     InterfaceAdapter *getDefaultCommandInterface();
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,
-     whether specifically registered or default. May return NULL.
+     whether specifically registered or default. May return nullptr.
      * @param stateName The state.
      */
     InterfaceAdapter *getLookupInterface(std::string const& stateName);
@@ -213,18 +213,18 @@ namespace PLEXIL {
 
     /**
      * @brief Return the current default interface adapter for lookups.
-              May return NULL.
+              May return nullptr.
      */
     InterfaceAdapter *getDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return NULL.
+              whether specifically registered or default. May return nullptr.
      */
     InterfaceAdapter *getPlannerUpdateInterface();
 
     /**
-     * @brief Return the current default interface adapter. May return NULL.
+     * @brief Return the current default interface adapter. May return nullptr.
      */
     InterfaceAdapter *getDefaultInterface();
 
@@ -302,8 +302,10 @@ namespace PLEXIL {
   private:
 
     // Not implemented
-    AdapterConfiguration(AdapterConfiguration const &);
-    AdapterConfiguration &operator=(AdapterConfiguration const &);
+    AdapterConfiguration(AdapterConfiguration const &) = delete;
+    AdapterConfiguration(AdapterConfiguration &&) = delete;
+    AdapterConfiguration &operator=(AdapterConfiguration const &) = delete;
+    AdapterConfiguration &operator=(AdapterConfiguration &&) = delete;
 
     /**
      * @brief Deletes the given adapter from the interface manager

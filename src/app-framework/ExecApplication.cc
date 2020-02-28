@@ -36,7 +36,9 @@
 #include "PlexilSchema.hh"
 #include "pugixml.hpp"
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 namespace PLEXIL
 {
@@ -71,7 +73,7 @@ namespace PLEXIL
   ExecApplication::~ExecApplication()
   {
     delete g_configuration;
-    g_interface = NULL;
+    g_interface = nullptr;
     delete g_manager;
     delete g_exec;
   }
@@ -103,7 +105,7 @@ namespace PLEXIL
    */
   bool ExecApplication::initialize(pugi::xml_node const configXml)
   {
-    condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is NULL");
+    condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is null");
     condDebugMsg(!configXml.empty(), "ExecApplication:initialize",
                  " configuration = " << configXml); // *** FIXME - PRINTS "1" ***
 
@@ -327,7 +329,7 @@ namespace PLEXIL
         sleep(1);
       }
 
-      status = pthread_join(m_execThread, NULL);
+      status = pthread_join(m_execThread, nullptr);
       if (status) {
         debugMsg("ExecApplication:stop", 
                  " pthread_join() failed, error = " << status);
@@ -472,7 +474,7 @@ namespace PLEXIL
   {
     debugMsg("ExecApplication:run", " Spawning top level thread");
     int success = pthread_create(&m_execThread,
-                                 NULL,
+                                 nullptr,
                                  execTopLevel,
                                  this);
     if (success != 0) {
@@ -486,7 +488,7 @@ namespace PLEXIL
 
   void * ExecApplication::execTopLevel(void * this_as_void_ptr)
   {
-    assertTrue_1(this_as_void_ptr != NULL); 
+    assertTrue_1(this_as_void_ptr); 
     (reinterpret_cast<ExecApplication*>(this_as_void_ptr))->runInternal();
     return 0;
   }
@@ -851,7 +853,7 @@ namespace PLEXIL
     //
     // Restore old SIGUSR2 handler
     // 
-    int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, NULL);
+    int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, nullptr);
     if (errnum != 0) {
       debugMsg("ExecApplication:restoreWorkerSignalHandling", " sigaction returned " << errnum);
       return errnum;
@@ -861,7 +863,7 @@ namespace PLEXIL
     //
     // Restore old mask
     //
-    errnum = pthread_sigmask(SIG_SETMASK, &m_restoreWorkerSigset, NULL);
+    errnum = pthread_sigmask(SIG_SETMASK, &m_restoreWorkerSigset, nullptr);
     if (errnum != 0) { 
       debugMsg("ExecApplication:restoreWorkerSignalHandling", " failed; sigprocmask returned " << errnum);
       return false;
@@ -909,7 +911,7 @@ namespace PLEXIL
     //
     // Restore old mask
     //
-    int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, NULL);
+    int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, nullptr);
     if (errnum != 0) { 
       debugMsg("ExecApplication:restoreMainSignalHandling", " failed; pthread_sigmask returned " << errnum);
       return false;

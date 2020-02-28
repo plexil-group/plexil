@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ namespace PLEXIL
            << InterfaceSchema::LISTENER_TYPE_ATTR
            << " attribute in listener XML:\n"
            << *xml);
-      return NULL;
+      return nullptr;
     }
 
     // Make it
@@ -93,7 +93,7 @@ namespace PLEXIL
       if (!dynamicLoadModule(name.c_str(), libCPath)) {
         warn("ExecListenerFactory: Unable to load module for listener type \""
              << name.c_str() << "\"");
-        return NULL;
+        return nullptr;
       }
       // See if it's registered now
       it = factoryMap().find(name);
@@ -103,7 +103,7 @@ namespace PLEXIL
     if (it == factoryMap().end()) {
       warn("ExecListenerFactory: No factory registered for listener type \""
            << name.c_str() << "\"");
-      return NULL;
+      return nullptr;
     }
     ExecListener *retval = it->second->create(xml);
     debugMsg("ExecListenerFactory:createInstance", " Created Exec listener " << name.c_str());
@@ -140,7 +140,7 @@ namespace PLEXIL
    */
   void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
-    assertTrue_1(factory != NULL);
+    assertTrue_1(factory);
     // FIXME: Assert, or replace old factory?
     if (factoryMap().find(name) != factoryMap().end()) {
       warn("Attempted to register an exec listener factory for name \""

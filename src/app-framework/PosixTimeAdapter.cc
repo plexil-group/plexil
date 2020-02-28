@@ -41,11 +41,17 @@
 
 #include <iomanip>
 
+#ifdef STDC_HEADERS
 #include <cerrno>
-
 #ifdef HAVE_TIME_H
 #include <ctime>
-#endif 
+#endif
+#else
+#ifdef HAVE_TIME_H
+#include <time.h>
+#endif
+#endif
+
 
 
 namespace PLEXIL
@@ -107,7 +113,7 @@ namespace PLEXIL
         return false;
       }
     
-      if (sigprocmask(SIG_BLOCK, &mask, NULL)) {
+      if (sigprocmask(SIG_BLOCK, &mask, nullptr)) {
         warn ("PosixTimeAdapter: sigprocmask failed, errno = " << errno);
         return false;
       }
@@ -124,8 +130,8 @@ namespace PLEXIL
       m_sigevent.sigev_notify = SIGEV_SIGNAL;
       m_sigevent.sigev_signo = SIGUSR1; // was SIGALRM
       m_sigevent.sigev_value.sival_int = 0;
-      m_sigevent.sigev_notify_function = NULL;
-      m_sigevent.sigev_notify_attributes = NULL;
+      m_sigevent.sigev_notify_function = nullptr;
+      m_sigevent.sigev_notify_attributes = nullptr;
 
       // Create a timer
       if (timer_create(CLOCK_REALTIME,
@@ -165,7 +171,7 @@ namespace PLEXIL
       checkInterfaceError(0 == timer_settime(m_timer,
                                              0, // flags: ~TIMER_ABSTIME
                                              &tymrSpec,
-                                             NULL),
+                                             nullptr),
                           "TimeAdapter::setTimer: timer_settime failed, errno = " << errno);
       debugMsg("TimeAdapter:setTimer",
                " timer set for " << std::setprecision(15) << date
@@ -182,11 +188,11 @@ namespace PLEXIL
       int status = timer_settime(m_timer,
                                  0,
                                  &sl_tymrDisable,
-                                 NULL);
+                                 nullptr);
       if (status) {
         warn("PosixTimeAdapter: timer_settime failed, errno = " << errno);
       }
-      return status == 0;
+      return !status;
     }
 
     /**
@@ -199,7 +205,7 @@ namespace PLEXIL
       if (status) {
         warn("PosixTimeAdapter: timer_delete failed, errno = " << errno);
       }
-      return status == 0;
+      return !status;
     }
 
     /**
@@ -222,7 +228,7 @@ namespace PLEXIL
       if (errnum) {
         warn("PosixTimeAdapter: sigaddset failed!");
       }
-      return errnum == 0;
+      return !errnum;
     }
 
     /**

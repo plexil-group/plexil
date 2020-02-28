@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cstddef> // for NULL
-
 #include "SimpleInputQueue.hh"
 
 #include "Error.hh"
@@ -35,15 +33,15 @@ namespace PLEXIL
 {
   SimpleInputQueue::SimpleInputQueue()
     : InputQueue(),
-      m_queueGet(NULL),
-      m_queuePut(NULL),
-      m_freeList(NULL)
+      m_queueGet(nullptr),
+      m_queuePut(nullptr),
+      m_freeList(nullptr)
   {
   }
 
   SimpleInputQueue::~SimpleInputQueue()
   {
-    m_queuePut = NULL;
+    m_queuePut = nullptr;
     while (m_queueGet) {
       QueueEntry *temp = m_queueGet;
       m_queueGet = temp->next;
@@ -58,7 +56,7 @@ namespace PLEXIL
 
   bool SimpleInputQueue::isEmpty() const
   {
-    return m_queueGet == NULL;
+    return m_queueGet == nullptr;
   }
 
   QueueEntry *SimpleInputQueue::allocate()
@@ -82,7 +80,7 @@ namespace PLEXIL
   void SimpleInputQueue::put(QueueEntry *entry)
   {
     assertTrue_1(entry);
-    entry->next = NULL;
+    entry->next = nullptr;
     if (m_queuePut)
       m_queuePut->next = entry;
     m_queuePut = entry;
@@ -93,12 +91,12 @@ namespace PLEXIL
   QueueEntry *SimpleInputQueue::get()
   {
     if (!m_queueGet)
-      return NULL; // empty
+      return nullptr; // empty
     QueueEntry *result = m_queueGet;
     m_queueGet = result->next;
     if (!m_queueGet) { // queue now empty
       assertTrue_1(m_queuePut == result); // consistency check
-      m_queueGet = m_queuePut = NULL;
+      m_queueGet = m_queuePut = nullptr;
     }
     return result;
   }
@@ -110,7 +108,7 @@ namespace PLEXIL
       m_queueGet = temp->next;
       release(temp);
     }
-    m_queuePut = NULL;
+    m_queuePut = nullptr;
   }
 
 } // namespace PLEXIL

@@ -31,8 +31,6 @@
 
 #include "InterfaceManager.hh"
 
-#include <plexil-config.h>
-
 #include "AdapterConfiguration.hh"
 #include "CachedValue.hh"
 #include "Command.hh"
@@ -53,10 +51,13 @@
 #include "StateCacheMap.hh"
 #include "Update.hh"
 
-#include <cstring>
 #include <iomanip>
 #include <limits>
 #include <sstream>
+
+#ifdef STDC_HEADERS
+#include <cstring>
+#endif
 
 namespace PLEXIL
 {
@@ -68,7 +69,7 @@ namespace PLEXIL
     : ExternalInterface(),
       AdapterExecInterface(),
       m_application(app),
-      m_inputQueue(NULL), // configurable
+      m_inputQueue(nullptr), // configurable
       m_currentTime(std::numeric_limits<double>::min()),
       m_lastMark(0),
       m_markCount(0)
@@ -275,7 +276,7 @@ namespace PLEXIL
                    " adding plan " << entry->plan->getNodeId());
           g_exec->addPlan(pid);
         }
-        entry->plan = NULL;
+        entry->plan = nullptr;
         needsStep = true;
         break;
 
@@ -759,12 +760,12 @@ namespace PLEXIL
   {
     PropertyMap::const_iterator it = m_propertyMap.find(name);
     if (it == m_propertyMap.end())
-      return NULL;
+      return nullptr;
     else
       return it->second;
   }
 
   // Initialize global variable
-  InterfaceManager *g_manager = NULL;
+  InterfaceManager *g_manager = nullptr;
 
 }

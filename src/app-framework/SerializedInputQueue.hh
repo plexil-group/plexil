@@ -54,7 +54,7 @@ namespace PLEXIL
     // Reader side
     //
 
-    // Get the head of the queue. If empty, returns NULL.
+    // Get the head of the queue. If empty, returns nullptr.
     virtual QueueEntry *get();
 
     // Flush the queue without examining it.
@@ -74,9 +74,12 @@ namespace PLEXIL
     virtual void put(QueueEntry *entry);
 
   private:
+
     // Disallow copy, assign
-    SerializedInputQueue(SerializedInputQueue const &);
-    SerializedInputQueue &operator=(SerializedInputQueue const &);
+    SerializedInputQueue(SerializedInputQueue const &) = delete;
+    SerializedInputQueue(SerializedInputQueue &&) = delete;
+    SerializedInputQueue &operator=(SerializedInputQueue const &) = delete;
+    SerializedInputQueue &operator=(SerializedInputQueue &&) = delete;
 
     QueueEntry *m_queueGet;
     QueueEntry *m_queuePut;

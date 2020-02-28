@@ -58,7 +58,9 @@
 #include "TimeAdapter.hh"
 #endif
 
+#ifdef STDC_HEADERS
 #include <cstring>
+#endif
 
 namespace PLEXIL {
 
@@ -82,12 +84,12 @@ namespace PLEXIL {
 
 #ifdef HAVE_DEBUG_LISTENER
     // Every application should have access to the Plan Debug Listener
-    dynamicLoadModule("PlanDebugListener", NULL);
+    dynamicLoadModule("PlanDebugListener", nullptr);
 #endif
 
 #ifdef HAVE_LUV_LISTENER
     // Every application should have access to the Plexil Viewer (formerly LUV) Listener
-    dynamicLoadModule("LuvListener", NULL);
+    dynamicLoadModule("LuvListener", nullptr);
 #endif
   }
 
@@ -450,7 +452,7 @@ namespace PLEXIL {
       }
       else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG) == 0) {
         const pugi::xml_node firstChild = element.first_child();
-        const char* text = NULL;
+        const char* text = nullptr;
         if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
           text = firstChild.value();
         checkError(text && *text != '\0',
@@ -464,7 +466,7 @@ namespace PLEXIL {
       } 
       else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG) == 0) {
         const pugi::xml_node firstChild = element.first_child();
-        const char* text = NULL;
+        const char* text = nullptr;
         if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
           text = firstChild.value();
         checkError(text && *text != '\0',
@@ -624,7 +626,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the interface adapter in effect for this command, whether
-   specifically registered or default. May return NULL.
+   specifically registered or default. May return nullptr.
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
@@ -651,7 +653,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the current default interface adapter for commands.
-            May return NULL. Returns NULL if default interfaces are not implemented.
+            May return nullptr. Returns nullptr if default interfaces are not implemented.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
     return m_defaultCommandInterface;
@@ -659,7 +661,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the interface adapter in effect for lookups with this state name,
-   whether specifically registered or default. May return NULL. Returns NULL if default interfaces are not implemented.
+   whether specifically registered or default. May return nullptr. Returns nullptr if default interfaces are not implemented.
    * @param stateName The state.
    */
   InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
@@ -697,7 +699,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the current default interface adapter for lookups.
-            May return NULL.
+            May return nullptr.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
     return m_defaultLookupInterface;
@@ -705,8 +707,8 @@ namespace PLEXIL {
 
   /**
    * @brief Return the interface adapter in effect for planner updates,
-            whether specifically registered or default. May return NULL.
-            Returns NULL if default interfaces are not defined.
+            whether specifically registered or default. May return nullptr.
+            Returns nullptr if default interfaces are not defined.
    */
   InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
     if (!m_plannerUpdateInterface) {
@@ -720,7 +722,7 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Return the current default interface adapter. May return NULL.
+   * @brief Return the current default interface adapter. May return nullptr.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultInterface() {
     return m_defaultInterface;
@@ -755,10 +757,10 @@ namespace PLEXIL {
     m_lookupMap.clear();
     m_commandMap.clear();
     m_telemetryLookups.clear();
-    m_plannerUpdateInterface = NULL;
-    m_defaultInterface = NULL;
-    m_defaultCommandInterface = NULL;
-    m_defaultLookupInterface = NULL;
+    m_plannerUpdateInterface = nullptr;
+    m_defaultInterface = nullptr;
+    m_defaultCommandInterface = nullptr;
+    m_defaultLookupInterface = nullptr;
   }
 
   /**
@@ -771,6 +773,6 @@ namespace PLEXIL {
   }
 
   // Initialize global variable
-  AdapterConfiguration *g_configuration = NULL;
+  AdapterConfiguration *g_configuration = nullptr;
 
 }

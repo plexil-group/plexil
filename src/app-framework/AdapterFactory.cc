@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,12 @@
 namespace PLEXIL
 {
   /**
-   * @brief Creates a new InterfaceAdapter instance as specified by
+   * @brief Creates or reuses an InterfaceAdapter instance as specified by
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
    * @param execInterface Reference to the parent InterfaceManager instance.
-   * @return The Id for the new InterfaceAdapter.  May not be unique.
+   * @return Pointer to the InterfaceAdapter.  May not be unique.
    */
 
   InterfaceAdapter *
@@ -51,7 +51,7 @@ namespace PLEXIL
                                  AdapterExecInterface& execInterface)
   {
     // Can't do anything without the spec
-    assertTrueMsg(xml != NULL,
+    assertTrueMsg(xml,
                   "AdapterFactory::createInstance: null configuration XML");
 
     // Get the kind of adapter to make
@@ -61,7 +61,7 @@ namespace PLEXIL
       warn("AdapterFactory: missing "
            << InterfaceSchema::ADAPTER_TYPE_ATTR
            << " attribute in adapter XML:\n" << *xml);
-      return NULL;
+      return nullptr;
     }
 
     // Make it
@@ -117,7 +117,7 @@ namespace PLEXIL
         warn("AdapterFactory: unable to load module for adapter type \""
              << name.c_str() << "\"");
         wasCreated = false;
-        return NULL;
+        return nullptr;
       }
 
       // See if it's registered now
@@ -130,7 +130,7 @@ namespace PLEXIL
            << name.c_str()
            << "\".");
       wasCreated = false;
-      return NULL;
+      return nullptr;
     }
     InterfaceAdapter *retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
@@ -171,7 +171,7 @@ namespace PLEXIL
    */
   void AdapterFactory::registerFactory(std::string const& name, AdapterFactory* factory)
   {
-    assertTrue_1(factory != NULL);
+    assertTrue_1(factory);
     if (factoryMap().find(name) != factoryMap().end()) {
       warn("Attempted to register an adapter factory for name \""
            << name.c_str()

@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cstddef> // for NULL
-
 #include "SerializedInputQueue.hh"
 
 #include "Error.hh"
@@ -35,9 +33,9 @@ namespace PLEXIL
 {
   SerializedInputQueue::SerializedInputQueue()
     : InputQueue(),
-      m_queueGet(NULL),
-      m_queuePut(NULL),
-      m_freeList(NULL)
+      m_queueGet(nullptr),
+      m_queuePut(nullptr),
+      m_freeList(nullptr)
 #ifdef PLEXIL_WITH_THREADS
                       ,
       m_mutex(new std::mutex())
@@ -50,7 +48,7 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
     std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
-    m_queuePut = NULL;
+    m_queuePut = nullptr;
     while (m_queueGet) {
       QueueEntry *temp = m_queueGet;
       m_queueGet = temp->next;
@@ -68,7 +66,7 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
     std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
-    return m_queueGet == NULL;
+    return m_queueGet == nullptr;
   }
 
   QueueEntry *SerializedInputQueue::allocate()
@@ -101,7 +99,7 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
     std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
-    entry->next = NULL;
+    entry->next = nullptr;
     if (m_queuePut)
       m_queuePut->next = entry;
     m_queuePut = entry;
@@ -115,12 +113,12 @@ namespace PLEXIL
     std::lock_guard<std::mutex> const guard(*m_mutex);
 #endif
     if (!m_queueGet)
-      return NULL; // empty
+      return nullptr; // empty
     QueueEntry *result = m_queueGet;
     m_queueGet = result->next;
     if (!m_queueGet) { // queue now empty
       assertTrue_1(m_queuePut == result); // consistency check
-      m_queueGet = m_queuePut = NULL;
+      m_queueGet = m_queuePut = nullptr;
     }
     return result;
   }
@@ -135,7 +133,7 @@ namespace PLEXIL
       m_queueGet = temp->next;
       release(temp);
     }
-    m_queuePut = NULL;
+    m_queuePut = nullptr;
   }
 
 } // namespace PLEXIL
