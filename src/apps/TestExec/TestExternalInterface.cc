@@ -200,7 +200,7 @@ namespace PLEXIL
     // Ack should be string value
     Value value = parseResult(elt);
     CommandHandleValue handle = NO_COMMAND_HANDLE;
-    std::string const *str = NULL;
+    std::string const *str = nullptr;
     if (value.getValuePointer(str))
       handle = parseCommandHandleValue(*str);
     debugMsg("Test:testOutput",
@@ -253,7 +253,7 @@ namespace PLEXIL
 
     debugMsg("Test:testOutput",
              "Sending plan from file " << elt.attribute("file").value());
-    NodeImpl *root = NULL;
+    NodeImpl *root = nullptr;
     try {
       root = parsePlan(doc->document_element().child("PlexilPlan"));
     }

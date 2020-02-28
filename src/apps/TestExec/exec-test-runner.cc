@@ -336,7 +336,7 @@ int run(int argc, char** argv)
         // Clean up
         delete g_exec;
         g_exec = nullptr;
-        g_interface = NULL;
+        g_interface = nullptr;
 
         return 1;
       }
@@ -347,7 +347,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = NULL;
+      g_interface = nullptr;
 
       return 1;
     }
@@ -370,12 +370,12 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = NULL;
+      g_interface = nullptr;
 
       return 1;
     }
 
-    NodeImpl *root = NULL;
+    NodeImpl *root = nullptr;
     try {
       root = parsePlan(planDoc->document_element());
       hub.notifyOfAddPlan(planDoc->document_element());
@@ -388,7 +388,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = NULL;
+      g_interface = nullptr;
 
       return 1;
     }
@@ -400,7 +400,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = NULL;
+      g_interface = nullptr;
 
       return 1;
     }
@@ -422,7 +422,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = NULL;
+      g_interface = nullptr;
       
       return 1;
     }
@@ -438,7 +438,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = NULL;
+      g_interface = nullptr;
 
       return 1;
     }
@@ -451,7 +451,7 @@ int run(int argc, char** argv)
 
   delete g_exec;
   g_exec = nullptr;
-  g_interface = NULL;
+  g_interface = nullptr;
 
   return 0;
 }

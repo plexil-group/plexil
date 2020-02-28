@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,6 @@
 
 #include "jni-interface.hh"
 #include "ExecTestRunner.hh"
-#include <stddef.h> // for NULL
 
 extern "C"
 jint PlexilTestExec(JNIEnv *env, jobject /* java_this */, jobjectArray java_argv)
@@ -37,12 +36,12 @@ jint PlexilTestExec(JNIEnv *env, jobject /* java_this */, jobjectArray java_argv
   // Allocate and initialize argv
   char** argv = new char*[argc + 1];
   for (unsigned int i = 0; i <= argc; i++)
-	argv[i] = NULL;
+	argv[i] = nullptr;
 	   
   // Copy the strings
   for (unsigned int i = 0; i < argc; i++) {
 	jstring java_string = (jstring) env->GetObjectArrayElement(java_argv, i);
-	if (java_string == NULL) {
+	if (java_string == nullptr) {
       delete[] argv;
 	  return -1;
 	}
@@ -60,9 +59,9 @@ jint PlexilTestExec(JNIEnv *env, jobject /* java_this */, jobjectArray java_argv
 
   // Free argv
   for (unsigned int i = 0; i < argc; i++)
-	if (argv[i] != NULL) {
+	if (argv[i] != nullptr) {
 	  delete argv[i];
-	  argv[i] = NULL;
+	  argv[i] = nullptr;
 	}
   delete[] argv;
 
