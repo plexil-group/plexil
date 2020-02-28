@@ -81,7 +81,8 @@ namespace PLEXIL
   ExecListenerFactory::createInstance(std::string const &name,
                                       pugi::xml_node const xml)
   {
-    std::map<std::string, ExecListenerFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<std::string, ExecListenerFactoryPtr>::const_iterator it =
+      factoryMap().find(name);
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 
@@ -110,9 +111,9 @@ namespace PLEXIL
     return retval;
   }
 
-  std::map<std::string, ExecListenerFactory*>& ExecListenerFactory::factoryMap() 
+  std::map<std::string, ExecListenerFactoryPtr>& ExecListenerFactory::factoryMap() 
   {
-    static std::map<std::string, ExecListenerFactory*> sl_map;
+    static std::map<std::string, ExecListenerFactoryPtr> sl_map;
     static bool sl_inited = false;
     if (!sl_inited) {
       plexilAddFinalizer(&purge);
@@ -126,10 +127,6 @@ namespace PLEXIL
    */
   void ExecListenerFactory::purge()
   {
-    for (std::map<std::string, ExecListenerFactory*>::iterator it = factoryMap().begin();
-         it != factoryMap().end();
-         ++it)
-      delete it->second;
     factoryMap().clear();
   }
 
@@ -149,7 +146,7 @@ namespace PLEXIL
       delete factory;
       return;
     }
-    factoryMap()[name] = factory;
+    factoryMap()[name] = ExecListenerFactoryPtr(factory);
     debugMsg("ExecListenerFactory:registerFactory",
              " Registered exec listener factory for name \"" << name.c_str() << "\"");
   }

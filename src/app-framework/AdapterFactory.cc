@@ -60,13 +60,12 @@ namespace PLEXIL
     if (!*adapterType) {
       warn("AdapterFactory: missing "
            << InterfaceSchema::ADAPTER_TYPE_ATTR
-           << " attribute in adapter XML:\n" << *xml);
+           << " attribute in adapter XML:\n" << xml);
       return nullptr;
     }
 
     // Make it
-    bool dummy;
-    return createInstance(adapterType, xml, execInterface, dummy);
+    return createInstance(adapterType, xml, execInterface);
   }
 
   /**
@@ -83,40 +82,18 @@ namespace PLEXIL
                                  pugi::xml_node const xml,
                                  AdapterExecInterface& execInterface)
   {
-    bool dummy;
-    return createInstance(name, xml, execInterface, dummy);
-  }
-
-
-  /**
-   * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
-   *        the given configuration XML.
-   * @param name The registered name for the factory.
-   * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-   * @param wasCreated Reference to a boolean variable;
-   *                   variable will be set to true if new object created, false otherwise.
-   * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
-   */
-
-  InterfaceAdapter *
-  AdapterFactory::createInstance(std::string const& name,
-                                 pugi::xml_node const xml,
-                                 AdapterExecInterface& execInterface,
-                                 bool& wasCreated)
-  {
-    std::map<std::string, AdapterFactory*>::const_iterator it = factoryMap().find(name);
+    debugMsg("AdapterFactory:createInstance", " xml = " << xml);
+    std::map<std::string, AdapterFactoryPtr>::const_iterator it = factoryMap().find(name);
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("AdapterFactory:createInstance", 
-               "Attempting to dynamically load adapter type \""
-               << name.c_str() << "\"");
+               " Attempting to dynamically load adapter type \"" << name << "\"");
       // Attempt to dynamically load library
       const char* libCPath =
         xml.attribute(InterfaceSchema::LIB_PATH_ATTR).value();
       if (!dynamicLoadModule(name.c_str(), libCPath)) {
         warn("AdapterFactory: unable to load module for adapter type \""
              << name.c_str() << "\"");
-        wasCreated = false;
         return nullptr;
       }
 
@@ -129,10 +106,9 @@ namespace PLEXIL
       warn("AdapterFactory: No factory registered for adapter type \""
            << name.c_str()
            << "\".");
-      wasCreated = false;
       return nullptr;
     }
-    InterfaceAdapter *retval = it->second->create(xml, execInterface, wasCreated);
+    InterfaceAdapter *retval = it->second->create(xml, execInterface);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
     return retval;
   }
@@ -141,9 +117,9 @@ namespace PLEXIL
     return factoryMap().find(name) != factoryMap().end();
   }
 
-  std::map<std::string, AdapterFactory*>& AdapterFactory::factoryMap() 
+  std::map<std::string, AdapterFactoryPtr>& AdapterFactory::factoryMap() 
   {
-    static std::map<std::string, AdapterFactory*> sl_map;
+    static std::map<std::string, AdapterFactoryPtr> sl_map;
     static bool sl_inited = false;
     if (!sl_inited) {
       plexilAddFinalizer(&purge);
@@ -157,10 +133,6 @@ namespace PLEXIL
    */
   void AdapterFactory::purge()
   {
-    for (std::map<std::string, AdapterFactory*>::iterator it = factoryMap().begin();
-         it != factoryMap().end();
-         ++it)
-      delete it->second;
     factoryMap().clear();
   }
 
@@ -179,7 +151,7 @@ namespace PLEXIL
       delete factory;
       return;
     }
-    factoryMap()[name] = factory;
+    factoryMap()[name] = AdapterFactoryPtr(factory);
     debugMsg("AdapterFactory:registerFactory",
              " Registered adapter factory for name \"" << name.c_str() << "\"");
   }

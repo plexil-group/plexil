@@ -31,6 +31,7 @@
 #include "ExternalInterface.hh"
 
 #include <map>
+#include <memory>
 
 // Forward reference
 namespace pugi
@@ -300,8 +301,10 @@ namespace PLEXIL
 
     // Deliberately unimplemented
     InterfaceManager();
-    InterfaceManager(const InterfaceManager &);
-    InterfaceManager & operator=(const InterfaceManager &);
+    InterfaceManager(InterfaceManager const &);
+    InterfaceManager(InterfaceManager &&);
+    InterfaceManager &operator=(InterfaceManager const &);
+    InterfaceManager &operator=(InterfaceManager &&);
 
     //
     // Internal types and classes
@@ -319,7 +322,7 @@ namespace PLEXIL
     PropertyMap m_propertyMap;
 
     //* The queue
-    InputQueue *m_inputQueue;
+    std::unique_ptr<InputQueue> m_inputQueue;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;

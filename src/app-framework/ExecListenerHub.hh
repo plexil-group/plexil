@@ -162,8 +162,10 @@ namespace PLEXIL
     };
 
     // Deliberately unimplemented
-    ExecListenerHub(const ExecListenerHub&);
-    ExecListenerHub& operator=(const ExecListenerHub&);
+    ExecListenerHub(ExecListenerHub const &) = delete;
+    ExecListenerHub(ExecListenerHub &&) = delete;
+    ExecListenerHub &operator=(ExecListenerHub const &) = delete;
+    ExecListenerHub &operator=(ExecListenerHub &&) = delete;
 
     // Clients
     std::vector<ExecListenerPtr> m_listeners;

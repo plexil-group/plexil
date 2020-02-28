@@ -35,6 +35,7 @@
 
 #include "InterfaceAdapter.hh"
 
+#include <memory>
 #include <set>
 
 namespace PLEXIL {
@@ -228,19 +229,19 @@ namespace PLEXIL {
      */
     InterfaceAdapter *getDefaultInterface();
 
-    std::set<InterfaceAdapter *> & getAdapters()
+    std::vector<std::unique_ptr<InterfaceAdapter>> &getAdapters()
     {
       return m_adapters;
     }
 
-    std::set<InterfaceAdapter *> const & getAdapters() const
+    std::vector<std::unique_ptr<InterfaceAdapter>> const &getAdapters() const
     {
       return m_adapters;
     }
 
     ExecListenerHub *getListenerHub()
     {
-      return m_listenerHub;
+      return m_listenerHub.get();
     }
 
     /**
@@ -297,7 +298,7 @@ namespace PLEXIL {
      * @brief Construct the input queue specified by the configuration data.
      * @return Pointer to instance of a class derived from InputQueue.
      */
-    InputQueue *getInputQueue() const;
+    std::unique_ptr<InputQueue> constructInputQueue() const;
 
   private:
 
@@ -331,10 +332,10 @@ namespace PLEXIL {
     std::set<std::string> m_telemetryLookups;
 
     //* ExecListener hub
-    ExecListenerHub *m_listenerHub;
+    std::unique_ptr<ExecListenerHub> m_listenerHub;
 
-    //* Set of all known InterfaceAdapter instances
-    std::set<InterfaceAdapter *> m_adapters;
+    //* All known InterfaceAdapter instances
+    std::vector<std::unique_ptr<InterfaceAdapter>> m_adapters;
 
     //* List of directory names for plan file search paths
     std::vector<std::string> m_planPath;

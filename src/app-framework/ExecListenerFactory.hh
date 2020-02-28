@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #include "pugixml.hpp"
 
 #include <map>
+#include <memory>
 #include <string>
 
 namespace PLEXIL
@@ -40,6 +41,9 @@ namespace PLEXIL
 
   class ExecListener;
 
+  class ExecListenerFactory;
+  using ExecListenerFactoryPtr = std::unique_ptr<ExecListenerFactory>;
+
   /**
    * @brief Factory class for ExecListener instances.
    *        Implements the AbstractFactory design pattern.
@@ -47,6 +51,8 @@ namespace PLEXIL
   class ExecListenerFactory 
   {
   public:
+
+    virtual ~ExecListenerFactory() = default;
 
     /**
      * @brief Creates a new ExecListener instance with the type associated with the name and
@@ -85,9 +91,6 @@ namespace PLEXIL
 
   protected:
 
-    virtual ~ExecListenerFactory()
-    {}
-
     /**
      * @brief Registers an ExecListenerFactory with the specific name.
      * @param name The name by which the listener shall be known.
@@ -110,16 +113,18 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    ExecListenerFactory();
-    ExecListenerFactory(const ExecListenerFactory&);
-    ExecListenerFactory& operator=(const ExecListenerFactory&);
+    ExecListenerFactory() = delete;
+    ExecListenerFactory(ExecListenerFactory const &) = delete;
+    ExecListenerFactory(ExecListenerFactory &&) = delete;
+    ExecListenerFactory &operator=(ExecListenerFactory const &) = delete;
+    ExecListenerFactory &operator=(ExecListenerFactory &&) = delete;
 
     /**
      * @brief The map from names (std::string) to concrete ExecListenerFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<std::string, ExecListenerFactory*>& factoryMap();
+    static std::map<std::string, ExecListenerFactoryPtr>& factoryMap();
 
     const std::string m_name; /*!< Name used for lookup */
   };
@@ -137,9 +142,11 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    ConcreteExecListenerFactory();
-    ConcreteExecListenerFactory(const ConcreteExecListenerFactory&);
-    ConcreteExecListenerFactory& operator=(const ConcreteExecListenerFactory&);
+    ConcreteExecListenerFactory() = delete;
+    ConcreteExecListenerFactory(ConcreteExecListenerFactory const &) = delete;
+    ConcreteExecListenerFactory(ConcreteExecListenerFactory &&) = delete;
+    ConcreteExecListenerFactory &operator=(ConcreteExecListenerFactory const &) = delete;
+    ConcreteExecListenerFactory &operator=(ConcreteExecListenerFactory &&) = delete;
 
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.

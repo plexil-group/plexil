@@ -95,17 +95,8 @@ namespace PLEXIL {
 
   AdapterConfiguration::~AdapterConfiguration()
   {
+    // unregister adapters
     clearAdapterRegistry();
-
-    // unregister and delete adapters
-    // *** kludge for buggy std::set template ***
-    std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
-    while (it != m_adapters.end()) {
-      InterfaceAdapter *ia = *it;
-      m_adapters.erase(it); // these two lines should be:
-      it = m_adapters.begin(); // it = m_adapters.erase(it)
-      delete ia;
-    }
   }
 
   /**
@@ -133,7 +124,8 @@ namespace PLEXIL {
     // and register the adapter according to the data found there
     pugi::xml_node element = configXml.first_child();
     while (!element.empty()) {
-      debugMsg("AdapterConfiguration:verboseConstructInterfaces", " found element " << element.name());
+      debugMsg("AdapterConfiguration:verboseConstructInterfaces",
+               " found element " << element.name());
       const char* elementType = element.name();
       if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG) == 0) {
         // Construct the adapter
@@ -150,7 +142,7 @@ namespace PLEXIL {
                << "\"");
           return false;
         }
-        m_adapters.insert(adapter);
+        addInterfaceAdapter(adapter);
       }
       else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG) == 0) {
         // Construct an ExecListener instance and attach it to the Exec
@@ -213,17 +205,12 @@ namespace PLEXIL {
   {
     debugMsg("AdapterConfiguration:initialize", " initializing interface adapters");
     bool success = true;
-    for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
-         ++it) {
-      InterfaceAdapter *a = *it;
-      success = a->initialize();
+    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters) {
+      success = intf->initialize();
       if (!success) {
         warn("initialize: failed for adapter type \""
-		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
+		 << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
 		 << '"');
-        m_adapters.erase(it);
-        delete a;
         return false;
       }
     }
@@ -244,13 +231,11 @@ namespace PLEXIL {
   {
     debugMsg("AdapterConfiguration:start", " starting interface adapters");
     bool success = true;
-    for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
-         ++it) {
-      success = (*it)->start();
+    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters) {
+      success = intf->start();
       if (!success) {
         warn("start: start failed for adapter type \""
-             << (*it)->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
+             << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
              << '"');
         return false;
       }
@@ -273,7 +258,7 @@ namespace PLEXIL {
 
     // halt adapters
     bool success = true;
-    for (InterfaceAdapter *intf : m_adapters) {
+    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters) {
       debugMsg("AdapterConfiguration:stop",
                " stopping "
                << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value());
@@ -297,10 +282,8 @@ namespace PLEXIL {
 
     clearAdapterRegistry();
     bool success = true;
-    for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
-         it != m_adapters.end();
-         ++it)
-      success = (*it)->reset() && success;
+    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters)
+      success = intf->reset() && success;
 
     success = m_listenerHub->reset() && success;
     debugMsg("AdapterConfiguration:reset", " completed");
@@ -317,10 +300,8 @@ namespace PLEXIL {
     clearAdapterRegistry();
 
     bool success = true;
-    for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
-         it != m_adapters.end();
-         ++it)
-      success = (*it)->shutdown() && success;
+    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters)
+      success = intf->shutdown() && success;
     success = m_listenerHub->shutdown() && success;
 
     // Clean up
@@ -336,8 +317,11 @@ namespace PLEXIL {
    */
   void AdapterConfiguration::addInterfaceAdapter(InterfaceAdapter *adapter)
   {
-    if (m_adapters.find(adapter) == m_adapters.end())
-      m_adapters.insert(adapter);
+    if (std::find_if(m_adapters.begin(), m_adapters.end(),
+                     [adapter] (std::unique_ptr<InterfaceAdapter> const &a) -> bool
+                     { return adapter == a.get(); })
+        == m_adapters.end())
+      m_adapters.push_back(std::unique_ptr<InterfaceAdapter>(adapter));
   }
 
   /**
@@ -354,13 +338,13 @@ namespace PLEXIL {
    * @return Pointer to instance of a class derived from InputQueue.
    */
   // TODO: actually get type from input data
-  InputQueue *AdapterConfiguration::getInputQueue() const
+  std::unique_ptr<InputQueue> AdapterConfiguration::constructInputQueue() const
   {
     return 
 #ifdef PLEXIL_WITH_THREADS
-      new SerializedInputQueue();
+      std::unique_ptr<InputQueue>(new SerializedInputQueue());
 #else
-      new SimpleInputQueue();
+      std::unique_ptr<InputQueue>(new SimpleInputQueue());
 #endif
   }
 
@@ -501,9 +485,10 @@ namespace PLEXIL {
       debugMsg("AdapterConfiguration:registerCommandInterface",
                " registering interface " << intf << " for command '" << commandName << "'");
       m_commandMap.insert(std::pair<std::string, InterfaceAdapter *>(commandName, intf));
-      m_adapters.insert(intf);
+      addInterfaceAdapter(intf);
       return true;
-    } else {
+    }
+    else {
       debugMsg("AdapterConfiguration:registerCommandInterface",
                " interface already registered for command '" << commandName << "'");
       return false;
@@ -528,7 +513,7 @@ namespace PLEXIL {
       debugMsg("AdapterConfiguration:registerLookupInterface",
                " registering interface " << intf << " for lookup '" << stateName << "'");
       m_lookupMap.insert(std::pair<std::string, InterfaceAdapter *>(stateName, intf));
-      m_adapters.insert(intf);
+      addInterfaceAdapter(intf);
       if (telemetryOnly)
         m_telemetryLookups.insert(stateName);
       return true;
@@ -555,7 +540,7 @@ namespace PLEXIL {
     debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
              " registering planner update interface " << intf);
     m_plannerUpdateInterface = intf;
-    m_adapters.insert(intf);
+    addInterfaceAdapter(intf);
     return true;
   }
 
@@ -573,7 +558,7 @@ namespace PLEXIL {
       return false;
     }
     m_defaultInterface = intf;
-    m_adapters.insert(intf);
+    addInterfaceAdapter(intf);
     debugMsg("AdapterConfiguration:setDefaultInterface",
              " setting default interface " << intf);
     return true;
@@ -596,7 +581,7 @@ namespace PLEXIL {
       return false;
     }
     m_defaultLookupInterface = intf;
-    m_adapters.insert(intf);
+    addInterfaceAdapter(intf);
     debugMsg("AdapterConfiguration:setDefaultLookupInterface",
              " setting default lookup interface " << intf);
     return true;
@@ -618,7 +603,7 @@ namespace PLEXIL {
       return false;
     }
     m_defaultCommandInterface = intf;
-    m_adapters.insert(intf);
+    addInterfaceAdapter(intf);
     debugMsg("AdapterConfiguration:setDefaultCommandInterface",
              " setting default command interface " << intf);
     return true;
@@ -768,8 +753,10 @@ namespace PLEXIL {
    * @return true if the given adapter existed and was deleted. False if not found
    */
   bool AdapterConfiguration::deleteAdapter(InterfaceAdapter *intf) {
-    int res = m_adapters.erase(intf);
-    return res != 0;
+    return (m_adapters.end() != 
+            std::remove_if(m_adapters.begin(), m_adapters.end(),
+                           [intf] (std::unique_ptr<InterfaceAdapter> &a) -> bool
+                           { return intf == a.get(); }));
   }
 
   // Initialize global variable

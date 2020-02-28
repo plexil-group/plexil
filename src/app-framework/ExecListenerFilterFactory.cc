@@ -132,10 +132,6 @@ namespace PLEXIL
    */
   void ExecListenerFilterFactory::purge()
   {
-    for (FactoryMap::iterator it = factoryMap().begin();
-         it != factoryMap().end();
-         ++it)
-      delete it->second;
     factoryMap().clear();
   }
 
@@ -155,7 +151,7 @@ namespace PLEXIL
       delete factory;
       return;
     }
-    factoryMap()[name] = factory;
+    factoryMap()[name] = ExecListenerFilterFactoryPtr(factory);
     debugMsg("ExecListenerFilterFactory:registerFactory",
              " Registered exec listener filter factory for name \"" << name.c_str() << "\"");
   }

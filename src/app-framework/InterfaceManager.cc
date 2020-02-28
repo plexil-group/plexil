@@ -81,7 +81,6 @@ namespace PLEXIL
    */
   InterfaceManager::~InterfaceManager()
   {
-    delete m_inputQueue;
   }
 
   //
@@ -97,7 +96,7 @@ namespace PLEXIL
     if (!g_configuration)
       return false;
     bool result = g_configuration->initialize();
-    m_inputQueue = g_configuration->getInputQueue();
+    m_inputQueue = g_configuration->constructInputQueue();
     if (!m_inputQueue)
       return false;
     return result;

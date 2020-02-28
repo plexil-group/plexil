@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #include "pugixml.hpp"
 
 #include <map>
+#include <memory>
 #include <string>
 
 namespace PLEXIL
@@ -40,6 +41,9 @@ namespace PLEXIL
 
   class ExecListenerFilter;
 
+  class ExecListenerFilterFactory;
+  using ExecListenerFilterFactoryPtr = std::unique_ptr<ExecListenerFilterFactory>;
+
   /**
    * @brief Factory class for ExecListenerFilter instances.
    *        Implements the AbstractFactory design pattern.
@@ -47,6 +51,8 @@ namespace PLEXIL
   class ExecListenerFilterFactory 
   {
   public:
+
+    virtual ~ExecListenerFilterFactory() = default;
 
     /**
      * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
@@ -77,9 +83,6 @@ namespace PLEXIL
 
   protected:
 
-    virtual ~ExecListenerFilterFactory()
-    {}
-
     /**
      * @brief Registers an ExecListenerFilterFactory with the specific name.
      * @param name The name by which the filter shall be known.
@@ -107,7 +110,7 @@ namespace PLEXIL
     ExecListenerFilterFactory& operator=(ExecListenerFilterFactory const &);
 
     // Convenience typedef
-    typedef std::map<std::string, ExecListenerFilterFactory*> FactoryMap;
+    typedef std::map<std::string, ExecListenerFilterFactoryPtr> FactoryMap;
 
     /**
      * @brief The map from names to concrete ExecListenerFilterFactory instances.

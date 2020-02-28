@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #include "pugixml.hpp"
 
 #include <map>
+#include <memory>
 #include <string>
 
 namespace PLEXIL
@@ -41,6 +42,10 @@ namespace PLEXIL
   class InterfaceAdapter;
   class AdapterExecInterface;
 
+  class AdapterFactory;
+
+  using AdapterFactoryPtr = std::unique_ptr<AdapterFactory>;
+
   /**
    * @brief Factory class for InterfaceAdapter instances.  
    *        Implements the AbstractFactory design pattern.
@@ -48,6 +53,8 @@ namespace PLEXIL
   class AdapterFactory 
   {
   public:
+
+    virtual ~AdapterFactory() = default;
 
     /**
      * @brief Creates a new InterfaceAdapter instance as specified by
@@ -75,22 +82,6 @@ namespace PLEXIL
                                             AdapterExecInterface& execInterface);
 
     /**
-     * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
-     *        the given configuration XML.
-     * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-     * @param execInterface Reference to the parent InterfaceManager instance.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
-     * @return The new InterfaceAdapter.  If wasCreated is set to false, is not unique.
-     */
-
-    static InterfaceAdapter *createInstance(std::string const& name,
-                                            pugi::xml_node const xml,
-                                            AdapterExecInterface& execInterface,
-                                            bool& wasCreated);
-
-    /**
      * @brief Checks whether or not the given AdapterFactory is registered.
      * @param name The registered name for the factory
      * @return True if the factory is registered, false otherwise
@@ -106,8 +97,6 @@ namespace PLEXIL
     std::string const& getName() const {return m_name;}
 
   protected:
-    virtual ~AdapterFactory()
-    {}
 
     /**
      * @brief Registers an AdapterFactory with the specific name.
@@ -120,13 +109,10 @@ namespace PLEXIL
      * @brief Instantiates a new InterfaceAdapter of the appropriate type.
      * @param xml The configuration XML for the instantiated Adapter.
      * @param execInterface Reference to the parent InterfaceManager instance.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
      * @return The new InterfaceAdapter.
      */
     virtual InterfaceAdapter *create(pugi::xml_node const xml,
-                                     AdapterExecInterface& execInterface,
-                                     bool& wasCreated) const = 0;
+                                     AdapterExecInterface& execInterface) const = 0;
 
     AdapterFactory(std::string const& name)
       : m_name(name)
@@ -136,16 +122,17 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    AdapterFactory();
-    AdapterFactory(const AdapterFactory&);
-    AdapterFactory& operator=(const AdapterFactory&);
+    AdapterFactory() = delete;
+    AdapterFactory(AdapterFactory const &) = delete;
+    AdapterFactory &operator=(AdapterFactory const &) = delete;
+    AdapterFactory &operator=(AdapterFactory &&) = delete;
 
     /**
      * @brief The map from names to concrete AdapterFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<std::string, AdapterFactory*>& factoryMap();
+    static std::map<std::string, AdapterFactoryPtr>& factoryMap();
 
     std::string const m_name; /*!< Name used for lookup */
   };
@@ -163,26 +150,23 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    ConcreteAdapterFactory();
-    ConcreteAdapterFactory(const ConcreteAdapterFactory&);
-    ConcreteAdapterFactory& operator=(const ConcreteAdapterFactory&);
+    ConcreteAdapterFactory() = delete;
+    ConcreteAdapterFactory(ConcreteAdapterFactory const &) = delete;
+    ConcreteAdapterFactory(ConcreteAdapterFactory &&) = delete;
+    ConcreteAdapterFactory &operator=(ConcreteAdapterFactory const &) = delete;
+    ConcreteAdapterFactory &operator=(ConcreteAdapterFactory &&) = delete;
 
     /**
      * @brief Instantiates a new InterfaceAdapter of the appropriate type.
      * @param xml The configuration XML for the instantiated Adapter.
      * @param execInterface Reference to the parent InterfaceManager instance.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
      * @return The new InterfaceAdapter.
      */
 
     InterfaceAdapter *create(pugi::xml_node const xml,
-                             AdapterExecInterface& execInterface,
-                             bool& wasCreated) const
+                             AdapterExecInterface& execInterface) const
     {
-      InterfaceAdapter *result = new AdapterType(execInterface, xml);
-      wasCreated = true;
-      return result;
+      return new AdapterType(execInterface, xml);
     }
   };
 
