@@ -35,9 +35,6 @@ fi
 # shellcheck source=test-env.sh
 . "$PLEXIL_HOME"/test/TestExec-regression-test/test-env.sh
 
-# Parser error detection tests
-PARSER_ERROR_TESTS="$(find "$TEST_DIR"/plans/parser-tests -name '*.plx' -depth 1 -exec basename {} .plx \;)"
-
 # Tests requiring no external interaction, for which root node success is sufficient
 EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9
  ArrayEquality ArrayInLoop ArrayAssignmentWithFailure AssignmentFailureTest
@@ -106,7 +103,7 @@ echo
 echo --------------------- SUMMARY OF FAILED TESTS ---------------------
 echo
 
-for test in $PARSER_ERROR_TESTS ; do run-xml-parser-test "$test" ; done
+for f in plans/parser-tests/*.plx ; do run-xml-parser-test "$f" ; done
 for test in $EMPTY_SCRIPT_TESTS ; do run-empty-script-test "$test" ; done
 for test in $EMPTY_SCRIPT_VALID_TESTS ; do run-empty-script-valid-test "$test" ; done
 for test in $SAME_NAME_SCRIPT_TESTS ; do run-same-name-script-test "$test" ; done

@@ -27,7 +27,7 @@
 
 if [ -z "$1" ]
 then
-   echo "Usage: $0 <test_name>"
+   echo "Usage: $0 <input-file>"
    exit 1
 fi
 
@@ -41,18 +41,17 @@ fi
 . "$PLEXIL_HOME"/test/TestExec-regression-test/test-env.sh
 cd "$TEST_DIR" || ( echo "$0: Unable to change to $TEST_DIR ; exiting" ; exit 1 )
 
-PLAN_FILE=plans/parser-tests/"$1".plx
-if [ ! -r "$PLAN_FILE" ]
+if [ ! -r "$1" ]
 then
-   echo "$0: Plan file $PLAN_FILE not found; exiting"
+   echo "$0: Plan file $1 not found; exiting"
    exit 1
 fi
 
-OUT_FILE=output/"$1".out
+OUT_FILE=output/"$(basename "$1" .plx)".out
 
-echo "$1" >> tempRegressionResults
-if "$EXEC_PROG" -p "$PLAN_FILE" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>&1
+echo "$(basename "$1" .plx)" >> tempRegressionResults
+if "$EXEC_PROG" -p "$1" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>&1
 then
-    echo "$0: Failed to detect expected parser error in $1.plx"
+    echo "$0: Failed to detect expected parser error in $(basename "$1")"
     exit 1
 fi
