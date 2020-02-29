@@ -58,6 +58,8 @@
 #include "TimeAdapter.hh"
 #endif
 
+#include <algorithm>
+
 #ifdef STDC_HEADERS
 #include <cstring>
 #endif
