@@ -49,7 +49,7 @@ fi
 
 OUT_FILE=output/"$(basename "$1" .plx)".out
 
-echo "$(basename "$1" .plx)" >> tempRegressionResults
+basename "$1" .plx >> tempRegressionResults
 if "$EXEC_PROG" -p "$1" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>&1
 then
     echo "$0: Failed to detect expected parser error in $(basename "$1")"
