@@ -32,6 +32,7 @@
 namespace PLEXIL
 {
   // Forward references
+  class Assignable;
   class Assignment;
 
   class AssignmentNode final : public NodeImpl
@@ -70,10 +71,13 @@ namespace PLEXIL
     /**
      * @brief Accessor for the assigned variable.
      */
-    virtual Expression *getAssignmentVariable() const override;
+    virtual Assignable *getAssignmentVariable() const override;
 
     // Intended for plan parser only
-    Assignment *getAssignment() { return m_assignment; }
+    Assignment *getAssignment()
+    {
+      return m_assignment.get();
+    }
 
     /**
      * @brief Set the assignment.
@@ -105,9 +109,9 @@ namespace PLEXIL
 
   private:
 
-    void createDummyAssignment(); // unit test variant
+    void initDummyAssignment(); // unit test variant
 
-    Assignment *m_assignment;
+    std::unique_ptr<Assignment> m_assignment;
   };
 
 }

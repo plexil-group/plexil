@@ -51,13 +51,10 @@ namespace PLEXIL
                          NodeState state,
                          NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_update(nullptr)
+      m_update(new Update(this))
   {
     checkError(type == UPDATE,
                "Invalid node type " << type << " for an UpdateNode");
-
-    // Construct stuff as required for unit test
-    createDummyUpdate();
 
     // Activate conditions not activated by the base class constructor
     switch (m_state) {
@@ -90,12 +87,6 @@ namespace PLEXIL
     cleanUpConditions();
 
     cleanUpNodeBody();
-
-    if (m_update) {
-      debugMsg("UpdateNode:~UpdateNode", '<' << m_nodeId << '>');
-      delete m_update;
-      m_update = nullptr;
-    }
   }
 
   void UpdateNode::cleanUpNodeBody()
@@ -111,7 +102,7 @@ namespace PLEXIL
 
   void UpdateNode::setUpdate(Update *upd)
   {
-    m_update = upd;
+    m_update.reset(upd);
 
     // Get action-complete condition
     m_conditions[actionCompleteIdx] = m_update->getAck();
@@ -136,12 +127,6 @@ namespace PLEXIL
                      m_garbageConditions[endIdx]);
       m_garbageConditions[endIdx] = true;
     }
-  }
-
-  // Unit test variant
-  void UpdateNode::createDummyUpdate() 
-  {
-    m_update = new Update(this);
   }
 
   //

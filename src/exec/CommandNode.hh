@@ -74,8 +74,8 @@ namespace PLEXIL
     /**
      * @brief Get the node's command.
      */
-    Command const *getCommand() const { return m_command; }
-    Command *getCommand() { return m_command; }
+    Command const *getCommand() const { return m_command.get(); }
+    Command *getCommand() { return m_command.get(); }
 
     /**
      * @brief Set the command.
@@ -110,9 +110,9 @@ namespace PLEXIL
   private:
 
     // Unit test support
-    void createDummyCommand(); // unit test variant
+    void initDummyCommand(); // unit test variant
 
-    Command *m_command; /*<! The command to be performed. */
+    std::unique_ptr<Command> m_command; /*<! The command to be performed. */
   };
 
 }

@@ -39,7 +39,6 @@
 
 namespace PLEXIL
 {
-
   using ExpressionPtr = std::unique_ptr<Expression>;
 
   class Mutex;
@@ -238,7 +237,7 @@ namespace PLEXIL
      * @brief Accessor for an assignment node's assigned variable.
      * @note Default method, overridden by AssignmentNode.
      */
-    virtual Expression *getAssignmentVariable() const override 
+    virtual Assignable *getAssignmentVariable() const override 
     {
       return nullptr;
     }

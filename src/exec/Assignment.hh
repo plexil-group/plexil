@@ -33,14 +33,17 @@
 namespace PLEXIL
 {
 
+  // forward reference
+  class Assignable;
+
   class Assignment final
   {
   public:
     Assignment();
     ~Assignment();
 
-    Expression *getDest();
-    Expression const *getDest() const;
+    Assignable *getDest();
+    Assignable const *getDest() const;
 
     Expression *getAck();
     Expression const *getAck() const;
@@ -49,7 +52,7 @@ namespace PLEXIL
     Expression const *getAbortComplete() const;
 
     // For use by plan parser
-    void setVariable(Expression *lhs, bool garbage);
+    void setVariable(Assignable *lhs, bool garbage);
     void setExpression(Expression *rhs, bool garbage);
 
     // For use by Exec
@@ -58,6 +61,9 @@ namespace PLEXIL
     void fixValue();
     void execute();
     void retract();
+
+    // For use by AssignmentNode
+    void cleanUp();
 
     // LinkedQueue participant API
     Assignment *next() const;
@@ -75,7 +81,7 @@ namespace PLEXIL
     Value m_value; // TODO: templatize by assignable type?
     Assignment *m_next; // for LinkedQueue
     Expression *m_rhs;
-    Expression *m_dest;
+    Assignable *m_dest;
     bool m_deleteLhs, m_deleteRhs;
   };
 

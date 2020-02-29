@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Assignable.hh"
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
 #include "createExpression.hh"
@@ -100,7 +101,7 @@ namespace PLEXIL
     assertTrue_2(anode, "finalizeAssignment: AssignmentNode without an Assignment");
     xml_node temp = assn.first_child();
     bool varGarbage = false;
-    Expression *var = createAssignable(temp, anode, varGarbage);
+    Assignable *var = createAssignable(temp, anode, varGarbage);
     assertTrue_2(var, "finalizeAssignment: Internal error: null LHS expression");
     ValueType varType = var->valueType();
     temp = temp.next_sibling().first_child();

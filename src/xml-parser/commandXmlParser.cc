@@ -373,7 +373,7 @@ namespace PLEXIL
 
     // Optional destination expression
     xml_node destXml;
-    Expression *dest = nullptr;
+    Assignable *dest = nullptr;
     if (!testTag(NAME_TAG, temp)) {
       destXml = temp;
       bool destIsGarbage = false;

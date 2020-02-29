@@ -107,10 +107,10 @@ namespace PLEXIL
                            NodeState state,
                            NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_command(nullptr)
+      m_command(new Command(name))
   {
-    // Create dummy command for unit test
-    createDummyCommand();
+    // Set up dummy command for unit test
+    initDummyCommand();
 
     switch (m_state) {
     case EXECUTING_STATE:
@@ -152,9 +152,8 @@ namespace PLEXIL
 
     // Delete command last
     if (m_command) {
-      debugMsg("CommandNode:~CommandNode", '<' << m_nodeId << "> Removing command.");
-      delete m_command;
-      m_command = nullptr;
+      debugMsg("CommandNode:~CommandNode", '<' << m_nodeId << "> Cleaning up command.");
+      m_command->cleanUp();
     }
   }
 
@@ -175,7 +174,7 @@ namespace PLEXIL
   void CommandNode::setCommand(Command *cmd)
   {
     assertTrue_1(cmd);
-    m_command = cmd;
+    m_command.reset(cmd);
 
     // Construct action-complete condition
     m_conditions[actionCompleteIdx] = m_command->getCommandHandleKnownFn();
@@ -556,14 +555,13 @@ namespace PLEXIL
   }
 
   // Unit test utility
-  void CommandNode::createDummyCommand() 
+  void CommandNode::initDummyCommand() 
   {
     static StringConstant sl_dummyCmdName("dummy");
 
     // Empty arglist
     // No destination variable
     // No resource
-    m_command = new Command(this->getNodeId());
     m_command->setNameExpr(&sl_dummyCmdName, false);
   }
 

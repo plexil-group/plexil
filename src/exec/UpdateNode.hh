@@ -71,7 +71,7 @@ namespace PLEXIL
      */
     Update *getUpdate()
     {
-      return m_update; 
+      return m_update.get(); 
     }
 
     /**
@@ -109,9 +109,7 @@ namespace PLEXIL
     UpdateNode &operator=(UpdateNode const &) = delete;
     UpdateNode &operator=(UpdateNode &&) = delete;
 
-    void createDummyUpdate(); // for unit test
-
-    Update *m_update;
+    std::unique_ptr<Update> m_update;
   };
 
 }

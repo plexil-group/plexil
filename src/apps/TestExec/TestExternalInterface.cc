@@ -26,6 +26,7 @@
 
 #include "TestExternalInterface.hh"
 
+#include "Assignable.hh"
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -539,7 +540,7 @@ namespace PLEXIL
   void TestExternalInterface::executeCommand(Command *cmd)
   {
     State const& command = cmd->getCommand();
-    Expression *dest = cmd->getDest();
+    Assignable *dest = cmd->getDest();
     Expression *ack = cmd->getAck();
     debugMsg("Test:testOutput", "Executing " << command <<
              " into " <<

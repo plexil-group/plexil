@@ -141,7 +141,7 @@ namespace PLEXIL
   // createAssignable
   //
 
-  Expression *createAssignable(xml_node const expr,
+  Assignable *createAssignable(xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated)
   {
@@ -165,7 +165,7 @@ namespace PLEXIL
       reportParserExceptionWithLocation(expr,
                                         "Expression is not assignable");
     }
-    return resultExpr;
+    return resultExpr->asAssignable();
   }
 
   // FIXME

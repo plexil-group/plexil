@@ -27,10 +27,12 @@
 #ifndef PLEXIL_NODE_HH
 #define PLEXIL_NODE_HH
 
-#include "Expression.hh"
+#include "ExpressionListener.hh"
 #include "NodeConnector.hh"
 #include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
+
+#include <vector>
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
@@ -38,6 +40,7 @@
 namespace PLEXIL {
 
   // Forward references
+  class Assignable;
   class Mutex;
 
   //
@@ -154,7 +157,7 @@ namespace PLEXIL {
     /**
      * @brief Accessor for an assignment node's assigned variable.
      */
-    virtual Expression *getAssignmentVariable() const = 0;
+    virtual Assignable *getAssignmentVariable() const = 0;
 
     /**
      * @brief Gets the type of this node.

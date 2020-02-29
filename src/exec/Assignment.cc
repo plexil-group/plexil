@@ -49,10 +49,19 @@ namespace PLEXIL
 
   Assignment::~Assignment() 
   {
+    cleanUp();
+  }
+
+  void Assignment::cleanUp()
+  {
     if (m_deleteLhs)
       delete m_dest;
+    m_deleteLhs = false;
+    m_dest = nullptr;
     if (m_deleteRhs)
       delete m_rhs;
+    m_deleteRhs = false;
+    m_rhs = nullptr;
   }
 
   Assignment *Assignment::next() const
@@ -69,12 +78,12 @@ namespace PLEXIL
   // Both const and non-const flavors for accessors
   //
 
-  Expression *Assignment::getDest()
+  Assignable *Assignment::getDest()
   {
     return m_dest;
   }
 
-  Expression const *Assignment::getDest() const
+  Assignable const *Assignment::getDest() const
   {
     return m_dest;
   }
@@ -99,7 +108,7 @@ namespace PLEXIL
     return &m_abortComplete;
   }
 
-  void Assignment::setVariable(Expression *lhs, bool garbage)
+  void Assignment::setVariable(Assignable *lhs, bool garbage)
   {
     m_dest = lhs;
     m_deleteLhs = garbage;
@@ -113,7 +122,7 @@ namespace PLEXIL
 
   void Assignment::fixValue() 
   {
-    m_dest->asAssignable()->saveCurrentValue();
+    m_dest->saveCurrentValue();
     m_value = m_rhs->toValue();
   }
 
@@ -133,8 +142,8 @@ namespace PLEXIL
 
   void Assignment::execute()
   {
-    debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
-    m_dest->asAssignable()->setValue(m_value);
+    debugMsg("Test:testOutput", " Assigning " << m_value << " to " << m_dest->toString());
+    m_dest->setValue(m_value);
     m_ack.setValue(true);
     ExecListenerBase *listener = g_exec->getExecListener();
     if (listener)
@@ -143,15 +152,14 @@ namespace PLEXIL
 
   void Assignment::retract()
   {
-    debugMsg("Test:testOutput",
-             "Restoring previous value of " << m_dest->toString());
-    m_dest->asAssignable()->restoreSavedValue();
+    debugMsg("Test:testOutput", " Restoring previous value of " << m_dest->toString());
+    m_dest->restoreSavedValue();
     m_abortComplete.setValue(true);
     ExecListenerBase *listener = g_exec->getExecListener();
     if (listener)
       listener->notifyOfAssignment(m_dest,
                                    m_dest->getName(),
-                                   m_dest->asAssignable()->getSavedValue());
+                                   m_dest->getSavedValue());
   }
 
 }

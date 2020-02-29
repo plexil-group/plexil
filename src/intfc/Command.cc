@@ -79,22 +79,27 @@ namespace PLEXIL
   {
     if (nameIsGarbage)
       delete nameExp;
+    nameIsGarbage = false;
     nameExp = nullptr;
 
     if (priorityIsGarbage)
       delete priorityExp;
+    priorityIsGarbage = false;
     priorityExp = nullptr;
 
     if (lowerBoundIsGarbage)
       delete lowerBoundExp;
+    lowerBoundIsGarbage = false;
     lowerBoundExp = nullptr;
 
     if (upperBoundIsGarbage)
       delete upperBoundExp;
+    upperBoundIsGarbage = false;
     upperBoundExp = nullptr;
 
     if (releaseIsGarbage)
       delete releaseAtTermExp;
+    releaseIsGarbage = false;
     releaseAtTermExp = nullptr;
   }
 
@@ -190,19 +195,17 @@ namespace PLEXIL
 
   void Command::cleanUp()
   {
-    if (m_nameIsGarbage) {
+    if (m_nameIsGarbage)
       delete m_nameExpr;
-      m_nameIsGarbage = false;
-    }
+    m_nameIsGarbage = false;
     m_nameExpr = nullptr;
 
     delete m_argVec;
     m_argVec = nullptr;
 
-    if (m_destIsGarbage) {
+    if (m_destIsGarbage)
       delete m_dest;
-      m_destIsGarbage = false;
-    }
+    m_destIsGarbage = false;
     m_dest = nullptr;
 
     if (m_resourceList) {
@@ -215,7 +218,7 @@ namespace PLEXIL
     }
   }
 
-  void Command::setDestination(Expression *dest, bool isGarbage)
+  void Command::setDestination(Assignable *dest, bool isGarbage)
   {
     m_dest = dest;
     m_destIsGarbage = isGarbage;
@@ -271,11 +274,9 @@ namespace PLEXIL
     return sl_emptyList;
   }
 
-  Expression *Command::getDest()
+  Assignable *Command::getDest()
   {
-    if (m_dest)
-      return m_dest;
-    return nullptr;
+    return m_dest;
   }
 
   bool Command::isCommandNameConstant() const

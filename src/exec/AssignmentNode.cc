@@ -51,13 +51,14 @@ namespace PLEXIL
                                  NodeState state,
                                  NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_assignment(nullptr)
+      m_assignment(new Assignment())
   {
+    // FIXME: is this really necessary?
     checkError(type == ASSIGNMENT,
                "Invalid node type " << type << " for an AssignmentNode");
 
-    // Create Assignment object
-    createDummyAssignment();
+    // Populate Assignment
+    initDummyAssignment();
 
     switch (state) {
     case EXECUTING_STATE:
@@ -84,16 +85,15 @@ namespace PLEXIL
     cleanUpConditions();
 
     if (m_assignment) {
-      debugMsg("AssignmentNode:~AssignmentNode", "<" << m_nodeId << "> Removing assignment.");
-      delete m_assignment;
-      m_assignment = nullptr;
+      debugMsg("AssignmentNode:~AssignmentNode", "<" << m_nodeId << "> Cleaning up assignment.");
+      m_assignment->cleanUp();
     }
   }
 
   void AssignmentNode::setAssignment(Assignment *assn)
   {
     assertTrue_1(assn);
-    m_assignment = assn;
+    m_assignment.reset(assn);
 
     // Set action-complete condition
     m_conditions[actionCompleteIdx] = m_assignment->getAck();
@@ -105,15 +105,13 @@ namespace PLEXIL
   }
 
   // Unit test variant of above
-  void AssignmentNode::createDummyAssignment() 
+  void AssignmentNode::initDummyAssignment() 
   {
-    m_assignment = new Assignment();
-    m_assignment->setVariable(new BooleanVariable(),
-                              true);
+    m_assignment->setVariable(new BooleanVariable(), true);
     m_assignment->setExpression(TRUE_EXP(), false);
   }
 
-  Expression *AssignmentNode::getAssignmentVariable() const
+  Assignable *AssignmentNode::getAssignmentVariable() const
   {
     return m_assignment->getDest();
   }
@@ -255,7 +253,7 @@ namespace PLEXIL
                   "AssignmentNode::execute(): Assignment is null");
     m_assignment->activate();
     m_assignment->fixValue();
-    g_exec->enqueueAssignment(m_assignment);
+    g_exec->enqueueAssignment(m_assignment.get());
   }
 
   void AssignmentNode::transitionFromExecuting()
@@ -372,7 +370,7 @@ namespace PLEXIL
   {
     if (m_state != WAITING_STATE) { 
       // Notify any nodes waiting on the assignment variable
-      Assignable *var = getAssignmentVariable()->asAssignable()->getBaseVariable();
+      Assignable *var = getAssignmentVariable()->getBaseVariable();
       var->release();
       for (Node *n : *var->getWaitingNodes())
         n->notifyResourceAvailable();
@@ -393,7 +391,7 @@ namespace PLEXIL
   {
     if (m_state == FAILING_STATE) {
       // Notify any nodes waiting on the assignment variable
-      Assignable *var = getAssignmentVariable()->asAssignable()->getBaseVariable();
+      Assignable *var = getAssignmentVariable()->getBaseVariable();
       var->release();
       for (Node *n : *var->getWaitingNodes())
         n->notifyResourceAvailable();
@@ -403,7 +401,7 @@ namespace PLEXIL
   void AssignmentNode::abort()
   {
     debugMsg("Node:abort", "Aborting node " << m_nodeId << ' ' << this);
-    g_exec->enqueueAssignmentForRetraction(m_assignment);
+    g_exec->enqueueAssignmentForRetraction(m_assignment.get());
   }
 
   void AssignmentNode::specializedDeactivateExecutable() 

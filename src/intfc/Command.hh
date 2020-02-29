@@ -110,7 +110,7 @@ namespace PLEXIL
     Command(std::string const &nodeName);
     ~Command();
 
-    Expression *getDest();
+    Assignable *getDest();
     Expression *getAck() {return &m_ack;}
     Expression *getAbortComplete() {return &m_abortComplete;}
     State const &getCommand() const;
@@ -122,7 +122,7 @@ namespace PLEXIL
     bool isActive() const { return m_active; }
 
     // Interface to plan parser
-    void setDestination(Expression *dest, bool isGarbage);
+    void setDestination(Assignable *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void setArgumentVector(ExprVec *vec);
     void setResourceList(ResourceList *l);
@@ -177,7 +177,7 @@ namespace PLEXIL
     SimpleBooleanVariable m_abortComplete;
     State m_command;
     Expression *m_nameExpr;
-    Expression *m_dest;
+    Assignable *m_dest;
     ExprVec *m_argVec;
     ResourceList *m_resourceList;
     ResourceValueList *m_resourceValueList;

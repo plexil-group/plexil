@@ -229,18 +229,14 @@ namespace PLEXIL
           if (canTransition) {
             // Preserve old debug output
             debugMsg("PlexilExec:handleConditionsChanged",
-                     "Node " << candidate->getNodeId()
+                     " Node " << candidate->getNodeId()
                      << " had a relevant condition change.");
             debugMsg("PlexilExec:handleConditionsChanged",
-                     "Considering node '" << candidate->getNodeId()
+                     " Considering node '" << candidate->getNodeId()
                      << "' for state transition.");
             if (!resourceCheckRequired(candidate)) {
               // The node is eligible to transition now
               addStateChangeNode(candidate);
-              // Preserve old debug output
-              debugMsg("PlexilExec:handleConditionsChanged",
-                       "Placing node '" << candidate->getNodeId() <<
-                       "' on the state change queue in position " << ++m_queuePos);
             }
             else {
               // Possibility of conflict - set it aside to evaluate as a batch
@@ -361,16 +357,6 @@ namespace PLEXIL
     // Implementation details
     //
 
-    // Local helper function
-    // Returns true if no assignment in list references same variable
-    static bool checkAssignment(Assignment const *assign,
-                                LinkedQueue<Assignment> &list)
-    {
-      Expression const *base = assign->getDest()->asAssignable()->getBaseVariable();
-      return !list.find_if([base](Assignment const *a)
-                           {return base == a->getDest()->asAssignable()->getBaseVariable();});
-    }
-
     //
     // Resource conflict detection and resolution
     //
@@ -480,8 +466,7 @@ namespace PLEXIL
 
       // Variables next
       if (node->getType() == NodeType_Assignment) {
-        Assignable *var =
-          node->getAssignmentVariable()->asAssignable()->getBaseVariable();
+        Assignable *var = node->getAssignmentVariable()->getBaseVariable();
         if (success) {
           // Try to reserve the variable
           success = var->reserve(node);
@@ -614,7 +599,8 @@ namespace PLEXIL
     void addStateChangeNode(Node *node) {
       switch (node->getQueueStatus()) {
       case QUEUE_NONE:   // normal case
-        debugMsg("PlexilExec:addStateChangeNode",
+	// Preserve old debug output
+        debugMsg("PlexilExec:handleConditionsChanged",
                  " Placing node " << node->getNodeId() << ' ' << node <<
                  " on the state change queue in position " << ++m_queuePos);
         node->setQueueStatus(QUEUE_TRANSITION);
@@ -679,7 +665,7 @@ namespace PLEXIL
         for (Mutex *m : *uses)
           m->removeWaitingNode(node);
       if (node->getType() == NodeType_Assignment)
-        node->getAssignmentVariable()->asAssignable()->removeWaitingNode(node);
+        node->getAssignmentVariable()->removeWaitingNode(node);
     }
 
     Node *getFinishedRootNode() {
