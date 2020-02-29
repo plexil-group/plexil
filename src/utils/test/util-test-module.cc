@@ -53,7 +53,6 @@
 #include "stricmp.h"
 #include "TestData.hh"
 #include "TestSupport.hh"
-#include "ThreadMutex.hh"
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
 
@@ -255,43 +254,6 @@ private:
 #endif
   }
 };
-
-#ifdef PLEXIL_WITH_THREADS
-class MutexTest
-{
-public:
-  static bool test()
-  {
-    runTest(testGuard);
-    return true;
-  }
-
-  static bool testGuard()
-  {
-    bool result = true;
-    ThreadMutex m;
-    try {
-      ThreadMutexGuard mg(m);
-      Error::doThrowExceptions();
-      assertTrue_2(0 == 1, "This assertion is supposed to fail");
-      std::cout << "ERROR: Failed to throw exception" << std::endl;
-      result = false;
-    }
-    catch (Error& e) {
-      std::cout << "Caught expected exception" << std::endl;
-      if (m.trylock())
-    result = result && true;
-      else {
-    std::cout << "Throwing failed to run guard destructor" << std::endl;
-    result = false;
-      }
-      m.unlock();
-    }
-    return result;
-  }
-
-};
-#endif /* PLEXIL_WITH_THREADS */
 
 class TimespecTests
 {
