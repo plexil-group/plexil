@@ -491,9 +491,6 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(DebugTest::test);
   runTestSuite(TimespecTests::test);
   runTestSuite(TimevalTests::test);
-#ifdef PLEXIL_WITH_THREADS
-  runTestSuite(MutexTest::test);
-#endif
   runTestSuite(StricmpTests::test);
 
   runTestSuite(SimpleMapTest);
