@@ -6,4 +6,3 @@ if (true)
  foo();
 else
  bar();
-endif

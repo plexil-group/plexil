@@ -14,5 +14,4 @@ Fib: {
       s2 = result;
     }
   }
-  endif
 }

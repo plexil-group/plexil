@@ -449,9 +449,15 @@ action
     -> ^(ACTION $actionId? $rest)
  ;
 
-baseAction : compoundAction | simpleAction | block ; 
-
-compoundAction : forAction | ifAction | onCommandAction | onMessageAction | whileAction ;
+baseAction :
+     ifAction
+     | forAction
+     | onCommandAction
+     | onMessageAction
+     | whileAction
+     | block
+     | simpleAction
+ ;
 
 // One-liner actions
 simpleAction :
@@ -477,15 +483,32 @@ forAction
     -> ^(FOR_KYWD ^(VARIABLE_DECLARATION baseTypeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
  ;
 
+// Eliminate requirement for 'endif'
+// Retain 'endif' as optional noise word for compatibility
 ifAction
 @init { m_paraphrases.push("in \"if\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-    IF_KYWD^ expression action
-    (ELSEIF_KYWD! expression action)*
+    IF_KYWD^ expression consequentAction
+    (ELSEIF_KYWD! expression consequentAction)*
     (ELSE_KYWD! action)?
-    ENDIF_KYWD!
+    ENDIF_KYWD!?
     SEMICOLON!?
+ ;
+
+consequentAction :
+    (actionId=NCNAME COLON)?
+	rest=consequent
+    -> ^(ACTION $actionId? $rest)
+ ;
+
+consequent :
+ forAction
+ | onCommandAction
+ | onMessageAction
+ | whileAction
+ | block
+ | simpleAction
  ;
 
 onCommandAction

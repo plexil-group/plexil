@@ -56,7 +56,6 @@ DriveToSchool:
   {
     if ( Lookup (no_passengers) ) Radio: { select_radio(); }
     else CD: { select_CD(); }
-    endif
   }
 
   DriveUntilAtSchool:
@@ -72,7 +71,6 @@ DriveToSchool:
             Wipers: { turn_on_wipers(); }
             Lights: { turn_on_lights(); }
           }
-        endif
       }
 
       DriveABit:

@@ -10,4 +10,3 @@ root:
     }
   elseif 2 == 2 bar();
   else baz();
-  endif

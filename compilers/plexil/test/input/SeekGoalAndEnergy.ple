@@ -57,7 +57,7 @@ SeekGoalAndEnergy: { //RobotYellow and RobotBlue operate concurrently
 			} else {
 				//move towards goal
 				DecidedMoveDirection = GoalDirection;
-			} endif
+			}
 			Test: MoveDown(RobotName);
 			MakeMovement: {
 				// skipped if plan is to stay put
