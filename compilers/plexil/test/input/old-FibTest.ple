@@ -16,6 +16,5 @@ FibTest: {
       s2 = result;
     }
   }
-  endif
   pprint (result);
 }
