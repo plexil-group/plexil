@@ -216,24 +216,16 @@ namespace PLEXIL
                     printConditionCheckQueue();
                   });
 
-        // Size of m_candidateQueue is upper bound on queue size
         // Evaluate conditions of nodes reporting a change
         while (!m_candidateQueue.empty()) {
           Node *candidate = getCandidateNode();
           bool canTransition = candidate->getDestState(); // sets node's next state
-          // Preserve old debug output
-          condDebugMsg(canTransition,
-                       "Node:checkConditions",
-                       " Can (possibly) transition to "
-                       << nodeStateName(candidate->getNextState()));
           if (canTransition) {
-            // Preserve old debug output
             debugMsg("PlexilExec:handleConditionsChanged",
-                     " Node " << candidate->getNodeId()
-                     << " had a relevant condition change.");
-            debugMsg("PlexilExec:handleConditionsChanged",
-                     " Considering node '" << candidate->getNodeId()
-                     << "' for state transition.");
+                     " Node " << candidate->getNodeId() << ' ' << candidate
+                     << " can transition from "
+                     << nodeStateName(candidate->getState())
+                     << " to " << nodeStateName(candidate->getNextState()));
             if (!resourceCheckRequired(candidate)) {
               // The node is eligible to transition now
               addStateChangeNode(candidate);
@@ -247,14 +239,15 @@ namespace PLEXIL
         }
 
         // See if any on the pending queue are eligible
-        condDebugStmt(!m_pendingQueue.empty(),
-                      "PlexilExec:step",
-                      {
-                        getDebugOutputStream() << "[PlexilExec:step]["
-                                               << cycleNum << ":" << stepCount << "]";
-                        printPendingQueue();
-                      });
-        resolveResourceConflicts();
+        if (!m_pendingQueue.empty()) {
+          debugStmt("PlexilExec:step",
+                    {
+                      getDebugOutputStream() << "[PlexilExec:step]["
+                                             << cycleNum << ":" << stepCount << "]";
+                      printPendingQueue();
+                    });
+          resolveResourceConflicts();
+        }
 
         if (m_stateChangeQueue.empty())
           break; // nothing to do, exit quiescence loop
@@ -323,8 +316,6 @@ namespace PLEXIL
 
     virtual void addCandidateNode(Node *node) override
     {
-      debugMsg("PlexilExec:notifyNodeConditionChanged",
-               " for node " << node->getNodeId() << ' ' << node);
       m_candidateQueue.push(node);
     }
 
@@ -454,27 +445,20 @@ namespace PLEXIL
     // If resource(s) busy, leave node on pending queue
     void tryResourceAcquisition(Node *node)
     {
-      debugMsg("PlexilExec:tryResourceAcquisition", ' ' << node->getNodeId() << ' ' << node);
-
       // Mutexes first
       std::vector<Mutex *> const *uses = node->getUsingMutexes();
       bool success = true;
       if (uses) {
         for (Mutex *m : *uses)
-          success = m->acquire(node) && success;
+          if (success)
+            success = m->acquire(node) && success;
       }
 
       // Variables next
-      if (node->getType() == NodeType_Assignment) {
-        Assignable *var = node->getAssignmentVariable()->getBaseVariable();
-        if (success) {
-          // Try to reserve the variable
-          success = var->reserve(node);
-        }
-        else {
-          // Add it to variable's queue
-          var->addWaitingNode(node);
-        }
+      if (success && node->getType() == NodeType_Assignment) {
+        // Try to reserve the variable
+        // Calls addWaitingNode() on failure
+        success = node->getAssignmentVariable()->getBaseVariable()->reserve(node);
       }
 
       debugMsg("PlexilExec:tryResourceAcquisition",
@@ -489,24 +473,19 @@ namespace PLEXIL
         // If we couldn't get all the resources, release the mutexes we got
         // and set pending status
         if (uses) {
-          for (Mutex *m : *uses)
-            if (node == m->getHolder()) {
+          for (Mutex *m : *uses) {
+            if (node == m->getHolder())
               m->release();
-              m->addWaitingNode(node);
-            }
+            m->addWaitingNode(node);
+          }
         }
         node->setQueueStatus(QUEUE_PENDING);
       }
     }
 
+    // Only called if pending queue not empty
     void resolveResourceConflicts()
     {
-      if (m_pendingQueue.empty())
-        return;
-
-      debugMsg("PlexilExec:resolveResourceConflicts",
-               ' ' << m_pendingQueue.size() << " nodes in pending queue");
-
       Node *priorityHead = m_pendingQueue.front();
       std::vector<Node *> priorityNodes;
       while (priorityHead) {
@@ -531,12 +510,15 @@ namespace PLEXIL
         debugMsg("PlexilExec:resolveResourceConflicts",
                  ' ' << priorityNodes.size() << " nodes eligible to acquire resources");
 
-        // Check for variable assignment conflicts
-        // TODO
+        // Check assignment variable conflicts at same priority here - 
+        // or just let them happen in order they were enqueued,
+        // as the variable becomes available.
+
         // if (priorityNodes.size() > 1) {
         // }
 
-        // Acquire the resources and transition the remaining nodes, if possible
+        // Try to acquire the resources.
+        // If successful, transition the nodes.
         for (Node *n : priorityNodes)
           tryResourceAcquisition(n);
 
@@ -599,7 +581,7 @@ namespace PLEXIL
     void addStateChangeNode(Node *node) {
       switch (node->getQueueStatus()) {
       case QUEUE_NONE:   // normal case
-	// Preserve old debug output
+        // Preserve old debug output
         debugMsg("PlexilExec:handleConditionsChanged",
                  " Placing node " << node->getNodeId() << ' ' << node <<
                  " on the state change queue in position " << ++m_queuePos);
@@ -649,10 +631,6 @@ namespace PLEXIL
     {
       node->setQueueStatus(QUEUE_PENDING_TRY);
       m_pendingQueue.insert(node);
-      std::vector<Mutex *> const *uses = node->getUsingMutexes();
-      if (uses)
-        for (Mutex *m : *uses)
-          m->addWaitingNode(node);
     }
 
     // Should only happen in QUEUE_PENDING and QUEUE_PENDING_TRY.

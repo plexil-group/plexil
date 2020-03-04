@@ -143,18 +143,6 @@ namespace PLEXIL {
     virtual FailureType getFailureType() const = 0;
 
     /**
-     * @brief Mark the node as eligible for recheck of conditions.
-     * @return true if it should be added to candidate queue, false otherwise
-     */
-    virtual bool scheduleCheckConditions() = 0;
-
-    /**
-     * @brief Clear the check-conditions "flag".
-     * @return The resulting QueueStatus.
-     */
-    virtual QueueStatus conditionsChecked() = 0;
-
-    /**
      * @brief Accessor for an assignment node's assigned variable.
      */
     virtual Assignable *getAssignmentVariable() const = 0;

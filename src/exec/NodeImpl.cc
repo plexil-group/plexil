@@ -588,28 +588,49 @@ namespace PLEXIL
     case QUEUE_NONE:              // add to check queue
       m_queueStatus = QUEUE_CHECK;
       g_exec->addCandidateNode(this);
+      debugMsg("Node:notifyChanged",
+               " adding " << m_nodeId << ' ' << this << " to check queue");
       return;
 
     case QUEUE_PENDING:           // will be checked while on pending queue
       m_queueStatus = QUEUE_PENDING_CHECK;
+      debugMsg("Node:notifyChanged",
+               " pending node " << m_nodeId << ' ' << this
+               << " will be rechecked");
       return;
 
     case QUEUE_PENDING_TRY:       // will be checked while on pending queue
       m_queueStatus = QUEUE_PENDING_TRY_CHECK;
+      debugMsg("Node:notifyChanged",
+               " pending node " << m_nodeId << ' ' << this
+               << " will be rechecked");
       return;
       
     case QUEUE_TRANSITION:        // state transition pending, defer adding to queue
       m_queueStatus = QUEUE_TRANSITION_CHECK;
+      debugMsg("Node:notifyChanged",
+               " transitioning node " << m_nodeId << ' ' << this
+               << " will be rechecked");
       return;
 
-    case QUEUE_CHECK:             // already a candidate
-    case QUEUE_PENDING_CHECK:     // already a candidate
-    case QUEUE_TRANSITION_CHECK:  // will become a candidate after pending transition
-    case QUEUE_DELETE:            // cannot possibly be a candidate, silently ignore (?)
+    case QUEUE_CHECK:             // already a candidate, silently ignore
+      return;
+
+    case QUEUE_PENDING_CHECK:     // already a candidate, silently ignore
+      return;
+
+    case QUEUE_TRANSITION_CHECK:  // already a candidate, silently ignore
+      return;
+
+    case QUEUE_DELETE:            // cannot possibly be a candidate
+      errorMsg("NodeImpl::notifyChanged, node "
+               << m_nodeId << ' ' << this
+               << " is on delete queue and ineligible for checking");
       return;
 
     default:                      // Invalid queue state
-      errorMsg("NodeImpl::notifyChanged for node " << m_nodeId << ": invalid queue state");
+      errorMsg("NodeImpl::notifyChanged, node "
+               << m_nodeId << ' ' << this << ": invalid queue state");
       return;
     }
   }
@@ -618,95 +639,29 @@ namespace PLEXIL
   {
     switch (m_queueStatus) {
     case QUEUE_PENDING_TRY:
-      // already marked - ignore - can happen when multiple resources in use by one node
+      // already marked - ignore -
+      // can happen when node requires multiple resources
       return;
 
     case QUEUE_PENDING:
       m_queueStatus = QUEUE_PENDING_TRY;
       debugMsg("Node:notifyResourceAvailable",
-               ' ' << m_nodeId << " will retry");
+               ' ' << m_nodeId << ' ' << this << " will retry");
       return;
 
     case QUEUE_PENDING_CHECK:
       m_queueStatus = QUEUE_PENDING_TRY_CHECK;
       debugMsg("Node:notifyResourceAvailable",
-               ' ' << m_nodeId << " will retry after checking conditions");
+               ' ' << m_nodeId << ' ' << this
+               << " will retry after checking conditions");
       return;
 
     default:
+      // Shouldn't happen, but harmless
       debugMsg("Node:notifyResourceAvailable",
-               ' ' << m_nodeId << " not in pending queue, ignoring");
+               ' ' << m_nodeId << ' ' << this
+               << " not in pending queue, ignoring");
       return;
-    }
-  }
-
-  /**
-   * @brief Mark the node as eligible for recheck of conditions.
-   * @return true if it should be added to candidate queue, false otherwise
-   */
-  bool NodeImpl::scheduleCheckConditions()
-  {
-    switch (m_queueStatus) {
-      // Only case which should return true
-    case QUEUE_NONE:
-      // m_queueStatus = QUEUE_CHECK; // exec will do this
-      return true;
-
-      // Valid cases
-
-    case QUEUE_PENDING_TRY: // just added, or just notified mutex available
-      m_queueStatus = QUEUE_PENDING_TRY_CHECK;
-      return false;
-
-    case QUEUE_PENDING:     // waiting on a mutex
-      m_queueStatus = QUEUE_PENDING_CHECK;
-      return false;
-
-    case QUEUE_TRANSITION:  // scheduled for state transition, will be checked after
-      m_queueStatus = QUEUE_TRANSITION_CHECK;
-      return false;
-
-    case QUEUE_CHECK:
-    case QUEUE_PENDING_TRY_CHECK:
-    case QUEUE_PENDING_CHECK:
-    case QUEUE_TRANSITION_CHECK:
-      // ignore, check already scheduled
-    case QUEUE_DELETE:
-      // ignore, on its way to deletion
-      return false;
-
-    default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "scheduleCheckConditions called on ineligible node " << m_nodeId
-                    << " with queue status " << m_queueStatus);
-      return false;
-    }
-  }
-
-  /**
-   * @brief Clear the check-conditions "flag".
-   */
-  QueueStatus NodeImpl::conditionsChecked()
-  {
-    switch (m_queueStatus) {
-      // Valid cases
-    case QUEUE_CHECK:
-      return (m_queueStatus = QUEUE_NONE);
-
-    case QUEUE_PENDING_TRY_CHECK:
-      return (m_queueStatus = QUEUE_PENDING_TRY);
-
-    case QUEUE_PENDING_CHECK:
-      return (m_queueStatus = QUEUE_PENDING);
-
-    case QUEUE_TRANSITION_CHECK: // shouldn't happen
-      // return (m_queueStatus = QUEUE_NONE);
-
-    default:
-      assertTrueMsg(ALWAYS_FAIL,
-                    "conditionsChecked called on ineligible node " << m_nodeId
-                    << " with queue status " << m_queueStatus);
-      return QUEUE_NONE;
     }
   }
 

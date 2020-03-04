@@ -53,22 +53,27 @@ namespace PLEXIL
     assertTrue_2(acquirer, "Mutex::acquire: null argument!");
     if (m_holder) {
       debugMsg("Mutex:acquire",
-               ' ' << m_name << " node " << acquirer->getNodeId()
-               << " failed; mutex held by node " << m_holder->getNodeId());
+               ' ' << m_name << " node "
+               << acquirer->getNodeId() << ' ' << acquirer
+               << " failed; mutex held by node " << m_holder->getNodeId()
+               << ' ' << m_holder);
       addWaitingNode(acquirer);
       return false;
     }
     m_holder = acquirer;
     std::remove(m_waiters.begin(), m_waiters.end(), acquirer);
     debugMsg("Mutex:acquire",
-             ' ' << m_name << " node " << acquirer->getNodeId() << " succeeded");
+             ' ' << m_name << " node "
+             << acquirer->getNodeId() << ' ' << acquirer << " succeeded");
     return true;
   }
 
   void Mutex::release()
   {
     assertTrue_2(m_holder, "Releasing mutex which was not held");
-    debugMsg("Mutex:release",' ' << m_name << " by node " << m_holder->getNodeId());
+    debugMsg("Mutex:release",
+             ' ' << m_name << " by node "
+             << m_holder->getNodeId() << ' ' << m_holder);
     m_holder = nullptr;
     for (Node *n : m_waiters)
       n->notifyResourceAvailable();
@@ -100,7 +105,7 @@ namespace PLEXIL
     std::string indentStr(indent, ' ');
     stream << indentStr << "Mutex " << m_name;
     if (m_holder) {
-      stream << ", held by " << m_holder->getNodeId();
+      stream << ", held by " << m_holder->getNodeId() << ' ' << m_holder;
     }
     else {
       stream << " (available)";

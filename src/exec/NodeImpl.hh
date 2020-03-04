@@ -280,12 +280,6 @@ namespace PLEXIL
       m_queueStatus = newval;
     }
 
-    /**
-     * @brief Clear the check-conditions "flag".
-     * @return The resulting QueueStatus.
-     */
-    virtual QueueStatus conditionsChecked() override;
-
     virtual std::string toString(const unsigned int indent = 0) const override;
     virtual void print(std::ostream& stream, const unsigned int indent = 0) const override;
 
@@ -302,12 +296,6 @@ namespace PLEXIL
     {
       m_priority = prio;
     }
-
-    /**
-     * @brief Mark the node as eligible for recheck of conditions.
-     * @return true if it should be added to candidate queue, false otherwise
-     */
-    virtual bool scheduleCheckConditions() override;
 
     /**
      * @brief Accessor for the Node's parent.
