@@ -46,42 +46,33 @@
 # release as a zipped jar file at:
 # https://github.com/relaxng/jing-trang/releases
 #
-# rncfix - My simple bash script for fixing up the generated
-# PlexilPlan RELAX NG Compact schema.
+# rncfix - A bash script for fixing up the generated PlexilPlan RELAX
+# NG Compact schema.
 #
 # To summarize what this makefile does: 
 #
-# Given a PlexilPlan XML Schema called PLEXIL_schema.xsd, the steps to
-# convert are as follows:
+# Given a PlexilPlan XML Schema called PLEXIL_schema.xsd,
+# to convert it to RELAX NG Compact format:
 #
-# $ java -jar trang.jar -I xml -O rng PLEXIL_schema.xsd PLEXIL_schema.rng
-#
-# PLEXIL_schema.rng is the RELAX NG form.
-#
-# $ java -jar trang.jar -I xml -O rnc PLEXIL_schema.rng PLEXIL_schema.rnc
+# $ java -jar trang.jar -I xml -O rnc PLEXIL_schema.rng PLEXIL_schema.rnc.in
 # 
-# PLEXIL_schema.rnc is the RELAX NG compact form.  But a few fixes
+# PLEXIL_schema.rnc.in is the RELAX NG compact form.  But a few fixes
 # have to be made, so the final step is:
 #
-# $ mv PLEXIL_schema.rnc PLEXIL_schema.rnc.in
 # $ rncfix PLEXIL_schema.rnc.in PLEXIL_schema.rnc 
 #
 #------------------------------------------------------------------------------
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-# My bone head script to fix up the generated RELAX-NG Compact schema.
+# A script to fix up the generated RELAX-NG Compact schema.
 RNCFIX := ./rncfix
 
 SCHEMA_V1_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd plexil-script.xsd
-SCHEMA_V1_RNG    = $(SCHEMA_V1_XSD:.xsd=.rng)
 SCHEMA_V1_RNC    = $(SCHEMA_V1_XSD:.xsd=.rnc)
 SCHEMA_V1_RNC_IN = $(SCHEMA_V1_XSD:.xsd=.rnc.in)
 
-
-
 SCHEMA_V2_XSD = core-plexil-v2.xsd extended-plexil-v2.xsd
-SCHEMA_V2_RNG =    $(SCHEMA_V2_XSD:.xsd=.rng)
 SCHEMA_V2_RNC =    $(SCHEMA_V2_XSD:.xsd=.rnc)
 SCHEMA_V2_RNC_IN = $(SCHEMA_V2_XSD:.xsd=.rnc.in)
 
@@ -90,32 +81,25 @@ TRANG_JAR = ../jars/trang.jar
 
 plexil-default: schema-v1 schema-v2 plexil-script
 
-schema-v1: schema-v1-rng schema-v1-rnc
-schema-v1-rng: $(SCHEMA_V1_XSD:.xsd=.rng)
+schema-v1: schema-v1-rnc
 schema-v1-rnc: $(SCHEMA_V1_XSD:.xsd=.rnc)
 
-schema-v2: schema-v2-rng schema-v2-rnc
-schema-v2-rng: plexil-base-v2.xsd $(SCHEMA_V2_XSD:.xsd=.rng)
+schema-v2: schema-v2-rnc
 schema-v2-rnc: $(SCHEMA_V2_XSD:.xsd=.rnc)
 
-plexil-script: plexil-script.rng plexil-script.rnc
+plexil-script: plexil-script.rnc
 
+# The .rng files, if any, are an artifact of a previous version
+# of this makefile.
 dust:
-	@$(RM) -f *.rnc.in
+	@$(RM) -f *.rnc.in *.rng
 
 clean: dust
 	@$(RM) -f $(SCHEMA_V1_RNC) $(SCHEMA_V2_RNC) plexil-script.rnc
-	@$(RM) -f $(SCHEMA_V1_RNG) $(SCHEMA_V2_RNG) plexil-script.rng
 
-$(SCHEMA_V1_RNG) : plexil-base.xsd
 $(SCHEMA_V1_RNC_IN) : plexil-base.xsd
 
-$(SCHEMA_V2_RNG) : plexil-base-v2.xsd
 $(SCHEMA_V2_RNC_IN) : plexil-base-v2.xsd
-
-# The rule creates a RELAX-NG schema from an XML Schema.
-%.rng: %.xsd
-	$(JAVA) -jar $(TRANG_JAR) -I xml -O rng $< $@
 
 # The rule creates a RELAX-NG compact schema from an XML schema.
 %.rnc.in: %.xsd
@@ -127,4 +111,3 @@ $(SCHEMA_V2_RNC_IN) : plexil-base-v2.xsd
 
 # Uncomment these if you want to see these intermediate files.
 #.PRECIOUS: %.rnc.in 
-#.PRECIOUS: %.rng
