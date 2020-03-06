@@ -255,9 +255,15 @@ namespace PLEXIL
       return result;
     }
 
-    // FIXME - Unlink all in queue
+    // Unlink all in queue
     void clear()
     {
+      T *cur = m_head;
+      while (cur) {
+        T *nxt = cur->next();
+        *(cur->nextPtr()) = nullptr;
+        cur = nxt;
+      }
       m_head = nullptr;
       m_tail = nullptr;
       m_count = 0;
