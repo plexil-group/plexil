@@ -338,15 +338,23 @@ namespace PLEXIL
     return parseValueType(typeStr.c_str());
   }
 
+  // Default
   template <typename T>
-  void printValue(const T &val, std::ostream &str)
+  void printValue(T const &val, std::ostream &str)
   {
     str << val;
   }
 
+  // Specialization for Boolean
+  template <>
+  void printValue(Boolean const &val, std::ostream &str)
+  {
+    str << std::boolalpha << val;
+  }
+
   // Specialization for Real
   template <>
-  void printValue(const Real &val, std::ostream &str)
+  void printValue(Real const &val, std::ostream &str)
   {
     str << std::setprecision(15) << val;
   }
@@ -756,8 +764,10 @@ namespace PLEXIL
   //
   // Explicit instantiation
   //
-  template void printValue(Boolean const &, std::ostream &);
+
+  // template void printValue(Boolean const &, std::ostream &);
   template void printValue(Integer const &, std::ostream &);
+  // template void printValue(Real const &, std::ostream &);
   template void printValue(String const &, std::ostream &);
 
 }
