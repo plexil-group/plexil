@@ -1785,12 +1785,6 @@ namespace PLEXIL
     debugMsg("Node:execute",
              " Executing " << nodeTypeString(this->getType())
              << " node " << m_nodeId << ' ' << this);
-
-    // legacy message for unit test
-    debugMsg("PlexilExec:handleNeedsExecution", 
-             " Executing " << nodeTypeString(this->getType())
-             << " node " << m_nodeId << ' ' << this);
-
     specializedHandleExecution();
   }
 

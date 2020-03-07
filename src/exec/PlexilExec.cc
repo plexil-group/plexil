@@ -81,7 +81,6 @@ namespace PLEXIL
     std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
     ExecListenerBase *m_listener;
-    unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
 
   public:
@@ -100,7 +99,6 @@ namespace PLEXIL
         m_assignmentsToRetract(),
         m_plan(),
         m_listener(nullptr),
-        m_queuePos(0),
         m_finishedRootNodesDeleted(false)
     {}
 
@@ -170,7 +168,6 @@ namespace PLEXIL
         std::remove_if(m_plan.begin(), m_plan.end(),
                        [node] (NodePtr const &n) -> bool
                        { return node == n.get(); });
-        // delete node; // redundant?
       }
       m_finishedRootNodesDeleted = true;
     }
@@ -189,13 +186,13 @@ namespace PLEXIL
       // Queue had better be empty when we get here!
       checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
 
-      unsigned int stepCount = 0;
-#ifndef NO_DEBUG_MESSAGE_SUPPORT
+#ifndef NO_DEBUG_MESSAGE_SUPPORT 
       // Only used in debugMsg calls
+      unsigned int stepCount = 0;
       unsigned int cycleNum = g_interface->getCycleCount();
 #endif
 
-      debugMsg("PlexilExec:cycle", " ==>Start cycle " << cycleNum);
+      debugMsg("PlexilExec:step", " ==>Start cycle " << cycleNum);
 
       // A Node is initially inserted on the pending queue when it is eligible to
       // transition to EXECUTING, and it needs to acquire one or more mutexes.
@@ -208,20 +205,26 @@ namespace PLEXIL
 
       // BEGIN QUIESCENCE LOOP
       do {
-        // Preserve old format
         debugStmt("PlexilExec:step",
                   {
                     getDebugOutputStream() << "[PlexilExec:step]["
                                            << cycleNum << ":" << stepCount << "]";
                     printConditionCheckQueue();
                   });
+        condDebugStmt(!m_pendingQueue.empty(),
+                      "PlexilExec:step",
+                      {
+                        getDebugOutputStream() << "[PlexilExec:step]["
+                                               << cycleNum << ":" << stepCount << "]";
+                        printPendingQueue();
+                      });
 
         // Evaluate conditions of nodes reporting a change
         while (!m_candidateQueue.empty()) {
           Node *candidate = getCandidateNode();
           bool canTransition = candidate->getDestState(); // sets node's next state
           if (canTransition) {
-            debugMsg("PlexilExec:handleConditionsChanged",
+            debugMsg("PlexilExec:step",
                      " Node " << candidate->getNodeId() << ' ' << candidate
                      << " can transition from "
                      << nodeStateName(candidate->getState())
@@ -259,7 +262,10 @@ namespace PLEXIL
                     printStateChangeQueue();
                   });
 
+#ifndef NO_DEBUG_MESSAGE_SUPPORT 
+        // Only used in debug messages
         unsigned int microStepCount = 0;
+#endif
 
         // Reserve space for the transitions to be published
         if (m_listener)
@@ -278,7 +284,9 @@ namespace PLEXIL
             m_transitionsToPublish.emplace_back(NodeTransition(node,
                                                                node->getState(),
                                                                node->getNextState()));
+#ifndef NO_DEBUG_MESSAGE_SUPPORT 
           ++microStepCount;
+#endif
         }
 
         // TODO: instrument high-water-mark of max nodes transitioned in this step
@@ -290,7 +298,9 @@ namespace PLEXIL
         m_transitionsToPublish.clear();
 
         // done with this batch
+#ifndef NO_DEBUG_MESSAGE_SUPPORT 
         ++stepCount;
+#endif
       }
       while (m_assignmentsToExecute.empty()
              && m_assignmentsToRetract.empty()
@@ -304,7 +314,7 @@ namespace PLEXIL
       if (m_listener)
         m_listener->stepComplete(cycleNum);
 
-      debugMsg("PlexilExec:cycle", " ==>End cycle " << cycleNum);
+      debugMsg("PlexilExec:step", " ==>End cycle " << cycleNum);
       for (NodePtr const &node: m_plan)
         debugMsg("PlexilExec:printPlan",
                  std::endl << *const_cast<Node const *>(node.get()));
@@ -529,19 +539,16 @@ namespace PLEXIL
 
     void performAssignments() 
     {
-      debugMsg("PlexilExec:performAssignments",
-               " performing " << m_assignmentsToExecute.size() <<  " assignments and "
-               << m_assignmentsToRetract.size() << " retractions");
-      while (!m_assignmentsToExecute.empty()) {
-        Assignment *assn = m_assignmentsToExecute.front();
-        m_assignmentsToExecute.pop();
+      condDebugMsg(!m_assignmentsToExecute.empty() || !m_assignmentsToRetract.empty(),
+                   "PlexilExec:performAssignments", " performing "
+                   << m_assignmentsToExecute.size() <<  " assignments and "
+                   << m_assignmentsToRetract.size() << " retractions");
+      for (Assignment *assn : m_assignmentsToExecute)
         assn->execute();
-      }
-      while (!m_assignmentsToRetract.empty()) {
-        Assignment *assn = m_assignmentsToRetract.front();
-        m_assignmentsToRetract.pop();
+      m_assignmentsToExecute.clear();
+      for (Assignment *assn : m_assignmentsToRetract)
         assn->retract();
-      }
+      m_assignmentsToRetract.clear();
     }
 
 
@@ -581,48 +588,45 @@ namespace PLEXIL
     void addStateChangeNode(Node *node) {
       switch (node->getQueueStatus()) {
       case QUEUE_NONE:   // normal case
-        // Preserve old debug output
-        debugMsg("PlexilExec:handleConditionsChanged",
-                 " Placing node " << node->getNodeId() << ' ' << node <<
-                 " on the state change queue in position " << ++m_queuePos);
+        debugMsg("PlexilExec:step",
+                 " Adding " << node->getNodeId() << ' ' << node <<
+                 " to the state change queue");
         node->setQueueStatus(QUEUE_TRANSITION);
         m_stateChangeQueue.push(node);
         return;
 
+        // Any other case should be considered an internal error
+
       case QUEUE_CHECK:   // shouldn't happen
         errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
-                 << " to transition queue, is still in candidate queue");
+                 << " to transition queue while in candidate queue");
         return;
 
       case QUEUE_PENDING:
       case QUEUE_PENDING_CHECK:
       case QUEUE_PENDING_TRY_CHECK:
-        errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
-                 << " to transition queue, is in pending queue");
+        errorMsg("PlexilExec::addStateChangeNode: Cannot add node "
+                 << node->getNodeId() << ' ' << node
+                 << " to transition queue while in pending queue");
         return;
 
       case QUEUE_TRANSITION:   // already in queue, shouldn't get here
-        debugMsg("PlexilExec:addStateChangeNode",
-                 " node " << node->getNodeId() << ' ' << node
-                 << " is already in transition queue, ignoring");
-        return;
-
       case QUEUE_TRANSITION_CHECK:  // already in queue, shouldn't get here
-        debugMsg("PlexilExec:addStateChangeNode",
-                 " node " << node->getNodeId() << ' ' << node
-                 << " is already in transition queue AND scheduled for check queue, ignoring");
+        errorMsg("PlexilExec::addStateChangeNode: Node "
+                 << node->getNodeId() << ' ' << node
+                 << " is already in transition queue");
         return;
 
       case QUEUE_DELETE:            // cannot possibly transition
-        errorMsg("Cannot add node " << node->getNodeId() << ' ' << node
-                 << " to transition queue, is finished root node pending deletion");
+        errorMsg("PlexilExec::addStateChangeNode: Node "
+                 << node->getNodeId() << ' ' << node
+                 << " cannot transition, is a finished root node awaiting deletion");
         return;
 
       default:                      // illegal or bogus value
-        assertTrueMsg(ALWAYS_FAIL,
-                      "PlexilExec::addStateChangeNode: Invalid queue status "
-                      << node->getQueueStatus()
-                      << " for node " << node->getNodeId());
+        errorMsg("PlexilExec::addStateChangeNode: Invalid queue status "
+                 << node->getQueueStatus()
+                 << " for node " << node->getNodeId() << ' ' << node);
         return;
       }
     }
