@@ -67,7 +67,7 @@ JAVAC_CLASSPATH	:= $(ANTLR3_RUNTIME_JAR):$(NANOXML_JAR):$(SAXON_JAR):$(CLASSES_D
 # Java compiler options
 # Stop supporting ancient Java versions
 #JAVAC_OPTIONS	:= -source 1.6 -target 1.6
-JAVAC_OPTIONS	:=
+JAVAC_OPTIONS	:= -Xlint:deprecation
 
 plexil-default: $(PLEXILC_JAR)
 

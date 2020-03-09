@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -121,7 +121,7 @@ public class BlockNode extends PlexilTreeNode
         // Check for duplicate conditions
         TreeSet<Integer> conditionsSeen = new TreeSet<Integer>();
         for (PlexilTreeNode c : m_conditions) {
-            Integer condType = new Integer(c.getType());
+            Integer condType = Integer.valueOf(c.getType());
             if (conditionsSeen.contains(condType)) {
                 state.addDiagnostic(c,
                                     "In node " + context.getNodeName()
