@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ public class LuvPortGUI
     private void selectCurrentPort() {
         int deflt = Settings.instance().getPort();
 		if (Constants.PORT_MIN <= deflt && deflt <= Constants.PORT_MAX)
-            comboBoxModel.setSelectedItem(new Integer(deflt));
+            comboBoxModel.setSelectedItem(Integer.valueOf(deflt));
     }
 
     public void refresh() {

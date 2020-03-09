@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,9 +42,8 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JOptionPane;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import gov.nasa.luv.PlexilPlanHandler.SimplePlanCatcher;
 
@@ -259,13 +258,9 @@ public class FileHandler
     // parse a plan from an XML stream
     private static Plan parseXml(InputStream input) {
         SimplePlanCatcher c = new SimplePlanCatcher();
-        PlexilPlanHandler ch =
-            new PlexilPlanHandler(c);
         try {
-            InputSource is = new InputSource(input);
-            XMLReader parser = XMLReaderFactory.createXMLReader();
-            parser.setContentHandler(ch);
-            parser.parse(is);          
+            PlexilPlanHandler ch = new PlexilPlanHandler(c);
+            SAXParserFactory.newInstance().newSAXParser().parse(input, ch);
         }
         catch (Exception e) {
             StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");

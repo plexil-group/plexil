@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,12 +39,11 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import static java.awt.Color.RED;
 import static java.lang.Thread.State.TERMINATED;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import static gov.nasa.luv.Constants.END_OF_MESSAGE;
 
@@ -245,21 +244,20 @@ public class LuvSocketServer {
          */
         private void wrangle(InputStream in, OutputStream out) {
             // set up an XML reader
-            XMLReader parser;
+            SAXParser parser;
             try {
-                parser = XMLReaderFactory.createXMLReader();
+                parser = SAXParserFactory.newInstance().newSAXParser();
             } catch (Exception e) {
-                StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: exception occurred while initializing XML reader");
+                StatusMessageHandler.instance().displayErrorMessage(e, "ERROR: Unable to construct XML reader");
                 return;
             }
-            parser.setContentHandler(new DispatchHandler());
 
-            InputSource is = new InputSource(new InputStreamWrapper(in));
+            DispatchHandler contentHandler = new DispatchHandler();
             boolean quit = false;
             do {
                 // if there is input, grab it up
                 try {
-                    parser.parse(is);
+                    parser.parse(in, contentHandler);
                 } // The stream wrapper signals an EOFException when the wrapped stream hits EOF.
                 // This would be a good place to notify viewer that execution is complete.
                 catch (EOFException e) {
