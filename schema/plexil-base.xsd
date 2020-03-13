@@ -34,7 +34,9 @@ NOTE: this is an incomplete schema, as it doesn't define the "Name"
 element.  It is used as an included schema only.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xml:lang="en">
   <xs:attribute name="FileName" type="xs:string"/>
   <xs:attribute name="LineNo" type="xs:integer"/>
   <xs:attribute name="ColNo" type="xs:integer"/>
@@ -52,6 +54,9 @@ element.  It is used as an included schema only.
         <xs:group ref="Action"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
+      <!-- Attempt to imitate rncfix -->
+      <xs:anyAttribute namespace="http://www.w3.org/2001/XMLSchema-instance"
+                       processContents="skip"/>
     </xs:complexType>
   </xs:element>
 

@@ -34,7 +34,9 @@ NOTE: this is an incomplete schema, as it doesn't define the "Name"
 element.  It is used as an included schema only.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xml:lang="en">
 
   <!-- Source locator attributes for many elements -->
   <xs:attribute name="FileName" type="xs:string"/>
@@ -56,6 +58,9 @@ element.  It is used as an included schema only.
       <!-- Plexil v1 doesn't have this -->
       <xs:attribute name="version" type="xs:decimal" use="required" />
       <xs:attributeGroup ref="SourceLocators"/>
+      <!-- Attempt to imitate rncfix -->
+      <xs:anyAttribute namespace="http://www.w3.org/2001/XMLSchema-instance"
+                       processContents="skip"/>
     </xs:complexType>
   </xs:element>
 
