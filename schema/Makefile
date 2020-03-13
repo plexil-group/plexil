@@ -97,8 +97,7 @@ $(SCHEMA_V2_RNC_IN) : plexil-base-v2.xsd
 extended-plexil.rnc core-plexil.rnc : plexil-base.rng
 extended-plexil-v2.rnc core-plexil-v2.rnc : plexil-base-v2.rng
 
-# Special rule for these included files
-plexil-base.rng plexil-base-v2.rng: %.rng: %.xsd
+$(SCHEMA_V1_XSD:.xsd=.rng) $(SCHEMA_V2_XSD:.xsd=.rng): %.rng: %.xsd
 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PlexilPlan
 
 # Special rule for Plexilscript only
