@@ -1,58 +1,84 @@
-namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
-namespace xs = "http://www.w3.org/2001/XMLSchema"
+# * Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# *  All rights reserved.
+# *
+# * Redistribution and use in source and binary forms, with or without
+# * modification, are permitted provided that the following conditions are met:
+# *     * Redistributions of source code must retain the above copyright
+# *       notice, this list of conditions and the following disclaimer.
+# *     * Redistributions in binary form must reproduce the above copyright
+# *       notice, this list of conditions and the following disclaimer in the
+# *       documentation and/or other materials provided with the distribution.
+# *     * Neither the name of the Universities Space Research Association nor the
+# *       names of its contributors may be used to endorse or promote products
+# *       derived from this software without specific prior written permission.
+# *
+# * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-start =
-  element xs:schema {
-    attribute attributeFormDefault { xsd:NCName },
-    attribute blockDefault { text },
-    attribute elementFormDefault { xsd:NCName },
-    attribute finalDefault { text },
-    attribute xml:lang { xsd:NCName },
-    \element+,
-    complexType,
-    \attribute
+# Schema for the Test Executive simulation script
+
+default namespace = ""
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace rng = "http://relaxng.org/ns/structure/1.0"
+
+start = starting_PLEXILScript
+starting_PLEXILScript = element PLEXILScript { InitialState?, Script }
+InitialState = element InitialState { State* }
+Script =
+  element Script {
+    (State
+     | UpdateAck
+     | Command
+     | CommandAck
+     | CommandAbort
+     | Simultaneous
+     | SendPlan
+     | element Delay { empty })*
   }
-\element =
-  element xs:element {
-    attribute maxOccurs { xsd:NCName }?,
-    attribute minOccurs { xsd:integer }?,
-    attribute name { xsd:NCName }?,
-    attribute ref { xsd:NCName }?,
-    attribute type { xsd:NMTOKEN }?,
-    complexType?
+SendPlan =
+  element SendPlan {
+    attribute file { xsd:string }?
   }
-complexType =
-  element xs:complexType {
-    attribute mixed { xsd:boolean },
-    attribute name { xsd:NCName }?,
-    element xs:sequence { \element+ }?,
-    (element xs:choice {
-       attribute maxOccurs { xsd:NCName },
-       attribute minOccurs { xsd:integer },
-       \element+
-     }
-     | element xs:simpleContent {
-         element xs:extension {
-           attribute base { xsd:NMTOKEN },
-           \attribute
-         }
-       }
-     | \attribute*)
+Simultaneous =
+  element Simultaneous {
+    (State | UpdateAck | Command | CommandAck | CommandAbort)*
   }
-\attribute =
-  element xs:attribute {
-    attribute name { xsd:NCName }?,
-    attribute ref { xsd:NCName }?,
-    attribute type { xsd:NMTOKEN }?,
-    element xs:simpleType {
-      element xs:restriction {
-        attribute base { xsd:NMTOKEN },
-        element xs:enumeration {
-          attribute value { xsd:NCName }
-        }+
-      }
-    }?
+State =
+  element State {
+    Param*,
+    element Value { xsd:string }+,
+    attribute name { xsd:string }?,
+    attr_type
   }
-PlexilPlanAttributes = 
-  notAllowed
-  | attribute xsi:* { xsd:anyURI }*
+Command = element Command { command-type }
+CommandAck = element CommandAck { command-type }
+CommandAbort = element CommandAbort { command-type }
+Param = element Param { xsd:string, attr_type }
+UpdateAck =
+  element UpdateAck {
+    attribute name { xsd:string }?
+  }
+command-type =
+  Param*,
+  element Result { xsd:string }+,
+  attribute name { xsd:string }?,
+  attr_type
+attr_type =
+  attribute type {
+    "bool"
+    | "real"
+    | "int"
+    | "string"
+    | "bool-array"
+    | "real-array"
+    | "int-array"
+    | "string-array"
+  }?

@@ -1,60 +1,263 @@
-namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
-namespace xs = "http://www.w3.org/2001/XMLSchema"
+# * Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# *  All rights reserved.
+# *
+# * Redistribution and use in source and binary forms, with or without
+# * modification, are permitted provided that the following conditions are met:
+# *     * Redistributions of source code must retain the above copyright
+# *       notice, this list of conditions and the following disclaimer.
+# *     * Redistributions in binary form must reproduce the above copyright
+# *       notice, this list of conditions and the following disclaimer in the
+# *       documentation and/or other materials provided with the distribution.
+# *     * Neither the name of the Universities Space Research Association nor the
+# *       names of its contributors may be used to endorse or promote products
+# *       derived from this software without specific prior written permission.
+# *
+# * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-start =
-  element xs:schema {
-    attribute attributeFormDefault { xsd:NCName },
-    attribute blockDefault { text },
-    attribute elementFormDefault { xsd:NCName },
-    attribute finalDefault { text },
-    attribute xml:lang { xsd:NCName },
-    element xs:include {
-      attribute schemaLocation { xsd:NCName }
-    },
-    element xs:redefine {
-      attribute schemaLocation { xsd:NCName },
-      group+
-    },
-    (\element | group | simpleType)+
+# This schema extends Core PLEXIL with syntactic sugar: convenient forms 
+# that are translated into Core PLEXIL for execution (see translate.xsl).
+
+default namespace = ""
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace rng = "http://relaxng.org/ns/structure/1.0"
+
+include "plexil-base.rnc"
+include "plexil-base.rnc" {
+  Action =
+    Node
+    | Concurrence
+    | Sequence
+    | CheckedSequence
+    | UncheckedSequence
+    | Try
+    | If
+    | While
+    | For
+    | OnCommand
+    | OnMessage
+    | Wait
+    | SynchronousCommand
+  BooleanExpression =
+    LogicalOperator
+    | Equality
+    | NumericComparison
+    | KnownTest
+    | BooleanVariable
+    | BooleanValue
+    | Finished
+    | IterationEnded
+    | Executing
+    | Waiting
+    | Inactive
+    | Succeeded
+    | IterationSucceeded
+    | Failed
+    | Interrupted
+    | IterationFailed
+    | Skipped
+    | InvariantFailed
+    | PreconditionFailed
+    | PostconditionFailed
+    | ParentFailed
+    | MessageReceived
+  LookupGroup = LookupOnChange | LookupNow | Lookup
+  DeclaredVariable =
+    IntegerVariable
+    | RealVariable
+    | BooleanVariable
+    | StringVariable
+    | DateVariable
+    | DurationVariable
+    | ArrayVariable
+    | ArrayElement
+  Value =
+    IntegerValue
+    | RealValue
+    | BooleanValue
+    | StringValue
+    | DateValue
+    | DurationValue
+  NumericExpression =
+    ArithmeticOperator
+    | IntegerVariable
+    | RealVariable
+    | IntegerValue
+    | RealValue
+    | DateVariable
+    | DateValue
+    | DurationVariable
+    | DurationValue
+    | NodeTimepointValue
+    | #  read operations for arrays
+      ArraySize
+    | ArrayMaxSize
+}
+start |= starting_Name
+starting_Name =
+  element Name { GeneralizedStringExpression, SourceLocators }
+AtomicTypeValues =
+  "Integer" | "Real" | "Boolean" | "String" | "Date" | "Duration"
+ParameterTypeValues =
+  "Integer"
+  | "Real"
+  | "Boolean"
+  | "String"
+  | "Date"
+  | "Duration"
+  | "Any"
+start |= starting_DurationVariable
+starting_DurationVariable = element DurationVariable { xsd:NCName }
+start |= starting_DateVariable
+starting_DateVariable = element DateVariable { xsd:NCName }
+start |= starting_DateValue
+starting_DateValue = element DateValue { xsd:string }
+start |= starting_DurationValue
+starting_DurationValue = element DurationValue { xsd:string }
+# Node clauses, which can occur in any action.
+NodeClauses =
+  NodeId?
+  | element Comment { xsd:string }?
+  | StartCondition?
+  | RepeatCondition?
+  | PreCondition?
+  | PostCondition?
+  | InvariantCondition?
+  | EndCondition?
+  | SkipCondition?
+  | element Priority { xsd:nonNegativeInteger }?
+  | Interface?
+  | VariableDeclarations?
+  | UsingMutex?
+# Sequence forms
+SequenceType = NodeClauses*, Action*
+# Actions are performed concurrently.  This is just a List Node.
+start |= starting_Concurrence
+starting_Concurrence =
+  element Concurrence { SequenceType, SourceLocators }
+# Each action in the sequence is performed in the given order.  If
+# one fails, the Sequence form terminates with failure.
+start |= starting_Sequence
+starting_Sequence = element Sequence { SequenceType, SourceLocators }
+# Each action in the sequence is performed in the given order.  If
+# one fails, the CheckedSequence form terminates with failure.
+start |= starting_CheckedSequence
+starting_CheckedSequence =
+  element CheckedSequence { SequenceType, SourceLocators }
+# Like Sequence, except the actions are not checked for success.
+# They will all be executed
+start |= starting_UncheckedSequence
+starting_UncheckedSequence =
+  element UncheckedSequence { SequenceType, SourceLocators }
+# Each action in the sequence is performed in turn, until one of
+# them succeeds; the rest are ignored.  The Try form fails if and
+# only if all its actions fail.
+start |= starting_Try
+starting_Try = element Try { SequenceType, SourceLocators }
+# Conditionals and loops
+
+# If statement with optional ElseIf and Else.
+start |= starting_If
+starting_If =
+  element If {
+    NodeClauses*,
+    element Condition { GeneralizedBooleanExpression },
+    element Then { Action },
+    element ElseIf {
+      element Condition { GeneralizedBooleanExpression },
+      element Then { Action }
+    }*,
+    element Else { Action }?,
+    SourceLocators
   }
-group =
-  element xs:group {
-    attribute maxOccurs { xsd:NMTOKEN }?,
-    attribute minOccurs { xsd:integer }?,
-    attribute name { xsd:NCName }?,
-    attribute ref { xsd:NCName }?,
-    (sequence
-     | element xs:choice { group*, \element+ })?
+# A classic while loop
+start |= starting_While
+starting_While =
+  element While {
+    NodeClauses*,
+    element Condition { GeneralizedBooleanExpression },
+    element Action { Action },
+    SourceLocators
   }
-\element =
-  element xs:element {
-    attribute maxOccurs { xsd:NCName }?,
-    attribute minOccurs { xsd:integer }?,
-    attribute name { xsd:NCName }?,
-    attribute ref { xsd:NCName }?,
-    attribute type { xsd:NMTOKEN }?,
-    (simpleType
-     | element xs:complexType {
-         attribute mixed { xsd:boolean },
-         sequence?,
-         group?,
-         (element xs:all { \element }
-          | element xs:attributeGroup {
-              attribute ref { xsd:NCName }
-            })?
-       }*)
+# A For loop.  First a variable is declared (it must be numeric).
+# Next is a boolean expression that determines when to keep the loop
+# going.  Next is a numeric expression used to update the variable
+# (it is typically a function of the variable).  Finally, actions
+# to execute.
+start |= starting_For
+starting_For =
+  element For {
+    NodeClauses*,
+    element LoopVariable { DeclareVariable },
+    element Condition { GeneralizedBooleanExpression },
+    element LoopVariableUpdate { GeneralizedNumericExpression },
+    element Action { Action },
+    SourceLocators
   }
-simpleType =
-  element xs:simpleType {
-    attribute name { xsd:NCName }?,
-    element xs:restriction {
-      attribute base { xsd:NMTOKEN },
-      element xs:enumeration {
-        attribute value { xsd:NCName }
-      }*
-    }
+# Node Predicates
+start |= starting_IterationSucceeded
+starting_IterationSucceeded =
+  element IterationSucceeded { node-reference }
+start |= starting_Interrupted
+starting_Interrupted = element Interrupted { node-reference }
+start |= starting_IterationFailed
+starting_IterationFailed = element IterationFailed { node-reference }
+start |= starting_InvariantFailed
+starting_InvariantFailed = element InvariantFailed { node-reference }
+start |= starting_PreconditionFailed
+starting_PreconditionFailed =
+  element PreconditionFailed { node-reference }
+start |= starting_ParentFailed
+starting_ParentFailed = element ParentFailed { node-reference }
+# Support for message passing between executives
+
+# Deprecated
+start |= starting_MessageReceived
+starting_MessageReceived =
+  element MessageReceived {
+    GeneralizedStringExpression, SourceLocators
   }
-sequence = element xs:sequence { (\element | group)+ }
-PlexilPlanAttributes = 
-  notAllowed
-  | attribute xsi:* { xsd:anyURI }*
+start |= starting_OnCommand
+starting_OnCommand =
+  element OnCommand { NodeClauses*, Name, Action?, SourceLocators }
+start |= starting_OnMessage
+starting_OnMessage =
+  element OnMessage {
+    NodeClauses*,
+    element Message { GeneralizedStringExpression },
+    Action?,
+    SourceLocators
+  }
+# Specialized actions
+
+# Wait a specified duration, with optional tolerance for the time reading
+start |= starting_Wait
+starting_Wait =
+  element Wait {
+    NodeClauses*,
+    element Units { GeneralizedNumericExpression },
+    Tolerance?,
+    SourceLocators
+  }
+# Command action that waits for its return value or status handle
+start |= starting_SynchronousCommand
+starting_SynchronousCommand =
+  element SynchronousCommand {
+    NodeClauses*,
+    element Timeout { GeneralizedNumericExpression }?,
+    Tolerance?,
+    Command,
+    SourceLocators
+  }
+# Generic lookup form
+start |= starting_Lookup
+starting_Lookup =
+  element Lookup { Name, Tolerance?, Arguments?, SourceLocators }

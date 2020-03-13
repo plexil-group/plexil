@@ -23,8 +23,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# The original version of this Makefile was contributed by Jeff Kowing
-# (jeffrey.d.kowing@nasa.gov)
 #
 # This makefile generates RELAX NG Compact schemas from XML Schemas.
 # A *.rnc RELAX-NG compact schema file will be generated for each
@@ -41,73 +39,79 @@
 #
 # This makefile requires the following tools:
 #
+# XSDtoRNG.xsl - XSL transformation script to transform a schema
+# into RELAX NG form. See https://github.com/chucko58/XSDtoRNG .
+# Licensed under Apache License 2.0.
+#
+# Saxon 9 Home Edition (saxon9he) - XSL processor, free edition,
+# from http://saxonica.com/ .
+# 
 # trang - Trang converts, among other things, a RELAX NG schema to
-# RELAX NG and RELAX NG Compact form.  As of 2020, get the latest
+# RELAX NG and RELAX NG Compact form. As of 2020, get the latest
 # release as a zipped jar file at:
 # https://github.com/relaxng/jing-trang/releases
-#
-# rncfix - A bash script for fixing up the generated PlexilPlan RELAX
-# NG Compact schema.
 #
 # To summarize what this makefile does: 
 #
 # Given a PlexilPlan XML Schema called PLEXIL_schema.xsd,
 # to convert it to RELAX NG Compact format:
 #
-# $ java -jar trang.jar -I xml -O rnc PLEXIL_schema.rng PLEXIL_schema.rnc.in
-# 
-# PLEXIL_schema.rnc.in is the RELAX NG compact form.  But a few fixes
-# have to be made, so the final step is:
-#
-# $ rncfix PLEXIL_schema.rnc.in PLEXIL_schema.rnc 
+# $ java -jar ../jars/saxon9he.jar -xsl:XSDtoRNG.xsl -s:PLEXIL_schema.xsd  -o:PLEXIL_schema.rng
+# $ java -jar ../jars/trang.jar -I rng -O rnc PLEXIL_schema.rng PLEXIL_schema.rnc
 #
 #------------------------------------------------------------------------------
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+include ../makeinclude/standard-defs.make
 
-# A script to fix up the generated RELAX-NG Compact schema.
-RNCFIX := ./rncfix
+SCHEMA_V1_XSD = core-plexil.xsd extended-plexil.xsd plexil-base.xsd
+SCHEMA_V1_RNC = $(SCHEMA_V1_XSD:.xsd=.rnc)
 
-SCHEMA_V1_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd plexil-script.xsd
-SCHEMA_V1_RNC    = $(SCHEMA_V1_XSD:.xsd=.rnc)
-SCHEMA_V1_RNC_IN = $(SCHEMA_V1_XSD:.xsd=.rnc.in)
+SCHEMA_V2_XSD = core-plexil-v2.xsd extended-plexil-v2.xsd plexil-base-v2.xsd
+SCHEMA_V2_RNC = $(SCHEMA_V2_XSD:.xsd=.rnc)
 
-SCHEMA_V2_XSD = core-plexil-v2.xsd extended-plexil-v2.xsd
-SCHEMA_V2_RNC =    $(SCHEMA_V2_XSD:.xsd=.rnc)
-SCHEMA_V2_RNC_IN = $(SCHEMA_V2_XSD:.xsd=.rnc.in)
+PLEXILSCRIPT_XSD = plexil-script.xsd
+PLEXILSCRIPT_RNC = $(PLEXILSCRIPT_XSD:.xsd=.rnc)
+
+SAXON_JAR = ../jars/saxon9he.jar
 
 # Most recent version is 20181222
 TRANG_JAR = ../jars/trang.jar
 
-plexil-default: schema-v1 schema-v2 plexil-script
+plexil-default: $(SCHEMA_V1_RNC) $(PLEXILSCRIPT_RNC)
 
-schema-v1: schema-v1-rnc
-schema-v1-rnc: $(SCHEMA_V1_XSD:.xsd=.rnc)
-
-schema-v2: schema-v2-rnc
-schema-v2-rnc: $(SCHEMA_V2_XSD:.xsd=.rnc)
+plexil-v2: $(SCHEMA_V2_RNC) 
 
 plexil-script: plexil-script.rnc
 
-# The .rng files, if any, are an artifact of a previous version
-# of this makefile.
 dust:
-	@$(RM) -f *.rnc.in *.rng
+	@$(RM) -f *.rng
 
 clean: dust
-	@$(RM) -f $(SCHEMA_V1_RNC) $(SCHEMA_V2_RNC) plexil-script.rnc
+	@$(RM) -f *.rnc
 
 $(SCHEMA_V1_RNC_IN) : plexil-base.xsd
 
 $(SCHEMA_V2_RNC_IN) : plexil-base-v2.xsd
 
-# The rule creates a RELAX-NG compact schema from an XML schema.
-%.rnc.in: %.xsd
-	$(JAVA) -jar $(TRANG_JAR) -I xml -O rnc $< $@
+# Dependencies
+extended-plexil.rnc core-plexil.rnc : plexil-base.rng
+extended-plexil-v2.rnc core-plexil-v2.rnc : plexil-base-v2.rng
 
-# The rule makes some fixes to the generated RELAX-NG compact schema.
-%.rnc: %.rnc.in
-	$(RNCFIX) -f $< $@
+# Special rule for these included files
+plexil-base.rng plexil-base-v2.rng: %.rng: %.xsd
+	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PlexilPlan
+
+# Special rule for Plexilscript only
+plexil-script.rng: plexil-script.xsd
+	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PLEXILScript
+
+# General rule to create a RELAX NG schema from an XML schema.
+%.rng: %.xsd
+	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@
+
+# The rule creates a RELAX NG compact schema from a RELAX NG schema.
+%.rnc: %.rng
+	$(JAVA) -jar $(TRANG_JAR) -I rng -O rnc $< $@
 
 # Uncomment these if you want to see these intermediate files.
-#.PRECIOUS: %.rnc.in 
+#.PRECIOUS: %.rng
