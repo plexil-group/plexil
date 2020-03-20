@@ -30,8 +30,6 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
-start |= starting_Name
-starting_Name =
-  element Name { GeneralizedStringExpression, SourceLocators }
+Name = element Name { GeneralizedStringExpression, SourceLocators }
 AtomicTypeValues = "Integer" | "Real" | "Boolean" | "String"
 ParameterTypeValues = "Integer" | "Real" | "Boolean" | "String" | "Any"

@@ -101,9 +101,7 @@ include "plexil-base.rnc" {
       ArraySize
     | ArrayMaxSize
 }
-start |= starting_Name
-starting_Name =
-  element Name { GeneralizedStringExpression, SourceLocators }
+Name = element Name { GeneralizedStringExpression, SourceLocators }
 AtomicTypeValues =
   "Integer" | "Real" | "Boolean" | "String" | "Date" | "Duration"
 ParameterTypeValues =
@@ -114,14 +112,10 @@ ParameterTypeValues =
   | "Date"
   | "Duration"
   | "Any"
-start |= starting_DurationVariable
-starting_DurationVariable = element DurationVariable { xsd:NCName }
-start |= starting_DateVariable
-starting_DateVariable = element DateVariable { xsd:NCName }
-start |= starting_DateValue
-starting_DateValue = element DateValue { xsd:string }
-start |= starting_DurationValue
-starting_DurationValue = element DurationValue { xsd:string }
+DurationVariable = element DurationVariable { xsd:NCName }
+DateVariable = element DateVariable { xsd:NCName }
+DateValue = element DateValue { xsd:string }
+DurationValue = element DurationValue { xsd:string }
 # Node clauses, which can occur in any action.
 NodeClauses =
   NodeId?
@@ -140,33 +134,26 @@ NodeClauses =
 # Sequence forms
 SequenceType = NodeClauses*, Action*
 # Actions are performed concurrently.  This is just a List Node.
-start |= starting_Concurrence
-starting_Concurrence =
-  element Concurrence { SequenceType, SourceLocators }
+Concurrence = element Concurrence { SequenceType, SourceLocators }
 # Each action in the sequence is performed in the given order.  If
 # one fails, the Sequence form terminates with failure.
-start |= starting_Sequence
-starting_Sequence = element Sequence { SequenceType, SourceLocators }
+Sequence = element Sequence { SequenceType, SourceLocators }
 # Each action in the sequence is performed in the given order.  If
 # one fails, the CheckedSequence form terminates with failure.
-start |= starting_CheckedSequence
-starting_CheckedSequence =
+CheckedSequence =
   element CheckedSequence { SequenceType, SourceLocators }
 # Like Sequence, except the actions are not checked for success.
 # They will all be executed
-start |= starting_UncheckedSequence
-starting_UncheckedSequence =
+UncheckedSequence =
   element UncheckedSequence { SequenceType, SourceLocators }
 # Each action in the sequence is performed in turn, until one of
 # them succeeds; the rest are ignored.  The Try form fails if and
 # only if all its actions fail.
-start |= starting_Try
-starting_Try = element Try { SequenceType, SourceLocators }
+Try = element Try { SequenceType, SourceLocators }
 # Conditionals and loops
 
 # If statement with optional ElseIf and Else.
-start |= starting_If
-starting_If =
+If =
   element If {
     NodeClauses*,
     element Condition { GeneralizedBooleanExpression },
@@ -179,8 +166,7 @@ starting_If =
     SourceLocators
   }
 # A classic while loop
-start |= starting_While
-starting_While =
+While =
   element While {
     NodeClauses*,
     element Condition { GeneralizedBooleanExpression },
@@ -192,8 +178,7 @@ starting_While =
 # going.  Next is a numeric expression used to update the variable
 # (it is typically a function of the variable).  Finally, actions
 # to execute.
-start |= starting_For
-starting_For =
+For =
   element For {
     NodeClauses*,
     element LoopVariable { DeclareVariable },
@@ -203,33 +188,22 @@ starting_For =
     SourceLocators
   }
 # Node Predicates
-start |= starting_IterationSucceeded
-starting_IterationSucceeded =
-  element IterationSucceeded { node-reference }
-start |= starting_Interrupted
-starting_Interrupted = element Interrupted { node-reference }
-start |= starting_IterationFailed
-starting_IterationFailed = element IterationFailed { node-reference }
-start |= starting_InvariantFailed
-starting_InvariantFailed = element InvariantFailed { node-reference }
-start |= starting_PreconditionFailed
-starting_PreconditionFailed =
-  element PreconditionFailed { node-reference }
-start |= starting_ParentFailed
-starting_ParentFailed = element ParentFailed { node-reference }
+IterationSucceeded = element IterationSucceeded { node-reference }
+Interrupted = element Interrupted { node-reference }
+IterationFailed = element IterationFailed { node-reference }
+InvariantFailed = element InvariantFailed { node-reference }
+PreconditionFailed = element PreconditionFailed { node-reference }
+ParentFailed = element ParentFailed { node-reference }
 # Support for message passing between executives
 
 # Deprecated
-start |= starting_MessageReceived
-starting_MessageReceived =
+MessageReceived =
   element MessageReceived {
     GeneralizedStringExpression, SourceLocators
   }
-start |= starting_OnCommand
-starting_OnCommand =
+OnCommand =
   element OnCommand { NodeClauses*, Name, Action?, SourceLocators }
-start |= starting_OnMessage
-starting_OnMessage =
+OnMessage =
   element OnMessage {
     NodeClauses*,
     element Message { GeneralizedStringExpression },
@@ -239,8 +213,7 @@ starting_OnMessage =
 # Specialized actions
 
 # Wait a specified duration, with optional tolerance for the time reading
-start |= starting_Wait
-starting_Wait =
+Wait =
   element Wait {
     NodeClauses*,
     element Units { GeneralizedNumericExpression },
@@ -248,8 +221,7 @@ starting_Wait =
     SourceLocators
   }
 # Command action that waits for its return value or status handle
-start |= starting_SynchronousCommand
-starting_SynchronousCommand =
+SynchronousCommand =
   element SynchronousCommand {
     NodeClauses*,
     element Timeout { GeneralizedNumericExpression }?,
@@ -258,6 +230,4 @@ starting_SynchronousCommand =
     SourceLocators
   }
 # Generic lookup form
-start |= starting_Lookup
-starting_Lookup =
-  element Lookup { Name, Tolerance?, Arguments?, SourceLocators }
+Lookup = element Lookup { Name, Tolerance?, Arguments?, SourceLocators }
