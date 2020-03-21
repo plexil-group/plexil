@@ -276,7 +276,8 @@ namespace PLEXIL
           Node *node = getStateChangeNode();
           debugMsg("PlexilExec:step",
                    "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
-                   "] Transitioning node " << node->getNodeId() << ' ' << node
+                   "] Transitioning " << nodeTypeString(node->getType())
+                   << " node " << node->getNodeId() << ' ' << node
                    << " from " << nodeStateName(node->getState())
                    << " to " << nodeStateName(node->getNextState()));
           node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
@@ -472,7 +473,8 @@ namespace PLEXIL
       }
 
       debugMsg("PlexilExec:tryResourceAcquisition",
-               ' ' << (success ? "succeeded" : "failed") << " for " << node->getNodeId() << ' ' << node);
+               ' ' << (success ? "succeeded" : "failed")
+               << " for " << node->getNodeId() << ' ' << node);
 
       if (success) {
         // Node can transition now
@@ -589,8 +591,8 @@ namespace PLEXIL
       switch (node->getQueueStatus()) {
       case QUEUE_NONE:   // normal case
         debugMsg("PlexilExec:step",
-                 " Adding " << node->getNodeId() << ' ' << node <<
-                 " to the state change queue");
+                 " adding " << node->getNodeId() << ' ' << node <<
+                 " to state change queue");
         node->setQueueStatus(QUEUE_TRANSITION);
         m_stateChangeQueue.push(node);
         return;
@@ -633,6 +635,9 @@ namespace PLEXIL
 
     void addPendingNode(Node *node)
     {
+      debugMsg("PlexilExec:step",
+               " adding " << node->getNodeId() << ' ' << node <<
+               " to pending queue");
       node->setQueueStatus(QUEUE_PENDING_TRY);
       m_pendingQueue.insert(node);
     }
@@ -668,23 +673,19 @@ namespace PLEXIL
         // fall thru
 
       case QUEUE_NONE:
+        debugMsg("PlexilExec:step",
+                 " Marking " << node->getNodeId() << ' ' << node <<
+                 " as a finished root node");
         node->setQueueStatus(QUEUE_DELETE);
         m_finishedRootNodes.push(node);
-        return;
-
-      case QUEUE_TRANSITION:
-      case QUEUE_TRANSITION_CHECK:
-        errorMsg("Root node " << node->getNodeId() << ' ' << node
-                 << " is eligible for deletion but is still in state transition queue");
         return;
 
       case QUEUE_DELETE: // shouldn't happen, but harmless
         return;
 
       default:
-        assertTrueMsg(ALWAYS_FAIL,
-                      "Root node " << node->getNodeId()
-                      << " is eligible for deletion but is still in pending or state transition queue");
+        errorMsg("Root node " << node->getNodeId() << ' ' << node
+                 << " is scheduled for deletion but is still in pending or state transition queue");
         return;
       }
     }

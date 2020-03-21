@@ -646,14 +646,14 @@ namespace PLEXIL
     case QUEUE_PENDING:
       m_queueStatus = QUEUE_PENDING_TRY;
       debugMsg("Node:notifyResourceAvailable",
-               ' ' << m_nodeId << ' ' << this << " will retry");
+               ' ' << m_nodeId << ' ' << this << " will retry resource acquisition");
       return;
 
     case QUEUE_PENDING_CHECK:
       m_queueStatus = QUEUE_PENDING_TRY_CHECK;
       debugMsg("Node:notifyResourceAvailable",
                ' ' << m_nodeId << ' ' << this
-               << " will retry after checking conditions");
+               << " will retry resource acquisition after checking conditions");
       return;
 
     default:
@@ -673,8 +673,8 @@ namespace PLEXIL
   bool NodeImpl::getDestState()
   {
     debugMsg("Node:getDestState",
-             " Getting destination state for " << m_nodeId << ' ' << this << " from state " <<
-             nodeStateName(m_state));
+             " Getting destination state for " << m_nodeId << ' ' << this
+             << " from state " << nodeStateName(m_state));
 
     // clear this for sake of unit test
     m_nextState = NO_NODE_STATE;
