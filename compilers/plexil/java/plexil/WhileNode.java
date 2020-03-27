@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -112,6 +112,7 @@ public class WhileNode extends PlexilTreeNode
     protected void constructXML()
     {
         super.constructXML();
+
         IXMLElement condition = new XMLElement("Condition");
         m_xml.addChild(condition);
         condition.addChild(this.getChild(0).getXML());

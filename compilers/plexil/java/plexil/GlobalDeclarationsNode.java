@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -42,27 +42,35 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
 		super(n);
 	}
 
+    @Override
 	public Tree dupNode()
 	{
 		return new GlobalDeclarationsNode(this);
 	}
 
+    @Override
     public void constructXML()
     {
         super.constructXML();
         for (int i = 0; i < this.getChildCount(); i++) {
-            m_xml.addChild(this.getChild(i).getXML());
+            IXMLElement childXML = this.getChild(i).getXML();
+            if (childXML != null)
+                m_xml.addChild(childXML);
         }
 
         // set source locator to location of 1st child
-        IXMLElement firstChild = m_xml.getChildAtIndex(0);
+        PlexilTreeNode firstChild = this.getChild(0);
         if (firstChild != null) {
-            m_xml.setAttribute("LineNo", firstChild.getAttribute("LineNo", null));
-            m_xml.setAttribute("ColNo", firstChild.getAttribute("ColNo", null));
+            m_xml.setAttribute("LineNo",
+                               String.valueOf(firstChild.getToken().getLine()));
+            m_xml.setAttribute("ColNo",
+                               String.valueOf(firstChild.getToken().getCharPositionInLine()));
         }
-
     }
    
-    protected String getXMLElementName() { return "GlobalDeclarations"; }
+    protected String getXMLElementName()
+    {
+        return "GlobalDeclarations";
+    }
 
 }

@@ -1,1 +1,1 @@
-<PlexilPlan LineNo="1" ColNo="0" FileName="input/empty0.ple"><Node NodeType="Empty" LineNo="1" ColNo="0"><NodeId>BLOCK__0</NodeId></Node></PlexilPlan>
+<PlexilPlan FileName="input/empty0.ple"><Node NodeType="Empty" LineNo="1" ColNo="0"><NodeId>BLOCK__0</NodeId></Node></PlexilPlan>

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -217,7 +217,7 @@ public class ParameterSpecNode extends PlexilTreeNode
     // For library node
     public void constructXML()
     {
-        super.constructXML();
+        m_xml = new XMLElement(this.getXMLElementName()); // no source locators desired
         if (m_parameterSpecs != null) {
             Vector<VariableName> inVars = new Vector<VariableName>();
             Vector<VariableName> inOutVars = new Vector<VariableName>();

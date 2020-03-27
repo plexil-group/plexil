@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,9 +62,24 @@ public class GlobalContext
         libraryNodes = new HashMap<String, GlobalDeclaration>();
     }
 
+    @Override
     public boolean isGlobalContext()
     {
         return true;
+    }
+
+    // get the root of this context tree
+    @Override
+    protected NodeContext getRootContext()
+        throws Exception
+    {
+        throw new Exception("getRootContext() called on global context");
+    }
+
+    @Override
+    protected boolean isRootContext()
+    {
+        return false;
     }
 
     public GlobalDeclaration getCommandDeclaration(String name)

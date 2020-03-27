@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -48,10 +48,15 @@ public class ArrayReferenceNode extends VariableNode
 	}
 
     // Override VariableNode method
+    @Override
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         earlyCheckChildren(context, state);
         ExpressionNode arrayNode = (ExpressionNode) this.getChild(0);
+        // Set source locators from array expression
+        this.getToken().setLine(arrayNode.getLine());
+        this.getToken().setCharPositionInLine(arrayNode.getCharPositionInLine());
+
         PlexilDataType arrayType = arrayNode.getDataType();
         if (arrayType.isArray())
             m_dataType = arrayType.arrayElementType();
@@ -93,9 +98,10 @@ public class ArrayReferenceNode extends VariableNode
     }
 
     // N.B. Can't use super.constructXML because of conflict with VariableNode method
+    @Override
     protected void constructXML()
     {
-        constructXMLBase();
+        this.constructXMLBase();
 
         // Construct array expression
         m_xml.addChild(this.getChild(0).getXML());
@@ -106,7 +112,11 @@ public class ArrayReferenceNode extends VariableNode
         m_xml.addChild(idx);
     }
 
-    protected String getXMLElementName() { return "ArrayElement"; }
+    @Override
+    protected String getXMLElementName()
+    {
+        return "ArrayElement";
+    }
 
     public boolean isAssignable()
     {

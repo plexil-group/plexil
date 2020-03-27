@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,11 +71,6 @@ public class NodeContext
         m_children.add(child);
     }
 
-    public void setNodeName(String name)
-    {
-        m_nodeName = name;
-    }
-
     public String getNodeName()
     {
         return m_nodeName;
@@ -86,9 +81,8 @@ public class NodeContext
         throws Exception
     {
         if (m_parentContext == null)
-            // is global context -- error
-            throw new Exception("getRootContext() called on global context");
-        else if (m_parentContext.isGlobalContext())
+            throw new Exception("Internal error: non-global context has no parent!");
+        if (m_parentContext.isGlobalContext())
             return this;
         return m_parentContext.getRootContext();
     }
@@ -222,6 +216,9 @@ public class NodeContext
     // Creates a locally unique node name based on the child's type
     public String generateChildNodeName(String prefix)
     {
+        // Kludge
+        if (prefix.equals("{"))
+            prefix = "BLOCK";
         return prefix +  "__" + s_generatedIdCount++;
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@ import java.util.Vector;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-
-import net.n3.nanoxml.*;
 
 public class InterfaceDeclNode extends PlexilTreeNode
 {
@@ -224,11 +222,6 @@ public class InterfaceDeclNode extends PlexilTreeNode
             m_variables.add(newvar);
             declNode.setVariableName(newvar);
         }
-    }
-
-    // I don't think we need to do anything here
-    public void checkSelf(NodeContext context, CompilerState state)
-    {
     }
 
 }

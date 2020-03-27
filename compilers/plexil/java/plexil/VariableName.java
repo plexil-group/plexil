@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -173,7 +173,6 @@ public class VariableName extends PlexilName
             new XMLElement(isArray() ? "DeclareArray" : "DeclareVariable");
 
         // add source locators
-        // TODO: add FileName attribute
         if (m_declaration != null) {
             result.setAttribute("LineNo", String.valueOf(m_declaration.getLine()));
             result.setAttribute("ColNo", String.valueOf(m_declaration.getCharPositionInLine()));
@@ -201,9 +200,12 @@ public class VariableName extends PlexilName
             result.addChild(init);
             if (m_initialValue.getDataType().isArray()) {
                 // handle array initial value
+                IXMLElement val = new XMLElement("ArrayValue");
+                val.setAttribute("Type", getArrayElementTypeName());
                 for (int i = 0; i < m_initialValue.getChildCount(); i++) {
-                    init.addChild(m_initialValue.getChild(i).getXML());
+                    val.addChild(m_initialValue.getChild(i).getXML());
                 }
+                init.addChild(val);
             }
             else {
                 init.addChild(m_initialValue.getXML());

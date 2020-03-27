@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ import net.n3.nanoxml.*;
 
 public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 {
-    protected IXMLElement m_xml = null;
+    protected XMLElement m_xml = null;
 
     //
     // Constructors
@@ -146,20 +146,17 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      */
     public void checkChildren(NodeContext context, CompilerState state)
     {
-        for (int i = 0; i < this.getChildCount(); i++) {
+        for (int i = 0; i < this.getChildCount(); i++)
             this.getChild(i).check(context, state);
-        }
     }
 	
     //* Returns the NanoXML representation of this part of the parse tree.
-    public IXMLElement getXML()
+    public XMLElement getXML()
     {
-        if (m_xml == null) {
+        if (m_xml == null)
             constructXML();
-        }
         return m_xml;
     }
-
 
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
@@ -192,7 +189,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     protected void addSourceLocatorAttributes()
     {
         if (m_xml != null) {
-            m_xml.setAttribute("LineNo", String.valueOf(1 + this.getLine()));
+            m_xml.setAttribute("LineNo", String.valueOf(this.getLine()));
             m_xml.setAttribute("ColNo", String.valueOf(this.getCharPositionInLine()));
         }
     }

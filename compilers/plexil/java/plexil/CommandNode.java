@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ public class CommandNode extends ExpressionNode
     }
 
     // AST is:
-    // (COMMAND ((COMMAND_NAME NCNAME) | expression) (ARGUMENT_LIST expression*)?)
+    // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
     public void earlyCheckSelf(NodeContext context, CompilerState state)
@@ -75,6 +75,10 @@ public class CommandNode extends ExpressionNode
             // Check that name is defined as a command
             PlexilTreeNode nameNode = nameAST.getChild(0);
             String name = nameNode.getText();
+            // Set source locators
+            this.getToken().setLine(nameNode.getLine());
+            this.getToken().setCharPositionInLine(nameNode.getCharPositionInLine());
+
             if (!GlobalContext.getGlobalContext().isCommandName(name)) {
                 state.addDiagnostic(nameNode,
                                     "Command \"" + name + "\" is not defined",
@@ -124,10 +128,13 @@ public class CommandNode extends ExpressionNode
                     }
                     // Parameter type checking done in checkTypeConsistency() below
                 }
-
-                // TODO: Check resource list (?)
-			
+                // Resource list is handled by BlockNode
             }
+        }
+        else {
+            // Set source locators to expression
+            this.getToken().setLine(getChild(0).getLine());
+            this.getToken().setCharPositionInLine(getChild(0).getCharPositionInLine());
         }
     }
 
@@ -180,18 +187,17 @@ public class CommandNode extends ExpressionNode
         // construct Node XML
         super.constructXML();
         m_xml.setAttribute("NodeType", "Command");
-        // set source location to the loc'n of the command name (expression)
-        m_xml.setAttribute("LineNo", String.valueOf(this.getChild(0).getLine()));
-        m_xml.setAttribute("ColNo", String.valueOf(this.getChild(0).getCharPositionInLine()));
 
         // construct node body
         IXMLElement nodeBody = new XMLElement("NodeBody");
         m_xml.addChild(nodeBody);
 
         IXMLElement commandBody = new XMLElement("Command");
-        nodeBody.addChild(commandBody);
+        // set source location to the loc'n of the command name (expression)
+        commandBody.setAttribute("LineNo", String.valueOf(this.getChild(0).getLine()));
+        commandBody.setAttribute("ColNo", String.valueOf(this.getChild(0).getCharPositionInLine()));
 
-        // TODO: handle resource list
+        nodeBody.addChild(commandBody);
 
         // Add name (expression)
         PlexilTreeNode commandName = this.getChild(0);

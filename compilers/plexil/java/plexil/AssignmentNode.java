@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -57,9 +57,17 @@ public class AssignmentNode extends PlexilTreeNode
         lhs.checkAssignable(context, state);
         rhs.earlyCheck(context, state);
 
+        Token t = this.getToken();
         if (rhs instanceof CommandNode) {
             // Change this to a command tree node
-            getToken().setType(PlexilLexer.COMMAND);
+            t.setType(PlexilLexer.COMMAND);
+            t.setLine(rhs.getLine());
+            t.setCharPositionInLine(rhs.getCharPositionInLine());
+        }
+        else {
+            // Set source locators to point to LHS
+            t.setLine(lhs.getLine());
+            t.setCharPositionInLine(lhs.getCharPositionInLine());
         }
     }
 
@@ -148,20 +156,31 @@ public class AssignmentNode extends PlexilTreeNode
                     break;
                 }
             }
+
+            // set Command element source location to the loc'n of the LHS
+            command.setAttribute("LineNo", String.valueOf(lhs.getLine()));
+            command.setAttribute("ColNo", String.valueOf(lhs.getCharPositionInLine()));
         }
         else {
             super.constructXML();
             m_xml.setAttribute("NodeType", "Assignment");
-            IXMLElement body = new XMLElement("NodeBody");
-            m_xml.addChild(body);
+
             IXMLElement assign = new XMLElement("Assignment");
-            body.addChild(assign);
+            // set source location to the loc'n of the LHS
+            assign.setAttribute("LineNo", String.valueOf(lhs.getLine()));
+            assign.setAttribute("ColNo", String.valueOf(lhs.getCharPositionInLine()));
+
             assign.addChild(lhs.getXML());
+
             IXMLElement rhsXML = new XMLElement(rhs.assignmentRHSElementName());
-            assign.addChild(rhsXML);
             rhsXML.addChild(rhs.getXML());
+            assign.addChild(rhsXML);
+
+            IXMLElement body = new XMLElement("NodeBody");
+            body.addChild(assign);
+
+            m_xml.addChild(body);
         }
-        // TODO: In either case, set source locators from LHS
     }
 
     protected String getXMLElementName() { return "Node"; }

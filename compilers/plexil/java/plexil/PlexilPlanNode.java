@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,8 @@ public class PlexilPlanNode extends PlexilTreeNode
     public PlexilPlanNode(int ttype)
     {
         super(new CommonToken(ttype, "PLEXIL"));
+        this.getToken().setLine(0);
+        this.getToken().setCharPositionInLine(0);
     }
 
     public PlexilPlanNode(PlexilPlanNode n)
@@ -42,6 +44,7 @@ public class PlexilPlanNode extends PlexilTreeNode
         super(n);
     }
 
+    @Override
     public Tree dupNode()
     {
         return new PlexilPlanNode(this);
@@ -50,6 +53,7 @@ public class PlexilPlanNode extends PlexilTreeNode
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
      */
+    @Override
     protected void constructXML()
     {
         super.constructXML();
@@ -64,8 +68,9 @@ public class PlexilPlanNode extends PlexilTreeNode
     /**
      * @brief Get the string to use for the XML element's name.
      * @return A non-null String.
-     * @note This is a base method. Derived classes should override it as required.
      */
+
+    @Override
     protected String getXMLElementName()
     {
         return "PlexilPlan";
@@ -74,10 +79,12 @@ public class PlexilPlanNode extends PlexilTreeNode
 
     /**
      * @brief Add new source locator attributes to m_xml, or replace the existing ones.
+     * @note Don't bother with LineNo, ColNo attributes here.
      */
+
+    @Override
     protected void addSourceLocatorAttributes()
     {
-        super.addSourceLocatorAttributes();
         if (m_xml != null) {
             String fname = CompilerState.getCompilerState().getSourceFileName();
             if (fname != null)
