@@ -61,6 +61,9 @@ public class BlockNode extends PlexilTreeNode
 		m_conditions = n.m_conditions;
 		m_resources = n.m_resources;
 		m_body = n.m_body;
+        m_localVars = n.m_localVars;
+        m_inVars = n.m_inVars;
+        m_inOutVars = n.m_inOutVars;
     }
 
 	public Tree dupNode()
@@ -163,8 +166,6 @@ public class BlockNode extends PlexilTreeNode
         m_localVars = new Vector<VariableName>();
         m_inVars = new Vector<InterfaceVariableName>();
         m_inOutVars = new Vector<InterfaceVariableName>();
-
-        boolean varDeclSeen = false;
 
         if (this.getChildCount() > 0) {
             int i = 0;
@@ -311,14 +312,6 @@ public class BlockNode extends PlexilTreeNode
                 // TODO: generate warning
             }
         }
-
-        // TEMP DEBUG
-        // System.out.println("\nBlockNode.constructXML for " + this.toStringTree());
-        // try {
-        //     new XMLWriter(System.out).write(m_xml, true);
-        // } catch (java.io.IOException e) {
-        //     System.out.println("XML printing error");
-        // }
     }
 
     private boolean firstChildHasNodeId()

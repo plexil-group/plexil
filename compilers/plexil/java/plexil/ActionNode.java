@@ -130,14 +130,6 @@ public class ActionNode extends PlexilTreeNode
             nodeIdElt.setContent(m_nodeId);
             m_xml.insertChild(nodeIdElt, 0);
         }
-
-        // TEMP DEBUG
-        // System.out.println("\nActionNode.constructXML for " + this.toStringTree());
-        // try {
-        //     new XMLWriter(System.out).write(m_xml, true);
-        // } catch (java.io.IOException e) {
-        //     System.out.println("XML printing error");
-        // }
     }
 
 }

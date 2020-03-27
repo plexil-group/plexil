@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -220,6 +220,7 @@ flattenTrivialCheckedBlock:
 
 bindingContextNode:
         BLOCK
+    | LBRACE
     | CONCURRENCE_KYWD
     | SEQUENCE_KYWD
     | UNCHECKED_SEQUENCE_KYWD
@@ -237,8 +238,10 @@ checkedBlock:
     |   TRY
     ;
 
+// An unchecked block has an outcome of SUCCESS if all children fail.
 uncheckedBlock:
         UNCHECKED_SEQUENCE_KYWD
+    |   CONCURRENCE_KYWD
     ;
 
 // Binary operators that can be used as N-ary

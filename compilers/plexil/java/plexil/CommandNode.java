@@ -161,8 +161,7 @@ public class CommandNode extends ExpressionNode
             if (parmSpecs != null && m_parameters != null)
                 m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
         }
-
-        // TODO: Check resources
+        // Resource list is self-checking
 
         // Perform recursive checks on subexprs
         this.checkChildren(context, state);
@@ -198,6 +197,8 @@ public class CommandNode extends ExpressionNode
         commandBody.setAttribute("ColNo", String.valueOf(this.getChild(0).getCharPositionInLine()));
 
         nodeBody.addChild(commandBody);
+
+        // BlockNode handles resource list
 
         // Add name (expression)
         PlexilTreeNode commandName = this.getChild(0);
