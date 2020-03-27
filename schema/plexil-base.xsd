@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,9 @@ NOTE: this is an incomplete schema, as it doesn't define the "Name"
 element.  It is used as an included schema only.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xml:lang="en">
   <xs:attribute name="FileName" type="xs:string"/>
   <xs:attribute name="LineNo" type="xs:integer"/>
   <xs:attribute name="ColNo" type="xs:integer"/>
@@ -52,6 +54,9 @@ element.  It is used as an included schema only.
         <xs:group ref="Action"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
+      <!-- Attempt to imitate rncfix -->
+      <xs:anyAttribute namespace="http://www.w3.org/2001/XMLSchema-instance"
+                       processContents="skip"/>
     </xs:complexType>
   </xs:element>
 
@@ -546,39 +551,32 @@ element.  It is used as an included schema only.
 
   <xs:element name="IntegerValue">
     <xs:simpleType>
-      <xs:restriction base="xs:integer">
-      </xs:restriction>
+      <xs:restriction base="xs:integer" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="RealValue">
     <xs:simpleType>
-      <xs:restriction base="xs:double">
-      </xs:restriction>
+      <xs:restriction base="xs:double" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="BooleanValue">
     <xs:simpleType>
-      <xs:restriction base="xs:boolean">
-      </xs:restriction>
+      <xs:restriction base="xs:boolean" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="StringValue">
     <xs:simpleType>
-      <xs:restriction base="xs:string">
-      </xs:restriction>
+      <xs:restriction base="xs:string" />
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="ArrayValue">
     <xs:complexType>
       <xs:choice>
-        <xs:element ref="IntegerValue" maxOccurs="unbounded"/>
-        <xs:element ref="RealValue" maxOccurs="unbounded"/>
-        <xs:element ref="BooleanValue" maxOccurs="unbounded"/>
-        <xs:element ref="StringValue" maxOccurs="unbounded"/>
+        <xs:group ref="Value" maxOccurs="unbounded"/>
       </xs:choice>
       <xs:attribute name="Type" type="AtomicTypeValues" use="required"/>
       <xs:attributeGroup ref="SourceLocators"/>
