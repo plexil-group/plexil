@@ -254,6 +254,7 @@ static bool waitingDestTest()
                 NodeState destState = node->getNextState();
                 debugMsg("UnitTest:waitingDestTest",
                          " ancestor exit = " << values[ancestorExit]
+                         << " exit = " << values[exit]
                          << " ancestor invariant = " << values[ancestorInvariant]
                          << " ancestor end = " << values[ancestorEnd]
                          << " skip = " << values[skip]
@@ -327,6 +328,7 @@ static bool waitingTransTest()
                   debugMsg("UnitTest:waitingTransition",
                            "Testing node type " << types[i]
                            << " with ancestor exit = " << values[ancestorExit]
+                           << " exit = " << values[exit]
                            << " ancestor invariant = " << values[ancestorInvariant]
                            << " ancestor end = " << values[ancestorEnd]
                            << " skip = " << values[skip]
