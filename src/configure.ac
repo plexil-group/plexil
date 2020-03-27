@@ -126,6 +126,8 @@ AS_IF([test "x$enable_viewer" != "xno"],[
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([m], [sqrt])
+# Used by UdpAdapter (and IPC)
+AC_CHECK_LIB([nsl], [inet_ntoa])
 # POSIX timer - not present on macOS
 AC_CHECK_LIB([rt], [timer_create])
 
@@ -202,7 +204,6 @@ AC_CHECK_TYPES([pid_t])
 # AC_PROG_GCC_TRADITIONAL
 # AC_PROG_LEX
 # AC_PROG_YACC
-# AC_CHECK_LIB([nsl], [inet_ntoa])
 # AC_CHECK_LIB([wrap], [hosts_ctl])
 # AC_HEADER_SYS_WAIT
 # AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
@@ -212,7 +213,7 @@ AC_CHECK_TYPES([pid_t])
 # AC_FUNC_SETVBUF_REVERSED
 # AC_FUNC_STRFTIME
 # AC_FUNC_VPRINTF
-# AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk])
+# AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strpbrk])
 # AC_STRUCT_TM
 #])
 
