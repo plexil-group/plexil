@@ -1,100 +1,84 @@
-namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
-default namespace = ""
+# * Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# *  All rights reserved.
+# *
+# * Redistribution and use in source and binary forms, with or without
+# * modification, are permitted provided that the following conditions are met:
+# *     * Redistributions of source code must retain the above copyright
+# *       notice, this list of conditions and the following disclaimer.
+# *     * Redistributions in binary form must reproduce the above copyright
+# *       notice, this list of conditions and the following disclaimer in the
+# *       documentation and/or other materials provided with the distribution.
+# *     * Neither the name of the Universities Space Research Association nor the
+# *       names of its contributors may be used to endorse or promote products
+# *       derived from this software without specific prior written permission.
+# *
+# * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-start =
-  CommandAck
-  | Script
-  | SendPlan
-  | UpdateAck
-  | CommandAbort
-  | InitialState
-  | Command
-  | State
-  | Param
-  | (notAllowed
-     | element PLEXILScript { InitialState?, Script })
-  | Simultaneous
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
-InitialState =
-  notAllowed
-  | element InitialState { State* }
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
-    }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
-    }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
-  }
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
+# Schema for the Test Executive simulation script
+
+default namespace = ""
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace rng = "http://relaxng.org/ns/structure/1.0"
+
+start = starting_PLEXILScript
+starting_PLEXILScript = element PLEXILScript { InitialState?, Script }
+InitialState = element InitialState { State* }
 Script =
-  notAllowed
-  | element Script {
-      (State
-       | UpdateAck
-       | Command
-       | CommandAck
-       | CommandAbort
-       | Simultaneous
-       | SendPlan
-       | element Delay {
-           mixed {
-             (attribute * { text }
-              | element0)*
-           }
-         })*
-    }
-SendPlan =
-  notAllowed
-  | element SendPlan {
-      attribute file { xsd:string }?
-    }
-type =
-  attribute type {
-    xsd:NMTOKEN "string-array"
-    | xsd:NMTOKEN "bool"
-    | xsd:NMTOKEN "string"
-    | xsd:NMTOKEN "bool-array"
-    | xsd:NMTOKEN "real-array"
-    | xsd:NMTOKEN "int-array"
-    | xsd:NMTOKEN "real"
-    | xsd:NMTOKEN "int"
+  element Script {
+    (State
+     | UpdateAck
+     | Command
+     | CommandAck
+     | CommandAbort
+     | Simultaneous
+     | SendPlan
+     | element Delay { empty })*
   }
-\string = xsd:string
-Command =
-  notAllowed
-  | element Command { command-type }
+SendPlan =
+  element SendPlan {
+    attribute file { xsd:string }?
+  }
 Simultaneous =
-  notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-PlexilPlanAttributes = 
-  notAllowed
-  | attribute xsi:* { xsd:anyURI }*
+  element Simultaneous {
+    (State | UpdateAck | Command | CommandAck | CommandAbort)*
+  }
+State =
+  element State {
+    Param*,
+    element Value { xsd:string }+,
+    attribute name { xsd:string }?,
+    attr_type
+  }
+Command = element Command { command-type }
+CommandAck = element CommandAck { command-type }
+CommandAbort = element CommandAbort { command-type }
+Param = element Param { xsd:string, attr_type }
+UpdateAck =
+  element UpdateAck {
+    attribute name { xsd:string }?
+  }
+command-type =
+  Param*,
+  element Result { xsd:string }+,
+  attribute name { xsd:string }?,
+  attr_type
+attr_type =
+  attribute type {
+    "bool"
+    | "real"
+    | "int"
+    | "string"
+    | "bool-array"
+    | "real-array"
+    | "int-array"
+    | "string-array"
+  }?
