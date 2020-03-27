@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ public class CommandNode extends ExpressionNode
     }
 
     // AST is:
-    // (COMMAND ((COMMAND_KYWYD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
+    // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
     public void earlyCheckSelf(NodeContext context, CompilerState state)
@@ -128,9 +128,7 @@ public class CommandNode extends ExpressionNode
                     }
                     // Parameter type checking done in checkTypeConsistency() below
                 }
-
-                // TODO: Check resource list (?)
-			
+                // Resource list is handled by BlockNode
             }
         }
         else {
@@ -163,8 +161,7 @@ public class CommandNode extends ExpressionNode
             if (parmSpecs != null && m_parameters != null)
                 m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
         }
-
-        // TODO: Check resources
+        // Resource list is self-checking
 
         // Perform recursive checks on subexprs
         this.checkChildren(context, state);
@@ -200,7 +197,7 @@ public class CommandNode extends ExpressionNode
         commandBody.setAttribute("ColNo", String.valueOf(this.getChild(0).getCharPositionInLine()));
         nodeBody.addChild(commandBody);
 
-        // TODO: handle resource list
+        // BlockNode handles resource list
 
         // Add name (expression)
         PlexilTreeNode commandName = this.getChild(0);

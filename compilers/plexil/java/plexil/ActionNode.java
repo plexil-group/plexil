@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,11 @@ public class ActionNode extends PlexilTreeNode
 		return new ActionNode(this);
 	}
 
+    public PlexilTreeNode getBaseAction()
+    {
+        return this.getChild(this.getChildCount() - 1);
+    }
+
     //
     // Format is
     // (ACTION NCName? baseAction)
@@ -101,6 +106,10 @@ public class ActionNode extends PlexilTreeNode
     @Override
     protected void addSourceLocatorAttributes()
     {
+        // If some inner form has set them, don't bother.
+        if (null == m_xml.getAttribute("LineNo", null))
+            return;
+
         Token t = getChild(0).getToken();
         m_xml.setAttribute("LineNo", String.valueOf(t.getLine()));
         m_xml.setAttribute("ColNo", String.valueOf(t.getCharPositionInLine()));
@@ -114,10 +123,13 @@ public class ActionNode extends PlexilTreeNode
         m_xml = child.getXML();
         addSourceLocatorAttributes();
 
-        // Insert Node ID element
-        IXMLElement nodeIdElt = new XMLElement("NodeId");
-        nodeIdElt.setContent(m_nodeId);
-        ((XMLElement) m_xml).insertChild(nodeIdElt, 0);
+        // Insert Node ID element if not already present
+        IXMLElement nodeIdElt = m_xml.getFirstChildNamed("NodeId");
+        if (nodeIdElt == null) {
+            nodeIdElt = new XMLElement("NodeId");
+            nodeIdElt.setContent(m_nodeId);
+            m_xml.insertChild(nodeIdElt, 0);
+        }
     }
 
 }

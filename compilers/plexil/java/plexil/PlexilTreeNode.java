@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ import net.n3.nanoxml.*;
 
 public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 {
-    protected IXMLElement m_xml = null;
+    protected XMLElement m_xml = null;
 
     //
     // Constructors
@@ -151,7 +151,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     }
 	
     //* Returns the NanoXML representation of this part of the parse tree.
-    public IXMLElement getXML()
+    public XMLElement getXML()
     {
         if (m_xml == null)
             constructXML();

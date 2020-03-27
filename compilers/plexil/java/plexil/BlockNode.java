@@ -36,14 +36,17 @@ import net.n3.nanoxml.*;
 public class BlockNode extends PlexilTreeNode
 {
     // Name binding context
-    NodeContext m_context = null;
+    private NodeContext m_context = null;
 
     // Components of the block
-    PlexilTreeNode m_comment = null;
-    Vector<PlexilTreeNode> m_conditions = null;
-    Vector<PlexilTreeNode> m_attributes = null;
-    Vector<PlexilTreeNode> m_resources = null;
-    Vector<PlexilTreeNode> m_body = null;
+    private PlexilTreeNode m_comment = null;
+    private PlexilTreeNode m_priority = null;
+    private Vector<PlexilTreeNode> m_conditions = null;
+    private Vector<PlexilTreeNode> m_resources = null;
+    private Vector<PlexilTreeNode> m_body = null;
+    private Vector<VariableName> m_localVars = null;
+    private Vector<InterfaceVariableName> m_inVars = null;
+    private Vector<InterfaceVariableName> m_inOutVars = null;
 
     public BlockNode(Token t)
     {
@@ -54,10 +57,13 @@ public class BlockNode extends PlexilTreeNode
     {
         super(n);
 		m_comment = n.m_comment;
+		m_priority = n.m_priority;
 		m_conditions = n.m_conditions;
-		m_attributes = n.m_attributes;
 		m_resources = n.m_resources;
 		m_body = n.m_body;
+        m_localVars = n.m_localVars;
+        m_inVars = n.m_inVars;
+        m_inOutVars = n.m_inOutVars;
     }
 
 	public Tree dupNode()
@@ -101,7 +107,7 @@ public class BlockNode extends PlexilTreeNode
         m_context = new NodeContext(parentContext, nodeId);
 
         // Divide up the children by category
-        partitionChildren();
+        partitionChildren(state);
     }
 
     /**
@@ -113,6 +119,8 @@ public class BlockNode extends PlexilTreeNode
     {
         checkChildren(m_context, state);
         checkSelf(parentContext, state);
+        // Partition variable declarations from the context
+        m_context.getNodeVariables(m_localVars, m_inVars, m_inOutVars);
     }
 
     // N.B. Interface, variable, mutex decl's, mutex refs, and conditions check themselves.
@@ -124,7 +132,7 @@ public class BlockNode extends PlexilTreeNode
             Integer condType = Integer.valueOf(c.getType());
             if (conditionsSeen.contains(condType)) {
                 state.addDiagnostic(c,
-                                    "In node " + context.getNodeName()
+                                    "In node " + m_context.getNodeName()
                                     + ": Multiple \"" + c.getToken().getText()
                                     + "\" conditions specified",
                                     Severity.ERROR);
@@ -141,25 +149,23 @@ public class BlockNode extends PlexilTreeNode
             // Resources are NOT legal, flag them as errors
             for (PlexilTreeNode r : m_resources) {
                 state.addDiagnostic(r, 
-                                    "In node " + context.getNodeName()
+                                    "In node " + m_context.getNodeName()
                                     + "The \"" + r.getToken().getText()
                                     + "\" keyword is only valid for Command actions",
                                     Severity.ERROR);
             }
         }
-
-        // TODO: Check attributes
-        for (PlexilTreeNode a : m_attributes) {
-            // Check for collisions
-        }
+        // Priority is self-checking
     }
 
-    private void partitionChildren()
+    private void partitionChildren(CompilerState state)
     {
         m_conditions = new Vector<PlexilTreeNode>();
-        m_attributes = new Vector<PlexilTreeNode>();
         m_resources = new Vector<PlexilTreeNode>();
         m_body = new Vector<PlexilTreeNode>();
+        m_localVars = new Vector<VariableName>();
+        m_inVars = new Vector<InterfaceVariableName>();
+        m_inOutVars = new Vector<InterfaceVariableName>();
 
         if (this.getChildCount() > 0) {
             int i = 0;
@@ -175,7 +181,7 @@ public class BlockNode extends PlexilTreeNode
                 case PlexilLexer.VARIABLE_DECLARATIONS:
                 case PlexilLexer.MUTEX_KYWD:
                 case PlexilLexer.USING_KYWD:
-                    // declarations take care of themselves
+                    // declarations add selves to current context
                     break;
 
                 case PlexilLexer.END_CONDITION_KYWD:
@@ -194,11 +200,27 @@ public class BlockNode extends PlexilTreeNode
                     break;
 
                 case PlexilLexer.PRIORITY_KYWD:
-                    m_attributes.add(child);
+                    if (m_priority != null) {
+                        state.addDiagnostic(child, 
+                                            "In node " + m_context.getNodeName()
+                                            + " Multiple Priority attributes",
+                                            Severity.ERROR);
+                    } else {
+                        m_priority = child;
+                    }
+                    break;
+
+                case PlexilLexer.ACTION:
+                    m_body.add(child);
                     break;
 
                 default:
-                    m_body.add(child);
+                    // should never happen (?)
+                    state.addDiagnostic(this,
+                                        "Internal error: Unexpected child "
+                                        + child.getToken().getText()
+                                        + " in block",
+                                        Severity.FATAL);
                     break;
                 }
             }
@@ -208,75 +230,79 @@ public class BlockNode extends PlexilTreeNode
     // N.B. Could add more cases to inherit XML from child.
     protected void constructXML()
     {
-        // Construct basic XML
-        // If body is 1 simple action, use its XML as a base
-        if (isSimpleNode()) {
-            // System.out.println("BlockNode.constructXML collapsing:");
-            // System.out.println(this.toStringTree());
-            // System.out.println(" to:");
-            // System.out.println(m_body.firstElement().getChild(0).toStringTree());
-            m_xml = m_body.firstElement().getChild(0).getXML();
+        // Place children in canonical order
+        int insertIdx = 0;
+
+        // Build basic node
+        if (m_body.isEmpty()) {
+            // Empty node
+            m_xml = new XMLElement("Node");
+            m_xml.setAttribute("NodeType", "Empty");
+            this.addSourceLocatorAttributes();
+        }
+        else if (isSimpleNode()) {
+            // Get base XML from child
+            PlexilTreeNode action = m_body.firstElement();
+            if (firstChildHasNodeId()) {
+                m_xml = action.getXML();  // get it with NodeId
+                insertIdx++;              // insert everything after NodeId
+            }
+            else
+                m_xml = action.getChild(0).getXML(); // get bare node
         }
         else {
-            // Build XML wrapper
-            if (m_body.isEmpty()) {
-                // Empty node
-                m_xml = new XMLElement("Node");
-                m_xml.setAttribute("NodeType", "Empty");
-            }
-            else if (this.getType() == PlexilLexer.LBRACE)
+            // 1 or more items in body
+            if (this.getType() == PlexilLexer.LBRACE)
                 m_xml = new XMLElement("Sequence");
             else
                 m_xml = new XMLElement(this.getToken().getText());
             this.addSourceLocatorAttributes();
+            // Add children from body
+            for (PlexilTreeNode n : m_body)
+                m_xml.addChild(n.getXML());
         }
 
         // Add comment
         if (m_comment != null) {
             IXMLElement comment = m_comment.getChild(0).getXML();
             comment.setName("Comment");
-            m_xml.addChild(comment);
+            m_xml.insertChild(comment, insertIdx++);
         }
 
-        Vector<VariableName> localVars = new Vector<VariableName>();
-        Vector<InterfaceVariableName> inVars = new Vector<InterfaceVariableName>();
-        Vector<InterfaceVariableName> inOutVars = new Vector<InterfaceVariableName>();
-        m_context.getNodeVariables(localVars, inVars, inOutVars);
-        if (!inVars.isEmpty() || !inOutVars.isEmpty()) {
+        if (!m_inVars.isEmpty() || !m_inOutVars.isEmpty()) {
             IXMLElement intfc = new XMLElement("Interface");
-            m_xml.addChild(intfc);
-            if (!inVars.isEmpty()) {
+            m_xml.insertChild(intfc, insertIdx++);
+            if (!m_inVars.isEmpty()) {
                 IXMLElement inXML = new XMLElement("In");
                 intfc.addChild(inXML);
-                for (InterfaceVariableName iv : inVars)
+                for (InterfaceVariableName iv : m_inVars)
                     inXML.addChild(iv.makeDeclarationXML());
             }
-            if (!inOutVars.isEmpty()) {
+            if (!m_inOutVars.isEmpty()) {
                 IXMLElement inOutXML = new XMLElement("InOut");
                 intfc.addChild(inOutXML);
-                for (InterfaceVariableName iov : inOutVars)
+                for (InterfaceVariableName iov : m_inOutVars)
                     inOutXML.addChild(iov.makeDeclarationXML());
             }
         }
 
-        if (!localVars.isEmpty() || !m_context.getMutexes().isEmpty()) {
+        if (!m_localVars.isEmpty() || !m_context.getMutexes().isEmpty()) {
             IXMLElement decls = new XMLElement("VariableDeclarations");
-            m_xml.addChild(decls);
-            for (VariableName v : localVars)
+            m_xml.insertChild(decls, insertIdx++);
+            for (VariableName v : m_localVars)
                 decls.addChild(v.makeDeclarationXML());
             for (MutexName m : m_context.getMutexes())
                 decls.addChild(m.makeDeclarationXML());
         }
 
         // Add conditions
-        for (PlexilTreeNode n : m_conditions) {
-            m_xml.addChild(n.getXML());
-        }
+        for (PlexilTreeNode n : m_conditions)
+            m_xml.insertChild(n.getXML(), insertIdx++);
 
         // Add mutex references
         if (!m_context.getMutexRefs().isEmpty()) {
             IXMLElement mtx = new XMLElement("UsingMutex");
-            m_xml.addChild(mtx);
+            m_xml.insertChild(mtx, insertIdx++);
             for (MutexName m : m_context.getMutexRefs()) {
                 IXMLElement ref = m.asReference();
                 // TODO: Add source locators
@@ -284,71 +310,78 @@ public class BlockNode extends PlexilTreeNode
             }
         }
 
-        // Add attributes
-        for (PlexilTreeNode n : m_attributes) {
-            m_xml.addChild(n.getXML());
-        }
+        // Add priority
+        if (m_priority != null)
+            m_xml.insertChild(m_priority.getXML(), insertIdx++);
 
-        if (isSimpleNode()) {
-            // All above have been added after original body,
-            // so move body to last place
-            IXMLElement bodyXML = m_xml.getChildAtIndex(0);
-            m_xml.removeChildAtIndex(0);
-
-			// Add command resources, if required
-			if (isCommandNode()) {
-				if (!m_resources.isEmpty()) {
-					IXMLElement rlist = new XMLElement("ResourceList");
-					for (PlexilTreeNode n : m_resources)
-						rlist.addChild(n.getXML());
-					XMLElement commandXml = (XMLElement) bodyXML.getChildAtIndex(0);
-					commandXml.insertChild(rlist, 0);
-				}
-			}
-
-            m_xml.addChild(bodyXML);
-        }
-        else {
-            // Add children from body
-            for (PlexilTreeNode n : m_body) {
-                m_xml.addChild(n.getXML());
+        if (!m_resources.isEmpty()) {
+            if (isCommandNode()) {
+                // Add command resources, if required
+                // Has to be done here because CommandNode represents the naked command
+                // and resources are in the surrounding braces
+                IXMLElement rlist = new XMLElement("ResourceList");
+                for (PlexilTreeNode n : m_resources)
+                    rlist.addChild(n.getXML());
+                XMLElement commandXml =
+                    (XMLElement) m_xml.getFirstChildNamed("NodeBody").getFirstChildNamed("Command");
+                commandXml.insertChild(rlist, 0);
+            } else {
+                // TODO: generate warning
             }
         }
     }
 
+    private boolean firstChildHasNodeId()
+    {
+        if (m_body.isEmpty())
+            return false;
+        return 1 < m_body.firstElement().getChildCount();
+    }
+
+    private boolean hasOuterNodeId()
+    {
+        PlexilTreeNode parent = this.getParent();
+        return parent != null
+            && parent instanceof ActionNode
+            && parent.getChildCount() > 1;
+    }
+
     private boolean isSimpleNode()
     {
+        // Don't collapse these block types because outcome semantics change
+        if (this.getType() == PlexilLexer.UNCHECKED_SEQUENCE_KYWD
+            || this.getType() == PlexilLexer.CONCURRENCE_KYWD)
+            return false;
+
         if (m_body.size() != 1)
             return false;
 
-        PlexilTreeNode child = m_body.firstElement();
-        if (child.getChildCount() != 1)
-            return false;
+        PlexilTreeNode action = m_body.firstElement(); // (Action NCNAME? *)
+        int childCt = action.getChildCount();
+        if (hasOuterNodeId() && childCt > 1)
+            return false; // both parent & child have node IDs
 
-        ActionNode action = (ActionNode) child;
-        // this should never fail, in theory
-        if (action == null)
-            return false;
-        if (action.hasNodeId())
-            return false; // separate node ID on child
-
-        int bodyType = action.getChild(0).getType();
-        switch (bodyType) {
+        PlexilTreeNode subaction = action.getChild(childCt - 1);
+        switch (subaction.getType()) {
+            // Primitives
         case PlexilLexer.ASSIGNMENT:
         case PlexilLexer.COMMAND:
-        case PlexilLexer.LIBRARY_CALL_KYWD:
         case PlexilLexer.UPDATE_KYWD:
-        case PlexilLexer.REQUEST_KYWD:
+        case PlexilLexer.LIBRARY_CALL_KYWD:
+            return true;
+
+            // Compound
+        case PlexilLexer.IF_KYWD:
+        case PlexilLexer.FOR_KYWD:
+        case PlexilLexer.WHILE_KYWD:
+        case PlexilLexer.ON_COMMAND_KYWD:
+        case PlexilLexer.ON_MESSAGE_KYWD:
+        case PlexilLexer.SYNCHRONOUS_COMMAND_KYWD:
             return true;
 
         default:
             return false;
         }
-    }
-
-    private boolean isListNode()
-    {
-        return m_body.size() > 1;
     }
 
     private boolean isCommandNode()
@@ -361,10 +394,7 @@ public class BlockNode extends PlexilTreeNode
         if (action.getType() != PlexilLexer.ACTION) {
             return false;
         }
-        if (action.getChildCount() != 1) {
-            return false;
-        }
-        return action.getChild(0).getType() == PlexilLexer.COMMAND;
+        return action.getChild(action.getChildCount() - 1).getType() == PlexilLexer.COMMAND;
     }
 
 }

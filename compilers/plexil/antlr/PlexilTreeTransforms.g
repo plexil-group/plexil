@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -99,10 +99,7 @@ bottomup:
     |   booleanEqualityNegation
     |   rightAssociativeReduction
     |   leftAssociativeReduction
-    |   flattenTrivialBlocks
-    |   flattenTrivialSequences
-    |   flattenTrivialUncheckedSequences
-    |   flattenTrivialConcurrences
+    |   flattenTrivialCheckedBlock
     |   exitContext
     ;
 
@@ -207,43 +204,13 @@ booleanEqualityNegation:
         
 // Block flattening
 
-flattenTrivialBlocks:
-        ^(ACTION ^(LBRACE innerUnnamed=unnamedAction))
+flattenTrivialCheckedBlock:
+        ^(ACTION ^(checkedBlock innerUnnamed=unnamedAction))
         -> $innerUnnamed
-    |   ^(ACTION ^(LBRACE innerNamed=namedAction))
+    |   ^(ACTION ^(checkedBlock innerNamed=namedAction))
         -> $innerNamed
-    |   ^(ACTION NCNAME ^(LBRACE namedAction)) // no transform
-    |   ^(ACTION outerId=NCNAME ^(LBRACE ^(ACTION body=.)))
-        -> ^(ACTION $outerId $body)
-    ;
-
-flattenTrivialSequences:
-        ^(ACTION ^(SEQUENCE_KYWD innerUnnamed=unnamedAction))
-        -> $innerUnnamed
-    |   ^(ACTION ^(SEQUENCE_KYWD innerNamed=namedAction))
-        -> $innerNamed
-    |   ^(ACTION NCNAME ^(SEQUENCE_KYWD namedAction)) // no transform
-    |   ^(ACTION outerId=NCNAME ^(SEQUENCE_KYWD ^(ACTION body=.)))
-        -> ^(ACTION $outerId $body)
-    ;
-
-flattenTrivialUncheckedSequences:
-        ^(ACTION ^(UNCHECKED_SEQUENCE_KYWD innerUnnamed=unnamedAction))
-        -> $innerUnnamed
-    |   ^(ACTION ^(UNCHECKED_SEQUENCE_KYWD innerNamed=namedAction))
-        -> $innerNamed
-    |   ^(ACTION NCNAME ^(UNCHECKED_SEQUENCE_KYWD namedAction)) // no transform
-    |   ^(ACTION outerId=NCNAME ^(UNCHECKED_SEQUENCE_KYWD ^(ACTION body=.)))
-        -> ^(ACTION $outerId $body)
-    ;
-
-flattenTrivialConcurrences:
-        ^(ACTION ^(CONCURRENCE_KYWD innerUnnamed=unnamedAction))
-        -> $innerUnnamed
-    |   ^(ACTION ^(CONCURRENCE_KYWD innerNamed=namedAction))
-        -> $innerNamed
-    |   ^(ACTION NCNAME ^(CONCURRENCE_KYWD namedAction)) // no transform
-    |   ^(ACTION outerId=NCNAME ^(CONCURRENCE_KYWD ^(ACTION body=.)))
+    |   ^(ACTION NCNAME ^(checkedBlock namedAction)) // no transform
+    |   ^(ACTION outerId=NCNAME ^(checkedBlock ^(ACTION body=.)))
         -> ^(ACTION $outerId $body)
     ;
 
@@ -259,6 +226,22 @@ bindingContextNode:
     | UNCHECKED_SEQUENCE_KYWD
     | TRY_KYWD
     | FOR_KYWD
+    ;
+
+// A checked block has an outcome of FAILURE if some child fails.
+// Therefore can be collapsed if only 1 child.
+checkedBlock:
+        CHECKED_SEQUENCE_KWYD
+    |   SEQUENCE_KYWD
+    |   BLOCK
+    |   LBRACE
+    |   TRY
+    ;
+
+// An unchecked block has an outcome of SUCCESS if all children fail.
+uncheckedBlock:
+        UNCHECKED_SEQUENCE_KYWD
+    |   CONCURRENCE_KYWD
     ;
 
 // Binary operators that can be used as N-ary

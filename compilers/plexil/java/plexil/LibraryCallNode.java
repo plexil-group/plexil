@@ -186,6 +186,8 @@ public class LibraryCallNode extends PlexilTreeNode
         IXMLElement bodyXML = new XMLElement("NodeBody");
         m_xml.addChild(bodyXML);
         IXMLElement callXML = new XMLElement("LibraryNodeCall");
+        callXML.setAttribute("LineNo", String.valueOf(this.getLine()));
+        callXML.setAttribute("ColNo", String.valueOf(this.getCharPositionInLine()));
         bodyXML.addChild(callXML);
         IXMLElement idXML = new XMLElement("NodeId");
         idXML.setContent(this.getChild(0).getText());
