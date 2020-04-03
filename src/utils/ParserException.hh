@@ -72,7 +72,8 @@ namespace PLEXIL
     ParserException(ParserException &&) PLEXIL_NOEXCEPT = default;
 
     ParserException& operator=(ParserException const &) = default;
-    ParserException& operator=(ParserException &&) PLEXIL_NOEXCEPT = default;
+    // g++ 4.8.x doesn't support PLEXIL_NOEXCEPT on default move assignment
+    ParserException& operator=(ParserException &&) = default;
 
     virtual ~ParserException() PLEXIL_NOEXCEPT = default;
 

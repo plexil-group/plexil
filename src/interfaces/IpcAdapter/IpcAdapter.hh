@@ -357,6 +357,7 @@ namespace PLEXIL
     State m_pendingLookupState;
 
     //* @brief Serial # of current pending LookupNow request, or 0
-    std::atomic_uint32_t m_pendingLookupSerial;
+    // g++ 4.8.x doesn't support std::atomic_uint32_t
+    std::atomic<uint32_t> m_pendingLookupSerial;
   };
 }
