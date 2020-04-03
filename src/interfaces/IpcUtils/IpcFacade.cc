@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,14 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
+#include <fstream>
 #include <map>
 
+#ifdef STDC_HEADERS
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
-
-// ooid classes
-#include "uuid_gen.h"
-#include "system/devrand.h"
+#endif
 
 namespace PLEXIL 
 {
@@ -1272,17 +1273,40 @@ IPC_RETURN_TYPE IpcFacade::sendPairs(std::vector<std::pair<std::string, Value> >
     }
   }
 
+
+// UUID generation constants
+#define UUID_SIZE_BITS 128
+
+// 8-4-4-4-12 format
+#define UUID_STRING_SIZE (8 + 1 + 4 + 1 + 4 + 1 + 4 + 1 + 12)
+
   /**
    * @brief Initialize unique ID string
    */
-  std::string IpcFacade::generateUID() {
-    kashmir::system::DevRand randomStream;
-    kashmir::uuid_t uuid;
-    randomStream >> uuid;
-    std::ostringstream s;
-    s << uuid;
-    debugMsg("IpcFacade:generateUID", " generated UUID " << s.str());
-    return s.str();
+  std::string IpcFacade::generateUID()
+  {
+    uint16_t randomBits[UUID_SIZE_BITS/16];
+    {
+      std::ifstream randumb("/dev/random", std::ios::in | std::ios::binary);
+      if (!randumb)
+        return std::string();
+
+      if (!randumb.read(reinterpret_cast<char *>(randomBits), UUID_SIZE_BITS/8))
+        return std::string();
+    }
+    char resultbuf[UUID_STRING_SIZE + 1];
+    snprintf(resultbuf, UUID_STRING_SIZE + 1,
+             "%04X%04X-%04X-%04X-%04X-%04X%04X%04X",
+             randomBits[0],
+             randomBits[1],
+             randomBits[2],
+             (randomBits[3] & 0xfff) | 0x4000,  // version 4 - random
+             (randomBits[4] & 0x3fff) | 0x8000, // variant 1 - big-endian
+             randomBits[5],
+             randomBits[6],
+             randomBits[7]);
+
+    return std::string(resultbuf);
   }
 
   /**
