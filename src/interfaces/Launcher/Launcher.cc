@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,12 @@
 #include "Array.hh"
 #include "Command.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "Node.hh"
 #include "parser-utils.hh"
+#include "PlexilExec.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 
