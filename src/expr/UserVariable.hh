@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -114,8 +114,8 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    Expression *getBaseVariable();
-    Expression const *getBaseVariable() const;
+    Assignable *getBaseVariable();
+    Assignable const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.
@@ -249,8 +249,8 @@ namespace PLEXIL
 
     Value getSavedValue() const;
 
-    Expression *getBaseVariable();
-    Expression const *getBaseVariable() const;
+    Assignable *getBaseVariable();
+    Assignable const *getBaseVariable() const;
 
     /**
      * @brief Set the expression from which this object gets its initial value.

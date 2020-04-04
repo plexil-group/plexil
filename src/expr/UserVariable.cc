@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -433,23 +433,23 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  Expression *UserVariable<T>::getBaseVariable()
+  Assignable *UserVariable<T>::getBaseVariable()
   {
     return this;
   }
 
-  Expression *UserVariable<String>::getBaseVariable()
+  Assignable *UserVariable<String>::getBaseVariable()
   {
     return this;
   }
 
   template <typename T>
-  Expression const *UserVariable<T>::getBaseVariable() const
+  Assignable const *UserVariable<T>::getBaseVariable() const
   {
     return this;
   }
 
-  Expression const *UserVariable<String>::getBaseVariable() const
+  Assignable const *UserVariable<String>::getBaseVariable() const
   {
     return this;
   }

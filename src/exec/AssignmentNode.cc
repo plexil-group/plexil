@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,14 +49,14 @@ namespace PLEXIL
                                  NodeState state,
                                  NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_assignment(NULL),
+      m_assignment(new Assignment()),
       m_priority(WORST_PRIORITY)
   {
     checkError(type == ASSIGNMENT,
                "Invalid node type " << type << " for an AssignmentNode");
 
-    // Create Assignment object
-    createDummyAssignment();
+    // Populate Assignment object
+    initDummyAssignment();
 
     switch (state) {
     case EXECUTING_STATE:
@@ -104,15 +104,14 @@ namespace PLEXIL
   }
 
   // Unit test variant of above
-  void AssignmentNode::createDummyAssignment() 
+  void AssignmentNode::initDummyAssignment() 
   {
-    m_assignment = new Assignment();
     m_assignment->setVariable(new BooleanVariable(false),
                               true);
     m_assignment->setExpression(TRUE_EXP(), false);
   }
 
-  Expression *AssignmentNode::getAssignmentVariable() const
+  Assignable *AssignmentNode::getAssignmentVariable() const
   {
     return m_assignment->getDest();
   }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,10 @@
 
 namespace PLEXIL
 {
+
+  // Forward references
+  class NodeTimepointValue;
+  class NodeVariableMap;
 
   /**
    * @class NodeImpl
@@ -249,7 +253,7 @@ namespace PLEXIL
      * @brief Accessor for an assignment node's assigned variable.
      * @note Default method, overridden by AssignmentNode.
      */
-    virtual Expression *getAssignmentVariable() const 
+    virtual Assignable *getAssignmentVariable() const 
     {
       return NULL;
     }

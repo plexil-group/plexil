@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,12 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
+#include "Expression.hh"
+
 namespace PLEXIL {
   
   // Forward declarations
   class Array;
-  class Expression;
   class Value;
 
   /**
@@ -40,7 +41,7 @@ namespace PLEXIL {
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    * @note This class has no state of its own.
    */
-  class Assignable
+  class Assignable : virtual public Expression
   {
   protected:
     Assignable();
@@ -76,8 +77,8 @@ namespace PLEXIL {
      * @return Pointer to the base variable.
      * @note Used by the assignment node conflict resolution logic.
      */
-    virtual Expression *getBaseVariable() = 0;
-    virtual Expression const *getBaseVariable() const = 0;
+    virtual Assignable *getBaseVariable() = 0;
+    virtual Assignable const *getBaseVariable() const = 0;
 
     /**
      * @brief Set the expression from which this object gets its initial value.

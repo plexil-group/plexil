@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerBase.hh"
-#include "PlexilExec.hh" // getExecListener()
+#include "PlexilExec.hh" // g_exec, getExecListener()
 
 namespace PLEXIL
 {
@@ -49,10 +49,19 @@ namespace PLEXIL
 
   Assignment::~Assignment() 
   {
+    cleanUp();
+  }
+
+  void Assignment::cleanUp()
+  {
     if (m_deleteLhs)
       delete m_dest;
+    m_deleteLhs = false;
+    m_dest = NULL;
     if (m_deleteRhs)
       delete m_rhs;
+    m_deleteRhs = false;
+    m_rhs = NULL;
   }
 
   Assignment *Assignment::next() const
@@ -65,12 +74,26 @@ namespace PLEXIL
     return &m_next;
   }
 
-  Expression *Assignment::getDest()
+  //
+  // Both const and non-const flavors for accessors
+  //
+
+  Assignable *Assignment::getDest()
+  {
+    return m_dest;
+  }
+
+  Assignable const *Assignment::getDest() const
   {
     return m_dest;
   }
   
   Expression *Assignment::getAck()
+  {
+    return &m_ack;
+  }
+  
+  Expression const *Assignment::getAck() const
   {
     return &m_ack;
   }
@@ -80,7 +103,12 @@ namespace PLEXIL
     return &m_abortComplete;
   }
 
-  void Assignment::setVariable(Expression *lhs, bool garbage)
+  Expression const *Assignment::getAbortComplete() const
+  {
+    return &m_abortComplete;
+  }
+
+  void Assignment::setVariable(Assignable *lhs, bool garbage)
   {
     m_dest = lhs;
     m_deleteLhs = garbage;
@@ -94,7 +122,7 @@ namespace PLEXIL
 
   void Assignment::fixValue() 
   {
-    m_dest->asAssignable()->saveCurrentValue();
+    m_dest->saveCurrentValue();
     m_value = m_rhs->toValue();
   }
 
@@ -102,21 +130,20 @@ namespace PLEXIL
   {
     assertTrue_2(m_dest && m_rhs,
                  "Attempt to activate uninitialized Assignment");
-    m_rhs->activate();
-    m_dest->activate();
+    m_rhs->activate();  // resets to unknown
+    m_dest->activate(); // ""     "" ""
   }
 
   void Assignment::deactivate() 
   {
     m_rhs->deactivate();
     m_dest->deactivate();
-    m_value = Value(); // make unknown
   }
 
   void Assignment::execute()
   {
     debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
-    m_dest->asAssignable()->setValue(m_value);
+    m_dest->setValue(m_value);
     m_ack.setValue(true);
     ExecListenerBase *listener = g_exec->getExecListener();
     if (listener)
@@ -127,13 +154,13 @@ namespace PLEXIL
   {
     debugMsg("Test:testOutput",
              "Restoring previous value of " << m_dest->toString());
-    m_dest->asAssignable()->restoreSavedValue();
+    m_dest->restoreSavedValue();
     m_abortComplete.setValue(true);
     ExecListenerBase *listener = g_exec->getExecListener();
     if (listener)
       listener->notifyOfAssignment(m_dest,
                                    m_dest->getName(),
-                                   m_dest->asAssignable()->getSavedValue());
+                                   m_dest->getSavedValue());
   }
 
 }

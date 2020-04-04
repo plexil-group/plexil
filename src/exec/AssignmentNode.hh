@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 namespace PLEXIL
 {
   // Forward references
+  class Assignable;
   class Assignment;
 
   class AssignmentNode : public NodeImpl
@@ -70,7 +71,7 @@ namespace PLEXIL
     /**
      * @brief Accessor for the assigned variable.
      */
-    Expression *getAssignmentVariable() const;
+    virtual Assignable *getAssignmentVariable() const;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -115,7 +116,7 @@ namespace PLEXIL
 
   private:
 
-    void createDummyAssignment(); // unit test variant
+    void initDummyAssignment(); // unit test variant
     void abort();
 
     Assignment *m_assignment;

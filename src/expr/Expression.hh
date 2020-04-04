@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -118,18 +118,6 @@ namespace PLEXIL
 	 */
     virtual void print(std::ostream& s) const;
 
-    /**
-     * @brief Print additional information about derived objects.
-     * @param s The output stream.
-     */
-    virtual void printSpecialized(std::ostream &s) const;
-
-    /**
-     * @brief Print subexpressions of derived objects.
-     * @param s The output stream.
-     */
-    virtual void printSubexpressions(std::ostream &s) const;
-
     //
     // Convenience methods which may be overridden or extended
     //
@@ -220,6 +208,24 @@ namespace PLEXIL
     virtual bool getValuePointer(IntegerArray const *&ptr) const;
     virtual bool getValuePointer(RealArray const *&ptr) const;
     virtual bool getValuePointer(StringArray const *&ptr) const;
+
+  protected:
+
+    //
+    // print() helpers
+    //
+
+    /**
+     * @brief Print additional information about derived objects.
+     * @param s The output stream.
+     */
+    virtual void printSpecialized(std::ostream &s) const;
+
+    /**
+     * @brief Print subexpressions of derived objects.
+     * @param s The output stream.
+     */
+    virtual void printSubexpressions(std::ostream &s) const;
 
   };
 

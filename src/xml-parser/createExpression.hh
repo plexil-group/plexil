@@ -37,8 +37,9 @@ namespace pugi
 
 namespace PLEXIL
 {
-  class NodeConnector;
+  class Assignable;
   class Expression;
+  class NodeConnector;
 
   /**
    * @brief Check the XML for validity as an expression.
@@ -88,7 +89,7 @@ namespace PLEXIL
                                       ValueType returnType = UNKNOWN_TYPE);
 
   // Used in AssignmentNode, CommandNode
-  extern Expression *createAssignable(pugi::xml_node const expr,
+  extern Assignable *createAssignable(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated);
 
