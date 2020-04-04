@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,11 +26,11 @@
 
 #include "Assignable.hh"
 #include "Debug.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
 #include "ExternalInterface.hh"
 #include "NodeImpl.hh"
 #include "NodeFactory.hh"
+#include "PlexilExec.hh"
 #include "TestSupport.hh"
 #include "test/TransitionExternalInterface.hh"
 #include "lifecycle-utils.h"
@@ -48,22 +48,25 @@ using namespace PLEXIL;
 
 std::list<Node *> const g_dummyPlanList;
 
-class TransitionExecConnector : public ExecConnector
+class TransitionExecConnector :
+  public PlexilExec
 {
 public:
-  TransitionExecConnector() : ExecConnector() {}
-  void addCandidateNode(Node * /* node */) {}
-  void enqueueAssignment(Assignment * /* assign */) {}
-  void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
-  void markRootNodeFinished(Node * /* node */) {}
-  bool addPlan(Node * /* root */) { return false; }
-  void step(double /* startTime */) {}
-  bool needsStep() const {return false;}
-  void setExecListener(ExecListenerBase * /* l */) {}
-  ExecListenerBase *getExecListener() { return NULL; }
-  void deleteFinishedPlans() {}
-  bool allPlansFinished() const { return true; }
-  std::list<Node *> const &getPlans() const { return g_dummyPlanList; }
+  TransitionExecConnector() : PlexilExec() {}
+  ~TransitionExecConnector() {}
+  
+  virtual void addCandidateNode(Node * /* node */) {}
+  virtual void enqueueAssignment(Assignment * /* assign */) {}
+  virtual void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
+  virtual void markRootNodeFinished(Node * /* node */) {}
+  virtual bool addPlan(Node * /* root */) { return false; }
+  virtual void step(double /* startTime */) {}
+  virtual bool needsStep() const {return false;}
+  virtual void setExecListener(ExecListenerBase * /* l */) {}
+  virtual ExecListenerBase *getExecListener() { return NULL; }
+  virtual void deleteFinishedPlans() {}
+  virtual bool allPlansFinished() const { return true; }
+  virtual std::list<Node *> const &getPlans() const { return g_dummyPlanList; }
 };
 
 static bool inactiveDestTest() 

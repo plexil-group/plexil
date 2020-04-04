@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #ifndef PLEXIL_EXEC_HH
 #define PLEXIL_EXEC_HH
 
-#include "ExecConnector.hh"
 #include "NodeTransition.hh"
 
 #include <list>
@@ -35,22 +34,25 @@
 namespace PLEXIL 
 {
   // Forward references
-  class Expression;
+  class Assignment;
   class ExecListenerBase;
+  class ExternalInterface;
+  class Expression;
+  class Node;
+
 
   struct NodeConflictComparator;
 
   /**
    * @brief The API of the core PLEXIL executive.
    */
-  class PlexilExec : public ExecConnector
+  class PlexilExec
   {
   public:
     /**
      * @brief Default constructor.
      */
     PlexilExec()
-      : ExecConnector()
     {
     }
 
@@ -141,6 +143,9 @@ namespace PLEXIL
     PlexilExec(PlexilExec const &);
     PlexilExec &operator=(PlexilExec const &);
   };
+
+  // Global pointer to the exec instance
+  extern PlexilExec *g_exec;
 
   /**
    * @brief Construct a PlexilExec instance.

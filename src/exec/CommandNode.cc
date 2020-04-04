@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,12 @@
 #include "Comparisons.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "Function.hh"
 #include "NodeFunction.hh"
 #include "NodeOperatorImpl.hh"
+#include "PlexilExec.hh"
 
 namespace PLEXIL
 {
