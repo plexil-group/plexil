@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,21 +42,21 @@ if JNI_OPT
 endif
 
 if DEBUG_LISTENER_OPT
-  TestExec_LDADD += @top_srcdir@/interfaces/PlanDebugListener/libPlanDebugListener.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
+  TestExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la
 endif
 
 if VIEWER_OPT
-  TestExec_LDADD += @top_srcdir@/interfaces/LuvListener/libLuvListener.la \
-   @top_srcdir@/interfaces/Sockets/libPlexilSockets.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
    -I@top_srcdir@/interfaces/Sockets
+  TestExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
+   @top_builddir@/interfaces/Sockets/libPlexilSockets.la
 endif
 
-TestExec_LDADD += @top_srcdir@/app-framework/libPlexilAppFramework.la \
- @top_srcdir@/xml-parser/libPlexilXmlParser.la \
- @top_srcdir@/third-party/pugixml/src/libpugixml.la \
- @top_srcdir@/exec/libPlexilExec.la @top_srcdir@/intfc/libPlexilIntfc.la \
- @top_srcdir@/expr/libPlexilExpr.la @top_srcdir@/value/libPlexilValue.la \
- @top_srcdir@/utils/libPlexilUtils.la
+TestExec_LDADD += @top_builddir@/app-framework/libPlexilAppFramework.la \
+ @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la \
+ @top_builddir@/exec/libPlexilExec.la @top_builddir@/intfc/libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
 

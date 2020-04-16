@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,5 +41,5 @@ if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/udp-tests
   test_udp_tests_SOURCES = test/udp-tests.cc
   test_udp_tests_CPPFLAGS = -I@top_srcdir@/utils
-  test_udp_tests_LDADD = libUdpUtils.la @top_srcdir@/utils/libPlexilUtils.la
+  test_udp_tests_LDADD = libUdpUtils.la @top_builddir@/utils/libPlexilUtils.la
 endif

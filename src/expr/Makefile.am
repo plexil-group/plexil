@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,5 +56,5 @@ if MODULE_TESTS_OPT
  test/variablesTest.cc test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = $(libPlexilExpr_la_CPPFLAGS)
   test_expr_module_tests_LDADD = libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 endif

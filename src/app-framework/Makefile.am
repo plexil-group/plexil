@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,8 @@ libPlexilAppFramework_la_SOURCES += TimeAdapterImpl.cc PosixTimeAdapter.cc \
 endif
 
 # Libraries to link against
-libPlexilAppFramework_la_LIBADD = @top_srcdir@/xml-parser/libPlexilXmlParser.la \
- @top_srcdir@/third-party/pugixml/src/libpugixml.la @top_srcdir@/exec/libPlexilExec.la \
- @top_srcdir@/intfc/libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 

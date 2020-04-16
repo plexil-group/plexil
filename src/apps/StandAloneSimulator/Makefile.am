@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
 simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
 
 simulator_LDADD = libstandalonesimulator.la \
- @top_srcdir@/interfaces/IpcUtils/libIpcUtils.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+ @top_builddir@/interfaces/IpcUtils/libIpcUtils.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 
 simulator_LDFLAGS = -L@libdir@ -lipc

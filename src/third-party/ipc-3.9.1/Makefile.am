@@ -10,23 +10,23 @@ IPC_OPTIONS = THREADED=1 MAKE_SHARED_LIBS=1
 all-local: ipc-all install-exec-local
 
 ipc-all:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
+	$(MAKE) BASE_DIR=@top_srcdir@/third-party/ipc -f @top_srcdir@/third-party/ipc/GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) all
 
 clean-local:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
+	$(MAKE) BASE_DIR=@top_srcdir@/third-party/ipc -f @top_srcdir@/third-party/ipc/GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) clean
 
 install-exec-local:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
+	$(MAKE) BASE_DIR=@top_srcdir@/third-party/ipc -f @top_srcdir@/third-party/ipc/GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) install_incs install_libs install_bins
 
 install-data-local:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
+	$(MAKE) BASE_DIR=@top_srcdir@/third-party/ipc -f @top_srcdir@/third-party/ipc/GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) install_mans install_docs
 
 uninstall-local:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
+	$(MAKE) BASE_DIR=@top_srcdir@/third-party/ipc -f @top_srcdir@/third-party/ipc/GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) uninstall
 
 # Distribute files from here.
