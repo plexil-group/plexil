@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@
 // Implementation of the Socket class.
 
 #include "Socket.h"
-
-#include "Debug.hh"
 
 #include <iostream>
 
@@ -79,7 +77,7 @@ Socket::~Socket()
 {
    if (is_valid())
    {
-      MARK;
+      // MARK;
       ::close (m_sock);
    }
 }
@@ -186,7 +184,7 @@ bool Socket::listen() const
 
 bool Socket::accept (Socket& new_socket) const
 {
-   MARK;
+   // MARK;
    int addr_length = sizeof (m_addr);
    new_socket.m_sock =
 #ifdef PLEXIL_VXWORKS
