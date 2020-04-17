@@ -128,8 +128,8 @@ VERSION_PREFIX	= IPC
 #############################################################################
 
 PWD 	:= $(shell /bin/pwd)
-STD_FILE := $(shell ls $(INSTALL_DIR)/etc/GNUmakefile.std 2>/dev/null | grep -v "not found" | head -1)
-DEFS_FILE := $(shell ls $(INSTALL_DIR)/etc/GNUmakefile.defs 2>/dev/null | grep -v "not found" | head -1)
+STD_FILE := $(shell ls $(BASE_DIR)/etc/GNUmakefile.std 2>/dev/null | grep -v "not found" | head -1)
+DEFS_FILE := $(shell ls $(BASE_DIR)/etc/GNUmakefile.defs 2>/dev/null | grep -v "not found" | head -1)
 
 ##########
 # Include standard definitions
@@ -155,18 +155,30 @@ endif
 ifdef USE_LISP
 PUBLIC_LIBS_Solaris	= libipc_lisp.so libipc_lisp.sa
 PUBLIC_LIBS_Linux	= libipc_lisp.so libipc_lisp.sa
+PUBLIC_LIBS_Darwin	= libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+PUBLIC_LIB_LINKS_Darwin = libipc_lisp.$(IPC_VERSION_MAJOR).dylib libipc_lisp.dylib
 endif
 
 PUBLIC_LIBS_RISC	= 
 ifneq ($(THIS_OS),vxworks)
-PUBLIC_LIBS		= libipc.a $(PUBLIC_LIBS_$(THIS_OS)) \
+PUBLIC_LIBS		= $(PUBLIC_LIBS_$(THIS_OS)) \
 			$(PUBLIC_LIBS_$(THIS_MACHINE))
+PUBLIC_LIB_LINKS = $(PUBLIC_LIB_LINKS_$(THIS_OS)) \
+			$(PUBLIC_LIB_LINKS_$(THIS_MACHINE))
+ifdef MAKE_STATIC_LIBS
+PUBLIC_LIBS     += libipc.a
+endif
 else
 PUBLIC_LIBS		= ipcModule.o centralModule.o
 endif
 ifdef MAKE_SHARED_LIBS
+ifeq ($(THIS_OS),Darwin)
+PUBLIC_LIBS += libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+PUBLIC_LIB_LINKS += libipc.$(IPC_VERSION_MAJOR).dylib libipc.dylib
+else
 PUBLIC_LIBS	+= libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
 		   libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
+endif
 CFLAGS += -fPIC
 endif
 
@@ -321,11 +333,13 @@ endif
 $(PUBLIC_BIN_DIR)/central: $(SERVEROBJS) $(LIBDEP)
 
 ifneq ($(THIS_OS),vxworks)
+ifdef MAKE_STATIC_LIBS
 $(LDIR)/libipc.a: $(MODULEOBJS)
 	@[ -d $(LDIR) ] || $(MKDIR) $(LDIR)
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(MODULEOBJS)
 	$(RANLIB) $@
+endif
 else
 $(LDIR)/ipcModule.o: $(VXLIBOBJS)
 	rm -f $(LDIR)ipcModule.o
@@ -335,8 +349,23 @@ $(LDIR)/ipcModule.o: $(VXLIBOBJS)
 $(PUBLIC_LIB_DIR)/ipcModule.o: $(LDIR)/ipcModule.o
 endif
 
+ifdef MAKE_STATIC_LIBS
 $(PUBLIC_LIB_DIR)/libipc.a: $(MODULEOBJS)
+endif
 
+ifdef MAKE_SHARED_LIBS
+ifeq ($(THIS_OS),Darwin)
+$(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS) $(LDIR)/.force
+	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
+
+$(LDIR)/libipc.dylib $(LDIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+	cd $(LDIR) && ln -s $(notdir $<) $(notdir $@)
+
+$(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
+
+$(PUBLIC_LIB_DIR)/libipc.dylib $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+	cd $(PUBLIC_LIB_DIR) && ln -s $(notdir $<) $(notdir $@)
+else # not Darwin
 $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
 	$(LD_SHARED) -o \
 	$(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
@@ -350,11 +379,22 @@ $(LDIR)/libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(MODULEDATA)
 	$(RANLIB) $@
 
 $(PUBLIC_LIB_DIR)/libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(MODULEDATA)
+endif
+endif
 
 ifeq ($(THIS_MACHINE),sun4u)
 LIBACL	= /usr/local/lib/acl60/libacl601.so
 endif
 
+ifeq ($(THIS_OS),Darwin)
+$(LDIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
+	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBACL)
+
+$(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
+
+$(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).dylib $(PUBLIC_LIB_DIR)/libipc_lisp.dylib : $(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+	ln -s $< $@
+else
 $(LDIR)/libipc_lisp.so: $(SHAREDOBJS)
 	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBACL)
 
@@ -366,6 +406,7 @@ $(LDIR)/libipc_lisp.sa: $(MODULEDATA)
 	$(RANLIB) $@
 
 $(PUBLIC_LIB_DIR)/libipc_lisp.sa: $(MODULEDATA)
+endif
 
 # this dependency is used to update the version information.
 # $(ODIR)/ipc.o: $(SRCS_ALL)
