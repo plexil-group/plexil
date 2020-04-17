@@ -186,7 +186,7 @@ THIS_OS_BOTH := $(THIS_OS)-$(THIS_RELEASE)
 # Release configuration.
 #############################################################################
 
-VERSION_DEF = $(INSTALL_DIR)/src/ipcPriv.h
+VERSION_DEF = $(BASE_DIR)/src/ipcPriv.h
 IPC_VERSION_MAJOR := $(shell awk '/VERSION_MAJOR/ {print $$3}' $(VERSION_DEF) )
 IPC_VERSION_MINOR := $(shell awk '/VERSION_MINOR/ {print $$3}' $(VERSION_DEF) )
 IPC_VERSION_MICRO := $(shell awk '/VERSION_MICRO/ {print $$3}' $(VERSION_DEF) )
@@ -207,11 +207,11 @@ CVSROOT 	= /afs/cs/project/TCA/Master
 endif
 
 # places where files live, relative to the makefile :
-BDIR    = bin/$(THIS_OS_BOTH)
-LDIR    = lib/$(THIS_OS_BOTH)
-ODIR    = obj/$(THIS_OS_BOTH)
-VODIR   = vxObj
-SODIR   = sharedObj/$(THIS_OS_BOTH)
+BDIR    = $(BUILD_DIR)/bin/$(THIS_OS_BOTH)
+LDIR    = $(BUILD_DIR)/lib/$(THIS_OS_BOTH)
+ODIR    = $(BUILD_DIR)/obj/$(THIS_OS_BOTH)
+VODIR   = $(BUILD_DIR)/vxObj
+SODIR   = $(BUILD_DIR)/sharedObj/$(THIS_OS_BOTH)
 PWD 	:= $(shell /bin/pwd)
 
 #############################################################################
@@ -409,6 +409,7 @@ DYN_LIBRARIES	= $(DYN_LIBS_$(THIS_OS))
 CPP_LIBRARIES	= $(LIBRARIES) 
 
 #Create a variable with the path to the libraries for use in depends.
+# FIXME?
 LIBDEP		= $(foreach lib, $(patsubst -l%, lib%.a, $(LIBRARIES)),\
 			$(foreach dir, $(patsubst -L%, %,$(LIB_PATH)),\
 				$(wildcard $(dir)/$(lib))))

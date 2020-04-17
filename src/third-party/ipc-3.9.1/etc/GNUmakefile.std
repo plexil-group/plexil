@@ -172,6 +172,7 @@ INS_PUBLIC_BINS	:= $(patsubst %,$(PUBLIC_BIN_DIR)/%,$(PUBLIC_BINS))
 #INS_PUBLIC_LIBS	:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(filter libipc.so.%,$(PUBLIC_LIBS)))
 #INS_PUBLIC_LIBSA:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(filter-out libipc.so.%,$(PUBLIC_LIBS)))
 INS_PUBLIC_LIBS	:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(PUBLIC_LIBS))
+INS_PUBLIC_LIB_LINKS := $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(PUBLIC_LIB_LINKS))
 INS_PUBLIC_LINTS:= $(patsubst %,$(PUBLIC_LINT_DIR)/%,$(PUBLIC_LINTS))
 INS_PUBLIC_INCS	:= $(patsubst %,$(PUBLIC_INC_DIR)/%,$(PUBLIC_INCS))
 INS_PUBLIC_MANS1:= $(patsubst %.1,$(PUBLIC_MAN_DIR)1/%.1,$(filter %.1,$(PUBLIC_MANS)))
@@ -201,6 +202,7 @@ RCSBIN := $(CVS_BIN)
 srcs: $(SRCS_ALL)
 bins:: $(patsubst %,$(BDIR)/%,$(PUBLIC_BINS))
 libs:: $(patsubst %,$(LDIR)/%,$(PUBLIC_LIBS))\
+	 $(patsubst %,$(LDIR)/%,$(PUBLIC_LIB_LINKS))\
 	 $(patsubst %,$(LDIR)/%,$(MODULE_LIBS))\
 	 $(PUBLIC_LINTS) $(MODULE_LINTS)
 privs:: $(patsubst %,$(BDIR)/%,$(PRIVS))
@@ -280,7 +282,7 @@ echo-%:
 #install rules
 ##########
 
-install:: $(INSTALL_DIR)/$(BDIR)/.force $(INSTALL_DIR)/$(LDIR)/.force
+install:: $(PUBLIC_BIN_DIR)/.force $(PUBLIC_LIB_DIR)/.force
 
 install:: install_incs install_libs install_bins install_mans install_docs
 
@@ -305,7 +307,7 @@ install_incs::
 	done;
 endif
 
-install_libs:: $(INSTALL_DIR)/$(LDIR)/.force
+install_libs:: $(PUBLIC_LIB_DIR)/.force
 ifneq ($(PUBLIC_LIBS),)
 libs:: $(LDIR)/.force
 install_libs:: $(LDIR)/.force
@@ -322,8 +324,8 @@ libs:: $(LDIR)/.force
   install_libs:: $(patsubst %,%.force,$(DEPEND_PREFIX))
   endif
 endif
-install_libs:: $(INS_PUBLIC_LIBS) $(INS_PUBLIC_LINTS)\
-	      $(INS_MODULE_LIBS) $(INS_MODULE_LINTS)
+install_libs:: $(INS_PUBLIC_LIBS) $(INS_PUBLIC_LIB_LINKS) \
+	$(INS_PUBLIC_LINTS) $(INS_MODULE_LIBS) $(INS_MODULE_LINTS)
 ifdef SUBDIRS
 install_libs:: 
 	for sub in $(SUBDIRS); do \
@@ -349,7 +351,7 @@ install_bins:: $(BDIR)/.force
   install_bins:: $(patsubst %,%.force,$(DEPEND_PREFIX))
   endif
 endif
-install_bins:: $(INSTALL_DIR)/$(BDIR)/.force
+install_bins:: $(PUBLIC_BIN_DIR)/.force
 install_bins:: $(INS_PUBLIC_BINS) install_mans install_docs
 ifdef SUBDIRS
 install_bins:: 
@@ -402,6 +404,7 @@ ifdef INS_PUBLIC_LIBS
 DONT_RANLIB = $(PUBLIC_LIB_DIR)/centralModule.o \
 		$(PUBLIC_LIB_DIR)/libipc_lisp.so \
 		$(PUBLIC_LIB_DIR)/libipc.so.% \
+		$(PUBLIC_LIB_DIR)/libipc.%.dylib \
 		$(PUBLIC_LIB_DIR)/libipcjava.so \
 		$(PUBLIC_LIB_DIR)/_IPC.so
 
@@ -606,15 +609,15 @@ $(ODIR)/.force $(SODIR)/.force $(LDIR)/.force $(BDIR)/.force:
 	echo `date` > $@
 
 ifneq ($(INSTALL_DIR),.)
-$(INSTALL_DIR)/$(BDIR)/.force:
-	-$(MKDIR) $(INSTALL_DIR)/$(BDIR);\
-	echo `date` > $(INSTALL_DIR)/$(BDIR)/.force
+$(PUBLIC_BIN_DIR)/.force:
+	-$(MKDIR) $(PUBLIC_BIN_DIR);\
+	echo `date` > $(PUBLIC_BIN_DIR)/.force
 endif
 
 ifneq ($(INSTALL_DIR),.)
-$(INSTALL_DIR)/$(LDIR)/.force:
-	-$(MKDIR) $(INSTALL_DIR)/$(LDIR)
-	echo `date` > $(INSTALL_DIR)/$(LDIR)/.force
+$(PUBLIC_LIB_DIR)/.force:
+	-$(MKDIR) $(PUBLIC_LIB_DIR)
+	echo `date` > $(PUBLIC_LIB_DIR)/.force
 endif
 
 #
