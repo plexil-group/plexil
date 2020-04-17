@@ -202,6 +202,7 @@ RCSBIN := $(CVS_BIN)
 srcs: $(SRCS_ALL)
 bins:: $(patsubst %,$(BDIR)/%,$(PUBLIC_BINS))
 libs:: $(patsubst %,$(LDIR)/%,$(PUBLIC_LIBS))\
+	 $(patsubst %,$(LDIR)/%,$(PUBLIC_LIB_LINKS))\
 	 $(patsubst %,$(LDIR)/%,$(MODULE_LIBS))\
 	 $(PUBLIC_LINTS) $(MODULE_LINTS)
 privs:: $(patsubst %,$(BDIR)/%,$(PRIVS))

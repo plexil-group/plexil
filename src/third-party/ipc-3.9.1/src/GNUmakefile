@@ -355,13 +355,16 @@ endif
 
 ifdef MAKE_SHARED_LIBS
 ifeq ($(THIS_OS),Darwin)
-$(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
+$(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS) $(LDIR)/.force
 	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
+
+$(LDIR)/libipc.dylib $(LDIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+	cd $(LDIR) && ln -s $(notdir $<) $(notdir $@)
 
 $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
 
-$(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).dylib $(PUBLIC_LIB_DIR)/libipc.dylib : $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
-	ln -s $< $@
+$(PUBLIC_LIB_DIR)/libipc.dylib $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
+	cd $(PUBLIC_LIB_DIR) && ln -s $(notdir $<) $(notdir $@)
 else # not Darwin
 $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
 	$(LD_SHARED) -o \
@@ -385,7 +388,7 @@ endif
 
 ifeq ($(THIS_OS),Darwin)
 $(LDIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
-	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
+	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBACL)
 
 $(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
 

@@ -33,12 +33,9 @@
 # For out-of-tree builds, they are distinct.
 # The IPC GNUmakefiles previously did not distinguish between them.
 
-IPC_LOCATIONS = BASE_DIR=$(srcdir) \
- ODIR=$(abs_builddir)/obj SODIR=$(abs_builddir)/sharedObj \
- INSTALL_DIR=$(prefix) PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir) \
- PUBLIC_INC_DIR=$(includedir) PUBLIC_MAN_DIR=$(mandir) PUBLIC_DOC_DIR=$(docdir) 
+IPC_LOCATIONS = BASE_DIR=$(abs_srcdir) BUILD_DIR=$(abs_builddir) \
+ INSTALL_DIR=$(prefix) PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir)
 
-#IPC_SUBDIRS = SUBDIRS='etc src doc'
 IPC_SUBDIRS = SUBDIRS='src'
 
 IPC_OPTIONS = 
