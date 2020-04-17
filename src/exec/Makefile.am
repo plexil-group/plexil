@@ -27,8 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExec.la
 
-libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
- -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/intfc \
+ -I$(top_srcdir)/expr -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecListenerBase.hh InterfaceSchema.hh \
@@ -51,11 +51,11 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
   noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
-  test_exec_module_tests_LDADD = libPlexilExec.la @top_builddir@/intfc/libPlexilIntfc.la \
- @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
- @top_builddir@/utils/libPlexilUtils.la
+  test_exec_module_tests_CPPFLAGS = -I$(top_srcdir)/intfc -I$(top_srcdir)/expr \
+ -I$(top_srcdir)/value -I$(top_srcdir)/utils
+  test_exec_module_tests_LDADD = libPlexilExec.la $(top_builddir)/intfc/libPlexilIntfc.la \
+ $(top_builddir)/expr/libPlexilExpr.la $(top_builddir)/value/libPlexilValue.la \
+ $(top_builddir)/utils/libPlexilUtils.la
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc

@@ -28,9 +28,9 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilXmlParser.la
 
 libPlexilXmlParser_la_CPPFLAGS = $(AM_CPPFLAGS) \
- -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/exec \
- -I@top_srcdir@/intfc -I@top_srcdir@/expr -I@top_srcdir@/value \
- -I@top_srcdir@/utils
+ -I$(top_srcdir)/third-party/pugixml/src -I$(top_srcdir)/exec \
+ -I$(top_srcdir)/intfc -I$(top_srcdir)/expr -I$(top_srcdir)/value \
+ -I$(top_srcdir)/utils
 
 # Publicly available header files
 include_HEADERS = createExpression.hh ExpressionFactory.hh parseNode.hh \
@@ -61,9 +61,9 @@ createExpression.$(OBJEXT): ExpressionMap.hh
 
 # Libraries referenced by the executables below
 DEPENDED_LIBS = libPlexilXmlParser.la \
- @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
- @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
- @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+ $(top_builddir)/third-party/pugixml/src/libpugixml.la $(top_builddir)/exec/libPlexilExec.la \
+ $(top_builddir)/intfc/libPlexilIntfc.la $(top_builddir)/expr/libPlexilExpr.la \
+ $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 
 bin_PROGRAMS = analyzePlan
 

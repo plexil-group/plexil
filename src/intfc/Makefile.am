@@ -27,8 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilIntfc.la
 
-libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/expr \
+ -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandFunction.hh CommandHandleVariable.hh ExprVec.hh \
@@ -45,10 +45,10 @@ libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   noinst_HEADERS =
-  test_intfc_module_tests_SOURCES = @top_srcdir@/expr/test/TrivialListener.cc \
+  test_intfc_module_tests_SOURCES = ../expr/test/TrivialListener.cc \
  test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc \
  test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = $(libPlexilIntfc_la_CPPFLAGS)
-  test_intfc_module_tests_LDADD = libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
- @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+  test_intfc_module_tests_LDADD = libPlexilIntfc.la $(top_builddir)/expr/libPlexilExpr.la \
+ $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 endif

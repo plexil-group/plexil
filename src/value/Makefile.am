@@ -27,7 +27,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilValue.la
 
-libPlexilValue_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
+libPlexilValue_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/utils
 
 include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
  NodeConstants.hh PlexilTypeTraits.hh Value.hh ValueType.hh
@@ -41,5 +41,5 @@ if MODULE_TESTS_OPT
   test_value_module_tests_SOURCES = test/arrayTest.cc test/serializeTest.cc \
  test/valueTest.cc test/valueTypeTest.cc test/value-test-module.cc
   test_value_module_tests_CPPFLAGS = $(libPlexilValue_la_CPPFLAGS)
-  test_value_module_tests_LDADD = libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+  test_value_module_tests_LDADD = libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 endif

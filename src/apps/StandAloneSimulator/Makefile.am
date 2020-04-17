@@ -28,8 +28,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libstandalonesimulator.la
 
 libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
- -I@top_srcdir@/interfaces/IpcUtils \
- -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/value -I@top_srcdir@/utils
+ -I$(top_srcdir)/interfaces/IpcUtils \
+ -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
 include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
  ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
@@ -48,7 +48,7 @@ simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
 simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
 
 simulator_LDADD = libstandalonesimulator.la \
- @top_builddir@/interfaces/IpcUtils/libIpcUtils.la \
- @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+ $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
+ $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 
-simulator_LDFLAGS = -L@libdir@ -lipc
+simulator_LDFLAGS = -L$(libdir) -lipc

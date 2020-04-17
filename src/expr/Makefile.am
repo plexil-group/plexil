@@ -27,8 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExpr.la
 
-libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
- -I@top_srcdir@/utils
+libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/value \
+ -I$(top_srcdir)/utils
 
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh \
  Assignable.hh CachedFunction.hh Constant.hh ConversionOperators.hh \
@@ -56,5 +56,5 @@ if MODULE_TESTS_OPT
  test/variablesTest.cc test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = $(libPlexilExpr_la_CPPFLAGS)
   test_expr_module_tests_LDADD = libPlexilExpr.la \
- @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+ $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 endif

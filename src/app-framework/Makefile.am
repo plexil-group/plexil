@@ -25,17 +25,17 @@
 
 lib_LTLIBRARIES = libPlexilAppFramework.la
 
-libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/xml-parser \
- -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/xml-parser \
+ -I$(top_srcdir)/third-party/pugixml/src \
+ -I$(top_srcdir)/exec -I$(top_srcdir)/intfc -I$(top_srcdir)/expr \
+ -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
 if DEBUG_LISTENER_OPT
-  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
+  libPlexilAppFramework_la_CPPFLAGS += -I$(top_srcdir)/interfaces/PlanDebugListener
 endif
 
 if VIEWER_OPT
-  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
+  libPlexilAppFramework_la_CPPFLAGS += -I$(top_srcdir)/interfaces/LuvListener
 endif
 
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
@@ -58,8 +58,8 @@ libPlexilAppFramework_la_SOURCES += TimeAdapterImpl.cc PosixTimeAdapter.cc \
 endif
 
 # Libraries to link against
-libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.la \
- @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
- @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
- @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+libPlexilAppFramework_la_LIBADD = $(top_builddir)/xml-parser/libPlexilXmlParser.la \
+ $(top_builddir)/third-party/pugixml/src/libpugixml.la $(top_builddir)/exec/libPlexilExec.la \
+ $(top_builddir)/intfc/libPlexilIntfc.la $(top_builddir)/expr/libPlexilExpr.la \
+ $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 

@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 # Because an ancient version of vxWorks only offered this version
 #AC_PREREQ(2.59)
 AC_PREREQ(2.62)
-AC_INIT(Plexil, 4.5.0RC2, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+AC_INIT(Plexil, 4.5.0, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
@@ -93,6 +93,8 @@ AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
+AM_CONDITIONAL([SHARED_LIB_OPT], [test "x$enable_shared" != "xno"])
+AM_CONDITIONAL([STATIC_LIB_OPT], [test "x$enable_static" != "xno"])
 
 # These default to disabled (without)
 AM_CONDITIONAL([GANTT_OPT], [test "x$enable_gantt" = "xyes"])

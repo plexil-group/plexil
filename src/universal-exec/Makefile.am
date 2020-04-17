@@ -26,24 +26,24 @@
 bin_PROGRAMS = universalExec
 universalExec_SOURCES = UniversalExec.cc
 
-universalExec_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/app-framework -I@top_srcdir@/exec -I@top_srcdir@/intfc \
- -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
+universalExec_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/third-party/pugixml/src \
+ -I$(top_srcdir)/app-framework -I$(top_srcdir)/exec -I$(top_srcdir)/intfc \
+ -I$(top_srcdir)/expr -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
-universalExec_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la \
- @top_builddir@/exec/libPlexilExec.la @top_builddir@/intfc/libPlexilIntfc.la \
- @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
- @top_builddir@/utils/libPlexilUtils.la
+universalExec_LDADD = $(top_builddir)/third-party/pugixml/src/libpugixml.la \
+ $(top_builddir)/app-framework/libPlexilAppFramework.la \
+ $(top_builddir)/exec/libPlexilExec.la $(top_builddir)/intfc/libPlexilIntfc.la \
+ $(top_builddir)/expr/libPlexilExpr.la $(top_builddir)/value/libPlexilValue.la \
+ $(top_builddir)/utils/libPlexilUtils.la
 
 if DEBUG_LISTENER_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += $(top_builddir)/interfaces/PlanDebugListener/libPlanDebugListener.la \
+ $(top_builddir)/app-framework/libPlexilAppFramework.la
 endif
 
 if VIEWER_OPT
-  universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
-  universalExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
- @top_builddir@/interfaces/Sockets/libPlexilSockets.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_CPPFLAGS += -I$(top_srcdir)/interfaces/LuvListener
+  universalExec_LDADD += $(top_builddir)/interfaces/LuvListener/libLuvListener.la \
+ $(top_builddir)/interfaces/Sockets/libPlexilSockets.la \
+ $(top_builddir)/app-framework/libPlexilAppFramework.la
 endif

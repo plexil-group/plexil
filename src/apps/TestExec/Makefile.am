@@ -30,10 +30,10 @@ TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc TestExternalInterface.c
 # Try to get right library ordering
 TestExec_LDADD =
 
-TestExec_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/app-framework \
- -I@top_srcdir@/xml-parser -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+TestExec_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/app-framework \
+ -I$(top_srcdir)/xml-parser -I$(top_srcdir)/third-party/pugixml/src \
+ -I$(top_srcdir)/exec -I$(top_srcdir)/intfc -I$(top_srcdir)/expr \
+ -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
 if JNI_OPT
   TestExec_CPPFLAGS += -I$(JAVA_HOME)/include -I$(JAVA_HOME)/Headers
@@ -42,21 +42,21 @@ if JNI_OPT
 endif
 
 if DEBUG_LISTENER_OPT
-  TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
-  TestExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la
+  TestExec_CPPFLAGS += -I$(top_srcdir)/interfaces/PlanDebugListener
+  TestExec_LDADD += $(top_builddir)/interfaces/PlanDebugListener/libPlanDebugListener.la
 endif
 
 if VIEWER_OPT
-  TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
-   -I@top_srcdir@/interfaces/Sockets
-  TestExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
-   @top_builddir@/interfaces/Sockets/libPlexilSockets.la
+  TestExec_CPPFLAGS += -I$(top_srcdir)/interfaces/LuvListener \
+   -I$(top_srcdir)/interfaces/Sockets
+  TestExec_LDADD += $(top_builddir)/interfaces/LuvListener/libLuvListener.la \
+   $(top_builddir)/interfaces/Sockets/libPlexilSockets.la
 endif
 
-TestExec_LDADD += @top_builddir@/app-framework/libPlexilAppFramework.la \
- @top_builddir@/xml-parser/libPlexilXmlParser.la \
- @top_builddir@/third-party/pugixml/src/libpugixml.la \
- @top_builddir@/exec/libPlexilExec.la @top_builddir@/intfc/libPlexilIntfc.la \
- @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
- @top_builddir@/utils/libPlexilUtils.la
+TestExec_LDADD += $(top_builddir)/app-framework/libPlexilAppFramework.la \
+ $(top_builddir)/xml-parser/libPlexilXmlParser.la \
+ $(top_builddir)/third-party/pugixml/src/libpugixml.la \
+ $(top_builddir)/exec/libPlexilExec.la $(top_builddir)/intfc/libPlexilIntfc.la \
+ $(top_builddir)/expr/libPlexilExpr.la $(top_builddir)/value/libPlexilValue.la \
+ $(top_builddir)/utils/libPlexilUtils.la
 
