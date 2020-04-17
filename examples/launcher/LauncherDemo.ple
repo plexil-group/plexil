@@ -1,4 +1,4 @@
-String Command StartPlan(...); // actually (String planName [, String paramName, Any paramValue]* )
+String Command StartPlan(String planName, ...); // actually (String planName [, String paramName, Any paramValue]* )
 Command ExitPlan(String planName);
 Command pprint(...);
 
