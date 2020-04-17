@@ -44,15 +44,24 @@ fi
 
 relid=$1
 
-rev=HEAD
+rev='HEAD'
 if [ -n "$2" ]
 then
-    rev=$2
+    rev="$2"
+fi
+
+GPERF="$(which gperf)"
+if [ -z "$GPERF" ]
+then
+    echo "Error: Can't find the 'gperf' program. Exiting."
+    exit 1
 fi
 
 set -e # exit on error
 
-svn export -r $rev https://svn.code.sf.net/p/plexil/code/branches/plexil-x "$relid"
+svn export -r $rev https://svn.code.sf.net/p/plexil/code/branches/plexil-x "$relid" > /dev/null
+cd "$relid"
+export PLEXIL_HOME="$PWD"
 
 echo "Installing autotools files and building configure script"
 cd "$relid"
@@ -60,7 +69,7 @@ PLEXIL_HOME="$PWD" make src/configure
 
 # Prebuild expression parser core
 # NOTE: this must track the contents of src/xml-parser/Makefile.am
-gperf -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
+"$GPERF" -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
 
 # Build Java apps users will need (and clean up build leftovers)
 make plexil-compiler
@@ -76,13 +85,7 @@ make checker
 rm -rf checker/build
 
 cd ..
-
-echo "Generating tar file ${relid}.tar.gz"
-tar czf "${relid}.tar.gz" "$relid"
-
-echo "Deleting temporary directory $relid"
+tar cjf "${relid}.tar.bz2" "$relid"
 rm -rf "$relid"
-
-echo "Done"
 
 exit 0
