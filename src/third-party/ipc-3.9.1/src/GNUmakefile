@@ -178,6 +178,7 @@ PUBLIC_LIB_LINKS += libipc.$(IPC_VERSION_MAJOR).dylib libipc.dylib
 else
 PUBLIC_LIBS	+= libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
 		   libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
+PUBLIC_LIB_LINKS += libipc.so.$(IPC_VERSION_MAJOR) libipc.so
 endif
 CFLAGS += -fPIC
 endif
@@ -366,12 +367,18 @@ $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAR
 $(PUBLIC_LIB_DIR)/libipc.dylib $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
 	cd $(PUBLIC_LIB_DIR) && ln -s $(notdir $<) $(notdir $@)
 else # not Darwin
-$(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
+$(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS) $(LDIR)/.force
 	$(LD_SHARED) -o \
 	$(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
 		$(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
 
+$(LDIR)/libipc.so $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR): $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
+	cd $(LDIR) && ln -s $(notdir $<) $(notdir $@)
+
 $(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
+
+$(PUBLIC_LIB_DIR)/libipc.so $(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR): $(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
+	cd $(PUBLIC_LIB_DIR) && ln -s $(notdir $<) $(notdir $@)
 
 $(LDIR)/libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(MODULEDATA)
 	$(RM) $@
