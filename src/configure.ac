@@ -215,8 +215,7 @@ AC_CHECK_TYPES([pid_t])
 # AC_FUNC_SETVBUF_REVERSED
 # AC_FUNC_STRFTIME
 # AC_FUNC_VPRINTF
-# AC_TYPE_SIGNAL
-# AC_CHECK_FUNCS([bzero dup2 gethostname mkdir select strpbrk])
+# AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strpbrk])
 # AC_STRUCT_TM
 #])
 
