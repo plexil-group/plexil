@@ -25,6 +25,7 @@
 
 
 INCLUDE(CheckIncludeFile)
+INCLUDE(CheckIncludeFileCXX)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckTypeSize)
@@ -33,37 +34,36 @@ INCLUDE(CheckTypeSize)
 # Headers
 #
 
-CHECK_INCLUDE_FILE(assert.h HAVE_ASSERT_H)
-CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
-CHECK_INCLUDE_FILE(execinfo.h HAVE_EXECINFO_H)
-CHECK_INCLUDE_FILE(fcntl.h HAVE_FCNTL_H)
-CHECK_INCLUDE_FILE(float.h HAVE_FLOAT_H)
-CHECK_INCLUDE_FILE(math.h HAVE_MATH_H) # included as <cmath>
-CHECK_INCLUDE_FILE(stddef.h HAVE_STDDEF_H) # should be <cstddef> in C++ code
-CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H) # should be <cstdint> in C++ code
-CHECK_INCLUDE_FILE(stdlib.h HAVE_STDLIB_H)
-CHECK_INCLUDE_FILE(string.h HAVE_STRING_H) # should be <cstring> in C++ code
-CHECK_INCLUDE_FILE(sys/time.h HAVE_SYS_TIME_H)
+# Standard C (C90, C99)
+CHECK_INCLUDE_FILE(assert.h HAVE_ASSERT_H)     # should be <cassert> in C++ code
+CHECK_INCLUDE_FILE(errno.h HAVE_ERRNO_H)       # should be <cerrno> in C++ code
+CHECK_INCLUDE_FILE(float.h HAVE_FLOAT_H)       # should be <cfloat> in C++ code
+CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H) # should be <cinttypes> in C++11 code
+CHECK_INCLUDE_FILE(limits.h HAVE_LIMITS_H)     # should be <climits> in C++ code
+CHECK_INCLUDE_FILE(math.h HAVE_MATH_H)         # should be <cmath> in C++ code
+CHECK_INCLUDE_FILE(stddef.h HAVE_STDDEF_H)     # should be <cstddef> in C++ code
+CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)     # should be <cstdint> in C++11 code
+CHECK_INCLUDE_FILE(stdio.h HAVE_STDIO_H)       # should be <cstdio> in C++ code
+CHECK_INCLUDE_FILE(stdlib.h HAVE_STDLIB_H)     # should be <cstdlib> in C++ code
+CHECK_INCLUDE_FILE(string.h HAVE_STRING_H)     # should be <cstring> in C++ code
 CHECK_INCLUDE_FILE(time.h HAVE_TIME_H)
-CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
-CHECK_INCLUDE_FILE(vxWorks.h HAVE_VXWORKS_H)
 
-# Only in Sockets, UdpAdapter, IPC
-CHECK_INCLUDE_FILE(netinet/in.h HAVE_NETINET_IN_H)
-
-# Only in UdpAdapter (and possibly IPC)
-CHECK_INCLUDE_FILE(arpa/inet.h HAVE_ARPA_INET_H)
-CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
+# POSIX headers
+CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
+CHECK_INCLUDE_FILE(fcntl.h HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE(netdb.h HAVE_NETDB_H)
+CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
+CHECK_INCLUDE_FILE(arpa/inet.h HAVE_ARPA_INET_H)
+CHECK_INCLUDE_FILE(netinet/in.h HAVE_NETINET_IN_H)
 CHECK_INCLUDE_FILE(sys/socket.h HAVE_SYS_SOCKET_H)
+CHECK_INCLUDE_FILE(sys/stat.h HAVE_SYS_STAT_H) # GanttListener only
+CHECK_INCLUDE_FILE(sys/time.h HAVE_SYS_TIME_H)
 
-# Only in GanttListener and IPC
-CHECK_INCLUDE_FILE(sys/stat.h HAVE_SYS_STAT_H)
+# glibc
+CHECK_INCLUDE_FILE(execinfo.h HAVE_EXECINFO_H)
 
-# Only in IPC
-# CHECK_INCLUDE_FILE(memory.h HAVE_MEMORY_H)
-# CHECK_INCLUDE_FILE(sockLib.h HAVE_SOCKLIB_H)
-# CHECK_INCLUDE_FILE(strings.h HAVE_STRINGS_H)
+# Non-Unix platforms
+CHECK_INCLUDE_FILE(vxWorks.h HAVE_VXWORKS_H)
 
 #
 # Functions

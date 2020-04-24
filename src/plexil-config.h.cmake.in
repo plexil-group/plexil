@@ -30,33 +30,31 @@
 //
 
 #cmakedefine HAVE_ASSERT_H 1
-#cmakedefine HAVE_DLFCN_H 1
-#cmakedefine HAVE_EXECINFO_H 1
-#cmakedefine HAVE_FCNTL_H 1
+#cmakedefine HAVE_ERRNO_H 1
 #cmakedefine HAVE_FLOAT_H 1
+#cmakedefine HAVE_INTTYPES_H 1
+#cmakedefine HAVE_LIMITS_H 1
 #cmakedefine HAVE_MATH_H 1
 #cmakedefine HAVE_STDDEF_H 1
 #cmakedefine HAVE_STDINT_H 1
+#cmakedefine HAVE_STDIO_H 1
 #cmakedefine HAVE_STDLIB_H 1
 #cmakedefine HAVE_STRING_H 1
-#cmakedefine HAVE_SYS_TIME_H 1
 #cmakedefine HAVE_TIME_H 1
-#cmakedefine HAVE_UNISTD_H 1
-#cmakedefine HAVE_VXWORKS_H 1
 
-#cmakedefine HAVE_NETINET_IN_H 1
-
-#cmakedefine HAVE_ARPA_INET_H 1
-#cmakedefine HAVE_INTTYPES_H 1
+#cmakedefine HAVE_DLFCN_H 1
+#cmakedefine HAVE_FCNTL_H 1
 #cmakedefine HAVE_NETDB_H 1
+#cmakedefine HAVE_UNISTD_H 1
+#cmakedefine HAVE_ARPA_INET_H 1
+#cmakedefine HAVE_NETINET_IN_H 1
 #cmakedefine HAVE_SYS_SOCKET_H 1
-
 #cmakedefine HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_TIME_H 1
 
-// kludge for Autoconf STDC_HEADERS, which is obsolescent
-#if defined(HAVE_STDLIB_H) && defined(HAVE_STRING_H)
-#define STDC_HEADERS 1
-#endif
+#cmakedefine HAVE_EXECINFO_H 1
+
+#cmakedefine HAVE_VXWORKS_H 1
 
 //
 // Functions
