@@ -34,7 +34,7 @@
 # The IPC GNUmakefiles previously did not distinguish between them.
 
 IPC_LOCATIONS = BASE_DIR=$(abs_srcdir) BUILD_DIR=$(abs_builddir) \
- INSTALL_DIR=$(prefix) PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir)
+ INSTALL_DIR=$(prefix) PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir) PUBLIC_INC_DIR=$(includedir)
 
 IPC_SUBDIRS = SUBDIRS='src'
 
