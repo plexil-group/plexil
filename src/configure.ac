@@ -135,25 +135,20 @@ AC_CHECK_LIB([rt], [timer_create])
 
 # Checks for header files.
 
-# Checks for ISO C90 (ANSI C89) header files stdlib.h, stdarg.h, string.h, float.h
-AC_HEADER_STDC
-# time.h and sys/time.h
-AC_CHECK_HEADERS([time.h sys/time.h])
-# Newer standard C (C95, C99, etc.) headers for PLEXIL core functionality
+# Standard C (C90, C99, etc.) headers for PLEXIL core functionality
 # Some platforms (e.g. vxWorks) may lack some of these
-# NOTE: pugixml depends on wchar.h, but does not use these configuration files.
-AC_CHECK_HEADERS([inttypes.h math.h stddef.h stdint.h])
+# *** N.B. autoconf does not provide a macro to check for the C++ version of these headers! ***
+# NOTE: checks only apply to PLEXIL source code, not imported third party code
+AC_CHECK_HEADERS([assert.h errno.h float.h inttypes.h math.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
 # glibc backtrace functionality
 AC_CHECK_HEADERS([execinfo.h])
 # POSIX dependencies for core functionality
-AC_CHECK_HEADERS([dlfcn.h unistd.h sys/types.h])
+AC_CHECK_HEADERS([dlfcn.h fcntl.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h sys/socket.h])
-# Kernel queues (BSD based systems)
-AC_CHECK_HEADERS([sys/event.h])
+AC_CHECK_HEADERS([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
 
 # Non-Unix-like platforms
-AC_CHECK_HEADERS([sockLib.h vxWorks.h])
+AC_CHECK_HEADERS([sockLib.h vxWorks.h sys/times.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -200,24 +195,6 @@ AS_IF([test "x$enable_gantt" = "xyes"], [
 AC_CHECK_FUNCS([getcwd])
 AC_CHECK_TYPES([pid_t])
 ])
-
-# Used only in IPC, which uses a separate build system
-# AS_IF([test "x$enable_ipc" = "xyes"], [
-# AC_PROG_GCC_TRADITIONAL
-# AC_PROG_LEX
-# AC_PROG_YACC
-# AC_CHECK_LIB([wrap], [hosts_ctl])
-# AC_HEADER_SYS_WAIT
-# AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
-# AC_FUNC_FORK
-# AC_FUNC_SELECT_ARGTYPES
-# AC_FUNC_SETPGRP
-# AC_FUNC_SETVBUF_REVERSED
-# AC_FUNC_STRFTIME
-# AC_FUNC_VPRINTF
-# AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strpbrk])
-# AC_STRUCT_TM
-#])
 
 AC_CONFIG_FILES([configure.env
                  Makefile
