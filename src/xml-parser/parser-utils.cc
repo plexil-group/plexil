@@ -31,7 +31,7 @@
 
 #include <cctype>
 
-#ifdef STDC_HEADERS
+#ifdef HAVE_STRING_H
 #include <cstring>
 #endif
 

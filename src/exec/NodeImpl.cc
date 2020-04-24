@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,14 +41,15 @@
 #include "map-utils.hh"
 
 #include <algorithm> // for std::sort
-
-#ifdef STDC_HEADERS
-#include <cfloat>    // for DBL_MAX
-#include <cstring>   // strcmp(), strnlen()
-#endif
-
 #include <iomanip>   // for std::setprecision
 #include <sstream>
+
+#ifdef HAVE_FLOAT_H
+#include <cfloat>    // for DBL_MAX
+#endif
+#ifdef HAVE_STRING_H
+#include <cstring>   // strcmp(), strnlen()
+#endif
 
 namespace PLEXIL
 {

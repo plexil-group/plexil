@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,14 +26,15 @@
 
 #include "udp-utils.hh"
 
+#ifdef HAVE_ERRNO_H
 #include <cerrno>
+#endif
+#ifdef HAVE_STRING_H
+#include <cstring>            // memset()
+#endif
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>        // htonl(), htons(), ntohl(), ntohs()
-#endif
-
-#ifdef STDC_HEADERS
-#include <cstring>            // memset()
 #endif
 
 #ifdef HAVE_NETDB_H

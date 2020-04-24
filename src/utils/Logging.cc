@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,25 +31,23 @@
 #include "lifecycle-utils.h"
 #include <iostream>
 #include <fstream>
-
-#ifdef STDC_HEADERS
-#include <cstdlib>
-#include <cstring>
-#endif
-
-#ifdef HAVE_TIME_H
-#include <ctime>
-#endif
-
 #include <string>
 #include <sstream>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h> // for getpid(), isatty()
-#endif
-
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
+#endif
+#ifdef HAVE_STDLIB_H
+#include <cstdlib>
+#endif
+#ifdef HAVE_STRING_H
+#include <cstring>
+#endif
+#ifdef HAVE_TIME_H
+#include <ctime>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // for getpid(), isatty()
 #endif
 
 using PLEXIL::Error;

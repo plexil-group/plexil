@@ -35,9 +35,13 @@
 #include <fstream>
 #include <map>
 
-#ifdef STDC_HEADERS
+#ifdef HAVE_STDINT_H
 #include <cstdint>
+#endif
+#ifdef HAVE_STDIO_H
 #include <cstdio>
+#endif
+#ifdef HAVE_STRING_H
 #include <cstring>
 #endif
 

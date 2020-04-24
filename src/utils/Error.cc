@@ -49,7 +49,10 @@
 
 #include "Error.hh"
 #include "Logging.hh"
+
+#ifdef HAVE_ASSERT_H
 #include <cassert>
+#endif
 
 namespace PLEXIL
 {

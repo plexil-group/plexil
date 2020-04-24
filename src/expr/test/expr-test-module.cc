@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@
 #include "TestSupport.hh"
 #include "lifecycle-utils.h"
 
-#ifdef STDC_HEADERS
+#include <fstream>
+
+#ifdef HAVE_STRING_H
 #include <cstring> // for strcmp()
 #endif
-
-#include <fstream>
 
 using PLEXIL::Error;
 

@@ -36,8 +36,10 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#ifdef STDC_HEADERS
+#ifdef HAVE_STDLIB_H
 #include <cstdlib> // free()
+#endif
+#ifdef HAVE_STRING_H
 #include <cstring> // strdup()
 #endif
 

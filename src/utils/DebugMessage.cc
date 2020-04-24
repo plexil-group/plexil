@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,12 @@
 
 #include "Error.hh"
 
-#ifdef STDC_HEADERS
-#include <cstring> // strstr()
-#endif
-
 #include <iostream>
 #include <vector>
+
+#ifdef HAVE_STRING_H
+#include <cstring> // strstr()
+#endif
 
 namespace PLEXIL
 {

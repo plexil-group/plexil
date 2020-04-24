@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
 
 #include "plexil-config.h"
 
+#include <limits>
+
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
 #elif defined(__VXWORKS__)
 #include <time.h>
 #include <sys/times.h>
 #endif
-
-#include <limits>
 
 const long ONE_MILLION = 1000000;
 const double ONE_MILLION_DOUBLE = 1000000.0;

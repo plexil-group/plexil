@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,24 @@
 #include "NodeVariableMap.hh"
 
 #include <fstream>
-#include <cmath>
-#include <ctime>
-#include <sys/stat.h>
-
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
+
+#ifdef HAVE_MATH_H
+#include <cmath>
+#endif
+#ifdef HAVE_STDIO_H
+#include <cstdio>
+#endif
+#ifdef HAVE_STDLIB_H
+#include <cstdlib>
+#endif
+#ifdef HAVE_TIME_H
+#include <ctime>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h> // mkdir()
+#endif
+
 #ifdef WINDOWS
    #include <direct.h>
    #define GetCurrentDir _getcwd

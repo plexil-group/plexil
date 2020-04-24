@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,19 @@
 #ifdef HAVE_STDDEF_H
 #include <stddef.h> /* for NULL */
 #endif
-
-#ifdef STDC_HEADERS
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h> /* malloc(), free() */
+#endif
+#ifdef HAVE_STRING_H
 #include <string.h> /* memset() */
 #endif
 
 /* #define LIFECYCLE_DEBUG 1 */
 
 #ifdef LIFECYCLE_DEBUG
+#ifdef HAVE_STDIO_H
 #include <stdio.h> /* puts(), printf() */
+#endif
 #endif
 
 

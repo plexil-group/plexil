@@ -58,7 +58,7 @@
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#ifdef HAVE_STRING_H
 #include <cstring>
 #endif
 

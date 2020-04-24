@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,9 @@
 #include "bitsetUtils.hh"
 #include "TestSupport.hh"
 
+#ifdef HAVE_LIMITS_H
 #include <climits>
-
+#endif
 #ifdef HAVE_STDINT_H
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>

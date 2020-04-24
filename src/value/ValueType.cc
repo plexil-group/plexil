@@ -38,18 +38,23 @@
 // TEMP DEBUG
 #include "Debug.hh"
 
-#include <cerrno>
-#include <cmath>   // for HUGE_VAL
-
-#ifdef STDC_HEADERS
-#include <cstdlib> // for strtod(), strtol()
-#include <cstring> // strlen(), strcmp() etc.
-#endif
-
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
+
+#ifdef HAVE_ERRNO_H
+#include <cerrno>
+#endif
+#ifdef HAVE_MATH_H
+#include <cmath>   // for HUGE_VAL
+#endif
+#ifdef HAVE_STDLIB_H
+#include <cstdlib> // for strtod(), strtol()
+#endif
+#ifdef HAVE_STRING_H
+#include <cstring> // strlen(), strcmp() etc.
+#endif
 
 namespace PLEXIL
 {
