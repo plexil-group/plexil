@@ -95,9 +95,7 @@ CHECK_FUNCTION_EXISTS(trunc HAVE_TRUNC)
 
 CHECK_LIBRARY_EXISTS(dl dlopen "/usr/lib" HAVE_LIBDL)
 CHECK_LIBRARY_EXISTS(m sqrt "/usr/lib" HAVE_LIBM)
-# CHECK_LIBRARY_EXISTS(nsl gethostbyname "/usr/lib" HAVE_LIBNSL) # IPC - Solaris only
 CHECK_LIBRARY_EXISTS(pthread pthread_create "/usr/lib" HAVE_LIBPTHREAD)
-# CHECK_LIBRARY_EXISTS(rt timer_create "/usr/lib" HAVE_LIBRT) # Solaris only
 
 #
 # Types
@@ -128,9 +126,30 @@ if(DEFINED WITH_MODULE_TESTS)
   set(WITH_MODULE_TESTS 1)
 endif()
 
+if(DEFINED WITH_STANDALONE_SIMULATOR)
+  set(HAVE_STANDALONE_SIM 1)
+  set(WITH_IPC 1)
+else()
+  unset(HAVE_STANDALONE_SIM CACHE)
+endif()
+
+if(DEFINED WITH_IPC)
+  set(HAVE_IPC 1)
+else()
+  unset(HAVE_IPC CACHE)
+endif()
+
+# These default to on
+
+if(DEFINED WITHOUT_UNIVERSAL_EXEC)
+  unset(HAVE_UNIVERSAL_EXEC CACHE)
+else()
+  set(HAVE_UNIVERSAL_EXEC 1)
+endif()
+
 # These have corresponding compile-time conditionals
 
-if(WITHOUT_DEBUG_LOGGING)
+if(DEFINED WITHOUT_DEBUG_LOGGING)
   set(NO_DEBUG_MESSAGE_SUPPORT 1)
 else()
   unset(NO_DEBUG_MESSAGE_SUPPORT CACHE)
@@ -138,6 +157,8 @@ endif()
 
 if(DEFINED WITHOUT_THREADS)
   unset(PLEXIL_WITH_THREADS CACHE)
+elseif(NOT HAVE_LIBPTHREADS)
+  # TODO Report error
 else()
   set(PLEXIL_WITH_THREADS 1)
 endif()

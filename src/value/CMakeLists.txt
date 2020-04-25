@@ -29,7 +29,9 @@ add_library(PlexilValue SHARED
   Array.cc ArrayImpl.cc CommandHandle.cc NodeConstants.cc
   PlexilTypeTraits.cc Value.cc ValueType.cc)
 
-target_link_libraries(PlexilValue PlexilUtils)
+target_include_directories(PlexilValue PRIVATE ${PlexilExec_SOURCE_DIR}/utils)
+
+target_link_libraries(PlexilValue PUBLIC PlexilUtils)
 
 # Public includes
 install(FILES
@@ -37,12 +39,14 @@ install(FILES
   PlexilTypeTraits.hh Value.hh ValueType.hh
   DESTINATION ${PLEXIL_INCLUDE_DIR})
 
-if(${ENABLE_MODULE_TESTS})
+if(DEFINED WITH_MODULE_TESTS)
   add_executable(value-module-tests
     test/arrayTest.cc test/serializeTest.cc test/valueTest.cc
     test/valueTypeTest.cc test/value-test-module.cc)
 
-  target_link_libraries(value-module-tests PlexilUtils)
+  target_include_directories(value-module-tests ${PlexilExec_SOURCE_DIR}/utils)
+
+  target_link_libraries(value-module-tests PlexilUtils PlexilValue)
   
   install(PROGRAMS value-module-tests
     DESTINATION ${PLEXIL_EXE_DIR})

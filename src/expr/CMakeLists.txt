@@ -23,60 +23,42 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# Expression module subproject of PLEXIL_EXEC
 
-# fix this later as required
-cmake_minimum_required(VERSION 3.0.0)
+add_library(PlexilExpr SHARED
+  Alias.cc ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc
+  ArrayOperators.cc Assignable.cc BooleanOperators.cc CachedFunction.cc
+  Comparisons.cc Constant.cc ConversionOperators.cc Expression.cc
+  ExpressionConstants.cc Function.cc GetValueImpl.cc
+  NodeConstantExpressions.cc Notifier.cc Operator.cc OperatorImpl.cc
+  Propagator.cc SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc)
 
-project(PlexilExec CXX C)
+target_include_directories(PlexilExpr
+  ${PlexilExec_SOURCE_DIR}/utils ${PlexilExec_SOURCE_DIR}/value)
 
-# Set location for private include files
-set(PLEXIL_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_link_libraries(PlexilExpr PUBLIC PlexilUtils PlexilValue)
 
-# Set location for executables
-set(PLEXIL_EXE_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
+if(DEFINED HAVE_MATH_H)
+  target_link_libraries(PlexilExpr PUBLIC math)
+endif()
 
-# Create plexil-config.h from CMake command line options
-include(plexil-config.cmake)
+# Public includes
+install(FILES
+  DESTINATION ${PLEXIL_INCLUDE_DIR})
 
-include_directories(${PLEXIL_INCLUDE_DIR})
+if(DEFINED WITH_MODULE_TESTS)
+  add_executable(expr-module-tests
+    test/aliasTest.cc test/arithmeticTest.cc test/arrayConstantTest.cc
+    test/arrayOperatorsTest.cc test/arrayReferenceTest.cc
+    test/arrayVariableTest.cc test/booleanOperatorsTest.cc
+    test/comparisonsTest.cc test/constantsTest.cc test/conversionsTest.cc
+    test/functionsTest.cc test/listenerTest.cc
+    test/simpleBooleanVariableTest.cc test/stringTest.cc
+    test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc)
+  
+  target_include_directories(expr-module-tests
+    ${PlexilExec_SOURCE_DIR}/utils ${PlexilExec_SOURCE_DIR}/value)
+  
+  target_link_libraries(expr-module-tests PlexilUtils PlexilValue PlexilExpr)
 
-# Submodules have their own shared libraries
-# and unit test executables
-add_subdirectory(utils)
-add_subdirectory(value)
-add_subdirectory(expr)
-add_subdirectory(intfc)
-add_subdirectory(exec)
-add_subdirectory(third-party/pugixml/src)
-add_subdirectory(xml-parser)
-add_subdirectory(app-framework)
-add_subdirectory(universal-exec)
-add_subdirectory(apps/TestExec)
-add_subdirectory(interfaces/Launcher)
-if(DEFINED HAVE_DEBUG_LISTENER)
-  add_subdirectory(interfaces/PlanDebugListener)
-endif()
-if(DEFINED HAVE_LUV_LISTENER)
-  add_subdirectory(interfaces/Sockets)
-  add_subdirectory(interfaces/LuvListener)
-endif()
-if(DEFINED HAVE_UNIVERSAL_EXEC)
-  add_subdirectory(universal-exec)
-endif()
-if(DEFINED HAVE_GANTT_LISTENER)
-  add_subdirectory(interfaces/GanttListener)
-endif()
-if(DEFINED HAVE_IPC)
-  add_subdirectory(third-party/ipc)
-  add_subdirectory(interfaces/IpcUtils)
-  add_subdirectory(interfaces/IpcAdapter)
-endif()
-if(DEFINED HAVE_STANDALONE_SIM)
-  add_subdirectory(apps/StandAloneSimulator)
-endif()
-if(DEFINED HAVE_TEST_EXEC)
-  add_subdirectory(apps/TestExec)
-endif()
-if(DEFINED HAVE_UDP)
-  add_subdirectory(interfaces/UdpAdapter)
 endif()

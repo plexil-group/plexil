@@ -26,7 +26,7 @@
 # Utils module subproject of PLEXIL_EXEC
 
 add_library(PlexilUtils SHARED
-  DebugMessage.cc DynamicLoader.cc Error.cc
+  DebugMessage.cc Error.cc
   Logging.cc ParserException.cc PlanError.cc bitsetUtils.cc
   lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc)
 
@@ -43,6 +43,7 @@ if(${PLEXIL_WITH_THREADS})
   # Additional support for multithreading
   target_sources(PlexilUtils PRIVATE
     RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc)
+  target_link_libraries(PlexilUtils PUBLIC pthread)
   install(FILES
     RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh
     DESTINATION ${PLEXIL_INCLUDE_DIR})
@@ -51,6 +52,7 @@ endif()
 if(${HAVE_LIBDL})
   # Additional support for dynamic library loading
   target_sources(PlexilUtils PRIVATE DynamicLoader.cc)
+  target_link_libraries(PlexilUtils PUBLIC dl)
   install(FILES
     DynamicLoader.h
     DESTINATION ${PLEXIL_INCLUDE_DIR})
@@ -59,15 +61,14 @@ endif()
 if(${WITH_JNI})
   # Additional support for Java Native Interface
   target_sources(PlexilUtils PRIVATE JNIHelper.cc JNIUtils.cc)
-
-  include_directories(${JAVA_HOME}/include ${JAVA_HOME}/Headers)
+  target_include_directories(PlexilUtils PRIVATE ${JAVA_HOME}/include ${JAVA_HOME}/Headers)
 
   install(FILES
     JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
     DESTINATION ${PLEXIL_INCLUDE_DIR})
 endif()
 
-if(${ENABLE_MODULE_TESTS})
+if(${WITH_MODULE_TESTS})
   add_executable(utils-module-tests
     test/LinkedQueueTest.cc test/SimpleMapTest.cc test/TestData.cc
     bitsetUtilsTest.cc module-tests.cc util-test-module.cc)
