@@ -61,10 +61,10 @@
 #ifndef PLEXIL_ERROR_HH
 #define PLEXIL_ERROR_HH
 
+#include <exception>
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <stdexcept>
 
 // Helper macro for telling compiler that error handler won't return
 // Oh fooey, syntax is different between C++ standard and GCC extension.
