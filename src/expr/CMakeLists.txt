@@ -44,6 +44,11 @@ endif()
 
 # Public includes
 install(FILES
+  Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh CachedFunction.hh
+  Constant.hh ConversionOperators.hh Expression.hh ExpressionConstants.hh
+  ExpressionListener.hh Function.hh GetValueImpl.hh Listenable.hh
+  NodeConstantExpressions.hh Notifier.hh Operator.hh Propagator.hh
+  SimpleBooleanVariable.hh UserVariable.hh
   DESTINATION ${PLEXIL_INCLUDE_DIR})
 
 if(DEFINED WITH_MODULE_TESTS)
