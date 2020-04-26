@@ -28,6 +28,8 @@
 
 #include "Error.hh"
 
+#include "plexil-config.h"
+
 #include <iostream>
 #include <vector>
 

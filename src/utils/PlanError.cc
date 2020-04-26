@@ -28,6 +28,8 @@
 
 #include "Logging.hh"
 
+#include "plexil-config.h"
+
 #ifdef HAVE_ASSERT_H
 #include <cassert>
 #endif

@@ -44,11 +44,12 @@
    @brief Numerous declarations related to error generation and handling.
 */
 
-#ifndef PLEXIL_NO_ERROR_EXCEPTIONS
-/* Contains the rest of this file */
+
 
 #include "Error.hh"
 #include "Logging.hh"
+
+#include "plexil-config.h"
 
 #ifdef HAVE_ASSERT_H
 #include <cassert>
@@ -269,7 +270,5 @@ namespace PLEXIL
     err.print(ostr);
     return ostr;
   }
-
-#endif /* PLEXIL_NO_ERROR_EXCEPTIONS */
 
 } // namespace PLEXIL
