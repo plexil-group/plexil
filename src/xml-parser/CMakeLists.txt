@@ -25,29 +25,32 @@
 
 # XML parser module subproject of PLEXIL_EXEC
 
-# TODO
-#  capture generation of ExpressionMap.hh from ExpressionMap.gperf
-#  module test
-#  analyzePlan, benchmark executables
+add_custom_command(
+  OUTPUT ExpressionMap.hh
+  DEPENDS ExpressionMap.gperf
+  COMMAND ${GPERF} -m 8 --output-file=${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh ${CMAKE_CURRENT_LIST_DIR}/ExpressionMap.gperf
+  )
 
 add_library(PlexilXmlParser SHARED
   ArithmeticFunctionFactory.cc ArrayLiteralFactory.cc ArrayVariableFactory.cc
   ArrayVariableReferenceFactory.cc ComparisonFactory.cc 
   ConcreteExpressionFactory.cc ConversionFunctionFactory.cc commandXmlParser.cc
-  createExpression.cc ExpressionFactory.cc FunctionFactory.cc
+  createExpression.cc ExpressionFactory.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh FunctionFactory.cc
   InternalExpressionFactories.cc LookupFactory.cc NodeFunctionFactory.cc
   parseAssignment.cc parseGlobalDeclarations.cc parseLibraryCall.cc
   parseNode.cc parseNodeReference.cc parsePlan.cc parser-utils.cc
   planLibrary.cc PlexilSchema.cc SymbolTable.cc updateXmlParser.cc
   UserVariableFactory.cc)
 
-target_include_directories(PlexilXmlParser
+target_include_directories(PlexilXmlParser PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${PlexilExec_SOURCE_DIR}/third-party-pugixml/src)
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
 
 target_link_libraries(PlexilXmlParser PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml)
@@ -58,3 +61,54 @@ install(FILES
   parser-utils.hh planLibrary.hh PlexilSchema.hh
   DESTINATION ${PLEXIL_INCLUDE_DIR})
 
+add_executable(analyzePlan
+  analyzePlan.cc)
+
+target_include_directories(analyzePlan PRIVATE
+  ${PlexilExec_SOURCE_DIR}/utils
+  ${PlexilExec_SOURCE_DIR}/value
+  ${PlexilExec_SOURCE_DIR}/expr
+  ${PlexilExec_SOURCE_DIR}/intfc
+  ${PlexilExec_SOURCE_DIR}/exec
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+
+target_link_libraries(analyzePlan PRIVATE
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+
+if(DEFINED WITH_MODULE_TESTS)
+  add_executable(parser-module-tests
+    ../
+    test/FactoryTestNodeConnector.cc test/TrivialNodeConnector.cc
+    test/arrayReferenceXmlParserTest.cc test/commandXmlParserTest.cc
+    test/constantXmlParserTest.cc test/functionXmlParserTest.cc
+    test/lookupXmlParserTest.cc test/nodeXmlParserTest.cc
+    test/updateXmlParserTest.cc test/variableXmlParserTest.cc
+    test/parser-test-module.cc)
+
+  target_include_directories(parser-module-tests PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${PlexilExec_SOURCE_DIR}/utils
+    ${PlexilExec_SOURCE_DIR}/value
+    ${PlexilExec_SOURCE_DIR}/expr
+    ${PlexilExec_SOURCE_DIR}/intfc
+    ${PlexilExec_SOURCE_DIR}/exec
+    ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+
+  target_link_libraries(parser-module-tests PRIVATE
+    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+
+  add_executable(parser-benchmark
+    test/benchmark.cc)
+
+  target_include_directories(parser-benchmark PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${PlexilExec_SOURCE_DIR}/utils
+    ${PlexilExec_SOURCE_DIR}/value
+    ${PlexilExec_SOURCE_DIR}/expr
+    ${PlexilExec_SOURCE_DIR}/intfc
+    ${PlexilExec_SOURCE_DIR}/exec
+    ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+
+  target_link_libraries(parser-benchmark PRIVATE
+    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+endif()

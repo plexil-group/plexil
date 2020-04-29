@@ -29,7 +29,8 @@ add_library(PlexilValue SHARED
   Array.cc ArrayImpl.cc CommandHandle.cc NodeConstants.cc
   PlexilTypeTraits.cc Value.cc ValueType.cc)
 
-target_include_directories(PlexilValue PRIVATE ${PlexilExec_SOURCE_DIR}/utils)
+target_include_directories(PlexilValue PRIVATE
+  ${PlexilExec_SOURCE_DIR}/utils)
 
 target_link_libraries(PlexilValue PUBLIC PlexilUtils)
 
@@ -44,10 +45,10 @@ if(DEFINED WITH_MODULE_TESTS)
     test/arrayTest.cc test/serializeTest.cc test/valueTest.cc
     test/valueTypeTest.cc test/value-test-module.cc)
 
-  target_include_directories(value-module-tests ${PlexilExec_SOURCE_DIR}/utils)
+  target_include_directories(value-module-tests PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${PlexilExec_SOURCE_DIR}/utils)
 
-  target_link_libraries(value-module-tests PlexilUtils PlexilValue)
-  
-  install(PROGRAMS value-module-tests
-    DESTINATION ${PLEXIL_EXE_DIR})
+  target_link_libraries(value-module-tests PRIVATE
+    PlexilUtils PlexilValue)
 endif()

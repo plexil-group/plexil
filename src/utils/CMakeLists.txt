@@ -60,8 +60,10 @@ endif()
 
 if(${WITH_JNI})
   # Additional support for Java Native Interface
-  target_sources(PlexilUtils PRIVATE JNIHelper.cc JNIUtils.cc)
-  target_include_directories(PlexilUtils PRIVATE ${JAVA_HOME}/include ${JAVA_HOME}/Headers)
+  target_sources(PlexilUtils PRIVATE
+    JNIHelper.cc JNIUtils.cc)
+  target_include_directories(PlexilUtils PRIVATE
+    ${JAVA_HOME}/include ${JAVA_HOME}/Headers)
 
   install(FILES
     JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
@@ -71,15 +73,18 @@ endif()
 if(${WITH_MODULE_TESTS})
   add_executable(utils-module-tests
     test/LinkedQueueTest.cc test/SimpleMapTest.cc test/TestData.cc
-    bitsetUtilsTest.cc module-tests.cc util-test-module.cc)
+    test/bitsetUtilsTest.cc test/module-tests.cc test/util-test-module.cc)
+
+  target_include_directories(utils-module-tests PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR})
+
+  target_link_libraries(utils-module-tests PRIVATE
+    PlexilUtils)
 
   if(${WITH_JNI})
-    get_target_property(utils-module-tests_SOURCES utils_module_tests SOURCES)
-    list(APPEND utils-module-tests_SOURCES test/jni-adapter.cc)
-    set_target_properties(utils-module-tests
-      PROPERTIES SOURCES ${utils-module-tests_SOURCES})
+    target_sources(utils-module-tests PRIVATE
+      test/jni-adapter.cc)
+    target_include_directories(utils-module-tests PRIVATE
+      ${JAVA_HOME}/include ${JAVA_HOME}/Headers)
   endif()
-
-  install(PROGRAMS utils-module-tests
-    DESTINATION ${PLEXIL_EXE_DIR})
 endif()

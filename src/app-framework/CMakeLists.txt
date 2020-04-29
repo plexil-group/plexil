@@ -23,45 +23,50 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Interface module subproject of PLEXIL_EXEC
+add_library(PlexilAppFramework SHARED
+  AdapterConfiguration.cc AdapterExecInterface.cc AdapterFactory.cc
+  DummyAdapter.cc ExecApplication.cc ExecListener.cc ExecListenerFactory.cc
+  ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc
+  InterfaceAdapter.cc InterfaceManager.cc ListenerFilters.cc
+  SerializedInputQueue.cc SimpleInputQueue.cc UtilityAdapter.cc)
 
-add_library(PlexilIntfc SHARED
-  CachedValue.cc CachedValueImpl.cc Command.cc CommandFunction.cc
-  CommandHandleVariable.cc CommandOperator.cc CommandOperatorImpl.cc
-  ExprVec.cc ExternalInterface.cc InterfaceError.cc Lookup.cc QueueEntry.cc
-  ResourceArbiterInterface.cc State.cc StateCacheEntry.cc StateCacheMap.cc
-  Update.cc)
-
-target_include_directories(PlexilIntfc PRIVATE
+target_include_directories(PlexilAppFramework PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
-  ${PlexilExec_SOURCE_DIR}/expr)
+  ${PlexilExec_SOURCE_DIR}/expr
+  ${PlexilExec_SOURCE_DIR}/intfc
+  ${PlexilExec_SOURCE_DIR}/exec
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
+  ${PlexilExec_SOURCE_DIR}/xml-parser
+  )
 
-target_link_libraries(PlexilIntfc PUBLIC
-  PlexilUtils PlexilValue PlexilExpr)
+target_link_libraries(PlexilAppFramework PUBLIC
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
 
-# Public includes
-install(FILES 
-  CachedValue.hh CachedValueImpl.hh Command.hh CommandFunction.hh
-  CommandHandleVariable.hh ExprVec.hh ExternalInterface.hh InputQueue.hh
-  InterfaceError.hh Lookup.hh NodeConnector.hh QueueEntry.hh
-  ResourceArbiterInterface.hh State.hh StateCacheEntry.hh StateCacheMap.hh
-  Update.hh
+install(FILES
+  AdapterConfiguration.hh AdapterExecInterface.hh 
+  AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListener.hh 
+  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh 
+  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh 
+  PlexilListener.hh
   DESTINATION ${PLEXIL_INCLUDE_DIR})
 
-if(DEFINED WITH_MODULE_TESTS)
-  add_executable(intfc-module-tests
-    ${PlexilExec_SOURCE_DIR}/expr/test/TrivialListener.cc
-    test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc
-    test/intfc-test-module.cc)
+if(HAVE_DEBUG_LISTENER)
+  target_include_directories(PlexilAppFramework PRIVATE
+    ${PlexilExec_SOURCE_DIR}/interfaces/PlanDebugListener)
+endif()
 
-  target_include_directories(intfc-module-tests PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value
-    ${PlexilExec_SOURCE_DIR}/expr)
+if(HAVE_LUV_LISTENER)
+  target_include_directories(PlexilAppFramework PRIVATE
+    ${PlexilExec_SOURCE_DIR}/interfaces/LuvListener)
+endif()
 
-  target_link_libraries(intfc-module-tests PUBLIC
-    PlexilUtils PlexilValue PlexilExpr PlexilIntfc)
+if(PLEXIL_WITH_UNIX_TIME)
+  target_sources(PlexilAppFramework PRIVATE
+    TimeAdapterImpl.cc PosixTimeAdapter.cc DarwinTimeAdapter.cc)
 
+  install(FILES
+    TimeAdapter.hh
+    DESTINATION ${PLEXIL_INCLUDE_DIR})
 endif()

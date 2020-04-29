@@ -23,45 +23,22 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Interface module subproject of PLEXIL_EXEC
+# PlanDebugListener interface subproject of PLEXIL_EXEC
 
-add_library(PlexilIntfc SHARED
-  CachedValue.cc CachedValueImpl.cc Command.cc CommandFunction.cc
-  CommandHandleVariable.cc CommandOperator.cc CommandOperatorImpl.cc
-  ExprVec.cc ExternalInterface.cc InterfaceError.cc Lookup.cc QueueEntry.cc
-  ResourceArbiterInterface.cc State.cc StateCacheEntry.cc StateCacheMap.cc
-  Update.cc)
+add_library(PlanDebugListener SHARED
+  PlanDebugListener.cc)
 
-target_include_directories(PlexilIntfc PRIVATE
+target_include_directories(PlanDebugListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
-  ${PlexilExec_SOURCE_DIR}/expr)
+  ${PlexilExec_SOURCE_DIR}/expr
+  ${PlexilExec_SOURCE_DIR}/intfc
+  ${PlexilExec_SOURCE_DIR}/exec
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
+  ${PlexilExec_SOURCE_DIR}/xml-parser
+  ${PlexilExec_SOURCE_DIR}/app-framework
+  )
 
-target_link_libraries(PlexilIntfc PUBLIC
-  PlexilUtils PlexilValue PlexilExpr)
-
-# Public includes
-install(FILES 
-  CachedValue.hh CachedValueImpl.hh Command.hh CommandFunction.hh
-  CommandHandleVariable.hh ExprVec.hh ExternalInterface.hh InputQueue.hh
-  InterfaceError.hh Lookup.hh NodeConnector.hh QueueEntry.hh
-  ResourceArbiterInterface.hh State.hh StateCacheEntry.hh StateCacheMap.hh
-  Update.hh
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
-
-if(DEFINED WITH_MODULE_TESTS)
-  add_executable(intfc-module-tests
-    ${PlexilExec_SOURCE_DIR}/expr/test/TrivialListener.cc
-    test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc
-    test/intfc-test-module.cc)
-
-  target_include_directories(intfc-module-tests PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value
-    ${PlexilExec_SOURCE_DIR}/expr)
-
-  target_link_libraries(intfc-module-tests PUBLIC
-    PlexilUtils PlexilValue PlexilExpr PlexilIntfc)
-
-endif()
+target_link_libraries(PlanDebugListener PUBLIC
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml
+  PlexilXmlParser PlexilAppFramework)

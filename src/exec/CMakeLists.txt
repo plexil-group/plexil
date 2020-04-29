@@ -32,7 +32,7 @@ add_library(PlexilExec SHARED
   NodeVariableMap.cc NodeVariables.cc PlexilExec.cc PlexilNodeType.cc
   UpdateNode.cc VariableConflictSet.cc plan-utils.cc)
 
-target_include_directories(PlexilExec
+target_include_directories(PlexilExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
@@ -62,7 +62,8 @@ if(DEFINED WITH_MODULE_TESTS)
       PROPERTIES SOURCES ${exec-module-tests_SOURCES})
   endif()
   
-  target_include_directories(exec-module-tests
+  target_include_directories(exec-module-tests PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
     ${PlexilExec_SOURCE_DIR}/utils
     ${PlexilExec_SOURCE_DIR}/value
     ${PlexilExec_SOURCE_DIR}/expr

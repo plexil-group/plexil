@@ -33,13 +33,14 @@ add_library(PlexilExpr SHARED
   NodeConstantExpressions.cc Notifier.cc Operator.cc OperatorImpl.cc
   Propagator.cc SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc)
 
-target_include_directories(PlexilExpr
+target_include_directories(PlexilExpr PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils ${PlexilExec_SOURCE_DIR}/value)
 
-target_link_libraries(PlexilExpr PUBLIC PlexilUtils PlexilValue)
+target_link_libraries(PlexilExpr PUBLIC
+  PlexilUtils PlexilValue)
 
-if(DEFINED HAVE_MATH_H)
-  target_link_libraries(PlexilExpr PUBLIC math)
+if(DEFINED HAVE_MATH_H AND DEFINED HAVE_LIBM)
+  target_link_libraries(PlexilExpr PUBLIC m)
 endif()
 
 # Public includes
@@ -61,8 +62,10 @@ if(DEFINED WITH_MODULE_TESTS)
     test/simpleBooleanVariableTest.cc test/stringTest.cc
     test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc)
   
-  target_include_directories(expr-module-tests
-    ${PlexilExec_SOURCE_DIR}/utils ${PlexilExec_SOURCE_DIR}/value)
+  target_include_directories(expr-module-tests PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${PlexilExec_SOURCE_DIR}/utils
+    ${PlexilExec_SOURCE_DIR}/value)
   
   target_link_libraries(expr-module-tests PlexilUtils PlexilValue PlexilExpr)
 

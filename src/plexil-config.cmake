@@ -105,6 +105,12 @@ CHECK_TYPE_SIZE(pid_t PID_T)
 CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
 
 #
+# External programs
+#
+
+find_program(GPERF gperf)
+
+#
 # Build time options
 #
 
@@ -141,6 +147,12 @@ endif()
 
 # These default to on
 
+if(DEFINED WITHOUT_TEST_EXEC)
+  unset(HAVE_TEST_EXEC CACHE)
+else()
+  set(HAVE_TEST_EXEC 1)
+endif()
+
 if(DEFINED WITHOUT_UNIVERSAL_EXEC)
   unset(HAVE_UNIVERSAL_EXEC CACHE)
 else()
@@ -157,8 +169,8 @@ endif()
 
 if(DEFINED WITHOUT_THREADS)
   unset(PLEXIL_WITH_THREADS CACHE)
-elseif(NOT HAVE_LIBPTHREADS)
-  # TODO Report error
+elseif(NOT HAVE_LIBPTHREAD)
+  message(FATAL_ERROR "Threads requested, but libpthread not found.")
 else()
   set(PLEXIL_WITH_THREADS 1)
 endif()
