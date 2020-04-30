@@ -26,6 +26,9 @@
 add_library(pugixml SHARED
   pugixml.cpp)
 
+install(TARGETS pugixml
+  DESTINATION lib)
+
 install(FILES
   pugiconfig.hpp pugixml.hpp
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
+  DESTINATION include)

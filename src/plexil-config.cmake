@@ -198,4 +198,4 @@ endif()
 #
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/plexil-config.h.cmake.in
-  ${PLEXIL_INCLUDE_DIR}/plexil-config.h)
+  ${CMAKE_BINARY_DIR}/plexil-config.h)

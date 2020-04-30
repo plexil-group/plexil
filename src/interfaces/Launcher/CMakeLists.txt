@@ -28,6 +28,9 @@
 add_library(Launcher SHARED
   Launcher.cc)
 
+install(TARGETS Launcher
+  DESTINATION lib)
+
 target_include_directories(Launcher PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value

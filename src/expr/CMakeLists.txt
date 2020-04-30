@@ -33,6 +33,9 @@ add_library(PlexilExpr SHARED
   NodeConstantExpressions.cc Notifier.cc Operator.cc OperatorImpl.cc
   Propagator.cc SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc)
 
+install(TARGETS PlexilExpr
+  DESTINATION lib)
+
 target_include_directories(PlexilExpr PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils ${PlexilExec_SOURCE_DIR}/value)
 
@@ -50,7 +53,7 @@ install(FILES
   ExpressionListener.hh Function.hh GetValueImpl.hh Listenable.hh
   NodeConstantExpressions.hh Notifier.hh Operator.hh Propagator.hh
   SimpleBooleanVariable.hh UserVariable.hh
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
+  DESTINATION include)
 
 if(DEFINED WITH_MODULE_TESTS)
   add_executable(expr-module-tests
@@ -61,6 +64,9 @@ if(DEFINED WITH_MODULE_TESTS)
     test/functionsTest.cc test/listenerTest.cc
     test/simpleBooleanVariableTest.cc test/stringTest.cc
     test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc)
+
+  install(TARGETS expr-module-tests
+    DESTINATION bin)
   
   target_include_directories(expr-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -68,5 +74,10 @@ if(DEFINED WITH_MODULE_TESTS)
     ${PlexilExec_SOURCE_DIR}/value)
   
   target_link_libraries(expr-module-tests PlexilUtils PlexilValue PlexilExpr)
+
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(expr-module-tests
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
 
 endif()

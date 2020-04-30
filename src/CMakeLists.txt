@@ -29,16 +29,22 @@ cmake_minimum_required(VERSION 3.0.0)
 
 project(PlexilExec CXX C)
 
-# Set location for private include files
-set(PLEXIL_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
-
-# Set location for executables
-set(PLEXIL_EXE_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
-
 # Create plexil-config.h from CMake command line options
 include(plexil-config.cmake)
 
-include_directories(${PLEXIL_INCLUDE_DIR})
+install(FILES ${CMAKE_BINARY_DIR}/plexil-config.h
+  DESTINATION include)
+
+# This is where plexil-config.h is written during the build
+include_directories(${CMAKE_BINARY_DIR})
+
+# Set default RPATH for executables
+# Presumes usual structure, i.e. bin alongside lib
+if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+  set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../lib"
+    CACHE STRING
+    "The rpath value to use when building executables")
+endif()
 
 # Submodules have their own shared libraries
 # and unit test executables

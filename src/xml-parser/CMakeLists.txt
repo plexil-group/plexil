@@ -43,6 +43,9 @@ add_library(PlexilXmlParser SHARED
   planLibrary.cc PlexilSchema.cc SymbolTable.cc updateXmlParser.cc
   UserVariableFactory.cc)
 
+install(TARGETS PlexilXmlParser
+  DESTINATION lib)
+
 target_include_directories(PlexilXmlParser PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
@@ -59,10 +62,13 @@ target_link_libraries(PlexilXmlParser PUBLIC
 install(FILES 
   createExpression.hh ExpressionFactory.hh parseNode.hh parsePlan.hh
   parser-utils.hh planLibrary.hh PlexilSchema.hh
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
+  DESTINATION include)
 
 add_executable(analyzePlan
   analyzePlan.cc)
+
+install(TARGETS analyzePlan
+  DESTINATION bin)
 
 target_include_directories(analyzePlan PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
@@ -75,6 +81,11 @@ target_include_directories(analyzePlan PRIVATE
 target_link_libraries(analyzePlan PRIVATE
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
 
+if(PlexilExec_EXE_INSTALL_RPATH)
+  set_target_properties(analyzePlan
+    PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+endif()
+
 if(DEFINED WITH_MODULE_TESTS)
   add_executable(parser-module-tests
     ../
@@ -84,6 +95,9 @@ if(DEFINED WITH_MODULE_TESTS)
     test/lookupXmlParserTest.cc test/nodeXmlParserTest.cc
     test/updateXmlParserTest.cc test/variableXmlParserTest.cc
     test/parser-test-module.cc)
+
+  install(TARGETS parser-module-tests
+    DESTINATION bin)
 
   target_include_directories(parser-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -97,8 +111,16 @@ if(DEFINED WITH_MODULE_TESTS)
   target_link_libraries(parser-module-tests PRIVATE
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
 
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(parser-module-tests
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
+
   add_executable(parser-benchmark
     test/benchmark.cc)
+
+  install(TARGETS parser-benchmark
+    DESTINATION bin)
 
   target_include_directories(parser-benchmark PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -111,4 +133,9 @@ if(DEFINED WITH_MODULE_TESTS)
 
   target_link_libraries(parser-benchmark PRIVATE
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(parser-benchmark
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
 endif()

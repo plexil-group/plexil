@@ -30,6 +30,9 @@ add_library(PlexilUtils SHARED
   Logging.cc ParserException.cc PlanError.cc bitsetUtils.cc
   lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc)
 
+install(TARGETS PlexilUtils
+  DESTINATION lib)
+
 # Public includes
 install(FILES
   ConstantMacros.hh Debug.hh DebugMessage.hh DynamicLoader.h Error.hh
@@ -37,7 +40,7 @@ install(FILES
   SimpleMap.hh TestSupport.hh 
   bitsetUtils.hh lifecycle-utils.h map-utils.hh stricmp.h
   timespec-utils.hh timeval-utils.hh
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
+  DESTINATION include)
 
 if(${PLEXIL_WITH_THREADS})
   # Additional support for multithreading
@@ -46,7 +49,7 @@ if(${PLEXIL_WITH_THREADS})
   target_link_libraries(PlexilUtils PUBLIC pthread)
   install(FILES
     RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh
-    DESTINATION ${PLEXIL_INCLUDE_DIR})
+    DESTINATION include)
 endif()
 
 if(${HAVE_LIBDL})
@@ -55,7 +58,7 @@ if(${HAVE_LIBDL})
   target_link_libraries(PlexilUtils PUBLIC dl)
   install(FILES
     DynamicLoader.h
-    DESTINATION ${PLEXIL_INCLUDE_DIR})
+    DESTINATION include)
 endif()
 
 if(${WITH_JNI})
@@ -67,7 +70,7 @@ if(${WITH_JNI})
 
   install(FILES
     JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
-    DESTINATION ${PLEXIL_INCLUDE_DIR})
+    DESTINATION include)
 endif()
 
 if(${WITH_MODULE_TESTS})
@@ -75,11 +78,19 @@ if(${WITH_MODULE_TESTS})
     test/LinkedQueueTest.cc test/SimpleMapTest.cc test/TestData.cc
     test/bitsetUtilsTest.cc test/module-tests.cc test/util-test-module.cc)
 
+  install(TARGETS utils-module-tests
+    DESTINATION bin)
+
   target_include_directories(utils-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR})
 
   target_link_libraries(utils-module-tests PRIVATE
     PlexilUtils)
+
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(utils-module-tests
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
 
   if(${WITH_JNI})
     target_sources(utils-module-tests PRIVATE

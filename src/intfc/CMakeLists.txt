@@ -32,6 +32,9 @@ add_library(PlexilIntfc SHARED
   ResourceArbiterInterface.cc State.cc StateCacheEntry.cc StateCacheMap.cc
   Update.cc)
 
+install(TARGETS PlexilIntfc
+  DESTINATION lib)
+
 target_include_directories(PlexilIntfc PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -47,13 +50,16 @@ install(FILES
   InterfaceError.hh Lookup.hh NodeConnector.hh QueueEntry.hh
   ResourceArbiterInterface.hh State.hh StateCacheEntry.hh StateCacheMap.hh
   Update.hh
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
+  DESTINATION include)
 
 if(DEFINED WITH_MODULE_TESTS)
   add_executable(intfc-module-tests
     ${PlexilExec_SOURCE_DIR}/expr/test/TrivialListener.cc
     test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc
     test/intfc-test-module.cc)
+
+  install(TARGETS intfc-module-tests
+    DESTINATION bin)
 
   target_include_directories(intfc-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -63,5 +69,10 @@ if(DEFINED WITH_MODULE_TESTS)
 
   target_link_libraries(intfc-module-tests PUBLIC
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc)
+
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(intfc-module-tests
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
 
 endif()

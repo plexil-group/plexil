@@ -32,6 +32,9 @@ add_library(PlexilExec SHARED
   NodeVariableMap.cc NodeVariables.cc PlexilExec.cc PlexilNodeType.cc
   UpdateNode.cc VariableConflictSet.cc plan-utils.cc)
 
+install(TARGETS PlexilExec
+  DESTINATION lib)
+
 target_include_directories(PlexilExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -49,11 +52,14 @@ install(FILES
   NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh
   NodeVariableMap.hh NodeVariables.hh PlexilExec.hh PlexilNodeType.hh
   VariableConflictSet.hh UpdateNode.hh plan-utils.hh
-  DESTINATION ${PLEXIL_INCLUDE_DIR})
+  DESTINATION include)
 
 if(DEFINED WITH_MODULE_TESTS)
   add_executable(exec-module-tests
     test/exec-test-module.cc test/module-tests.cc)
+
+  install(TARGETS exec-module-tests
+    DESTINATION bin)
 
   if(${WITH_JNI})
     get_target_property(exec-module-tests_SOURCES exec_module_tests SOURCES)
@@ -71,5 +77,10 @@ if(DEFINED WITH_MODULE_TESTS)
 
   target_link_libraries(exec-module-tests
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec)
+
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(exec-module-tests
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
 
 endif()

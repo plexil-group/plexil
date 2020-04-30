@@ -28,6 +28,9 @@
 add_library(PlanDebugListener SHARED
   PlanDebugListener.cc)
 
+install(TARGETS PlanDebugListener
+  DESTINATION lib)
+
 target_include_directories(PlanDebugListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value

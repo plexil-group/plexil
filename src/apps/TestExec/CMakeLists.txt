@@ -26,6 +26,9 @@
 add_executable(TestExec
   exec-test-runner.cc ExecTestRunner.cc TestExternalInterface.cc)
 
+install(TARGETS TestExec
+  DESTINATION bin)
+
 target_include_directories(TestExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -59,4 +62,9 @@ if(HAVE_LUV_LISTENER)
     ${PlexilExec_SOURCE_DIR}/interfaces/Sockets)
   target_link_libraries(TestExec PRIVATE
     PlexilSockets LuvListener)
+endif()
+
+if(PlexilExec_EXE_INSTALL_RPATH)
+  set_target_properties(TestExec
+    PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
 endif()

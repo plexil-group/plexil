@@ -28,6 +28,9 @@
 add_executable(universalExec
   universalExec.cc)
 
+install(TARGETS universalExec
+  DESTINATION bin)
+
 target_include_directories(universalExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -57,3 +60,7 @@ if(HAVE_LUV_LISTENER)
     LuvListener)
 endif()
 
+if(PlexilExec_EXE_INSTALL_RPATH)
+  set_target_properties(universalExec
+    PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+endif()

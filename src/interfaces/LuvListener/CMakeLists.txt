@@ -28,6 +28,9 @@
 add_library(LuvListener SHARED
   LuvFormat.cc LuvListener.cc)
 
+install(TARGETS LuvListener
+  DESTINATION lib)
+
 target_include_directories(LuvListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
