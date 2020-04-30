@@ -25,6 +25,7 @@
 
 # XML parser module subproject of PLEXIL_EXEC
 
+# ExpressionMap.hh is included by createExpression.cc
 add_custom_command(
   OUTPUT ExpressionMap.hh
   DEPENDS ExpressionMap.gperf
@@ -35,8 +36,7 @@ add_library(PlexilXmlParser SHARED
   ArithmeticFunctionFactory.cc ArrayLiteralFactory.cc ArrayVariableFactory.cc
   ArrayVariableReferenceFactory.cc ComparisonFactory.cc 
   ConcreteExpressionFactory.cc ConversionFunctionFactory.cc commandXmlParser.cc
-  createExpression.cc ExpressionFactory.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh FunctionFactory.cc
+  createExpression.cc ExpressionFactory.cc FunctionFactory.cc
   InternalExpressionFactories.cc LookupFactory.cc NodeFunctionFactory.cc
   parseAssignment.cc parseGlobalDeclarations.cc parseLibraryCall.cc
   parseNode.cc parseNodeReference.cc parsePlan.cc parser-utils.cc
@@ -86,7 +86,7 @@ if(PlexilExec_EXE_INSTALL_RPATH)
     PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
 endif()
 
-if(DEFINED WITH_MODULE_TESTS)
+if(MODULE_TESTS)
   add_executable(parser-module-tests
     ../
     test/FactoryTestNodeConnector.cc test/TrivialNodeConnector.cc

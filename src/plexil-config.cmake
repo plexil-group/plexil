@@ -91,10 +91,7 @@ CHECK_FUNCTION_EXISTS(trunc HAVE_TRUNC)
 # Libraries
 #
 
-# Not sure about location arg - is this a list?
-
-CHECK_LIBRARY_EXISTS(dl dlopen "/usr/lib" HAVE_LIBDL)
-CHECK_LIBRARY_EXISTS(m sqrt "/usr/lib" HAVE_LIBM)
+find_library(MATH_LIBRARY m)
 CHECK_LIBRARY_EXISTS(pthread pthread_create "/usr/lib" HAVE_LIBPTHREAD)
 
 #
@@ -111,12 +108,11 @@ CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
 find_program(GPERF gperf)
 
 #
-# Build time options
+# Build time options:
+# Translate option name to internal flag
 #
 
-# These defaulted to off
-
-if(DEFINED WITH_JNI)
+if(JAVA_NATIVE_INTERFACE)
   # Check JAVA_HOME
   if($ENV{JAVA_HOME})
     set(JAVA_HOME $ENV{JAVA_HOME})
@@ -124,73 +120,51 @@ if(DEFINED WITH_JNI)
     set(JAVA_HOME ${JAVA_HOME})
   else()
     message(FATAL_ERROR
-      "WITH_JNI specified but JAVA_HOME unset and unspecified")
+      "JAVA_NATIVE_INTERFACE option enabled, but JAVA_HOME unset and unspecified")
   endif()
+  set(HAVE_JNI ON)
+else()
+  unset(HAVE_JNI CACHE)
 endif()
 
-if(DEFINED WITH_MODULE_TESTS)
-  set(WITH_MODULE_TESTS 1)
-endif()
-
-if(DEFINED WITH_STANDALONE_SIMULATOR)
-  set(HAVE_STANDALONE_SIM 1)
-  set(WITH_IPC 1)
+if(STANDALONE_SIMULATOR)
+  set(HAVE_STANDALONE_SIM ON)
 else()
   unset(HAVE_STANDALONE_SIM CACHE)
 endif()
 
-if(DEFINED WITH_IPC)
-  set(HAVE_IPC 1)
-else()
-  unset(HAVE_IPC CACHE)
-endif()
+# These set corresponding macros in plexil-config.h
 
-# These default to on
-
-if(DEFINED WITHOUT_TEST_EXEC)
-  unset(HAVE_TEST_EXEC CACHE)
-else()
-  set(HAVE_TEST_EXEC 1)
-endif()
-
-if(DEFINED WITHOUT_UNIVERSAL_EXEC)
-  unset(HAVE_UNIVERSAL_EXEC CACHE)
-else()
-  set(HAVE_UNIVERSAL_EXEC 1)
-endif()
-
-# These have corresponding compile-time conditionals
-
-if(DEFINED WITHOUT_DEBUG_LOGGING)
-  set(NO_DEBUG_MESSAGE_SUPPORT 1)
-else()
+if(DEBUG_MESSAGES)
   unset(NO_DEBUG_MESSAGE_SUPPORT CACHE)
+else()
+  set(NO_DEBUG_MESSAGE_SUPPORT ON)
 endif()
 
-if(DEFINED WITHOUT_THREADS)
+if(POSIX_THREADS)
   unset(PLEXIL_WITH_THREADS CACHE)
 elseif(NOT HAVE_LIBPTHREAD)
-  message(FATAL_ERROR "Threads requested, but libpthread not found.")
+  message(FATAL_ERROR "POSIX_THREADS option enabled, but libpthread not found.")
 else()
-  set(PLEXIL_WITH_THREADS 1)
+  set(PLEXIL_WITH_THREADS ON)
 endif()
 
-if(DEFINED WITHOUT_UNIX_TIME)
+if(POSIX_TIME)
+  set(PLEXIL_WITH_UNIX_TIME ON)
+else()
   unset(PLEXIL_WITH_UNIX_TIME CACHE)
-else()
-  set(PLEXIL_WITH_UNIX_TIME 1)
 endif()
 
-if(DEFINED WITHOUT_DEBUG_LISTENER)
+if(PLAN_DEBUG_LISTENER)
   unset(HAVE_DEBUG_LISTENER CACHE)
 else()
-  set(HAVE_DEBUG_LISTENER 1)
+  set(HAVE_DEBUG_LISTENER ON)
 endif()
 
-if(DEFINED WITHOUT_VIEWER)
-  unset(HAVE_LUV_LISTENER CACHE)
+if(VIEWER_LISTENER)
+  set(HAVE_LUV_LISTENER ON)
 else()
-  set(HAVE_LUV_LISTENER 1)
+  unset(HAVE_LUV_LISTENER CACHE)
 endif()
 
 #

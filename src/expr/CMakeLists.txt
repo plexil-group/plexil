@@ -37,13 +37,14 @@ install(TARGETS PlexilExpr
   DESTINATION lib)
 
 target_include_directories(PlexilExpr PRIVATE
-  ${PlexilExec_SOURCE_DIR}/utils ${PlexilExec_SOURCE_DIR}/value)
+  ${PlexilExec_SOURCE_DIR}/utils
+  ${PlexilExec_SOURCE_DIR}/value)
 
 target_link_libraries(PlexilExpr PUBLIC
   PlexilUtils PlexilValue)
 
-if(DEFINED HAVE_MATH_H AND DEFINED HAVE_LIBM)
-  target_link_libraries(PlexilExpr PUBLIC m)
+if(MATH_LIBRARY)
+  target_link_libraries(PlexilExpr PUBLIC ${MATH_LIBRARY})
 endif()
 
 # Public includes
@@ -55,7 +56,7 @@ install(FILES
   SimpleBooleanVariable.hh UserVariable.hh
   DESTINATION include)
 
-if(DEFINED WITH_MODULE_TESTS)
+if(MODULE_TESTS)
   add_executable(expr-module-tests
     test/aliasTest.cc test/arithmeticTest.cc test/arrayConstantTest.cc
     test/arrayOperatorsTest.cc test/arrayReferenceTest.cc

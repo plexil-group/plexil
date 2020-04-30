@@ -26,7 +26,7 @@
 # Utils module subproject of PLEXIL_EXEC
 
 add_library(PlexilUtils SHARED
-  DebugMessage.cc Error.cc
+  DebugMessage.cc DynamicLoader.cc Error.cc
   Logging.cc ParserException.cc PlanError.cc bitsetUtils.cc
   lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc)
 
@@ -42,6 +42,11 @@ install(FILES
   timespec-utils.hh timeval-utils.hh
   DESTINATION include)
 
+# Presume every platform has dlopen and dlclose
+if(CMAKE_DL_LIBS)
+  target_link_libraries(PlexilUtils PUBLIC ${CMAKE_DL_LIBS})
+endif()
+
 if(${PLEXIL_WITH_THREADS})
   # Additional support for multithreading
   target_sources(PlexilUtils PRIVATE
@@ -52,14 +57,6 @@ if(${PLEXIL_WITH_THREADS})
     DESTINATION include)
 endif()
 
-if(${HAVE_LIBDL})
-  # Additional support for dynamic library loading
-  target_sources(PlexilUtils PRIVATE DynamicLoader.cc)
-  target_link_libraries(PlexilUtils PUBLIC dl)
-  install(FILES
-    DynamicLoader.h
-    DESTINATION include)
-endif()
 
 if(${WITH_JNI})
   # Additional support for Java Native Interface
@@ -73,7 +70,7 @@ if(${WITH_JNI})
     DESTINATION include)
 endif()
 
-if(${WITH_MODULE_TESTS})
+if(MODULE_TESTS)
   add_executable(utils-module-tests
     test/LinkedQueueTest.cc test/SimpleMapTest.cc test/TestData.cc
     test/bitsetUtilsTest.cc test/module-tests.cc test/util-test-module.cc)
@@ -92,7 +89,7 @@ if(${WITH_MODULE_TESTS})
       PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
   endif()
 
-  if(${WITH_JNI})
+  if(WITH_JNI)
     target_sources(utils-module-tests PRIVATE
       test/jni-adapter.cc)
     target_include_directories(utils-module-tests PRIVATE

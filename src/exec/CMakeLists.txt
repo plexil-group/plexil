@@ -54,14 +54,14 @@ install(FILES
   VariableConflictSet.hh UpdateNode.hh plan-utils.hh
   DESTINATION include)
 
-if(DEFINED WITH_MODULE_TESTS)
+if(MODULE_TESTS)
   add_executable(exec-module-tests
     test/exec-test-module.cc test/module-tests.cc)
 
   install(TARGETS exec-module-tests
     DESTINATION bin)
 
-  if(${WITH_JNI})
+  if(WITH_JNI)
     get_target_property(exec-module-tests_SOURCES exec_module_tests SOURCES)
     list(APPEND exec-module-tests_SOURCES test/jni-adapter.cc)
     set_target_properties(exec-module-tests

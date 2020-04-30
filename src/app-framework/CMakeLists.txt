@@ -55,17 +55,17 @@ install(FILES
   PlexilListener.hh
   DESTINATION include)
 
-if(HAVE_DEBUG_LISTENER)
+if(PLAN_DEBUG_LISTENER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/PlanDebugListener)
 endif()
 
-if(HAVE_LUV_LISTENER)
+if(VIEWER_LISTENER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/LuvListener)
 endif()
 
-if(PLEXIL_WITH_UNIX_TIME)
+if(POSIX_TIME)
   target_sources(PlexilAppFramework PRIVATE
     TimeAdapterImpl.cc PosixTimeAdapter.cc DarwinTimeAdapter.cc)
 

@@ -43,7 +43,7 @@ install(FILES
   PlexilTypeTraits.hh Value.hh ValueType.hh
   DESTINATION include)
 
-if(DEFINED WITH_MODULE_TESTS)
+if(MODULE_TESTS)
   add_executable(value-module-tests
     test/arrayTest.cc test/serializeTest.cc test/valueTest.cc
     test/valueTypeTest.cc test/value-test-module.cc)

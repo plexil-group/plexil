@@ -52,7 +52,7 @@ install(FILES
   Update.hh
   DESTINATION include)
 
-if(DEFINED WITH_MODULE_TESTS)
+if(MODULE_TESTS)
   add_executable(intfc-module-tests
     ${PlexilExec_SOURCE_DIR}/expr/test/TrivialListener.cc
     test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc
