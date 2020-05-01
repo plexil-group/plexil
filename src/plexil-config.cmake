@@ -29,29 +29,49 @@ INCLUDE(CheckIncludeFileCXX)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckTypeSize)
+INCLUDE(CheckCXXSourceCompiles)
 
 #
 # Headers
 #
 
+# Since this code may have to compile on some very backward compilers,
+# we need to check for both the C++ and C versions of most C standard headers.
+
+# C++
+CHECK_INCLUDE_FILE_CXX(cassert HAVE_CASSERT)
+CHECK_INCLUDE_FILE_CXX(cerrno HAVE_CERRNO)
+CHECK_INCLUDE_FILE_CXX(cfloat HAVE_CFLOAT)
+CHECK_INCLUDE_FILE_CXX(cinttypes HAVE_CINTTYPES)  # C++11
+CHECK_INCLUDE_FILE_CXX(climits HAVE_CLIMITS)
+CHECK_INCLUDE_FILE_CXX(cmath HAVE_CMATH)
+CHECK_INCLUDE_FILE_CXX(csignal HAVE_CSIGNAL)
+CHECK_INCLUDE_FILE_CXX(cstddef HAVE_CSTDDEF)
+CHECK_INCLUDE_FILE_CXX(cstdint HAVE_CSTDINT)      # C++11
+CHECK_INCLUDE_FILE_CXX(cstdio HAVE_CSTDIO)
+CHECK_INCLUDE_FILE_CXX(cstring HAVE_CSTRING)
+CHECK_INCLUDE_FILE_CXX(ctime HAVE_CTIME)
+
 # Standard C (C90, C99)
-CHECK_INCLUDE_FILE(assert.h HAVE_ASSERT_H)     # should be <cassert> in C++ code
-CHECK_INCLUDE_FILE(errno.h HAVE_ERRNO_H)       # should be <cerrno> in C++ code
-CHECK_INCLUDE_FILE(float.h HAVE_FLOAT_H)       # should be <cfloat> in C++ code
-CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H) # should be <cinttypes> in C++11 code
-CHECK_INCLUDE_FILE(limits.h HAVE_LIMITS_H)     # should be <climits> in C++ code
-CHECK_INCLUDE_FILE(math.h HAVE_MATH_H)         # should be <cmath> in C++ code
-CHECK_INCLUDE_FILE(stddef.h HAVE_STDDEF_H)     # should be <cstddef> in C++ code
-CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)     # should be <cstdint> in C++11 code
-CHECK_INCLUDE_FILE(stdio.h HAVE_STDIO_H)       # should be <cstdio> in C++ code
-CHECK_INCLUDE_FILE(stdlib.h HAVE_STDLIB_H)     # should be <cstdlib> in C++ code
-CHECK_INCLUDE_FILE(string.h HAVE_STRING_H)     # should be <cstring> in C++ code
+CHECK_INCLUDE_FILE(assert.h HAVE_ASSERT_H)
+CHECK_INCLUDE_FILE(errno.h HAVE_ERRNO_H)
+CHECK_INCLUDE_FILE(float.h HAVE_FLOAT_H)
+CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
+CHECK_INCLUDE_FILE(limits.h HAVE_LIMITS_H)
+CHECK_INCLUDE_FILE(math.h HAVE_MATH_H)
+CHECK_INCLUDE_FILE(signal.h HAVE_SIGNAL_H)
+CHECK_INCLUDE_FILE(stddef.h HAVE_STDDEF_H)
+CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
+CHECK_INCLUDE_FILE(stdio.h HAVE_STDIO_H)
+CHECK_INCLUDE_FILE(stdlib.h HAVE_STDLIB_H)
+CHECK_INCLUDE_FILE(string.h HAVE_STRING_H)
 CHECK_INCLUDE_FILE(time.h HAVE_TIME_H)
 
 # POSIX headers
 CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
 CHECK_INCLUDE_FILE(fcntl.h HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE(netdb.h HAVE_NETDB_H)
+CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 CHECK_INCLUDE_FILE(arpa/inet.h HAVE_ARPA_INET_H)
 CHECK_INCLUDE_FILE(netinet/in.h HAVE_NETINET_IN_H)
@@ -100,6 +120,42 @@ CHECK_LIBRARY_EXISTS(pthread pthread_create "/usr/lib" HAVE_LIBPTHREAD)
 
 CHECK_TYPE_SIZE(pid_t PID_T)
 CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
+
+#
+# Compiler quirks
+#
+
+# Search on __STDC_LIMIT_MACROS, __STDC_CONSTANT_MACROS, __STDC_FORMAT_MACROS
+# to understand the issues being checked here.
+
+# inttypes.h under C++
+# This is a hack when compiled without including stdint.h -
+# It presumes int is 32 bits
+CHECK_CXX_SOURCE_COMPILES(
+  "
+#include <stdio.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
+int main(int argc, char **argv)
+{
+  printf(\"%\" PRId32 \" \", 1);
+  return 0;
+}
+"
+  HAVE_GOOD_INTTYPES_H)
+
+# stdint.h under C++
+CHECK_CXX_SOURCE_COMPILES(
+  "
+#include <stdint.h>
+
+int main(int argc, char ** /* argv */)
+{
+  return argc < INT8_MAX;
+}
+"
+  HAVE_GOOD_STDINT_H)
 
 #
 # External programs
