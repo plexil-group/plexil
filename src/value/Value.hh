@@ -30,7 +30,10 @@
 #include "ValueType.hh"
 
 #if __cplusplus >= 201103L
+#include "Array.hh"
 #include <memory> // std::unique_ptr
+// Explicit instantiation
+template class std::unique_ptr<PLEXIL::Array>;
 #endif
 
 namespace PLEXIL
@@ -125,12 +128,12 @@ namespace PLEXIL
       uint16_t enumValue;
       Integer  integerValue;
       Real     realValue;
-#if __cplusplus < 201103L
-      String  *stringValue;
-      Array   *arrayValue;
-#else
+#if __cplusplus >= 201103L
       std::unique_ptr<String>  stringValue;
       std::unique_ptr<Array>   arrayValue;
+#else
+      String  *stringValue;
+      Array   *arrayValue;
 #endif
     };
     ValueType m_type;
