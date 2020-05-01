@@ -56,7 +56,8 @@ target_include_directories(PlexilXmlParser PRIVATE
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+  ${pugixml_SOURCE_DIR}
+  )
 
 target_link_libraries(PlexilXmlParser PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml)
@@ -79,7 +80,8 @@ target_include_directories(analyzePlan PRIVATE
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+  ${pugixml_SOURCE_DIR}
+  )
 
 target_link_libraries(analyzePlan PRIVATE
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
@@ -109,7 +111,8 @@ if(MODULE_TESTS)
     ${PlexilExec_SOURCE_DIR}/expr
     ${PlexilExec_SOURCE_DIR}/intfc
     ${PlexilExec_SOURCE_DIR}/exec
-    ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+    ${pugixml_SOURCE_DIR}
+    )
 
   target_link_libraries(parser-module-tests PRIVATE
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
@@ -132,7 +135,8 @@ if(MODULE_TESTS)
     ${PlexilExec_SOURCE_DIR}/expr
     ${PlexilExec_SOURCE_DIR}/intfc
     ${PlexilExec_SOURCE_DIR}/exec
-    ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+    ${pugixml_SOURCE_DIR}
+    )
 
   target_link_libraries(parser-benchmark PRIVATE
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)

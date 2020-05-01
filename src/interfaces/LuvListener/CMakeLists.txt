@@ -37,7 +37,7 @@ target_include_directories(LuvListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
+  ${pugixml_SOURCE_DIR}
   ${PlexilExec_SOURCE_DIR}/xml-parser
   ${PlexilExec_SOURCE_DIR}/app-framework
   ${PlexilExec_SOURCE_DIR}/interfaces/Sockets

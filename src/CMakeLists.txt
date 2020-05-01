@@ -23,14 +23,16 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# FetchContent module requires at least this version
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
-# fix this later as required
-cmake_minimum_required(VERSION 3.0.0)
-
-project(PlexilExec CXX C)
+project(PlexilExec
+  DESCRIPTION "An executive for the PLEXIL language"
+  LANGUAGES CXX C)
 
 # cmake modules
 INCLUDE(CMakeDependentOption)
+INCLUDE(FetchContent)
 
 #
 # Options
@@ -85,6 +87,32 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
     "The rpath value to use when building executables")
 endif()
 
+# Include pugixml as an external project
+FetchContent_Declare(
+  pugixml
+
+  # When included as separate checkout
+  # GIT_REPOSITORY https://github.com/zeux/pugixml
+  # GIT_TAG v1.10
+  
+  # When checked out as part of plexil
+  SOURCE_DIR ${PROJECT_SOURCE_DIR}/third-party/pugixml
+
+  # Common
+  PREFIX third-party/pugixml
+  INSTALL_DIR ""
+  )
+
+FetchContent_GetProperties(pugixml)
+
+if(NOT pugixml_POPULATED)
+  FetchContent_Populate(pugixml
+    SOURCE_DIR ${PROJECT_SOURCE_DIR}/third-party/pugixml
+    CMAKE_ARGS -DBUILD_SHARED_LIBS=ON
+    )
+  add_subdirectory(${pugixml_SOURCE_DIR} ${pugixml_BINARY_DIR})
+endif()
+
 # Submodules have their own shared libraries
 # and unit test executables
 add_subdirectory(utils)
@@ -92,7 +120,6 @@ add_subdirectory(value)
 add_subdirectory(expr)
 add_subdirectory(intfc)
 add_subdirectory(exec)
-add_subdirectory(third-party/pugixml/src)
 add_subdirectory(xml-parser)
 add_subdirectory(app-framework)
 add_subdirectory(interfaces/Launcher)
@@ -123,3 +150,24 @@ endif()
 if(UDP_ADAPTER)
   add_subdirectory(interfaces/UdpAdapter)
 endif()
+
+# Ensure entire system is built with same compiler settings
+
+get_directory_property(subdirs DIRECTORY ${CMAKE_SOURCE_DIR} SUBDIRECTORIES)
+foreach(dir ${subdirs})
+  get_directory_property(dir_targets DIRECTORY ${dir} BUILDSYSTEM_TARGETS)
+  list(APPEND plexil_targets ${dir_targets})
+endforeach()
+
+foreach(tgt ${plexil_targets})
+  get_target_property(tgt_features ${tgt} INTERFACE_COMPILE_FEATURES)
+  if(NOT ${tgt_features} MATCHES "NOTFOUND")
+    list(APPEND all_compile_features ${tgt_features})
+  endif()
+endforeach()
+
+list(REMOVE_DUPLICATES all_compile_features)
+
+foreach(tgt ${plexil_targets})
+  target_compile_features(${tgt} PUBLIC ${all_compile_features})
+endforeach()

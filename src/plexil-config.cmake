@@ -35,6 +35,9 @@ INCLUDE(CheckCXXSourceCompiles)
 # Headers
 #
 
+# Check quietly, please
+set(CMAKE_REQUIRED_QUIET 1)
+
 # Since this code may have to compile on some very backward compilers,
 # we need to check for both the C++ and C versions of most C standard headers.
 
