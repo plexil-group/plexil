@@ -25,13 +25,6 @@
 
 # XML parser module subproject of PLEXIL_EXEC
 
-# ExpressionMap.hh is included by createExpression.cc
-add_custom_command(
-  OUTPUT ExpressionMap.hh
-  DEPENDS ExpressionMap.gperf
-  COMMAND ${GPERF} -m 8 --output-file=${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh ${CMAKE_CURRENT_LIST_DIR}/ExpressionMap.gperf
-  )
-
 add_library(PlexilXmlParser SHARED
   ArithmeticFunctionFactory.cc ArrayLiteralFactory.cc ArrayVariableFactory.cc
   ArrayVariableReferenceFactory.cc ComparisonFactory.cc 
@@ -42,6 +35,16 @@ add_library(PlexilXmlParser SHARED
   parseNode.cc parseNodeReference.cc parsePlan.cc parser-utils.cc
   planLibrary.cc PlexilSchema.cc SymbolTable.cc updateXmlParser.cc
   UserVariableFactory.cc)
+
+# ExpressionMap.hh is included by createExpression.cc
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh
+  MAIN_DEPENDENCY ExpressionMap.gperf
+  COMMAND ${GPERF} -m 8 --output-file=ExpressionMap.hh ${CMAKE_CURRENT_LIST_DIR}/ExpressionMap.gperf
+  )
+
+set_source_files_properties(createExpression.cc
+  PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh)
 
 install(TARGETS PlexilXmlParser
   DESTINATION lib)
