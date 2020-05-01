@@ -24,19 +24,15 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plexil-config.h"
+#include "plexil-stdint.h"
 
 #include "bitsetUtils.hh"
 #include "TestSupport.hh"
 
-#ifdef HAVE_LIMITS_H
+#if defined(HAVE_CLIMITS)
 #include <climits>
-#endif
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
+#elif defined(HAVE_LIMITS_H)
+#include <limits.h>
 #endif
 
 using namespace PLEXIL;

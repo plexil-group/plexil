@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,11 @@
 #ifndef THREAD_MUTEX_HEADER_
 #define THREAD_MUTEX_HEADER_
 
+#include "plexil-config.h"
+
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 
 namespace PLEXIL
 {

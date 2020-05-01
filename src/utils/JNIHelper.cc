@@ -25,11 +25,14 @@
 */
 
 #include "JNIHelper.hh"
+
 #include "Debug.hh"
 #include "Error.hh"
 
-#ifdef HAVE_ASSERT_H
+#if defined(HAVE_CASSERT)
 #include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
 #endif
 
 // Initialization for the static instance pointer

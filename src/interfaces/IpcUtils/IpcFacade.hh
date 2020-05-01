@@ -37,9 +37,6 @@
 #include <limits>
 #include <list>
 #include <map>
-#include <string>
-#include <vector>
-
 
 namespace PLEXIL {
 

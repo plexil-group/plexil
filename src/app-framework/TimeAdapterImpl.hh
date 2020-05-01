@@ -32,7 +32,7 @@
 
 #include <csignal> // sigset_t
 
-#ifdef PLEXIL_WITH_THREADS
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
 

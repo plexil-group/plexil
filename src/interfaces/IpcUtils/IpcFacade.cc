@@ -35,14 +35,16 @@
 #include <fstream>
 #include <map>
 
-#ifdef HAVE_STDINT_H
-#include <cstdint>
-#endif
-#ifdef HAVE_STDIO_H
+#if defined(HAVE_CSTDIO)
 #include <cstdio>
+#elif defined(HAVE_STDIO_H)
+#include <stdio.h>
 #endif
-#ifdef HAVE_STRING_H
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL 

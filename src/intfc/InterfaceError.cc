@@ -24,14 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "InterfaceError.hh"
 
 #include "Logging.hh"
 
-#include "plexil-config.h"
-
-#ifdef HAVE_ASSERT_H
+#if defined(HAVE_CASSERT)
 #include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
 #endif
 
 namespace PLEXIL

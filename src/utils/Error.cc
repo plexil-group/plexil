@@ -44,15 +44,15 @@
    @brief Numerous declarations related to error generation and handling.
 */
 
-
+#include "plexil-config.h"
 
 #include "Error.hh"
 #include "Logging.hh"
 
-#include "plexil-config.h"
-
-#ifdef HAVE_ASSERT_H
+#if defined(HAVE_CASSERT)
 #include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
 #endif
 
 namespace PLEXIL

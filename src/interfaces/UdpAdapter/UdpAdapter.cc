@@ -24,8 +24,6 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "plexil-config.h"
-
 #include "UdpAdapter.hh"
 
 #include "AdapterConfiguration.hh"
@@ -41,27 +39,26 @@
 #include "Update.hh"
 #include "stricmp.h"
 
-#include "pugixml.hpp"
-
-#ifdef HAVE_ERRNO_H
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
 #endif
-#ifdef HAVE_FLOAT_H
+
+#if defined(HAVE_CFLOAT)
 #include <cfloat>
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>
 #endif
-#ifdef HAVE_STRING_H
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h> // for close()
-#endif
-
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
 #endif
 
 #ifdef HAVE_NETINET_IN_H

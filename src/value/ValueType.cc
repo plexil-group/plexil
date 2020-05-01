@@ -24,9 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ValueType.hh"
+#include "plexil-config.h"
 
-#include <plexil-config.h>
+#include "ValueType.hh"
 
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
@@ -43,17 +43,28 @@
 #include <limits>
 #include <sstream>
 
-#ifdef HAVE_ERRNO_H
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
 #endif
-#ifdef HAVE_MATH_H
+
+#if defined(HAVE_CMATH)
 #include <cmath>   // for HUGE_VAL
+#elif defined(HAVE_MATH_H)
+#include <math.h>
 #endif
-#ifdef HAVE_STDLIB_H
+
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib> // for strtod(), strtol()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
 #endif
-#ifdef HAVE_STRING_H
+
+#if defined(HAVE_CSTRING)
 #include <cstring> // strlen(), strcmp() etc.
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL

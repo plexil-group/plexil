@@ -27,7 +27,7 @@
 #ifndef PLEXIL_SYMBOL_TABLE_HH
 #define PLEXIL_SYMBOL_TABLE_HH
 
-#include "plexil-config.h"
+#include "plexil-stdint.h"
 
 #include "ParserException.hh"
 #include "ValueType.hh"
@@ -35,13 +35,6 @@
 #include <map>
 #include <string>
 #include <vector>
-
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {

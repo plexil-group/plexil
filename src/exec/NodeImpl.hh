@@ -27,17 +27,11 @@
 #ifndef NODE_IMPL_HH
 #define NODE_IMPL_HH
 
+#include "plexil-stdint.h"
+
 #include "Node.hh"
 #include "NodeVariables.hh"
 #include "Notifier.hh"
-
-// for int32_t type
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {
