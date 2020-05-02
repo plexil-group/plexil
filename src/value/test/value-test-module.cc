@@ -31,8 +31,10 @@
 
 #include <fstream>
 
-#ifdef HAVE_STRING_H
+#if defined(HAVE_CSTRING)
 #include <cstring> // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using PLEXIL::Error;

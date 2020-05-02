@@ -29,8 +29,10 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#ifdef HAVE_STRING_H
+#if defined(HAVE_CSTRING)
 #include <cstring> // memcpy()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // memcpy()
 #endif
 
 namespace PLEXIL

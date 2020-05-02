@@ -39,8 +39,13 @@
 #include "TimeAdapterImpl.hh"
 #include "timeval-utils.hh"
 
-#include <cerrno>
 #include <iomanip>
+
+#if defined(HAVE_CERRNO)
+#include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h> // for gettimeofday, itimerval

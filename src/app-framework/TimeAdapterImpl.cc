@@ -37,21 +37,31 @@
 #include "ThreadSpawn.hh"
 #endif
 
+#include <iomanip>
+
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <cerrno>
+#endif
 
 #if defined(HAVE_CLOCK_GETTIME)
-#if defined(HAVE_TIME_H)
+
+#if defined(HAVE_CTIME)
 #include <ctime>
+#elif defined(HAVE_TIME_H)
+#include <time.h>
 #endif
 #include "timespec-utils.hh"
+
 #elif defined(HAVE_GETTIMEOFDAY)
+
 #if defined(HAVE_SYS_TIME_H)
 #include <sys/time.h>
 #endif
 #include "timeval-utils.hh"
-#endif
 
-#include <iomanip>
+#endif
 
 namespace PLEXIL
 {

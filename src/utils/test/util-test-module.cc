@@ -70,12 +70,18 @@
 #include <assert.h>
 #endif
 
-#ifdef HAVE_FLOAT_H
+#if defined(HAVE_CFLOAT)
 #include <cfloat>
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>
 #endif
-#ifdef HAVE_STRING_H
+
+#if defined(HAVE_CSTRING)
 #include <cstring> // for strcmp
+#elif defined(HAVE_STRING_H)
+#include <string.h> // for strcmp
 #endif
+
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
 #elif defined(__VXWORKS__)

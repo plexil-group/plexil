@@ -43,8 +43,10 @@
 
 #include <sstream>
 
-#ifdef HAVE_STRING_H
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;

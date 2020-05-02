@@ -53,10 +53,15 @@
 #include "StateCacheMap.hh"
 #include "Update.hh"
 
-#include <cstring>
 #include <iomanip>
 #include <limits>
 #include <sstream>
+
+#if defined(HAVE_CSTRING)
+#include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
+#endif
 
 namespace PLEXIL
 {

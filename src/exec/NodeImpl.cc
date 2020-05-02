@@ -44,11 +44,16 @@
 #include <iomanip>   // for std::setprecision
 #include <sstream>
 
-#ifdef HAVE_FLOAT_H
+#if defined(HAVE_CFLOAT)
 #include <cfloat>    // for DBL_MAX
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>    // for DBL_MAX
 #endif
-#ifdef HAVE_STRING_H
+
+#if defined(HAVE_CSTRING)
 #include <cstring>   // strcmp(), strnlen()
+#elif defined(HAVE_STRING_H)
+#include <string.h>   // strcmp(), strnlen()
 #endif
 
 namespace PLEXIL

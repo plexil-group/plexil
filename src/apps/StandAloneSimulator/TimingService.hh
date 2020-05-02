@@ -33,7 +33,11 @@
 #include <sys/time.h>
 #endif
 
+#if defined(HAVE_CSIGNAL)
 #include <csignal>
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
 
 #define TIMING_SERVICE_MAX_N_SIGNALS 8
 

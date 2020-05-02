@@ -37,7 +37,12 @@
 
 #include <iostream>
 #include <map>
+
+#if defined(HAVE_CMATH)
 #include <cmath>
+#elif defined(HAVE_MATH_H)
+#include <math.h>
+#endif
 
 using namespace PLEXIL;
 

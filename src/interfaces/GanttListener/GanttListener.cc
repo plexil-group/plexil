@@ -41,18 +41,30 @@
 #include <fstream>
 #include <iostream>
 
-#ifdef HAVE_MATH_H
+#if defined(HAVE_CMATH)
 #include <cmath>
+#elif defined(HAVE_MATH_H)
+#include <math.h>
 #endif
-#ifdef HAVE_STDIO_H
+
+#if defined(HAVE_CSTDIO)
 #include <cstdio>
+#elif defined(HAVE_STDIO_H)
+#include <stdio.h>
 #endif
-#ifdef HAVE_STDLIB_H
+
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
 #endif
-#ifdef HAVE_TIME_H
+
+#if defined(HAVE_CTIME)
 #include <ctime>
+#elif defined(HAVE_TIME_H)
+#include <time.h>
 #endif
+
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h> // mkdir()
 #endif

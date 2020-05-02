@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,13 @@
 #ifndef RESPONSE_MESSAGE_HH
 #define RESPONSE_MESSAGE_HH
 
-#include <cstddef> // NULL
 #include <string>
+
+#if defined(HAVE_CSTDDEF)
+#include <cstddef> // NULL
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // NULL
+#endif
 
 class ResponseBase;
 

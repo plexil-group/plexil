@@ -30,7 +30,11 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
 
+#if defined(HAVE_CSIGNAL)
 #include <csignal> // sigset_t
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
 
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>

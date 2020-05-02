@@ -33,8 +33,10 @@
 #include <iostream>
 #include <vector>
 
-#ifdef HAVE_STRING_H
+#if defined(HAVE_CSTRING)
 #include <cstring> // strstr()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strstr()
 #endif
 
 namespace PLEXIL

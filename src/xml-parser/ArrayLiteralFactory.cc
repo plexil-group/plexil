@@ -34,11 +34,16 @@
 
 #include "pugixml.hpp"
 
-#ifdef HAVE_STDLIB_H
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
 #endif
-#ifdef HAVE_STRING_H
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL

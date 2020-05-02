@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,11 @@
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 
+#if defined(HAVE_CMATH)
 #include <cmath> // for abs()
+#elif defined(HAVE_MATH_H)
+#include <math.h> // for abs()
+#endif
 
 namespace PLEXIL
 {

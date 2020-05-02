@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,11 @@
 #include <set>
 #include <vector>
 
+#if defined(HAVE_CSTDDEF)
 #include <cstddef> // size_t
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // size_t
+#endif
 
 namespace PLEXIL
 {

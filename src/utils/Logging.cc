@@ -34,18 +34,28 @@
 #include <string>
 #include <sstream>
 
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
+#endif
+
+#if defined(HAVE_CTIME)
+#include <ctime>
+#elif defined(HAVE_TIME_H)
+#include <time.h>
+#endif
+
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
-#ifdef HAVE_STDLIB_H
-#include <cstdlib>
-#endif
-#ifdef HAVE_STRING_H
-#include <cstring>
-#endif
-#ifdef HAVE_TIME_H
-#include <ctime>
-#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h> // for getpid(), isatty()
 #endif

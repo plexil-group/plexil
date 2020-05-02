@@ -48,8 +48,10 @@
 
 #include "pugixml.hpp"
 
-#ifdef HAVE_STRING_H
+#if defined(HAVE_CSTRING)
 #include <cstring> // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using pugi::xml_attribute;

@@ -36,8 +36,13 @@
 
 #include "pugixml.hpp"
 
-#include <cstdlib>
 #include <limits>
+
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 
 using pugi::xml_node;
 
