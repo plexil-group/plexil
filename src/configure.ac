@@ -29,13 +29,14 @@
 # Because an ancient version of vxWorks only offered this version
 #AC_PREREQ(2.59)
 AC_PREREQ(2.62)
-AC_INIT(Plexil, 4.5.0, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+AC_INIT(Plexil, 4.6.0, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-# Note that these two commands set default CFLAGS/CXXFLAGS to '-g -O2'
+# Check whether compilers exist and work
+# Note that these two commands set CFLAGS/CXXFLAGS to '-g -O2' if not already set
 AC_PROG_CXX
 AC_PROG_CC
 
@@ -135,39 +136,59 @@ AC_CHECK_LIB([rt], [timer_create])
 
 # Checks for header files.
 
+# C++ standard headers for PLEXIL core functionality
+AC_CHECK_HEADERS([cassert cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
+
 # Standard C (C90, C99, etc.) headers for PLEXIL core functionality
 # Some platforms (e.g. vxWorks) may lack some of these
-# *** N.B. autoconf does not provide a macro to check for the C++ version of these headers! ***
 # NOTE: checks only apply to PLEXIL source code, not imported third party code
 AC_CHECK_HEADERS([assert.h errno.h float.h inttypes.h math.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
-# glibc backtrace functionality
-AC_CHECK_HEADERS([execinfo.h])
 # POSIX dependencies for core functionality
-AC_CHECK_HEADERS([dlfcn.h fcntl.h unistd.h sys/stat.h sys/time.h])
+AC_CHECK_HEADERS([dlfcn.h fcntl.h pthread.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
 AC_CHECK_HEADERS([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
+# glibc backtrace functionality
+AC_CHECK_HEADERS([execinfo.h])
 
 # Non-Unix-like platforms
 AC_CHECK_HEADERS([sockLib.h vxWorks.h sys/times.h])
+
+# Check whether cstdint (stdint.h) and cinttypes (inttypes.h)
+# behave correctly
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[@%:@include <stdint.h>]],
+                   [[return argc < INT8_MAX;]])],
+  [AC_DEFINE([HAVE_GOOD_STDINT_H], 1,
+             [Define to 1 if stdint.h defines limit and constant macros correctly under C++])])
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[@%:@include <stdio.h>
+@%:@include <inttypes.h>]],
+                   [[printf("%" PRId32 " ", 1);
+                     return 0;]])],
+  [AC_DEFINE([HAVE_GOOD_INTTYPES_H], 1,
+  [Define to 1 if inttypes.h defines format macros correctly under C++])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
 
 # POSIX time
-# Defined in sys/time.h if present.
+# Declared in sys/time.h if present.
 AC_CHECK_FUNCS([getitimer gettimeofday setitimer])
-# Defined in time.h if present.
+# Declared in time.h if present.
 AC_CHECK_FUNCS([clock_gettime ctime_r timer_create timer_delete])
-# Defined in sys/types.h, not present on (e.g.) VxWorks
+# Declared in sys/types.h, not present on (e.g.) VxWorks
 # Used only in doubleToTimeval()
 AC_CHECK_TYPES([suseconds_t])
 
 # Other POSIX specifics
 AC_CHECK_FUNCS([getpid isatty])
 
-# Kernel queues
-AC_CHECK_FUNCS([kqueue kevent kevent64])
+# Kernel queues (BSD family)
+# Not currently used
+# AC_CHECK_FUNCS([kqueue kevent kevent64])
 
 # Standard math functions not found on some platforms
 AC_CHECK_FUNCS([ceil floor round sqrt trunc])
