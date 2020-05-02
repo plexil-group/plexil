@@ -137,7 +137,6 @@ CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
 CHECK_CXX_SOURCE_COMPILES(
   "
 #include <stdio.h>
-#define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
 int main(int argc, char **argv)
