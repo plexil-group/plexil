@@ -42,7 +42,7 @@ namespace PLEXIL
 {
 
   // Initialization of global variable
-  PlexilExec *g_exec = nullptr;
+  PlexilExec *g_exec = NULL;
 
   class PlexilExecImpl:
     public PlexilExec
