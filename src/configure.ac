@@ -29,7 +29,7 @@
 # Because an ancient version of vxWorks only offered this version
 #AC_PREREQ(2.59)
 AC_PREREQ(2.62)
-AC_INIT(Plexil, 4.6.0, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+AC_INIT([Plexil], [4.6.0], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
@@ -40,10 +40,11 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CXX
 AC_PROG_CC
 
-AM_PROG_CC_C_O
-
-# Required to build the expression parser
-AC_PATH_PROG([GPERF], [gperf], [gperf])
+# Required to build the expression parser's table
+AS_IF([test ! -f xml-parser/ExpressionMap.hh], [
+AC_PATH_PROG([GPERF], [gperf])
+AS_IF([test "x${GPERF}" = 'x'], [AC_MSG_ERROR([Required program 'gperf' not found. Aborting.])])
+])
 
 # Use this with autoconf 2.62 and newer
 LT_INIT([])
@@ -51,7 +52,11 @@ LT_INIT([])
 #AC_PROG_LIBTOOL
 
 AC_SUBST([LIBTOOL_DEPS])
+
 AM_INIT_AUTOMAKE
+
+# Required with Automake versions < 1.13
+#AM_PROG_CC_C_O
 
 # Comment out this line to see the gory details of the build process
 AM_SILENT_RULES([yes])
@@ -126,35 +131,35 @@ AS_IF([test "x$enable_viewer" != "xno"],[
 # Checks for libraries.
 
 # implied by header check for dlfcn.h
-AC_CHECK_LIB([dl], [dlopen])
-AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([m], [sqrt])
+AC_SEARCH_LIBS([dlopen], [dl dld])
+AC_SEARCH_LIBS([pthread_create], [pthread])
+AC_SEARCH_LIBS([cos], [m])
 # Used by UdpAdapter (and IPC)
-AC_CHECK_LIB([nsl], [inet_ntoa])
+AC_SEARCH_LIBS([inet_ntoa], [nsl])
 # POSIX timer - not present on macOS
-AC_CHECK_LIB([rt], [timer_create])
+AC_SEARCH_LIBS([timer_create], [rt])
 
 # Checks for header files.
 
 # C++ standard headers for PLEXIL core functionality
-AC_CHECK_HEADERS([cassert cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
+AC_CHECK_HEADERS_ONCE([cassert cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
 
 # Standard C (C90, C99, etc.) headers for PLEXIL core functionality
 # Some platforms (e.g. vxWorks) may lack some of these
 # NOTE: checks only apply to PLEXIL source code, not imported third party code
-AC_CHECK_HEADERS([assert.h errno.h float.h inttypes.h math.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
+AC_CHECK_HEADERS_ONCE([assert.h errno.h float.h inttypes.h math.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
 # POSIX dependencies for core functionality
-AC_CHECK_HEADERS([dlfcn.h fcntl.h pthread.h unistd.h sys/stat.h sys/time.h])
+AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
-AC_CHECK_HEADERS([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
+AC_CHECK_HEADERS_ONCE([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
 # glibc backtrace functionality
-AC_CHECK_HEADERS([execinfo.h])
+AC_CHECK_HEADERS_ONCE([execinfo.h])
 
 # Non-Unix-like platforms
-AC_CHECK_HEADERS([sockLib.h vxWorks.h sys/times.h])
+AC_CHECK_HEADERS_ONCE([sockLib.h vxWorks.h sys/times.h])
 
-# Check whether cstdint (stdint.h) and cinttypes (inttypes.h)
-# behave correctly
+# Check whether cstdint (stdint.h) and cinttypes (inttypes.h) behave correctly
+# This is required because of a misfeature in the C99 spec
 
 AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM([[@%:@include <stdint.h>]],
