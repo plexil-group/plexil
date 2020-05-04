@@ -27,6 +27,8 @@
 #ifndef PLEXIL_NOTIFIER_HH
 #define PLEXIL_NOTIFIER_HH
 
+#include "plexil-config.h"
+
 #include "Listenable.hh"
 
 #include <vector>

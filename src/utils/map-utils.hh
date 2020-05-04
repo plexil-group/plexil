@@ -27,6 +27,8 @@
 #ifndef PLEXIL_MAP_UTILS_HH
 #define PLEXIL_MAP_UTILS_HH
 
+#include "plexil-config.h"
+
 #include <string>
 
 #if defined(HAVE_CSTRING)

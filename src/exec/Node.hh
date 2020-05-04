@@ -32,6 +32,8 @@
 #include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
 
+#include "plexil-stdint.h"
+
 // Take care of annoying VxWorks macro
 #undef UPDATE
 

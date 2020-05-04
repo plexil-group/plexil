@@ -27,6 +27,8 @@
 #ifndef PLEXIL_VARIABLE_CONFLICT_SET_HH
 #define PLEXIL_VARIABLE_CONFLICT_SET_HH
 
+#include "plexil-config.h"
+
 #include <set>
 #include <vector>
 
