@@ -47,7 +47,7 @@ set_source_files_properties(createExpression.cc
   PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ExpressionMap.hh)
 
 install(TARGETS PlexilXmlParser
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlexilXmlParser PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -64,17 +64,19 @@ target_link_libraries(PlexilXmlParser PUBLIC
   -L${pugixml_LIB_DIR} -lpugixml
   )
 
+add_dependencies(PlexilXmlParser pugixml-build)
+
 # Public includes
 install(FILES 
   createExpression.hh ExpressionFactory.hh parseNode.hh parsePlan.hh
   parser-utils.hh planLibrary.hh PlexilSchema.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 add_executable(analyzePlan
   analyzePlan.cc)
 
 install(TARGETS analyzePlan
-  DESTINATION bin)
+  DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 target_include_directories(analyzePlan PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
@@ -106,7 +108,7 @@ if(MODULE_TESTS)
     test/parser-test-module.cc)
 
   install(TARGETS parser-module-tests
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   target_include_directories(parser-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -132,7 +134,7 @@ if(MODULE_TESTS)
     test/benchmark.cc)
 
   install(TARGETS parser-benchmark
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   target_include_directories(parser-benchmark PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}

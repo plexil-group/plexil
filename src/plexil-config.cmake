@@ -24,13 +24,13 @@
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-INCLUDE(CheckCXXSourceCompiles)
-INCLUDE(CheckCXXSymbolExists)
-INCLUDE(CheckIncludeFile)
-INCLUDE(CheckIncludeFileCXX)
-INCLUDE(CheckFunctionExists)
-INCLUDE(CheckLibraryExists)
-INCLUDE(CheckTypeSize)
+include(CheckCXXSourceCompiles)
+include(CheckCXXSymbolExists)
+include(CheckIncludeFile)
+include(CheckIncludeFileCXX)
+include(CheckFunctionExists)
+include(CheckLibraryExists)
+include(CheckTypeSize)
 
 #
 # Headers
@@ -96,18 +96,39 @@ CHECK_INCLUDE_FILE(vxWorks.h HAVE_VXWORKS_H)
 
 # Math
 # These are defined as macros or intrinsics in some compilers.
+#
+# CHECK_FUNCTION_EXISTS fails on older g++ versions because they're macros.
+# CHECK_CXX_SYMBOL_EXISTS fails on macOS clang++ because function pointer is larger than int.
+# Therefore we must define our own test.
 
 if(HAVE_CMATH OR HAVE_MATH_H)
-  if(HAVE_CMATH)
-    set(MATH_INCLUDE cmath)
-  else()
-    set(MATH_INCLUDE math.h)
-  endif()
-  CHECK_CXX_SYMBOL_EXISTS(ceil ${MATH_INCLUDE} HAVE_CEIL)
-  CHECK_CXX_SYMBOL_EXISTS(floor ${MATH_INCLUDE} HAVE_FLOOR)
-  CHECK_CXX_SYMBOL_EXISTS(round ${MATH_INCLUDE} HAVE_ROUND)
-  CHECK_CXX_SYMBOL_EXISTS(sqrt ${MATH_INCLUDE} HAVE_SQRT)
-  CHECK_CXX_SYMBOL_EXISTS(trunc ${MATH_INCLUDE} HAVE_TRUNC)
+
+  function(PLEXIL_CHECK_MATH_FN FNAME)
+    if(HAVE_CMATH)
+      set(MATH_INCLUDE cmath)
+    else()
+      set(MATH_INCLUDE math.h)
+    endif()
+    string(TOUPPER "HAVE_${FNAME}" HAVE_FNAME)
+    CHECK_CXX_SOURCE_COMPILES("
+#include <${MATH_INCLUDE}>
+
+int main(int argc, char **argv)
+{
+  (void)argv; (void)argc;
+  double temp, pi = 3.14;
+  temp = ${FNAME}(pi);
+  return 0;
+}
+"
+      ${HAVE_FNAME})
+  endfunction(PLEXIL_CHECK_MATH_FN)
+
+  PLEXIL_CHECK_MATH_FN(ceil)
+  PLEXIL_CHECK_MATH_FN(floor)
+  PLEXIL_CHECK_MATH_FN(round)
+  PLEXIL_CHECK_MATH_FN(sqrt)
+  PLEXIL_CHECK_MATH_FN(trunc)
 endif()
 
 CHECK_FUNCTION_EXISTS(clock_gettime HAVE_CLOCK_GETTIME)

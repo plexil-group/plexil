@@ -33,6 +33,7 @@ project(PlexilExec
 # cmake modules
 include(CMakeDependentOption)
 include(ExternalProject)
+include(GNUInstallDirs)
 
 #
 # Options
@@ -80,14 +81,13 @@ include_directories(${CMAKE_BINARY_DIR})
 
 
 # Set default RPATH for executables
-# Presumes usual structure, i.e. bin alongside lib
 if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../lib"
+  set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
     CACHE STRING
     "The rpath value to use when building executables")
 else()
-  # Presumes some POSIX-ish system
-  set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../lib"
+  # Presumes system with ELF linker
+  set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
     CACHE STRING
     "The rpath value to use when building executables")
 endif()
@@ -129,9 +129,10 @@ set(IPC_LOCATIONS
   BASE_DIR=${CMAKE_CURRENT_LIST_DIR}/third-party/ipc
   BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}/third-party/ipc
   INSTALL_DIR=${CMAKE_INSTALL_PREFIX}
-  PUBLIC_BIN_DIR=${CMAKE_INSTALL_PREFIX}/bin
-  PUBLIC_LIB_DIR=${CMAKE_INSTALL_PREFIX}/lib
-  PUBLIC_INC_DIR=${CMAKE_INSTALL_PREFIX}/include)
+  PUBLIC_BIN_DIR=${CMAKE_INSTALL_FULL_BINDIR}
+  PUBLIC_LIB_DIR=${CMAKE_INSTALL_FULL_LIBDIR}
+  PUBLIC_INC_DIR=${CMAKE_INSTALL_FULL_INCLUDEDIR})
+
 
 ExternalProject_Add(
   ipc
@@ -148,7 +149,7 @@ ExternalProject_Add(
 
 ExternalProject_Get_Property(ipc SOURCE_DIR)
 set(ipc_SOURCE_DIR ${SOURCE_DIR})
-# Where IPC make system puts the products
+# Where IPC make system puts the libraries
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   # Ugh.
   string(REGEX REPLACE

@@ -33,7 +33,7 @@ add_library(PlexilExec SHARED
   UpdateNode.cc VariableConflictSet.cc plan-utils.cc)
 
 install(TARGETS PlexilExec
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlexilExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
@@ -52,14 +52,14 @@ install(FILES
   NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh
   NodeVariableMap.hh NodeVariables.hh PlexilExec.hh PlexilNodeType.hh
   VariableConflictSet.hh UpdateNode.hh plan-utils.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)
   add_executable(exec-module-tests
     test/exec-test-module.cc test/module-tests.cc)
 
   install(TARGETS exec-module-tests
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   if(WITH_JNI)
     get_target_property(exec-module-tests_SOURCES exec_module_tests SOURCES)

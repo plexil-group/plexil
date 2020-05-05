@@ -27,7 +27,7 @@ add_executable(TestExec
   exec-test-runner.cc ExecTestRunner.cc TestExternalInterface.cc)
 
 install(TARGETS TestExec
-  DESTINATION bin)
+  DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 target_include_directories(TestExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils

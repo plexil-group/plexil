@@ -29,7 +29,7 @@ add_library(PlanDebugListener SHARED
   PlanDebugListener.cc)
 
 install(TARGETS PlanDebugListener
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlanDebugListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils

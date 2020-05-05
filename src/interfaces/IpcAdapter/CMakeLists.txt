@@ -50,7 +50,10 @@ target_link_libraries(IpcAdapter PUBLIC
 
 add_dependencies(IpcAdapter ipc-build)
 
+install(TARGETS IpcAdapter
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 # Public includes
 install(FILES
   IpcAdapter.hh MessageQueueMap.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

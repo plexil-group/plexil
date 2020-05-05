@@ -34,7 +34,7 @@ add_library(PlexilExpr SHARED
   Propagator.cc SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc)
 
 install(TARGETS PlexilExpr
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlexilExpr PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
@@ -54,7 +54,7 @@ install(FILES
   ExpressionListener.hh Function.hh GetValueImpl.hh Listenable.hh
   NodeConstantExpressions.hh Notifier.hh Operator.hh Propagator.hh
   SimpleBooleanVariable.hh UserVariable.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)
   add_executable(expr-module-tests
@@ -67,7 +67,7 @@ if(MODULE_TESTS)
     test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc)
 
   install(TARGETS expr-module-tests
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
   
   target_include_directories(expr-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}

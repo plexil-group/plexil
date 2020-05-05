@@ -29,7 +29,7 @@ add_library(LuvListener SHARED
   LuvFormat.cc LuvListener.cc)
 
 install(TARGETS LuvListener
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(LuvListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils

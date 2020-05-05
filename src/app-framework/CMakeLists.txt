@@ -31,7 +31,7 @@ add_library(PlexilAppFramework SHARED
   SerializedInputQueue.cc SimpleInputQueue.cc UtilityAdapter.cc)
 
 install(TARGETS PlexilAppFramework
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlexilAppFramework PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
@@ -63,7 +63,7 @@ install(FILES
   ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh 
   ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh 
   PlexilListener.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(PLAN_DEBUG_LISTENER)
   target_include_directories(PlexilAppFramework PRIVATE
@@ -81,5 +81,5 @@ if(POSIX_TIME)
 
   install(FILES
     TimeAdapter.hh
-    DESTINATION include)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()

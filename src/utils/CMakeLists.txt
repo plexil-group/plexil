@@ -31,7 +31,7 @@ add_library(PlexilUtils SHARED
   lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc)
 
 install(TARGETS PlexilUtils
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Public includes
 install(FILES
@@ -40,7 +40,7 @@ install(FILES
   SimpleMap.hh TestSupport.hh 
   bitsetUtils.hh lifecycle-utils.h map-utils.hh stricmp.h
   timespec-utils.hh timeval-utils.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Presume every platform has dlopen and dlclose
 if(CMAKE_DL_LIBS)
@@ -54,7 +54,7 @@ if(${PLEXIL_WITH_THREADS})
   target_link_libraries(PlexilUtils PUBLIC pthread)
   install(FILES
     RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh
-    DESTINATION include)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 
@@ -67,7 +67,7 @@ if(${WITH_JNI})
 
   install(FILES
     JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
-    DESTINATION include)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 if(MODULE_TESTS)
@@ -76,7 +76,7 @@ if(MODULE_TESTS)
     test/bitsetUtilsTest.cc test/module-tests.cc test/util-test-module.cc)
 
   install(TARGETS utils-module-tests
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   target_include_directories(utils-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR})

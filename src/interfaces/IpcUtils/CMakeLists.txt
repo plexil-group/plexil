@@ -28,6 +28,9 @@
 add_library(IpcUtils SHARED
   IpcFacade.cc)
 
+install(TARGETS IpcUtils
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 target_include_directories(IpcUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -43,4 +46,4 @@ add_dependencies(IpcUtils ipc-build)
 # Public includes
 install(FILES
   IpcFacade.hh ipc-data-formats.h
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

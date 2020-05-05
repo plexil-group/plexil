@@ -29,7 +29,7 @@ add_library(Launcher SHARED
   Launcher.cc)
 
 install(TARGETS Launcher
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(Launcher PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils

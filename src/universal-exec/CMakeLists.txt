@@ -29,7 +29,7 @@ add_executable(universalExec
   UniversalExec.cc)
 
 install(TARGETS universalExec
-  DESTINATION bin)
+  DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 target_include_directories(universalExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils

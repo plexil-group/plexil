@@ -29,7 +29,7 @@ add_library(PlexilSockets SHARED
   ClientSocket.cpp ServerSocket.cpp Socket.cpp)
 
 install(TARGETS PlexilSockets
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if(${WITH_MODULE_TESTS})
   add_executable(simple_client_main
@@ -47,7 +47,7 @@ if(${WITH_MODULE_TESTS})
     PlexilSockets)
 
   install(TARGETS simple_client_main simple_server_main
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(simple_client_main simple_server_main

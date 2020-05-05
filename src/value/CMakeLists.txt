@@ -30,7 +30,7 @@ add_library(PlexilValue SHARED
   PlexilTypeTraits.cc Value.cc ValueType.cc)
 
 install(TARGETS PlexilValue
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlexilValue PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils)
@@ -41,7 +41,7 @@ target_link_libraries(PlexilValue PUBLIC PlexilUtils)
 install(FILES
   Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh NodeConstants.hh
   PlexilTypeTraits.hh Value.hh ValueType.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)
   add_executable(value-module-tests
@@ -49,7 +49,7 @@ if(MODULE_TESTS)
     test/valueTypeTest.cc test/value-test-module.cc)
 
   install(TARGETS value-module-tests
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   target_include_directories(value-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}

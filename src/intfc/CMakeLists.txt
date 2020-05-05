@@ -33,7 +33,7 @@ add_library(PlexilIntfc SHARED
   Update.cc)
 
 install(TARGETS PlexilIntfc
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 target_include_directories(PlexilIntfc PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
@@ -50,7 +50,7 @@ install(FILES
   InterfaceError.hh Lookup.hh NodeConnector.hh QueueEntry.hh
   ResourceArbiterInterface.hh State.hh StateCacheEntry.hh StateCacheMap.hh
   Update.hh
-  DESTINATION include)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)
   add_executable(intfc-module-tests
@@ -59,7 +59,7 @@ if(MODULE_TESTS)
     test/intfc-test-module.cc)
 
   install(TARGETS intfc-module-tests
-    DESTINATION bin)
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   target_include_directories(intfc-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
