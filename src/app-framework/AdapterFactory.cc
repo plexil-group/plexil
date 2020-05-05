@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,7 @@
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
-#ifdef HAVE_DLFCN_H
 #include "DynamicLoader.h"
-#endif
 #include "Error.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
@@ -105,7 +103,6 @@ namespace PLEXIL
                                  bool& wasCreated)
   {
     std::map<std::string, AdapterFactory*>::const_iterator it = factoryMap().find(name);
-#ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("AdapterFactory:createInstance", 
                "Attempting to dynamically load adapter type \""
@@ -123,7 +120,6 @@ namespace PLEXIL
       // See if it's registered now
       it = factoryMap().find(name);
     }
-#endif
 
     if (it == factoryMap().end()) {
       warn("AdapterFactory: No factory registered for adapter type \""
