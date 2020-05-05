@@ -43,7 +43,8 @@ target_include_directories(universalExec PRIVATE
   )
 
 target_link_libraries(universalExec PRIVATE
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser PlexilAppFramework)
 
 if(HAVE_DEBUG_LISTENER)

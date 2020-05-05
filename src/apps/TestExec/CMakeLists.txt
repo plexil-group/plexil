@@ -41,7 +41,8 @@ target_include_directories(TestExec PRIVATE
   )
 
 target_link_libraries(TestExec PRIVATE
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser PlexilAppFramework)
 
 if(${WITH_JNI})

@@ -45,7 +45,9 @@ target_include_directories(PlexilAppFramework PRIVATE
   )
 
 target_link_libraries(PlexilAppFramework PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
+  PlexilXmlParser)
 
 install(FILES
   AdapterConfiguration.hh AdapterExecInterface.hh 

@@ -38,7 +38,7 @@
 #cmakedefine HAVE_CINTTYPES 1
 #cmakedefine HAVE_CLIMITS 1
 #cmakedefine HAVE_CMATH 1
-#cmakedefine HAVE_CSIGNAL
+#cmakedefine HAVE_CSIGNAL 1
 #cmakedefine HAVE_CSTDDEF 1
 #cmakedefine HAVE_CSTDINT 1
 #cmakedefine HAVE_CSTDIO 1
@@ -66,6 +66,7 @@
 #cmakedefine HAVE_DLFCN_H 1
 #cmakedefine HAVE_FCNTL_H 1
 #cmakedefine HAVE_NETDB_H 1
+#cmakedefine HAVE_PTHREAD_H 1
 #cmakedefine HAVE_UNISTD_H 1
 #cmakedefine HAVE_ARPA_INET_H 1
 #cmakedefine HAVE_NETINET_IN_H 1

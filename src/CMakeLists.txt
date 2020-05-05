@@ -32,7 +32,7 @@ project(PlexilExec
 
 # cmake modules
 INCLUDE(CMakeDependentOption)
-INCLUDE(FetchContent)
+INCLUDE(ExternalProject)
 
 #
 # Options
@@ -87,31 +87,65 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
     "The rpath value to use when building executables")
 endif()
 
-# Include pugixml as an external project
-FetchContent_Declare(
-  pugixml
+#
+# pugixml as an external project
+#
+
+ExternalProject_add(pugixml
 
   # When included as separate checkout
   # GIT_REPOSITORY https://github.com/zeux/pugixml
   # GIT_TAG v1.10
   
   # When checked out as part of plexil
-  SOURCE_DIR ${PROJECT_SOURCE_DIR}/third-party/pugixml
+  SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml
 
   # Common
   PREFIX third-party/pugixml
-  INSTALL_DIR ""
+  CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+  STEP_TARGETS build
+ )
+
+set(pugixml_SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
+set(pugixml_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/pugixml/src/pugixml-build)
+
+#
+# TCA-IPC as external (Makefile-based) project
+#
+
+set(IPC_OPTIONS "MAKE_SHARED_LIBS=1")
+if(POSIX_THREADS)
+  list(APPEND IPC_OPTIONS "THREADED=1")
+endif()
+
+set(IPC_SUBDIRS src)
+
+set(IPC_LOCATIONS
+  BASE_DIR=${CMAKE_CURRENT_LIST_DIR}/third-party/ipc
+  BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}/third-party/ipc
+  INSTALL_DIR=${CMAKE_INSTALL_PREFIX}
+  PUBLIC_BIN_DIR=${CMAKE_INSTALL_PREFIX}/bin
+  PUBLIC_LIB_DIR=${CMAKE_INSTALL_PREFIX}/lib
+  PUBLIC_INC_DIR=${CMAKE_INSTALL_PREFIX}/include)
+
+ExternalProject_Add(
+  ipc
+
+  SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/ipc
+  PREFIX third-party/ipc
+  STEP_TARGETS build
+
+  CONFIGURE_COMMAND ""
+  # Presumes GNU make or similar
+  BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} -C <SOURCE_DIR> -f GNUmakefile.ipc ${IPC_OPTIONS} ${IPC_LOCATIONS} SUBDIRS=${IPC_SUBDIRS} all
+  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -C <SOURCE_DIR> -f GNUmakefile.ipc ${IPC_OPTIONS} ${IPC_LOCATIONS} SUBDIRS=${IPC_SUBDIRS} install
   )
 
-FetchContent_GetProperties(pugixml)
+ExternalProject_Get_Property(ipc SOURCE_DIR)
+set(ipc_SOURCE_DIR ${SOURCE_DIR})
+# Where IPC make system puts the products
+set(ipc_LIB_DIR ${PlexilExec_BINARY_DIR}/third-party/ipc/lib/${CMAKE_SYSTEM})
 
-if(NOT pugixml_POPULATED)
-  FetchContent_Populate(pugixml
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/third-party/pugixml
-    CMAKE_ARGS -DBUILD_SHARED_LIBS=ON
-    )
-  add_subdirectory(${pugixml_SOURCE_DIR} ${pugixml_BINARY_DIR})
-endif()
 
 # Submodules have their own shared libraries
 # and unit test executables
@@ -140,7 +174,6 @@ if(GANTT_LISTENER)
   add_subdirectory(interfaces/GanttListener)
 endif()
 if(IPC_ADAPTER)
-  add_subdirectory(third-party/ipc)
   add_subdirectory(interfaces/IpcUtils)
   add_subdirectory(interfaces/IpcAdapter)
 endif()

@@ -60,7 +60,9 @@ target_include_directories(PlexilXmlParser PRIVATE
   )
 
 target_link_libraries(PlexilXmlParser PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml)
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
+  )
 
 # Public includes
 install(FILES 
@@ -84,7 +86,9 @@ target_include_directories(analyzePlan PRIVATE
   )
 
 target_link_libraries(analyzePlan PRIVATE
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
+  PlexilXmlParser)
 
 if(PlexilExec_EXE_INSTALL_RPATH)
   set_target_properties(analyzePlan
@@ -115,7 +119,9 @@ if(MODULE_TESTS)
     )
 
   target_link_libraries(parser-module-tests PRIVATE
-    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+    -L${pugixml_LIB_DIR} -lpugixml
+    PlexilXmlParser)
 
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(parser-module-tests
@@ -139,7 +145,9 @@ if(MODULE_TESTS)
     )
 
   target_link_libraries(parser-benchmark PRIVATE
-    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser)
+    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+    -L${pugixml_LIB_DIR} -lpugixml
+    PlexilXmlParser)
 
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(parser-benchmark

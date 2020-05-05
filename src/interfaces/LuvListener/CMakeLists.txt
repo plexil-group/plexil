@@ -44,5 +44,6 @@ target_include_directories(LuvListener PRIVATE
   )
 
 target_link_libraries(LuvListener PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser PlexilAppFramework PlexilSockets)

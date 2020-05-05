@@ -43,5 +43,6 @@ target_include_directories(PlanDebugListener PRIVATE
   )
 
 target_link_libraries(PlanDebugListener PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
+  -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser PlexilAppFramework)

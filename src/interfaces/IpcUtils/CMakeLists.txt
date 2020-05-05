@@ -23,27 +23,24 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Launcher interface subproject of PLEXIL_EXEC
+# TCA-IPC utilities library submodule for use with PlexilExec
 
-add_library(Launcher SHARED
-  Launcher.cc)
+add_library(IpcUtils SHARED
+  IpcFacade.cc)
 
-install(TARGETS Launcher
-  DESTINATION lib)
-
-target_include_directories(Launcher PRIVATE
+target_include_directories(IpcUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
-  ${PlexilExec_SOURCE_DIR}/expr
-  ${PlexilExec_SOURCE_DIR}/intfc
-  ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
-  ${PlexilExec_SOURCE_DIR}/xml-parser
-  ${PlexilExec_SOURCE_DIR}/app-framework
+  ${PlexilExec_SOURCE_DIR}/third-party/ipc/src
   )
 
-target_link_libraries(Launcher PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser PlexilAppFramework)
-  
+target_link_libraries(IpcUtils PUBLIC
+  PlexilUtils PlexilValue
+  -L${ipc_LIB_DIR} -lipc)
+
+add_dependencies(IpcUtils ipc-build)
+
+# Public includes
+install(FILES
+  IpcFacade.hh ipc-data-formats.h
+  DESTINATION include)
