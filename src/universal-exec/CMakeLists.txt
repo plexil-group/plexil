@@ -26,7 +26,7 @@
 # universalExec program
 
 add_executable(universalExec
-  universalExec.cc)
+  UniversalExec.cc)
 
 install(TARGETS universalExec
   DESTINATION bin)
