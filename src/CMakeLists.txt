@@ -31,8 +31,8 @@ project(PlexilExec
   LANGUAGES CXX C)
 
 # cmake modules
-INCLUDE(CMakeDependentOption)
-INCLUDE(ExternalProject)
+include(CMakeDependentOption)
+include(ExternalProject)
 
 #
 # Options
@@ -200,21 +200,23 @@ endif()
 
 # Ensure entire system is built with same compiler settings
 
-get_directory_property(subdirs DIRECTORY ${CMAKE_SOURCE_DIR} SUBDIRECTORIES)
-foreach(dir ${subdirs})
-  get_directory_property(dir_targets DIRECTORY ${dir} BUILDSYSTEM_TARGETS)
-  list(APPEND plexil_targets ${dir_targets})
+get_directory_property(PlexilExec_SUBDIRS DIRECTORY ${CMAKE_SOURCE_DIR} SUBDIRECTORIES)
+foreach(dir ${PlexilExec_SUBDIRS})
+  get_directory_property(DIR_TARGETS DIRECTORY ${dir} BUILDSYSTEM_TARGETS)
+  list(APPEND PlexilExec_TARGETS ${DIR_TARGETS})
 endforeach()
 
-foreach(tgt ${plexil_targets})
-  get_target_property(tgt_features ${tgt} INTERFACE_COMPILE_FEATURES)
-  if(NOT ${tgt_features} MATCHES "NOTFOUND")
-    list(APPEND all_compile_features ${tgt_features})
+foreach(TGT ${PlexilExec_TARGETS})
+  get_target_property(TGT_FEATURES ${TGT} INTERFACE_COMPILE_FEATURES)
+  if(NOT ${TGT_FEATURES} MATCHES "NOTFOUND")
+    list(APPEND PlexilExec_ALL_COMPILE_FEATURES ${TGT_FEATURES})
   endif()
 endforeach()
 
-list(REMOVE_DUPLICATES all_compile_features)
+if(PlexilExec_ALL_COMPILE_FEATURES)
+  list(REMOVE_DUPLICATES PlexilExec_ALL_COMPILE_FEATURES)
 
-foreach(tgt ${plexil_targets})
-  target_compile_features(${tgt} PUBLIC ${all_compile_features})
-endforeach()
+  foreach(TGT ${PlexilExec_TARGETS})
+    target_compile_features(${TGT} PUBLIC ${PlexilExec_ALL_COMPILE_FEATURES})
+  endforeach()
+endif()
