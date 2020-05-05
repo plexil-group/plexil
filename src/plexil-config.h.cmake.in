@@ -97,16 +97,7 @@
 #cmakedefine HAVE_SETITIMER 1
 #cmakedefine HAVE_SQRT 1
 #cmakedefine HAVE_TIMER_CREATE 1
-#cmakedefine HAVE_TIMER_DELETE 1
 #cmakedefine HAVE_TRUNC 1
-
-//
-// Libraries
-//
-
-#cmakedefine HAVE_LIBDL 1
-#cmakedefine HAVE_LIBM 1
-#cmakedefine HAVE_LIBPTHREAD 1
 
 //
 // Types

@@ -24,12 +24,13 @@
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+INCLUDE(CheckCXXSourceCompiles)
+INCLUDE(CheckCXXSymbolExists)
 INCLUDE(CheckIncludeFile)
 INCLUDE(CheckIncludeFileCXX)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckTypeSize)
-INCLUDE(CheckCXXSourceCompiles)
 
 #
 # Headers
@@ -86,17 +87,31 @@ CHECK_INCLUDE_FILE(sys/time.h HAVE_SYS_TIME_H)
 # glibc
 CHECK_INCLUDE_FILE(execinfo.h HAVE_EXECINFO_H)
 
-# Non-Unix platforms
+# Non-Unix platformsn
 CHECK_INCLUDE_FILE(vxWorks.h HAVE_VXWORKS_H)
 
 #
 # Functions
 #
 
-CHECK_FUNCTION_EXISTS(ceil HAVE_CEIL)
+# Math
+# These are defined as macros or intrinsics in some compilers.
+
+if(HAVE_CMATH OR HAVE_MATH_H)
+  if(HAVE_CMATH)
+    set(MATH_INCLUDE cmath)
+  else()
+    set(MATH_INCLUDE math.h)
+  endif()
+  CHECK_CXX_SYMBOL_EXISTS(ceil ${MATH_INCLUDE} HAVE_CEIL)
+  CHECK_CXX_SYMBOL_EXISTS(floor ${MATH_INCLUDE} HAVE_FLOOR)
+  CHECK_CXX_SYMBOL_EXISTS(round ${MATH_INCLUDE} HAVE_ROUND)
+  CHECK_CXX_SYMBOL_EXISTS(sqrt ${MATH_INCLUDE} HAVE_SQRT)
+  CHECK_CXX_SYMBOL_EXISTS(trunc ${MATH_INCLUDE} HAVE_TRUNC)
+endif()
+
 CHECK_FUNCTION_EXISTS(clock_gettime HAVE_CLOCK_GETTIME)
 CHECK_FUNCTION_EXISTS(ctime_r HAVE_CTIME_R) # utils/Logging.cc only
-CHECK_FUNCTION_EXISTS(floor HAVE_FLOOR)
 CHECK_FUNCTION_EXISTS(getcwd HAVE_GETCWD) # GanttListener only
 CHECK_FUNCTION_EXISTS(gethostbyname HAVE_GETHOSTBYNAME) # UdpAdapter, IPC
 CHECK_FUNCTION_EXISTS(getitimer HAVE_GETITIMER) # DarwinTimeAdapter, StandAloneSimulator
@@ -104,19 +119,18 @@ CHECK_FUNCTION_EXISTS(getpid HAVE_GETPID) # utils/Logging.cc, GanttListener
 CHECK_FUNCTION_EXISTS(gettimeofday HAVE_GETTIMEOFDAY)
 CHECK_FUNCTION_EXISTS(isatty HAVE_ISATTY) # utils/Logging.cc only
 CHECK_FUNCTION_EXISTS(localtime_r HAVE_LOCALTIME_R) # utils/test/jni-adapter.cc only
-CHECK_FUNCTION_EXISTS(round HAVE_ROUND)
 CHECK_FUNCTION_EXISTS(setitimer HAVE_SETITIMER) # DarwinTimeAdapter, StandAloneSimulator
-CHECK_FUNCTION_EXISTS(sqrt HAVE_SQRT)
-CHECK_FUNCTION_EXISTS(timer_create HAVE_TIMER_CREATE)
-CHECK_FUNCTION_EXISTS(timer_delete HAVE_TIMER_DELETE)
-CHECK_FUNCTION_EXISTS(trunc HAVE_TRUNC)
+
+#CHECK_CXX_SYMBOL_EXISTS(timer_create "ctime;time.h" HAVE_TIMER_CREATE)
 
 #
 # Libraries
 #
 
 find_library(MATH_LIBRARY m)
+
 CHECK_LIBRARY_EXISTS(pthread pthread_create "/usr/lib" HAVE_LIBPTHREAD)
+CHECK_LIBRARY_EXISTS(rt timer_create "/usr/lib" HAVE_LIBRT)
 
 #
 # Types
@@ -130,7 +144,7 @@ CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
 #
 
 # Search on __STDC_LIMIT_MACROS, __STDC_CONSTANT_MACROS, __STDC_FORMAT_MACROS
-# to understand the issues being checked here.
+# to understand the issues being checked for inttypes.h and stdint.h
 
 # inttypes.h under C++
 # This is a hack when compiled without including stdint.h -
@@ -159,6 +173,28 @@ int main(int argc, char ** /* argv */)
 }
 "
   HAVE_GOOD_STDINT_H)
+
+#
+# For some reason timer_create and timer_delete don't show up under gcc 5.2.0
+# using the normal tools.
+#
+
+set(CMAKE_REQUIRED_LIBRARIES "rt")
+CHECK_CXX_SOURCE_COMPILES(
+  "
+#include <signal.h>
+#include <time.h>
+
+int main(int argc, char ** /* argv */)
+{
+  struct sigevent se; 
+  timer_t tymer;
+
+  return timer_create(CLOCK_REALTIME, &se, &tymer);
+}
+"
+  HAVE_TIMER_CREATE)
+
 
 #
 # External programs

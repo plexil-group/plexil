@@ -49,6 +49,14 @@ target_link_libraries(PlexilAppFramework PUBLIC
   -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser)
 
+if(HAVE_LIBPTHREAD AND PLEXIL_WITH_THREADS)
+  target_link_libraries(PlexilAppFramework PUBLIC pthread)
+endif()
+
+if(HAVE_LIBRT)
+  target_link_libraries(PlexilAppFramework PUBLIC rt)
+endif()
+
 install(FILES
   AdapterConfiguration.hh AdapterExecInterface.hh 
   AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListener.hh 

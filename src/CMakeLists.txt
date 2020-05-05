@@ -79,10 +79,15 @@ include_directories(${CMAKE_BINARY_DIR})
 # TODO: create compile-time environment file
 
 
-# Set default RPATH for executables on macOS
+# Set default RPATH for executables
 # Presumes usual structure, i.e. bin alongside lib
 if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
   set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../lib"
+    CACHE STRING
+    "The rpath value to use when building executables")
+else()
+  # Presumes some POSIX-ish system
+  set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../lib"
     CACHE STRING
     "The rpath value to use when building executables")
 endif()
@@ -144,8 +149,17 @@ ExternalProject_Add(
 ExternalProject_Get_Property(ipc SOURCE_DIR)
 set(ipc_SOURCE_DIR ${SOURCE_DIR})
 # Where IPC make system puts the products
-set(ipc_LIB_DIR ${PlexilExec_BINARY_DIR}/third-party/ipc/lib/${CMAKE_SYSTEM})
-
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  # Ugh.
+  string(REGEX REPLACE
+         "^([0-9][0-9]*)\\.([0-9][0-9]*).*"
+         "\\1.\\2"
+         ipc_THIS_RELEASE ${CMAKE_SYSTEM_VERSION})
+  set(ipc_THIS_OS_BOTH ${CMAKE_SYSTEM_NAME}-${ipc_THIS_RELEASE})
+else()
+  set(ipc_THIS_OS_BOTH ${CMAKE_SYSTEM})
+endif()
+set(ipc_LIB_DIR ${PlexilExec_BINARY_DIR}/third-party/ipc/lib/${ipc_THIS_OS_BOTH})
 
 # Submodules have their own shared libraries
 # and unit test executables
