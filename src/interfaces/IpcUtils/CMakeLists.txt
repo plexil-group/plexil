@@ -34,12 +34,13 @@ install(TARGETS IpcUtils
 target_include_directories(IpcUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
-  ${PlexilExec_SOURCE_DIR}/third-party/ipc/src
+  ${ipc_SOURCE_DIR}
   )
 
 target_link_libraries(IpcUtils PUBLIC
   PlexilUtils PlexilValue
-  -L${ipc_LIB_DIR} -lipc)
+  -L${ipc_LIB_DIR} -lipc
+  )
 
 add_dependencies(IpcUtils ipc-build)
 

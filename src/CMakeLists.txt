@@ -77,19 +77,18 @@ install(FILES ${CMAKE_BINARY_DIR}/plexil-config.h
 # This is global for a good reason!
 include_directories(${CMAKE_BINARY_DIR})
 
-# TODO: create compile-time environment file
-
+# TODO: create compile-time environment file plexil-config.env
 
 # Set default RPATH for executables
 if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
   set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
     CACHE STRING
-    "The rpath value to use when building executables")
+    "The rpath value to use when installing Plexil executables")
 else()
   # Presumes system with ELF linker
   set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
     CACHE STRING
-    "The rpath value to use when building executables")
+    "The rpath value to use when installing Plexil executables")
 endif()
 
 #
@@ -111,56 +110,9 @@ ExternalProject_add(pugixml
   STEP_TARGETS build
  )
 
-set(pugixml_SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src)
-set(pugixml_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/pugixml/src/pugixml-build)
-
-#
-# TCA-IPC as external (Makefile-based) project
-#
-
-set(IPC_OPTIONS "MAKE_SHARED_LIBS=1")
-if(POSIX_THREADS)
-  list(APPEND IPC_OPTIONS "THREADED=1")
-endif()
-
-set(IPC_SUBDIRS src)
-
-set(IPC_LOCATIONS
-  BASE_DIR=${CMAKE_CURRENT_LIST_DIR}/third-party/ipc
-  BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}/third-party/ipc
-  INSTALL_DIR=${CMAKE_INSTALL_PREFIX}
-  PUBLIC_BIN_DIR=${CMAKE_INSTALL_FULL_BINDIR}
-  PUBLIC_LIB_DIR=${CMAKE_INSTALL_FULL_LIBDIR}
-  PUBLIC_INC_DIR=${CMAKE_INSTALL_FULL_INCLUDEDIR})
-
-
-ExternalProject_Add(
-  ipc
-
-  SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/ipc
-  PREFIX third-party/ipc
-  STEP_TARGETS build
-
-  CONFIGURE_COMMAND ""
-  # Presumes GNU make or similar
-  BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} -C <SOURCE_DIR> -f GNUmakefile.ipc ${IPC_OPTIONS} ${IPC_LOCATIONS} SUBDIRS=${IPC_SUBDIRS} all
-  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -C <SOURCE_DIR> -f GNUmakefile.ipc ${IPC_OPTIONS} ${IPC_LOCATIONS} SUBDIRS=${IPC_SUBDIRS} install
-  )
-
-ExternalProject_Get_Property(ipc SOURCE_DIR)
-set(ipc_SOURCE_DIR ${SOURCE_DIR})
-# Where IPC make system puts the libraries
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  # Ugh.
-  string(REGEX REPLACE
-         "^([0-9][0-9]*)\\.([0-9][0-9]*).*"
-         "\\1.\\2"
-         ipc_THIS_RELEASE ${CMAKE_SYSTEM_VERSION})
-  set(ipc_THIS_OS_BOTH ${CMAKE_SYSTEM_NAME}-${ipc_THIS_RELEASE})
-else()
-  set(ipc_THIS_OS_BOTH ${CMAKE_SYSTEM})
-endif()
-set(ipc_LIB_DIR ${PlexilExec_BINARY_DIR}/third-party/ipc/lib/${ipc_THIS_OS_BOTH})
+ExternalProject_Get_Property(pugixml SOURCE_DIR BINARY_DIR)
+set(pugixml_SOURCE_DIR ${SOURCE_DIR}/src)
+set(pugixml_LIB_DIR ${BINARY_DIR})
 
 # Submodules have their own shared libraries
 # and unit test executables
@@ -172,6 +124,8 @@ add_subdirectory(exec)
 add_subdirectory(xml-parser)
 add_subdirectory(app-framework)
 add_subdirectory(interfaces/Launcher)
+
+# Optional modules
 if(PLAN_DEBUG_LISTENER)
   add_subdirectory(interfaces/PlanDebugListener)
 endif()
@@ -188,15 +142,30 @@ endif()
 if(GANTT_LISTENER)
   add_subdirectory(interfaces/GanttListener)
 endif()
-if(IPC_ADAPTER)
-  add_subdirectory(interfaces/IpcUtils)
-  add_subdirectory(interfaces/IpcAdapter)
-endif()
-if(STANDALONE_SIMULATOR)
-  add_subdirectory(apps/StandAloneSimulator)
-endif()
 if(UDP_ADAPTER)
   add_subdirectory(interfaces/UdpAdapter)
+endif()
+
+if(IPC_ADAPTER)
+  ExternalProject_Add(
+    ipc
+
+    SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/ipc
+    PREFIX third-party/ipc
+    CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DTHREADED=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    STEP_TARGETS build
+    )
+
+  ExternalProject_Get_Property(ipc SOURCE_DIR BINARY_DIR)
+  set(ipc_SOURCE_DIR ${SOURCE_DIR}/src)
+  set(ipc_LIB_DIR ${BINARY_DIR})
+
+  add_subdirectory(interfaces/IpcUtils)
+  add_subdirectory(interfaces/IpcAdapter)
+
+  if(STANDALONE_SIMULATOR)
+    add_subdirectory(apps/StandAloneSimulator)
+  endif()
 endif()
 
 # Ensure entire system is built with same compiler settings

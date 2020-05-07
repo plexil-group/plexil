@@ -36,8 +36,8 @@ target_include_directories(IpcAdapter PUBLIC
   ${PlexilExec_SOURCE_DIR}/exec
   ${PlexilExec_SOURCE_DIR}/xml-parser
   ${PlexilExec_SOURCE_DIR}/app-framework
-  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
-  ${PlexilExec_SOURCE_DIR}/third-party/ipc/src
+  ${pugixml_SOURCE_DIR}
+  ${ipc_SOURCE_DIR}
   ${PlexilExec_SOURCE_DIR}/interfaces/IpcUtils
   )
 
