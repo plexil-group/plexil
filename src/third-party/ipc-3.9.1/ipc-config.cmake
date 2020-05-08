@@ -48,25 +48,32 @@ else()
 endif()
 
 #
-# Include file checks
+# Platform-specific defines
 #
 
-include(CheckIncludeFile)
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
 
-function(file_exists_define FNAME SYM)
-  check_include_file(${FNAME} ${SYM})
-  if(${SYM})
-    add_definitions("-D${SYM}=1")
+  # See etc/GNUmakefile.defs lines 329-341
+  # and src/libc.h
+  string(REGEX REPLACE
+         [=[^([0-9][0-9]*)\..*$]=]
+         [=[\1]=]
+         MAJOR ${CMAKE_SYSTEM_VERSION})
+  string(REGEX REPLACE
+         [=[^[0-9][0-9]*\.([0-9][0-9]*).*$]=]
+         [=[\1]=]
+         MINOR ${CMAKE_SYSTEM_VERSION})
+
+  if(MAJOR GREATER 2)
+    add_definitions(-DREDHAT_52 -DREDHAT_6 -DREDHAT_71)
+  elseif(MAJOR EQUAL 2)
+    add_definitions(-DREDHAT_52)
+    if(MINOR GREATER_EQUAL 2)
+      add_definitions(-DREDHAT_6)
+      if(MINOR GREATER_EQUAL 4)
+        add_definitions(-DREDHAT_71)
+      endif()
+    endif()
   endif()
-endfunction()
+endif()
 
-# These are actually checked
-file_exists_define(bsd/bsd.h HAVE_BSD_BSD_H)
-file_exists_define(bsd/sgtty.h HAVE_BSD_SGTTY_H)
-file_exists_define(ioctls.h HAVE_IOCTLS_H)
-file_exists_define(sys/filio.h HAVE_SYS_FILIO_H)
-file_exists_define(sys/socketvar.h HAVE_SYS_SOCKETVAR_H)
-file_exists_define(sys/stream.h HAVE_SYS_STREAM_H)
-file_exists_define(sys/time.h HAVE_SYS_TIME_H)
-file_exists_define(sys/ttold.h HAVE_SYS_TTOLD_H)
-file_exists_define(sys/ttydev.h HAVE_SYS_TTYDEV_H)

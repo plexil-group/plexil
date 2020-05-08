@@ -104,6 +104,9 @@ target_link_libraries(ipc PUBLIC
 endif()
 
 if(THREADED)
+  # TEMP DEBUG
+  message("Building IPC threaded")
+
   target_sources(ipc PRIVATE
     src/multiThread.c)
   target_compile_definitions(ipc PUBLIC
