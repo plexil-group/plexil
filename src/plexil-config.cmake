@@ -289,3 +289,11 @@ endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/plexil-config.h.cmake.in
   ${CMAKE_BINARY_DIR}/plexil-config.h)
+
+#
+# Build type default
+#
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
