@@ -53,17 +53,8 @@ option(BUILD_TESTS "Build tests" OFF)
 # Configuration
 #
 
-# Set default RPATH for executables
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  set(ipc_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing IPC executables")
-else()
-  # Presumes system with ELF linker
-  set(ipc_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing IPC executables")
-endif()
+# Platform-specific configuration
+include(ipc-config.cmake)
 
 #
 # libipc
