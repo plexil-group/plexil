@@ -32,6 +32,14 @@
 #  - Operating systems other than macOS (Darwin) or Linux
 
 #
+# Build type default
+#
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
+#
 # RPATH
 #
 
@@ -48,7 +56,7 @@ else()
 endif()
 
 #
-# Platform-specific defines
+# Target-specific settings
 #
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
@@ -65,8 +73,10 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
          MINOR ${CMAKE_SYSTEM_VERSION})
 
   if(MAJOR GREATER 2)
+    # i.e. most modern Linux
     add_definitions(-DREDHAT_52 -DREDHAT_6 -DREDHAT_71)
   elseif(MAJOR EQUAL 2)
+    # really ancient Linux
     add_definitions(-DREDHAT_52)
     if(MINOR GREATER_EQUAL 2)
       add_definitions(-DREDHAT_6)
@@ -74,6 +84,11 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
         add_definitions(-DREDHAT_71)
       endif()
     endif()
+
+    if(MINOR LESS_EQUAL 6)
+      link_libraries(bsd)
+    endif()
   endif()
+
 endif()
 
