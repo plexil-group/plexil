@@ -35,10 +35,16 @@
 #include <fstream>
 #include <map>
 
-#ifdef STDC_HEADERS
-#include <cstdint>
+#if defined(HAVE_CSTDIO)
 #include <cstdio>
+#elif defined(HAVE_STDIO_H)
+#include <stdio.h>
+#endif
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL 
@@ -1285,14 +1291,20 @@ IPC_RETURN_TYPE IpcFacade::sendPairs(std::vector<std::pair<std::string, Value> >
    */
   std::string IpcFacade::generateUID()
   {
+    debugMsg("IpcFacade:generateUID", " entered");
     uint16_t randomBits[UUID_SIZE_BITS/16];
     {
-      std::ifstream randumb("/dev/random", std::ios::in | std::ios::binary);
-      if (!randumb)
+      std::ifstream randumb("/dev/urandom", std::ios::in | std::ios::binary);
+      if (!randumb) {
+        debugMsg("IpcFacade:generateUID", " unable to open /dev/urandom for reading");
         return std::string();
+      }
 
-      if (!randumb.read(reinterpret_cast<char *>(randomBits), UUID_SIZE_BITS/8))
+      if (!randumb.read(reinterpret_cast<char *>(randomBits), UUID_SIZE_BITS/8)) {
+        debugMsg("IpcFacade:generateUID",
+                 " read of " << UUID_SIZE_BITS/8 << " bytes from /dev/urandom failed");
         return std::string();
+      }
     }
     char resultbuf[UUID_STRING_SIZE + 1];
     snprintf(resultbuf, UUID_STRING_SIZE + 1,
@@ -1306,6 +1318,7 @@ IPC_RETURN_TYPE IpcFacade::sendPairs(std::vector<std::pair<std::string, Value> >
              randomBits[6],
              randomBits[7]);
 
+    debugMsg("IpcFacade:generateUID", " returns " << resultbuf);
     return std::string(resultbuf);
   }
 
