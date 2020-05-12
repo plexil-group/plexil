@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,11 @@
 
 #ifdef PLEXIL_USE_POSIX_SEMAPHORES
 #include <semaphore.h>
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
 
 //* @brief Error status showing that the wait() call was interrupted.
 #define PLEXIL_SEMAPHORE_STATUS_INTERRUPTED EINTR

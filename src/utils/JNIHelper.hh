@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,15 @@
 #ifndef JNI_HELPER_H
 #define JNI_HELPER_H
 
+#include "plexil-config.h"
+
 #include <jni.h>
+
+#if defined(HAVE_CSTDDEF)
 #include <cstddef> // for NULL
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h>
+#endif
 
 /**
  * @brief A class which helps provide access to key JNI pointers.

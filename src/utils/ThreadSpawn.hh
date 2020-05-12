@@ -27,9 +27,11 @@
 #ifndef THREAD_SPAWN_HEADER
 #define THREAD_SPAWN_HEADER
 
+#include "plexil-config.h"
 
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-
+#endif
 
 #define THREAD_FUNC_PTR void* (*)(void*)
 

@@ -32,7 +32,11 @@
 #ifndef RECURSIVE_THREAD_MUTEX_HEADER_
 #define RECURSIVE_THREAD_MUTEX_HEADER_
 
+#include "plexil-config.h"
+
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 
 namespace PLEXIL
 {
