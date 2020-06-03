@@ -29,31 +29,32 @@
 # Check environment variables and UE executable
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Unable to set up Plexil environment.
-    echo Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your PLEXIL installation directory.
-    return
+    echo "Error: Unable to set up Plexil environment."
+    echo "Please set environment variable PLEXIL_HOME"
+    echo "to the full pathname of your PLEXIL installation directory."
+    return 1
 fi
 
-export PATH=${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
-_plexil_libpath=$PLEXIL_HOME/lib
+export PATH="${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts"
+_plexil_libpath="$PLEXIL_HOME/lib"
 
+# TODO: determine if this is obsolete now
 if [ "$(uname)" = 'Darwin' ]
 then
     # Mac
     if [ -z "$DYLD_LIBRARY_PATH" ]
     then
-	export DYLD_LIBRARY_PATH=$_plexil_libpath
+	export DYLD_LIBRARY_PATH="$_plexil_libpath"
     else
-	export DYLD_LIBRARY_PATH=$_plexil_libpath:$DYLD_LIBRARY_PATH
+	export DYLD_LIBRARY_PATH="$_plexil_libpath:$DYLD_LIBRARY_PATH"
     fi
 else
     # Some other Unix variant
     if [ -z "$LD_LIBRARY_PATH" ]
     then
-	export LD_LIBRARY_PATH=$_plexil_libpath
+	export LD_LIBRARY_PATH="$_plexil_libpath"
     else
-	export LD_LIBRARY_PATH=$_plexil_libpath:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH="$_plexil_libpath:$LD_LIBRARY_PATH"
     fi		
 fi
 
