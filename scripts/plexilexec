@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,30 +42,40 @@
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
+    echo 'Error: Please set environment variable PLEXIL_HOME'
+    echo "to the full pathname of your 'plexil' or 'trunk' directory."
+    echo 'Exiting.'
     exit 1
 fi
 
-. $PLEXIL_HOME/scripts/plexil-setup.sh
+. "$PLEXIL_HOME"/scripts/plexil-setup.sh
+
+plexil_check_prog()
+{
+    if [ ! -e "$1" ]
+    then
+        echo "Error: $1 does not exist."
+        echo 'You probably need to build it.'
+        exit 1
+    fi
+}
 
 validate_file()
 {
-    if [ -z $1 ]
+    if [ -z "$1" ]
     then
         echo "Error: missing filename for $2 option"
         usage
         exit 2
-    elif [ ! -e $1 ]
+    elif [ ! -e "$1" ]
     then
         echo "Error: $1 does not exist"
         exit 1
-    elif [ -d $1 ]
+    elif [ -d "$1" ]
     then
         echo "Error: $1 is a directory"
         exit 1
-    elif [ ! -r $1 ]
+    elif [ ! -r "$1" ]
     then
         echo "Error: $1 cannot be read"
         exit 1
@@ -82,28 +92,27 @@ warn()
 
 checker()
 {
-    if [ ! -x $PLEXIL_HOME/scripts/checkPlexil ]
+    if [ ! -x "$PLEXIL_HOME"/scripts/checkPlexil ]
     then 
-	    echo Error: $PLEXIL_HOME/scripts/checkPlexil not found.	
+	    echo "Error: $PLEXIL_HOME/scripts/checkPlexil not found."
 	    exit 1
     fi
-    if [ ! -r $plan_nm ]
+    if [ ! -r "$plan_nm" ]
     then
-        echo Error: File $plan_nm does not exist, or is not readable.
+        echo "Error: File $plan_nm does not exist, or is not readable."
         exit 1
     fi
     echo "Checking plan..."
-    $PLEXIL_HOME/scripts/checkPlexil $plan_nm
-    if [ $? -gt 0 ]
+    if ! "$PLEXIL_HOME"/scripts/checkPlexil "$plan_nm"
     then
-	    echo Error: $plan_nm contains type errors. See the checker output for details.
+	echo Error: $plan_nm contains type errors. See the checker output for details.
         exit 1
-	fi
+    fi
 }
 
 summarize()
 {
-    echo Running executive from $PLEXIL_HOME
+    echo "Running executive from $PLEXIL_HOME"
     if [ -n "$plan_nm" ]
     then
         echo "  Plan:           $plan_nm"
@@ -135,8 +144,8 @@ usage_text="Usage:\n\tplexilexec [-p <plan>] [-c <interface config>] [-d <debug 
 
 usage()
 {
-    echo -e $usage_text
-    echo -e "For more options enter 'plexilexec -help'"
+    printf "%s\n" "$usage_text"
+    echo "For more options enter 'plexilexec -help'"
 }
 
 help_text=" Options:\n\
@@ -171,40 +180,39 @@ help_text=" Options:\n\
 \t  Runs the exec with the supplied options, without checking them, and without starting the Viewer. \n\
 \t  Intended for use by the Plexil Viewer or other scripts."
 
-if [ $PLEXIL_EXECUTABLE ]
+if [ -n "$PLEXIL_EXECUTABLE" ]
 then
-    prog=$PLEXIL_EXECUTABLE
-elif [ -f $PLEXIL_HOME/bin/universalExec ] && [ -x $PLEXIL_HOME/bin/universalExec ]
+    prog="$PLEXIL_EXECUTABLE"
+elif [ -f "$PLEXIL_HOME"/bin/universalExec ] && [ -x "$PLEXIL_HOME"/bin/universalExec ]
 then
-    prog=$PLEXIL_HOME/bin/universalExec
-elif [ -f $PLEXIL_HOME/bin/universalExec/universalExec ] && [ -x $PLEXIL_HOME/bin/universalExec/universalExec ]
+    prog="$PLEXIL_HOME"/bin/universalExec
+elif [ -f "$PLEXIL_HOME"/bin/universalExec/universalExec ] && [ -x "$PLEXIL_HOME"/bin/universalExec/universalExec ]
 then
-    prog=$PLEXIL_HOME/bin/universalExec/universalExec
+    prog="$PLEXIL_HOME"/bin/universalExec/universalExec
 else
-    echo "Error: Plexil executable not found, aborting"
+    echo 'Error: Plexil executable not found, aborting'
     exit 1
 fi
 
-$PLEXIL_HOME/scripts/plexil-check-prog $prog
+plexil_check_prog "$prog"
 
 current_config="interface-config.xml" #current directory config
 default_config_path="${PLEXIL_HOME}/examples" #default config location
 default_config_name="dummy-config.xml"
 default_config="${default_config_path}/${default_config_name}" 
 
-no_plan=0 #assume plan required
-quiet="" #quiet default
-plan_nm="" #plan name
-plan_cmd="" #plan command
-config_nm="" #interface config name
-config_cmd="" #interface config command
-libraries="" #library files
-library_dirs="" #library files
-debug_cmd="" #debug cmd
-check="" #run static checker
-auto_run_cmd="" # Viewer autorun option
+quiet='' #quiet default
+plan_nm='' #plan name
+plan_cmd='' #plan command
+config_nm='' #interface config name
+config_cmd='' #interface config command
+libraries='' #library files
+library_dirs='' #library files
+debug_cmd='' #debug cmd
+check='' #run static checker
+auto_run_cmd='' # Viewer autorun option
 
-if [ ! $1 ]
+if [ -z "$1" ]
 then
   usage
   exit 1
@@ -212,29 +220,29 @@ fi
 
 while [ -n "$1" ]
 do
-    save=$1
-    case $1 in
+    save="$1"
+    case "$1" in
         
 	-a | -autorun )
-            auto_run_cmd=$1;;
+            auto_run_cmd="$1";;
 
 	-b | -blocking )
-            block=$1;;
+            block="$1";;
 
 	-c | -config )
 	    shift
-	    config_nm=$1;;
+	    config_nm="$1";;
 
 	-ch | -check )
-            check=$1;;
+            check="$1";;
 
 	-d | -debug )
             shift
-	    validate_file "$1" $save
+	    validate_file "$1" "$save"
             debug_cmd="-d $1";;
 
         --for-viewer )
-	    automate=$1;;
+	    automate="$1";;
 
 	-h | -hostname )
 	    if [ -n "$2" ]
@@ -242,14 +250,14 @@ do
 		shift
 		host_in="$1"
 	    else
-		echo $usage_text
-		echo $help_text
+		printf "%s\n" "$usage_text"
+		printf "%s\n" "$help_text"
 		exit 0
 	    fi;;
 
 	-help | --help )
-            echo $usage_text
-            echo $help_text
+	    printf "%s\n" "$usage_text"
+	    printf "%s\n" "$help_text"
 	    exit 0;;
 
 	-L | -libraryPath )
@@ -270,25 +278,25 @@ do
 
 	-l | -library )
             shift
-	    validate_file "$1" $save
+	    validate_file "$1" "$save"
             libraries="$libraries$1 "
 	    lib_cmd="$lib_cmd-l $1 ";;
 
 	-n | -port )
             shift
-	    port_in=$1;;	#viewer port
+	    port_in="$1";;	#viewer port
 
 	-p | -plan )
 	    shift
-            validate_file "$1" $save
-	    plan_nm=$1	
+            validate_file "$1" "$save"
+	    plan_nm="$1"	
 	    plan_cmd="-p $plan_nm";;
 
         -q | -quiet )
-            quiet=$1;;
+            quiet="$1";;
 
 	-v | -viewer )
-            viewer=$1;;	#viewer listener enabled	
+            viewer="$1";;	#viewer listener enabled	
 
 	* )
             echo 'Error: unrecognized option' "'$1'"
@@ -306,7 +314,7 @@ then
     then
         checker
     fi
-	config_cmd="-c $config_nm"
+    config_cmd="-c $config_nm"
     if [ -z "$quiet" ]
     then
         summarize
@@ -318,7 +326,7 @@ then
     echo "RUN_UE_PID$$"
 
     #echo $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
-    exec $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
+    exec "$prog" $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
 fi
 
 if [ -n "$block" ]
@@ -334,7 +342,7 @@ fi
 if [ -z "$config_nm" ]
 then
     warn "Warning: no configuration file specified."
-elif [ ! -r $config_nm ]
+elif [ ! -r "$config_nm" ]
 then
     warn "Warning: configuration file $config_nm not found"
     config_nm=""
@@ -345,13 +353,13 @@ if [ -z "$config_nm" ]
 then  
     if [ -r "$current_config" ]
     then   
-        config_nm=$current_config
+        config_nm="$current_config"
     elif [ ! -r "$default_config" ]
     then
          echo Error: No configuration file specified and defaults cannot be found.
          exit 1
     else
-	    config_nm=$default_config
+	config_nm="$default_config"
     fi
     warn "Using default configuration file $config_nm"
 fi
@@ -366,7 +374,7 @@ then
         # Check local port, if supplied
         if [ -n "$port_in" ]
         then
-            if ( echo `list_ports_in_use` | grep -q -v "\<${port_in}\>" )
+            if list_ports_in_use | grep -q -v "\<${port_in}\>"
             then
                 echo "Error: No Viewer is listening on local port $port_in. Exiting."
                 exit 1
@@ -380,20 +388,20 @@ then
     # TODO: Bounds check port number
 elif [ -n "$host_in" ]
 then
-    echo "Error: -h (remove Viewer host) and -v (local Viewer) may not be combined. Exiting."
+    echo 'Error: -h (remove Viewer host) and -v (local Viewer) may not be combined. Exiting.'
     exit 1
 else
     # Local Viewer requested
     if [ -z "$port_in" ]
     then
         # Find open local port
-        port_in=`find_open_port`
+        port_in="$(find_open_port)"
         if [ -z "$port_in" ]
         then
             echo "Unable to find an open local port for Viewer communications."
             exit 1
         fi
-    elif ( echo `list_ports_in_use` | grep -q "\<${port_in}\>" )
+    elif list_ports_in_use | grep -q "\<${port_in}\>"
     then
         echo "Error: Port $port_in is in use. Exiting."
         exit 1
@@ -439,5 +447,5 @@ then
 else
     # User doesn't want viewer
     #echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block"
-    exec $prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block
+    exec "$prog" $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block
 fi

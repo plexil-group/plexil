@@ -38,6 +38,16 @@ fi
 
 . "$PLEXIL_HOME/scripts/plexil-setup.sh"
 
+plexil_check_prog()
+{
+    if [ ! -e "$1" ]
+    then
+        echo "Error: $1 does not exist."
+        echo 'You probably need to build it.'
+        exit 1
+    fi
+}
+
 validate_file()
 {
     if [ -z "$1" ]
@@ -181,7 +191,7 @@ else
     exit 1
 fi
 
-"$PLEXIL_HOME/scripts/plexil-check-prog" "$prog"
+plexil_check_prog "$prog"
 
 quiet=""
 plan_nm="" 
