@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,29 +27,30 @@
 
 # Check environment variables and UE executable
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
+then
+    echo 'Error: Please set environment variable PLEXIL_HOME'
+    echo "to the full pathname of your 'plexil' or 'trunk' directory."
     exit 1
 fi
 
-if [ $# = 2 ]
-  then
-    input_file=$1
-    output_file=$2
-  elif [ $# = 1 ]
-    then
-      input_file=$1
-      output_file=`dirname $1`/`basename $1 .epx`.plx
-  else
-    echo "Usage: eplexil input-file [ output_file ]"
+if [ -z "$1" ]
+then
+    echo 'Usage: eplexil input-file [ output_file ]'
     exit 1
+fi
+
+input_file="$1"
+if [ -n "$2" ]
+then
+    output_file="$2"
+else
+    output_file="$(dirname "$1")/$(basename "$1" .epx).plx"
 fi
 
 JAVA=java
 if [ -n "$JAVA_HOME" ]
 then
-    JAVA=$JAVA_HOME/bin/java
+    JAVA="$JAVA_HOME"/bin/java
 fi
 
-exec $JAVA -jar $PLEXIL_HOME/jars/saxon9he.jar -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file"
+exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file"
