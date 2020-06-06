@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,21 +27,31 @@
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
+    echo 'Error: Please set environment variable PLEXIL_HOME'
+    echo "to the full pathname of your 'plexil' or 'trunk' directory."
+    echo 'Exiting.'
     exit 1
 fi
 
-. $PLEXIL_HOME/scripts/plexil-setup.sh
+. "$PLEXIL_HOME"/scripts/plexil-setup.sh
+
+plexil_check_prog()
+{
+    if [ ! -e "$1" ]
+    then
+        echo "Error: $1 does not exist."
+        echo 'You probably need to build it.'
+        exit 1
+    fi
+}
 
 # FIXME! Get current location
-prog=$PLEXIL_HOME/bin/robotSimulator
+prog="$PLEXIL_HOME"/bin/robotSimulator
 
-plexil-check-prog $prog
+plexil_check_prog "$prog"
 
 # Data files live in this directory
-dir=$PLEXIL_HOME/examples/robosim/2DRobotSimulator
-cd $dir
+dir="$PLEXIL_HOME"/examples/robosim/2DRobotSimulator
+cd "$dir"
 
-exec $prog $*
+exec "$prog" "$@"
