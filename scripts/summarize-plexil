@@ -2,7 +2,7 @@
 
 # Generates a concise textual summary of a Core PLEXIL XML file.  
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@ usage="summarize-plexil input-file [ result-file ] [ transform-file ]"
 # Check environment variables
 
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Please set environment variable PLEXIL_HOME
-    echo to the absolute pathname of your 'plexil' directory.
+then
+    echo 'Please set environment variable PLEXIL_HOME'
+    echo "to the absolute pathname of your 'plexil' directory."
     exit 1
 fi
 
@@ -51,29 +51,29 @@ saxon_jar="$PLEXIL_HOME/jars/saxon9he.jar"
  
 # Determine argument values, overriding defaults when specified.
 
-if [ $# = 3 ]
-  then
-    input_file=$1
-    result_file=$2
-    transform_file=$3
-  elif [ $# = 2 ]
-    then
-      input_file=$1
-      result_file=$2
-  elif [ $# = 1 ]
-    then
-      input_file=$1
-  else
-    echo $usage
+if [ -z "$1" ]
+then
+    echo "$usage"
     exit 1
+fi
+
+input_file="$1"
+
+if [ -n "$2" ]
+then
+    result_file="$2"
+    if [ -n "$3" ]
+    then
+        transform_file="$3"
+    fi
 fi
 
 JAVA=java
 if [ -n "$JAVA_HOME" ]
 then
-    JAVA=$JAVA_HOME/bin/java
+    JAVA="$JAVA_HOME"/bin/java
 fi
 
 echo "Summarizing $input_file ..."
-$JAVA -jar $saxon_jar -o:$result_file $input_file $transform_file 
-echo Summary written to $result_file
+"$JAVA" -jar "$saxon_jar" -o:"$result_file" "$input_file" "$transform_file" 
+echo "Summary written to $result_file"

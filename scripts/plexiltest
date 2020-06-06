@@ -115,6 +115,7 @@ summarize()
 {
     echo "Running executive from $PLEXIL_HOME"
     echo "  Plan:           $plan_nm"
+    echo "  Script:         $script_name"
     if [ -n "$library_dirs" ]
     then
         echo "  Library path:   $library_dirs"
@@ -452,5 +453,5 @@ then
 else
     # User doesn't want viewer
     #echo "$prog $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block"
-    exec "$prog" "$plan_cmd" "$script_cmd" "$lib_dirs_cmd" "$lib_cmd" "$debug_cmd" "$block"
+    exec "$prog" $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block
 fi
