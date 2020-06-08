@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,97 +37,73 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
   <xs:include schemaLocation='plexil-base.xsd'/>
 
-  <xs:redefine schemaLocation='plexil-base.xsd'>
-    <xs:group name="Action">
-      <xs:choice>
-        <xs:element ref="Node"/>
-        <xs:element ref="Concurrence"/>
-        <xs:element ref="Sequence"/>
-        <xs:element ref="CheckedSequence"/>
-        <xs:element ref="UncheckedSequence"/>
-        <xs:element ref="Try"/>
-        <xs:element ref="If"/>
-        <xs:element ref="While"/>
-        <xs:element ref="For"/>
-        <xs:element ref="OnCommand"/>
-        <xs:element ref="OnMessage"/>
-        <xs:element ref="Wait"/>
-        <xs:element ref="SynchronousCommand"/>
-      </xs:choice>
-    </xs:group>
-    <xs:group name="BooleanExpression">
-      <xs:choice>
-	    <xs:group ref="LogicalOperator"/>
-	    <xs:group ref="Equality"/>
-	    <xs:group ref="NumericComparison"/>
-        <xs:group ref="KnownTest"/>
-        <xs:element ref="BooleanVariable"/>
-        <xs:element ref="BooleanValue"/>
-        <xs:element ref="Finished"/>
-        <xs:element ref="IterationEnded"/>
-        <xs:element ref="Executing"/>
-        <xs:element ref="Waiting"/>
-        <xs:element ref="Inactive"/>
-        <xs:element ref="Succeeded"/>
-        <xs:element ref="IterationSucceeded"/>
-        <xs:element ref="Failed"/>
-        <xs:element ref="Interrupted"/>
-        <xs:element ref="IterationFailed"/>
-        <xs:element ref="Skipped"/>
-        <xs:element ref="InvariantFailed"/>
-        <xs:element ref="PreconditionFailed"/>
-        <xs:element ref="PostconditionFailed"/>
-        <xs:element ref="ParentFailed"/>
-        <xs:element ref="MessageReceived"/>
-      </xs:choice>
-    </xs:group>
-    <xs:group name="LookupGroup">
-      <xs:choice>
-        <xs:element ref="LookupOnChange"/>
-        <xs:element ref="LookupNow"/>
-        <xs:element ref="Lookup"/>
-      </xs:choice>
-    </xs:group>
-    <xs:group name="DeclaredVariable">
-      <xs:choice>
-        <xs:element ref="IntegerVariable"/>
-        <xs:element ref="RealVariable"/>
-        <xs:element ref="BooleanVariable"/>
-        <xs:element ref="StringVariable"/>
-        <xs:element ref="DateVariable"/>
-        <xs:element ref="DurationVariable"/>
-        <xs:element ref="ArrayVariable"/>
-        <xs:element ref="ArrayElement"/>
-      </xs:choice>
-    </xs:group>
-    <xs:group name="Value">
-      <xs:choice>
-        <xs:element ref="IntegerValue"/>
-        <xs:element ref="RealValue"/>
-        <xs:element ref="BooleanValue"/>
-        <xs:element ref="StringValue"/>
-        <xs:element ref="DateValue"/>
-        <xs:element ref="DurationValue"/>
-      </xs:choice>
-    </xs:group>
-    <xs:group name="NumericExpression">
-      <xs:choice>
-        <xs:group ref="ArithmeticOperator"/>
-        <xs:element ref="IntegerVariable"/>
-        <xs:element ref="RealVariable"/>
-        <xs:element ref="IntegerValue"/>
-        <xs:element ref="RealValue"/>
-        <xs:element ref="DateVariable"/>
-        <xs:element ref="DateValue"/>
-        <xs:element ref="DurationVariable"/>
-        <xs:element ref="DurationValue"/>
-        <xs:element ref="NodeTimepointValue"/>
-        <!-- read operations for arrays-->
-        <xs:element ref="ArraySize"/>
-        <xs:element ref="ArrayMaxSize"/>
-      </xs:choice>
-    </xs:group>
-  </xs:redefine>
+  <!-- Elements -->
+
+  <xs:group name="Action">
+    <xs:choice>
+      <xs:element ref="Node"/>
+      <xs:element ref="Concurrence"/>
+      <xs:element ref="Sequence"/>
+      <xs:element ref="CheckedSequence"/>
+      <xs:element ref="UncheckedSequence"/>
+      <xs:element ref="Try"/>
+      <xs:element ref="If"/>
+      <xs:element ref="While"/>
+      <xs:element ref="For"/>
+      <xs:element ref="OnCommand"/>
+      <xs:element ref="OnMessage"/>
+      <xs:element ref="Wait"/>
+      <xs:element ref="SynchronousCommand"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="BooleanExpression">
+    <xs:choice>
+	  <xs:group ref="LogicalOperator"/>
+	  <xs:group ref="Equality"/>
+	  <xs:group ref="NumericComparison"/>
+      <xs:group ref="KnownTest"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
+      <xs:element ref="Finished"/>
+      <xs:element ref="IterationEnded"/>
+      <xs:element ref="Executing"/>
+      <xs:element ref="Waiting"/>
+      <xs:element ref="Inactive"/>
+      <xs:element ref="Succeeded"/>
+      <xs:element ref="IterationSucceeded"/>
+      <xs:element ref="Failed"/>
+      <xs:element ref="Interrupted"/>
+      <xs:element ref="IterationFailed"/>
+      <xs:element ref="Skipped"/>
+      <xs:element ref="InvariantFailed"/>
+      <xs:element ref="PreconditionFailed"/>
+      <xs:element ref="PostconditionFailed"/>
+      <xs:element ref="ParentFailed"/>
+      <xs:element ref="MessageReceived"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="DeclaredVariable">
+    <xs:choice>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="StringVariable"/>
+      <xs:element ref="DateVariable"/>
+      <xs:element ref="DurationVariable"/>
+      <xs:element ref="ArrayVariable"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="LookupGroup">
+    <xs:choice>
+      <xs:element ref="LookupOnChange"/>
+      <xs:element ref="LookupNow"/>
+      <xs:element ref="Lookup"/>
+    </xs:choice>
+  </xs:group>
 
   <xs:element name="Name">
     <xs:complexType>
@@ -135,6 +111,37 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
+
+  <xs:group name="NumericExpression">
+    <xs:choice>
+      <xs:group ref="ArithmeticOperator"/>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="DateVariable"/>
+      <xs:element ref="DateValue"/>
+      <xs:element ref="DurationVariable"/>
+      <xs:element ref="DurationValue"/>
+      <xs:element ref="NodeTimepointValue"/>
+      <!-- read operations for arrays-->
+      <xs:element ref="ArraySize"/>
+      <xs:element ref="ArrayMaxSize"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="Value">
+    <xs:choice>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="BooleanValue"/>
+      <xs:element ref="StringValue"/>
+      <xs:element ref="DateValue"/>
+      <xs:element ref="DurationValue"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Schema types -->
 
   <xs:simpleType name="AtomicTypeValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -159,6 +166,8 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:restriction>
   </xs:simpleType>
 
+  <!-- Extensions to Core Plexil -->
+
   <xs:element name="DurationVariable" type="xs:NCName"/>
   <xs:element name="DateVariable" type="xs:NCName"/>
   
@@ -175,7 +184,6 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-
 
   <!-- Node clauses, which can occur in any action. -->
 

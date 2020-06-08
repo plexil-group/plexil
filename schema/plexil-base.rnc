@@ -24,8 +24,20 @@
 # * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Common elements that are included in several PLEXIL schemas.
-# NOTE: this is an incomplete schema, as it doesn't define the "Name"
-# element.  It is used as an included schema only.
+# NOTE: this is an incomplete schema, as it doesn't define the following elements
+# and types, which differ between Core PLEXIL and Extended PLEXIL:
+# 
+#  Action
+#  AtomicTypeValues
+#  BooleanExpression
+#  DeclaredVariable
+#  LookupGroup
+#  Name
+#  NumericExpression
+#  ParameterTypeValues
+#  Value
+# 
+# It is used as an included schema only.
 
 default namespace = ""
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
@@ -46,7 +58,6 @@ starting_PlexilPlan =
     # Attempt to imitate rncfix
     attribute * { text }
   }
-Action = Node
 NodeReference = NodeId | NodeRef
 node-reference = NodeReference, SourceLocators
 NodeId = element NodeId { xsd:NCName }
@@ -198,17 +209,6 @@ Resource =
        }?),
     SourceLocators
   }
-DeclaredVariable =
-  IntegerVariable
-  | RealVariable
-  | BooleanVariable
-  | StringVariable
-  | ArrayVariable
-  | ArrayElement
-# Note: ArrayValue is not included here because arrays
-# are handled independently (and NOT supported in places
-# were Value is)
-Value = IntegerValue | RealValue | BooleanValue | StringValue
 IntegerVariable = element IntegerVariable { xsd:NCName }
 RealVariable = element RealVariable { xsd:NCName }
 BooleanVariable = element BooleanVariable { xsd:NCName }
@@ -294,16 +294,6 @@ assignment =
 Assignment = element Assignment { assignment }
 GeneralizedBooleanExpression =
   BooleanExpression | LookupGroup | ArrayElement
-BooleanExpression =
-  LogicalOperator
-  | Equality
-  | NumericComparison
-  | KnownTest
-  | NodeStatePredicate
-  | NodeOutcomePredicate
-  | NodeFailurePredicate
-  | BooleanVariable
-  | BooleanValue
 LogicalOperator = OR | XOR | AND | NOT
 Equality =
   EQBoolean
@@ -515,16 +505,6 @@ StringOperator = Concat
 Concat = element Concat { GeneralizedStringExpression*, SourceLocators }
 GeneralizedNumericExpression =
   NumericExpression | LookupGroup | ArrayElement
-NumericExpression =
-  ArithmeticOperator
-  | IntegerVariable
-  | RealVariable
-  | IntegerValue
-  | RealValue
-  | NodeTimepointValue
-  | #  read operations for arrays
-    ArraySize
-  | ArrayMaxSize
 ArithmeticOperator =
   ADD
   | SUB
@@ -588,7 +568,6 @@ ArraySize =
   element ArraySize { GeneralizedArrayExpression, SourceLocators }
 ArrayMaxSize =
   element ArrayMaxSize { GeneralizedArrayExpression, SourceLocators }
-LookupGroup = LookupOnChange | LookupNow
 LookupOnChange =
   element LookupOnChange {
     Name, Tolerance?, Arguments?, SourceLocators
