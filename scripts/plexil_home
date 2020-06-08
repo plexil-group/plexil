@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Determine the home directory of PLEXIL by the location of this file.
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,111 +26,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Strip './' and '/.' out of the input string, echo result to stdout.
-# $1 is the input string.
-handle_dot()
-{
-    # echo 'handle_dot_slash' "${1}" 1>&2 # debug
-    
-    # strip intermediate first
-    local thestring="$1"
-    local newstring=`echo "$1" | sed -e 's|/./|/|g'`
-    while [ "x$newstring" != "x$thestring" ]
-    do
-	thestring="$newstring"
-	newstring=`echo "$thestring" | sed -e 's|/./|/|g'`
-    done
-
-    # strip leading ./ and trailing /.
-    # should be at most one of each
-    thestring=`echo $thestring | sed -e 's|^./||' -e 's|/.$||'`
-
-    echo "$thestring"
-    return
-}
-
-# Strip '/..' out of the input string, echo result to stdout.
-# $1 is the input string.
-handle_dot_dot()
-{
-    # handle intervening
-    local val="$1"
-    local newval=`echo "$1" | sed -e 's|/[^\./]*/\.\./|/|'`
-    while [ -n "$val" ] && [ "$val" != "$newval" ]
-    do
-	val="$newval"
-	newval=`echo "$val" | sed -e 's|/[^\./]*/\.\./|/|'`
-    done
-
-    # handle trailing
-    val=`echo "$val" | sed -e 's|/[^\./]*/\.\.$||'`
-
-    echo "$val"
-    return
-}
-
-# Resolve a relative pathname to an absolute one, and echo it to stdout.
-# $1 is the relative name.
-# $2, if supplied, is the directory it's relative to (default $PWD).
-to_absolute()
-{
-    # echo 'to_absolute' "${1}" 1>&2 # debug
-
-    # strip trailing slash
-    local thepath=`echo $1 | sed -e 's|/$||'`
-
-    # strip '.'
-    thepath=`handle_dot "$thepath"`
-
-    # strip '..'
-    thepath=`handle_dot_dot "$thepath"`
-
-    if ( echo "$thepath" | grep -q '^/' )
-    then
-	# already absolute
-	echo "$thepath"
-	return
-    fi
-
-    # Below this line is a relative pathname 
-    local base
-    if [ -n "$2" ]
-    then
-	base=`to_absolute "$2"`
-    fi
-
-    if [ -z "$base" ]
-    then
-	base="$PWD"
-    fi
-
-    if [ -z "$thepath" ] || [ '.' == "$thepath" ]
-    then
-	echo "$base"
-    else 
-	# Simply append to base and handle leading .. on thepath
-	handle_dot_dot "$base/$thepath"
-    fi
-    return
-}
-
-# If the path is the name of a soft link, echo the link's (ultimate) target to stdout,
-# else echo the argument.
-# $1 is the path to chase. 
-follow_soft_links()
-{
-    local path=`to_absolute "$1"`
-    while [ -L "$path" ]
-    do
-	local dir=`dirname "$path"`
-	local target=`readlink "$path"`
-	path=`to_absolute "$target" "$dir"`
-    done
-    echo "$path"
-    return
-}
-
-mypath=`follow_soft_links "${BASH_SOURCE[${#BASH_SOURCE[@]}-1]}"`
-
-echo "${mypath%\/*\/*}"
+cd "$(dirname "${BASH_SOURCE[${#BASH_SOURCE[@]}-1]}")" || exit 1
+dirname "$(pwd -P)"
 exit 0
