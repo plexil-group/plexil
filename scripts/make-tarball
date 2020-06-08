@@ -85,7 +85,13 @@ make checker
 rm -rf checker/build
 
 cd ..
+echo "Generating tar file ${relid}.tar.bz2"
 tar cjf "${relid}.tar.bz2" "$relid"
 rm -rf "$relid"
+
+echo "Deleting temporary directory $relid"
+rm -rf "$relid"
+
+echo "Done"
 
 exit 0

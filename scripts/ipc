@@ -31,12 +31,13 @@
 if [ '-x' = "$1" ]
 then
     shift
-    "$PLEXIL_HOME"/bin/central -u "$*" &
+    "$PLEXIL_HOME"/bin/central -u "$@" &
     pid=$!
+    # trap variables expanded at definition time is OK
     # shellcheck disable=SC2064
-    trap "{ kill $pid; }" SIGQUIT
+    trap "{ kill $pid; }" QUIT
     # shellcheck disable=SC2064
-    trap "{ kill $pid; }" SIGINT
+    trap "{ kill $pid; }" INT
 else
     exec "$PLEXIL_HOME"/bin/central "$@"
 fi
