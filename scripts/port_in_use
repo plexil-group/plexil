@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,21 +34,21 @@ usage()
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your root 'plexil' directory.
+    echo 'Error: Please set environment variable PLEXIL_HOME'
+    echo "to the full pathname of your root 'plexil' directory."
     exit 2
 fi
 
-if ( echo $PATH | grep -q -v "\<$PLEXIL_HOME/scripts\>" )
+if echo "$PATH" | grep -q -v "\<$PLEXIL_HOME/scripts\>"
 then
-    PATH=$PATH:$PLEXIL_HOME/scripts
+    PATH="$PATH:$PLEXIL_HOME/scripts"
 fi
 
 quiet=
 
 if [ "$1" = '-q' ]
 then
-    quiet=$1
+    quiet="$1"
     shift
 fi
 
@@ -61,7 +61,7 @@ fi
 # Validity/range check of argument
 if ( echo "$1" | grep -q -v "\<[0-9]\+\>" )
 then
-    echo "Error: $1 is not a port number"
+    echo "Error: $1 is not a valid port number"
     usage
     exit 2
 elif [ "$1" -lt 1 ] || [ "$1" -gt 65535 ]  
@@ -71,7 +71,7 @@ then
     exit 2
 fi
 
-if ( list_ports_in_use | grep -q "\<$1\>" )
+if list_ports_in_use | grep -q "\<$1\>"
 then
     if [ -z "$quiet" ]
     then
