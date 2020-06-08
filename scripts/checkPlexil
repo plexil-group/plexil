@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
 
 usage()
 {
-    echo "Usage: `basename $0` [-d] file.plx"
+    echo "Usage: $0 [-d] file.plx"
 }
 
 # Check for -d (debug) option
@@ -46,7 +46,7 @@ then
 fi
 
 # Check that a file name is provided
-if [ ! $1 ]
+if [ -z "$1" ]
 then
     echo "Error: no file name supplied"
     usage
@@ -54,58 +54,55 @@ then
 fi
 
 # Make sure a true input file is added as argument
-if [ ! -f $1 ]
+if [ ! -f "$1" ]
 then
-    echo "Error: Cannot find file" $1
+    echo "Error: Cannot find file $1"
     exit 2
 fi
 
-if [ -z `which xmllint` ]
+if [ -z "$(command -v xmllint)" ]
 then
     echo "Error: program 'xmllint' not found."
-    echo "Ensure that it can be found in PATH."
+    echo 'Ensure that it can be found in PATH.'
     exit 2
 fi
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
+    echo 'Error: Please set environment variable PLEXIL_HOME'
+    echo "to the full pathname of your 'plexil' or 'trunk' directory."
+    echo 'Exiting.'
     exit 2
 fi
 
-prog=${PLEXIL_HOME}/checker/global-decl-checker.jar
-args=$*
 JAVA=java
 if [ -n "$JAVA_HOME" ]
 then
-    JAVA=$JAVA_HOME/bin/java
+    JAVA="$JAVA_HOME"/bin/java
 fi
 
 # Make sure checker jar file exists
-if [ ! -f "${prog}" ]
+prog="$PLEXIL_HOME"/checker/global-decl-checker.jar
+if [ ! -f "$prog" ]
 then
-  echo "Cannot find file ${prog}. To build it:"
-  echo "  cd ${PLEXIL_HOME}/checker"
-  echo "  ant jar"
-  echo "If JAR is located elsewhere, please update the location in the script."
+  echo "Cannot find file $prog. To build it:"
+  echo "  cd $PLEXIL_HOME/checker"
+  echo '  ant jar'
+  echo 'If JAR is located elsewhere, please update the location in the script.'
   exit 2
 fi
 
 # First validate against Core Plexil schema
-xmllint --noout --schema $PLEXIL_HOME/schema/core-plexil.xsd $1
+xmllint --noout --schema "$PLEXIL_HOME"/schema/core-plexil.xsd "$1"
 result=$?
 if [ $result -ne 0 ]
 then
-    echo Validation of $1 against PLEXIL schema failed.
+    echo "Validation of $1 against PLEXIL schema failed."
     exit 1
 fi
 
-# Run the program
-$JAVA -jar ${prog} $args
-
-# Check result of the program
+# Run and check result of the program
+"$JAVA" -jar "$prog" "$@"
 result=$?
 if [ $result -eq 0 ]
 then

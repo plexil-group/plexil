@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,85 +36,87 @@
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
+    echo 'Error: Please set environment variable PLEXIL_HOME'
+    echo "to the full pathname of your 'plexil' or 'trunk' directory."
+    echo 'Exiting.'
     exit 2
 fi
  
-/bin/rm -f $PLEXIL_HOME/userinfo*
+/bin/rm -f "$PLEXIL_HOME"/userinfo*
 
-output=$PLEXIL_HOME/userinfo-$(date +%m-%d-%Y).txt
+output="$PLEXIL_HOME/userinfo-$(date +%m-%d-%Y).txt"
 
 echo "Creating file containing info about your system here: $output"
 
-echo "# This file was created by the env-info script located in PLEXIL_HOME/bin.
+cat > "$output" <<EOF
+# This file was created by the env-info script located in PLEXIL_HOME/bin.
 # If you have experienced a problem during installation, execution, etc., 
 # please email this file to:
 #
 # plexil-support@sourceforge.net
 #
-# so the Plexil group can be better equipped to help resolve your issue." > $output
+# so the Plexil group can be better equipped to help resolve your issue.
 
-echo "" >> $output
-echo `date`>> $output
-echo "" >> $output
+$(date)
 
-echo "ENVIRONMENT VARIABLES" >> $output 
-echo "--------------------------------" >> $output
+ENVIRONMENT VARIABLES
+--------------------------------
+
+EOF
 
 # collect PLEXIL_HOME definition
-echo "PLEXIL_HOME =" $PLEXIL_HOME >> $output | tee >> $output 
+echo "PLEXIL_HOME = $PLEXIL_HOME" >> "$output" | tee >> "$output" 
 
 # collect LD_LIBRARY_PATH or DYLD_LIBRARY_PATH definition
-echo "LD_LIBRARY_PATH =" $LD_LIBRARY_PATH >> $output | tee >> $output 
-echo "DYLD_LIBRARY_PATH =" $DYLD_LIBRARY_PATH >> $output | tee >> $output 
+echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH" >> "$output" | tee >> "$output" 
+echo "DYLD_LIBRARY_PATH = $DYLD_LIBRARY_PATH" >> "$output" | tee >> "$output" 
 
 # collect WHICH JAVA definition
-JAVA=`which java`
-echo "WHICH JAVA =" $JAVA >> $output | tee >> $output 
+echo "WHICH JAVA = $(command -v java)" >> "$output" | tee >> "$output" 
 
 # collect PATH definition
-echo "PATH =" $PATH >> $output | tee >> $output 
-echo "" >> $output
+echo "PATH = $PATH" >> "$output" | tee >> "$output" 
+echo "" >> "$output"
 
 # if used SVN, collect revision info
-echo "SVN INFO" >> $output
-echo "--------------------------------" >> $output
-svn info $PLEXIL_HOME >> $output | tee >> $output 
+echo "SVN INFO" >> "$output"
+echo "--------------------------------" >> "$output"
+svn info "$PLEXIL_HOME" >> "$output" | tee >> "$output" 
 
 # collect OS version
-echo "OS VERSION" >> $output  
-echo "--------------------------------" >> $output
-uname -a >> $output | tee >> $output 
-echo "" >> $output
+echo "OS VERSION" >> "$output"  
+echo "--------------------------------" >> "$output"
+uname -a >> "$output" | tee >> "$output" 
+echo "" >> "$output"
 
 # collect shell type
 # NEEDS WORK
-echo "SHELL TYPE" >> $output
-echo "--------------------------------" >> $output
-echo $0 >> $output | tee >> $output
-echo "" >> $output
+echo "SHELL TYPE" >> "$output"
+echo "--------------------------------" >> "$output"
+echo $0 >> "$output" | tee >> "$output"
+echo "" >> "$output"
 
 # collect Java compiler version
-echo "JAVA VERSION" >> $output
-echo "--------------------------------" >> $output
-java -version 2>> $output | tee >> $output 
-echo "" >> $output
+echo "JAVA VERSION" >> "$output"
+echo "--------------------------------" >> "$output"
+java -version 2>> "$output" | tee >> "$output" 
+echo "" >> "$output"
 
 # collect Java compiler version
-echo "GCC VERSION" >> $output
-echo "--------------------------------" >> $output
-gcc --version >> $output | tee >> $output 
+echo "GCC VERSION" >> "$output"
+echo "--------------------------------" >> "$output"
+gcc --version >> "$output" | tee >> "$output" 
 
 # collect Ant version
-echo "ANT VERSION" >> $output
-echo "--------------------------------" >> $output
-ant -version 2>&1 1 >> $output | tee >> $output 
+echo "ANT VERSION" >> "$output"
+echo "--------------------------------" >> "$output"
+ant -version 2>&1 1 >> "$output" | tee >> "$output" 
 
 # try running UE with test plan
-echo "" >> $output
-echo "TEST RUN OF TEST EXEC" >> $output
-echo "--------------------------------" >> $output
-plexiltest -p $PLEXIL_HOME/examples/basic/CruiseControl.plx \
- -s $PLEXIL_HOME/examples/basic/scripts/CruiseControl.psx >> $output | tee >> $output
+echo "" >> "$output"
+echo "TEST RUN OF TEST EXEC" >> "$output"
+echo "--------------------------------" >> "$output"
+"$PLEXIL_HOME"/scripts/plexiltest -p "$PLEXIL_HOME"/examples/basic/CruiseControl.plx \
+              -s "$PLEXIL_HOME"/examples/basic/scripts/CruiseControl.psx \
+              -d "$PLEXIL_HOME"/examples/basic/Debug.cfg \
+              >> "$output" | tee >> "$output"

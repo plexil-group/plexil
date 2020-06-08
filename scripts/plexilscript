@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,20 +33,20 @@ then
     exit 1
 fi
 
-. ${PLEXIL_HOME}/scripts/plexil-setup.sh
+. "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 if [ $# != 1 ] ; then
-  echo "Usage: plexilscript foo.pst"
+  echo 'Usage: plexilscript foo.pst'
   exit
 fi
 
-# echo "Reading:" $1
-# echo "Writing:" ${1//\.pst/.psx}
+# echo "Reading: $1"
+# echo "Writing: ${1//\.pst/.psx}"
 
 JAVA=java
 if [ -n "$JAVA_HOME" ]
 then
-    JAVA=$JAVA_HOME/bin/java
+    JAVA="$JAVA_HOME"/bin/java
 fi
 
-exec $JAVA -cp ${PLEXIL_HOME}/lib/plexilscript.jar:${PLEXIL_HOME}/jars/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.pst/.psx}
+exec "$JAVA" -cp "$PLEXIL_HOME/lib/plexilscript.jar:$PLEXIL_HOME/jars/antlr.jar" plexilscript.PlexilScriptParse < "$1" > "$(dirname "$1")/$(basename "$1" .pst).psx"
