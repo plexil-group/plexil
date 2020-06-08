@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,77 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
   <xs:include schemaLocation='plexil-base.xsd' />
+
+  <!-- Elements -->
+
+  <xs:group name="Action">
+    <xs:choice>
+      <xs:element ref="Node"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="BooleanExpression">
+    <xs:choice>
+	  <xs:group ref="LogicalOperator"/>
+	  <xs:group ref="Equality"/>
+	  <xs:group ref="NumericComparison"/>
+      <xs:group ref="KnownTest"/>
+      <xs:group ref="NodeStatePredicate"/>
+      <xs:group ref="NodeOutcomePredicate"/>
+      <xs:group ref="NodeFailurePredicate"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="DeclaredVariable">
+    <xs:choice>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="StringVariable"/>
+      <xs:element ref="ArrayVariable"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="LookupGroup">
+    <xs:choice>
+      <xs:element ref="LookupOnChange"/>
+      <xs:element ref="LookupNow"/>
+    </xs:choice>
+  </xs:group>
+
   <xs:element name="Name" type="xs:string"/>
+
+  <xs:group name="NumericExpression">
+    <xs:choice>
+	  <xs:group ref="ArithmeticOperator"/>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="NodeTimepointValue"/>
+      <!-- read operations for arrays-->
+      <xs:element ref="ArraySize"/>
+      <xs:element ref="ArrayMaxSize"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Note: ArrayValue is not included here because arrays
+       are handled independently (and NOT supported in places
+       were Value is) -->
+  <xs:group name="Value">
+    <xs:choice>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="BooleanValue"/>
+      <xs:element ref="StringValue"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Schema types -->
+
   <xs:simpleType name="AtomicTypeValues">
     <xs:restriction base="xs:NMTOKEN">
       <xs:enumeration value="Integer"/>

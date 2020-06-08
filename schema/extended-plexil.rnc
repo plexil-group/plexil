@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -31,77 +31,77 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
-include "plexil-base.rnc" {
-  Action =
-    Node
-    | Concurrence
-    | Sequence
-    | CheckedSequence
-    | UncheckedSequence
-    | Try
-    | If
-    | While
-    | For
-    | OnCommand
-    | OnMessage
-    | Wait
-    | SynchronousCommand
-  BooleanExpression =
-    LogicalOperator
-    | Equality
-    | NumericComparison
-    | KnownTest
-    | BooleanVariable
-    | BooleanValue
-    | Finished
-    | IterationEnded
-    | Executing
-    | Waiting
-    | Inactive
-    | Succeeded
-    | IterationSucceeded
-    | Failed
-    | Interrupted
-    | IterationFailed
-    | Skipped
-    | InvariantFailed
-    | PreconditionFailed
-    | PostconditionFailed
-    | ParentFailed
-    | MessageReceived
-  LookupGroup = LookupOnChange | LookupNow | Lookup
-  DeclaredVariable =
-    IntegerVariable
-    | RealVariable
-    | BooleanVariable
-    | StringVariable
-    | DateVariable
-    | DurationVariable
-    | ArrayVariable
-    | ArrayElement
-  Value =
-    IntegerValue
-    | RealValue
-    | BooleanValue
-    | StringValue
-    | DateValue
-    | DurationValue
-  NumericExpression =
-    ArithmeticOperator
-    | IntegerVariable
-    | RealVariable
-    | IntegerValue
-    | RealValue
-    | DateVariable
-    | DateValue
-    | DurationVariable
-    | DurationValue
-    | NodeTimepointValue
-    | #  read operations for arrays
-      ArraySize
-    | ArrayMaxSize
-}
+# Elements
+Action =
+  Node
+  | Concurrence
+  | Sequence
+  | CheckedSequence
+  | UncheckedSequence
+  | Try
+  | If
+  | While
+  | For
+  | OnCommand
+  | OnMessage
+  | Wait
+  | SynchronousCommand
+BooleanExpression =
+  LogicalOperator
+  | Equality
+  | NumericComparison
+  | KnownTest
+  | BooleanVariable
+  | BooleanValue
+  | Finished
+  | IterationEnded
+  | Executing
+  | Waiting
+  | Inactive
+  | Succeeded
+  | IterationSucceeded
+  | Failed
+  | Interrupted
+  | IterationFailed
+  | Skipped
+  | InvariantFailed
+  | PreconditionFailed
+  | PostconditionFailed
+  | ParentFailed
+  | MessageReceived
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | DateVariable
+  | DurationVariable
+  | ArrayVariable
+  | ArrayElement
+LookupGroup = LookupOnChange | LookupNow | Lookup
 Name = element Name { GeneralizedStringExpression, SourceLocators }
+NumericExpression =
+  ArithmeticOperator
+  | IntegerVariable
+  | RealVariable
+  | IntegerValue
+  | RealValue
+  | DateVariable
+  | DateValue
+  | DurationVariable
+  | DurationValue
+  | NodeTimepointValue
+  | #  read operations for arrays
+    ArraySize
+  | ArrayMaxSize
+Value =
+  IntegerValue
+  | RealValue
+  | BooleanValue
+  | StringValue
+  | DateValue
+  | DurationValue
+# Schema types
 AtomicTypeValues =
   "Integer" | "Real" | "Boolean" | "String" | "Date" | "Duration"
 ParameterTypeValues =
@@ -112,6 +112,7 @@ ParameterTypeValues =
   | "Date"
   | "Duration"
   | "Any"
+# Extensions to Core Plexil
 DurationVariable = element DurationVariable { xsd:NCName }
 DateVariable = element DateVariable { xsd:NCName }
 DateValue = element DateValue { xsd:string }

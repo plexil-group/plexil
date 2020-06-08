@@ -24,8 +24,20 @@
 # * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Common elements that are included in several PLEXIL schemas.
-# NOTE: this is an incomplete schema, as it doesn't define the "Name"
-# element.  It is used as an included schema only.
+# NOTE: this is an incomplete schema, as it doesn't define the following elements
+# and types, which differ between Safe PLEXIL, Core PLEXIL, and Extended PLEXIL:
+# 
+#  Action
+#  AtomicTypeValues
+#  BooleanExpression
+#  DeclaredVariable
+#  LookupGroup
+#  Name
+#  NumericExpression
+#  ParameterTypeValues
+#  Value
+# 
+# It is used as an included schema only.
 
 default namespace = ""
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
@@ -37,7 +49,7 @@ attr_LineNo = attribute LineNo { xsd:integer }?
 attr_ColNo = attribute ColNo { xsd:integer }?
 SourceLocators = attr_FileName, attr_LineNo, attr_ColNo
 # This is the sole root element allowed!
-start |= starting_PlexilPlan
+start = starting_PlexilPlan
 starting_PlexilPlan =
   element PlexilPlan {
     GlobalDeclarations?,
@@ -46,19 +58,15 @@ starting_PlexilPlan =
     # Attempt to imitate rncfix
     attribute * { text }
   }
-Action = Node
 NodeReference = NodeId | NodeRef
 node-reference = NodeReference, SourceLocators
-start |= starting_NodeId
-starting_NodeId = element NodeId { xsd:NCName }
-start |= starting_NodeRef
-starting_NodeRef =
+NodeId = element NodeId { xsd:NCName }
+NodeRef =
   element NodeRef {
     NCNameOrEmpty,
     attribute dir { "parent" | "sibling" | "child" | "self" }?
   }
-start |= starting_GlobalDeclarations
-starting_GlobalDeclarations =
+GlobalDeclarations =
   element GlobalDeclarations {
     (CommandDeclaration?
      | StateDeclaration?
@@ -66,8 +74,7 @@ starting_GlobalDeclarations =
      | element TimeScalingUnitsSubunits { xsd:integer }?)+,
     SourceLocators
   }
-start |= starting_CommandDeclaration
-starting_CommandDeclaration =
+CommandDeclaration =
   element CommandDeclaration {
     element Name { xsd:NCName },
     Return*,
@@ -75,16 +82,14 @@ starting_CommandDeclaration =
     ResourceList?,
     SourceLocators
   }
-start |= starting_StateDeclaration
-starting_StateDeclaration =
+StateDeclaration =
   element StateDeclaration {
     element Name { xsd:NCName },
     Return,
     ParameterSpec?,
     SourceLocators
   }
-start |= starting_LibraryNodeDeclaration
-starting_LibraryNodeDeclaration =
+LibraryNodeDeclaration =
   element LibraryNodeDeclaration {
     element Name { xsd:NCName },
     Interface?,
@@ -93,16 +98,14 @@ starting_LibraryNodeDeclaration =
 ParameterSpec =
   Parameter*,
   element AnyParameters { empty }?
-start |= starting_Parameter
-starting_Parameter =
+Parameter =
   element Parameter {
     element Name { xsd:NCName }?,
     element Type { ParameterTypeValues },
     # MaxSize indicates an array value, Type is the element type
     element MaxSize { xsd:nonNegativeInteger }?
   }
-start |= starting_Return
-starting_Return =
+Return =
   element Return {
     # KMD: not sure about the motivation for 'nillable'.  Assuming it
     # is for declaring a void return explicitly.
@@ -112,8 +115,7 @@ starting_Return =
     element MaxSize { xsd:nonNegativeInteger }?
   }
 NCNameOrEmpty = xsd:NCName | ("")
-start |= starting_Node
-starting_Node =
+Node =
   element Node {
     (element Comment { xsd:string }?
      & NodeId
@@ -147,67 +149,43 @@ starting_Node =
     attribute epx { xsd:NCName }?,
     SourceLocators
   }
-start |= starting_NodeBody
-starting_NodeBody =
+NodeBody =
   element NodeBody {
     NodeList | Command | Assignment | Update | LibraryNodeCall
   }
-start |= starting_NodeList
-starting_NodeList = element NodeList { Action* }
-start |= starting_Assume
-starting_Assume =
-  element Assume { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_Desire
-starting_Desire =
-  element Desire { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_Expect
-starting_Expect =
-  element Expect { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_StartCondition
-starting_StartCondition =
+NodeList = element NodeList { Action* }
+Assume = element Assume { GeneralizedBooleanExpression, SourceLocators }
+Desire = element Desire { GeneralizedBooleanExpression, SourceLocators }
+Expect = element Expect { GeneralizedBooleanExpression, SourceLocators }
+StartCondition =
   element StartCondition {
     GeneralizedBooleanExpression, SourceLocators
   }
-start |= starting_RepeatCondition
-starting_RepeatCondition =
+RepeatCondition =
   element RepeatCondition {
     GeneralizedBooleanExpression, SourceLocators
   }
-start |= starting_PreCondition
-starting_PreCondition =
+PreCondition =
   element PreCondition { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_PostCondition
-starting_PostCondition =
+PostCondition =
   element PostCondition { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_InvariantCondition
-starting_InvariantCondition =
+InvariantCondition =
   element InvariantCondition {
     GeneralizedBooleanExpression, SourceLocators
   }
-start |= starting_EndCondition
-starting_EndCondition =
+EndCondition =
   element EndCondition { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_ExitCondition
-starting_ExitCondition =
+ExitCondition =
   element ExitCondition { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_SkipCondition
-starting_SkipCondition =
+SkipCondition =
   element SkipCondition { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_Interface
-starting_Interface =
-  element Interface { (In? & InOut?), SourceLocators }
-start |= starting_In
-starting_In =
-  element In { (DeclareVariable | DeclareArray)+, SourceLocators }
-start |= starting_InOut
-starting_InOut =
+Interface = element Interface { (In? & InOut?), SourceLocators }
+In = element In { (DeclareVariable | DeclareArray)+, SourceLocators }
+InOut =
   element InOut { (DeclareVariable | DeclareArray)+, SourceLocators }
-start |= starting_ResourceList
-starting_ResourceList =
-  element ResourceList { Resource*, SourceLocators }
+ResourceList = element ResourceList { Resource*, SourceLocators }
 # FIXME: make these tags less verbose
-start |= starting_Resource
-starting_Resource =
+Resource =
   element Resource {
     (element ResourceName { GeneralizedStringExpression }
      & element ResourcePriority { GeneralizedNumericExpression }
@@ -218,37 +196,19 @@ starting_Resource =
        }?),
     SourceLocators
   }
-DeclaredVariable =
-  IntegerVariable
-  | RealVariable
-  | BooleanVariable
-  | StringVariable
-  | ArrayVariable
-  | ArrayElement
-# Note: ArrayValue is not included here because arrays
-# are handled independently (and NOT supported in places
-# were Value is)
-Value = IntegerValue | RealValue | BooleanValue | StringValue
-start |= starting_IntegerVariable
-starting_IntegerVariable = element IntegerVariable { xsd:NCName }
-start |= starting_RealVariable
-starting_RealVariable = element RealVariable { xsd:NCName }
-start |= starting_BooleanVariable
-starting_BooleanVariable = element BooleanVariable { xsd:NCName }
-start |= starting_StringVariable
-starting_StringVariable = element StringVariable { xsd:NCName }
-start |= starting_ArrayVariable
-starting_ArrayVariable = element ArrayVariable { xsd:NCName }
-start |= starting_DeclareVariable
-starting_DeclareVariable =
+IntegerVariable = element IntegerVariable { xsd:NCName }
+RealVariable = element RealVariable { xsd:NCName }
+BooleanVariable = element BooleanVariable { xsd:NCName }
+StringVariable = element StringVariable { xsd:NCName }
+ArrayVariable = element ArrayVariable { xsd:NCName }
+DeclareVariable =
   element DeclareVariable {
     element Name { xsd:NCName },
     element Type { AtomicTypeValues },
     element InitialValue { DeclaredVariable | Value }?,
     SourceLocators
   }
-start |= starting_DeclareArray
-starting_DeclareArray =
+DeclareArray =
   element DeclareArray {
     element Name { xsd:NCName },
     element Type { AtomicTypeValues },
@@ -263,11 +223,9 @@ starting_DeclareArray =
     }?,
     SourceLocators
   }
-start |= starting_VariableDeclarations
-starting_VariableDeclarations =
+VariableDeclarations =
   element VariableDeclarations { (DeclareVariable | DeclareArray)+ }
-start |= starting_Command
-starting_Command =
+Command =
   element Command {
     ResourceList?, DeclaredVariable?, Name, Arguments?, SourceLocators
   }
@@ -279,36 +237,26 @@ Expression =
   | ArrayExpression
   | LookupGroup
   | ArrayElement
-start |= starting_Arguments
-starting_Arguments = element Arguments { Expression+, SourceLocators }
-start |= starting_Update
-starting_Update = element Update { Pair*, SourceLocators }
-start |= starting_Pair
-starting_Pair =
+Arguments = element Arguments { Expression+, SourceLocators }
+Update = element Update { Pair*, SourceLocators }
+Pair =
   element Pair {
     element Name { xsd:NCName },
     Expression
   }
-start |= starting_LibraryNodeCall
-starting_LibraryNodeCall =
+LibraryNodeCall =
   element LibraryNodeCall { NodeId, Alias*, SourceLocators }
-start |= starting_Alias
-starting_Alias =
+Alias =
   element Alias {
     element NodeParameter { xsd:NCName },
     Expression,
     SourceLocators
   }
-start |= starting_IntegerValue
-starting_IntegerValue = element IntegerValue { xsd:integer }
-start |= starting_RealValue
-starting_RealValue = element RealValue { xsd:double }
-start |= starting_BooleanValue
-starting_BooleanValue = element BooleanValue { xsd:boolean }
-start |= starting_StringValue
-starting_StringValue = element StringValue { xsd:string }
-start |= starting_ArrayValue
-starting_ArrayValue =
+IntegerValue = element IntegerValue { xsd:integer }
+RealValue = element RealValue { xsd:double }
+BooleanValue = element BooleanValue { xsd:boolean }
+StringValue = element StringValue { xsd:string }
+ArrayValue =
   element ArrayValue {
     (Value+),
     attribute Type { AtomicTypeValues },
@@ -316,36 +264,21 @@ starting_ArrayValue =
   }
 GeneralizedArrayExpression = ArrayExpression | LookupGroup
 ArrayExpression = ArrayValue | ArrayVariable
-start |= starting_BooleanRHS
-starting_BooleanRHS =
+BooleanRHS =
   element BooleanRHS { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_NumericRHS
-starting_NumericRHS =
+NumericRHS =
   element NumericRHS { (GeneralizedNumericExpression), SourceLocators }
-start |= starting_StringRHS
-starting_StringRHS =
+StringRHS =
   element StringRHS { GeneralizedStringExpression, SourceLocators }
-start |= starting_ArrayRHS
-starting_ArrayRHS =
+ArrayRHS =
   element ArrayRHS { GeneralizedArrayExpression, SourceLocators }
 assignment =
   DeclaredVariable,
   (BooleanRHS | NumericRHS | StringRHS | ArrayRHS),
   SourceLocators
-start |= starting_Assignment
-starting_Assignment = element Assignment { assignment }
+Assignment = element Assignment { assignment }
 GeneralizedBooleanExpression =
   BooleanExpression | LookupGroup | ArrayElement
-BooleanExpression =
-  LogicalOperator
-  | Equality
-  | NumericComparison
-  | KnownTest
-  | NodeStatePredicate
-  | NodeOutcomePredicate
-  | NodeFailurePredicate
-  | BooleanVariable
-  | BooleanValue
 LogicalOperator = OR | XOR | AND | NOT
 Equality =
   EQBoolean
@@ -359,8 +292,7 @@ Equality =
   | NEString
   | NEArray
 NumericComparison = GT | GE | LT | LE
-start |= starting_IsKnown
-starting_IsKnown =
+IsKnown =
   element IsKnown {
     (Expression
      | NodeStateVariable
@@ -368,69 +300,52 @@ starting_IsKnown =
      | NodeCommandHandleVariable),
     SourceLocators
   }
-start |= starting_ALL_KNOWN
-starting_ALL_KNOWN =
+ALL_KNOWN =
   element ALL_KNOWN { GeneralizedArrayExpression, SourceLocators }
-start |= starting_ANY_KNOWN
-starting_ANY_KNOWN =
+ANY_KNOWN =
   element ANY_KNOWN { GeneralizedArrayExpression, SourceLocators }
 KnownTest = IsKnown | ALL_KNOWN | ANY_KNOWN
-start |= starting_OR
-starting_OR =
-  element OR { GeneralizedBooleanExpression*, SourceLocators }
-start |= starting_XOR
-starting_XOR =
-  element XOR { GeneralizedBooleanExpression*, SourceLocators }
-start |= starting_AND
-starting_AND =
-  element AND { GeneralizedBooleanExpression*, SourceLocators }
-start |= starting_NOT
-starting_NOT =
-  element NOT { GeneralizedBooleanExpression, SourceLocators }
-start |= starting_GT
-starting_GT =
+OR = element OR { GeneralizedBooleanExpression*, SourceLocators }
+XOR = element XOR { GeneralizedBooleanExpression*, SourceLocators }
+AND = element AND { GeneralizedBooleanExpression*, SourceLocators }
+NOT = element NOT { GeneralizedBooleanExpression, SourceLocators }
+GT =
   element GT {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_GE
-starting_GE =
+GE =
   element GE {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_LT
-starting_LT =
+LT =
   element LT {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_LE
-starting_LE =
+LE =
   element LE {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_EQBoolean
-starting_EQBoolean =
+EQBoolean =
   element EQBoolean {
     GeneralizedBooleanExpression,
     GeneralizedBooleanExpression,
     SourceLocators
   }
-start |= starting_EQNumeric
-starting_EQNumeric =
+EQNumeric =
   element EQNumeric {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_EQInternal
-starting_EQInternal =
+EQInternal =
   element EQInternal {
     (NodeState
      | NodeState
@@ -442,36 +357,31 @@ starting_EQInternal =
      | NodeCommandHandle),
     SourceLocators
   }
-start |= starting_EQString
-starting_EQString =
+EQString =
   element EQString {
     GeneralizedStringExpression,
     GeneralizedStringExpression,
     SourceLocators
   }
-start |= starting_EQArray
-starting_EQArray =
+EQArray =
   element EQArray {
     GeneralizedArrayExpression,
     GeneralizedArrayExpression,
     SourceLocators
   }
-start |= starting_NEBoolean
-starting_NEBoolean =
+NEBoolean =
   element NEBoolean {
     GeneralizedBooleanExpression,
     GeneralizedBooleanExpression,
     SourceLocators
   }
-start |= starting_NENumeric
-starting_NENumeric =
+NENumeric =
   element NENumeric {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_NEInternal
-starting_NEInternal =
+NEInternal =
   element NEInternal {
     (NodeState
      | NodeState
@@ -483,25 +393,21 @@ starting_NEInternal =
      | NodeCommandHandle),
     SourceLocators
   }
-start |= starting_NEString
-starting_NEString =
+NEString =
   element NEString {
     GeneralizedStringExpression,
     GeneralizedStringExpression,
     SourceLocators
   }
-start |= starting_NEArray
-starting_NEArray =
+NEArray =
   element NEArray {
     GeneralizedArrayExpression,
     GeneralizedArrayExpression,
     SourceLocators
   }
-start |= starting_NodeCommandHandleVariable
-starting_NodeCommandHandleVariable =
+NodeCommandHandleVariable =
   element NodeCommandHandleVariable { node-reference }
-start |= starting_NodeCommandHandleValue
-starting_NodeCommandHandleValue =
+NodeCommandHandleValue =
   element NodeCommandHandleValue {
     "COMMAND_SENT_TO_SYSTEM"
     | "COMMAND_ACCEPTED"
@@ -514,11 +420,8 @@ starting_NodeCommandHandleValue =
   }
 NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
 NodeState = NodeStateVariable | NodeStateValue
-start |= starting_NodeStateVariable
-starting_NodeStateVariable =
-  element NodeStateVariable { node-reference }
-start |= starting_NodeStateValue
-starting_NodeStateValue =
+NodeStateVariable = element NodeStateVariable { node-reference }
+NodeStateValue =
   element NodeStateValue {
     "WAITING"
     | "EXECUTING"
@@ -536,24 +439,15 @@ NodeStatePredicate =
   | IterationEnded
   | Waiting
   | NoChildFailed
-start |= starting_Executing
-starting_Executing = element Executing { node-reference }
-start |= starting_Finished
-starting_Finished = element Finished { node-reference }
-start |= starting_Inactive
-starting_Inactive = element Inactive { node-reference }
-start |= starting_IterationEnded
-starting_IterationEnded = element IterationEnded { node-reference }
-start |= starting_Waiting
-starting_Waiting = element Waiting { node-reference }
-start |= starting_NoChildFailed
-starting_NoChildFailed = element NoChildFailed { node-reference }
+Executing = element Executing { node-reference }
+Finished = element Finished { node-reference }
+Inactive = element Inactive { node-reference }
+IterationEnded = element IterationEnded { node-reference }
+Waiting = element Waiting { node-reference }
+NoChildFailed = element NoChildFailed { node-reference }
 NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
-start |= starting_NodeOutcomeVariable
-starting_NodeOutcomeVariable =
-  element NodeOutcomeVariable { node-reference }
-start |= starting_NodeOutcomeValue
-starting_NodeOutcomeValue =
+NodeOutcomeVariable = element NodeOutcomeVariable { node-reference }
+NodeOutcomeValue =
   element NodeOutcomeValue {
     "SUCCESS" | "FAILURE" | "SKIPPED" | "INTERRUPTED"
   }
@@ -564,18 +458,12 @@ NodeOutcomePredicate =
   | Succeeded
     # more to come
     
-start |= starting_Failed
-starting_Failed = element Failed { node-reference }
-start |= starting_Skipped
-starting_Skipped = element Skipped { node-reference }
-start |= starting_Succeeded
-starting_Succeeded = element Succeeded { node-reference }
+Failed = element Failed { node-reference }
+Skipped = element Skipped { node-reference }
+Succeeded = element Succeeded { node-reference }
 NodeFailure = NodeFailureVariable | NodeFailureValue
-start |= starting_NodeFailureVariable
-starting_NodeFailureVariable =
-  element NodeFailureVariable { node-reference }
-start |= starting_NodeFailureValue
-starting_NodeFailureValue =
+NodeFailureVariable = element NodeFailureVariable { node-reference }
+NodeFailureValue =
   element NodeFailureValue {
     "PRE_CONDITION_FAILED"
     | "POST_CONDITION_FAILED"
@@ -589,35 +477,19 @@ NodeFailurePredicate =
   PostconditionFailed
   # more to come
   
-start |= starting_PostconditionFailed
-starting_PostconditionFailed =
-  element PostconditionFailed { node-reference }
-start |= starting_NodeTimepointValue
-starting_NodeTimepointValue =
+PostconditionFailed = element PostconditionFailed { node-reference }
+NodeTimepointValue =
   element NodeTimepointValue {
     NodeReference, NodeStateValue, Timepoint, SourceLocators
   }
-start |= starting_Timepoint
-starting_Timepoint = element Timepoint { "START" | "END" }
+Timepoint = element Timepoint { "START" | "END" }
 GeneralizedStringExpression =
   StringExpression | LookupGroup | ArrayElement
 StringExpression = StringVariable | StringValue | StringOperator
 StringOperator = Concat
-start |= starting_Concat
-starting_Concat =
-  element Concat { GeneralizedStringExpression*, SourceLocators }
+Concat = element Concat { GeneralizedStringExpression*, SourceLocators }
 GeneralizedNumericExpression =
   NumericExpression | LookupGroup | ArrayElement
-NumericExpression =
-  ArithmeticOperator
-  | IntegerVariable
-  | RealVariable
-  | IntegerValue
-  | RealValue
-  | NodeTimepointValue
-  | #  read operations for arrays
-    ArraySize
-  | ArrayMaxSize
 ArithmeticOperator =
   ADD
   | SUB
@@ -634,89 +506,56 @@ ArithmeticOperator =
   | TRUNC
   | REAL_TO_INT
   | STRLEN
-start |= starting_ArrayElement
-starting_ArrayElement =
+ArrayElement =
   element ArrayElement {
     (GeneralizedArrayExpression
      | element Name { xsd:NCName }),
     element Index { GeneralizedNumericExpression },
     SourceLocators
   }
-start |= starting_ADD
-starting_ADD =
-  element ADD { GeneralizedNumericExpression+, SourceLocators }
-start |= starting_SUB
-starting_SUB =
-  element SUB { GeneralizedNumericExpression+, SourceLocators }
-start |= starting_MUL
-starting_MUL =
-  element MUL { GeneralizedNumericExpression+, SourceLocators }
-start |= starting_DIV
-starting_DIV =
+ADD = element ADD { GeneralizedNumericExpression+, SourceLocators }
+SUB = element SUB { GeneralizedNumericExpression+, SourceLocators }
+MUL = element MUL { GeneralizedNumericExpression+, SourceLocators }
+DIV =
   element DIV {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_MOD
-starting_MOD =
+MOD =
   element MOD {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_MAX
-starting_MAX =
+MAX =
   element MAX {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_MIN
-starting_MIN =
+MIN =
   element MIN {
     GeneralizedNumericExpression,
     GeneralizedNumericExpression,
     SourceLocators
   }
-start |= starting_SQRT
-starting_SQRT =
-  element SQRT { GeneralizedNumericExpression, SourceLocators }
-start |= starting_ABS
-starting_ABS =
-  element ABS { GeneralizedNumericExpression, SourceLocators }
-start |= starting_CEIL
-starting_CEIL =
-  element CEIL { GeneralizedNumericExpression, SourceLocators }
-start |= starting_FLOOR
-starting_FLOOR =
-  element FLOOR { GeneralizedNumericExpression, SourceLocators }
-start |= starting_ROUND
-starting_ROUND =
-  element ROUND { GeneralizedNumericExpression, SourceLocators }
-start |= starting_TRUNC
-starting_TRUNC =
-  element TRUNC { GeneralizedNumericExpression, SourceLocators }
-start |= starting_REAL_TO_INT
-starting_REAL_TO_INT =
+SQRT = element SQRT { GeneralizedNumericExpression, SourceLocators }
+ABS = element ABS { GeneralizedNumericExpression, SourceLocators }
+CEIL = element CEIL { GeneralizedNumericExpression, SourceLocators }
+FLOOR = element FLOOR { GeneralizedNumericExpression, SourceLocators }
+ROUND = element ROUND { GeneralizedNumericExpression, SourceLocators }
+TRUNC = element TRUNC { GeneralizedNumericExpression, SourceLocators }
+REAL_TO_INT =
   element REAL_TO_INT { GeneralizedNumericExpression, SourceLocators }
-start |= starting_STRLEN
-starting_STRLEN =
-  element STRLEN { GeneralizedStringExpression, SourceLocators }
-start |= starting_ArraySize
-starting_ArraySize =
+STRLEN = element STRLEN { GeneralizedStringExpression, SourceLocators }
+ArraySize =
   element ArraySize { GeneralizedArrayExpression, SourceLocators }
-start |= starting_ArrayMaxSize
-starting_ArrayMaxSize =
+ArrayMaxSize =
   element ArrayMaxSize { GeneralizedArrayExpression, SourceLocators }
-LookupGroup = LookupOnChange | LookupNow
-start |= starting_LookupOnChange
-starting_LookupOnChange =
+LookupOnChange =
   element LookupOnChange {
     Name, Tolerance?, Arguments?, SourceLocators
   }
-start |= starting_LookupNow
-starting_LookupNow =
-  element LookupNow { Name, Arguments?, SourceLocators }
-start |= starting_Tolerance
-starting_Tolerance = element Tolerance { GeneralizedNumericExpression }
+LookupNow = element LookupNow { Name, Arguments?, SourceLocators }
+Tolerance = element Tolerance { GeneralizedNumericExpression }
