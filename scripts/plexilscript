@@ -33,6 +33,7 @@ then
     exit 1
 fi
 
+# shellcheck source=plexil-setup.sh
 . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 if [ $# != 1 ] ; then

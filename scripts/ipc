@@ -25,15 +25,19 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# shellcheck source=plexil-setup.sh
 . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 if [ '-x' = "$1" ]
 then
     shift
-    "$PLEXIL_HOME"/bin/central -u "$*" &
+    "$PLEXIL_HOME"/bin/central -u "$@" &
     pid=$!
-    trap "{ kill $pid; }" SIGQUIT
-    trap "{ kill $pid; }" SIGINT
+    # trap variables expanded at definition time is OK
+    # shellcheck disable=SC2064
+    trap "{ kill $pid; }" QUIT
+    # shellcheck disable=SC2064
+    trap "{ kill $pid; }" INT
 else
     exec "$PLEXIL_HOME"/bin/central "$@"
 fi

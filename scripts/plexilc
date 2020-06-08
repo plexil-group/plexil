@@ -77,6 +77,7 @@ check_env()
         echo to the full pathname of your 'plexil' or 'trunk' directory.
         exit 1
     fi
+    # shellcheck source=plexil-setup.sh
     . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 }
 
@@ -99,10 +100,28 @@ generate_output_fname()
             ;;
         * )
             echo "Unrecognized filename extension \"$in_ext\" for $1" >&2
-            echo 'Supported extensions are: epx ple pli pst' >&2
+            echo 'Supported extensions are: epx ple pli plp pst' >&2
             exit 1
             ;;
     esac
+}
+
+check_env
+
+JARS_DIR="$PLEXIL_HOME"/jars
+ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
+JAVA=java
+if [ -n "$JAVA_HOME" ]
+then
+    JAVA="$JAVA_HOME"/bin/java
+fi
+
+# Commands to execute
+plexil_checker="$PLEXIL_HOME/scripts/checkDecls"
+
+std_plexil_compiler()
+{
+    "$JAVA" -classpath "$JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar" plexil.Compiler "$@"
 }
 
 compile_std_plexil()
@@ -118,14 +137,16 @@ compile_std_plexil()
 
     if [ -n "$quiet" ]
     then
-        "$plexil_compiler" $options -o "$output" "$1" > /dev/null 2>&1
+        # shellcheck disable=SC2086
+        std_plexil_compiler $options -o "$output" "$1" > /dev/null 2>&1
     else 
-        "$plexil_compiler" $options -o "$output" "$1"
+        # shellcheck disable=SC2086
+        std_plexil_compiler $options -o "$output" "$1"
     fi
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Standard Plexil compilation of $1 failed."
+        echo "Error: Standard Plexil compilation of $1 failed." >&2
         exit $status
     fi
 
@@ -167,7 +188,7 @@ compile_ext_plexil()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Extended Plexil translation of $1 failed."
+        echo "Error: Extended Plexil translation of $1 failed." >&2
         exit $status
     fi
 
@@ -180,12 +201,12 @@ compile_ext_plexil()
 compile_plexilscript()
 {
     # Plexilscript
-    output="$(generate_output_fname "$1")"
-    "$plexilscript_compiler" < "$1" > "$output"
+    output=$(generate_output_fname "$1")
+    "$JAVA" -classpath "$JARS_DIR/plexilscript.jar:$JARS_DIR/antlr.jar" plexilscript.PlexilScriptParse < "$1" > "$output"
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: compilation of $1 failed."
+        echo "Error: compilation of $1 failed." >&2
         exit $status
     fi
 }
@@ -194,16 +215,30 @@ compile_plp()
 {
     # Standard Plexil w/ preprocessing
     ple_fname="$(echo "$1" | sed -e 's|.plp$|.ple|')"
+    # shellcheck disable=SC2086
     "$PLEXIL_HOME"/scripts/plexilpp $pp_args -o "$ple_fname" "$1"
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Preprocessing of $1 failed."
+        echo "Error: Preprocessing of $1 failed." >&2
         exit $status
     fi
 
     compile_std_plexil "$ple_fname"
-    # TODO: delete ple_fname??
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+        # Don't delete preprocessor output file in case
+        # the error is a result of a macro goof.
+        echo "Error: Compilation of $1 failed." >&2
+        exit $status
+    fi
+
+    # Delete preprocessor output file
+    /bin/rm -f "$ple_fname"
+
+    return 0
 }
 
 # Parse options
@@ -248,7 +283,7 @@ do
 
         ( -v | -version )
         echo 'plexilc script version 1.2'
-        "$plexil_compiler" --version
+        std_plexil_compiler --version
         exit 0
         ;;
 
@@ -270,24 +305,9 @@ fi
 
 if [ ! -r "$1" ]
 then
-    echo "Error: file $1 does not exist or is not readable"
+    echo "Error: file $1 does not exist or is not readable" >&2
     exit 1
 fi
-
-check_env
-
-JARS_DIR="$PLEXIL_HOME"/jars
-ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
-JAVA=java
-if [ -n "$JAVA_HOME" ]
-then
-    JAVA="$JAVA_HOME"/bin/java
-fi
-
-# Commands to execute
-plexil_compiler="$JAVA -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler"
-plexilscript_compiler="$JAVA -cp ${JARS_DIR}/plexilscript.jar:${JARS_DIR}/antlr.jar plexilscript.PlexilScriptParse"
-plexil_checker="$PLEXIL_HOME/scripts/checkDecls"
 
 # Select translator for this file based on extension
 in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
@@ -314,7 +334,7 @@ case "$in_ext" in
         ;;
 
     * )
-        echo "Unable to select compiler for $1"
+        echo "Unable to select compiler for $1" >&2
         usage
         exit 1
         ;;
