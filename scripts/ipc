@@ -26,17 +26,18 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # shellcheck source=plexil-setup.sh
-. "$PLEXIL_HOME/scripts/plexil-setup.sh"
+. "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 if [ '-x' = "$1" ]
 then
     shift
-    "$PLEXIL_HOME/bin/central" -u "$@" &
+    "$PLEXIL_HOME"/bin/central -u "$@" &
     pid=$!
+    # trap variables expanded at definition time is OK
     # shellcheck disable=SC2064
     trap "{ kill $pid; }" QUIT
     # shellcheck disable=SC2064
     trap "{ kill $pid; }" INT
 else
-    exec "$PLEXIL_HOME/bin/central" "$@"
+    exec "$PLEXIL_HOME"/bin/central "$@"
 fi
