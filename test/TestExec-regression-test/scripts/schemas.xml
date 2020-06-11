@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
 
-  <uri pattern="*.psx" uri="../../../schema/plexil-script.rnc"/> 
+  <include rules="../../../schema/schemas.xml"/>
 
 </locatingRules>
