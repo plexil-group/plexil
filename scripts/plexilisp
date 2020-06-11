@@ -31,10 +31,17 @@
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
+    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
+    echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
+    echo 'Exiting.' >&2
     exit 1
 fi
 
-emacs --batch --no-site-file --load "$PLEXIL_HOME/compilers/plexilisp/plexil.el" "$1" --eval '(plexil)'
+EMACS="${EMACS-"$(command -v emacs)"}"
+if [ -z "$EMACS" ]
+then
+    echo 'Error: emacs not found. Cannot compile Plexilisp.' >&2
+    exit 1
+fi
+
+exec "$EMACS" --batch --no-site-file --load "$PLEXIL_HOME"/compilers/plexilisp/plexil.el "$1" --eval '(plexil)'
