@@ -25,18 +25,40 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check environment variables and UE executable
-if [ -z "$PLEXIL_HOME" ]
-then
-    echo 'Error: Please set environment variable PLEXIL_HOME'
-    echo "to the full pathname of your 'plexil' or 'trunk' directory."
-    exit 1
-fi
-
 if [ -z "$1" ]
 then
     echo 'Usage: eplexil input-file [ output_file ]'
+    exit 2
+fi
+
+# Check environment
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
+    echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
     exit 1
+fi
+
+if [ -n "$JAVA_HOME" ]
+then
+    JAVA="$JAVA_HOME"/bin/java
+    if [ ! -e "$JAVA" ]
+    then
+        echo "Error: no Java runtime found at $JAVA_HOME" >&2
+        echo 'Please set JAVA_HOME to an existing Java runtime,' >&2
+        echo 'or install a Java runtime environment.' >&2
+        exit 1
+    fi
+else
+    JAVA="$(command -v java)"
+    if [ -z "$JAVA" ]
+    then
+        echo "Error: no Java runtime in path $PATH" >&2
+        echo 'Either set PATH to include a Java runtime,' >&2
+        echo 'set JAVA_HOME to a Java runtime,' >&2
+        echo 'or install a Java runtime environment.' >&2
+        exit 1
+    fi
 fi
 
 input_file="$1"
@@ -44,13 +66,7 @@ if [ -n "$2" ]
 then
     output_file="$2"
 else
-    output_file="$(dirname "$1")/$(basename "$1" .epx).plx"
-fi
-
-JAVA=java
-if [ -n "$JAVA_HOME" ]
-then
-    JAVA="$JAVA_HOME"/bin/java
+    output_file="$(echo "$1" | sed -e 's|.epx$||').plx"
 fi
 
 exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file"
