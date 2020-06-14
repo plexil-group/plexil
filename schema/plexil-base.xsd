@@ -30,8 +30,20 @@
 -->
 
 <!-- Common elements that are included in several PLEXIL schemas.
-NOTE: this is an incomplete schema, as it doesn't define the "Name"
-element.  It is used as an included schema only.
+NOTE: this is an incomplete schema, as it doesn't define the following elements
+and types, which differ between Safe PLEXIL, Core PLEXIL, and Extended PLEXIL:
+
+ Action
+ AtomicTypeValues
+ BooleanExpression
+ DeclaredVariable
+ LookupGroup
+ Name
+ NumericExpression
+ ParameterTypeValues
+ Value
+
+It is used as an included schema only.
 -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -59,12 +71,6 @@ element.  It is used as an included schema only.
                        processContents="skip"/>
     </xs:complexType>
   </xs:element>
-
-  <xs:group name="Action">
-    <xs:choice>
-      <xs:element ref="Node"/>
-    </xs:choice>
-  </xs:group>
 
   <xs:group name="NodeReference">
     <xs:choice>
@@ -401,29 +407,6 @@ element.  It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:group name="DeclaredVariable">
-    <xs:choice>
-      <xs:element ref="IntegerVariable"/>
-      <xs:element ref="RealVariable"/>
-      <xs:element ref="BooleanVariable"/>
-      <xs:element ref="StringVariable"/>
-      <xs:element ref="ArrayVariable"/>
-      <xs:element ref="ArrayElement"/>
-    </xs:choice>
-  </xs:group>
-
-  <!-- Note: ArrayValue is not included here because arrays
-       are handled independently (and NOT supported in places
-       were Value is) -->
-  <xs:group name="Value">
-    <xs:choice>
-      <xs:element ref="IntegerValue"/>
-      <xs:element ref="RealValue"/>
-      <xs:element ref="BooleanValue"/>
-      <xs:element ref="StringValue"/>
-    </xs:choice>
-  </xs:group>
-
   <xs:element name="IntegerVariable" type="xs:NCName"/>
   <xs:element name="RealVariable" type="xs:NCName"/>
   <xs:element name="BooleanVariable" type="xs:NCName"/>
@@ -647,20 +630,6 @@ element.  It is used as an included schema only.
       <xs:group ref="BooleanExpression"/>
       <xs:group ref="LookupGroup"/>
       <xs:element ref="ArrayElement"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:group name="BooleanExpression">
-    <xs:choice>
-	  <xs:group ref="LogicalOperator"/>
-	  <xs:group ref="Equality"/>
-	  <xs:group ref="NumericComparison"/>
-      <xs:group ref="KnownTest"/>
-      <xs:group ref="NodeStatePredicate"/>
-      <xs:group ref="NodeOutcomePredicate"/>
-      <xs:group ref="NodeFailurePredicate"/>
-      <xs:element ref="BooleanVariable"/>
-      <xs:element ref="BooleanValue"/>
     </xs:choice>
   </xs:group>
 
@@ -1074,20 +1043,6 @@ element.  It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:group name="NumericExpression">
-    <xs:choice>
-	  <xs:group ref="ArithmeticOperator"/>
-      <xs:element ref="IntegerVariable"/>
-      <xs:element ref="RealVariable"/>
-      <xs:element ref="IntegerValue"/>
-      <xs:element ref="RealValue"/>
-      <xs:element ref="NodeTimepointValue"/>
-      <!-- read operations for arrays-->
-      <xs:element ref="ArraySize"/>
-      <xs:element ref="ArrayMaxSize"/>
-    </xs:choice>
-  </xs:group>
-
   <xs:group name="ArithmeticOperator">
     <xs:choice>
       <xs:element ref="ADD"/>
@@ -1250,13 +1205,6 @@ element.  It is used as an included schema only.
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
-
-  <xs:group name="LookupGroup">
-    <xs:choice>
-      <xs:element ref="LookupOnChange"/>
-      <xs:element ref="LookupNow"/>
-    </xs:choice>
-  </xs:group>
 
   <xs:element name="LookupOnChange">
     <xs:complexType>

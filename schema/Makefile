@@ -63,7 +63,7 @@
 
 include ../makeinclude/standard-defs.make
 
-SCHEMA_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd
+SCHEMA_XSD = plexil-base.xsd core-plexil.xsd safe-plexil.xsd extended-plexil.xsd
 SCHEMA_RNC = $(SCHEMA_XSD:.xsd=.rnc)
 
 PLEXILSCRIPT_XSD = plexil-script.xsd
@@ -95,8 +95,8 @@ plexil-script.rng: plexil-script.xsd
 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PLEXILScript
 
 # General rule to create a RELAX NG schema from an XML schema.
-%.rng: %.xsd
-	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@
+# %.rng: %.xsd
+# 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@
 
 # The rule creates a RELAX NG compact schema from a RELAX NG schema.
 %.rnc: %.rng

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+
+  <uri pattern="*.epx" uri="extended-plexil.rnc"/>
+  <uri pattern="*.plx" uri="core-plexil.rnc"/>
+  <uri pattern="*.psx" uri="plexil-script.rnc"/> 
+
+</locatingRules>

@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,41 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
+# Elements
+Action = Node
+BooleanExpression =
+  LogicalOperator
+  | Equality
+  | NumericComparison
+  | KnownTest
+  | NodeStatePredicate
+  | NodeOutcomePredicate
+  | NodeFailurePredicate
+  | BooleanVariable
+  | BooleanValue
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | ArrayVariable
+  | ArrayElement
+LookupGroup = LookupOnChange | LookupNow
 Name = element Name { xsd:string }
+NumericExpression =
+  ArithmeticOperator
+  | IntegerVariable
+  | RealVariable
+  | IntegerValue
+  | RealValue
+  | NodeTimepointValue
+  | #  read operations for arrays
+    ArraySize
+  | ArrayMaxSize
+# Note: ArrayValue is not included here because arrays
+# are handled independently (and NOT supported in places
+# were Value is)
+Value = IntegerValue | RealValue | BooleanValue | StringValue
+# Schema types
 AtomicTypeValues = "Integer" | "Real" | "Boolean" | "String"
 ParameterTypeValues = AtomicTypeValues

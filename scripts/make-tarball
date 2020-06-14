@@ -27,6 +27,9 @@
 
 # Run this script in an empty temp directory
 
+# Exit on any error
+set -e
+
 usage()
 {
     echo "usage: $0 release-id [svn-rev]"
@@ -60,8 +63,9 @@ svn export -r "$rev" https://svn.code.sf.net/p/plexil/code/branches/plexil-4 "$r
 cd "$relid"
 export PLEXIL_HOME="$PWD"
 
-# Prebuild 'configure' script
-make src/configure
+echo "Installing autotools files and building configure script"
+cd "$relid"
+PLEXIL_HOME="$PWD" make src/configure
 
 # Prebuild expression parser core
 # NOTE: this must track the contents of src/xml-parser/Makefile.am
@@ -81,7 +85,13 @@ make checker
 rm -rf checker/build
 
 cd ..
+echo "Generating tar file ${relid}.tar.bz2"
 tar cjf "${relid}.tar.bz2" "$relid"
 rm -rf "$relid"
+
+echo "Deleting temporary directory $relid"
+rm -rf "$relid"
+
+echo "Done"
 
 exit 0
