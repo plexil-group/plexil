@@ -1,2 +1,4 @@
 ExpressionMap.hh
 analyzePlan
+parser-benchmark
+parser-module-tests
