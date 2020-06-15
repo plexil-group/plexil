@@ -2,7 +2,7 @@
 # File: $SVNROOT/scripts/run-agents
 # Note: Script to run two Plexil agent systems using IPC
 
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,109 +56,110 @@ EOF
 if [ $# -lt 2 ] ; then usage ; exit 2 ; fi
 
 # Check for PLEXIL_HOME being set (correctly, one hopes)
-if [ -z "$PLEXIL_HOME" ] ; then echo 'PLEXIL_HOME is not set' ; exit 2 ; fi
+if [ -z "$PLEXIL_HOME" ] ; then echo 'PLEXIL_HOME is not set' >&2 ; exit 2 ; fi
 if [ ! -e "$PLEXIL_HOME/makeinclude/generic-plexil.make" ] ; then
-    echo "PLEXIL_HOME is set to $PLEXIL_HOME, but I can't find some required files."
+    echo "PLEXIL_HOME is set to $PLEXIL_HOME, but I can't find some required files." >&2
 fi
 
 # Check for xterm and IPC/central
-has_xterm="$(command -v xterm)"
-use_xterm=no
-use_viewer=no
+use_xterm=
+use_viewer=
+no_ipc=
+run_ipc_in_background=yes
+
 # shellcheck disable=SC2009
 # pgrep isn't part of POSIX standard
 ipc_running="$(ps aux | grep -E 'ipc|central' | grep -v grep)"
-run_ipc_in_background=yes
-ipc_pid=
-no_ipc=
 
 # Show the usage message and/or set up the "mode" to run in
-until [ -z "$1" ] ;
+while [ -n "$1" ]
 do
-    # TODO: use case statement
-    if [ "$1" = "-h" ] || [ "$1" = "-help" ]
-    then
-	usage
-	exit 0
-    fi
-    if [ "$1" = "-d" ]
-    then
-	debug=true
-	shift
-    elif [ "$1" = "-v" ] || [ "$1" = "-viewer" ]
-    then
-	use_viewer=yes
-	shift
-    elif [ "$1" = "-x" ] || [ "$1" = "-xterm" ] || [ "$1" = "-xterms" ]
-    then
-	use_xterm=yes
-	shift
-    elif [ "$1" = "-vx" ] || [ "$1" = "-xv" ]
-    then
-	use_xterm=yes
-	use_viewer=yes
-	shift
-    elif [ "$1" = "-i" ] || [ "$1" = "-ipc" ]
-    then
-	run_ipc_in_background=no
-	shift
-    elif [ "$1" = "-n" ] || [ "$1" = "-no-ipc" ]
-    then
-	no_ipc=yes
-	shift
-    elif [ "$1" = "-c" ] 
-    then
-        if [ -z "$com1" ]
-	then
+    case "$1" in
+        ( -d )
+	    debug=true
 	    shift
-	    com1="$1"
-	    shift;
-        else
-	    shift
-	    com2="$1"
-	    shift
-        fi
-    elif [ "$1" = "-l" ]
-    then
-        if [ -z "$agent2_raw" ]
-	then
-	    shift
-	    libs1="$libs1$1 "
-	    shift
-        else
-	    shift
-	    libs2="$libs2$1 "
-	    shift
-        fi
-    elif [ "$1" = "-L" ]
-    then
-        if [ -z "$agent2_raw" ]
-	then
-	    libdirs1="$libdirs1$1 $2 "
-	    shift 2
-        else
-	    libdirs2="$libdirs1$1 $2 "
-	    shift 2
-        fi
-    else
-        if [ -z "$agent1_raw" ]
-	then
-	    agent1_raw="$1"
-	    shift
-        elif [ -z "$agent2_raw" ]
-	then
-	    agent2_raw="$1"
-	    shift
-        else
-	    echo "The \"$1\" parameter is ambiguous.  Maybe it is a library missing the -l flag?"
+        ;;
+        ( -h | -help )
 	    usage
-	    exit 2
+	    exit 0
+        ;;
+        ( -v | -viewer )
+	    use_viewer=yes
+	    shift
+        ;;
+        ( -x | -xterm | -xterms )
+	    use_xterm=yes
+	    shift
+        ;;
+        ( -vx | -xv )
+	    use_xterm=yes
+	    use_viewer=yes
+	    shift
+        ;;
+        ( -i | -ipc )
+	    run_ipc_in_background=no
+	    shift
+        ;;
+        ( -n | -no-ipc )
+	    no_ipc=yes
+	    shift
+        ;;
+        ( -c )
+        if [ -z "$com1" ]
+	    then
+	        shift
+	        com1="$1"
+	        shift;
+        else
+	        shift
+	        com2="$1"
+	        shift
         fi
-    fi
+        ;;
+        ( -l )
+        # FIXME: Handle lib names wtih spaces
+        if [ -z "$agent2_raw" ]
+	    then
+	        shift
+	        libs1="$libs1$1 "
+	        shift
+        else
+	        shift
+	        libs2="$libs2$1 "
+	        shift
+        fi
+        ;;
+        ( -L )
+        # FIXME: Handle lib dir names wtih spaces
+        if [ -z "$agent2_raw" ]
+	    then
+	        libdirs1="$libdirs1$1 $2 "
+	        shift 2
+        else
+	        libdirs2="$libdirs1$1 $2 "
+	        shift 2
+        fi
+        ;;
+        ( * )
+        if [ -z "$agent1_raw" ]
+	    then
+	        agent1_raw="$1"
+	        shift
+        elif [ -z "$agent2_raw" ]
+	    then
+	        agent2_raw="$1"
+	        shift
+        else
+	        echo "The \"$1\" parameter is ambiguous.  Maybe it is a library missing the -l flag?" >&2
+	        usage
+	        exit 2
+        fi
+        ;;
+    esac
 done
 
 if [ -z "$agent1_raw" ] || [ -z "$agent2_raw" ] ; then
-  echo "Two agents required"
+  echo "Two agents required" >&2
   usage
   exit 2
 fi
@@ -196,8 +197,8 @@ then
     then
         com1="$(after-dash "$agent1")".xml
     else
-        echo "No communications configuration file found for base name $agent1"
-        exit
+        echo "No communications configuration file found for base name $agent1" >&2
+        exit 2
     fi
 fi
 
@@ -214,17 +215,17 @@ then
     then
         com1="$(after-dash "$agent2")".xml
     else
-        echo "No communications configuration file found for base name $agent2"
-        exit
+        echo "No communications configuration file found for base name $agent2" >&2
+        exit 2
     fi
 fi
 
 # Now, double check to be sure we have comm configuration files
 if [ ! -e "$com1" ] ; then
     if [ ! -e "$com1.xml" ] ; then
-        echo ' ' ; echo "No communications configuration file found for \"-c $com1\""
+        echo ' ' ; echo "No communications configuration file found for \"-c $com1\"" >&2
         usage
-        exit 1
+        exit 2
     else
         com1="$com1.xml"
     fi
@@ -232,9 +233,9 @@ fi
 # Now, do it again for the second agent
 if [ ! -e "$com2" ] ; then
     if [ ! -e "$com2.xml" ] ; then
-        echo ' ' ; echo "No communications configuration file found for \"-c $com2\""
+        echo ' ' ; echo "No communications configuration file found for \"-c $com2\"" >&2
         usage
-        exit 1
+        exit 2
     else
         com2="$com2.xml"
     fi
@@ -251,8 +252,8 @@ then
     then
 	    MAKE='gmake'
     else
-	    echo 'ERROR: GNU make not found. Please install it.'
-	    exit 1
+	    echo 'ERROR: GNU make not found. Please install it.' >&2
+	    exit 2
     fi
 fi
 
@@ -271,73 +272,72 @@ make_status=$?
 # bail if things don't compile properly
 if [ $make_status != 0 ] ;
 then
-    echo "make exited with error status $make_status"
+    echo "make exited with error status $make_status" >&2
     exit $make_status
 fi
 
-# FIXNE: support .ple, .plp too
-try_find_library()
+# Parameters are libname [ '-L' libdir ]*
+try_find_library_source()
 {
     lib="$(echo "$1" | awk '{ split($0, arr, "."); print(arr[1]) }')"
-    # allow for both lib/name and just name
-    if [ -e "$lib.pli" ]
-    then
-        printf '%s\n' "$lib.pli"
-    elif [ -e "lib/$lib.pli" ]
-    then
-        printf '%s\n' "lib/$lib"
-    else
-        echo "$lib.pli not found" >&2
-        exit 1
-    fi
+    shift
+    for ext in plp ple epx pli
+    do
+        if [ -e "$lib.$ext" ]
+        then
+            printf '%s\n' "$lib.$ext"
+            return 0
+        fi
+    done
+
+    # Try library path
+    while [ -n "$1" ]
+    do
+        if [ "$1" != '-L' ] && [ -d "$1" ]
+        then
+            for ext in plp ple epx pli
+            do
+                if [ -e "$1/$lib.$ext" ]
+                then
+                    printf '%s\n' "$1/$lib"
+                    return 0
+                fi
+            done
+        fi
+        shift
+    done
+
+    echo "Source for library $lib.plx not found" >&2
+    exit 1
 }
 
 # Set up the libraries for inclusion
 # FIXME
-for lib in $libs1 ;
+for lib in $libs1
 do
-    lib="$(try_find_library "$lib")"
+    lib="$(try_find_library_source "$lib" $libdirs1)"
 
     # stop if the compile fails
     if ! ${MAKE} "$lib.plx"
     then
-        echo "Error: $lib.plx failed to compile"
+        echo "Error: $lib.plx failed to compile" >&2
         exit 1
     fi
     libraries1="$libraries1 -l $lib.plx"
 done
 # And again for the second agent
-for lib in $libs2 ;
+for lib in $libs2
 do
-    lib="$(try_find_library "$lib")"
+    lib="$(try_find_library_source "$lib" $libdirs2)"
 
     # stop if the compile fails
     if ! ${MAKE} "$lib.plx"
     then
-        echo "Error: $lib.plx failed to compile"
+        echo "Error: $lib.plx failed to compile" >&2
         exit 1
     fi
     libraries2="$libraries2 -l $lib.plx"
 done
-
-# Set up the command line and sleep time.  Java on Mac OS is really slow,
-# hence the long sleep time...
-if [ "$use_viewer" = 'yes' ] ;
-then
-    cmd1="plexilexec -v -b -p $agent1.plx -c $com1 $libdirs1 $libraries1"
-    cmd2="plexilexec -v -b -p $agent2.plx -c $com2 $libdirs2 $libraries2"
-    if [ "$(uname)" = 'Darwin' ] ;
-    then
-        sleep_time=15
-    else
-        sleep_time=3
-    fi
-else
-    # FIXME: find another way to do this
-    cmd1="plexilexec -p $agent1.plx -c $com1 $libdirs1 $libraries1"
-    cmd2="plexilexec -p $agent2.plx -c $com2 $libdirs2 $libraries2"
-    sleep_time=1
-fi
 
 if [ -n "$debug" ] ;
 then
@@ -363,15 +363,29 @@ then
     exit
 fi
 
+# Set up the sleep time.  Java on Mac OS is really slow,
+# hence the long sleep time...
+if [ -n "$use_viewer" ] ;
+then
+    if [ "$(uname)" = 'Darwin' ] ;
+    then
+        sleep_time=15
+    else
+        sleep_time=3
+    fi
+else
+    sleep_time=1
+fi
+
 # Either start IPC/central in an xterm, or make sure it is already running
-if [ -z "$has_xterm" ] && [ "$no_ipc" != 'yes' ];
+if [ -z "$(command -v xterm)" ] && [ -z "$no_ipc" ];
 then
     echo ' '
     if [ -z "$ipc_running" ] && [ "$run_ipc_in_background" = 'no' ] ;
     then
-        echo 'ipc (central) must already be running for this script to work without xterm...'
+        echo 'ipc (central) must already be running for this script to work without xterm...' >&2
         echo ' '
-        exit
+        exit 2
     else
         echo 'xterm not found: both agents will be run in the background...'
         echo ' '
@@ -379,7 +393,8 @@ then
 fi
 
 # start IPC/central if necessary
-if [ "$no_ipc" != 'yes' ] ;
+ipc_pid=
+if [ -z "$no_ipc" ]
 then
     if [ -z "$ipc_running" ] ;
     then
@@ -403,29 +418,24 @@ fi
 # Start the agents
 # FIXME
 echo "$cmd1"
-if [ "$use_xterm" = "no" ] ;
+if [ -z "$use_xterm" ]
 then
-    $cmd1 &
+    plexilexec ${use_viewer:+'-v -b'} -p "$agent1".plx -c "$com1" $libdirs1 $libraries1 &
 else
-    # shellcheck disable=SC2086
-    # yes, we want word splitting for now. Needs to be fixed.
-    xterm -e $cmd1 &
+    xterm -e plexilexec ${use_viewer:+'-v -b'} -p "$agent1".plx -c "$com1" $libdirs1 $libraries1 &
 fi
 
 sleep $sleep_time
 
-# FIXME
 echo "$cmd2"
-if [ "$use_xterm" = "no" ] ;
+if [ -z "$use_xterm" ]
 then
-    $cmd2
+    plexilexec ${use_viewer:+'-v -b'} -p "$agent2".plx -c "$com2" $libdirs2 $libraries2
 else
-    # shellcheck disable=SC2086
-    # yes, we want word splitting for now. Needs to be fixed.
-    xterm -e $cmd2
+    xterm -e plexilexec ${use_viewer:+'-v -b'} -b -p "$agent2".plx -c "$com2" $libdirs2 $libraries1
 fi
 
-if [ "$run_ipc_in_background" = 'yes' ] && [ "$no_ipc" != 'yes' ];
+if [ -n "$ipc_pid" ]
 then
     kill -9 "$ipc_pid"
     echo ' '
