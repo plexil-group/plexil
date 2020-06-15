@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,20 +27,11 @@
 #ifndef PLEXIL_ARRAY_FWD_HH
 #define PLEXIL_ARRAY_FWD_HH
 
-#include <plexil-config.h>
-
 // Forward declarations for array types
 
 #include <string>
 
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#else
-#error "Platform lacks required C header file stdint.h"
-#endif
+#include "plexil-stdint.h"
 
 namespace PLEXIL
 {

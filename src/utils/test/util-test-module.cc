@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,19 +57,30 @@
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
 
-#include <cassert>
-
-#ifdef STDC_HEADERS
-#include <cfloat>
-#include <cstring> // for strcmp
-#endif
-
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <list>
 #include <sstream>
 #include <typeinfo>
+
+#if defined(HAVE_CASSERT)
+#include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
+#endif
+
+#if defined(HAVE_CFLOAT)
+#include <cfloat>
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring> // for strcmp
+#elif defined(HAVE_STRING_H)
+#include <string.h> // for strcmp
+#endif
 
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>

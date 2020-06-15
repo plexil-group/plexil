@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,7 @@
 #ifndef PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
 #define PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
 
-// For int32_t
-#include "plexil-config.h"
-
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#endif
+#include "plexil-stdint.h"
 
 #include <fstream>
 #include <string>

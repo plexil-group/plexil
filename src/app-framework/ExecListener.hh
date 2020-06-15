@@ -27,7 +27,6 @@
 #ifndef PLEXIL_EXEC_LISTENER_HH
 #define PLEXIL_EXEC_LISTENER_HH
 
-#include "NodeConstants.hh"
 #include "NodeTransition.hh"
 
 #include "pugixml.hpp"

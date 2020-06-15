@@ -30,9 +30,10 @@
 
 #include <iostream>
 
+#ifdef HAVE_ERRNO_H
 #include <cerrno>
-
-#ifdef STDC_HEADERS
+#endif
+#ifdef HAVE_STRING_H
 #include <cstring>
 #endif
 
@@ -51,9 +52,6 @@
 #ifdef HAVE_SOCKLIB_H
 #include <sockLib.h> // vxWorks
 #else
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif

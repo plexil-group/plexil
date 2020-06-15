@@ -41,12 +41,17 @@
 
 #include <iomanip>
 
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
 
-#ifdef HAVE_TIME_H
+#if defined(HAVE_CTIME)
 #include <ctime>
+#elif defined(HAVE_TIME_H)
+#include <time.h>
 #endif 
-
 
 namespace PLEXIL
 {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,20 +27,15 @@
 #ifndef IPC_DATA_FORMATS_H
 #define IPC_DATA_FORMATS_H
 
-#include "plexil-config.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#endif
+#include "plexil-stdint.h"
 
+#ifdef HAVE_LIMITS_H
 #include <limits.h>
+#endif
 
 /*
  * Data formats used by IpcAdapter

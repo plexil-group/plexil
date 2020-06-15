@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,16 @@
 
 #include "NodeVariableMap.hh"
 
-#ifdef HAVE_STDDEF_H
+#if defined(HAVE_CSTDDEF)
 #include <cstddef>
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h>
 #endif
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring> // strdup()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strdup()
 #endif
 
 namespace PLEXIL

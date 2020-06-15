@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,20 @@
 
 #include <algorithm> // std::stable_sort()
 #include <cctype>
-
-#ifdef STDC_HEADERS
-#include <cstdlib> // strtod()
-#include <cstring> // strspn(), strcspn() et al
-#endif
-
 #include <map>
 #include <set>
+
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib> // strtod()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // strtod()
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring> // strspn(), strcspn() et al
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strspn(), strcspn() et al
+#endif
 
 namespace PLEXIL
 {

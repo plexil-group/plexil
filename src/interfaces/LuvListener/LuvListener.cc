@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,16 @@
 
 #include <sstream>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+
+#if defined(HAVE_CSTRING)
 #include <cstring> // strdup()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strdup()
 #endif
 
 namespace PLEXIL

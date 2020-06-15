@@ -28,7 +28,6 @@
 #define EXPRESSION_FACTORY_HH
 
 #include "Expression.hh"
-#include "ParserException.hh"
 
 // Forward declaration
 namespace pugi

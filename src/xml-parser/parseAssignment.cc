@@ -24,6 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// TODO: Check if redundant
+#include "plexil-config.h"
+
 #include "Assignable.hh"
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
@@ -35,10 +38,16 @@
 
 #include "pugixml.hpp"
 
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
 
-#ifdef HAVE_STDLIB_H
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib> // for strtoul()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
 #endif
 
 #include <limits>

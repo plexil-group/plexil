@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,10 @@
 #include "ThreadMutex.hh"
 #include "RecursiveThreadMutex.hh"
 #include "ThreadSemaphore.hh"
+
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #endif
 
 // STL
@@ -41,7 +44,11 @@
 #include <string>
 #include <vector>
 
+#if defined(HAVE_CSIGNAL)
 #include <csignal>
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
 
 #define EXEC_APPLICATION_MAX_N_SIGNALS 8
 

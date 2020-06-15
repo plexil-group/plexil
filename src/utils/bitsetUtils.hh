@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,11 @@
 #include "Error.hh"
 
 #include <bitset>
+#if defined(HAVE_CLIMITS)
 #include <climits>
+#elif defined(HAVE_LIMITS_H)
+#include <limits.h>
+#endif
 
 namespace PLEXIL
 {

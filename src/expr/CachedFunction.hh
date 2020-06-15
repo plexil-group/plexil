@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,13 @@
 #ifndef PLEXIL_CACHED_FUNCTION_HH
 #define PLEXIL_CACHED_FUNCTION_HH
 
+#include "plexil-config.h"
+
+#if defined(HAVE_CSTDDEF)
 #include <cstddef> // size_t
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // size_t
+#endif
 
 namespace PLEXIL
 {

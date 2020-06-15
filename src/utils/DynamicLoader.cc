@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,14 @@
 #ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
 
-#include <cstdlib> // atexit()
 #include <string>
 #include <stack>
+
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib> // atexit()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // atexit()
+#endif
 
 static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
 

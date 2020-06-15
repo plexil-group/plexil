@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,10 @@
 #include "TestSupport.hh"
 #include "Value.hh"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring> // memset()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // memset()
 #endif
 
 using namespace PLEXIL;
