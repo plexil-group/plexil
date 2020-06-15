@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 # Environment setup for TestExec regression tests
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,20 @@ EMPTY_SCRIPT=scripts/empty.psx
 REGRESSION_PL=regression.pl
 TEST_DEBUG_CFG=.TestDebug.cfg
 
-if [ -z "$EXEC_PROG" ]
+# If user has provided an executable, use it.
+if [ -z "$EXEC_PROG" ] || [ ! -x "$EXEC_PROG" ]
 then
-    EXEC_PROG=${PLEXIL_HOME}/src/apps/TestExec/TestExec
+    # Prefer the uninstalled one
+    if [ -x "$PLEXIL_HOME/src/apps/TestExec/TestExec" ]
+    then
+        EXEC_PROG=${PLEXIL_HOME}/src/apps/TestExec/TestExec
+    elif [ -x "$PLEXIL_HOME"/bin/TestExec ]
+    then 
+        EXEC_PROG="$PLEXIL_HOME"/bin/TestExec
+    else
+        echo 'Error: Unable to find the TestExec program' >&2
+        exit 1
+    fi
 fi
 
 export EMPTY_SCRIPT EXEC_PROG REGRESSION_PL TEST_DEBUG_CFG TEST_DIR
