@@ -5,6 +5,7 @@ cmake_install.cmake
 install_manifest.txt
 # GNU autotools artifacts
 .deps
+.dirstamp
 .libs
 lib*.la
 INSTALL
