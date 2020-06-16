@@ -198,6 +198,9 @@ namespace PLEXIL
     bool m_ignoreConnectFailure;
   };
 
+  extern "C"
+  void initLuvListener();
+
 }
 
 #endif // LUV_LISTENER_HH
