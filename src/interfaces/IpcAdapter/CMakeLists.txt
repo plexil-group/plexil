@@ -25,7 +25,7 @@
 
 # IpcAdapter library submodule of PlexilExec
 
-add_library(IpcAdapter SHARED
+add_library(IpcAdapter ${PlexilExec_SHARED_OR_STATIC}
   IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc)
 
 target_include_directories(IpcAdapter PUBLIC

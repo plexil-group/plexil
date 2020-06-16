@@ -25,7 +25,7 @@
 
 # Executive module subproject of PLEXIL_EXEC
 
-add_library(PlexilExec SHARED
+add_library(PlexilExec ${PlexilExec_SHARED_OR_STATIC}
   Assignment.cc AssignmentNode.cc CommandNode.cc InterfaceSchema.cc
   LibraryCallNode.cc ListNode.cc NodeImpl.cc NodeFactory.cc NodeFunction.cc
   NodeOperator.cc NodeOperatorImpl.cc NodeOperators.cc NodeTimepointValue.cc

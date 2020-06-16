@@ -25,7 +25,7 @@
 
 # PlanDebugListener interface subproject of PLEXIL_EXEC
 
-add_library(PlanDebugListener SHARED
+add_library(PlanDebugListener ${PlexilExec_SHARED_OR_STATIC}
   PlanDebugListener.cc)
 
 install(TARGETS PlanDebugListener

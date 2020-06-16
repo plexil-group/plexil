@@ -25,7 +25,7 @@
 
 # Launcher interface subproject of PLEXIL_EXEC
 
-add_library(Launcher SHARED
+add_library(Launcher ${PlexilExec_SHARED_OR_STATIC}
   Launcher.cc)
 
 install(TARGETS Launcher

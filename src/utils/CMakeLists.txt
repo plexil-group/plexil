@@ -25,7 +25,7 @@
 
 # Utils module subproject of PLEXIL_EXEC
 
-add_library(PlexilUtils SHARED
+add_library(PlexilUtils ${PlexilExec_SHARED_OR_STATIC}
   DebugMessage.cc DynamicLoader.cc Error.cc
   Logging.cc ParserException.cc PlanError.cc bitsetUtils.cc
   lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc)

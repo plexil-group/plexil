@@ -23,7 +23,7 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(PlexilAppFramework SHARED
+add_library(PlexilAppFramework ${PlexilExec_SHARED_OR_STATIC}
   AdapterConfiguration.cc AdapterExecInterface.cc AdapterFactory.cc
   DummyAdapter.cc ExecApplication.cc ExecListener.cc ExecListenerFactory.cc
   ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc
@@ -49,6 +49,10 @@ target_link_libraries(PlexilAppFramework PUBLIC
   -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser)
 
+if(NOT BUILD_SHARED_LIBS)
+  target_compile_definitions(PlexilAppFramework PRIVATE PLEXIL_STATIC=1)
+endif()
+
 if(HAVE_LIBPTHREAD AND PLEXIL_WITH_THREADS)
   target_link_libraries(PlexilAppFramework PUBLIC pthread)
 endif()
@@ -68,11 +72,47 @@ install(FILES
 if(PLAN_DEBUG_LISTENER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/PlanDebugListener)
+  if(NOT BUILD_SHARED_LIBS)
+    target_link_libraries(PlexilAppFramework PUBLIC
+      PlanDebugListener)
+  endif()
 endif()
 
-if(VIEWER_LISTENER)
+if(HAVE_GANTT_LISTENER)
+  target_include_directories(PlexilAppFramework PRIVATE
+    ${PlexilExec_SOURCE_DIR}/interfaces/GanttListener)
+  if(NOT BUILD_SHARED_LIBS)
+    target_link_libraries(PlexilAppFramework PUBLIC
+      GanttListener)
+  endif()
+endif()
+
+if(HAVE_IPC_ADAPTER)
+  target_include_directories(PlexilAppFramework PRIVATE
+    ${PlexilExec_SOURCE_DIR}/interfaces/IpcUtils
+    ${PlexilExec_SOURCE_DIR}/interfaces/IpcAdapter)
+  if(NOT BUILD_SHARED_LIBS)
+    target_link_libraries(PlexilAppFramework PUBLIC
+      IpcAdapter)
+  endif()
+endif()
+
+if(HAVE_LUV_LISTENER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/LuvListener)
+  if(NOT BUILD_SHARED_LIBS)
+    target_link_libraries(PlexilAppFramework PUBLIC
+      LuvListener)
+  endif()
+endif()
+
+if(HAVE_UDP_ADAPTER)
+  target_include_directories(PlexilAppFramework PRIVATE
+    ${PlexilExec_SOURCE_DIR}/interfaces/UdpAdapter)
+  if(NOT BUILD_SHARED_LIBS)
+    target_link_libraries(PlexilAppFramework PUBLIC
+      UdpAdapter)
+  endif()
 endif()
 
 if(POSIX_TIME)

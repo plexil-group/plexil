@@ -25,15 +25,15 @@
 
 # UDP interface module for PlexilExec
 
-add_library(UdpUtils SHARED
+add_library(UdpUtils ${PlexilExec_SHARED_OR_STATIC}
   udp-utils.cc)
 
 target_include_directories(UdpUtils PUBLIC
-  ${PlexilExec_SOURCE_DIR}/utils
-  )
+  ${PlexilExec_SOURCE_DIR}/utils)
 
-# ??
-# target_link_libraries(UdpUtils PUBLIC )
+# No link dependencies here
+# target_link_libraries(UdpUtils PUBLIC
+#   )
 
 install(FILES 
   udp-utils.hh
@@ -50,9 +50,17 @@ if(MODULE_TESTS)
 
   target_link_libraries(udp-tests PRIVATE
     UdpUtils PlexilUtils)
+
+  install(TARGETS udp-tests
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+  if(PlexilExec_EXE_INSTALL_RPATH)
+    set_target_properties(udp-tests
+      PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
+  endif()
 endif()
 
-add_library(UdpAdapter SHARED
+add_library(UdpAdapter ${PlexilExec_SHARED_OR_STATIC}
   MessageQueueMap.cc UdpAdapter.cc)
 
 target_include_directories(UdpAdapter PUBLIC
@@ -73,6 +81,9 @@ target_link_libraries(UdpAdapter PUBLIC
   PlexilAppFramework
   UdpUtils
   )
+
+install(TARGETS UdpUtils UdpAdapter
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES 
   MessageQueueMap.hh UdpAdapter.hh

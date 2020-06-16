@@ -25,7 +25,7 @@
 
 # XML parser module subproject of PLEXIL_EXEC
 
-add_library(PlexilXmlParser SHARED
+add_library(PlexilXmlParser ${PlexilExec_SHARED_OR_STATIC}
   ArithmeticFunctionFactory.cc ArrayLiteralFactory.cc ArrayVariableFactory.cc
   ArrayVariableReferenceFactory.cc ComparisonFactory.cc 
   ConcreteExpressionFactory.cc ConversionFunctionFactory.cc commandXmlParser.cc
