@@ -34,9 +34,15 @@
 class SampleSystem
 {
  public:
+ 
+ SampleSystem (const SampleSystem&) = delete;            // undefined - no copying
 
-  SampleSystem();
-  // using compiler's destructor; no assignment or copy
+ static SampleSystem *getInstance () {
+   if (!instance) {
+    instance = new SampleSystem;
+  }
+  return instance;
+ }
   
   float getSize () { return m_size; } 
   void setSize (float);
@@ -46,6 +52,9 @@ class SampleSystem
 
   std::string getColor () { return m_color; }
   void setColor (const std::string&);
+
+  std::string getName () { return m_name; }
+  void setName (const std::string&);
 
   // The overloaded 'at' functions support three variants of a parameterized
   // state called 'At'.  Note that 'At' is fundamentally different from the
@@ -63,17 +72,27 @@ class SampleSystem
   // Some trivial commands
   void hello ();  
   int square (int x) { return x * x; }
+  int cube (int x) { return x * x * x; }
 
  private:
 
-  SampleSystem (const SampleSystem&);            // undefined - no copying
-  SampleSystem& operator= (const SampleSystem&); // undefined - no assignment
+  // TODO: CHANGE SOME COMMENTS HERE
+  SampleSystem();
+  
+  static SampleSystem *instance;
+  // using compiler's destructor; no assignment or copy
+
+  // SampleSystem& operator= (const SampleSystem&); // undefined - no assignment
 
   float m_size;
   int m_speed;
   std::string m_color;
   std::string m_at_location;
   std::pair<int, int> m_at_coordinates;
+  std::string m_name;
 };
 
 #endif
+
+
+

@@ -1,0 +1,22 @@
+Command pprint(...);
+Integer Command Square(Integer);
+Integer Command Cube(Integer);
+
+Root: 
+{
+  Integer x = 0;
+  
+  A: pprint("x =",x);
+  
+  B: x = 1;
+  
+  C: pprint("x =",x);
+  
+  D: x = Square(2);
+  
+  E: pprint("x =",x);
+  
+  F: x = Cube(4);
+  
+  G: pprint("x =",x);
+}
