@@ -180,17 +180,17 @@ help_text=" Options:\n\
 \t  Runs the exec with the supplied options, without checking them, and without starting the Viewer. \n\
 \t  Intended for use by the Plexil Viewer or other scripts."
 
-if [ -n "$PLEXIL_EXECUTABLE" ]
+if [ -n "$PLEXIL_EXECUTABLE" ] && [ -x "$PLEXIL_EXECUTABLE" ]
 then
     prog="$PLEXIL_EXECUTABLE"
-elif [ -f "$PLEXIL_HOME"/bin/universalExec ] && [ -x "$PLEXIL_HOME"/bin/universalExec ]
+elif [ -x "$PLEXIL_HOME"/bin/universalExec ]
 then
     prog="$PLEXIL_HOME"/bin/universalExec
-elif [ -f "$PLEXIL_HOME"/bin/universalExec/universalExec ] && [ -x "$PLEXIL_HOME"/bin/universalExec/universalExec ]
+elif [ -x "$PLEXIL_HOME"/bin/universalExec/universalExec ]
 then
     prog="$PLEXIL_HOME"/bin/universalExec/universalExec
 else
-    echo 'Error: Plexil executable not found, aborting'
+    echo 'Error: Plexil executable not found, aborting' >&2
     exit 1
 fi
 
