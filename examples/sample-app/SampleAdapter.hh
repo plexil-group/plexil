@@ -48,7 +48,7 @@ public:
   bool stop();
   bool reset();
   bool shutdown();
-  static SampleAdapter * Adapter;
+  static SampleAdapter * m_adapter;
 
   virtual void executeCommand(Command *cmd);
   virtual void lookupNow (State const& state, StateCacheEntry &entry);
@@ -70,12 +70,10 @@ private:
 
   bool isStateSubscribed(const State& state) const;
 
-  static void makeInstance(SampleAdapter *Adptr) {
-    Adapter = Adptr;
+  static void instance(SampleAdapter *Adptr) {
+    m_adapter = Adptr;
   }
-  static SampleAdapter *getInstance () {
-    return Adapter;
-  }
+
   std::set<State> m_subscribedStates;
 };
 

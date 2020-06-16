@@ -143,25 +143,25 @@ static State createState (const string& state_name, const vector<Value>& value)
 
 static void receiveInt (const string& state_name, int val)
 {
-  SampleAdapter::Adapter->propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::m_adapter->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveFloat (const string& state_name, float val)
 {
-  SampleAdapter::Adapter->propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::m_adapter->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveString (const string& state_name, const string& val)
 {
-  SampleAdapter::Adapter->propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::m_adapter->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveBoolString (const string& state_name, bool val, const string& arg)
 {
-  SampleAdapter::Adapter->propagate (createState(state_name, vector<Value> (1, arg)),
+  SampleAdapter::m_adapter->propagate (createState(state_name, vector<Value> (1, arg)),
              vector<Value> (1, val));
 }
 
@@ -170,7 +170,7 @@ static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  SampleAdapter::Adapter->propagate (createState(state_name, vec), vector<Value> (1, val));
+  SampleAdapter::m_adapter->propagate (createState(state_name, vec), vector<Value> (1, val));
 }
 
 
@@ -180,7 +180,7 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
-  makeInstance(this);
+  instance(this);
   debugMsg("SampleAdapter", " created.");
 }
 
