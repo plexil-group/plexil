@@ -45,12 +45,24 @@
 #endif
 #include "UtilityAdapter.hh"
 
+#ifdef HAVE_DEBUG_LISTENER
+#include "PlanDebugListener.hh"
+#endif
+
+#ifdef HAVE_GANTT_LISTENER
+#include "GanttListener.hh"
+#endif
+
+#ifdef HAVE_IPC_ADAPTER
+#include "initIpcAdapter.h"
+#endif
+
 #ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
 #endif
 
-#ifdef HAVE_DEBUG_LISTENER
-#include "PlanDebugListener.hh"
+#ifdef HAVE_UDP_ADAPTER
+#include "UdpAdapter.hh"
 #endif
 
 #ifdef PLEXIL_WITH_UNIX_TIME 
@@ -83,15 +95,58 @@ namespace PLEXIL {
 
     registerExecListenerFilters();
 
+    //
+    // The reason for all this #ifdef'ery is that when this library is built
+    // statically linked, it needs to include the interface modules at link time.
+    // When dynamically linked, it doesn't need to pull them in
+    // until they're requested, which in some cases will never happen.
+    //
+
 #ifdef HAVE_DEBUG_LISTENER
     // Every application should have access to the Plan Debug Listener
+#ifdef PLEXIL_STATIC
+    initPlanDebugListener();
+#else
     dynamicLoadModule("PlanDebugListener", NULL);
+#endif
+#endif
+
+#ifdef HAVE_GANTT_LISTENER
+    // Every application should have access to the GANTT Listener
+#ifdef PLEXIL_STATIC
+    initGanttListener();
+#else
+    dynamicLoadModule("GanttListener", NULL);
+#endif
+#endif
+
+#ifdef HAVE_IPC_ADAPTER
+    // Every application should have access to the IPC Adapter
+#ifdef PLEXIL_STATIC
+    initIpcAdapter();
+#else
+    dynamicLoadModule("IpcAdapter", NULL);
+#endif
 #endif
 
 #ifdef HAVE_LUV_LISTENER
     // Every application should have access to the Plexil Viewer (formerly LUV) Listener
+#ifdef PLEXIL_STATIC
+    initLuvListener();
+#else
     dynamicLoadModule("LuvListener", NULL);
 #endif
+#endif
+
+#ifdef HAVE_UDP_ADAPTER
+    // Every application should have access to the UDP Adapter
+#ifdef PLEXIL_STATIC
+    initUdpAdapter();
+#else
+    dynamicLoadModule("UdpAdapter", NULL);
+#endif
+#endif
+
   }
 
   AdapterConfiguration::~AdapterConfiguration()
