@@ -27,12 +27,13 @@
 #include "SampleAdapter.hh"
 
 #include "subscriber.hh"
-#include "sample_system.hh"
+#include "SampleSystem.hh"
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
+#include "Expression.hh"
 #include "StateCacheEntry.hh"
 
 #include <iostream>
@@ -49,17 +50,22 @@ using std::copy;
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.
-static string error = "Error in SampleAdapter: ";
+static string error = "Error in SampleAdaptor: ";
 
 // A prettier name for the "unknown" value.
-static Value Unknown;
+static Value const Unknown;
+
+// Instantiate the system here.
+SampleSystem *SampleSystem::instance = 0;
+//SampleSystem *System = System->getInstance();
 
 // A localized handle on the adapter, which allows a
 // decoupling between the sample system and adapter.
-static SampleAdapter * Adapter;
+
+//static SampleAdapter * Adapter;
 
 // An empty argument vector.
-static vector<Value> EmptyArgs;
+static vector<Value> const EmptyArgs;
 
 
 ///////////////////////////// State support //////////////////////////////////
@@ -75,25 +81,26 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   // NOTE: A more streamlined approach to dispatching on state name
   // would be nice.
 
-  if (state_name == "Size") retval = getSize();
-  else if (state_name == "Speed") retval = getSpeed();
-  else if (state_name == "Color") retval = getColor();
+  if (state_name == "Size") retval = SampleSystem::getInstance()->getSize();
+  else if (state_name == "Speed") retval = SampleSystem::getInstance()->getSpeed();
+  else if (state_name == "Color") retval = SampleSystem::getInstance()->getColor();
+  else if (state_name == "SystemName") retval = SampleSystem::getInstance()->getName();
   else if (state_name == "at") {
     switch (args.size()) {
     case 0:
-      retval = at ();
+      retval = SampleSystem::getInstance()->at ();
       break;
     case 1: {
-      std::string s;
+      string s;
       args[0].getValue(s);
-      retval = at (s); 
+      retval = SampleSystem::getInstance()->at(s);
       break;
     }
     case 2: {
       int32_t arg0 = 0, arg1 = 0;
       args[0].getValue(arg0);
       args[1].getValue(arg1);
-      retval = at (arg0, arg1);
+      retval = SampleSystem::getInstance()->at (arg0, arg1);
       break;
     }
     default: {
@@ -116,9 +123,9 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 // receive the name of the state whose value has changed in the system.  Then
 // they propagate the state's new value to the executive.
 
-static void propagate (const State& state, const vector<Value>& value)
+void SampleAdapter::propagate (const State& state, const vector<Value>& value)
 {
-  Adapter->propagateValueChange (state, value);
+  SampleAdapter::propagateValueChange(state, value);
 }
 
 static State createState (const string& state_name, const vector<Value>& value)
@@ -134,58 +141,60 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 
-static void receive (const string& state_name, int val)
+static void receiveInt (const string& state_name, int val)
 {
-  propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::m_adapter->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, float val)
+static void receiveFloat (const string& state_name, float val)
 {
-  propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::m_adapter->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, const string& val)
+static void receiveString (const string& state_name, const string& val)
 {
-  propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::m_adapter->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, bool val, const string& arg)
+static void receiveBoolString (const string& state_name, bool val, const string& arg)
 {
-  propagate (createState(state_name, vector<Value> (1, arg)),
+  SampleAdapter::m_adapter->propagate (createState(state_name, vector<Value> (1, arg)),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, bool val, int arg1, int arg2)
+static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  propagate (createState(state_name, vec), vector<Value> (1, val));
+  SampleAdapter::m_adapter->propagate (createState(state_name, vec), vector<Value> (1, val));
 }
 
 
 ///////////////////////////// Member functions //////////////////////////////////
 
-
 SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
+  instance(this);
   debugMsg("SampleAdapter", " created.");
 }
 
 bool SampleAdapter::initialize()
 {
   g_configuration->defaultRegisterAdapter(this);
-  Adapter = this;
-  setSubscriberInt (receive);
-  setSubscriberReal (receive);
-  setSubscriberString (receive);
-  setSubscriberBoolString (receive);
-  setSubscriberBoolIntInt (receive);
+  //Adapter = this;
+  //makeInstance(this);
+  setSubscriber (receiveInt);
+  setSubscriber (receiveFloat);
+  setSubscriber (receiveString);
+  setSubscriber (receiveBoolString);
+  setSubscriber (receiveBoolIntInt);
+
   debugMsg("SampleAdapter", " initialized.");
   return true;
 }
@@ -220,7 +229,7 @@ bool SampleAdapter::shutdown()
 //
 void SampleAdapter::executeCommand(Command *cmd)
 {
-  const string &name = cmd->getName();
+  string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name);  
 
   Value retval = Unknown;
@@ -232,64 +241,69 @@ void SampleAdapter::executeCommand(Command *cmd)
   // would be nice.
   string s;
   int32_t i1 = 0, i2 = 0;
-  double d = 0.0;
+  double d;
 
   if (name == "SetSize") {
     args[0].getValue(d);
-    setSize(d);
+    SampleSystem::getInstance()->setSize (d);
   }
   else if (name == "SetSpeed") {
     args[0].getValue(i1);
-    setSpeed (i1);
+    SampleSystem::getInstance()->setSpeed (i1);
   }
   else if (name == "SetColor") {
     args[0].getValue(s);
-    setColor (s);
+    SampleSystem::getInstance()->setColor (s);
+  }
+  else if (name == "SetName") {
+    args[0].getValue(s);
+    SampleSystem::getInstance()->setName (s);
   }
   else if (name == "Move") {
     args[0].getValue(s);
     args[1].getValue(i1);
     args[2].getValue(i2);
-    move (s, i1, i2);
+    SampleSystem::getInstance()->move (s, i1, i2);
   }
-  else if (name == "Hello") 
-    hello ();
+  else if (name == "Hello")
+    SampleSystem::getInstance()->hello ();
   else if (name == "Square") {
     args[0].getValue(i1);
-    retval = square (i1);
+    retval = SampleSystem::getInstance()->square (i1);
   }
-  else 
+  else if (name == "Cube") {
+    args[0].getValue(i1);
+    retval = SampleSystem::getInstance()->cube(i1);
+  }
+  else
     cerr << error << "invalid command: " << name << endl;
 
   // This sends a command handle back to the executive.
   m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   // This sends the command's return value (if expected) to the executive.
-  if (retval != Unknown)
+  if (retval != Unknown) {
     m_execInterface.handleCommandReturn(cmd, retval);
+  }
   m_execInterface.notifyOfExternalEvent();
 }
 
-void SampleAdapter::lookupNow(State const &state, StateCacheEntry &entry)
+
+void SampleAdapter::lookupNow (const State& state, StateCacheEntry &entry)
 {
-  // This is the name of the state as given in the plan's LookupNow
-  string const &name = state.name();
-  const vector<Value>& args = state.parameters();
-  entry.update(fetch(name, args));
+  entry.update(fetch(state.name(), state.parameters()));
 }
 
 
 void SampleAdapter::subscribe(const State& state)
 {
-  debugMsg("SampleAdapter:subscribe", " processing state "
-           << state.name());
+  debugMsg("SampleAdapter:subscribe", " processing state " << state.name());
   m_subscribedStates.insert(state);
 }
 
 
 void SampleAdapter::unsubscribe (const State& state)
 {
-  debugMsg("SampleAdapter:subscribe", " from state "
-           << state.name());
+  debugMsg("SampleAdapter:subscribe", " from state " << state.name());
   m_subscribedStates.erase(state);
 }
 
@@ -297,7 +311,6 @@ void SampleAdapter::unsubscribe (const State& state)
 void SampleAdapter::setThresholds (const State& state, double hi, double lo)
 {
 }
-
 void SampleAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
 {
 }
@@ -308,7 +321,7 @@ void SampleAdapter::propagateValueChange (const State& state,
 {
   if (!isStateSubscribed(state))
     return; 
-  m_execInterface.handleValueChange(state, vals.front());
+  m_execInterface.handleValueChange (state, vals.front());
   m_execInterface.notifyOfExternalEvent();
 }
 
@@ -324,3 +337,4 @@ extern "C" {
     REGISTER_ADAPTER(SampleAdapter, "SampleAdapter");
   }
 }
+

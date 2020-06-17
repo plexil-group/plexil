@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,20 +37,11 @@ static SubscribeString SubscriberString = NULL;
 static SubscribeBoolString SubscriberBoolString = NULL;
 static SubscribeBoolIntInt SubscriberBoolIntInt = NULL;
 
-// Functions to set the subcribers for the system; so similar that a macro is
-// convenient for defining them.
-
-#define defSubscriber(signature) \
-void setSubscriber##signature (Subscribe##signature s) \
-{ \
-  Subscriber##signature = s; \
-}
-
-defSubscriber(Int)
-defSubscriber(Real)
-defSubscriber(String)
-defSubscriber(BoolString)
-defSubscriber(BoolIntInt)
+void setSubscriber (SubscribeInt s) { SubscriberInt = s; }
+void setSubscriber (SubscribeReal s) { SubscriberReal = s; }
+void setSubscriber (SubscribeString s) { SubscriberString = s; }
+void setSubscriber (SubscribeBoolString s) { SubscriberBoolString = s; }
+void setSubscriber (SubscribeBoolIntInt s) { SubscriberBoolIntInt = s; }
 
 
 // The overloaded publish function, one for each value/parameter combination

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,25 +48,33 @@ public:
   bool stop();
   bool reset();
   bool shutdown();
+  static SampleAdapter * m_adapter;
 
-  virtual void lookupNow (State const &state, StateCacheEntry &cacheEntry);
+  virtual void executeCommand(Command *cmd);
+  virtual void lookupNow (State const& state, StateCacheEntry &entry);
   virtual void subscribe(const State& state);
   virtual void unsubscribe(const State& state);
   virtual void setThresholds(const State& state, double hi, double lo);
   virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
-  virtual void executeCommand(Command *cmd);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
   //
+
   void propagateValueChange (const State& state,
                              const std::vector<Value>& vals) const;
 
+  void propagate (const State& state, const std::vector<Value>& value);                   
+
 private:
+
   bool isStateSubscribed(const State& state) const;
 
-  std::set<State> m_subscribedStates;
+  static void instance(SampleAdapter *Adptr) {
+    m_adapter = Adptr;
+  }
 
+  std::set<State> m_subscribedStates;
 };
 
 extern "C" {
