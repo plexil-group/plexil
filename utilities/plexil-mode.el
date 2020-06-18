@@ -28,7 +28,8 @@
 
 ;;; Basic instructions:
 ;;;    1. In your home/user directory, place this in your .emacs file.
-;;;    
+;;;
+;;;           (add-to-list 'load-path "~/.emacs.d/lisp/")
 ;;;           (load "plexil-mode")
 ;;;           (add-to-list 'auto-mode-alist '("\\.ple\\'" . plexil-mode))
 ;;;
