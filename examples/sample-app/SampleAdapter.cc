@@ -57,11 +57,10 @@ static Value const Unknown;
 
 // Instantiate the system here.
 SampleSystem *SampleSystem::instance = 0;
-//SampleSystem *System = System->getInstance();
 
 // A localized handle on the adapter, which allows a
 // decoupling between the sample system and adapter.
-
+SampleAdapter *SampleAdapter::m_adapter = 0;
 //static SampleAdapter * Adapter;
 
 // An empty argument vector.
@@ -123,11 +122,6 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 // receive the name of the state whose value has changed in the system.  Then
 // they propagate the state's new value to the executive.
 
-void SampleAdapter::propagate (const State& state, const vector<Value>& value)
-{
-  SampleAdapter::propagateValueChange(state, value);
-}
-
 static State createState (const string& state_name, const vector<Value>& value)
 {
   State state(state_name, value.size());
@@ -187,8 +181,6 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
 bool SampleAdapter::initialize()
 {
   g_configuration->defaultRegisterAdapter(this);
-  //Adapter = this;
-  //makeInstance(this);
   setSubscriber (receiveInt);
   setSubscriber (receiveFloat);
   setSubscriber (receiveString);
@@ -216,7 +208,6 @@ bool SampleAdapter::reset()
   debugMsg("SampleAdapter", " reset.");
   return true;
 }
-
 bool SampleAdapter::shutdown()
 {
   debugMsg("SampleAdapter", " shut down.");
@@ -315,7 +306,6 @@ void SampleAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
 {
 }
 
-
 void SampleAdapter::propagateValueChange (const State& state,
                                           const vector<Value>& vals) const
 {
@@ -325,6 +315,10 @@ void SampleAdapter::propagateValueChange (const State& state,
   m_execInterface.notifyOfExternalEvent();
 }
 
+void SampleAdapter::propagate (const State& state, const vector<Value>& value)
+{
+  SampleAdapter::propagateValueChange(state, value);
+}
 
 bool SampleAdapter::isStateSubscribed(const State& state) const
 {
