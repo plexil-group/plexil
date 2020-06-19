@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,11 @@ using std::pair;
 
 SampleSystem::SampleSystem ()
   : m_size (5.1),
-	m_speed (4),
-	m_color ("Blue"),
-	m_at_location ("Home"),
-	m_at_coordinates (0,0),
-  m_name ("Devin")
+    m_speed (4),
+    m_color ("Blue"),
+    m_at_location ("Home"),
+    m_at_coordinates (0,0),
+    m_name ("Devin")
 { }
 
 void SampleSystem::setSize (float s)
@@ -49,7 +49,6 @@ void SampleSystem::setSize (float s)
     publish ("Size", s);
   }
 }
-
 
 void SampleSystem::setSpeed (int s)
 {
@@ -75,7 +74,6 @@ void SampleSystem::setName (const string& n)
   publish ("Name", n);
 }
 
-
 void SampleSystem::move (const string& location, int x, int y)
 {
   if (x != m_at_coordinates.first || y != m_at_coordinates.second) {
@@ -89,11 +87,7 @@ void SampleSystem::move (const string& location, int x, int y)
   }
 }
 
-
 void SampleSystem::hello ()
 {
   cout << "Hello World" << endl;
 }
-
-
-

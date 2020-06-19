@@ -1,10 +1,4 @@
-This directory contains a very simple example of a PLEXIL application.  It is
-purely a refinement (no added functionality) of the example in the sister
-directory 'sample-app':
-
- - represents the sample system as a class
- - eliminates use of C macros
- - slightly simplifies the publish/subscribe interface
+This directory contains a very simple example of a PLEXIL application.
 
 Build this example by typing 'make'.
 

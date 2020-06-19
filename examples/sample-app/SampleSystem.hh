@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,17 +34,18 @@
 class SampleSystem
 {
  public:
- 
- SampleSystem (const SampleSystem&) = delete;            // undefined - no copying
 
- static SampleSystem *getInstance () {
-   if (!instance) {
-    instance = new SampleSystem;
+   SampleSystem (const SampleSystem&) = delete;
+   SampleSystem& operator= (const SampleSystem&) = delete;
+
+  static SampleSystem *getInstance () {
+    if (!instance) {
+      instance = new SampleSystem;
+    }
+    return instance;
   }
-  return instance;
- }
-  
-  float getSize () { return m_size; } 
+
+  float getSize () { return m_size; }
   void setSize (float);
 
   int getSpeed () { return m_speed; }
@@ -64,13 +65,13 @@ class SampleSystem
   std::string at () { return m_at_location; }
   bool at (const std::string& location) { return location == m_at_location; }
   bool at (int x, int y) { return (x == m_at_coordinates.first &&
-								   y == m_at_coordinates.second); }
+                                   y == m_at_coordinates.second); }
 
   // This command changes the 'at' state.
   void move (const std::string& location, int x, int y);
 
   // Some trivial commands
-  void hello ();  
+  void hello ();
   int square (int x) { return x * x; }
   int cube (int x) { return x * x * x; }
 
@@ -78,11 +79,8 @@ class SampleSystem
 
   // TODO: CHANGE SOME COMMENTS HERE
   SampleSystem();
-  
-  static SampleSystem *instance;
-  // using compiler's destructor; no assignment or copy
 
-  // SampleSystem& operator= (const SampleSystem&); // undefined - no assignment
+  static SampleSystem *instance;
 
   float m_size;
   int m_speed;
@@ -93,6 +91,3 @@ class SampleSystem
 };
 
 #endif
-
-
-

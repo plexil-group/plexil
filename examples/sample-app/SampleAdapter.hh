@@ -41,6 +41,10 @@ using namespace PLEXIL;
 class SampleAdapter : public InterfaceAdapter
 {
 public:
+  static SampleAdapter* instance() {
+    return m_adapter;
+  }
+
   SampleAdapter (AdapterExecInterface&, const pugi::xml_node&);
 
   bool initialize();
@@ -48,7 +52,6 @@ public:
   bool stop();
   bool reset();
   bool shutdown();
-  static SampleAdapter * m_adapter;
 
   virtual void executeCommand(Command *cmd);
   virtual void lookupNow (State const& state, StateCacheEntry &entry);
@@ -64,16 +67,13 @@ public:
   void propagateValueChange (const State& state,
                              const std::vector<Value>& vals) const;
 
-  void propagate (const State& state, const std::vector<Value>& value);                   
+  void propagate (const State& state, const std::vector<Value>& value);
 
 private:
 
   bool isStateSubscribed(const State& state) const;
 
-  static void instance(SampleAdapter *Adptr) {
-    m_adapter = Adptr;
-  }
-
+  static SampleAdapter * m_adapter;
   std::set<State> m_subscribedStates;
 };
 
