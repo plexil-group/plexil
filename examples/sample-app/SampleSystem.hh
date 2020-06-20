@@ -37,12 +37,13 @@ class SampleSystem
 
    SampleSystem (const SampleSystem&) = delete;
    SampleSystem& operator= (const SampleSystem&) = delete;
+   ~SampleSystem();
 
   static SampleSystem *getInstance () {
-    if (!m_instance) {
-      m_instance = new SampleSystem;
+    if (!m_system) {
+      m_system = new SampleSystem;
     }
-    return m_instance;
+    return m_system;
   }
 
   float getSize () { return m_size; }
@@ -79,7 +80,7 @@ class SampleSystem
 
   SampleSystem();
 
-  static SampleSystem *m_instance;
+  static SampleSystem *m_system;
 
   float m_size;
   int m_speed;

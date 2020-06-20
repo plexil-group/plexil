@@ -46,6 +46,7 @@ public:
   }
 
   SampleAdapter (AdapterExecInterface&, const pugi::xml_node&);
+  ~SampleAdapter();
 
   bool initialize();
   bool start();

@@ -42,6 +42,11 @@ SampleSystem::SampleSystem ()
     m_name ("Devin")
 { }
 
+SampleSystem::~SampleSystem ()
+{
+  delete m_system;
+}
+
 void SampleSystem::setSize (float s)
 {
   if (s != m_size) {

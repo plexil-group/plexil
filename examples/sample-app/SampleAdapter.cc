@@ -56,7 +56,7 @@ static string error = "Error in SampleAdaptor: ";
 static Value const Unknown;
 
 // Static member initialization
-SampleSystem *SampleSystem::m_instance = 0;
+SampleSystem *SampleSystem::m_system = 0;
 SampleAdapter *SampleAdapter::m_adapter = 0;
 
 // An empty argument vector.
@@ -173,6 +173,10 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
 {
   m_adapter = this;
   debugMsg("SampleAdapter", " created.");
+}
+
+SampleAdapter::~SampleAdapter ()
+{
 }
 
 bool SampleAdapter::initialize()
