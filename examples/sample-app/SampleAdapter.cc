@@ -56,7 +56,7 @@ static string error = "Error in SampleAdaptor: ";
 static Value const Unknown;
 
 // Static member initialization
-SampleSystem *SampleSystem::instance = 0;
+SampleSystem *SampleSystem::m_instance = 0;
 SampleAdapter *SampleAdapter::m_adapter = 0;
 
 // An empty argument vector.
@@ -133,25 +133,25 @@ static State createState (const string& state_name, const vector<Value>& value)
 
 static void receiveInt (const string& state_name, int val)
 {
-  SampleAdapter::instance()->propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
                                         vector<Value> (1, val));
 }
 
 static void receiveFloat (const string& state_name, float val)
 {
-  SampleAdapter::instance()->propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
                                         vector<Value> (1, val));
 }
 
 static void receiveString (const string& state_name, const string& val)
 {
-  SampleAdapter::instance()->propagate (createState(state_name, EmptyArgs),
+  SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
                                         vector<Value> (1, val));
 }
 
 static void receiveBoolString (const string& state_name, bool val, const string& arg)
 {
-  SampleAdapter::instance()->propagate (createState(state_name, vector<Value> (1, arg)),
+  SampleAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
                                         vector<Value> (1, val));
 }
 
@@ -160,7 +160,7 @@ static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  SampleAdapter::instance()->propagate (createState(state_name, vec),
+  SampleAdapter::getInstance()->propagate (createState(state_name, vec),
                                         vector<Value> (1, val));
 }
 

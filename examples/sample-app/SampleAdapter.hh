@@ -41,7 +41,7 @@ using namespace PLEXIL;
 class SampleAdapter : public InterfaceAdapter
 {
 public:
-  static SampleAdapter* instance() {
+  static SampleAdapter* getInstance() {
     return m_adapter;
   }
 
