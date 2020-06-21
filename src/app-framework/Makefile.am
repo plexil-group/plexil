@@ -34,7 +34,7 @@ if DEBUG_LISTENER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I$(top_srcdir)/interfaces/PlanDebugListener
 endif
 
-if GANTT_LISTENER_OPT
+if GANTT_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I$(top_srcdir)/interfaces/GanttListener
 endif
 

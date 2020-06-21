@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,8 @@ SUBDIRS = utils value expr intfc exec \
  third-party/pugixml/src xml-parser app-framework \
  interfaces/Launcher \
  $(MAYBE_DEBUG_LISTENER_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) \
- $(MAYBE_UNIVERSAL_EXEC_SUBDIRS) \
- $(MAYBE_GANTT_SUBDIRS) $(MAYBE_IPC_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
- $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS)
-
+ $(MAYBE_GANTT_SUBDIRS) \
+ $(MAYBE_TEST_EXEC_SUBDIRS) \
+ $(MAYBE_IPC_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
+ $(MAYBE_UDP_SUBDIRS) \
+ $(MAYBE_UNIVERSAL_EXEC_SUBDIRS)
