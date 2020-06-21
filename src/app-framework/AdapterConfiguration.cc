@@ -104,46 +104,46 @@ namespace PLEXIL {
 
 #ifdef HAVE_DEBUG_LISTENER
     // Every application should have access to the Plan Debug Listener
-#ifdef PLEXIL_STATIC
-    initPlanDebugListener();
-#else
+#ifdef PIC
     dynamicLoadModule("PlanDebugListener", NULL);
+#else
+    initPlanDebugListener();
 #endif
 #endif
 
 #ifdef HAVE_GANTT_LISTENER
     // Every application should have access to the GANTT Listener
-#ifdef PLEXIL_STATIC
-    initGanttListener();
-#else
+#ifdef PIC
     dynamicLoadModule("GanttListener", NULL);
+#else
+    initGanttListener();
 #endif
 #endif
 
 #ifdef HAVE_IPC_ADAPTER
     // Every application should have access to the IPC Adapter
-#ifdef PLEXIL_STATIC
-    initIpcAdapter();
-#else
+#ifdef PIC
     dynamicLoadModule("IpcAdapter", NULL);
+#else
+    initIpcAdapter();
 #endif
 #endif
 
 #ifdef HAVE_LUV_LISTENER
     // Every application should have access to the Plexil Viewer (formerly LUV) Listener
-#ifdef PLEXIL_STATIC
-    initLuvListener();
-#else
+#ifdef PIC
     dynamicLoadModule("LuvListener", NULL);
+#else
+    initLuvListener();
 #endif
 #endif
 
 #ifdef HAVE_UDP_ADAPTER
     // Every application should have access to the UDP Adapter
-#ifdef PLEXIL_STATIC
-    initUdpAdapter();
-#else
+#ifdef PIC
     dynamicLoadModule("UdpAdapter", NULL);
+#else
+    initUdpAdapter();
 #endif
 #endif
 
