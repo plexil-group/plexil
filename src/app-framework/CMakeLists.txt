@@ -49,8 +49,9 @@ target_link_libraries(PlexilAppFramework PUBLIC
   -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser)
 
-if(NOT BUILD_SHARED_LIBS)
-  target_compile_definitions(PlexilAppFramework PRIVATE PLEXIL_STATIC=1)
+# For consistency with GNU libtool
+if(BUILD_SHARED_LIBS)
+  target_compile_definitions(PlexilAppFramework PRIVATE PIC)
 endif()
 
 if(HAVE_LIBPTHREAD AND PLEXIL_WITH_THREADS)
