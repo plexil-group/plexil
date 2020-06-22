@@ -39,6 +39,7 @@ public:
   Robot(const TerrainBase* _terrain,
 	EnergySources* _resources,
         Goals* _goals,
+        Flags* _flags,
 	RobotPositionServer* _posServer,
 	IpcRobotAdapter& adapter,
 	const std::string& _name = "Robot0",
@@ -80,6 +81,8 @@ private:
   PLEXIL::Value queryEnergySensor();
 
   PLEXIL::Value queryGoalSensor();
+  
+  PLEXIL::Value queryFlagSensor();
 
   PLEXIL::Value queryVisibility();
 

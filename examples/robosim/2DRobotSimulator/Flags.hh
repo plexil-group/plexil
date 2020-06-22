@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,40 +24,26 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ROBOT_BASE_HH
-#define ROBOT_BASE_HH
-#include "TerrainBase.hh"
-#include "EnergySources.hh"
-#include "Goals.hh"
-#include "Flags.hh"
-#include "RobotPositionServer.hh"
+#ifndef FLAGS_HH
+#define FLAGS_HH
 
-#include "Value.hh"
+#include <vector>
 
-class RobotBase
+class Flags
 {
 public:
-  RobotBase(const TerrainBase* _terrain, EnergySources* _resources, Goals* _goals,
-            Flags* _flags, RobotPositionServer* _posServer)
-    : m_Terrain(_terrain), m_EnergySources(_resources), m_Goals(_goals),
-      m_Flags(_flags), m_RobotPositionServer(_posServer)
-  {
-  }
-
-  virtual ~RobotBase()
-  {
-  }
+  Flags(int _size=0, double _radius=8.5);
+  ~Flags();
   
-  virtual void displayRobot(void) = 0;
+  void displayFlags();
+  double determineFlagLevel(int rowCurr, int colCurr) const;
 
-  virtual PLEXIL::Value processCommand(const std::string& cmd, int32_t parameter) = 0;
+private:
+  void readFlagLocations();
 
-protected:
-  const TerrainBase* m_Terrain;
-  EnergySources* m_EnergySources;
-  Goals* m_Goals;
-  Flags* m_Flags;
-  RobotPositionServer* m_RobotPositionServer;
+  int m_TerrainSize;
+  double m_Radius;
+  std::vector<std::vector<int> > m_FlagLocations;
 };
 
-#endif // ROBOT_BASE_HH
+#endif // FLAGS_HH

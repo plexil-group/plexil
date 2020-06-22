@@ -41,6 +41,7 @@
 #include "EnergySources.hh"
 #include "MazeTerrain.hh"
 #include "Goals.hh"
+#include "Flags.hh"
 #include "IpcRobotAdapter.hh"
 #include "Robot.hh"
 #include "RobotPositionServer.hh"
@@ -53,6 +54,7 @@ static bool cleanUp = false;
 static MazeTerrain* terrain = NULL;
 static EnergySources* resources = NULL;
 static Goals* goals = NULL;
+static Flags* flags = NULL;
 static RobotPositionServer* robotPoseServer = NULL;
 static IpcRobotAdapter* ipcAdapter = NULL;
 static std::vector<RobotBase*> robotList;
@@ -74,6 +76,7 @@ static void cleanUpFunction(void)
   delete terrain;
   delete resources;
   delete goals;
+  delete flags;
   delete robotPoseServer;
   
   for (std::vector<RobotBase*>::const_iterator iter = robotList.begin();
@@ -101,8 +104,9 @@ void display2(void)
 
   glClear(GL_COLOR_BUFFER_BIT);
   
-  goals->displayGoals();
   resources->displayEnergySources();
+  flags->displayFlags();
+  goals->displayGoals();
   terrain->displayFixedTerrain();
   
   for(std::vector<RobotBase*>::const_iterator iter = robotList.begin();
@@ -204,7 +208,8 @@ void readRobotLocations(const std::string& fName)
 
       Robot* robot = new Robot(terrain, 
                                resources,
-                               goals, 
+                               goals,
+                               flags, 
                                robotPoseServer,
                                *ipcAdapter, 
                                name, 
@@ -269,6 +274,7 @@ int main(int argc, char** argv)
   terrain = new MazeTerrain("maze32.data");
   resources = new EnergySources("energySource.data", terrain->getHeight());
   goals = new Goals(terrain->getHeight(), 25.5);
+  flags = new Flags(terrain->getHeight(), 25.5);
   robotPoseServer = new RobotPositionServer(terrain->getHeight(), terrain->getWidth());
 
   readRobotLocations("Robots.data");
@@ -299,5 +305,4 @@ int main(int argc, char** argv)
 
   return 0;
 }
-
 

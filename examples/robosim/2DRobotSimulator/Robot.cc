@@ -47,6 +47,7 @@ extern "C" {
 Robot::Robot(const TerrainBase* _terrain,
 	     EnergySources* _resources,
              Goals* _goals,
+             Flags* _flags,
 	     RobotPositionServer* _posServer,
 	     IpcRobotAdapter& adapter,
 	     const std::string& _name, 
@@ -55,7 +56,7 @@ Robot::Robot(const TerrainBase* _terrain,
 	     double red, 
 	     double green,
              double blue)
-    : RobotBase(_terrain, _resources, _goals, _posServer),
+    : RobotBase(_terrain, _resources, _goals, _flags, _posServer),
       m_DirOffset(5, std::vector<int>(2)),
       m_Name(_name),
       m_RobotPositionMutex(),
@@ -219,6 +220,8 @@ PLEXIL::Value Robot::processCommand(const std::string& cmd, int32_t parameter)
     return queryEnergySensor();
   else if (cmd == "QueryGoalSensor")
     return queryGoalSensor();
+  else if (cmd == "QueryFlagSensor")
+    return queryFlagSensor();
   else if (cmd == "QueryVisibilitySensor")
     return queryVisibility();
   else if (cmd == "QueryRobotState")
@@ -297,6 +300,21 @@ PLEXIL::Value Robot::queryGoalSensor()
        dIter != m_DirOffset.end();
        ++dIter)
       result.push_back(m_Goals->determineGoalLevel(row+(*dIter)[0], 
+                                                   col+(*dIter)[1]));
+
+  return PLEXIL::Value(PLEXIL::RealArray(result));
+}
+
+PLEXIL::Value Robot::queryFlagSensor()
+{
+  int row, col;
+  m_RobotPositionServer->getRobotPosition(m_Name, row, col);
+  
+  std::vector<double> result;
+  for (std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
+       dIter != m_DirOffset.end();
+       ++dIter)
+      result.push_back(m_Flags->determineFlagLevel(row+(*dIter)[0], 
                                                    col+(*dIter)[1]));
 
   return PLEXIL::Value(PLEXIL::RealArray(result));
