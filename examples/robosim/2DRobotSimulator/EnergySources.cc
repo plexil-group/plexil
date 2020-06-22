@@ -108,7 +108,7 @@ void EnergySources::displayEnergySources()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
   PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
   for (unsigned int i = 0; i < m_EnergySourceLocations.size(); ++i)
-    {
+  {
       int row = m_EnergySourceLocations[i][0];
       int col = m_EnergySourceLocations[i][1];
 
@@ -123,8 +123,20 @@ void EnergySources::displayEnergySources()
           glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
                      1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
         }
-      glEnd();   
-    }
+      glEnd();
+
+
+      glBegin(GL_TRIANGLES);  
+      glColor4f(.918, .859, .047, 1);
+      glVertex2f(-1.0+(col+.11)*rWidth+rWidth/2.0, 1.0-(row-.45)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col-.19)*rWidth+rWidth/2.0, 1.0-(row+.08)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col+.01)*rWidth+rWidth/2.0, 1.0-(row+.07)*rWidth-rWidth/2.0);
+      glColor4f(.918, .859, .047, 1);
+      glVertex2f(-1.0+(col-.09)*rWidth+rWidth/2.0, 1.0-(row+.42)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col+.17)*rWidth+rWidth/2.0, 1.0-(row-.05)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col-.01)*rWidth+rWidth/2.0, 1.0-(row-.05)*rWidth-rWidth/2.0);
+      glEnd();
+  }
 }
 
 bool EnergySources::parseOneElement(const std::string& delimiter, const std::string& dataStr,

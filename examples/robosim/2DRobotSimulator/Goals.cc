@@ -59,13 +59,45 @@ void Goals::displayGoals()
       
       glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
       
-      glColor4f(0.8, 0.8, 0.8, 0.0);
+      glColor4f(0.8, 0.8, 0.8, 0.1);
       for (double theta = 0; theta <= 360; theta += 10.0)
         {
           glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
                      1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
         }
       glEnd();   
+
+      // Draw goal icon      
+      glBegin(GL_QUAD_STRIP);
+      glColor4f(.715, .047, .918, 1.0);
+      
+      for (double theta = 0; theta <= 360; theta += 30.0)
+      {
+          glVertex2f(-1.0+(col + .3*cos(theta*PI/180.0))*rWidth+rWidth/2.0, 
+                     1.0-(row-.3*sin(theta*PI/180.0))*rWidth-rWidth/2.0);
+          glVertex2f(-1.0+(col + .2*cos(theta*PI/180.0))*rWidth+rWidth/2.0, 
+                     1.0-(row-.2*sin(theta*PI/180.0))*rWidth-rWidth/2.0);
+      }
+      glEnd();   
+      glBegin(GL_QUADS);
+      glColor4f(.715, .047, .918, 1.0);
+      glVertex2f(-1.0+(col - .4)*rWidth+rWidth/2.0, 1.0-(row-.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .4)*rWidth+rWidth/2.0, 1.0-(row+.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .2)*rWidth+rWidth/2.0, 1.0-(row+.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .2)*rWidth+rWidth/2.0, 1.0-(row-.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .4)*rWidth+rWidth/2.0, 1.0-(row-.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .4)*rWidth+rWidth/2.0, 1.0-(row+.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .2)*rWidth+rWidth/2.0, 1.0-(row+.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .2)*rWidth+rWidth/2.0, 1.0-(row-.04)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .04)*rWidth+rWidth/2.0, 1.0-(row-.4)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .04)*rWidth+rWidth/2.0, 1.0-(row-.4)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .04)*rWidth+rWidth/2.0, 1.0-(row-.2)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .04)*rWidth+rWidth/2.0, 1.0-(row-.2)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .04)*rWidth+rWidth/2.0, 1.0-(row+.4)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .04)*rWidth+rWidth/2.0, 1.0-(row+.4)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col + .04)*rWidth+rWidth/2.0, 1.0-(row+.2)*rWidth-rWidth/2.0);
+      glVertex2f(-1.0+(col - .04)*rWidth+rWidth/2.0, 1.0-(row+.2)*rWidth-rWidth/2.0);
+      glEnd();
     }
 }
 
