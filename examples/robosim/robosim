@@ -54,4 +54,25 @@ plexil_check_prog "$prog"
 dir="$PLEXIL_HOME"/examples/robosim/2DRobotSimulator
 cd "$dir"
 
-exec "$prog" "$@"
+if [ "$1" = "start" ]; then
+    echo "Starting ipc and simulator..."
+    ipc -s -u &
+    shift
+    exec "$prog" "$@" &
+    sleep 2    
+    echo "Done."
+elif [ "$1" = "stop" ]; then
+    echo "Stoping ipc and simulator..."
+    pkill robotSimulator
+    pkill central
+    echo "Done."
+elif [ "$1" = "restart" ]; then
+    echo "Restarting simulator..."
+    pkill robotSimulator
+    shift
+    exec "$prog" "$@" &
+    sleep 2
+    echo "Done." 
+else
+    exec "$prog" "$@"
+fi
