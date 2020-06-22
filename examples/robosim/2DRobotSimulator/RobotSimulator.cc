@@ -98,6 +98,17 @@ GLvoid ReSizeGLScene(int Width, int Height)
   glViewport(0, 0, (GLint)Width, (GLint)Height);
 }
 
+void drawBitmapText(char *string,float x,float y) 
+{  
+    char *c;
+    glRasterPos2f(x, y);
+
+    for (c=string; c != NULL && *c != '\0'; c++) 
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
+
 void display2(void)
 {
   /* clear window */
@@ -113,18 +124,34 @@ void display2(void)
       iter != robotList.end(); ++iter)
     (*iter)->displayRobot();
   
+  char str[] = "To toggle visibility of detection ranges press: [e]nergy, [g]oal, [f]lag.";
+  glColor3f(1.0, 1.0, 1.0);
+  drawBitmapText(str, -.6, .97);
+  
   glFlush();
   glutSwapBuffers();
+}
+
+void MyKeyboardFunc(unsigned char key, int x, int y)
+{
+  switch(key)
+  {
+    case 'g': goals->toggleAreaVisibility(); break;
+    case 'e': resources->toggleAreaVisibility(); break;
+    case 'f': flags->toggleAreaVisibility(); break;
+  }
 }
 
 
 void init()
 {
   /* set clear color to black */
-  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClearColor (0.1, 0.1, 0.1, 0.1);
   
   /* set fill color to white */
   glColor3f(1.0, 1.0, 1.0);
+
+  glutKeyboardFunc(MyKeyboardFunc);
   
   /* set up standard orthogonal view with clipping */
   /* box as cube of side 2 centered at origin */

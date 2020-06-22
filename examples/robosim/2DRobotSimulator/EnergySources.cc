@@ -40,7 +40,8 @@
 EnergySources::EnergySources(const std::string& fName, int _size, double _radius) : 
   m_EnergySourceListMutex(),
   m_Size(_size),
-  m_Radius(_radius)
+  m_Radius(_radius),
+  m_AreaVisibility(false)
 {
   readEnergySourceLocations(fName);
 }
@@ -112,20 +113,24 @@ void EnergySources::displayEnergySources()
       int row = m_EnergySourceLocations[i][0];
       int col = m_EnergySourceLocations[i][1];
 
-      glBegin(GL_TRIANGLE_FAN);
-      glColor4f(.75, 0.0, .75, 1.0);
-      
-      glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
-      
-      glColor4f(.75, 0.0, .75, 0.1);
-      for (double theta = 0; theta <= 360; theta += 10.0)
-        {
-          glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
-                     1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
-        }
-      glEnd();
+      // Draw energy areas
+      if(m_AreaVisibility)
+      {
+          glBegin(GL_TRIANGLE_FAN);
+          glColor4f(.75, 0.0, .75, 1.0);
+          
+          glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
+          
+          glColor4f(.75, 0.0, .75, 0.1);
+          for (double theta = 0; theta <= 360; theta += 10.0)
+            {
+              glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
+                         1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
+            }
+          glEnd();
+      }
 
-
+      // Draw energy icons
       glBegin(GL_TRIANGLES);  
       glColor4f(.918, .859, .047, 1);
       glVertex2f(-1.0+(col+.11)*rWidth+rWidth/2.0, 1.0-(row-.45)*rWidth-rWidth/2.0);

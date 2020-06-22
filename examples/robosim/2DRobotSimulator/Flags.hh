@@ -37,12 +37,14 @@ public:
   
   void displayFlags();
   double determineFlagLevel(int rowCurr, int colCurr) const;
+  void toggleAreaVisibility() {m_AreaVisibility = !m_AreaVisibility;}
 
 private:
   void readFlagLocations();
 
   int m_TerrainSize;
   double m_Radius;
+  bool m_AreaVisibility;
   std::vector<std::vector<int> > m_FlagLocations;
 };
 

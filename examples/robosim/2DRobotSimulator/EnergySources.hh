@@ -48,6 +48,8 @@ public:
   double determineEnergySourceLevel(int rowCurr, int colCurr);
 
   void displayEnergySources();
+  
+  void toggleAreaVisibility() {m_AreaVisibility = !m_AreaVisibility;}
 
 private:
 
@@ -59,6 +61,7 @@ private:
   std::vector<std::vector<int> > m_EnergySourceLocations;
   int m_Size;
   double m_Radius;
+  bool m_AreaVisibility;
 };
 
 #endif //ENERGY_SOURCES_HH

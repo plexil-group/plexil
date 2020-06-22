@@ -33,7 +33,7 @@
 #include "Macros.hh"
 #include "Flags.hh"
 
-Flags::Flags(int _size, double _radius) : m_TerrainSize(_size), m_Radius(_radius)
+Flags::Flags(int _size, double _radius) : m_TerrainSize(_size), m_Radius(_radius), m_AreaVisibility(false)
 {
   readFlagLocations();
 }
@@ -44,29 +44,32 @@ Flags::~Flags()
 
 void Flags::displayFlags()
 {
-  double rWidth = 2.0 / static_cast<double>(m_TerrainSize);
-  double radius = m_Radius * rWidth;
-  
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-  for (unsigned int i = 0; i < m_FlagLocations.size(); ++i)
+    double rWidth = 2.0 / static_cast<double>(m_TerrainSize);
+    double radius = m_Radius * rWidth;
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+    for (unsigned int i = 0; i < m_FlagLocations.size(); ++i)
     {
-      int row = m_FlagLocations[i][0];
-      int col = m_FlagLocations[i][1];
-      
-      glBegin(GL_TRIANGLE_FAN);
-      glColor4f(0.0, 1.0, 0.8, 1.0);
-      
-      glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
-      
-      glColor4f(0.0, 1.0, 0.8, 0.1);
-      for (double theta = 0; theta <= 360; theta += 10.0)
+        int row = m_FlagLocations[i][0];
+        int col = m_FlagLocations[i][1];
+        //Draw flag visibility
+        if(m_AreaVisibility)
         {
-          glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
-                     1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
-        }
-      glEnd();   
-      
+          glBegin(GL_TRIANGLE_FAN);
+          glColor4f(0.0, 1.0, 0.8, 1.0);
+          
+          glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
+          
+          glColor4f(0.0, 1.0, 0.8, 0.1);
+          for (double theta = 0; theta <= 360; theta += 10.0)
+            {
+              glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
+                         1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
+            }
+          glEnd();
+        }   
+        // Draw flag icon
         glBegin(GL_QUADS);  
         glColor4f(.078, .699, .336, 1);
         glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row-.25)*rWidth-rWidth/2.0);
@@ -113,7 +116,6 @@ double Flags::determineFlagLevel(int rowCurr, int colCurr) const
   
   return maxValue;
 }
-
 
 void Flags::readFlagLocations()
 {
