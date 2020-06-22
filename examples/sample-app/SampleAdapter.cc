@@ -177,6 +177,7 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
 
 SampleAdapter::~SampleAdapter ()
 {
+  m_adapter = nullptr;
 }
 
 bool SampleAdapter::initialize()

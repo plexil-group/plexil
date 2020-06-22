@@ -44,7 +44,9 @@ SampleSystem::SampleSystem ()
 
 SampleSystem::~SampleSystem ()
 {
-  delete m_system;
+  if (m_system) {
+    delete m_system;
+  }
 }
 
 void SampleSystem::setSize (float s)
