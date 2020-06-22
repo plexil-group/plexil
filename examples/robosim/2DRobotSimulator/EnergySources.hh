@@ -35,7 +35,7 @@
 class EnergySources
 {
 public:
-  EnergySources(const std::string& fName="", int _size=0, double _radius=1.5);
+  EnergySources(const std::string& fName="", int _size=0, double _radius=6);
   ~EnergySources();
 
   const std::vector<std::vector<int> >& getEnergySourceLocations() const

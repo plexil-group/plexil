@@ -104,18 +104,20 @@ void EnergySources::displayEnergySources()
   double rWidth = 2.0 / static_cast<double>(m_Size);
   double radius = m_Radius * rWidth;
   
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
   PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
   for (unsigned int i = 0; i < m_EnergySourceLocations.size(); ++i)
     {
       int row = m_EnergySourceLocations[i][0];
       int col = m_EnergySourceLocations[i][1];
-      
+
       glBegin(GL_TRIANGLE_FAN);
-      glColor3f(.75, 0.0, .75);
+      glColor4f(.75, 0.0, .75, 1.0);
       
       glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
       
-      glColor3f(0.0, 0.0, 0.0);
+      glColor4f(.75, 0.0, .75, 0.1);
       for (double theta = 0; theta <= 360; theta += 10.0)
         {
           glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
