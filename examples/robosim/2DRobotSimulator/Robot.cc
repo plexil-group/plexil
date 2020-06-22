@@ -412,7 +412,12 @@ PLEXIL::Value Robot::moveRobotInternal(int rowDirOffset, int colDirOffset)
   int colNext = colCurr + colDirOffset;
   int32_t result;
   bool traversible = false;
-  if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
+
+  if (m_EnergyLevel <= 0) { 
+    debugMsg("Robot:moveRobot", " Cannot move to desired location due to lack of robot power.");
+    result = -2;
+  }
+  else if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
       && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
     setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
     updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.1);
