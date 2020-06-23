@@ -35,11 +35,6 @@
 ;;;    2. Place this file (plexil-mode.el) in your home/user/.emacs.d/lisp
 ;;;       directory.
 ;;;
-;;;
-;;; NOTE: Some c-mode functions are in this file without modification. These
-;;; are here to be modified in order to correct some indentation problems in
-;;; the future.
-
 
 
 (defconst plexil-mode-syntax-table
@@ -91,18 +86,9 @@ See 'run-hooks'."
   :group 'plexil
   )
 
-;; Supposed to fix issues when using keywords like Concurrence. (Not currently functional)
-(defun set-newline-and-indent-node-with-keyword ()
-  (newline)
-  (c-electric-backspace)
-  (c-electric-backspace)
-  )
-
 ;; Correct some indentation issues with c-indent-line-or-region.
 (defun set-newline-and-indent-node ()
-  (if (looking-at  "[a-z0-9A-Z]+: [a-z0-9A-Z]+")
-      (local-set-key (kbd RET) '(set-newline-and-indent-node-with-keyword))   
-    )
+
   (if (looking-at "[ \t]*[a-z0-9A-Z_]+[:]?[ ]+[a-z0-9A-Z]*")
       (progn (local-set-key (kbd ":") '(":"))
 	     (local-set-key (kbd "{") '("{"))
@@ -112,13 +98,27 @@ See 'run-hooks'."
 	     (local-set-key (kbd ";") '(";"))
 	     ))
   (if (looking-at "[...]*{")
-      (local-set-key (kbd TAB) '(DEL))
+      ;;(local-set-key (kbd TAB) '(DEL))
     (local-set-key (kbd "RET") '("RET"))
     (local-set-key (kbd ":") '(":"))
     (local-set-key (kbd "{") '("{")))
+
+  ;; Supposed to stop TAB from indenting on an empty line in a new node. Not currently working.
+  (if (looking-at "[...]*{[ \t]*[\n]+")
+      (local-set-key (kbd TAB) '(nil)))
+		  
   )
 
 (add-hook 'plexil-mode-hook 'set-newline-and-indent-node)
+
+
+;; Set C++ style to a more appropriate indentation style for PLEXIL
+;; and a proper offset.
+(add-hook 'plexil-mode-hook
+	  (setq c-default-style
+		'((c++-mode . "ellemtel")))
+	  (setq-default c-basic-offset 2)
+	  )
 
 ;; Define mode, derive from c++-mode. Set syntax highlighting and indentation.
 (define-derived-mode plexil-mode c++-mode "PLEXIL"
@@ -127,4 +127,3 @@ See 'run-hooks'."
   (font-lock-fontify-buffer)
   (run-mode-hooks 'plexil-mode-hook)
   )
-
