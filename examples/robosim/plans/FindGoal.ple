@@ -5,7 +5,7 @@ Integer Command MoveLeft (String robotName);
 Integer Command Move (String robotName, Integer holder);
 Real[5] Command QueryEnergySensor (String robotName);
 Real[5] Command QueryGoalSensor (String robotName);
-Real[3] Command QueryRobotState (String robotName);
+Real[4] Command QueryRobotState (String robotName);
 Integer[4] Command QueryVisibilitySensor (String robotName);
 
 RootNode:
@@ -18,7 +18,7 @@ RootNode:
         Real energy[5] = #(-999.0 0.0 0.0 0.0);
         Real goal[5] = #(-999.0 0.0 0.0 0.0 0.0);
         Integer visible[4] = #(-999 0 0 0);
-        Real rstate[3] = #(-999.0 0.0 1.0);
+        Real rstate[4] = #(-999.0 0.0 1.0 0.0);
         Real moveList[10] = #(0 0 0 0 0 0 0 0 0 0);
     
         //Array assignments

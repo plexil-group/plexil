@@ -28,7 +28,7 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Real[3] Command QueryRobotState(String name);
+Real[4] Command QueryRobotState(String name);
 Integer Command MoveLeft(String name);
 Integer Command MoveRight(String name);
 Integer Command MoveUp(String name);
@@ -43,7 +43,7 @@ FourSteps:
 
     GetStartPosition:
     {
-		Real RobotState[3];
+		Real RobotState[4];
 		GetRobotState:
         { 
 			EndCondition isKnown(RobotState[0]);
