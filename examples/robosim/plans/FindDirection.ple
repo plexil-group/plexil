@@ -1,0 +1,20 @@
+FindDirection:
+{
+    In Real directionVals[4];   // The value of moving in each direction (Read Only)
+    In Integer visibilityVals[4];  // The visibility value of each direction (Read Only)
+    InOut Integer maxDirection; // An out-parameter used to return the best direction to the calling action.
+
+    Real maxVal = 0;    // Track the max val just like before
+
+    StartCondition isKnown(directionVals[0]);
+
+    for(Integer i = 0; i < 4; i + 1)
+    {
+        if(visibilityVals[i] == 1 && directionVals[i] > maxVal)
+        {
+            maxDirection = i;
+            maxVal = directionVals[i];
+        }
+        endif
+    }
+}
