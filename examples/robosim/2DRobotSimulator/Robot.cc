@@ -420,7 +420,7 @@ PLEXIL::Value Robot::moveRobotInternal(int rowDirOffset, int colDirOffset)
   else if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
       && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
     setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
-    updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.1);
+    updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.05);
     debugMsg("Robot:moveRobot", " Move to " << rowNext << ", " << colNext << " succeeded.");
     result = 1;
   }
