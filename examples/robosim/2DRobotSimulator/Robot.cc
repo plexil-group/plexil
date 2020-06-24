@@ -55,7 +55,8 @@ Robot::Robot(const TerrainBase* _terrain,
 	     int initCol,
 	     double red, 
 	     double green,
-             double blue)
+         double blue,
+         bool _hasFlag)
     : RobotBase(_terrain, _resources, _goals, _flags, _posServer),
       m_DirOffset(5, std::vector<int>(2)),
       m_Name(_name),
@@ -64,6 +65,7 @@ Robot::Robot(const TerrainBase* _terrain,
       m_Red(red),
       m_Green(green),
       m_Blue(blue),
+      m_HasFlag(_hasFlag),
       m_EnergyLevel(1.0), 
       m_BeamWidth(0.01),
       m_ScanScale(0.0),
@@ -150,6 +152,9 @@ void Robot::displayRobot(void)
     m_ScanScale += 0.1;
     if (m_ScanScale > 1.0) m_ScanScale = 0.0;
   }
+
+  if(m_HasFlag)
+      m_Flags->drawFlag(row, col);
 }
 
 // Purely for demo to have a robot moving in the scene
@@ -270,8 +275,9 @@ PLEXIL::Value Robot::queryRobotState()
   result.push_back((double) col);
   double energyLevel = readRobotEnergyLevel();
   result.push_back(energyLevel);
+  result.push_back(m_HasFlag);
   debugMsg("Robot:queryRobotState",
-           " returning " << row << ", " << col << ", " << energyLevel);
+           " returning " << row << ", " << col << ", " << energyLevel << ", " << m_HasFlag);
   return PLEXIL::Value(PLEXIL::RealArray(result));
 }
 
@@ -420,6 +426,8 @@ PLEXIL::Value Robot::moveRobotInternal(int rowDirOffset, int colDirOffset)
   else if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
       && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
     setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
+    if(!m_HasFlag)
+        m_HasFlag = m_Flags->acquireFlag(rowNext, colNext);
     updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.05);
     debugMsg("Robot:moveRobot", " Move to " << rowNext << ", " << colNext << " succeeded.");
     result = 1;

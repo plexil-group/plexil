@@ -42,46 +42,74 @@ Flags::~Flags()
 {
 }
 
-void Flags::displayFlags()
+bool Flags::acquireFlag(int row, int col)
+{
+  // if available return eliminate from m_Flags and return
+  // true
+  // else false
+  
+  bool found = false;
+  //PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
+  
+  for (std::vector<std::vector<int> >::iterator iter = m_FlagLocations.begin();
+       (iter != m_FlagLocations.end()) && !found; ++iter)
+    {
+      if (((*iter)[0] == row) && (*iter)[1] == col)
+        {
+          m_FlagLocations.erase(iter);
+          found = true;
+        }
+    }
+  
+  return found;
+}
+
+void Flags::drawFlag(int row, int col)
 {
     double rWidth = 2.0 / static_cast<double>(m_TerrainSize);
     double radius = m_Radius * rWidth;
-
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-    for (unsigned int i = 0; i < m_FlagLocations.size(); ++i)
+    
+    //Draw flag visibility
+    if(m_AreaVisibility)
     {
+      glBegin(GL_TRIANGLE_FAN);
+      glColor4f(0.0, 1.0, 0.8, 1.0);
+      
+      glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
+      
+      glColor4f(0.0, 1.0, 0.8, 0.1);
+      for (double theta = 0; theta <= 360; theta += 10.0)
+        {
+          glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
+                     1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
+        }
+      glEnd();
+    }   
+    // Draw flag icon
+    glBegin(GL_QUADS);  
+    glColor4f(.078, .699, .336, 1);
+    glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row-.25)*rWidth-rWidth/2.0);
+    glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
+    glVertex2f(-1.0+(col+.15)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
+    glVertex2f(-1.0+(col+.3)*rWidth+rWidth/2.0, 1.0-(row-.25)*rWidth-rWidth/2.0);
+    glColor4f(.078, .699, .336, 1);
+    glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
+    glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row+.25)*rWidth-rWidth/2.0);
+    glVertex2f(-1.0+(col+.3)*rWidth+rWidth/2.0, 1.0-(row+.25)*rWidth-rWidth/2.0);
+    glVertex2f(-1.0+(col+.15)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
+    glEnd();
+}
+
+void Flags::displayFlags()
+{
+    for (unsigned int i = 0; i < m_FlagLocations.size(); ++i)
+   {
         int row = m_FlagLocations[i][0];
         int col = m_FlagLocations[i][1];
-        //Draw flag visibility
-        if(m_AreaVisibility)
-        {
-          glBegin(GL_TRIANGLE_FAN);
-          glColor4f(0.0, 1.0, 0.8, 1.0);
-          
-          glVertex2f(-1.0+col*rWidth+rWidth/2.0, 1.0-row*rWidth-rWidth/2.0);
-          
-          glColor4f(0.0, 1.0, 0.8, 0.1);
-          for (double theta = 0; theta <= 360; theta += 10.0)
-            {
-              glVertex2f(-1.0+col*rWidth+rWidth/2.0 + radius*cos(theta*PI/180.0), 
-                         1.0-row*rWidth-rWidth/2.0-radius*sin(theta*PI/180.0));
-            }
-          glEnd();
-        }   
-        // Draw flag icon
-        glBegin(GL_QUADS);  
-        glColor4f(.078, .699, .336, 1);
-        glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row-.25)*rWidth-rWidth/2.0);
-        glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
-        glVertex2f(-1.0+(col+.15)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
-        glVertex2f(-1.0+(col+.3)*rWidth+rWidth/2.0, 1.0-(row-.25)*rWidth-rWidth/2.0);
-        glColor4f(.078, .699, .336, 1);
-        glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
-        glVertex2f(-1.0+(col-.3)*rWidth+rWidth/2.0, 1.0-(row+.25)*rWidth-rWidth/2.0);
-        glVertex2f(-1.0+(col+.3)*rWidth+rWidth/2.0, 1.0-(row+.25)*rWidth-rWidth/2.0);
-        glVertex2f(-1.0+(col+.15)*rWidth+rWidth/2.0, 1.0-(row)*rWidth-rWidth/2.0);
-        glEnd();
+        drawFlag(row, col);
     }
 }
 

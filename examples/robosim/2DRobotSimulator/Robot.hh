@@ -47,7 +47,8 @@ public:
 	int initCol=0,
 	double red=1.0,
 	double green=1.0,
-        double blue=1.0);
+    double blue=1.0,
+    bool _hasFlag = false);
 
   ~Robot();
 
@@ -103,6 +104,7 @@ private:
   double m_Red;
   double m_Green;
   double m_Blue;
+  bool m_HasFlag;
   double m_EnergyLevel;
   double m_BeamWidth;
   double m_ScanScale;

@@ -35,7 +35,9 @@ public:
   Flags(int _size=0, double _radius=8.5);
   ~Flags();
   
+  void drawFlag(int row, int col);
   void displayFlags();
+  bool acquireFlag(int row, int col);
   double determineFlagLevel(int rowCurr, int colCurr) const;
   void toggleAreaVisibility() {m_AreaVisibility = !m_AreaVisibility;}
 
