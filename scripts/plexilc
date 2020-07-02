@@ -381,7 +381,12 @@ do
     then
         echo "Compiling file: $1"
     fi
-    compile_argument "$1"
+    if ( echo "$1" | grep -q -e '^-.*' )
+    then
+        compile_argument "./$1"
+    else
+        compile_argument "$1"
+    fi
     shift
 done
 
