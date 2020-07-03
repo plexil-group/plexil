@@ -116,9 +116,8 @@ See 'run-hooks'."
 ;; Set C++ style to a more appropriate indentation style for PLEXIL
 ;; and a proper offset.
 (add-hook 'plexil-mode-hook
-	  (setq c-default-style
-		'((c++-mode . "ellemtel")))
-	  (setq-default c-basic-offset 2)
+	  (setq c-default-style "ellemtel"
+		c-basic-offset 2)
 	  )
 
 ;; Define mode, derive from c++-mode. Set syntax highlighting and indentation.
