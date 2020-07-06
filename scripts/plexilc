@@ -377,7 +377,7 @@ fi
 # Once we have read the options and know that we have files we can compile each of them sequentialy
 while [ $#  -gt 0 ]
 do
-    if [ ! -n "$quiet" ]
+    if [ -z "$quiet" ]
     then
         echo "Compiling file: $1"
     fi
