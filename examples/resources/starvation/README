@@ -1,0 +1,28 @@
+This directory contains an example of starvation (low priority commands
+get run instead of a high priority one) and an equivelant plan which
+does not exhibit starvation (StarvationFixedSequence.ple)
+
+See PDF for details
+
+To run the starvation demo first compile the plans:
+
+  plexilc Simulator.ple
+  plexilc Starvation.ple
+
+Then start the IPC publish/subscribe server used for inter-executive
+communication:
+
+  ipc
+
+Next, start the simulator executive:
+
+  plexilexec -p Simulator.plx -c simulator-config.xml 
+
+Finally, start the starvation demo executive:
+
+  plexilexec -p Starvation.plx -c command-config.xml 
+
+Note that the plans use different interface configuration files.
+
+To run the FixedSequence version of Starvation, do the same commands
+with StarvationFixedSequence instead
