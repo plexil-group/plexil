@@ -118,7 +118,7 @@ generate_output_fname()
             echo "$1" | sed -e "s/$in_ext$/psx/"
             ;;
         * )
-            echo "Error: Unrecognized filename extension \"$in_ext\" for $1" >&2
+            echo "Error: Unrecognized filename extension \"$in_ext\" for $filename" >&2
             echo 'Supported extensions are: epx ple pli plp pst' >&2
             if [ -n "${exit_on_fail}" ]
             then
@@ -145,7 +145,7 @@ compile_std_plexil()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Standard Plexil compilation of $1 failed." >&2
+        echo "Error: Standard Plexil compilation of $filename failed." >&2
         if [ -n "${exit_on_fail}" ]
         then
             exit $status
@@ -182,7 +182,7 @@ compile_plexilisp()
     actual_output="$(generate_output_fname "$1")"
     if [ ! -r "$actual_output" ]
     then
-        echo "Error: Plexilisp translation of $1 failed." >&2
+        echo "Error: Plexilisp translation of $filename failed." >&2
         if [ -n "${exit_on_fail}" ]
         then
             exit 1
@@ -206,7 +206,7 @@ compile_ext_plexil()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Extended Plexil translation of $1 failed." >&2
+        echo "Error: Extended Plexil translation of $filename failed." >&2
         if [ -n "${exit_on_fail}" ]
         then
             exit $status
@@ -221,7 +221,7 @@ compile_plexilscript()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: compilation of $1 failed." >&2
+        echo "Error: compilation of $filename failed." >&2
         if [ -n "${exit_on_fail}" ]
         then
             exit $status
@@ -238,7 +238,7 @@ compile_plp()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Preprocessing of $1 failed." >&2
+        echo "Error: Preprocessing of $filename failed." >&2
         if [ -n "${exit_on_fail}" ]
         then
             exit $status
@@ -258,7 +258,7 @@ compile_argument()
 {
     if [ ! -r "$1" ]
     then
-        echo "Error: file $1 does not exist or is not readable" >&2
+        echo "Error: file $filename does not exist or is not readable" >&2
         if [ -n "${exit_on_fail}" ]
         then
             exit 1
@@ -292,7 +292,7 @@ compile_argument()
             ;;
 
         * )
-            echo "Unable to select compiler for $1" >&2
+            echo "Unable to select compiler for $filename" >&2
             usage
             if [ -n "${exit_on_fail}" ]
             then
@@ -377,9 +377,10 @@ fi
 # Once we have read the options and know that we have files we can compile each of them sequentialy
 while [ $#  -gt 0 ]
 do
+    filename="$(printf "'%s'" "$1" | LC_ALL=POSIX tr -d '[:cntrl:]')"
     if [ -z "$quiet" ]
     then
-        echo "Compiling file: $1"
+        echo "Compiling file: $filename"
     fi
     if ( echo "$1" | grep -q -e '^-.*' )
     then
