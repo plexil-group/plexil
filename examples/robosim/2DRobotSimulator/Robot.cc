@@ -190,7 +190,7 @@ void Robot::updateRobotPosition()
     }
   }
 
-  updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(m_Row, m_Col) - 0.025);
+  updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(m_Row, m_Col) - 0.05);
 }
 
 double Robot::determineEnergySourceLevel()
