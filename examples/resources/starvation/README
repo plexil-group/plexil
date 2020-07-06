@@ -2,7 +2,9 @@ This directory contains an example of starvation (low priority commands
 get run instead of a high priority one) and an equivelant plan which
 does not exhibit starvation (StarvationFixedSequence.ple)
 
-See PDF for details
+This is significant because the current resource arbiter implementation
+can lead to high priority (CalculateLanding) commands to never execute
+in favor of low priority ones (TakePicture, etc.)
 
 To run the starvation demo first compile the plans:
 
