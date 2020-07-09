@@ -33,8 +33,7 @@ void setSubscriber (void (*receiver) (const string& state_name, ValueType val, P
 
   // Check if vector of functions associated with this signature already exists in the map
   auto got = subscribers.find (signature);
-  // If vector does not exist, make it
-  if ( got == subscribers.end() ){
+  if ( got == subscribers.end() ){   // If vector does not exist, make it
     vector<void* (*) ()> new_vector;
     subscribers.emplace(signature,new_vector);
   }

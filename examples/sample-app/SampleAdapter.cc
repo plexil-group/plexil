@@ -139,11 +139,15 @@ static void receiveInt (const string& state_name, int val)
   propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
+static void receiveInt2 (const string& state_name, int val)
+{
+  cout<<"Int handled twice successfully"<<endl;
+}
 
 static void receiveReal (const string& state_name, float val)
 {
   propagate (createState(state_name, EmptyArgs),
-             vector<Value> (1, val));
+             vector<Value> (1,val));
 }
 
 static void receiveString (const string& state_name, const string& val)
@@ -182,6 +186,7 @@ bool SampleAdapter::initialize()
   g_configuration->defaultRegisterAdapter(this);
   Adapter = this;
   setSubscriber (receiveInt);
+  setSubscriber (receiveInt2);
   setSubscriber (receiveReal);
   setSubscriber (receiveString);
   setSubscriber (receiveBoolString);
