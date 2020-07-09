@@ -134,31 +134,31 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 
-static void receive (const string& state_name, int val)
+static void receiveInt (const string& state_name, int val)
 {
   propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, float val)
+static void receiveReal (const string& state_name, float val)
 {
   propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, const string& val)
+static void receiveString (const string& state_name, const string& val)
 {
   propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, bool val, const string& arg)
+static void receiveBoolString (const string& state_name, bool val, const string& arg)
 {
   propagate (createState(state_name, vector<Value> (1, arg)),
              vector<Value> (1, val));
 }
 
-static void receive (const string& state_name, bool val, int arg1, int arg2)
+static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
@@ -181,11 +181,11 @@ bool SampleAdapter::initialize()
 {
   g_configuration->defaultRegisterAdapter(this);
   Adapter = this;
-  setSubscriberInt (receive);
-  setSubscriberReal (receive);
-  setSubscriberString (receive);
-  setSubscriberBoolString (receive);
-  setSubscriberBoolIntInt (receive);
+  setSubscriber (receiveInt);
+  setSubscriber (receiveReal);
+  setSubscriber (receiveString);
+  setSubscriber (receiveBoolString);
+  setSubscriber (receiveBoolIntInt);
   debugMsg("SampleAdapter", " initialized.");
   return true;
 }
