@@ -60,6 +60,8 @@ void setSubscriber (void (*receiver) (const string& state_name, ValueType val, P
   subscribers.emplace(signature,generic_pointer);
 }
 
+
+
 // Publish a state change to the appropriate subscriber
 
 template<class ValueType, class ... ParamTypes>
