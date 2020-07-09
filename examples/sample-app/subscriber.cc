@@ -53,15 +53,14 @@ void setSubscriber (void (*receiver) (const string& state_name, ValueType val, P
 
   // Create a vector made of std::strings that detail the ValueType and then ParamTypes
   vector<string> signature{string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...};
- 
   void* (*generic_pointer)() = reinterpret_cast<void*(*)()>(receiver);
 
-  // Check if vector of functions associated with this signature already exists in the map
-  auto got = subscribers.find (signature);
-  if ( got == subscribers.end() ){   // If vector does not exist, make it
+  // Check if vector of functions associated with this signature already exists in the map, making it if not
+  if (subscribers.find (signature) == subscribers.end() ){
     vector<void* (*) ()> new_vector;
     subscribers.emplace(signature,new_vector);
   }
+  
   // Add the new subscribed function to the list of subscribed values for the signature
   subscribers[signature].push_back(generic_pointer);
 }
