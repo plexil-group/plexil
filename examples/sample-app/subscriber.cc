@@ -27,7 +27,6 @@
 #include "subscriber.hh"
 #include "Debug.hh"
 
-
 using std::string;
 using std::vector;
 using std::unordered_map;
