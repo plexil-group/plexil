@@ -25,49 +25,51 @@
 */
 
 #include "subscriber.hh"
+#include "Debug.hh"
 
 using std::string;
 
-// The subscribers.  Their naming convention is:
-//   Subscribe<value-type><param-type>...
 
-static SubscribeInt SubscriberInt = NULL;
-static SubscribeReal SubscriberReal = NULL;
-static SubscribeString SubscriberString = NULL;
-static SubscribeBoolString SubscriberBoolString = NULL;
-static SubscribeBoolIntInt SubscriberBoolIntInt = NULL;
+// Helper struct for hashing a vector (to use as the key in the unordered_map)
+struct VectorHasher {
+  int operator()(const std::vector<string> &V) const {
+        int hash = V.size();
+	std::hash<string> hasher;
+	for(string const &s : V) {
+	  hash ^= hasher(s) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        }
+        return hash;
+    }
+};
 
-void setSubscriber (SubscribeInt s) { SubscriberInt = s; }
-void setSubscriber (SubscribeReal s) { SubscriberReal = s; }
-void setSubscriber (SubscribeString s) { SubscriberString = s; }
-void setSubscriber (SubscribeBoolString s) { SubscriberBoolString = s; }
-void setSubscriber (SubscribeBoolIntInt s) { SubscriberBoolIntInt = s; }
+//Maps arguments to functions
+static std::unordered_map<std::vector<string>,void* (*)(),VectorHasher> subscribers;
 
 
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
+// Register a subscriber
+// Note that only one subscriber can be registered for each value/parameter combination
+// This was the original functionality and has been preserved, but could be changed easily
+// by switching from a single function pointer to a vector of function pointers as the map value type
+template<class ValueType, class ... ParamTypes>
+void setSubscriber (void (*receiver) (const string& state_name, ValueType val, ParamTypes ... args)){
 
-void publish (const string& state_name, int val)
-{
-  SubscriberInt (state_name, val);
+  // Create a vector made of std::strings that detail the ValueType and then ParamTypes
+  std::vector<string> signature{string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...};
+ 
+  void* (*generic_pointer)() = reinterpret_cast<void*(*)()>(receiver);
+  subscribers.emplace(signature,generic_pointer);
 }
 
-void publish (const string& state_name, float val)
-{
-  SubscriberReal (state_name, val);
-}
+// Publish a state change to the appropriate subscriber
 
-void publish (const string& state_name, const string& val)
-{
-  SubscriberString (state_name, val);
-}
+template<class ValueType, class ... ParamTypes>
+void publish(const std::string& state_name, ValueType val, ParamTypes ... args){
+  // Create a vector made of std::strings that detail the ValueType and then ParamTypes
+  std::vector<string> signature (string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...);
 
-void publish (const std::string& state_name, bool val, const std::string& arg)
-{
-  SubscriberBoolString (state_name, val, arg);
-}
-
-void publish (const std::string& state_name, bool val, int arg1, int arg2)
-{
-  SubscriberBoolIntInt (state_name, val, arg1, arg2);
+  // Use that vector to retrieve the correct function and cast it to the correct type
+  void (*receiver) (const string& state_name, ValueType val, ParamTypes ... args);
+  receiver = reinterpret_cast<void (*) (const string& state_name, ValueType val, ParamTypes ... args)>(subscribers.at(signature));
+  // Calls the receiver function
+  receiver(state_name,val,args...);
 }
