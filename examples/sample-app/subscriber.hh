@@ -5,8 +5,7 @@
 #include <unordered_map>
 #include <typeinfo>
 #include <vector>
-
-
+#include <iostream>
 
 // Subscriber type, templated function that takes a state_name, a value, and 0 or more parameters
 template<class ValueType, class ... ParamTypes>
