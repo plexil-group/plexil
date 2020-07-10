@@ -72,7 +72,7 @@ void setSubscriber (void (*receiver) (const string& state_name, ValueType val, P
 template<class ValueType, class ... ParamTypes>
 void publish(const string& state_name, ValueType val, ParamTypes ... args){
   // Create a vector made of std::strings that detail the ValueType and then ParamTypes
-  vector<string> signature (string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...);
+  vector<string> signature{string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...};
 
 
   // Retrieve vector of reception functions
