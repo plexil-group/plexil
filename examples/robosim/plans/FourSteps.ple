@@ -82,7 +82,7 @@ FourSteps:
     }
     GetEndPosition:
     {
-		Real RobotState[3];
+		Real RobotState[4];
         GetRobotState:
         { 
 			EndCondition isKnown(RobotState[0]);

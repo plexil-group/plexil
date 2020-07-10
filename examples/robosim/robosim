@@ -58,7 +58,7 @@ if [ "$1" = "start" ]; then
     echo "Starting ipc and simulator..."
     ipc -s -u &
     shift
-    exec "$prog" "$@" &
+    "$prog" "$@" &
     sleep 2    
     echo "Done."
 elif [ "$1" = "stop" ]; then
@@ -70,7 +70,7 @@ elif [ "$1" = "restart" ]; then
     echo "Restarting simulator..."
     pkill robotSimulator
     shift
-    exec "$prog" "$@" &
+    "$prog" "$@" &
     sleep 2
     echo "Done." 
 else
