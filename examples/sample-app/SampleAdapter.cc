@@ -136,6 +136,10 @@ static void receiveInt (const string& state_name, int val)
   SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
                                         vector<Value> (1, val));
 }
+static void receiveInt2 (const string& state_name, int val)
+{
+  cout<<"Int handled twice successfully"<<endl;
+}
 
 static void receiveFloat (const string& state_name, float val)
 {
