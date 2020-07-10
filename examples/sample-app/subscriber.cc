@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 */
 
 #include "subscriber.hh"
-#include "Debug.hh"
-
+#include <unordered_map>
+#include <vector>
 
 using std::string;
 using std::vector;
@@ -49,11 +49,11 @@ static unordered_map<vector<string>,vector<void* (*)()>,VectorHasher> subscriber
 
 
 // Register a subscriber
-template<class ValueType, class ... ParamTypes>
-void setSubscriber (void (*receiver) (const string& state_name, ValueType val, ParamTypes ... args)){
+template<class StateType, class ... ParamTypes>
+void setSubscriber (void (*receiver) (const string& state_name, StateType val, ParamTypes ... args)){
 
-  // Create a vector made of std::strings that detail the ValueType and then ParamTypes
-  vector<string> signature{string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...};
+  // Create a vector made of std::strings that detail the StateType and then ParamTypes
+  vector<string> signature{string(typeid(StateType).name()),string(typeid(ParamTypes).name())...};
   void* (*generic_pointer)() = reinterpret_cast<void*(*)()>(receiver);
 
   // Check if vector of functions associated with this signature already exists in the map, making it if not
@@ -69,10 +69,10 @@ void setSubscriber (void (*receiver) (const string& state_name, ValueType val, P
 
 // Publish a state change to the appropriate subscriber
 
-template<class ValueType, class ... ParamTypes>
-void publish(const string& state_name, ValueType val, ParamTypes ... args){
-  // Create a vector made of std::strings that detail the ValueType and then ParamTypes
-  vector<string> signature{string(typeid(ValueType).name()),string(typeid(ParamTypes).name())...};
+template<class StateType, class ... ParamTypes>
+void publish(const string& state_name, StateType val, ParamTypes ... args){
+  // Create a vector made of std::strings that detail the StateType and then ParamTypes
+  vector<string> signature{string(typeid(StateType).name()),string(typeid(ParamTypes).name())...};
 
 
   // Retrieve vector of reception functions
@@ -80,8 +80,8 @@ void publish(const string& state_name, ValueType val, ParamTypes ... args){
   
   // Use parameters to cast each function to the correct type and call it
   for(auto &generic_receiver : receivers){
-    void (*receiver) (const string& state_name, ValueType val, ParamTypes ... args);
-    receiver = reinterpret_cast<void (*) (const string& state_name, ValueType val, ParamTypes ... args)>(generic_receiver);
+    void (*receiver) (const string& state_name, StateType val, ParamTypes ... args);
+    receiver = reinterpret_cast<void (*) (const string& state_name, StateType val, ParamTypes ... args)>(generic_receiver);
     // Calls the receiver function
     receiver(state_name,val,args...);
   }
