@@ -7,7 +7,7 @@ Command SendMessage(...);
 String Command CalculateLanding();
 Command pprint(...);
 
-Starvation:
+StarvationFixedSequence:
 Sequence
 {
   Boolean continue = true;
