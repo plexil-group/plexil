@@ -1,0 +1,69 @@
+// This plan emulates a simulator that handles:
+//	Integer GetTemperature()
+//	TakePicture()
+//	OrganizeFiles()
+//	CalculateLanding()
+//	- the message 'Quit', which closes the simulator (CAVEAT: not always cleanly)
+
+Command UpdateLookup (...);
+Command SendReturnValue (...);
+Command pprint(...);
+
+Integer Lookup time;
+
+Simulator: Concurrence
+{
+  Integer temperature = 1;
+  Boolean continue = true;
+  ExitCondition !continue;
+  
+  HandleTemperature:
+  {
+    RepeatCondition continue;
+    ReceiveTemperature: OnCommand "GetTemperature" ()
+    {
+      RespondTemperature: SendReturnValue(temperature);
+      pprint("Measuring Temperature");
+      Wait 0.5; //Wait half a second so commands aren't instantaneous
+    }
+  }
+
+  HandlePicture:
+  {
+    RepeatCondition continue;
+    ReceiveTakePicture: OnCommand "TakePicture" ()
+    {
+      String s = "nothing";
+      SendReturnValue(s);
+      pprint("Taking Picture");
+      Wait 0.5;
+    }
+  }
+
+ HandleOrganizeFiles:
+  {
+    RepeatCondition continue;
+    ReceiveOrganizeFiles: OnCommand "OrganizeFiles" ()
+    {
+      RespondOrganizeFiles: SendReturnValue("nothing");
+      pprint("Organizing Files");
+      Wait 0.5;
+    }
+  }
+
+  HandleLanding:
+  {
+    RepeatCondition continue;
+    ReceiveLanding: OnCommand "CalculateLanding" ()
+    {
+      RespondLanding: SendReturnValue("nothing");
+      pprint("Initiating Landing Sequence");
+    }
+  }
+
+  HandleQuit:
+  {
+    RepeatCondition continue;
+    ReceiveQuit: OnMessage "Quit" Set: continue = false;
+  }
+}

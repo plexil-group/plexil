@@ -1,0 +1,90 @@
+// This plan models several small operations with low priority that starve a high priority process
+Integer Command GetTemperature();
+String Command OrganizeFiles();
+String Command TakePicture();
+Command SendMessage(...);
+
+String Command CalculateLanding();
+Command pprint(...);
+
+StarvationFixedSequence:
+Sequence
+{
+  Boolean continue = true;
+  Integer temperature;
+  SmallTasks: {
+    Small1: {
+      Integer returnValue;
+      Retrieve: {
+        EndCondition isKnown(returnValue);
+        Resource Name = "sys_memory",UpperBound=4.0, Priority = 30;
+        returnValue = GetTemperature();
+      }
+      AssignTemp: {
+        temperature = returnValue;
+      }
+    }
+    Small2: {
+      String out;
+      StartCondition isKnown(temperature);
+      EndCondition isKnown(out);
+      Resource Name = "sys_memory",UpperBound=4.0, Priority = 50;
+      out = OrganizeFiles(); 
+    }
+    Small3: {
+      String out;
+      EndCondition isKnown(out);
+      Resource Name = "sys_memory",UpperBound=4.0, Priority = 40;
+      out = TakePicture(); 
+    }
+  }
+
+
+
+  Big: {
+    Execute:{
+      String out;
+      StartCondition isKnown(temperature); // Don't immediately start
+      EndCondition isKnown(out);
+      RepeatCondition Self.command_handle == COMMAND_DENIED || Self.command_handle == COMMAND_FAILED;
+      Resource Name = "sys_memory",UpperBound=10.0, Priority = 1;
+      out = CalculateLanding();
+    }
+    QuitSimulator:
+    {
+      SendMessage("Quit");
+      continue = false;
+    }
+  }
+
+  //Never executes, but necessary to demonstrate equivelance with Starvation.ple
+  SmallTasks2: {
+  SkipCondition !continue;
+    Small12: {
+      Integer returnValue;
+      RepeatCondition continue;
+      Retrieve: {
+        EndCondition isKnown(returnValue);
+    	Resource Name = "sys_memory",UpperBound=1, Priority = 30;
+   	returnValue = GetTemperature();
+      }
+    AssignTemp: {
+	temperature = returnValue;
+      }
+      }
+    Small2: {
+      String out;
+      RepeatCondition continue;
+      EndCondition isKnown(out);
+      Resource Name = "sys_memory",UpperBound=1, Priority = 50;
+      out = OrganizeFiles(); 
+    }
+    Small3: {
+      String out;
+      RepeatCondition continue;
+      EndCondition isKnown(out);
+      Resource Name = "sys_memory",UpperBound=1, Priority = 40;
+      out = TakePicture(); 
+    }
+  }
+}
