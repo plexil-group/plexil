@@ -26,17 +26,35 @@
 
 #ifndef _H__system
 #define _H__system
-
+#include <map>
 #include <string>
+#include <vector>
 
 // Subscriber type, templated function that takes a state_name, a value, and 0 or more parameters
-template<class StateType, class ... ParamTypes>
-using Subscribe = void (*) (const std::string& state_name, StateType val, ParamTypes ... args);
+template<typename StateType, typename ... ParamTypes>
+using Subscriber = void (*) (const std::string& state_name, StateType val, ParamTypes ... args);
 
-// Setters for the subscriber
-template<class StateType, class ... ParamTypes>
-void setSubscriber (void (*receiver) (const std::string& state_name, StateType val, ParamTypes ... args));
+// Register and publish to subscribers
+template<typename StateType, typename ... ParamTypes>
+void setSubscriber (Subscriber<StateType,ParamTypes...> subscriber);
 
-template<class StateType, class ... ParamTypes>
+template<typename StateType, typename ... ParamTypes>
 void publish(const std::string& state_name, StateType val, ParamTypes ... args);
+
+
+
+// Maps arguments to a list of subscribed functions, for use in setSubscriber and publish
+// It has to be external so that each specialization of setSubscriber and publish
+// can access the same datastructure without requiring the user to implement any oddities.
+extern std::map<std::vector<std::string>,std::vector<void* (*)()>> subscribers;
+
+
+// This allows us to instantiate setSubscriber instances in other classes, like setSubscriber<int>
+// Yes it's a hack but there are three solutions:
+// 1. Define the entire setSubscriber function (and associated data structures, etc.) in this header
+// 2. Include subscriber.cc in any file that calls setSubscriber
+// 3. Include subscriber.cc in this header and don't compile it separately
+
+// Picking option three seemed the cleanest
+#include "subscriber.cc"
 #endif
