@@ -14,43 +14,83 @@ Software requirements
 ---------------------
 
 The complete PLEXIL suite should run on most recent versions of Linux
-and Mac OS X. It builds on FreeBSD as well, and most of the suite
-works out of the box; however, IPC is not yet working, nor is anything
-dependent on it (i.e. many of the example apps).
+and Mac OS X. It builds on FreeBSD as well.
 
-Building the PLEXIL tool suite requires the following software to be
-installed:
+Building the PLEXIL tool suite requires the following software:
 
- GNU Make
- GNU Bash
- gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
- Java 8 or newer JDK (development package, not just runtime)
- Apache ant, including the antlr module
+ * GNU Make
+ * GNU Bash
+ * GNU autotools (autotools-dev, autoconf, libtool packages in Linux)
+ * GNU gperf
+ * gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
+ * Java 8 or newer JDK (openjdk-8-jdk)
+ * Apache ant, including the antlr module
 
-If you are building from an SVN checkout, the GNU autotools (autoconf,
-automake, and libtool) and gperf are also required.
-
-The robosim example program also requires:
-
- X11 libraries freeglut, libxi, libxmu and their header files
+The robosim example program also requires the X11 libraries freeglut, libxi,
+libxmu, and their header files.
 
 
-How to build PLEXIL - Simple version
-------------------------------------
+How to build PLEXIL
+-------------------
 
-To build the PLEXIL distribution on Linux, Mac OS X, or FreeBSD,
-simply change to this top level directory and type:
+If you are starting from a fresh git clone:
 
- make all
+1. Add the following lines to your shell init file (e.g. ~/.bashrc), using your
+   actual location of 'plexil' in the first line.
 
-NOTE: if you have just updated your code checkout, you may need to
-precede the 'make all' with either of:
+   export PLEXIL_HOME=/home/joe/plexil
+   export PATH=$PLEXIL_HOME/scripts:$PATH
+   source $PLEXIL_HOME/scripts/plexil-setup.sh
 
- make clean
- make squeaky-clean
+2. Source your shell init file, e.g.
 
-The latter of these is sometimes needed when make/autotools files have
-changed.
+   source ~/.bashrc
+
+3. For the simplest, default build, perform this step and you're done.
+   For a customized build, skip this step and go on to (4).
+
+   cd $PLEXIL_HOME
+	 make all
+
+4. Create the configure script:
+
+   cd $PLEXIL_HOME;
+   make src/configure;
+   cd src;
+
+5. Configure the build. To get a listing of the various options, type:
+
+   ./configure --help
+
+   The example below includes all the optional PLEXIL components as built in the
+   previous section, with binaries and libraries installed in the PLEXIL
+   installation directory.  You can omit or change options as desired.
+
+   ./configure --prefix=$PLEXIL_HOME --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+
+   Please see the CAVEATS file in this directory for advice on options to
+   'configure'.
+
+6. Build it!
+
+   cd $PLEXIL_HOME
+	 make
+
+If you are starting from an updated but previously built git clone:
+
+1. Try simply building:
+
+   cd $PLEXIL_HOME
+	 make
+
+2. If there are problems, rebuild:
+
+   cd $PLEXIL_HOME
+   make clean
+   make squeaky-clean
+	 make
+
+   The 'squeaky-clean' is sometimes needed when make/autotools files have changed.
 
 To build the tool suite without the example applications:
 
@@ -60,8 +100,8 @@ To specify a compiler other than gcc/g++, e.g. clang:
 
  make CC=clang CXX=clang++
 
-On FreeBSD, ensure that GNU make is installed (typically named 'gmake'
-on this OS):
+On FreeBSD, ensure that GNU make is installed (typically named 'gmake' on this
+OS):
 
  gmake CC=clang CXX=clang++
 
@@ -75,33 +115,20 @@ not appropriate for a specific application.
 
 1. Change to the build directory.
 
-  cd plexil-4/src
+   cd plexil/src
 
-2. If you are building from a fresh SVN checkout, you will need to
-run the GNU autotools first. This step should be unnecessary if you
-downloaded a release tarball.
+2. If you are building from a fresh SVN checkout, you will need to run the GNU
+   autotools first. This step should be unnecessary if you downloaded a release
+   tarball.
 
-  mkdir -p m4
-  autoreconf -fi
+   mkdir -p m4
+   autoreconf -fi
 
-3. Configure the build using the standard 'configure' script. To get a
-listing of the various options, type:
-
-  ./configure --help
-
-The example below includes all the optional PLEXIL components as built
-in the previous section, with binaries and libraries installed in the
-PLEXIL installation directory.  You can omit or change options as
-desired.
-
-  ./configure --prefix=$PLEXIL_HOME --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
-
-Please see the CAVEATS file in this directory for advice on options to
-'configure'.
+3. Configure the system (see steps 4-5 in the regular build instructions above).
 
 4. Build and install the system:
 
-  make install
+   make install
 
 
 Cross-compiling the PLEXIL Executive
@@ -118,25 +145,22 @@ embedded Linux tool suite on an ARM processor.
 Running PLEXIL
 --------------
 
-1. Set up your environment.  The PLEXIL shell scripts depend on the
-setting of PLEXIL_HOME, and for convenience you may wish to add the
-PLEXIL scripts and binaries to your shell's path.  This example is for
-the Bourne/bash shells or similar.
+This is a brief overview.  See the documentation at plexil.sourceforge.net for
+details.
 
-  export PLEXIL_HOME='/location/of/plexil'
-  . $PLEXIL_HOME/scripts/plexil-setup.sh
+* If you haven't already done so (e.g. you are using a prebuilt PLEXIL),
+  perform steps 1-2 of the build instructions above.  This setup is also needed
+  to run PLEXIL.
 
-You may wish to add these two lines to your shell init file.
-
-2. The 'plexil' script launches the Plexil Viewer, in which you can
-examine, run, and debug plans.  You may wish to use the plans in the
-'examples' directory as a starting point.
-
-  plexil
-
-3. The 'plexilc' script compiles a PLEXIL plan or Plexilscript
-simulation script, depending on the file extension, to the executable
-XML representation.
+* The 'plexilc' script compiles a PLEXIL plan or Plexilscript simulation script,
+  depending on the file extension, to the executable XML representation.
 
   plexilc my_plan.ple
+
+* The 'plexilexec' and 'plexiltest' scripts run the executive on a plan.
+
+
+
+
+
 
