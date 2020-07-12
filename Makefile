@@ -83,6 +83,7 @@ robosim: ipc utils
 
 sample: universalExec
 	$(MAKE) -C examples/sample-app
+
 #
 # Targets under the Automake build system
 #
