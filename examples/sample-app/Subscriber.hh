@@ -24,6 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+// This is a barebones publish-subscribe facility for the sample PLEXIL
+// application. It provides the capability to subscribe a functions of types
+// (string,VALUE,ARG1,ARG2...) --> void where VALUE and each ARG are templated.
+// When publish is called, all subscribed functions of the appropriate type will be called
+// with the arguments passed to publish()
+
+// Attempting to publish to a function type with no subscribed function will result in an error
+
+
+
 #ifndef _H__system
 #define _H__system
 #include <map>
