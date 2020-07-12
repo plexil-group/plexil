@@ -26,7 +26,7 @@
 
 #include "SampleAdapter.hh"
 
-#include "subscriber.hh"
+#include "Subscriber.hh"
 #include "SampleSystem.hh"
 
 #include "AdapterConfiguration.hh"

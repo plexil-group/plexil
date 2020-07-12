@@ -25,7 +25,7 @@
 */
 
 #include <iostream>
-#include "subscriber.hh"
+#include "Subscriber.hh"
 #include "SampleSystem.hh"
 
 using std::cout;
