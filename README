@@ -27,8 +27,9 @@ installed:
  Java 8 or newer JDK (development package, not just runtime)
  Apache ant, including the antlr module
 
-If you are building from an SVN checkout, the GNU autotools (autoconf,
-automake, and libtool) and gperf are also required.
+If you are building from a git clone, GNU gperf and either the GNU
+autotools (autoconf, automake, libtool, and m4) or CMake are also
+required.
 
 The robosim example program also requires:
 
@@ -66,23 +67,27 @@ on this OS):
  gmake CC=clang CXX=clang++
 
 
-Advanced builds
----------------
+Advanced builds using GNU Autotools
+-----------------------------------
 
 The PLEXIL Executive uses the GNU autotools to allow for easy
 customization and cross-compilation when the standard build (above) is
 not appropriate for a specific application.
 
+The instructions here describe an in-tree build, but out-of-tree
+builds should also work, and are preferred if you are building for
+multiple target platforms.
+
 1. Change to the build directory.
 
   cd plexil-4/src
 
-2. If you are building from a fresh SVN checkout, you will need to
-run the GNU autotools first. This step should be unnecessary if you
+2. If you are building from a fresh git clone, you will need to run
+the GNU autotools first. This step should be unnecessary if you
 downloaded a release tarball.
 
-  mkdir -p m4
-  autoreconf -fi
+  libtoolize --force --copy
+  autoreconf --force --install
 
 3. Configure the build using the standard 'configure' script. To get a
 listing of the various options, type:
@@ -94,7 +99,8 @@ in the previous section, with binaries and libraries installed in the
 PLEXIL installation directory.  You can omit or change options as
 desired.
 
-  ./configure --prefix=$PLEXIL_HOME --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+  ./configure --prefix=$PLEXIL_HOME --disable-static \
+     --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 Please see the CAVEATS file in this directory for advice on options to
 'configure'.
@@ -102,6 +108,64 @@ Please see the CAVEATS file in this directory for advice on options to
 4. Build and install the system:
 
   make install
+
+
+Advanced builds using CMake
+---------------------------
+
+The PLEXIL Executive now also supports building with CMake for simpler
+integration into CMake-based projects.  CMake version 3.6 or newer is
+required.  The instructions here describe an out-of-tree build, which
+is the preferred approach.  In-tree builds should also work, but are
+not recommended.
+
+1. Create a build directory and change into it.
+
+  mkdir plexil-build
+  cd plexil-build
+
+2. Configure the build using CMake.
+
+  cmake path/to/plexil-4/src -DCMAKE_INSTALL_PREFIX=/install/here ... options ...
+
+The example below includes all the optional PLEXIL components as built
+in the previous section, with binaries and libraries installed in the
+PLEXIL installation directory.  You can omit or change options as
+desired.
+
+  cmake path/to/plexil-4/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
+    -DGANTT_LISTENER=ON -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
+
+Please see the CAVEATS file in this directory for advice on CMake options.
+
+4. Build and install the system:
+
+  make install
+
+
+Static or dynamic linking?
+--------------------------
+
+Both the GNU autotools and CMake build systems support producing
+either static libraries (.a files) or shared (dynamically linked)
+libraries (.so or .dylib). Which approach you take is sometimes
+dictated by the project; for instance, Core Flight Executive apps are
+typically statically linked.
+
+Static linking allows detection of missing symbols at link time rather
+than run time, and statically linked programs load faster - on macOS
+in particular, the difference is significant.
+
+Dynamic linking may save resources if several programs using the same
+libraries run simultaneously.
+
+The default behavior of the GNU autotools is to build both shared and
+static libraries; specifying the '--disable-static' or
+'--disable-dynamic' option to 'configure' can avoid having to compile
+and link modules twice.
+
+The CMake build defaults to shared libraries. To build static
+libraries, specify the '-DBUILD_SHARED_LIBS=OFF' option to 'cmake'.
 
 
 Cross-compiling the PLEXIL Executive
@@ -113,6 +177,10 @@ of the PLEXIL Executive for embedded applications.
 The file $PLEXIL_HOME/src/build-for-buildroot.sh is an example of
 cross-compiling the PLEXIL Executive for use with the 'buildroot'
 embedded Linux tool suite on an ARM processor.
+
+Similarly, by supplying an appropriate toolchain file with the
+'-DCMAKE_TOOLCHAIN_FILE' option, CMake can build the PLEXIL Executive
+for targets other than the host system.
 
 
 Running PLEXIL
