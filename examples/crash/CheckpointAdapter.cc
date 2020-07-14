@@ -1,3 +1,28 @@
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include "CheckpointAdapter.hh"
 
 #include "Subscriber.hh"
@@ -7,8 +32,12 @@
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
+#include "Expression.hh"
 #include "StateCacheEntry.hh"
 
+#include <iostream>
+
+using std::cout;
 using std::cerr;
 using std::endl;
 using std::map;
@@ -25,9 +54,9 @@ static string error = "Error in CheckpointAdapter: ";
 // A prettier name for the "unknown" value.
 static Value Unknown;
 
-// A localized handle on the adapter, which allows a
-// decoupling between the checkpoint system and adapter.
-static CheckpointAdapter * Adapter;
+// Static member initialization
+CheckpointSystem *CheckpointSystem::m_system = 0;
+CheckpointAdapter *CheckpointAdapter::m_adapter = 0;
 
 // An empty argument vector.
 static vector<Value> EmptyArgs;
@@ -45,14 +74,14 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 
   
   if (state_name == "DidCrash"){
-    retval = did_crash();
+    retval = CheckpointSystem::getInstance()->didCrash();
   }
   
   else if (state_name == "NumberOfActiveCrashes"){
-    retval = num_active_crashes();
+    retval = CheckpointSystem::getInstance()-> numActiveCrashes();
   }
   else if (state_name == "NumberOfTotalCrashes"){
-    retval = num_total_crashes();
+    retval = CheckpointSystem::getInstance()->numTotalCrashes();
   }
 
   else{
@@ -66,18 +95,18 @@ static Value fetch (const string& state_name, const vector<Value>& args)
     if (state_name == "Checkpoint"){
       string which_checkpoint;
       args[0].getValue(which_checkpoint);
-      retval = get_checkpoint_state(which_checkpoint,which_boot);
+      retval = CheckpointSystem::getInstance()->getCheckpointState(which_checkpoint,which_boot);
     }
     else if (state_name == "TimeOfCheckpoint"){
       string which_checkpoint;
       args[0].getValue(which_checkpoint);
-      retval = get_checkpoint_time(which_checkpoint,which_boot);
+      retval = CheckpointSystem::getInstance()->getCheckpointTime(which_checkpoint,which_boot);
     }
     else if (state_name == "TimeOfCrash"){
-      retval = get_time_of_crash(which_boot);
+      retval = CheckpointSystem::getInstance()->getTimeOfCrash(which_boot);
     }
     else if (state_name == "TimeOfBoot"){
-      retval = get_time_of_boot(which_boot);
+      retval = CheckpointSystem::getInstance()->getTimeOfBoot(which_boot);
     }
     //No match
     else {
@@ -95,11 +124,6 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 // receive the name of the state whose value has changed in the system.  Then
 // they propagate the state's new value to the executive.
 
-static void propagate (const State& state, const vector<Value>& value)
-{
-  Adapter->propagateValueChange (state, value);
-}
-
 static State createState (const string& state_name, const vector<Value>& value)
 {
   State state(state_name, value.size());
@@ -115,25 +139,25 @@ static State createState (const string& state_name, const vector<Value>& value)
 
 static void receiveBool (const string& state_name, bool val)
 {
-  propagate (createState(state_name, EmptyArgs),
+  CheckpointSystem::getInstance()->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveInt (const string& state_name, int val)
 {
-  propagate (createState(state_name, EmptyArgs),
+  CheckpointSystem::getInstance()->propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveBoolInt (const string& state_name, bool val,  int arg)
 {
-  propagate (createState(state_name, vector<Value> (1, arg)),
+  CheckpointSystem::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
              vector<Value> (1, val));
 }
 
 static void receiveIntInt (const string& state_name, int val,  int arg)
 {
-  propagate (createState(state_name, vector<Value> (1, arg)),
+  CheckpointSystem::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
              vector<Value> (1, val));
 }
 
@@ -142,7 +166,7 @@ static void receiveBoolStringInt (const string& state_name, bool val, const stri
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  propagate (createState(state_name, vec), vector<Value> (1, val));
+  CheckpointSystem::getInstance()->propagate (createState(state_name, vec), vector<Value> (1, val));
 }
 
 static void receiveIntStringInt (const string& state_name, int val, const string& arg1, int arg2)
@@ -150,7 +174,7 @@ static void receiveIntStringInt (const string& state_name, int val, const string
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  propagate (createState(state_name, vec), vector<Value> (1, val));
+  CheckpointSystem::getInstance()->propagate (createState(state_name, vec), vector<Value> (1, val));
 }
 
 
@@ -161,19 +185,38 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
+  m_adapter = this;
   debugMsg("CheckpointAdapter", " created.");
+}
+
+CheckpointAdapter::~CheckpointAdapter ()
+{
+  m_adapter = nullptr;
 }
 
 bool CheckpointAdapter::initialize()
 {
   g_configuration->defaultRegisterAdapter(this);
-  Adapter = this;
+
+  g_configuration->registerLookupInterface("DidCrash", this);
+  g_configuration->registerLookupInterface("NumberOfActiveCrashes", this);
+  g_configuration->registerLookupInterface("NumberOfTotalCrashes", this);
+  g_configuration->registerLookupInterface("TimeOfCrash", this);
+  g_configuration->registerLookupInterface("TimeOfBoot", this);
+  g_configuration->registerLookupInterface("Checkpoint", this);
+  g_configuration->registerLookupInterface("TimeOfCheckpoint", this);
+
+  g_configuration->registerCommandInterface("SetCheckpoint", this);
+  g_configuration->registerCommandInterface("SetSafeReboot", this);
+  g_configuration->registerCommandInterface("DeleteCrash", this);
+
   setSubscriber (receiveInt);
   setSubscriber (receiveBool);
   setSubscriber (receiveBoolInt);
   setSubscriber (receiveIntInt);
   setSubscriber (receiveBoolStringInt);
   setSubscriber (receiveIntStringInt);
+  
   debugMsg("CheckpointAdapter", " initialized.");
   return true;
 }
@@ -215,21 +258,40 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   const vector<Value>& args = cmd->getArgValues();
   
   if (name == "SetCheckpoint") {
-    string &checkpoint_name;
-    args[0].getValue(checkpoint_name);
-    set_checkpoint(checkpoint_name);
+    if(args.size()<1 || args.size()>2){
+      cerr << error << "SetCheckpoint invalid number of arguments" << end;
+    }
+    
+    else{
+      string &checkpoint_name;
+      // Default is set checkpoint to true
+      bool value = true;
+      args[0].getValue(checkpoint_name);
+      if(args.size()==2){
+	args[1].getValue(value);
+      }
+      retval = setCheckpoint(checkpoint_name,value);
+    }
   }
   else if (name == "SetSafeReboot") {
-    bool b;
-    args[0].getValue(b);
-    set_safe_reboot(b);
+    if(args.size()!=1){
+      cerr << error << "SetSafeReboot invalid number of arguments" << end;
+    }
+    else{
+      bool b;
+      args[0].getValue(b);
+      retval = setSafeReboot(b);
+    }
   }
   else if (name == "DeleteCrash"){
+    if(args.size()>1){
+      cerr << error << "DeleteCrash invalid number of arguments" << end;
+    }
     int32_t crash_number = num_active_crashes();
     if(!args.empty()){
       args[0].getValue(crash_number);
     }
-    delete_crash(crash_number);
+    retva = delete_crash(crash_number);
   }
   else{ 
     cerr << error << "invalid command: " << name << endl;
@@ -246,27 +308,22 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   m_execInterface.notifyOfExternalEvent();
 }
 
-void CheckpointAdapter::lookupNow(State const &state, StateCacheEntry &entry)
+void CheckpointAdapter::lookupNow (const State& state, StateCacheEntry &entry)
 {
-  // This is the name of the state as given in the plan's LookupNow
-  string const &name = state.name();
-  const vector<Value>& args = state.parameters();
-  entry.update(fetch(name, args));
+  entry.update(fetch(state.name(), state.parameters()));
 }
 
 
 void CheckpointAdapter::subscribe(const State& state)
 {
-  debugMsg("CheckpointAdapter:subscribe", " processing state "
-           << state.name());
+  debugMsg("CheckpointAdapter:subscribe", " processing state " << state.name());
   m_subscribedStates.insert(state);
 }
 
 
 void CheckpointAdapter::unsubscribe (const State& state)
 {
-  debugMsg("CheckpointAdapter:subscribe", " from state "
-           << state.name());
+  debugMsg("CheckpointAdapter:subscribe", " from state " << state.name());
   m_subscribedStates.erase(state);
 }
 
@@ -279,6 +336,10 @@ void CheckpointAdapter::setThresholds (const State& state, int32_t hi, int32_t l
 {
 }
 
+void CheckpointAdapter::propagate (const State& state, const vector<Value>& value)
+{
+  CheckpointAdapter::propagateValueChange(state, value);
+}
 
 void CheckpointAdapter::propagateValueChange (const State& state,
                                           const vector<Value>& vals) const
