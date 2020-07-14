@@ -291,7 +291,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
     if(!args.empty()){
       args[0].getValue(crash_number);
     }
-    retva = delete_crash(crash_number);
+    retval = delete_crash(crash_number);
   }
   else{ 
     cerr << error << "invalid command: " << name << endl;
