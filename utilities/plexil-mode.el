@@ -26,16 +26,15 @@
 
 ;;; PLEXIL -- A Major Mode for PLEXIL.
 
-;;; Basic instructions:
-;;;    1. In your home/user directory, place this in your .emacs file.
+;;; Example installation instructions (variations are possible):
+;;;    1. In your home directory, place this in your .emacs file.
 ;;;
 ;;;           (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;;           (load "plexil-mode")
 ;;;           (add-to-list 'auto-mode-alist '("\\.ple\\'" . plexil-mode))
+;;;           (add-to-list 'auto-mode-alist '("\\.plp\\'" . plexil-mode))
 ;;;
-;;;    2. Place this file (plexil-mode.el) in your home/user/.emacs.d/lisp
-;;;       directory.
-;;;
+;;;    2. Place this file (plexil-mode.el) in your ~/.emacs.d/lisp directory.
 
 
 (defconst plexil-mode-syntax-table
@@ -107,7 +106,7 @@ See 'run-hooks'."
   ;; Supposed to stop TAB from indenting on an empty line in a new node. Not currently working.
   (if (looking-at "[...]*{[ \t]*[\n]+")
       (local-set-key (kbd TAB) '(nil)))
-		  
+
   )
 
 (add-hook 'plexil-mode-hook 'set-newline-and-indent-node)
@@ -116,8 +115,8 @@ See 'run-hooks'."
 ;; Set C++ style to a more appropriate indentation style for PLEXIL
 ;; and a proper offset.
 (add-hook 'plexil-mode-hook
-	  (setq c-default-style "ellemtel"
-		c-basic-offset 2)
+	  (setq c-default-style "ellemtel")
+          (setq	c-basic-offset 2)
 	  )
 
 ;; Define mode, derive from c++-mode. Set syntax highlighting and indentation.
