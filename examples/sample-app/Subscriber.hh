@@ -40,10 +40,12 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include <iostream>
 using std::string;
 using std::vector;
 using std::map;
+using std::cerr;
+using std::endl;
 
 // Subscriber type, templated function that takes a state_name, a value, and 0 or more parameters
 template<typename StateType, typename ... ParamTypes>
@@ -91,15 +93,27 @@ void publish(const string& state_name, StateType val, ParamTypes ... args){
 
   // Create a vector made of std::strings that detail the StateType and then ParamTypes
   vector<string> signature{string(typeid(StateType).name()),string(typeid(ParamTypes).name())...};
+
+  // Retrieve vector of reception functions if it exists
+  map<vector<string>,vector<void* (*)()>>::iterator it = subscribers.find(signature);
+  if(it != subscribers.end() && it->second.size()>0){
+
+    vector<void* (*)()> receivers = it->second;
+    // Use parameters to cast each function to the correct type and call it
+    for(auto &generic_receiver : receivers){
+      Subscriber<StateType,ParamTypes...> subscriber;
+      subscriber = reinterpret_cast<void (*) (const string& state_name, StateType val, ParamTypes ... args)>(generic_receiver);
+      subscriber(state_name,val,args...);
+    }
+  }
   
-  // Retrieve vector of reception functions
-  vector<void* (*)()> receivers = subscribers.at(signature);
-  
-  // Use parameters to cast each function to the correct type and call it
-  for(auto &generic_receiver : receivers){
-    Subscriber<StateType,ParamTypes...> subscriber;
-    subscriber = reinterpret_cast<void (*) (const string& state_name, StateType val, ParamTypes ... args)>(generic_receiver);
-    subscriber(state_name,val,args...);
+  else{
+    cerr << "No subscribers found for publish(), Name: ";
+    cerr << state_name << ", Type: ";
+    for(string s : signature){
+      cerr << s <<", ";
+    }
+    cerr << endl;
   }
 }
 #endif
