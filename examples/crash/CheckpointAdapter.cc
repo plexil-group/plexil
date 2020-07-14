@@ -1,7 +1,7 @@
 #include "CheckpointAdapter.hh"
 
-#include "subscriber.hh"
-#include "checkpoint_system.hh"
+#include "Subscriber.hh"
+#include "CheckpointSystem.hh"
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
@@ -39,7 +39,7 @@ static vector<Value> EmptyArgs;
 //
 static Value fetch (const string& state_name, const vector<Value>& args)
 {
-  debugMsg("SampleAdapter:fetch",
+  debugMsg("CheckpointAdapter:fetch",
            "Fetch called on " << state_name << " with " << args.size() << " args");
   Value retval;
 
@@ -87,7 +87,7 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 
   }
 
-  debugMsg("SampleAdapter:fetch", "Fetch returning " << retval);
+  debugMsg("CheckpointAdapter:fetch", "Fetch returning " << retval);
   return retval;
 }
 
@@ -157,14 +157,14 @@ static void receiveIntStringInt (const string& state_name, int val, const string
 ///////////////////////////// Member functions //////////////////////////////////
 
 
-SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
+CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
-  debugMsg("SampleAdapter", " created.");
+  debugMsg("CheckpointAdapter", " created.");
 }
 
-bool SampleAdapter::initialize()
+bool CheckpointAdapter::initialize()
 {
   g_configuration->defaultRegisterAdapter(this);
   Adapter = this;
@@ -178,27 +178,27 @@ bool SampleAdapter::initialize()
   return true;
 }
 
-bool SampleAdapter::start()
+bool CheckpointAdapter::start()
 {
-  debugMsg("SampleAdapter", " started.");
+  debugMsg("CheckpointAdapter", " started.");
   return true;
 }
 
-bool SampleAdapter::stop()
+bool CheckpointAdapter::stop()
 {
-  debugMsg("SampleAdapter", " stopped.");
+  debugMsg("CheckpointAdapter", " stopped.");
   return true;
 }
 
-bool SampleAdapter::reset()
+bool CheckpointAdapter::reset()
 {
-  debugMsg("SampleAdapter", " reset.");
+  debugMsg("CheckpointAdapter", " reset.");
   return true;
 }
 
-bool SampleAdapter::shutdown()
+bool CheckpointAdapter::shutdown()
 {
-  debugMsg("SampleAdapter", " shut down.");
+  debugMsg("CheckpointAdapter", " shut down.");
   return true;
 }
 
@@ -206,10 +206,10 @@ bool SampleAdapter::shutdown()
 // Sends a command (as invoked in a Plexil command node) to the system and sends
 // the status, and return value if applicable, back to the executive.
 //
-void SampleAdapter::executeCommand(Command *cmd)
+void CheckpointAdapter::executeCommand(Command *cmd)
 {
   const string &name = cmd->getName();
-  debugMsg("SampleAdapter", "Received executeCommand for " << name);  
+  debugMsg("CheckpointAdapter", "Received executeCommand for " << name);  
 
   Value retval = Unknown;
   const vector<Value>& args = cmd->getArgValues();
@@ -246,7 +246,7 @@ void SampleAdapter::executeCommand(Command *cmd)
   m_execInterface.notifyOfExternalEvent();
 }
 
-void SampleAdapter::lookupNow(State const &state, StateCacheEntry &entry)
+void CheckpointAdapter::lookupNow(State const &state, StateCacheEntry &entry)
 {
   // This is the name of the state as given in the plan's LookupNow
   string const &name = state.name();
@@ -255,32 +255,32 @@ void SampleAdapter::lookupNow(State const &state, StateCacheEntry &entry)
 }
 
 
-void SampleAdapter::subscribe(const State& state)
+void CheckpointAdapter::subscribe(const State& state)
 {
-  debugMsg("SampleAdapter:subscribe", " processing state "
+  debugMsg("CheckpointAdapter:subscribe", " processing state "
            << state.name());
   m_subscribedStates.insert(state);
 }
 
 
-void SampleAdapter::unsubscribe (const State& state)
+void CheckpointAdapter::unsubscribe (const State& state)
 {
-  debugMsg("SampleAdapter:subscribe", " from state "
+  debugMsg("CheckpointAdapter:subscribe", " from state "
            << state.name());
   m_subscribedStates.erase(state);
 }
 
 // Does nothing.
-void SampleAdapter::setThresholds (const State& state, double hi, double lo)
+void CheckpointAdapter::setThresholds (const State& state, double hi, double lo)
 {
 }
 
-void SampleAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
+void CheckpointAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
 {
 }
 
 
-void SampleAdapter::propagateValueChange (const State& state,
+void CheckpointAdapter::propagateValueChange (const State& state,
                                           const vector<Value>& vals) const
 {
   if (!isStateSubscribed(state))
@@ -290,14 +290,14 @@ void SampleAdapter::propagateValueChange (const State& state,
 }
 
 
-bool SampleAdapter::isStateSubscribed(const State& state) const
+bool CheckpointAdapter::isStateSubscribed(const State& state) const
 {
   return m_subscribedStates.find(state) != m_subscribedStates.end();
 }
 
 // Necessary boilerplate
 extern "C" {
-  void initSampleAdapter() {
-    REGISTER_ADAPTER(SampleAdapter, "SampleAdapter");
+  void initCheckpointAdapter() {
+    REGISTER_ADAPTER(CheckpointAdapter, "CheckpointAdapter");
   }
 }
