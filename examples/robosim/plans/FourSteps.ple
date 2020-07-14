@@ -1,9 +1,8 @@
-// -*- Mode: Java -*-
 // This is a Plexil plan for the RoboSim application.  It has the robot
 // move one step in each direction.  The plan is successful if and only
 // if the start and end positions of the robot are the same.
 
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without

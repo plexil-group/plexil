@@ -13,8 +13,7 @@ Then, in a separate shell, start the robot simulator:
 
  robosim
 
-Finally, run a plan of your choice, using the interface-config.xml file
-in this directory.  For example, in this directory, you can type:
+Finally, run a plan of your choice using the interface-config.xml file. For example, in the plans directory, you can type:
 
   plexilexec -p plans/FourSteps.plx -c interface-config.xml
 
