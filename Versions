@@ -20,8 +20,6 @@ Packaging:
 
 Core PLEXIL (XML) language and schema:
 
- * Added new node predicates Skipped, Failed, and PostconditionFailed.
-
  * The schemas.xml files that had been scattered across the Plexil
    distribution have been unified.  The authoritative copy of this
    file is in the schemas directory.  All others now refer to that
@@ -32,26 +30,13 @@ Core PLEXIL (XML) language and schema:
 
 Extended PLEXIL (XML) language and translator:
 
- * The CheckedSequence action has been added.  CheckedSequence has the
-   same behavior as Sequence.  At some future date we intend to
-   transition Sequence to the UncheckedSequence semantics.
-
- * CheckedSequence and Sequence now use the NoChildFailed node
-   predicate, resulting in smaller Core PLEXIL files and faster
-   execution.
-
 Standard PLEXIL (C-like) language and compiler:
-
- * Added CheckedSequence action and NoChildFailed node predicate.
 
  * Minor improvement in optimization of trivially collapsible blocks.
 
  * Minor fixes to the compiler and its test suite.
 
 Executive core and Universal Executive:
-
- * Various fixes to CEIL, FLOOR, ROUND, TRUNC Real-to-Integer
-   conversion functions.
 
 Standard interfaces:
 
