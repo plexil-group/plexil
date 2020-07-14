@@ -1,6 +1,6 @@
 <Interfaces>
   <!-- This configuration specifies that all commands and lookups are handled by SampleAdapter -->
-  <Adapter AdapterType="SampleAdapter">
+  <Adapter AdapterType="CheckpointAdapter">
     <DefaultCommandAdapter/>
     <DefaultLookupAdapter/>
   </Adapter>

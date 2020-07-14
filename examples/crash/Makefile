@@ -25,9 +25,9 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY = CrashAdapter
-SRC = subscriber.cc sample_system.cc SampleAdapter.cc
-INC = subscriber.hh sample_system.hh SampleAdapter.hh
+LIBRARY = CheckpointAdapter
+SRC = SubscriberData.cc CheckpointSystem.cc CheckpointAdapter.cc
+INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
