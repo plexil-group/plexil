@@ -285,9 +285,7 @@ compile_argument()
             exit 1
         fi
     fi
-
-    output="${output:-"$(generate_output_fname "$1" "$2")"}"
-
+    output="$(generate_output_fname "$1" "$2")"
     # Select translator for this file based on extension
     in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
 
