@@ -1,0 +1,14 @@
+Command pprint(...);
+
+Test1:{
+  Boolean b = false;
+  Integer i = 1;
+  Integer i2;
+  Real r = 3.14;
+
+  //pprint("inline floor:");
+  //b = (i<floor(3.14));
+  pprint("separate floor:");
+  i2 = floor(3.14);
+  b = (i<i2);
+}
