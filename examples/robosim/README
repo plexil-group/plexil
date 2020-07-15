@@ -1,25 +1,19 @@
-This directory contains a simple 2D graphical robot simulator,
-as a PLEXIL application.  For more information, see the
-Robosim chapter in the PLEXIL manual at
-http://plexil.sourceforge.net.
+This directory contains a simple 2D graphical robot simulator, as a
+PLEXIL application.  For more information, see the Robosim chapter in
+the PLEXIL manual at http://plexil.sourceforge.net.
 
 To build this application, type 'make'.
 
-To run this application, first start IPC:
+To run this application, type:
 
- ipc
+  robosim start
 
-Then, in a separate shell, start the robot simulator:
+Finally, change to the 'plans' directory and run plans of your choice, e.g.
 
- robosim
+  plexilexec -p FourSteps.plx
+  
 
-Finally, run a plan of your choice using the interface-config.xml file. For example, in the plans directory, you can type:
 
-  plexilexec -p plans/FourSteps.plx -c interface-config.xml
-
-Note that 'interface-config.xml' is a default, so you can also simply type:
-
-  plexilexec -p plans/FourSteps.plx
 
 
 
