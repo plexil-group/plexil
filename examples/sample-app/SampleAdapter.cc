@@ -26,7 +26,7 @@
 
 #include "SampleAdapter.hh"
 
-#include "subscriber.hh"
+#include "Subscriber.hh"
 #include "SampleSystem.hh"
 
 #include "AdapterConfiguration.hh"
@@ -136,6 +136,7 @@ static void receiveInt (const string& state_name, int val)
   SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
                                         vector<Value> (1, val));
 }
+
 
 static void receiveFloat (const string& state_name, float val)
 {

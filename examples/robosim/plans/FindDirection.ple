@@ -1,11 +1,3 @@
-// This is a Plexil plan for the RoboSim application.  It has the robot
-// move one step in each direction.  The plan is successful if and only
-// if the start and end positions of the robot are the same.
-
-// This plan is like the one in FourSteps.ple, but instead uses the
-// parameterized Move() command.
-// Direction 0 is up, 1 is right, 2 is down, and 3 is left.
-
 // Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
@@ -31,49 +23,26 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Real[4] Command QueryRobotState(String name);
-Integer Command Move(String name, Integer direction);
+// This is a library node for the RoboSim application.  It helps to find the 
+// direction with the greatest weight that the robot can move in.
 
-FourSteps:
+FindDirection:
 {
-	String RobotName = "RobotYellow";
-	Real StartX, StartY, EndX, EndY;
-	Integer Index = 0; 
-	PostCondition (StartX == EndX) && (StartY == EndY);
+    In Real directionVals[4];   // The value of moving in each direction (Read Only)
+    In Integer visibilityVals[4];  // The visibility value of each direction (Read Only)
+    InOut Integer maxDirection; // An out-parameter used to return the best direction to the calling action.
 
-    GetStartPosition:
+    Real maxVal = 0;    // Track the max val just like before
+
+    StartCondition isKnown(directionVals[0]);
+
+    for(Integer i = 0; i < 4; i + 1)
     {
-		Real RobotState[4];
-        GetRobotState:
-        { 
-			EndCondition isKnown(RobotState[0]);
-			RobotState = QueryRobotState(RobotName);
-        }
-		StartX = RobotState[0];
-		StartY = RobotState[1];
-	}
-    MoveLoop:
-    {
-		Integer Directions[4] = #(3 0 1 2);
-		RepeatCondition Index < 4;
-        Move:
+        if(visibilityVals[i] == 1 && directionVals[i] > maxVal)
         {
-            Integer result;
-            EndCondition isKnown(result);
-            PostCondition result == 1;
-            result = Move(RobotName, Directions[Index]);
+            maxDirection = i;
+            maxVal = directionVals[i];
         }
-		Index = Index + 1;
-    }
-    GetEndPosition:
-    {
-		Real RobotState[4];
-        GetRobotState:
-        { 
-			EndCondition isKnown(RobotState[0]);
-			RobotState = QueryRobotState(RobotName);
-        }
-		EndX = RobotState[0];
-		EndY = RobotState[1];
+        endif
     }
 }

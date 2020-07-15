@@ -47,6 +47,7 @@ extern "C" {
 Robot::Robot(const TerrainBase* _terrain,
 	     EnergySources* _resources,
              Goals* _goals,
+             Flags* _flags,
 	     RobotPositionServer* _posServer,
 	     IpcRobotAdapter& adapter,
 	     const std::string& _name, 
@@ -54,8 +55,9 @@ Robot::Robot(const TerrainBase* _terrain,
 	     int initCol,
 	     double red, 
 	     double green,
-             double blue)
-    : RobotBase(_terrain, _resources, _goals, _posServer),
+         double blue,
+         bool _hasFlag)
+    : RobotBase(_terrain, _resources, _goals, _flags, _posServer),
       m_DirOffset(5, std::vector<int>(2)),
       m_Name(_name),
       m_RobotPositionMutex(),
@@ -63,6 +65,7 @@ Robot::Robot(const TerrainBase* _terrain,
       m_Red(red),
       m_Green(green),
       m_Blue(blue),
+      m_HasFlag(_hasFlag),
       m_EnergyLevel(1.0), 
       m_BeamWidth(0.01),
       m_ScanScale(0.0),
@@ -149,6 +152,9 @@ void Robot::displayRobot(void)
     m_ScanScale += 0.1;
     if (m_ScanScale > 1.0) m_ScanScale = 0.0;
   }
+
+  if(m_HasFlag)
+      m_Flags->drawFlag(row, col);
 }
 
 // Purely for demo to have a robot moving in the scene
@@ -184,7 +190,7 @@ void Robot::updateRobotPosition()
     }
   }
 
-  updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(m_Row, m_Col) - 0.025);
+  updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(m_Row, m_Col) - 0.05);
 }
 
 double Robot::determineEnergySourceLevel()
@@ -219,6 +225,8 @@ PLEXIL::Value Robot::processCommand(const std::string& cmd, int32_t parameter)
     return queryEnergySensor();
   else if (cmd == "QueryGoalSensor")
     return queryGoalSensor();
+  else if (cmd == "QueryFlagSensor")
+    return queryFlagSensor();
   else if (cmd == "QueryVisibilitySensor")
     return queryVisibility();
   else if (cmd == "QueryRobotState")
@@ -267,8 +275,9 @@ PLEXIL::Value Robot::queryRobotState()
   result.push_back((double) col);
   double energyLevel = readRobotEnergyLevel();
   result.push_back(energyLevel);
+  result.push_back(m_HasFlag);
   debugMsg("Robot:queryRobotState",
-           " returning " << row << ", " << col << ", " << energyLevel);
+           " returning " << row << ", " << col << ", " << energyLevel << ", " << m_HasFlag);
   return PLEXIL::Value(PLEXIL::RealArray(result));
 }
 
@@ -297,6 +306,21 @@ PLEXIL::Value Robot::queryGoalSensor()
        dIter != m_DirOffset.end();
        ++dIter)
       result.push_back(m_Goals->determineGoalLevel(row+(*dIter)[0], 
+                                                   col+(*dIter)[1]));
+
+  return PLEXIL::Value(PLEXIL::RealArray(result));
+}
+
+PLEXIL::Value Robot::queryFlagSensor()
+{
+  int row, col;
+  m_RobotPositionServer->getRobotPosition(m_Name, row, col);
+  
+  std::vector<double> result;
+  for (std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
+       dIter != m_DirOffset.end();
+       ++dIter)
+      result.push_back(m_Flags->determineFlagLevel(row+(*dIter)[0], 
                                                    col+(*dIter)[1]));
 
   return PLEXIL::Value(PLEXIL::RealArray(result));
@@ -394,10 +418,17 @@ PLEXIL::Value Robot::moveRobotInternal(int rowDirOffset, int colDirOffset)
   int colNext = colCurr + colDirOffset;
   int32_t result;
   bool traversible = false;
-  if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
+
+  if (m_EnergyLevel <= 0) { 
+    debugMsg("Robot:moveRobot", " Cannot move to desired location due to lack of robot power.");
+    result = -2;
+  }
+  else if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
       && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
     setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
-    updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.1);
+    if(!m_HasFlag)
+        m_HasFlag = m_Flags->acquireFlag(rowNext, colNext);
+    updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.05);
     debugMsg("Robot:moveRobot", " Move to " << rowNext << ", " << colNext << " succeeded.");
     result = 1;
   }
