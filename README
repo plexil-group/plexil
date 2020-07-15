@@ -194,7 +194,7 @@ not recommended.
   PLEXIL installation directory.  You can omit or change options as
   desired.
 
-  cmake path/to/plexil-4/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
+  cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
     -DGANTT_LISTENER=ON -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
 
   Please see the CAVEATS file in this directory for advice on CMake options.
