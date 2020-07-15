@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,22 +51,24 @@ namespace PLEXIL
   // interface may be in order.
 
   void PlanDebugListener::
-  implementNotifyNodeTransition (NodeState /* prevState */, Node *nodeId) const
+  implementNotifyNodeTransition(NodeState /* prevState */,
+                                NodeState newState,
+                                Node *nodeId) const
   {
     NodeImpl *node = dynamic_cast<NodeImpl *>(nodeId);
     assertTrueMsg(node,
                   "PlanDebugListener:implementNotifyNodeTransition: not a node");
-    condDebugMsg((node->getState() == FINISHED_STATE),
+    condDebugMsg(newState == FINISHED_STATE,
                  "Node:clock",
                  "Node '" << node->getNodeId() <<
                  "' finished at " << std::setprecision(15) <<
-                 node->getCurrentStateStartTime() << " (" <<
+                 node->getStateStartTime(newState) << " (" <<
                  node->getOutcome() << ")");
-    condDebugMsg((node->getState() == EXECUTING_STATE),
+    condDebugMsg(newState == EXECUTING_STATE,
                  "Node:clock",
                  "Node '" << node->getNodeId() <<
                  "' started at " << std::setprecision(15) <<
-                 node->getCurrentStateStartTime());
+                 node->getStateStartTime(newState));
   }
   
   extern "C"

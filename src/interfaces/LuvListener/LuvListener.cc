@@ -232,17 +232,18 @@ namespace PLEXIL
   /**
    * @brief Notify that a node has changed state.
    * @param prevState The old state.
+   * @param prevState The new state.
    * @param node The node that has transitioned.
-   * @note The current state is accessible via the node.
    */
   void 
   LuvListener::implementNotifyNodeTransition(NodeState prevState, 
+											 NodeState newState, 
 											 Node *node) const 
   {
     debugMsg("LuvListener:implementNotifyNodeTransition", " for " << node->getNodeId());
 	if (m_socket != NULL) {
 	  std::ostringstream s;
-	  LuvFormat::formatTransition(s, prevState, node);
+	  LuvFormat::formatTransition(s, prevState, newState, node);
 	  sendMessage(s.str());
 	}
   }

@@ -228,6 +228,14 @@ namespace PLEXIL
     double getCurrentStateStartTime() const;
 
     /**
+     * @brief Gets the time at which this node entered the given state.
+     * @param state The state.
+     * @return Time value as a double. If not found, returns -DBL_MAX.
+     * @note Used by GanttListener and PlanDebugListener.
+     */
+    double getStateStartTime(NodeState state) const;
+
+    /**
      * @brief Looks up a variable by name.
      * @param name Name of the variable.
      * @return The variable, or NULL if not found.

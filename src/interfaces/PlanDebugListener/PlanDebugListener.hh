@@ -50,6 +50,7 @@ namespace PLEXIL
 
     // Capture and report about useful node state transitions.
     void implementNotifyNodeTransition(NodeState prevState,
+                                       NodeState newState,
                                        Node *node) const;
 
   private:

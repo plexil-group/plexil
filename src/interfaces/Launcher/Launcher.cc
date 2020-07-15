@@ -65,17 +65,18 @@ namespace PLEXIL
     /**
      * @brief Notify that a node has changed state.
      * @param prevState The old state.
+     * @param newState The new state.
      * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
+                                               NodeState newState,
                                                Node * node) const
     {
       if (node->getParent())
         return;
       Value const nodeIdValue(node->getNodeId());
       g_manager->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
-                                   Value(nodeStateName(node->getState())));
+                                   Value(nodeStateName(newState)));
       NodeOutcome o = node->getOutcome();
       if (o != NO_OUTCOME) {
         g_manager->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -103,9 +103,9 @@ namespace PLEXIL
     }
 
     // Return true if either the previous or new state is in the filter.
-    bool reportNodeTransition(NodeState prevState, Node *node)
+    bool reportNodeTransition(NodeState prevState, NodeState newState, Node *node)
     {
-      return m_stateEnabled[prevState] || m_stateEnabled[node->getState()];
+      return m_stateEnabled[prevState] || m_stateEnabled[newState];
     }
 
   private:
