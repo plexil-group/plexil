@@ -39,7 +39,6 @@ If you are starting from a fresh git clone:
    actual location of 'plexil' in the first line.
 
    export PLEXIL_HOME=/home/joe/plexil
-   export PATH=$PLEXIL_HOME/scripts:$PATH
    source $PLEXIL_HOME/scripts/plexil-setup.sh
 
 2. Source your shell init file, e.g.
@@ -74,36 +73,36 @@ If you are starting from a fresh git clone:
 6. Build it!
 
    cd $PLEXIL_HOME
-	 make
+   make
 
 If you are starting from an updated but previously built git clone:
 
 1. Try simply building:
 
    cd $PLEXIL_HOME
-	 make
+   make
 
 2. If there are problems, rebuild:
 
    cd $PLEXIL_HOME
    make clean
    make squeaky-clean
-	 make
+   make
 
    The 'squeaky-clean' is sometimes needed when make/autotools files have changed.
 
 To build the tool suite without the example applications:
 
- make tools
+   make tools
 
 To specify a compiler other than gcc/g++, e.g. clang:
 
- make CC=clang CXX=clang++
+   make CC=clang CXX=clang++
 
 On FreeBSD, ensure that GNU make is installed (typically named 'gmake' on this
 OS):
 
- gmake CC=clang CXX=clang++
+   gmake CC=clang CXX=clang++
 
 
 Advanced builds
@@ -117,7 +116,7 @@ not appropriate for a specific application.
 
    cd plexil/src
 
-2. If you are building from a fresh SVN checkout, you will need to run the GNU
+2. If you are building from a fresh git checkout, you will need to run the GNU
    autotools first. This step should be unnecessary if you downloaded a release
    tarball.
 
