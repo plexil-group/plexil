@@ -24,6 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "Value.hh"
+#include "Nullable.hh"
+#include "StateCacheEntry.hh"
+#include "ValueType.hh"
+
 #include <iostream>
 
 #ifndef _H_CheckpointSystem
@@ -53,7 +57,7 @@ public:
     return m_system;
   }
   
-  //Lookups
+  // Lookups
   bool didCrash();
   int32_t numActiveCrashes();
   int32_t numTotalCrashes();
@@ -62,11 +66,13 @@ public:
   Value getTimeOfBoot(int32_t boot_num);
   Value getTimeOfCrash(int32_t boot_num);
   
-  //Commands
+  // Commands
   Value setCheckpoint(const string& checkpoint_name, bool value);
   Value setSafeReboot(bool b);
   Value deleteCrash(int32_t boot_num);
 
+  // Helper
+  void findTimeAdapter();
 private:
   CheckpointSystem();
 
@@ -77,19 +83,23 @@ private:
   bool did_crash;
   bool num_active_crashes;
   bool num_total_crashes;
+  
+  InterfaceAdapter* time_adapter = NULL;
+  StateCacheEntry time_cache;
 
   // Data structure that tracks boot-specific metadata and checkpoints
-  vector<tuple<int, /*time of boot*/
-	       int, /*time of crash*/
+  vector<tuple<Nullable<Real>, /*time of boot*/
+	       Nullable<Real>, /*time of crash*/
 	       map< /*map of checkpoint info*/
 		 const string&, /*checkpoint name*/
 		 tuple<bool, /*state of checkpoint*/
-		       int>> data_vector;/*time of checkpoint activation*/
+		       Nullable<Real>>> data_vector;/*time of checkpoint activation*/
 
 
   // Helper functions
   void load_crashes(const string& directory);
   bool valid_boot(int32_t boot_num);
   bool valid_checkpoint(const string checkpoint_name,int32_t boot_num);
+  Nullable<Real> get_time();
 };
 #endif
