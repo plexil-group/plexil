@@ -179,7 +179,6 @@ clean::
 	-@$(MAKE) -C compilers/plexil $@
 	-@$(MAKE) -C examples/robosim $@
 	-@$(MAKE) -C examples/sample-app $@
-	-@$(MAKE) -C examples/sample-app1 $@
 	-@$(MAKE) -C src $@ > /dev/null 2>&1
 	@(cd checker && ant $@)
 	@(cd compilers/plexilscript && ant $@)
