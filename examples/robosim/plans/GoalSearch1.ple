@@ -1,11 +1,10 @@
-// -*- Mode: Java -*-
 // This is a Plexil plan for the RoboSim application.  It has the robot
 // find the "goal".  NOTE: For some reason, the robot circles a while
 // before landing on the goal spot.
 
 // Contributed by Sudhanshu Vias of Iowa State University.
 
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without

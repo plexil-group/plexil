@@ -35,7 +35,7 @@
 class EnergySources
 {
 public:
-  EnergySources(const std::string& fName="", int _size=0, double _radius=1.5);
+  EnergySources(const std::string& fName="", int _size=0, double _radius=6);
   ~EnergySources();
 
   const std::vector<std::vector<int> >& getEnergySourceLocations() const
@@ -48,6 +48,8 @@ public:
   double determineEnergySourceLevel(int rowCurr, int colCurr);
 
   void displayEnergySources();
+  
+  void toggleAreaVisibility() {m_AreaVisibility = !m_AreaVisibility;}
 
 private:
 
@@ -59,6 +61,7 @@ private:
   std::vector<std::vector<int> > m_EnergySourceLocations;
   int m_Size;
   double m_Radius;
+  bool m_AreaVisibility;
 };
 
 #endif //ENERGY_SOURCES_HH

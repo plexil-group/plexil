@@ -1,3 +1,28 @@
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 Integer Command MoveUp (String robotName);
 Integer Command MoveDown (String robotName);
 Integer Command MoveRight (String robotName);
@@ -5,10 +30,10 @@ Integer Command MoveLeft (String robotName);
 Integer Command Move (String robotName, Integer holder);
 Real[5] Command QueryEnergySensor (String robotName);
 Real[5] Command QueryGoalSensor (String robotName);
-Real[3] Command QueryRobotState (String robotName);
+Real[4] Command QueryRobotState (String robotName);
 Integer[4] Command QueryVisibilitySensor (String robotName);
 
-RootNode:
+FindGoal:
 {
     String RobotName = "RobotYellow";
 
@@ -18,7 +43,7 @@ RootNode:
         Real energy[5] = #(-999.0 0.0 0.0 0.0);
         Real goal[5] = #(-999.0 0.0 0.0 0.0 0.0);
         Integer visible[4] = #(-999 0 0 0);
-        Real rstate[3] = #(-999.0 0.0 1.0);
+        Real rstate[4] = #(-999.0 0.0 1.0 0.0);
         Real moveList[10] = #(0 0 0 0 0 0 0 0 0 0);
     
         //Array assignments
