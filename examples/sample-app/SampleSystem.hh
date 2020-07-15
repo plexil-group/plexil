@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,18 @@ class SampleSystem
 {
  public:
 
-  SampleSystem();
-  // using compiler's destructor; no assignment or copy
-  
-  float getSize () { return m_size; } 
+   SampleSystem (const SampleSystem&) = delete;
+   SampleSystem& operator= (const SampleSystem&) = delete;
+   ~SampleSystem();
+
+  static SampleSystem *getInstance () {
+    if (!m_system) {
+      m_system = new SampleSystem;
+    }
+    return m_system;
+  }
+
+  float getSize () { return m_size; }
   void setSize (float);
 
   int getSpeed () { return m_speed; }
@@ -46,6 +54,9 @@ class SampleSystem
 
   std::string getColor () { return m_color; }
   void setColor (const std::string&);
+
+  std::string getName () { return m_name; }
+  void setName (const std::string&);
 
   // The overloaded 'at' functions support three variants of a parameterized
   // state called 'At'.  Note that 'At' is fundamentally different from the
@@ -55,25 +66,28 @@ class SampleSystem
   std::string at () { return m_at_location; }
   bool at (const std::string& location) { return location == m_at_location; }
   bool at (int x, int y) { return (x == m_at_coordinates.first &&
-								   y == m_at_coordinates.second); }
+                                   y == m_at_coordinates.second); }
 
   // This command changes the 'at' state.
   void move (const std::string& location, int x, int y);
 
   // Some trivial commands
-  void hello ();  
+  void hello ();
   int square (int x) { return x * x; }
+  int cube (int x) { return x * x * x; }
 
  private:
 
-  SampleSystem (const SampleSystem&);            // undefined - no copying
-  SampleSystem& operator= (const SampleSystem&); // undefined - no assignment
+  SampleSystem();
+
+  static SampleSystem *m_system;
 
   float m_size;
   int m_speed;
   std::string m_color;
   std::string m_at_location;
   std::pair<int, int> m_at_coordinates;
+  std::string m_name;
 };
 
 #endif

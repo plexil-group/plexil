@@ -43,12 +43,12 @@ typedef void (* SubscribeBoolString) (const std::string& state_name,
 typedef void (* SubscribeBoolIntInt) (const std::string& state_name,
                                       bool val, int arg1, int arg2);
 
-// Setters for subscriber.
-void setSubscriberInt (SubscribeInt);
-void setSubscriberReal (SubscribeReal);
-void setSubscriberString (SubscribeString);
-void setSubscriberBoolString (SubscribeBoolString);
-void setSubscriberBoolIntInt (SubscribeBoolIntInt);
+// Setters for subscribers of each supported type signature
+void setSubscriber (SubscribeInt);
+void setSubscriber (SubscribeReal);
+void setSubscriber (SubscribeString);
+void setSubscriber (SubscribeBoolString);
+void setSubscriber (SubscribeBoolIntInt);
 
 // Publish a state name, which notifies the subscriber.
 void publish (const std::string& state_name, int val);
