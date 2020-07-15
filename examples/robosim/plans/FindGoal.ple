@@ -23,7 +23,6 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-FindDirection:
 Integer Command MoveUp (String robotName);
 Integer Command MoveDown (String robotName);
 Integer Command MoveRight (String robotName);
@@ -34,7 +33,7 @@ Real[5] Command QueryGoalSensor (String robotName);
 Real[4] Command QueryRobotState (String robotName);
 Integer[4] Command QueryVisibilitySensor (String robotName);
 
-RootNode:
+FindGoal:
 {
     String RobotName = "RobotYellow";
 
