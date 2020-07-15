@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -129,16 +129,18 @@ namespace PLEXIL {
    * @brief Construct the node state transition XML.
    * @param s The stream to write the XML to.
    * @param prevState The state from which the node is transitioning.
+   * @param newState The state to which the node is transitioning.
    * @param node The node.
    */
   void LuvFormat::formatTransition(std::ostream& s, 
                                    NodeState /* prevState */,
+                                   NodeState newState,
                                    Node* node) {
 
     simpleStartTag(s, NODE_STATE_UPDATE_TAG());
 
     // add state
-    simpleTextElement(s, NODE_STATE_TAG(), nodeStateName(node->getState()).c_str());
+    simpleTextElement(s, NODE_STATE_TAG(), nodeStateName(newState).c_str());
 
     // add outcome
     if (node->getOutcome() != NO_OUTCOME)
