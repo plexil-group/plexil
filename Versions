@@ -40,6 +40,25 @@ Executive core and Universal Executive:
 
 Standard interfaces:
 
+ * The ExecListener API has one incompatible change. Was:
+
+ void implementNotifyNodeTransition(NodeState prevState,
+                                    Node *node) const;
+
+   Now is:
+
+ void implementNotifyNodeTransition(NodeState prevState,
+                                    NodeState newState,
+                                    Node *node) const;
+
+   Node state transitions used to be advertised to exec listeners at
+   the time they were performed, during the exec's micro cycle.  The
+   new state could be obtained directly from the node.  Now state
+   transitions are batched and reported at the end of the macro cycle.
+   By that time the state of the node may have changed multiple times.
+   So it is now necessary to save and explicitly pass the new state to
+   the listener.
+
  * UUID generation for the IpcAdapter is now done using the POSIX
    standard randomness generator /dev/urandom.  The old code depended
    on a third-party software package, 'ooid', which hadn't seen
