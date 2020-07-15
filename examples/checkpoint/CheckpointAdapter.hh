@@ -76,6 +76,7 @@ private:
 
   static CheckpointAdapter * m_adapter;
   std::set<State> m_subscribedStates;
+  InterfaceAdapter m_timeAdapter;
 
 };
 

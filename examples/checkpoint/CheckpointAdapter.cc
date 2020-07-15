@@ -45,7 +45,6 @@ using std::string;
 using std::vector;
 using std::copy;
 
-
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.

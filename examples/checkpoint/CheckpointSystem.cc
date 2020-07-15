@@ -27,6 +27,8 @@
 
 #include "Subscriber.hh"
 #include "CheckpointSystem.hh"
+#include "AdapterConfiguration.hh" // For access to g_configuration
+
 // Used for indexing into data structure
 #define BOOT_TIME 0
 #define CRASH_TIME 1
@@ -52,29 +54,46 @@ static string error = "Error in checkpoint system: ";
 
 
 // Load all previous active crashes
-bool SampleSystem::load_crashes(const string& directory){
+bool CheckpointSystem::load_crashes(const string& directory){
 
   //Do some publishing
 }
 
 // Check that the boot number is valid
-bool SampleSystem::valid_boot(int32_t boot_num){
+bool CheckpointSystem::valid_boot(int32_t boot_num){
   return (boot_num < 0 || boot_num > num_active_crashes);
 }
 
-bool SampleSystem::valid_checkpoint(const string checkpoint_name,int32_t boot_num){
+bool CheckpointSystem::valid_checkpoint(const string checkpoint_name,int32_t boot_num){
   map<const string&, tuple<bool,int>> checkpoints = get<CHECKPOINTS>(data_vector.at(boot_num));
   return checkpoints.find(checkpoint) == checkpoints.end();
 }
 
+Nullable<Real> CheckpointSystem::get_time(){
+  if(time_adapter==null)  return Nullable<Real>();
+  time_adapter->lookupNow("time",time_cache);
+  if(!time_cache.isKnown) return Nullable<Real>();
+
+  // Extract time from time_cache
+  Value time_value = time_cache.CachedValue()->toValue();
+  Real r;
+  time_value.getValue(r);
+  return Nullable(r);
+}
+
+void findTimeAdapter(){
+  time_adapter = g_configuration->getLookupInterface("time");
+}
+
+
 //////////////////////////////// Class Features ////////////////////////////////
 
-SampleSystem::SampleSystem ()
+CheckpointSystem::CheckpointSystem ()
 {
   load_crashes("PLACEHOLDER");
 }
 
-SampleSystem::~SampleSystem ()
+CheckpointSystem::~CheckpointSystem ()
 {
   if (m_system) {
     delete m_system;
@@ -82,22 +101,22 @@ SampleSystem::~SampleSystem ()
 }
 
 ////////////////////////////////// Lookups /////////////////////////////////////
-bool SampleSystem::didCrash(){
+bool CheckpointSystem::didCrash(){
   return did_crash;
 }
 
 
-int32_t SampleSystem::numActiveCrashes(){
+int32_t CheckpointSystem::numActiveCrashes(){
   return num_active_crashes;
 }
 
 
-int32_t SampleSystem::numTotalCrashes(){
+int32_t CheckpointSystem::numTotalCrashes(){
   return num_total_crashes;
 }
 
 
-Value SampleSystem::getCheckpointState(const std::string checkpoint_name,int32_t boot_num){
+Value CheckpointSystem::getCheckpointState(const std::string checkpoint_name,int32_t boot_num){
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
       return get<C_STATE>(get<CHECKPOINTS>(data_vector.at(boot_num)).at(checkpoint_name));
@@ -114,11 +133,12 @@ Value SampleSystem::getCheckpointState(const std::string checkpoint_name,int32_t
   }
 }
 
-V
-alue SampleSystem::getCheckpointTime(const std::string checkpoint_name, int32_t boot_num){
+Value CheckpointSystem::getCheckpointTime(const std::string checkpoint_name, int32_t boot_num){
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
-      return get<C_TIME>(get<CHECKPOINTS>(data_vector.at(boot_num)).at(checkpoint_name));
+      Nullable time = get<C_TIME>(get<CHECKPOINTS>(data_vector.at(boot_num)).at(checkpoint_name));
+      if(time.has_value()) return time.value();
+      else return Unknown;
     }
     // If checkpoint doesn't exist, we can't get its time
     else{
@@ -134,9 +154,11 @@ alue SampleSystem::getCheckpointTime(const std::string checkpoint_name, int32_t 
 }
 
 
-Value SampleSystem::getTimeOfBoot(int32_t boot_num){
+Value CheckpointSystem::getTimeOfBoot(int32_t boot_num){
   if(valid_boot(boot_num)){
-    return get<BOOT_TIME>(data_vector.at(boot_num));
+    Nullable time = get<BOOT_TIME>(data_vector.at(boot_num));
+    if(time.has_value()) return time.value();
+    else return Unknown;
   }
   // If boot doesn't exist, something's gone wrong
   else{
@@ -146,9 +168,11 @@ Value SampleSystem::getTimeOfBoot(int32_t boot_num){
 }
 
 
-int32_t SampleSystem::getTimeOfCrash(int32_t boot_num){
+Value CheckpointSystem::getTimeOfCrash(int32_t boot_num){
   if(valid_boot(boot_num)){
-    return get<CRASH_TIME>(data_vector.at(boot_num));
+    Nullable time = get<CRASH_TIME>(data_vector.at(boot_num));
+    if(time.has_value()) return time.value();
+    else return Unknown;
   }
   // If boot doesn't exist, something's gone wrong
   else{
@@ -158,26 +182,27 @@ int32_t SampleSystem::getTimeOfCrash(int32_t boot_num){
 }
 
 //Commands
-Value SampleSystem::setCheckpoint(const std::string& checkpoint_name, bool value){
-  map<const string&,tuple<bool,int>> checkpoints = get<CHECKPOINTS>(data_vector.at(0));
+Value CheckpointSystem::setCheckpoint(const std::string& checkpoint_name, bool value){
+  map<const string&,tuple<bool,Nullable<Real>>> checkpoints = get<CHECKPOINTS>(data_vector.at(0));
   Value retval;
   // If checkpoint not set, checkpoint was not reached
   if(checkpoints.find(checkpoint_name)==checkpoints.end()) retval = false;
-  else retval = checkpoints.at(checkpoint_name);
-  // This inserts the element if none exists
-  checkpoints[checkpoint_name] = value;
+  else retval = get<C_STATE>(checkpoints.at(checkpoint_name));
+  
+  // This inserts the element if none exists, and overrides if it exists
+  checkpoints[checkpoint_name] = tuple<bool,Nullable<Real>>(value,get_time());
   return retval;
 }
 
 
-Value SampleSystem::setSafeReboot(bool b){
+Value CheckpointSystem::setSafeReboot(bool b){
   Value retval = safe_to_reboot;
   safe_to_reboot = b;
   return retval;
 }
 
 
-Value SampleSystem::deleteCrash(int32_t boot_num){
+Value CheckpointSystem::deleteCrash(int32_t boot_num){
   // Can't delete the current boot
   if(valid_boot(boot_num) && boot_num>0){
     data_vector.erase(boot_num);
