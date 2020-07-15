@@ -1401,6 +1401,32 @@ namespace PLEXIL
     return m_currentStateStartTime;
   }
 
+  /**
+   * @brief Gets the time at which this node entered the given state.
+   * @param state The state.
+   * @return Time value as a double.
+   * @note Used by GanttListener and PlanDebugListener.
+   */
+  double NodeImpl::getStateStartTime(NodeState state) const
+  {
+    if (state == (NodeState) m_state)
+      return m_currentStateStartTime;
+
+    // Search for the desired state
+    double result = -DBL_MAX; // default value if not found
+    NodeTimepointValue *tp = m_timepoints;
+    while (tp) {
+      if (tp->state() == state && !tp->isEnd()) {
+        tp->getValue(result);
+        return result;
+      }
+      tp = tp->next();
+    }
+
+    // Not found
+    return result;
+  }
+
   void NodeImpl::setNodeOutcome(NodeOutcome o)
   {
     m_outcome = o;
