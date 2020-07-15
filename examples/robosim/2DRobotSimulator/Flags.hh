@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,50 +24,30 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "subscriber.hh"
+#ifndef FLAGS_HH
+#define FLAGS_HH
 
-using std::string;
+#include <vector>
 
-// The subscribers.  Their naming convention is:
-//   Subscribe<value-type><param-type>...
-
-static SubscribeInt SubscriberInt = NULL;
-static SubscribeReal SubscriberReal = NULL;
-static SubscribeString SubscriberString = NULL;
-static SubscribeBoolString SubscriberBoolString = NULL;
-static SubscribeBoolIntInt SubscriberBoolIntInt = NULL;
-
-void setSubscriber (SubscribeInt s) { SubscriberInt = s; }
-void setSubscriber (SubscribeReal s) { SubscriberReal = s; }
-void setSubscriber (SubscribeString s) { SubscriberString = s; }
-void setSubscriber (SubscribeBoolString s) { SubscriberBoolString = s; }
-void setSubscriber (SubscribeBoolIntInt s) { SubscriberBoolIntInt = s; }
-
-
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const string& state_name, int val)
+class Flags
 {
-  SubscriberInt (state_name, val);
-}
+public:
+  Flags(int _size=0, double _radius=8.5);
+  ~Flags();
+  
+  void drawFlag(int row, int col);
+  void displayFlags();
+  bool acquireFlag(int row, int col);
+  double determineFlagLevel(int rowCurr, int colCurr) const;
+  void toggleAreaVisibility() {m_AreaVisibility = !m_AreaVisibility;}
 
-void publish (const string& state_name, float val)
-{
-  SubscriberReal (state_name, val);
-}
+private:
+  void readFlagLocations();
 
-void publish (const string& state_name, const string& val)
-{
-  SubscriberString (state_name, val);
-}
+  int m_TerrainSize;
+  double m_Radius;
+  bool m_AreaVisibility;
+  std::vector<std::vector<int> > m_FlagLocations;
+};
 
-void publish (const std::string& state_name, bool val, const std::string& arg)
-{
-  SubscriberBoolString (state_name, val, arg);
-}
-
-void publish (const std::string& state_name, bool val, int arg1, int arg2)
-{
-  SubscriberBoolIntInt (state_name, val, arg1, arg2);
-}
+#endif // FLAGS_HH

@@ -1,0 +1,153 @@
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// This is a Plexil plan for the RoboSim application.  It has the robot
+// move to the flag to pick it up and then bring the flag to the goal.
+// It searches for energy when it is low in order to not run out.
+
+Real[5] Command QueryGoalSensor(String name);
+Real[5] Command QueryFlagSensor(String name);
+Integer[4] Command QueryVisibilitySensor(String name);
+Real[5] Command QueryEnergySensor(String name);
+Real[4] Command QueryRobotState(String name);
+Integer Command Move(String name, Integer direction);
+Command pprint(...);
+
+LibraryAction FindDirection (In Real directionVals[4], In Integer visibilityVals[4], InOut Integer maxDirection);
+
+CaptureTheFlag:
+{
+    String RobotName = "RobotYellow";
+    Real defaultVals[4] = #(1.0 1.0 1.0 1.0);
+    
+    Boolean atGoal = false;
+    Boolean noBattery = false;
+
+    // Fail if we ever run out of battery
+    InvariantCondition !noBattery;
+    // Succeed if we ever reach the goal
+    ExitCondition atGoal;
+    
+    while(!atGoal) {
+        Real energyVals[5];
+        Real goalVals[5];
+        Real flagVals[5];
+        Integer visibilityVals[4];
+        Real robotState[4];
+        Integer move;
+        Integer direction;
+
+        
+        ReadRobotState:
+        {
+            EndCondition isKnown(robotState[0]);
+            robotState = QueryRobotState(RobotName);
+        }
+
+        pprint("Read energy");
+        ReadEnergySensor:
+        {
+            EndCondition isKnown(energyVals[0]);
+            energyVals = QueryEnergySensor(RobotName);
+        }
+
+        pprint("Read visibility");
+        ReadVisibilitySensor:
+        {
+            EndCondition isKnown(visibilityVals[0]);
+            visibilityVals = QueryVisibilitySensor(RobotName);
+        }
+
+        ReadGoalSensor: 
+        {
+            EndCondition isKnown(goalVals[0]);
+            goalVals = QueryGoalSensor(RobotName);
+        }
+
+        pprint("Read flags");
+        ReadFlagSensor: 
+        {
+            EndCondition isKnown(flagVals[0]);
+            flagVals = QueryFlagSensor(RobotName);
+        }
+
+        DetermineDirection:
+        {
+            pprint("Has Flag:", robotState[3]);            
+            if(robotState[2] < .5)
+            {
+                pprint("Moving to energy.");
+                LibraryCall FindDirection(directionVals=energyVals,
+                    visibilityVals=visibilityVals,
+                    maxDirection=direction);
+            }
+            endif
+            if(!isKnown(direction))
+            {
+                if(robotState[3] != 1)
+                {
+                    pprint("Moving to flag.");
+                    LibraryCall FindDirection(directionVals=flagVals,
+                        visibilityVals=visibilityVals,
+                        maxDirection=direction);
+                }
+                else
+                {
+                    pprint("Moving to goal.");
+                    LibraryCall FindDirection(directionVals=goalVals,
+                        visibilityVals=visibilityVals,
+                        maxDirection=direction);
+                }
+                endif
+            }
+            endif
+            if(!isKnown(direction))
+            {
+                pprint("Moving away from wall.");
+                LibraryCall FindDirection(directionVals=defaultVals,
+                    visibilityVals=visibilityVals,
+                    maxDirection=direction);
+            }
+            endif
+ 
+            // check if we are at the goal or if we are out of battery.
+            if(robotState[2] == 0)
+                noBattery = true;
+            endif
+            if(goalVals[4] == 1)
+                atGoal = true;
+            endif
+        }
+
+        Move:
+        {
+            StartCondition isKnown(direction);
+            // EndConditon isKnown(move);
+            
+            pprint("Moving in direction:", direction);
+            move = Move(RobotName, direction);
+        }
+    }
+}

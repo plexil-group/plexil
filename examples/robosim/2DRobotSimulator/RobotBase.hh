@@ -29,6 +29,7 @@
 #include "TerrainBase.hh"
 #include "EnergySources.hh"
 #include "Goals.hh"
+#include "Flags.hh"
 #include "RobotPositionServer.hh"
 
 #include "Value.hh"
@@ -37,9 +38,9 @@ class RobotBase
 {
 public:
   RobotBase(const TerrainBase* _terrain, EnergySources* _resources, Goals* _goals,
-            RobotPositionServer* _posServer)
+            Flags* _flags, RobotPositionServer* _posServer)
     : m_Terrain(_terrain), m_EnergySources(_resources), m_Goals(_goals),
-      m_RobotPositionServer(_posServer)
+      m_Flags(_flags), m_RobotPositionServer(_posServer)
   {
   }
 
@@ -55,6 +56,7 @@ protected:
   const TerrainBase* m_Terrain;
   EnergySources* m_EnergySources;
   Goals* m_Goals;
+  Flags* m_Flags;
   RobotPositionServer* m_RobotPositionServer;
 };
 
