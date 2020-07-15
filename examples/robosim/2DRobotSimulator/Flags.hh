@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,40 +24,30 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ROBOT_BASE_HH
-#define ROBOT_BASE_HH
-#include "TerrainBase.hh"
-#include "EnergySources.hh"
-#include "Goals.hh"
-#include "Flags.hh"
-#include "RobotPositionServer.hh"
+#ifndef FLAGS_HH
+#define FLAGS_HH
 
-#include "Value.hh"
+#include <vector>
 
-class RobotBase
+class Flags
 {
 public:
-  RobotBase(const TerrainBase* _terrain, EnergySources* _resources, Goals* _goals,
-            Flags* _flags, RobotPositionServer* _posServer)
-    : m_Terrain(_terrain), m_EnergySources(_resources), m_Goals(_goals),
-      m_Flags(_flags), m_RobotPositionServer(_posServer)
-  {
-  }
-
-  virtual ~RobotBase()
-  {
-  }
+  Flags(int _size=0, double _radius=8.5);
+  ~Flags();
   
-  virtual void displayRobot(void) = 0;
+  void drawFlag(int row, int col);
+  void displayFlags();
+  bool acquireFlag(int row, int col);
+  double determineFlagLevel(int rowCurr, int colCurr) const;
+  void toggleAreaVisibility() {m_AreaVisibility = !m_AreaVisibility;}
 
-  virtual PLEXIL::Value processCommand(const std::string& cmd, int32_t parameter) = 0;
+private:
+  void readFlagLocations();
 
-protected:
-  const TerrainBase* m_Terrain;
-  EnergySources* m_EnergySources;
-  Goals* m_Goals;
-  Flags* m_Flags;
-  RobotPositionServer* m_RobotPositionServer;
+  int m_TerrainSize;
+  double m_Radius;
+  bool m_AreaVisibility;
+  std::vector<std::vector<int> > m_FlagLocations;
 };
 
-#endif // ROBOT_BASE_HH
+#endif // FLAGS_HH
