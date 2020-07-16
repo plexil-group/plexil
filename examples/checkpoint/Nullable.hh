@@ -40,14 +40,7 @@ public:
   //TODO: Possibly free data
   ~Nullable();
 
-  Nullable<T> operator= (Nullable<T> &o){
-    this.data = o.data;
-    this.some = o.some;
-  }
-  Nullable<T> operator= (T t){
-    data = t;
-    some = true;
-  }
+
 
   bool has_value(){
     return some;

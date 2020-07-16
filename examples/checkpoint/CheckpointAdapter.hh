@@ -36,8 +36,9 @@
 #define _H__CheckpointAdapter
 
 #include "Command.hh"
-#include "CheckpointAdapter.hh"
 #include "Value.hh"
+#include "InterfaceAdapter.hh"
+#include "CheckpointSystem.hh"
 
 using namespace PLEXIL;
 
@@ -74,9 +75,9 @@ public:
 private:
   bool isStateSubscribed(const State& state) const;
 
+  static CheckpointSystem *m_system;
   static CheckpointAdapter * m_adapter;
   std::set<State> m_subscribedStates;
-  InterfaceAdapter m_timeAdapter;
 
 };
 
