@@ -65,6 +65,7 @@ InterfaceAdapter* CheckpointSystem::s_time_adapter=NULL;
 StateCacheEntry CheckpointSystem::s_time_cache;
 bool CheckpointSystem::s_use_time=true;
 
+///////////////////////////// Helper Functions //////////////////////////////
 
 ///////////////////////////// Helper Functions //////////////////////////////
 
@@ -123,6 +124,16 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
   m_manager->setExecInterface(execInterface);
 }
 
+
+void CheckpointSystem::start(){
+  time_adapter = g_configuration->getLookupInterface("time");
+  save_manager->loadCrashes(data_vector,get_time);
+}
+
+
+void CheckpointSystem::setDirectory(const string& file_directory){
+  save_manager->setDirectory(file_directory);
+}
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
   RLOCK;

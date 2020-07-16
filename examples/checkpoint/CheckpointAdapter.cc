@@ -26,7 +26,6 @@
 #include "CheckpointAdapter.hh"
 
 #include "Subscriber.hh"
-#include "CheckpointSystem.hh"
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
