@@ -36,11 +36,16 @@ libxmu, and their header files.
 How to build PLEXIL - Simple version
 ------------------------------------
 
-To build the PLEXIL distribution on Linux or macOS:
+To build the PLEXIL distribution:
 
-1. Change to this top level directory and type:
+1. To build everything, including the robosim and sample-app examples,
+   change to this top level directory and type:
 
-  make all
+  make
+
+2. If you do not wish to build the examples:
+
+  make tools
 
 
 How to run PLEXIL - Simple version
