@@ -23,15 +23,20 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+#ifndef _H_CheckpointSystem
+#define _H_CheckpointSystem
 #include "Value.hh"
 #include "Nullable.hh"
 #include "StateCacheEntry.hh"
+#include "InterfaceAdapter.hh"
+#include "SaveManager.hh"
 #include "ValueType.hh"
 
 #include <iostream>
 
-#ifndef _H_CheckpointSystem
-#define _H_CheckpointSystem
+
+using namespace PLEXIL;
 
 using std::string;
 using std::vector;
@@ -41,11 +46,11 @@ using std::map;
 // This is a class that stores, operates on, and provides information
 // about crashes and checkpoints
 
-class CheckpointSstem
+class CheckpointSystem
 {
 public:
 
-  //TODO: These are from PLEXIL-2 branch of sample-app, but why?
+  //Prohibits copying or assigning
   CheckpointSystem (const CheckpointSystem&) = delete;
   CheckpointSystem& operator= (const CheckpointSystem&) = delete;
   ~CheckpointSystem();
@@ -63,20 +68,22 @@ public:
   int32_t numTotalCrashes();
   Value getCheckpointState(const string checkpoint_name,int32_t boot_num);
   Value getCheckpointTime(const string checkpoint_name, int32_t boot_num);
+  Value getCheckpointInfo(const string checkpoint_name, int32_t boot_num);
   Value getTimeOfBoot(int32_t boot_num);
   Value getTimeOfCrash(int32_t boot_num);
   
   // Commands
-  Value setCheckpoint(const string& checkpoint_name, bool value);
+  Value setCheckpoint(const string& checkpoint_name, bool value, string& info);
   Value setSafeReboot(bool b);
   Value deleteCrash(int32_t boot_num);
 
   // Helper
-  void findTimeAdapter();
+  void start();
+  void setDirectory(const string& file_directory);
 private:
   CheckpointSystem();
 
-  static CheckpointSystem *m_system
+  static CheckpointSystem *m_system;
 
   // Current boot information
   bool safe_to_reboot;
@@ -84,22 +91,24 @@ private:
   bool num_active_crashes;
   bool num_total_crashes;
   
-  InterfaceAdapter* time_adapter = NULL;
-  StateCacheEntry time_cache;
+  
+  SaveManager* save_manager;
 
   // Data structure that tracks boot-specific metadata and checkpoints
   vector<tuple<Nullable<Real>, /*time of boot*/
 	       Nullable<Real>, /*time of crash*/
 	       map< /*map of checkpoint info*/
-		 const string&, /*checkpoint name*/
+		 const string, /*checkpoint name*/
 		 tuple<bool, /*state of checkpoint*/
-		       Nullable<Real>>> data_vector;/*time of checkpoint activation*/
+		       Nullable<Real>,/*time of checkpoint activation*/
+		       string>>>> data_vector; /*user-defined checkpoint info*/
 
 
   // Helper functions
-  void load_crashes(const string& directory);
+
   bool valid_boot(int32_t boot_num);
   bool valid_checkpoint(const string checkpoint_name,int32_t boot_num);
-  Nullable<Real> get_time();
 };
+
+static Nullable<Real> get_time();
 #endif
