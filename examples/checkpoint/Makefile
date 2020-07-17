@@ -26,8 +26,8 @@
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY = CheckpointAdapter
-SRC = SubscriberData.cc CheckpointSystem.cc CheckpointAdapter.cc SaveManager.cc
-INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh SaveManager.hh ReadWriteLock.hh
+SRC = SubscriberData.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc
+INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 

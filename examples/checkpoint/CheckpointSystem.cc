@@ -104,12 +104,14 @@ CheckpointSystem::~CheckpointSystem ()
 
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
-  SaveManager::getInstance()->loadCrashes(data_vector,get_time);
+  manager.setTimeFunction(get_time);
+  manager.setData(&data_vector,&safe_to_reboot,&num_active_crashes,&num_total_crashes);
+  manager.loadCrashes();
 }
 
 
 void CheckpointSystem::setDirectory(const string& file_directory){
-    SaveManager::getInstance()->setDirectory(file_directory);
+    manager.setDirectory(file_directory);
 }
 
 ////////////////////////////////// Lookups /////////////////////////////////////
