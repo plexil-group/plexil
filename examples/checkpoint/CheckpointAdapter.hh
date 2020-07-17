@@ -38,7 +38,6 @@
 #include "Command.hh"
 #include "Value.hh"
 #include "InterfaceAdapter.hh"
-#include "CheckpointSystem.hh"
 
 using namespace PLEXIL;
 
@@ -51,6 +50,7 @@ public:
   
   CheckpointAdapter (AdapterExecInterface&, const pugi::xml_node&);
   ~CheckpointAdapter();
+  
   bool initialize();
   bool start();
   bool stop();
@@ -74,12 +74,15 @@ public:
 
 private:
   bool isStateSubscribed(const State& state) const;
-
-  static CheckpointSystem *m_system;
+  
   static CheckpointAdapter * m_adapter;
   std::set<State> m_subscribedStates;
 
 };
+
+std::string getChildWithAttribute(const pugi::xml_node& configXml,
+	    const std::string& node_name,
+	    const std::string& attribute_name);
 
 extern "C" {
   void initCheckpointAdapter();

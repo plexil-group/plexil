@@ -32,6 +32,7 @@
 #include "InterfaceAdapter.hh"
 #include "SaveManager.hh"
 #include "ValueType.hh"
+#include "ReadWriteLock.hh"
 
 #include <iostream>
 
@@ -45,6 +46,7 @@ using std::map;
 
 // This is a class that stores, operates on, and provides information
 // about crashes and checkpoints
+
 
 class CheckpointSystem
 {
@@ -66,11 +68,14 @@ public:
   bool didCrash();
   int32_t numActiveCrashes();
   int32_t numTotalCrashes();
-  Value getCheckpointState(const string checkpoint_name,int32_t boot_num);
-  Value getCheckpointTime(const string checkpoint_name, int32_t boot_num);
-  Value getCheckpointInfo(const string checkpoint_name, int32_t boot_num);
+  Value getCheckpointState(const string& checkpoint_name,int32_t boot_num);
+  Value getCheckpointTime(const string& checkpoint_name, int32_t boot_num);
+  Value getCheckpointInfo(const string& checkpoint_name, int32_t boot_num);
+  Value getCheckpointLastPassed(const string& checkpoint_name);
   Value getTimeOfBoot(int32_t boot_num);
   Value getTimeOfCrash(int32_t boot_num);
+  Value getSafeReboot();
+
   
   // Commands
   Value setCheckpoint(const string& checkpoint_name, bool value, string& info);
@@ -90,10 +95,9 @@ private:
   bool did_crash;
   bool num_active_crashes;
   bool num_total_crashes;
+  ReadWriteLock rw;
   
   
-  SaveManager* save_manager;
-
   // Data structure that tracks boot-specific metadata and checkpoints
   vector<tuple<Nullable<Real>, /*time of boot*/
 	       Nullable<Real>, /*time of crash*/
@@ -101,13 +105,15 @@ private:
 		 const string, /*checkpoint name*/
 		 tuple<bool, /*state of checkpoint*/
 		       Nullable<Real>,/*time of checkpoint activation*/
-		       string>>>> data_vector; /*user-defined checkpoint info*/
-
-
+		       string>>>> /*user-defined checkpoint info*/
+  data_vector;
+  
+  
   // Helper functions
 
   bool valid_boot(int32_t boot_num);
-  bool valid_checkpoint(const string checkpoint_name,int32_t boot_num);
+  bool valid_checkpoint(const string& checkpoint_name,int32_t boot_num);
+
 };
 
 static Nullable<Real> get_time();
