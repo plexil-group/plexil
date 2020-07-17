@@ -127,13 +127,14 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
 
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
-  save_manager->loadCrashes(data_vector,get_time);
+  SaveManager::getInstance()->loadCrashes(data_vector,get_time);
 }
 
 
 void CheckpointSystem::setDirectory(const string& file_directory){
-  save_manager->setDirectory(file_directory);
+    SaveManager::getInstance()->setDirectory(file_directory);
 }
+
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
   RLOCK;
@@ -297,6 +298,7 @@ Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
   RUNLOCK;
   return retval;
 }
+//////////////////////////////////////// Commands /////////////////////////////////////////////
 
 Value CheckpointSystem::getIsOK(Integer boot_num){
   RLOCK;
