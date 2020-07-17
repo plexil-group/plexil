@@ -30,7 +30,7 @@
 #include "Nullable.hh"
 #include "StateCacheEntry.hh"
 #include "InterfaceAdapter.hh"
-#include "SaveManager.hh"
+#include "SimpleSaveManager.hh"
 #include "ValueType.hh"
 #include "ReadWriteLock.hh"
 
@@ -93,9 +93,11 @@ private:
   // Current boot information
   bool safe_to_reboot;
   bool did_crash;
-  bool num_active_crashes;
-  bool num_total_crashes;
+  int num_active_crashes;
+  int num_total_crashes;
+
   ReadWriteLock rw;
+  SimpleSaveManager manager;
   
   
   // Data structure that tracks boot-specific metadata and checkpoints

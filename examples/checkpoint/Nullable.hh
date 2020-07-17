@@ -42,11 +42,11 @@ public:
 
 
 
-  bool has_value(){
+  bool has_value() const{
     return some;
   }
 
-  T value(){
+  const T  value() const{
     if(some){
       return data;
     }
@@ -55,7 +55,7 @@ public:
     }
   }
 
-  T value_or(T alternate){
+  const T value_or(T alternate) const{
     return some?data:alternate;
   }
 
