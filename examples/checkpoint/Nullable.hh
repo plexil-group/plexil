@@ -38,7 +38,7 @@ public:
 
   
   //TODO: Possibly free data
-  ~Nullable();
+  ~Nullable(){}
 
 
 

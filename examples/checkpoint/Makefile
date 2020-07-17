@@ -26,10 +26,11 @@
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY = CheckpointAdapter
-SRC = SubscriberData.cc CheckpointSystem.cc CheckpointAdapter.cc
-INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh
+SRC = SubscriberData.cc CheckpointSystem.cc CheckpointAdapter.cc SaveManager.cc
+INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh SaveManager.hh ReadWriteLock.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 test1:
 	plexilexec -p plans/plan1.plx
+
