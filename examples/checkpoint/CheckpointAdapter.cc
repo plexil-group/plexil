@@ -26,6 +26,7 @@
 #include "CheckpointAdapter.hh"
 
 #include "Subscriber.hh"
+#include "CheckpointSystem.hh"
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
@@ -35,7 +36,9 @@
 #include "StateCacheEntry.hh"
 
 #include <iostream>
-#include <string>
+
+
+
 
 using std::cout;
 using std::cerr;
@@ -46,6 +49,9 @@ using std::string;
 using std::vector;
 using std::copy;
 
+//TODO:remove
+#define DEBUG cout<<"Adapter "<<__LINE__<<endl;
+
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.
@@ -55,11 +61,31 @@ static string error = "Error in CheckpointAdapter: ";
 static Value Unknown;
 
 // Static member initialization
+CheckpointAdapter *CheckpointAdapter::m_adapter = 0; 
 CheckpointSystem *CheckpointSystem::m_system = 0;
-CheckpointAdapter *CheckpointAdapter::m_adapter = 0;
 
 // An empty argument vector.
 static vector<Value> EmptyArgs;
+
+//////////////////////////// Helper functions ////////////////////////////////
+
+string getChildWithAttribute(const pugi::xml_node& configXml,
+			     const string& node_name,
+			     const string& attribute_name){
+  for (pugi::xml_node child = configXml.first_child(); child; child = child.next_sibling())
+  {
+    if(child.name()==node_name){
+      for (pugi::xml_attribute attr = child.first_attribute(); attr; attr = attr.next_attribute())
+      {
+	if(attr.name()==attribute_name){
+	  return attr.value();
+	}
+      }
+      return "";
+    }
+  }
+}
+
 
 
 ///////////////////////////// State support //////////////////////////////////
@@ -76,12 +102,16 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   if (state_name == "DidCrash"){
     retval = CheckpointSystem::getInstance()->didCrash();
   }
-  
   else if (state_name == "NumberOfActiveCrashes"){
     retval = CheckpointSystem::getInstance()-> numActiveCrashes();
   }
   else if (state_name == "NumberOfTotalCrashes"){
     retval = CheckpointSystem::getInstance()->numTotalCrashes();
+  }
+  else if (state_name == "CheckpointWhen"){
+    string which_checkpoint;
+    args[0].getValue(which_checkpoint);
+    retval = CheckpointSystem::getInstance()->getCheckpointLastPassed(which_checkpoint);
   }
 
   else{
@@ -97,6 +127,7 @@ static Value fetch (const string& state_name, const vector<Value>& args)
     else if (state_name == "TimeOfBoot"){
       retval = CheckpointSystem::getInstance()->getTimeOfBoot(which_boot);
     }
+    
     else{
       string which_checkpoint;
       args[0].getValue(which_checkpoint);
@@ -141,25 +172,25 @@ static State createState (const string& state_name, const vector<Value>& value)
 static void receiveBool (const string& state_name, bool val)
 {
   CheckpointAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
-             vector<Value> (1, val));
+					       vector<Value> (1, val));
 }
 
 static void receiveInt (const string& state_name, int val)
 {
   CheckpointAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
-             vector<Value> (1, val));
+					       vector<Value> (1, val));
 }
 
 static void receiveBoolInt (const string& state_name, bool val,  int arg)
 {
   CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
-             vector<Value> (1, val));
+					       vector<Value> (1, val));
 }
 
 static void receiveIntInt (const string& state_name, int val,  int arg)
 {
   CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
-             vector<Value> (1, val));
+					       vector<Value> (1, val));
 }
 
 static void receiveBoolStringInt (const string& state_name, bool val, const string& arg1, int arg2)
@@ -187,11 +218,12 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
     InterfaceAdapter(execInterface, configXml)
 {
   m_adapter = this;
-  const std::string file_directory;
-  cout << configXml <<endl;
-    
-  m_system = CheckpointSystem::getInstance();
-  m_system->setDirectory(file_directory);
+  
+  // Reads save directory from configuration file
+  const string file_directory = getChildWithAttribute(configXml,"Directory","Location");
+  if(file_directory!=""){
+    CheckpointSystem::getInstance()->setDirectory(file_directory);
+  }
   debugMsg("CheckpointAdapter", " created.");
 }
 
@@ -231,7 +263,7 @@ bool CheckpointAdapter::start()
 {
   debugMsg("CheckpointAdapter", " started.");
   // TODO: verify that all adapters are intialized by this point
-  m_system->start();
+  CheckpointSystem::getInstance()->start();
   return true;
 }
 
@@ -285,7 +317,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
 	if(args[1].valueType()==BOOLEAN_TYPE) args[1].getValue(value);
 	else args[1].getValue(info);
       }
-      retval = m_system->setCheckpoint(checkpoint_name,value,info);
+      retval = CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info);
     }
   }
   
@@ -296,18 +328,18 @@ void CheckpointAdapter::executeCommand(Command *cmd)
     else{
       bool b;
       args[0].getValue(b);
-      retval = m_system->setSafeReboot(b);
+      retval = CheckpointSystem::getInstance()->setSafeReboot(b);
     }
   }
   else if (name == "DeleteCrash"){
     if(args.size()>1){
       cerr << error << "DeleteCrash invalid number of arguments" << endl;
     }
-    int32_t crash_number = m_system->numActiveCrashes();
+    int32_t crash_number = CheckpointSystem::getInstance()->numActiveCrashes();
     if(!args.empty()){
       args[0].getValue(crash_number);
     }
-    retval = m_system->deleteCrash(crash_number);
+    retval = CheckpointSystem::getInstance()->deleteCrash(crash_number);
   }
   else{ 
     cerr << error << "invalid command: " << name << endl;
