@@ -1,0 +1,25 @@
+ArrayVariation:
+{
+  Real foo[4] = #(1.0 1.0 1.0 1.0);
+  Real bar[5] = #(1.0 1.0 1.0 1.0 1.0);
+  Real constant = 1.0;
+  Real variable = 1.0;
+  Assign1: foo[0] = 1.0 - 1.0;
+  Assign2: foo[1] = 1.0 - foo[0];
+  Assign3: foo[2] = foo[0] - 1.0;
+  Assign4: foo[3] = foo[0] - foo[0];
+  Assign5: bar[0] = 1.0 - constant;
+  Assign6: bar[1] = constant - 1.0;
+  Assign7: bar[2] = constant - constant;
+  Assign8: bar[3] = bar[0] - constant;
+  Assign9: bar[4] = constant - bar[0];
+  Assign10: variable = 1.0 - 1.0;
+  Assign11: variable = 1.0 - foo[0];
+  Assign12: variable = foo[0] - 1.0;
+  Assign13: variable = foo[0] - foo[0];
+  Assign14: variable = 1.0 - constant;
+  Assign15: variable = constant - 1.0;
+  Assign16: variable = constant - constant;
+  Assign17: variable = bar[0] - constant;
+  Assign18: variable = constant - bar[0];
+}
