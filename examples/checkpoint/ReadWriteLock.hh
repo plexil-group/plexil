@@ -5,35 +5,44 @@
 using std::mutex;
 
 
-// Implements Michel Raynal's read-write lock
+// Implements a write-favoring read-write lock
 class ReadWriteLock{
 public:
   void begin_read(){
-    r.lock();
+    // Block if there is a writer writing
+    turn_lock.lock();
+    turn_lock.unlock();
+    r_lock.lock();
     r_count++;
-    if(r_count==1) g.lock();
-    r.unlock();
+    if(r_count == 1){ // First in
+      w_lock.lock();
+    }
+    r_lock.unlock();
   }
 
   void end_read(){
-    r.lock();
+    r_lock.lock();
     r_count--;
-    if(r_count==0) g.unlock();
-    r.unlock();
+    if(r_count == 0){ // Last out
+      w_lock.unlock();
+    }
+    r_lock.unlock();
   }
 
   void begin_write(){
-    g.lock();
+    turn_lock.lock();
+    w_lock.lock();
   }
 
   void end_write(){
-    g.unlock();
+    turn_lock.unlock();
+    w_lock.unlock();
   }
 private:
   int r_count = 0; // Count of readers
-  mutex r; // Protects reader count
-  mutex g; // Global exclusion of writers
-
+  mutex r_lock; // Protects access to r_count
+  mutex w_lock; // Protects writes to data
+  mutex turn_lock; // Write is awaiting a turn
 };
 
 
