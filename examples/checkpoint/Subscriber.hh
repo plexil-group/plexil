@@ -40,12 +40,6 @@ using std::string;
 // Subscriber types
 typedef void (* SubscribeBool) (const string& state_name, bool val);
 
-typedef void (* SubscribeBoolString) (const string& state_name, bool val,
-				      const string& checkpoint_name);
-
-typedef void (* SubscribeBoolStringInt) (const string& state_name, bool val,
-					 const string& checkpoint_name, int boot);
-
 
 typedef void (* SubscribeValueString) (const string& state_name, Value val,
 				       const string& checkpoint_name);
@@ -53,30 +47,13 @@ typedef void (* SubscribeValueString) (const string& state_name, Value val,
 typedef void (* SubscribeValueStringInt) (const string& state_name, Value val,
 					  const string& checkpoint_name,int boot);
 
-
-typedef void (* SubscribeStringString) (const string& state_name, const string& val,
-					const string& checkpoint_name);
-
-typedef void (* SubscribeStringStringInt) (const string& state_name, const string& val,
-					   const string& checkpoint_name,int boot);
-
 // Setters for subscribers of each supported type signature
 void setSubscriber (SubscribeBool);
-void setSubscriber (SubscribeBoolString);
-void setSubscriber (SubscribeBoolStringInt);
 void setSubscriber (SubscribeValueString);
 void setSubscriber (SubscribeValueStringInt);
-void setSubscriber (SubscribeStringString);
-void setSubscriber (SubscribeStringStringInt);
-
 // Publish a state name, which notifies the subscriber.
 void publish (const string& state_name, bool val);
 
-void publish (const string& state_name, bool val,
-	      const string& checkpoint_name);
-
-void publish (const string& state_name,  bool val,
-	      const string& checkpoint_name, int boot);
 
 
 void publish (const string& state_name, Value val,
@@ -85,11 +62,5 @@ void publish (const string& state_name, Value val,
 void publish (const string& state_name, Value val,
 	      const string& checkpoint_name,int boot);
 
-
-void publish (const string& state_name, const string& val,
-	      const string& checkpoint_name);
-
-void publish (const string& state_name, const string& val,
-	      const string& checkpoint_name, int boot);
 
 #endif
