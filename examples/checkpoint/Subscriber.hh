@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,96 +24,72 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 // This is a barebones publish-subscribe facility for the sample PLEXIL
-// application. It provides the capability to subscribe a functions of types
-// (string,VALUE,ARG1,ARG2...) --> void where VALUE and each ARG are templated.
-// When publish is called, all subscribed functions of the appropriate type will be called
-// with the arguments passed to publish()
-
-// Attempting to publish to a function type with no subscribed function will result in an error
-
-
+// application.  It provides a set of subscription functions specific to various
+// combinations of return type and parameters.
 
 #ifndef _H__system
 #define _H__system
-#include <map>
+
+#include "Value.hh"
 #include <string>
-#include <vector>
-#include <iostream>
+
+using namespace PLEXIL;
 using std::string;
-using std::vector;
-using std::map;
-using std::cerr;
-using std::endl;
 
-// Subscriber type, templated function that takes a state_name, a value, and 0 or more parameters
-template<typename StateType, typename ... ParamTypes>
-using Subscriber = void (*) (const string& state_name, StateType val, ParamTypes ... args);
+// Subscriber types
+typedef void (* SubscribeBool) (const string& state_name, bool val);
 
+typedef void (* SubscribeBoolString) (const string& state_name, bool val,
+				      const string& checkpoint_name);
 
-// Maps arguments to a list of subscribed functions, for use in setSubscriber and publish
-// It has to be external so that each specialization of setSubscriber and publish
-// can access the same datastructure without requiring the user to implement any oddities.
-extern map<vector<string>,vector<void* (*)()>> subscribers;
+typedef void (* SubscribeBoolStringInt) (const string& state_name, bool val,
+					 const string& checkpoint_name, int boot);
 
 
+typedef void (* SubscribeValueString) (const string& state_name, Value val,
+				       const string& checkpoint_name);
 
-// Defining the templated functions here (not in a .cc file) allows us to instantiate setSubscriber instances in other classes, like setSubscriber<int>
-// Yes it's messy but there are three solutions:
-// 1. Define the entire setSubscriber function (and associated data structures, etc.) in this header
-// 2. Include subscriber.cc in any file that calls setSubscriber
-// 3. Include subscriber.cc in this header and don't compile it separately
-
-// Picking option one seemed the cleanest
+typedef void (* SubscribeValueStringInt) (const string& state_name, Value val,
+					  const string& checkpoint_name,int boot);
 
 
-// Register a subscriber
-template<typename StateType, typename ... ParamTypes>
-void setSubscriber (Subscriber<StateType,ParamTypes...> subscriber){
+typedef void (* SubscribeStringString) (const string& state_name, const string& val,
+					const string& checkpoint_name);
 
-  // Create a vector made of std::strings that detail the StateType and then ParamTypes
-  vector<string> signature{string(typeid(StateType).name()),string(typeid(ParamTypes).name())...};
+typedef void (* SubscribeStringStringInt) (const string& state_name, const string& val,
+					   const string& checkpoint_name,int boot);
 
-  // Generic pointer so map can hold all subscribed functions
-  void* (*generic_pointer)() = reinterpret_cast<void*(*)()>(subscriber);
+// Setters for subscribers of each supported type signature
+void setSubscriber (SubscribeBool);
+void setSubscriber (SubscribeBoolString);
+void setSubscriber (SubscribeBoolStringInt);
+void setSubscriber (SubscribeValueString);
+void setSubscriber (SubscribeValueStringInt);
+void setSubscriber (SubscribeStringString);
+void setSubscriber (SubscribeStringStringInt);
 
-  if (subscribers.find (signature) == subscribers.end() ){
-    vector<void* (*) ()> new_vector;
-    subscribers.insert(std::make_pair(signature,new_vector));
-  }
-  subscribers[signature].push_back(generic_pointer);
-}
+// Publish a state name, which notifies the subscriber.
+void publish (const string& state_name, bool val);
+
+void publish (const string& state_name, bool val,
+	      const string& checkpoint_name);
+
+void publish (const string& state_name,  bool val,
+	      const string& checkpoint_name, int boot);
 
 
+void publish (const string& state_name, Value val,
+	      const string& checkpoint_name);
 
-// Publish a state change to the appropriate subscriber
-template<typename StateType, typename ... ParamTypes>
-void publish(const string& state_name, StateType val, ParamTypes ... args){
+void publish (const string& state_name, Value val,
+	      const string& checkpoint_name,int boot);
 
-  // Create a vector made of std::strings that detail the StateType and then ParamTypes
-  vector<string> signature{string(typeid(StateType).name()),string(typeid(ParamTypes).name())...};
 
-  // Retrieve vector of reception functions if it exists
-  map<vector<string>,vector<void* (*)()>>::iterator it = subscribers.find(signature);
-  if(it != subscribers.end() && it->second.size()>0){
+void publish (const string& state_name, const string& val,
+	      const string& checkpoint_name);
 
-    vector<void* (*)()> receivers = it->second;
-    // Use parameters to cast each function to the correct type and call it
-    for(auto &generic_receiver : receivers){
-      Subscriber<StateType,ParamTypes...> subscriber;
-      subscriber = reinterpret_cast<void (*) (const string& state_name, StateType val, ParamTypes ... args)>(generic_receiver);
-      subscriber(state_name,val,args...);
-    }
-  }
-  
-  else{
-    cerr << "No subscribers found for publish(), Name: ";
-    cerr << state_name << ", Type: ";
-    for(string s : signature){
-      cerr << s <<", ";
-    }
-    cerr << endl;
-  }
-}
+void publish (const string& state_name, const string& val,
+	      const string& checkpoint_name, int boot);
+
 #endif

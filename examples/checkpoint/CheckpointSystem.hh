@@ -74,7 +74,7 @@ public:
   Value getCheckpointLastPassed(const string& checkpoint_name);
   Value getTimeOfBoot(int32_t boot_num);
   Value getTimeOfCrash(int32_t boot_num);
-  Value getSafeReboot();
+  Value getSafeToReboot();
 
   
   // Commands
