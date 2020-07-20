@@ -7,6 +7,7 @@
 #include <map>
 #include <tuple>
 #include <mutex>
+#include <string.h>
 using namespace PLEXIL;
 
 using std::string;
@@ -28,13 +29,13 @@ public:
 		map<const string,
 		tuple<bool, 
 		Nullable<Real>,string>>>>  *data,
-		bool *safe_to_reboot, int *num_active_crashes, int *num_total_crashes);
+		bool *safe_to_reboot, int *num_active_crashes, int *num_total_crashes, bool *did_crash);
   void setTimeFunction(Nullable<Real> (*time_func)());
-  
-  void loadCrashes();
-  
+
   void setDirectory(const string& file_directory);
 
+  void loadCrashes();
+  
   void writeOut();
 
 private:
@@ -42,6 +43,7 @@ private:
   bool *m_safe_to_reboot;
   int *m_num_active_crashes;
   int *m_num_total_crashes;
+  bool *m_did_crash;
 
   tuple<int,int> findOldestNewestFiles();
   void writeToFile(const string& location);
