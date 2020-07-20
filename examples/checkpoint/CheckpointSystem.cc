@@ -76,7 +76,7 @@ bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,int32_t bo
 
 static Nullable<Real> get_time(){
   if(time_adapter==NULL)  return Nullable<Real>();
-  time_adapter->lookupNow(State("time",1), time_cache);
+  time_adapter->lookupNow(State::timeState(), time_cache);
   if(!time_cache.isKnown()) return Nullable<Real>();
 
   // Extract time from time_cache
@@ -105,7 +105,7 @@ CheckpointSystem::~CheckpointSystem ()
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
   manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&safe_to_reboot,&num_active_crashes,&num_total_crashes);
+  manager.setData(&data_vector,&safe_to_reboot,&num_active_crashes,&num_total_crashes, &did_crash);
   manager.loadCrashes();
 }
 
@@ -267,6 +267,7 @@ Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,
   
   // This inserts the element if none exists, and overrides if it exists
   checkpoints[checkpoint_name] = std::make_tuple(value,get_time(),info);
+  manager.writeOut();
   rw.end_write();
   return retval;
 }
@@ -275,6 +276,7 @@ Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,
 Value CheckpointSystem::setSafeReboot(bool b){
   Value retval = safe_to_reboot;
   safe_to_reboot = b;
+  manager.writeOut();
   return retval;
 }
 
@@ -286,6 +288,7 @@ Value CheckpointSystem::deleteCrash(int32_t boot_num){
   if(valid_boot(boot_num) && boot_num>0){
     // Deletes the boot_num'th element
     data_vector.erase(data_vector.begin()+boot_num);
+    manager.writeOut();
     retval = true;
   }
   else{
