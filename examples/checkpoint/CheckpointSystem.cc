@@ -128,7 +128,7 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
   manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&safe_to_reboot,&num_active_crashes,&num_total_crashes);
+  manager.setData(&data_vector,&safe_to_reboot,&num_active_crashes,&num_total_crashes, &did_crash);
   manager.loadCrashes();
 }
 
