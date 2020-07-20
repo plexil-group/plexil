@@ -102,6 +102,9 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   if (state_name == "DidCrash"){
     retval = CheckpointSystem::getInstance()->didCrash();
   }
+  if(state_name == "SafeToReboot"){
+    retval = CheckpointSystem::getInstance()->getSafeToReboot();
+  }
   else if (state_name == "NumberOfActiveCrashes"){
     retval = CheckpointSystem::getInstance()-> numActiveCrashes();
   }
@@ -175,31 +178,25 @@ static void receiveBool (const string& state_name, bool val)
 					       vector<Value> (1, val));
 }
 
-static void receiveInt (const string& state_name, int val)
+static void receiveBoolString (const string& state_name, bool val, string arg)
 {
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
+  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
-static void receiveBoolInt (const string& state_name, bool val,  int arg)
+static void receiveValueString (const string& state_name, bool val, string arg)
 {
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
+  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
-static void receiveIntInt (const string& state_name, int val,  int arg)
+static void receiveString (const string& state_name, bool val, string arg)
 {
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
+  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
-static void receiveBoolStringInt (const string& state_name, bool val, const string& arg1, int arg2)
-{
-  vector<Value> vec;
-  vec.push_back (arg1);
-  vec.push_back (arg2);
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vec), vector<Value> (1, val));
-}
+
 
 static void receiveIntStringInt (const string& state_name, int val, const string& arg1, int arg2)
 {
