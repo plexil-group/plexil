@@ -178,27 +178,15 @@ static void receiveBool (const string& state_name, bool val)
 					       vector<Value> (1, val));
 }
 
-static void receiveBoolString (const string& state_name, bool val, string arg)
-{
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
-					       vector<Value> (1, val));
-}
 
-static void receiveValueString (const string& state_name, bool val, string arg)
-{
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
-					       vector<Value> (1, val));
-}
-
-static void receiveString (const string& state_name, bool val, string arg)
+static void receiveValueString (const string& state_name, Value val, const string& arg)
 {
   CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
 
-
-static void receiveIntStringInt (const string& state_name, int val, const string& arg1, int arg2)
+static void receiveValueStringInt (const string& state_name, Value val, const string& arg1, int arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
@@ -245,12 +233,9 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerCommandInterface("SetSafeReboot", this);
   g_configuration->registerCommandInterface("DeleteCrash", this);
 
-  setSubscriber (receiveInt);
   setSubscriber (receiveBool);
-  setSubscriber (receiveBoolInt);
-  setSubscriber (receiveIntInt);
-  setSubscriber (receiveBoolStringInt);
-  setSubscriber (receiveIntStringInt);
+  setSubscriber (receiveValueString);
+  setSubscriber (receiveValueStringInt);
   
   debugMsg("CheckpointAdapter", " initialized.");
   return true;
