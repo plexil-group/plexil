@@ -1,28 +1,30 @@
-Command Drive (Integer);
-Command TakePicture;
 Command pprint(...);
-Boolean Lookup WheelStuck;
 
 Boolean Lookup DidCrash;
-
-
-SafeDrive:
+Boolean Command SetOK();
+Boolean Command Flush();
+SafeDrive: Try
 {
   Integer pictures = 0;
-  EndCondition Lookup(WheelStuck) || pictures == 10;
+  // EndCondition pictures == 10;
 
   CrashChecker:{
-    StartCondition DidCrash;
+    SkipCondition !Lookup(DidCrash);
+    pprint("Crashed last time, taking 1 picture and aborting");
+    pictures = pictures+1;
+    SetOK();
   }
-  while (! Lookup(WheelStuck)) 
+  
+  while (pictures<10) 
   {
-    OneMeter: { Drive(1); }
+    OneMeter: { pprint("Driving"); }
     TakePic: {
-      StartCondition pictures < 10;
-      TakePicture();
+      SkipCondition pictures>=10;
+      pprint("Taking picture");
+      Flush();
     }
     Counter: {
-      PreCondition pictures < 10;
+      SkipCondition pictures>=10;
       pictures = pictures + 1;
     }
     Print: { pprint ("Pictures taken:", pictures); }

@@ -38,7 +38,7 @@ using namespace PLEXIL;
 using std::string;
 
 // Subscriber types
-typedef void (* SubscribeBool) (const string& state_name, bool val);
+typedef void (* SubscribeBoolInt) (const string& state_name, bool val, int arg);
 
 
 typedef void (* SubscribeValueString) (const string& state_name, Value val,
@@ -48,11 +48,11 @@ typedef void (* SubscribeValueStringInt) (const string& state_name, Value val,
 					  const string& checkpoint_name,int boot);
 
 // Setters for subscribers of each supported type signature
-void setSubscriber (SubscribeBool);
+void setSubscriber (SubscribeBoolInt);
 void setSubscriber (SubscribeValueString);
 void setSubscriber (SubscribeValueStringInt);
 // Publish a state name, which notifies the subscriber.
-void publish (const string& state_name, bool val);
+void publish (const string& state_name, bool val, int arg);
 
 
 

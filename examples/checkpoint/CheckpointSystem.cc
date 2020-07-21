@@ -29,12 +29,14 @@
 #include "State.hh"
 #include "CachedValue.hh"
 #include "Subscriber.hh"
+#include "Debug.hh"
 #include "AdapterConfiguration.hh" // For access to g_configuration
 
 // Used for indexing into data structure
 #define BOOT_TIME 0
 #define CRASH_TIME 1
-#define CHECKPOINTS 2
+#define IS_OK 2
+#define CHECKPOINTS 3
 
 #define C_STATE 0
 #define C_TIME 1
@@ -48,6 +50,11 @@ using std::string;
 
 //TODO:remove
 #define DEBUG cout<<"System "<<__LINE__<<endl;
+#define debug(msg) debugMsg("CheckpointSystem"," "<<msg)
+#define RLOCK debug("Locking reader");
+#define RUNLOCK debug("Unlocking reader");
+#define WLOCK debug("Locking writer");
+#define WUNLOCK debug("Unlocking writer");
 
 ///////////////////////////// Conveniences //////////////////////////////////
 
@@ -65,11 +72,11 @@ static StateCacheEntry time_cache;
 
 
 // Check that the boot number is valid
-bool CheckpointSystem::valid_boot(int32_t boot_num){
+bool CheckpointSystem::valid_boot(Integer boot_num){
   return !(boot_num < 0 || boot_num > num_active_crashes);
 }
 
-bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,int32_t boot_num){
+bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,Integer boot_num){
   map<const string, tuple<bool,Nullable<Real>,string>> checkpoints = get<CHECKPOINTS>(data_vector.at(boot_num));
   return checkpoints.find(checkpoint_name) != checkpoints.end();
 }
@@ -108,7 +115,7 @@ CheckpointSystem::~CheckpointSystem ()
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
   manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&safe_to_reboot,&num_active_crashes,&num_total_crashes, &did_crash);
+  manager.setData(&data_vector,&num_active_crashes,&num_total_crashes);
   manager.loadCrashes();
 }
 
@@ -119,26 +126,43 @@ void CheckpointSystem::setDirectory(const string& file_directory){
 
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
-  return did_crash;
-}
-
-
-int32_t CheckpointSystem::numActiveCrashes(){
-  int32_t retval;
-  rw.begin_read();
-  retval = num_active_crashes;
-  rw.end_read();
+  RLOCK rw.begin_read();
+  bool retval;
+  if(num_total_crashes==0) retval = false;
+  else{
+    Value lastCrash = getIsOK(1);
+    if(lastCrash==Unknown) retval = false;
+    else{
+      bool inverse_retval;
+      lastCrash.getValue(inverse_retval);
+      retval = !inverse_retval;
+    }
+  }
+  RUNLOCK rw.end_read();
   return retval;
 }
 
 
-int32_t CheckpointSystem::numTotalCrashes(){
-  return num_total_crashes;
+Integer CheckpointSystem::numActiveCrashes(){
+  Integer retval;
+  RLOCK rw.begin_read();
+  retval = num_active_crashes;
+  RUNLOCK rw.end_read();
+  return retval;
 }
 
 
-Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,int32_t boot_num){
-  rw.begin_read();
+Integer CheckpointSystem::numTotalCrashes(){
+  Integer retval;
+  RLOCK rw.begin_read();
+  retval = num_total_crashes;
+  RUNLOCK rw.end_read();
+  return retval;
+}
+
+
+Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,Integer boot_num){
+  RLOCK rw.begin_read();
   Value retval;
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
@@ -154,12 +178,12 @@ Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,int32_t
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  rw.end_read();
+  RUNLOCK rw.end_read();
   return retval;
 }
 
-Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, int32_t boot_num){
-  rw.begin_read();
+Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, Integer boot_num){
+  RLOCK rw.begin_read();
   Value retval;
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
@@ -177,12 +201,12 @@ Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, int32_t
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  rw.end_read();
+  RUNLOCK rw.end_read();
   return retval;
 }
 
-Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, int32_t boot_num){
-  rw.begin_read();
+Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer boot_num){
+  RLOCK rw.begin_read();
   Value retval;
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
@@ -199,28 +223,28 @@ Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, int32_t
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  rw.end_read();
+  RUNLOCK rw.end_read();
   return retval;
 }
 
 // Returns the latest boot number where the checkpoint was true, -1 if none found
 Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
-  rw.begin_read();
+  RLOCK rw.begin_read();
   Value retval = -1;
-  for (int i=0;i<data_vector.size();i++){
+  for (Integer i=0;i<data_vector.size();i++){
     map<const string, tuple<bool, Nullable<Real>,string>> checkpoints = get<CHECKPOINTS>(data_vector[i]);
     if(checkpoints.find(checkpoint_name)!=checkpoints.end()){
       retval = i;
       break;
     }
   }
-  rw.end_read();
+  RUNLOCK rw.end_read();
   return retval;
 }
 
 
-Value CheckpointSystem::getTimeOfBoot(int32_t boot_num){
-  rw.begin_read();
+Value CheckpointSystem::getTimeOfBoot(Integer boot_num){
+  RLOCK rw.begin_read();
   Value retval;
   if(valid_boot(boot_num)){
     Nullable<Real> time = get<BOOT_TIME>(data_vector.at(boot_num));
@@ -231,13 +255,13 @@ Value CheckpointSystem::getTimeOfBoot(int32_t boot_num){
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  rw.end_read();
+  RUNLOCK rw.end_read();
   return retval;
 }
 
 
-Value CheckpointSystem::getTimeOfCrash(int32_t boot_num){
-  rw.begin_read();
+Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
+  RLOCK rw.begin_read();
   Value retval;
   if(valid_boot(boot_num)){
     Nullable<Real> time = get<CRASH_TIME>(data_vector.at(boot_num));
@@ -248,17 +272,28 @@ Value CheckpointSystem::getTimeOfCrash(int32_t boot_num){
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  rw.end_read();
+  RUNLOCK rw.end_read();
   return retval;
 }
 
-Value CheckpointSystem::getSafeToReboot(){
-  return safe_to_reboot;
+Value CheckpointSystem::getIsOK(Integer boot_num){
+  RLOCK rw.begin_read();
+  Value retval;
+  if(valid_boot(boot_num)){
+    retval = get<IS_OK>(data_vector.at(boot_num));
+  }
+  // If boot doesn't exist, something's gone wrong
+  else{
+    cerr << error << "invalid boot number: " << boot_num << endl;
+    retval = Unknown;
+  }
+  RUNLOCK rw.end_read();
+  return retval;
 }
 //////////////////////////////////////// Commands /////////////////////////////////////////////
 
 Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info){
-  rw.begin_write();
+  WLOCK rw.begin_write();
   map<const string,tuple<bool,Nullable<Real>,string>> checkpoints = get<CHECKPOINTS>(data_vector.at(0));
   Value retval;
   // If checkpoint not set, checkpoint was not reached
@@ -275,35 +310,32 @@ Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,
   publish("CheckpointTime",time_to_Value(time),checkpoint_name,0);
   publish("CheckpointInfo",info,checkpoint_name);
   publish("CheckpointInfo",info,checkpoint_name,0);
-  rw.end_write();
+  WUNLOCK rw.end_write();
   return retval;
 }
 
 
-Value CheckpointSystem::setSafeReboot(bool b){
-  Value retval = safe_to_reboot;
-  safe_to_reboot = b;
+Value CheckpointSystem::setOK(Integer boot_num, bool b){
+ WLOCK rw.begin_write();
+ Value retval;
+   if(valid_boot(boot_num)){
+     retval = get<IS_OK>(data_vector.at(boot_num));
+     get<IS_OK>(data_vector.at(boot_num)) = b;
+     manager.writeOut();
+     publish("Is_OK",b,boot_num);
+   }
+   else{
+     cerr <<"CheckpointSystem:"<<" Invalid boot number: "<<std::to_string(boot_num)<<endl;
+     retval = Unknown;
+   }
+  WUNLOCK rw.end_write();
+  return retval;
+}
+
+bool CheckpointSystem::flush(){
+  WLOCK rw.begin_write();
   manager.writeOut();
-  publish("SafeToReboot",b);
-  return retval;
-}
+  WUNLOCK rw.end_write();
+  return true; // TODO return false if error
 
-// TODO: review
-Value CheckpointSystem::deleteCrash(int32_t boot_num){
-  rw.begin_write();
-  Value retval;
-  // Check validity (Can't delete the current boot)
-  if(valid_boot(boot_num) && boot_num>0){
-    // Deletes the boot_num'th element
-    data_vector.erase(data_vector.begin()+boot_num);
-    manager.writeOut();
-    retval = true;
-    num_active_crashes--;
-  }
-  else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
-    retval = false;
-  }
-  rw.end_write();
-  return retval;
 }
