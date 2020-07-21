@@ -55,7 +55,8 @@ usage ()
     echo '  -d, -debug              Print debug information to stderr'
     echo '                          (.plp, .ple files only)'
     echo '  -o, -output <outfile>   Write translator output to <outfile>'
-    echo '                          (ignored for .pli files)'
+    echo '                          (only allowed when compiling a single file'
+    echo '                           and ignored for .pli files)'
     echo '  -q, -quiet              Parse files quietly'
     echo '  -I <directory>          Include directory'
     echo '                          (.plp files only)'
@@ -111,24 +112,29 @@ plexil_checker="$PLEXIL_HOME/scripts/checkPlexil"
 # $2: A cleaned filename for display
 generate_output_fname()
 {
-    in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
-    case "$in_ext" in
-        ( ple | pli | plp | epx )
-        echo "$1" | sed -e "s/$in_ext$/plx/"
-        ;;
+    if [ -z "$modified_output" ]
+    then
+        in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
+        case "$in_ext" in
+            ( ple | pli | plp | epx )
+            echo "$1" | sed -e "s/$in_ext$/plx/"
+            ;;
 
-        pst )
-            echo "$1" | sed -e "s/$in_ext$/psx/"
-            ;;
-        * )
-            echo "Error: Unrecognized filename extension \"$in_ext\" for $2" >&2
-            echo 'Supported extensions are: epx ple pli plp pst' >&2
-            if [ -n "${exit_on_fail}" ]
-            then
-                exit 1
-            fi
-            ;;
-    esac
+            pst )
+                echo "$1" | sed -e "s/$in_ext$/psx/"
+                ;;
+            * )
+                echo "Error: Unrecognized filename extension \"$in_ext\" for $2" >&2
+                echo 'Supported extensions are: epx ple pli plp pst' >&2
+                if [ -n "${exit_on_fail}" ]
+                then
+                    exit 1
+                fi
+                ;;
+        esac
+    else
+        echo "$modified_output"
+    fi
 }
 
 std_plexil_compiler()
@@ -357,7 +363,7 @@ do
             usage
             exit 2
         fi
-        output="$2"
+        modified_output="$2"
         shift 2
         ;;
 
@@ -389,6 +395,14 @@ done
 if [ $# -lt 1 ]
 then
     echo "Error: no filename supplied." >&2
+    usage
+    exit 2
+fi
+
+# If the -o option was used we only expect one file to compile
+if [ ! -z "$modified_output" ] && [ $# -gt 1 ]
+then
+    echo "Error: attempting to use -output flag with more than one input file." >&2
     usage
     exit 2
 fi
