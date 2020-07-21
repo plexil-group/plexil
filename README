@@ -98,7 +98,7 @@ need to precede the 'make all' with either of:
  make clean
  make squeaky-clean
 
-The latter of these is sometimes needed when make/autotools files have
+The latter is sometimes needed when make or autotools files have
 changed.
 
 
