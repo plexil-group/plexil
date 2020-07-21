@@ -25,11 +25,10 @@ public:
 
   ~SimpleSaveManager();
 
-  void setData( vector<tuple<Nullable<Real>,Nullable<Real>,
+  void setData( vector<tuple<Nullable<Real>,Nullable<Real>,bool,
 		map<const string,
 		tuple<bool, 
-		Nullable<Real>,string>>>>  *data,
-		bool *safe_to_reboot, int *num_active_crashes, int *num_total_crashes, bool *did_crash);
+		Nullable<Real>,string>>>>  *data, int *num_active_crashes, int *num_total_crashes);
   void setTimeFunction(Nullable<Real> (*time_func)());
 
   void setDirectory(const string& file_directory);
@@ -40,10 +39,8 @@ public:
 
 private:
   static SimpleSaveManager* m_manager;
-  bool *m_safe_to_reboot;
-  int *m_num_active_crashes;
-  int *m_num_total_crashes;
-  bool *m_did_crash;
+  int32_t *m_num_active_crashes;
+  int32_t *m_num_total_crashes;
 
   tuple<int,int> findOldestNewestFiles();
   void writeToFile(const string& location);
@@ -51,6 +48,7 @@ private:
   // Data structure that tracks boot-specific metadata and checkpoints
   vector<tuple<Nullable<Real>, /*time of boot*/
 	       Nullable<Real>, /*time of crash*/
+	       bool, /*Is OK*/
 	       map< /*map of checkpoint info*/
 		 const string, /*checkpoint name*/
 		 tuple<bool, /*state of checkpoint*/

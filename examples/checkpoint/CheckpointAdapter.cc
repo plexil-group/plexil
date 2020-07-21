@@ -49,9 +49,6 @@ using std::string;
 using std::vector;
 using std::copy;
 
-//TODO:remove
-#define DEBUG cout<<"Adapter "<<__LINE__<<endl;
-
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.
@@ -102,9 +99,6 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   if (state_name == "DidCrash"){
     retval = CheckpointSystem::getInstance()->didCrash();
   }
-  if(state_name == "SafeToReboot"){
-    retval = CheckpointSystem::getInstance()->getSafeToReboot();
-  }
   else if (state_name == "NumberOfActiveCrashes"){
     retval = CheckpointSystem::getInstance()-> numActiveCrashes();
   }
@@ -119,7 +113,7 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 
   else{
     // Default is checkpoint in current boot (iteration 0)
-    int32_t which_boot = 0;
+    Integer which_boot = 0;
     if(!args.empty()){
       args[1].getValue(which_boot);
     }
@@ -130,11 +124,13 @@ static Value fetch (const string& state_name, const vector<Value>& args)
     else if (state_name == "TimeOfBoot"){
       retval = CheckpointSystem::getInstance()->getTimeOfBoot(which_boot);
     }
-    
+    else if (state_name == "IsOK"){
+      retval = CheckpointSystem::getInstance()->getIsOK(which_boot);
+    }
     else{
       string which_checkpoint;
       args[0].getValue(which_checkpoint);
-      if (state_name == "Checkpoint"){
+      if (state_name == "CheckpointState"){
 	retval = CheckpointSystem::getInstance()->getCheckpointState(which_checkpoint,which_boot);
       }
       else if (state_name == "CheckpointTime"){
@@ -172,9 +168,9 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 // TODO: Review list
-static void receiveBool (const string& state_name, bool val)
+static void receiveBoolInt (const string& state_name, bool val, Integer arg)
 {
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
+  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
@@ -186,7 +182,7 @@ static void receiveValueString (const string& state_name, Value val, const strin
 }
 
 
-static void receiveValueStringInt (const string& state_name, Value val, const string& arg1, int arg2)
+static void receiveValueStringInt (const string& state_name, Value val, const string& arg1, Integer arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
@@ -222,18 +218,24 @@ bool CheckpointAdapter::initialize()
   g_configuration->defaultRegisterAdapter(this);
 
   g_configuration->registerLookupInterface("DidCrash", this);
+  g_configuration->registerLookupInterface("IsOK", this);
+  
   g_configuration->registerLookupInterface("NumberOfActiveCrashes", this);
   g_configuration->registerLookupInterface("NumberOfTotalCrashes", this);
   g_configuration->registerLookupInterface("TimeOfCrash", this);
   g_configuration->registerLookupInterface("TimeOfBoot", this);
-  g_configuration->registerLookupInterface("Checkpoint", this);
-  g_configuration->registerLookupInterface("TimeOfCheckpoint", this);
+  
+  g_configuration->registerLookupInterface("CheckpointState", this);
+  g_configuration->registerLookupInterface("CheckpointTime", this);
+  g_configuration->registerLookupInterface("CheckpointInfo", this);
+  g_configuration->registerLookupInterface("CheckpointWhen", this);
 
+  
   g_configuration->registerCommandInterface("SetCheckpoint", this);
-  g_configuration->registerCommandInterface("SetSafeReboot", this);
-  g_configuration->registerCommandInterface("DeleteCrash", this);
+  g_configuration->registerCommandInterface("SetOK", this);
+  g_configuration->registerCommandInterface("Flush", this);
 
-  setSubscriber (receiveBool);
+  setSubscriber (receiveBoolInt);
   setSubscriber (receiveValueString);
   setSubscriber (receiveValueStringInt);
   
@@ -278,8 +280,11 @@ void CheckpointAdapter::executeCommand(Command *cmd)
 
   Value retval = Unknown;
   const vector<Value>& args = cmd->getArgValues();
-  
-  if (name == "SetCheckpoint") {
+
+  if (name == "Flush"){
+    retval = CheckpointSystem::getInstance()->flush();
+  }
+  else if (name == "SetCheckpoint") {
     if(args.size()<1 || args.size()>3){
       cerr << error << "SetCheckpoint invalid number of arguments" << endl;
     }
@@ -302,27 +307,28 @@ void CheckpointAdapter::executeCommand(Command *cmd)
       retval = CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info);
     }
   }
+
+  else if (name == "SetOK") {
+    if(args.size()>2){
+      cerr << error << "SetOK invalid number of arguments" << endl;
+    }
+    
+    else{      
+      bool value = true;
+      Integer boot_num = 0;
+
+      if(args.size()==2){
+	args[0].getValue(value);
+	args[1].getValue(boot_num);
+      }
+      if(args.size()==1){
+	if(args[0].valueType()==BOOLEAN_TYPE) args[0].getValue(value);
+	else args[0].getValue(boot_num);
+      }
+      retval = CheckpointSystem::getInstance()->setOK(value,boot_num);
+    }
+  }
   
-  else if (name == "SetSafeReboot") {
-    if(args.size()!=1){
-      cerr << error << "SetSafeReboot invalid number of arguments" << endl;
-    }
-    else{
-      bool b;
-      args[0].getValue(b);
-      retval = CheckpointSystem::getInstance()->setSafeReboot(b);
-    }
-  }
-  else if (name == "DeleteCrash"){
-    if(args.size()>1){
-      cerr << error << "DeleteCrash invalid number of arguments" << endl;
-    }
-    int32_t crash_number = CheckpointSystem::getInstance()->numActiveCrashes();
-    if(!args.empty()){
-      args[0].getValue(crash_number);
-    }
-    retval = CheckpointSystem::getInstance()->deleteCrash(crash_number);
-  }
   else{ 
     cerr << error << "invalid command: " << name << endl;
   }

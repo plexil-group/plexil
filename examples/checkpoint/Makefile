@@ -32,5 +32,6 @@ INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh SimpleSaveManager.h
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 test1:
-	plexilexec -p plans/plan1.plx
+	plexilc plans/SaferDrive.ple
+	plexilexec -p plans/SaferDrive.plx
 
