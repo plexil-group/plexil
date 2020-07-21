@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ namespace PLEXIL
 
     // Capture and report about useful node state transitions.
     void implementNotifyNodeTransition(NodeState prevState,
+                                       NodeState newState,
                                        Node *node) const;
 
   private:
@@ -58,5 +59,8 @@ namespace PLEXIL
     PlanDebugListener& operator= (const PlanDebugListener&);
   };
 }
+
+extern "C"
+void initPlanDebugListener();
 
 #endif // PLEXIL_PLAN_DEBUG_LISTENER_HH

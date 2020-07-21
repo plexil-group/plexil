@@ -1,8 +1,8 @@
 This is the top level directory of the PLEXIL distribution.
 
-See http://sourceforge.net/projects/plexil for information about this
-software, including its user manuals.  There is more information in
-the README files found in each subdirectory of this directory.
+See http://plexil.sourceforge.net for information about this software,
+including its user manuals.  There is more information in the README
+files found in each subdirectory of this directory.
 
 The Versions file describes previous releases of Plexil, as well as
 the latest features not yet released in a binary distribution.
@@ -14,37 +14,123 @@ Software requirements
 ---------------------
 
 The complete PLEXIL suite should run on most recent versions of Linux
-and Mac OS X. It builds on FreeBSD as well, and most of the suite
-works out of the box; however, IPC is not yet working, nor is anything
-dependent on it (i.e. many of the example apps).
+and Mac OS X. It builds on FreeBSD as well, but is not actively
+supported on this platform.
 
-Building the PLEXIL tool suite requires the following software to be
-installed:
+Building the PLEXIL tool suite from source requires the following
+software:
 
- GNU Make
- GNU Bash
- gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
- Java 8 or newer JDK (development package, not just runtime)
- Apache ant, including the antlr module
+ * GNU Make
+ * GNU Bash
+ * GNU autotools (autoconf, automake, libtool, m4)
+ * GNU gperf
+ * gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
+ * Java 8 or newer JDK (e.g. openjdk-11-jdk)
+ * Apache ant, including the antlr module
 
-If you are building from an SVN checkout, the GNU autotools (autoconf,
-automake, and libtool) and gperf are also required.
+If you downloaded a tarball, the GNU autotools and gperf are not
+needed.
 
-The robosim example program also requires:
-
- X11 libraries freeglut, libxi, libxmu and their header files
+The robosim example program also requires the X11 libraries freeglut,
+libxi, libxmu and their header files.
 
 
 How to build PLEXIL - Simple version
 ------------------------------------
 
-To build the PLEXIL distribution on Linux, Mac OS X, or FreeBSD,
-simply change to this top level directory and type:
+To build the PLEXIL distribution on Linux or macOS:
 
- make all
+1. Change to this top level directory and type:
 
-NOTE: if you have just updated your code checkout, you may need to
-precede the 'make all' with either of:
+  make all
+
+
+How to run PLEXIL - Simple version
+----------------------------------
+
+1. Add the following lines to your shell init file (e.g. ~/.bashrc):
+
+  export PLEXIL_HOME='/where/i/downloaded/plexil'
+  . "$PLEXIL_HOME/scripts/plexil-setup.sh"
+
+2. Source the init file you just edited:
+
+  . ~/.bashrc
+
+3. The 'plexilc' script compiles a PLEXIL plan or a Plexilscript
+   simulation script to its XML representation:
+
+  plexilc my-plan.ple
+  plexilc my-script.pst
+
+4. The 'plexiltest' script runs the Test Executive on a plan and a
+   Plexilscript.  This is the easiest way to get started learning the
+   PLEXIL language.
+
+  plexiltest -p my-plan.plx -s my-script.psx
+
+5. The 'plexilexec' script runs the Universal Executive on a plan and
+   requires an interface configuration file:
+
+  plexilexec -c interface-config.xml -p my-plan.plx
+
+
+How to build PLEXIL - Less simple version
+-----------------------------------------
+
+1. To build the PLEXIL suite without the example applications:
+
+  cd "$PLEXIL_HOME"
+  make tools
+
+2. To build the PLEXIL suite with compilers other than the system
+   default, specify them on the 'make' command line, e.g.:
+
+  make CC=clang CXX=clang++
+  make CC=gcc CXX=g++
+
+
+How to build PLEXIL - Custom configuration
+------------------------------------------
+
+1. Create the script 'src/configure':
+
+  cd "$PLEXIL_HOME"
+  make src/configure
+
+  (This will have been done already if you downloaded a release tarball.)
+
+2. Change into the 'src' directory and configure the build:
+
+  cd src
+  ./configure --prefix="/where/to/install" ... options ...
+
+  The example below includes all the optional PLEXIL components as
+  built in the previous section, with binaries and libraries installed
+  in the PLEXIL installation directory.  You can omit or change
+  options as desired.
+
+  ./configure --prefix="$PLEXIL_HOME" --disable-static \
+     --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+
+  For a complete list of options, type:
+
+  ./configure --help
+
+  Please see the CAVEATS file in this directory for advice on options
+  to 'configure'.
+
+3. Change back to the top level directory and build the system:
+
+  cd ..
+  make
+
+
+Problem solving
+---------------
+
+If you have just updated your git clone from a previous build, you may
+need to precede the 'make all' with either of:
 
  make clean
  make squeaky-clean
@@ -52,91 +138,107 @@ precede the 'make all' with either of:
 The latter of these is sometimes needed when make/autotools files have
 changed.
 
-To build the tool suite without the example applications:
 
- make tools
-
-To specify a compiler other than gcc/g++, e.g. clang:
-
- make CC=clang CXX=clang++
-
-On FreeBSD, ensure that GNU make is installed (typically named 'gmake'
-on this OS):
-
- gmake CC=clang CXX=clang++
-
-
-Advanced builds
----------------
+Advanced builds using GNU Autotools
+-----------------------------------
 
 The PLEXIL Executive uses the GNU autotools to allow for easy
 customization and cross-compilation when the standard build (above) is
 not appropriate for a specific application.
 
+The instructions here describe an in-tree build, but out-of-tree
+builds should also work, and are preferred if you are building for
+multiple target platforms.
+
 1. Change to the build directory.
 
-  cd plexil-4/src
+  cd "$PLEXIL_HOME/src"
 
-2. If you are building from a fresh SVN checkout, you will need to
-run the GNU autotools first. This step should be unnecessary if you
+2. If you are building from a fresh git clone, you will need to run
+the GNU autotools first. This step should be unnecessary if you
 downloaded a release tarball.
 
   mkdir -p m4
-  autoreconf -fi
+  autoreconf --force --install
 
 3. Configure the build using the standard 'configure' script. To get a
 listing of the various options, type:
 
   ./configure --help
 
-The example below includes all the optional PLEXIL components as built
-in the previous section, with binaries and libraries installed in the
-PLEXIL installation directory.  You can omit or change options as
-desired.
+4. Build and install the system:
 
-  ./configure --prefix=$PLEXIL_HOME --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+  make install
 
-Please see the CAVEATS file in this directory for advice on options to
-'configure'.
+
+Advanced builds using CMake
+---------------------------
+
+The PLEXIL Executive also supports building with CMake, for simpler
+integration into CMake-based projects.  CMake version 3.6 or newer is
+required.  The instructions here describe an out-of-tree build, which
+is the preferred approach.  In-tree builds should also work, but are
+not recommended.
+
+1. Create a build directory and change into it.
+
+  mkdir plexil-build
+  cd plexil-build
+
+2. Configure the build using CMake.
+
+  cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX=/install/here ... options ...
+
+  The example below includes all the optional PLEXIL components as built
+  in the previous section, with binaries and libraries installed in the
+  PLEXIL installation directory.  You can omit or change options as
+  desired.
+
+  cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
+    -DGANTT_LISTENER=ON -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
+
+  Please see the CAVEATS file in this directory for advice on CMake options.
 
 4. Build and install the system:
 
   make install
 
 
+Static or dynamic linking?
+--------------------------
+
+Both the GNU autotools and CMake build systems support producing
+either static libraries (.a files) or shared (dynamically linked)
+libraries (.so or .dylib). Which approach you take is sometimes
+dictated by the project; for instance, Core Flight Executive apps are
+typically statically linked.
+
+Static linking allows detection of missing symbols at link time rather
+than run time, and statically linked programs load faster - on macOS
+in particular, the difference is significant.
+
+Dynamic linking may save resources if several programs using the same
+libraries run simultaneously.
+
+The default behavior of the GNU autotools is to build both shared and
+static libraries; specifying the '--disable-static' or
+'--disable-dynamic' option to 'configure' can avoid having to compile
+and link modules twice.
+
+The CMake build defaults to shared libraries. To build static
+libraries, specify the '-DBUILD_SHARED_LIBS=OFF' option to 'cmake'.
+
+
 Cross-compiling the PLEXIL Executive
 ------------------------------------
 
-The use of the GNU autotools enables straightforward cross-compilation
-of the PLEXIL Executive for embedded applications.
+The use of the GNU autotools or CMake enables straightforward
+cross-compilation of the PLEXIL Executive for embedded applications.
 
 The file $PLEXIL_HOME/src/build-for-buildroot.sh is an example of
 cross-compiling the PLEXIL Executive for use with the 'buildroot'
 embedded Linux tool suite on an ARM processor.
 
-
-Running PLEXIL
---------------
-
-1. Set up your environment.  The PLEXIL shell scripts depend on the
-setting of PLEXIL_HOME, and for convenience you may wish to add the
-PLEXIL scripts and binaries to your shell's path.  This example is for
-the Bourne/bash shells or similar.
-
-  export PLEXIL_HOME='/location/of/plexil'
-  . $PLEXIL_HOME/scripts/plexil-setup.sh
-
-You may wish to add these two lines to your shell init file.
-
-2. The 'plexil' script launches the Plexil Viewer, in which you can
-examine, run, and debug plans.  You may wish to use the plans in the
-'examples' directory as a starting point.
-
-  plexil
-
-3. The 'plexilc' script compiles a PLEXIL plan or Plexilscript
-simulation script, depending on the file extension, to the executable
-XML representation.
-
-  plexilc my_plan.ple
-
+Similarly, by supplying an appropriate toolchain file with the
+'-DCMAKE_TOOLCHAIN_FILE' option, CMake can build the PLEXIL Executive
+for targets other than the host system.

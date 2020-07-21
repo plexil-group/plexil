@@ -85,10 +85,12 @@ namespace PLEXIL
     /**
      * @brief Notify that a node has changed state.
      * @param prevState The old state.
+     * @param newState The new state.
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      */
     void implementNotifyNodeTransition(NodeState prevState, 
+									   NodeState newState, 
 									   Node *node) const;
 
     /**
@@ -197,6 +199,9 @@ namespace PLEXIL
     bool m_block;
     bool m_ignoreConnectFailure;
   };
+
+  extern "C"
+  void initLuvListener();
 
 }
 

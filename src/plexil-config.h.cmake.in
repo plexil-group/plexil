@@ -114,6 +114,9 @@
 #cmakedefine PLEXIL_WITH_THREADS 1
 #cmakedefine PLEXIL_WITH_UNIX_TIME 1
 #cmakedefine HAVE_DEBUG_LISTENER 1
+#cmakedefine HAVE_GANTT_LISTENER 1
+#cmakedefine HAVE_IPC_ADAPTER 1
 #cmakedefine HAVE_LUV_LISTENER 1
+#cmakedefine HAVE_UDP_ADAPTER 1
 
 #endif /* PLEXIL_CONFIG_H */

@@ -25,7 +25,7 @@
 
 # LuvListener interface subproject of PLEXIL_EXEC
 
-add_library(LuvListener SHARED
+add_library(LuvListener ${PlexilExec_SHARED_OR_STATIC}
   LuvFormat.cc LuvListener.cc)
 
 install(TARGETS LuvListener

@@ -39,6 +39,9 @@ include(GNUInstallDirs)
 #
 
 #
+# How to build it
+option(BUILD_SHARED_LIBS "Build shared instead of static libraries" ON)
+#
 # What to build
 option(UNIVERSAL_EXEC "Build the universalExec application" ON)
 option(TEST_EXEC "Build the TestExec application" ON)
@@ -105,7 +108,8 @@ ExternalProject_add(pugixml
 
   # Common
   PREFIX third-party/pugixml
-  CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+  CMAKE_ARGS -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
   STEP_TARGETS build
  )
@@ -113,6 +117,12 @@ ExternalProject_add(pugixml
 ExternalProject_Get_Property(pugixml SOURCE_DIR BINARY_DIR)
 set(pugixml_SOURCE_DIR ${SOURCE_DIR}/src)
 set(pugixml_LIB_DIR ${BINARY_DIR})
+
+if(BUILD_SHARED_LIBS)
+  set(PlexilExec_SHARED_OR_STATIC SHARED)
+else()
+  set(PlexilExec_SHARED_OR_STATIC STATIC)
+endif()
 
 # Submodules have their own shared libraries
 # and unit test executables
@@ -152,7 +162,7 @@ if(IPC_ADAPTER)
 
     SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/ipc
     PREFIX third-party/ipc
-    CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DTHREADED=ON
+    CMAKE_ARGS -DTHREADED=ON -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
     -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     STEP_TARGETS build

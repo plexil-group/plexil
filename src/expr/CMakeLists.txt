@@ -25,7 +25,7 @@
 
 # Expression module subproject of PLEXIL_EXEC
 
-add_library(PlexilExpr SHARED
+add_library(PlexilExpr ${Plexil_Exec_SHARED_OR_STATIC}
   Alias.cc ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc
   ArrayOperators.cc Assignable.cc BooleanOperators.cc CachedFunction.cc
   Comparisons.cc Constant.cc ConversionOperators.cc Expression.cc

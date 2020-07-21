@@ -25,7 +25,7 @@
 
 # Interface module subproject of PLEXIL_EXEC
 
-add_library(PlexilIntfc SHARED
+add_library(PlexilIntfc ${PlexilExec_SHARED_OR_STATIC}
   CachedValue.cc CachedValueImpl.cc Command.cc CommandFunction.cc
   CommandHandleVariable.cc CommandOperator.cc CommandOperatorImpl.cc
   ExprVec.cc ExternalInterface.cc InterfaceError.cc Lookup.cc QueueEntry.cc

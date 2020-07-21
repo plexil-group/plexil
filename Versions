@@ -1,5 +1,96 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
+4.6d0 (in progress)
+
+ This is a major point release, with significant revisions.  Old plans
+ should continue to work without recompilation; however, recompilation
+ is advised to take advantage of optimizations and bug
+ fixes.
+
+Packaging:
+
+ * The Plexil source code has been migrated to a new git repository.
+
+ * In addition to the GNU autotools, CMake is now also supported.
+   This should simplify integration into projects using this popular
+   build system.
+
+ * Both GNU autotools and CMake build systems now support building the
+   executive code either statically or dynamically linked.
+
+Core PLEXIL (XML) language and schema:
+
+ * The schemas.xml files that had been scattered across the Plexil
+   distribution have been unified.  The authoritative copy of this
+   file is in the schemas directory.  All others now refer to that
+   authoritative copy.
+
+ * Some minor issues in the schema files, discovered when the RelaxNG
+   conversion was updated, have been fixed.
+
+Extended PLEXIL (XML) language and translator:
+
+Standard PLEXIL (C-like) language and compiler:
+
+ * Minor improvement in optimization of trivially collapsible blocks.
+
+ * Minor fixes to the compiler and its test suite.
+
+Executive core and Universal Executive:
+
+Standard interfaces:
+
+ * The ExecListener API has one incompatible change. Was:
+
+ void implementNotifyNodeTransition(NodeState prevState,
+                                    Node *node) const;
+
+   Now is:
+
+ void implementNotifyNodeTransition(NodeState prevState,
+                                    NodeState newState,
+                                    Node *node) const;
+
+   Node state transitions used to be advertised to exec listeners at
+   the time they were performed, during the exec's micro cycle.  The
+   new state could be obtained directly from the node.  Now state
+   transitions are batched and reported at the end of the macro cycle.
+   By that time the state of the node may have changed multiple times.
+   So it is now necessary to save and explicitly pass the new state to
+   the listener.
+
+ * UUID generation for the IpcAdapter is now done using the POSIX
+   standard randomness generator /dev/urandom.  The old code depended
+   on a third-party software package, 'ooid', which hadn't seen
+   updates in years.
+
+ * The LuvListener should no longer print 'MARK'.
+
+Executive internals and user-defined interfaces:
+
+ * Dynamic exception specifications have been removed from the C++
+   code, as they have been deprecated in the language for some time.
+
+ * Various other internal cleanups.
+
+Plexil Viewer:
+
+Other tools:
+
+ * The various shell scripts in the distribution have been checked
+   with the 'shellcheck' static checker, and many bugs have been fixed.
+
+Examples:
+
+---------------
+
+Subversion revision 5368, on 12 Jun 2020, was the last commit on the
+old SVN repository.  The repository was set to read-only after that
+date.  All updates going forward will be committed to the new git
+repository, also at Sourceforge.
+
+---------------
+
 4.5.0RC3 (17 Sep 2019, SVN revision 5117 of plexil-4 branch)
 
  This is primarily a bug-fix release, with a small number of new

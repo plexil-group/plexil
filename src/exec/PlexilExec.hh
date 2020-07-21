@@ -27,8 +27,6 @@
 #ifndef PLEXIL_EXEC_HH
 #define PLEXIL_EXEC_HH
 
-#include "NodeTransition.hh"
-
 #include <list>
 
 namespace PLEXIL 

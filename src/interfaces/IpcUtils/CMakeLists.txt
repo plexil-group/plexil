@@ -25,7 +25,7 @@
 
 # TCA-IPC utilities library submodule for use with PlexilExec
 
-add_library(IpcUtils SHARED
+add_library(IpcUtils ${PlexilExec_SHARED_OR_STATIC}
   IpcFacade.cc)
 
 install(TARGETS IpcUtils

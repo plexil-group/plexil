@@ -60,7 +60,13 @@ include(ipc-config.cmake)
 # libipc
 #
 
-add_library(ipc SHARED
+if(BUILD_SHARED_LIBS)
+  set(ipc_SHARED_OR_STATIC SHARED)
+else()
+  set(ipc_SHARED_OR_STATIC STATIC)
+endif()
+
+add_library(ipc ${ipc_SHARED_OR_STATIC}
   src/ipc.c
   src/queryResponse.c
   src/marshall.c
