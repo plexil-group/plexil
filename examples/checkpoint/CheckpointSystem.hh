@@ -66,21 +66,21 @@ public:
   
   // Lookups
   bool didCrash();
-  int32_t numActiveCrashes();
-  int32_t numTotalCrashes();
-  Value getCheckpointState(const string& checkpoint_name,int32_t boot_num);
-  Value getCheckpointTime(const string& checkpoint_name, int32_t boot_num);
-  Value getCheckpointInfo(const string& checkpoint_name, int32_t boot_num);
+  Integer numActiveCrashes();
+  Integer numTotalCrashes();
+  Value getCheckpointState(const string& checkpoint_name,Integer boot_num);
+  Value getCheckpointTime(const string& checkpoint_name, Integer boot_num);
+  Value getCheckpointInfo(const string& checkpoint_name, Integer boot_num);
   Value getCheckpointLastPassed(const string& checkpoint_name);
-  Value getTimeOfBoot(int32_t boot_num);
-  Value getTimeOfCrash(int32_t boot_num);
-  Value getSafeToReboot();
+  Value getTimeOfBoot(Integer boot_num);
+  Value getTimeOfCrash(Integer boot_num);
+  Value getIsOK(Integer boot_num);
 
   
   // Commands
   Value setCheckpoint(const string& checkpoint_name, bool value, string& info);
-  Value setSafeReboot(bool b);
-  Value deleteCrash(int32_t boot_num);
+  Value setOK(Integer boot_num, bool b);
+  bool flush();
 
   // Helper
   void start();
@@ -91,8 +91,6 @@ private:
   static CheckpointSystem *m_system;
 
   // Current boot information
-  bool safe_to_reboot;
-  bool did_crash;
   int num_active_crashes;
   int num_total_crashes;
 
@@ -103,6 +101,7 @@ private:
   // Data structure that tracks boot-specific metadata and checkpoints
   vector<tuple<Nullable<Real>, /*time of boot*/
 	       Nullable<Real>, /*time of crash*/
+	       bool, /*is_OK*/
 	       map< /*map of checkpoint info*/
 		 const string, /*checkpoint name*/
 		 tuple<bool, /*state of checkpoint*/
@@ -113,8 +112,8 @@ private:
   
   // Helper functions
 
-  bool valid_boot(int32_t boot_num);
-  bool valid_checkpoint(const string& checkpoint_name,int32_t boot_num);
+  bool valid_boot(Integer boot_num);
+  bool valid_checkpoint(const string& checkpoint_name,Integer boot_num);
 
 };
 

@@ -26,18 +26,23 @@ using checkpoint_data = tuple<bool,Nullable<Real>,string>;
 using boot_data = tuple<
   Nullable<Real>,
   Nullable<Real>,
+  bool,
   map<const string, checkpoint_data>>;
 
 
 
 #define BOOT_TIME 0
 #define CRASH_TIME 1
-#define CHECKPOINTS 2
+#define IS_OK 2
+#define CHECKPOINTS 3
 
 #define C_STATE 0
 #define C_TIME 1
 #define C_INFO 2
 
+#define debug(msg) debugMsg("SimpleSaveManager"," "<<msg)
+#define LOCK debug("Locking")
+#define UNLOCK debug("Unlocking")
 SimpleSaveManager *SimpleSaveManager::m_manager = 0; 
 /////////////////////// Helper functions //////////////////////////
 
@@ -66,13 +71,14 @@ SimpleSaveManager::~SimpleSaveManager (){
   }
 }
 
-void  SimpleSaveManager::setData(vector<boot_data> *data, bool *safe_to_reboot, int *num_active_crashes, int *num_total_crashes, bool *did_crash){
+void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_active_crashes, int32_t *num_total_crashes){
+  LOCK;
+  data_lock.lock();
   m_data_vector = data;
-  m_safe_to_reboot = safe_to_reboot;
   m_num_active_crashes = num_active_crashes;
   m_num_total_crashes = num_total_crashes;
-  m_did_crash = did_crash;
-  
+  UNLOCK;
+  data_lock.unlock();
 }
 void  SimpleSaveManager::setTimeFunction(Nullable<Real> (*time_func)()){
   m_time_func = time_func;
@@ -81,45 +87,49 @@ void  SimpleSaveManager::setTimeFunction(Nullable<Real> (*time_func)()){
 
 // TODO: enforce only called once
 void SimpleSaveManager::loadCrashes(){
-  
+  LOCK;
+  data_lock.lock();
   if(!directory_set){
-    cerr << "WARNING: SimpleSaveManager: directory not specified, using default of ./" << endl;
+    debug("directory not specified, using default of ./");
   }
   have_read = true;
 
   m_data_vector->clear();
   // Include current boot with current time, no checkpoints
-  m_data_vector->push_back(std::make_tuple(m_time_func(),Nullable<Real>(),map<const string,checkpoint_data>()));
+  m_data_vector->push_back(std::make_tuple(m_time_func(),Nullable<Real>(),false,map<const string,checkpoint_data>()));
 
   
   tuple<int,int> oldest_newest = findOldestNewestFiles();
   if(get<1>(oldest_newest)==-1){ // No files found
-    debugMsg("SimpleSaveManager, ", "No backup found, proceeding as if first bootup");
+    debug("no backup found, proceeding assuming first bootup");
   }
   
   else{ // Load rest of boots from XML
-    const char *file_name = (file_directory+std::to_string(get<1>(oldest_newest))+"_save.xml").c_str();
+    // Necessary to assign before calling c_str in order to avoid the short temporary lifetime
+    string cpp_file_name = (file_directory+"/"+std::to_string(get<1>(oldest_newest))+"_save.xml");
+    const char *file_name = cpp_file_name.c_str();
+    
+    debug("parsing "<<file_name);
     // Load previous boots
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_file(file_name);
     if(!result){ 
-      cerr << "XML [" << file_name << "] parsed with errors\n";
-      cerr << "Error description: " << result.description() << endl;
+      debug("XML [" << file_name << "] parsed with errors\n "
+	    <<"Error description: " << result.description());
     }
     else{
       // Read root attributes
       pugi::xml_node root = doc.child("SimpleSaveManager_Save");
-      *m_did_crash = root.attribute("safe_to_reboot").as_bool();
-      *m_num_active_crashes = root.attribute("num_active_crashes").as_int()+((*m_did_crash)?1:0);
-      *m_num_total_crashes = root.attribute("num_total_crashes").as_int()+((*m_did_crash)?1:0);
+      *m_num_active_crashes = root.attribute("num_active_crashes").as_int()+1;
+      *m_num_total_crashes = root.attribute("num_total_crashes").as_int()+1;
       pugi::xml_node boot_node = root.first_child();
-      // Skip if it wasn't a crash
-      if(!(*m_did_crash)) boot_node = boot_node.next_sibling();
+
       // Iterate over boots
       int boot_n = 1; //TODO: Verify num_active_crashes matches actual number
       while(boot_node){
-	Nullable<Real> time_of_boot = string_to_time(root.attribute("time_of_boot").value());
-	Nullable<Real> time_of_crash = string_to_time(root.attribute("time_of_crash").value());
+	Nullable<Real> time_of_boot = string_to_time(root.attribute("time_of_boot").as_string());
+	Nullable<Real> time_of_crash = string_to_time(root.attribute("time_of_crash").as_string());
+	bool is_ok = root.attribute("is_ok").as_bool();
 	// Read checkpoints
 	map<const string,checkpoint_data> checkpoints;
 	pugi::xml_node checkpoint_node = boot_node.first_child();
@@ -132,21 +142,26 @@ void SimpleSaveManager::loadCrashes(){
 	  checkpoint_node = checkpoint_node.next_sibling();
 	}
 
-	boot_data boot = boot_data(time_of_boot,time_of_crash,checkpoints);
+	boot_data boot = boot_data(time_of_boot,time_of_crash,is_ok,checkpoints);
 	m_data_vector->push_back(boot);
 	boot_n++;
 	boot_node = boot_node.next_sibling();
       }
     }
   }
+  UNLOCK;
+  data_lock.unlock();
 }
 
 void SimpleSaveManager::setDirectory(const string& directory){
   // Prevent writes from occuring concurrently with a directory change
+  LOCK;
   data_lock.lock();
   file_directory = directory;
   directory_set = true;
+  debug("directory set to "<<directory);
   data_lock.unlock();
+  UNLOCK;
 }
 
 void SimpleSaveManager::writeOut(){
@@ -154,6 +169,7 @@ void SimpleSaveManager::writeOut(){
   if(write_enqueued) return;
   // Log that we are planning to write out
   write_enqueued = true;
+  LOCK;
   data_lock.lock();
   write_enqueued = false;
   
@@ -164,14 +180,18 @@ void SimpleSaveManager::writeOut(){
     save_name = file_directory+"/1_save.xml";
   }
   else{
-    save_name = file_directory+"/"+std::to_string(get<1>(oldest_newest)+1)+"_save.xml";
+    save_name = file_directory+"/"+std::to_string(get<1>(oldest_newest)+1)+"_save.xml"; 
   }
   // If multiple valid files, delete the oldest (never delete the only remaining vaid file)
   if(get<0>(oldest_newest) != get<1>(oldest_newest)){
     remove((file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml").c_str());
+    debug("removing" <<(file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml"));
   }
+
+  debug("writing to "<<save_name);
   writeToFile(save_name);
-  
+  debug("write out successful");
+  UNLOCK;
   data_lock.unlock();
 }
 
@@ -190,7 +210,6 @@ void SimpleSaveManager::writeToFile(const string& location){
   // Actually build XML
   
   // Root attributes
-  root.append_attribute("safe_to_reboot").set_value(*m_safe_to_reboot);
   root.append_attribute("num_active_crashes").set_value(*m_num_active_crashes);
   root.append_attribute("num_total_crashes").set_value(*m_num_total_crashes);
   
@@ -206,6 +225,7 @@ void SimpleSaveManager::writeToFile(const string& location){
     else{
       curr_boot.append_attribute("time_of_crash").set_value(time_to_string(get<CRASH_TIME>(boot)));
     }
+    curr_boot.append_attribute("is_ok").set_value(get<IS_OK>(boot));
     // Checkpoints
     map<const string, checkpoint_data>::iterator checkpoints;
     for ( checkpoints = get<CHECKPOINTS>(boot).begin(); checkpoints != get<CHECKPOINTS>(boot).end(); checkpoints++ )
