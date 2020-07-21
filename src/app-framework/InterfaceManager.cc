@@ -318,16 +318,16 @@ namespace PLEXIL
     if (g_configuration->lookupIsTelemetry(state.name())) {
       // LookupNow not supported for this state, use last cached value
       debugStmt("InterfaceManager:lookupNow", {
-	  CachedValue const *cv = cacheEntry.cachedValue();
-	  if (cv) {
-	  debugMsg("InterfaceManager:lookupNow", " lookup " << state
-		   << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
-	  }
-	  else {
-	    debugMsg("InterfaceManager:lookupNow", " lookup " << state
-		     << " is telemetry only, no cached value, so is UNKNOWN");
-	  }
-	});
+        CachedValue const *cv = cacheEntry.cachedValue();
+        if (cv) {
+        debugMsg("InterfaceManager:lookupNow", " lookup " << state
+          << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
+        }
+        else {
+          debugMsg("InterfaceManager:lookupNow", " lookup " << state
+            << " is telemetry only, no cached value, so is UNKNOWN");
+        }
+	    });
       return;
     }
 
@@ -341,16 +341,16 @@ namespace PLEXIL
     }
 
     debugStmt("InterfaceManager:lookupNow", {
-	CachedValue const *cv = cacheEntry.cachedValue();
-	if (cv) {
-	  debugMsg("InterfaceManager:lookupNow",
-		   " returning " << cacheEntry.cachedValue()->toValue());
-	}
-	else {
-	  debugMsg("InterfaceManager:lookupNow",
-		   " no cached value, so is UNKNOWN");
-	}
-      });
+      CachedValue const *cv = cacheEntry.cachedValue();
+      if (cv) {
+        debugMsg("InterfaceManager:lookupNow",
+          " returning " << cacheEntry.cachedValue()->toValue());
+      }
+      else {
+        debugMsg("InterfaceManager:lookupNow",
+          " no cached value, so is UNKNOWN");
+      }
+    });
     // update internal idea of time if required
     if (state == State::timeState()) {
       CachedValue const *val = cacheEntry.cachedValue();

@@ -48,6 +48,67 @@ namespace PLEXIL {
   class AdapterConfiguration {
   public:
 
+    class GenericLookupHandler {
+      public:
+      virtual void LookupNow(const State &state,
+        StateCacheEntry &cacheEntry) = 0;
+      virtual void SetThresholds(const State &state,
+        double hi, double lo) = 0;
+      virtual void SetThresholds(const State &state,
+        int32_t hi, int32_t lo) = 0;
+      virtual void Subscribe(const State &state) = 0;
+      virtual void Unsubscribe(const State &state) = 0;
+    };
+
+    template <typename CONTEXT>
+    struct LookupHandler : GenericLookupHandler
+    {
+      CONTEXT m_context; // Should context be stored as object or pointer?
+      void (CONTEXT::*m_lookupNow)(const State &state, StateCacheEntry &cacheEntry);
+      void (CONTEXT::*m_setThresholdsDouble)(const State &state, double hi, double lo);
+      void (CONTEXT::*m_setThresholdsInt)(const State &state, int32_t hi, int32_t lo);
+      void (CONTEXT::*m_subscribe)(const State &state);
+      void (CONTEXT::*m_unsubscribe)(const State &state);
+      
+      LookupHandler(CONTEXT ct,
+            void (CONTEXT::*ln)(const State &state, StateCacheEntry &cacheEntry),
+            void (CONTEXT::*setTD)(const State &state, double hi, double lo),
+            void (CONTEXT::*setTI)(const State &state, int32_t hi, int32_t lo),
+            void (CONTEXT::*sub)(const State &state),
+            void (CONTEXT::*unsub)(const State &state)) :
+            m_context(ct), m_lookupNow(ln), m_setThresholdsDouble(setTD), m_setThresholdsInt(setTI),
+            m_subscribe(sub), m_unsubscribe(unsub) {}
+      
+      void LookupNow(const State &state, StateCacheEntry &cacheEntry)
+      {
+        m_context.m_lookupNow(state, cacheEntry);
+      }
+      virtual void SetThresholds(const State &state,
+        double hi, double lo)
+      {
+        m_context.m_setThresholdsDouble(state, hi, lo);
+      }
+      virtual void SetThresholds(const State &state,
+        int32_t hi, int32_t lo)
+      {
+        m_context.m_setThresholdsInt(state, hi, lo);
+      }
+      virtual void Subscribe(const State &state)
+      {
+        m_context.m_subscribe(state);
+      }
+      virtual void Unsubscribe(const State &state)
+      {
+        m_context.m_unsubscribe(state);
+      }
+    };
+
+    struct CommandHandler // May not be correct, need to asynchronously make the call and update on return
+    {
+      void (*execute)(Command *cmd, AdapterExecInterface *callback);
+      void (*abortCommand)(Command *cmd, AdapterExecInterface *callback);
+    };
+
     /**
      * @brief Constructor.
      */
@@ -141,6 +202,30 @@ namespace PLEXIL {
     bool registerLookupInterface(std::string const &stateName,
                                  InterfaceAdapter *intf,
                                  bool telemetryOnly = false);
+
+    /**
+   * @brief Register the given handler for lookups to this state.
+   Returns true if successful.  Fails and returns false
+    if the state name already has a handler registered
+            or registering a handler is not implemented.
+    * @param stateName The name of the state to map to this adapter.
+    * @param lookupNow The lookup handler function for this state.
+    * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
+    * @param setThresholdsInt The setThresholdsInt handler function for this state.
+    * @param subscribe The subscribe handler function for this state.
+    * @param unsubscribe The lookup handler function for this state.
+    * @param context An object on which the handler functions can be called.
+    * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
+    */
+    template <typename CONTEXT>
+    bool registerLookupHandler(std::string const &stateName,
+          CONTEXT &context,
+          void (CONTEXT::*ln)(const State &state, StateCacheEntry &cacheEntry),
+          void (CONTEXT::*setTD)(const State &state, double hi, double lo) = nullptr,
+          void (CONTEXT::*setTI)(const State &state, int32_t hi, int32_t lo) = nullptr,
+          void (CONTEXT::*sub)(const State &state) = nullptr,
+          void (CONTEXT::*unsub)(const State &state) = nullptr,
+          bool telemetryOnly = false);
 
     /**
      * @brief Register the given interface adapter for planner updates.
@@ -321,9 +406,12 @@ namespace PLEXIL {
 
     // Maps by command/lookup
 
-    // Interface adapter maps
-    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap;
-    InterfaceMap m_lookupMap;
+    // Interface handler maps
+    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap; // TODO: Remove this.
+    typedef std::map<std::string, CommandHandler *> CommandHandlerMap;
+    typedef std::map<std::string, GenericLookupHandler *> LookupHandlerMap;
+
+    LookupHandlerMap m_lookupMap;
     InterfaceMap m_commandMap;
 
     std::set<std::string> m_telemetryLookups;
