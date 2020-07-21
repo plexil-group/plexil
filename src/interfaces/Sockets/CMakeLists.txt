@@ -25,7 +25,7 @@
 
 # Sockets submodule of PlexilExec project
 
-add_library(PlexilSockets SHARED
+add_library(PlexilSockets ${PlexilExec_SHARED_OR_STATIC}
   ClientSocket.cpp ServerSocket.cpp Socket.cpp)
 
 install(TARGETS PlexilSockets

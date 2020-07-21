@@ -29,7 +29,7 @@ project(StandAloneSimulator
   DESCRIPTION "A simple scriptable simulator for use with the PlexilExec"
   LANGUAGES CXX)
 
-add_library(standalonesimulator SHARED
+add_library(standalonesimulator ${PlexilExec_SHARED_OR_STATIC}
   IpcCommRelay.cc ResponseBase.cc ResponseFactory.cc ResponseMessage.cc
   ResponseMessageManager.cc Simulator.cc SimulatorScriptReader.cc
   TelemetryResponseManager.cc TimingService.cc)

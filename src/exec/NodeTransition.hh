@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,25 @@ namespace PLEXIL
    */
   struct NodeTransition {
     Node *node;
-    NodeState state;
+    NodeState oldState;
+    NodeState newState;
+
     // default constructor
-    NodeTransition() : node(), state(INACTIVE_STATE) {}
+    NodeTransition()
+      : node(),
+        oldState(INACTIVE_STATE),
+        newState(INACTIVE_STATE)
+    {}
+
     // trivial constructor
-    NodeTransition(Node *nod, NodeState stat) : node(nod), state(stat) {}
+    NodeTransition(Node *nod, NodeState oldStat, NodeState newStat)
+      : node(nod),
+        oldState(oldStat),
+        newState(newStat)
+    {}
+
+    // use default copy constructor, assignment, destructor
+
   };
 
 } // namespace PLEXIL

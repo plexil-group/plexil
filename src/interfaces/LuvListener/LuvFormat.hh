@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,10 +88,12 @@ namespace PLEXIL {
      * @brief Construct the node state transition XML.
      * @param s The stream to write the XML to.
      * @param prevState The state from which the node is transitioning.
+     * @param newState The state to which the node is transitioning.
      * @param node The node.
      */
     static void formatTransition(std::ostream &s, 
                                  NodeState prevState,
+                                 NodeState newState,
                                  Node *node);
 
     /**

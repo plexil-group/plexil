@@ -271,6 +271,22 @@ else()
   unset(PLEXIL_WITH_UNIX_TIME CACHE)
 endif()
 
+#
+# Optional modules
+#
+
+if(GANTT_LISTENER)
+  set(HAVE_GANTT_LISTENER ON)
+else()
+  unset(HAVE_GANTT_LISTENER CACHE)
+endif()
+
+if(IPC_ADAPTER)
+  set(HAVE_IPC_ADAPTER ON)
+else()
+  unset(HAVE_IPC_ADAPTER CACHE)
+endif()
+
 if(PLAN_DEBUG_LISTENER)
   set(HAVE_DEBUG_LISTENER ON)
 else()
@@ -282,6 +298,13 @@ if(VIEWER_LISTENER)
 else()
   unset(HAVE_LUV_LISTENER CACHE)
 endif()
+
+if(UDP_ADAPTER)
+  set(HAVE_UDP_ADAPTER ON)
+else()
+  unset(HAVE_UDP_ADAPTER CACHE)
+endif()
+  
 
 #
 # Construct configuration header file

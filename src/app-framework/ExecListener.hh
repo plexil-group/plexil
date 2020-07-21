@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -166,12 +166,13 @@ namespace PLEXIL
     /**
      * @brief Notify that a node has changed state.
      * @param prevState The old state.
+     * @param newState The new state.
      * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
      * @note The default method does nothing.
      * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
+                                               NodeState /* newState */,
                                                Node * /* node */) const;
 
     /**

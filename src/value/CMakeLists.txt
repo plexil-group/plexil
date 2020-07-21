@@ -25,7 +25,7 @@
 
 # Value representation module subproject of PLEXIL_EXEC
 
-add_library(PlexilValue SHARED
+add_library(PlexilValue ${PlexilExec_SHARED_OR_STATIC}
   Array.cc ArrayImpl.cc CommandHandle.cc NodeConstants.cc
   PlexilTypeTraits.cc Value.cc ValueType.cc)
 

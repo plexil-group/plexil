@@ -655,11 +655,10 @@ namespace PLEXIL
    *  nodes info is stored in each node's NodeObj struct
    **/
    void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
+                                                     NodeState newState, 
                                                      Node *nodeId) const
    {  
       static GanttListener myListener;
-      //get state
-      const NodeState& newState = nodeId->getState();
       switch (newState) {
          case EXECUTING_STATE:
             myListener.m_nodes.push_back(myListener.createNodeObj(nodeId));

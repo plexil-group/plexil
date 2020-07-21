@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -243,25 +243,27 @@ namespace PLEXIL
       for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
            it != transitions.end();
            ++it) 
-        this->implementNotifyNodeTransition(it->state, it->node);
+        this->implementNotifyNodeTransition(it->oldState, it->newState, it->node);
     }
     else {
       for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
            it != transitions.end();
            ++it)
-        if (m_filter->reportNodeTransition(it->state, it->node))
-          this->implementNotifyNodeTransition(it->state, it->node);
+        if (m_filter->reportNodeTransition(it->oldState, it->newState, it->node))
+          this->implementNotifyNodeTransition(it->oldState, it->newState, it->node);
     }
   }
 
   /**
    * @brief Notify that a node has changed state.
    * @param prevState The old state.
+   * @param newState The old state.
    * @param node The node that has transitioned.
    * @note The current state is accessible via the node.
    * @note The default method does nothing.
    */
   void ExecListener::implementNotifyNodeTransition(NodeState /* prevState */,
+                                                   NodeState /* newState */,
                                                    Node * /* node */) const
   {
     debugMsg("ExecListener:implementNotifyNodeTransition", " default method called");

@@ -25,7 +25,7 @@
 
 # Gantt chart display exec listener module (deprecated)
 
-add_library(GanttListener SHARED
+add_library(GanttListener ${PlexilExec_SHARED_OR_STATIC}
   GanttListener.cc)
 
 target_include_directories(GanttListener PRIVATE
