@@ -16,7 +16,10 @@ import plexiljava.model.expressions.NumericRHSModel;
 import plexiljava.model.expressions.OperatorModel;
 import plexiljava.model.statements.CommandModel;
 import plexiljava.model.statements.CommandNodeModel;
+import plexiljava.model.structures.ElseIfNodeModel;
 import plexiljava.model.structures.ForNodeModel;
+import plexiljava.model.structures.IfNodeModel;
+import plexiljava.model.structures.ThenNodeModel;
 import plexiljava.model.structures.WhileNodeModel;
 
 public class NodeModel extends BaseModel implements Decompilable {
@@ -145,7 +148,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 					default: // NodeBody, NodeList
 						if( child.hasAttribute("epx") ) {
 							switch( child.getAttribute("epx").getValue() ) {
-								/*
 								case "If":
 									children.add(new IfNodeModel(child));
 									break;
@@ -155,7 +157,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 								case "Then":
 									children.add(new ThenNodeModel(child));
 									break;
-								*/
 								case "For":
 									children.add(new ForNodeModel(child));
 									break;
