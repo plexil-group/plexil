@@ -31,11 +31,13 @@
 // The subscribers.  Their naming convention is:
 //   Subscribe<value-type><param-type>...
 
-static SubscribeBoolInt SubscriberBoolInt = NULL;
+static SubscribeInt SubscriberInt = NULL;
+static SubscribeValueInt SubscriberValueInt = NULL;
 static SubscribeValueString SubscriberValueString = NULL;
 static SubscribeValueStringInt SubscriberValueStringInt = NULL;
 
-void setSubscriber (SubscribeBoolInt s) { SubscriberBoolInt = s; }
+void setSubscriber (SubscribeInt s) { SubscriberInt = s; }
+void setSubscriber (SubscribeValueInt s) { SubscriberValueInt = s; }
 void setSubscriber (SubscribeValueString s) { SubscriberValueString = s; }
 void setSubscriber (SubscribeValueStringInt s) { SubscriberValueStringInt = s; }
 
@@ -43,8 +45,12 @@ void setSubscriber (SubscribeValueStringInt s) { SubscriberValueStringInt = s; }
 // The overloaded publish function, one for each value/parameter combination
 // found in this application.
 
-void publish (const string& state_name, bool val, int arg){
-  SubscriberBoolInt(state_name,val,arg);
+void publish (const string& state_name, int val){
+  SubscriberInt(state_name,val);
+}
+
+void publish (const string& state_name, Value val, int arg){
+  SubscriberValueInt(state_name,val,arg);
 }
 
 

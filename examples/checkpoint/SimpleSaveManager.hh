@@ -28,7 +28,7 @@ public:
   void setData( vector<tuple<Nullable<Real>,Nullable<Real>,bool,
 		map<const string,
 		tuple<bool, 
-		Nullable<Real>,string>>>>  *data, int *num_active_crashes, int *num_total_crashes);
+		Nullable<Real>,string>>>>  *data, int *num_total_boots);
   void setTimeFunction(Nullable<Real> (*time_func)());
 
   void setDirectory(const string& file_directory);
@@ -39,10 +39,9 @@ public:
 
 private:
   static SimpleSaveManager* m_manager;
-  int32_t *m_num_active_crashes;
-  int32_t *m_num_total_crashes;
+  int32_t *m_num_total_boots;
 
-  tuple<int,int> findOldestNewestFiles();
+  tuple<long,long> findOldestNewestFiles();
   void writeToFile(const string& location);
   
   // Data structure that tracks boot-specific metadata and checkpoints
