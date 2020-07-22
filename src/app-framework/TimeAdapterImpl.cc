@@ -94,7 +94,7 @@ namespace PLEXIL
 
     // Automatically register self for time
     // Old Method: g_configuration->registerLookupInterface("time", this);
-    g_configuration->registerLookupHandler("time", *this, &TimeAdapterImpl::lookupNow);
+    g_configuration->registerLookupHandler("time", *this, (AdapterConfiguration::lookupNowHandler)(&TimeAdapterImpl::lookupNow));
     return true;
   }
 

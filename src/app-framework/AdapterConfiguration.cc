@@ -607,27 +607,27 @@ namespace PLEXIL {
     * @param context An object on which the handler functions can be called.
     * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
     */
-  template <typename CONTEXT>
+  //template <typename CONTEXT>
   bool AdapterConfiguration::registerLookupHandler(std::string const &stateName,
-          CONTEXT &context,
-          void (CONTEXT::*lookupNow)(const State &state, StateCacheEntry &cacheEntry),
-          void (CONTEXT::*setThresholdsDouble)(const State &state, double hi, double lo),
-          void (CONTEXT::*setThresholdsInt)(const State &state, int32_t hi, int32_t lo),
-          void (CONTEXT::*subscribe)(const State &state),
-          void (CONTEXT::*unsubscribe)(const State &state),
+          InterfaceAdapter &context,
+          void (InterfaceAdapter::*lookupNow)(const State &state, StateCacheEntry &cacheEntry),
+          void (InterfaceAdapter::*setThresholdsDouble)(const State &state, double hi, double lo),
+          void (InterfaceAdapter::*setThresholdsInt)(const State &state, int32_t hi, int32_t lo),
+          void (InterfaceAdapter::*subscribe)(const State &state),
+          void (InterfaceAdapter::*unsubscribe)(const State &state),
           bool telemetryOnly) {
     LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
     if (it == m_lookupMap.end()) {
       // Not found, OK to add
       debugMsg("AdapterConfiguration:registerLookupHandler",
                 " registering handler for lookup of '" << stateName << "'");
-      m_lookupMap.insert(std::pair<std::string, GenericLookupHandler *>(stateName,
-                new LookupHandler<CONTEXT>(context,
-                                           lookupNow,
-                                           setThresholdsDouble,
-                                           setThresholdsInt,
-                                           subscribe,
-                                           unsubscribe)));
+      m_lookupMap.insert(std::pair<std::string, LookupHandler *>(stateName,
+                new LookupHandler(context,
+                                  lookupNow,
+                                  setThresholdsDouble,
+                                  setThresholdsInt,
+                                  subscribe,
+                                  unsubscribe)));
       //m_adapters.insert(intf); TODO: remove
       if (telemetryOnly)
         m_telemetryLookups.insert(stateName);
@@ -785,6 +785,36 @@ namespace PLEXIL {
     //          << " for lookup '" << stateName << "'");
     // return m_defaultInterface;
     return nullptr; //TODO Workaround to add backwards compatibility for this
+  }
+
+  /**
+   * @brief Return the lookup handler in effect for lookups with this state name,
+   whether specifically registered or default. May return NULL. Returns NULL if default interfaces are not implemented.
+   * @param stateName The state.
+   */
+  AdapterConfiguration::LookupHandler *AdapterConfiguration::getLookupHandler(std::string const &stateName) {
+    LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
+    if (it != m_lookupMap.end()) {
+      debugMsg("AdapterConfiguration:getLookupHandler",
+               " found specific handler " << (*it).second
+               << " for lookup '" << stateName << "'");
+      return (*it).second;
+    }
+    debugMsg("AdapterConfiguration:getLookupHandler",
+               " no handler registered for lookup '" << stateName << "'");
+    return nullptr;
+    // try defaults TODO: Default handlers?
+    // if (m_defaultLookupInterface) {
+    //   debugMsg("AdapterConfiguration:getLookupHandler",
+    //            " returning default lookup handler " << m_defaultLookupInterface
+    //            << " for lookup '" << stateName << "'");
+    //   return m_defaultLookupInterface;
+    // }
+    // try default defaults
+    // debugMsg("AdapterConfiguration:getLookupHandler",
+    //          " returning default handler " << m_defaultInterface
+    //          << " for lookup '" << stateName << "'");
+    // return m_defaultInterface;
   }
 
   /**
