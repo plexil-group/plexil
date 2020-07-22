@@ -13,8 +13,8 @@ import plexiljava.model.NodeModel;
 
 public class Decompiler {
 
-	public static final String INFILE = "ArrayVariation.plx";
-	public static final String OUTFILE = "ArrayVariation.ple";
+	public static final String INFILE = "test/ArrayVariation.plx";
+	public static final String OUTFILE = "test/ArrayVariation.ple";
 	
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
 		Element rootNode = XMLIO.readToNode(INFILE);
