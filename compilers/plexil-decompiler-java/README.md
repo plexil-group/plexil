@@ -6,7 +6,7 @@ This is a decompiler built to convert PLEXIL plans that have been converted to X
 Currently, this project exists at a proof-of-concept level of functionality, and can decompile programs built using basic assignment and arithmetic operations, as well as the `for` and `while` control structures.
 
 ### Running the Decompiler
-As no platform-friendly executable option exists yet, the way to run this decompiler is to load it into an IDE with Java compilation capabilities, and to navigate to the `Decompiler.java` file in `src/plexiljava.main/`. In that file, you can change the `INFILE` constant to the name of the file you wish to decompile that exists in the `plexil-decompiler-java` folder, as well as the `OUTFILE` constant to the name of the file you wish to decompile to. Upon execution, the program will generate a corresponding file in the `plexil-decompiler-java`, containing a PLEXIL plan that is functionally identical\* to the original compilation source.
+As no platform-friendly executable option exists yet, the way to run this decompiler is to load it into an IDE with Java compilation capabilities, and to navigate to the `Decompiler.java` file in `src/plexiljava.main/`. In that file, you can change the `INFILE` constant to the name of the file you wish to decompile that exists in the `plexil-decompiler-java` folder, as well as the `OUTFILE` constant to the name of the file you wish to decompile to. Upon execution, the program will generate a corresponding file in the `plexil-decompiler-java/` folder, containing a PLEXIL plan that is functionally identical\* to the original compilation source.
 
 ### Included Tools
 Another point of interest is the `XMLNavigator.java` file, also found in the `src/plexiljava.main/` subdirectory. This program has a `FILENAME` constant which can be set to any compiled PLEXIL plan's filename, and when run, will allow the user to navigate the corresponding XML structure as though it were a unix directory.
@@ -21,4 +21,5 @@ Currently, this navigator supports the following commands:
 
 
 \* - *here meaning a PLEXIL plan that would compile back into the decompiled XML file*
+
 \*\* - *a quality is a child element that only has one `#text` child node, and is treated like an attribute*
