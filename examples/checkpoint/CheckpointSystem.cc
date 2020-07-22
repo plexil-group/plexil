@@ -67,6 +67,15 @@ bool CheckpointSystem::s_use_time=true;
 
 ///////////////////////////// Helper Functions //////////////////////////////
 
+using checkpoint_data = tuple<bool,Nullable<Real>,string>;
+
+using boot_data = tuple<
+  Nullable<Real>,
+  Nullable<Real>,
+  bool,
+  map<const string, checkpoint_data>>;
+
+
 ///////////////////////////// Helper Functions //////////////////////////////
 
 
@@ -128,7 +137,7 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
   manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&num_active_crashes,&num_total_crashes);
+  manager.setData(&data_vector,&num_total_boots);
   manager.loadCrashes();
 }
 
