@@ -99,11 +99,14 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   if (state_name == "DidCrash"){
     retval = CheckpointSystem::getInstance()->didCrash();
   }
-  else if (state_name == "NumberOfActiveCrashes"){
-    retval = CheckpointSystem::getInstance()-> numActiveCrashes();
+  else if (state_name == "NumberOfAccessibleBoots"){
+    retval = CheckpointSystem::getInstance()->numAccessibleBoots();
   }
-  else if (state_name == "NumberOfTotalCrashes"){
-    retval = CheckpointSystem::getInstance()->numTotalCrashes();
+  else if (state_name == "NumberOfUnhandledBoots"){
+    retval = CheckpointSystem::getInstance()->numUnhandledBoots();
+  }
+  else if (state_name == "NumberOfTotalBoots"){
+    retval = CheckpointSystem::getInstance()->numTotalBoots();
   }
   else if (state_name == "CheckpointWhen"){
     string which_checkpoint;
@@ -168,7 +171,15 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 // TODO: Review list
-static void receiveBoolInt (const string& state_name, bool val, Integer arg)
+
+static void receiveInt (const string& state_name, Integer val)
+{
+  CheckpointAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
+					       vector<Value> (1, val));
+}
+
+
+static void receiveValueInt (const string& state_name, Value val, Integer arg)
 {
   CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
@@ -220,8 +231,9 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerLookupInterface("DidCrash", this);
   g_configuration->registerLookupInterface("IsOK", this);
   
-  g_configuration->registerLookupInterface("NumberOfActiveCrashes", this);
+  g_configuration->registerLookupInterface("NumberOfAccessibleCrashes", this);
   g_configuration->registerLookupInterface("NumberOfTotalCrashes", this);
+  g_configuration->registerLookupInterface("NumberOfUnhandledBoots", this);
   g_configuration->registerLookupInterface("TimeOfCrash", this);
   g_configuration->registerLookupInterface("TimeOfBoot", this);
   
@@ -235,7 +247,8 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerCommandInterface("SetOK", this);
   g_configuration->registerCommandInterface("Flush", this);
 
-  setSubscriber (receiveBoolInt);
+  setSubscriber(receiveInt);
+  setSubscriber (receiveValueInt);
   setSubscriber (receiveValueString);
   setSubscriber (receiveValueStringInt);
   

@@ -66,8 +66,9 @@ public:
   
   // Lookups
   bool didCrash();
-  Integer numActiveCrashes();
-  Integer numTotalCrashes();
+  Integer numAccessibleBoots();
+  Integer numTotalBoots();
+  Integer numUnhandledBoots();
   Value getCheckpointState(const string& checkpoint_name,Integer boot_num);
   Value getCheckpointTime(const string& checkpoint_name, Integer boot_num);
   Value getCheckpointInfo(const string& checkpoint_name, Integer boot_num);
@@ -91,8 +92,7 @@ private:
   static CheckpointSystem *m_system;
 
   // Current boot information
-  int num_active_crashes;
-  int num_total_crashes;
+  int num_total_boots;
 
   ReadWriteLock rw;
   SimpleSaveManager manager;

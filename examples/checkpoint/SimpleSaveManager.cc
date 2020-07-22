@@ -46,8 +46,8 @@ using boot_data = tuple<
 SimpleSaveManager *SimpleSaveManager::m_manager = 0; 
 /////////////////////// Helper functions //////////////////////////
 
-const char* time_to_string(const Nullable<Real> &time){
-  if(time.has_value()) return std::to_string(time.value()).c_str();
+const string time_to_string(const Nullable<Real> &time){
+  if(time.has_value()) return std::to_string(time.value());
   else return "";
 }
 
@@ -71,12 +71,11 @@ SimpleSaveManager::~SimpleSaveManager (){
   }
 }
 
-void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_active_crashes, int32_t *num_total_crashes){
+void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_total_boots){
   LOCK;
   data_lock.lock();
   m_data_vector = data;
-  m_num_active_crashes = num_active_crashes;
-  m_num_total_crashes = num_total_crashes;
+  m_num_total_boots = num_total_boots;
   UNLOCK;
   data_lock.unlock();
 }
@@ -99,7 +98,7 @@ void SimpleSaveManager::loadCrashes(){
   m_data_vector->push_back(std::make_tuple(m_time_func(),Nullable<Real>(),false,map<const string,checkpoint_data>()));
 
   
-  tuple<int,int> oldest_newest = findOldestNewestFiles();
+  tuple<long,long> oldest_newest = findOldestNewestFiles();
   if(get<1>(oldest_newest)==-1){ // No files found
     debug("no backup found, proceeding assuming first bootup");
   }
@@ -120,12 +119,11 @@ void SimpleSaveManager::loadCrashes(){
     else{
       // Read root attributes
       pugi::xml_node root = doc.child("SimpleSaveManager_Save");
-      *m_num_active_crashes = root.attribute("num_active_crashes").as_int()+1;
-      *m_num_total_crashes = root.attribute("num_total_crashes").as_int()+1;
+      *m_num_total_boots = root.attribute("num_total_boots").as_int()+1;
       pugi::xml_node boot_node = root.first_child();
 
       // Iterate over boots
-      int boot_n = 1; //TODO: Verify num_active_crashes matches actual number
+      int boot_n = 1;
       while(boot_node){
 	Nullable<Real> time_of_boot = string_to_time(root.attribute("time_of_boot").as_string());
 	Nullable<Real> time_of_crash = string_to_time(root.attribute("time_of_crash").as_string());
@@ -174,7 +172,7 @@ void SimpleSaveManager::writeOut(){
   write_enqueued = false;
   
   string save_name = "";
-  tuple<int,int> oldest_newest = findOldestNewestFiles();
+  tuple<long,long> oldest_newest = findOldestNewestFiles();
   // No files found
   if(get<1>(oldest_newest) == -1){
     save_name = file_directory+"/1_save.xml";
@@ -184,8 +182,9 @@ void SimpleSaveManager::writeOut(){
   }
   // If multiple valid files, delete the oldest (never delete the only remaining vaid file)
   if(get<0>(oldest_newest) != get<1>(oldest_newest)){
-    remove((file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml").c_str());
-    debug("removing" <<(file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml"));
+    string to_remove = file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml";
+    remove(to_remove.c_str());
+    debug("removing" <<to_remove);
   }
 
   debug("writing to "<<save_name);
@@ -210,20 +209,21 @@ void SimpleSaveManager::writeToFile(const string& location){
   // Actually build XML
   
   // Root attributes
-  root.append_attribute("num_active_crashes").set_value(*m_num_active_crashes);
-  root.append_attribute("num_total_crashes").set_value(*m_num_total_crashes);
+  root.append_attribute("num_total_boots").set_value(*m_num_total_boots);
   
   //Boots
   int boot_n = 0;
   for(boot_data boot : data_clone){
     pugi::xml_node curr_boot = root.append_child(("boot_"+std::to_string(boot_n)).c_str());
-    curr_boot.append_attribute("boot_num").set_value(boot_n);
-    curr_boot.append_attribute("time_of_boot").set_value(time_to_string(get<BOOT_TIME>(boot)));
+    curr_boot.append_attribute("time_of_boot").set_value(
+      time_to_string(get<BOOT_TIME>(boot)).c_str());
     if(boot_n==0){
-      curr_boot.append_attribute("time_of_crash").set_value(time_to_string(m_time_func()));
+      curr_boot.append_attribute("time_of_crash").set_value(
+	time_to_string(m_time_func()).c_str());
     }
     else{
-      curr_boot.append_attribute("time_of_crash").set_value(time_to_string(get<CRASH_TIME>(boot)));
+      curr_boot.append_attribute("time_of_crash").set_value(
+	time_to_string(get<CRASH_TIME>(boot)).c_str());
     }
     curr_boot.append_attribute("is_ok").set_value(get<IS_OK>(boot));
     // Checkpoints
@@ -234,7 +234,7 @@ void SimpleSaveManager::writeToFile(const string& location){
       checkpoint_data data = checkpoints->second;
       pugi::xml_node checkpoint = curr_boot.append_child(name.c_str());
       checkpoint.append_attribute("state").set_value(get<C_STATE>(data));
-      checkpoint.append_attribute("time").set_value(time_to_string(get<C_TIME>(data)));
+      checkpoint.append_attribute("time").set_value(time_to_string(get<C_TIME>(data)).c_str());
       checkpoint.append_attribute("info").set_value(get<C_INFO>(data).c_str());
     }
     boot_n++;
@@ -253,11 +253,11 @@ void SimpleSaveManager::writeToFile(const string& location){
 
 // Finds the oldest and newest file numbers
 // Removes invalid files (those marked as incomplete)
-tuple<int,int> SimpleSaveManager::findOldestNewestFiles(){
+tuple<long,long> SimpleSaveManager::findOldestNewestFiles(){
   DIR *dr;
   struct dirent *en;
-  int min = INT_MAX;
-  int max = -1;
+  long min = LONG_MAX;
+  long max = -1;
   dr = opendir(file_directory.c_str()); //open directory
   if (dr) {
     while ((en = readdir(dr)) != NULL) {
@@ -265,7 +265,7 @@ tuple<int,int> SimpleSaveManager::findOldestNewestFiles(){
       if(current.size()>9 && current.substr(current.size()-9,9) == "_save.xml"){
 	string save_number_s = current.substr(0,current.size()-9);
 	if(is_number(save_number_s)){
-	  int save_number = stoi(save_number_s);
+	  long save_number = stoi(save_number_s);
 	  min = std::min(min,save_number);
 	  max = std::max(max,save_number);
 	  
