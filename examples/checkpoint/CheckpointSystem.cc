@@ -68,16 +68,25 @@ static string error = "Error in checkpoint system: ";
 static InterfaceAdapter* time_adapter = NULL;
 static StateCacheEntry time_cache;
 
+using checkpoint_data = tuple<bool,Nullable<Real>,string>;
+
+using boot_data = tuple<
+  Nullable<Real>,
+  Nullable<Real>,
+  bool,
+  map<const string, checkpoint_data>>;
+
+
 ///////////////////////////// Helper Functions //////////////////////////////
 
 
 // Check that the boot number is valid
 bool CheckpointSystem::valid_boot(Integer boot_num){
-  return !(boot_num < 0 || boot_num > num_active_crashes);
+  return boot_num >= 0 && boot_num < data_vector.size();
 }
 
 bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,Integer boot_num){
-  map<const string, tuple<bool,Nullable<Real>,string>> checkpoints = get<CHECKPOINTS>(data_vector.at(boot_num));
+  map<const string, checkpoint_data> checkpoints = get<CHECKPOINTS>(data_vector.at(boot_num));
   return checkpoints.find(checkpoint_name) != checkpoints.end();
 }
 
@@ -115,7 +124,7 @@ CheckpointSystem::~CheckpointSystem ()
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
   manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&num_active_crashes,&num_total_crashes);
+  manager.setData(&data_vector,&num_total_boots);
   manager.loadCrashes();
 }
 
@@ -128,7 +137,7 @@ void CheckpointSystem::setDirectory(const string& file_directory){
 bool CheckpointSystem::didCrash(){
   RLOCK rw.begin_read();
   bool retval;
-  if(num_total_crashes==0) retval = false;
+  if(num_total_boots==0) retval = false;
   else{
     Value lastCrash = getIsOK(1);
     if(lastCrash==Unknown) retval = false;
@@ -143,19 +152,29 @@ bool CheckpointSystem::didCrash(){
 }
 
 
-Integer CheckpointSystem::numActiveCrashes(){
+Integer CheckpointSystem::numAccessibleBoots(){
   Integer retval;
   RLOCK rw.begin_read();
-  retval = num_active_crashes;
+  retval = data_vector.size();
   RUNLOCK rw.end_read();
   return retval;
 }
 
 
-Integer CheckpointSystem::numTotalCrashes(){
+Integer CheckpointSystem::numTotalBoots(){
   Integer retval;
   RLOCK rw.begin_read();
-  retval = num_total_crashes;
+  retval = num_total_boots;
+  RUNLOCK rw.end_read();
+  return retval;
+}
+
+Integer CheckpointSystem::numUnhandledBoots(){
+  Integer retval = 0;
+  RLOCK rw.begin_read();
+  for(boot_data boot:data_vector){
+    if(!get<IS_OK>(boot)) retval++;
+  }
   RUNLOCK rw.end_read();
   return retval;
 }
@@ -232,7 +251,7 @@ Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
   RLOCK rw.begin_read();
   Value retval = -1;
   for (Integer i=0;i<data_vector.size();i++){
-    map<const string, tuple<bool, Nullable<Real>,string>> checkpoints = get<CHECKPOINTS>(data_vector[i]);
+    map<const string, checkpoint_data> checkpoints = get<CHECKPOINTS>(data_vector[i]);
     if(checkpoints.find(checkpoint_name)!=checkpoints.end()){
       retval = i;
       break;
@@ -294,7 +313,7 @@ Value CheckpointSystem::getIsOK(Integer boot_num){
 
 Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info){
   WLOCK rw.begin_write();
-  map<const string,tuple<bool,Nullable<Real>,string>> checkpoints = get<CHECKPOINTS>(data_vector.at(0));
+  map<const string,checkpoint_data> checkpoints = get<CHECKPOINTS>(data_vector.at(0));
   Value retval;
   // If checkpoint not set, checkpoint was not reached
   if(checkpoints.find(checkpoint_name)==checkpoints.end()) retval = false;
