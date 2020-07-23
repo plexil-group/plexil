@@ -241,7 +241,7 @@ Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer
 // Returns the latest boot number where the checkpoint was true, -1 if none found
 Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
   RLOCK;
-  Value retval = -1;
+  Value retval = Unknown;
   for (Integer i=0;i<data_vector.size();i++){
     map<const string, checkpoint_data> checkpoints = get<CHECKPOINTS>(data_vector[i]);
     if(checkpoints.find(checkpoint_name)!=checkpoints.end()){

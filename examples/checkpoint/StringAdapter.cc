@@ -104,6 +104,10 @@ bool StringAdapter::initialize()
   g_configuration->registerCommandInterface("strlen", this);
   g_configuration->registerCommandInterface("strlwr", this);
   g_configuration->registerCommandInterface("strupr", this);
+  g_configuration->registerCommandInterface("strindex", this);
+  g_configuration->registerCommandInterface("find_first_of", this);
+  g_configuration->registerCommandInterface("find_last_of", this);
+  g_configuration->registerCommandInterface("split", this);
   
   debugMsg("StringAdapter", " initialized.");
   return true;
@@ -150,26 +154,54 @@ void StringAdapter::executeCommand(Command *cmd)
 
   // NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
   if (name == "ToString"){
-    retval = args[0].valueToString();
+    if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      retval = args[0].valueToString();
+    }
   }
   else if (name == "StringToInteger"){
-    int32_t i;
-    std::istringstream(args[0].valueToString()) >> i; // Streams string to integer
-    // This is the C++98 version of stoi
-    retval = i;
+    if(args.size()!=1) {
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      int32_t i;
+      std::istringstream(args[0].valueToString()) >> i; // Streams string to integer
+      // This is the C++98 version of stoi
+      retval = i;
+    }
   }
   else if (name == "StringToReal"){
-    double d;
-    std::istringstream(args[0].valueToString()) >> d; // Streams string to double
-    retval = d;
+    if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      double d;
+      std::istringstream(args[0].valueToString()) >> d; // Streams string to double
+      retval = d;
+    }
   }
   else if (name == "StringToBoolean"){
-    string data = args[0].valueToString();
-    std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-    std::istringstream is(data);
-    bool b;
-    is >> std::boolalpha >> b;
-    retval = b;
+    if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string data = args[0].valueToString();
+      std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+      std::istringstream is(data);
+      // Allows us to look for 1 or true, all other values return false
+      bool b;
+      bool b2;
+      is >> std::boolalpha >> b;
+      is.clear();
+      is >> std::noboolalpha >> b2;
+      retval = b||b2;
+    }
   }
   else if (name == "substr"){
     string data = args[0].valueToString();
@@ -188,20 +220,128 @@ void StringAdapter::executeCommand(Command *cmd)
       args[2].getValue(len);
       retval = data.substr(pos,len);
     }
+    else{
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+      retval = Unknown;
+    }
   }
   else if (name == "strlen"){
-    int32_t len = args[0].valueToString().length();
-    retval = len;
+     if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      int32_t len = args[0].valueToString().length();
+      retval = len;
+    }
   }
   else if (name == "strlwr"){
-    string data = args[0].valueToString();
-    std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-    retval = data;
+     if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string data = args[0].valueToString();
+      std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+      retval = data;
+    }
   }
   else if (name == "strupr"){
+     if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string data = args[0].valueToString();
+      std::transform(data.begin(), data.end(), data.begin(), ::toupper);
+      retval = data;
+    }
+  }
+  else if (name == "strupr"){
+    if(args.size()!=1){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
     string data = args[0].valueToString();
     std::transform(data.begin(), data.end(), data.begin(), ::toupper);
     retval = data;
+    }
+  }
+  // strindex(s,i,[v]) acts the same as s[i] = v, or s[i] if v is not specified
+  else if (name == "strindex"){
+    if(args.size()<2 || args.size()>3){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string data = args[0].valueToString();
+      int pos;
+      args[1].getValue(pos);
+      if(args.size()==3){
+	if(args[2].valueToString().size()>1){
+	  cerr << "strindex requires a char as the value" << endl;
+	}
+	else{
+	  char newval = args[2].valueToString()[0];
+	  data[pos]=newval;
+	  retval = string(1,newval);
+	}
+      }
+      else retval = string(1, data[pos]);
+    }
+  }
+  else if (name == "find_first_of"){
+    if(args.size()<2 || args.size()>3){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string data = args[0].valueToString();
+      string toSearchFor = args[1].valueToString();
+      int pos = 0;
+      if(args.size()==3){
+	args[2].getValue(pos);
+      }
+      int i = data.find_first_of(toSearchFor,pos);
+      retval = i;
+    }
+  }
+  else if (name == "find_last_of"){
+    if(args.size()<2 || args.size()>3){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string data = args[0].valueToString();
+      string toSearchFor = args[1].valueToString();
+      int pos = 0;
+      if(args.size()==3){
+	args[2].getValue(pos);
+      }
+      int i = data.find_last_of(toSearchFor,pos);
+      retval = i;
+    }
+  }
+  else if (name == "split"){
+    if(args.size()!=2){
+      retval = Unknown;
+      cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    else{
+      string s = args[0].valueToString();
+      string delimiter = args[0].valueToString();
+      size_t pos = 0;
+      string token;
+      vector<Value> strings;
+      while ((pos = s.find(delimiter)) != std::string::npos) {
+	token = s.substr(0, pos);
+	Value v_token = token;
+	strings.push_back(v_token);
+	s.erase(0, pos + delimiter.length());
+      }
+      retval = strings;
+    }
   }
   else{ 
     cerr << error << "invalid command: " << name << endl;
