@@ -216,6 +216,7 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   if(file_directory!=""){
     CheckpointSystem::getInstance()->setDirectory(file_directory);
   }
+  CheckpointSystem::getInstance()->setExecInterface(&m_execInterface);
   debugMsg("CheckpointAdapter", " created.");
 }
 
@@ -278,6 +279,8 @@ bool CheckpointAdapter::reset()
 
 bool CheckpointAdapter::shutdown()
 {
+  CheckpointSystem::getInstance()->setOK(true,0,NULL);
+  CheckpointSystem::getInstance()->flush();
   debugMsg("CheckpointAdapter", " shut down.");
   return true;
 }
@@ -327,7 +330,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
 	if(args[1].valueType()==BOOLEAN_TYPE) args[1].getValue(value);
 	else args[1].getValue(info);
       }
-      retval = CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info);
+      retval = CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info,cmd);
     }
   }
 
@@ -348,7 +351,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
 	if(args[0].valueType()==BOOLEAN_TYPE) args[0].getValue(value);
 	else args[0].getValue(boot_num);
       }
-      retval = CheckpointSystem::getInstance()->setOK(value,boot_num);
+      retval = CheckpointSystem::getInstance()->setOK(value,boot_num,cmd);
     }
   }
   
