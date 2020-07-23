@@ -35,14 +35,20 @@ public:
 
   virtual void loadCrashes() override;
   
-  virtual void writeOut() override;
+  virtual bool writeOut() override;
+
+   // Called during each command, managers are expected to send COMMAND_SUCCESS when a command is written to disk
+  virtual void setOK(bool b,Integer boot_num,Command *cmd) override;
+  virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd) override;
 
 private:
-  void writeToFile(const string& location);
+  bool writeToFile(const string& location);
+  void succeedCommands();
   tuple<long,long> findOldestNewestFiles();
   bool have_read = false;
   bool directory_set = false;
   bool write_enqueued;
   mutex data_lock;
+  vector<Command*> queued_commands;
 };
 #endif

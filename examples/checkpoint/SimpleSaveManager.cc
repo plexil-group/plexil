@@ -41,8 +41,8 @@ using boot_data = tuple<
 #define C_INFO 2
 
 #define debug(msg) debugMsg("SimpleSaveManager"," "<<msg)
-#define LOCK debug("Locking")
-#define UNLOCK debug("Unlocking")
+#define LOCK debug("Locking"); data_lock.lock()
+#define UNLOCK debug("Unlocking"); data_lock.unlock()
 /////////////////////// Helper functions //////////////////////////
 
 const string time_to_string(const Nullable<Real> &time){
@@ -67,37 +67,64 @@ bool is_number(const string& s)
 
 void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_total_boots){
   LOCK;
-  data_lock.lock();
   m_data_vector = data;
   m_num_total_boots = num_total_boots;
   UNLOCK;
-  data_lock.unlock();
 }
 void  SimpleSaveManager::setTimeFunction(Nullable<Real> (*time_func)()){
+  LOCK;
   m_time_func = time_func;
+  UNLOCK;
 }
 
 void SimpleSaveManager::setDirectory(const string& directory){
   // Prevent writes from occuring concurrently with a directory change
   LOCK;
-  data_lock.lock();
   m_file_directory = directory;
   directory_set = true;
   debug("directory set to "<<directory);
-  data_lock.unlock();
   UNLOCK;
 }
 
+void SimpleSaveManager::setOK(bool b,Integer boot_num,Command *cmd){
+  // Prevents us from enqueuing a command while write is writing
+  LOCK;
+  queued_commands.push_back(cmd);
+  UNLOCK;
+  writeOut();
+}
 
+void SimpleSaveManager::setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd){
+  LOCK;
+  queued_commands.push_back(cmd);
+  UNLOCK;
+  writeOut();
+}
+
+void SimpleSaveManager::succeedCommands(){
+  for(std::vector<Command*>::iterator it = queued_commands.begin(); it != queued_commands.end();it++)
+  {
+    if(*it != NULL){
+      m_execInterface->handleCommandAck(*it, COMMAND_SENT_TO_SYSTEM);
+    }
+  }
+  m_execInterface->notifyOfExternalEvent();
+  queued_commands.clear();
+}
 
 // TODO: enforce only called once
 void SimpleSaveManager::loadCrashes(){
   LOCK;
-  data_lock.lock();
+  if(have_read){
+    cerr << "Aleady loaded crashes, this operation only supported once" <<endl;
+    UNLOCK;
+    return;
+  }
+  
+  have_read = true;
   if(!directory_set){
     debug("directory not specified, using default of ./");
   }
-  have_read = true;
 
   m_data_vector->clear();
   // Include current boot with current time, no checkpoints
@@ -155,16 +182,17 @@ void SimpleSaveManager::loadCrashes(){
     }
   }
   UNLOCK;
-  data_lock.unlock();
 }
 
-void SimpleSaveManager::writeOut(){
-  // If we were already planning to write out at the next opportunity, keep our course
-  if(write_enqueued) return;
+bool SimpleSaveManager::writeOut(){
+  // If we were already planning to write out at the next opportunity, keep our course and call
+  // this attempt successful TODO: review
+  if(write_enqueued) return true;
   // Log that we are planning to write out
   write_enqueued = true;
   LOCK;
-  data_lock.lock();
+
+  bool retval;
   write_enqueued = false;
   
   string save_name = "";
@@ -184,14 +212,14 @@ void SimpleSaveManager::writeOut(){
   }
 
   debug("writing to "<<save_name);
-  writeToFile(save_name);
-  debug("write out successful");
+  retval = writeToFile(save_name);
+  succeedCommands(); // Return COMMAND_SUCCESS to all commands
   UNLOCK;
-  data_lock.unlock();
+  return retval;
 }
 
 //TODO: verify crashes during saving are fine
-void SimpleSaveManager::writeToFile(const string& location){
+bool SimpleSaveManager::writeToFile(const string& location){
   vector<boot_data> data_clone = vector<boot_data>(*m_data_vector);
   // Generate new XML document in memory
   pugi::xml_document doc;
@@ -239,6 +267,7 @@ void SimpleSaveManager::writeToFile(const string& location){
   DIR *test_open = opendir(m_file_directory.c_str());
   if(test_open==NULL){
     cerr << "SimpleSavemanager: Saving to "<<m_file_directory<<" failed, directory doesn't exist" << endl;
+    return false;
   }
   else{
     closedir(test_open);
@@ -250,8 +279,10 @@ void SimpleSaveManager::writeToFile(const string& location){
     }
     else{
       cerr << "SimpleSaveManager: Saving to "<<location<<".part failed"<<endl;
+      return false;
     }
   }
+  return true;
 }
 
 // Finds the oldest and newest file numbers
