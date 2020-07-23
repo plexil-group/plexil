@@ -87,13 +87,14 @@ public:
 
   
   // Commands
-  Value setCheckpoint(const string& checkpoint_name, bool value, string& info);
-  Value setOK(bool b, Integer boot_num);
+  Value setCheckpoint(const string& checkpoint_name, bool value, string& info, Command* cmd);
+  Value setOK(bool b, Integer boot_num, Command *cmd);
   bool flush();
 
   // Helper
   void start();
   void setDirectory(const string& file_directory);
+  void setExecInterface(AdapterExecInterface* execInterface);
 private:
   CheckpointSystem(): manager(new SimpleSaveManager) {}
   static CheckpointSystem *m_system;
