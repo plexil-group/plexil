@@ -37,7 +37,10 @@
 
 #include <iostream>
 
-
+// Protects commands and lookups by guaranteeing the correc number of arguments
+#define ARGCOUNT(a,b)  if(args.size()<a || args.size()>b){ \
+      retval = Unknown; \
+      cerr<<"Invalid number of arguments to "<<state_name<<endl;} else
 
 
 using std::cout;
@@ -97,21 +100,31 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 
   
   if (state_name == "DidCrash"){
-    retval = CheckpointSystem::getInstance()->didCrash();
+    ARGCOUNT(0,0){
+      retval = CheckpointSystem::getInstance()->didCrash();
+    }
   }
   else if (state_name == "NumberOfAccessibleBoots"){
-    retval = CheckpointSystem::getInstance()->numAccessibleBoots();
+    ARGCOUNT(0,0){
+      retval = CheckpointSystem::getInstance()->numAccessibleBoots();
+    }
   }
   else if (state_name == "NumberOfUnhandledBoots"){
-    retval = CheckpointSystem::getInstance()->numUnhandledBoots();
+    ARGCOUNT(0,0){
+      retval = CheckpointSystem::getInstance()->numUnhandledBoots();
+    }
   }
   else if (state_name == "NumberOfTotalBoots"){
-    retval = CheckpointSystem::getInstance()->numTotalBoots();
+    ARGCOUNT(0,0){
+      retval = CheckpointSystem::getInstance()->numTotalBoots();
+    }
   }
   else if (state_name == "CheckpointWhen"){
-    string which_checkpoint;
-    args[0].getValue(which_checkpoint);
-    retval = CheckpointSystem::getInstance()->getCheckpointLastPassed(which_checkpoint);
+    ARGCOUNT(1,1){
+      string which_checkpoint;
+      args[0].getValue(which_checkpoint);
+      retval = CheckpointSystem::getInstance()->getCheckpointLastPassed(which_checkpoint);
+    }
   }
 
   else{
@@ -121,31 +134,39 @@ static Value fetch (const string& state_name, const vector<Value>& args)
       args[1].getValue(which_boot);
     }
 
-    if (state_name == "TimeOfCrash"){
-      retval = CheckpointSystem::getInstance()->getTimeOfCrash(which_boot);
+    if (state_name == "TimeOfLastSave"){
+      ARGCOUNT(0,1){
+	retval = CheckpointSystem::getInstance()->getTimeOfCrash(which_boot);
+      }
     }
     else if (state_name == "TimeOfBoot"){
-      retval = CheckpointSystem::getInstance()->getTimeOfBoot(which_boot);
+      ARGCOUNT(0,1){
+	retval = CheckpointSystem::getInstance()->getTimeOfBoot(which_boot);
+      }
     }
     else if (state_name == "IsOK"){
-      retval = CheckpointSystem::getInstance()->getIsOK(which_boot);
+      ARGCOUNT(0,1){
+	retval = CheckpointSystem::getInstance()->getIsOK(which_boot);
+      }
     }
     else{
-      string which_checkpoint;
-      args[0].getValue(which_checkpoint);
-      if (state_name == "CheckpointState"){
-	retval = CheckpointSystem::getInstance()->getCheckpointState(which_checkpoint,which_boot);
-      }
-      else if (state_name == "CheckpointTime"){
-	retval = CheckpointSystem::getInstance()->getCheckpointTime(which_checkpoint,which_boot);
-      }
-      else if (state_name == "CheckpointInfo"){
-	retval = CheckpointSystem::getInstance()->getCheckpointInfo(which_checkpoint,which_boot);
-      }
-      //No match
-      else {
-	cerr << error << "invalid state: " << state_name << endl;
-	retval = Unknown;
+      ARGCOUNT(1,2){
+	string which_checkpoint;
+	args[0].getValue(which_checkpoint);
+	if (state_name == "CheckpointState"){
+	  retval = CheckpointSystem::getInstance()->getCheckpointState(which_checkpoint,which_boot);
+	}
+	else if (state_name == "CheckpointTime"){
+	  retval = CheckpointSystem::getInstance()->getCheckpointTime(which_checkpoint,which_boot);
+	}
+	else if (state_name == "CheckpointInfo"){
+	  retval = CheckpointSystem::getInstance()->getCheckpointInfo(which_checkpoint,which_boot);
+	}
+	//No match
+	else {
+	  cerr << error << "invalid state: " << state_name << endl;
+	  retval = Unknown;
+	}
       }
     }
   }
@@ -227,7 +248,7 @@ CheckpointAdapter::~CheckpointAdapter ()
 
 bool CheckpointAdapter::initialize()
 {
-  g_configuration->defaultRegisterAdapter(this);
+  
 
   g_configuration->registerLookupInterface("DidCrash", this);
   g_configuration->registerLookupInterface("IsOK", this);
@@ -235,7 +256,7 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerLookupInterface("NumberOfAccessibleBoots", this);
   g_configuration->registerLookupInterface("NumberOfTotalBoots", this);
   g_configuration->registerLookupInterface("NumberOfUnhandledBoots", this);
-  g_configuration->registerLookupInterface("TimeOfCrash", this);
+  g_configuration->registerLookupInterface("TimeOfLastSave", this);
   g_configuration->registerLookupInterface("TimeOfBoot", this);
 
   g_configuration->registerLookupInterface("CheckpointState", this);
@@ -260,6 +281,7 @@ bool CheckpointAdapter::initialize()
 bool CheckpointAdapter::start()
 {
   debugMsg("CheckpointAdapter", " started.");
+
   // TODO: verify that all adapters are intialized by this point
   CheckpointSystem::getInstance()->start();
   return true;
