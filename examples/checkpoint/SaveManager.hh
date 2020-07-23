@@ -48,6 +48,7 @@ protected:
   // Data, shared with CheckpointSystem
   std::vector<BootData>  *m_data_vector;
   int32_t *m_num_total_boots;
+  AdapterExecInterface * m_execInterface;
 
   // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
   PLEXIL::AdapterExecInterface * m_execInterface;

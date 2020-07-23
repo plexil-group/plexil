@@ -146,6 +146,10 @@ void CheckpointSystem::setDirectory(const string& file_directory){
     manager->setDirectory(file_directory);
 }
 
+void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
+  manager->setExecInterface(execInterface);
+}
+
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
   RLOCK;
