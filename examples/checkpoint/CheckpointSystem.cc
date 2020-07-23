@@ -136,14 +136,14 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
 
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
-  manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&num_total_boots);
-  manager.loadCrashes();
+  manager->setTimeFunction(get_time);
+  manager->setData(&data_vector,&num_total_boots);
+  manager->loadCrashes();
 }
 
 
 void CheckpointSystem::setDirectory(const string& file_directory){
-    manager.setDirectory(file_directory);
+    manager->setDirectory(file_directory);
 }
 
 ////////////////////////////////// Lookups /////////////////////////////////////
