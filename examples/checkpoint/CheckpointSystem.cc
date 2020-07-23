@@ -49,12 +49,11 @@ using std::get;
 using std::string;
 
 //TODO:remove
-#define DEBUG cout<<"System "<<__LINE__<<endl;
 #define debug(msg) debugMsg("CheckpointSystem"," "<<msg)
-#define RLOCK debug("Locking reader");
-#define RUNLOCK debug("Unlocking reader");
-#define WLOCK debug("Locking writer");
-#define WUNLOCK debug("Unlocking writer");
+#define RLOCK debug("Locking reader"); rw.begin_read()
+#define RUNLOCK debug("Unlocking reader"); rw.end_read()
+#define WLOCK debug("Locking writer") rw.begin_write();
+#define WUNLOCK debug("Unlocking writer") rw.end_write();
 
 ///////////////////////////// Conveniences //////////////////////////////////
 
@@ -121,9 +120,13 @@ void CheckpointSystem::setDirectory(const string& file_directory){
     manager->setDirectory(file_directory);
 }
 
+void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
+  manager->setExecInterface(execInterface);
+}
+
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
-  RLOCK rw.begin_read();
+  RLOCK;
   bool retval;
   // If we don't have a previous boot
   if(num_total_boots==1) retval = false;
@@ -136,41 +139,41 @@ bool CheckpointSystem::didCrash(){
       retval = !inverse_retval;
     }
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 
 Integer CheckpointSystem::numAccessibleBoots(){
+  RLOCK;
   Integer retval;
-  RLOCK rw.begin_read();
   retval = data_vector.size();
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 
 Integer CheckpointSystem::numTotalBoots(){
+  RLOCK;
   Integer retval;
-  RLOCK rw.begin_read();
   retval = num_total_boots;
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 Integer CheckpointSystem::numUnhandledBoots(){
+  RLOCK;
   Integer retval = 0;
-  RLOCK rw.begin_read();
   for(boot_data boot:data_vector){
     if(!get<IS_OK>(boot)) retval++;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 
 Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,Integer boot_num){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval;
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
@@ -186,12 +189,12 @@ Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,Integer
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, Integer boot_num){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval;
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
@@ -209,12 +212,12 @@ Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, Integer
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer boot_num){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval;
   if(valid_boot(boot_num)){
     if(valid_checkpoint(checkpoint_name, boot_num)){
@@ -231,13 +234,13 @@ Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 // Returns the latest boot number where the checkpoint was true, -1 if none found
 Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval = -1;
   for (Integer i=0;i<data_vector.size();i++){
     map<const string, checkpoint_data> checkpoints = get<CHECKPOINTS>(data_vector[i]);
@@ -246,13 +249,13 @@ Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
       break;
     }
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 
 Value CheckpointSystem::getTimeOfBoot(Integer boot_num){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval;
   if(valid_boot(boot_num)){
     Nullable<Real> time = get<BOOT_TIME>(data_vector.at(boot_num));
@@ -263,13 +266,13 @@ Value CheckpointSystem::getTimeOfBoot(Integer boot_num){
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 
 Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval;
   if(valid_boot(boot_num)){
     Nullable<Real> time = get<CRASH_TIME>(data_vector.at(boot_num));
@@ -280,12 +283,12 @@ Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 
 Value CheckpointSystem::getIsOK(Integer boot_num){
-  RLOCK rw.begin_read();
+  RLOCK;
   Value retval;
   if(valid_boot(boot_num)){
     retval = get<IS_OK>(data_vector.at(boot_num));
@@ -295,13 +298,13 @@ Value CheckpointSystem::getIsOK(Integer boot_num){
     cerr << error << "invalid boot number: " << boot_num << endl;
     retval = Unknown;
   }
-  RUNLOCK rw.end_read();
+  RUNLOCK;
   return retval;
 }
 //////////////////////////////////////// Commands /////////////////////////////////////////////
 
-Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info){
-  WLOCK rw.begin_write();
+Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info,Command *cmd){
+  WLOCK;
   map<const string,checkpoint_data> &checkpoints = get<CHECKPOINTS>(data_vector.at(0));
   Value retval;
   // If checkpoint not set, checkpoint was not reached
@@ -310,7 +313,9 @@ Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,
   Nullable<Real> time = get_time();
   // This inserts the element if none exists, and overrides if it exists
   checkpoints[checkpoint_name] = std::make_tuple(value,time,info);
-  manager->writeOut();
+
+
+  manager->setCheckpoint(checkpoint_name, value, info, time, cmd);
   // Publish changes to overloaded Checkpoint lookups
   publish("Checkpoint",value,checkpoint_name);
   publish("Checkpoint",value,checkpoint_name,0); // Lookup for boot 0
@@ -318,34 +323,34 @@ Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,
   publish("CheckpointTime",time_to_Value(time),checkpoint_name,0);
   publish("CheckpointInfo",info,checkpoint_name);
   publish("CheckpointInfo",info,checkpoint_name,0);
-  WUNLOCK rw.end_write();
+  WUNLOCK;
   return retval;
 }
 
 
-Value CheckpointSystem::setOK(bool b, Integer boot_num){
- WLOCK rw.begin_write();
+Value CheckpointSystem::setOK(bool b, Integer boot_num, Command *cmd){
+ WLOCK;
  Value retval;
-   if(valid_boot(boot_num)){
-     retval = get<IS_OK>(data_vector.at(boot_num));
-     get<IS_OK>(data_vector.at(boot_num)) = b;
-     debug("Setting is_ok at boot " + std::to_string(boot_num) + " to " +std::to_string(b));
-     manager->writeOut();
-     publish("Is_OK",b,boot_num);
-   }
-   else{
-     cerr <<"CheckpointSystem:"<<" Invalid boot number: "<<std::to_string(boot_num)<<endl;
-     retval = Unknown;
-   }
-   //TODO: publish
-  WUNLOCK rw.end_write();
-  return retval;
+ if(valid_boot(boot_num)){
+   retval = get<IS_OK>(data_vector.at(boot_num));
+   get<IS_OK>(data_vector.at(boot_num)) = b;
+   debug("Setting is_ok at boot " + std::to_string(boot_num) + " to " +std::to_string(b));
+   manager->setOK(b, boot_num, cmd);
+   publish("Is_OK",b,boot_num);
+ }
+ else{
+   cerr <<"CheckpointSystem:"<<" Invalid boot number: "<<std::to_string(boot_num)<<endl;
+   retval = Unknown;
+ }
+ publish("IsOK",b,boot_num);
+ WUNLOCK;
+ return retval;
 }
 
 bool CheckpointSystem::flush(){
-  WLOCK rw.begin_write();
-  manager->writeOut();
-  WUNLOCK rw.end_write();
-  return true; // TODO return false if error
-
+  WLOCK;
+  bool retval;
+  retval = manager->writeOut();
+  WUNLOCK;
+  return retval;
 }

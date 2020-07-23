@@ -4,6 +4,7 @@
 #include "Value.hh"
 #include "Nullable.hh"
 #include "ValueType.hh"
+#include "AdapterExecInterface.hh"
 #include <map>
 #include <tuple>
 #include <mutex>
@@ -36,9 +37,17 @@ public:
   virtual void setDirectory(const string& file_directory){
     m_file_directory = file_directory;
   }
+  virtual void setExecInterface(AdapterExecInterface *execInterface){
+    m_execInterface = execInterface;
+  }
   
   virtual void loadCrashes() = 0;
-  virtual void writeOut() = 0;
+  
+  virtual bool writeOut() = 0;
+
+  // Called during each command, managers are expected to send COMMAND_SUCCESS when a command is written to disk
+  virtual void setOK(bool b,Integer boot_num,Command *cmd) = 0;
+  virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd) = 0;
 
 protected:
   
@@ -54,6 +63,7 @@ protected:
   *m_data_vector;
 
   int32_t *m_num_total_boots;
+  AdapterExecInterface * m_execInterface;
 
   Nullable<Real>(*m_time_func)();
 
