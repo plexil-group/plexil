@@ -361,7 +361,6 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   
   // This sends a command handle back to the executive.
 
-  //TODO: incorporate COMMAND_SUCCEEDED after IO completed
   m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   // This sends the command's return value (if expected) to the executive.
   if (retval != Unknown){
