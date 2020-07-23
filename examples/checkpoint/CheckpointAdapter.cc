@@ -231,18 +231,18 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerLookupInterface("DidCrash", this);
   g_configuration->registerLookupInterface("IsOK", this);
   
-  g_configuration->registerLookupInterface("NumberOfAccessibleCrashes", this);
-  g_configuration->registerLookupInterface("NumberOfTotalCrashes", this);
+  g_configuration->registerLookupInterface("NumberOfAccessibleBoots", this);
+  g_configuration->registerLookupInterface("NumberOfTotalBoots", this);
   g_configuration->registerLookupInterface("NumberOfUnhandledBoots", this);
   g_configuration->registerLookupInterface("TimeOfCrash", this);
   g_configuration->registerLookupInterface("TimeOfBoot", this);
-  
+
   g_configuration->registerLookupInterface("CheckpointState", this);
   g_configuration->registerLookupInterface("CheckpointTime", this);
   g_configuration->registerLookupInterface("CheckpointInfo", this);
   g_configuration->registerLookupInterface("CheckpointWhen", this);
 
-  
+  g_configuration->registerCommandInterface("to_string", this);
   g_configuration->registerCommandInterface("SetCheckpoint", this);
   g_configuration->registerCommandInterface("SetOK", this);
   g_configuration->registerCommandInterface("Flush", this);
@@ -294,7 +294,17 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   Value retval = Unknown;
   const vector<Value>& args = cmd->getArgValues();
 
-  if (name == "Flush"){
+  if (name == "to_string"){
+    retval = args[0].valueToString();
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
+    if (retval != Unknown){
+      m_execInterface.handleCommandReturn(cmd, retval);
+    }
+    m_execInterface.notifyOfExternalEvent();
+  }
+
+  
+  else if (name == "Flush"){
     retval = CheckpointSystem::getInstance()->flush();
   }
   else if (name == "SetCheckpoint") {

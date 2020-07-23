@@ -43,7 +43,6 @@ using boot_data = tuple<
 #define debug(msg) debugMsg("SimpleSaveManager"," "<<msg)
 #define LOCK debug("Locking")
 #define UNLOCK debug("Unlocking")
-SimpleSaveManager *SimpleSaveManager::m_manager = 0; 
 /////////////////////// Helper functions //////////////////////////
 
 const string time_to_string(const Nullable<Real> &time){
@@ -52,7 +51,7 @@ const string time_to_string(const Nullable<Real> &time){
 }
 
 const Nullable<Real> string_to_time(const char* time){
-  if(strcmp(time,"")) return Nullable<Real>();
+  if(strcmp(time,"")==0) return Nullable<Real>();
   else return Nullable<Real>(atof(time));
 }
 
@@ -65,11 +64,6 @@ bool is_number(const string& s)
 
 //////////////////////// Class Features ////////////////////////////
 
-SimpleSaveManager::~SimpleSaveManager (){
-  if (m_manager) {
-    delete m_manager;
-  }
-}
 
 void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_total_boots){
   LOCK;
@@ -82,6 +76,18 @@ void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_total_boo
 void  SimpleSaveManager::setTimeFunction(Nullable<Real> (*time_func)()){
   m_time_func = time_func;
 }
+
+void SimpleSaveManager::setDirectory(const string& directory){
+  // Prevent writes from occuring concurrently with a directory change
+  LOCK;
+  data_lock.lock();
+  m_file_directory = directory;
+  directory_set = true;
+  debug("directory set to "<<directory);
+  data_lock.unlock();
+  UNLOCK;
+}
+
 
 
 // TODO: enforce only called once
@@ -101,11 +107,12 @@ void SimpleSaveManager::loadCrashes(){
   tuple<long,long> oldest_newest = findOldestNewestFiles();
   if(get<1>(oldest_newest)==-1){ // No files found
     debug("no backup found, proceeding assuming first bootup");
+    *m_num_total_boots = 1;
   }
   
   else{ // Load rest of boots from XML
     // Necessary to assign before calling c_str in order to avoid the short temporary lifetime
-    string cpp_file_name = (file_directory+"/"+std::to_string(get<1>(oldest_newest))+"_save.xml");
+    string cpp_file_name = (m_file_directory+"/"+std::to_string(get<1>(oldest_newest))+"_save.xml");
     const char *file_name = cpp_file_name.c_str();
     
     debug("parsing "<<file_name);
@@ -125,15 +132,15 @@ void SimpleSaveManager::loadCrashes(){
       // Iterate over boots
       int boot_n = 1;
       while(boot_node){
-	Nullable<Real> time_of_boot = string_to_time(root.attribute("time_of_boot").as_string());
-	Nullable<Real> time_of_crash = string_to_time(root.attribute("time_of_crash").as_string());
-	bool is_ok = root.attribute("is_ok").as_bool();
+	Nullable<Real> time_of_boot = string_to_time(boot_node.attribute("time_of_boot").as_string());
+	Nullable<Real> time_of_crash = string_to_time(boot_node.attribute("time_of_crash").as_string());
+	bool is_ok = boot_node.attribute("is_ok").as_bool();
 	// Read checkpoints
 	map<const string,checkpoint_data> checkpoints;
 	pugi::xml_node checkpoint_node = boot_node.first_child();
 	while(checkpoint_node){
 	  bool state = checkpoint_node.attribute("state").as_bool();
-	  Nullable<Real> time = string_to_time(checkpoint_node.attribute("time").value());
+	  Nullable<Real> time = string_to_time(checkpoint_node.attribute("time").as_string());
 	  string info = checkpoint_node.attribute("info").as_string();
 	  string name = checkpoint_node.name();
 	  checkpoints.insert(std::make_pair(name,checkpoint_data(state,time,info)));
@@ -151,17 +158,6 @@ void SimpleSaveManager::loadCrashes(){
   data_lock.unlock();
 }
 
-void SimpleSaveManager::setDirectory(const string& directory){
-  // Prevent writes from occuring concurrently with a directory change
-  LOCK;
-  data_lock.lock();
-  file_directory = directory;
-  directory_set = true;
-  debug("directory set to "<<directory);
-  data_lock.unlock();
-  UNLOCK;
-}
-
 void SimpleSaveManager::writeOut(){
   // If we were already planning to write out at the next opportunity, keep our course
   if(write_enqueued) return;
@@ -175,14 +171,14 @@ void SimpleSaveManager::writeOut(){
   tuple<long,long> oldest_newest = findOldestNewestFiles();
   // No files found
   if(get<1>(oldest_newest) == -1){
-    save_name = file_directory+"/1_save.xml";
+    save_name = m_file_directory+"/1_save.xml";
   }
   else{
-    save_name = file_directory+"/"+std::to_string(get<1>(oldest_newest)+1)+"_save.xml"; 
+    save_name = m_file_directory+"/"+std::to_string(get<1>(oldest_newest)+1)+"_save.xml"; 
   }
   // If multiple valid files, delete the oldest (never delete the only remaining vaid file)
   if(get<0>(oldest_newest) != get<1>(oldest_newest)){
-    string to_remove = file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml";
+    string to_remove = m_file_directory+"/"+std::to_string(get<0>(oldest_newest))+"_save.xml";
     remove(to_remove.c_str());
     debug("removing" <<to_remove);
   }
@@ -239,15 +235,22 @@ void SimpleSaveManager::writeToFile(const string& location){
     }
     boot_n++;
   }
-  
-  // Save XML tree to temporary file
-  bool saveSucceeded = doc.save_file((location+".part").c_str());
-  // Rename file to indicate that it has been completely saved
-  if(saveSucceeded){
-    rename((location+".part").c_str(),location.c_str());
+  // Test if save directory exists
+  DIR *test_open = opendir(m_file_directory.c_str());
+  if(test_open==NULL){
+    cerr << "SimpleSavemanager: Saving to "<<m_file_directory<<" failed, directory doesn't exist" << endl;
   }
   else{
-    cerr << "SimpleSaveManager: Saving to "<<location<<".part failed"<<endl;
+    closedir(test_open);
+    // Save XML tree to temporary file
+    bool saveSucceeded = doc.save_file((location+".part").c_str());
+    // Rename file to indicate that it has been completely saved
+    if(saveSucceeded){
+      rename((location+".part").c_str(),location.c_str());
+    }
+    else{
+      cerr << "SimpleSaveManager: Saving to "<<location<<".part failed"<<endl;
+    }
   }
 }
 
@@ -258,7 +261,7 @@ tuple<long,long> SimpleSaveManager::findOldestNewestFiles(){
   struct dirent *en;
   long min = LONG_MAX;
   long max = -1;
-  dr = opendir(file_directory.c_str()); //open directory
+  dr = opendir(m_file_directory.c_str()); //open directory
   if (dr) {
     while ((en = readdir(dr)) != NULL) {
       string current = en->d_name;
@@ -271,14 +274,14 @@ tuple<long,long> SimpleSaveManager::findOldestNewestFiles(){
 	  
 	}
 	else{
-	  remove((file_directory+"/"+current).c_str());
+	  remove((m_file_directory+"/"+current).c_str());
 	}
       }
     }
     closedir(dr); //close directory
   }
   else{
-    cerr << "SimpleSaveManager: " << "Attempting to read from invalid directory: "<<file_directory<<endl;
+    cerr << "SimpleSaveManager: " << "Attempting to read from invalid directory: "<<m_file_directory<<endl;
   }
   return std::make_tuple(min,max); // If none found, defaults to INT_MAX, -1
 }

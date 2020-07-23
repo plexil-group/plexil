@@ -4,6 +4,7 @@
 #include "Value.hh"
 #include "Nullable.hh"
 #include "ValueType.hh"
+#include "SaveManager.hh"
 #include <map>
 #include <tuple>
 #include <mutex>
@@ -19,48 +20,29 @@ using std::mutex;
 
 
 
-class SimpleSaveManager
+class SimpleSaveManager : public SaveManager
 {
 public:
 
-  ~SimpleSaveManager();
-
-  void setData( vector<tuple<Nullable<Real>,Nullable<Real>,bool,
+  virtual void setData( vector<tuple<Nullable<Real>,Nullable<Real>,bool,
 		map<const string,
 		tuple<bool, 
-		Nullable<Real>,string>>>>  *data, int *num_total_boots);
-  void setTimeFunction(Nullable<Real> (*time_func)());
+		Nullable<Real>,string>>>>  *data, int *num_total_boots) override;
 
-  void setDirectory(const string& file_directory);
+  virtual void setTimeFunction(Nullable<Real> (*time_func)()) override;
 
-  void loadCrashes();
+  virtual void setDirectory(const string& file_directory) override;
+
+  virtual void loadCrashes() override;
   
-  void writeOut();
+  virtual void writeOut() override;
 
 private:
-  static SimpleSaveManager* m_manager;
-  int32_t *m_num_total_boots;
-
-  tuple<long,long> findOldestNewestFiles();
   void writeToFile(const string& location);
-  
-  // Data structure that tracks boot-specific metadata and checkpoints
-  vector<tuple<Nullable<Real>, /*time of boot*/
-	       Nullable<Real>, /*time of crash*/
-	       bool, /*Is OK*/
-	       map< /*map of checkpoint info*/
-		 const string, /*checkpoint name*/
-		 tuple<bool, /*state of checkpoint*/
-		       Nullable<Real>,/*time of checkpoint activation*/
-		       string>>>> /*user-defined checkpoint info*/
-  *m_data_vector;
-
-  Nullable<Real>(*m_time_func)();
-  string file_directory = "./";
+  tuple<long,long> findOldestNewestFiles();
   bool have_read = false;
   bool directory_set = false;
   bool write_enqueued;
   mutex data_lock;
-  Nullable<Real> (*time_func) ();
 };
 #endif
