@@ -3,6 +3,7 @@
   <Adapter AdapterType="CheckpointAdapter">
     <Directory Location="./saves"/>
   </Adapter>
+  <Adapter AdapterType="StringAdapter"/>
   <Adapter AdapterType="OSNativeTime"/>
   <Adapter AdapterType="Utility"/>
 </Interfaces>

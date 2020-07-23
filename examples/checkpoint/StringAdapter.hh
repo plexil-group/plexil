@@ -27,8 +27,10 @@
 // This file defines an Adapter which provides conversions between
 // Strings and Integers,Reals, and Booleans
 
-// It also provides the c string manipulation functions substr, strlen, strlwr, and strupr
-// with the same behavior as in c
+// It also provides the c string manipulation functions substr, strlen, strlwr, strupr, split
+// find_first_of, find_last_of, and strindex
+// strindex(s,i,[v]) acts the same as s[i] = v, or s[i] if v is not specified
+// Otherwise, these have the same behavior as in c++
 
 
 #ifndef _H__StringAdapter
@@ -79,9 +81,6 @@ private:
 
 };
 
-std::string getChildWithAttribute(const pugi::xml_node& configXml,
-	    const std::string& node_name,
-	    const std::string& attribute_name);
 
 extern "C" {
   void initCheckpointAdapter();
