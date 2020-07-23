@@ -55,7 +55,15 @@ public:
   //Prohibits copying or assigning
   CheckpointSystem (const CheckpointSystem&) = delete;
   CheckpointSystem& operator= (const CheckpointSystem&) = delete;
-  ~CheckpointSystem();
+
+  ~CheckpointSystem ()
+  {
+    if (m_system) {
+      delete m_system;
+    }
+    delete manager;
+  }
+
 
   static CheckpointSystem *getInstance () {
     if (!m_system) {
@@ -80,22 +88,21 @@ public:
   
   // Commands
   Value setCheckpoint(const string& checkpoint_name, bool value, string& info);
-  Value setOK(Integer boot_num, bool b);
+  Value setOK(bool b, Integer boot_num);
   bool flush();
 
   // Helper
   void start();
   void setDirectory(const string& file_directory);
 private:
-  CheckpointSystem();
-
+  CheckpointSystem(): manager(new SimpleSaveManager) {}
   static CheckpointSystem *m_system;
 
   // Current boot information
   int num_total_boots;
 
   ReadWriteLock rw;
-  SimpleSaveManager manager;
+  SaveManager* const manager;
   
   
   // Data structure that tracks boot-specific metadata and checkpoints

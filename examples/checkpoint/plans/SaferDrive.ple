@@ -1,32 +1,63 @@
 Command pprint(...);
 
 Boolean Lookup DidCrash;
-Boolean Command SetOK();
+Boolean Lookup IsOK(...);
+Integer Lookup NumberOfTotalBoots;
+Integer Lookup NumberOfAccessibleBoots;
+Integer Lookup NumberOfUnhandledBoots;
+Integer Lookup CheckpointWhen(...);
+Real Lookup CheckpointTime(...);
+Command SetCheckpoint(...);
+Boolean Command SetOK(...);
 Boolean Command Flush();
-SafeDrive: Try
+String Command to_string(...);
+
+Real Lookup time;
+
+SafeDrive:
 {
   Integer pictures = 0;
-  // EndCondition pictures == 10;
-
+  // Allows us to "crash"
+  Boolean crashMe = false;
+  InvariantCondition !crashMe;
   CrashChecker:{
     SkipCondition !Lookup(DidCrash);
-    pprint("Crashed last time, taking 1 picture and aborting");
-    pictures = pictures+1;
-    SetOK();
+    pprint("Previously crashed, handling...");
+    pprint("We have booted up ",Lookup(NumberOfTotalBoots)," times");
+    pprint("Of these, ",Lookup(NumberOfAccessibleBoots)," are accessible and ",Lookup(NumberOfUnhandledBoots)," are unhandled");
+
+    for(Integer i=1; i<Lookup(NumberOfAccessibleBoots); i+1){
+      if(!Lookup(IsOK(i))){
+	pprint("Handling boot ",i);
+	SetOK(i);
+      }
+    }
   }
-  
+
+  // Take panorama, crash on third photo 
   while (pictures<10) 
   {
-    OneMeter: { pprint("Driving"); }
-    TakePic: {
-      SkipCondition pictures>=10;
-      pprint("Taking picture");
-      Flush();
+    String pictures_s;
+    String checkpoint_name;
+    Integer checkpoint_boot;
+    pictures_s = to_string(pictures);
+    checkpoint_name = "photo_" + pictures_s;
+    checkpoint_boot = Lookup(CheckpointWhen(checkpoint_name));
+    pprint("Taking photo ",pictures);
+    // Crashes, but third time's the charm
+    if(pictures==2 && Lookup(NumberOfTotalBoots)<3){
+      pprint("Crashed...");
+      crashMe = true;
     }
-    Counter: {
-      SkipCondition pictures>=10;
-      pictures = pictures + 1;
+    if(checkpoint_boot == -1){
+      pprint("Photo ",pictures," was never taken");
     }
-    Print: { pprint ("Pictures taken:", pictures); }
+    else{
+      pprint("Photo ",pictures, " taken in boot ",checkpoint_boot);
+      pprint("Checkpoint time: ",Lookup(CheckpointTime(checkpoint_name,checkpoint_boot)));
+    }
+    SetCheckpoint(checkpoint_name);
+    pictures = pictures+1;
   }
+  SetOK(0);
 }
