@@ -108,36 +108,25 @@ Value time_to_Value(Nullable<Real> time){
 }
 //////////////////////////////// Class Features ////////////////////////////////
 
-CheckpointSystem::CheckpointSystem ()
-{
-  
-}
-
-CheckpointSystem::~CheckpointSystem ()
-{
-  if (m_system) {
-    delete m_system;
-  }
-}
-
 
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
-  manager.setTimeFunction(get_time);
-  manager.setData(&data_vector,&num_total_boots);
-  manager.loadCrashes();
+  manager->setTimeFunction(get_time);
+  manager->setData(&data_vector,&num_total_boots);
+  manager->loadCrashes();
 }
 
 
 void CheckpointSystem::setDirectory(const string& file_directory){
-    manager.setDirectory(file_directory);
+    manager->setDirectory(file_directory);
 }
 
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
   RLOCK rw.begin_read();
   bool retval;
-  if(num_total_boots==0) retval = false;
+  // If we don't have a previous boot
+  if(num_total_boots==1) retval = false;
   else{
     Value lastCrash = getIsOK(1);
     if(lastCrash==Unknown) retval = false;
@@ -313,15 +302,15 @@ Value CheckpointSystem::getIsOK(Integer boot_num){
 
 Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info){
   WLOCK rw.begin_write();
-  map<const string,checkpoint_data> checkpoints = get<CHECKPOINTS>(data_vector.at(0));
+  map<const string,checkpoint_data> &checkpoints = get<CHECKPOINTS>(data_vector.at(0));
   Value retval;
   // If checkpoint not set, checkpoint was not reached
   if(checkpoints.find(checkpoint_name)==checkpoints.end()) retval = false;
-  else retval = get<C_STATE>(checkpoints.at(checkpoint_name));
+  else retval = get<C_STATE>(checkpoints[checkpoint_name]);
   Nullable<Real> time = get_time();
   // This inserts the element if none exists, and overrides if it exists
   checkpoints[checkpoint_name] = std::make_tuple(value,time,info);
-  manager.writeOut();
+  manager->writeOut();
   // Publish changes to overloaded Checkpoint lookups
   publish("Checkpoint",value,checkpoint_name);
   publish("Checkpoint",value,checkpoint_name,0); // Lookup for boot 0
@@ -334,26 +323,28 @@ Value CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,
 }
 
 
-Value CheckpointSystem::setOK(Integer boot_num, bool b){
+Value CheckpointSystem::setOK(bool b, Integer boot_num){
  WLOCK rw.begin_write();
  Value retval;
    if(valid_boot(boot_num)){
      retval = get<IS_OK>(data_vector.at(boot_num));
      get<IS_OK>(data_vector.at(boot_num)) = b;
-     manager.writeOut();
+     debug("Setting is_ok at boot " + std::to_string(boot_num) + " to " +std::to_string(b));
+     manager->writeOut();
      publish("Is_OK",b,boot_num);
    }
    else{
      cerr <<"CheckpointSystem:"<<" Invalid boot number: "<<std::to_string(boot_num)<<endl;
      retval = Unknown;
    }
+   //TODO: publish
   WUNLOCK rw.end_write();
   return retval;
 }
 
 bool CheckpointSystem::flush(){
   WLOCK rw.begin_write();
-  manager.writeOut();
+  manager->writeOut();
   WUNLOCK rw.end_write();
   return true; // TODO return false if error
 
