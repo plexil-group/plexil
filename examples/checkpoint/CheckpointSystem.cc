@@ -27,6 +27,7 @@
 
 #include "CheckpointSystem.hh"
 #include "State.hh"
+#include "StateCacheEntry.hh"
 #include "CachedValue.hh"
 #include "Subscriber.hh"
 #include "Debug.hh"
@@ -66,14 +67,6 @@ StateCacheEntry CheckpointSystem::s_time_cache;
 bool CheckpointSystem::s_use_time=true;
 
 ///////////////////////////// Helper Functions //////////////////////////////
-
-using checkpoint_data = tuple<bool,Nullable<Real>,string>;
-
-using boot_data = tuple<
-  Nullable<Real>,
-  Nullable<Real>,
-  bool,
-  map<const string, checkpoint_data>>;
 
 
 ///////////////////////////// Helper Functions //////////////////////////////
