@@ -49,7 +49,7 @@ SafeDrive:
       pprint("Crashed...");
       crashMe = true;
     }
-    if(checkpoint_boot == -1){
+    if(!isKnown(checkpoint_boot)){
       pprint("Photo ",pictures," was never taken");
     }
     else{

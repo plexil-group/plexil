@@ -1,13 +1,15 @@
 #ifndef _H__ReadWrite
 #define _H__ReadWrite
 
-#include <mutex>
-using std::mutex;
-
+#include "ThreadMutex.hh"
+using namespace PLEXIL;
 
 // Implements a write-favoring read-write lock
 class ReadWriteLock{
 public:
+
+  ReadWriteLock() : r_count(0){}
+  
   void begin_read(){
     // Block if there is a writer writing
     turn_lock.lock();
@@ -39,10 +41,10 @@ public:
     w_lock.unlock();
   }
 private:
-  int r_count = 0; // Count of readers
-  mutex r_lock; // Protects access to r_count
-  mutex w_lock; // Protects writes to data
-  mutex turn_lock; // Write is awaiting a turn
+  int r_count; // Count of readers
+  ThreadMutex r_lock; // Protects access to r_count
+  ThreadMutex w_lock; // Protects writes to data
+  ThreadMutex turn_lock; // Write is awaiting a turn
 };
 
 
