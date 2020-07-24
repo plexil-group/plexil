@@ -24,43 +24,29 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdexcept>
-#ifndef _H_Nullable
-#define _H_Nullable
 
-// This is a class that wraps objects into nullable objects
-template<typename T>
-class Nullable{
-public:
-  Nullable(T t) : data(t),      some(true) {}
-  Nullable()    : some(false){}
-  Nullable(const Nullable<T> &o) : data(o.data), some(o.some){}
+// This defines a datastructure for describing boot information which is used by both SaveManager and CheckpointSystem
+#include "Nullable.hh"
+#include "Value.hh"
+#include <map>
+using namespace PLEXIL;
+#ifndef _H_DataVector
+#define _H_DataVector
 
-
-  bool has_value() const{
-    return some;
-  }
-
-  const T  value() const{
-    if(some){
-      return data;
-    }
-    else{
-      throw std::logic_error("attempting to get nulled object");
-    }
-  }
-
-  const T value_or(T alternate) const{
-    return some?data:alternate;
-  }
-
-  void nullify(){
-    some = false;
-  }
-
-  
-private:
-  T data;
-  bool some;
+struct checkpoint_data{
+  bool state; /*state of checkpoint*/
+  Nullable<Real> time; /*time of last checkpoint modification*/
+  std::string info; /*user-defined checkpoint info*/
 };
+
+struct boot_data{
+  Nullable<Real> boot_time; /*time of boot*/
+  Nullable<Real> crash_time;  /*time of crash*/
+  bool is_ok;  /*is_OK*/
+  std::map<const std::string, /*checkpoint name*/
+      checkpoint_data> checkpoints; /*map of checkpoint info*/
+};
+
+
+
 #endif

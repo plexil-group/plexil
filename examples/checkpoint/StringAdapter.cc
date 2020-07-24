@@ -88,7 +88,7 @@ StringAdapter::StringAdapter(AdapterExecInterface& execInterface,
 
 StringAdapter::~StringAdapter ()
 {
-  m_adapter = nullptr;
+  m_adapter = NULL;
 }
 
 bool StringAdapter::initialize()
@@ -116,7 +116,6 @@ bool StringAdapter::initialize()
 bool StringAdapter::start()
 {
   debugMsg("StringAdapter", " started.");
-  // TODO: verify that all adapters are intialized by this point
   return true;
 }
 

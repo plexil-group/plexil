@@ -5,17 +5,16 @@
 #include "Nullable.hh"
 #include "ValueType.hh"
 #include "SaveManager.hh"
+#include "ThreadMutex.hh"
 #include <map>
-#include <tuple>
-#include <mutex>
+#include <utility>      // std::pair, std::make_pair
 #include <string.h>
 using namespace PLEXIL;
 
 using std::string;
+using std::pair;
 using std::vector;
-using std::tuple;
 using std::map;
-using std::mutex;
 
 
 
@@ -24,31 +23,31 @@ class SimpleSaveManager : public SaveManager
 {
 public:
 
-  virtual void setData( vector<tuple<Nullable<Real>,Nullable<Real>,bool,
-		map<const string,
-		tuple<bool, 
-		Nullable<Real>,string>>>>  *data, int *num_total_boots) override;
-
-  virtual void setTimeFunction(Nullable<Real> (*time_func)()) override;
-
-  virtual void setDirectory(const string& file_directory) override;
-
-  virtual void loadCrashes() override;
+  SimpleSaveManager() : have_read(false), directory_set(false) {}
   
-  virtual bool writeOut() override;
+  virtual void setData( vector<boot_data>  *data, int *num_total_boots);
+
+  virtual void setTimeFunction(Nullable<Real> (*time_func)());
+
+  virtual void setDirectory(const string& file_directory);
+
+  virtual void loadCrashes();
+  
+  virtual bool writeOut();
 
    // Called during each command, managers are expected to send COMMAND_SUCCESS when a command is written to disk
-  virtual void setOK(bool b,Integer boot_num,Command *cmd) override;
-  virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd) override;
+  virtual void setOK(bool b,Integer boot_num,Command *cmd);
+  virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd);
 
 private:
   bool writeToFile(const string& location);
   void succeedCommands();
-  tuple<long,long> findOldestNewestFiles();
-  bool have_read = false;
-  bool directory_set = false;
+  pair<long,long> findOldestNewestFiles();
+  
+  bool have_read;
+  bool directory_set;
   bool write_enqueued;
-  mutex data_lock;
+  ThreadMutex data_lock;
   vector<Command*> queued_commands;
 };
 #endif

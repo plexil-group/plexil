@@ -28,21 +28,20 @@
 #define _H_CheckpointSystem
 #include "Value.hh"
 #include "Nullable.hh"
-#include "StateCacheEntry.hh"
 #include "InterfaceAdapter.hh"
 #include "SimpleSaveManager.hh"
-#include "ValueType.hh"
+#include "DataVector.hh"
+#include "SaveManager.hh"
 #include "ReadWriteLock.hh"
 
-#include <iostream>
 
 
 using namespace PLEXIL;
 
 using std::string;
 using std::vector;
-using std::tuple;
 using std::map;
+
 
 // This is a class that stores, operates on, and provides information
 // about crashes and checkpoints
@@ -51,10 +50,6 @@ using std::map;
 class CheckpointSystem
 {
 public:
-
-  //Prohibits copying or assigning
-  CheckpointSystem (const CheckpointSystem&) = delete;
-  CheckpointSystem& operator= (const CheckpointSystem&) = delete;
 
   ~CheckpointSystem ()
   {
@@ -99,6 +94,10 @@ private:
   CheckpointSystem(): manager(new SimpleSaveManager) {}
   static CheckpointSystem *m_system;
 
+  //Prohibits copying or assigning
+  CheckpointSystem (const CheckpointSystem&);
+  CheckpointSystem& operator= (const CheckpointSystem&);
+  
   // Current boot information
   int num_total_boots;
 
@@ -107,15 +106,7 @@ private:
   
   
   // Data structure that tracks boot-specific metadata and checkpoints
-  vector<tuple<Nullable<Real>, /*time of boot*/
-	       Nullable<Real>, /*time of crash*/
-	       bool, /*is_OK*/
-	       map< /*map of checkpoint info*/
-		 const string, /*checkpoint name*/
-		 tuple<bool, /*state of checkpoint*/
-		       Nullable<Real>,/*time of checkpoint activation*/
-		       string>>>> /*user-defined checkpoint info*/
-  data_vector;
+  vector<boot_data>  data_vector;
   
   
   // Helper functions
