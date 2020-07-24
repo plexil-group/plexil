@@ -191,7 +191,6 @@ static State createState (const string& state_name, const vector<Value>& value)
   }
   return state;
 }
-// TODO: Review list
 
 static void receiveInt (const string& state_name, Integer val)
 {
@@ -243,7 +242,7 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
 
 CheckpointAdapter::~CheckpointAdapter ()
 {
-  m_adapter = nullptr;
+  m_adapter = NULL;
 }
 
 bool CheckpointAdapter::initialize()
@@ -282,7 +281,6 @@ bool CheckpointAdapter::start()
 {
   debugMsg("CheckpointAdapter", " started.");
 
-  // TODO: verify that all adapters are intialized by this point
   CheckpointSystem::getInstance()->start();
   return true;
 }
@@ -406,7 +404,7 @@ void CheckpointAdapter::subscribe(const State& state)
 
 void CheckpointAdapter::unsubscribe (const State& state)
 {
-  debugMsg("CheckpointAdapter:subscribe", " from state " << state.name());
+  debugMsg("CheckpointAdapter:subscribe", " unsubscribing from state " << state.name());
   m_subscribedStates.erase(state);
 }
 

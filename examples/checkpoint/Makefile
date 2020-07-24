@@ -24,10 +24,11 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
-
+# TODO: figure out why fPIC is necessary in c++98
+CXXFLAGS= -fPIC
 LIBRARY = CheckpointAdapter
 SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
-INC = Subscriber.hh CheckpointSystem.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh
+INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
