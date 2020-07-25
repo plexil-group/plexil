@@ -289,7 +289,6 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerLookupInterface("CheckpointInfo", this);
   g_configuration->registerLookupInterface("CheckpointWhen", this);
 
-  g_configuration->registerCommandInterface("to_string", this);
   g_configuration->registerCommandInterface("SetCheckpoint", this);
   g_configuration->registerCommandInterface("SetOK", this);
   g_configuration->registerCommandInterface("Flush", this);

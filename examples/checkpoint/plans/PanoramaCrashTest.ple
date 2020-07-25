@@ -27,19 +27,12 @@ PanoramaCrashTest:
   Integer pictures = 0;
   // Allows us to "crash", since we have OKOnExit=false in the config, any exit will be treated as a crash unless we specifically setOK(0)
   Boolean crashMe = false;
-  Integer total_boots;
-  
   InvariantCondition !crashMe;
-
-  // Guarantees we have a record of this boot
-  SynchronousCommand Flush();
-
-  total_boots = Lookup(NumberOfTotalBoots);
-  // Handle previous crashes
+  
   CrashChecker:{
     SkipCondition !Lookup(DidCrash);
     pprint("Previously crashed, handling...");
-    pprint("We have booted up ",total_boots," times");
+    pprint("We have booted up ",Lookup(NumberOfTotalBoots)," times");
     pprint("Of these, ",Lookup(NumberOfAccessibleBoots)," are accessible and ",Lookup(NumberOfUnhandledBoots)," are unhandled");
     pprint("Last known save at ",Lookup(TimeOfLastSave(1))); // Time of last save in the previous boot
     pprint("Current run began at ",Lookup(TimeOfBoot(0)));
@@ -51,6 +44,7 @@ PanoramaCrashTest:
       }
     }
   }
+
   // Take panorama, crash on third photo 
   while (pictures<10) 
   {
@@ -62,7 +56,7 @@ PanoramaCrashTest:
     checkpoint_boot = Lookup(CheckpointWhen(checkpoint_name));
     pprint("Taking photo ",pictures);
     // Crashes, but third time's the charm
-    if(pictures==2 && total_boots<3){
+    if(pictures==2 && Lookup(NumberOfTotalBoots)<3){
       pprint("Crashed...");
       crashMe = true;
     }
@@ -75,7 +69,7 @@ PanoramaCrashTest:
       pprint("Checkpoint time: ",Lookup(CheckpointTime(checkpoint_name,checkpoint_boot)));
       pprint("Checkpoint info: ",Lookup(CheckpointInfo(checkpoint_name,checkpoint_boot)));
     }
-    SetCheckpoint(checkpoint_name,"SomeInfo");
+    SynchronousCommand SetCheckpoint(checkpoint_name,"SomeInfo");
     pictures = pictures+1;
   }
   
