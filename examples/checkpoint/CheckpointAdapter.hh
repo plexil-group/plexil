@@ -77,6 +77,8 @@ private:
   
   static CheckpointAdapter * m_adapter;
   std::set<State> m_subscribedStates;
+  bool m_ok_on_exit;
+  bool m_flush_on_exit;
 
 };
 

@@ -35,12 +35,14 @@ public:
   
   virtual bool writeOut();
 
-   // Called during each command, managers are expected to send COMMAND_SUCCESS when a command is written to disk
+  // Enqueues the command for the next write
   virtual void setOK(bool b,Integer boot_num,Command *cmd);
   virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd);
 
 private:
   bool writeToFile(const string& location);
+  // Returns success to all commands which were committed to disk
+  // This is the ONLY place m_execInterface is used
   void succeedCommands();
   pair<long,long> findOldestNewestFiles();
   

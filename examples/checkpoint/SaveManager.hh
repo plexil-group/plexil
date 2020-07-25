@@ -43,7 +43,8 @@ public:
 
  
 
-  // Called during each command, managers are expected to send COMMAND_SUCCESS when a command is written to disk
+  // Called during each command (AFTER the relevant change to data_vector)
+  // managers are expected to send COMMAND_SUCCESS when the provided command is written to disk
   virtual void setOK(bool b,Integer boot_num,Command *cmd) = 0;
   virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd) = 0;
 
@@ -53,6 +54,7 @@ protected:
   vector<boot_data>  *m_data_vector;
 
   int32_t *m_num_total_boots;
+  // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
   AdapterExecInterface * m_execInterface;
 
   Nullable<Real>(*m_time_func)();

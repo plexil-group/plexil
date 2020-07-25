@@ -87,13 +87,14 @@ void SimpleSaveManager::setCheckpoint(const string& checkpoint_name, bool value,
 }
 
 void SimpleSaveManager::succeedCommands(){
+  debug("sending success to "<< queued_commands.size() << " command(s)");
   for(std::vector<Command*>::iterator it = queued_commands.begin(); it != queued_commands.end();it++)
   {
     if(*it != NULL){
-      m_execInterface->handleCommandAck(*it, COMMAND_SENT_TO_SYSTEM);
+      m_execInterface->handleCommandAck(*it, COMMAND_SUCCESS);
+      m_execInterface->notifyOfExternalEvent();
     }
   }
-  m_execInterface->notifyOfExternalEvent();
   queued_commands.clear();
 }
 

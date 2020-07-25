@@ -33,6 +33,10 @@ INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleS
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 test1:
-	plexilc plans/SaferDrive.ple
-	plexilexec -p plans/SaferDrive.plx
+	plexilc plans/PanoramaCrashTest.ple
+	plexilexec -p plans/PanoramaCrashTest.plx
+
+test2:
+	plexilc plans/StringOperations.ple
+	plexilexec -p plans/StringOperations.plx
 
