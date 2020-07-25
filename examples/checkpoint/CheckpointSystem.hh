@@ -82,8 +82,8 @@ public:
 
   
   // Commands
-  Value setCheckpoint(const string& checkpoint_name, bool value, string& info, Command* cmd);
-  Value setOK(bool b, Integer boot_num, Command *cmd);
+  void setCheckpoint(const string& checkpoint_name, bool value, string& info, Command* cmd);
+  void setOK(bool b, Integer boot_num, Command *cmd);
   bool flush();
 
   // Helper

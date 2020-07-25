@@ -1,7 +1,9 @@
 <Interfaces>
   <!-- This configuration specifies that all commands and lookups are handled by SampleAdapter -->
   <Adapter AdapterType="CheckpointAdapter">
-    <Directory Location="./saves"/>
+    <Configuration Directory="./saves"
+		   OKOnExit="false"
+		   FlushOnExit="true"/>
   </Adapter>
   <Adapter AdapterType="StringAdapter"/>
   <Adapter AdapterType="OSNativeTime"/>
