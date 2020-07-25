@@ -1,31 +1,42 @@
 Command pprint(...);
 
-Boolean Lookup DidCrash;
-Boolean Lookup IsOK(...);
 Integer Lookup NumberOfTotalBoots;
+Boolean Lookup IsOK(...);
+Real Lookup TimeOfBoot(...);
+Real Lookup TimeOfLastSave(...);
+Boolean Lookup CheckpointState(...);
+Real Lookup CheckpointTime(...);
+String Lookup CheckpointInfo(...);
+
 Integer Lookup NumberOfAccessibleBoots;
 Integer Lookup NumberOfUnhandledBoots;
+Boolean Lookup DidCrash;
 Integer Lookup CheckpointWhen(...);
-Real Lookup CheckpointTime(...);
+
+
 Command SetCheckpoint(...);
 Boolean Command SetOK(...);
 Boolean Command Flush();
-String Command to_string(...);
+String Command ToString(...);
+
 
 Real Lookup time;
 
-SafeDrive:
+PanoramaCrashTest:
 {
   Integer pictures = 0;
-  // Allows us to "crash"
+  // Allows us to "crash", since we have OKOnExit=false in the config, any exit will be treated as a crash unless we specifically setOK(0)
   Boolean crashMe = false;
   InvariantCondition !crashMe;
+  
   CrashChecker:{
     SkipCondition !Lookup(DidCrash);
     pprint("Previously crashed, handling...");
     pprint("We have booted up ",Lookup(NumberOfTotalBoots)," times");
     pprint("Of these, ",Lookup(NumberOfAccessibleBoots)," are accessible and ",Lookup(NumberOfUnhandledBoots)," are unhandled");
-
+    pprint("Last known save at ",Lookup(TimeOfLastSave(1))); // Time of last save in the previous boot
+    pprint("Current run began at ",Lookup(TimeOfBoot(0)));
+    
     for(Integer i=1; i<Lookup(NumberOfAccessibleBoots); i+1){
       if(!Lookup(IsOK(i))){
 	pprint("Handling boot ",i);
@@ -40,7 +51,7 @@ SafeDrive:
     String pictures_s;
     String checkpoint_name;
     Integer checkpoint_boot;
-    pictures_s = to_string(pictures);
+    pictures_s = ToString(pictures);
     checkpoint_name = "photo_" + pictures_s;
     checkpoint_boot = Lookup(CheckpointWhen(checkpoint_name));
     pprint("Taking photo ",pictures);
@@ -54,10 +65,15 @@ SafeDrive:
     }
     else{
       pprint("Photo ",pictures, " taken in boot ",checkpoint_boot);
+      pprint("Checkpoint state: ",Lookup(CheckpointState(checkpoint_name,checkpoint_boot)));
       pprint("Checkpoint time: ",Lookup(CheckpointTime(checkpoint_name,checkpoint_boot)));
+      pprint("Checkpoint info: ",Lookup(CheckpointInfo(checkpoint_name,checkpoint_boot)));
     }
-    SetCheckpoint(checkpoint_name);
+    SynchronousCommand SetCheckpoint(checkpoint_name,"SomeInfo");
     pictures = pictures+1;
   }
-  SetOK(0);
+  
+  SynchronousCommand SetOK(0);
+  SynchronousCommand Flush(); // Guarantees every received Checkpoint/SetOK command has been
+                              // saved to disk
 }

@@ -101,13 +101,11 @@ bool StringAdapter::initialize()
   g_configuration->registerCommandInterface("StringToBoolean", this);
   
   g_configuration->registerCommandInterface("substr", this);
-  g_configuration->registerCommandInterface("strlen", this);
   g_configuration->registerCommandInterface("strlwr", this);
   g_configuration->registerCommandInterface("strupr", this);
   g_configuration->registerCommandInterface("strindex", this);
   g_configuration->registerCommandInterface("find_first_of", this);
   g_configuration->registerCommandInterface("find_last_of", this);
-  g_configuration->registerCommandInterface("split", this);
   
   debugMsg("StringAdapter", " initialized.");
   return true;
@@ -224,16 +222,6 @@ void StringAdapter::executeCommand(Command *cmd)
       retval = Unknown;
     }
   }
-  else if (name == "strlen"){
-     if(args.size()!=1){
-      retval = Unknown;
-      cerr<<"Invalid number of arguments to "<<name<<endl;
-    }
-    else{
-      int32_t len = args[0].valueToString().length();
-      retval = len;
-    }
-  }
   else if (name == "strlwr"){
      if(args.size()!=1){
       retval = Unknown;
@@ -278,14 +266,10 @@ void StringAdapter::executeCommand(Command *cmd)
       int pos;
       args[1].getValue(pos);
       if(args.size()==3){
-	if(args[2].valueToString().size()>1){
-	  cerr << "strindex requires a char as the value" << endl;
-	}
-	else{
-	  char newval = args[2].valueToString()[0];
-	  data[pos]=newval;
-	  retval = string(1,newval);
-	}
+	const string newval = args[2].valueToString();
+	const string beginning = (pos>0)?data.substr(0,pos):"";
+	const string end = (pos<data.length())?data.substr(pos+1):"";
+	retval =  beginning + newval + end ;
       }
       else retval = string(1, data[pos]);
     }
@@ -320,26 +304,6 @@ void StringAdapter::executeCommand(Command *cmd)
       }
       int i = data.find_last_of(toSearchFor,pos);
       retval = i;
-    }
-  }
-  else if (name == "split"){
-    if(args.size()!=2){
-      retval = Unknown;
-      cerr<<"Invalid number of arguments to "<<name<<endl;
-    }
-    else{
-      string s = args[0].valueToString();
-      string delimiter = args[0].valueToString();
-      size_t pos = 0;
-      string token;
-      vector<Value> strings;
-      while ((pos = s.find(delimiter)) != std::string::npos) {
-	token = s.substr(0, pos);
-	Value v_token = token;
-	strings.push_back(v_token);
-	s.erase(0, pos + delimiter.length());
-      }
-      retval = strings;
     }
   }
   else{ 

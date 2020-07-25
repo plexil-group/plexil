@@ -36,6 +36,7 @@
 #include "StateCacheEntry.hh"
 
 #include <iostream>
+#include <algorithm> //tranform
 
 // Protects commands and lookups by guaranteeing the correc number of arguments
 #define ARGCOUNT(a,b)  if(args.size()<a || args.size()>b){ \
@@ -97,7 +98,6 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   debugMsg("CheckpointAdapter:fetch",
            "Fetch called on " << state_name << " with " << args.size() << " args");
   Value retval;
-
   
   if (state_name == "DidCrash"){
     ARGCOUNT(0,0){
@@ -232,11 +232,23 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   m_adapter = this;
   
   // Reads save directory from configuration file
-  const string file_directory = getChildWithAttribute(configXml,"Directory","Location");
+  const string file_directory = getChildWithAttribute(configXml,"Configuration","Directory");
   if(file_directory!=""){
     CheckpointSystem::getInstance()->setDirectory(file_directory);
   }
   CheckpointSystem::getInstance()->setExecInterface(&m_execInterface);
+
+  string ok_on_exit = getChildWithAttribute(configXml,"Configuration","OKOnExit");
+  std::transform(ok_on_exit.begin(),ok_on_exit.end(),ok_on_exit.begin(), ::tolower);
+  if(ok_on_exit == "false") m_ok_on_exit = true;
+  else m_ok_on_exit = false;
+  debugMsg("CheckpointAdapter", " created.");
+
+  string flush_on_exit = getChildWithAttribute(configXml,"Configuration","FlushOnExit");
+  std::transform(flush_on_exit.begin(),flush_on_exit.end(),flush_on_exit.begin(), ::tolower);
+  if(flush_on_exit == "false") m_flush_on_exit = true;
+  else m_flush_on_exit = false;
+  
   debugMsg("CheckpointAdapter", " created.");
 }
 
@@ -247,8 +259,6 @@ CheckpointAdapter::~CheckpointAdapter ()
 
 bool CheckpointAdapter::initialize()
 {
-  
-
   g_configuration->registerLookupInterface("DidCrash", this);
   g_configuration->registerLookupInterface("IsOK", this);
   
@@ -263,7 +273,6 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerLookupInterface("CheckpointInfo", this);
   g_configuration->registerLookupInterface("CheckpointWhen", this);
 
-  g_configuration->registerCommandInterface("to_string", this);
   g_configuration->registerCommandInterface("SetCheckpoint", this);
   g_configuration->registerCommandInterface("SetOK", this);
   g_configuration->registerCommandInterface("Flush", this);
@@ -299,8 +308,8 @@ bool CheckpointAdapter::reset()
 
 bool CheckpointAdapter::shutdown()
 {
-  CheckpointSystem::getInstance()->setOK(true,0,NULL);
-  CheckpointSystem::getInstance()->flush();
+  if(m_ok_on_exit) CheckpointSystem::getInstance()->setOK(true,0,NULL);
+  if(m_flush_on_exit) CheckpointSystem::getInstance()->flush();
   debugMsg("CheckpointAdapter", " shut down.");
   return true;
 }
@@ -308,27 +317,30 @@ bool CheckpointAdapter::shutdown()
 
 // Sends a command (as invoked in a Plexil command node) to the system and sends
 // the status, and return value if applicable, back to the executive.
-//
+
 void CheckpointAdapter::executeCommand(Command *cmd)
 {
+
   const string &name = cmd->getName();
   debugMsg("CheckpointAdapter", "Received executeCommand for " << name);  
 
+  
   Value retval = Unknown;
   const vector<Value>& args = cmd->getArgValues();
-
-  if (name == "to_string"){
-    retval = args[0].valueToString();
-    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-    if (retval != Unknown){
-      m_execInterface.handleCommandReturn(cmd, retval);
-    }
-    m_execInterface.notifyOfExternalEvent();
-  }
-
   
-  else if (name == "Flush"){
+  // Each command is responsible for setting its own Command Handle - this allows
+  // SetCheckpoint and SetOK to only return success when the change has been (possibly asycnrhonously)
+  // written to disk
+
+  // We begin by acknowleging that the command was received - we only update the system
+  // at the end or when command_success is sent in SetCheckpoint/SetOK, but this allows
+  // COMMAND_SUCCESS to override COMMAND_RCVD_BY_SYSTEM
+  
+  m_execInterface.handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
+  
+  if (name == "Flush"){
     retval = CheckpointSystem::getInstance()->flush();
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   }
   else if (name == "SetCheckpoint") {
     if(args.size()<1 || args.size()>3){
@@ -350,7 +362,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
 	if(args[1].valueType()==BOOLEAN_TYPE) args[1].getValue(value);
 	else args[1].getValue(info);
       }
-      retval = CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info,cmd);
+      CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info,cmd);
     }
   }
 
@@ -371,7 +383,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
 	if(args[0].valueType()==BOOLEAN_TYPE) args[0].getValue(value);
 	else args[0].getValue(boot_num);
       }
-      retval = CheckpointSystem::getInstance()->setOK(value,boot_num,cmd);
+      CheckpointSystem::getInstance()->setOK(value,boot_num,cmd);
     }
   }
   
@@ -379,13 +391,12 @@ void CheckpointAdapter::executeCommand(Command *cmd)
     cerr << error << "invalid command: " << name << endl;
   }
   
-  // This sends a command handle back to the executive.
 
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   // This sends the command's return value (if expected) to the executive.
   if (retval != Unknown){
     m_execInterface.handleCommandReturn(cmd, retval);
   }
+  
   m_execInterface.notifyOfExternalEvent();
 }
 

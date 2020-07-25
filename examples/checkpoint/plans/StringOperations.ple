@@ -1,0 +1,70 @@
+Command pprint(...);
+Command print(...);
+
+String Command ToString(...);
+Integer Command StringToInteger(String);
+Real Command StringToReal(String);
+Boolean Command StringToBoolean(String);
+String Command substr(...);
+String Command strlwr(String);
+String Command strupr(String);
+String Command strindex(...);
+Integer Command find_first_of(...);
+Integer Command find_last_of(...);
+
+StringOperations:{
+  Integer int = 5;
+  Integer int2 = 0;
+  Real real = 3.14;
+  Real real2 = 0;
+  Boolean bool = true;
+  Boolean bool2 = false;
+  String a = "";
+  String b = "";
+  String c = "";
+  String d = "Hello World";
+  Integer j;
+  Integer x;
+  Integer y;
+  Integer z;
+
+  SynchronousCommand a = ToString(int);
+  SynchronousCommand int2 = StringToInteger(a);
+  SynchronousCommand b = ToString(real);
+  SynchronousCommand real2 = StringToReal(b);
+  SynchronousCommand  c = ToString(bool);
+  SynchronousCommand bool2 = StringToBoolean(c);
+  pprint("Integer Conversion: ",int,"-->",a,"-->",int2);
+  pprint("Real Conversion: ",real,"-->",b,"-->",real2);
+  pprint("Boolean Conversion: ",bool,"-->",c,"-->",bool2);
+
+  j = strlen(d);
+  for(Integer i = 0; i<floor(strlen(d)/2); i+1){
+    String cut;
+    SynchronousCommand cut = substr(d,i,j);
+    print("substr('Hello World'",i,",",j,") = ",cut);
+    pprint("");//for new line
+    j = j-2;
+  }
+  SynchronousCommand a = strlwr(d);
+  pprint("Lowercase: ",a);
+  SynchronousCommand a = strupr(d);
+  pprint("Uppercase: ",a);
+
+  pprint("Iterating over elements of 'Hello World'");
+  for(Integer i = 0; i<strlen(d); i+1){
+    SynchronousCommand a = strindex(d,i);
+    pprint(a);
+  }
+  pprint("Replacing elements of 'Hello World'");
+  for(Integer i = 0; i<strlen(d); i+1){
+    SynchronousCommand a = strindex(d,i,"0");
+    pprint(a);
+  }
+  SynchronousCommand x = find_first_of(d,"l",3);
+  SynchronousCommand y = find_last_of(d,"l",5);
+  SynchronousCommand z = find_first_of(d,"el",0);
+  pprint("Find first 'l' in 'Hello World' starting at position 3",x);
+  pprint("Find last 'l' in 'Hello World' ending at position 3",y);
+  pprint("Find first 'l' or 'e' in 'Hello World' starting at position 3",z);
+}
