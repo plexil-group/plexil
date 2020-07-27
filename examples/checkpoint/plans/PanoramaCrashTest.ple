@@ -28,7 +28,11 @@ PanoramaCrashTest:
   // Allows us to "crash", since we have OKOnExit=false in the config, any exit will be treated as a crash unless we specifically setOK(0)
   Boolean crashMe = false;
   InvariantCondition !crashMe;
-  
+
+  // Guarantees we have a record of this boot
+  SynchronousCommand Flush();
+
+  // Handle previous crashes
   CrashChecker:{
     SkipCondition !Lookup(DidCrash);
     pprint("Previously crashed, handling...");
@@ -69,7 +73,7 @@ PanoramaCrashTest:
       pprint("Checkpoint time: ",Lookup(CheckpointTime(checkpoint_name,checkpoint_boot)));
       pprint("Checkpoint info: ",Lookup(CheckpointInfo(checkpoint_name,checkpoint_boot)));
     }
-    SynchronousCommand SetCheckpoint(checkpoint_name,"SomeInfo");
+    SetCheckpoint(checkpoint_name,"SomeInfo");
     pictures = pictures+1;
   }
   

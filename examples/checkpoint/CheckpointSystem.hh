@@ -34,7 +34,7 @@
 #include "SaveManager.hh"
 #include "ReadWriteLock.hh"
 
-
+#include "pugixml.hpp"
 
 using namespace PLEXIL;
 
@@ -88,7 +88,7 @@ public:
 
   // Helper
   void start();
-  void setDirectory(const string& file_directory);
+  void setSaveConfiguration(const pugi::xml_node* configXml);
   void setExecInterface(AdapterExecInterface* execInterface);
 private:
   CheckpointSystem(): manager(new SimpleSaveManager) {}

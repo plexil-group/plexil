@@ -101,8 +101,8 @@ void CheckpointSystem::start(){
 }
 
 
-void CheckpointSystem::setDirectory(const string& file_directory){
-    manager->setDirectory(file_directory);
+void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
+    manager->setConfig(configXml);
 }
 
 void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){

@@ -17,8 +17,9 @@ using std::cout;
 
 
 #define debug(msg) debugMsg("SimpleSaveManager"," "<<msg)
-#define LOCK debug("Locking"); data_lock.lock()
-#define UNLOCK debug("Unlocking"); data_lock.unlock()
+#define debugLock(msg) debugMsg("SimpleSaveManager:lock"," "<<msg)
+#define LOCK debugLock("Locking"); m_data_lock.lock()
+#define UNLOCK debugLock("Unlocking"); m_data_lock.unlock()
 /////////////////////// Helper functions //////////////////////////
 
 
@@ -62,53 +63,74 @@ void  SimpleSaveManager::setTimeFunction(Nullable<Real> (*time_func)()){
   UNLOCK;
 }
 
-void SimpleSaveManager::setDirectory(const string& directory){
+void SimpleSaveManager::setConfig(const pugi::xml_node* configXml){
   // Prevent writes from occuring concurrently with a directory change
   LOCK;
-  m_file_directory = directory;
-  directory_set = true;
-  debug("directory set to "<<directory);
+  m_directory_set = true;
+  if(configXml==NULL){
+    cerr<<"SimpleSaveManager: No configuration specified, defaulting to directory = ./"<<endl;
+    m_file_directory = "./";
+  }
+  else{
+    for(pugi::xml_attribute attr = configXml->first_attribute();
+	attr;
+	attr = attr.next_attribute()){
+      
+      // We have found all we are looking for
+      if((string) attr.name() == (string) "Directory"){
+	m_file_directory = attr.value();
+	UNLOCK;
+	return;
+      }
+    }
+    // No directory attribute found
+    cerr << "SimpleSaveManager: No \"Directory\" attribute found in configuration, defaulting to ./"<<endl;
+    m_file_directory = "./";
+  }
   UNLOCK;
 }
+
+  
 
 void SimpleSaveManager::setOK(bool b,Integer boot_num,Command *cmd){
   // Prevents us from enqueuing a command while write is writing
   LOCK;
-  queued_commands.push_back(cmd);
+  m_queued_commands.push_back(cmd);
   UNLOCK;
   writeOut();
 }
 
 void SimpleSaveManager::setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd){
   LOCK;
-  queued_commands.push_back(cmd);
+  m_queued_commands.push_back(cmd);
   UNLOCK;
   writeOut();
 }
 
 void SimpleSaveManager::succeedCommands(){
-  debug("sending success to "<< queued_commands.size() << " command(s)");
-  for(std::vector<Command*>::iterator it = queued_commands.begin(); it != queued_commands.end();it++)
+  debug("sending success to "<< m_queued_commands.size() << " command(s)");
+  for(std::vector<Command*>::iterator it = m_queued_commands.begin(); it != m_queued_commands.end();it++)
   {
     if(*it != NULL){
       m_execInterface->handleCommandAck(*it, COMMAND_SUCCESS);
       m_execInterface->notifyOfExternalEvent();
     }
   }
-  queued_commands.clear();
+  m_queued_commands.clear();
 }
 
 void SimpleSaveManager::loadCrashes(){
   LOCK;
-  if(have_read){
+  if(m_have_read){
     cerr << "Aleady loaded crashes, this operation only supported once" <<endl;
     UNLOCK;
     return;
   }
   
-  have_read = true;
-  if(!directory_set){
-    debug("directory not specified, using default of ./");
+  m_have_read = true;
+  if(!m_directory_set){
+    cerr << "SaveManager configuration never loaded, defaulting to directory = ./" <<endl;
+    m_file_directory = "./";
   }
 
   m_data_vector->clear();
@@ -186,14 +208,12 @@ void SimpleSaveManager::loadCrashes(){
 bool SimpleSaveManager::writeOut(){
   // If we were already planning to write out at the next opportunity, keep our course and call
   // this attempt successful
-  if(write_enqueued) return true;
+  if(m_write_enqueued) return true;
   // Log that we are planning to write out
-  write_enqueued = true;
+  m_write_enqueued = true;
   LOCK;
 
-  bool retval;
-  write_enqueued = false;
-  
+  bool retval;  
   string save_name = "";
   pair<long,long> oldest_newest = findOldestNewestFiles();
   // No files found
@@ -211,6 +231,9 @@ bool SimpleSaveManager::writeOut(){
   }
 
   debug("writing to "<<save_name);
+
+  // The actual write has begun, any future writes could potentially feature new data
+  m_write_enqueued = false;
   retval = writeToFile(save_name);
   succeedCommands(); // Return COMMAND_SUCCESS to all commands
   UNLOCK;

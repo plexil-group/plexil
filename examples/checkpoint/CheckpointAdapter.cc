@@ -87,6 +87,16 @@ string getChildWithAttribute(const pugi::xml_node& configXml,
   }
 }
 
+pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
+			     const string& node_name){
+  for (pugi::xml_node child = configXml.first_child(); child; child = child.next_sibling())
+  {
+    if(child.name()==node_name){
+      return child;
+    }
+  }
+}
+
 
 
 ///////////////////////////// State support //////////////////////////////////
@@ -232,22 +242,23 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   m_adapter = this;
   
   // Reads save directory from configuration file
-  const string file_directory = getChildWithAttribute(configXml,"Configuration","Directory");
-  if(file_directory!=""){
-    CheckpointSystem::getInstance()->setDirectory(file_directory);
-  }
+  const pugi::xml_node save_config = getChildWithName(configXml,"SaveConfiguration");
+  
+  CheckpointSystem::getInstance()->setSaveConfiguration(&save_config);
   CheckpointSystem::getInstance()->setExecInterface(&m_execInterface);
 
-  string ok_on_exit = getChildWithAttribute(configXml,"Configuration","OKOnExit");
+  string ok_on_exit = getChildWithAttribute(configXml,"AdapterConfiguration","OKOnExit");
   std::transform(ok_on_exit.begin(),ok_on_exit.end(),ok_on_exit.begin(), ::tolower);
-  if(ok_on_exit == "false") m_ok_on_exit = true;
-  else m_ok_on_exit = false;
+  // Defaults to true for safety
+  if(ok_on_exit == "false") m_ok_on_exit = false;
+  else m_ok_on_exit = true;
   debugMsg("CheckpointAdapter", " created.");
 
-  string flush_on_exit = getChildWithAttribute(configXml,"Configuration","FlushOnExit");
+  string flush_on_exit = getChildWithAttribute(configXml,"AdapterConfiguration","FlushOnExit");
   std::transform(flush_on_exit.begin(),flush_on_exit.end(),flush_on_exit.begin(), ::tolower);
-  if(flush_on_exit == "false") m_flush_on_exit = true;
-  else m_flush_on_exit = false;
+  // Defaults to true for safety
+  if(flush_on_exit == "false") m_flush_on_exit = false;
+  else m_flush_on_exit = true;
   
   debugMsg("CheckpointAdapter", " created.");
 }

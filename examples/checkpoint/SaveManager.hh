@@ -8,6 +8,9 @@
 #include "AdapterExecInterface.hh"
 #include <map>
 #include <string.h>
+
+#include "pugixml.hpp"
+
 using namespace PLEXIL;
 
 using std::string;
@@ -19,9 +22,6 @@ using std::map;
 class SaveManager
 {
 public:
-
-
-  SaveManager() : m_file_directory("./") {}
   
   virtual void setData( vector<boot_data>  *data, int *num_total_boots){
     m_data_vector = data;
@@ -30,17 +30,17 @@ public:
   virtual void setTimeFunction(Nullable<Real> (*time_func)()){
     m_time_func = time_func;
   }
-  virtual void setDirectory(const string& file_directory){
-    m_file_directory = file_directory;
-  }
   virtual void setExecInterface(AdapterExecInterface *execInterface){
     m_execInterface = execInterface;
   }
+
+  // configXml is the "Config" node which is the child of the CheckpointAdapter
+  // node. If no config is specified, this will be NULL
+  virtual void setConfig(const pugi::xml_node* configXml) = 0;
   
   virtual void loadCrashes() = 0;
   
   virtual bool writeOut() = 0;
-
  
 
   // Called during each command (AFTER the relevant change to data_vector)
@@ -58,8 +58,6 @@ protected:
   AdapterExecInterface * m_execInterface;
 
   Nullable<Real>(*m_time_func)();
-
-  string m_file_directory;
   
 };
 #endif
