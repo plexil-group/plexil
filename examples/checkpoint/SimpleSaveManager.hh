@@ -9,6 +9,8 @@
 #include <map>
 #include <utility>      // std::pair, std::make_pair
 #include <string.h>
+#include "pugixml.hpp"
+
 using namespace PLEXIL;
 
 using std::string;
@@ -23,13 +25,13 @@ class SimpleSaveManager : public SaveManager
 {
 public:
 
-  SimpleSaveManager() : have_read(false), directory_set(false) {}
+  SimpleSaveManager() : m_have_read(false), m_file_directory("./") {}
   
   virtual void setData( vector<boot_data>  *data, int *num_total_boots);
 
   virtual void setTimeFunction(Nullable<Real> (*time_func)());
 
-  virtual void setDirectory(const string& file_directory);
+  virtual void setConfig(const pugi::xml_node* configXml);
 
   virtual void loadCrashes();
   
@@ -45,11 +47,14 @@ private:
   // This is the ONLY place m_execInterface is used
   void succeedCommands();
   pair<long,long> findOldestNewestFiles();
+
   
-  bool have_read;
-  bool directory_set;
-  bool write_enqueued;
-  ThreadMutex data_lock;
-  vector<Command*> queued_commands;
+  string m_file_directory;
+  
+  bool m_have_read;
+  bool m_directory_set;
+  bool m_write_enqueued;
+  ThreadMutex m_data_lock;
+  vector<Command*> m_queued_commands;
 };
 #endif
