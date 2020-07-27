@@ -124,8 +124,8 @@ namespace PLEXIL {
       
       void ExecuteCommand(Command *cmd) {
           Value val = (m_context.*m_executeCommand)(cmd);
-          m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-          if(val != nullptr) {
+          m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM); //TODO: send COMMAND_FAILED if errror thrown
+          if(val.isKnown()) {
             m_execInterface.handleCommandReturn(cmd, val);
           }
           m_execInterface.notifyOfExternalEvent();
