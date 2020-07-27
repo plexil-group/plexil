@@ -1,9 +1,10 @@
 <Interfaces>
   <!-- This configuration specifies that all commands and lookups are handled by SampleAdapter -->
   <Adapter AdapterType="CheckpointAdapter">
-    <Configuration Directory="./saves"
-		   OKOnExit="false"
-		   FlushOnExit="true"/>
+    <SaveConfiguration Directory="./saves" />
+    <!-- Allows test to intentionally "crash"-->
+    <AdapterConfiguration OKOnExit="false"
+			  FlushOnExit="false"/>
   </Adapter>
   <Adapter AdapterType="StringAdapter"/>
   <Adapter AdapterType="OSNativeTime"/>
