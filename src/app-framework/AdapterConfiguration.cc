@@ -617,8 +617,26 @@ namespace PLEXIL {
     * @param context The object on which handlers can be called
     */
   bool AdapterConfiguration::registerCommandHandler(std::string const &stateName,
-        InterfaceAdapter &context) {
-    return false;
+        InterfaceAdapter &context,
+        AdapterExecInterface &execInterface,
+        ExecuteCommandHandler execCmd,
+        AbortCommandHandler abortCmd) {
+    CommandHandlerMap::iterator it = m_commandMap.find(stateName);
+    if (it == m_commandMap.end()) {
+      // Not found, OK to add
+      debugMsg("AdapterConfiguration:registerCommandHandler",
+                " registering handler for command '" << stateName << "'");
+      m_commandMap.insert(std::pair<std::string, CommandHandler *>(stateName,
+                new CommandHandler(context,
+                                  execInterface,
+                                  execCmd,
+                                  abortCmd)));
+      return true;
+    } else {
+      debugMsg("AdapterConfiguration:registerCommandHandler",
+                " handler already registered for command '" << stateName << "'");
+      return false;
+    }
   }
 
   /**
@@ -627,6 +645,15 @@ namespace PLEXIL {
     * @param stateName The state.
     */
   AdapterConfiguration::CommandHandler *AdapterConfiguration::getCommandHandler(std::string const& stateName) {
+    CommandHandlerMap::iterator it = m_commandMap.find(stateName);
+    if (it != m_commandMap.end()) {
+      debugMsg("AdapterConfiguration:getCommandHandler",
+               " found specific handler " << (*it).second
+               << " for lookup '" << stateName << "'");
+      return (*it).second;
+    }
+    debugMsg("AdapterConfiguration:getLookupHandler",
+               " no handler registered for command '" << stateName << "'");
     return nullptr;
   }
 
@@ -709,19 +736,19 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::registerCommandInterface(std::string const &commandName,
                                                       InterfaceAdapter *intf) {
-    InterfaceMap::iterator it = m_commandMap.find(commandName);
-    if (it == m_commandMap.end()) {
-      // Not found, OK to add
-      debugMsg("AdapterConfiguration:registerCommandInterface",
-               " registering interface " << intf << " for command '" << commandName << "'");
-      m_commandMap.insert(std::pair<std::string, InterfaceAdapter *>(commandName, intf));
-      m_adapters.insert(intf);
-      return true;
-    } else {
-      debugMsg("AdapterConfiguration:registerCommandInterface",
-               " interface already registered for command '" << commandName << "'");
-      return false;
-    }
+    // InterfaceMap::iterator it = m_commandMap.find(commandName);
+    // if (it == m_commandMap.end()) {
+    //   // Not found, OK to add
+    //   debugMsg("AdapterConfiguration:registerCommandInterface",
+    //            " registering interface " << intf << " for command '" << commandName << "'");
+    //   m_commandMap.insert(std::pair<std::string, InterfaceAdapter *>(commandName, intf));
+    //   m_adapters.insert(intf);
+    //   return true;
+    // } else {
+    //   debugMsg("AdapterConfiguration:registerCommandInterface",
+    //            " interface already registered for command '" << commandName << "'");
+    //   return false;
+    // }
   }
 
   /**
@@ -851,25 +878,25 @@ namespace PLEXIL {
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
-    InterfaceMap::iterator it = m_commandMap.find(commandName);
-    if (it != m_commandMap.end()) {
-      debugMsg("AdapterConfiguration:getCommandInterface",
-               " found specific interface " << (*it).second
-               << " for command '" << commandName << "'");
-      return (*it).second;
-    }
-    // check default command i/f
-    if (m_defaultCommandInterface) {
-      debugMsg("AdapterConfiguration:getCommandInterface",
-               " returning default command interface " << m_defaultCommandInterface
-               << " for command '" << commandName << "'");
-      return m_defaultCommandInterface;
-    }
-    // fall back on default default
-    debugMsg("AdapterConfiguration:getCommandInterface",
-             " returning default interface " << m_defaultInterface
-             << " for command '" << commandName << "'");
-    return m_defaultInterface;
+    // InterfaceMap::iterator it = m_commandMap.find(commandName);
+    // if (it != m_commandMap.end()) {
+    //   debugMsg("AdapterConfiguration:getCommandInterface",
+    //            " found specific interface " << (*it).second
+    //            << " for command '" << commandName << "'");
+    //   return (*it).second;
+    // }
+    // // check default command i/f
+    // if (m_defaultCommandInterface) {
+    //   debugMsg("AdapterConfiguration:getCommandInterface",
+    //            " returning default command interface " << m_defaultCommandInterface
+    //            << " for command '" << commandName << "'");
+    //   return m_defaultCommandInterface;
+    // }
+    // // fall back on default default
+    // debugMsg("AdapterConfiguration:getCommandInterface",
+    //          " returning default interface " << m_defaultInterface
+    //          << " for command '" << commandName << "'");
+    // return m_defaultInterface;
   }
 
   /**

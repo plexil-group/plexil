@@ -35,6 +35,8 @@
 #define ADAPTERCONFIGURATION_HH_
 
 #include "InterfaceAdapter.hh"
+#include "Value.hh"
+#include "AdapterExecInterface.hh"
 
 #include <set>
 
@@ -58,13 +60,14 @@ namespace PLEXIL {
 
     struct LookupHandler
     {
+    private:
       InterfaceAdapter &m_context;
       LookupNowHandler m_lookupNow;
       SetThresholdsDoubleHandler m_setThresholdsDouble;
       SetThresholdsIntHandler m_setThresholdsInt;
       SubscribeHandler m_subscribe;
       UnsubscribeHandler m_unsubscribe;
-      
+    public:
       LookupHandler(InterfaceAdapter &ct,
             LookupNowHandler ln,
             SetThresholdsDoubleHandler setTD,
@@ -100,10 +103,38 @@ namespace PLEXIL {
       }
     };
 
-    struct CommandHandler // May not be correct, need to asynchronously make the call and update on return
+
+    typedef Value (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
+    typedef void (InterfaceAdapter::*AbortCommandHandler)(Command *);
+
+    struct CommandHandler
     {
-      void (*execute)(Command *cmd, AdapterExecInterface *callback);
-      void (*abortCommand)(Command *cmd, AdapterExecInterface *callback);
+    private:
+      InterfaceAdapter &m_context;
+      AdapterExecInterface &m_execInterface;
+      ExecuteCommandHandler m_executeCommand;
+      AbortCommandHandler m_abortCommand;
+    public:
+      CommandHandler(InterfaceAdapter &ct,
+        AdapterExecInterface &execInterface,
+        ExecuteCommandHandler execCmd,
+        AbortCommandHandler abortCmd) :
+        m_context(ct), m_execInterface(execInterface),
+        m_executeCommand(execCmd), m_abortCommand(abortCmd) {}
+      
+      void ExecuteCommand(Command *cmd) {
+          Value val = (m_context.*m_executeCommand)(cmd);
+          m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+          if(val != nullptr) {
+            m_execInterface.handleCommandReturn(cmd, val);
+          }
+          m_execInterface.notifyOfExternalEvent();
+        }
+        void AbortCommand(Command *cmd) {
+          if(m_abortCommand) {
+            (m_context.*m_abortCommand)(cmd);
+          }
+        }
     };
 
     /**
@@ -227,7 +258,10 @@ namespace PLEXIL {
      * @param context The object on which handlers can be called
      */
     bool registerCommandHandler(std::string const &stateName,
-          InterfaceAdapter &context);
+          InterfaceAdapter &context,
+          AdapterExecInterface &execInterface,
+          ExecuteCommandHandler execCmd,
+          AbortCommandHandler abortCmd = nullptr);
 
     /**
      * @brief Return the lookup handler in effect for lookups with this state name,
@@ -457,7 +491,7 @@ namespace PLEXIL {
     typedef std::map<std::string, LookupHandler *> LookupHandlerMap;
 
     LookupHandlerMap m_lookupMap;
-    InterfaceMap m_commandMap;
+    CommandHandlerMap m_commandMap;
 
     std::set<std::string> m_telemetryLookups;
 

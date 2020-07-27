@@ -335,7 +335,7 @@ namespace PLEXIL
       handler->lookupNow(state, cacheEntry);
     }
     catch (InterfaceError &e) {
-      warn("lookupNow: Error in interface adapter for lookup " << state << ":\n"
+      warn("lookupNow: Error in interface handler for lookup " << state << ":\n"
            << e.what() << "\n Returning UNKNOWN");
       cacheEntry.setUnknown();
     }
@@ -458,15 +458,24 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf) {
-      intf->executeCommand(cmd);
+    AdapterConfiguration::CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    if (handler) {
+      handler->ExecuteCommand(cmd);
     }
     else {
       // return error status
-      warn("executeCommand: no interface adapter for command " << cmd->getName());
-      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
+      warn("executeCommand: no handler adapter for command " << cmd->getName());
+      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR); // TODO: make new error for handler
     }
+    // InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
+    // if (intf) {
+    //   intf->executeCommand(cmd);
+    // }
+    // else {
+    //   // return error status
+    //   warn("executeCommand: no interface adapter for command " << cmd->getName());
+    //   g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
+    // }
   }
 
   /**
@@ -483,14 +492,22 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf) {
-      intf->invokeAbort(cmd);
+    AdapterConfiguration::CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    if (handler) {
+      handler->AbortCommand(cmd);
     }
     else {
-      warn("invokeAbort: null interface adapter for command " << cmd->getCommand());
+      warn("invokeAbort: null handler for command " << cmd->getCommand());
       g_interface->commandAbortAcknowledge(cmd, false);
     }
+    // InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
+    // if (intf) {
+    //   intf->invokeAbort(cmd);
+    // }
+    // else {
+    //   warn("invokeAbort: null interface adapter for command " << cmd->getCommand());
+    //   g_interface->commandAbortAcknowledge(cmd, false);
+    // }
   }
 
   double 
