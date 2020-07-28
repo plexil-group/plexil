@@ -27,7 +27,6 @@
 
 #include "CheckpointSystem.hh"
 #include "State.hh"
-#include "StateCacheEntry.hh"
 #include "CachedValue.hh"
 #include "Subscriber.hh"
 #include "Debug.hh"
@@ -59,9 +58,10 @@ static Value Unknown;
 // A preamble for error messages.
 static string error = "Error in checkpoint system: ";
 
-// A time adapter and StateCacheEntry for getting the time
-static InterfaceAdapter* time_adapter = NULL;
-static StateCacheEntry time_cache;
+// Initialize static variables
+StateCacheEntry CheckpointSystem::s_time_cache;
+InterfaceAdapter* CheckpointSystem::s_time_adapter = NULL;
+bool CheckpointSystem::s_use_time = true;
 
 
 ///////////////////////////// Helper Functions //////////////////////////////
@@ -77,13 +77,13 @@ bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,Integer bo
   return checkpoints.find(checkpoint_name) != checkpoints.end();
 }
 
-static Nullable<Real> get_time(){
-  if(time_adapter==NULL)  return Nullable<Real>();
-  time_adapter->lookupNow(State::timeState(), time_cache);
-  if(!time_cache.isKnown()) return Nullable<Real>();
+Nullable<Real> CheckpointSystem::get_time(){
+  if(!s_use_time || s_time_adapter==NULL) return Nullable<Real>();
 
+  s_time_adapter->lookupNow(State::timeState(), s_time_cache);
+  if(!s_time_cache.isKnown()) return Nullable<Real>();
   // Extract time from time_cache
-  Value time_value = time_cache.cachedValue()->toValue();
+  Value time_value = s_time_cache.cachedValue()->toValue();
   Real r;
   time_value.getValue(r);
   return Nullable<Real>(r);
@@ -97,12 +97,21 @@ Value time_to_Value(Nullable<Real> time){
 
 
 void CheckpointSystem::start(){
-  time_adapter = g_configuration->getLookupInterface("time");
-  m_manager->setTimeFunction(get_time);
+  s_time_adapter = g_configuration->getLookupInterface("time");  
+  m_manager->setTimeFunction(CheckpointSystem::get_time);
   m_manager->setData(&m_data_vector,&m_num_total_boots);
   m_manager->loadCrashes();
 }
 
+void CheckpointSystem::useTime(bool use_time){
+  if(use_time) {
+    debug("Using time");
+  }
+  else {
+    debug("Not using time");
+  }
+  s_use_time = use_time;
+}
 
 void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
     m_manager->setConfig(configXml);

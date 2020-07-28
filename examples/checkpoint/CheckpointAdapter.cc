@@ -208,14 +208,14 @@ static State createState (const string& state_name, const vector<Value>& value)
 
 void CheckpointAdapter::receiveValue (const string& state_name, Value val)
 {
-  propagate (createState(state_name, EmptyArgs),
+  propagateValueChange (createState(state_name, EmptyArgs),
 					       vector<Value> (1, val));
 }
 
 
 void CheckpointAdapter::receiveValue (const string& state_name, Value val, Value arg)
 {
-  propagate (createState(state_name, vector<Value> (1,arg)),
+  propagateValueChange (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
@@ -225,7 +225,7 @@ void CheckpointAdapter::receiveValue(const string& state_name, Value val, Value 
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  propagate (createState(state_name, vec), vector<Value> (1, val));
+  propagateValueChange (createState(state_name, vec), vector<Value> (1, val));
 }
 
 ///////////////////////////// Member functions //////////////////////////////////
@@ -256,6 +256,12 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   // Defaults to true for safety
   if(flush_on_exit == "false") m_flush_on_exit = false;
   else m_flush_on_exit = true;
+
+  string use_time_s = getChildWithAttribute(configXml,"AdapterConfiguration","UseTime");
+  std::transform(use_time_s.begin(),use_time_s.end(),use_time_s.begin(), ::tolower);
+  // Defaults to true for safety
+  if(use_time_s == "false") CheckpointSystem::getInstance()->useTime(false);
+  else CheckpointSystem::getInstance()->useTime(true);
   
   debugMsg("CheckpointAdapter", " created.");
 }
@@ -420,25 +426,17 @@ void CheckpointAdapter::unsubscribe (const State& state)
   m_subscribedStates.erase(state);
 }
 
-void CheckpointAdapter::propagate (const State& state, const vector<Value>& value)
-{
-  CheckpointAdapter::propagateValueChange(state, value);
-}
 
 void CheckpointAdapter::propagateValueChange (const State& state,
                                           const vector<Value>& vals) const
 {
-  if (!isStateSubscribed(state))
-    return; 
-  m_execInterface.handleValueChange(state, vals.front());
-  m_execInterface.notifyOfExternalEvent();
+  // If subscribed
+  if (m_subscribedStates.find(state) != m_subscribedStates.end()){
+    m_execInterface.handleValueChange(state, vals.front());
+    m_execInterface.notifyOfExternalEvent();
+  }
 }
 
-
-bool CheckpointAdapter::isStateSubscribed(const State& state) const
-{
-  return m_subscribedStates.find(state) != m_subscribedStates.end();
-}
 
 // Necessary boilerplate
 extern "C" {

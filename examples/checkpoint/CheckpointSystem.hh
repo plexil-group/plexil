@@ -33,6 +33,8 @@
 #include "data_support.hh"
 #include "SaveManager.hh"
 #include "ReadWriteLock.hh"
+#include "StateCacheEntry.hh"
+
 
 #include "pugixml.hpp"
 
@@ -74,6 +76,8 @@ public:
   PLEXIL::Value getTimeOfCrash(PLEXIL::Integer boot_num);
   PLEXIL::Value getIsOK(PLEXIL::Integer boot_num);
 
+  // For use by other classes
+  static Nullable<PLEXIL::Real> get_time();
   
   // Commands
   void setCheckpoint(const std::string& checkpoint_name, bool value, std::string& info, PLEXIL::Command* cmd);
@@ -84,12 +88,15 @@ public:
   void start();
   void setSaveConfiguration(const pugi::xml_node* configXml);
   void setExecInterface(PLEXIL::AdapterExecInterface* execInterface);
-
+  void useTime(bool use_time);
 
 private:
   
   // Singleton paradigm
-  CheckpointSystem(): m_manager(new SimpleSaveManager) {}
+  CheckpointSystem(): m_manager(new SimpleSaveManager) {
+    s_use_time = true;
+    s_time_adapter = NULL;
+  }
   static CheckpointSystem *s_system;
 
   //Prohibits copying or assigning
@@ -100,7 +107,10 @@ private:
   bool valid_boot(PLEXIL::Integer boot_num);
   bool valid_checkpoint(const std::string& checkpoint_name,PLEXIL::Integer boot_num);
 
-  
+  // Time function variables
+  static PLEXIL::InterfaceAdapter* s_time_adapter;
+  static PLEXIL::StateCacheEntry s_time_cache;
+  static bool s_use_time;
   
   // Synchronization control
   ReadWriteLock m_rw;

@@ -39,4 +39,3 @@ test1:
 test2:
 	plexilc plans/StringOperations.ple
 	plexilexec -p plans/StringOperations.plx
-

@@ -11,7 +11,6 @@
 #include <string.h>
 #include "pugixml.hpp"
 
-
 class SimpleSaveManager : public SaveManager
 {
 public:
