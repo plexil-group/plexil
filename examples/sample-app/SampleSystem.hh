@@ -35,15 +35,21 @@ class SampleSystem
 {
  public:
 
-   SampleSystem (const SampleSystem&) = delete;
-   SampleSystem& operator= (const SampleSystem&) = delete;
-   ~SampleSystem();
+  SampleSystem (const SampleSystem&) = delete;
+  SampleSystem& operator= (const SampleSystem&) = delete;
+  
+  ~SampleSystem ()
+  {
+    if (s_system) {
+      delete s_system;
+    }
+  }
 
   static SampleSystem *getInstance () {
-    if (!m_system) {
-      m_system = new SampleSystem;
+    if (!s_system) {
+      s_system = new SampleSystem;
     }
-    return m_system;
+    return s_system;
   }
 
   float getSize () { return m_size; }
@@ -80,7 +86,7 @@ class SampleSystem
 
   SampleSystem();
 
-  static SampleSystem *m_system;
+  static SampleSystem *s_system;
 
   float m_size;
   int m_speed;

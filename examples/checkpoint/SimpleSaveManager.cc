@@ -10,10 +10,14 @@
 #include "pugixml.hpp"
 #include "plexil-stdint.h"
 
+using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
-using std::cout;
+using std::vector;
+using std::pair;
+using std::map;
+using namespace PLEXIL;
 
 
 #define debug(msg) debugMsg("SimpleSaveManager"," "<<msg)

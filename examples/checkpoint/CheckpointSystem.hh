@@ -36,12 +36,6 @@
 
 #include "pugixml.hpp"
 
-using namespace PLEXIL;
-
-using std::string;
-using std::vector;
-using std::map;
-
 
 // This is a class that stores, operates on, and provides information
 // about crashes and checkpoints
@@ -53,68 +47,74 @@ public:
 
   ~CheckpointSystem ()
   {
-    if (m_system) {
-      delete m_system;
+    if (s_system) {
+      delete s_system;
     }
-    delete manager;
+    delete m_manager;
   }
 
-
+  // Singleton paradigm
   static CheckpointSystem *getInstance () {
-    if (!m_system) {
-      m_system = new CheckpointSystem;
+    if (!s_system) {
+      s_system = new CheckpointSystem;
     }
-    return m_system;
+    return s_system;
   }
   
   // Lookups
   bool didCrash();
-  Integer numAccessibleBoots();
-  Integer numTotalBoots();
-  Integer numUnhandledBoots();
-  Value getCheckpointState(const string& checkpoint_name,Integer boot_num);
-  Value getCheckpointTime(const string& checkpoint_name, Integer boot_num);
-  Value getCheckpointInfo(const string& checkpoint_name, Integer boot_num);
-  Value getCheckpointLastPassed(const string& checkpoint_name);
-  Value getTimeOfBoot(Integer boot_num);
-  Value getTimeOfCrash(Integer boot_num);
-  Value getIsOK(Integer boot_num);
+  PLEXIL::Integer numAccessibleBoots();
+  PLEXIL::Integer numTotalBoots();
+  PLEXIL::Integer numUnhandledBoots();
+  PLEXIL::Value getCheckpointState(const std::string& checkpoint_name,PLEXIL::Integer boot_num);
+  PLEXIL::Value getCheckpointTime(const std::string& checkpoint_name, PLEXIL::Integer boot_num);
+  PLEXIL::Value getCheckpointInfo(const std::string& checkpoint_name, PLEXIL::Integer boot_num);
+  PLEXIL::Value getCheckpointLastPassed(const std::string& checkpoint_name);
+  PLEXIL::Value getTimeOfBoot(PLEXIL::Integer boot_num);
+  PLEXIL::Value getTimeOfCrash(PLEXIL::Integer boot_num);
+  PLEXIL::Value getIsOK(PLEXIL::Integer boot_num);
 
   
   // Commands
-  void setCheckpoint(const string& checkpoint_name, bool value, string& info, Command* cmd);
-  void setOK(bool b, Integer boot_num, Command *cmd);
+  void setCheckpoint(const std::string& checkpoint_name, bool value, std::string& info, PLEXIL::Command* cmd);
+  void setOK(bool b, PLEXIL::Integer boot_num, PLEXIL::Command *cmd);
   bool flush();
 
   // Helper
   void start();
   void setSaveConfiguration(const pugi::xml_node* configXml);
-  void setExecInterface(AdapterExecInterface* execInterface);
+  void setExecInterface(PLEXIL::AdapterExecInterface* execInterface);
+
+
 private:
-  CheckpointSystem(): manager(new SimpleSaveManager) {}
-  static CheckpointSystem *m_system;
+  
+  // Singleton paradigm
+  CheckpointSystem(): m_manager(new SimpleSaveManager) {}
+  static CheckpointSystem *s_system;
 
   //Prohibits copying or assigning
   CheckpointSystem (const CheckpointSystem&);
   CheckpointSystem& operator= (const CheckpointSystem&);
-  
-  // Current boot information
-  int num_total_boots;
 
-  ReadWriteLock rw;
-  SaveManager* const manager;
-  
-  
-  // Data structure that tracks boot-specific metadata and checkpoints
-  vector<boot_data>  data_vector;
-  
-  
   // Helper functions
+  bool valid_boot(PLEXIL::Integer boot_num);
+  bool valid_checkpoint(const std::string& checkpoint_name,PLEXIL::Integer boot_num);
 
-  bool valid_boot(Integer boot_num);
-  bool valid_checkpoint(const string& checkpoint_name,Integer boot_num);
+  
+  
+  // Synchronization control
+  ReadWriteLock m_rw;
+
+  // Persistent Storage system
+  SaveManager* const m_manager;
+  
+  
+  // Data
+  std::vector<boot_data>  m_data_vector;
+  int m_num_total_boots;
+  
 
 };
 
-static Nullable<Real> get_time();
+static Nullable<PLEXIL::Real> get_time();
 #endif

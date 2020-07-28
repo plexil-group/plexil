@@ -27,21 +27,21 @@
 
 // This defines a datastructure for describing boot information which is used by both SaveManager and CheckpointSystem
 #include "Nullable.hh"
-#include "Value.hh"
+#include "ValueType.hh"
 #include <map>
-using namespace PLEXIL;
+
 #ifndef _H_DataVector
 #define _H_DataVector
 
 struct checkpoint_data{
   bool state; /*state of checkpoint*/
-  Nullable<Real> time; /*time of last checkpoint modification*/
+  Nullable<PLEXIL::Real> time; /*time of last checkpoint modification*/
   std::string info; /*user-defined checkpoint info*/
 };
 
 struct boot_data{
-  Nullable<Real> boot_time; /*time of boot*/
-  Nullable<Real> crash_time;  /*time of crash*/
+  Nullable<PLEXIL::Real> boot_time; /*time of boot*/
+  Nullable<PLEXIL::Real> crash_time;  /*time of crash*/
   bool is_ok;  /*is_OK*/
   std::map<const std::string, /*checkpoint name*/
       checkpoint_data> checkpoints; /*map of checkpoint info*/

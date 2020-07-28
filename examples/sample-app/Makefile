@@ -26,7 +26,7 @@
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY = SampleAdapter
-SRC = SubscriberData.cc SampleSystem.cc SampleAdapter.cc
+SRC = Subscriber.cc SampleSystem.cc SampleAdapter.cc
 INC = Subscriber.hh SampleSystem.hh SampleAdapter.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make

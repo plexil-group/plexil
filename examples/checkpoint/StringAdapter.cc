@@ -36,7 +36,7 @@
 #include <algorithm> //transform
 
 
-
+using namespace PLEXIL;
 
 using std::cout;
 using std::cerr;
@@ -54,12 +54,6 @@ static string error = "Error in StringAdapter: ";
 
 // A prettier name for the "unknown" value.
 static Value Unknown;
-
-// Static member initialization
-StringAdapter *StringAdapter::m_adapter = 0; 
-
-// An empty argument vector.
-static vector<Value> EmptyArgs;
 
 
 ///////////////////////////// State support //////////////////////////////////
@@ -82,13 +76,7 @@ StringAdapter::StringAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
-  m_adapter = this;
   debugMsg("StringAdapter", " created.");
-}
-
-StringAdapter::~StringAdapter ()
-{
-  m_adapter = NULL;
 }
 
 bool StringAdapter::initialize()
@@ -325,48 +313,6 @@ void StringAdapter::lookupNow (const State& state, StateCacheEntry &entry)
   entry.update(fetch(state.name(), state.parameters()));
 }
 
-
-void StringAdapter::subscribe(const State& state)
-{
-  debugMsg("StringAdapter:subscribe", " processing state " << state.name());
-  m_subscribedStates.insert(state);
-}
-
-
-void StringAdapter::unsubscribe (const State& state)
-{
-  debugMsg("StringAdapter:subscribe", " from state " << state.name());
-  m_subscribedStates.erase(state);
-}
-
-// Does nothing.
-void StringAdapter::setThresholds (const State& state, double hi, double lo)
-{
-}
-
-void StringAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
-{
-}
-
-void StringAdapter::propagate (const State& state, const vector<Value>& value)
-{
-  StringAdapter::propagateValueChange(state, value);
-}
-
-void StringAdapter::propagateValueChange (const State& state,
-                                          const vector<Value>& vals) const
-{
-  if (!isStateSubscribed(state))
-    return; 
-  m_execInterface.handleValueChange(state, vals.front());
-  m_execInterface.notifyOfExternalEvent();
-}
-
-
-bool StringAdapter::isStateSubscribed(const State& state) const
-{
-  return m_subscribedStates.find(state) != m_subscribedStates.end();
-}
 
 // Necessary boilerplate
 extern "C" {
