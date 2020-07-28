@@ -53,6 +53,9 @@ using std::string;
 using std::vector;
 using std::copy;
 
+using namespace PLEXIL;
+
+
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.
@@ -62,8 +65,7 @@ static string error = "Error in CheckpointAdapter: ";
 static Value Unknown;
 
 // Static member initialization
-CheckpointAdapter *CheckpointAdapter::m_adapter = 0; 
-CheckpointSystem *CheckpointSystem::m_system = 0;
+CheckpointSystem *CheckpointSystem::s_system = 0;
 
 // An empty argument vector.
 static vector<Value> EmptyArgs;
@@ -85,6 +87,7 @@ string getChildWithAttribute(const pugi::xml_node& configXml,
       return "";
     }
   }
+  return "";
 }
 
 pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
@@ -95,6 +98,7 @@ pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
       return child;
     }
   }
+  return pugi::xml_node(NULL);
 }
 
 
@@ -202,35 +206,27 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 
-static void receiveInt (const string& state_name, Integer val)
+void CheckpointAdapter::receiveValue (const string& state_name, Value val)
 {
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
+  propagate (createState(state_name, EmptyArgs),
 					       vector<Value> (1, val));
 }
 
 
-static void receiveValueInt (const string& state_name, Value val, Integer arg)
+void CheckpointAdapter::receiveValue (const string& state_name, Value val, Value arg)
 {
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
+  propagate (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
 
-static void receiveValueString (const string& state_name, Value val, const string& arg)
-{
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1,arg)),
-					       vector<Value> (1, val));
-}
-
-
-static void receiveValueStringInt (const string& state_name, Value val, const string& arg1, Integer arg2)
+void CheckpointAdapter::receiveValue(const string& state_name, Value val, Value arg1, Value arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  CheckpointAdapter::getInstance()->propagate (createState(state_name, vec), vector<Value> (1, val));
+  propagate (createState(state_name, vec), vector<Value> (1, val));
 }
-
 
 ///////////////////////////// Member functions //////////////////////////////////
 
@@ -239,11 +235,12 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
-  m_adapter = this;
+
   
   // Reads save directory from configuration file
   const pugi::xml_node save_config = getChildWithName(configXml,"SaveConfiguration");
-  
+
+  // If SaveConfiguration not specified, will be a node_null that always returns empty strings
   CheckpointSystem::getInstance()->setSaveConfiguration(&save_config);
   CheckpointSystem::getInstance()->setExecInterface(&m_execInterface);
 
@@ -261,11 +258,6 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   else m_flush_on_exit = true;
   
   debugMsg("CheckpointAdapter", " created.");
-}
-
-CheckpointAdapter::~CheckpointAdapter ()
-{
-  m_adapter = NULL;
 }
 
 bool CheckpointAdapter::initialize()
@@ -288,10 +280,8 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerCommandInterface("SetOK", this);
   g_configuration->registerCommandInterface("Flush", this);
 
-  setSubscriber(receiveInt);
-  setSubscriber (receiveValueInt);
-  setSubscriber (receiveValueString);
-  setSubscriber (receiveValueStringInt);
+  // Register ourselves to receive updates
+  setSubscriber(this);
   
   debugMsg("CheckpointAdapter", " initialized.");
   return true;
@@ -429,15 +419,6 @@ void CheckpointAdapter::unsubscribe (const State& state)
 {
   debugMsg("CheckpointAdapter:subscribe", " unsubscribing from state " << state.name());
   m_subscribedStates.erase(state);
-}
-
-// Does nothing.
-void CheckpointAdapter::setThresholds (const State& state, double hi, double lo)
-{
-}
-
-void CheckpointAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
-{
 }
 
 void CheckpointAdapter::propagate (const State& state, const vector<Value>& value)

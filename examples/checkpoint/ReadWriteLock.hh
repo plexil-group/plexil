@@ -2,7 +2,6 @@
 #define _H__ReadWrite
 
 #include "ThreadMutex.hh"
-using namespace PLEXIL;
 
 // Implements a write-favoring read-write lock
 class ReadWriteLock{
@@ -42,9 +41,9 @@ public:
   }
 private:
   int r_count; // Count of readers
-  ThreadMutex r_lock; // Protects access to r_count
-  ThreadMutex w_lock; // Protects writes to data
-  ThreadMutex turn_lock; // Write is awaiting a turn
+  PLEXIL::ThreadMutex r_lock; // Protects access to r_count
+  PLEXIL::ThreadMutex w_lock; // Protects writes to data
+  PLEXIL::ThreadMutex turn_lock; // Write is awaiting a turn
 };
 
 

@@ -36,17 +36,12 @@
 #include "InterfaceAdapter.hh"
 #include "Value.hh"
 
-using namespace PLEXIL;
 
-class SampleAdapter : public InterfaceAdapter
+class SampleAdapter : public PLEXIL::InterfaceAdapter
 {
 public:
-  static SampleAdapter* getInstance() {
-    return m_adapter;
-  }
 
-  SampleAdapter (AdapterExecInterface&, const pugi::xml_node&);
-  ~SampleAdapter();
+  SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
 
   bool initialize();
   bool start();
@@ -54,28 +49,32 @@ public:
   bool reset();
   bool shutdown();
 
-  virtual void executeCommand(Command *cmd);
-  virtual void lookupNow (State const& state, StateCacheEntry &entry);
-  virtual void subscribe(const State& state);
-  virtual void unsubscribe(const State& state);
-  virtual void setThresholds(const State& state, double hi, double lo);
-  virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
+  virtual void executeCommand(PLEXIL::Command *cmd);
+  virtual void lookupNow (PLEXIL::State const& state, PLEXIL::StateCacheEntry &entry);
+  virtual void subscribe(const PLEXIL::State& state);
+  virtual void unsubscribe(const PLEXIL::State& state);
+  virtual void setThresholds(const PLEXIL::State& state, double hi, double lo);
+  virtual void setThresholds(const PLEXIL::State& state, int32_t hi, int32_t lo);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
   //
 
-  void propagateValueChange (const State& state,
-                             const std::vector<Value>& vals) const;
+  void propagateValueChange (const PLEXIL::State& state,
+                             const std::vector<PLEXIL::Value>& vals) const;
 
-  void propagate (const State& state, const std::vector<Value>& value);
+  void propagate (const PLEXIL::State& state, const std::vector<PLEXIL::Value>& value);
+
+  void receiveValue (const std::string& state_name, PLEXIL::Value val);
+  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg);
+  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 private:
-
-  bool isStateSubscribed(const State& state) const;
-
-  static SampleAdapter * m_adapter;
-  std::set<State> m_subscribedStates;
+  // Deliberately private, delete is not C++98 compatible
+  SampleAdapter();
+  
+  bool isStateSubscribed(const PLEXIL::State& state) const;
+  std::set<PLEXIL::State> m_subscribedStates;
 };
 
 extern "C" {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,17 +39,11 @@
 #include "Value.hh"
 #include "InterfaceAdapter.hh"
 
-using namespace PLEXIL;
 
-class CheckpointAdapter : public InterfaceAdapter
+class CheckpointAdapter : public PLEXIL::InterfaceAdapter
 {
-public:
-  static CheckpointAdapter* getInstance() {
-    return m_adapter;
-  }
-  
-  CheckpointAdapter (AdapterExecInterface&, const pugi::xml_node&);
-  ~CheckpointAdapter();
+public:  
+  CheckpointAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
   
   bool initialize();
   bool start();
@@ -57,34 +51,30 @@ public:
   bool reset();
   bool shutdown();
 
-  virtual void lookupNow (State const &state, StateCacheEntry &cacheEntry);
-  virtual void subscribe(const State& state);
-  virtual void unsubscribe(const State& state);
-  virtual void setThresholds(const State& state, double hi, double lo);
-  virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
-  virtual void executeCommand(Command *cmd);
+  virtual void lookupNow (PLEXIL::State const &state, PLEXIL::StateCacheEntry &cacheEntry);
+  virtual void subscribe(const PLEXIL::State& state);
+  virtual void unsubscribe(const PLEXIL::State& state);
+  virtual void executeCommand(PLEXIL::Command *cmd);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
   //
-  void propagateValueChange (const State& state,
-                             const std::vector<Value>& vals) const;
+  void propagateValueChange (const PLEXIL::State& state,
+                             const std::vector<PLEXIL::Value>& vals) const;
   
-  void propagate (const State& state, const std::vector<Value>& value);
+  void propagate (const PLEXIL::State& state, const std::vector<PLEXIL::Value>& value);
+  void receiveValue (const std::string& state_name, PLEXIL::Value val);
+  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg);
+  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 private:
-  bool isStateSubscribed(const State& state) const;
+  bool isStateSubscribed(const PLEXIL::State& state) const;
   
-  static CheckpointAdapter * m_adapter;
-  std::set<State> m_subscribedStates;
+  std::set<PLEXIL::State> m_subscribedStates;
   bool m_ok_on_exit;
   bool m_flush_on_exit;
 
 };
-
-std::string getChildWithAttribute(const pugi::xml_node& configXml,
-	    const std::string& node_name,
-	    const std::string& attribute_name);
 
 extern "C" {
   void initCheckpointAdapter();

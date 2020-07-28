@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,37 +34,21 @@
 #include "Value.hh"
 #include <string>
 
-using namespace PLEXIL;
-using std::string;
 
-// Subscriber types
-typedef void (* SubscribeInt) (const string& state_name, int val);
+#include "CheckpointAdapter.hh"
 
 
-typedef void (* SubscribeValueInt) (const string& state_name, Value val, int arg);
+// Set the instance of the CheckpointAdapter to pubish to
+void setSubscriber(CheckpointAdapter *i);
+
+// The overloaded publish function, one for each value/parameter combination
+// found in this application.
+
+void publish (const std::string& state_name, PLEXIL::Value val);
 
 
-typedef void (* SubscribeValueString) (const string& state_name, Value val,
-				       const string& checkpoint_name);
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
 
-typedef void (* SubscribeValueStringInt) (const string& state_name, Value val,
-					  const string& checkpoint_name,int boot);
-
-// Setters for subscribers of each supported type signature
-void setSubscriber (SubscribeInt);
-void setSubscriber (SubscribeValueInt);
-void setSubscriber (SubscribeValueString);
-void setSubscriber (SubscribeValueStringInt);
-// Publish a state name, which notifies the subscriber.
-void publish (const string& state_name, int val);
-
-void publish (const string& state_name, Value val, int arg);
-
-void publish (const string& state_name, Value val,
-	      const string& checkpoint_name);
-
-void publish (const string& state_name, Value val,
-	      const string& checkpoint_name,int boot);
-
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 #endif

@@ -23,30 +23,26 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "Subscriber.hh"
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+static SampleAdapter *instance = 0;
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
-
-#include "Value.hh"
-#include <string>
-
-// For SampleAdapter only
-#include "SampleAdapter.hh"
-
-
-
-void setSubscriber(SampleAdapter *i);
+void setSubscriber(SampleAdapter *i) {
+  instance = i;
+}
 
 // The overloaded publish function, one for each value/parameter combination
 // found in this application.
 
-void publish (const std::string& state_name, PLEXIL::Value val);
+void publish (const std::string& state_name, PLEXIL::Value val){
+  instance->receiveValue(state_name,val);
+}
 
 
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg){
+  instance->receiveValue(state_name,val,arg);
+}
 
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
-
-#endif
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2){
+  instance->receiveValue(state_name,val,arg1,arg2);
+}

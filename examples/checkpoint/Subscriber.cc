@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,24 @@
 
 #include "Subscriber.hh"
 
+// The checkpoint adapter to publish to
+static CheckpointAdapter *instance = 0;
 
-
-// The subscribers.  Their naming convention is:
-//   Subscribe<value-type><param-type>...
-
-static SubscribeInt SubscriberInt = NULL;
-static SubscribeValueInt SubscriberValueInt = NULL;
-static SubscribeValueString SubscriberValueString = NULL;
-static SubscribeValueStringInt SubscriberValueStringInt = NULL;
-
-void setSubscriber (SubscribeInt s) { SubscriberInt = s; }
-void setSubscriber (SubscribeValueInt s) { SubscriberValueInt = s; }
-void setSubscriber (SubscribeValueString s) { SubscriberValueString = s; }
-void setSubscriber (SubscribeValueStringInt s) { SubscriberValueStringInt = s; }
-
-
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const string& state_name, int val){
-  SubscriberInt(state_name,val);
+void setSubscriber(CheckpointAdapter *i) {
+  instance = i;
 }
 
-void publish (const string& state_name, Value val, int arg){
-  SubscriberValueInt(state_name,val,arg);
+// The overloaded publish function, one for each number of Values found in this application
+
+void publish (const std::string& state_name, PLEXIL::Value val){
+  instance->receiveValue(state_name,val);
 }
 
 
-void publish (const string& state_name, Value val,
-	      const string& checkpoint_name)
-{
-  SubscriberValueString(state_name,val,checkpoint_name);
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg){
+  instance->receiveValue(state_name,val,arg);
 }
-void publish (const string& state_name, Value val,
-	      const string& checkpoint_name,int boot)
-{
-  SubscriberValueStringInt(state_name,val,checkpoint_name,boot);
+
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2){
+  instance->receiveValue(state_name,val,arg1,arg2);
 }
