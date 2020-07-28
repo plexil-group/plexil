@@ -5,7 +5,7 @@
     <!-- Configuration allows test to intentionally "crash"-->
     <AdapterConfiguration OKOnExit="false"
 			  FlushOnExit="false"
-			  UseTime="false" />
+			  UseTime="true" />
   </Adapter>
   <Adapter AdapterType="StringAdapter"/>
   <Adapter AdapterType="OSNativeTime"/>
