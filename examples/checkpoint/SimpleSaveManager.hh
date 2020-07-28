@@ -17,8 +17,11 @@ class SimpleSaveManager : public SaveManager
 public:
   
   SimpleSaveManager() : m_have_read(false), m_file_directory("./") {}
+  ~SimpleSaveManager(){
+    // Pointers in m_queued_commands are managed elsewhere
+  }
   
-  virtual void setData( std::vector<boot_data>  *data, int *num_total_boots);
+  virtual void setData( std::vector<BootData>  *data, int *num_total_boots);
 
   virtual void setTimeFunction(Nullable<PLEXIL::Real> (*time_func)());
 
@@ -33,6 +36,10 @@ public:
   virtual void setCheckpoint(const std::string& checkpoint_name, bool value, std::string& info, Nullable<PLEXIL::Real> time, PLEXIL::Command *cmd);
 
 private:
+  // Disallow copy
+  SimpleSaveManager & operator=(const SimpleSaveManager&);
+  SimpleSaveManager(const SimpleSaveManager&);
+  
   bool writeToFile(const std::string& location);
   // Returns success to all commands which were committed to disk
   // This is the ONLY place m_execInterface is used

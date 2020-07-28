@@ -35,8 +35,13 @@ public:
   Nullable(T t) : data(t),      some(true) {}
   Nullable()    : some(false){}
   Nullable(const Nullable<T> &o) : data(o.data), some(o.some){}
+  Nullable<T> & operator=(const Nullable<T> &o){
+    data = o.data;
+    some = o.some;
+  }
+  // Using default destructor
 
-
+  
   bool has_value() const{
     return some;
   }
