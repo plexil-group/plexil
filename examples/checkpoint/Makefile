@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # TODO: figure out why fPIC is necessary in c++98
-CXXFLAGS= -fPIC
+CXXFLAGS= -std=c++98 -pedantic-errors -fPIC
 LIBRARY = CheckpointAdapter
 SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
 INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh

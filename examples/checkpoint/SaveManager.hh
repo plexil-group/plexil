@@ -11,26 +11,21 @@
 
 #include "pugixml.hpp"
 
-using namespace PLEXIL;
-
-using std::string;
-using std::vector;
-using std::map;
-
-
-
 class SaveManager
 {
 public:
+  virtual ~SaveManager(){
+    // All pointer member variables here are managed by CheckpointSystem
+  }
   
-  virtual void setData( vector<boot_data>  *data, int *num_total_boots){
+  virtual void setData( std::vector<boot_data>  *data, int *num_total_boots){
     m_data_vector = data;
     m_num_total_boots = num_total_boots;
   }
-  virtual void setTimeFunction(Nullable<Real> (*time_func)()){
+  virtual void setTimeFunction(Nullable<PLEXIL::Real> (*time_func)()){
     m_time_func = time_func;
   }
-  virtual void setExecInterface(AdapterExecInterface *execInterface){
+  virtual void setExecInterface(PLEXIL::AdapterExecInterface *execInterface){
     m_execInterface = execInterface;
   }
 
@@ -45,19 +40,19 @@ public:
 
   // Called during each command (AFTER the relevant change to data_vector)
   // managers are expected to send COMMAND_SUCCESS when the provided command is written to disk
-  virtual void setOK(bool b,Integer boot_num,Command *cmd) = 0;
-  virtual void setCheckpoint(const string& checkpoint_name, bool value,string& info, Nullable<Real> time, Command *cmd) = 0;
+  virtual void setOK(bool b,PLEXIL::Integer boot_num,PLEXIL::Command *cmd) = 0;
+  virtual void setCheckpoint(const std::string& checkpoint_name, bool value,std::string& info, Nullable<PLEXIL::Real> time, PLEXIL::Command *cmd) = 0;
 
 protected:
   
-  // Data structure that tracks boot-specific metadata and checkpoints
-  vector<boot_data>  *m_data_vector;
-
+  // Data, shared with CheckpointSystem
+  std::vector<boot_data>  *m_data_vector;
   int32_t *m_num_total_boots;
-  // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
-  AdapterExecInterface * m_execInterface;
 
-  Nullable<Real>(*m_time_func)();
+  // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
+  PLEXIL::AdapterExecInterface * m_execInterface;
+
+  Nullable<PLEXIL::Real>(*m_time_func)();
   
 };
 #endif

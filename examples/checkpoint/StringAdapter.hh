@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,17 +40,11 @@
 #include "Value.hh"
 #include "InterfaceAdapter.hh"
 
-using namespace PLEXIL;
-
-class StringAdapter : public InterfaceAdapter
+class StringAdapter : public PLEXIL::InterfaceAdapter
 {
 public:
-  static StringAdapter* getInstance() {
-    return m_adapter;
-  }
-  
-  StringAdapter (AdapterExecInterface&, const pugi::xml_node&);
-  ~StringAdapter();
+ 
+  StringAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
   
   bool initialize();
   bool start();
@@ -58,32 +52,19 @@ public:
   bool reset();
   bool shutdown();
 
-  virtual void lookupNow (State const &state, StateCacheEntry &cacheEntry);
-  virtual void subscribe(const State& state);
-  virtual void unsubscribe(const State& state);
-  virtual void setThresholds(const State& state, double hi, double lo);
-  virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
-  virtual void executeCommand(Command *cmd);
+  virtual void lookupNow (PLEXIL::State const &state, PLEXIL::StateCacheEntry &cacheEntry);
+  virtual void executeCommand(PLEXIL::Command *cmd);
 
-  // The following member, not inherited from the base class, propagates a state
-  // value change from the system to the executive.
-  //
-  void propagateValueChange (const State& state,
-                             const std::vector<Value>& vals) const;
-  
-  void propagate (const State& state, const std::vector<Value>& value);
 
 private:
-  bool isStateSubscribed(const State& state) const;
+  StringAdapter();
   
-  static StringAdapter * m_adapter;
-  std::set<State> m_subscribedStates;
 
 };
 
 
 extern "C" {
-  void initCheckpointAdapter();
+  void initStringAdapter();
 }
 
 #endif
