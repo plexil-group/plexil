@@ -35,6 +35,7 @@ StringOperations:{
   SynchronousCommand real2 = StringToReal(b);
   SynchronousCommand  c = ToString(bool);
   SynchronousCommand bool2 = StringToBoolean(c);
+  pprint("Converting to string and back:");
   pprint("Integer Conversion: ",int,"-->",a,"-->",int2);
   pprint("Real Conversion: ",real,"-->",b,"-->",real2);
   pprint("Boolean Conversion: ",bool,"-->",c,"-->",bool2);
@@ -53,20 +54,20 @@ StringOperations:{
   SynchronousCommand a = strupr(d);
   pprint("Uppercase: ",a);
 
-  pprint("Iterating over elements of 'Hello World'");
+  pprint("Iterating over elements of 'Hello World' with '000'");
   for(Integer i = 0; i<strlen(d); i+1){
     SynchronousCommand a = strindex(d,i);
     pprint(a);
   }
   pprint("Replacing elements of 'Hello World'");
   for(Integer i = 0; i<strlen(d); i+1){
-    SynchronousCommand a = strindex(d,i,"0");
+    SynchronousCommand a = strindex(d,i,"000");
     pprint(a);
   }
-  SynchronousCommand x = find_first_of(d,"l",3);
+  SynchronousCommand x = find_first_of(d,"l",5);
   SynchronousCommand y = find_last_of(d,"l",5);
   SynchronousCommand z = find_first_of(d,"el",0);
-  pprint("Find first 'l' in 'Hello World' starting at position 3",x);
-  pprint("Find last 'l' in 'Hello World' ending at position 3",y);
-  pprint("Find first 'l' or 'e' in 'Hello World' starting at position 3",z);
+  pprint("Find first 'l' in 'Hello World' starting at position 5 (0-indexed): ",x);
+  pprint("Find last 'l' in 'Hello World' ending at position 5 (0-indexed): ",y);
+  pprint("Find first 'l' or 'e' in 'Hello World' starting at position 0 (0-indexed): ",z);
 }
