@@ -129,18 +129,18 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
 
 void CheckpointSystem::start(){
   time_adapter = g_configuration->getLookupInterface("time");
-  manager->setTimeFunction(get_time);
-  manager->setData(&data_vector,&num_total_boots);
-  manager->loadCrashes();
+  m_manager->setTimeFunction(get_time);
+  m_manager->setData(&m_data_vector,&m_num_total_boots);
+  m_manager->loadCrashes();
 }
 
 
 void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
-    manager->setConfig(configXml);
+    m_manager->setConfig(configXml);
 }
 
 void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
-  manager->setExecInterface(execInterface);
+  m_manager->setExecInterface(execInterface);
 }
 
 ////////////////////////////////// Lookups /////////////////////////////////////

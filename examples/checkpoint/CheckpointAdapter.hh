@@ -79,10 +79,6 @@ private:
 
 };
 
-std::string getChildWithAttribute(const pugi::xml_node& configXml,
-	    const std::string& node_name,
-	    const std::string& attribute_name);
-
 extern "C" {
   void initCheckpointAdapter();
 }
