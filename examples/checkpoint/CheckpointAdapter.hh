@@ -44,6 +44,7 @@ class CheckpointAdapter : public PLEXIL::InterfaceAdapter
 {
 public:  
   CheckpointAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
+  // Using default destructor
   
   bool initialize();
   bool start();
@@ -68,6 +69,11 @@ public:
   void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 private:
+  //Disallow copy, default constructor
+  CheckpointAdapter(const CheckpointAdapter&);
+  CheckpointAdapter & operator=(const CheckpointAdapter&);
+  CheckpointAdapter();
+
   bool isStateSubscribed(const PLEXIL::State& state) const;
   
   std::set<PLEXIL::State> m_subscribedStates;

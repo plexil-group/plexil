@@ -30,21 +30,21 @@
 #include "ValueType.hh"
 #include <map>
 
-#ifndef _H_DataVector
-#define _H_DataVector
+#ifndef _H_data_support
+#define _H_data_support
 
-struct checkpoint_data{
+struct CheckpointData{
   bool state; /*state of checkpoint*/
   Nullable<PLEXIL::Real> time; /*time of last checkpoint modification*/
   std::string info; /*user-defined checkpoint info*/
 };
 
-struct boot_data{
+struct BootData{
   Nullable<PLEXIL::Real> boot_time; /*time of boot*/
   Nullable<PLEXIL::Real> crash_time;  /*time of crash*/
   bool is_ok;  /*is_OK*/
   std::map<const std::string, /*checkpoint name*/
-      checkpoint_data> checkpoints; /*map of checkpoint info*/
+      CheckpointData> checkpoints; /*map of checkpoint info*/
 };
 
 

@@ -73,7 +73,7 @@ bool CheckpointSystem::valid_boot(Integer boot_num){
 }
 
 bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,Integer boot_num){
-  map<const string, checkpoint_data> checkpoints = m_data_vector.at(boot_num).checkpoints;
+  map<const string, CheckpointData> checkpoints = m_data_vector.at(boot_num).checkpoints;
   return checkpoints.find(checkpoint_name) != checkpoints.end();
 }
 
@@ -153,7 +153,7 @@ Integer CheckpointSystem::numUnhandledBoots(){
   RLOCK;
   Integer retval = 0;
   for(int i=0;i<m_data_vector.size();i++){
-    boot_data boot = m_data_vector.at(i);
+    BootData boot = m_data_vector.at(i);
     if(!boot.is_ok) retval++;
   }
   RUNLOCK;
@@ -231,7 +231,7 @@ Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
   RLOCK;
   Value retval = Unknown;
   for (Integer i=0;i<m_data_vector.size();i++){
-    map<const string, checkpoint_data> checkpoints = m_data_vector.at(i).checkpoints;
+    map<const string, CheckpointData> checkpoints = m_data_vector.at(i).checkpoints;
     if(checkpoints.find(checkpoint_name)!=checkpoints.end() && checkpoints.at(checkpoint_name).state){
       retval = i;
       break;
@@ -295,7 +295,7 @@ void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,s
   WLOCK;  
   Nullable<Real> time = get_time();
   // This inserts the element if none exists, and overrides if it exists
-  const checkpoint_data checkpoint = {value,time,info};
+  const CheckpointData checkpoint = {value,time,info};
   m_data_vector.at(0).checkpoints[checkpoint_name] = checkpoint;
 
 
