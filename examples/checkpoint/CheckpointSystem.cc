@@ -27,7 +27,6 @@
 
 #include "CheckpointSystem.hh"
 #include "State.hh"
-#include "StateCacheEntry.hh"
 #include "CachedValue.hh"
 #include "Subscriber.hh"
 #include "Debug.hh"
@@ -134,6 +133,15 @@ void CheckpointSystem::start(){
   m_manager->loadCrashes();
 }
 
+void CheckpointSystem::useTime(bool use_time){
+  if(use_time) {
+    debug("Using time");
+  }
+  else {
+    debug("Not using time");
+  }
+  s_use_time = use_time;
+}
 
 void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
     m_manager->setConfig(configXml);
