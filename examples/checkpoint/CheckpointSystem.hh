@@ -120,7 +120,7 @@ private:
   SaveManager* const m_manager;
   
   // Data
-  std::vector<boot_data>  m_data_vector;
+  std::vector<BootData>  m_data_vector;
   int m_num_total_boots;
   
   // Data
