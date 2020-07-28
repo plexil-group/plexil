@@ -45,7 +45,8 @@ class StringAdapter : public PLEXIL::InterfaceAdapter
 public:
  
   StringAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
-  
+  //Default destructor
+
   bool initialize();
   bool start();
   bool stop();
@@ -57,8 +58,10 @@ public:
 
 
 private:
+  // Disallow default constructor, copy, assign
   StringAdapter();
-  
+  StringAdapter & operator=(const StringAdapter&);
+  StringAdapter(const StringAdapter&);
 
 };
 

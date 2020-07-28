@@ -4,7 +4,7 @@
 #include "Value.hh"
 #include "Nullable.hh"
 #include "ValueType.hh"
-#include "DataVector.hh"
+#include "data_support.hh"
 #include "AdapterExecInterface.hh"
 #include <map>
 #include <string.h>
@@ -18,7 +18,7 @@ public:
     // All pointer member variables here are managed by CheckpointSystem
   }
   
-  virtual void setData( std::vector<boot_data>  *data, int *num_total_boots){
+  virtual void setData( std::vector<BootData>  *data, int *num_total_boots){
     m_data_vector = data;
     m_num_total_boots = num_total_boots;
   }
@@ -46,7 +46,7 @@ public:
 protected:
   
   // Data, shared with CheckpointSystem
-  std::vector<boot_data>  *m_data_vector;
+  std::vector<BootData>  *m_data_vector;
   int32_t *m_num_total_boots;
 
   // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk

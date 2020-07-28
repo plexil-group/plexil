@@ -24,6 +24,7 @@ StringOperations:{
   String c = "";
   String d = "Hello World";
   Integer j;
+  Integer k;
   Integer x;
   Integer y;
   Integer z;
@@ -38,8 +39,9 @@ StringOperations:{
   pprint("Real Conversion: ",real,"-->",b,"-->",real2);
   pprint("Boolean Conversion: ",bool,"-->",c,"-->",bool2);
 
-  j = strlen(d);
-  for(Integer i = 0; i<floor(strlen(d)/2); i+1){
+  j = strlen(d); // floor returns an error otherwise
+  k = floor(strlen(d)/2);
+  for(Integer i = 0; i<k; i+1){
     String cut;
     SynchronousCommand cut = substr(d,i,j);
     print("substr('Hello World'",i,",",j,") = ",cut);

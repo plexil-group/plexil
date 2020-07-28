@@ -8,6 +8,7 @@ class ReadWriteLock{
 public:
 
   ReadWriteLock() : r_count(0){}
+  // Using default destructor
   
   void begin_read(){
     // Block if there is a writer writing
@@ -40,6 +41,10 @@ public:
     w_lock.unlock();
   }
 private:
+  // Disallow copy
+  ReadWriteLock & operator=(const ReadWriteLock&);
+  ReadWriteLock(const ReadWriteLock&);
+  
   int r_count; // Count of readers
   PLEXIL::ThreadMutex r_lock; // Protects access to r_count
   PLEXIL::ThreadMutex w_lock; // Protects writes to data

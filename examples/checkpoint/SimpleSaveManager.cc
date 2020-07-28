@@ -55,7 +55,7 @@ bool is_number(const string& s)
 //////////////////////// Class Features ////////////////////////////
 
 
-void  SimpleSaveManager::setData(vector<boot_data> *data, int32_t *num_total_boots){
+void  SimpleSaveManager::setData(vector<BootData> *data, int32_t *num_total_boots){
   LOCK;
   m_data_vector = data;
   m_num_total_boots = num_total_boots;
@@ -139,10 +139,10 @@ void SimpleSaveManager::loadCrashes(){
 
   m_data_vector->clear();
   // Include current boot with current time, no checkpoints
-  boot_data boot_d = {m_time_func(),
+  BootData boot_d = {m_time_func(),
 			    Nullable<Real>(),
 			    false,
-			    map<const string,checkpoint_data>()};
+			    map<const string,CheckpointData>()};
   m_data_vector->push_back(boot_d);
 
   
@@ -178,14 +178,14 @@ void SimpleSaveManager::loadCrashes(){
 	Nullable<Real> time_of_crash = string_to_time(boot_node.attribute("time_of_crash").as_string());
 	bool is_ok = boot_node.attribute("is_ok").as_bool();
 	// Read checkpoints
-	map<const string,checkpoint_data> checkpoints;
+	map<const string,CheckpointData> checkpoints;
 	pugi::xml_node checkpoint_node = boot_node.first_child();
 	while(checkpoint_node){
 	  bool state = checkpoint_node.attribute("state").as_bool();
 	  Nullable<Real> time = string_to_time(checkpoint_node.attribute("time").as_string());
 	  string info = checkpoint_node.attribute("info").as_string();
 	  string name = checkpoint_node.name();
-	  checkpoint_data checkpoint = {
+	  CheckpointData checkpoint = {
 				 state,
 				   time,
 				 info};
@@ -195,7 +195,7 @@ void SimpleSaveManager::loadCrashes(){
 	  checkpoint_node = checkpoint_node.next_sibling();
 	}
 
-	boot_data boot ={
+	BootData boot ={
 	  time_of_boot,
 	  time_of_crash,
 	  is_ok,checkpoints};
@@ -245,7 +245,7 @@ bool SimpleSaveManager::writeOut(){
 }
 
 bool SimpleSaveManager::writeToFile(const string& location){
-  vector<boot_data> data_clone = vector<boot_data>(*m_data_vector);
+  vector<BootData> data_clone = vector<BootData>(*m_data_vector);
   // Generate new XML document in memory
   pugi::xml_document doc;
   // Generate XML declaration
@@ -262,7 +262,7 @@ bool SimpleSaveManager::writeToFile(const string& location){
   
   //Boots
   int boot_n = 0;
-  for(vector<boot_data>::iterator boot = data_clone.begin();
+  for(vector<BootData>::iterator boot = data_clone.begin();
       boot != data_clone.end();
       boot++){
     pugi::xml_node curr_boot = root.append_child(("boot_"+to_string(boot_n)).c_str());
@@ -279,11 +279,11 @@ bool SimpleSaveManager::writeToFile(const string& location){
     
     curr_boot.append_attribute("is_ok").set_value(boot->is_ok);
     // Checkpoints
-    map<const string, checkpoint_data>::iterator checkpoints;
+    map<const string, CheckpointData>::iterator checkpoints;
     for ( checkpoints = boot->checkpoints.begin(); checkpoints != boot->checkpoints.end(); checkpoints++ )
     {
       string name = checkpoints->first;
-      checkpoint_data data = checkpoints->second;
+      CheckpointData data = checkpoints->second;
       pugi::xml_node checkpoint = curr_boot.append_child(name.c_str());
       checkpoint.append_attribute("state").set_value(data.state);
       checkpoint.append_attribute("time").set_value(time_to_string(data.time).c_str());

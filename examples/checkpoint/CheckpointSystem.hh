@@ -30,7 +30,7 @@
 #include "Nullable.hh"
 #include "InterfaceAdapter.hh"
 #include "SimpleSaveManager.hh"
-#include "DataVector.hh"
+#include "data_support.hh"
 #include "SaveManager.hh"
 #include "ReadWriteLock.hh"
 
@@ -110,7 +110,7 @@ private:
   
   
   // Data
-  std::vector<boot_data>  m_data_vector;
+  std::vector<BootData>  m_data_vector;
   int m_num_total_boots;
   
 
