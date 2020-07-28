@@ -63,7 +63,6 @@ public:
   void propagateValueChange (const PLEXIL::State& state,
                              const std::vector<PLEXIL::Value>& vals) const;
   
-  void propagate (const PLEXIL::State& state, const std::vector<PLEXIL::Value>& value);
   void receiveValue (const std::string& state_name, PLEXIL::Value val);
   void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg);
   void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2);
@@ -73,8 +72,6 @@ private:
   CheckpointAdapter(const CheckpointAdapter&);
   CheckpointAdapter & operator=(const CheckpointAdapter&);
   CheckpointAdapter();
-
-  bool isStateSubscribed(const PLEXIL::State& state) const;
   
   std::set<PLEXIL::State> m_subscribedStates;
   bool m_ok_on_exit;
