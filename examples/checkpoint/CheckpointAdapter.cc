@@ -101,7 +101,18 @@ pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
   return pugi::xml_node(NULL);
 }
 
-
+static Integer get_boot(const vector<Value>& args,int pos){
+  // Default is checkpoint in current boot (iteration 0)
+  Integer which_boot = 0;
+  if(!args.empty()){
+    args[pos].getValue(which_boot);
+    debugMsg("CheckpointAdapter:fetch","arg0="<<which_boot);
+  }
+  else{
+    debugMsg("CheckpointAdapter:fetch","Defaulting boot to 0");
+  }
+  return which_boot;
+}
 
 ///////////////////////////// State support //////////////////////////////////
 
@@ -111,6 +122,7 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 {
   debugMsg("CheckpointAdapter:fetch",
            "Fetch called on " << state_name << " with " << args.size() << " args");
+ 
   Value retval;
   
   if (state_name == "DidCrash"){
@@ -142,29 +154,24 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   }
 
   else{
-    // Default is checkpoint in current boot (iteration 0)
-    Integer which_boot = 0;
-    if(!args.empty()){
-      args[1].getValue(which_boot);
-    }
-
     if (state_name == "TimeOfLastSave"){
       ARGCOUNT(0,1){
-	retval = CheckpointSystem::getInstance()->getTimeOfCrash(which_boot);
+	retval = CheckpointSystem::getInstance()->getTimeOfCrash(get_boot(args,0));
       }
     }
     else if (state_name == "TimeOfBoot"){
       ARGCOUNT(0,1){
-	retval = CheckpointSystem::getInstance()->getTimeOfBoot(which_boot);
+	retval = CheckpointSystem::getInstance()->getTimeOfBoot(get_boot(args,0));
       }
     }
     else if (state_name == "IsOK"){
       ARGCOUNT(0,1){
-	retval = CheckpointSystem::getInstance()->getIsOK(which_boot);
+	retval = CheckpointSystem::getInstance()->getIsOK(get_boot(args,0));
       }
     }
     else{
       ARGCOUNT(1,2){
+	Integer which_boot = get_boot(args,1);
 	string which_checkpoint;
 	args[0].getValue(which_checkpoint);
 	if (state_name == "CheckpointState"){
