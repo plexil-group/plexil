@@ -59,9 +59,11 @@ static Value Unknown;
 static string error = "Error in checkpoint system: ";
 
 // Initialize static variables
+
+// Time function variables
+InterfaceAdapter* CheckpointSystem::s_time_adapter=NULL;
 StateCacheEntry CheckpointSystem::s_time_cache;
-InterfaceAdapter* CheckpointSystem::s_time_adapter = NULL;
-bool CheckpointSystem::s_use_time = true;
+bool CheckpointSystem::s_use_time=true;
 
 
 ///////////////////////////// Helper Functions //////////////////////////////
@@ -273,6 +275,7 @@ Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
   Value retval;
   if(valid_boot(boot_num)){
     Nullable<Real> time = m_data_vector.at(boot_num).crash_time;
+    cout<<time.has_value()<<endl;
     retval = time_to_Value(time);
   }
   // If boot doesn't exist, something's gone wrong

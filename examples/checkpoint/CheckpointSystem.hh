@@ -76,9 +76,6 @@ public:
   PLEXIL::Value getTimeOfCrash(PLEXIL::Integer boot_num);
   PLEXIL::Value getIsOK(PLEXIL::Integer boot_num);
 
-  // For use by other classes
-  static Nullable<PLEXIL::Real> get_time();
-  
   // Commands
   void setCheckpoint(const std::string& checkpoint_name, bool value, std::string& info, PLEXIL::Command* cmd);
   void setOK(bool b, PLEXIL::Integer boot_num, PLEXIL::Command *cmd);
@@ -89,6 +86,9 @@ public:
   void setSaveConfiguration(const pugi::xml_node* configXml);
   void setExecInterface(PLEXIL::AdapterExecInterface* execInterface);
   void useTime(bool use_time);
+
+  // For use to pass to other classes
+  static Nullable<PLEXIL::Real> get_time();
 
 private:
   
@@ -103,14 +103,14 @@ private:
   CheckpointSystem (const CheckpointSystem&);
   CheckpointSystem& operator= (const CheckpointSystem&);
 
-  // Helper functions
-  bool valid_boot(PLEXIL::Integer boot_num);
-  bool valid_checkpoint(const std::string& checkpoint_name,PLEXIL::Integer boot_num);
-
-  // Time function variables
+  // Static members for get_time
   static PLEXIL::InterfaceAdapter* s_time_adapter;
   static PLEXIL::StateCacheEntry s_time_cache;
   static bool s_use_time;
+  
+  // Helper functions
+  bool valid_boot(PLEXIL::Integer boot_num);
+  bool valid_checkpoint(const std::string& checkpoint_name,PLEXIL::Integer boot_num);
   
   // Synchronization control
   ReadWriteLock m_rw;
