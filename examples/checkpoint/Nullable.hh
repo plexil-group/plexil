@@ -33,11 +33,12 @@ template<typename T>
 class Nullable{
 public:
   Nullable(T t) : data(t),      some(true) {}
-  Nullable()    : some(false){}
+  Nullable()    : some(false) {}
   Nullable(const Nullable<T> &o) : data(o.data), some(o.some){}
   Nullable<T> & operator=(const Nullable<T> &o){
     data = o.data;
     some = o.some;
+    return *this;
   }
   // Using default destructor
 

@@ -42,7 +42,8 @@ const string time_to_string(const Nullable<Real> &time){
 
 const Nullable<Real> string_to_time(const char* time){
   if(strcmp(time,"")==0) return Nullable<Real>();
-  else return Nullable<Real>(std::strtod(time,NULL));
+  Real time_d = std::strtod(time,NULL);
+  return Nullable<Real>(time_d);
 }
 
 bool is_number(const string& s)

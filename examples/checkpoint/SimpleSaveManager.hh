@@ -46,9 +46,10 @@ private:
   std::pair<long,long> findOldestNewestFiles();
 
   
-  std::string m_file_directory;
   
   bool m_have_read;
+  std::string m_file_directory;
+  
   bool m_directory_set;
   bool m_write_enqueued;
   PLEXIL::ThreadMutex m_data_lock;
