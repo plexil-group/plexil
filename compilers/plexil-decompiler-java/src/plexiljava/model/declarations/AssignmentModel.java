@@ -17,7 +17,6 @@ public class AssignmentModel extends NodeModel {
 		} else {
 			ret += qualities.get(0).decompile(0) + " = " + children.get(0).decompile(0);
 		}
-		ret += ";";
 		return ret;
 	}
 

@@ -13,8 +13,8 @@ import plexiljava.model.NodeModel;
 
 public class Decompiler {
 
-	public static final String INFILE = "test/Plan1.plx";
-	public static final String OUTFILE = "test/Plan1.ple";
+	public static final String INFILE = "examples/basic/AddArray.plx";
+	public static final String OUTFILE = "example.ple";
 	
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
 		Element rootNode = XMLIO.readToNode(INFILE);
@@ -24,6 +24,7 @@ public class Decompiler {
 			for( BaseModel child : planRoot.getChildren() ) {
 				decompilation += child.decompile(0) + "\n";
 			}
+			//decompilation += (new NodeModel(new BaseModel(rootNode.getLastChild(), null, 0))).decompile(0);
 		} else {
 			decompilation += (new NodeModel(new BaseModel(rootNode.getFirstChild(), null, 0))).decompile(0);
 		}

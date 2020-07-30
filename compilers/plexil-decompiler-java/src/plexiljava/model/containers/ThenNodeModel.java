@@ -1,13 +1,15 @@
-package plexiljava.model;
+package plexiljava.model.containers;
 
+import plexiljava.model.BaseModel;
+import plexiljava.model.NodeModel;
 import plexiljava.model.conditions.ConditionModel;
 
-public class ActionNodeModel extends NodeModel {
+public class ThenNodeModel extends NodeModel {
 
-	public ActionNodeModel(BaseModel node) {
+	public ThenNodeModel(BaseModel node) {
 		super(node);
 	}
-
+	
 	@Override
 	public String decompile(int indentLevel) {
 		String ret = "";
@@ -19,5 +21,5 @@ public class ActionNodeModel extends NodeModel {
 		}
 		return ret;
 	}
-	
+
 }

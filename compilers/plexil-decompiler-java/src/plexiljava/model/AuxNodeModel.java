@@ -1,6 +1,6 @@
 package plexiljava.model;
 
-import plexiljava.model.expressions.ConditionModel;
+import plexiljava.model.conditions.ConditionModel;
 
 public class AuxNodeModel extends NodeModel {
 

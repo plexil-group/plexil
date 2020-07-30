@@ -5,6 +5,7 @@ import java.util.List;
 
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.tokens.ParameterModel;
 
 public class CommandDeclarationModel extends NodeModel {
 
