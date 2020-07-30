@@ -65,7 +65,6 @@ InterfaceAdapter* CheckpointSystem::s_time_adapter=NULL;
 StateCacheEntry CheckpointSystem::s_time_cache;
 bool CheckpointSystem::s_use_time=true;
 
-///////////////////////////// Helper Functions //////////////////////////////
 
 
 ///////////////////////////// Helper Functions //////////////////////////////
@@ -125,31 +124,6 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
   m_manager->setExecInterface(execInterface);
 }
 
-
-void CheckpointSystem::start(){
-  time_adapter = g_configuration->getLookupInterface("time");
-  m_manager->setTimeFunction(get_time);
-  m_manager->setData(&m_data_vector,&m_num_total_boots);
-  m_manager->loadCrashes();
-}
-
-void CheckpointSystem::useTime(bool use_time){
-  if(use_time) {
-    debug("Using time");
-  }
-  else {
-    debug("Not using time");
-  }
-  s_use_time = use_time;
-}
-
-void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
-    m_manager->setConfig(configXml);
-}
-
-void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
-  m_manager->setExecInterface(execInterface);
-}
 
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
@@ -250,7 +224,7 @@ Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer
     if(valid_checkpoint(checkpoint_name, boot_num)){
       retval = m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).info;
     }
-    // If checkpoint doesn't exist, we can't get its time
+    // If checkpoint doesn't exist, we can't get its info
     else{
        cerr << error << "invalid checkpoint name: " << checkpoint_name << endl;
        retval = Unknown;
@@ -314,7 +288,6 @@ Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
   RUNLOCK;
   return retval;
 }
-//////////////////////////////////////// Commands /////////////////////////////////////////////
 
 Value CheckpointSystem::getIsOK(Integer boot_num){
   RLOCK;
@@ -330,6 +303,7 @@ Value CheckpointSystem::getIsOK(Integer boot_num){
   RUNLOCK;
   return retval;
 }
+
 //////////////////////////////////////// Commands /////////////////////////////////////////////
 
 void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info,Command *cmd){

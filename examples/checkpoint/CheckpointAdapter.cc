@@ -49,7 +49,6 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::map;
-using std::string;
 using std::vector;
 using std::copy;
 
@@ -399,7 +398,6 @@ void CheckpointAdapter::executeCommand(Command *cmd)
       }
       CheckpointSystem::getInstance()->setOK(value,boot_num,cmd);
     }
-    retva = delete_crash(crash_number);
   }
   
   else{ 

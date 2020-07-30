@@ -52,9 +52,6 @@ protected:
   // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
   PLEXIL::AdapterExecInterface * m_execInterface;
 
-  // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
-  PLEXIL::AdapterExecInterface * m_execInterface;
-
   Nullable<PLEXIL::Real>(*m_time_func)();
   
 };
