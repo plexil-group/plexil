@@ -34,10 +34,6 @@
 class SampleSystem
 {
  public:
-
-  SampleSystem (const SampleSystem&) = delete;
-  SampleSystem& operator= (const SampleSystem&) = delete;
-  
   ~SampleSystem ()
   {
     if (s_system) {
@@ -85,7 +81,10 @@ class SampleSystem
  private:
 
   SampleSystem();
-
+  // Prohibit copy and assign
+  SampleSystem (const SampleSystem&);
+  SampleSystem& operator= (const SampleSystem&);
+  
   static SampleSystem *s_system;
 
   float m_size;
