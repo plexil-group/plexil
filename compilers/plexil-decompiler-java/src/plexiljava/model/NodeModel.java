@@ -4,7 +4,14 @@ import plexiljava.decompilation.Decompilable;
 import plexiljava.model.commands.CommandModel;
 import plexiljava.model.commands.CommandNodeModel;
 import plexiljava.model.conditions.ConditionModel;
+import plexiljava.model.conditions.EndConditionModel;
+import plexiljava.model.conditions.InvariantConditionModel;
 import plexiljava.model.conditions.NOTConditionModel;
+import plexiljava.model.conditions.PostConditionModel;
+import plexiljava.model.conditions.PreConditionModel;
+import plexiljava.model.conditions.RepeatConditionModel;
+import plexiljava.model.conditions.SkipConditionModel;
+import plexiljava.model.conditions.StartConditionModel;
 import plexiljava.model.containers.AssignmentNodeModel;
 import plexiljava.model.containers.ConcurrenceNodeModel;
 import plexiljava.model.containers.ElseIfNodeModel;
@@ -24,7 +31,18 @@ import plexiljava.model.expressions.BooleanRHSModel;
 import plexiljava.model.expressions.NumericRHSModel;
 import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
-import plexiljava.model.operations.OperatorModel;
+import plexiljava.model.lookups.LookupWithFrequencyModel;
+import plexiljava.model.operations.ADDOperatorModel;
+import plexiljava.model.operations.DIVOperatorModel;
+import plexiljava.model.operations.EQOperatorModel;
+import plexiljava.model.operations.GTEOperatorModel;
+import plexiljava.model.operations.GTOperatorModel;
+import plexiljava.model.operations.LTEOperatorModel;
+import plexiljava.model.operations.LTOperatorModel;
+import plexiljava.model.operations.MULOperatorModel;
+import plexiljava.model.operations.NEQOperatorModel;
+import plexiljava.model.operations.SUBOperatorModel;
+import plexiljava.model.references.SucceededModel;
 import plexiljava.model.states.ExecutingStateModel;
 import plexiljava.model.states.FailingStateModel;
 import plexiljava.model.states.FinishedStateModel;
@@ -69,45 +87,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 					generateChild(grandchild);
 				}
 				break;
-			case "DeclareArray":
-				children.add(new DeclareArrayModel(child));
-				break;
-			case "DeclareVariable":
-				children.add(new DeclareVariableModel(child));
-				break;
-			case "CommandDeclaration":
-				children.add(new CommandDeclarationModel(child));
-				break;
-			case "StateDeclaration":
-				children.add(new StateDeclarationModel(child));
-				break;
-			case "LookupOnChange":
-				children.add(new LookupOnChangeModel(child));
-				break;
-			case "LookupNow":
-				children.add(new LookupNowModel(child));
-				break;
-			case "InitialValue":
-				children.add(new InitialValueModel(child));
-				break;
-			case "Command":
-				children.add(new CommandModel(child));
-				break;
-			case "InvariantCondition":
-				children.add(new ConditionModel(child, "Invariant"));
-				break;
-			case "StartCondition":
-				children.add(new ConditionModel(child, "Start"));
-				break;
-			case "EndCondition":
-				children.add(new ConditionModel(child, "End"));
-				break;
-			case "SkipCondition":
-				children.add(new ConditionModel(child, "Skip"));
-				break;
-			case "PostCondition":
-				generateChild(child.getChildren().get(0));
-				break;
 			case "NodeBody":
 				generateChild(child.getChildren().get(0));
 				break;
@@ -116,8 +95,51 @@ public class NodeModel extends BaseModel implements Decompilable {
 					generateChild(grandchild);
 				}
 				break;
+			/* Commands */
+			case "Command":
+				children.add(new CommandModel(child));
+				break;
+			/* Conditions */
+			case "EndCondition":
+				children.add(new EndConditionModel(child));
+				break;
+			case "PreCondition":
+				children.add(new PreConditionModel(child));
+				break;
+			case "PostCondition":
+				children.add(new PostConditionModel(child));
+				break;
+			case "RepeatCondition":
+				children.add(new RepeatConditionModel(child));
+				break;
+			case "SkipCondition":
+				children.add(new SkipConditionModel(child));
+				break;
+			case "StartCondition":
+				children.add(new StartConditionModel(child));
+				break;
+			/* Declarations */
 			case "Assignment":
 				children.add(new AssignmentModel(child));
+				break;
+			case "CommandDeclaration":
+				children.add(new CommandDeclarationModel(child));
+				break;
+			case "DeclareArray":
+				children.add(new DeclareArrayModel(child));
+				break;
+			case "DeclareVariable":
+				children.add(new DeclareVariableModel(child));
+				break;
+			case "InitialValue":
+				children.add(new InitialValueModel(child));
+				break;
+			case "StateDeclaration":
+				children.add(new StateDeclarationModel(child));
+				break;
+			/* Expressions */
+			case "BooleanRHS":
+				children.add(new BooleanRHSModel(child));
 				break;
 			case "ArrayElement":
 				children.add(new ArrayElementModel(child));
@@ -125,47 +147,57 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "NumericRHS":
 				children.add(new NumericRHSModel(child));
 				break;
-			case "BooleanRHS":
-				children.add(new BooleanRHSModel(child));
+				/* Lookups */
+			case "LookupOnChange":
+				children.add(new LookupOnChangeModel(child));
 				break;
+			case "LookupNow":
+				children.add(new LookupNowModel(child));
+				break;
+			case "LookupWithFrequency":
+				children.add(new LookupWithFrequencyModel(child));
+				break;
+			case "InvariantCondition":
+				children.add(new InvariantConditionModel(child));
+				break;
+			/* Operations */
 			case "ADD":
-				children.add(new OperatorModel(child, "+"));
-				break;
-			case "SUB":
-				children.add(new OperatorModel(child, "-"));
-				break;
-			case "MUL":
-				children.add(new OperatorModel(child, "*"));
+				children.add(new ADDOperatorModel(child));
 				break;
 			case "DIV":
-				children.add(new OperatorModel(child, "/"));
-				break;
-			case "LT":
-				children.add(new OperatorModel(child, "<"));
-				break;
-			case "GT":
-				children.add(new OperatorModel(child, ">"));
+				children.add(new DIVOperatorModel(child));
 				break;
 			case "EQ":
-				children.add(new OperatorModel(child, "=="));
-				break;
-			case "NEQ":
-				children.add(new OperatorModel(child, "!="));
+				children.add(new EQOperatorModel(child));
 				break;
 			case "GTE":
-				children.add(new OperatorModel(child, ">="));
+				children.add(new GTEOperatorModel(child));
+				break;
+			case "GT":
+				children.add(new GTOperatorModel(child));
 				break;
 			case "LTE":
-				children.add(new OperatorModel(child, "<="));
+				children.add(new LTEOperatorModel(child));
+				break;
+			case "LT":
+				children.add(new LTOperatorModel(child));
+				break;
+			case "MUL":
+				children.add(new MULOperatorModel(child));
+				break;
+			case "NEQ":
+				children.add(new NEQOperatorModel(child));
+				break;
+			case "SUB":
+				children.add(new SUBOperatorModel(child));
 			case "NOT":
 				children.add(new NOTConditionModel(child));
 				break;
+			/* References */
 			case "Succeeded":
-				children.add(new ConditionModel(child, "Succeeded"));
+				children.add(new SucceededModel(child));
 				break;
-			case "RepeatCondition":
-				children.add(new ConditionModel(child, "Repeat"));
-				break;
+			/* States */
 			case "Executing":
 				children.add(new ExecutingStateModel(child));
 				break;
@@ -187,6 +219,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Waiting":
 				children.add(new WaitingStateModel(child));
 				break;
+			/* Tokens */
 			case "Arguments":
 				children.add(new ArgumentsModel(child));
 				break;
@@ -205,6 +238,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Return":
 				children.add(new ReturnModel(child));
 				break;
+			/* Structures */
 			case "Node":
 				switch( child.getAttribute("NodeType").getValue() ) {
 					case "Assignment":
@@ -218,30 +252,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 					default: // NodeBody, NodeList
 						if( child.hasAttribute("epx") ) {
 							switch( child.getAttribute("epx").getValue() ) {
-								case "If":
-									children.add(new IfNodeModel(child));
-									break;
-								case "ElseIf":
-									children.add(new ElseIfNodeModel(child));
-									break;
-								case "Then":
-									children.add(new ThenNodeModel(child));
-									break;
-								case "For":
-									children.add(new ForNodeModel(child));
-									break;
-								case "aux":
-									children.add(new AuxNodeModel(child));
-									break;
-								case "While":
-									children.add(new WhileNodeModel(child));
-									break;
-								case "Condition":
-									children.add(new ConditionModel(child));
-									break;
-								case "Action":
-									children.add(new ActionNodeModel(child));
-									break;
 								case "Sequence":
 									if( getParent() == null ) {
 										children.add(new NodeModel(child));
@@ -253,6 +263,30 @@ public class NodeModel extends BaseModel implements Decompilable {
 									break;
 								case "Concurrence":
 									children.add(new ConcurrenceNodeModel(child));
+									break;
+								case "ElseIf":
+									children.add(new ElseIfNodeModel(child));
+									break;
+								case "For":
+									children.add(new ForNodeModel(child));
+									break;
+								case "If":
+									children.add(new IfNodeModel(child));
+									break;
+								case "Then":
+									children.add(new ThenNodeModel(child));
+									break;
+								case "While":
+									children.add(new WhileNodeModel(child));
+									break;
+								case "aux":
+									children.add(new AuxNodeModel(child));
+									break;
+								case "Action":
+									children.add(new ActionNodeModel(child));
+									break;
+								case "Condition":
+									children.add(new ConditionModel(child));
 									break;
 								default:
 									children.add(new NodeModel(child));

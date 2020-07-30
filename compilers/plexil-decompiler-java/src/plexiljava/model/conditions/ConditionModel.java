@@ -10,7 +10,7 @@ public class ConditionModel extends TypedNodeModel {
 		this(node, "Generic");
 	}
 	
-	public ConditionModel(BaseModel node, String type) {
+	protected ConditionModel(BaseModel node, String type) {
 		super(node, type);
 	}
 	

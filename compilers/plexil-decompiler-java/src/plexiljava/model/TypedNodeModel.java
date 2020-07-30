@@ -8,7 +8,7 @@ public class TypedNodeModel extends NodeModel {
 		this(node, "Default");
 	}
 	
-	public TypedNodeModel(BaseModel node, String type) {
+	protected TypedNodeModel(BaseModel node, String type) {
 		super(node);
 		this.type = type;
 	}
