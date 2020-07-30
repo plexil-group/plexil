@@ -1,6 +1,5 @@
 package plexiljava.model.conditions;
 
-import plexiljava.main.Constants;
 import plexiljava.model.BaseModel;
 import plexiljava.model.TypedNodeModel;
 
@@ -18,9 +17,11 @@ public class ConditionModel extends TypedNodeModel {
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel);
 		if( hasQuality("NodeRef") ) {
-			ret += Constants.DECOMPILE_IDENTIFIER_NODEREF + getQuality("NodeRef").decompile(0);
+			ret += "@" + getQuality("NodeRef").decompile(0);
 		} else {
-			ret += getType() + " ";
+			if( indentLevel != 0 ) {
+				ret += getType() + " ";
+			}
 			if( hasQuality("BooleanValue") ) {
 				ret += getQuality("BooleanValue").getValue();
 			} else if( hasQuality("BooleanVariable") ) {

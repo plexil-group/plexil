@@ -3,6 +3,7 @@ package plexiljava.model.containers;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.ReferringNodeModel;
+import plexiljava.model.conditions.ConditionNodeModel;
 import plexiljava.model.conditions.RepeatConditionModel;
 
 public class WhileNodeModel extends NodeModel {
@@ -25,7 +26,7 @@ public class WhileNodeModel extends NodeModel {
 		
 		ret += conditionText + " ) {\n";
 		for( BaseModel child : children ) {
-			if( child instanceof RepeatConditionModel ) {
+			if( child instanceof RepeatConditionModel || child instanceof ConditionNodeModel ) {
 				continue;
 			}
 			ret += child.decompile(indentLevel+1) + "\n";

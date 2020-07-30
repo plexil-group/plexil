@@ -4,6 +4,7 @@ import plexiljava.decompilation.Decompilable;
 import plexiljava.model.commands.CommandModel;
 import plexiljava.model.commands.CommandNodeModel;
 import plexiljava.model.conditions.ConditionModel;
+import plexiljava.model.conditions.ConditionNodeModel;
 import plexiljava.model.conditions.EndConditionModel;
 import plexiljava.model.conditions.InvariantConditionModel;
 import plexiljava.model.conditions.NOTConditionModel;
@@ -286,7 +287,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 									children.add(new ActionNodeModel(child));
 									break;
 								case "Condition":
-									children.add(new ConditionModel(child));
+									children.add(new ConditionNodeModel(child));
 									break;
 								default:
 									children.add(new NodeModel(child));
