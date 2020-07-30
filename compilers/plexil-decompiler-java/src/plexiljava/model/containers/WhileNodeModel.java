@@ -1,8 +1,8 @@
 package plexiljava.model.containers;
 
-import plexiljava.main.Constants;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.ReferringNodeModel;
 import plexiljava.model.conditions.ConditionModel;
 
 public class WhileNodeModel extends NodeModel {
@@ -14,12 +14,16 @@ public class WhileNodeModel extends NodeModel {
 	@Override
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel) + "while( ";
-		String condition = getChild("RepeatCondition").decompile(0);
-		if( condition.contains(Constants.DECOMPILE_IDENTIFIER_NODEREF) ) {
-			String id = condition.substring(Constants.DECOMPILE_IDENTIFIER_NODEREF.length());
-			condition = substitute(id);
+		
+		ConditionModel repeatCondition = (ConditionModel) getChild("RepeatCondition");
+		String conditionText = repeatCondition.decompile(0);
+		for( BaseModel grandchild : repeatCondition.getChildren() ) {
+			if( grandchild instanceof ReferringNodeModel ) {
+				conditionText = substitute(((ReferringNodeModel) grandchild).getReference());
+			}
 		}
-		ret += condition + " ) {\n";
+		
+		ret += conditionText + " ) {\n";
 		for( BaseModel child : children ) {
 			if( child instanceof ConditionModel ) {
 				continue;
