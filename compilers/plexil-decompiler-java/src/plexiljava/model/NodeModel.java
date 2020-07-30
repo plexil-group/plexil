@@ -21,9 +21,9 @@ import plexiljava.model.declarations.InitialValueModel;
 import plexiljava.model.declarations.StateDeclarationModel;
 import plexiljava.model.expressions.ArrayElementModel;
 import plexiljava.model.expressions.BooleanRHSModel;
-import plexiljava.model.expressions.LookupNowModel;
-import plexiljava.model.expressions.LookupOnChangeModel;
 import plexiljava.model.expressions.NumericRHSModel;
+import plexiljava.model.lookups.LookupNowModel;
+import plexiljava.model.lookups.LookupOnChangeModel;
 import plexiljava.model.operations.OperatorModel;
 import plexiljava.model.states.ExecutingStateModel;
 import plexiljava.model.states.FailingStateModel;
@@ -32,6 +32,10 @@ import plexiljava.model.states.FinishingStateModel;
 import plexiljava.model.states.InactiveStateModel;
 import plexiljava.model.states.IterationEndedStateModel;
 import plexiljava.model.states.WaitingStateModel;
+import plexiljava.model.tokens.ArgumentsModel;
+import plexiljava.model.tokens.ArrayValueModel;
+import plexiljava.model.tokens.IndexModel;
+import plexiljava.model.tokens.NameModel;
 import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.ReturnModel;
 
@@ -88,12 +92,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "Command":
 				children.add(new CommandModel(child));
-				break;
-			case "Parameter":
-				children.add(new ParameterModel(child));
-				break;
-			case "Return":
-				children.add(new ReturnModel(child));
 				break;
 			case "InvariantCondition":
 				children.add(new ConditionModel(child, "Invariant"));
@@ -189,6 +187,24 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Waiting":
 				children.add(new WaitingStateModel(child));
 				break;
+			case "Arguments":
+				children.add(new ArgumentsModel(child));
+				break;
+			case "ArrayValue":
+				children.add(new ArrayValueModel(child));
+				break;
+			case "Index":
+				children.add(new IndexModel(child));
+				break;
+			case "Name":
+				children.add(new NameModel(child));
+				break;
+			case "Parameter":
+				children.add(new ParameterModel(child));
+				break;
+			case "Return":
+				children.add(new ReturnModel(child));
+				break;
 			case "Node":
 				switch( child.getAttribute("NodeType").getValue() ) {
 					case "Assignment":
@@ -262,7 +278,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 		}
 	}
 	
-	protected String substitute(String nodeId) {
+	protected String dereference(String nodeId) {
 		for( BaseModel child : children ) {
 			if( child.hasAttribute("epx") ) {
 				if( child.getAttribute("epx").getValue().equals("Condition") ) { 

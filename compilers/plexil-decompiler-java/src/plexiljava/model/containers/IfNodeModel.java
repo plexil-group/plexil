@@ -4,6 +4,7 @@ import plexiljava.main.Constants;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.conditions.ConditionModel;
+import plexiljava.model.conditions.StartConditionModel;
 
 public class IfNodeModel extends NodeModel {
 
@@ -14,11 +15,11 @@ public class IfNodeModel extends NodeModel {
 	@Override
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel) + "if ( ";
-		BaseModel then = getChild("Then");
-		String ifCondition = then.getChild("StartCondition").decompile(0);
+		BaseModel then = getChild(ThenNodeModel.class);
+		String ifCondition = then.getChild(StartConditionModel.class).decompile(0);
 		if( ifCondition.startsWith(Constants.DECOMPILE_IDENTIFIER_NODEREF) ) {
 			String id = ifCondition.substring(Constants.DECOMPILE_IDENTIFIER_NODEREF.length());
-			ifCondition = substitute(id);
+			ifCondition = dereference(id);
 		}
 		ret += ifCondition + " ) {\n";
 		for( BaseModel child : then.getChildren() ) {

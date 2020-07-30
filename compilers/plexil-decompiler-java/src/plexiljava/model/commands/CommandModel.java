@@ -2,7 +2,8 @@ package plexiljava.model.commands;
 
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
-import plexiljava.model.QualityModel;
+import plexiljava.model.tokens.ArgumentsModel;
+import plexiljava.model.tokens.NameModel;
 
 public class CommandModel extends NodeModel {
 
@@ -16,16 +17,9 @@ public class CommandModel extends NodeModel {
 		if( !qualities.isEmpty() ) {
 			ret += qualities.get(0).getValue() + " = ";
 		}
-		ret += getChild("Name").getQuality("StringValue").decompile(0) + "(";
-		if( hasChild("Arguments") && !getChild("Arguments").getQualities().isEmpty() ) {
-			for( QualityModel quality : getChild("Arguments").getQualities() ) {
-				if( quality.getName().equals("StringValue") ) {
-					ret += "\"" + quality.getValue() + "\"" + ", ";
-				} else {
-					ret += quality.getValue() + ", ";
-				}
-			}
-			ret = ret.substring(0, ret.length()-2);
+		ret += getChild(NameModel.class).decompile(0) + "(";
+		if( hasChild(ArgumentsModel.class) && !getChild(ArgumentsModel.class).getQualities().isEmpty() ) {
+			ret += getChild(ArgumentsModel.class).decompile(0);
 		}
 		ret += ");";
 		return ret;

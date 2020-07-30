@@ -2,6 +2,7 @@ package plexiljava.model.declarations;
 
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.tokens.ReturnModel;
 
 public class StateDeclarationModel extends NodeModel {
 
@@ -11,7 +12,7 @@ public class StateDeclarationModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		String ret = getChild("Return").decompile(indentLevel) + " Lookup ";
+		String ret = getChild(ReturnModel.class).decompile(indentLevel) + " Lookup ";
 		ret += getQuality("Name").getValue() + ";";
 		return ret;
 	}

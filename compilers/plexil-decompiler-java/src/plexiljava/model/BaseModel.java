@@ -118,6 +118,16 @@ public class BaseModel implements Decompilable {
 		return new ArrayList<BaseModel>(children);
 	}
 	
+	public List<BaseModel> getChildren(@SuppressWarnings("rawtypes") Class c) {
+		List<BaseModel> matchingChildren = new ArrayList<BaseModel>();
+		for( BaseModel child : children ) {
+			if( c.isInstance(child)) {
+				matchingChildren.add(child);
+			}
+		}
+		return matchingChildren;
+	}
+	
 	public List<QualityModel> getQualities() {
 		return new ArrayList<QualityModel>(qualities);
 	}
@@ -135,9 +145,9 @@ public class BaseModel implements Decompilable {
 		return null;
 	}
 	
-	public BaseModel getChild(String name) {
+	public BaseModel getChild(@SuppressWarnings("rawtypes") Class c) {
 		for( BaseModel child : children ) {
-			if( child.getName().equals(name) ) {
+			if( c.isInstance(child) ) {
 				return child;
 			}
 		}
@@ -153,8 +163,8 @@ public class BaseModel implements Decompilable {
 		return null;
 	}
 	
-	public boolean hasChild(String name) {
-		return getChild(name) != null;
+	public boolean hasChild(@SuppressWarnings("rawtypes") Class c) {
+		return getChild(c) != null;
 	}
 	
 	public boolean hasQuality(String name) {

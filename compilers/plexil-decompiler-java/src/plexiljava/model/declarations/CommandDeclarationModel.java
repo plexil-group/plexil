@@ -6,6 +6,7 @@ import java.util.List;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.tokens.ParameterModel;
+import plexiljava.model.tokens.ReturnModel;
 
 public class CommandDeclarationModel extends NodeModel {
 
@@ -16,8 +17,8 @@ public class CommandDeclarationModel extends NodeModel {
 	@Override
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel);
-		if( hasChild("Return") ) {
-			ret += getChild("Return").decompile(0) + " ";
+		if( hasChild(ReturnModel.class) ) {
+			ret += getChild(ReturnModel.class).decompile(0) + " ";
 		}
 		ret += "Command " + getQuality("Name").getValue();
 		List<BaseModel> parameters = new ArrayList<BaseModel>();

@@ -2,7 +2,6 @@ package plexiljava.model.declarations;
 
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
-import plexiljava.model.QualityModel;
 
 public class DeclareArrayModel extends NodeModel {
 
@@ -22,16 +21,7 @@ public class DeclareArrayModel extends NodeModel {
 				default:
 					break;
 			}
-			ret += "(";
-			BaseModel container = getChild("InitialValue");
-			if( container.getChildren().size() > 0 ) {
-				container = container.getChild("ArrayValue");
-			}
-			for( QualityModel quality : container.getQualities() ) {
-				ret += quality.decompile(0) + " ";
-			}
-			ret = ret.substring(0, ret.length()-1);
-			ret += ")";
+			ret += "(" + getChild(InitialValueModel.class).decompile(0) + ")";
 		}
 		ret += ";";
 		return ret;

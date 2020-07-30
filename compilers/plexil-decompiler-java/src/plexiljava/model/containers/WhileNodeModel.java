@@ -3,7 +3,7 @@ package plexiljava.model.containers;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.ReferringNodeModel;
-import plexiljava.model.conditions.ConditionModel;
+import plexiljava.model.conditions.RepeatConditionModel;
 
 public class WhileNodeModel extends NodeModel {
 
@@ -15,17 +15,17 @@ public class WhileNodeModel extends NodeModel {
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel) + "while( ";
 		
-		ConditionModel repeatCondition = (ConditionModel) getChild("RepeatCondition");
+		RepeatConditionModel repeatCondition = (RepeatConditionModel) getChild(RepeatConditionModel.class);
 		String conditionText = repeatCondition.decompile(0);
 		for( BaseModel grandchild : repeatCondition.getChildren() ) {
 			if( grandchild instanceof ReferringNodeModel ) {
-				conditionText = substitute(((ReferringNodeModel) grandchild).getReference());
+				conditionText = dereference(((ReferringNodeModel) grandchild).getReference());
 			}
 		}
 		
 		ret += conditionText + " ) {\n";
 		for( BaseModel child : children ) {
-			if( child instanceof ConditionModel ) {
+			if( child instanceof RepeatConditionModel ) {
 				continue;
 			}
 			ret += child.decompile(indentLevel+1) + "\n";

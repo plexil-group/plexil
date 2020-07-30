@@ -17,7 +17,7 @@ public class AssignmentNodeModel extends NodeModel {
 			if( indentLevel != 0 ) {
 				ret += getQuality("NodeId").getValue() + ": ";
 			}
-			ret += getChild("Assignment").decompile(0) + ";";
+			ret += getChild(AssignmentModel.class).decompile(0) + ";";
 		} else {
 			ret += getQuality("NodeId").getValue() + ": {\n";
 			for( BaseModel child : children ) {

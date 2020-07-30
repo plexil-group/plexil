@@ -2,6 +2,7 @@ package plexiljava.model.declarations;
 
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.QualityModel;
 
 public class InitialValueModel extends NodeModel {
 
@@ -11,7 +12,16 @@ public class InitialValueModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + qualities.get(0).getValue();
+		String ret = indent(indentLevel);
+		if( !children.isEmpty() ) {
+			ret = children.get(0).decompile(0);
+		} else {
+			for( QualityModel quality : qualities ) {
+				ret += quality.getValue() + " ";
+			}
+			ret = ret.substring(0, ret.length()-1);
+		}
+		return ret;
 	}
 	
 }
