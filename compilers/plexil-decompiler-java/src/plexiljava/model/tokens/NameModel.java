@@ -11,7 +11,7 @@ public class NameModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + getQuality("StringValue");
+		return indent(indentLevel) + getQuality("StringValue").getValue();
 	}
 	
 }

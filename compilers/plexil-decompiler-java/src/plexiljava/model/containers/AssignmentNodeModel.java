@@ -13,11 +13,10 @@ public class AssignmentNodeModel extends NodeModel {
 	@Override
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel);
-		if( children.size() == 1 ) {
-			if( indentLevel != 0 ) {
-				ret += getQuality("NodeId").getValue() + ": ";
-			}
+		if( indentLevel == 0 ) {
 			ret += getChild(AssignmentModel.class).decompile(0) + ";";
+		} else if( children.size() == 1 ) {
+			ret += getQuality("NodeId").getValue() + ": " + getChild(AssignmentModel.class).decompile(0) + ";";
 		} else {
 			ret += getQuality("NodeId").getValue() + ": {\n";
 			for( BaseModel child : children ) {

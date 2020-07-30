@@ -11,7 +11,13 @@ public class CommandNodeModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		return getChild(CommandModel.class).decompile(indentLevel);
+		String ret = "";
+		ret += indent(indentLevel) + getQuality("NodeId").getValue() + ": {\n";
+		for( BaseModel child : children ) {
+			ret += child.decompile(indentLevel+1) + "\n";
+		}
+		ret += indent(indentLevel) + "}";
+		return ret;
 	}
 	
 }

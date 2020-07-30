@@ -13,7 +13,7 @@ import plexiljava.model.NodeModel;
 
 public class Decompiler {
 
-	public static final String INFILE = "examples/basic/AddArray.plx";
+	public static final String INFILE = "examples/basic/SimpleDrive.plx";
 	public static final String OUTFILE = "example.ple";
 	
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {

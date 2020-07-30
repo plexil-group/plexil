@@ -3,7 +3,6 @@ package plexiljava.model;
 import plexiljava.decompilation.Decompilable;
 import plexiljava.model.commands.CommandModel;
 import plexiljava.model.commands.CommandNodeModel;
-import plexiljava.model.conditions.ConditionModel;
 import plexiljava.model.conditions.ConditionNodeModel;
 import plexiljava.model.conditions.EndConditionModel;
 import plexiljava.model.conditions.InvariantConditionModel;
@@ -34,6 +33,7 @@ import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
 import plexiljava.model.lookups.LookupWithFrequencyModel;
 import plexiljava.model.operations.ADDOperatorModel;
+import plexiljava.model.operations.ANDOperatorModel;
 import plexiljava.model.operations.DIVOperatorModel;
 import plexiljava.model.operations.EQOperatorModel;
 import plexiljava.model.operations.GTEOperatorModel;
@@ -42,6 +42,7 @@ import plexiljava.model.operations.LTEOperatorModel;
 import plexiljava.model.operations.LTOperatorModel;
 import plexiljava.model.operations.MULOperatorModel;
 import plexiljava.model.operations.NEQOperatorModel;
+import plexiljava.model.operations.OROperatorModel;
 import plexiljava.model.operations.SUBOperatorModel;
 import plexiljava.model.references.SucceededModel;
 import plexiljava.model.states.ExecutingStateModel;
@@ -51,6 +52,7 @@ import plexiljava.model.states.FinishingStateModel;
 import plexiljava.model.states.InactiveStateModel;
 import plexiljava.model.states.IterationEndedStateModel;
 import plexiljava.model.states.WaitingStateModel;
+import plexiljava.model.tokens.AnyParametersModel;
 import plexiljava.model.tokens.ArgumentsModel;
 import plexiljava.model.tokens.ArrayValueModel;
 import plexiljava.model.tokens.IndexModel;
@@ -165,10 +167,19 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "ADD":
 				children.add(new ADDOperatorModel(child));
 				break;
+			case "AND":
+				children.add(new ANDOperatorModel(child));
+				break;
 			case "DIV":
 				children.add(new DIVOperatorModel(child));
 				break;
-			case "EQ":
+			case "EQNumeric":
+				children.add(new EQOperatorModel(child));
+				break;
+			case "EQInternal":
+				children.add(new EQOperatorModel(child));
+				break;
+			case "EQString":
 				children.add(new EQOperatorModel(child));
 				break;
 			case "GTE":
@@ -188,6 +199,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "NEQ":
 				children.add(new NEQOperatorModel(child));
+				break;
+			case "OR":
+				children.add(new OROperatorModel(child));
 				break;
 			case "SUB":
 				children.add(new SUBOperatorModel(child));
@@ -221,6 +235,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				children.add(new WaitingStateModel(child));
 				break;
 			/* Tokens */
+			case "AnyParameters":
+				children.add(new AnyParametersModel(child));
+				break;
 			case "Arguments":
 				children.add(new ArgumentsModel(child));
 				break;
@@ -330,7 +347,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 	public String decompile(int indentLevel) {
 		String ret = indent(indentLevel) + getQuality("NodeId").decompile(0) + ":\n{\n";
 		for( BaseModel child : children ) {
-			if( child instanceof ConditionModel ) {
+			if( child instanceof InvariantConditionModel ) {
 				continue;
 			}
 			ret += child.decompile(indentLevel+1) + "\n";
