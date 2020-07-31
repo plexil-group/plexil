@@ -50,13 +50,13 @@ public:
   bool reset();
   bool shutdown();
 
-  Value _print(Command *cmd);
+  void _print(Command *cmd);
 
-  Value _pprint(Command *cmd);
+  void _pprint(Command *cmd);
 
-  Value _printToString(Command *cmd);
+  void _printToString(Command *cmd);
 
-  Value _pprintToString(Command *cmd);
+  void _pprintToString(Command *cmd);
 
   void executeCommand(Command *cmd);
 

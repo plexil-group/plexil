@@ -103,38 +103,35 @@ namespace PLEXIL {
       }
     };
 
-
-    typedef Value (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
+    /***
+     * @brief A function that handles the given command.
+     *          notifies the AdapterExecInterface of any new information
+     * @param cmd A command to handle
+     */
+    typedef void (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
     typedef void (InterfaceAdapter::*AbortCommandHandler)(Command *);
 
     struct CommandHandler
     {
     private:
       InterfaceAdapter &m_context;
-      AdapterExecInterface &m_execInterface;
       ExecuteCommandHandler m_executeCommand;
       AbortCommandHandler m_abortCommand;
     public:
       CommandHandler(InterfaceAdapter &ct,
-        AdapterExecInterface &execInterface,
         ExecuteCommandHandler execCmd,
         AbortCommandHandler abortCmd) :
-        m_context(ct), m_execInterface(execInterface),
-        m_executeCommand(execCmd), m_abortCommand(abortCmd) {}
+        m_context(ct), m_executeCommand(execCmd), m_abortCommand(abortCmd) {}
       
       void ExecuteCommand(Command *cmd) {
-          Value val = (m_context.*m_executeCommand)(cmd);
-          m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM); //TODO: send COMMAND_FAILED if errror thrown
-          if(val.isKnown()) {
-            m_execInterface.handleCommandReturn(cmd, val);
-          }
-          m_execInterface.notifyOfExternalEvent();
+        (m_context.*m_executeCommand)(cmd);
+      }
+
+      void AbortCommand(Command *cmd) {
+        if(m_abortCommand) {
+          (m_context.*m_abortCommand)(cmd);
         }
-        void AbortCommand(Command *cmd) {
-          if(m_abortCommand) {
-            (m_context.*m_abortCommand)(cmd);
-          }
-        }
+      }
     };
 
     /**
@@ -259,7 +256,6 @@ namespace PLEXIL {
      */
     bool registerCommandHandler(std::string const &stateName,
           InterfaceAdapter &context,
-          AdapterExecInterface &execInterface,
           ExecuteCommandHandler execCmd,
           AbortCommandHandler abortCmd = nullptr);
 

@@ -618,7 +618,6 @@ namespace PLEXIL {
     */
   bool AdapterConfiguration::registerCommandHandler(std::string const &stateName,
         InterfaceAdapter &context,
-        AdapterExecInterface &execInterface,
         ExecuteCommandHandler execCmd,
         AbortCommandHandler abortCmd) {
     CommandHandlerMap::iterator it = m_commandMap.find(stateName);
@@ -628,7 +627,6 @@ namespace PLEXIL {
                 " registering handler for command '" << stateName << "'");
       m_commandMap.insert(std::pair<std::string, CommandHandler *>(stateName,
                 new CommandHandler(context,
-                                  execInterface,
                                   execCmd,
                                   abortCmd)));
       return true;
