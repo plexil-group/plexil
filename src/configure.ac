@@ -112,8 +112,13 @@ AM_CONDITIONAL([TEST_EXEC_OPT], [test "x$enable_test_exec" = "xyes"])
 AM_CONDITIONAL([UDP_OPT], [test "x$enable_udp" = "xyes"])
 
 # Helpers for headers
+
+# Enabled by default
 AS_IF([test "x$enable_debug_logging" = "xno"],[
   AC_DEFINE([NO_DEBUG_MESSAGE_SUPPORT],[1],[Define to 1 if debug logging is disabled.])
+])
+AS_IF([test "x$enable_debug_listener" != "xno"],[
+  AC_DEFINE([HAVE_DEBUG_LISTENER],[1],[Define to 1 if PlanDebugListener is enabled in the build.])
 ])
 AS_IF([test "x$with_threads" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
@@ -121,19 +126,18 @@ AS_IF([test "x$with_threads" != "xno"],[
 AS_IF([test "x$with_unix_time" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_UNIX_TIME],[1],[Define to 1 if Unix native time facilities are enabled.])
 ])
-AS_IF([test "x$enable_debug_listener" != "xno"],[
-  AC_DEFINE([HAVE_DEBUG_LISTENER],[1],[Define to 1 if PlanDebugListener is enabled in the build.])
-])
-AS_IF([test "x$enable_gantt" != "xno"],[
-  AC_DEFINE([HAVE_GANTT_LISTENER],[1],[Define to 1 if GanttListener is enabled in the build.])
-])
-AS_IF([test "x$enable_ipc" != "xno"],[
-  AC_DEFINE([HAVE_IPC_ADAPTER],[1],[Define to 1 if IpcAdapter is enabled in the build.])
-])
 AS_IF([test "x$enable_viewer" != "xno"],[
   AC_DEFINE([HAVE_LUV_LISTENER],[1],[Define to 1 if LuvListener is enabled in the build.])
 ])
-AS_IF([test "x$enable_udp" != "xno"],[
+
+# Disabled by default
+AS_IF([test "x$enable_gantt" = "xyes"],[
+  AC_DEFINE([HAVE_GANTT_LISTENER],[1],[Define to 1 if GanttListener is enabled in the build.])
+])
+AS_IF([test "x$enable_ipc" = "xyes"],[
+  AC_DEFINE([HAVE_IPC_ADAPTER],[1],[Define to 1 if IpcAdapter is enabled in the build.])
+])
+AS_IF([test "x$enable_udp" = "xyes"],[
   AC_DEFINE([HAVE_UDP_ADAPTER],[1],[Define to 1 if UdpAdapter is enabled in the build.])
 ])
 
