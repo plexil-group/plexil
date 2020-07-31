@@ -213,21 +213,21 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 
-void CheckpointAdapter::receiveValue (const string& state_name, Value val)
+void CheckpointAdapter::receiveValue (const string& state_name, const Value& val)
 {
   propagateValueChange (createState(state_name, EmptyArgs),
 					       vector<Value> (1, val));
 }
 
 
-void CheckpointAdapter::receiveValue (const string& state_name, Value val, Value arg)
+void CheckpointAdapter::receiveValue (const string& state_name, const Value& val, const Value& arg)
 {
   propagateValueChange (createState(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
 
-void CheckpointAdapter::receiveValue(const string& state_name, Value val, Value arg1, Value arg2)
+void CheckpointAdapter::receiveValue(const string& state_name, const Value& val, const Value& arg1,const Value& arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
@@ -433,7 +433,7 @@ void CheckpointAdapter::unsubscribe (const State& state)
   m_subscribedStates.erase(state);
 }
 
-
+  // Passes value onto executive, which makes no guarantees about non-modification so can't be const reference
 void CheckpointAdapter::propagateValueChange (const State& state,
                                           const vector<Value>& vals) const
 {

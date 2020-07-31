@@ -59,13 +59,13 @@ public:
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
-  //
+  // Passes value onto executive, which makes no guarantees about non-modification so can't be const reference
   void propagateValueChange (const PLEXIL::State& state,
                              const std::vector<PLEXIL::Value>& vals) const;
-  
-  void receiveValue (const std::string& state_name, PLEXIL::Value val);
-  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg);
-  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2);
+
+  void receiveValue (const std::string& state_name, const PLEXIL::Value& val);
+  void receiveValue (const std::string& state_name, const PLEXIL::Value& val, const PLEXIL::Value& arg);
+  void receiveValue (const std::string& state_name, const PLEXIL::Value& val, const PLEXIL::Value& arg1, const PLEXIL::Value& arg2);
 
 private:
   //Disallow copy, default constructor
