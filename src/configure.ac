@@ -124,7 +124,7 @@ AS_IF([test "x$with_unix_time" != "xno"],[
 AS_IF([test "x$enable_debug_listener" != "xno"],[
   AC_DEFINE([HAVE_DEBUG_LISTENER],[1],[Define to 1 if PlanDebugListener is enabled in the build.])
 ])
-AS_IF([test "x$enable_gantt_listener" != "xno"],[
+AS_IF([test "x$enable_gantt" != "xno"],[
   AC_DEFINE([HAVE_GANTT_LISTENER],[1],[Define to 1 if GanttListener is enabled in the build.])
 ])
 AS_IF([test "x$enable_ipc" != "xno"],[
