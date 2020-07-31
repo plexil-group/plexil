@@ -17,6 +17,22 @@ public:
   virtual ~SaveManager(){
     // All pointer member variables here are managed by CheckpointSystem
   }
+
+  SaveManager() : m_data_vector(NULL), m_num_total_boots(NULL){};
+
+  SaveManager(const SaveManager &o) : m_data_vector(o.m_data_vector),
+				      m_num_total_boots(o.m_num_total_boots),
+				      m_execInterface(o.m_execInterface),
+				      m_time_func(o.m_time_func){}
+
+  SaveManager & operator=(const SaveManager &o){
+    m_data_vector = o.m_data_vector;
+    m_num_total_boots = o.m_num_total_boots;
+    m_execInterface = o.m_execInterface;
+    m_time_func = o.m_time_func;
+    return *this;
+  }
+  
   
   virtual void setData( std::vector<BootData>  *data, int *num_total_boots){
     m_data_vector = data;
@@ -40,8 +56,13 @@ public:
 
   // Called during each command (AFTER the relevant change to data_vector)
   // managers are expected to send COMMAND_SUCCESS when the provided command is written to disk
-  virtual void setOK(bool b,PLEXIL::Integer boot_num,PLEXIL::Command *cmd) = 0;
-  virtual void setCheckpoint(const std::string& checkpoint_name, bool value,std::string& info, Nullable<PLEXIL::Real> time, PLEXIL::Command *cmd) = 0;
+  virtual void setOK(bool b,PLEXIL::Integer boot_num,
+		     PLEXIL::Command *cmd) = 0;
+  
+  virtual void setCheckpoint(const std::string& checkpoint_name,
+			     bool value,std::string& info,
+			     Nullable<PLEXIL::Real> time,
+			     PLEXIL::Command *cmd) = 0;
 
 protected:
   

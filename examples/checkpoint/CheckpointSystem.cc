@@ -36,9 +36,6 @@
 
 
 
-using std::cout;
-using std::cerr;
-using std::endl;
 using std::string;
 using std::vector;
 using std::map;
@@ -188,7 +185,7 @@ Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,Integer
   }
   // If boot doesn't exist, something's gone wrong
   else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
+    debug( error << "invalid boot number: " << boot_num);
     retval = Unknown;
   }
   RUNLOCK;
@@ -205,13 +202,13 @@ Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, Integer
     }
     // If checkpoint doesn't exist, we can't get its time
     else{
-       cerr << error << "invalid checkpoint name: " << checkpoint_name << endl;
+      debug(error << "invalid checkpoint name: " << checkpoint_name);
        retval = Unknown;
     }
   }
   // If boot doesn't exist, something's gone wrong
   else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
+    debug(error << "invalid boot number: " << boot_num);
     retval = Unknown;
   }
   RUNLOCK;
@@ -227,13 +224,13 @@ Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer
     }
     // If checkpoint doesn't exist, we can't get its info
     else{
-       cerr << error << "invalid checkpoint name: " << checkpoint_name << endl;
-       retval = Unknown;
+      debug(error << "invalid checkpoint name: " << checkpoint_name);
+      retval = Unknown;
     }
   }
   // If boot doesn't exist, something's gone wrong
   else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
+    debug( error << "invalid boot number: " << boot_num);
     retval = Unknown;
   }
   RUNLOCK;
@@ -265,7 +262,7 @@ Value CheckpointSystem::getTimeOfBoot(Integer boot_num){
   }
   // If boot doesn't exist, something's gone wrong
   else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
+    debug(error << "invalid boot number: " << boot_num);
     retval = Unknown;
   }
   RUNLOCK;
@@ -278,12 +275,11 @@ Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
   Value retval;
   if(valid_boot(boot_num)){
     Nullable<Real> time = m_data_vector.at(boot_num).crash_time;
-    cout<<time.has_value()<<endl;
     retval = time_to_Value(time);
   }
   // If boot doesn't exist, something's gone wrong
   else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
+    debug(error << "invalid boot number: " << boot_num);
     retval = Unknown;
   }
   RUNLOCK;
@@ -298,7 +294,7 @@ Value CheckpointSystem::getIsOK(Integer boot_num){
   }
   // If boot doesn't exist, something's gone wrong
   else{
-    cerr << error << "invalid boot number: " << boot_num << endl;
+    debug(error << "invalid boot number: " << boot_num);
     retval = Unknown;
   }
   RUNLOCK;
@@ -348,7 +344,7 @@ void CheckpointSystem::setOK(bool b, Integer boot_num, Command *cmd){
  else{
    m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
    m_execInterface->notifyOfExternalEvent();
-   cerr <<"CheckpointSystem:"<<" Invalid boot number: "<<boot_num<<endl;
+   debug(error<<" Invalid boot number: "<<boot_num);
    retval = Unknown;
  }
  WUNLOCK;

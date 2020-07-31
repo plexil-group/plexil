@@ -44,7 +44,6 @@
       cerr<<"Invalid number of arguments to "<<state_name<<endl;} else
 
 
-using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
