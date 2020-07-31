@@ -63,9 +63,17 @@ public:
   void propagateValueChange (const PLEXIL::State& state,
                              const std::vector<PLEXIL::Value>& vals) const;
 
-  void receiveValue (const std::string& state_name, const PLEXIL::Value& val);
-  void receiveValue (const std::string& state_name, const PLEXIL::Value& val, const PLEXIL::Value& arg);
-  void receiveValue (const std::string& state_name, const PLEXIL::Value& val, const PLEXIL::Value& arg1, const PLEXIL::Value& arg2);
+  void receiveValue (const std::string& state_name,
+		     const PLEXIL::Value& val);
+  
+  void receiveValue (const std::string& state_name,
+		     const PLEXIL::Value& val,
+		     const PLEXIL::Value& arg);
+  
+  void receiveValue (const std::string& state_name,
+		     const PLEXIL::Value& val,
+		     const PLEXIL::Value& arg1,
+		     const PLEXIL::Value& arg2);
 
 private:
   //Disallow copy, default constructor

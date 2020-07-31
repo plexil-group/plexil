@@ -35,15 +35,24 @@ void setSubscriber(CheckpointAdapter *i) {
 
 // The overloaded publish function, one for each number of Values found in this application
 
-void publish (const std::string& state_name, const PLEXIL::Value& val){
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val){
+  
   instance->receiveValue(state_name,val);
 }
 
 
-void publish (const std::string& state_name, const PLEXIL::Value& val,const PLEXIL::Value& arg){
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg){
+  
   instance->receiveValue(state_name,val,arg);
 }
 
-void publish (const std::string& state_name, const PLEXIL::Value& val,const PLEXIL::Value& arg1, const PLEXIL::Value& arg2){
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg1,
+	      const PLEXIL::Value& arg2){
+  
   instance->receiveValue(state_name,val,arg1,arg2);
 }

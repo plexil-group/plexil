@@ -123,7 +123,9 @@ private:
   std::vector<BootData>  m_data_vector;
   int m_num_total_boots;
 
+  // Used for command handles
+  PLEXIL::AdapterExecInterface* m_execInterface;
+
 };
 
-static Nullable<PLEXIL::Real> get_time();
 #endif

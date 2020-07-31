@@ -346,12 +346,8 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   // SetCheckpoint and SetOK to only return success when the change has been (possibly asycnrhonously)
   // written to disk
 
-  // We begin by acknowleging that the command was received - we only update the system
-  // at the end or when command_success is sent in SetCheckpoint/SetOK, but this allows
-  // COMMAND_SUCCESS to override COMMAND_RCVD_BY_SYSTEM
-  
-  m_execInterface.handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
-  
+  // setOK and setCheckpoint handle the command acknowledgement themselves
+    
   if (name == "Flush"){
     retval = CheckpointSystem::getInstance()->flush();
     m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
@@ -405,12 +401,10 @@ void CheckpointAdapter::executeCommand(Command *cmd)
     cerr << error << "invalid command: " << name << endl;
   }
   
-
   // This sends the command's return value (if expected) to the executive.
   if (retval != Unknown){
     m_execInterface.handleCommandReturn(cmd, retval);
   }
-  
   m_execInterface.notifyOfExternalEvent();
 }
 

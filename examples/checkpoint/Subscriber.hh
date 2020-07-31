@@ -44,11 +44,17 @@ void setSubscriber(CheckpointAdapter *i);
 // The overloaded publish function, one for each value/parameter combination
 // found in this application.
 
-void publish (const std::string& state_name, const PLEXIL::Value& val);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val);
 
 
-void publish (const std::string& state_name, const PLEXIL::Value& val,const PLEXIL::Value& arg);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg);
 
-void publish (const std::string& state_name, const PLEXIL::Value& val,const PLEXIL::Value& arg1, const PLEXIL::Value& arg2);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg1,
+	      const PLEXIL::Value& arg2);
 
 #endif

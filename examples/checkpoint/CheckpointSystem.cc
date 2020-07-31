@@ -122,6 +122,7 @@ void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
 
 void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
   m_manager->setExecInterface(execInterface);
+  m_execInterface = execInterface;
 }
 
 
@@ -322,6 +323,10 @@ void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,s
   publish("CheckpointInfo",info,checkpoint_name);
   publish("CheckpointInfo",info,checkpoint_name,0);
 
+  // Send back command_received
+  m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
+  m_execInterface->notifyOfExternalEvent();
+  debug("Sent COMMAND_RCVD_BY_SYSTEM");
   m_manager->setCheckpoint(checkpoint_name, value, info, time, cmd);
   
   WUNLOCK;
@@ -335,9 +340,14 @@ void CheckpointSystem::setOK(bool b, Integer boot_num, Command *cmd){
    m_data_vector.at(boot_num).is_ok = b;
    debug("Setting is_ok at boot " << boot_num << " to " <<b);
    publish("Is_OK",b,boot_num);
+   m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
+   m_execInterface->notifyOfExternalEvent();
+   debug("Sent COMMAND_RCVD_BY_SYSTEM");
    m_manager->setOK(b, boot_num, cmd);
  }
  else{
+   m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
+   m_execInterface->notifyOfExternalEvent();
    cerr <<"CheckpointSystem:"<<" Invalid boot number: "<<boot_num<<endl;
    retval = Unknown;
  }
