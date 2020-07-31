@@ -35,6 +35,7 @@
 #define PLEXIL_UTILITY_ADAPTER_HH
 
 #include "InterfaceAdapter.hh"
+#include "Value.hh"
 
 namespace PLEXIL {
 
@@ -48,6 +49,14 @@ public:
   bool stop();
   bool reset();
   bool shutdown();
+
+  Value _print(Command *cmd);
+
+  Value _pprint(Command *cmd);
+
+  Value _printToString(Command *cmd);
+
+  Value _pprintToString(Command *cmd);
 
   void executeCommand(Command *cmd);
 

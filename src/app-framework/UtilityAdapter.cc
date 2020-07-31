@@ -46,10 +46,18 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 
 bool UtilityAdapter::initialize()
 {
-  g_configuration->registerCommandInterface("print", this);
-  g_configuration->registerCommandInterface("pprint", this);
-  g_configuration->registerCommandInterface("printToString",this);
-  g_configuration->registerCommandInterface("pprintToString",this);
+  g_configuration->registerCommandHandler("print", *this, m_execInterface, 
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_print),
+      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
+  g_configuration->registerCommandHandler("pprint", *this, m_execInterface, 
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_pprint),
+      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
+  g_configuration->registerCommandHandler("printToString", *this, m_execInterface, 
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_printToString),
+      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
+  g_configuration->registerCommandHandler("pprintToString", *this, m_execInterface, 
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_pprintToString),
+      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
   debugMsg("UtilityAdapter", " initialized.");
   return true;
 }
@@ -76,6 +84,24 @@ bool UtilityAdapter::shutdown()
 {
   debugMsg("UtilityAdapter", " shut down.");
   return true;
+}
+
+Value UtilityAdapter::_print(Command *cmd) {
+  print(cmd->getArgValues());
+  return Value();
+}
+
+Value UtilityAdapter::_pprint(Command *cmd) {
+  pprint(cmd->getArgValues());
+  return Value();
+}
+
+Value UtilityAdapter::_printToString(Command *cmd) {
+  return printToString(cmd->getArgValues());
+}
+
+Value UtilityAdapter::_pprintToString(Command *cmd) {
+  return pprintToString(cmd->getArgValues());
 }
 
 void UtilityAdapter::executeCommand(Command * cmd) 

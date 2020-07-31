@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,16 @@
  * AdapterConfiguration.hh
  *
  *  Created on: Jan 28, 2010
- *      Author: jhogins
+ *      Authors: jhogins
+ *               bwcampb
  */
 
 #ifndef ADAPTERCONFIGURATION_HH_
 #define ADAPTERCONFIGURATION_HH_
 
 #include "InterfaceAdapter.hh"
+#include "Value.hh"
+#include "AdapterExecInterface.hh"
 
 #include <set>
 
@@ -47,6 +50,92 @@ namespace PLEXIL {
 
   class AdapterConfiguration {
   public:
+
+    typedef void (InterfaceAdapter::*LookupNowHandler)(const State &, StateCacheEntry&);
+    typedef void (InterfaceAdapter::*SetThresholdsDoubleHandler)(const State &, double, double);
+    typedef void (InterfaceAdapter::*SetThresholdsIntHandler)(const State &, int, int);
+    typedef void (InterfaceAdapter::*SubscribeHandler)(const State &);
+    typedef void (InterfaceAdapter::*UnsubscribeHandler)(const State &);
+
+
+    struct LookupHandler
+    {
+    private:
+      InterfaceAdapter &m_context;
+      LookupNowHandler m_lookupNow;
+      SetThresholdsDoubleHandler m_setThresholdsDouble;
+      SetThresholdsIntHandler m_setThresholdsInt;
+      SubscribeHandler m_subscribe;
+      UnsubscribeHandler m_unsubscribe;
+    public:
+      LookupHandler(InterfaceAdapter &ct,
+            LookupNowHandler ln,
+            SetThresholdsDoubleHandler setTD,
+            SetThresholdsIntHandler setTI,
+            SubscribeHandler sub,
+            UnsubscribeHandler unsub) :
+            m_context(ct), m_lookupNow(ln), m_setThresholdsDouble(setTD), m_setThresholdsInt(setTI),
+            m_subscribe(sub), m_unsubscribe(unsub) {}
+      
+      void lookupNow(const State &state, StateCacheEntry &cacheEntry)
+      {
+        (m_context.*m_lookupNow)(state, cacheEntry);
+      }
+      void setThresholds(const State &state, double hi, double lo)
+      {
+        if(m_setThresholdsDouble)
+          (m_context.*m_setThresholdsDouble)(state, hi, lo);
+      }
+      void setThresholds(const State &state, int32_t hi, int32_t lo)
+      {
+        if(m_setThresholdsInt)
+          (m_context.*m_setThresholdsInt)(state, hi, lo);
+      }
+      void subscribe(const State &state)
+      {
+        if(m_subscribe)
+        ( m_context.*m_subscribe)(state);
+      }
+      void unsubscribe(const State &state)
+      {
+        if(m_unsubscribe)
+          (m_context.*m_unsubscribe)(state);
+      }
+    };
+
+
+    typedef Value (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
+    typedef void (InterfaceAdapter::*AbortCommandHandler)(Command *);
+
+    struct CommandHandler
+    {
+    private:
+      InterfaceAdapter &m_context;
+      AdapterExecInterface &m_execInterface;
+      ExecuteCommandHandler m_executeCommand;
+      AbortCommandHandler m_abortCommand;
+    public:
+      CommandHandler(InterfaceAdapter &ct,
+        AdapterExecInterface &execInterface,
+        ExecuteCommandHandler execCmd,
+        AbortCommandHandler abortCmd) :
+        m_context(ct), m_execInterface(execInterface),
+        m_executeCommand(execCmd), m_abortCommand(abortCmd) {}
+      
+      void ExecuteCommand(Command *cmd) {
+          Value val = (m_context.*m_executeCommand)(cmd);
+          m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM); //TODO: send COMMAND_FAILED if errror thrown
+          if(val.isKnown()) {
+            m_execInterface.handleCommandReturn(cmd, val);
+          }
+          m_execInterface.notifyOfExternalEvent();
+        }
+        void AbortCommand(Command *cmd) {
+          if(m_abortCommand) {
+            (m_context.*m_abortCommand)(cmd);
+          }
+        }
+    };
 
     /**
      * @brief Constructor.
@@ -102,106 +191,50 @@ namespace PLEXIL {
     void addInterfaceAdapter(InterfaceAdapter *adapter);
 
     /**
+     * @brief Clears the interface adapter registry.
+     */
+    void clearAdapterRegistry();
+
+    /**
+     * @brief Returns true if the given adapter is a known interface in the system. False otherwise
+     */
+    bool isKnown(InterfaceAdapter *intf);
+
+    /**
      * @brief Add an externally constructed ExecListener.
      * @param listener Pointer to the listener
      */
     void addExecListener(ExecListener *listener);
 
-    //
-    // API to interface adapters
-    //
-
     /**
-     * @brief Register the given interface adapter.
-     * @param adapter The interface adapter to be registered.
-     */
-
-    void defaultRegisterAdapter(InterfaceAdapter *adapter);
-
-    /**
-     * @brief Register the given interface adapter for this command.
-     Returns true if successful.  Fails and returns false
-     iff the command name already has an adapter registered
-              or setting a command interface is not implemented.
-     * @param commandName The command to map to this adapter.
-     * @param intf The interface adapter to handle this command.
-     */
-    bool registerCommandInterface(std::string const &commandName,
-                                  InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter for lookups to this state.
-     Returns true if successful.  Fails and returns false
-     if the state name already has an adapter registered
-              or registering a lookup interface is not implemented.
+     * @brief Register the given handler for lookups to this state.
+            Returns true if successful.  Fails and returns false
+            if the state name already has a handler registered
+            or registering a handler is not implemented.
      * @param stateName The name of the state to map to this adapter.
-     * @param intf The interface adapter to handle this lookup.
+     * @param context An object on which the handler functions can be called.
+     * @param lookupNow The lookup handler function for this state.
+     * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
+     * @param setThresholdsInt The setThresholdsInt handler function for this state.
+     * @param subscribe The subscribe handler function for this state.
+     * @param unsubscribe The lookup handler function for this state.
      * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
      */
-    bool registerLookupInterface(std::string const &stateName,
-                                 InterfaceAdapter *intf,
-                                 bool telemetryOnly = false);
+    bool registerLookupHandler(std::string const &stateName,
+          InterfaceAdapter &context,
+          LookupNowHandler ln,
+          SetThresholdsDoubleHandler setTD = nullptr,
+          SetThresholdsIntHandler setTI = nullptr,
+          SubscribeHandler sub = nullptr,
+          UnsubscribeHandler unsub = nullptr,
+          bool telemetryOnly = false);
 
     /**
-     * @brief Register the given interface adapter for planner updates.
-              Returns true if successful.  Fails and returns false
-              iff an adapter is already registered
-              or setting the default planner update interface is not implemented.
-     * @param intf The interface adapter to handle planner updates.
-     */
-    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for all lookups and commands
-     which do not have a specific adapter.  Returns true if successful.
-     Fails and returns false if there is already a default adapter registered
-              or setting the default interface is not implemented.
-     * @param intf The interface adapter to use as the default.
-     */
-    bool setDefaultInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for lookups.
-              This interface will be used for all lookups which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default lookup adapter registered
-              or setting the default lookup interface is not implemented.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultLookupInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for commands.
-              This interface will be used for all commands which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default command adapter registered.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultCommandInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Return the interface adapter in effect for this command, whether
-     specifically registered or default. May return NULL.
-     * @param commandName The command.
-     */
-    InterfaceAdapter *getCommandInterface(std::string const &commandName);
-
-    /**
-     * @brief Return the current default interface adapter for commands.
-              May return NULL.
-     */
-    InterfaceAdapter *getDefaultCommandInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for lookups with this state name,
+     * @brief Return the lookup handler in effect for lookups with this state name,
      whether specifically registered or default. May return NULL.
      * @param stateName The state.
      */
-    InterfaceAdapter *getLookupInterface(std::string const& stateName);
+    LookupHandler *getLookupHandler(std::string const& stateName);
 
     /**
      * @brief Query configuration data to determine if a state is only available as telemetry.
@@ -211,47 +244,31 @@ namespace PLEXIL {
      */
     bool lookupIsTelemetry(std::string const &stateName) const;
 
-    /**
-     * @brief Return the current default interface adapter for lookups.
-              May return NULL.
-     */
-    InterfaceAdapter *getDefaultLookupInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return NULL.
-     */
-    InterfaceAdapter *getPlannerUpdateInterface();
-
-    /**
-     * @brief Return the current default interface adapter. May return NULL.
-     */
-    InterfaceAdapter *getDefaultInterface();
-
-    std::set<InterfaceAdapter *> & getAdapters()
-    {
-      return m_adapters;
-    }
-
-    std::set<InterfaceAdapter *> const & getAdapters() const
-    {
-      return m_adapters;
-    }
-
     ExecListenerHub *getListenerHub()
     {
       return m_listenerHub;
     }
 
     /**
-     * @brief Returns true if the given adapter is a known interface in the system. False otherwise
+     * @brief Register the given handler for lookups to this state.
+            Returns true if successful.  Fails and returns false
+            if the state name already has a handler registered
+            or registering a handler is not implemented.
+     * @param stateName The name of the state to map to this adapter.
+     * @param context The object on which handlers can be called
      */
-    bool isKnown(InterfaceAdapter *intf);
+    bool registerCommandHandler(std::string const &stateName,
+          InterfaceAdapter &context,
+          AdapterExecInterface &execInterface,
+          ExecuteCommandHandler execCmd,
+          AbortCommandHandler abortCmd = nullptr);
 
     /**
-     * @brief Clears the interface adapter registry.
+     * @brief Return the lookup handler in effect for lookups with this state name,
+     whether specifically registered or default. May return NULL.
+     * @param stateName The state.
      */
-    void clearAdapterRegistry();
+    CommandHandler *getCommandHandler(std::string const& stateName);
 
     //
     // Plan, library path access
@@ -299,6 +316,153 @@ namespace PLEXIL {
      */
     InputQueue *getInputQueue() const;
 
+
+    /* --------------------------------------------------------------------- */
+    /* -------------------- Deprecated Interface Methods ------------------- */
+    /* --------------------------------------------------------------------- */
+
+    //
+    // API to interface adapters
+    //
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter.
+     * @param adapter The interface adapter to be registered.
+     */
+    void defaultRegisterAdapter(InterfaceAdapter *adapter);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter for this command.
+     Returns true if successful.  Fails and returns false
+     iff the command name already has an adapter registered
+              or setting a command interface is not implemented.
+     * @param commandName The command to map to this adapter.
+     * @param intf The interface adapter to handle this command.
+     */
+    bool registerCommandInterface(std::string const &commandName,
+                                  InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter for lookups to this state.
+     Returns true if successful.  Fails and returns false
+     if the state name already has an adapter registered
+              or registering a lookup interface is not implemented.
+     * @param stateName The name of the state to map to this adapter.
+     * @param intf The interface adapter to handle this lookup.
+     * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
+     */
+    bool registerLookupInterface(std::string const &stateName,
+                                 InterfaceAdapter *intf,
+                                 bool telemetryOnly = false);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter for planner updates.
+              Returns true if successful.  Fails and returns false
+              iff an adapter is already registered
+              or setting the default planner update interface is not implemented.
+     * @param intf The interface adapter to handle planner updates.
+     */
+    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter as the default for all lookups and commands
+     which do not have a specific adapter.  Returns true if successful.
+     Fails and returns false if there is already a default adapter registered
+              or setting the default interface is not implemented.
+     * @param intf The interface adapter to use as the default.
+     */
+    bool setDefaultInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter as the default for lookups.
+              This interface will be used for all lookups which do not have
+          a specific adapter.
+              Returns true if successful.
+          Fails and returns false if there is already a default lookup adapter registered
+              or setting the default lookup interface is not implemented.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    bool setDefaultLookupInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter as the default for commands.
+              This interface will be used for all commands which do not have
+          a specific adapter.
+              Returns true if successful.
+          Fails and returns false if there is already a default command adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    bool setDefaultCommandInterface(InterfaceAdapter *intf);
+
+    /**
+     * @brief Return the interface adapter in effect for this command, whether
+     specifically registered or default. May return NULL.
+     * @param commandName The command.
+     */
+    InterfaceAdapter *getCommandInterface(std::string const &commandName);
+
+    /**
+     * @deprecated
+     * @brief Return the current default interface adapter for commands.
+              May return NULL.
+     */
+    InterfaceAdapter *getDefaultCommandInterface();
+
+    /**
+     * @deprecated
+     * @brief Return the interface adapter in effect for lookups with this state name,
+     whether specifically registered or default. May return NULL.
+     * @param stateName The state.
+     */
+    InterfaceAdapter *getLookupInterface(std::string const& stateName);
+    
+    /**
+     * @deprecated
+     * @brief Return the current default interface adapter for lookups.
+              May return NULL.
+     */
+    InterfaceAdapter *getDefaultLookupInterface();
+
+    /**
+     * @deprecated
+     * @brief Return the interface adapter in effect for planner updates,
+              whether specifically registered or default. May return NULL.
+     */
+    InterfaceAdapter *getPlannerUpdateInterface();
+
+    /**
+     * @deprecated
+     * @brief Return the current default interface adapter. May return NULL.
+     */
+    InterfaceAdapter *getDefaultInterface();
+
+    /**
+     * @deprecated
+     * @brief Return the set of registered adapters
+     */
+    std::set<InterfaceAdapter *> & getAdapters()
+    {
+      return m_adapters;
+    }
+
+    /**
+     * @deprecated
+     * @brief Return the set of registered adapters
+     */
+    std::set<InterfaceAdapter *> const & getAdapters() const
+    {
+      return m_adapters;
+    }
+
   private:
 
     // Not implemented
@@ -321,10 +485,13 @@ namespace PLEXIL {
 
     // Maps by command/lookup
 
-    // Interface adapter maps
-    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap;
-    InterfaceMap m_lookupMap;
-    InterfaceMap m_commandMap;
+    // Interface handler maps
+    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap; // TODO: Remove this.
+    typedef std::map<std::string, CommandHandler *> CommandHandlerMap;
+    typedef std::map<std::string, LookupHandler *> LookupHandlerMap;
+
+    LookupHandlerMap m_lookupMap;
+    CommandHandlerMap m_commandMap;
 
     std::set<std::string> m_telemetryLookups;
 
