@@ -14,10 +14,10 @@ import org.xml.sax.SAXException;
 
 public class XMLIO {
 
-	public static Element readToNode(String filename) throws ParserConfigurationException, SAXException, IOException {
+	public static Element readToNode(File infile) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(new File(filename));
+		Document doc = db.parse(infile);
 		
 		return doc.getDocumentElement();
 	}

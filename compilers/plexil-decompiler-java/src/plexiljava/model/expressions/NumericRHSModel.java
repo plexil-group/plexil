@@ -18,6 +18,8 @@ public class NumericRHSModel extends NodeModel {
 			ret += getChild(OperatorModel.class).decompile(0);
 		} else if( hasChild(LookupModel.class) ) {
 			ret += getChild(LookupModel.class).decompile(0);
+		} else if( hasChild(ArrayElementModel.class) ) {
+			ret += getChild(ArrayElementModel.class).decompile(0);
 		} else {
 			ret += qualities.get(0).decompile(0);
 		}

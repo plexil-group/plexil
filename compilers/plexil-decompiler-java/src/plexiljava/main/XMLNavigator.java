@@ -1,5 +1,6 @@
 package plexiljava.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class XMLNavigator {
 	
 	// TODO: B/DFS Locate, Selected View
 	
-	public static final String FILENAME = "examples/basic/SimpleDrive.plx";
+	public static final String FILENAME = "AddArray.plx";
 	public static final String HELPDOC = "cd	Change Directory\nls	List Children\nattr	List Attributes";
 	
 	public static String getNodeString(Node node) {
@@ -113,7 +114,8 @@ public class XMLNavigator {
 	public static Map<Node, List<Node>> qualityMap = new HashMap<Node, List<Node>>();
 	
 	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
-		Element plan = XMLIO.readToNode(FILENAME);
+		File infile = new File(FILENAME);
+		Element plan = XMLIO.readToNode(infile);
 		plan.normalize();
 		XMLPlanParsing.qualifyNode(plan, qualityMap);
 		children = plan.getChildNodes();

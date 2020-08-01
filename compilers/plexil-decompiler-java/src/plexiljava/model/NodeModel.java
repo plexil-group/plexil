@@ -1,6 +1,9 @@
 package plexiljava.model;
 
+import java.util.logging.Level;
+
 import plexiljava.decompilation.Decompilable;
+import plexiljava.main.Decompiler;
 import plexiljava.model.commands.CommandModel;
 import plexiljava.model.commands.CommandNodeModel;
 import plexiljava.model.conditions.ConditionNodeModel;
@@ -324,7 +327,8 @@ public class NodeModel extends BaseModel implements Decompilable {
 				}
 				break;
 			default:
-				System.out.println(child.getName());
+				Decompiler.logger.setLevel(Level.WARNING);
+				Decompiler.logger.warning("Unrecognized node type: " + child.getName());
 				children.add(new BaseModel(child.getOriginalNode(), child.getParent(), child.getOrder()));
 				break;
 		}
