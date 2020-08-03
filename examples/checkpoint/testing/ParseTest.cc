@@ -53,7 +53,7 @@ string getString(const string& s){
 
 int main(int argc, char *argv[]) {
   if(argc!=3){
-    cerr<<"incorrect number of arguments, expecting 2"<<endl;
+    cout<<"incorrect number of arguments, expecting 2"<<endl;
     return -1;
   }
   // Split each argument into components
@@ -63,71 +63,72 @@ int main(int argc, char *argv[]) {
   char * token = strtok(argv[1], "|");
   while( token != NULL ) {
     first_run.push_back(token);
-    token = strtok(NULL, " ");
+    token = strtok(NULL, "|");
   }
   token = strtok(argv[2], "|");
   while( token != NULL ) {
     second_run.push_back(token);
-    token = strtok(NULL, " ");
+    token = strtok(NULL, "|");
   }
 
-  // If second run didn't finish
+  // Verify second run finished
   if(!contains(second_run,"END---")){
-    cerr<<"Second run didn't terminate, likely due to error"<<endl;
+    cout<<"Second run didn't terminate, likely due to error"<<endl;
     return -2;
   }
-  // If any flushes failed
+  
+  // Verify that flushes returned successful codes 
   if(contains(first_run,"FLUSHSUCCESS=0")){
-    cerr<<"Flush in run 1 failed" << endl;
+    cout<<"Flush in run 1 failed" << endl;
     return -2;
   }
   if(contains(second_run,"FLUSHSUCCESS=0")){
-    cerr<<"Flush in run 2 failed"<<endl;
+    cout<<"Flush in run 2 failed"<<endl;
     return -2;
   }
 
-  // If flushed, check that write successful
+  // If flushed, check that at least one write persisted
   if(contains(first_run,"FLUSH1END")){
     if(getInt(second_run[NUMBERACCESSIBLE])!=2){
-      cerr<<"Run 1 flushed, expected 2 accessible boots, got "
+      cout<<"Run 1 flushed, expected 2 accessible boots, got "
 	  <<getInt(second_run[NUMBERACCESSIBLE])<<endl;
       return -2;
     }
     if(getInt(second_run[NUMBERTOTAL])!=2){
-      cerr<<"Run 1 flushed, expected 2 total boots, got "
+      cout<<"Run 1 flushed, expected 2 total boots, got "
 	  <<getInt(second_run[NUMBERTOTAL])<<endl;
       return -2;
     }
   }
 
-  // If first run has confirmed is_ok, verify changes have persisted
+  // Verify changes from is_ok have persisted if set (via unhandled boots)
   if(contains(first_run,"FLUSH3END")){
     if(getInt(second_run[NUMBERUNHANDLED])!=1){
-      cerr<<"Run 1 flushed is_ok, expected 1 uhandled boots, got "
+      cout<<"Run 1 flushed is_ok, expected 1 uhandled boots, got "
 	  <<getInt(second_run[NUMBERUNHANDLED])<<endl;
       return -2;
     }
   }
-  // If first run hasn't sent is_ok
+  // Verify is_ok not written if not set  (via unhandled boots)
   else if(!contains(first_run,"OK1BEGIN")){
     if(getInt(second_run[NUMBERUNHANDLED])!=2){
-      cerr<<"Run 1 never set is_ok, expected 2 uhandled boots, got "
+      cout<<"Run 1 never set is_ok, expected 2 uhandled boots, got "
 	  <<getInt(second_run[NUMBERUNHANDLED])<<endl;
       return -2;
     }
   }
 
-  // If checkpoint set and read, check it was correct
+  // Verify checkpoint correctly set and read
   if(contains(first_run,"CHECKPOINT1STATE")){
     // Compare returns 0 when identical
     if(getString(first_run[FCHECKPOINT1STATE]).compare("1")){
-      cerr<<"Checkpoint 1 was set but not read to same value"<<endl;
+      cout<<"Checkpoint 1 was set but not read to same value"<<endl;
       return -2;
     }
   }
   if(contains(first_run,"CHECKPOINT1INFO")){
     if(getString(first_run[FCHECKPOINT1INFO]).compare("valid")){
-      cerr<<"Checkpoint 1 was set but not read to have the same information"<<endl;
+      cout<<"Checkpoint 1 was set but not read to have the same information"<<endl;
       return -2;
     }
   }
@@ -135,11 +136,21 @@ int main(int argc, char *argv[]) {
   // If first run set checkpoint, verify that changes have persisted
   if(contains(first_run,"FLUSH2END")){
     if(getString(second_run[CHECKPOINT1STATE]).compare("1")){
-      cerr<<"Checkpoint 1 was set but change did not persist"<<endl;
+      cout<<"Checkpoint 1 was set but change did not persist"<<endl;
       return -2;
     }
     if(getString(second_run[CHECKPOINT1INFO]).compare("valid")){
-      cerr<<"Checkpoint 1 was set but not read to have the same information"<<endl;
+      cout<<"Checkpoint 1 was set but not read to have the same information"<<endl;
+      return -2;
+    }
+  }
+  // If first run didn't set checkpoint, verify that not written to disk
+  if(!contains(first_run,"CHECKPOINT1BEGIN")){
+    if(getString(second_run[CHECKPOINT1STATE]).compare("1")==0){
+      cout<<"Checkpoint 1 not set, but is saved to disk"<<endl;
+    }
+    if(getString(second_run[CHECKPOINT1INFO]).compare("valid")==0){
+      cout<<"Checkpoint 1 not set but its informaton is saved to disk"<<endl;
       return -2;
     }
   }
@@ -148,14 +159,22 @@ int main(int argc, char *argv[]) {
   // If is_ok set and read, check it was correct
   if(contains(first_run,"OK1END")){
     if(getString(first_run[FOK1STATE]).compare("1")){
-      cerr<<"Is_ok was set but not read to same value"<<endl;
+      cout<<"Is_ok was set but was read to "<<getString(first_run[FOK1STATE])<<endl;
       return -2;
     }
   }
   // If first run set is_ok, verify that changes have persisted
   if(contains(first_run,"FLUSH3END")){
     if(getString(second_run[OK1STATE]).compare("1")){
-      cerr<<"Is_ok was set but change did not persist"<<endl;
+      cout<<"Is_ok was set but change did not persist"<<endl;
+      return -2;
+    }
+  }
+  
+  // If first run didn't set is_ok, check that it was not saved to disk
+  if(!contains(first_run,"OK1BEGIN")){
+    if(getString(second_run[OK1STATE]).compare("1")==0){
+      cout<< "Is_ok not set, but set to true on disk"<<endl;
       return -2;
     }
   }
@@ -165,14 +184,14 @@ int main(int argc, char *argv[]) {
     if(getString(first_run[FSTARTTIME])
        .compare(getString(second_run[STARTTIME]))){
 
-      cerr<<"Expected start time readings to be identical, got " <<
+      cout<<"Expected start time readings to be identical, got " <<
 	getString(first_run[FSTARTTIME])<<" and " <<
 	getString(second_run[STARTTIME])<<endl;
       return -2;
     }
     
     if(getDouble(first_run[FSTARTTIME])>getDouble(second_run[ENDTIME])){
-      cerr<<"Expected end time to be greater than start time, got "<<
+      cout<<"Expected end time to be greater than start time, got "<<
 	getString(first_run[FSTARTTIME])<<" and " <<
 	getString(second_run[ENDTIME])<<endl;
       return -2;
