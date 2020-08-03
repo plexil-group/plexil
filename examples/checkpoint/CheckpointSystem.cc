@@ -26,6 +26,7 @@
 
 
 #include "CheckpointSystem.hh"
+#include "SimpleSaveManager.hh"
 #include "State.hh"
 #include "CachedValue.hh"
 #include "Subscriber.hh"
@@ -77,6 +78,7 @@ Value time_to_Value(Nullable<Real> time){
   else return Unknown;
 }
 //////////////////////////////// Class Features ////////////////////////////////
+CheckpointSystem::CheckpointSystem(): m_manager(new SimpleSaveManager), m_use_time(true){}
 
 
 void CheckpointSystem::start(){

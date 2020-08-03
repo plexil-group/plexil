@@ -30,7 +30,7 @@
 #include "Value.hh"
 #include "Nullable.hh"
 #include "InterfaceAdapter.hh"
-#include "SimpleSaveManager.hh"
+#include "SaveManager.hh"
 #include "data_support.hh"
 #include "ReadWriteLock.hh"
 #include "StateCacheEntry.hh"
@@ -91,7 +91,7 @@ public:
 private:
   
   // Singleton paradigm
-  CheckpointSystem(): m_manager(new SimpleSaveManager), m_use_time(true){}
+  CheckpointSystem();
   static CheckpointSystem *s_system;
 
   //Prohibits copying or assigning
