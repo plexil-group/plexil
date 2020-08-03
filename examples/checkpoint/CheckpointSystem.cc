@@ -31,8 +31,10 @@
 #include "Subscriber.hh"
 #include "Debug.hh"
 #include "AdapterConfiguration.hh" // For access to g_configuration
+#include "InterfaceManager.hh"
 
 #include <iostream>
+#include <limits>
 
 
 
@@ -55,13 +57,6 @@ static Value Unknown;
 // A preamble for error messages.
 static string error = "Error in checkpoint system: ";
 
-// Initialize static variables
-
-// Time function variables
-InterfaceAdapter* CheckpointSystem::s_time_adapter=NULL;
-StateCacheEntry CheckpointSystem::s_time_cache;
-bool CheckpointSystem::s_use_time=true;
-
 
 
 ///////////////////////////// Helper Functions //////////////////////////////
@@ -77,18 +72,6 @@ bool CheckpointSystem::valid_checkpoint(const string& checkpoint_name,Integer bo
   return checkpoints.find(checkpoint_name) != checkpoints.end();
 }
 
-Nullable<Real> CheckpointSystem::get_time(){
-  if(!s_use_time || s_time_adapter==NULL) return Nullable<Real>();
-
-  s_time_adapter->lookupNow(State::timeState(), s_time_cache);
-  if(!s_time_cache.isKnown()) return Nullable<Real>();
-  // Extract time from time_cache
-  Value time_value = s_time_cache.cachedValue()->toValue();
-  Real r;
-  time_value.getValue(r);
-  return Nullable<Real>(r);
-}
-
 Value time_to_Value(Nullable<Real> time){
   if(time.has_value()) return time.value();
   else return Unknown;
@@ -97,20 +80,14 @@ Value time_to_Value(Nullable<Real> time){
 
 
 void CheckpointSystem::start(){
-  s_time_adapter = g_configuration->getLookupInterface("time");  
-  m_manager->setTimeFunction(CheckpointSystem::get_time);
   m_manager->setData(&m_data_vector,&m_num_total_boots);
   m_manager->loadCrashes();
 }
 
 void CheckpointSystem::useTime(bool use_time){
-  if(use_time) {
-    debug("Using time");
-  }
-  else {
-    debug("Not using time");
-  }
-  s_use_time = use_time;
+  debug("Using time? "<<use_time);
+  m_manager->useTime(use_time);
+  m_use_time = use_time;
 }
 
 void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
@@ -304,8 +281,14 @@ Value CheckpointSystem::getIsOK(Integer boot_num){
 //////////////////////////////////////// Commands /////////////////////////////////////////////
 
 void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info,Command *cmd){
-  WLOCK;  
-  Nullable<Real> time = get_time();
+  WLOCK;
+  // queryTime returns 0 if no time adapter can be found
+  Nullable<Real> time;
+  if(m_use_time){
+    time.set_value(g_manager->queryTime());
+    if(time.value()==std::numeric_limits<double>::min()) time.nullify();
+  }
+  
   // This inserts the element if none exists, and overrides if it exists
   const CheckpointData checkpoint = {value,time,info};
   m_data_vector.at(0).checkpoints[checkpoint_name] = checkpoint;

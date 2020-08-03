@@ -27,7 +27,7 @@
 // This file defines an interface to set/lookup checkpoints which are persistent
 // between crashes. It also provides information about crashes
 
-// See src/app-framework/InterfaceAdaptor.hh for
+// See src/app-framework/InterfaceAdapter.hh for
 // brief documentation of the inherited class members.  See the implementation
 // (.cc version) of this file for details on how this adapter works.
 

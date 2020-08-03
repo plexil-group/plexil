@@ -22,9 +22,10 @@ public:
   
   virtual void setData( std::vector<BootData>  *data, int *num_total_boots);
 
-  virtual void setTimeFunction(Nullable<PLEXIL::Real> (*time_func)());
 
   virtual void setConfig(const pugi::xml_node* configXml);
+
+  virtual void useTime(bool use_time);
 
   virtual void loadCrashes();
   

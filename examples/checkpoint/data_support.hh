@@ -24,15 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef _H_data_support
+#define _H_data_support
 
 // This defines a datastructure for describing boot information which is used by both SaveManager and CheckpointSystem
 #include "Nullable.hh"
 #include "ValueType.hh"
 #include <map>
 
-#ifndef _H_data_support
-#define _H_data_support
-
+// TODO: Evaluate if Nullable<> is necessary or if we should just use 0.0 = no time (which is what we have to assume to use InterfaceManager::queryTime())
+// Alternatively: go back to old system with lookups 
 struct CheckpointData{
   bool state; /*state of checkpoint*/
   Nullable<PLEXIL::Real> time; /*time of last checkpoint modification*/

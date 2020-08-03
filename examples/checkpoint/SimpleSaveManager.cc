@@ -6,11 +6,12 @@
 #include <stdlib.h>     /* strtod */
 #include <climits>
 #include <sstream> // in to_string
+#include <limits> //numeric_limits
 #include "Debug.hh"
 #include "pugixml.hpp"
 #include "plexil-stdint.h"
+#include "InterfaceManager.hh"
 
-using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
@@ -62,9 +63,9 @@ void  SimpleSaveManager::setData(vector<BootData> *data, int32_t *num_total_boot
   m_num_total_boots = num_total_boots;
   UNLOCK;
 }
-void  SimpleSaveManager::setTimeFunction(Nullable<Real> (*time_func)()){
+void  SimpleSaveManager::useTime(bool use_time){
   LOCK;
-  m_time_func = time_func;
+  m_use_time = use_time;
   UNLOCK;
 }
 
@@ -140,10 +141,15 @@ void SimpleSaveManager::loadCrashes(){
 
   m_data_vector->clear();
   // Include current boot with current time, no checkpoints
-  BootData boot_d = {m_time_func(),
-			    Nullable<Real>(),
-			    false,
-			    map<const string,CheckpointData>()};
+  Nullable<Real> time;
+  if(m_use_time){
+    time.set_value(g_manager->queryTime());
+    if(time.value()==std::numeric_limits<double>::min()) time.nullify();
+  }
+  BootData boot_d = {time,
+		     Nullable<Real>(),
+		     false,
+		     map<const string,CheckpointData>()};
   m_data_vector->push_back(boot_d);
 
   
@@ -270,8 +276,15 @@ bool SimpleSaveManager::writeToFile(const string& location){
     curr_boot.append_attribute("time_of_boot").set_value(
       time_to_string(boot->boot_time).c_str());
     if(boot_n==0){
-      curr_boot.append_attribute("time_of_crash").set_value(
-	time_to_string(m_time_func()).c_str());
+
+       Nullable<Real> time;
+       if(m_use_time){
+	 time.set_value(g_manager->queryTime());
+	 if(time.value()==std::numeric_limits<double>::min()) time.nullify();
+       }
+  
+       curr_boot.append_attribute("time_of_crash").set_value(
+	 time_to_string(time).c_str());
     }
     else{
       curr_boot.append_attribute("time_of_crash").set_value(

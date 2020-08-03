@@ -18,18 +18,17 @@ public:
     // All pointer member variables here are managed by CheckpointSystem
   }
 
-  SaveManager() : m_data_vector(NULL), m_num_total_boots(NULL){};
+  SaveManager() : m_data_vector(NULL), m_num_total_boots(NULL), m_use_time(true) {};
 
   SaveManager(const SaveManager &o) : m_data_vector(o.m_data_vector),
 				      m_num_total_boots(o.m_num_total_boots),
 				      m_execInterface(o.m_execInterface),
-				      m_time_func(o.m_time_func){}
+				      m_use_time(true){}
 
   SaveManager & operator=(const SaveManager &o){
     m_data_vector = o.m_data_vector;
     m_num_total_boots = o.m_num_total_boots;
     m_execInterface = o.m_execInterface;
-    m_time_func = o.m_time_func;
     return *this;
   }
   
@@ -38,9 +37,10 @@ public:
     m_data_vector = data;
     m_num_total_boots = num_total_boots;
   }
-  virtual void setTimeFunction(Nullable<PLEXIL::Real> (*time_func)()){
-    m_time_func = time_func;
+  virtual void useTime(bool use_time){
+    m_use_time = use_time;
   }
+  
   virtual void setExecInterface(PLEXIL::AdapterExecInterface *execInterface){
     m_execInterface = execInterface;
   }
@@ -73,7 +73,7 @@ protected:
   // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
   PLEXIL::AdapterExecInterface * m_execInterface;
 
-  Nullable<PLEXIL::Real>(*m_time_func)();
+  bool m_use_time;
   
 };
 #endif

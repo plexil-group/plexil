@@ -24,9 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdexcept>
 #ifndef _H_Nullable
 #define _H_Nullable
+#include <stdexcept>
 
 // This is a class that wraps objects into nullable objects
 template<typename T>
@@ -62,6 +62,11 @@ public:
 
   void nullify(){
     some = false;
+  }
+
+  void set_value(T value){
+    some = true;
+    data = value;
   }
 
   

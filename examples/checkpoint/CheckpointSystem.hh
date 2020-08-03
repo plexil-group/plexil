@@ -26,12 +26,12 @@
 
 #ifndef _H_CheckpointSystem
 #define _H_CheckpointSystem
+
 #include "Value.hh"
 #include "Nullable.hh"
 #include "InterfaceAdapter.hh"
 #include "SimpleSaveManager.hh"
 #include "data_support.hh"
-#include "SaveManager.hh"
 #include "ReadWriteLock.hh"
 #include "StateCacheEntry.hh"
 
@@ -88,26 +88,16 @@ public:
   void setExecInterface(PLEXIL::AdapterExecInterface* execInterface);
   void useTime(bool use_time);
 
-  // For use to pass to other classes
-  static Nullable<PLEXIL::Real> get_time();
-
 private:
   
   // Singleton paradigm
-  CheckpointSystem(): m_manager(new SimpleSaveManager) {
-    s_use_time = true;
-    s_time_adapter = NULL;
-  }
+  CheckpointSystem(): m_manager(new SimpleSaveManager), m_use_time(true){}
   static CheckpointSystem *s_system;
 
   //Prohibits copying or assigning
   CheckpointSystem (const CheckpointSystem&);
   CheckpointSystem& operator= (const CheckpointSystem&);
 
-  // Static members for get_time
-  static PLEXIL::InterfaceAdapter* s_time_adapter;
-  static PLEXIL::StateCacheEntry s_time_cache;
-  static bool s_use_time;
   
   // Helper functions
   bool valid_boot(PLEXIL::Integer boot_num);
@@ -122,6 +112,8 @@ private:
   // Data
   std::vector<BootData>  m_data_vector;
   int m_num_total_boots;
+
+  bool m_use_time;
 
   // Used for command handles
   PLEXIL::AdapterExecInterface* m_execInterface;

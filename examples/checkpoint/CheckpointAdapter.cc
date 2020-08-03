@@ -71,7 +71,8 @@ static vector<Value> EmptyArgs;
 
 //////////////////////////// Helper functions ////////////////////////////////
 
-string getChildWithAttribute(const pugi::xml_node& configXml,
+// TODO: Use XPath
+static string getChildWithAttribute(const pugi::xml_node& configXml,
 			     const string& node_name,
 			     const string& attribute_name){
   for (pugi::xml_node child = configXml.first_child(); child; child = child.next_sibling())
@@ -83,13 +84,12 @@ string getChildWithAttribute(const pugi::xml_node& configXml,
 	  return attr.value();
 	}
       }
-      return "";
     }
   }
   return "";
 }
 
-pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
+static pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
 			     const string& node_name){
   for (pugi::xml_node child = configXml.first_child(); child; child = child.next_sibling())
   {
