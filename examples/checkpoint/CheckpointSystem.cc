@@ -26,6 +26,7 @@
 
 
 #include "CheckpointSystem.hh"
+#include "Guard.hh"
 #include "SimpleSaveManager.hh"
 #include "State.hh"
 #include "CachedValue.hh"
@@ -45,10 +46,6 @@ using std::map;
 
 using namespace PLEXIL;
 #define debug(msg) debugMsg("CheckpointSystem"," "<<msg)
-#define RLOCK debug("Locking reader"); m_rw.begin_read()
-#define RUNLOCK debug("Unlocking reader"); m_rw.end_read()
-#define WLOCK debug("Locking writer") m_rw.begin_write();
-#define WUNLOCK debug("Unlocking writer") m_rw.end_write();
 
 ///////////////////////////// Conveniences //////////////////////////////////
 
@@ -93,7 +90,7 @@ void CheckpointSystem::useTime(bool use_time){
 }
 
 void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
-    m_manager->setConfig(configXml);
+  m_manager->setConfig(configXml);
 }
 
 void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
@@ -104,241 +101,250 @@ void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
 
 ////////////////////////////////// Lookups /////////////////////////////////////
 bool CheckpointSystem::didCrash(){
-  RLOCK;
-  bool retval;
-  // If we don't have a previous boot
-  if(m_num_total_boots==1) retval = false;
-  else{
-    Value lastCrash = getIsOK(1);
-    if(lastCrash==Unknown) retval = false;
+  {
+    Guard local_guard(m_rw,read);
+    bool retval;
+    // If we don't have a previous boot
+    if(m_num_total_boots==1) retval = false;
     else{
-      bool inverse_retval;
-      lastCrash.getValue(inverse_retval);
-      retval = !inverse_retval;
+      Value lastCrash = getIsOK(1);
+      if(lastCrash==Unknown) retval = false;
+      else{
+	bool inverse_retval;
+	lastCrash.getValue(inverse_retval);
+	retval = !inverse_retval;
+      }
     }
+    return retval;
   }
-  RUNLOCK;
-  return retval;
 }
 
 
 Integer CheckpointSystem::numAccessibleBoots(){
-  RLOCK;
-  Integer retval;
-  retval = m_data_vector.size();
-  RUNLOCK;
-  return retval;
+  {
+    Guard local_guard(m_rw,read);
+    Integer retval;
+    retval = m_data_vector.size();
+    return retval;
+  }
 }
 
 
 Integer CheckpointSystem::numTotalBoots(){
-  RLOCK;
-  Integer retval;
-  retval = m_num_total_boots;
-  RUNLOCK;
-  return retval;
-}
-
-Integer CheckpointSystem::numUnhandledBoots(){
-  RLOCK;
-  Integer retval = 0;
-  for(int i=0;i<m_data_vector.size();i++){
-    BootData boot = m_data_vector.at(i);
-    if(!boot.is_ok) retval++;
+  {
+    Guard local_guard(m_rw,read);
+    Integer retval;
+    retval = m_num_total_boots;
+    return retval;
   }
-  RUNLOCK;
-  return retval;
+}
+Integer CheckpointSystem::numUnhandledBoots(){
+  {
+    Guard local_guard(m_rw,read);
+    Integer retval = 0;
+    for(int i=0;i<m_data_vector.size();i++){
+      BootData boot = m_data_vector.at(i);
+      if(!boot.is_ok) retval++;
+    }
+    return retval;
+  }
 }
 
 
 Value CheckpointSystem::getCheckpointState(const string& checkpoint_name,Integer boot_num){
-  RLOCK;
-  Value retval;
-  if(valid_boot(boot_num)){
-    if(valid_checkpoint(checkpoint_name, boot_num)){
-      retval =  m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).state;
+  {
+    Guard local_guard(m_rw,read);
+    Value retval;
+    if(valid_boot(boot_num)){
+      if(valid_checkpoint(checkpoint_name, boot_num)){
+	retval =  m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).state;
+      }
+      else{
+	retval = Unknown;
+      }
     }
+    // If boot doesn't exist, something's gone wrong
     else{
+      debug( error << "invalid boot number: " << boot_num);
       retval = Unknown;
     }
+    return retval;
   }
-  // If boot doesn't exist, something's gone wrong
-  else{
-    debug( error << "invalid boot number: " << boot_num);
-    retval = Unknown;
-  }
-  RUNLOCK;
-  return retval;
 }
 
 Value CheckpointSystem::getCheckpointTime(const string& checkpoint_name, Integer boot_num){
-  RLOCK;
-  Value retval;
-  if(valid_boot(boot_num)){
-    if(valid_checkpoint(checkpoint_name, boot_num)){
-      Nullable<Real> time = m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).time;
-      retval = time_to_Value(time);
+  {
+    Guard local_guard(m_rw,read);
+    Value retval;
+    if(valid_boot(boot_num)){
+      if(valid_checkpoint(checkpoint_name, boot_num)){
+	Nullable<Real> time = m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).time;
+	retval = time_to_Value(time);
+      }
+      // If checkpoint doesn't exist, we can't get its time
+      else{
+	debug(error << "invalid checkpoint name: " << checkpoint_name);
+	retval = Unknown;
+      }
     }
-    // If checkpoint doesn't exist, we can't get its time
+    // If boot doesn't exist, something's gone wrong
     else{
-      debug(error << "invalid checkpoint name: " << checkpoint_name);
-       retval = Unknown;
+      debug(error << "invalid boot number: " << boot_num);
+      retval = Unknown;
     }
+    return retval;
   }
-  // If boot doesn't exist, something's gone wrong
-  else{
-    debug(error << "invalid boot number: " << boot_num);
-    retval = Unknown;
-  }
-  RUNLOCK;
-  return retval;
 }
 
 Value CheckpointSystem::getCheckpointInfo(const string& checkpoint_name, Integer boot_num){
-  RLOCK;
-  Value retval;
-  if(valid_boot(boot_num)){
-    if(valid_checkpoint(checkpoint_name, boot_num)){
-      retval = m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).info;
+  {
+    Guard local_guard(m_rw,read);
+    Value retval;
+    if(valid_boot(boot_num)){
+      if(valid_checkpoint(checkpoint_name, boot_num)){
+	retval = m_data_vector.at(boot_num).checkpoints.at(checkpoint_name).info;
+      }
+      // If checkpoint doesn't exist, we can't get its info
+      else{
+	debug(error << "invalid checkpoint name: " << checkpoint_name);
+	retval = Unknown;
+      }
     }
-    // If checkpoint doesn't exist, we can't get its info
+    // If boot doesn't exist, something's gone wrong
     else{
-      debug(error << "invalid checkpoint name: " << checkpoint_name);
+      debug( error << "invalid boot number: " << boot_num);
       retval = Unknown;
     }
+    return retval;
   }
-  // If boot doesn't exist, something's gone wrong
-  else{
-    debug( error << "invalid boot number: " << boot_num);
-    retval = Unknown;
-  }
-  RUNLOCK;
-  return retval;
 }
 
 // Returns the latest boot number where the checkpoint was true, Unknown if none found
 Value CheckpointSystem::getCheckpointLastPassed(const string& checkpoint_name){
-  RLOCK;
-  Value retval = Unknown;
-  for (Integer i=0;i<m_data_vector.size();i++){
-    map<const string, CheckpointData> checkpoints = m_data_vector.at(i).checkpoints;
-    if(checkpoints.find(checkpoint_name)!=checkpoints.end() && checkpoints.at(checkpoint_name).state){
-      retval = i;
-      break;
+  {
+    Guard local_guard(m_rw,read);
+    Value retval = Unknown;
+    for (Integer i=0;i<m_data_vector.size();i++){
+      map<const string, CheckpointData> checkpoints = m_data_vector.at(i).checkpoints;
+      if(checkpoints.find(checkpoint_name)!=checkpoints.end() && checkpoints.at(checkpoint_name).state){
+	retval = i;
+	break;
+      }
     }
+    return retval;
   }
-  RUNLOCK;
-  return retval;
 }
-
 
 Value CheckpointSystem::getTimeOfBoot(Integer boot_num){
-  RLOCK;
-  Value retval;
-  if(valid_boot(boot_num)){
-    Nullable<Real> time = m_data_vector.at(boot_num).boot_time;
-    retval = time_to_Value(time);
+  {
+    Guard local_guard(m_rw,read);
+    Value retval;
+    if(valid_boot(boot_num)){
+      Nullable<Real> time = m_data_vector.at(boot_num).boot_time;
+      retval = time_to_Value(time);
+    }
+    // If boot doesn't exist, something's gone wrong
+    else{
+      debug(error << "invalid boot number: " << boot_num);
+      retval = Unknown;
+    }
+    return retval;
   }
-  // If boot doesn't exist, something's gone wrong
-  else{
-    debug(error << "invalid boot number: " << boot_num);
-    retval = Unknown;
-  }
-  RUNLOCK;
-  return retval;
 }
-
 
 Value CheckpointSystem::getTimeOfCrash(Integer boot_num){
-  RLOCK;
-  Value retval;
-  if(valid_boot(boot_num)){
-    Nullable<Real> time = m_data_vector.at(boot_num).crash_time;
-    retval = time_to_Value(time);
+  {
+    Guard local_guard(m_rw,read);
+    Value retval;
+    if(valid_boot(boot_num)){
+      Nullable<Real> time = m_data_vector.at(boot_num).crash_time;
+      retval = time_to_Value(time);
+    }
+    // If boot doesn't exist, something's gone wrong
+    else{
+      debug(error << "invalid boot number: " << boot_num);
+      retval = Unknown;
+    }
+    return retval;
   }
-  // If boot doesn't exist, something's gone wrong
-  else{
-    debug(error << "invalid boot number: " << boot_num);
-    retval = Unknown;
-  }
-  RUNLOCK;
-  return retval;
 }
-
 Value CheckpointSystem::getIsOK(Integer boot_num){
-  RLOCK;
-  Value retval;
-  if(valid_boot(boot_num)){
-    retval = m_data_vector.at(boot_num).is_ok;
+  {
+    Guard local_guard(m_rw,read);
+    Value retval;
+    if(valid_boot(boot_num)){
+      retval = m_data_vector.at(boot_num).is_ok;
+    }
+    // If boot doesn't exist, something's gone wrong
+    else{
+      debug(error << "invalid boot number: " << boot_num);
+      retval = Unknown;
+    }
+    return retval;
   }
-  // If boot doesn't exist, something's gone wrong
-  else{
-    debug(error << "invalid boot number: " << boot_num);
-    retval = Unknown;
-  }
-  RUNLOCK;
-  return retval;
 }
 
 //////////////////////////////////////// Commands /////////////////////////////////////////////
 
 void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,string& info,Command *cmd){
-  WLOCK;
-  // queryTime returns 0 if no time adapter can be found
-  Nullable<Real> time;
-  if(m_use_time){
-    time.set_value(g_manager->queryTime());
-    if(time.value()==std::numeric_limits<double>::min()) time.nullify();
-  }
+  {
+    Guard local_guard(m_rw,write);
+    // queryTime returns 0 if no time adapter can be found
+    Nullable<Real> time;
+    if(m_use_time){
+      time.set_value(g_manager->queryTime());
+      if(time.value()==std::numeric_limits<double>::min()) time.nullify();
+    }
   
-  // This inserts the element if none exists, and overrides if it exists
-  const CheckpointData checkpoint = {value,time,info};
-  m_data_vector.at(0).checkpoints[checkpoint_name] = checkpoint;
+    // This inserts the element if none exists, and overrides if it exists
+    const CheckpointData checkpoint = {value,time,info};
+    m_data_vector.at(0).checkpoints[checkpoint_name] = checkpoint;
 
 
-  // Publish changes to overloaded Checkpoint lookups
-  publish("Checkpoint",value,checkpoint_name);
-  publish("Checkpoint",value,checkpoint_name,0); // Lookup for boot 0
-  publish("CheckpointTime",time_to_Value(time),checkpoint_name);
-  publish("CheckpointTime",time_to_Value(time),checkpoint_name,0);
-  publish("CheckpointInfo",info,checkpoint_name);
-  publish("CheckpointInfo",info,checkpoint_name,0);
+    // Publish changes to overloaded Checkpoint lookups
+    publish("Checkpoint",value,checkpoint_name);
+    publish("Checkpoint",value,checkpoint_name,0); // Lookup for boot 0
+    publish("CheckpointTime",time_to_Value(time),checkpoint_name);
+    publish("CheckpointTime",time_to_Value(time),checkpoint_name,0);
+    publish("CheckpointInfo",info,checkpoint_name);
+    publish("CheckpointInfo",info,checkpoint_name,0);
 
-  // Send back command_received
-  m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
-  m_execInterface->notifyOfExternalEvent();
-  debug("Sent COMMAND_RCVD_BY_SYSTEM");
-  m_manager->setCheckpoint(checkpoint_name, value, info, time, cmd);
-  
-  WUNLOCK;
+    // Send back command_received
+    m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
+    m_execInterface->notifyOfExternalEvent();
+    debug("Sent COMMAND_RCVD_BY_SYSTEM");
+    m_manager->setCheckpoint(checkpoint_name, value, info, time, cmd);
+  }  
 }
 
 
 void CheckpointSystem::setOK(bool b, Integer boot_num, Command *cmd){
- WLOCK;
- Value retval;
- if(valid_boot(boot_num)){
-   m_data_vector.at(boot_num).is_ok = b;
-   debug("Setting is_ok at boot " << boot_num << " to " <<b);
-   publish("Is_OK",b,boot_num);
-   m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
-   m_execInterface->notifyOfExternalEvent();
-   debug("Sent COMMAND_RCVD_BY_SYSTEM");
-   m_manager->setOK(b, boot_num, cmd);
- }
- else{
-   m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
-   m_execInterface->notifyOfExternalEvent();
-   debug(error<<" Invalid boot number: "<<boot_num);
-   retval = Unknown;
- }
- WUNLOCK;
+  {
+    Guard local_guard(m_rw,write);
+    Value retval;
+    if(valid_boot(boot_num)){
+      m_data_vector.at(boot_num).is_ok = b;
+      debug("Setting is_ok at boot " << boot_num << " to " <<b);
+      publish("Is_OK",b,boot_num);
+      m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
+      m_execInterface->notifyOfExternalEvent();
+      debug("Sent COMMAND_RCVD_BY_SYSTEM");
+      m_manager->setOK(b, boot_num, cmd);
+    }
+    else{
+      m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
+      m_execInterface->notifyOfExternalEvent();
+      debug(error<<" Invalid boot number: "<<boot_num);
+      retval = Unknown;
+    }
+  }
 }
 
 bool CheckpointSystem::flush(){
-  WLOCK;
-  bool retval;
-  retval = m_manager->writeOut();
-  WUNLOCK;
-  return retval;
+  {
+    Guard local_guard(m_rw,write);
+    bool retval;
+    retval = m_manager->writeOut();
+    return retval;
+  }
 }

@@ -28,7 +28,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 CXXFLAGS= -std=c++98 -pedantic-errors -fPIC
 LIBRARY = CheckpointAdapter
 SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
-INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh data_support.hh
+INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh data_support.hh Guard.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
