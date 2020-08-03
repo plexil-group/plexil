@@ -1,6 +1,0 @@
-<Interfaces>
-  <!-- This configuration specifies that all commands and lookups are handled by SampleAdapter -->
-  <Adapter AdapterType="TestSampleAdapterTen"/>
-  <Adapter AdapterType="OSNativeTime"/>
-  <Adapter AdapterType="Utility"/>
-</Interfaces>

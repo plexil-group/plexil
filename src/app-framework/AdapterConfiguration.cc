@@ -724,7 +724,7 @@ namespace PLEXIL {
   }
 
   /**
-   * @deprecated
+   * @deprecated Use registerCommandHandler for improved performance.
    * @brief Register the given interface adapter for this command.
    Returns true if successful.  Fails and returns false
    iff the command name already has an adapter registered
@@ -734,23 +734,11 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::registerCommandInterface(std::string const &commandName,
                                                       InterfaceAdapter *intf) {
-    // InterfaceMap::iterator it = m_commandMap.find(commandName);
-    // if (it == m_commandMap.end()) {
-    //   // Not found, OK to add
-    //   debugMsg("AdapterConfiguration:registerCommandInterface",
-    //            " registering interface " << intf << " for command '" << commandName << "'");
-    //   m_commandMap.insert(std::pair<std::string, InterfaceAdapter *>(commandName, intf));
-    //   m_adapters.insert(intf);
-    //   return true;
-    // } else {
-    //   debugMsg("AdapterConfiguration:registerCommandInterface",
-    //            " interface already registered for command '" << commandName << "'");
-    //   return false;
-    // }
+    return this->registerCommandHandler(commandName, *intf, &InterfaceAdapter::executeCommand, &InterfaceAdapter::invokeAbort);
   }
 
   /**
-   * @deprecated
+   * @deprecated Use registerLookupHandler for improved performance.
    * @brief Register the given interface adapter for lookups to this state.
    Returns true if successful.  Fails and returns false
    if the state name already has an adapter registered
@@ -762,6 +750,12 @@ namespace PLEXIL {
   bool AdapterConfiguration::registerLookupInterface(std::string const &stateName,
                                                      InterfaceAdapter *intf,
                                                      bool telemetryOnly) {
+    return this->registerLookupHandler(stateName, *intf, &InterfaceAdapter::lookupNow,
+          &InterfaceAdapter::setThresholds,
+          &InterfaceAdapter::setThresholds,
+          &InterfaceAdapter::subscribe,
+          &InterfaceAdapter::unsubscribe,
+          telemetryOnly);
     // InterfaceMap::iterator it = m_lookupMap.find(stateName);
     // if (it == m_lookupMap.end()) {
     //   // Not found, OK to add
