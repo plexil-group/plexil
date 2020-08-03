@@ -65,7 +65,7 @@ Test1:
     SetOK(true,0);
   }
   print("OK1END|");
-  print("OK1STATE=",Lookup(IsOK(0)));
+  print("OK1STATE=",Lookup(IsOK(0)),"|");
   print("FLUSH3BEGIN|");
   SynchronousCommand flush_success = Flush();
   print("FLUSH3END|");

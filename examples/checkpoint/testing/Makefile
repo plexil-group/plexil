@@ -25,7 +25,7 @@
 
 # build an executable named myprog from myprog.c
 all: ParseTest.cc
-	g++ -Wall -o ParseTest ParseTest.cc
+	g++ -o ParseTest ParseTest.cc
 
 clean: 
 	$(RM) myprog
