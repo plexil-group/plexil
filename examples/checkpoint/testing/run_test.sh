@@ -28,14 +28,26 @@ plexilc plans/Test1.ple
 plexilc plans/Test2.ple
 make
 rm saves/*
+rm log.txt
+
+
 # Cut from "--START" to just before "Plan complete"
 # Then replace spaces with % for passing to ParseTest
 # Then append "PRESTART|" to guarantee 2 arguments to ParseTest
 echo "Executing tests"
 arg1=$(plexilexec -p plans/Test1.plx | grep -o -e "---START.*" | sed 's/Plan.*//' | sed 's/ /%/g' | sed 's/^/PRESTART\|/')
 arg2=$(plexilexec -p plans/Test2.plx | grep -o -e "---START.*" | sed 's/Plan.*//' | sed 's/ /%/g' | sed 's/^/PRESTART\|/')
-echo "First output:"
-echo "$arg1"
-echo "Second output:"
-echo "$arg2"
-./ParseTest $arg1 $arg2
+set -o pipefail
+output=$(./ParseTest $arg1 $arg2)
+error=$?
+if [ "$error" != "0" ]
+then
+    echo "-------------------------------------" >> log.txt
+    echo "First output:" >> log.txt
+    echo "$arg1" >> log.txt
+    echo "Second output:" >> log.txt
+    echo "$arg2" >> log.txt
+    echo "Error:" >> log.txt
+    echo "$error" >> log.txt
+    echo "$output" >> log.txt
+fi
