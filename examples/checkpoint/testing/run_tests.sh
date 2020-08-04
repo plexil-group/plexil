@@ -24,6 +24,12 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if [ "$#" -ne 2 ]
+then
+  echo "Usage: $0 ARBITRARY_INTEGER NUMBER_OF_TESTS" >&2
+  exit 1
+fi
+
 # Generate our own configurtion file with an independent saves directory
 sed "s/saves/saves-${1}/g" interface-config.xml > "interface-config-${1}.xml"
 
