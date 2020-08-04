@@ -234,12 +234,16 @@ void CheckpointAdapter::receiveValue(const string& state_name, const Value& val,
 }
 
 void CheckpointAdapter::receiveCommandReceived(Command* cmd){
-  m_execInterface.handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
-  m_execInterface.notifyOfExternalEvent();
+  if(cmd != NULL){
+    m_execInterface.handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
+    m_execInterface.notifyOfExternalEvent();
+  }
 }
 void CheckpointAdapter::receiveCommandSuccess   (Command* cmd){
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
+  if(cmd != NULL){
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
+    m_execInterface.notifyOfExternalEvent();
+  }
 }
 
 ///////////////////////////// Member functions //////////////////////////////////
@@ -316,6 +320,8 @@ bool CheckpointAdapter::start()
 
 bool CheckpointAdapter::stop()
 {
+  if(m_ok_on_exit) CheckpointSystem::getInstance()->setOK(true,0,NULL);
+  if(m_flush_on_exit) CheckpointSystem::getInstance()->flush();
   debugMsg("CheckpointAdapter", " stopped.");
   return true;
 }
@@ -328,8 +334,6 @@ bool CheckpointAdapter::reset()
 
 bool CheckpointAdapter::shutdown()
 {
-  if(m_ok_on_exit) CheckpointSystem::getInstance()->setOK(true,0,NULL);
-  if(m_flush_on_exit) CheckpointSystem::getInstance()->flush();
   debugMsg("CheckpointAdapter", " shut down.");
   return true;
 }

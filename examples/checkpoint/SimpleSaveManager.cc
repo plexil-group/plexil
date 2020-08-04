@@ -143,6 +143,7 @@ void SimpleSaveManager::loadCrashes(){
   // Include current boot with current time, no checkpoints
   Nullable<Real> time;
   if(m_use_time){
+    // Use queryTime here because this is likely the first time we are reading the time
     time.set_value(g_manager->queryTime());
     if(time.value()==std::numeric_limits<double>::min()) time.nullify();
   }
@@ -276,10 +277,11 @@ bool SimpleSaveManager::writeToFile(const string& location){
     curr_boot.append_attribute("time_of_boot").set_value(
       time_to_string(boot->boot_time).c_str());
     if(boot_n==0){
-
        Nullable<Real> time;
        if(m_use_time){
-	 time.set_value(g_manager->queryTime());
+	 // Use currentTime not queryTime (which is guaranteed to be up-to-date)
+	 // because the TimeAdapter may have quit by this point
+	 time.set_value(g_manager->currentTime());
 	 if(time.value()==std::numeric_limits<double>::min()) time.nullify();
        }
   
