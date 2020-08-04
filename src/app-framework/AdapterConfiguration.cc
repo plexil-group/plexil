@@ -421,20 +421,20 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::isKnown(InterfaceAdapter *intf) {
     // Check the easy places first
-    // if (intf == m_defaultInterface
-    //     || intf == m_defaultCommandInterface
-    //     || intf == m_defaultLookupInterface
-    //     || intf == m_plannerUpdateInterface)
-    //   return true;
+    if (intf == m_defaultInterface
+        || intf == m_defaultCommandInterface
+        || intf == m_defaultLookupInterface
+        || intf == m_plannerUpdateInterface)
+      return true;
 
-    // // See if the adapter is in any of the tables
-    // for (LookupHandlerMap::iterator it = m_lookupMap.begin(); it != m_lookupMap.end(); ++it)
-    //   if (it->second == intf)
-    //     return true;
-    // for (InterfaceMap::iterator it = m_commandMap.begin(); it != m_commandMap.end(); ++it)
-    //   if (it->second == intf)
-    //     return true;
-    return false; //TODO: Add workaround for this
+    // See if the adapter is in any of the tables
+    for (LookupHandlerMap::iterator it = m_lookupMap.begin(); it != m_lookupMap.end(); ++it)
+      if (it->second->getInterface() == intf)
+        return true;
+    for (CommandHandlerMap::iterator it = m_commandMap.begin(); it != m_commandMap.end(); ++it)
+      if (it->second->getInterface() == intf)
+        return true;
+    return false;
   }
 
   /**
@@ -556,7 +556,6 @@ namespace PLEXIL {
                                   setThresholdsInt,
                                   subscribe,
                                   unsubscribe)));
-      //m_adapters.insert(intf); TODO: remove
       if (telemetryOnly)
         m_telemetryLookups.insert(stateName);
       return true;
@@ -569,7 +568,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the lookup handler in effect for lookups with this state name,
-   whether specifically registered or default. May return NULL. Returns NULL if default interfaces are not implemented.
+   whether specifically registered or default. May return NULL. Returns NULL if default handlers are not implemented.
    * @param stateName The state.
    */
   AdapterConfiguration::LookupHandler *AdapterConfiguration::getLookupHandler(std::string const &stateName) {
@@ -583,18 +582,6 @@ namespace PLEXIL {
     debugMsg("AdapterConfiguration:getLookupHandler",
                " no handler registered for lookup '" << stateName << "'");
     return nullptr;
-    // try defaults TODO: Default handlers?
-    // if (m_defaultLookupInterface) {
-    //   debugMsg("AdapterConfiguration:getLookupHandler",
-    //            " returning default lookup handler " << m_defaultLookupInterface
-    //            << " for lookup '" << stateName << "'");
-    //   return m_defaultLookupInterface;
-    // }
-    // try default defaults
-    // debugMsg("AdapterConfiguration:getLookupHandler",
-    //          " returning default handler " << m_defaultInterface
-    //          << " for lookup '" << stateName << "'");
-    // return m_defaultInterface;
   }
 
   /**
@@ -756,22 +743,6 @@ namespace PLEXIL {
           &InterfaceAdapter::subscribe,
           &InterfaceAdapter::unsubscribe,
           telemetryOnly);
-    // InterfaceMap::iterator it = m_lookupMap.find(stateName);
-    // if (it == m_lookupMap.end()) {
-    //   // Not found, OK to add
-    //   debugMsg("AdapterConfiguration:registerLookupInterface",
-    //            " registering interface " << intf << " for lookup '" << stateName << "'");
-    //   m_lookupMap.insert(std::pair<std::string, InterfaceAdapter *>(stateName, intf));
-    //   m_adapters.insert(intf);
-    //   if (telemetryOnly)
-    //     m_telemetryLookups.insert(stateName);
-    //   return true;
-    // } else {
-    //   debugMsg("AdapterConfiguration:registerLookupInterface",
-    //            " interface already registered for lookup '" << stateName << "'");
-    //   return false;
-    // }
-    return false; //TODO add functor to support this old method
   }
 
   /**
@@ -870,25 +841,7 @@ namespace PLEXIL {
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
-    // InterfaceMap::iterator it = m_commandMap.find(commandName);
-    // if (it != m_commandMap.end()) {
-    //   debugMsg("AdapterConfiguration:getCommandInterface",
-    //            " found specific interface " << (*it).second
-    //            << " for command '" << commandName << "'");
-    //   return (*it).second;
-    // }
-    // // check default command i/f
-    // if (m_defaultCommandInterface) {
-    //   debugMsg("AdapterConfiguration:getCommandInterface",
-    //            " returning default command interface " << m_defaultCommandInterface
-    //            << " for command '" << commandName << "'");
-    //   return m_defaultCommandInterface;
-    // }
-    // // fall back on default default
-    // debugMsg("AdapterConfiguration:getCommandInterface",
-    //          " returning default interface " << m_defaultInterface
-    //          << " for command '" << commandName << "'");
-    // return m_defaultInterface;
+    return getCommandHandler(commandName)->getInterface();
   }
 
   /**
@@ -907,26 +860,7 @@ namespace PLEXIL {
    * @param stateName The state.
    */
   InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
-    // InterfaceMap::iterator it = m_lookupMap.find(stateName);
-    // if (it != m_lookupMap.end()) {
-    //   debugMsg("AdapterConfiguration:getLookupInterface",
-    //            " found specific interface " << (*it).second
-    //            << " for lookup '" << stateName << "'");
-    //   return (*it).second;
-    // }
-    // // try defaults
-    // if (m_defaultLookupInterface) {
-    //   debugMsg("AdapterConfiguration:getLookupInterface",
-    //            " returning default lookup interface " << m_defaultLookupInterface
-    //            << " for lookup '" << stateName << "'");
-    //   return m_defaultLookupInterface;
-    // }
-    // // try default defaults
-    // debugMsg("AdapterConfiguration:getLookupInterface",
-    //          " returning default interface " << m_defaultInterface
-    //          << " for lookup '" << stateName << "'");
-    // return m_defaultInterface;
-    return nullptr; //TODO Workaround to add backwards compatibility for this
+    return getLookupHandler(stateName)->getInterface();
   }
 
   /**
