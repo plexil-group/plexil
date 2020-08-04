@@ -36,6 +36,7 @@
 
 
 #include "CheckpointAdapter.hh"
+#include "Command.hh"
 
 
 // Set the instance of the CheckpointAdapter to pubish to
@@ -56,5 +57,9 @@ void publish (const std::string& state_name,
 	      const PLEXIL::Value& val,
 	      const PLEXIL::Value& arg1,
 	      const PLEXIL::Value& arg2);
+
+void publishCommandReceived (PLEXIL::Command* cmd);
+
+void publishCommandSuccess  (PLEXIL::Command* cmd); 
 
 #endif

@@ -1,4 +1,5 @@
 #include "SimpleSaveManager.hh"
+#include "Subscriber.hh"
 #include <iostream>
 #include <dirent.h>
 #include <algorithm>    // std::min std::max
@@ -7,10 +8,10 @@
 #include <climits>
 #include <sstream> // in to_string
 #include <limits> //numeric_limits
+#include "InterfaceManager.hh" // g_manager
 #include "Debug.hh"
 #include "pugixml.hpp"
 #include "plexil-stdint.h"
-#include "InterfaceManager.hh"
 
 using std::cerr;
 using std::endl;
@@ -118,8 +119,7 @@ void SimpleSaveManager::succeedCommands(){
   for(std::vector<Command*>::iterator it = m_queued_commands.begin(); it != m_queued_commands.end();it++)
   {
     if(*it != NULL){
-      m_execInterface->handleCommandAck(*it, COMMAND_SUCCESS);
-      m_execInterface->notifyOfExternalEvent();
+      publishCommandSuccess(*it);
     }
   }
   m_queued_commands.clear();

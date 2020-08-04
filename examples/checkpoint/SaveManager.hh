@@ -4,8 +4,8 @@
 #include "Value.hh"
 #include "Nullable.hh"
 #include "ValueType.hh"
+#include "Command.hh"
 #include "data_support.hh"
-#include "AdapterExecInterface.hh"
 #include <map>
 #include <string.h>
 
@@ -22,13 +22,11 @@ public:
 
   SaveManager(const SaveManager &o) : m_data_vector(o.m_data_vector),
 				      m_num_total_boots(o.m_num_total_boots),
-				      m_execInterface(o.m_execInterface),
 				      m_use_time(true){}
 
   SaveManager & operator=(const SaveManager &o){
     m_data_vector = o.m_data_vector;
     m_num_total_boots = o.m_num_total_boots;
-    m_execInterface = o.m_execInterface;
     return *this;
   }
   
@@ -40,11 +38,7 @@ public:
   virtual void useTime(bool use_time){
     m_use_time = use_time;
   }
-  
-  virtual void setExecInterface(PLEXIL::AdapterExecInterface *execInterface){
-    m_execInterface = execInterface;
-  }
-
+ 
   // configXml is the "Config" node which is the child of the CheckpointAdapter
   // node. If no config is specified, this will be NULL
   virtual void setConfig(const pugi::xml_node* configXml) = 0;
@@ -69,9 +63,6 @@ protected:
   // Data, shared with CheckpointSystem
   std::vector<BootData>  *m_data_vector;
   int32_t *m_num_total_boots;
-
-  // Should be used ONLY to return COMMAND_SUCCESS for commands provided in setOK and setCheckpoint when they are written to disk
-  PLEXIL::AdapterExecInterface * m_execInterface;
 
   bool m_use_time;
   

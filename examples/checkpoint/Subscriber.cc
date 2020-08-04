@@ -56,3 +56,11 @@ void publish (const std::string& state_name,
   
   instance->receiveValue(state_name,val,arg1,arg2);
 }
+
+void publishCommandReceived (PLEXIL::Command* cmd){
+  instance->receiveCommandReceived(cmd);
+}
+
+void publishCommandSuccess (PLEXIL::Command* cmd){
+  instance->receiveCommandSuccess(cmd);
+}
