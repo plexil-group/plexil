@@ -24,19 +24,14 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-if [ "$#" -ne 1 ]
-then
-  echo "Usage: $0 NUMBER_OF_TESTS" >&2
-  exit 1
-fi
-
 # Preperatory work
 plexilc plans/Test1.ple
 plexilc plans/Test2.ple
 make
 
-# Spawn CPUS copies of the tester
-PROCESSES=$(nproc --all)
+# Spawn CPUS/2 copies of the tester
+CPUS=$(nproc --all)
+PROCESSES=$((CPUS/2))
 # minimum of 1 process
 PROCESSES=$([ "1" -ge $PROCESSES ] && echo "1" || echo "$PROCESSES")
 echo "Running $PROCESSES procesees in parallel for $1 iterations"
