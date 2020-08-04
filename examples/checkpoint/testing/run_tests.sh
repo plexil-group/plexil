@@ -24,30 +24,31 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-plexilc plans/Test1.ple
-plexilc plans/Test2.ple
-make
-rm saves/*
-rm log.txt
+# Generate our own configurtion file with an independent saves directory
+sed "s/saves/saves-${1}/g" interface-config.xml > "interface-config-${1}.xml"
 
+# Make sure our save directory is fresh and exists
+(rm -r "./saves-$1" 2>/dev/null)
+(mkdir "./saves-$1" 2>/dev/null)
 
-# Cut from "--START" to just before "Plan complete"
-# Then replace spaces with % for passing to ParseTest
-# Then append "PRESTART|" to guarantee 2 arguments to ParseTest
-echo "Executing tests"
-arg1=$(plexilexec -p plans/Test1.plx | grep -o -e "---START.*" | sed 's/Plan.*//' | sed 's/ /%/g' | sed 's/^/PRESTART\|/')
-arg2=$(plexilexec -p plans/Test2.plx | grep -o -e "---START.*" | sed 's/Plan.*//' | sed 's/ /%/g' | sed 's/^/PRESTART\|/')
-set -o pipefail
-output=$(./ParseTest $arg1 $arg2)
-error=$?
-if [ "$error" != "0" ]
-then
-    echo "-------------------------------------" >> log.txt
-    echo "First output:" >> log.txt
-    echo "$arg1" >> log.txt
-    echo "Second output:" >> log.txt
-    echo "$arg2" >> log.txt
-    echo "Error:" >> log.txt
-    echo "$error" >> log.txt
-    echo "$output" >> log.txt
-fi
+# Figure out how long a run takes, this is our range for when to kill it
+TIME=$(./time_command.sh plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml")
+echo "Test run took $TIME ms, using 1.5x that as an upper bound"
+
+# Run the test plan with random timeout and analyze the results
+i="1"
+
+while [ "$i" -le "$2" ]
+do
+    # Uses a 30-bit range to (nearly) randomly generate a number between 1 and 1.5*TIME
+    TIMEOUT=$(( ((RANDOM<<15)|RANDOM) % (TIME+(TIME>>1)) + 1 ))
+
+    # Run the test with the randomly generated timeout
+    ./single_test.sh "$1" "$TIMEOUT"
+    i=$[$i+1]
+done
+
+# Cleanup
+rm "interface-config-${1}.xml"
+
+echo "Process $1 done"

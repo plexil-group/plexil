@@ -45,11 +45,12 @@ string getString(const string& s){
 #define STARTTIME 11
 #define ENDTIME 12
 
-
+#define FSTARTTIME 5
 #define FCHECKPOINT1STATE 8
 #define FCHECKPOINT1INFO 9
-#define FOK1STATE 15
-#define FSTARTTIME 5
+#define FCHECKPOINT1HANDLE 12
+#define FOK1STATE 16
+#define FOK1HANDLE 20
 
 int main(int argc, char *argv[]) {
   if(argc!=3){
@@ -110,7 +111,7 @@ int main(int argc, char *argv[]) {
     }
   }
   // Verify is_ok not written if not set  (via unhandled boots)
-  else if(!contains(first_run,"OK1BEGIN")){
+  else if(!contains(first_run,"OK1BEGIN") && contains(first_run,"FLUSH1END")){
     if(getInt(second_run[NUMBERUNHANDLED])!=2){
       cout<<"Run 1 never set is_ok, expected 2 uhandled boots, got "
 	  <<getInt(second_run[NUMBERUNHANDLED])<<endl;
@@ -197,5 +198,24 @@ int main(int argc, char *argv[]) {
       return -2;
     }
   }
+
+  // Verify that Checkpoint handle was set to success
+  if(contains(first_run,"CHECKPOINT1HANDLE")){
+    if(getString(first_run[FCHECKPOINT1HANDLE])
+       .compare("0")==0){
+      cout<<"Expected checkpoint 1 handle to be COMMAND_SUCCESS after flush, was not"<<endl;
+      return -2;
+    }
+  }
+
+  // Verify that Set_OK handle was set to success
+  if(contains(first_run,"OK1HANDLE")){
+    if(getString(first_run[FOK1HANDLE])
+       .compare("0")==0){
+      cout<<"Expected set_ok 1 handle to be COMMAND_SUCCESS after flush, was not"<<endl;
+      return -2;
+    }
+  }
+  
   return 0;
 }

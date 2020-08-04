@@ -38,15 +38,19 @@ Boolean Command Flush();
 Test1:
 {
   // | is used as a separator because print doesn't print lonely whitespace due to a bug
+  // Waits are used such that the supervisor has more opportunity to interrupt the plan (as opposed to the setup)
   Boolean flush_success;
+  Real delay = 0.5;
   print("---START|");
+  Wait delay;
   print("FLUSH1BEGIN|");
   SynchronousCommand flush_success = Flush();
   print("FLUSH1END|");
   print("FLUSHSUCCESS=",flush_success,"|");
   print("STARTIME=",Lookup(TimeOfBoot(0)),"|");
+  Wait delay;
   print("CHECKPOINT1BEGIN|");
-  Checkpoint1:{
+  Checkpoint1:{ // Make sure checkpoint received by system
     EndCondition Checkpoint1.command_handle == COMMAND_RCVD_BY_SYSTEM ||
       Checkpoint1.command_handle == COMMAND_SUCCESS;
     SetCheckpoint("C1",true,"valid");
@@ -54,10 +58,20 @@ Test1:
   print("CHECKPOINT1END|");
   print("CHECKPOINT1STATE=",Lookup(CheckpointState("C1",0)),"|");
   print("CHECKPOINT1INFO=",Lookup(CheckpointInfo("C1",0)),"|");
+  Wait delay;
   print("FLUSH2BEGIN|");
   SynchronousCommand flush_success = Flush();
   print("FLUSH2END|");
+  Checkpoint1Handle:{ // Verify that checkpoint is a success after flush
+    SkipCondition Checkpoint1.command_handle != COMMAND_SUCCESS;
+    print("CHECKPOINT1HANDLE=1|");
+  }
+  Checkpoint1HandleNegative:{
+    SkipCondition Checkpoint1.command_handle == COMMAND_SUCCESS;
+    print("CHECKPOINT1HANDLE=0|");
+  }
   print("FLUSHSUCCESS=",flush_success,"|");
+  Wait delay;
   print("OK1BEGIN|");
   SetOK1:{
     EndCondition SetOK1.command_handle == COMMAND_RCVD_BY_SYSTEM ||
@@ -66,9 +80,19 @@ Test1:
   }
   print("OK1END|");
   print("OK1STATE=",Lookup(IsOK(0)),"|");
+  Wait delay;
   print("FLUSH3BEGIN|");
   SynchronousCommand flush_success = Flush();
   print("FLUSH3END|");
   print("FLUSHSUCCESS=",flush_success,"|");
+  
+  OK1Handle:{ // Verify that OK is a success after flush
+    SkipCondition SetOK1.command_handle != COMMAND_SUCCESS;
+    print("OKT1HANDLE=1|");
+  }
+ OK1HandleNegative:{
+    SkipCondition SetOK1.command_handle == COMMAND_SUCCESS;
+    print("OK1HANDLE=0|");
+  }
   print("END---");
 }
