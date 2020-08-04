@@ -320,8 +320,6 @@ bool CheckpointAdapter::start()
 
 bool CheckpointAdapter::stop()
 {
-  if(m_ok_on_exit) CheckpointSystem::getInstance()->setOK(true,0,NULL);
-  if(m_flush_on_exit) CheckpointSystem::getInstance()->flush();
   debugMsg("CheckpointAdapter", " stopped.");
   return true;
 }
@@ -334,6 +332,8 @@ bool CheckpointAdapter::reset()
 
 bool CheckpointAdapter::shutdown()
 {
+  if(m_ok_on_exit) CheckpointSystem::getInstance()->setOK(true,0,NULL);
+  if(m_flush_on_exit) CheckpointSystem::getInstance()->flush();
   debugMsg("CheckpointAdapter", " shut down.");
   return true;
 }
