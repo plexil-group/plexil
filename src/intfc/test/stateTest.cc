@@ -1,28 +1,28 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "State.hh"
 #include "TestSupport.hh"
@@ -94,6 +94,39 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(test1.parameter(2) == sue);
   assertTrue_1(!test1.isParameterKnown(3));
   assertTrue_1(test1.parameterType(3) == UNKNOWN_TYPE);
+
+  // Parameter vector
+  std::vector<Value> vec;
+  vec.push_back(too);
+  vec.push_back(roo);
+  vec.push_back(sue);
+
+  State vecTest(foo, vec);
+  
+  assertTrue_1(!vecTest.name().empty());
+  assertTrue_1(vecTest.name() == foo);
+  assertTrue_1(!vecTest.parameters().empty());
+  assertTrue_1(vecTest.parameterCount() == 3);
+  assertTrue_1(vecTest.parameter(0) == too);
+  assertTrue_1(vecTest.parameter(1) == roo);
+  assertTrue_1(vecTest.parameter(2) == sue);
+  assertTrue_1(!vecTest.isParameterKnown(3));
+  assertTrue_1(vecTest.parameterType(3) == UNKNOWN_TYPE);
+
+#if __cplusplus >= 201103L
+  // Move variant
+  State vecMoveTest(foo, std::vector<Value>(vec));
+  
+  assertTrue_1(!vecMoveTest.name().empty());
+  assertTrue_1(vecMoveTest.name() == foo);
+  assertTrue_1(!vecMoveTest.parameters().empty());
+  assertTrue_1(vecMoveTest.parameterCount() == 3);
+  assertTrue_1(vecMoveTest.parameter(0) == too);
+  assertTrue_1(vecMoveTest.parameter(1) == roo);
+  assertTrue_1(vecMoveTest.parameter(2) == sue);
+  assertTrue_1(!vecMoveTest.isParameterKnown(3));
+  assertTrue_1(vecMoveTest.parameterType(3) == UNKNOWN_TYPE);
+#endif
 
   // Copy
   State mtclone(mt);
