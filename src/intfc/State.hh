@@ -41,17 +41,23 @@ namespace PLEXIL
   public:
     State();
     State(State const &orig);
-#if __cplusplus >= 201103L
-    State(State &&);
-#endif
     State(char const *name, size_t n = 0);
     State(std::string const &name, size_t n = 0);
 
     // Convenience variants
     State(std::string const &name, Value const &arg0);
     State(std::string const &name, std::vector<Value> const &args);
+
 #if __cplusplus >= 201103L
+    // Move constructors
+    State(State &&);
+    State(std::string &&name, size_t n = 0);
+    State(std::string &&name, Value const &arg0);
+    State(std::string const &name, Value &&arg0);
+    State(std::string &&name, Value &&arg0);
+    State(std::string &&name, std::vector<Value> const &args);
     State(std::string const &name, std::vector<Value> &&args);
+    State(std::string &&name, std::vector<Value> &&args);
 #endif
 
     ~State();

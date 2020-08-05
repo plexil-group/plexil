@@ -44,14 +44,6 @@ namespace PLEXIL
   {
   }
 
-#if __cplusplus >= 201103L
-  State::State(State &&other)
-    : m_name(std::move(other.m_name)),
-      m_parameters(std::move(other.m_parameters))
-  {
-  }
-#endif
-
   State::State(char const *name, size_t n)
     : m_name(name),
       m_parameters(n)
@@ -76,8 +68,54 @@ namespace PLEXIL
   {
   }
 
+
 #if __cplusplus >= 201103L
+  //
+  // Move constructors
+  //
+  State::State(State &&other)
+    : m_name(std::move(other.m_name)),
+      m_parameters(std::move(other.m_parameters))
+  {
+  }
+
+  State::State(std::string &&name, size_t n)
+    : m_name(name),
+      m_parameters(n)
+  {
+  }
+
+  State::State(std::string &&name, Value const &arg0)
+    : m_name(name),
+      m_parameters(1, arg0)
+  {
+  }
+
+  State::State(std::string const &name, Value &&arg0)
+    : m_name(name),
+      m_parameters(1, arg0)
+  {
+  }
+
+  State::State(std::string &&name, Value &&arg0)
+    : m_name(name),
+      m_parameters(1, arg0)
+  {
+  }
+
+  State::State(std::string &&name, std::vector<Value> const &args)
+    : m_name(name),
+      m_parameters(args)
+  {
+  }
+
   State::State(std::string const &name, std::vector<Value> &&args)
+    : m_name(name),
+      m_parameters(args)
+  {
+  }
+
+  State::State(std::string &&name, std::vector<Value> &&args)
     : m_name(name),
       m_parameters(args)
   {
