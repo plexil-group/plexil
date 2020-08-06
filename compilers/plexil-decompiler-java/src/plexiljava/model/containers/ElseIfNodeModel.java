@@ -11,7 +11,7 @@ public class ElseIfNodeModel extends NodeModel {
 	}
 
 	@Override
-	public String decompile(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		dsb.append("elseif (");		

@@ -14,7 +14,7 @@ public class ConditionNodeModel extends ConditionModel {
 	}
 	
 	@Override
-	public String decompile(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		return children.get(0).decompile(indentLevel);
 	}
 }

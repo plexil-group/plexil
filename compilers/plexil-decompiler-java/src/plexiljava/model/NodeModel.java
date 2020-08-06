@@ -328,14 +328,16 @@ public class NodeModel extends BaseModel implements Decompilable {
 				}
 				break;
 			default:
-				Decompiler.logger.setLevel(Level.WARNING);
-				Decompiler.logger.warning("Unrecognized node type: " + child.getName());
+				if( Decompiler.VERBOSE ) {
+					Decompiler.logger.setLevel(Level.WARNING);
+					Decompiler.logger.warning("Unrecognized node type: " + child.getName());
+				}
 				children.add(new BaseModel(child.getOriginalNode(), child.getParent(), child.getOrder()));
 				break;
 		}
 	}
 	
-	protected String dereference(String nodeId) {
+	protected String dereference(String nodeId) throws PatternRecognitionFailureException {
 		for( BaseModel child : children ) {
 			if( child.hasAttribute("epx") ) {
 				if( child.getAttribute("epx").getValue().equals("Condition") ) { 
@@ -354,7 +356,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 	}
 	
 	@Override
-	public String decompile(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		

@@ -18,7 +18,7 @@ public class StateDeclarationModel extends NodeModel {
 	}
 	
 	@Override
-	public String decompile(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.append(getChild(ReturnModel.class).decompile(indentLevel), " Lookup ", getQuality("Name").getValue());
 		

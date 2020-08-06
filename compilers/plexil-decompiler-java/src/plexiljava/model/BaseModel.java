@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 
 import plexiljava.decompilation.Decompilable;
 import plexiljava.decompilation.DecompilableStringBuilder;
+import plexiljava.main.Decompiler;
 
 public class BaseModel implements Decompilable {
 	protected BaseModel root;
@@ -176,13 +177,40 @@ public class BaseModel implements Decompilable {
 		return getAttribute(name) != null;
 	}
 	
+	@SuppressWarnings("serial")
+	public class PatternRecognitionFailureException extends Exception {
+		public PatternRecognitionFailureException(@SuppressWarnings("rawtypes") Class c, String lineNumber, String colNumber) {
+			super("Unfamiliar pattern detected while generating " + c.getName() + " in file " + Decompiler.infileName + " at " + lineNumber + ":" + colNumber);
+		}
+		
+		public PatternRecognitionFailureException(@SuppressWarnings("rawtypes") Class c) {
+			super("Unfamiliar pattern detected while generating " + c.getName());
+		}
+	}
+	
+	public void throwPatternRecognitionFailureException() throws PatternRecognitionFailureException {
+		if( hasAttribute("ColNo") && hasAttribute("LineNo") ) {
+			throw new PatternRecognitionFailureException(this.getClass(), getAttribute("ColNo").getValue(), getAttribute("LineNo").getValue());
+		} else {
+			throw new PatternRecognitionFailureException(this.getClass());
+		}
+	}
+	
 	@Override
 	public boolean verify() {
 		return true;
 	}
 	
 	@Override
-	public String decompile(int indentLevel) {
+	public final String decompile(int indentLevel) throws PatternRecognitionFailureException {
+		if( !verify() && !Decompiler.FORCE ) {
+			throwPatternRecognitionFailureException();
+		}
+		return translate(indentLevel);
+	}
+	
+	@Override
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		dsb.append(getValue());

@@ -16,7 +16,7 @@ public class DeclareArrayModel extends NodeModel {
 	}
 	
 	@Override
-	public String decompile(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		dsb.append(getQuality("Type").getValue(), " ", getQuality("Name").getValue(), "[", getQuality("MaxSize").getValue(), "]");

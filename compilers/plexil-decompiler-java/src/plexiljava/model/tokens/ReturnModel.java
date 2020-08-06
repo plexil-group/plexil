@@ -10,7 +10,7 @@ public class ReturnModel extends NodeModel {
 	}
 
 	@Override
-	public String decompile(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		return getQuality("Type").decompile(indentLevel);
 	}
 	

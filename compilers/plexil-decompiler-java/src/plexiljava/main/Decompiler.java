@@ -2,6 +2,8 @@ package plexiljava.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,25 +15,48 @@ import org.xml.sax.SAXException;
 
 import plexiljava.commons.xml.XMLIO;
 import plexiljava.model.BaseModel;
+import plexiljava.model.BaseModel.PatternRecognitionFailureException;
 import plexiljava.model.NodeModel;
 
 public class Decompiler {
 	
 	public static Logger logger = Logger.getLogger(Decompiler.class.getName());
+	public static boolean VERBOSE = false;
+	public static boolean FORCE = false;
 	
-	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-		String infileName = null;
-		String outfileName = null;
+	public static String infileName = null;
+	public static String outfileName = null;
+	
+	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, PatternRecognitionFailureException {
+		List<String> argList = new ArrayList<String>();
+		for( String arg : args ) {
+			if( arg.startsWith("-") ) {
+				switch( arg.charAt(1) ) {
+					case 'v':
+						VERBOSE = true;
+						break;
+					case 'f':
+						FORCE = true;
+						break;
+					default:
+						logger.setLevel(Level.WARNING);
+						logger.warning("Unrecognized flag: " + arg + "\nOperation aborted.");
+						return;
+				}
+			} else {
+				argList.add(arg);
+			}
+		}
 		if( args.length < 2 ) {
 			logger.setLevel(Level.WARNING);
-			logger.warning("usage: file_to_decompile output_file\nWould you like to input these filepaths manually? (y/n): ");
+			logger.warning("usage: [options] file_to_decompile output_file\n  options:\n    -d\tPrint debug statements\n    -f\tForce decompile with errors\nWould you like to input these filepaths manually? (y/n): ");
 			Scanner sc = new Scanner(System.in);
 			String response = sc.nextLine();
 			if( !(response.startsWith("y") || response.startsWith("Y")) ) {
 				logger.setLevel(Level.INFO);
 				logger.info("Operation aborted.");
 				sc.close();
-				return;
+				return; 
 			}
 			logger.setLevel(Level.INFO);
 			logger.info("file_to_decompile: ");
