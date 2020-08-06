@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.conditions.ConditionModel;
@@ -11,29 +12,37 @@ public class ConcurrenceNodeModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasQuality("NodeId");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + getQuality("NodeId").decompile(0) + ": Concurrence {\n";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("NodeId").getValue());
+		dsb.addBlockOpener("Concurrence");
 		for( BaseModel child : children ) {
 			if( child instanceof ConditionModel ) {
 				switch( ((ConditionModel) child).getType() ) {
 					case "Start":
-						ret += child.decompile(indentLevel+1) + "\n";
+						dsb.addLine(child.decompile(indentLevel+1));
 						break;
 					case "End":
-						ret += child.decompile(indentLevel+1) + "\n";
+						dsb.addLine(child.decompile(indentLevel+1));
 						break;
 					case "Repeat":
-						ret += child.decompile(indentLevel+1) + "\n";
+						dsb.addLine(child.decompile(indentLevel+1));
 						break;
 					default:
 						continue;
 				}
 			} else {
-				ret += child.decompile(indentLevel+1) + "\n";
+				dsb.addLine(child.decompile(indentLevel+1));
 			}
 		}
-		ret += indent(indentLevel) + "}";
-		return ret;
+		dsb.addBlockCloser(indentLevel);
+		return dsb.toString();
 	}
 	
 }

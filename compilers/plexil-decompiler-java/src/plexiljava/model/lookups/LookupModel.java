@@ -1,5 +1,6 @@
 package plexiljava.model.lookups;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.TypedNodeModel;
 import plexiljava.model.tokens.ArgumentsModel;
@@ -16,13 +17,22 @@ public class LookupModel extends TypedNodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasChild(NameModel.class);
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + "Lookup (" + getChild(NameModel.class).getQuality("StringValue").getValue();
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		
+		dsb.append("Lookup (", getChild(NameModel.class).getQuality("StringValue").getValue());
 		if( hasChild(ArgumentsModel.class) ) {
-			ret += "(" + getChild(ArgumentsModel.class).decompile(0) + ")";
+			dsb.append("(", getChild(ArgumentsModel.class).decompile(0), ")");
 		}
-		ret += ")";
-		return ret;
+		dsb.append(")");
+		
+		return dsb.toString();
 	}
 
 }

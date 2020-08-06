@@ -1,5 +1,6 @@
 package plexiljava.model.declarations;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
@@ -10,14 +11,20 @@ public class DeclareVariableModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasQuality("Type") && hasQuality("Name") && (children.isEmpty() || hasChild(InitialValueModel.class));
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + getQuality("Type").decompile(0) + " " + getQuality("Name").decompile(0);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("Type").getValue(), " ", getQuality("Name").getValue());
 		if( children.size() > 0 ) {
-			ret += " = ";
-			ret += getChild(InitialValueModel.class).decompile(0);
+			dsb.append(" = ", getChild(InitialValueModel.class).decompile(0));
 		}
-		ret += ";";
-		return ret;
+		dsb.append(";");
+		return dsb.toString();
 	}
 	
 }

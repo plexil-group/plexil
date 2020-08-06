@@ -6,6 +6,7 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 import plexiljava.decompilation.Decompilable;
+import plexiljava.decompilation.DecompilableStringBuilder;
 
 public class BaseModel implements Decompilable {
 	protected BaseModel root;
@@ -176,7 +177,15 @@ public class BaseModel implements Decompilable {
 	}
 	
 	@Override
+	public boolean verify() {
+		return true;
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + getValue();
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(getValue());
+		return dsb.toString();
 	}
 }

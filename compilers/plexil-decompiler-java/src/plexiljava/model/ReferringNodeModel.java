@@ -1,5 +1,7 @@
 package plexiljava.model;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
+
 public class ReferringNodeModel extends NodeModel {
 
 	public ReferringNodeModel(BaseModel node) {
@@ -11,7 +13,15 @@ public class ReferringNodeModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasQuality("NodeRef");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + "@" + getReference();
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.addReference(getReference());
+		return dsb.toString();
 	}
 }

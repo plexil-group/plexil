@@ -1,5 +1,6 @@
 package plexiljava.model.expressions;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.lookups.LookupModel;
@@ -12,16 +13,24 @@ public class BooleanRHSModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasChild(OperatorModel.class) || hasChild(LookupModel.class) || !qualities.isEmpty();
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+
 		if( hasChild(OperatorModel.class) ) {
-			ret += getChild(OperatorModel.class).decompile(0);
+			dsb.append(getChild(OperatorModel.class).decompile(0));
 		} else if( hasChild(LookupModel.class) ) {
-			ret += getChild(LookupModel.class).decompile(0);
+			dsb.append(getChild(LookupModel.class).decompile(0));
 		}
 		else {
-			ret += qualities.get(0).decompile(0);
+			dsb.append(qualities.get(0).getValue());
 		}
-		return ret;
+		
+		return dsb.toString();
 	}
 }

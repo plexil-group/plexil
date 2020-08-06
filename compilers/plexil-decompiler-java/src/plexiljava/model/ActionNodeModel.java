@@ -1,5 +1,6 @@
 package plexiljava.model;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.conditions.ConditionModel;
 
 public class ActionNodeModel extends NodeModel {
@@ -10,14 +11,17 @@ public class ActionNodeModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		String ret = "";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		
 		for( BaseModel child : children ) {
 			if( child instanceof ConditionModel ) {
 				continue;
 			}
-			ret += child.decompile(indentLevel) + "\n";
+			
+			dsb.addLine(child.decompile(indentLevel));
 		}
-		return ret;
+		
+		return dsb.toString();
 	}
 	
 }

@@ -1,5 +1,6 @@
 package plexiljava.model.commands;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
@@ -10,14 +11,21 @@ public class CommandNodeModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasQuality("NodeId");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = "";
-		ret += indent(indentLevel) + getQuality("NodeId").getValue() + ": {\n";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("NodeId").getValue());
+		dsb.addBlockOpener();
 		for( BaseModel child : children ) {
-			ret += child.decompile(indentLevel+1) + "\n";
+			dsb.addLine(child.decompile(indentLevel+1));
 		}
-		ret += indent(indentLevel) + "}";
-		return ret;
+		dsb.addBlockCloser(indentLevel);
+		return dsb.toString();
 	}
 	
 }

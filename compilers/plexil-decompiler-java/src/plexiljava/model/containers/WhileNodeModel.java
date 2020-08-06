@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.ReferringNodeModel;
@@ -13,8 +14,15 @@ public class WhileNodeModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasChild(RepeatConditionModel.class);
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + "while( ";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append("while( ");
 		
 		RepeatConditionModel repeatCondition = (RepeatConditionModel) getChild(RepeatConditionModel.class);
 		String conditionText = repeatCondition.decompile(0);
@@ -24,16 +32,16 @@ public class WhileNodeModel extends NodeModel {
 			}
 		}
 		
-		ret += conditionText + " ) {\n";
+		dsb.append(conditionText, " ( {\n");
 		for( BaseModel child : children ) {
 			if( child instanceof RepeatConditionModel || child instanceof ConditionNodeModel ) {
 				continue;
 			}
-			ret += child.decompile(indentLevel+1) + "\n";
+			dsb.addLine(child.decompile(indentLevel+1));
 		}
-		ret = ret.substring(0, ret.length()-1);
-		ret += indent(indentLevel) + "}";
-		return ret;
+		dsb.sb.deleteCharAt(dsb.sb.length()-1);
+		dsb.addBlockCloser(indentLevel);
+		return dsb.toString();
 	}
 	
 }

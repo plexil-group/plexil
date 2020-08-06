@@ -1,5 +1,6 @@
 package plexiljava.model.tokens;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 
 public class AnyParametersModel extends ParameterModel {
@@ -10,7 +11,10 @@ public class AnyParametersModel extends ParameterModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + "...";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append("...");
+		return dsb.toString();
 	}
 	
 }

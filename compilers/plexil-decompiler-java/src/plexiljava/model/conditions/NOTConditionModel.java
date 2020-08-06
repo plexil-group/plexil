@@ -1,5 +1,6 @@
 package plexiljava.model.conditions;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 
 public class NOTConditionModel extends ConditionModel {
@@ -10,7 +11,10 @@ public class NOTConditionModel extends ConditionModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + "!(" + super.decompile(0) + ")";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append("!(", super.decompile(0), ")");
+		return dsb.toString();
 	}
 	
 }

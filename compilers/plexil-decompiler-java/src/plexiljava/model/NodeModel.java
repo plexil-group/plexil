@@ -3,6 +3,7 @@ package plexiljava.model;
 import java.util.logging.Level;
 
 import plexiljava.decompilation.Decompilable;
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.main.Decompiler;
 import plexiljava.model.commands.CommandModel;
 import plexiljava.model.commands.CommandNodeModel;
@@ -348,16 +349,29 @@ public class NodeModel extends BaseModel implements Decompilable {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasQuality("NodeId");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + getQuality("NodeId").decompile(0) + ":\n{\n";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		
+		dsb.append(getQuality("NodeId").getValue());
+		dsb.addBlockOpener();
+		
 		for( BaseModel child : children ) {
 			if( child instanceof InvariantConditionModel ) {
 				continue;
 			}
-			ret += child.decompile(indentLevel+1) + "\n";
+			
+			dsb.addLine(child.decompile(indentLevel+1));
 		}
-		ret += indent(indentLevel) + "}";
-		return ret;
+		
+		dsb.addBlockCloser(indentLevel);
+		
+		return dsb.toString();
 	}
 	
 }

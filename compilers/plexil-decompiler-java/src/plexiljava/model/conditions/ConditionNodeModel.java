@@ -9,6 +9,11 @@ public class ConditionNodeModel extends ConditionModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return !children.isEmpty();
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
 		return children.get(0).decompile(indentLevel);
 	}

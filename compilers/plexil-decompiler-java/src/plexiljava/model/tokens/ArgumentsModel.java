@@ -1,5 +1,6 @@
 package plexiljava.model.tokens;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.QualityModel;
@@ -12,14 +13,18 @@ public class ArgumentsModel extends NodeModel {
 	
 	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		
 		for( QualityModel quality : qualities ) {
 			if( quality.getName().equals("StringValue") ) {
-				ret += "\"" + quality.getValue() + "\"" + ", ";
+				dsb.append("\"", quality.getValue(), "\"", ", ");
 			} else {
-				ret += quality.getValue() + ", ";
+				dsb.append(quality.getValue(), ", ");
 			}
 		}
-		return ret.substring(0, ret.length()-2);
+		dsb.sb.delete(dsb.sb.length()-2, dsb.sb.length());
+		
+		return dsb.toString();
 	}
 }

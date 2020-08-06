@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.declarations.AssignmentModel;
@@ -11,24 +12,31 @@ public class AssignmentNodeModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasQuality("NodeId") && (children.size() != 1 || hasChild(AssignmentModel.class));
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
 		if( indentLevel == 0 ) {
-			ret += getChild(AssignmentModel.class).decompile(0) + ";";
+			dsb.append(getChild(AssignmentModel.class).decompile(0), ";");
 		} else if( children.size() == 1 ) {
-			ret += getQuality("NodeId").getValue() + ": " + getChild(AssignmentModel.class).decompile(0) + ";";
+			dsb.append(getQuality("NodeId").getValue(), ": ", getChild(AssignmentModel.class).decompile(0), ";");
 		} else {
-			ret += getQuality("NodeId").getValue() + ": {\n";
+			dsb.append(getQuality("NodeId").getValue());
+			dsb.addBlockOpener();
 			for( BaseModel child : children ) {
-				ret += child.decompile(indentLevel+1);
+				dsb.append(child.decompile(indentLevel+1));
 				if( child instanceof AssignmentModel ) {
-					ret += ";";
+					dsb.append(";");
 				}
-				ret += "\n";
+				dsb.append("\n");
 			}
-			ret += indent(indentLevel) + "}";
+			dsb.addBlockCloser(indentLevel);
 		}
-		return ret;
+		return dsb.toString();
 	}
 
 }

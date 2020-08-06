@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.main.Constants;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
@@ -13,22 +14,33 @@ public class IfNodeModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasChild(ThenNodeModel.class);
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + "if ( ";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append("if ( ");
+		
 		BaseModel then = getChild(ThenNodeModel.class);
 		String ifCondition = then.getChild(StartConditionModel.class).decompile(0);
 		if( ifCondition.startsWith(Constants.DECOMPILE_IDENTIFIER_NODEREF) ) {
 			String id = ifCondition.substring(Constants.DECOMPILE_IDENTIFIER_NODEREF.length());
 			ifCondition = dereference(id);
 		}
-		ret += ifCondition + " ) {\n";
+		
+		dsb.append(ifCondition, " ) {\n");
+		
 		for( BaseModel child : then.getChildren() ) {
 			if( child instanceof ConditionModel ) {
 				continue;
 			}
-			ret += child.decompile(indentLevel+1) + "\n";
+			dsb.addLine(child.decompile(indentLevel+1));
 		}
-		return ret;
+		
+		return dsb.toString();
 	}
 	
 }

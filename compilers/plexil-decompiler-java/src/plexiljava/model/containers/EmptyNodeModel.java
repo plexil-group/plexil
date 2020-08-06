@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
@@ -10,9 +11,16 @@ public class EmptyNodeModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasQuality("NodeId");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + getQuality("NodeId").getValue() + "{}";
-		return ret;
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("NodeId").getValue(), "{}");
+		return dsb.toString();
 	}
 	
 }

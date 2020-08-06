@@ -1,5 +1,6 @@
 package plexiljava.model.tokens;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
@@ -10,8 +11,16 @@ public class NameModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasQuality("StringValue");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + getQuality("StringValue").getValue();
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("StringValue").getValue());
+		return dsb.toString();
 	}
 	
 }

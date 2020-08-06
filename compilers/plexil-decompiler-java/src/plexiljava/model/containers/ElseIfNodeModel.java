@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
@@ -11,9 +12,10 @@ public class ElseIfNodeModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + "elseif ( ";
-		
-		return ret;
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append("elseif (");		
+		return dsb.toString();
 	}
 	
 }

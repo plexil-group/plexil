@@ -1,5 +1,6 @@
 package plexiljava.model.containers;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.AuxNodeModel;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
@@ -14,8 +15,17 @@ public class ForNodeModel extends NodeModel {
 	}
 
 	@Override
+	public boolean verify() {
+		return hasChild(DeclareVariableModel.class);
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel) + "for( " + getChild(DeclareVariableModel.class).decompile(0) + " ";
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append("for( ");
+		dsb.append("for ( ", getChild(DeclareVariableModel.class).decompile(0), " ");
+
 		BaseModel aux = null;
 		for( BaseModel child : children ) {
 			if( child instanceof AuxNodeModel ) {
@@ -23,6 +33,7 @@ public class ForNodeModel extends NodeModel {
 				break;
 			}
 		}
+		
 		String condition = "";
 		for( BaseModel grandchild : aux.getChildren() ) {
 			if( grandchild instanceof ConditionModel ) {
@@ -35,16 +46,17 @@ public class ForNodeModel extends NodeModel {
 				}
 			}
 		}
+		
 		String update = "";
 		for( BaseModel grandchild : aux.getChildren() ) {
 			if( grandchild.hasAttribute("epx") && grandchild.getAttribute("epx").getValue().equals("LoopVariableUpdate") ) {
 				update = grandchild.decompile(0);
 			}
 		}
-		ret += condition + "; " + update + " ) {\n";
-		ret += aux.decompile(indentLevel+1);
-		ret += indent(indentLevel) + "}";
-		return ret;
+		
+		dsb.append(condition, "; ", update, " ) {\n", aux.decompile(indentLevel+1));
+		dsb.addBlockCloser(indentLevel);
+		return dsb.toString();
 	}
 	
 }

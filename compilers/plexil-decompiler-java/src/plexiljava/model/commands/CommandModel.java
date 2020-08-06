@@ -1,5 +1,6 @@
 package plexiljava.model.commands;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.tokens.ArgumentsModel;
@@ -12,17 +13,23 @@ public class CommandModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasChild(NameModel.class);
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
 		if( !qualities.isEmpty() ) {
-			ret += qualities.get(0).getValue() + " = ";
+			dsb.append(qualities.get(0).getValue(), " = ");
 		}
-		ret += getChild(NameModel.class).decompile(0) + "(";
+		dsb.append(getChild(NameModel.class).decompile(0), "(");
 		if( hasChild(ArgumentsModel.class) && !getChild(ArgumentsModel.class).getQualities().isEmpty() ) {
-			ret += getChild(ArgumentsModel.class).decompile(0);
+			dsb.append(getChild(ArgumentsModel.class).decompile(0));
 		}
-		ret += ");";
-		return ret;
+		dsb.append(");");
+		return dsb.toString();
 	}
 
 }

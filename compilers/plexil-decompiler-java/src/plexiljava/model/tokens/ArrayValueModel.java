@@ -1,5 +1,6 @@
 package plexiljava.model.tokens;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.QualityModel;
@@ -12,12 +13,14 @@ public class ArrayValueModel extends NodeModel {
 
 	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
 		
 		for( QualityModel quality : qualities ) {
-			ret += quality.decompile(0) + " ";
+			dsb.append(quality.getValue(), " ");
 		}
+		dsb.sb.deleteCharAt(dsb.sb.length()-1);
 		
-		return ret.substring(0, ret.length()-1);
+		return dsb.toString();
 	}
 }

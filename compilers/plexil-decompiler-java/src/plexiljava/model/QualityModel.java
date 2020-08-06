@@ -2,6 +2,8 @@ package plexiljava.model;
 
 import org.w3c.dom.Node;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
+
 public class QualityModel extends BaseModel {
 
 	public QualityModel(Node node, BaseModel parent, int order) {
@@ -14,8 +16,16 @@ public class QualityModel extends BaseModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return !children.isEmpty();
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		return indent(indentLevel) + children.get(0).getValue();
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+		dsb.append(children.get(0).getValue());
+		return dsb.toString();
 	}
 	
 }

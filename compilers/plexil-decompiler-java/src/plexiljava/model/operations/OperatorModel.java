@@ -1,5 +1,6 @@
 package plexiljava.model.operations;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.TypedNodeModel;
 
@@ -15,19 +16,22 @@ public class OperatorModel extends TypedNodeModel {
 	
 	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
+
 		if( children.size() == 2 ) {
-			ret = children.get(0).decompile(0) + " " + type + " " + children.get(1).decompile(0);
+			dsb.append(children.get(0).decompile(0), " ", type, " ", children.get(1).decompile(0));
 		} else if( children.size() == 1 ) {
 			if( children.get(0).getOrder() < qualities.get(0).getOrder() ) {
-				ret = children.get(0).decompile(0) + " " + type + " " + qualities.get(0).decompile(0);
+				dsb.append(children.get(0).decompile(0), " ", type, " ", qualities.get(0).getValue());
 			} else {
-				ret = qualities.get(0).decompile(0) + " " + type + " " + children.get(0).decompile(0);
+				dsb.append(qualities.get(0).getValue(), " ", type, " ", children.get(0).decompile(0));
 			}
 		} else {
-			ret = qualities.get(0).decompile(0) + " " + type + " " + qualities.get(1).decompile(0);
+			dsb.append(qualities.get(0).getValue(), " ", type, " ", qualities.get(1).getValue());
 		}
-		return ret;
+		
+		return dsb.toString();
 	}
 
 }

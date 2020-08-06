@@ -3,6 +3,7 @@ package plexiljava.model.declarations;
 import java.util.ArrayList;
 import java.util.List;
 
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.tokens.ParameterModel;
@@ -15,28 +16,36 @@ public class CommandDeclarationModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasQuality("Name");
+	}
+	
+	@Override
 	public String decompile(int indentLevel) {
-		String ret = indent(indentLevel);
+		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+		dsb.addIndent(indentLevel);
 		if( hasChild(ReturnModel.class) ) {
-			ret += getChild(ReturnModel.class).decompile(0) + " ";
+			dsb.append(getChild(ReturnModel.class).decompile(0), " ");
 		}
-		ret += "Command " + getQuality("Name").getValue();
+		dsb.append("Command ", getQuality("Name").getValue());
+
 		List<BaseModel> parameters = new ArrayList<BaseModel>();
 		for( BaseModel child : children ) {
 			if( child instanceof ParameterModel ) {
 				parameters.add(child);
 			}
 		}
+		
 		if( !parameters.isEmpty() ) {
-			ret += " (";
+			dsb.append(" (");
 			for( BaseModel parameter : parameters ) {
-				ret += parameter.decompile(0) + ", ";
+				dsb.append(parameter.decompile(0), ", ");
 			}
-			ret = ret.substring(0, ret.length()-2);
-			ret += ")";
+			dsb.sb.delete(dsb.sb.length()-2, dsb.sb.length());
+			dsb.append(")");
 		}
-		ret += ";";
-		return ret;
+		dsb.append(";");
+		return dsb.toString();
 	}
 
 }
