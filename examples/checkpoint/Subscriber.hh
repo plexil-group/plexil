@@ -24,29 +24,42 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+// This is a barebones publish-subscribe facility for the sample PLEXIL
+// application.  It provides a set of subscription functions specific to various
+// combinations of return type and parameters.
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
+#ifndef _H__system
+#define _H__system
 
 #include "Value.hh"
 #include <string>
 
-// For SampleAdapter only
-#include "SampleAdapter.hh"
+
+#include "CheckpointAdapter.hh"
+#include "Command.hh"
 
 
-
-void setSubscriber(SampleAdapter *i);
+// Set the instance of the CheckpointAdapter to pubish to
+void setSubscriber(CheckpointAdapter *i);
 
 // The overloaded publish function, one for each value/parameter combination
 // found in this application.
 
-void publish (const std::string& state_name, PLEXIL::Value val);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val);
 
 
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg);
 
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg1,
+	      const PLEXIL::Value& arg2);
+
+void publishCommandReceived (PLEXIL::Command* cmd);
+
+void publishCommandSuccess  (PLEXIL::Command* cmd); 
 
 #endif

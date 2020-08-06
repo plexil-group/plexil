@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2020-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,29 +24,60 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+#ifndef _H__ReadWrite
+#define _H__ReadWrite
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
+#include "ThreadMutex.hh"
 
-#include "Value.hh"
-#include <string>
+// Implements a write-favoring read-write lock
+class ReadWriteLock{
+public:
 
-// For SampleAdapter only
-#include "SampleAdapter.hh"
+  ReadWriteLock() : r_count(0){}
+  // Using default destructor
+  
+  void begin_read(){
+    // Block if there is a writer writing
+    turn_lock.lock();
+    turn_lock.unlock();
+    r_lock.lock();
+    r_count++;
+    if(r_count == 1){ // First in
+      w_lock.lock();
+    }
+    r_lock.unlock();
+  }
+
+  void end_read(){
+    r_lock.lock();
+    r_count--;
+    if(r_count == 0){ // Last out
+      w_lock.unlock();
+    }
+    r_lock.unlock();
+  }
+
+  void begin_write(){
+    turn_lock.lock();
+    w_lock.lock();
+  }
+
+  void end_write(){
+    turn_lock.unlock();
+    w_lock.unlock();
+  }
+private:
+  // Disallow copy
+  ReadWriteLock & operator=(const ReadWriteLock&);
+  ReadWriteLock(const ReadWriteLock&);
+  
+  int r_count; // Count of readers
+  PLEXIL::ThreadMutex r_lock; // Protects access to r_count
+  PLEXIL::ThreadMutex w_lock; // Protects writes to data
+  PLEXIL::ThreadMutex turn_lock; // Write is awaiting a turn
+};
 
 
 
-void setSubscriber(SampleAdapter *i);
-
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const std::string& state_name, PLEXIL::Value val);
-
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 #endif
