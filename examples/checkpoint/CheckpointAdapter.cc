@@ -34,7 +34,6 @@
 #include "Debug.hh"
 #include "Expression.hh"
 #include "StateCacheEntry.hh"
-
 #include <iostream>
 #include <algorithm> //tranform
 
@@ -234,6 +233,19 @@ void CheckpointAdapter::receiveValue(const string& state_name, const Value& val,
   propagateValueChange (createState(state_name, vec), vector<Value> (1, val));
 }
 
+void CheckpointAdapter::receiveCommandReceived(Command* cmd){
+  if(cmd != NULL){
+    m_execInterface.handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
+    m_execInterface.notifyOfExternalEvent();
+  }
+}
+void CheckpointAdapter::receiveCommandSuccess   (Command* cmd){
+  if(cmd != NULL){
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
+    m_execInterface.notifyOfExternalEvent();
+  }
+}
+
 ///////////////////////////// Member functions //////////////////////////////////
 
 
@@ -248,7 +260,6 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
 
   // If SaveConfiguration not specified, will be a node_null that always returns empty strings
   CheckpointSystem::getInstance()->setSaveConfiguration(&save_config);
-  CheckpointSystem::getInstance()->setExecInterface(&m_execInterface);
 
   string ok_on_exit = getChildWithAttribute(configXml,"AdapterConfiguration","OKOnExit");
   std::transform(ok_on_exit.begin(),ok_on_exit.end(),ok_on_exit.begin(), ::tolower);
@@ -341,7 +352,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   Value retval = Unknown;
   const vector<Value>& args = cmd->getArgValues();
   
-  // Each command is responsible for setting its own Command Handle - this allows
+  // Each command in CheckpointSystem publishes to ReceiveCommandReceived or Success 
   // SetCheckpoint and SetOK to only return success when the change has been (possibly asycnrhonously)
   // written to disk
 
@@ -349,7 +360,7 @@ void CheckpointAdapter::executeCommand(Command *cmd)
     
   if (name == "Flush"){
     retval = CheckpointSystem::getInstance()->flush();
-    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
+    publishCommandSuccess(cmd); // publish success
   }
   else if (name == "SetCheckpoint") {
     if(args.size()<1 || args.size()>3){

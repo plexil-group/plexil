@@ -28,12 +28,9 @@
 #include "CheckpointSystem.hh"
 #include "Guard.hh"
 #include "SimpleSaveManager.hh"
-#include "State.hh"
-#include "CachedValue.hh"
 #include "Subscriber.hh"
+#include "InterfaceManager.hh" // g_manager
 #include "Debug.hh"
-#include "AdapterConfiguration.hh" // For access to g_configuration
-#include "InterfaceManager.hh"
 
 #include <iostream>
 #include <limits>
@@ -91,11 +88,6 @@ void CheckpointSystem::useTime(bool use_time){
 
 void CheckpointSystem::setSaveConfiguration(const pugi::xml_node* configXml){
   m_manager->setConfig(configXml);
-}
-
-void CheckpointSystem::setExecInterface(AdapterExecInterface* execInterface){
-  m_manager->setExecInterface(execInterface);
-  m_execInterface = execInterface;
 }
 
 
@@ -310,8 +302,7 @@ void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,s
     publish("CheckpointInfo",info,checkpoint_name,0);
 
     // Send back command_received
-    m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
-    m_execInterface->notifyOfExternalEvent();
+    publishCommandReceived(cmd);
     debug("Sent COMMAND_RCVD_BY_SYSTEM");
     m_manager->setCheckpoint(checkpoint_name, value, info, time, cmd);
   }  
@@ -326,14 +317,12 @@ void CheckpointSystem::setOK(bool b, Integer boot_num, Command *cmd){
       m_data_vector.at(boot_num).is_ok = b;
       debug("Setting is_ok at boot " << boot_num << " to " <<b);
       publish("Is_OK",b,boot_num);
-      m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
-      m_execInterface->notifyOfExternalEvent();
+      publishCommandReceived(cmd);
       debug("Sent COMMAND_RCVD_BY_SYSTEM");
       m_manager->setOK(b, boot_num, cmd);
     }
     else{
-      m_execInterface->handleCommandAck(cmd,COMMAND_RCVD_BY_SYSTEM);
-      m_execInterface->notifyOfExternalEvent();
+      publishCommandReceived(cmd);
       debug(error<<" Invalid boot number: "<<boot_num);
       retval = Unknown;
     }

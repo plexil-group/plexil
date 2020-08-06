@@ -1,0 +1,8 @@
+#include "persistence.h"
+
+Command pprint (...);
+
+Dalal1:
+{
+  pprint (Lookup(NumberOfTotalBoots));
+}

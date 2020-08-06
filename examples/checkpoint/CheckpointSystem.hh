@@ -29,11 +29,10 @@
 
 #include "Value.hh"
 #include "Nullable.hh"
-#include "InterfaceAdapter.hh"
 #include "SaveManager.hh"
 #include "data_support.hh"
 #include "ReadWriteLock.hh"
-#include "StateCacheEntry.hh"
+#include "Command.hh"
 
 
 #include "pugixml.hpp"
@@ -85,7 +84,6 @@ public:
   // Helper
   void start();
   void setSaveConfiguration(const pugi::xml_node* configXml);
-  void setExecInterface(PLEXIL::AdapterExecInterface* execInterface);
   void useTime(bool use_time);
 
 private:
@@ -114,10 +112,6 @@ private:
   int m_num_total_boots;
 
   bool m_use_time;
-
-  // Used for command handles
-  PLEXIL::AdapterExecInterface* m_execInterface;
-
 };
 
 #endif

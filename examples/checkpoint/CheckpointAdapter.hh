@@ -75,6 +75,9 @@ public:
 		     const PLEXIL::Value& arg1,
 		     const PLEXIL::Value& arg2);
 
+  void receiveCommandReceived(PLEXIL::Command* cmd);
+  void receiveCommandSuccess   (PLEXIL::Command* cmd);
+
 private:
   //Disallow copy, default constructor
   CheckpointAdapter(const CheckpointAdapter&);

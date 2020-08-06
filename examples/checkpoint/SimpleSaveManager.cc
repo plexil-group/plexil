@@ -1,4 +1,5 @@
 #include "SimpleSaveManager.hh"
+#include "Subscriber.hh"
 #include <iostream>
 #include <dirent.h>
 #include <algorithm>    // std::min std::max
@@ -7,10 +8,10 @@
 #include <climits>
 #include <sstream> // in to_string
 #include <limits> //numeric_limits
+#include "InterfaceManager.hh" // g_manager
 #include "Debug.hh"
 #include "pugixml.hpp"
 #include "plexil-stdint.h"
-#include "InterfaceManager.hh"
 
 using std::cerr;
 using std::endl;
@@ -118,8 +119,7 @@ void SimpleSaveManager::succeedCommands(){
   for(std::vector<Command*>::iterator it = m_queued_commands.begin(); it != m_queued_commands.end();it++)
   {
     if(*it != NULL){
-      m_execInterface->handleCommandAck(*it, COMMAND_SUCCESS);
-      m_execInterface->notifyOfExternalEvent();
+      publishCommandSuccess(*it);
     }
   }
   m_queued_commands.clear();
@@ -143,6 +143,7 @@ void SimpleSaveManager::loadCrashes(){
   // Include current boot with current time, no checkpoints
   Nullable<Real> time;
   if(m_use_time){
+    // Use queryTime here because this is likely the first time we are reading the time
     time.set_value(g_manager->queryTime());
     if(time.value()==std::numeric_limits<double>::min()) time.nullify();
   }
@@ -276,10 +277,11 @@ bool SimpleSaveManager::writeToFile(const string& location){
     curr_boot.append_attribute("time_of_boot").set_value(
       time_to_string(boot->boot_time).c_str());
     if(boot_n==0){
-
        Nullable<Real> time;
        if(m_use_time){
-	 time.set_value(g_manager->queryTime());
+	 // Use currentTime not queryTime (which is guaranteed to be up-to-date)
+	 // because the TimeAdapter may have quit by this point
+	 time.set_value(g_manager->currentTime());
 	 if(time.value()==std::numeric_limits<double>::min()) time.nullify();
        }
   
