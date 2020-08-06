@@ -79,8 +79,8 @@ namespace PLEXIL {
 
   AdapterConfiguration::AdapterConfiguration() :
     m_defaultInterface(),
-    m_defaultCommandInterface(),
-    m_defaultLookupInterface(),
+    m_defaultCommandHandler(),
+    m_defaultLookupHandler(),
     m_plannerUpdateInterface(),
     m_listenerHub(new ExecListenerHub())
   {
@@ -410,10 +410,10 @@ namespace PLEXIL {
     m_lookupMap.clear();
     m_commandMap.clear();
     m_telemetryLookups.clear();
-    m_plannerUpdateInterface = NULL;
     m_defaultInterface = NULL;
-    m_defaultCommandInterface = NULL;
-    m_defaultLookupInterface = NULL;
+    m_plannerUpdateInterface = NULL;
+    m_defaultCommandHandler = NULL;
+    m_defaultLookupHandler = NULL;
   }
 
   /**
@@ -421,9 +421,8 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::isKnown(InterfaceAdapter *intf) {
     // Check the easy places first
-    if (intf == m_defaultInterface
-        || intf == m_defaultCommandInterface
-        || intf == m_defaultLookupInterface
+    if (intf == this->getDefaultCommandInterface()
+        || intf == this->getDefaultLookupInterface()
         || intf == m_plannerUpdateInterface)
       return true;
 
@@ -528,12 +527,12 @@ namespace PLEXIL {
     if the state name already has a handler registered
             or registering a handler is not implemented.
     * @param stateName The name of the state to map to this adapter.
+    * @param context An object on which the handler functions can be called.
     * @param lookupNow The lookup handler function for this state.
     * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
     * @param setThresholdsInt The setThresholdsInt handler function for this state.
     * @param subscribe The subscribe handler function for this state.
     * @param unsubscribe The lookup handler function for this state.
-    * @param context An object on which the handler functions can be called.
     * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
     */
   bool AdapterConfiguration::registerLookupHandler(std::string const &stateName,
@@ -581,6 +580,11 @@ namespace PLEXIL {
     }
     debugMsg("AdapterConfiguration:getLookupHandler",
                " no handler registered for lookup '" << stateName << "'");
+    if (m_defaultLookupHandler) {
+      debugMsg("AdapterConfiguration:getLookupHandler",
+               " using defualt handler for lookup '" << stateName << "'");
+      return m_defaultLookupHandler;
+    }
     return nullptr;
   }
 
@@ -601,7 +605,9 @@ namespace PLEXIL {
           if the state name already has a handler registered
           or registering a handler is not implemented.
     * @param stateName The name of the state to map to this adapter.
-    * @param context The object on which handlers can be called
+    * @param context The object on which handlers can be called.
+    * @param execCmd The execute command handler.
+    * @param abortCmd The abort command handler.
     */
   bool AdapterConfiguration::registerCommandHandler(std::string const &stateName,
         InterfaceAdapter &context,
@@ -637,9 +643,132 @@ namespace PLEXIL {
                << " for lookup '" << stateName << "'");
       return (*it).second;
     }
-    debugMsg("AdapterConfiguration:getLookupHandler",
+    debugMsg("AdapterConfiguration:getCommandHandler",
                " no handler registered for command '" << stateName << "'");
+    if (m_defaultCommandHandler) {
+      debugMsg("AdapterConfiguration:getCommandHandler",
+               " using defualt handler for command '" << stateName << "'");
+      return m_defaultCommandHandler;
+    }
+
     return nullptr;
+  }
+
+  /**
+   * @brief Register the given handler as the default for lookups.
+            This handler will be used for all lookups which do not have
+        a specific handler.
+            Returns true if successful.
+        Fails and returns false if there is already a default lookup handler registered
+            or setting the default lookup handler is not implemented.
+   * @param context An object on which the handler functions can be called.
+   * @param lookupNow The lookup handler function for this state.
+   * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
+   * @param setThresholdsInt The setThresholdsInt handler function for this state.
+   * @param subscribe The subscribe handler function for this state.
+   * @param unsubscribe The lookup handler function for this state.
+   * @return True if successful, false if there is already a default handler registered.
+   */
+  bool AdapterConfiguration::setDefaultLookupHandler(          
+          InterfaceAdapter &context,
+          LookupNowHandler lookupNow,
+          SetThresholdsDoubleHandler setThresholdsDouble,
+          SetThresholdsIntHandler setThresholdsInt,
+          SubscribeHandler subscribe,
+          UnsubscribeHandler unsubscribe) {
+    if (m_defaultLookupHandler) {
+      debugMsg("AdapterConfiguration:setDefaultLookupHandler",
+               " attempt to overwrite default lookup handler " << m_defaultLookupHandler);
+      return false;
+    }
+    m_defaultLookupHandler = new LookupHandler(context,
+                                  lookupNow,
+                                  setThresholdsDouble,
+                                  setThresholdsInt,
+                                  subscribe,
+                                  unsubscribe);
+    debugMsg("AdapterConfiguration:setDefaultLookupHanlder",
+             " setting default lookup handler " << m_defaultLookupHandler);
+    return true;
+  }
+
+  /**
+   * @brief Register the given handler as the default for commands.
+            This handler will be used for all commands which do not have
+        a specific handler.
+            Returns true if successful.
+        Fails and returns false if there is already a default command handler registered.
+   * @param context The object on which handlers can be called.
+   * @param execCmd The execute command handler.
+   * @param abortCmd The abort command handler.
+   * @return True if successful, false if there is already a default handler registered.
+   */
+  bool AdapterConfiguration::setDefaultCommandHandler(InterfaceAdapter &context,
+        ExecuteCommandHandler execCmd,
+        AbortCommandHandler abortCmd) {
+    if (m_defaultCommandHandler) {
+      debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
+               " attempt to overwrite default command handler " << m_defaultCommandHandler);
+      return false;
+    }
+    m_defaultCommandHandler = new CommandHandler(context,
+                                  execCmd,
+                                  abortCmd);
+    debugMsg("AdapterConfiguration:setDefaultCommandHandler",
+             " setting default command handler " << m_defaultCommandHandler);
+    return true;
+  }
+
+  /**
+   * @brief Return the current default handler for commands.
+            May return NULL. Returns NULL if default interfaces are not implemented.
+   */
+  AdapterConfiguration::CommandHandler *AdapterConfiguration:: getDefaultCommandHandler() {
+    return m_defaultCommandHandler;
+  }
+
+  /**
+   * @brief Return the current default handler for lookups.
+            May return NULL.
+   */
+  AdapterConfiguration::LookupHandler *AdapterConfiguration:: getDefaultLookupHandler() {
+    return m_defaultLookupHandler;
+  }
+
+  /**
+   * @brief Register the given interface adapter for planner updates.
+            Returns true if successful.  Fails and returns false
+            iff an adapter is already registered
+            or setting the default planner update interface is not implemented.
+   * @param intf The interface adapter to handle planner updates.
+   */
+  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapter *intf) {
+    if (m_plannerUpdateInterface) {
+      debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
+               " planner update interface already registered");
+      return false;
+    }
+    debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
+             " registering planner update interface " << intf);
+    m_plannerUpdateInterface = intf;
+    m_adapters.insert(intf);
+    return true;
+  }
+
+  /**
+   * @brief Return the interface adapter in effect for planner updates,
+            whether specifically registered or default. May return NULL.
+            Returns NULL if default interfaces are not defined.
+   */
+  InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
+    if (!m_plannerUpdateInterface) {
+      debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
+               " returning default interface " << m_defaultInterface);
+      return m_defaultInterface;
+    }
+    debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
+             " found specific interface " << m_plannerUpdateInterface);
+    return m_plannerUpdateInterface;
   }
 
   // Initialize global variable
@@ -654,7 +783,6 @@ namespace PLEXIL {
    * @brief Register the given interface adapter as the default.
    * @param adapter The interface adapter.
    */
-
   void AdapterConfiguration::defaultRegisterAdapter(InterfaceAdapter *adapter) 
   {
     debugMsg("AdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
@@ -747,27 +875,6 @@ namespace PLEXIL {
 
   /**
    * @deprecated
-   * @brief Register the given interface adapter for planner updates.
-            Returns true if successful.  Fails and returns false
-            iff an adapter is already registered
-            or setting the default planner update interface is not implemented.
-   * @param intf The interface adapter to handle planner updates.
-   */
-  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapter *intf) {
-    if (m_plannerUpdateInterface) {
-      debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
-               " planner update interface already registered");
-      return false;
-    }
-    debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
-             " registering planner update interface " << intf);
-    m_plannerUpdateInterface = intf;
-    m_adapters.insert(intf);
-    return true;
-  }
-
-  /**
-   * @deprecated
    * @brief Register the given interface adapter as the default for all lookups and commands
    which do not have a specific adapter.  Returns true if successful.
    Fails and returns false if there is already a default adapter registered
@@ -775,16 +882,8 @@ namespace PLEXIL {
    * @param intf The interface adapter to use as the default.
    */
   bool AdapterConfiguration::setDefaultInterface(InterfaceAdapter *intf) {
-    if (m_defaultInterface) {
-      debugMsg("AdapterConfiguration:setDefaultInterface",
-               " attempt to overwrite default interface adapter " << m_defaultInterface);
-      return false;
-    }
     m_defaultInterface = intf;
-    m_adapters.insert(intf);
-    debugMsg("AdapterConfiguration:setDefaultInterface",
-             " setting default interface " << intf);
-    return true;
+    return this->setDefaultCommandInterface(intf) && this->setDefaultLookupInterface(intf);
   }
 
   /**
@@ -799,20 +898,15 @@ namespace PLEXIL {
    * @return True if successful, false if there is already a default adapter registered.
    */
   bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapter *intf) {
-    if (m_defaultLookupInterface) {
-      debugMsg("AdapterConfiguration:setDefaultLookupInterface",
-               " attempt to overwrite default lookup interface adapter " << m_defaultLookupInterface);
-      return false;
-    }
-    m_defaultLookupInterface = intf;
-    m_adapters.insert(intf);
-    debugMsg("AdapterConfiguration:setDefaultLookupInterface",
-             " setting default lookup interface " << intf);
-    return true;
+    return this->setDefaultLookupHandler(*intf, &InterfaceAdapter::lookupNow,
+          &InterfaceAdapter::setThresholds,
+          &InterfaceAdapter::setThresholds,
+          &InterfaceAdapter::subscribe,
+          &InterfaceAdapter::unsubscribe);
   }
 
   /**
-   * @deprecated
+   * @deprecated use setDefaultCommandHandler()
    * @brief Register the given interface adapter as the default for commands.
             This interface will be used for all commands which do not have
         a specific adapter.
@@ -822,16 +916,7 @@ namespace PLEXIL {
    * @return True if successful, false if there is already a default adapter registered.
    */
   bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapter *intf) {
-    if (m_defaultCommandInterface) {
-      debugMsg("AdapterConfiguration:setDefaultCommandInterface",
-               " attempt to overwrite default command interface adapter " << m_defaultCommandInterface);
-      return false;
-    }
-    m_defaultCommandInterface = intf;
-    m_adapters.insert(intf);
-    debugMsg("AdapterConfiguration:setDefaultCommandInterface",
-             " setting default command interface " << intf);
-    return true;
+    return this->setDefaultCommandHandler(*intf, &InterfaceAdapter::executeCommand, &InterfaceAdapter::invokeAbort);
   }
 
   /**
@@ -850,7 +935,7 @@ namespace PLEXIL {
             May return NULL. Returns NULL if default interfaces are not implemented.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
-    return m_defaultCommandInterface;
+    return m_defaultCommandHandler->getInterface();
   }
 
   /**
@@ -869,24 +954,7 @@ namespace PLEXIL {
             May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
-    return m_defaultLookupInterface;
-  }
-
-  /**
-   * @deprecated
-   * @brief Return the interface adapter in effect for planner updates,
-            whether specifically registered or default. May return NULL.
-            Returns NULL if default interfaces are not defined.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
-    if (!m_plannerUpdateInterface) {
-      debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
-               " returning default interface " << m_defaultInterface);
-      return m_defaultInterface;
-    }
-    debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
-             " found specific interface " << m_plannerUpdateInterface);
-    return m_plannerUpdateInterface;
+    return m_defaultLookupHandler->getInterface();
   }
 
   /**

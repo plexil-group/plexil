@@ -274,6 +274,56 @@ namespace PLEXIL {
      */
     CommandHandler *getCommandHandler(std::string const& stateName);
 
+    /**
+     * @brief Register the given handler as the default for lookups.
+            This handler will be used for all lookups which do not have
+        a specific handler.
+            Returns true if successful.
+        Fails and returns false if there is already a default lookup handler registered
+            or setting the default lookup handler is not implemented.
+     * @param context An object on which the handler functions can be called.
+     * @param lookupNow The lookup handler function for this state.
+     * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
+     * @param setThresholdsInt The setThresholdsInt handler function for this state.
+     * @param subscribe The subscribe handler function for this state.
+     * @param unsubscribe The lookup handler function for this state.
+     * @return True if successful, false if there is already a default handler registered.
+     */
+    bool setDefaultLookupHandler(          
+          InterfaceAdapter &context,
+          LookupNowHandler lookupNow,
+          SetThresholdsDoubleHandler setThresholdsDouble,
+          SetThresholdsIntHandler setThresholdsInt,
+          SubscribeHandler subscribe,
+          UnsubscribeHandler unsubscribe);
+
+    /**
+     * @brief Register the given handler as the default for commands.
+              This handler will be used for all commands which do not have
+          a specific handler.
+              Returns true if successful.
+          Fails and returns false if there is already a default command handler registered.
+     * @param context The object on which handlers can be called.
+     * @param execCmd The execute command handler.
+     * @param abortCmd The abort command handler.
+     * @return True if successful, false if there is already a default handler registered.
+     */
+    bool setDefaultCommandHandler(InterfaceAdapter &context,
+          ExecuteCommandHandler execCmd,
+          AbortCommandHandler abortCmd);
+
+    /**
+     * @brief Return the current default handler for commands.
+              May return NULL. Returns NULL if default interfaces are not implemented.
+     */
+    CommandHandler *getDefaultCommandHandler();
+
+    /**
+     * @brief Return the current default handler for lookups.
+              May return NULL.
+     */
+    LookupHandler *getDefaultLookupHandler();
+
     //
     // Plan, library path access
     //
@@ -473,8 +523,8 @@ namespace PLEXIL {
 
     //* Default InterfaceAdapters
     InterfaceAdapter *m_defaultInterface;
-    InterfaceAdapter *m_defaultCommandInterface;
-    InterfaceAdapter *m_defaultLookupInterface;
+    CommandHandler *m_defaultCommandHandler;
+    LookupHandler *m_defaultLookupHandler;
 
     //* InterfaceAdapter to use for PlannerUpdate nodes
     InterfaceAdapter *m_plannerUpdateInterface;
@@ -482,7 +532,6 @@ namespace PLEXIL {
     // Maps by command/lookup
 
     // Interface handler maps
-    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap; // TODO: Remove this.
     typedef std::map<std::string, CommandHandler *> CommandHandlerMap;
     typedef std::map<std::string, LookupHandler *> LookupHandlerMap;
 
