@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,15 +26,15 @@
 #ifndef SIMULATOR_HH
 #define SIMULATOR_HH
 
-#include <map>
 #include "simdefs.hh"
 #include "SimulatorScriptReader.hh"
 #include "TimingService.hh"
 #include "ThreadMutex.hh"
 
-class ResponseMessageManager;
-class ResponseMessage;
+class Agenda;
 class CommRelayBase;
+class ResponseMessage;
+class ResponseMessageManager;
 
 class Simulator
 {
@@ -59,8 +59,9 @@ public:
    */
   void simulatorTopLevel();
 
-  ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
-
+  //
+  // API to comm relay
+  //
 
   /**
    * @brief Schedules a response to the named command.
@@ -76,20 +77,15 @@ public:
    * @return Pointer to a const ResponseBase object, or NULL.
    */
   ResponseMessage* getLookupNowResponse(const std::string& stateName, void* uniqueId) const;
-  
+
+  // *** Called by TelemetryResponseManager::scheduleInitialEvents() ***
+
   /**
    * @brief Schedules a message to be sent after an interval.
    * @param delay The delay after which to send the message.
    * @param msg The message to be sent.
    */
   void scheduleMessage(const timeval& delay, ResponseMessage* msg);
-
-  /**
-   * @brief Schedules a message to be sent at a future time.
-   * @param time The absolute time at which to send the message.
-   * @param msg The message to be sent.
-   */
-  void scheduleMessageAbsolute(const timeval& time, ResponseMessage* msg);
 
 private:
 
@@ -102,6 +98,13 @@ private:
   static void* run(void * this_as_void_ptr);
 
   void handleWakeUp();
+
+  /**
+   * @brief Schedules a message to be sent at a future time.
+   * @param time The absolute time at which to send the message.
+   * @param msg The message to be sent.
+   */
+  void scheduleMessageAbsolute(const timeval& time, ResponseMessage* msg);
 
   void scheduleNextResponse(const timeval& time);
   
@@ -116,14 +119,14 @@ private:
                              void* uniqueId,
                              timeval& time, 
                              int type);
-  
+
+  ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
 
   CommRelayBase* m_CommRelay;
   TimingService m_TimingService;
   PLEXIL::ThreadMutex m_Mutex;
 
-  typedef std::multimap<timeval, ResponseMessage*> AgendaMap;
-  AgendaMap m_Agenda;
+  Agenda *m_Agenda;
   ResponseManagerMap& m_CmdToRespMgr;
   pthread_t m_SimulatorThread;
   bool m_Started;

@@ -25,7 +25,8 @@
 */
 
 #include "Simulator.hh"
-#include "timeval-utils.hh"
+
+#include "Agenda.hh"
 #include "CommRelayBase.hh"
 #include "ResponseBase.hh"
 #include "ResponseMessage.hh"
@@ -34,6 +35,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ThreadSpawn.hh"
+#include "timeval-utils.hh"
 
 #include <iomanip>
 
@@ -47,6 +49,7 @@ Simulator::Simulator(CommRelayBase* commRelay, ResponseManagerMap& map) :
   m_CommRelay(commRelay),
   m_TimingService(),
   m_Mutex(),
+  m_Agenda(makeAgenda()),
   m_CmdToRespMgr(map),
   m_SimulatorThread((pthread_t) 0),
   m_Started(false),
@@ -67,7 +70,7 @@ Simulator::~Simulator()
     delete iter->second;
 
   debugMsg("Simulator:~Simulator",
-	   " shutting down with " << m_Agenda.size() << " responses pending");
+	   " shutting down with " << m_Agenda->size() << " responses pending");
 }
 
 void Simulator::start()
@@ -190,14 +193,8 @@ void Simulator::simulatorTopLevel()
 
   timeval firstWakeup;
   firstWakeup.tv_sec = firstWakeup.tv_usec = 0;
-
-  // begin critical section
-  {
-	PLEXIL::ThreadMutexGuard mg(m_Mutex);
-	if (!m_Agenda.empty())
-	  firstWakeup = m_Agenda.begin()->first;
-  }
-  // end critical section
+  if (!m_Agenda->empty())
+    firstWakeup = m_Agenda->nextResponseTime();
 
   if (firstWakeup.tv_sec != 0 || firstWakeup.tv_usec != 0) {
 	debugMsg("Simulator:start",
@@ -239,18 +236,7 @@ void Simulator::simulatorTopLevel()
   m_Started = false;
 
   debugMsg("Simulator:simulatorTopLevel", " cleaning up");
-  // clean up agenda
-  // begin critical section
-  {
-	PLEXIL::ThreadMutexGuard mg(m_Mutex);
-	AgendaMap::iterator it = m_Agenda.begin();
-	while (it != m_Agenda.end()) {
-	  delete it->second;
-	  m_Agenda.erase(it);    // it = m_Agenda.erase(it);
-	  it = m_Agenda.begin(); // slightly kludgy, but safe
-	}
-  }
-  // end critical section
+  delete m_Agenda;
 
   m_SimulatorThread = (pthread_t) 0;
 }
@@ -341,11 +327,7 @@ void Simulator::scheduleMessageAbsolute(const timeval& eventTime, ResponseMessag
 		   " scheduling message at "
 		   << std::setiosflags(std::ios_base::fixed) 
 		   << timevalToDouble(eventTime));
-
-  // begin critical section
-  PLEXIL::ThreadMutexGuard mg(m_Mutex);
-  m_Agenda.insert(std::pair<timeval, ResponseMessage*>(eventTime, msg));
-  // end critical section
+  m_Agenda->scheduleResponse(eventTime, msg);
 }
 
 void Simulator::scheduleNextResponse(const timeval& time)
@@ -386,52 +368,25 @@ void Simulator::handleWakeUp()
   //
   // Send every message with a scheduled time earlier than now.
   //
-  bool moreEvents = false;
-  do {
-	moreEvents = false;
-	ResponseMessage* resp = NULL;
-
-	// begin critical section
-	{
-	  PLEXIL::ThreadMutexGuard mg(m_Mutex);
-	  if (!m_Agenda.empty()) {
-		AgendaMap::iterator it = m_Agenda.begin();
-		if (it->first < now) {
-		  // grab the event and remove it from the map
-		  resp = it->second;
-		  m_Agenda.erase(it);
-		  moreEvents = !m_Agenda.empty();
-		}
-	  }
-	}
-	// end critical section
-	
-	if (resp != NULL) {
-	  m_CommRelay->sendResponse(resp);
-	  ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
-	  manager->notifyMessageSent(resp->getResponseBase());
-	  debugMsg("Simulator:handleWakeUp", " Sent response");
-	  // delete resp; // handled by comm relay
-	}
+  while (!m_Agenda->empty()) {
+    timeval responseTime;
+	ResponseMessage* resp = m_Agenda->getNextResponse(responseTime);
+    if (responseTime > now)
+      break;
+    
+    m_Agenda->pop();
+    m_CommRelay->sendResponse(resp);
+    ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
+    manager->notifyMessageSent(resp->getResponseBase());
+    debugMsg("Simulator:handleWakeUp", " Sent response");
+    // delete resp; // handled by comm relay
   }
-  while (moreEvents);
 
   //
   // Schedule next wakeup, if any
   //
-  bool scheduleTimer = false;
-  timeval nextWakeup;
-  // begin critical section
-  {
-	PLEXIL::ThreadMutexGuard mg(m_Mutex);
-	if (!m_Agenda.empty()) {
-	  nextWakeup = m_Agenda.begin()->first;
-	  scheduleTimer = true;
-	}
-  }
-  // end critical section
-
-  if (scheduleTimer) {
+  struct timeval nextWakeup = m_Agenda->nextResponseTime();
+  if (nextWakeup.tv_sec != 0 && nextWakeup.tv_usec != 0) {
     debugMsg("Simulator:handleWakeUp",
              " Scheduling next wakeup at "
              << std::setiosflags(std::ios_base::fixed) 
