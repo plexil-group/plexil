@@ -292,10 +292,10 @@ namespace PLEXIL {
     bool setDefaultLookupHandler(          
           InterfaceAdapter &context,
           LookupNowHandler lookupNow,
-          SetThresholdsDoubleHandler setThresholdsDouble,
-          SetThresholdsIntHandler setThresholdsInt,
-          SubscribeHandler subscribe,
-          UnsubscribeHandler unsubscribe);
+          SetThresholdsDoubleHandler setThresholdsDouble = nullptr,
+          SetThresholdsIntHandler setThresholdsInt = nullptr,
+          SubscribeHandler subscribe = nullptr,
+          UnsubscribeHandler unsubscribe = nullptr);
 
     /**
      * @brief Register the given handler as the default for commands.
@@ -310,7 +310,7 @@ namespace PLEXIL {
      */
     bool setDefaultCommandHandler(InterfaceAdapter &context,
           ExecuteCommandHandler execCmd,
-          AbortCommandHandler abortCmd);
+          AbortCommandHandler abortCmd = nullptr);
 
     /**
      * @brief Return the current default handler for commands.
@@ -381,13 +381,6 @@ namespace PLEXIL {
     }
 
     /* ----------- Replace These With Handlers? ----------- */
-
-    /**
-     * @brief Register the given interface adapter.
-     * @param adapter The interface adapter to be registered.
-     */
-    void defaultRegisterAdapter(InterfaceAdapter *adapter);
-
     /**
      * @brief Register the given interface adapter for planner updates.
               Returns true if successful.  Fails and returns false
@@ -398,59 +391,11 @@ namespace PLEXIL {
     bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
 
     /**
-     * @brief Register the given interface adapter as the default for all lookups and commands
-     which do not have a specific adapter.  Returns true if successful.
-     Fails and returns false if there is already a default adapter registered
-              or setting the default interface is not implemented.
-     * @param intf The interface adapter to use as the default.
-     */
-    bool setDefaultInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for lookups.
-              This interface will be used for all lookups which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default lookup adapter registered
-              or setting the default lookup interface is not implemented.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultLookupInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for commands.
-              This interface will be used for all commands which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default command adapter registered.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultCommandInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Return the current default interface adapter for commands.
-              May return NULL.
-     */
-    InterfaceAdapter *getDefaultCommandInterface();
-
-    /**
-     * @brief Return the current default interface adapter for lookups.
-              May return NULL.
-     */
-    InterfaceAdapter *getDefaultLookupInterface();
-
-    /**
      * @brief Return the interface adapter in effect for planner updates,
               whether specifically registered or default. May return NULL.
      */
     InterfaceAdapter *getPlannerUpdateInterface();
-
-    /**
-     * @brief Return the current default interface adapter. May return NULL.
-     */
-    InterfaceAdapter *getDefaultInterface();
+    /* ---------------------------------------------------- */
 
     /**
      * @brief Construct the input queue specified by the configuration data.
@@ -508,6 +453,67 @@ namespace PLEXIL {
      * @param stateName The state.
      */
     InterfaceAdapter *getLookupInterface(std::string const& stateName);
+
+    /**
+     * @brief Register the given interface adapter.
+     * @param adapter The interface adapter to be registered.
+     */
+    void defaultRegisterAdapter(InterfaceAdapter *adapter);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter as the default for all lookups and commands
+     which do not have a specific adapter.  Returns true if successful.
+     Fails and returns false if there is already a default adapter registered
+              or setting the default interface is not implemented.
+     * @param intf The interface adapter to use as the default.
+     */
+    bool setDefaultInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter as the default for lookups.
+              This interface will be used for all lookups which do not have
+          a specific adapter.
+              Returns true if successful.
+          Fails and returns false if there is already a default lookup adapter registered
+              or setting the default lookup interface is not implemented.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    bool setDefaultLookupInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter as the default for commands.
+              This interface will be used for all commands which do not have
+          a specific adapter.
+              Returns true if successful.
+          Fails and returns false if there is already a default command adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    bool setDefaultCommandInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Return the current default interface adapter for commands.
+              May return NULL.
+     */
+    InterfaceAdapter *getDefaultCommandInterface();
+
+    /**
+     * @deprecated
+     * @brief Return the current default interface adapter for lookups.
+              May return NULL.
+     */
+    InterfaceAdapter *getDefaultLookupInterface();
+
+    /**
+     * @deprecated
+     * @brief Return the current default interface adapter. May return NULL.
+     */
+    InterfaceAdapter *getDefaultInterface();
 
   private:
 

@@ -288,7 +288,6 @@ namespace PLEXIL {
       warn("initialize: failed to initialize Exec listener(s)");
       return false;
     }
-
     return success;
   }
 
@@ -622,6 +621,9 @@ namespace PLEXIL {
                 new CommandHandler(context,
                                   execCmd,
                                   abortCmd)));
+
+      debugMsg("AdapterConfiguration:registerCommandHandler",
+                " done registering handler for command '" << stateName << "'");
       return true;
     } else {
       debugMsg("AdapterConfiguration:registerCommandHandler",
@@ -926,7 +928,10 @@ namespace PLEXIL {
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
-    return getCommandHandler(commandName)->getInterface();
+    AdapterConfiguration::CommandHandler *handler = getCommandHandler(commandName);
+    if(handler)
+      return handler->getInterface();
+    return nullptr;
   }
 
   /**
@@ -935,7 +940,9 @@ namespace PLEXIL {
             May return NULL. Returns NULL if default interfaces are not implemented.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
-    return m_defaultCommandHandler->getInterface();
+    if(m_defaultCommandHandler)
+      return m_defaultCommandHandler->getInterface();
+    return nullptr;
   }
 
   /**
@@ -945,7 +952,10 @@ namespace PLEXIL {
    * @param stateName The state.
    */
   InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
-    return getLookupHandler(stateName)->getInterface();
+    AdapterConfiguration::LookupHandler *handler = getLookupHandler(stateName);
+    if(handler)
+      return handler->getInterface();
+    return nullptr;
   }
 
   /**
@@ -954,7 +964,9 @@ namespace PLEXIL {
             May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
-    return m_defaultLookupHandler->getInterface();
+    if(m_defaultLookupHandler)
+      return m_defaultLookupHandler->getInterface();
+    return nullptr;
   }
 
   /**
