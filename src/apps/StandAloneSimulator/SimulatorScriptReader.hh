@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,6 @@ public:
   virtual ~SimulatorScriptReader();
 
   bool readScript(const std::string& fName, bool telemetry=false);
-
-  // Deprecated
-  bool readCommandScript(const std::string& fName);
-  bool readTelemetryScript(const std::string& fName);
 
 private:
 

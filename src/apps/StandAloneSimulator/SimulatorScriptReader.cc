@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,16 +46,6 @@ SimulatorScriptReader::SimulatorScriptReader(ResponseManagerMap& map,
 
 SimulatorScriptReader::~SimulatorScriptReader()
 {
-}
-
-bool SimulatorScriptReader::readCommandScript(const std::string& fName)
-{
-  return readScript(fName);
-}
-
-bool SimulatorScriptReader::readTelemetryScript(const std::string& fName)
-{
-  return readScript(fName, true);
 }
 
 bool SimulatorScriptReader::readScript(const std::string& fName,
