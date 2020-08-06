@@ -54,7 +54,7 @@ public class ForNodeModel extends NodeModel {
 			}
 		}
 		
-		dsb.append(condition, "; ", update, " ) {\n", aux.decompile(indentLevel+1));
+		dsb.append(condition, "; ", update.substring(0, update.length()-1), " ) {\n", aux.decompile(indentLevel+1));
 		dsb.addBlockCloser(indentLevel);
 		return dsb.toString();
 	}

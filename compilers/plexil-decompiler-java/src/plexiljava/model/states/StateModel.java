@@ -23,7 +23,7 @@ public class StateModel extends TypedNodeModel {
 	public String decompile(int indentLevel) {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append(getQuality("NodeRef").getValue(), ".status == ", type);
+		dsb.append(getQuality("NodeRef").getValue(), ".state == ", type);
 		return dsb.toString();
 	}
 	
