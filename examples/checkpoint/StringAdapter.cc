@@ -137,12 +137,19 @@ void StringAdapter::executeCommand(Command *cmd)
 
   // NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
   if (name == "ToString"){
-    if(args.size()!=1){
+    if(args.size()==0){
       retval = Unknown;
       cerr<<"Invalid number of arguments to "<<name<<endl;
     }
-    else{
+    else if (args.size()==1){
       retval = args[0].valueToString();
+    }
+    else{
+      string s = "";
+      for(vector<Value>::const_iterator t = args.begin(); t!=args.end(); ++t){
+	s.append(t->valueToString());
+      }
+      retval = s;
     }
   }
   else if (name == "StringToInteger"){
