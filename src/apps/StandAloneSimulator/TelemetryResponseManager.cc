@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@ TelemetryResponseManager::TelemetryResponseManager(const std::string& id)
     m_LastResponse(NULL)
 {
   debugMsg("TelemetryResponseManager:constructor", " " << id);
-  // Counter starts from 0 for telemetry
-  m_Counter = 0;
 }
 
 TelemetryResponseManager::~TelemetryResponseManager()
@@ -55,10 +53,25 @@ const ResponseBase* TelemetryResponseManager::getLastResponse() const
   return m_LastResponse;
 }
 
-void TelemetryResponseManager::addResponse(ResponseBase* resp, int cmdIndex)
+void TelemetryResponseManager::addResponse(ResponseBase* resp, int /* cmdIndex */)
 {
-  ResponseMessageManager::addResponse(resp, cmdIndex);
-  m_Counter++;
+  checkError(resp != NULL,
+             "TelemetryResponseManager::addResponse: response is null!");
+
+  resp->setManager(this);
+
+  // Insert ordered by delay
+  timeval const &delay = resp->getDelay();
+  debugMsg("TelemetryResponseManager:addResponse",
+           " scheduling " << this->m_Identifier << " at delay "
+           << delay.tv_sec << '.' << delay.tv_usec);
+  m_Queue[delay] = resp;
+  // Set default response to the initial (0 delay) value
+  if (delay.tv_sec == 0 && delay.tv_usec == 0) {
+    debugMsg("TelemetryResponseManager:addResponse",
+             " setting default response for " << resp->getName());
+    this->m_DefaultResponse = resp;
+  }
 }
 
 /**
@@ -67,11 +80,12 @@ void TelemetryResponseManager::addResponse(ResponseBase* resp, int cmdIndex)
 
 void TelemetryResponseManager::scheduleInitialEvents(Simulator* sim)
 {
-  debugMsg("TelemetryResponseManager:scheduleInitialEvents", " entered");
+  debugMsg("TelemetryResponseManager:scheduleInitialEvents",
+           " for " << this->m_Identifier << ", " << m_Queue.size() << " event(s)");
   // Set the default (time zero) response as the current value.
-  m_LastResponse = m_DefaultResponse;
-  for (IndexResponseMap::const_iterator it = m_CmdIdToResponse.begin();
-       it != m_CmdIdToResponse.end();
+  m_LastResponse = this->m_DefaultResponse;
+  for (TelemetryQueue::const_iterator it = m_Queue.begin();
+       it != m_Queue.end();
        ++it) {
     const ResponseBase* base = it->second;
     checkError(base != NULL,
@@ -90,6 +104,6 @@ void TelemetryResponseManager::scheduleInitialEvents(Simulator* sim)
 void TelemetryResponseManager::notifyMessageSent(const ResponseBase* resp)
 {
   checkError(resp->getManager() == this,
-	     "TelemetryResponseManager::notifyMessageSent: notified wrong manager!");
+             "TelemetryResponseManager::notifyMessageSent: notified wrong manager!");
   m_LastResponse = resp;
 }

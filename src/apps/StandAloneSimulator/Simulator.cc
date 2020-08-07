@@ -48,7 +48,6 @@
 Simulator::Simulator(CommRelayBase* commRelay, ResponseManagerMap& map) : 
   m_CommRelay(commRelay),
   m_TimingService(),
-  m_Mutex(),
   m_Agenda(makeAgenda()),
   m_CmdToRespMgr(map),
   m_SimulatorThread((pthread_t) 0),
@@ -371,16 +370,25 @@ void Simulator::handleWakeUp()
   while (!m_Agenda->empty()) {
     timeval responseTime;
 	ResponseMessage* resp = m_Agenda->getNextResponse(responseTime);
+    checkError(resp != NULL,
+               "Simulator:handleWakeup: Agenda returned NULL for getNextResponse")
+    debugMsg("Simulator:handleWakeUp", " got response " << resp->getName()
+             << " with time of "
+             << responseTime.tv_sec << '.' << responseTime.tv_usec);
     if (responseTime > now)
       break;
     
     m_Agenda->pop();
+    debugMsg("Simulator:handleWakeUp", " got past m_Agenda->pop()");
     m_CommRelay->sendResponse(resp);
+    debugMsg("Simulator:handleWakeUp", " got past m_CommRelay->sendResponse()");
     ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
     manager->notifyMessageSent(resp->getResponseBase());
     debugMsg("Simulator:handleWakeUp", " Sent response");
     // delete resp; // handled by comm relay
   }
+
+  debugMsg("Simulator:handleWakeUp", " done sending responses for now");
 
   //
   // Schedule next wakeup, if any

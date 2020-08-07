@@ -29,7 +29,6 @@
 #include "simdefs.hh"
 #include "SimulatorScriptReader.hh"
 #include "TimingService.hh"
-#include "ThreadMutex.hh"
 
 class Agenda;
 class CommRelayBase;
@@ -62,6 +61,8 @@ public:
   //
   // API to comm relay
   //
+  // These member functions are called in IPC thread context.
+  //
 
   /**
    * @brief Schedules a response to the named command.
@@ -79,6 +80,7 @@ public:
   ResponseMessage* getLookupNowResponse(const std::string& stateName, void* uniqueId) const;
 
   // *** Called by TelemetryResponseManager::scheduleInitialEvents() ***
+  // otherwise it would be private
 
   /**
    * @brief Schedules a message to be sent after an interval.
@@ -124,7 +126,6 @@ private:
 
   CommRelayBase* m_CommRelay;
   TimingService m_TimingService;
-  PLEXIL::ThreadMutex m_Mutex;
 
   Agenda *m_Agenda;
   ResponseManagerMap& m_CmdToRespMgr;

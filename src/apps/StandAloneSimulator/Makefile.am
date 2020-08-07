@@ -31,15 +31,16 @@ libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
  -I$(top_srcdir)/interfaces/IpcUtils \
  -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
-include_HEADERS = Agenda.hh CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
- ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh \
- Simulator.hh SimulatorScriptReader.hh TelemetryResponseManager.hh \
- TimingService.hh simdefs.hh
+include_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
+ GenericResponse.hh IpcCommRelay.hh ResponseBase.hh ResponseFactory.hh \
+ ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
+ SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh \
+ simdefs.hh
 
-libstandalonesimulator_la_SOURCES = Agenda.cc IpcCommRelay.cc \
- ResponseBase.cc ResponseFactory.cc ResponseMessage.cc ResponseMessageManager.cc \
- Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc \
- TimingService.cc
+libstandalonesimulator_la_SOURCES = Agenda.cc CommandResponseManager.cc \
+ IpcCommRelay.cc ResponseBase.cc ResponseFactory.cc ResponseMessage.cc \
+ ResponseMessageManager.cc Simulator.cc SimulatorScriptReader.cc \
+ TelemetryResponseManager.cc TimingService.cc
 
 bin_PROGRAMS = simulator
 

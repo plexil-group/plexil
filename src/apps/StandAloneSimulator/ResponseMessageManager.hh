@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,12 +23,11 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #ifndef RESPONSE_MESSAGE_MANAGER_HH
 #define RESPONSE_MESSAGE_MANAGER_HH
 
 #include "ResponseMessage.hh" // enum MsgType
-
-#include <map>
 
 class Simulator;
 
@@ -44,24 +43,17 @@ public:
 
   virtual ~ResponseMessageManager();
 
-  virtual MsgType getType();
-
-  // used only for LookupNow (i.e. telemetry managers)
-  virtual const ResponseBase* getLastResponse() const;
-
   const std::string& getIdentifier() const;
-
-  int getCounter() const;
-
-  virtual void addResponse(ResponseBase* resp, int cmdIndex);
-
-  const ResponseBase* getResponses(timeval& tDelay);
 
   const ResponseBase* getDefaultResponse();
 
   //
   // Virtual methods for extension
   //
+
+  virtual MsgType getType() = 0;
+
+  virtual void addResponse(ResponseBase* resp, int cmdIndex) = 0;
 
   /**
    * @brief Schedule the events dictated by this manager.
@@ -75,17 +67,21 @@ public:
    */
   virtual void notifyMessageSent(const ResponseBase* resp);
 
+  // used only for LookupNow (i.e. telemetry managers)
+  // Default method returns NULL.
+  virtual const ResponseBase* getLastResponse() const;
+
+  // Default method returns NULL.
+  virtual const ResponseBase* getResponses(timeval& tDelay);
+
 protected:
 
   //
   // Member variables shared with derived classes
   //
 
-  typedef std::map<int, const ResponseBase*> IndexResponseMap;
-  IndexResponseMap m_CmdIdToResponse;
   const std::string m_Identifier;
   const ResponseBase* m_DefaultResponse;
-  int m_Counter;
 
 private:
 

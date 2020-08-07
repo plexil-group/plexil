@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,21 @@
 #ifndef TELEMETRY_RESPONSE_MANAGER_HH
 #define TELEMETRY_RESPONSE_MANAGER_HH
 
+#include "plexil-config.h"
+
 #include "ResponseMessageManager.hh"
+
+// Probably going to need this
+#include "timeval-utils.hh"
+
+#include <map>
+
+#ifdef HAVE_SYS_TIME_H 
+#include <sys/time.h>
+#elif defined(__VXWORKS__)
+#include <time.h>
+#include <sys/times.h>
+#endif
 
 class TelemetryResponseManager : public ResponseMessageManager
 {
@@ -59,8 +73,11 @@ private:
   TelemetryResponseManager(const TelemetryResponseManager&);
   TelemetryResponseManager& operator=(const TelemetryResponseManager&);
 
+  // Queue of responses sorted by delay
+  typedef std::map<struct timeval, ResponseBase *> TelemetryQueue;
+
+  TelemetryQueue m_Queue;
   const ResponseBase* m_LastResponse;
 };
-
 
 #endif // TELEMETRY_RESPONSE_MANAGER_HH

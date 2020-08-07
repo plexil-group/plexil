@@ -23,59 +23,47 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+#ifndef COMMAND_RESPONSE_MANAGER_HH
+#define COMMAND_RESPONSE_MANAGER_HH
+
+#include "ResponseMessage.hh" // enum MsgType
 #include "ResponseMessageManager.hh"
-#include "ResponseMessage.hh"
-#include "ResponseBase.hh"
 
-#include <sys/time.h>
-
-ResponseMessageManager::ResponseMessageManager(const std::string& id)
-  : m_Identifier(id), 
-    m_DefaultResponse(NULL)
-{
-}
-
-ResponseMessageManager::~ResponseMessageManager()
-{
-  delete m_DefaultResponse;
-}
-
-const std::string& ResponseMessageManager::getIdentifier() const 
-{
-  return m_Identifier;
-}
-
-const ResponseBase* ResponseMessageManager::getDefaultResponse()
-{
-  return m_DefaultResponse;
-}
-
-//
-// Default methods
-//
+#include <map>
 
 /**
- * @brief Schedule the events dictated by this manager.
- * @note The default method does nothing.
- */ 
-void ResponseMessageManager::scheduleInitialEvents(Simulator* /* sim */)
-{
-}
-
-/**
- * @brief Report that this message has been sent.
- * @note The default method does nothing.
+ * @brief Class which represents the simulation script for the named command.
  */
-void ResponseMessageManager::notifyMessageSent(const ResponseBase* /* resp */)
-{
-}
 
-const ResponseBase* ResponseMessageManager::getLastResponse() const
+class CommandResponseManager : public ResponseMessageManager
 {
-  return NULL;
-}
+public:
+  CommandResponseManager(const std::string& id);
 
-const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
-{
-  return NULL;
-}
+  virtual ~CommandResponseManager();
+
+  virtual MsgType getType();
+
+  virtual void addResponse(ResponseBase* resp, int cmdIndex);
+
+  const ResponseBase* getResponses(timeval& tDelay);
+
+private:
+
+  //
+  // Member variables
+  //
+
+  typedef std::map<int, const ResponseBase*> IndexResponseMap;
+  IndexResponseMap m_CmdIdToResponse;
+  int m_Counter;
+
+  // Deliberately not implemented
+  CommandResponseManager();
+  CommandResponseManager(const CommandResponseManager&);
+  CommandResponseManager& operator=(const CommandResponseManager&);
+
+};
+
+#endif // COMMAND_RESPONSE_MANAGER_HH
