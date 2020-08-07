@@ -37,9 +37,9 @@
 #include <string.h>
 #endif
 
-static void usage(char const *argv0, std::ostream &stream = std::cout)
+static void usage(std::ostream &stream = std::cout)
 {
-  stream << "Usage: " << argv0 << " <script file>* [options ...]\n"
+  stream << "Usage: simulator <script file>* [options ...]\n"
          << " Options are:\n"
          << "  -n <agent name>                (default is \"RobotYellow\")\n"
          << "  -t <telemetry script file>\n"
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     if (argv[i][0] == '-') {
       // It's an option
       if (strcmp(argv[i], "-h") == 0) {
-        usage(argv[0]);
+        usage();
         return 0;
       }
       else if (strcmp(argv[i], "-d") == 0)
@@ -87,7 +87,7 @@ at the top of the script."
                   << argv[i] 
                   << "'." 
                   << std::endl;
-        usage(argv[0], std::cerr);
+        usage(std::cerr);
         return 1;
       }
     }
@@ -99,7 +99,7 @@ at the top of the script."
 
   if (scriptNames.empty() && telemetryScriptName.empty()) {
     std::cerr << "Error: no script(s) supplied" << std::endl;
-    usage(argv[0], std::cerr);
+    usage(std::cerr);
     return 1;
   }
 
