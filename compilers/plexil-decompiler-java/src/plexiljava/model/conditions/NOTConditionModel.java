@@ -13,7 +13,7 @@ public class NOTConditionModel extends ConditionModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append("!(", super.decompile(0), ")");
+		dsb.append("!(", super.translate(0), ")");
 		return dsb.toString();
 	}
 	

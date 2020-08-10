@@ -55,7 +55,6 @@ public class Decompiler {
 			if( !(response.startsWith("y") || response.startsWith("Y")) ) {
 				logger.setLevel(Level.INFO);
 				logger.info("Operation aborted.");
-				sc.close();
 				return; 
 			}
 			logger.setLevel(Level.INFO);
@@ -64,7 +63,6 @@ public class Decompiler {
 			logger.setLevel(Level.INFO);
 			logger.info("output_file: ");
 			outfileName = sc.nextLine();
-			sc.close();
 		}
 		if( infileName == null ) {
 			infileName = args[0];
@@ -80,10 +78,8 @@ public class Decompiler {
 			if( !(response.startsWith("y") || response.startsWith("Y")) ) {
 				logger.setLevel(Level.INFO);
 				logger.info("Operation aborted.");
-				sc.close();
 				return;
 			}
-			sc.close();
 		}
 		File infile = new File(infileName);
 		if( !infile.exists() ) {
@@ -100,10 +96,8 @@ public class Decompiler {
 			if( !(response.startsWith("y") || response.startsWith("Y")) ) {
 				logger.setLevel(Level.INFO);
 				logger.info("Operation aborted.");
-				sc.close();
 				return;
 			}
-			sc.close();
 		}
 		Element rootNode = XMLIO.readToNode(infile);
 		NodeModel planRoot = new NodeModel(new BaseModel(rootNode, null, 0));

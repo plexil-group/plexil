@@ -1,7 +1,5 @@
 package plexiljava.decompilation;
 
-import plexiljava.main.Constants;
-
 public class DecompilableStringBuilder {
 
 	public StringBuilder sb;
@@ -28,7 +26,7 @@ public class DecompilableStringBuilder {
 	
 	public DecompilableStringBuilder addIndent(int indentLevel) {
 		for( int f=0; f<indentLevel; f++ ) {
-			sb.append(Constants.INDENT);
+			sb.append("  ");
 		}
 		return this;
 	}

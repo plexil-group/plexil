@@ -10,6 +10,11 @@ public class ParameterModel extends NodeModel {
 	}
 	
 	@Override
+	public boolean verify() {
+		return hasQuality("Type");
+	}
+	
+	@Override
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		return getQuality("Type").decompile(indentLevel);
 	}

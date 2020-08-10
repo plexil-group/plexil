@@ -1,7 +1,6 @@
 package plexiljava.model.containers;
 
 import plexiljava.decompilation.DecompilableStringBuilder;
-import plexiljava.main.Constants;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.conditions.ConditionModel;
@@ -26,8 +25,8 @@ public class IfNodeModel extends NodeModel {
 		
 		BaseModel then = getChild(ThenNodeModel.class);
 		String ifCondition = then.getChild(StartConditionModel.class).decompile(0);
-		if( ifCondition.startsWith(Constants.DECOMPILE_IDENTIFIER_NODEREF) ) {
-			String id = ifCondition.substring(Constants.DECOMPILE_IDENTIFIER_NODEREF.length());
+		if( ifCondition.startsWith("@") ) {
+			String id = ifCondition.substring(1);
 			ifCondition = dereference(id);
 		}
 		

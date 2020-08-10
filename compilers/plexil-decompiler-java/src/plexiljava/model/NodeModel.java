@@ -33,6 +33,7 @@ import plexiljava.model.declarations.StateDeclarationModel;
 import plexiljava.model.expressions.ArrayElementModel;
 import plexiljava.model.expressions.BooleanRHSModel;
 import plexiljava.model.expressions.NumericRHSModel;
+import plexiljava.model.expressions.StringRHSModel;
 import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
 import plexiljava.model.lookups.LookupWithFrequencyModel;
@@ -60,6 +61,7 @@ import plexiljava.model.tokens.AnyParametersModel;
 import plexiljava.model.tokens.ArgumentsModel;
 import plexiljava.model.tokens.ArrayValueModel;
 import plexiljava.model.tokens.IndexModel;
+import plexiljava.model.tokens.IsKnownModel;
 import plexiljava.model.tokens.NameModel;
 import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.ReturnModel;
@@ -153,6 +155,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "NumericRHS":
 				children.add(new NumericRHSModel(child));
+				break;
+			case "StringRHS":
+				children.add(new StringRHSModel(child));
 				break;
 				/* Lookups */
 			case "LookupOnChange":
@@ -250,6 +255,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "Index":
 				children.add(new IndexModel(child));
+				break;
+			case "IsKnown":
+				children.add(new IsKnownModel(child));
 				break;
 			case "Name":
 				children.add(new NameModel(child));
@@ -352,7 +360,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 	
 	@Override
 	public boolean verify() {
-		return hasQuality("NodeId");
+		return /*hasQuality("NodeId");*/ true;
 	}
 	
 	@Override
