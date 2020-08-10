@@ -32,7 +32,7 @@ public class Decompiler {
 		for( String arg : args ) {
 			if( arg.startsWith("-") ) {
 				switch( arg.charAt(1) ) {
-					case 'v':
+					case 'd':
 						VERBOSE = true;
 						break;
 					case 'f':

@@ -22,7 +22,7 @@ public class XMLNavigator {
 	
 	// TODO: B/DFS Locate, Selected View
 	
-	public static final String FILENAME = "examples/basic/TestUnknown.plx";
+	public static final String FILENAME = "examples/basic/Gantt1.plx";
 	public static final String HELPDOC = "cd	Change Directory\nls	List Children\nattr	List Attributes";
 	
 	public static String getNodeString(Node node) {

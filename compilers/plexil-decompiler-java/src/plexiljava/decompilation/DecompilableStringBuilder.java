@@ -45,7 +45,7 @@ public class DecompilableStringBuilder {
 	}
 	
 	public DecompilableStringBuilder addBlockOpener() {
-		sb.append(":\n{\n");
+		sb.append(": {\n");
 		return this;
 	}
 	

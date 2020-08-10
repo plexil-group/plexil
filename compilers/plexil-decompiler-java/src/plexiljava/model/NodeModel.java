@@ -32,6 +32,7 @@ import plexiljava.model.declarations.InitialValueModel;
 import plexiljava.model.declarations.StateDeclarationModel;
 import plexiljava.model.expressions.ArrayElementModel;
 import plexiljava.model.expressions.BooleanRHSModel;
+import plexiljava.model.expressions.NodeTimepointValue;
 import plexiljava.model.expressions.NumericRHSModel;
 import plexiljava.model.expressions.StringRHSModel;
 import plexiljava.model.lookups.LookupNowModel;
@@ -65,6 +66,7 @@ import plexiljava.model.tokens.IsKnownModel;
 import plexiljava.model.tokens.NameModel;
 import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.ReturnModel;
+import plexiljava.model.tokens.ToleranceModel;
 
 public class NodeModel extends BaseModel implements Decompilable {
 		
@@ -147,11 +149,14 @@ public class NodeModel extends BaseModel implements Decompilable {
 				children.add(new StateDeclarationModel(child));
 				break;
 			/* Expressions */
+			case "ArrayElement":
+				children.add(new ArrayElementModel(child));
+				break;
 			case "BooleanRHS":
 				children.add(new BooleanRHSModel(child));
 				break;
-			case "ArrayElement":
-				children.add(new ArrayElementModel(child));
+			case "NodeTimepointValue":
+				children.add(new NodeTimepointValue(child));
 				break;
 			case "NumericRHS":
 				children.add(new NumericRHSModel(child));
@@ -191,13 +196,13 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "EQString":
 				children.add(new EQOperatorModel(child));
 				break;
-			case "GTE":
+			case "GE":
 				children.add(new GTEOperatorModel(child));
 				break;
 			case "GT":
 				children.add(new GTOperatorModel(child));
 				break;
-			case "LTE":
+			case "LE":
 				children.add(new LTEOperatorModel(child));
 				break;
 			case "LT":
@@ -267,6 +272,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "Return":
 				children.add(new ReturnModel(child));
+				break;
+			case "Tolerance":
+				children.add(new ToleranceModel(child));
 				break;
 			/* Structures */
 			case "Node":
