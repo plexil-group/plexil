@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2020-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,29 +24,36 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+#ifndef _H__Guard
+#define _H__Guard
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
+#include "ReadWriteLock.hh"
 
-#include "Value.hh"
-#include <string>
+enum Mode{read,write};
 
-// For SampleAdapter only
-#include "SampleAdapter.hh"
-
-
-
-void setSubscriber(SampleAdapter *i);
-
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const std::string& state_name, PLEXIL::Value val);
-
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
+// Implements a helper guard for a read-write lock
+class Guard{
+public:
+  Guard(ReadWriteLock &lock,Mode mode) : m_mode(mode), m_lock(lock) {
+    if(m_mode == read){
+      m_lock.begin_read();
+    }
+    else if (m_mode == write){
+      m_lock.begin_write();
+    }
+  }
+  
+  ~Guard(){
+    if(m_mode == read){
+      m_lock.end_read();
+    }
+    else if(m_mode == write){
+      m_lock.end_write();
+    }
+  }
+private:
+  Mode m_mode;
+  ReadWriteLock &m_lock;
+};
 
 #endif

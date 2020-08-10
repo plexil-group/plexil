@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,61 +24,74 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// This file defines an simple interface adapter for the example Plexil
-// application in this directory.  See src/app-framework/InterfaceAdaptor.hh for
+// This file defines an interface to set/lookup checkpoints which are persistent
+// between crashes. It also provides information about crashes
+
+// See src/app-framework/InterfaceAdapter.hh for
 // brief documentation of the inherited class members.  See the implementation
 // (.cc version) of this file for details on how this adapter works.
 
-#ifndef _H__SampleAdapter
-#define _H__SampleAdapter
+
+#ifndef _H__CheckpointAdapter
+#define _H__CheckpointAdapter
 
 #include "Command.hh"
-#include "InterfaceAdapter.hh"
 #include "Value.hh"
+#include "InterfaceAdapter.hh"
 
 
-class SampleAdapter : public PLEXIL::InterfaceAdapter
+class CheckpointAdapter : public PLEXIL::InterfaceAdapter
 {
-public:
-
-  SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
-
+public:  
+  CheckpointAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
+  // Using default destructor
+  
   bool initialize();
   bool start();
   bool stop();
   bool reset();
   bool shutdown();
 
-  virtual void executeCommand(PLEXIL::Command *cmd);
-  virtual void lookupNow (PLEXIL::State const& state, PLEXIL::StateCacheEntry &entry);
+  virtual void lookupNow (PLEXIL::State const &state, PLEXIL::StateCacheEntry &cacheEntry);
   virtual void subscribe(const PLEXIL::State& state);
   virtual void unsubscribe(const PLEXIL::State& state);
-  virtual void setThresholds(const PLEXIL::State& state, double hi, double lo);
-  virtual void setThresholds(const PLEXIL::State& state, int32_t hi, int32_t lo);
+  virtual void executeCommand(PLEXIL::Command *cmd);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
-  //
-
+  // Passes value onto executive, which makes no guarantees about non-modification so can't be const reference
   void propagateValueChange (const PLEXIL::State& state,
                              const std::vector<PLEXIL::Value>& vals) const;
 
-  void propagate (const PLEXIL::State& state, const std::vector<PLEXIL::Value>& value);
+  void receiveValue (const std::string& state_name,
+		     const PLEXIL::Value& val);
+  
+  void receiveValue (const std::string& state_name,
+		     const PLEXIL::Value& val,
+		     const PLEXIL::Value& arg);
+  
+  void receiveValue (const std::string& state_name,
+		     const PLEXIL::Value& val,
+		     const PLEXIL::Value& arg1,
+		     const PLEXIL::Value& arg2);
 
-  void receiveValue (const std::string& state_name, PLEXIL::Value val);
-  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg);
-  void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2);
+  void receiveCommandReceived(PLEXIL::Command* cmd);
+  void receiveCommandSuccess   (PLEXIL::Command* cmd);
 
 private:
-  // Deliberately private, delete is not C++98 compatible
-  SampleAdapter();
+  //Disallow copy, default constructor
+  CheckpointAdapter(const CheckpointAdapter&);
+  CheckpointAdapter & operator=(const CheckpointAdapter&);
+  CheckpointAdapter();
   
-  bool isStateSubscribed(const PLEXIL::State& state) const;
   std::set<PLEXIL::State> m_subscribedStates;
+  bool m_ok_on_exit;
+  bool m_flush_on_exit;
+
 };
 
 extern "C" {
-  void initSampleAdapter();
+  void initCheckpointAdapter();
 }
 
 #endif
