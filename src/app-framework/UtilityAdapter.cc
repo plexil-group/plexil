@@ -47,16 +47,16 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 bool UtilityAdapter::initialize()
 {
   g_configuration->registerCommandHandler("print", *this,
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_print),
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::print1),
       (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
   g_configuration->registerCommandHandler("pprint", *this, 
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_pprint),
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::pprint1),
       (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
   g_configuration->registerCommandHandler("printToString", *this, 
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_printToString),
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::printToString1),
       (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
   g_configuration->registerCommandHandler("pprintToString", *this, 
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::_pprintToString),
+      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::pprintToString1),
       (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
   debugMsg("UtilityAdapter", " initialized.");
   return true;
@@ -86,55 +86,30 @@ bool UtilityAdapter::shutdown()
   return true;
 }
 
-void UtilityAdapter::_print(Command *cmd) {
+void UtilityAdapter::print1(Command *cmd) {
   m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   print(cmd->getArgValues());
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
-void UtilityAdapter::_pprint(Command *cmd) {
+void UtilityAdapter::pprint1(Command *cmd) {
   m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   pprint(cmd->getArgValues());
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
-void UtilityAdapter::_printToString(Command *cmd) {
+void UtilityAdapter::printToString1(Command *cmd) {
   m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   m_execInterface.handleCommandReturn(cmd, printToString(cmd->getArgValues()));
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
-void UtilityAdapter::_pprintToString(Command *cmd) {
+void UtilityAdapter::pprintToString1(Command *cmd) {
   m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   m_execInterface.handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
-}
-
-void UtilityAdapter::executeCommand(Command * cmd) 
-{
-  const std::string& name = cmd->getName();
-  debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
-
-  if (name == "print") 
-    print(cmd->getArgValues());
-  else if (name == "pprint") 
-    pprint(cmd->getArgValues());
-  else if (name == "printToString")
-    m_execInterface.handleCommandReturn(cmd, printToString(cmd->getArgValues()));
-  else if (name == "pprintToString")
-    m_execInterface.handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
-  else {
-    std::cerr << "UtilityAdapter: invalid command "
-              << name << std::endl;
-    m_execInterface.handleCommandAck(cmd, COMMAND_FAILED);
-    m_execInterface.notifyOfExternalEvent();
-    return;
-  }
-
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }

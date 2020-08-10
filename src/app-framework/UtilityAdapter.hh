@@ -50,15 +50,15 @@ public:
   bool reset();
   bool shutdown();
 
-  void _print(Command *cmd);
+  void print1(Command *cmd);
 
-  void _pprint(Command *cmd);
+  void pprint1(Command *cmd);
 
-  void _printToString(Command *cmd);
+  void printToString1(Command *cmd);
 
-  void _pprintToString(Command *cmd);
+  void pprintToString1(Command *cmd);
 
-  void executeCommand(Command *cmd);
+  //void executeCommand(Command *cmd);
 
   void invokeAbort(Command *cmd);
 
