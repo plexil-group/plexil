@@ -1,28 +1,28 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "State.hh"
 #include "TestSupport.hh"
@@ -42,21 +42,54 @@ static bool testConstructorsAndAccessors()
 
   // Name only
   std::string const foo("Foo");
-  State named(foo);
+  State named = State(foo);
   assertTrue_1(!named.name().empty());
   assertTrue_1(named.parameters().empty());
   assertTrue_1(named.parameterCount() == 0);
   assertTrue_1(named.name() == foo);
 
+#if __cplusplus >= 201103L
+  // Move variant
+  State named2 = State(std::string(foo));
+  assertTrue_1(!named2.name().empty());
+  assertTrue_1(named2.parameters().empty());
+  assertTrue_1(named2.parameterCount() == 0);
+  assertTrue_1(named2.name() == foo);
+#endif
+
   // Name and value
   Value fortytwo((Integer) 42);
   std::string const goo("Goo");
-  State nameval(goo, fortytwo);
+  State nameval = State(goo, fortytwo);
   assertTrue_1(!nameval.name().empty());
   assertTrue_1(!nameval.parameters().empty());
   assertTrue_1(nameval.parameterCount() == 1);
   assertTrue_1(nameval.name() == goo);
   assertTrue_1(nameval.parameter(0) == fortytwo);
+
+#if __cplusplus >= 201103L
+  // Move variants
+  State nameval2 = State(std::string(goo), fortytwo);
+  assertTrue_1(!nameval2.name().empty());
+  assertTrue_1(!nameval2.parameters().empty());
+  assertTrue_1(nameval2.parameterCount() == 1);
+  assertTrue_1(nameval2.name() == goo);
+  assertTrue_1(nameval2.parameter(0) == fortytwo);
+
+  State nameval3 = State(goo, Value(fortytwo));
+  assertTrue_1(!nameval3.name().empty());
+  assertTrue_1(!nameval3.parameters().empty());
+  assertTrue_1(nameval3.parameterCount() == 1);
+  assertTrue_1(nameval3.name() == goo);
+  assertTrue_1(nameval3.parameter(0) == fortytwo);
+
+  State nameval4 = State(std::string(goo), Value(fortytwo));
+  assertTrue_1(!nameval4.name().empty());
+  assertTrue_1(!nameval4.parameters().empty());
+  assertTrue_1(nameval4.parameterCount() == 1);
+  assertTrue_1(nameval4.name() == goo);
+  assertTrue_1(nameval4.parameter(0) == fortytwo);
+#endif
 
   // Set up parameters
   Value too((Integer) 2);
@@ -64,7 +97,7 @@ static bool testConstructorsAndAccessors()
   std::string soo("Soo");
   Value sue(soo);
 
-  State test0("Foo", 3);
+  State test0 = State("Foo", 3);
   test0.setParameter(0, too);
   test0.setParameter(1, roo);
   test0.setParameter(2, sue);
@@ -80,7 +113,7 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(test0.parameterType(3) == UNKNOWN_TYPE);
 
   // Name and params
-  State test1(foo, 3);
+  State test1 = State(foo, 3);
   test1.setParameter(0, too);
   test1.setParameter(1, roo);
   test1.setParameter(2, sue);
@@ -94,6 +127,60 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(test1.parameter(2) == sue);
   assertTrue_1(!test1.isParameterKnown(3));
   assertTrue_1(test1.parameterType(3) == UNKNOWN_TYPE);
+
+  // Parameter vector
+  std::vector<Value> vec;
+  vec.push_back(too);
+  vec.push_back(roo);
+  vec.push_back(sue);
+
+  State vecTest = State(foo, vec);
+  
+  assertTrue_1(!vecTest.name().empty());
+  assertTrue_1(vecTest.name() == foo);
+  assertTrue_1(!vecTest.parameters().empty());
+  assertTrue_1(vecTest.parameterCount() == 3);
+  assertTrue_1(vecTest.parameter(0) == too);
+  assertTrue_1(vecTest.parameter(1) == roo);
+  assertTrue_1(vecTest.parameter(2) == sue);
+  assertTrue_1(!vecTest.isParameterKnown(3));
+  assertTrue_1(vecTest.parameterType(3) == UNKNOWN_TYPE);
+
+#if __cplusplus >= 201103L
+  // Move variants
+  State vecMoveTest1 = State(std::string(foo), vec);
+  assertTrue_1(!vecMoveTest1.name().empty());
+  assertTrue_1(vecMoveTest1.name() == foo);
+  assertTrue_1(!vecMoveTest1.parameters().empty());
+  assertTrue_1(vecMoveTest1.parameterCount() == 3);
+  assertTrue_1(vecMoveTest1.parameter(0) == too);
+  assertTrue_1(vecMoveTest1.parameter(1) == roo);
+  assertTrue_1(vecMoveTest1.parameter(2) == sue);
+  assertTrue_1(!vecMoveTest1.isParameterKnown(3));
+  assertTrue_1(vecMoveTest1.parameterType(3) == UNKNOWN_TYPE);
+
+  State vecMoveTest2 = State(foo, std::vector<Value>(vec));
+  assertTrue_1(!vecMoveTest2.name().empty());
+  assertTrue_1(vecMoveTest2.name() == foo);
+  assertTrue_1(!vecMoveTest2.parameters().empty());
+  assertTrue_1(vecMoveTest2.parameterCount() == 3);
+  assertTrue_1(vecMoveTest2.parameter(0) == too);
+  assertTrue_1(vecMoveTest2.parameter(1) == roo);
+  assertTrue_1(vecMoveTest2.parameter(2) == sue);
+  assertTrue_1(!vecMoveTest2.isParameterKnown(3));
+  assertTrue_1(vecMoveTest2.parameterType(3) == UNKNOWN_TYPE);
+
+  State vecMoveTest3 = State(std::string(foo), std::vector<Value>(vec));
+  assertTrue_1(!vecMoveTest3.name().empty());
+  assertTrue_1(vecMoveTest3.name() == foo);
+  assertTrue_1(!vecMoveTest3.parameters().empty());
+  assertTrue_1(vecMoveTest3.parameterCount() == 3);
+  assertTrue_1(vecMoveTest3.parameter(0) == too);
+  assertTrue_1(vecMoveTest3.parameter(1) == roo);
+  assertTrue_1(vecMoveTest3.parameter(2) == sue);
+  assertTrue_1(!vecMoveTest3.isParameterKnown(3));
+  assertTrue_1(vecMoveTest3.parameterType(3) == UNKNOWN_TYPE);
+#endif
 
   // Copy
   State mtclone(mt);
