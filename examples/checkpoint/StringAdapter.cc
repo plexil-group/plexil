@@ -57,85 +57,14 @@ static Value Unknown;
 ///////////////////////////// State support //////////////////////////////////
 
 // Queries the system for the value of a state and its arguments.
-// No Lookups are supported
-static Value fetch (const string& state_name, const vector<Value>& args)
-{
-  debugMsg("StringAdapter:fetch",
-           "Fetch called on " << state_name << " with " << args.size() << " args");
-  return Unknown;
-}
-
-
-
-///////////////////////////// Member functions //////////////////////////////////
-
-
-StringAdapter::StringAdapter(AdapterExecInterface& execInterface,
-                             const pugi::xml_node& configXml) :
-    InterfaceAdapter(execInterface, configXml)
-{
-  debugMsg("StringAdapter", " created.");
-}
-
-bool StringAdapter::initialize()
-{
-  g_configuration->defaultRegisterAdapter(this);
-
-  g_configuration->registerCommandInterface("ToString", this);
-  g_configuration->registerCommandInterface("StringToInteger", this);
-  g_configuration->registerCommandInterface("StringToReal", this);
-  g_configuration->registerCommandInterface("StringToBoolean", this);
-  
-  g_configuration->registerCommandInterface("substr", this);
-  g_configuration->registerCommandInterface("strlwr", this);
-  g_configuration->registerCommandInterface("strupr", this);
-  g_configuration->registerCommandInterface("strindex", this);
-  g_configuration->registerCommandInterface("find_first_of", this);
-  g_configuration->registerCommandInterface("find_last_of", this);
-  
-  debugMsg("StringAdapter", " initialized.");
-  return true;
-}
-
-bool StringAdapter::start()
-{
-  debugMsg("StringAdapter", " started.");
-  return true;
-}
-
-bool StringAdapter::stop()
-{
-  debugMsg("StringAdapter", " stopped.");
-  return true;
-}
-
-bool StringAdapter::reset()
-{
-  debugMsg("StringAdapter", " reset.");
-  return true;
-}
-
-bool StringAdapter::shutdown()
-{
-  debugMsg("StringAdapter", " shut down.");
-  return true;
-}
-
-
-// Sends a command (as invoked in a Plexil command node) to the system and sends
-// the status, and return value if applicable, back to the executive.
 //
-void StringAdapter::executeCommand(Command *cmd)
-{
-  const string &name = cmd->getName();
-  debugMsg("StringAdapter", "Received executeCommand for " << name);  
-
-  
+static Value fetch (const string& name, const vector<Value>& args){
+  debugMsg("CheckpointAdapter:fetch",
+           "Fetch called on " << name << " with " << args.size() << " args");
+ 
   Value retval = Unknown;
-  const vector<Value>& args = cmd->getArgValues();
 
-
-  // NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
+// NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
   if (name == "ToString"){
     if(args.size()==0){
       retval = Unknown;
@@ -302,6 +231,99 @@ void StringAdapter::executeCommand(Command *cmd)
   else{ 
     cerr << error << "invalid command: " << name << endl;
   }
+  debugMsg("StringAdapter:fetch", "Fetch returning " << retval);
+  return retval;
+}
+
+
+///////////////////////////// Member functions //////////////////////////////////
+
+
+StringAdapter::StringAdapter(AdapterExecInterface& execInterface,
+                             const pugi::xml_node& configXml) :
+    InterfaceAdapter(execInterface, configXml)
+{
+  debugMsg("StringAdapter", " created.");
+}
+
+bool StringAdapter::initialize()
+{
+  g_configuration->defaultRegisterAdapter(this);
+
+  g_configuration->registerCommandInterface("ToString", this);
+  g_configuration->registerCommandInterface("StringToInteger", this);
+  g_configuration->registerCommandInterface("StringToReal", this);
+  g_configuration->registerCommandInterface("StringToBoolean", this);
+  
+  g_configuration->registerCommandInterface("substr", this);
+  g_configuration->registerCommandInterface("strlwr", this);
+  g_configuration->registerCommandInterface("strupr", this);
+  g_configuration->registerCommandInterface("strindex", this);
+  g_configuration->registerCommandInterface("find_first_of", this);
+  g_configuration->registerCommandInterface("find_last_of", this);
+
+
+  g_configuration->registerLookupInterface("ToString", this);
+  g_configuration->registerLookupInterface("StringToInteger", this);
+  g_configuration->registerLookupInterface("StringToReal", this);
+  g_configuration->registerLookupInterface("StringToBoolean", this);
+  
+  g_configuration->registerLookupInterface("substr", this);
+  g_configuration->registerLookupInterface("strlwr", this);
+  g_configuration->registerLookupInterface("strupr", this);
+  g_configuration->registerLookupInterface("strindex", this);
+  g_configuration->registerLookupInterface("find_first_of", this);
+  g_configuration->registerLookupInterface("find_last_of", this);
+  
+  debugMsg("StringAdapter", " initialized.");
+  return true;
+}
+
+bool StringAdapter::start()
+{
+  debugMsg("StringAdapter", " started.");
+  return true;
+}
+
+bool StringAdapter::stop()
+{
+  debugMsg("StringAdapter", " stopped.");
+  return true;
+}
+
+bool StringAdapter::reset()
+{
+  debugMsg("StringAdapter", " reset.");
+  return true;
+}
+
+bool StringAdapter::shutdown()
+{
+  debugMsg("StringAdapter", " shut down.");
+  return true;
+}
+
+
+void StringAdapter::lookupNow (const State& state, StateCacheEntry &entry)
+{
+  entry.update(fetch(state.name(), state.parameters()));
+}
+
+
+
+// Sends a command (as invoked in a Plexil command node) to the system and sends
+// the status, and return value if applicable, back to the executive.
+// This uses the same lookup, but is also implemented as a command for
+// convenience and backwards compatibiity. TODO: remove?
+
+void StringAdapter::executeCommand(Command *cmd)
+{
+  const string &name = cmd->getName();
+  const vector<Value>& args = cmd->getArgValues();
+  debugMsg("StringAdapter", "Received executeCommand for " << name);  
+
+  
+  Value retval = fetch(name,args);
 
   
   // This sends a command handle back to the executive.
@@ -313,10 +335,6 @@ void StringAdapter::executeCommand(Command *cmd)
   m_execInterface.notifyOfExternalEvent();
 }
 
-void StringAdapter::lookupNow (const State& state, StateCacheEntry &entry)
-{
-  entry.update(fetch(state.name(), state.parameters()));
-}
 
 
 // Necessary boilerplate

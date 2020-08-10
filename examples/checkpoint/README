@@ -19,6 +19,7 @@ and the other for persistent plans. All files other than StringAdapter.hh and
 StringAdapter.cc are used for the CheckpointAdapter.
 
 StringAdapter contains a number of useful string manipulation functions.
+These are available as Lookups or Commands.
 
 
 CheckpointAdapter allows writing persistent checkpoints such that following
@@ -60,5 +61,6 @@ To fully test PanoramaCrashTest, run it four times. The first two will crash,
 and the second two will succeed, and each time, new checkpoints will be passed.
 
 StringOperations exercises the StringAdapter and demonstrates its functionality.
+StringOperationsLookup does the same with lookups.
 
 The adapters will be moved to more appropriate locations in a later version.

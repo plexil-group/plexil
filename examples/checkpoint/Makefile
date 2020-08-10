@@ -25,7 +25,7 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # TODO: figure out why fPIC is necessary in c++98
-CXXFLAGS= -std=c++98 -pedantic-errors -fPIC
+CXXFLAGS= -std=c++98 -g -pedantic-errors -fPIC
 LIBRARY = CheckpointAdapter
 SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
 INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh data_support.hh Guard.hh
@@ -39,3 +39,7 @@ test1:
 test2:
 	plexilc plans/StringOperations.ple
 	plexilexec -p plans/StringOperations.plx
+
+test2:
+	plexilc plans/StringOperationsLookup.ple
+	plexilexec -p plans/StringOperationsLookup.plx

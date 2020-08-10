@@ -15,7 +15,7 @@ class SimpleSaveManager : public SaveManager
 {
 public:
   
-  SimpleSaveManager() : m_have_read(false), m_file_directory("./") {}
+  SimpleSaveManager() : m_have_read(false), m_file_directory("./"), m_write_enqueued(false) {}
   ~SimpleSaveManager(){
     // Pointers in m_queued_commands are managed elsewhere
   }
