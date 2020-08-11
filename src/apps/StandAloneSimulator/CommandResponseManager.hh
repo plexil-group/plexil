@@ -28,26 +28,29 @@
 #define COMMAND_RESPONSE_MANAGER_HH
 
 #include "ResponseMessage.hh" // enum MsgType
-#include "ResponseMessageManager.hh"
 
 #include <map>
+
+struct GenericResponse;
 
 /**
  * @brief Class which represents the simulation script for the named command.
  */
 
-class CommandResponseManager : public ResponseMessageManager
+class CommandResponseManager
 {
 public:
   CommandResponseManager(const std::string& id);
 
   virtual ~CommandResponseManager();
 
-  virtual MsgType getType();
+  const std::string& getIdentifier() const;
 
-  virtual void addResponse(ResponseBase* resp, int cmdIndex);
+  const GenericResponse* getDefaultResponse();
 
-  const ResponseBase* getResponses(timeval& tDelay);
+  void addResponse(GenericResponse* resp, int cmdIndex);
+
+  const GenericResponse* getResponses(timeval& tDelay);
 
 private:
 
@@ -55,8 +58,10 @@ private:
   // Member variables
   //
 
-  typedef std::map<int, const ResponseBase*> IndexResponseMap;
+  const std::string m_Identifier;
+  typedef std::map<int, const GenericResponse*> IndexResponseMap;
   IndexResponseMap m_CmdIdToResponse;
+  const GenericResponse* m_DefaultResponse;
   int m_Counter;
 
   // Deliberately not implemented

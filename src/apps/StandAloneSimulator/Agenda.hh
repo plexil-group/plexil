@@ -31,22 +31,20 @@
 
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
-#elif defined(__VXWORKS__)
-#include <time.h>
-#include <sys/times.h>
 #endif
 
 /**
  * @class Agenda The schedule of simulator responses to send.
  */
 
-class ResponseMessage;
+struct ResponseMessage;
 
 class Agenda
 {
 public:
   virtual size_t size() const = 0;
   virtual bool empty() const = 0;
+  virtual void setSimulatorStartTime(timeval const &tym) = 0;
   virtual timeval nextResponseTime() const = 0;
   virtual ResponseMessage *getNextResponse(timeval &tym) = 0;
   virtual void pop() = 0;

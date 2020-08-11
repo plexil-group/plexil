@@ -24,9 +24,11 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Simulator.hh"
+#include "Agenda.hh"
 #include "IpcCommRelay.hh"
-#include "PlexilSimResponseFactory.hh"
+#include "Simulator.hh"
+#include "SimulatorScriptReader.hh"
+
 #include "Debug.hh"
 
 #include <fstream>
@@ -123,23 +125,24 @@ at the top of the script."
   // Read the scripts
   //
 
-  ResponseManagerMap mgrMap;
+  ResponseManagerMap *mgrMap = new ResponseManagerMap();
+  Agenda *agenda = makeAgenda();
   {
-    // These objects can go away as soon as we finish reading scripts.
-    PlexilSimResponseFactory respFactory;
-    SimulatorScriptReader rdr(mgrMap, respFactory);
+    // The script reader can go away as soon as we finish reading scripts.
+    SimulatorScriptReader *rdr = makeScriptReader(mgrMap, agenda);
     for (std::vector<std::string>::const_iterator it = scriptNames.begin();
          it != scriptNames.end();
          it++) {
-      debugMsg("PlexilSimulator",  
-               " reading script " << *it);
-      rdr.readScript(*it);
+      debugMsg("PlexilSimulator", " reading script " << *it);
+      rdr->readScript(*it);
     }
     if (!telemetryScriptName.empty()) {
       debugMsg("PlexilSimulator",  
                " reading telemetry script " << telemetryScriptName);
-      rdr.readScript(telemetryScriptName, true);
+      rdr->readScript(telemetryScriptName, true);
     }
+
+    delete rdr;
   }
 
   //
@@ -148,11 +151,14 @@ at the top of the script."
   
   // Comm Relay has to be destroyed before we can nuke the simulator
   IpcCommRelay* plexilRelay = new IpcCommRelay(agentName, centralhost);
-  Simulator mySimulator(plexilRelay, mgrMap);
+
+  // Simulator instance is responsible for deleting map, agenda
+  Simulator *mySimulator = makeSimulator(plexilRelay, mgrMap, agenda);
 
   // Run until interrupted
-  mySimulator.simulatorTopLevel();
+  mySimulator->simulatorTopLevel();
 
   delete plexilRelay;
+  delete mySimulator;
   return 0;
 }

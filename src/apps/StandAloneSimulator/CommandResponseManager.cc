@@ -25,33 +25,36 @@
 */
 #include "CommandResponseManager.hh"
 #include "ResponseMessage.hh"
-#include "ResponseBase.hh"
+#include "GenericResponse.hh"
 
 #include "Debug.hh"
 #include "Error.hh"
 
-#include <sys/time.h>
-
 CommandResponseManager::CommandResponseManager(const std::string& id)
-  : ResponseMessageManager(id), 
+  : m_Identifier(id), 
     m_Counter(1)
 {
 }
 
 CommandResponseManager::~CommandResponseManager()
 {
-  for (std::map<int, const ResponseBase*>::iterator iter = m_CmdIdToResponse.begin();
+  for (std::map<int, const GenericResponse*>::iterator iter = m_CmdIdToResponse.begin();
        iter != m_CmdIdToResponse.end(); 
        ++iter)
     delete iter->second;
 }
 
-MsgType CommandResponseManager::getType()
+const std::string &CommandResponseManager::getIdentifier() const
 {
-  return MSG_COMMAND;
+  return m_Identifier;
 }
 
-void CommandResponseManager::addResponse(ResponseBase* resp, int cmdIndex)
+const GenericResponse *CommandResponseManager::getDefaultResponse()
+{
+  return m_DefaultResponse;
+}
+
+void CommandResponseManager::addResponse(GenericResponse* resp, int cmdIndex)
 {
   // Make sure the command index had not been specified before.
   if (m_CmdIdToResponse.find(cmdIndex) != m_CmdIdToResponse.end())
@@ -64,33 +67,29 @@ void CommandResponseManager::addResponse(ResponseBase* resp, int cmdIndex)
       return;
     }
 
-  resp->setManager(this);
-  if (cmdIndex == 0)
-    {
-      m_DefaultResponse = resp;
-    }
+  if (cmdIndex == 0) {
+    m_DefaultResponse = resp;
+  }
   else
     m_CmdIdToResponse[cmdIndex] = resp;
 }
 
-const ResponseBase* CommandResponseManager::getResponses(timeval& tDelay)
+const GenericResponse* CommandResponseManager::getResponses(timeval& tDelay)
 {
   IndexResponseMap::iterator iter;
-  const ResponseBase* respBase;
-  if ((iter = m_CmdIdToResponse.find(m_Counter)) == m_CmdIdToResponse.end())
-    {
-      debugMsg("CommandResponseManager:getResponses",
-           " for " << m_Identifier << ": Getting default response");
-      respBase = m_DefaultResponse;
-    }
-  else
-    {
-      debugMsg("CommandResponseManager:getResponses",
-           " for " << m_Identifier << ": Using response for index " << m_Counter);
-      respBase = iter->second;
-    }
+  const GenericResponse* respBase;
+  if ((iter = m_CmdIdToResponse.find(m_Counter)) == m_CmdIdToResponse.end()) {
+    debugMsg("CommandResponseManager:getResponses",
+             " for " << m_Identifier << ": Getting default response");
+    respBase = m_DefaultResponse;
+  }
+  else {
+    debugMsg("CommandResponseManager:getResponses",
+             " for " << m_Identifier << ": Using response for index " << m_Counter);
+    respBase = iter->second;
+  }
   debugMsg("CommandResponseManager:getResponses",
-       " " << m_Identifier << ", count: " << m_Counter);
+           " " << m_Identifier << ", count: " << m_Counter);
   ++m_Counter;
 
   // This shouldn't happen, but check anyway just in case
@@ -98,10 +97,9 @@ const ResponseBase* CommandResponseManager::getResponses(timeval& tDelay)
                 "CommandResponseManager::getResponses: Internal error: No response found for \""
                 << m_Identifier << "\"");
 
-  if (respBase->getNumberOfResponses() > 0)
-    {
-      tDelay = respBase->getDelay();
-      return respBase;
-    }
+  if (respBase->numberOfResponses > 0) {
+    tDelay = respBase->delay;
+    return respBase;
+  }
   return NULL;
 }

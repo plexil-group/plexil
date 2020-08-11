@@ -35,10 +35,13 @@
 #include "ThreadMutex.hh"
 #include "timeval-utils.hh"
 
-#include <map>
+#include <deque>
 
 using PLEXIL::ThreadMutex;
 using PLEXIL::ThreadMutexGuard;
+
+typedef std::pair<timeval, ResponseMessage *> AgendaEntry;
+typedef std::deque<AgendaEntry> AgendaQueue;
 
 class AgendaImpl : public Agenda
 {
@@ -54,10 +57,8 @@ private:
   //
   // Member variables
   //
-  typedef std::multimap<timeval, ResponseMessage *> AgendaMap;
-  typedef std::pair<timeval, ResponseMessage *> AgendaMapEntry;
 
-  AgendaMap m_map;
+  AgendaQueue m_queue;
   ThreadMutex *m_mutex;
 
 public:
@@ -67,9 +68,9 @@ public:
     {
       ThreadMutexGuard g(*m_mutex);
       // Delete all the ResponseMessage instances
-      while (!m_map.empty()) {
-        delete m_map.begin()->second;
-        m_map.erase(m_map.begin());
+      while (!m_queue.empty()) {
+        delete m_queue.front().second;
+        m_queue.pop_front();
       }
     }
     delete m_mutex;
@@ -78,48 +79,64 @@ public:
   size_t size() const
   {
     ThreadMutexGuard g(*m_mutex);
-    return m_map.size();
+    return m_queue.size();
   }
 
   bool empty() const
   {
     ThreadMutexGuard g(*m_mutex);
-    return m_map.empty();
+    return m_queue.empty();
+  }
+
+  // Adds its parameter to every ResponseMessage in the queue.
+  void setSimulatorStartTime(timeval const &tym)
+  {
+    ThreadMutexGuard g(*m_mutex);
+    // If queue was sorted on entry, it'll remain sorted at exit.
+    for (AgendaQueue::iterator it = m_queue.begin();
+         it != m_queue.end();
+         it++)
+      it->first = it->first + tym;
   }
     
   // Only valid when not empty.
   timeval nextResponseTime() const
   {
+    static struct timeval sl_zero = {0, 0};
     ThreadMutexGuard g(*m_mutex);
-    if (m_map.empty())
-      return timeval{0,0};
-    return m_map.begin()->first;
+    if (m_queue.empty())
+      return sl_zero;
+    return m_queue.front().first;
   }
 
   ResponseMessage *getNextResponse(timeval &tym)
   {
     ThreadMutexGuard g(*m_mutex);
-    if (m_map.empty()) {
+    if (m_queue.empty()) {
       tym.tv_sec = 0;
       tym.tv_usec = 0;
       return NULL;
     }
 
-    tym = m_map.begin()->first;
-    return m_map.begin()->second;
+    tym = m_queue.front().first;
+    return m_queue.front().second;
   }
 
   void pop()
   {
     ThreadMutexGuard g(*m_mutex);
-    if (!m_map.empty())
-      m_map.erase(m_map.begin());
+    if (!m_queue.empty())
+      m_queue.pop_front();
   }
   
+  // Insert into list in earliest-first order.
   void scheduleResponse(timeval tym, ResponseMessage *msg)
   {
     ThreadMutexGuard g(*m_mutex);
-    m_map.insert(AgendaMapEntry(tym, msg));
+    AgendaQueue::iterator it = m_queue.begin();
+    while (it != m_queue.end() && it->first < tym)
+      ++it;
+    m_queue.insert(it, AgendaEntry(tym, msg));
   }
   
 };

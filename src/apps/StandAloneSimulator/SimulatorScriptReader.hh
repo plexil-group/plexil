@@ -26,41 +26,32 @@
 #ifndef SIMULATOR_SCRIPT_READER_HH
 #define SIMULATOR_SCRIPT_READER_HH
 
-#include <string>
 #include "simdefs.hh"
 
-class ResponseFactory;
+class Agenda;
 
 /**
- * @brief SimulatorScriptReader initializes the response managers used by the simulator.
+ * @brief SimulatorScriptReader initializes the response managers and agenda
+ *        used by the simulator.
  */
 
 class SimulatorScriptReader
 {
 public:
-  SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
-  virtual ~SimulatorScriptReader();
+  virtual ~SimulatorScriptReader()
+  {
+  }
 
-  bool readScript(const std::string& fName, bool telemetry=false);
+  virtual bool readScript(const std::string &fName, bool telemetry = false) = 0;
 
-private:
+protected:
+  SimulatorScriptReader()
+  {
+  }
 
-  // Deliberately not implemented
-  SimulatorScriptReader();
-  SimulatorScriptReader(const SimulatorScriptReader&);
-  SimulatorScriptReader& operator=(const SimulatorScriptReader&);
-
-  //
-  // Helpers
-  //
-  ResponseMessageManager* ensureResponseMessageManager(const std::string& name,
-						       bool telemetry);
-  virtual ResponseMessageManager* constructResponseMessageManager(const std::string& name,
-								  bool telemetry);
-
-  ResponseManagerMap& m_map;
-  ResponseFactory& m_factory;
 };
 
+SimulatorScriptReader *makeScriptReader(ResponseManagerMap *map,
+                                        Agenda *agenda);
 
 #endif // SIMULATOR_SCRIPT_READER_HH
