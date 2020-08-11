@@ -222,7 +222,7 @@ static Value fetch (const string& name, const vector<Value>& args){
     else{
       string data = args[0].valueToString();
       string toSearchFor = args[1].valueToString();
-      int pos = 0;
+      int pos = data.length();
       if(args.size()==3){
 	args[2].getValue(pos);
       }
