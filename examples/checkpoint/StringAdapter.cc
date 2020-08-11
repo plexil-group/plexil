@@ -125,24 +125,24 @@ static Value fetch (const string& name, const vector<Value>& args){
   else if (name == "substr"){
     string data = args[0].valueToString();
     if(args.size()==1){
-      retval = data.substr();
+      retval = data;
     }
-    if(args.size()==2){
+    else if(args.size()==2){
       int32_t pos;
       args[1].getValue(pos);
-      if(pos<0) retval = UNKNOWN;
+      if(pos<0) retval = Unknown;
       else      retval = data.substr(pos);
     }
-    if(args.size()==3){
+    else if(args.size()==3){
       int32_t pos;
       int32_t len;
       args[1].getValue(pos);
       args[2].getValue(len);
-      if(pos<0 || len<0) retval = UNKNOWN;
+      if(pos<0 || len<0) retval = Unknown;
       else               retval = data.substr(pos,len);
     }
     else{
-      cerr<<"Invalid number of arguments to "<<name<<endl;
+      cerr<<"Invalid number of arguments to "<<name<<", expected 1-3, got "<<args.size()<<endl;
       retval = Unknown;
     }
   }

@@ -40,6 +40,6 @@ test2:
 	plexilc plans/StringOperations.ple
 	plexilexec -p plans/StringOperations.plx
 
-test2:
+test3:
 	plexilc plans/StringOperationsLookup.ple
 	plexilexec -p plans/StringOperationsLookup.plx
