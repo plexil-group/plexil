@@ -51,95 +51,28 @@ namespace PLEXIL {
   class AdapterConfiguration {
   public:
 
-    typedef void (InterfaceAdapter::*LookupNowHandler)(const State &, StateCacheEntry&);
-    typedef void (InterfaceAdapter::*SetThresholdsDoubleHandler)(const State &, double, double);
-    typedef void (InterfaceAdapter::*SetThresholdsIntHandler)(const State &, int, int);
-    typedef void (InterfaceAdapter::*SubscribeHandler)(const State &);
-    typedef void (InterfaceAdapter::*UnsubscribeHandler)(const State &);
+    typedef void (*LookupNowHandler)(const State &, StateCacheEntry&);
+    typedef void (*SetThresholdsDoubleHandler)(const State &, double, double);
+    typedef void (*SetThresholdsIntHandler)(const State &, int, int);
+    typedef void (*SubscribeHandler)(const State &);
+    typedef void (*UnsubscribeHandler)(const State &);
 
-
-    struct LookupHandler
-    {
-    private:
-      InterfaceAdapter &m_context;
-      LookupNowHandler m_lookupNow;
-      SetThresholdsDoubleHandler m_setThresholdsDouble;
-      SetThresholdsIntHandler m_setThresholdsInt;
-      SubscribeHandler m_subscribe;
-      UnsubscribeHandler m_unsubscribe;
+    class AbstractLookupHandler {
     public:
-      LookupHandler(InterfaceAdapter &ct,
-            LookupNowHandler ln,
-            SetThresholdsDoubleHandler setTD,
-            SetThresholdsIntHandler setTI,
-            SubscribeHandler sub,
-            UnsubscribeHandler unsub) :
-            m_context(ct), m_lookupNow(ln), m_setThresholdsDouble(setTD), m_setThresholdsInt(setTI),
-            m_subscribe(sub), m_unsubscribe(unsub) {}
-      
-      void lookupNow(const State &state, StateCacheEntry &cacheEntry)
-      {
-        (m_context.*m_lookupNow)(state, cacheEntry);
-      }
-      void setThresholds(const State &state, double hi, double lo)
-      {
-        if(m_setThresholdsDouble)
-          (m_context.*m_setThresholdsDouble)(state, hi, lo);
-      }
-      void setThresholds(const State &state, int32_t hi, int32_t lo)
-      {
-        if(m_setThresholdsInt)
-          (m_context.*m_setThresholdsInt)(state, hi, lo);
-      }
-      void subscribe(const State &state)
-      {
-        if(m_subscribe)
-        ( m_context.*m_subscribe)(state);
-      }
-      void unsubscribe(const State &state)
-      {
-        if(m_unsubscribe)
-          (m_context.*m_unsubscribe)(state);
-      }
-
-      InterfaceAdapter *getInterface() {
-        return &m_context;
-      }
+      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) = 0;
+      void setThresholds(const State &state, double hi, double lo) { } // default no-op
+      void setThresholds(const State &state, int32_t hi, int32_t lo) { } // default no-op
+      void subscribe(const State &state) { } // default no-op
+      void unsubscribe(const State &state) { } // default no-op
     };
 
-    /***
-     * @brief A function that handles the given command.
-     *          notifies the AdapterExecInterface of any new information
-     * @param cmd A command to handle
-     */
-    typedef void (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
-    typedef void (InterfaceAdapter::*AbortCommandHandler)(Command *);
+    typedef void (*ExecuteCommandHandler)(Command *);
+    typedef void (*AbortCommandHandler)(Command *);
 
-    struct CommandHandler
-    {
-    private:
-      InterfaceAdapter &m_context;
-      ExecuteCommandHandler m_executeCommand;
-      AbortCommandHandler m_abortCommand;
+    class AbstractCommandHandler {
     public:
-      CommandHandler(InterfaceAdapter &ct,
-        ExecuteCommandHandler execCmd,
-        AbortCommandHandler abortCmd) :
-        m_context(ct), m_executeCommand(execCmd), m_abortCommand(abortCmd) {}
-      
-      void ExecuteCommand(Command *cmd) {
-        (m_context.*m_executeCommand)(cmd);
-      }
-
-      void AbortCommand(Command *cmd) {
-        if(m_abortCommand) {
-          (m_context.*m_abortCommand)(cmd);
-        }
-      }
-
-      InterfaceAdapter *getInterface() {
-        return &m_context;
-      }
+      virtual void executeCommand(Command *cmd) = 0;
+      void abortCommand(Command *cmd) { }
     };
 
     /**
@@ -212,11 +145,18 @@ namespace PLEXIL {
     void addExecListener(ExecListener *listener);
 
     /**
+     * @brief Register the given object to be a handler for lookups to this state
+     * @param sateName The name of the state to map to this object
+     * @param handler An object to register as the handler.
+     */
+    bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler, bool telemetryOnly);
+
+    /**
      * @brief Register the given handler for lookups to this state.
             Returns true if successful.  Fails and returns false
             if the state name already has a handler registered
             or registering a handler is not implemented.
-     * @param stateName The name of the state to map to this adapter.
+     * @param stateName The name of the state to map to this handler.
      * @param context An object on which the handler functions can be called.
      * @param lookupNow The lookup handler function for this state.
      * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
@@ -226,7 +166,6 @@ namespace PLEXIL {
      * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
      */
     bool registerLookupHandler(std::string const &stateName,
-          InterfaceAdapter &context,
           LookupNowHandler ln,
           SetThresholdsDoubleHandler setTD = nullptr,
           SetThresholdsIntHandler setTI = nullptr,
@@ -239,7 +178,7 @@ namespace PLEXIL {
      whether specifically registered or default. May return NULL.
      * @param stateName The state.
      */
-    LookupHandler *getLookupHandler(std::string const& stateName);
+    AbstractLookupHandler *getLookupHandler(std::string const& stateName);
 
     /**
      * @brief Query configuration data to determine if a state is only available as telemetry.
@@ -259,6 +198,16 @@ namespace PLEXIL {
             Returns true if successful.  Fails and returns false
             if the state name already has a handler registered
             or registering a handler is not implemented.
+     * @param sateName The name of the state to map to this object
+     * @param handler An object to register as the handler.
+     */
+    bool registerCommandObjectHandler(std::string const &stateName, AbstractCommandHandler *handler);
+
+    /**
+     * @brief Register the given handler for lookups to this state.
+            Returns true if successful.  Fails and returns false
+            if the state name already has a handler registered
+            or registering a handler is not implemented.
      * @param stateName The name of the state to map to this adapter.
      * @param context The object on which handlers can be called
      */
@@ -272,8 +221,10 @@ namespace PLEXIL {
      whether specifically registered or default. May return NULL.
      * @param stateName The state.
      */
-    CommandHandler *getCommandHandler(std::string const& stateName);
+    AbstractCommandHandler *getCommandHandler(std::string const& stateName);
 
+    bool setDefaultLookupObjectHandler(AbstractLookupHandler *handler);
+    
     /**
      * @brief Register the given handler as the default for lookups.
             This handler will be used for all lookups which do not have
@@ -290,13 +241,14 @@ namespace PLEXIL {
      * @return True if successful, false if there is already a default handler registered.
      */
     bool setDefaultLookupHandler(          
-          InterfaceAdapter &context,
           LookupNowHandler lookupNow,
           SetThresholdsDoubleHandler setThresholdsDouble = nullptr,
           SetThresholdsIntHandler setThresholdsInt = nullptr,
           SubscribeHandler subscribe = nullptr,
           UnsubscribeHandler unsubscribe = nullptr);
 
+    bool setDefaultCommandObjectHandler(AbstractCommandHandler *handler);
+    
     /**
      * @brief Register the given handler as the default for commands.
               This handler will be used for all commands which do not have
@@ -308,7 +260,7 @@ namespace PLEXIL {
      * @param abortCmd The abort command handler.
      * @return True if successful, false if there is already a default handler registered.
      */
-    bool setDefaultCommandHandler(InterfaceAdapter &context,
+    bool setDefaultCommandHandler(
           ExecuteCommandHandler execCmd,
           AbortCommandHandler abortCmd = nullptr);
 
@@ -316,13 +268,13 @@ namespace PLEXIL {
      * @brief Return the current default handler for commands.
               May return NULL. Returns NULL if default interfaces are not implemented.
      */
-    CommandHandler *getDefaultCommandHandler();
+    AbstractCommandHandler *getDefaultCommandHandler();
 
     /**
      * @brief Return the current default handler for lookups.
               May return NULL.
      */
-    LookupHandler *getDefaultLookupHandler();
+    AbstractLookupHandler *getDefaultLookupHandler();
 
     //
     // Plan, library path access
@@ -517,6 +469,87 @@ namespace PLEXIL {
 
   private:
 
+    class InternalLookupHandler : public AbstractLookupHandler {
+      LookupNowHandler lookupNowHandler;
+      SetThresholdsDoubleHandler setThresholdsDoubleHandler;
+      SetThresholdsIntHandler setThresholdsIntHandler;
+      SubscribeHandler subscribeHandler;
+      UnsubscribeHandler unsubscribeHandler;
+    public:
+      InternalLookupHandler(LookupNowHandler ln, SetThresholdsDoubleHandler setTD = nullptr, 
+          SetThresholdsIntHandler setTI = nullptr, SubscribeHandler sub = nullptr,
+          UnsubscribeHandler unsub = nullptr) : 
+          lookupNowHandler(ln), setThresholdsDoubleHandler(setTD),
+          setThresholdsIntHandler(setTI), subscribeHandler(sub), unsubscribeHandler(unsub) {}
+      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+        lookupNowHandler(state, cacheEntry);
+      }
+      void setThresholds(const State &state, double hi, double lo) {
+        if(setThresholdsDoubleHandler)
+          setThresholdsDoubleHandler(state, hi, lo);
+      }
+      void setThresholds(const State &state, int32_t hi, int32_t lo) {
+        if(setThresholdsIntHandler)
+          setThresholdsIntHandler(state, hi, lo);
+      }
+      void subscribe(const State &state) {
+        if(subscribeHandler)
+          subscribeHandler(state);
+      }
+      void unsubscribe(const State &state) {
+        if(unsubscribeHandler)
+          unsubscribeHandler(state);
+      }
+    };
+
+    class InternalCommandHandler : public AbstractCommandHandler {
+      ExecuteCommandHandler executeCommandHandler;
+      AbortCommandHandler abortCommandHandler;
+    public:
+      InternalCommandHandler(ExecuteCommandHandler exec, AbortCommandHandler abort = nullptr) :
+        executeCommandHandler(exec), abortCommandHandler(abort) {}
+      virtual void executeCommand(Command *cmd) {
+        executeCommandHandler(cmd);
+      }
+      void abortCommand(Command *cmd) {
+        if(abortCommandHandler)
+          abortCommandHandler(cmd);
+      }
+    };
+
+    class InterfaceLookupHandler : public AbstractLookupHandler {
+      InterfaceAdapter* interface;
+    public:
+      InterfaceLookupHandler(InterfaceAdapter *intf) : interface(intf) {}
+      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+        interface->lookupNow(state, cacheEntry);
+      }
+      void setThresholds(const State &state, double hi, double lo) {
+        interface->setThresholds(state, hi, lo);
+      }
+      void setThresholds(const State &state, int32_t hi, int32_t lo) {
+        interface->setThresholds(state, hi, lo);
+      }
+      void subscribe(const State &state) {
+        interface->subscribe(state);
+      }
+      void unsubscribe(const State &state) {
+        interface->unsubscribe(state);
+      }
+    };
+
+    class InterfaceCommandHandler : public AbstractCommandHandler {
+      InterfaceAdapter* interface;
+    public:
+      InterfaceCommandHandler(InterfaceAdapter *intf) : interface(intf) {}
+      virtual void executeCommand(Command *cmd) {
+        interface->executeCommand(cmd);
+      }
+      void abortCommand(Command *cmd) {
+        interface->invokeAbort(cmd);
+      }
+    };
+
     // Not implemented
     AdapterConfiguration(AdapterConfiguration const &);
     AdapterConfiguration &operator=(AdapterConfiguration const &);
@@ -529,8 +562,8 @@ namespace PLEXIL {
 
     //* Default InterfaceAdapters
     InterfaceAdapter *m_defaultInterface;
-    CommandHandler *m_defaultCommandHandler;
-    LookupHandler *m_defaultLookupHandler;
+    AbstractCommandHandler *m_defaultCommandHandler;
+    AbstractLookupHandler *m_defaultLookupHandler;
 
     //* InterfaceAdapter to use for PlannerUpdate nodes
     InterfaceAdapter *m_plannerUpdateInterface;
@@ -538,8 +571,8 @@ namespace PLEXIL {
     // Maps by command/lookup
 
     // Interface handler maps
-    typedef std::map<std::string, CommandHandler *> CommandHandlerMap;
-    typedef std::map<std::string, LookupHandler *> LookupHandlerMap;
+    typedef std::map<std::string, AbstractCommandHandler *> CommandHandlerMap;
+    typedef std::map<std::string, AbstractLookupHandler *> LookupHandlerMap;
 
     LookupHandlerMap m_lookupMap;
     CommandHandlerMap m_commandMap;

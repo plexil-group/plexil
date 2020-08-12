@@ -426,12 +426,12 @@ namespace PLEXIL {
       return true;
 
     // See if the adapter is in any of the tables
-    for (LookupHandlerMap::iterator it = m_lookupMap.begin(); it != m_lookupMap.end(); ++it)
-      if (it->second->getInterface() == intf)
-        return true;
-    for (CommandHandlerMap::iterator it = m_commandMap.begin(); it != m_commandMap.end(); ++it)
-      if (it->second->getInterface() == intf)
-        return true;
+    // for (LookupHandlerMap::iterator it = m_lookupMap.begin(); it != m_lookupMap.end(); ++it)
+    //   if (it->second->getInterface() == intf)
+    //     return true;
+    // for (CommandHandlerMap::iterator it = m_commandMap.begin(); it != m_commandMap.end(); ++it)
+    //   if (it->second->getInterface() == intf)
+    //     return true;
     return false;
   }
 
@@ -521,39 +521,18 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Register the given handler for lookups to this state.
-   Returns true if successful.  Fails and returns false
-    if the state name already has a handler registered
-            or registering a handler is not implemented.
-    * @param stateName The name of the state to map to this adapter.
-    * @param context An object on which the handler functions can be called.
-    * @param lookupNow The lookup handler function for this state.
-    * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
-    * @param setThresholdsInt The setThresholdsInt handler function for this state.
-    * @param subscribe The subscribe handler function for this state.
-    * @param unsubscribe The lookup handler function for this state.
-    * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
-    */
-  bool AdapterConfiguration::registerLookupHandler(std::string const &stateName,
-          InterfaceAdapter &context,
-          LookupNowHandler lookupNow,
-          SetThresholdsDoubleHandler setThresholdsDouble,
-          SetThresholdsIntHandler setThresholdsInt,
-          SubscribeHandler subscribe,
-          UnsubscribeHandler unsubscribe,
-          bool telemetryOnly) {
+   * @brief Register the given object to be a handler for lookups to this state
+   * @param sateName The name of the state to map to this object
+   * @param handler An object to register as the handler.
+   */
+  bool AdapterConfiguration::registerLookupObjectHandler(std::string const &stateName, 
+        AdapterConfiguration::AbstractLookupHandler *handler, bool telemetryOnly) {
     LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
     if (it == m_lookupMap.end()) {
       // Not found, OK to add
       debugMsg("AdapterConfiguration:registerLookupHandler",
                 " registering handler for lookup of '" << stateName << "'");
-      m_lookupMap.insert(std::pair<std::string, LookupHandler *>(stateName,
-                new LookupHandler(context,
-                                  lookupNow,
-                                  setThresholdsDouble,
-                                  setThresholdsInt,
-                                  subscribe,
-                                  unsubscribe)));
+      m_lookupMap.insert(std::pair<std::string, AdapterConfiguration::AbstractLookupHandler *>(stateName, handler));
       if (telemetryOnly)
         m_telemetryLookups.insert(stateName);
       return true;
@@ -565,11 +544,39 @@ namespace PLEXIL {
   }
 
   /**
+   * @brief Register the given handler for lookups to this state.
+   Returns true if successful.  Fails and returns false
+    if the state name already has a handler registered
+            or registering a handler is not implemented.
+    * @param stateName The name of the state to map to this adapter.
+    * @param lookupNow The lookup handler function for this state.
+    * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
+    * @param setThresholdsInt The setThresholdsInt handler function for this state.
+    * @param subscribe The subscribe handler function for this state.
+    * @param unsubscribe The lookup handler function for this state.
+    * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
+    */
+  bool AdapterConfiguration::registerLookupHandler(std::string const &stateName,
+          LookupNowHandler lookupNow,
+          SetThresholdsDoubleHandler setThresholdsDouble,
+          SetThresholdsIntHandler setThresholdsInt,
+          SubscribeHandler subscribe,
+          UnsubscribeHandler unsubscribe,
+          bool telemetryOnly) {
+    return registerLookupObjectHandler(stateName, new InternalLookupHandler(
+                                  lookupNow,
+                                  setThresholdsDouble,
+                                  setThresholdsInt,
+                                  subscribe,
+                                  unsubscribe), telemetryOnly);
+  }
+
+  /**
    * @brief Return the lookup handler in effect for lookups with this state name,
    whether specifically registered or default. May return NULL. Returns NULL if default handlers are not implemented.
    * @param stateName The state.
    */
-  AdapterConfiguration::LookupHandler *AdapterConfiguration::getLookupHandler(std::string const &stateName) {
+  AdapterConfiguration::AbstractLookupHandler *AdapterConfiguration::getLookupHandler(std::string const &stateName) {
     LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
     if (it != m_lookupMap.end()) {
       debugMsg("AdapterConfiguration:getLookupHandler",
@@ -603,24 +610,16 @@ namespace PLEXIL {
           Returns true if successful.  Fails and returns false
           if the state name already has a handler registered
           or registering a handler is not implemented.
-    * @param stateName The name of the state to map to this adapter.
-    * @param context The object on which handlers can be called.
-    * @param execCmd The execute command handler.
-    * @param abortCmd The abort command handler.
+    * @param sateName The name of the state to map to this object
+    * @param handler An object to register as the handler.
     */
-  bool AdapterConfiguration::registerCommandHandler(std::string const &stateName,
-        InterfaceAdapter &context,
-        ExecuteCommandHandler execCmd,
-        AbortCommandHandler abortCmd) {
-    CommandHandlerMap::iterator it = m_commandMap.find(stateName);
+  bool AdapterConfiguration::registerCommandObjectHandler(std::string const &stateName, AdapterConfiguration::AbstractCommandHandler *handler) {
+    AdapterConfiguration::CommandHandlerMap::iterator it = m_commandMap.find(stateName);
     if (it == m_commandMap.end()) {
       // Not found, OK to add
       debugMsg("AdapterConfiguration:registerCommandHandler",
                 " registering handler for command '" << stateName << "'");
-      m_commandMap.insert(std::pair<std::string, CommandHandler *>(stateName,
-                new CommandHandler(context,
-                                  execCmd,
-                                  abortCmd)));
+      m_commandMap.insert(std::pair<std::string, AbstractCommandHandler *>(stateName, handler));
 
       debugMsg("AdapterConfiguration:registerCommandHandler",
                 " done registering handler for command '" << stateName << "'");
@@ -633,11 +632,29 @@ namespace PLEXIL {
   }
 
   /**
+   * @brief Register the given handler for lookups to this state.
+          Returns true if successful.  Fails and returns false
+          if the state name already has a handler registered
+          or registering a handler is not implemented.
+    * @param stateName The name of the state to map to this adapter.
+    * @param execCmd The execute command handler.
+    * @param abortCmd The abort command handler.
+    */
+  bool AdapterConfiguration::registerCommandHandler(std::string const &stateName,
+        InterfaceAdapter &context,
+        ExecuteCommandHandler execCmd,
+        AbortCommandHandler abortCmd) {
+    return registerCommandObjectHandler(stateName, new InternalCommandHandler(
+                                  execCmd,
+                                  abortCmd));
+  }
+
+  /**
    * @brief Return the lookup handler in effect for lookups with this state name,
    whether specifically registered or default. May return NULL.
     * @param stateName The state.
     */
-  AdapterConfiguration::CommandHandler *AdapterConfiguration::getCommandHandler(std::string const& stateName) {
+  AdapterConfiguration::AbstractCommandHandler *AdapterConfiguration::getCommandHandler(std::string const& stateName) {
     CommandHandlerMap::iterator it = m_commandMap.find(stateName);
     if (it != m_commandMap.end()) {
       debugMsg("AdapterConfiguration:getCommandHandler",
@@ -656,6 +673,18 @@ namespace PLEXIL {
     return nullptr;
   }
 
+  bool AdapterConfiguration::setDefaultLookupObjectHandler(AdapterConfiguration::AbstractLookupHandler *handler) {
+    if (m_defaultLookupHandler) {
+      debugMsg("AdapterConfiguration:setDefaultLookupHandler",
+               " attempt to overwrite default lookup handler " << m_defaultLookupHandler);
+      return false;
+    }
+    m_defaultLookupHandler = handler;
+    debugMsg("AdapterConfiguration:setDefaultLookupHanlder",
+             " setting default lookup handler " << m_defaultLookupHandler);
+    return true;
+  }
+
   /**
    * @brief Register the given handler as the default for lookups.
             This handler will be used for all lookups which do not have
@@ -663,7 +692,6 @@ namespace PLEXIL {
             Returns true if successful.
         Fails and returns false if there is already a default lookup handler registered
             or setting the default lookup handler is not implemented.
-   * @param context An object on which the handler functions can be called.
    * @param lookupNow The lookup handler function for this state.
    * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
    * @param setThresholdsInt The setThresholdsInt handler function for this state.
@@ -672,25 +700,28 @@ namespace PLEXIL {
    * @return True if successful, false if there is already a default handler registered.
    */
   bool AdapterConfiguration::setDefaultLookupHandler(          
-          InterfaceAdapter &context,
           LookupNowHandler lookupNow,
           SetThresholdsDoubleHandler setThresholdsDouble,
           SetThresholdsIntHandler setThresholdsInt,
           SubscribeHandler subscribe,
           UnsubscribeHandler unsubscribe) {
-    if (m_defaultLookupHandler) {
-      debugMsg("AdapterConfiguration:setDefaultLookupHandler",
-               " attempt to overwrite default lookup handler " << m_defaultLookupHandler);
-      return false;
-    }
-    m_defaultLookupHandler = new LookupHandler(context,
+    return setDefaultLookupObjectHandler(new AdapterConfiguration::InternalLookupHandler(
                                   lookupNow,
                                   setThresholdsDouble,
                                   setThresholdsInt,
                                   subscribe,
-                                  unsubscribe);
-    debugMsg("AdapterConfiguration:setDefaultLookupHanlder",
-             " setting default lookup handler " << m_defaultLookupHandler);
+                                  unsubscribe));
+  }
+
+  bool AdapterConfiguration::setDefaultCommandObjectHandler(AdapterConfiguration::AbstractCommandHandler *handler) {
+    if (m_defaultCommandHandler) {
+      debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
+               " attempt to overwrite default command handler " << m_defaultCommandHandler);
+      return false;
+    }
+    m_defaultCommandHandler = handler;
+    debugMsg("AdapterConfiguration:setDefaultCommandHandler",
+             " setting default command handler " << m_defaultCommandHandler);
     return true;
   }
 
@@ -700,32 +731,23 @@ namespace PLEXIL {
         a specific handler.
             Returns true if successful.
         Fails and returns false if there is already a default command handler registered.
-   * @param context The object on which handlers can be called.
    * @param execCmd The execute command handler.
    * @param abortCmd The abort command handler.
    * @return True if successful, false if there is already a default handler registered.
    */
-  bool AdapterConfiguration::setDefaultCommandHandler(InterfaceAdapter &context,
+  bool AdapterConfiguration::setDefaultCommandHandler(
         ExecuteCommandHandler execCmd,
         AbortCommandHandler abortCmd) {
-    if (m_defaultCommandHandler) {
-      debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
-               " attempt to overwrite default command handler " << m_defaultCommandHandler);
-      return false;
-    }
-    m_defaultCommandHandler = new CommandHandler(context,
+    return setDefaultCommandObjectHandler(new AdapterConfiguration::InternalCommandHandler(
                                   execCmd,
-                                  abortCmd);
-    debugMsg("AdapterConfiguration:setDefaultCommandHandler",
-             " setting default command handler " << m_defaultCommandHandler);
-    return true;
+                                  abortCmd));
   }
 
   /**
    * @brief Return the current default handler for commands.
             May return NULL. Returns NULL if default interfaces are not implemented.
    */
-  AdapterConfiguration::CommandHandler *AdapterConfiguration:: getDefaultCommandHandler() {
+  AdapterConfiguration::AbstractCommandHandler *AdapterConfiguration:: getDefaultCommandHandler() {
     return m_defaultCommandHandler;
   }
 
@@ -733,7 +755,7 @@ namespace PLEXIL {
    * @brief Return the current default handler for lookups.
             May return NULL.
    */
-  AdapterConfiguration::LookupHandler *AdapterConfiguration:: getDefaultLookupHandler() {
+  AdapterConfiguration::AbstractLookupHandler *AdapterConfiguration:: getDefaultLookupHandler() {
     return m_defaultLookupHandler;
   }
 
@@ -851,7 +873,7 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::registerCommandInterface(std::string const &commandName,
                                                       InterfaceAdapter *intf) {
-    return this->registerCommandHandler(commandName, *intf, &InterfaceAdapter::executeCommand, &InterfaceAdapter::invokeAbort);
+    return this->registerCommandObjectHandler(commandName, new InterfaceCommandHandler(intf)); //TODO: handle cleanup
   }
 
   /**
@@ -867,12 +889,7 @@ namespace PLEXIL {
   bool AdapterConfiguration::registerLookupInterface(std::string const &stateName,
                                                      InterfaceAdapter *intf,
                                                      bool telemetryOnly) {
-    return this->registerLookupHandler(stateName, *intf, &InterfaceAdapter::lookupNow,
-          &InterfaceAdapter::setThresholds,
-          &InterfaceAdapter::setThresholds,
-          &InterfaceAdapter::subscribe,
-          &InterfaceAdapter::unsubscribe,
-          telemetryOnly);
+    return this->registerLookupObjectHandler(stateName, new InterfaceLookupHandler(intf), telemetryOnly);
   }
 
   /**
@@ -900,11 +917,7 @@ namespace PLEXIL {
    * @return True if successful, false if there is already a default adapter registered.
    */
   bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapter *intf) {
-    return this->setDefaultLookupHandler(*intf, &InterfaceAdapter::lookupNow,
-          &InterfaceAdapter::setThresholds,
-          &InterfaceAdapter::setThresholds,
-          &InterfaceAdapter::subscribe,
-          &InterfaceAdapter::unsubscribe);
+    return this->setDefaultLookupObjectHandler(new InterfaceLookupHandler(intf));
   }
 
   /**
@@ -918,7 +931,7 @@ namespace PLEXIL {
    * @return True if successful, false if there is already a default adapter registered.
    */
   bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapter *intf) {
-    return this->setDefaultCommandHandler(*intf, &InterfaceAdapter::executeCommand, &InterfaceAdapter::invokeAbort);
+    return this->setDefaultCommandObjectHandler(new InterfaceCommandHandler(intf));
   }
 
   /**
@@ -928,9 +941,6 @@ namespace PLEXIL {
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
-    AdapterConfiguration::CommandHandler *handler = getCommandHandler(commandName);
-    if(handler)
-      return handler->getInterface();
     return nullptr;
   }
 
@@ -940,8 +950,6 @@ namespace PLEXIL {
             May return NULL. Returns NULL if default interfaces are not implemented.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
-    if(m_defaultCommandHandler)
-      return m_defaultCommandHandler->getInterface();
     return nullptr;
   }
 
@@ -952,9 +960,6 @@ namespace PLEXIL {
    * @param stateName The state.
    */
   InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
-    AdapterConfiguration::LookupHandler *handler = getLookupHandler(stateName);
-    if(handler)
-      return handler->getInterface();
     return nullptr;
   }
 
@@ -964,8 +969,6 @@ namespace PLEXIL {
             May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
-    if(m_defaultLookupHandler)
-      return m_defaultLookupHandler->getInterface();
     return nullptr;
   }
 

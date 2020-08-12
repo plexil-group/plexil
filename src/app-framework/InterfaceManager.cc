@@ -308,13 +308,6 @@ namespace PLEXIL
   InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    AdapterConfiguration::LookupHandler *handler = g_configuration->getLookupHandler(state.name());
-    if (!handler) {
-      warn("lookupNow: No interface handler found for lookup "
-           << state.name() << ", returning UNKNOWN");
-      return;
-    }
-
     if (g_configuration->lookupIsTelemetry(state.name())) {
       // LookupNow not supported for this state, use last cached value
       debugStmt("InterfaceManager:lookupNow", {
@@ -328,6 +321,13 @@ namespace PLEXIL
             << " is telemetry only, no cached value, so is UNKNOWN");
         }
 	    });
+      return;
+    }
+    
+    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    if (!handler) {
+      warn("lookupNow: No interface handler found for lookup "
+           << state.name() << ", returning UNKNOWN");
       return;
     }
 
@@ -378,7 +378,7 @@ namespace PLEXIL
   void InterfaceManager::subscribe(const State& state)
   {
     debugMsg("InterfaceManager:subscribe", " to state " << state);
-    AdapterConfiguration::LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("subscribe: No handler found for lookup " << state.name());
       return;
@@ -392,7 +392,7 @@ namespace PLEXIL
   void InterfaceManager::unsubscribe(const State& state)
   {
     debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    AdapterConfiguration::LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("unsubscribe: No interface handler found for lookup " << state);
       return;
@@ -409,7 +409,7 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    AdapterConfiguration::LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("setThresholds: No interface handler found for lookup "
            << state);
@@ -421,7 +421,7 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    AdapterConfiguration::LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("setThresholds: No interface handler found for lookup "
            << state);
@@ -458,9 +458,9 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    AdapterConfiguration::CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    AdapterConfiguration::AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
     if (handler) {
-      handler->ExecuteCommand(cmd);
+      handler->executeCommand(cmd);
     }
     else {
       // return error status
@@ -492,9 +492,9 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    AdapterConfiguration::CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    AdapterConfiguration::AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
     if (handler) {
-      handler->AbortCommand(cmd);
+      handler->abortCommand(cmd);
     }
     else {
       warn("invokeAbort: null handler for command " << cmd->getCommand());
