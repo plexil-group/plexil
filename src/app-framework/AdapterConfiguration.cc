@@ -617,15 +617,15 @@ namespace PLEXIL {
     AdapterConfiguration::CommandHandlerMap::iterator it = m_commandMap.find(stateName);
     if (it == m_commandMap.end()) {
       // Not found, OK to add
-      debugMsg("AdapterConfiguration:registerCommandHandler",
+      debugMsg("AdapterConfiguration:registerCommandObjectHandler",
                 " registering handler for command '" << stateName << "'");
       m_commandMap.insert(std::pair<std::string, AbstractCommandHandler *>(stateName, handler));
 
-      debugMsg("AdapterConfiguration:registerCommandHandler",
+      debugMsg("AdapterConfiguration:registerCommandObjectHandler",
                 " done registering handler for command '" << stateName << "'");
       return true;
     } else {
-      debugMsg("AdapterConfiguration:registerCommandHandler",
+      debugMsg("AdapterConfiguration:registerCommandObjectHandler",
                 " handler already registered for command '" << stateName << "'");
       return false;
     }
@@ -641,12 +641,11 @@ namespace PLEXIL {
     * @param abortCmd The abort command handler.
     */
   bool AdapterConfiguration::registerCommandHandler(std::string const &stateName,
-        InterfaceAdapter &context,
         ExecuteCommandHandler execCmd,
         AbortCommandHandler abortCmd) {
     return registerCommandObjectHandler(stateName, new InternalCommandHandler(
                                   execCmd,
-                                  abortCmd));
+                                  abortCmd)); //TODO: Clean up
   }
 
   /**

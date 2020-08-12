@@ -28,6 +28,7 @@
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
 #include "InterfaceAdapter.hh"
+#include "AdapterConfiguration.hh"
 #include "InterfaceError.hh"
 
 #if defined(HAVE_CSIGNAL)
@@ -96,6 +97,7 @@ namespace PLEXIL
      * @return The current value of the lookup.
      */
     void lookupNow(State const &state, StateCacheEntry &cacheEntry);
+    static void lookupTime(State const &state, StateCacheEntry &cacheEntry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -177,6 +179,27 @@ namespace PLEXIL
     virtual bool initializeSigwaitMask(sigset_t* mask) = 0;
 
   private:
+
+    class TimeLookupHandler : public AdapterConfiguration::AbstractLookupHandler {
+      InterfaceAdapter* interface;
+    public:
+      TimeLookupHandler(InterfaceAdapter *intf) : interface(intf) {}
+      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+        interface->lookupNow(state, cacheEntry);
+      }
+      void setThresholds(const State &state, double hi, double lo) {
+        interface->setThresholds(state, hi, lo);
+      }
+      void setThresholds(const State &state, int32_t hi, int32_t lo) {
+        interface->setThresholds(state, hi, lo);
+      }
+      void subscribe(const State &state) {
+        interface->subscribe(state);
+      }
+      void unsubscribe(const State &state) {
+        interface->unsubscribe(state);
+      }
+    };
 
     // Not implemented
     TimeAdapterImpl();

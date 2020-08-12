@@ -46,18 +46,19 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 
 bool UtilityAdapter::initialize()
 {
-  g_configuration->registerCommandHandler("print", *this,
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::print1),
-      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
-  g_configuration->registerCommandHandler("pprint", *this, 
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::pprint1),
-      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
-  g_configuration->registerCommandHandler("printToString", *this, 
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::printToString1),
-      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
-  g_configuration->registerCommandHandler("pprintToString", *this, 
-      (AdapterConfiguration::ExecuteCommandHandler)(&UtilityAdapter::pprintToString1),
-      (AdapterConfiguration::AbortCommandHandler)(&UtilityAdapter::invokeAbort));
+  std::cout << "Init";
+  g_configuration->registerCommandObjectHandler("print", new UtilityCommandHandler(*this,
+      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::print1),
+      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
+  g_configuration->registerCommandObjectHandler("pprint", new UtilityCommandHandler(*this,
+      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::pprint1),
+      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
+  g_configuration->registerCommandObjectHandler("printToString", new UtilityCommandHandler(*this,
+      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::printToString1),
+      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
+  g_configuration->registerCommandObjectHandler("pprintToString", new UtilityCommandHandler(*this,
+      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::pprintToString1),
+      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
   debugMsg("UtilityAdapter", " initialized.");
   return true;
 }
@@ -87,34 +88,30 @@ bool UtilityAdapter::shutdown()
 }
 
 void UtilityAdapter::print1(Command *cmd) {
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   print(cmd->getArgValues());
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
 void UtilityAdapter::pprint1(Command *cmd) {
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   pprint(cmd->getArgValues());
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
 void UtilityAdapter::printToString1(Command *cmd) {
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   m_execInterface.handleCommandReturn(cmd, printToString(cmd->getArgValues()));
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
 void UtilityAdapter::pprintToString1(Command *cmd) {
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   m_execInterface.handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
   m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
-void UtilityAdapter::invokeAbort(Command *cmd)
+void UtilityAdapter::abortCommand(Command *cmd)
 {
   // Just silently acknowledge
   m_execInterface.handleCommandAbortAck(cmd, false);

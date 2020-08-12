@@ -149,7 +149,7 @@ namespace PLEXIL {
      * @param sateName The name of the state to map to this object
      * @param handler An object to register as the handler.
      */
-    bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler, bool telemetryOnly);
+    bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler, bool telemetryOnly = false);
 
     /**
      * @brief Register the given handler for lookups to this state.
@@ -212,7 +212,6 @@ namespace PLEXIL {
      * @param context The object on which handlers can be called
      */
     bool registerCommandHandler(std::string const &stateName,
-          InterfaceAdapter &context,
           ExecuteCommandHandler execCmd,
           AbortCommandHandler abortCmd = nullptr);
 
@@ -482,6 +481,8 @@ namespace PLEXIL {
           lookupNowHandler(ln), setThresholdsDoubleHandler(setTD),
           setThresholdsIntHandler(setTI), subscribeHandler(sub), unsubscribeHandler(unsub) {}
       virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+        std::cout << "------------------ Running LN handler -----------------------\n";
+        std::cout << lookupNowHandler;
         lookupNowHandler(state, cacheEntry);
       }
       void setThresholds(const State &state, double hi, double lo) {
