@@ -78,10 +78,9 @@
 namespace PLEXIL {
 
   AdapterConfiguration::AdapterConfiguration() :
-    m_defaultInterface(),
     m_defaultCommandHandler(),
     m_defaultLookupHandler(),
-    m_plannerUpdateInterface(),
+    m_plannerUpdateHandler(),
     m_listenerHub(new ExecListenerHub())
   {
     // Every application has access to the dummy and utility adapters
@@ -409,8 +408,7 @@ namespace PLEXIL {
     m_lookupMap.clear();
     m_commandMap.clear();
     m_telemetryLookups.clear();
-    m_defaultInterface = NULL;
-    m_plannerUpdateInterface = NULL;
+    m_plannerUpdateHandler = NULL;
     m_defaultCommandHandler = NULL;
     m_defaultLookupHandler = NULL;
   }
@@ -421,8 +419,7 @@ namespace PLEXIL {
   bool AdapterConfiguration::isKnown(InterfaceAdapter *intf) {
     // Check the easy places first
     if (intf == this->getDefaultCommandInterface()
-        || intf == this->getDefaultLookupInterface()
-        || intf == m_plannerUpdateInterface)
+        || intf == this->getDefaultLookupInterface())
       return true;
 
     // See if the adapter is in any of the tables
@@ -518,6 +515,10 @@ namespace PLEXIL {
          ++it) {
       m_planPath.push_back(*it);
     }
+  }
+
+  bool AdapterConfiguration::registerTelemetryLookup(std::string const &stateName) {
+    return false; //TODO: change the way telemetry only is handled to align with the rest of the code
   }
 
   /**
@@ -765,17 +766,27 @@ namespace PLEXIL {
             or setting the default planner update interface is not implemented.
    * @param intf The interface adapter to handle planner updates.
    */
-  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapter *intf) {
-    if (m_plannerUpdateInterface) {
-      debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
+  bool AdapterConfiguration::registerPlannerUpdateObjectHandler(AbstractPlannerUpdateHandler *updateHandler) {
+    if (m_plannerUpdateHandler) {
+      debugMsg("AdapterConfiguration:registerPlannerUpdateObjectHandler",
                " planner update interface already registered");
       return false;
     }
-    debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
-             " registering planner update interface " << intf);
-    m_plannerUpdateInterface = intf;
-    m_adapters.insert(intf);
+    m_plannerUpdateHandler = updateHandler;
+    debugMsg("AdapterConfiguration:registerPlannerUpdateObjectHandler",
+             " registering planner update interface " << m_plannerUpdateHandler);
     return true;
+  }
+
+  /**
+   * @brief Register the given interface adapter for planner updates.
+            Returns true if successful.  Fails and returns false
+            iff an adapter is already registered
+            or setting the default planner update interface is not implemented.
+   * @param intf The interface adapter to handle planner updates.
+   */
+  bool AdapterConfiguration::registerPlannerUpdateHandler(PlannerUpdateHandler updateHandler) {
+    return registerPlannerUpdateObjectHandler(new InternalPlannerUpdateHandler(updateHandler));
   }
 
   /**
@@ -783,15 +794,15 @@ namespace PLEXIL {
             whether specifically registered or default. May return NULL.
             Returns NULL if default interfaces are not defined.
    */
-  InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
-    if (!m_plannerUpdateInterface) {
-      debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
-               " returning default interface " << m_defaultInterface);
-      return m_defaultInterface;
+  AdapterConfiguration::AbstractPlannerUpdateHandler *AdapterConfiguration::getPlannerUpdateHandler() {
+    if (!m_plannerUpdateHandler) {
+      debugMsg("AdapterConfiguration:getPlannerUpdateHandler",
+               " no plannerUpdateHandler registered returning NULL");
+      return NULL;
     }
-    debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
-             " found specific interface " << m_plannerUpdateInterface);
-    return m_plannerUpdateInterface;
+    debugMsg("AdapterConfiguration:getPlannerUpdateHandler",
+             " found specific handler " << m_plannerUpdateHandler);
+    return m_plannerUpdateHandler;
   }
 
   // Initialize global variable
@@ -900,8 +911,9 @@ namespace PLEXIL {
    * @param intf The interface adapter to use as the default.
    */
   bool AdapterConfiguration::setDefaultInterface(InterfaceAdapter *intf) {
-    m_defaultInterface = intf;
-    return this->setDefaultCommandInterface(intf) && this->setDefaultLookupInterface(intf);
+    return this->setDefaultCommandInterface(intf)
+      && this->setDefaultLookupInterface(intf)
+      && this->registerPlannerUpdateInterface(intf);
   }
 
   /**
@@ -976,7 +988,29 @@ namespace PLEXIL {
    * @brief Return the current default interface adapter. May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultInterface() {
-    return m_defaultInterface;
+    return nullptr;
+  }
+
+  /**
+   * @deprecated
+   * @brief Register the given interface adapter for planner updates.
+            Returns true if successful.  Fails and returns false
+            iff an adapter is already registered
+            or setting the default planner update interface is not implemented.
+   * @param intf The interface adapter to handle planner updates.
+   */
+  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapter *intf) {
+    return this->registerPlannerUpdateObjectHandler(new InterfacePlannerUpdateHandler(intf)); //TODO: cleanup
+  }
+
+  /**
+   * @deprecated
+   * @brief Return the interface adapter in effect for planner updates,
+            whether specifically registered or default. May return NULL.
+            Returns NULL if default interfaces are not defined.
+   */
+  InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
+    return nullptr;
   }
 
 }

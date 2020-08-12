@@ -36,7 +36,6 @@
 
 #include "InterfaceAdapter.hh"
 #include "AdapterConfiguration.hh"
-#include "Value.hh"
 
 namespace PLEXIL {
 
@@ -103,11 +102,11 @@ class UtilityAdapter : public InterfaceAdapter
 public:
   UtilityAdapter (AdapterExecInterface&, pugi::xml_node const);
 
-  bool initialize();
-  bool start();
-  bool stop();
-  bool reset();
-  bool shutdown();
+  virtual bool initialize();
+  virtual bool start();
+  virtual bool stop();
+  virtual bool reset();
+  virtual bool shutdown();
 
   void print1(Command *cmd);
 

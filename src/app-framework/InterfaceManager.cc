@@ -437,17 +437,17 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    InterfaceAdapter *intf = g_configuration->getPlannerUpdateInterface();
-    if (!intf) {
+    AdapterConfiguration::AbstractPlannerUpdateHandler *handler = g_configuration->getPlannerUpdateHandler();
+    if (!handler) {
       // Fake the ack
-      warn("executeUpdate: no interface adapter for updates");
+      warn("executeUpdate: no handler adapter for updates");
       g_interface->acknowledgeUpdate(update, true);
       return;
     }
     debugMsg("InterfaceManager:updatePlanner",
              " sending planner update for node "
              << update->getSource()->getNodeId());
-    intf->sendPlannerUpdate(update);
+    handler->sendPlannerUpdate(update);
   }
 
   // executes a command with the given arguments by looking up the command name 

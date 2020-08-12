@@ -60,10 +60,10 @@ namespace PLEXIL {
     class AbstractLookupHandler {
     public:
       virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) = 0;
-      void setThresholds(const State &state, double hi, double lo) { } // default no-op
-      void setThresholds(const State &state, int32_t hi, int32_t lo) { } // default no-op
-      void subscribe(const State &state) { } // default no-op
-      void unsubscribe(const State &state) { } // default no-op
+      virtual void setThresholds(const State &state, double hi, double lo) { } // default no-op
+      virtual void setThresholds(const State &state, int32_t hi, int32_t lo) { } // default no-op
+      virtual void subscribe(const State &state) { } // default no-op
+      virtual void unsubscribe(const State &state) { } // default no-op
     };
 
     typedef void (*ExecuteCommandHandler)(Command *);
@@ -72,7 +72,14 @@ namespace PLEXIL {
     class AbstractCommandHandler {
     public:
       virtual void executeCommand(Command *cmd) = 0;
-      void abortCommand(Command *cmd) { }
+      virtual void abortCommand(Command *cmd) { }
+    };
+
+    typedef void (*PlannerUpdateHandler)(Update *);
+
+    class AbstractPlannerUpdateHandler {
+    public:
+      virtual void sendPlannerUpdate(Update *update) = 0;
     };
 
     /**
@@ -143,6 +150,8 @@ namespace PLEXIL {
      * @param listener Pointer to the listener
      */
     void addExecListener(ExecListener *listener);
+
+    bool registerTelemetryLookup(std::string const &stateName);
 
     /**
      * @brief Register the given object to be a handler for lookups to this state
@@ -274,6 +283,30 @@ namespace PLEXIL {
               May return NULL.
      */
     AbstractLookupHandler *getDefaultLookupHandler();
+    
+    /**
+     * @brief Register the given interface adapter for planner updates.
+              Returns true if successful.  Fails and returns false
+              iff an adapter is already registered
+              or setting the default planner update interface is not implemented.
+     * @param intf The interface adapter to handle planner updates.
+     */
+    bool registerPlannerUpdateObjectHandler(AbstractPlannerUpdateHandler *handler);
+
+    /**
+     * @brief Register the given interface adapter for planner updates.
+              Returns true if successful.  Fails and returns false
+              iff an adapter is already registered
+              or setting the default planner update interface is not implemented.
+     * @param intf The interface adapter to handle planner updates.
+     */
+    bool registerPlannerUpdateHandler(PlannerUpdateHandler sendPlannerUpdate);
+
+    /**
+     * @brief Return the interface adapter in effect for planner updates,
+              whether specifically registered or default. May return NULL.
+     */
+    AbstractPlannerUpdateHandler *getPlannerUpdateHandler();
 
     //
     // Plan, library path access
@@ -330,23 +363,6 @@ namespace PLEXIL {
     {
       return m_adapters;
     }
-
-    /* ----------- Replace These With Handlers? ----------- */
-    /**
-     * @brief Register the given interface adapter for planner updates.
-              Returns true if successful.  Fails and returns false
-              iff an adapter is already registered
-              or setting the default planner update interface is not implemented.
-     * @param intf The interface adapter to handle planner updates.
-     */
-    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return NULL.
-     */
-    InterfaceAdapter *getPlannerUpdateInterface();
-    /* ---------------------------------------------------- */
 
     /**
      * @brief Construct the input queue specified by the configuration data.
@@ -466,6 +482,23 @@ namespace PLEXIL {
      */
     InterfaceAdapter *getDefaultInterface();
 
+    /**
+     * @deprecated
+     * @brief Register the given interface adapter for planner updates.
+              Returns true if successful.  Fails and returns false
+              iff an adapter is already registered
+              or setting the default planner update interface is not implemented.
+     * @param intf The interface adapter to handle planner updates.
+     */
+    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
+
+    /**
+     * @deprecated
+     * @brief Return the interface adapter in effect for planner updates,
+              whether specifically registered or default. May return NULL.
+     */
+    InterfaceAdapter *getPlannerUpdateInterface();
+
   private:
 
     class InternalLookupHandler : public AbstractLookupHandler {
@@ -518,6 +551,15 @@ namespace PLEXIL {
       }
     };
 
+    class InternalPlannerUpdateHandler : public AbstractPlannerUpdateHandler {
+      PlannerUpdateHandler plannerUpdateHandler;
+    public:
+      InternalPlannerUpdateHandler(PlannerUpdateHandler updateHandler) : plannerUpdateHandler(updateHandler) {}
+      virtual void sendPlannerUpdate(Update *update) {
+        plannerUpdateHandler(update);
+      }
+    };
+
     class InterfaceLookupHandler : public AbstractLookupHandler {
       InterfaceAdapter* interface;
     public:
@@ -551,6 +593,15 @@ namespace PLEXIL {
       }
     };
 
+    class InterfacePlannerUpdateHandler : public AbstractPlannerUpdateHandler {
+      InterfaceAdapter* interface;
+    public:
+      InterfacePlannerUpdateHandler(InterfaceAdapter *intf) : interface(intf) {}
+      virtual void sendPlannerUpdate(Update *update) {
+        interface->sendPlannerUpdate(update);
+      }
+    };
+
     // Not implemented
     AdapterConfiguration(AdapterConfiguration const &);
     AdapterConfiguration &operator=(AdapterConfiguration const &);
@@ -562,12 +613,11 @@ namespace PLEXIL {
     bool deleteAdapter(InterfaceAdapter *intf);
 
     //* Default InterfaceAdapters
-    InterfaceAdapter *m_defaultInterface;
     AbstractCommandHandler *m_defaultCommandHandler;
     AbstractLookupHandler *m_defaultLookupHandler;
 
     //* InterfaceAdapter to use for PlannerUpdate nodes
-    InterfaceAdapter *m_plannerUpdateInterface;
+    AbstractPlannerUpdateHandler *m_plannerUpdateHandler;
 
     // Maps by command/lookup
 
