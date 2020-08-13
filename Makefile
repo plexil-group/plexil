@@ -50,7 +50,7 @@ LIBTOOLIZE := libtoolize
 plexil-default: tools
 
 # The whole shooting match
-all: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample
+all: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample checkpoint
 
 # Just the tools without the examples
 tools: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv
@@ -77,6 +77,8 @@ plexilscript:
 #
 # Targets which depend on the Automake targets below
 #
+checkpoint: utils
+	$(MAKE) -C examples/checkpoint
 
 robosim: ipc utils
 	$(MAKE) -C examples/robosim
@@ -178,6 +180,7 @@ src/configure: src/configure.ac $(MAKEFILE_AMS)
 clean::
 	-@$(MAKE) -C compilers/plexil $@
 	-@$(MAKE) -C examples/robosim $@
+	-@$(MAKE) -C examples/checkpoint $@
 	-@$(MAKE) -C examples/sample-app $@
 	-@$(MAKE) -C src $@ > /dev/null 2>&1
 	@(cd checker && ant $@)
@@ -185,6 +188,7 @@ clean::
 	@(cd jars && $(RM) plexilscript.jar)	
 	@(cd viewers/pv && ant $@)
 	@$(RM) lib/lib* bin/* include/*
+	@$(RM) examples/checkpoint/saves/*.xml
 	@ echo Done.
 
 # Clean up after autotools

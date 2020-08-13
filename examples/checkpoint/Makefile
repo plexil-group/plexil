@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,12 +24,18 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
-
-LIBRARY = SampleAdapter
-SRC = Subscriber.cc SampleSystem.cc SampleAdapter.cc
-INC = Subscriber.hh SampleSystem.hh SampleAdapter.hh
+# TODO: figure out why fPIC is necessary in c++98
+CXXFLAGS= -std=c++98 -pedantic-errors -fPIC
+LIBRARY = CheckpointAdapter
+SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
+INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh data_support.hh Guard.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 test1:
-	plexilexec -p plans/plan1.plx
+	plexilc plans/PanoramaCrashTest.ple
+	plexilexec -p plans/PanoramaCrashTest.plx
+
+test2:
+	plexilc plans/StringOperations.ple
+	plexilexec -p plans/StringOperations.plx
