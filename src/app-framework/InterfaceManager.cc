@@ -308,21 +308,6 @@ namespace PLEXIL
   InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    if (g_configuration->lookupIsTelemetry(state.name())) {
-      // LookupNow not supported for this state, use last cached value
-      debugStmt("InterfaceManager:lookupNow", {
-        CachedValue const *cv = cacheEntry.cachedValue();
-        if (cv) {
-        debugMsg("InterfaceManager:lookupNow", " lookup " << state
-          << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
-        }
-        else {
-          debugMsg("InterfaceManager:lookupNow", " lookup " << state
-            << " is telemetry only, no cached value, so is UNKNOWN");
-        }
-	    });
-      return;
-    }
     
     AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {

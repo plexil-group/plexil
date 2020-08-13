@@ -518,7 +518,7 @@ namespace PLEXIL {
   }
 
   bool AdapterConfiguration::registerTelemetryLookup(std::string const &stateName) {
-    return false; //TODO: change the way telemetry only is handled to align with the rest of the code
+    return registerLookupObjectHandler(stateName, new TelemetryLookupHandler());
   }
 
   /**
@@ -527,15 +527,13 @@ namespace PLEXIL {
    * @param handler An object to register as the handler.
    */
   bool AdapterConfiguration::registerLookupObjectHandler(std::string const &stateName, 
-        AdapterConfiguration::AbstractLookupHandler *handler, bool telemetryOnly) {
+        AdapterConfiguration::AbstractLookupHandler *handler) {
     LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
     if (it == m_lookupMap.end()) {
       // Not found, OK to add
       debugMsg("AdapterConfiguration:registerLookupHandler",
                 " registering handler for lookup of '" << stateName << "'");
       m_lookupMap.insert(std::pair<std::string, AdapterConfiguration::AbstractLookupHandler *>(stateName, handler));
-      if (telemetryOnly)
-        m_telemetryLookups.insert(stateName);
       return true;
     } else {
       debugMsg("AdapterConfiguration:registerLookupHandler",
@@ -562,14 +560,13 @@ namespace PLEXIL {
           SetThresholdsDoubleHandler setThresholdsDouble,
           SetThresholdsIntHandler setThresholdsInt,
           SubscribeHandler subscribe,
-          UnsubscribeHandler unsubscribe,
-          bool telemetryOnly) {
+          UnsubscribeHandler unsubscribe) {
     return registerLookupObjectHandler(stateName, new InternalLookupHandler(
                                   lookupNow,
                                   setThresholdsDouble,
                                   setThresholdsInt,
                                   subscribe,
-                                  unsubscribe), telemetryOnly);
+                                  unsubscribe));
   }
 
   /**
@@ -593,17 +590,6 @@ namespace PLEXIL {
       return m_defaultLookupHandler;
     }
     return nullptr;
-  }
-
-  /**
-   * @brief Query configuration data to determine if a state is only available as telemetry.
-   * @param stateName The state.
-   * @return True if state is declared telemetry-only, false otherwise.
-   * @note In the absence of a declaration, a state is presumed not to be telemetry.
-   */
-  bool AdapterConfiguration::lookupIsTelemetry(std::string const &stateName) const
-  {
-    return m_telemetryLookups.find(stateName) != m_telemetryLookups.end();
   }
 
   /**
@@ -899,7 +885,9 @@ namespace PLEXIL {
   bool AdapterConfiguration::registerLookupInterface(std::string const &stateName,
                                                      InterfaceAdapter *intf,
                                                      bool telemetryOnly) {
-    return this->registerLookupObjectHandler(stateName, new InterfaceLookupHandler(intf), telemetryOnly);
+    if (telemetryOnly)
+        return registerTelemetryLookup(stateName);
+    return this->registerLookupObjectHandler(stateName, new InterfaceLookupHandler(intf));
   }
 
   /**
@@ -1011,6 +999,18 @@ namespace PLEXIL {
    */
   InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
     return nullptr;
+  }
+
+  /**
+   * @deprecated
+   * @brief Query configuration data to determine if a state is only available as telemetry.
+   * @param stateName The state.
+   * @return True if state is declared telemetry-only, false otherwise.
+   * @note In the absence of a declaration, a state is presumed not to be telemetry.
+   */
+  bool AdapterConfiguration::lookupIsTelemetry(std::string const &stateName) const
+  {
+    return false;
   }
 
 }

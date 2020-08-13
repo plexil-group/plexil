@@ -37,6 +37,7 @@
 #include "InterfaceAdapter.hh"
 #include "Value.hh"
 #include "AdapterExecInterface.hh"
+#include "Debug.hh"
 
 #include <set>
 
@@ -158,7 +159,7 @@ namespace PLEXIL {
      * @param sateName The name of the state to map to this object
      * @param handler An object to register as the handler.
      */
-    bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler, bool telemetryOnly = false);
+    bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler);
 
     /**
      * @brief Register the given handler for lookups to this state.
@@ -172,15 +173,13 @@ namespace PLEXIL {
      * @param setThresholdsInt The setThresholdsInt handler function for this state.
      * @param subscribe The subscribe handler function for this state.
      * @param unsubscribe The lookup handler function for this state.
-     * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
      */
     bool registerLookupHandler(std::string const &stateName,
           LookupNowHandler ln,
           SetThresholdsDoubleHandler setTD = nullptr,
           SetThresholdsIntHandler setTI = nullptr,
           SubscribeHandler sub = nullptr,
-          UnsubscribeHandler unsub = nullptr,
-          bool telemetryOnly = false);
+          UnsubscribeHandler unsub = nullptr);
 
     /**
      * @brief Return the lookup handler in effect for lookups with this state name,
@@ -599,6 +598,28 @@ namespace PLEXIL {
       InterfacePlannerUpdateHandler(InterfaceAdapter *intf) : interface(intf) {}
       virtual void sendPlannerUpdate(Update *update) {
         interface->sendPlannerUpdate(update);
+      }
+    };
+
+
+    class TelemetryLookupHandler : public AbstractLookupHandler {
+    public:
+      TelemetryLookupHandler() {}
+      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+        // LookupNow not supported for this state, use last cached value
+        debugMsg("TelemetryLookupHandler:lookupNow", " lookup is telemetry only, using cached value ");
+      }
+      void setThresholds(const State &state, double hi, double lo) {
+        debugMsg("TelemetryLookupHandler:setThresholds", " lookup is telemetry only, ignoring setThresholds");
+      }
+      void setThresholds(const State &state, int32_t hi, int32_t lo) {
+        debugMsg("TelemetryLookupHandler:setThresholds", " lookup is telemetry only, ignoring setThresholds");
+      }
+      void subscribe(const State &state) {
+        debugMsg("TelemetryLookupHandler:subscribe", " lookup is telemetry only, ignoring subscribe");
+      }
+      void unsubscribe(const State &state) {
+        debugMsg("TelemetryLookupHandler:unsubscribe", " lookup is telemetry only, ignoring unsubscribe");
       }
     };
 
