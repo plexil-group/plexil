@@ -589,7 +589,7 @@ namespace PLEXIL {
                " using defualt handler for lookup '" << stateName << "'");
       return m_defaultLookupHandler;
     }
-    return nullptr;
+    return NULL;
   }
 
   /**
@@ -656,7 +656,7 @@ namespace PLEXIL {
       return m_defaultCommandHandler;
     }
 
-    return nullptr;
+    return NULL;
   }
 
   bool AdapterConfiguration::setDefaultLookupObjectHandler(AdapterConfiguration::AbstractLookupHandler *handler) {
@@ -940,7 +940,7 @@ namespace PLEXIL {
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
-    return nullptr;
+    return NULL;
   }
 
   /**
@@ -949,7 +949,7 @@ namespace PLEXIL {
             May return NULL. Returns NULL if default interfaces are not implemented.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
-    return nullptr;
+    return NULL;
   }
 
   /**
@@ -959,7 +959,7 @@ namespace PLEXIL {
    * @param stateName The state.
    */
   InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
-    return nullptr;
+    return NULL;
   }
 
   /**
@@ -968,7 +968,7 @@ namespace PLEXIL {
             May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
-    return nullptr;
+    return NULL;
   }
 
   /**
@@ -976,7 +976,7 @@ namespace PLEXIL {
    * @brief Return the current default interface adapter. May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultInterface() {
-    return nullptr;
+    return NULL;
   }
 
   /**
@@ -998,7 +998,7 @@ namespace PLEXIL {
             Returns NULL if default interfaces are not defined.
    */
   InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
-    return nullptr;
+    return NULL;
   }
 
   /**

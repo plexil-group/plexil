@@ -176,10 +176,10 @@ namespace PLEXIL {
      */
     bool registerLookupHandler(std::string const &stateName,
           LookupNowHandler ln,
-          SetThresholdsDoubleHandler setTD = nullptr,
-          SetThresholdsIntHandler setTI = nullptr,
-          SubscribeHandler sub = nullptr,
-          UnsubscribeHandler unsub = nullptr);
+          SetThresholdsDoubleHandler setTD = NULL,
+          SetThresholdsIntHandler setTI = NULL,
+          SubscribeHandler sub = NULL,
+          UnsubscribeHandler unsub = NULL);
 
     /**
      * @brief Return the lookup handler in effect for lookups with this state name,
@@ -221,7 +221,7 @@ namespace PLEXIL {
      */
     bool registerCommandHandler(std::string const &stateName,
           ExecuteCommandHandler execCmd,
-          AbortCommandHandler abortCmd = nullptr);
+          AbortCommandHandler abortCmd = NULL);
 
     /**
      * @brief Return the lookup handler in effect for lookups with this state name,
@@ -249,10 +249,10 @@ namespace PLEXIL {
      */
     bool setDefaultLookupHandler(          
           LookupNowHandler lookupNow,
-          SetThresholdsDoubleHandler setThresholdsDouble = nullptr,
-          SetThresholdsIntHandler setThresholdsInt = nullptr,
-          SubscribeHandler subscribe = nullptr,
-          UnsubscribeHandler unsubscribe = nullptr);
+          SetThresholdsDoubleHandler setThresholdsDouble = NULL,
+          SetThresholdsIntHandler setThresholdsInt = NULL,
+          SubscribeHandler subscribe = NULL,
+          UnsubscribeHandler unsubscribe = NULL);
 
     bool setDefaultCommandObjectHandler(AbstractCommandHandler *handler);
     
@@ -269,7 +269,7 @@ namespace PLEXIL {
      */
     bool setDefaultCommandHandler(
           ExecuteCommandHandler execCmd,
-          AbortCommandHandler abortCmd = nullptr);
+          AbortCommandHandler abortCmd = NULL);
 
     /**
      * @brief Return the current default handler for commands.
@@ -507,9 +507,9 @@ namespace PLEXIL {
       SubscribeHandler subscribeHandler;
       UnsubscribeHandler unsubscribeHandler;
     public:
-      InternalLookupHandler(LookupNowHandler ln, SetThresholdsDoubleHandler setTD = nullptr, 
-          SetThresholdsIntHandler setTI = nullptr, SubscribeHandler sub = nullptr,
-          UnsubscribeHandler unsub = nullptr) : 
+      InternalLookupHandler(LookupNowHandler ln, SetThresholdsDoubleHandler setTD = NULL, 
+          SetThresholdsIntHandler setTI = NULL, SubscribeHandler sub = NULL,
+          UnsubscribeHandler unsub = NULL) : 
           lookupNowHandler(ln), setThresholdsDoubleHandler(setTD),
           setThresholdsIntHandler(setTI), subscribeHandler(sub), unsubscribeHandler(unsub) {}
       virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
@@ -539,7 +539,7 @@ namespace PLEXIL {
       ExecuteCommandHandler executeCommandHandler;
       AbortCommandHandler abortCommandHandler;
     public:
-      InternalCommandHandler(ExecuteCommandHandler exec, AbortCommandHandler abort = nullptr) :
+      InternalCommandHandler(ExecuteCommandHandler exec, AbortCommandHandler abort = NULL) :
         executeCommandHandler(exec), abortCommandHandler(abort) {}
       virtual void executeCommand(Command *cmd) {
         executeCommandHandler(cmd);
