@@ -23,12 +23,14 @@ import plexiljava.model.containers.EmptyNodeModel;
 import plexiljava.model.containers.ForNodeModel;
 import plexiljava.model.containers.IfNodeModel;
 import plexiljava.model.containers.ThenNodeModel;
+import plexiljava.model.containers.TryNodeModel;
 import plexiljava.model.containers.WhileNodeModel;
 import plexiljava.model.declarations.AssignmentModel;
 import plexiljava.model.declarations.CommandDeclarationModel;
 import plexiljava.model.declarations.DeclareArrayModel;
 import plexiljava.model.declarations.DeclareVariableModel;
 import plexiljava.model.declarations.InitialValueModel;
+import plexiljava.model.declarations.LibraryNodeDeclarationModel;
 import plexiljava.model.declarations.StateDeclarationModel;
 import plexiljava.model.expressions.ArrayElementModel;
 import plexiljava.model.expressions.BooleanRHSModel;
@@ -61,9 +63,13 @@ import plexiljava.model.states.WaitingStateModel;
 import plexiljava.model.tokens.AnyParametersModel;
 import plexiljava.model.tokens.ArgumentsModel;
 import plexiljava.model.tokens.ArrayValueModel;
+import plexiljava.model.tokens.InModel;
+import plexiljava.model.tokens.InOutModel;
 import plexiljava.model.tokens.IndexModel;
+import plexiljava.model.tokens.InterfaceModel;
 import plexiljava.model.tokens.IsKnownModel;
 import plexiljava.model.tokens.NameModel;
+import plexiljava.model.tokens.OutModel;
 import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.ReturnModel;
 import plexiljava.model.tokens.ToleranceModel;
@@ -144,6 +150,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "InitialValue":
 				children.add(new InitialValueModel(child));
+				break;
+			case "LibraryNodeDeclaration":
+				children.add(new LibraryNodeDeclarationModel(child));
 				break;
 			case "StateDeclaration":
 				children.add(new StateDeclarationModel(child));
@@ -261,11 +270,23 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Index":
 				children.add(new IndexModel(child));
 				break;
+			case "In":
+				children.add(new InModel(child));
+				break;
+			case "InOut":
+				children.add(new InOutModel(child));
+				break;
+			case "Interface":
+				children.add(new InterfaceModel(child));
+				break;
 			case "IsKnown":
 				children.add(new IsKnownModel(child));
 				break;
 			case "Name":
 				children.add(new NameModel(child));
+				break;
+			case "Out":
+				children.add(new OutModel(child));
 				break;
 			case "Parameter":
 				children.add(new ParameterModel(child));
@@ -291,7 +312,10 @@ public class NodeModel extends BaseModel implements Decompilable {
 						if( child.hasAttribute("epx") ) {
 							switch( child.getAttribute("epx").getValue() ) {
 								case "Sequence":
-									if( getParent() == null ) {
+									children.add(new NodeModel(child));
+									break;
+									/*
+									if( getParent() == null || getParent() instanceof TryNodeModel ) {
 										children.add(new NodeModel(child));
 										break;
 									}
@@ -299,6 +323,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 										generateChild(grandchild);
 									}
 									break;
+									*/
 								case "Concurrence":
 									children.add(new ConcurrenceNodeModel(child));
 									break;
@@ -316,6 +341,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 									break;
 								case "While":
 									children.add(new WhileNodeModel(child));
+									break;
+								case "Try":
+									children.add(new TryNodeModel(child));
 									break;
 								case "aux":
 									children.add(new AuxNodeModel(child));

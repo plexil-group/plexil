@@ -31,13 +31,13 @@ public class IfNodeModel extends NodeModel {
 		}
 		
 		dsb.append(ifCondition, " ) {\n");
-		
 		for( BaseModel child : then.getChildren() ) {
 			if( child instanceof ConditionModel ) {
 				continue;
 			}
 			dsb.addLine(child.decompile(indentLevel+1));
 		}
+		dsb.addBlockCloser(indentLevel);
 		
 		return dsb.toString();
 	}

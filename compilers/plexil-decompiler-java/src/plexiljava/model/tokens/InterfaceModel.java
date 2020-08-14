@@ -1,25 +1,27 @@
-package plexiljava.model.containers;
+package plexiljava.model.tokens;
 
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
-public class EmptyNodeModel extends NodeModel {
+public class InterfaceModel extends NodeModel {
 
-	public EmptyNodeModel(BaseModel node) {
+	public InterfaceModel(BaseModel node) {
 		super(node);
 	}
 
 	@Override
-	public boolean verify() {
-		return hasQuality("NodeId");
-	}
-	
-	@Override
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append(getQuality("NodeId").getValue(), ": {}");
+		
+		for( BaseModel child : children ) {
+			dsb.append(child.decompile(0), ", ");
+		}
+		if( !children.isEmpty() ) {
+			dsb.sb.delete(dsb.sb.length()-2, dsb.sb.length());
+		}
+		
 		return dsb.toString();
 	}
 	

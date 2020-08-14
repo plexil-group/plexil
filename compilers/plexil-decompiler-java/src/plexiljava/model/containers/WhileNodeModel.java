@@ -32,7 +32,7 @@ public class WhileNodeModel extends NodeModel {
 			}
 		}
 		
-		dsb.append(conditionText, " ( {\n");
+		dsb.append(conditionText, " ) {\n");
 		for( BaseModel child : children ) {
 			if( child instanceof RepeatConditionModel || child instanceof ConditionNodeModel ) {
 				continue;

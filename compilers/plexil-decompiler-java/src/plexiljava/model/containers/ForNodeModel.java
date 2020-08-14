@@ -23,7 +23,6 @@ public class ForNodeModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append("for( ");
 		dsb.append("for ( ", getChild(DeclareVariableModel.class).decompile(0), " ");
 
 		BaseModel aux = null;

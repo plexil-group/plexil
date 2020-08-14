@@ -20,9 +20,12 @@ public class AssignmentModel extends NodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		if( children.size() == 2 ) {
-			dsb.append(children.get(0).decompile(0), " = ", children.get(1).decompile(1));
+			dsb.append(children.get(0).decompile(0), " = ", children.get(1).decompile(0));
 		} else {
 			dsb.append(qualities.get(0).getValue(), " = ", children.get(0).decompile(0));
+		}
+		if( indentLevel != 0 ) {
+			dsb.append(";");
 		}
 		return dsb.toString();
 	}
