@@ -162,7 +162,7 @@ static Value fetch (const string& state_name, const vector<Value>& args)
 	retval = CheckpointSystem::getInstance()->getTimeOfBoot(get_boot(args,0));
       }
     }
-    else if (state_name == "IsOK"){
+    else if (state_name == "IsBootOK"){
       ARGCOUNT(0,1){
 	retval = CheckpointSystem::getInstance()->getIsOK(get_boot(args,0));
       }
@@ -286,7 +286,7 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
 bool CheckpointAdapter::initialize()
 {
   g_configuration->registerLookupInterface("DidCrash", this);
-  g_configuration->registerLookupInterface("IsOK", this);
+  g_configuration->registerLookupInterface("IsBootOK", this);
   
   g_configuration->registerLookupInterface("NumberOfAccessibleBoots", this);
   g_configuration->registerLookupInterface("NumberOfTotalBoots", this);
@@ -299,9 +299,9 @@ bool CheckpointAdapter::initialize()
   g_configuration->registerLookupInterface("CheckpointInfo", this);
   g_configuration->registerLookupInterface("CheckpointWhen", this);
 
-  g_configuration->registerCommandInterface("SetCheckpoint", this);
-  g_configuration->registerCommandInterface("SetOK", this);
-  g_configuration->registerCommandInterface("Flush", this);
+  g_configuration->registerCommandInterface("set_checkpoint", this);
+  g_configuration->registerCommandInterface("set_boot_ok", this);
+  g_configuration->registerCommandInterface("flush_checkpoints", this);
 
   // Register ourselves to receive updates
   setSubscriber(this);
@@ -353,18 +353,18 @@ void CheckpointAdapter::executeCommand(Command *cmd)
   const vector<Value>& args = cmd->getArgValues();
   
   // Each command in CheckpointSystem publishes to ReceiveCommandReceived or Success 
-  // SetCheckpoint and SetOK to only return success when the change has been (possibly asycnrhonously)
+  // set_checkpoint and set_boot_ok to only return success when the change has been (possibly asycnrhonously)
   // written to disk
 
   // setOK and setCheckpoint handle the command acknowledgement themselves
     
-  if (name == "Flush"){
+  if (name == "flush_checkpoints"){
     retval = CheckpointSystem::getInstance()->flush();
     publishCommandSuccess(cmd); // publish success
   }
-  else if (name == "SetCheckpoint") {
+  else if (name == "set_checkpoint") {
     if(args.size()<1 || args.size()>3){
-      cerr << error << "SetCheckpoint invalid number of arguments" << endl;
+      cerr << error << "set_checkpoint invalid number of arguments" << endl;
     }
     
     else{
@@ -386,9 +386,9 @@ void CheckpointAdapter::executeCommand(Command *cmd)
     }
   }
 
-  else if (name == "SetOK") {
+  else if (name == "set_boot_ok") {
     if(args.size()>2){
-      cerr << error << "SetOK invalid number of arguments" << endl;
+      cerr << error << "set_boot_ok invalid number of arguments" << endl;
     }
     
     else{      

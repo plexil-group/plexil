@@ -38,11 +38,11 @@ SaveConfiguration-Directory: The directory in which saves (in the form x_save.xm
 			     Default "./"
 
 
-AdapterConfiguration-OKOnExit: Whether IsOK is set to true when the executive exits normally.
+AdapterConfiguration-OKOnExit: Whether IsBootOK is set to true when the executive exits normally.
 			       It is not recommended to set this without also setting FlushOnExit.
 			       Default "true"
 			       
-AdapterConfigurationn-FlushOnExit: Whether checkpoint data/IsOK/last_save_time is flushed
+AdapterConfigurationn-FlushOnExit: Whether checkpoint data/IsBootOK/last_save_time is flushed
 				   to disk on exit.
 			       	   Default "true"
 				   
