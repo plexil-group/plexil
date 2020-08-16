@@ -21,6 +21,7 @@ public class InOutModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		
 		dsb.append("InOut ", children.get(0).decompile(indentLevel));
+		dsb.sb.deleteCharAt(dsb.sb.length()-1);
 		return dsb.toString();
 	}
 }

@@ -21,6 +21,7 @@ public class InModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		
 		dsb.append("In ", children.get(0).decompile(indentLevel));
+		dsb.deleteCharAt(dsb.sb.length()-1);
 		return dsb.toString();
 	}
 	
