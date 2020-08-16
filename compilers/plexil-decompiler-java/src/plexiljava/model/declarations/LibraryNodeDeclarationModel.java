@@ -20,6 +20,7 @@ public class LibraryNodeDeclarationModel extends NodeModel {
 		if( hasChild(InterfaceModel.class) ) {
 			dsb.append(getChild(InterfaceModel.class).decompile(0));
 		}
+		dsb.append(");");
 		
 		return dsb.toString();
 	}

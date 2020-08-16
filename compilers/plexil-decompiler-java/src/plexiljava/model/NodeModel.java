@@ -37,6 +37,7 @@ import plexiljava.model.expressions.BooleanRHSModel;
 import plexiljava.model.expressions.NodeTimepointValue;
 import plexiljava.model.expressions.NumericRHSModel;
 import plexiljava.model.expressions.StringRHSModel;
+import plexiljava.model.libraries.LibraryNodeCallModel;
 import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
 import plexiljava.model.lookups.LookupWithFrequencyModel;
@@ -60,6 +61,7 @@ import plexiljava.model.states.FinishingStateModel;
 import plexiljava.model.states.InactiveStateModel;
 import plexiljava.model.states.IterationEndedStateModel;
 import plexiljava.model.states.WaitingStateModel;
+import plexiljava.model.tokens.AliasModel;
 import plexiljava.model.tokens.AnyParametersModel;
 import plexiljava.model.tokens.ArgumentsModel;
 import plexiljava.model.tokens.ArrayValueModel;
@@ -70,7 +72,9 @@ import plexiljava.model.tokens.InterfaceModel;
 import plexiljava.model.tokens.IsKnownModel;
 import plexiljava.model.tokens.MinusInfinityModel;
 import plexiljava.model.tokens.NameModel;
+import plexiljava.model.tokens.NodeFailureVariableModel;
 import plexiljava.model.tokens.NodeOutcomeVariableModel;
+import plexiljava.model.tokens.NodeStateVariableModel;
 import plexiljava.model.tokens.OutModel;
 import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.PlusInfinityModel;
@@ -176,7 +180,11 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "StringRHS":
 				children.add(new StringRHSModel(child));
 				break;
-				/* Lookups */
+			/* Libraries */
+			case "LibraryNodeCall":
+				children.add(new LibraryNodeCallModel(child));
+				break;
+			/* Lookups */
 			case "LookupOnChange":
 				children.add(new LookupOnChangeModel(child));
 				break;
@@ -272,10 +280,16 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "IterationEnded":
 				children.add(new IterationEndedStateModel(child));
 				break;
+			case "NodeStateVariable":
+				children.add(new NodeStateVariableModel(child));
+				break;
 			case "Waiting":
 				children.add(new WaitingStateModel(child));
 				break;
 			/* Tokens */
+			case "Alias":
+				children.add(new AliasModel(child));
+				break;
 			case "AnyParameters":
 				children.add(new AnyParametersModel(child));
 				break;
@@ -309,6 +323,8 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "NodeOutcomeVariable":
 				children.add(new NodeOutcomeVariableModel(child));
 				break;
+			case "NodeFailureVariable":
+				children.add(new NodeFailureVariableModel(child));
 			case "Out":
 				children.add(new OutModel(child));
 				break;
