@@ -31,6 +31,10 @@ public class IfNodeModel extends NodeModel {
 		}
 		
 		dsb.append(ifCondition, " ) {\n");
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
 		for( BaseModel child : then.getChildren() ) {
 			if( child instanceof ConditionModel ) {
 				continue;

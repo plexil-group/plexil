@@ -31,8 +31,8 @@ public class DecompilableStringBuilder {
 		return this;
 	}
 	
-	public DecompilableStringBuilder addLine(String line) {
-		sb.append(line);
+	public DecompilableStringBuilder addLine(Object...objects) {
+		sb.append(objects);
 		sb.append("\n");
 		return this;
 	}

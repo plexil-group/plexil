@@ -68,9 +68,12 @@ import plexiljava.model.tokens.InOutModel;
 import plexiljava.model.tokens.IndexModel;
 import plexiljava.model.tokens.InterfaceModel;
 import plexiljava.model.tokens.IsKnownModel;
+import plexiljava.model.tokens.MinusInfinityModel;
 import plexiljava.model.tokens.NameModel;
+import plexiljava.model.tokens.NodeOutcomeVariableModel;
 import plexiljava.model.tokens.OutModel;
 import plexiljava.model.tokens.ParameterModel;
+import plexiljava.model.tokens.PlusInfinityModel;
 import plexiljava.model.tokens.ReturnModel;
 import plexiljava.model.tokens.ToleranceModel;
 
@@ -196,6 +199,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "DIV":
 				children.add(new DIVOperatorModel(child));
 				break;
+			case "EQBoolean":
+				children.add(new EQOperatorModel(child));
+				break;
 			case "EQNumeric":
 				children.add(new EQOperatorModel(child));
 				break;
@@ -221,6 +227,18 @@ public class NodeModel extends BaseModel implements Decompilable {
 				children.add(new MULOperatorModel(child));
 				break;
 			case "NEQ":
+				children.add(new NEQOperatorModel(child));
+				break;
+			case "NEExpression":
+				children.add(new NEQOperatorModel(child));
+				break;
+			case "NEBoolean":
+				children.add(new NEQOperatorModel(child));
+				break;
+			case "NENumeric":
+				children.add(new NEQOperatorModel(child));
+				break;
+			case "NEInternal":
 				children.add(new NEQOperatorModel(child));
 				break;
 			case "OR":
@@ -282,14 +300,23 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "IsKnown":
 				children.add(new IsKnownModel(child));
 				break;
+			case "MinusInfinity":
+				children.add(new MinusInfinityModel(child));
+				break;
 			case "Name":
 				children.add(new NameModel(child));
+				break;
+			case "NodeOutcomeVariable":
+				children.add(new NodeOutcomeVariableModel(child));
 				break;
 			case "Out":
 				children.add(new OutModel(child));
 				break;
 			case "Parameter":
 				children.add(new ParameterModel(child));
+				break;
+			case "PlusInfinity":
+				children.add(new PlusInfinityModel(child));
 				break;
 			case "Return":
 				children.add(new ReturnModel(child));

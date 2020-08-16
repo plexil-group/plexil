@@ -18,6 +18,10 @@ public class TryNodeModel extends NodeModel {
 		dsb.append("Try\n");
 		dsb.addIndent(indentLevel);
 		dsb.append("{\n");
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
 		for( BaseModel child : children ) {
 			if( child instanceof ConditionModel ) {
 				continue;

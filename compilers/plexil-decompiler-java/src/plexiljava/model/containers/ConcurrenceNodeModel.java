@@ -21,6 +21,10 @@ public class ConcurrenceNodeModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		dsb.append(getQuality("NodeId").getValue());
 		dsb.addBlockOpener("Concurrence");
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
 		for( BaseModel child : children ) {
 			dsb.addLine(child.decompile(indentLevel+1));
 		}

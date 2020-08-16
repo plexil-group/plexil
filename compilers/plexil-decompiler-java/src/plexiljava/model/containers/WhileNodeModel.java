@@ -33,6 +33,10 @@ public class WhileNodeModel extends NodeModel {
 		}
 		
 		dsb.append(conditionText, " ) {\n");
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
 		for( BaseModel child : children ) {
 			if( child instanceof RepeatConditionModel || child instanceof ConditionNodeModel ) {
 				continue;

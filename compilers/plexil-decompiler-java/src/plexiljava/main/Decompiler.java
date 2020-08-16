@@ -23,6 +23,7 @@ public class Decompiler {
 	public static Logger logger = Logger.getLogger(Decompiler.class.getName());
 	public static boolean VERBOSE = false;
 	public static boolean FORCE = false;
+	public static boolean YES = false;
 	
 	public static String infileName = null;
 	public static String outfileName = null;
@@ -38,6 +39,9 @@ public class Decompiler {
 					case 'f':
 						FORCE = true;
 						break;
+					case 'y':
+						YES = true;
+						break;
 					default:
 						logger.setLevel(Level.WARNING);
 						logger.warning("Unrecognized flag: " + arg + "\nOperation aborted.");
@@ -47,16 +51,11 @@ public class Decompiler {
 				argList.add(arg);
 			}
 		}
-		if( args.length < 2 ) {
+		if( argList.size() < 2 ) {
 			logger.setLevel(Level.WARNING);
-			logger.warning("usage: [options] file_to_decompile output_file\n  options:\n    -d\tPrint debug statements\n    -f\tForce decompile with errors\nWould you like to input these filepaths manually? (y/n): ");
+			logger.warning("usage: [options] file_to_decompile output_file\n  options:\n    -d\tPrint debug statements\n    -f\tForce decompile with errors\n	-y\tOverwrite files without confirmation");
+			
 			Scanner sc = new Scanner(System.in);
-			String response = sc.nextLine();
-			if( !(response.startsWith("y") || response.startsWith("Y")) ) {
-				logger.setLevel(Level.INFO);
-				logger.info("Operation aborted.");
-				return; 
-			}
 			logger.setLevel(Level.INFO);
 			logger.info("file_to_decompile: ");
 			infileName = sc.nextLine();
@@ -65,12 +64,12 @@ public class Decompiler {
 			outfileName = sc.nextLine();
 		}
 		if( infileName == null ) {
-			infileName = args[0];
+			infileName = argList.get(0);
 		}
 		if( outfileName == null ) {
-			outfileName = args[1];
+			outfileName = argList.get(1);
 		}
-		if( infileName.equals(outfileName) ) {
+		if( infileName.equals(outfileName) && !YES ) {
 			logger.setLevel(Level.WARNING);
 			logger.warning("The output file will replace the contents of the input file.\nAre you sure you wish to continue? (y/n): ");
 			Scanner sc = new Scanner(System.in);
@@ -88,7 +87,7 @@ public class Decompiler {
 			return;
 		}
 		File outfile = new File(outfileName);
-		if( outfile.exists() ) {
+		if( outfile.exists() && !YES ) {
 			logger.setLevel(Level.WARNING);
 			logger.warning("Outfile already exists; this operation will override the existing outfile.\nAre you sure you wish to continue? (y/n): ");
 			Scanner sc = new Scanner(System.in);

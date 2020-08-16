@@ -22,11 +22,13 @@ public class AssignmentNodeModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		if( indentLevel == 0 ) {
 			dsb.append(getChild(AssignmentModel.class).decompile(0), ";");
-		} else if( children.size() == 1 ) {
-			dsb.append(getQuality("NodeId").getValue(), ": ", getChild(AssignmentModel.class).decompile(0), ";");
 		} else {
 			dsb.append(getQuality("NodeId").getValue());
 			dsb.addBlockOpener();
+			if( hasQuality("Priority") ) {
+				dsb.addIndent(indentLevel+1);
+				dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+			}
 			for( BaseModel child : children ) {
 				dsb.append(child.decompile(indentLevel+1));
 				if( child instanceof AssignmentModel ) {
