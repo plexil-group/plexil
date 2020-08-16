@@ -32,7 +32,9 @@ public class DecompilableStringBuilder {
 	}
 	
 	public DecompilableStringBuilder addLine(Object...objects) {
-		sb.append(objects);
+		for( Object o : objects ) {
+			sb.append(o);
+		}
 		sb.append("\n");
 		return this;
 	}

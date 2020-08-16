@@ -16,7 +16,7 @@ public class LibraryNodeDeclarationModel extends NodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		
-		dsb.append("LibraryAction ", getQuality("Name"), " ", "(");
+		dsb.append("LibraryAction ", getQuality("Name").getValue(), " ", "(");
 		if( hasChild(InterfaceModel.class) ) {
 			dsb.append(getChild(InterfaceModel.class).decompile(0));
 		}

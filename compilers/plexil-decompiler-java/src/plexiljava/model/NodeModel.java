@@ -33,6 +33,7 @@ import plexiljava.model.declarations.InitialValueModel;
 import plexiljava.model.declarations.LibraryNodeDeclarationModel;
 import plexiljava.model.declarations.StateDeclarationModel;
 import plexiljava.model.expressions.ArrayElementModel;
+import plexiljava.model.expressions.ArrayRHSModel;
 import plexiljava.model.expressions.BooleanRHSModel;
 import plexiljava.model.expressions.NodeTimepointValue;
 import plexiljava.model.expressions.NumericRHSModel;
@@ -99,7 +100,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 	}
 	
 	public void generateChild(BaseModel child) {
-		// TODO: Consolidate categories, like skip
 		switch( child.getName() ) {
 			case "VariableDeclarations":
 				for( BaseModel grandchild : child.getChildren() ) {
@@ -167,6 +167,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 			/* Expressions */
 			case "ArrayElement":
 				children.add(new ArrayElementModel(child));
+				break;
+			case "ArrayRHS":
+				children.add(new ArrayRHSModel(child));
 				break;
 			case "BooleanRHS":
 				children.add(new BooleanRHSModel(child));
@@ -344,8 +347,10 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Node":
 				switch( child.getAttribute("NodeType").getValue() ) {
 					case "Assignment":
-						children.add(new AssignmentNodeModel(child));
-						break;
+						if( !child.hasAttribute("epx") ) {
+							children.add(new AssignmentNodeModel(child));
+							break;
+						}
 					case "Empty":
 						if( !child.hasAttribute("epx") ) {
 							children.add(new EmptyNodeModel(child));
@@ -454,7 +459,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 			if( child instanceof InvariantConditionModel ) {
 				continue;
 			}
-			
 			dsb.addLine(child.decompile(indentLevel+1));
 		}
 		

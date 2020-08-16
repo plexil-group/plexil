@@ -31,9 +31,6 @@ public class AssignmentNodeModel extends NodeModel {
 			}
 			for( BaseModel child : children ) {
 				dsb.append(child.decompile(indentLevel+1));
-				if( child instanceof AssignmentModel ) {
-					dsb.append(";");
-				}
 				dsb.append("\n");
 			}
 			dsb.addBlockCloser(indentLevel);

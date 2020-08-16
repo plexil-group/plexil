@@ -12,7 +12,7 @@ public class NodeFailureVariableModel extends NodeModel {
 
 	@Override
 	public boolean verify() {
-		return hasQuality("NodeId");
+		return hasQuality("NodeRef");
 	}
 	
 	@Override
@@ -20,7 +20,7 @@ public class NodeFailureVariableModel extends NodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		
-		dsb.append(getQuality("NodeId").getValue() + ".Failure");
+		dsb.append(getQuality("NodeRef").getValue() + ".Failure");
 		return dsb.toString();
 	}
 }

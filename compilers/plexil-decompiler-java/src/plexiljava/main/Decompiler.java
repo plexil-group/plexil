@@ -53,7 +53,7 @@ public class Decompiler {
 		}
 		if( argList.size() < 2 ) {
 			logger.setLevel(Level.WARNING);
-			logger.warning("usage: [options] file_to_decompile output_file\n  options:\n    -d\tPrint debug statements\n    -f\tForce decompile with errors\n	-y\tOverwrite files without confirmation");
+			logger.warning("usage: [options] file_to_decompile output_file\n  options:\n    -d\tPrint debug statements\n    -f\tForce decompile with errors\n    -y\tOverwrite files without confirmation");
 			
 			Scanner sc = new Scanner(System.in);
 			logger.setLevel(Level.INFO);
