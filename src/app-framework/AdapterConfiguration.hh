@@ -35,7 +35,6 @@
 #define ADAPTERCONFIGURATION_HH_
 
 #include "InterfaceAdapter.hh"
-#include "Value.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 

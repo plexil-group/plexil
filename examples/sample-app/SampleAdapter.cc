@@ -61,7 +61,6 @@ static Value const Unknown;
 // An empty argument vector.
 static vector<Value> const EmptyArgs;
 
-
 ///////////////////////////// State support //////////////////////////////////
 
 // Queries the system for the value of a state and its arguments.
@@ -158,12 +157,23 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
+  m_localExecInterface = &execInterface;
   debugMsg("SampleAdapter", " created.");
 }
 
 bool SampleAdapter::initialize()
 {
-  g_configuration->defaultRegisterAdapter(this);
+  g_configuration->registerCommandHandler("SetSize", SampleAdapter::setSize);
+  g_configuration->registerCommandHandler("SetSpeed", SampleAdapter::setSpeed);
+  g_configuration->registerCommandHandler("SetColor", SampleAdapter::setColor);
+  g_configuration->registerCommandHandler("SetName", SampleAdapter::setName);
+  g_configuration->registerCommandHandler("Move", SampleAdapter::move);
+  g_configuration->registerCommandHandler("Hello", SampleAdapter::hello);
+  g_configuration->registerCommandHandler("Square", SampleAdapter::square);
+  g_configuration->registerCommandHandler("Cube", SampleAdapter::cube);
+  g_configuration->setDefaultCommandHandler(SampleAdapter::defaultHandler);
+  g_configuration->setDefaultLookupInterface(this);
+
   setSubscriber(this);
   debugMsg("SampleAdapter", " initialized.");
   return true;
@@ -192,70 +202,94 @@ bool SampleAdapter::shutdown()
   return true;
 }
 
-
-// Sends a command (as invoked in a Plexil command node) to the system and sends
-// the status, and return value if applicable, back to the executive.
-//
-void SampleAdapter::executeCommand(Command *cmd)
-{
+void SampleAdapter::setSize(Command *cmd) {
   string const &name = cmd->getName();
-  debugMsg("SampleAdapter", "Received executeCommand for " << name);  
-
-  Value retval = Unknown;
-  vector<Value> argv(10);
-  const vector<Value>& args = cmd->getArgValues();
-  copy (args.begin(), args.end(), argv.begin());
-
-  // NOTE: A more streamlined approach to dispatching on command type
-  // would be nice.
-  string s;
-  int32_t i1 = 0, i2 = 0;
+  debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   double d;
-
-  if (name == "SetSize") {
-    args[0].getValue(d);
-    SampleSystem::getInstance()->setSize (d);
-  }
-  else if (name == "SetSpeed") {
-    args[0].getValue(i1);
-    SampleSystem::getInstance()->setSpeed (i1);
-  }
-  else if (name == "SetColor") {
-    args[0].getValue(s);
-    SampleSystem::getInstance()->setColor (s);
-  }
-  else if (name == "SetName") {
-    args[0].getValue(s);
-    SampleSystem::getInstance()->setName (s);
-  }
-  else if (name == "Move") {
-    args[0].getValue(s);
-    args[1].getValue(i1);
-    args[2].getValue(i2);
-    SampleSystem::getInstance()->move (s, i1, i2);
-  }
-  else if (name == "Hello")
-    SampleSystem::getInstance()->hello ();
-  else if (name == "Square") {
-    args[0].getValue(i1);
-    retval = SampleSystem::getInstance()->square (i1);
-  }
-  else if (name == "Cube") {
-    args[0].getValue(i1);
-    retval = SampleSystem::getInstance()->cube(i1);
-  }
-  else
-    cerr << error << "invalid command: " << name << endl;
-
-  // This sends a command handle back to the executive.
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  // This sends the command's return value (if expected) to the executive.
-  if (retval != Unknown) {
-    m_execInterface.handleCommandReturn(cmd, retval);
-  }
-  m_execInterface.notifyOfExternalEvent();
+  cmd->getArgValues()[0].getValue(d);
+  SampleSystem::getInstance()->setSize (d);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
 }
 
+void SampleAdapter::setSpeed(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name); 
+  int32_t i = 0;
+  cmd->getArgValues()[0].getValue(i);
+    SampleSystem::getInstance()->setSpeed (i);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::setColor(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name); 
+  string s;
+  cmd->getArgValues()[0].getValue(s);
+    SampleSystem::getInstance()->setColor (s);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::setName(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name); 
+  string s;
+  cmd->getArgValues()[0].getValue(s);
+    SampleSystem::getInstance()->setName (s);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::move(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name); 
+  string s;
+  int32_t i1 = 0, i2 = 0;
+  const vector<Value>& args = cmd->getArgValues();
+  args[0].getValue(s);
+  args[1].getValue(i1);
+  args[2].getValue(i2);
+  SampleSystem::getInstance()->move (s, i1, i2);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::hello(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name); 
+  SampleSystem::getInstance()->hello ();
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::square(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  int32_t i = 0;
+  cmd->getArgValues()[0].getValue(i);
+  SampleAdapter::m_localExecInterface->handleCommandReturn(cmd, SampleSystem::getInstance()->square (i));
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::cube(Command *cmd) {
+  string const &name = cmd->getName();
+  debugMsg("SampleAdapter", "Received executeCommand for " << name);
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  int32_t i = 0;
+  cmd->getArgValues()[0].getValue(i);
+  SampleAdapter::m_localExecInterface->handleCommandReturn(cmd, SampleSystem::getInstance()->cube (i));
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
+
+void SampleAdapter::defaultHandler(Command *cmd) {
+  string const &name = cmd->getName();
+  cerr << error << "invalid command: " << name << endl;
+  SampleAdapter::m_localExecInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  SampleAdapter::m_localExecInterface->notifyOfExternalEvent();
+}
 
 void SampleAdapter::lookupNow (const State& state, StateCacheEntry &entry)
 {

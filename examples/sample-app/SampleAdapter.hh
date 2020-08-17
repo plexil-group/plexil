@@ -49,7 +49,15 @@ public:
   bool reset();
   bool shutdown();
 
-  virtual void executeCommand(PLEXIL::Command *cmd);
+  static void setSize(PLEXIL::Command *cmd);
+  static void setSpeed(PLEXIL::Command *cmd);
+  static void setColor(PLEXIL::Command *cmd);
+  static void setName(PLEXIL::Command *cmd);
+  static void move(PLEXIL::Command *cmd);
+  static void hello(PLEXIL::Command *cmd);
+  static void square(PLEXIL::Command *cmd);
+  static void cube(PLEXIL::Command *cmd);
+  static void defaultHandler(PLEXIL::Command *cmd);
   virtual void lookupNow (PLEXIL::State const& state, PLEXIL::StateCacheEntry &entry);
   virtual void subscribe(const PLEXIL::State& state);
   virtual void unsubscribe(const PLEXIL::State& state);
