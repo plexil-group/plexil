@@ -42,21 +42,32 @@ public class OperatorModel extends TypedNodeModel {
 			}
 			if( nextChild != null && nextQuality != null ) {
 				if( nextChild.getOrder() < nextQuality.getOrder() ) {
-					dsb.append(nextChild.decompile(0), " ", type, " ");
+					dsb.append(nextChild.decompile(0));
 					iterChildren.remove(0);
+					if( !iterChildren.isEmpty() || !iterQualities.isEmpty() ) {
+						dsb.append(" ", type, " ");
+					}
 				} else {
-					dsb.append(nextQuality.getValue(), " ", type, " ");
+					dsb.append(nextQuality.getValue());
 					iterQualities.remove(0);
+					if( !iterChildren.isEmpty() || !iterQualities.isEmpty() ) {
+						dsb.append(" ", type, " ");
+					}
 				}
 			} else if( nextChild != null ) {
-				dsb.append(nextChild.decompile(0), " ", type, " ");
+				dsb.append(nextChild.decompile(0));
 				iterChildren.remove(0);
+				if( !iterChildren.isEmpty() || !iterQualities.isEmpty() ) {
+					dsb.append(" ", type, " ");
+				}
 			} else {
-				dsb.append(nextQuality.getValue(), " ", type, " ");
+				dsb.append(nextQuality.getValue());
 				iterQualities.remove(0);
+				if( !iterChildren.isEmpty() || !iterQualities.isEmpty() ) {
+					dsb.append(" ", type, " ");
+				}
 			}
 		}
-		dsb.sb.delete(dsb.sb.length() - (type.length() + 2), dsb.sb.length());
 		return dsb.toString();
 		
 		/*

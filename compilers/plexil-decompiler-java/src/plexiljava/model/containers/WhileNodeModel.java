@@ -22,6 +22,15 @@ public class WhileNodeModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("NodeId").getValue(), ": {\n");
+		indentLevel++;
+
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
+
+		dsb.addIndent(indentLevel);
 		dsb.append("while( ");
 		
 		RepeatConditionModel repeatCondition = (RepeatConditionModel) getChild(RepeatConditionModel.class);
@@ -44,6 +53,10 @@ public class WhileNodeModel extends NodeModel {
 			dsb.addLine(child.decompile(indentLevel+1));
 		}
 		dsb.sb.deleteCharAt(dsb.sb.length()-1);
+		dsb.addBlockCloser(indentLevel);
+		
+		indentLevel--;
+		dsb.append("\n");
 		dsb.addBlockCloser(indentLevel);
 		return dsb.toString();
 	}

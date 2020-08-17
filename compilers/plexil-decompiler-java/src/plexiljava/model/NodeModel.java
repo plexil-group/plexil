@@ -17,11 +17,14 @@ import plexiljava.model.conditions.RepeatConditionModel;
 import plexiljava.model.conditions.SkipConditionModel;
 import plexiljava.model.conditions.StartConditionModel;
 import plexiljava.model.containers.AssignmentNodeModel;
+import plexiljava.model.containers.AuxNodeModel;
 import plexiljava.model.containers.ConcurrenceNodeModel;
 import plexiljava.model.containers.ElseIfNodeModel;
+import plexiljava.model.containers.ElseNodeModel;
 import plexiljava.model.containers.EmptyNodeModel;
 import plexiljava.model.containers.ForNodeModel;
 import plexiljava.model.containers.IfNodeModel;
+import plexiljava.model.containers.LoopVariableUpdateNodeModel;
 import plexiljava.model.containers.ThenNodeModel;
 import plexiljava.model.containers.TryNodeModel;
 import plexiljava.model.containers.WhileNodeModel;
@@ -378,11 +381,17 @@ public class NodeModel extends BaseModel implements Decompilable {
 								case "ElseIf":
 									children.add(new ElseIfNodeModel(child));
 									break;
+								case "Else":
+									children.add(new ElseNodeModel(child));
+									break;
 								case "For":
 									children.add(new ForNodeModel(child));
 									break;
 								case "If":
 									children.add(new IfNodeModel(child));
+									break;
+								case "LoopVariableUpdate":
+									children.add(new LoopVariableUpdateNodeModel(child));
 									break;
 								case "Then":
 									children.add(new ThenNodeModel(child));
