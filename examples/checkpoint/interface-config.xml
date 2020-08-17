@@ -6,6 +6,7 @@
     <!-- Configuration allows test to intentionally "crash"-->
     <AdapterConfiguration OKOnExit="false"
 			  FlushOnExit="false"
+			  FlushOnStart="true"
 			  UseTime="true" />
   </Adapter>
   <Adapter AdapterType="StringAdapter"/>

@@ -274,6 +274,12 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   if(flush_on_exit == "false") m_flush_on_exit = false;
   else m_flush_on_exit = true;
 
+  string flush_on_start = getChildWithAttribute(configXml,"AdapterConfiguration","FlushOnStart");
+  std::transform(flush_on_start.begin(),flush_on_start.end(),flush_on_start.begin(), ::tolower);
+  // Defaults to true for safety
+  if(flush_on_start == "false") m_flush_on_start = false;
+  else m_flush_on_start = true;
+
   string use_time_s = getChildWithAttribute(configXml,"AdapterConfiguration","UseTime");
   std::transform(use_time_s.begin(),use_time_s.end(),use_time_s.begin(), ::tolower);
   // Defaults to true for safety
@@ -312,9 +318,9 @@ bool CheckpointAdapter::initialize()
 
 bool CheckpointAdapter::start()
 {
-  debugMsg("CheckpointAdapter", " started.");
-
   CheckpointSystem::getInstance()->start();
+  if(m_flush_on_start) CheckpointSystem::getInstance()->flush();
+  debugMsg("CheckpointAdapter", " started.");
   return true;
 }
 
