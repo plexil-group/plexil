@@ -78,6 +78,130 @@
 
 namespace PLEXIL {
 
+///////////////////////// Handler Implementations //////////////////////////
+
+  class InternalLookupHandler : public AdapterConfiguration::AbstractLookupHandler {
+    AdapterConfiguration::LookupNowHandler lookupNowHandler;
+    AdapterConfiguration::SetThresholdsDoubleHandler setThresholdsDoubleHandler;
+    AdapterConfiguration::SetThresholdsIntHandler setThresholdsIntHandler;
+    AdapterConfiguration::SubscribeHandler subscribeHandler;
+    AdapterConfiguration::UnsubscribeHandler unsubscribeHandler;
+  public:
+    InternalLookupHandler(AdapterConfiguration::LookupNowHandler ln, AdapterConfiguration::SetThresholdsDoubleHandler setTD = NULL, 
+        AdapterConfiguration::SetThresholdsIntHandler setTI = NULL, AdapterConfiguration::SubscribeHandler sub = NULL,
+        AdapterConfiguration::UnsubscribeHandler unsub = NULL) : 
+        lookupNowHandler(ln), setThresholdsDoubleHandler(setTD),
+        setThresholdsIntHandler(setTI), subscribeHandler(sub), unsubscribeHandler(unsub) {}
+    virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+      lookupNowHandler(state, cacheEntry);
+    }
+    void setThresholds(const State &state, double hi, double lo) {
+      if(setThresholdsDoubleHandler)
+        setThresholdsDoubleHandler(state, hi, lo);
+    }
+    void setThresholds(const State &state, int32_t hi, int32_t lo) {
+      if(setThresholdsIntHandler)
+        setThresholdsIntHandler(state, hi, lo);
+    }
+    void subscribe(const State &state) {
+      if(subscribeHandler)
+        subscribeHandler(state);
+    }
+    void unsubscribe(const State &state) {
+      if(unsubscribeHandler)
+        unsubscribeHandler(state);
+    }
+  };
+
+  class InternalCommandHandler : public AdapterConfiguration::AbstractCommandHandler {
+    AdapterConfiguration::ExecuteCommandHandler executeCommandHandler;
+    AdapterConfiguration::AbortCommandHandler abortCommandHandler;
+  public:
+    InternalCommandHandler(AdapterConfiguration::ExecuteCommandHandler exec,
+      AdapterConfiguration::AbortCommandHandler abort = NULL) :
+      executeCommandHandler(exec), abortCommandHandler(abort) {}
+    virtual void executeCommand(Command *cmd) {
+      executeCommandHandler(cmd);
+    }
+    void abortCommand(Command *cmd) {
+      if(abortCommandHandler)
+        abortCommandHandler(cmd);
+    }
+  };
+
+  class InternalPlannerUpdateHandler : public AdapterConfiguration::AbstractPlannerUpdateHandler {
+    AdapterConfiguration::PlannerUpdateHandler plannerUpdateHandler;
+  public:
+    InternalPlannerUpdateHandler(AdapterConfiguration::PlannerUpdateHandler updateHandler) : plannerUpdateHandler(updateHandler) {}
+    virtual void sendPlannerUpdate(Update *update) {
+      plannerUpdateHandler(update);
+    }
+  };
+
+  class InterfaceLookupHandler : public AdapterConfiguration::AbstractLookupHandler {
+    InterfaceAdapter* interface;
+  public:
+    InterfaceLookupHandler(InterfaceAdapter *intf) : interface(intf) {}
+    virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+      interface->lookupNow(state, cacheEntry);
+    }
+    void setThresholds(const State &state, double hi, double lo) {
+      interface->setThresholds(state, hi, lo);
+    }
+    void setThresholds(const State &state, int32_t hi, int32_t lo) {
+      interface->setThresholds(state, hi, lo);
+    }
+    void subscribe(const State &state) {
+      interface->subscribe(state);
+    }
+    void unsubscribe(const State &state) {
+      interface->unsubscribe(state);
+    }
+  };
+
+  class InterfaceCommandHandler : public AdapterConfiguration::AbstractCommandHandler {
+    InterfaceAdapter* interface;
+  public:
+    InterfaceCommandHandler(InterfaceAdapter *intf) : interface(intf) {}
+    virtual void executeCommand(Command *cmd) {
+      interface->executeCommand(cmd);
+    }
+    void abortCommand(Command *cmd) {
+      interface->invokeAbort(cmd);
+    }
+  };
+
+  class InterfacePlannerUpdateHandler : public AdapterConfiguration::AbstractPlannerUpdateHandler {
+    InterfaceAdapter* interface;
+  public:
+    InterfacePlannerUpdateHandler(InterfaceAdapter *intf) : interface(intf) {}
+    virtual void sendPlannerUpdate(Update *update) {
+      interface->sendPlannerUpdate(update);
+    }
+  };
+
+
+  class TelemetryLookupHandler : public AdapterConfiguration::AbstractLookupHandler {
+  public:
+    TelemetryLookupHandler() {}
+    virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+      // LookupNow not supported for this state, use last cached value
+      debugMsg("TelemetryLookupHandler:lookupNow", " lookup is telemetry only, using cached value ");
+    }
+    virtual void setThresholds(const State &state, double hi, double lo) {
+      debugMsg("TelemetryLookupHandler:setThresholds", " lookup is telemetry only, ignoring setThresholds");
+    }
+    virtual void setThresholds(const State &state, int32_t hi, int32_t lo) {
+      debugMsg("TelemetryLookupHandler:setThresholds", " lookup is telemetry only, ignoring setThresholds");
+    }
+    virtual void subscribe(const State &state) {
+      debugMsg("TelemetryLookupHandler:subscribe", " lookup is telemetry only, ignoring subscribe");
+    }
+    virtual void unsubscribe(const State &state) {
+      debugMsg("TelemetryLookupHandler:unsubscribe", " lookup is telemetry only, ignoring unsubscribe");
+    }
+  };
+
   AdapterConfiguration::AdapterConfiguration() :
     m_defaultCommandHandler(),
     m_defaultLookupHandler(),
@@ -587,7 +711,7 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::lookupIsTelemetry(std::string const &stateName) const
   {
-    return dynamic_cast<AdapterConfiguration::TelemetryLookupHandler*>(this->getLookupHandler(stateName)) != NULL;
+    return dynamic_cast<TelemetryLookupHandler*>(this->getLookupHandler(stateName)) != NULL;
   }
 
   /**
@@ -700,7 +824,7 @@ namespace PLEXIL {
           SetThresholdsIntHandler setThresholdsInt,
           SubscribeHandler subscribe,
           UnsubscribeHandler unsubscribe) {
-    return setDefaultLookupObjectHandler(new AdapterConfiguration::InternalLookupHandler(
+    return setDefaultLookupObjectHandler(new InternalLookupHandler(
                                   lookupNow,
                                   setThresholdsDouble,
                                   setThresholdsInt,
@@ -743,7 +867,7 @@ namespace PLEXIL {
   bool AdapterConfiguration::setDefaultCommandHandler(
         ExecuteCommandHandler execCmd,
         AbortCommandHandler abortCmd) {
-    return setDefaultCommandObjectHandler(new AdapterConfiguration::InternalCommandHandler(
+    return setDefaultCommandObjectHandler(new InternalCommandHandler(
                                   execCmd,
                                   abortCmd));
   }

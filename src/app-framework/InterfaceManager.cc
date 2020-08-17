@@ -439,18 +439,9 @@ namespace PLEXIL
     }
     else {
       // return error status
-      warn("executeCommand: no handler adapter for command " << cmd->getName());
+      warn("executeCommand: no handler for command " << cmd->getName());
       g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR); // TODO: make new error for handler
     }
-    // InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    // if (intf) {
-    //   intf->executeCommand(cmd);
-    // }
-    // else {
-    //   // return error status
-    //   warn("executeCommand: no interface adapter for command " << cmd->getName());
-    //   g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
-    // }
   }
 
   /**

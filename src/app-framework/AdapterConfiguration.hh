@@ -36,7 +36,6 @@
 
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
-#include "Debug.hh"
 
 #include <set>
 
@@ -537,127 +536,6 @@ namespace PLEXIL {
     InterfaceAdapter *getPlannerUpdateInterface() const;
 
   private:
-
-    class InternalLookupHandler : public AbstractLookupHandler {
-      LookupNowHandler lookupNowHandler;
-      SetThresholdsDoubleHandler setThresholdsDoubleHandler;
-      SetThresholdsIntHandler setThresholdsIntHandler;
-      SubscribeHandler subscribeHandler;
-      UnsubscribeHandler unsubscribeHandler;
-    public:
-      InternalLookupHandler(LookupNowHandler ln, SetThresholdsDoubleHandler setTD = NULL, 
-          SetThresholdsIntHandler setTI = NULL, SubscribeHandler sub = NULL,
-          UnsubscribeHandler unsub = NULL) : 
-          lookupNowHandler(ln), setThresholdsDoubleHandler(setTD),
-          setThresholdsIntHandler(setTI), subscribeHandler(sub), unsubscribeHandler(unsub) {}
-      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
-        lookupNowHandler(state, cacheEntry);
-      }
-      void setThresholds(const State &state, double hi, double lo) {
-        if(setThresholdsDoubleHandler)
-          setThresholdsDoubleHandler(state, hi, lo);
-      }
-      void setThresholds(const State &state, int32_t hi, int32_t lo) {
-        if(setThresholdsIntHandler)
-          setThresholdsIntHandler(state, hi, lo);
-      }
-      void subscribe(const State &state) {
-        if(subscribeHandler)
-          subscribeHandler(state);
-      }
-      void unsubscribe(const State &state) {
-        if(unsubscribeHandler)
-          unsubscribeHandler(state);
-      }
-    };
-
-    class InternalCommandHandler : public AbstractCommandHandler {
-      ExecuteCommandHandler executeCommandHandler;
-      AbortCommandHandler abortCommandHandler;
-    public:
-      InternalCommandHandler(ExecuteCommandHandler exec, AbortCommandHandler abort = NULL) :
-        executeCommandHandler(exec), abortCommandHandler(abort) {}
-      virtual void executeCommand(Command *cmd) {
-        executeCommandHandler(cmd);
-      }
-      void abortCommand(Command *cmd) {
-        if(abortCommandHandler)
-          abortCommandHandler(cmd);
-      }
-    };
-
-    class InternalPlannerUpdateHandler : public AbstractPlannerUpdateHandler {
-      PlannerUpdateHandler plannerUpdateHandler;
-    public:
-      InternalPlannerUpdateHandler(PlannerUpdateHandler updateHandler) : plannerUpdateHandler(updateHandler) {}
-      virtual void sendPlannerUpdate(Update *update) {
-        plannerUpdateHandler(update);
-      }
-    };
-
-    class InterfaceLookupHandler : public AbstractLookupHandler {
-      InterfaceAdapter* interface;
-    public:
-      InterfaceLookupHandler(InterfaceAdapter *intf) : interface(intf) {}
-      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
-        interface->lookupNow(state, cacheEntry);
-      }
-      void setThresholds(const State &state, double hi, double lo) {
-        interface->setThresholds(state, hi, lo);
-      }
-      void setThresholds(const State &state, int32_t hi, int32_t lo) {
-        interface->setThresholds(state, hi, lo);
-      }
-      void subscribe(const State &state) {
-        interface->subscribe(state);
-      }
-      void unsubscribe(const State &state) {
-        interface->unsubscribe(state);
-      }
-    };
-
-    class InterfaceCommandHandler : public AbstractCommandHandler {
-      InterfaceAdapter* interface;
-    public:
-      InterfaceCommandHandler(InterfaceAdapter *intf) : interface(intf) {}
-      virtual void executeCommand(Command *cmd) {
-        interface->executeCommand(cmd);
-      }
-      void abortCommand(Command *cmd) {
-        interface->invokeAbort(cmd);
-      }
-    };
-
-    class InterfacePlannerUpdateHandler : public AbstractPlannerUpdateHandler {
-      InterfaceAdapter* interface;
-    public:
-      InterfacePlannerUpdateHandler(InterfaceAdapter *intf) : interface(intf) {}
-      virtual void sendPlannerUpdate(Update *update) {
-        interface->sendPlannerUpdate(update);
-      }
-    };
-
-
-    class TelemetryLookupHandler : public AbstractLookupHandler {
-    public:
-      TelemetryLookupHandler() {}
-      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
-        // LookupNow not supported for this state, use last cached value
-        debugMsg("TelemetryLookupHandler:lookupNow", " lookup is telemetry only, using cached value ");
-      }
-      virtual void setThresholds(const State &state, double hi, double lo) {
-        debugMsg("TelemetryLookupHandler:setThresholds", " lookup is telemetry only, ignoring setThresholds");
-      }
-      virtual void setThresholds(const State &state, int32_t hi, int32_t lo) {
-        debugMsg("TelemetryLookupHandler:setThresholds", " lookup is telemetry only, ignoring setThresholds");
-      }
-      virtual void subscribe(const State &state) {
-        debugMsg("TelemetryLookupHandler:subscribe", " lookup is telemetry only, ignoring subscribe");
-      }
-      virtual void unsubscribe(const State &state) {
-        debugMsg("TelemetryLookupHandler:unsubscribe", " lookup is telemetry only, ignoring unsubscribe");
-      }
-    };
 
     // Not implemented
     AdapterConfiguration(AdapterConfiguration const &);
