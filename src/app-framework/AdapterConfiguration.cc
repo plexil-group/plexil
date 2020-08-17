@@ -502,7 +502,7 @@ namespace PLEXIL {
 
   /**
    * @brief Register the given state to handle telemetry lookups
-   * @param sateName The name of the state
+   * @param stateName The name of the state
    */
   bool AdapterConfiguration::registerTelemetryLookup(std::string const &stateName) {
     return registerLookupObjectHandler(stateName, new TelemetryLookupHandler());
@@ -510,7 +510,7 @@ namespace PLEXIL {
 
   /**
    * @brief Register the given object to be a handler for lookups to this state
-   * @param sateName The name of the state to map to this object
+   * @param stateName The name of the state to map to this object
    * @param handler An object handler to register as the handler.
    */
   bool AdapterConfiguration::registerLookupObjectHandler(std::string const &stateName, 
@@ -595,7 +595,7 @@ namespace PLEXIL {
           Returns true if successful.  Fails and returns false
           if the state name already has a handler registered
           or registering an object handler is not implemented.
-   * @param sateName The name of the state to map to this object
+   * @param stateName The name of the state to map to this object
    * @param handler An object to register as the handler.
    */
   bool AdapterConfiguration::registerCommandObjectHandler(std::string const &stateName, AdapterConfiguration::AbstractCommandHandler *handler) {

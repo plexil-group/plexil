@@ -28,6 +28,7 @@
  *
  *  Created on: Jan 28, 2010
  *      Authors: jhogins
+ *               bcampbell
  */
 
 #ifndef ADAPTERCONFIGURATION_HH_
@@ -160,13 +161,13 @@ namespace PLEXIL {
 
     /**
      * @brief Register the given state to handle telemetry lookups
-     * @param sateName The name of the state
+     * @param stateName The name of the state
      */
     bool registerTelemetryLookup(std::string const &stateName);
 
     /**
      * @brief Register the given object to be a handler for lookups to this state
-     * @param sateName The name of the state to map to this object
+     * @param stateName The name of the state to map to this object
      * @param handler An object handler to register as the handler.
      */
     bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler);
@@ -219,7 +220,7 @@ namespace PLEXIL {
             Returns true if successful.  Fails and returns false
             if the state name already has a handler registered
             or registering an object handler is not implemented.
-     * @param sateName The name of the state to map to this object
+     * @param stateName The name of the state to map to this object
      * @param handler An object to register as the handler.
      */
     bool registerCommandObjectHandler(std::string const &stateName, AbstractCommandHandler *handler);
