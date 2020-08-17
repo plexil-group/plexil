@@ -88,19 +88,113 @@ namespace PLEXIL
     }
 
     //
+    // ExternalInterface public API
+    //
+    
+    /**
+     * @brief Perform an immediate lookup on an existing state.
+     * @param state The state.
+     * @return The current value of the state or UNKNOWN().
+     */
+    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry);
+
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    virtual void subscribe(const State& state);
+
+    /**
+     * @brief Inform the interface that a lookup should no longer receive updates.
+     */
+    virtual void unsubscribe(const State& state);
+
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    virtual void setThresholds(const State& state, double hi, double lo);
+    virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
+
+    // Use most recently cached value of time
+    // FIXME - use real time type
+    virtual double currentTime();
+
+    //
     // API for all related objects
     //
 
-    
+    //
+    // AdapterExecInterface public API
+    //
+
     /**
-     * @brief Return the number of "macro steps" since this instance was constructed.
-     * @return The macro step count.
-     * @note Needed by the StateCacheEntry API.
+     * @brief Notify of the availability of a new value for a lookup.
+     * @param state The state for the new value.
+     * @param value The new value.
      */
-    unsigned int getCycleCount() const
-    {
-      return ExternalInterface::getCycleCount();
-    }
+    virtual void handleValueChange(const State& state, const Value& value);
+
+    /**
+     * @brief Notify of the availability of a command handle value for a command.
+     * @param cmd Pointer to the Command instance.
+     * @param value The new value.
+     */
+    virtual void handleCommandAck(Command * cmd, CommandHandleValue value);
+
+    /**
+     * @brief Notify of the availability of a return value for a command.
+     * @param cmd Pointer to the Command instance.
+     * @param value The new value.
+     */
+    virtual void handleCommandReturn(Command * cmd, Value const& value);
+
+    /**
+     * @brief Notify of the availability of a command abort acknowledgment.
+     * @param cmd Pointer to the Command instance.
+     * @param ack The acknowledgment value.
+     */
+    virtual void handleCommandAbortAck(Command * cmd, bool ack);
+
+    /**
+     * @brief Notify of the availability of a planner update acknowledgment.
+     * @param upd Pointer to the Update instance.
+     * @param ack The acknowledgment value.
+     */
+    virtual void handleUpdateAck(Update * upd, bool ack);
+
+    /**
+     * @brief Notify the executive of a new plan.
+     * @param planXml The pugixml representation of the new plan.
+     */
+    virtual void handleAddPlan(pugi::xml_node const planXml);
+
+    /**
+     * @brief Notify the executive of a new library node.
+     * @param planXml The XML document containing the new library node.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool handleAddLibrary(pugi::xml_document *planXml);
+
+    /**
+     * @brief Notify the executive that it should run one cycle.
+    */
+    void notifyOfExternalEvent();
+
+#ifdef PLEXIL_WITH_THREADS
+    /**
+     * @brief Run the exec and wait until all events in the queue have been processed.
+     */
+    void notifyAndWaitForCompletion();
+#endif
+
+    /**
+     * @brief Query the appropriate interface to get the current time.
+     * @return Seconds since the epoch as a double float.
+     */
+    double queryTime();
 
     /**
      * @brief Associate an arbitrary object with a string.
@@ -116,9 +210,8 @@ namespace PLEXIL
      */
     virtual void* getProperty(const std::string& name);
 
-
     //
-    // API for ExecApplication
+    // InterfaceManager public API for ExecApplication
     //
 
     /**
@@ -173,93 +266,6 @@ namespace PLEXIL
       return m_lastMark;
     }
 
-    //
-    // API for exec
-    //
-    
-    /**
-     * @brief Delete any entries in the queue.
-     */
-    void resetQueue();
-
-    /**
-     * @brief Perform an immediate lookup on an existing state.
-     * @param state The state.
-     * @return The current value of the state or UNKNOWN().
-     */
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     */
-    void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
-    void setThresholds(const State& state, double hi, double lo);
-    void setThresholds(const State& state, int32_t hi, int32_t lo);
-
-    void executeCommand(Command *cmd);
-
-    /**
-     * @brief Report the failure in the appropriate way for the application.
-     */
-    void reportCommandArbitrationFailure(Command *cmd);
-
-    /**
-     * @brief Abort one command in execution.
-     * @param cmd The command.
-     */
-    void invokeAbort(Command *cmd);
-
-    void executeUpdate(Update *upd);
-
-    // Use most recent cached value of time
-    double currentTime();
-
-    // Query interface and actually retrieve the current time
-    double queryTime();
-
-    //
-    // API to interface adapters
-    //
-
-    /**
-     * @brief Notify of the availability of a new value for a lookup.
-     * @param state The state for the new value.
-     * @param value The new value.
-     */
-    void handleValueChange(const State& state, const Value& value);
-
-    void handleCommandReturn(Command * cmd, Value const& value);
-    void handleCommandAck(Command * cmd, CommandHandleValue value);
-    void handleCommandAbortAck(Command * cmd, bool ack);
-
-    void handleUpdateAck(Update * upd, bool ack);
-
-    /**
-     * @brief Notify the executive of a new plan.
-     * @param planXml The TinyXML representation of the new plan.
-     */
-    void handleAddPlan(pugi::xml_node const planXml);
-
-    /**
-     * @brief Notify the executive of a new library node.
-     * @param planXml The XML document containing the new library node.
-     * @return True if successful, false otherwise.
-     */
-    bool handleAddLibrary(pugi::xml_document *planXml);
-
     /**
      * @brief Load the named library from the library path.
      * @param libname Name of the library node.
@@ -273,19 +279,32 @@ namespace PLEXIL
      */
     bool isLibraryLoaded(const std::string& libName) const;
 
-    /**
-     * @brief Notify the executive that it should run one cycle.
-    */
-    void notifyOfExternalEvent();
-
-#ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Run the exec and wait until all events in the queue have been processed.
-     */
-    void notifyAndWaitForCompletion();
-#endif
-
   protected:
+
+    //
+    // Protected Implementation API for ExternalInterface
+    //
+
+    /**
+     * @brief Report the failure in the appropriate way for the application.
+     */
+    virtual void reportCommandArbitrationFailure(Command *cmd);
+
+    /**
+     * @brief Schedule this command for execution.
+     */
+    virtual void executeCommand(Command *cmd);
+
+    /**
+     * @brief Abort one command in execution.
+     * @param cmd The command.
+     */
+    void invokeAbort(Command *cmd);
+
+    /**
+     * @brief Schedule this update for execution.
+     */
+    void executeUpdate(Update *upd);
 
     //
     // Internal functionality
@@ -330,8 +349,6 @@ namespace PLEXIL
     //* Last mark enqueued.
     unsigned int m_markCount;
   };
-
-  extern InterfaceManager *g_manager;
 
 }
 

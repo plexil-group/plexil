@@ -29,7 +29,7 @@
 #include "Guard.hh"
 #include "SimpleSaveManager.hh"
 #include "Subscriber.hh"
-#include "InterfaceManager.hh" // g_manager
+#include "AdapterExecInterface.hh" // g_execInterface
 #include "Debug.hh"
 
 #include <iostream>
@@ -284,7 +284,7 @@ void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,s
     // queryTime returns 0 if no time adapter can be found
     Nullable<Real> time;
     if(m_use_time){
-      time.set_value(g_manager->queryTime());
+      time.set_value(g_execInterface->queryTime());
       if(time.value()==std::numeric_limits<double>::min()) time.nullify();
     }
   

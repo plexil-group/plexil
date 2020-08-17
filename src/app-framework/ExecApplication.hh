@@ -64,6 +64,7 @@ namespace PLEXIL
 
   // forward references
   class InterfaceAdapter;
+  class InterfaceManager;
 
   /**
    * @brief Provides a "pre-packaged" application skeleton for Universal Exec users.
@@ -380,6 +381,9 @@ namespace PLEXIL
     // Semaphore for notifying external threads that the application is shut down
     ThreadSemaphore m_shutdownSem;
 #endif 
+
+    // Pointer to the application's InterfaceManager instance
+    InterfaceManager *m_manager;
 
     //
     // Signal handling

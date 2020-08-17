@@ -157,16 +157,6 @@ namespace PLEXIL
   //
   // API for exec
   //
-
-  /**
-   * @brief Delete any entries in the queue.
-   */
-  void InterfaceManager::resetQueue()
-  {
-    assertTrue_1(m_inputQueue);
-    m_inputQueue->flush();
-  }
-    
     
   /**
    * @brief Updates the state cache from the items in the queue.
@@ -770,8 +760,5 @@ namespace PLEXIL
     else
       return it->second;
   }
-
-  // Initialize global variable
-  InterfaceManager *g_manager = NULL;
 
 }
