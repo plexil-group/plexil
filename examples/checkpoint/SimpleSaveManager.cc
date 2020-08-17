@@ -8,7 +8,7 @@
 #include <climits>
 #include <sstream> // in to_string
 #include <limits> //numeric_limits
-#include "InterfaceManager.hh" // g_manager
+#include "AdapterExecInterface.hh" // g_execInterface
 #include "Debug.hh"
 #include "pugixml.hpp"
 #include "plexil-stdint.h"
@@ -144,7 +144,7 @@ void SimpleSaveManager::loadCrashes(){
   Nullable<Real> time;
   if(m_use_time){
     // Use queryTime here because this is likely the first time we are reading the time
-    time.set_value(g_manager->queryTime());
+    time.set_value(g_execInterface->queryTime());
     if(time.value()==std::numeric_limits<double>::min()) time.nullify();
   }
   BootData boot_d = {time,
@@ -281,7 +281,7 @@ bool SimpleSaveManager::writeToFile(const string& location){
        if(m_use_time){
 	 // Use currentTime not queryTime (which is guaranteed to be up-to-date)
 	 // because the TimeAdapter may have quit by this point
-	 time.set_value(g_manager->currentTime());
+	 time.set_value(g_execInterface->currentTime());
 	 if(time.value()==std::numeric_limits<double>::min()) time.nullify();
        }
   

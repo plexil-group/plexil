@@ -59,12 +59,6 @@ namespace PLEXIL
   public:
 
     /**
-     * @brief Return the number of "macro steps" since this instance was constructed.
-     * @return The macro step count.
-     */
-    virtual unsigned int getCycleCount() const = 0;
-
-    /**
      * @brief Notify of the availability of a new value for a lookup.
      * @param state The state for the new value.
      * @param value The new value.
@@ -101,7 +95,7 @@ namespace PLEXIL
 
     /**
      * @brief Notify the executive of a new plan.
-     * @param planXml The TinyXML representation of the new plan.
+     * @param planXml The pugixml representation of the new plan.
      */
     virtual void handleAddPlan(pugi::xml_node const planXml)
       = 0;
@@ -130,8 +124,15 @@ namespace PLEXIL
     /**
      * @brief Get the Exec's idea of the current time.
      * @return Seconds since the epoch as a double float.
+     * @note Also a pure virtual member function of ExternalInterface.
      */
     virtual double currentTime() = 0;
+
+    /**
+     * @brief Query the appropriate interface to get the current time.
+     * @return Seconds since the epoch as a double float.
+     */
+    virtual double queryTime() = 0;
 
     //
     // Property list API (formerly on InterfaceManagerBase)
@@ -150,12 +151,6 @@ namespace PLEXIL
      * @return The property value as an untyped pointer.
      */
     virtual void* getProperty(const std::string& name) = 0;
-
-    //
-    // Static utility functions
-    //
-    
-    static std::string getText(const State& c);
 
   protected:
 
@@ -176,6 +171,8 @@ namespace PLEXIL
     AdapterExecInterface& operator=(const AdapterExecInterface&);
 
   };
+
+  extern AdapterExecInterface *g_execInterface;
 
 }
 

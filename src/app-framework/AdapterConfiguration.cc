@@ -26,6 +26,7 @@
 
 #include "AdapterConfiguration.hh"
 
+#include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
@@ -34,7 +35,7 @@
 #include "ExecListenerFactory.hh"
 #include "ExecListenerFilterFactory.hh"
 #include "ExecListenerHub.hh"
-#include "InterfaceManager.hh"
+// #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "ListenerFilters.hh"
 #include "planLibrary.hh"
@@ -200,8 +201,7 @@ namespace PLEXIL {
                  << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
                  << "\"");
         InterfaceAdapter *adapter = 
-          AdapterFactory::createInstance(element,
-                                         *static_cast<AdapterExecInterface *>(g_manager));
+          AdapterFactory::createInstance(element, *g_execInterface);
         if (!adapter) {
           warn("constructInterfaces: failed to construct adapter type \""
                << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()

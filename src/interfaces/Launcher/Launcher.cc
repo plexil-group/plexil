@@ -27,13 +27,13 @@
 #include "Launcher.hh"
 
 #include "AdapterConfiguration.hh"
+#include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Array.hh"
 #include "Command.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
-#include "InterfaceManager.hh"
 #include "Node.hh"
 #include "parser-utils.hh"
 #include "PlexilExec.hh"
@@ -75,15 +75,15 @@ namespace PLEXIL
       if (node->getParent())
         return;
       Value const nodeIdValue(node->getNodeId());
-      g_manager->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
+      g_execInterface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
                                    Value(nodeStateName(newState)));
       NodeOutcome o = node->getOutcome();
       if (o != NO_OUTCOME) {
-        g_manager->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
+        g_execInterface->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
                                      Value(outcomeName(o)));
         FailureType f = node->getFailureType();
         if (f != NO_FAILURE)
-          g_manager->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
+          g_execInterface->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
                                        Value(failureTypeName(f)));
       }
     }
@@ -125,30 +125,30 @@ namespace PLEXIL
     for (size_t i = 1; i < nargs; i += 2) {
       if (i + 1 >= nargs) {
         warn("Arguments to " << cmd->getName() << " command not in name-value pairs");
-        g_manager->handleCommandAck(cmd, COMMAND_FAILED);
-	g_manager->notifyOfExternalEvent();
+        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
+	g_execInterface->notifyOfExternalEvent();
         return;
       }
 
       if (args[i].valueType() != STRING_TYPE) {
         warn("StartPlan command argument " << i << " is not a String");
-        g_manager->handleCommandAck(cmd, COMMAND_FAILED);
-	g_manager->notifyOfExternalEvent();
+        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
+	g_execInterface->notifyOfExternalEvent();
         return;
       }
       std::string const *formal = NULL;
       if (!args[i].getValuePointer(formal)) {
         warn("StartPlan command argument " << i << " is UNKNOWN");
-        g_manager->handleCommandAck(cmd, COMMAND_FAILED);
-	g_manager->notifyOfExternalEvent();
+        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
+	g_execInterface->notifyOfExternalEvent();
         return;
       }
       formals.push_back(*formal);
 
       if (!args[i + 1].isKnown()) {
 	warn("StartPlan command argument " << i + 1 << " is UNKNOWN");
-        g_manager->handleCommandAck(cmd, COMMAND_FAILED);
-	g_manager->notifyOfExternalEvent();
+        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
+	g_execInterface->notifyOfExternalEvent();
         return;
       }
       actuals.push_back(args[i + 1]);
@@ -181,18 +181,18 @@ namespace PLEXIL
     }
     
     try {
-      g_manager->handleAddPlan(plan);
+      g_execInterface->handleAddPlan(plan);
     }
     catch (ParserException &e) {
       warn("Launching plan " << nodeName << " failed:\n"
            << e.what());
-      g_manager->handleCommandAck(cmd, COMMAND_FAILED);
-      g_manager->notifyOfExternalEvent();
+      g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
+      g_execInterface->notifyOfExternalEvent();
       return;
     }
-    g_manager->handleCommandReturn(cmd, Value(callerId));
-    g_manager->handleCommandAck(cmd, COMMAND_SUCCESS);
-    g_manager->notifyOfExternalEvent();
+    g_execInterface->handleCommandReturn(cmd, Value(callerId));
+    g_execInterface->handleCommandAck(cmd, COMMAND_SUCCESS);
+    g_execInterface->notifyOfExternalEvent();
   }
 
   // Helper class
@@ -313,17 +313,17 @@ namespace PLEXIL
       std::vector<Value> const &args = cmd->getArgValues();
       if (args.size() < 1) {
         warn("Not enough parameters to " << cmd->getName() << " command");
-        g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
       }
       if (args[0].valueType() != STRING_TYPE) {
         warn("First argument to " << cmd->getName() << " command is not a string");
-        g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
       }
       else {
         std::string const *nodeName = NULL;
         if (!args[0].getValuePointer(nodeName)) {
           warn("Node name parameter value to " << cmd->getName() << " command is UNKNOWN");
-          g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+          g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
         }
         else {
           std::string const &name = cmd->getName();
@@ -333,33 +333,33 @@ namespace PLEXIL
           else if (name == EXIT_PLAN_CMD) {
             if (args.size() > 1) {
               warn("Too many parameters to " << name << " command");
-              g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+              g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
             }
             Node *node = findNode(*nodeName);
             if (!node) {
               // Not found or multiples with same name
-              g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+              g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
             }
             else {
-              g_manager->handleValueChange(State(EXIT_PLAN_CMD, args[0]),
+              g_execInterface->handleValueChange(State(EXIT_PLAN_CMD, args[0]),
                                            Value(true));
-              g_manager->handleCommandAck(cmd, COMMAND_SUCCESS);
+              g_execInterface->handleCommandAck(cmd, COMMAND_SUCCESS);
             }
           }
           else {
             warn("Launcher adapter: Unimplemented command \"" << name << '"');
-            g_manager->handleCommandAck(cmd, COMMAND_FAILED);
+            g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
           }
         }
       }
-      g_manager->notifyOfExternalEvent();
+      g_execInterface->notifyOfExternalEvent();
     }
 
     void invokeAbort(Command *cmd)
     {
       // not implemented
-      g_manager->handleCommandAbortAck(cmd, false);
-      g_manager->notifyOfExternalEvent();
+      g_execInterface->handleCommandAbortAck(cmd, false);
+      g_execInterface->notifyOfExternalEvent();
     }
 
     void registerAdapter()
