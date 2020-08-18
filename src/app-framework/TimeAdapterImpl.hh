@@ -180,7 +180,7 @@ namespace PLEXIL
 
   private:
 
-    class TimeLookupHandler : public AdapterConfiguration::AbstractLookupHandler {
+    class TimeLookupHandler : public AbstractLookupHandler {
       InterfaceAdapter* interface;
     public:
       TimeLookupHandler(InterfaceAdapter *intf) : interface(intf) {}

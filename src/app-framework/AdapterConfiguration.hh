@@ -34,15 +34,23 @@
 #ifndef ADAPTERCONFIGURATION_HH_
 #define ADAPTERCONFIGURATION_HH_
 
+#include "pugixml.hpp"
+
+#include <map>
 #include <set>
+#include <vector>
 
 namespace PLEXIL {
 
   // forward references
+  class Command;
   class ExecListener;
   class ExecListenerHub;
   class InterfaceAdapter;
   class InputQueue;
+  class State;
+  class StateCacheEntry;
+  class Update;
 
   typedef void (*LookupNowHandler)(const State &, StateCacheEntry&);
   typedef void (*SetThresholdsDoubleHandler)(const State &, double, double);

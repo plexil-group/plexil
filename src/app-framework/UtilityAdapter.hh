@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ class UtilityAdapter : public InterfaceAdapter
   typedef void (InterfaceAdapter::*SubscribeHandler)(const State &);
   typedef void (InterfaceAdapter::*UnsubscribeHandler)(const State &);
   
-  class UtilityLookupHandler : public AdapterConfiguration::AbstractLookupHandler {
+  class UtilityLookupHandler : public AbstractLookupHandler {
     InterfaceAdapter &m_context;
     LookupNowHandler m_lookupNowHandler;
     SetThresholdsDoubleHandler m_setThresholdsDoubleHandler;
@@ -84,7 +84,7 @@ class UtilityAdapter : public InterfaceAdapter
   typedef void (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
   typedef void (InterfaceAdapter::*AbortCommandHandler)(Command *);
 
-  class UtilityCommandHandler : public AdapterConfiguration::AbstractCommandHandler {
+  class UtilityCommandHandler : public AbstractCommandHandler {
     InterfaceAdapter &m_context;
     ExecuteCommandHandler m_executeCommandHandler;
     AbortCommandHandler m_abortCommandHandler;

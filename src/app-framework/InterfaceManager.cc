@@ -299,7 +299,7 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
     
-    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("lookupNow: No interface handler found for lookup "
            << state.name() << ", returning UNKNOWN");
@@ -353,7 +353,7 @@ namespace PLEXIL
   void InterfaceManager::subscribe(const State& state)
   {
     debugMsg("InterfaceManager:subscribe", " to state " << state);
-    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("subscribe: No handler found for lookup " << state.name());
       return;
@@ -367,7 +367,7 @@ namespace PLEXIL
   void InterfaceManager::unsubscribe(const State& state)
   {
     debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("unsubscribe: No interface handler found for lookup " << state);
       return;
@@ -384,7 +384,7 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("setThresholds: No interface handler found for lookup "
            << state);
@@ -396,7 +396,7 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    AdapterConfiguration::AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
     if (!handler) {
       warn("setThresholds: No interface handler found for lookup "
            << state);
@@ -412,7 +412,7 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    AdapterConfiguration::AbstractPlannerUpdateHandler *handler = g_configuration->getPlannerUpdateHandler();
+    AbstractPlannerUpdateHandler *handler = g_configuration->getPlannerUpdateHandler();
     if (!handler) {
       // Fake the ack
       warn("executeUpdate: no handler adapter for updates");
@@ -433,24 +433,15 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    AdapterConfiguration::AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
     if (handler) {
       handler->executeCommand(cmd);
     }
     else {
       // return error status
-      warn("executeCommand: no handler adapter for command " << cmd->getName());
+      warn("executeCommand: no handler for command " << cmd->getName());
       g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR); // TODO: make new error for handler
     }
-    // InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    // if (intf) {
-    //   intf->executeCommand(cmd);
-    // }
-    // else {
-    //   // return error status
-    //   warn("executeCommand: no interface adapter for command " << cmd->getName());
-    //   g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
-    // }
   }
 
   /**
@@ -467,7 +458,7 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    AdapterConfiguration::AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
     if (handler) {
       handler->abortCommand(cmd);
     }
