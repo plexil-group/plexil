@@ -133,7 +133,6 @@ add_subdirectory(intfc)
 add_subdirectory(exec)
 add_subdirectory(xml-parser)
 add_subdirectory(app-framework)
-add_subdirectory(interfaces/Launcher)
 
 # Optional modules
 if(PLAN_DEBUG_LISTENER)
