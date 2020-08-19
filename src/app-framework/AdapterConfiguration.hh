@@ -64,6 +64,7 @@ namespace PLEXIL {
    */
   class AbstractLookupHandler {
   public:
+    virtual ~AbstractLookupHandler() {} // Virtual destructor
     virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) = 0;
     virtual void setThresholds(const State &state, double hi, double lo) { } // default no-op
     virtual void setThresholds(const State &state, int32_t hi, int32_t lo) { } // default no-op
@@ -80,6 +81,7 @@ namespace PLEXIL {
    */
   class AbstractCommandHandler {
   public:
+    virtual ~AbstractCommandHandler() {} // Virtual destructor
     virtual void executeCommand(Command *cmd) = 0;
     virtual void abortCommand(Command *cmd) { }
   };
@@ -92,6 +94,7 @@ namespace PLEXIL {
    */
   class AbstractPlannerUpdateHandler {
   public:
+    virtual ~AbstractPlannerUpdateHandler() {} // Virtual destructor
     virtual void sendPlannerUpdate(Update *update) = 0;
   };
 
