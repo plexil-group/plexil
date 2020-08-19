@@ -244,8 +244,7 @@ AC_CONFIG_FILES([configure.env
                  exec/Makefile
                  third-party/pugixml/src/Makefile
                  xml-parser/Makefile
-                 app-framework/Makefile
-                 interfaces/Launcher/Makefile])
+                 app-framework/Makefile])
 
 # Options that are normally on
 AS_IF([test "x$enable_debug_listener" != "xno"], [

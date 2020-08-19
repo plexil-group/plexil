@@ -36,6 +36,7 @@
 #include "ExecListenerHub.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
+#include "Launcher.hh"
 #include "ListenerFilters.hh"
 #include "planLibrary.hh"
 #ifdef PLEXIL_WITH_THREADS
@@ -84,9 +85,10 @@ namespace PLEXIL {
     m_plannerUpdateInterface(),
     m_listenerHub(new ExecListenerHub())
   {
-    // Every application has access to the dummy and utility adapters
+    // Every application has access to the dummy, utility, and launcher adapters
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
     REGISTER_ADAPTER(UtilityAdapter, "Utility");
+    initLauncher();
 
 #ifdef PLEXIL_WITH_UNIX_TIME
     // Every application has access to the OS-native time adapter
