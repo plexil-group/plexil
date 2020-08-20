@@ -6,13 +6,32 @@
     <property name="dir.buildfile" value="."/>
     <property name="dir.workspace" value="${dir.buildfile}/.."/>
     <property name="dir.jarfile" value="${dir.buildfile}"/>
-    <target name="create_run_jar">
+    <property name="dir.src" value="${dir.buildfile}/src"/>
+    <property name="dir.classes" value="${dir.buildfile}/classes"/>
+    
+    <target name="init" description="Create directories">
+      <mkdir dir="${dir.classes}"/>
+    </target>
+
+    <target name="compile" depends="init">
+      <javac srcdir="${dir.src}"
+             destdir="${dir.classes}"
+             includeAntRuntime="false">
+      </javac>
+    </target>
+
+    <target name="create_run_jar" depends="compile">
         <jar destfile="${dir.jarfile}/plexild.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="plexiljava.main.Decompiler"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${dir.jarfile}/bin"/>
+            <fileset dir="${dir.classes}"/>
         </jar>
+    </target>
+
+    <target name="clean">
+      <delete file="${dir.jarfile}/plexild.jar" failonerror="false"/>
+      <delete dir="${dir.classes}" failonerror="false"/>
     </target>
 </project>
