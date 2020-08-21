@@ -46,7 +46,6 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 
 bool UtilityAdapter::initialize()
 {
-  std::cout << "Init";
   g_configuration->registerCommandObjectHandler("print", new UtilityCommandHandler(*this,
       (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::print1),
       (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));

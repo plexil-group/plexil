@@ -43,11 +43,11 @@ public:
 
   SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
 
-  bool initialize();
-  bool start();
-  bool stop();
-  bool reset();
-  bool shutdown();
+  virtual bool initialize();
+  virtual bool start();
+  virtual bool stop();
+  virtual bool reset();
+  virtual bool shutdown();
 
   // Command Handlers
   static void setSize(PLEXIL::Command *cmd);
