@@ -15,7 +15,7 @@ class SimpleSaveManager : public SaveManager
 {
 public:
   
-  SimpleSaveManager() : m_have_read(false), m_file_directory("./") {}
+  SimpleSaveManager() : m_have_read(false), m_file_directory("./"), m_write_enqueued(false),m_remove_old_saves(true) {}
   ~SimpleSaveManager(){
     // Pointers in m_queued_commands are managed elsewhere
   }
@@ -52,6 +52,7 @@ private:
   std::string m_file_directory;
   
   bool m_directory_set;
+  bool m_remove_old_saves;
   bool m_write_enqueued;
   PLEXIL::ThreadMutex m_data_lock;
   std::vector<PLEXIL::Command*> m_queued_commands;

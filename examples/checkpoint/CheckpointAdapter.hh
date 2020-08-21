@@ -87,7 +87,7 @@ private:
   std::set<PLEXIL::State> m_subscribedStates;
   bool m_ok_on_exit;
   bool m_flush_on_exit;
-
+  bool m_flush_on_start;
 };
 
 extern "C" {
