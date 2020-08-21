@@ -39,15 +39,16 @@ sed "s/saves/saves-${1}/g" interface-config.xml > "interface-config-${1}.xml"
 
 # Figure out how long a run takes, this is our range for when to kill it
 TIME=$(./time_command.sh plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml")
-echo "Test run took $TIME ms, using 1.5x that as an upper bound"
+echo "Test run took $(($TIME/1000000)) ms, using 1.5x that as an upper bound"
 
 # Run the test plan with random timeout and analyze the results
 i="1"
 
 while [ "$i" -le "$2" ]
 do
-    # Uses a 30-bit range to (nearly) randomly generate a number between 1 and 1.5*TIME
-    TIMEOUT=$(( ((RANDOM<<15)|RANDOM) % (TIME+(TIME>>1)) + 1 ))
+    # Uses a 61-bit range to (nearly) randomly generate a number between 1 and 1.5*TIME
+    TIMEOUT=$(( $((RANDOM|(RANDOM<<15)|(RANDOM<<30)| ((RANDOM<<45)^(RANDOM<<48)) )) \
+		% (TIME+(TIME>>1)) + 1 ))
 
     # Run the test with the randomly generated timeout
     ./single_test.sh "$1" "$TIMEOUT"

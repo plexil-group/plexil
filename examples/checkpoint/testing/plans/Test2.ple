@@ -30,13 +30,13 @@ Integer Lookup NumberOfAccessibleBoots;
 Integer Lookup NumberOfTotalBoots;
 Integer Lookup NumberOfUnhandledBoots;
 
-Boolean Lookup IsOK(...);
+Boolean Lookup IsBootOK(...);
 Boolean Lookup CheckpointState(...);
 String Lookup  CheckpointInfo(...);
 Real Lookup TimeOfBoot(...);
 Real Lookup TimeOfLastSave(...);
 
-Boolean Command Flush();
+Boolean Command flush_checkpoints();
 
 // Prints information from the previous save, if available
 
@@ -45,7 +45,7 @@ Test2:
   Boolean flush_success;
   print("---START|");
   print("FLUSH1BEGIN|");
-  SynchronousCommand flush_success = Flush();
+  SynchronousCommand flush_success = flush_checkpoints();
   print("FLUSH1END|");
   print("FLUSHSUCCESS=",flush_success,"|");
   print("NUMBERACCESSIBLE=",Lookup(NumberOfAccessibleBoots),"|");
@@ -53,7 +53,7 @@ Test2:
   print("NUMBERUNHANDLED=",Lookup(NumberOfUnhandledBoots),"|");
   print("CHECKPOINT1STATE=",Lookup(CheckpointState("C1",1)),"|");
   print("CHECKPOINT1INFO=",Lookup(CheckpointInfo("C1",1)),"|");
-  print("OK1STATE=",Lookup(IsOK(1)),"|");
+  print("OK1STATE=",Lookup(IsBootOK(1)),"|");
   print("STARTIME=",Lookup(TimeOfBoot(1)),"|");
   print("ENDTIME=",Lookup(TimeOfLastSave(1)),"|");
   print("END---");

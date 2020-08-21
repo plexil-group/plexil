@@ -26,14 +26,14 @@
 
 Command print(...);
 
-Boolean Lookup IsOK(...);
+Boolean Lookup IsBootOK(...);
 Boolean Lookup CheckpointState(...);
 String Lookup  CheckpointInfo(...);
 Real Lookup TimeOfBoot(...);
 
-Command SetCheckpoint(...);
-Command SetOK(...);
-Boolean Command Flush();
+Command set_checkpoint(...);
+Command set_boot_ok(...);
+Boolean Command flush_checkpoints();
 
 Test1:
 {
@@ -42,7 +42,7 @@ Test1:
   Boolean flush_success;
   print("---START|");
   print("FLUSH1BEGIN|");
-  SynchronousCommand flush_success = Flush();
+  SynchronousCommand flush_success = flush_checkpoints();
   print("FLUSH1END|");
   print("FLUSHSUCCESS=",flush_success,"|");
   print("STARTIME=",Lookup(TimeOfBoot(0)),"|");
@@ -50,13 +50,13 @@ Test1:
   Checkpoint1:{ // Make sure checkpoint received by system
     EndCondition Checkpoint1.command_handle == COMMAND_RCVD_BY_SYSTEM ||
       Checkpoint1.command_handle == COMMAND_SUCCESS;
-    SetCheckpoint("C1",true,"valid");
+    set_checkpoint("C1",true,"valid");
   }
   print("CHECKPOINT1END|");
   print("CHECKPOINT1STATE=",Lookup(CheckpointState("C1",0)),"|");
   print("CHECKPOINT1INFO=",Lookup(CheckpointInfo("C1",0)),"|");
   print("FLUSH2BEGIN|");
-  SynchronousCommand flush_success = Flush();
+  SynchronousCommand flush_success = flush_checkpoints();
   print("FLUSH2END|");
   Checkpoint1Handle:{ // Verify that checkpoint is a success after flush
     SkipCondition Checkpoint1.command_handle != COMMAND_SUCCESS;
@@ -71,12 +71,12 @@ Test1:
   SetOK1:{
     EndCondition SetOK1.command_handle == COMMAND_RCVD_BY_SYSTEM ||
       Checkpoint1.command_handle == COMMAND_SUCCESS;
-    SetOK(true,0);
+    set_boot_ok(true,0);
   }
   print("OK1END|");
-  print("OK1STATE=",Lookup(IsOK(0)),"|");
+  print("OK1STATE=",Lookup(IsBootOK(0)),"|");
   print("FLUSH3BEGIN|");
-  SynchronousCommand flush_success = Flush();
+  SynchronousCommand flush_success = flush_checkpoints();
   print("FLUSH3END|");
   print("FLUSHSUCCESS=",flush_success,"|");
   

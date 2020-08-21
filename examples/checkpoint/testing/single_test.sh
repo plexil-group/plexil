@@ -35,11 +35,11 @@ calc(){ awk "BEGIN { print "$*" }"; }
 # Run our plan with a timeout, killing when time expires (-k 0)
 # Then run our analysis plan
 
-echo "Process $1: Terminating after $2 ms"
+echo "Process $1: Terminating after  $(calc "$2"/1000000 ) ms"
 # Cut from "--START" to just before "Plan complete"
 # Then replace spaces with % for passing to ParseTest
 # Then append "PRESTART|" to guarantee 2 arguments to ParseTest
-arg1=$(timeout -k 0 $(calc "$2"/1000 ) plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml"   \
+arg1=$(timeout -k 0 $(calc "$2"/1000000000 ) plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml"   \
 	    | grep -o -e "---START.*"  \
             | sed -E 's/(Plan.*)|(Killed.*)//'  \
 	    | sed 's/ /%/g')

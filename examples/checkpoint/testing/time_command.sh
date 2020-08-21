@@ -28,5 +28,5 @@
 ts=$(date +%s%N)
 # Run command and hide output
 $@  > /dev/null 2>&1
-# Finish timing and return the time as an integer number of milliseconds
-echo $((($(date +%s%N) - $ts)/1000000))
+# Finish timing and return the time as an integer number of nanoseconds
+echo $((($(date +%s%N) - $ts)))
