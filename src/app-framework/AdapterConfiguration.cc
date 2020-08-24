@@ -535,11 +535,17 @@ namespace PLEXIL {
     LookupHandlerMap::iterator itL;
     CommandHandlerMap::iterator itC;
 
-    for(itL = m_lookupMap.begin(); itL != m_lookupMap.end(); itL++)
-      delete (*itL).second;
+    std::set<void*> handlerSet;
+
+    for(itL = m_lookupMap.begin(); itL != m_lookupMap.end(); itL++) {
+      if(handlerSet.insert((*itL).second).second)
+        delete (*itL).second;
+    }
     m_lookupMap.clear();
-    for(itC = m_commandMap.begin(); itC != m_commandMap.end(); itC++)
-      delete (*itC).second;
+    for(itC = m_commandMap.begin(); itC != m_commandMap.end(); itC++) {
+      if(handlerSet.insert((*itC).second).second)
+        delete (*itC).second;
+    }
     m_commandMap.clear();
     delete m_plannerUpdateHandler;
     m_plannerUpdateHandler = NULL;
