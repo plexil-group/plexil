@@ -30,31 +30,46 @@ then
   exit 1
 fi
 
-# Generate our own configurtion file with an independent saves directory
-sed "s/saves/saves-${1}/g" interface-config.xml > "interface-config-${1}.xml"
+TIMEOUT_COMMAND=""
+if [[ -n $(command -v timeout) ]]
+then
+    TIMEOUT_COMMAND="timeout"
+elif [[ -n $(command -v gtimeout) ]]
+then
+    TIMEOUT_COMMAND="gtimeout"
+else
+    echo "Cannot find timeout or gtimeout, exiting"
+fi
 
-# Make sure our save directory is fresh and exists
-rm -r "./saves-$1" 2>/dev/null
-mkdir "./saves-$1" 2>/dev/null
 
-# Figure out how long a run takes, this is our range for when to kill it
-TIME=$(./time_command.sh plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml")
-echo "Test run took $(($TIME/1000000)) ms, using 1.5x that as an upper bound"
+if [[ -n "$TIMEOUT_COMMAND" ]]
+then
+   # Generate our own configurtion file with an independent saves directory
+   sed "s/saves/saves-${1}/g" interface-config.xml > "interface-config-${1}.xml"
 
-# Run the test plan with random timeout and analyze the results
-i="1"
+   # Make sure our save directory is fresh and exists
+   rm -r "./saves-$1" 2>/dev/null
+   mkdir "./saves-$1" 2>/dev/null
 
-while [ "$i" -le "$2" ]
-do
-    # Uses a 61-bit range to (nearly) randomly generate a number between 1 and 1.5*TIME
-    TIMEOUT=$(( $((RANDOM|(RANDOM<<15)|(RANDOM<<30)| ((RANDOM<<45)^(RANDOM<<48)) )) \
-		% (TIME+(TIME>>1)) + 1 ))
+   # Figure out how long a run takes, this is our range for when to kill it
+   TIME=$(./time_command.sh plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml")
+   MILLI=$(bc <<< "scale=2; $TIME/1000000")
+   echo "Test run took $MILLI ms, using 1.5x that as an upper bound"
 
-    # Run the test with the randomly generated timeout
-    ./single_test.sh "$1" "$TIMEOUT"
-    i=$[$i+1]
-done
+   # Run the test plan with random timeout and analyze the results
+   i=1
 
+   while [ "$i" -le "$2" ]
+   do
+       # Uses a 61-bit range to (nearly) randomly generate a number between 1 and 1.5*TIME
+       TIMEOUT=$(( $((RANDOM|(RANDOM<<15)|(RANDOM<<30)| ((RANDOM<<45)^(RANDOM<<48)) )) \
+		       % (TIME+(TIME>>1)) + 1 ))
+
+       # Run the test with the randomly generated timeout
+       ./single_test.sh "$1" "$TIMEOUT" "$TIMEOUT_COMMAND"
+       i=$[$i+1]
+   done
+fi
 # Cleanup
 rm "interface-config-${1}.xml"
 

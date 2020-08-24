@@ -39,7 +39,7 @@ echo "Process $1: Terminating after  $(calc "$2"/1000000 ) ms"
 # Cut from "--START" to just before "Plan complete"
 # Then replace spaces with % for passing to ParseTest
 # Then append "PRESTART|" to guarantee 2 arguments to ParseTest
-arg1=$(timeout -k 0 $(calc "$2"/1000000000 ) plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml"   \
+arg1=$("$3" -k 0 $(calc "$2"/1000000000 ) plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml"   \
 	    | grep -o -e "---START.*"  \
             | sed -E 's/(Plan.*)|(Killed.*)//'  \
 	    | sed 's/ /%/g')
