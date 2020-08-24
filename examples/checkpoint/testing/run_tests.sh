@@ -34,8 +34,8 @@ fi
 sed "s/saves/saves-${1}/g" interface-config.xml > "interface-config-${1}.xml"
 
 # Make sure our save directory is fresh and exists
-(rm -r "./saves-$1" 2>/dev/null)
-(mkdir "./saves-$1" 2>/dev/null)
+rm -r "./saves-$1" 2>/dev/null
+mkdir "./saves-$1" 2>/dev/null
 
 # Figure out how long a run takes, this is our range for when to kill it
 TIME=$(./time_command.sh plexilexec -p plans/Test1.plx -c "interface-config-${1}.xml")

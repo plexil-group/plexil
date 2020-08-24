@@ -24,9 +24,21 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Begin timing
-ts=$(date +%s%N)
-# Run command and hide output
-$@  > /dev/null 2>&1
-# Finish timing and return the time as an integer number of nanoseconds
-echo $((($(date +%s%N) - $ts)))
+# Mac doesn't support sub-second time
+if [[ "$OSTYPE" == "darwin"* ]];
+then    
+    time_s=$({ time $@ >/dev/null 2>/dev/null ; } 2>&1)
+    time_s=$(echo "$time_s" | grep "real"  | awk '{print $2}' )
+    minutes=$(echo "$time_s" | awk -F'm' '{print $1}')
+    seconds=$(echo "$time_s" | awk -F'm' '{print $2}' | awk -F's' '{print $1}')
+    nanoseconds=$(echo "$minutes $seconds" | awk '{seconds = $1 * 60 + $2 ; nanoseconds = seconds * 1000000000 
+                                                                            print nanoseconds}')
+    echo $nanoseconds
+else
+    # Begin timing
+    ts=$(date +%s%N)
+    # Run command and hide output
+    $@  > /dev/null 2>&1
+    # Finish timing and return the time as an integer number of nanoseconds
+    echo $((($(date +%s%N) - $ts)))
+fi

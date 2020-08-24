@@ -35,15 +35,34 @@ plexilc plans/Test1.ple
 plexilc plans/Test2.ple
 make
 
-# Spawn CPUS copies of the tester
-PROCESSES=$(nproc --all)
-# minimum of 1 process
-PROCESSES=$([ "1" -ge $PROCESSES ] && echo "1" || echo "$PROCESSES")
+# Pick correct core-finding command 
+CORE_COMMAND=""
+if [[ -n $(command -v nproc) ]]
+then
+    echo "using nproc"
+   CORE_COMMAND="nproc"
+elif [[ -n $(command -v gnproc) ]]
+then
+    echo "using gnproc"
+    CORE_COMMAND="gnproc"
+else
+    echo "Cannot find nproc or gnproc, proceeding as if single core"
+fi
+
+PROCESSES="1"
+if [[ -n "$CORE_COMMAND" ]]
+then
+    # Spawn CPUS copies of the tester
+    PROCESSES=$("$CORE_COMMAND" --all)
+    # minimum of 1 process
+    PROCESSES=$([ "1" -ge "$PROCESSES" ] && echo "1" || echo "$PROCESSES")
+fi
+
 echo "Running $PROCESSES procesees in parallel for $1 iterations"
 echo "All errors will be logged to ./log.txt"
-i="1"
 
-while [ $i -le $PROCESSES ]
+i="1"
+while [ "$i" -le "$PROCESSES" ]
 do
     ./run_tests.sh "$i" "$1" &
     ((i++))
@@ -60,7 +79,7 @@ echo "Appending logs"
 
 i="1"
 # Combine logs, ignoring errors if they don't exist
-while [ $i -le $PROCESSES ]
+while [ $i -le "$PROCESSES" ]
 do
     (cat "log-${i}.txt" >> log.txt  2>/dev/null)
     (rm "log-${i}.txt"  2>/dev/null)
