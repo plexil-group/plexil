@@ -67,6 +67,10 @@ then
     echo "Error:" >> "log-${1}.txt"
     echo "$error" >> "log-${1}.txt"
     echo "$output" >> "log-${1}.txt"
+    echo "     " >> "log-${1}.txt"
+    cd "saves-${1}"
+    cat $(ls -t) >> "../log-${1}.txt"  2>/dev/null
+    cd ..
 fi
 
 (rm -r "./saves-$1" 2>/dev/null)

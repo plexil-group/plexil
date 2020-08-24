@@ -4,6 +4,7 @@
     <SaveConfiguration Directory="./saves" />
     <!-- Configuration allows test to intentionally "crash"-->
     <AdapterConfiguration OKOnExit="false"
+                          FlushOnStart="false"
 			  FlushOnExit="false"
 			  UseTime="true" />
   </Adapter>
