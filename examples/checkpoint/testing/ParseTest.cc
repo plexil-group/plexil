@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 
 
   // If is_ok set and read, check it was correct
-  if(contains(first_run,"OK1END")){
+  if(contains(first_run,"OK1STATE")){
     if(getString(first_run[FOK1STATE]).compare("1")){
       cout<<"Is_ok was set but was read to "<<getString(first_run[FOK1STATE])<<endl;
       return -2;
