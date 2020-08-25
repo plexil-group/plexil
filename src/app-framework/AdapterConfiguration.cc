@@ -546,13 +546,20 @@ namespace PLEXIL {
       commandHandlerSet.insert((*itC).second);
     }
     m_commandMap.clear();
-    for(std::set<AbstractLookupHandler*>::iterator it = lookupHandlerSet.begin(); it != lookupHandlerSet.end(); it++) {
-      delete *it;
+    
+    while (lookupHandlerSet.begin() != lookupHandlerSet.end()) {
+      AbstractLookupHandler* ptr = *lookupHandlerSet.begin();
+      if(!dynamic_cast<AbstractCommandHandler*>(ptr)) {
+        lookupHandlerSet.erase(lookupHandlerSet.begin());
+        delete ptr;
+      }
     }
     lookupHandlerSet.clear();
-    
-    for(std::set<AbstractCommandHandler*>::iterator it = commandHandlerSet.begin(); it != commandHandlerSet.end(); it++) {
-      delete *it;
+
+    while (commandHandlerSet.begin() != commandHandlerSet.end()) {
+      AbstractCommandHandler* ptr = *commandHandlerSet.begin();
+      commandHandlerSet.erase(commandHandlerSet.begin());
+      delete ptr;
     }
     commandHandlerSet.clear();
 
@@ -562,6 +569,29 @@ namespace PLEXIL {
     m_defaultCommandHandler = NULL;
     delete m_defaultLookupHandler;
     m_defaultLookupHandler = NULL;
+    // LookupHandlerMap::iterator itL;
+    // CommandHandlerMap::iterator itC;
+
+    // std::set<void*> handlerSet;
+
+    // for(itL = m_lookupMap.begin(); itL != m_lookupMap.end(); itL++) {
+    //   if(handlerSet.insert((*itL).second).second) {
+    //     delete (*itL).second; (*itL).second = NULL;
+    //   }
+    // }
+    // m_lookupMap.clear();
+    // for(itC = m_commandMap.begin(); itC != m_commandMap.end(); itC++) {
+    //   if(handlerSet.insert((*itC).second).second) {
+    //     delete (*itC).second; (*itC).second = NULL;
+    //   }
+    // }
+    // m_commandMap.clear();
+    // delete m_plannerUpdateHandler;
+    // m_plannerUpdateHandler = NULL;
+    // delete m_defaultCommandHandler;
+    // m_defaultCommandHandler = NULL;
+    // delete m_defaultLookupHandler;
+    // m_defaultLookupHandler = NULL;
   }
 
   /**
