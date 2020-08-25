@@ -535,18 +535,27 @@ namespace PLEXIL {
     LookupHandlerMap::iterator itL;
     CommandHandlerMap::iterator itC;
 
-    std::set<void*> handlerSet;
+    std::set<AbstractLookupHandler*> lookupHandlerSet;
+    std::set<AbstractCommandHandler*> commandHandlerSet;
 
     for(itL = m_lookupMap.begin(); itL != m_lookupMap.end(); itL++) {
-      if(handlerSet.insert((*itL).second).second)
-        delete (*itL).second;
+      lookupHandlerSet.insert((*itL).second);
     }
     m_lookupMap.clear();
     for(itC = m_commandMap.begin(); itC != m_commandMap.end(); itC++) {
-      if(handlerSet.insert((*itC).second).second)
-        delete (*itC).second;
+      commandHandlerSet.insert((*itC).second);
     }
     m_commandMap.clear();
+    for(std::set<AbstractLookupHandler*>::iterator it = lookupHandlerSet.begin(); it != lookupHandlerSet.end(); it++) {
+      delete *it;
+    }
+    lookupHandlerSet.clear();
+    
+    for(std::set<AbstractCommandHandler*>::iterator it = commandHandlerSet.begin(); it != commandHandlerSet.end(); it++) {
+      delete *it;
+    }
+    commandHandlerSet.clear();
+
     delete m_plannerUpdateHandler;
     m_plannerUpdateHandler = NULL;
     delete m_defaultCommandHandler;
@@ -770,7 +779,7 @@ namespace PLEXIL {
                                                     AbortCommandHandler abortCmd) {
     return registerCommandObjectHandler(stateName, new InternalCommandHandler(
                                                                               execCmd,
-                                                                              abortCmd)); //TODO: Clean up
+                                                                              abortCmd));
   }
 
   /**
@@ -1035,7 +1044,7 @@ namespace PLEXIL {
    */
   bool AdapterConfiguration::registerCommandInterface(std::string const &commandName,
                                                       InterfaceAdapter *intf) {
-    return this->registerCommandObjectHandler(commandName, new InterfaceCommandHandler(intf)); //TODO: handle cleanup
+    return this->registerCommandObjectHandler(commandName, new InterfaceCommandHandler(intf));
   }
 
   /**
@@ -1154,7 +1163,7 @@ namespace PLEXIL {
    * @param intf The interface adapter to handle planner updates.
    */
   bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapter *intf) {
-    return this->registerPlannerUpdateObjectHandler(new InterfacePlannerUpdateHandler(intf)); //TODO: cleanup
+    return this->registerPlannerUpdateObjectHandler(new InterfacePlannerUpdateHandler(intf));
   }
 
   /**

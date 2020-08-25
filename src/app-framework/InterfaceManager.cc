@@ -466,14 +466,6 @@ namespace PLEXIL
       warn("invokeAbort: null handler for command " << cmd->getCommand());
       g_interface->commandAbortAcknowledge(cmd, false);
     }
-    // InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    // if (intf) {
-    //   intf->invokeAbort(cmd);
-    // }
-    // else {
-    //   warn("invokeAbort: null interface adapter for command " << cmd->getCommand());
-    //   g_interface->commandAbortAcknowledge(cmd, false);
-    // }
   }
 
   double 

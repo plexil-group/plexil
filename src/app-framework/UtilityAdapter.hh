@@ -120,10 +120,10 @@ public:
 
 };
 
+} // namespace PLEXIL
+
 extern "C" {
   void initUtilityAdapter();
 }
-
-} // namespace PLEXIL
 
 #endif
