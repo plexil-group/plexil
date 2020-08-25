@@ -43,6 +43,9 @@
 namespace PLEXIL
 {
 
+  // Initialize global variable
+  AdapterExecInterface *g_execInterface = NULL;
+
   /**
    * @brief Default constructor method.
    */
@@ -55,24 +58,6 @@ namespace PLEXIL
    */
   AdapterExecInterface::~AdapterExecInterface()
   {
-  }
-
-  //
-  // Static utility functions
-  //
-
-  std::string AdapterExecInterface::getText(const State& c) 
-  {
-    std::ostringstream retval;
-    retval << c.name() << "(";
-    std::vector<Value>::const_iterator it = c.parameters().begin();
-    if(it != c.parameters().end()) {
-      retval << *it;
-      for (++it; it != c.parameters().end(); ++it)
-        retval << ", " << *it;
-    }
-    retval << ")";
-    return retval.str();
   }
 
 }

@@ -43,18 +43,35 @@ public:
 
   SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
 
-  bool initialize();
-  bool start();
-  bool stop();
-  bool reset();
-  bool shutdown();
+  virtual bool initialize();
+  virtual bool start();
+  virtual bool stop();
+  virtual bool reset();
+  virtual bool shutdown();
 
-  virtual void executeCommand(PLEXIL::Command *cmd);
-  virtual void lookupNow (PLEXIL::State const& state, PLEXIL::StateCacheEntry &entry);
-  virtual void subscribe(const PLEXIL::State& state);
-  virtual void unsubscribe(const PLEXIL::State& state);
-  virtual void setThresholds(const PLEXIL::State& state, double hi, double lo);
-  virtual void setThresholds(const PLEXIL::State& state, int32_t hi, int32_t lo);
+  // Command Handlers
+  static void setSize(PLEXIL::Command *cmd);
+  static void setSpeed(PLEXIL::Command *cmd);
+  static void setColor(PLEXIL::Command *cmd);
+  static void setName(PLEXIL::Command *cmd);
+  static void move(PLEXIL::Command *cmd);
+  static void hello(PLEXIL::Command *cmd);
+  static void square(PLEXIL::Command *cmd);
+  static void cube(PLEXIL::Command *cmd);
+  static void defaultHandler(PLEXIL::Command *cmd);
+
+  // Lookup handlers
+  static void getSize (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
+  static void getSpeed (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
+  static void getColor (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
+  static void getSystemName (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
+  static void getAt (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
+  static void getDefault (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
+
+  static void subscribeToState(const PLEXIL::State& state);
+  static void unsubscribeFromState(const PLEXIL::State& state);
+  static void setStateThresholds(const PLEXIL::State& state, double hi, double lo);
+  static void setStateThresholds(const PLEXIL::State& state, int32_t hi, int32_t lo);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
@@ -74,7 +91,7 @@ private:
   SampleAdapter();
   
   bool isStateSubscribed(const PLEXIL::State& state) const;
-  std::set<PLEXIL::State> m_subscribedStates;
+  static std::set<PLEXIL::State> m_subscribedStates;
 };
 
 extern "C" {
