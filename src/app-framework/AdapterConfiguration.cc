@@ -289,6 +289,7 @@ namespace PLEXIL {
       it = m_adapters.begin(); // it = m_adapters.erase(it)
       delete ia;
     }
+    delete m_listenerHub;
   }
 
   /**
@@ -535,63 +536,26 @@ namespace PLEXIL {
     LookupHandlerMap::iterator itL;
     CommandHandlerMap::iterator itC;
 
-    std::set<AbstractLookupHandler*> lookupHandlerSet;
-    std::set<AbstractCommandHandler*> commandHandlerSet;
+    std::set<void*> handlerSet;
 
     for(itL = m_lookupMap.begin(); itL != m_lookupMap.end(); itL++) {
-      lookupHandlerSet.insert((*itL).second);
+      if(handlerSet.insert(dynamic_cast<void*>((*itL).second)).second) {
+        delete (*itL).second; (*itL).second = NULL;
+      }
     }
     m_lookupMap.clear();
     for(itC = m_commandMap.begin(); itC != m_commandMap.end(); itC++) {
-      commandHandlerSet.insert((*itC).second);
-    }
-    m_commandMap.clear();
-    
-    while (lookupHandlerSet.begin() != lookupHandlerSet.end()) {
-      AbstractLookupHandler* ptr = *lookupHandlerSet.begin();
-      if(!dynamic_cast<AbstractCommandHandler*>(ptr)) {
-        lookupHandlerSet.erase(lookupHandlerSet.begin());
-        delete ptr;
+      if(handlerSet.insert(dynamic_cast<void*>((*itC).second)).second) {
+        delete (*itC).second; (*itC).second = NULL;
       }
     }
-    lookupHandlerSet.clear();
-
-    while (commandHandlerSet.begin() != commandHandlerSet.end()) {
-      AbstractCommandHandler* ptr = *commandHandlerSet.begin();
-      commandHandlerSet.erase(commandHandlerSet.begin());
-      delete ptr;
-    }
-    commandHandlerSet.clear();
-
+    m_commandMap.clear();
     delete m_plannerUpdateHandler;
     m_plannerUpdateHandler = NULL;
     delete m_defaultCommandHandler;
     m_defaultCommandHandler = NULL;
     delete m_defaultLookupHandler;
     m_defaultLookupHandler = NULL;
-    // LookupHandlerMap::iterator itL;
-    // CommandHandlerMap::iterator itC;
-
-    // std::set<void*> handlerSet;
-
-    // for(itL = m_lookupMap.begin(); itL != m_lookupMap.end(); itL++) {
-    //   if(handlerSet.insert((*itL).second).second) {
-    //     delete (*itL).second; (*itL).second = NULL;
-    //   }
-    // }
-    // m_lookupMap.clear();
-    // for(itC = m_commandMap.begin(); itC != m_commandMap.end(); itC++) {
-    //   if(handlerSet.insert((*itC).second).second) {
-    //     delete (*itC).second; (*itC).second = NULL;
-    //   }
-    // }
-    // m_commandMap.clear();
-    // delete m_plannerUpdateHandler;
-    // m_plannerUpdateHandler = NULL;
-    // delete m_defaultCommandHandler;
-    // m_defaultCommandHandler = NULL;
-    // delete m_defaultLookupHandler;
-    // m_defaultLookupHandler = NULL;
   }
 
   /**
