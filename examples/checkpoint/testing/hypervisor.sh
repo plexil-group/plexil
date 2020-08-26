@@ -49,19 +49,19 @@ else
     echo "Cannot find nproc or gnproc, proceeding as if single core"
 fi
 
-PROCESSES="1"
+PROCESSES=1
 if [[ -n "$CORE_COMMAND" ]]
 then
     # Spawn CPUS copies of the tester
     PROCESSES=$("$CORE_COMMAND" --all)
     # minimum of 1 process
-    PROCESSES=$([ "1" -ge "$PROCESSES" ] && echo "1" || echo "$PROCESSES")
+    PROCESSES=$([ 1 -ge "$PROCESSES" ] && echo 1 || echo "$PROCESSES")
 fi
 
 echo "Running $PROCESSES procesees in parallel for $1 iterations"
 echo "All errors will be logged to ./log.txt"
 
-i="1"
+i=1
 while [ "$i" -le "$PROCESSES" ]
 do
     ./run_tests.sh "$i" "$1" &
@@ -77,7 +77,7 @@ done
 
 echo "Appending logs"
 
-i="1"
+i=1
 # Combine logs, ignoring errors if they don't exist
 while [ $i -le "$PROCESSES" ]
 do
