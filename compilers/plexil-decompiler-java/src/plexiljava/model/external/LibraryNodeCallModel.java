@@ -1,9 +1,9 @@
-package plexiljava.model.libraries;
+package plexiljava.model.external;
 
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
-import plexiljava.model.tokens.AliasModel;
+import plexiljava.model.tokens.PairModel;
 
 public class LibraryNodeCallModel extends NodeModel {
 
@@ -23,7 +23,7 @@ public class LibraryNodeCallModel extends NodeModel {
 		dsb.append("LibraryCall ", getQuality("NodeId").getValue(), "(");
 		boolean hasAliases = false;
 		for( BaseModel child : children ) {
-			if( child instanceof AliasModel ) {
+			if( child instanceof PairModel ) {
 				dsb.append(child.decompile(0), ", ");
 				hasAliases = true;
 			}

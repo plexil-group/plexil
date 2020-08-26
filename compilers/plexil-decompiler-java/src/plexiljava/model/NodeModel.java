@@ -5,6 +5,12 @@ import java.util.logging.Level;
 import plexiljava.decompilation.Decompilable;
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.main.Decompiler;
+import plexiljava.model.commandhandles.CommandAcceptedCommandHandleModel;
+import plexiljava.model.commandhandles.CommandDeniedCommandHandleModel;
+import plexiljava.model.commandhandles.CommandFailedCommandHandleModel;
+import plexiljava.model.commandhandles.CommandRcvdBySystemCommandHandleModel;
+import plexiljava.model.commandhandles.CommandSentToSystemCommandHandleModel;
+import plexiljava.model.commandhandles.CommandSuccessCommandHandleModel;
 import plexiljava.model.commands.CommandModel;
 import plexiljava.model.commands.CommandNodeModel;
 import plexiljava.model.conditions.ConditionNodeModel;
@@ -41,7 +47,12 @@ import plexiljava.model.expressions.BooleanRHSModel;
 import plexiljava.model.expressions.NodeTimepointValue;
 import plexiljava.model.expressions.NumericRHSModel;
 import plexiljava.model.expressions.StringRHSModel;
-import plexiljava.model.libraries.LibraryNodeCallModel;
+import plexiljava.model.external.LibraryNodeCallModel;
+import plexiljava.model.external.UpdateModel;
+import plexiljava.model.failures.InvariantConditionFailedFailureModel;
+import plexiljava.model.failures.ParentFailedFailureModel;
+import plexiljava.model.failures.PostConditionFailedFailureModel;
+import plexiljava.model.failures.PreConditionFailedFailureModel;
 import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
 import plexiljava.model.lookups.LookupWithFrequencyModel;
@@ -57,6 +68,9 @@ import plexiljava.model.operations.MULOperatorModel;
 import plexiljava.model.operations.NEQOperatorModel;
 import plexiljava.model.operations.OROperatorModel;
 import plexiljava.model.operations.SUBOperatorModel;
+import plexiljava.model.outcomes.FailureOutcomeModel;
+import plexiljava.model.outcomes.SkippedOutcomeModel;
+import plexiljava.model.outcomes.SuccessOutcomeModel;
 import plexiljava.model.references.SucceededModel;
 import plexiljava.model.states.ExecutingStateModel;
 import plexiljava.model.states.FailingStateModel;
@@ -65,7 +79,6 @@ import plexiljava.model.states.FinishingStateModel;
 import plexiljava.model.states.InactiveStateModel;
 import plexiljava.model.states.IterationEndedStateModel;
 import plexiljava.model.states.WaitingStateModel;
-import plexiljava.model.tokens.AliasModel;
 import plexiljava.model.tokens.AnyParametersModel;
 import plexiljava.model.tokens.ArgumentsModel;
 import plexiljava.model.tokens.ArrayValueModel;
@@ -80,9 +93,11 @@ import plexiljava.model.tokens.NodeFailureVariableModel;
 import plexiljava.model.tokens.NodeOutcomeVariableModel;
 import plexiljava.model.tokens.NodeStateVariableModel;
 import plexiljava.model.tokens.OutModel;
+import plexiljava.model.tokens.PairModel;
 import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.PlusInfinityModel;
 import plexiljava.model.tokens.ReturnModel;
+import plexiljava.model.tokens.StringValueModel;
 import plexiljava.model.tokens.ToleranceModel;
 
 public class NodeModel extends BaseModel implements Decompilable {
@@ -104,6 +119,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 	
 	public void generateChild(BaseModel child) {
 		switch( child.getName() ) {
+			// Special Cases
+			case "#comment":
+				break;
 			case "VariableDeclarations":
 				for( BaseModel grandchild : child.getChildren() ) {
 					generateChild(grandchild);
@@ -121,6 +139,25 @@ public class NodeModel extends BaseModel implements Decompilable {
 				for( BaseModel grandchild : child.getChildren() ) {
 					generateChild(grandchild);
 				}
+				break;
+			/* CommandHandles */
+			case "CommandAccepted":
+				children.add(new CommandAcceptedCommandHandleModel(child));
+				break;
+			case "CommandDenied":
+				children.add(new CommandDeniedCommandHandleModel(child));
+				break;
+			case "CommandFailed":
+				children.add(new CommandFailedCommandHandleModel(child));
+				break;
+			case "CommandRcvdBySystem":
+				children.add(new CommandRcvdBySystemCommandHandleModel(child));
+				break;
+			case "CommandSentToSystem":
+				children.add(new CommandSentToSystemCommandHandleModel(child));
+				break;
+			case "CommandSuccessCommandHandleModel":
+				children.add(new CommandSuccessCommandHandleModel(child));
 				break;
 			/* Commands */
 			case "Command":
@@ -186,9 +223,25 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "StringRHS":
 				children.add(new StringRHSModel(child));
 				break;
-			/* Libraries */
+			/* External */
 			case "LibraryNodeCall":
 				children.add(new LibraryNodeCallModel(child));
+				break;
+			case "Update":
+				children.add(new UpdateModel(child));
+				break;
+			/* Failures */
+			case "InvariantConditionFailed":
+				children.add(new InvariantConditionFailedFailureModel(child));
+				break;
+			case "ParentFailedFailureModel":
+				children.add(new ParentFailedFailureModel(child));
+				break;
+			case "PostConditionFailedFailureModel":
+				children.add(new PostConditionFailedFailureModel(child));
+				break;
+			case "PreConditionFailedFailureModel":
+				children.add(new PreConditionFailedFailureModel(child));
 				break;
 			/* Lookups */
 			case "LookupOnChange":
@@ -263,6 +316,16 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "NOT":
 				children.add(new NOTConditionModel(child));
 				break;
+			/* Outcomes */
+			case "Success":
+				children.add(new SuccessOutcomeModel(child));
+				break;
+			case "Failure":
+				children.add(new FailureOutcomeModel(child));
+				break;
+			case "Skipped":
+				children.add(new SkippedOutcomeModel(child));
+				break;
 			/* References */
 			case "Succeeded":
 				children.add(new SucceededModel(child));
@@ -294,7 +357,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			/* Tokens */
 			case "Alias":
-				children.add(new AliasModel(child));
+				children.add(new PairModel(child));
 				break;
 			case "AnyParameters":
 				children.add(new AnyParametersModel(child));
@@ -334,6 +397,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Out":
 				children.add(new OutModel(child));
 				break;
+			case "Pair":
+				children.add(new PairModel(child));
+				break;
 			case "Parameter":
 				children.add(new ParameterModel(child));
 				break;
@@ -342,6 +408,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "Return":
 				children.add(new ReturnModel(child));
+				break;
+			case "StringValue":
+				children.add(new StringValueModel(child));
 				break;
 			case "Tolerance":
 				children.add(new ToleranceModel(child));

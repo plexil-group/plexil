@@ -22,7 +22,7 @@ public class XMLNavigator {
 	
 	// TODO: B/DFS Locate, Selected View
 	
-	public static final String FILENAME = "examples/basic/IfThenElseif.plx";
+	public static final String FILENAME = "example.plx";
 	public static final String HELPDOC = "cd	Change Directory\nls	List Children\nattr	List Attributes";
 	
 	public static String getNodeString(Node node) {
@@ -114,7 +114,9 @@ public class XMLNavigator {
 	public static Map<Node, List<Node>> qualityMap = new HashMap<Node, List<Node>>();
 	
 	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
-		File infile = new File(FILENAME);
+		File origFile = new File(FILENAME);
+		XMLIO.deformatFile(origFile);
+		File infile = new File("_plexildformatted");
 		Element plan = XMLIO.readToNode(infile);
 		plan.normalize();
 		XMLPlanParsing.qualifyNode(plan, qualityMap);

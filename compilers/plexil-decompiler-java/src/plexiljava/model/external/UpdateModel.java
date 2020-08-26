@@ -1,15 +1,16 @@
-package plexiljava.model.tokens;
+package plexiljava.model.external;
 
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.tokens.PairModel;
 
-public class InModel extends NodeModel {
+public class UpdateModel extends NodeModel {
 
-	public InModel(BaseModel node) {
+	public UpdateModel(BaseModel node) {
 		super(node);
 	}
-
+	
 	@Override
 	public boolean verify() {
 		return !children.isEmpty();
@@ -19,13 +20,20 @@ public class InModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		
-		dsb.append("In ", children.get(0).decompile(indentLevel));
-		dsb.sb.deleteCharAt(dsb.sb.length()-1);
-		if( indentLevel != 0 ) {
-			dsb.append(";");
+		dsb.append("Update ");
+		boolean first = true;
+		for( BaseModel child : children ) {
+			if( child instanceof PairModel ) {
+				if( first ) {
+					first = false;
+				} else {
+					dsb.append(", ");
+				}
+				dsb.append(child.decompile(0));
+			}
 		}
+		dsb.append(";");
 		return dsb.toString();
 	}
-	
+
 }

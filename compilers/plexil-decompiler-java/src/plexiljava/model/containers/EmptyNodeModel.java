@@ -3,6 +3,7 @@ package plexiljava.model.containers;
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.conditions.ConditionModel;
 
 public class EmptyNodeModel extends NodeModel {
 
@@ -19,7 +20,25 @@ public class EmptyNodeModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append(getQuality("NodeId").getValue(), ": {}");
+		dsb.append(getQuality("NodeId").getValue(), ": {");
+		if( !children.isEmpty() ) {
+			dsb.addLine("");
+		}
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
+		for( BaseModel child : children ) {
+			if( child instanceof ConditionModel ) {
+				continue;
+			}
+			dsb.addLine(child.decompile(indentLevel+1));
+		}
+		if( !children.isEmpty() ) {
+			dsb.addBlockCloser(indentLevel);
+		} else {
+			dsb.append("}");
+		}
 		return dsb.toString();
 	}
 	

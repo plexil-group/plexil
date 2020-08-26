@@ -15,6 +15,15 @@ public class TryNodeModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
+		dsb.append(getQuality("NodeId").getValue(), ": {\n");
+		indentLevel++;
+
+		if( hasQuality("Priority") ) {
+			dsb.addIndent(indentLevel+1);
+			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
+		}
+
+		dsb.addIndent(indentLevel);
 		dsb.append("Try\n");
 		dsb.addIndent(indentLevel);
 		dsb.append("{\n");
@@ -28,6 +37,9 @@ public class TryNodeModel extends NodeModel {
 			}
 			dsb.append(child.decompile(indentLevel+1), "\n");
 		}
+		dsb.addBlockCloser(indentLevel);
+		dsb.append("\n");
+		indentLevel--;
 		dsb.addBlockCloser(indentLevel);
 		return dsb.toString();
 	}

@@ -4,9 +4,9 @@ import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 
-public class AliasModel extends NodeModel {
+public class PairModel extends NodeModel {
 
-	public AliasModel(BaseModel node) {
+	public PairModel(BaseModel node) {
 		super(node);
 	}
 	
@@ -21,7 +21,9 @@ public class AliasModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		
 		dsb.append(qualities.get(0).getValue(), " = ", qualities.get(1).getValue());
-		
+		if( indentLevel != 0 ) {
+			dsb.append(";");
+		}
 		return dsb.toString();
 	}
 	

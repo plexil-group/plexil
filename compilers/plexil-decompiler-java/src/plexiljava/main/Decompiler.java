@@ -98,6 +98,8 @@ public class Decompiler {
 				return;
 			}
 		}
+		XMLIO.deformatFile(infile);
+		infile = new File("_plexildformatted");
 		Element rootNode = XMLIO.readToNode(infile);
 		NodeModel planRoot = new NodeModel(new BaseModel(rootNode, null, 0));
 		String decompilation = "";
@@ -106,7 +108,8 @@ public class Decompiler {
 				decompilation += child.decompile(0) + "\n";
 			}
 		} else {
-			decompilation += (new NodeModel(new BaseModel(rootNode.getFirstChild(), null, 0))).decompile(0);
+			decompilation += planRoot.getChildren().get(0).decompile(0);
+			//decompilation += (new NodeModel(new BaseModel(rootNode.getFirstChild(), null, 0))).decompile(0);
 		}
 		XMLIO.writeToXML(outfileName, decompilation);
 		logger.setLevel(Level.INFO);

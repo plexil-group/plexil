@@ -16,7 +16,11 @@ public class InterfaceModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		
 		for( BaseModel child : children ) {
-			dsb.append(child.decompile(0), ", ");
+			if( indentLevel != 0 && children.size() == 1 ) {
+				dsb.append(child.decompile(-1), ", ");
+			} else {
+				dsb.append(child.decompile(0), ", ");
+			}
 		}
 		if( !children.isEmpty() ) {
 			dsb.sb.delete(dsb.sb.length()-2, dsb.sb.length());

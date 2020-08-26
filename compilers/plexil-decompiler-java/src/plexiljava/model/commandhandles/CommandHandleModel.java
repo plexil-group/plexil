@@ -1,16 +1,16 @@
-package plexiljava.model.states;
+package plexiljava.model.commandhandles;
 
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.TypedNodeModel;
 
-public class StateModel extends TypedNodeModel {
+public class CommandHandleModel extends TypedNodeModel {
 
-	public StateModel(BaseModel node) {
+	public CommandHandleModel(BaseModel node) {
 		super(node);
 	}
 
-	public StateModel(BaseModel node, String type) {
+	public CommandHandleModel(BaseModel node, String type) {
 		super(node, type);
 	}
 	
@@ -24,9 +24,9 @@ public class StateModel extends TypedNodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		if( hasQuality("NodeRef") ) {
-			dsb.append(getQuality("NodeRef").getValue(), ".state == ", type);
+			dsb.append(getQuality("NodeRef").getValue(), ".command_handle == ", type);
 		} else {
-			dsb.append(getQuality("NodeId").getValue(), ".state == ", type);
+			dsb.append(getQuality("NodeId").getValue(), ".command_handle == ", type);
 		}
 		return dsb.toString();
 	}
