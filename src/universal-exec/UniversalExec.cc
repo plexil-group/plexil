@@ -50,6 +50,7 @@ using namespace PLEXIL;
 
 int main_internal(int argc, char** argv)
 {
+  unsigned int const PUGI_PARSE_OPTIONS = pugi::parse_default | pugi::parse_ws_pcdata_single;
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("interface-config.xml");
@@ -223,7 +224,7 @@ int main_internal(int argc, char** argv)
   pugi::xml_document configDoc;
   if (!interfaceConfig.empty()) {
     std::cout << "Reading interface configuration from " << interfaceConfig << std::endl;
-	pugi::xml_parse_result parseResult = configDoc.load_file(interfaceConfig.c_str());
+    pugi::xml_parse_result parseResult = configDoc.load_file(interfaceConfig.c_str(),PUGI_PARSE_OPTIONS);
     if (parseResult.status != pugi::status_ok) {
       std::cout << "WARNING: unable to load interface configuration file " 
                 << interfaceConfig 
@@ -324,7 +325,7 @@ int main_internal(int argc, char** argv)
   // load the plan
   if (!error && planName != "error") {
 	pugi::xml_document plan;
-	pugi::xml_parse_result parseResult = plan.load_file(planName.c_str());
+	pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(),PUGI_PARSE_OPTIONS);
     if (parseResult.status != pugi::status_ok) {
       std::cout << "Error parsing plan " << planName
 				<< " (offset " << parseResult.offset << "): "
