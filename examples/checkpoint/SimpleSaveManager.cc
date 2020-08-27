@@ -7,8 +7,10 @@
 #include <stdlib.h>     /* strtod */
 #include <climits>
 #include <sstream> // in to_string
+#include <sys/stat.h> //mkdir
 #include <limits> //numeric_limits
-#include "AdapterExecInterface.hh" // g_execInterface
+#include <errno.h>
+#include "InterfaceManager.hh" // g_manager
 #include "Debug.hh"
 #include "pugixml.hpp"
 #include "plexil-stdint.h"
@@ -55,6 +57,46 @@ bool is_number(const string& s)
     return !s.empty() && it == s.end();
 }
 
+
+int mkdir_p(const char *path)
+{
+    /* From  https://gist.github.com/JonathonReinhart/8c0d90191c38af2dcadb102c4e202950*/
+    const size_t len = strlen(path);
+    char _path[PATH_MAX];
+    char *p; 
+
+    errno = 0;
+
+    /* Copy string so its mutable */
+    if (len > sizeof(_path)-1) {
+        errno = ENAMETOOLONG;
+        return -1; 
+    }   
+    strcpy(_path, path);
+
+    /* Iterate the string */
+    for (p = _path + 1; *p; p++) {
+        if (*p == '/') {
+            /* Temporarily truncate */
+            *p = '\0';
+
+            if (mkdir(_path, S_IRWXU) != 0) {
+                if (errno != EEXIST)
+                    return -1; 
+            }
+
+            *p = '/';
+        }
+    }   
+
+    if (mkdir(_path, S_IRWXU) != 0) {
+        if (errno != EEXIST)
+            return -1; 
+    }   
+
+    return 0;
+}
+
 //////////////////////// Class Features ////////////////////////////
 
 
@@ -76,8 +118,8 @@ void SimpleSaveManager::setConfig(const pugi::xml_node* configXml){
   m_directory_set = true;
   bool found_directory = false;
   if(configXml==NULL){
-    cerr<<"SimpleSaveManager: No configuration specified, defaulting to directory = ./"<<endl;
-    m_file_directory = "./";
+    cerr<<"SimpleSaveManager: No configuration specified, defaulting to directory = ./saves"<<endl;
+    m_file_directory = "./saves";
   }
   else{
     for(pugi::xml_attribute attr = configXml->first_attribute();
@@ -101,8 +143,8 @@ void SimpleSaveManager::setConfig(const pugi::xml_node* configXml){
     }
     if(!found_directory){
       // No directory attribute found
-      cerr << "SimpleSaveManager: No \"Directory\" attribute found in configuration, defaulting to ./"<<endl;
-      m_file_directory = "./";
+      cerr << "SimpleSaveManager: No \"Directory\" attribute found in configuration, defaulting to ./saves"<<endl;
+      m_file_directory = "./saves";
     }
   }
   UNLOCK;
@@ -146,8 +188,8 @@ void SimpleSaveManager::loadCrashes(){
   
   m_have_read = true;
   if(!m_directory_set){
-    cerr << "SaveManager configuration never loaded, defaulting to directory = ./" <<endl;
-    m_file_directory = "./";
+    cerr << "SaveManager configuration never loaded, defaulting to directory = ./saves" <<endl;
+    m_file_directory = "./saves";
   }
 
   m_data_vector->clear();
@@ -229,11 +271,7 @@ void SimpleSaveManager::loadCrashes(){
 }
 
 bool SimpleSaveManager::writeOut(){
-  // If we were already planning to write out at the next opportunity, keep our course and call
-  // this attempt successful
-  if(m_write_enqueued) return true;
-  // Log that we are planning to write out
-  m_write_enqueued = true;
+
   LOCK;
 
   bool retval;  
@@ -256,7 +294,6 @@ bool SimpleSaveManager::writeOut(){
   debug("writing to "<<save_name);
 
   // The actual write has begun, any future writes could potentially feature new data
-  m_write_enqueued = false;
   retval = writeToFile(save_name);
   succeedCommands(); // Return COMMAND_SUCCESS to all commands
   UNLOCK;
@@ -321,23 +358,25 @@ bool SimpleSaveManager::writeToFile(const string& location){
   // Test if save directory exists
   DIR *test_open = opendir(m_file_directory.c_str());
   if(test_open==NULL){
-    cerr << "SimpleSavemanager: Saving to "<<m_file_directory<<" failed, directory doesn't exist" << endl;
-    return false;
-  }
-  else{
-    closedir(test_open);
-    // Save XML tree to temporary file
-    bool saveSucceeded = doc.save_file((location+".part").c_str());
-    // Rename file to indicate that it has been completely saved
-    // If we crash during saving, we will just end up with an extraneous file,
-    // once it's named correctly we know that it was saved correctly.
-    if(saveSucceeded){
-      rename((location+".part").c_str(),location.c_str());
-    }
-    else{
-      cerr << "SimpleSaveManager: Saving to "<<location<<".part failed"<<endl;
+    cerr << "SimpleSaveManager: Directory "<<m_file_directory<<" directory doesn't exist, creating" << endl;
+    if(!mkdir_p(m_file_directory.c_str())){
+      cerr << "SimpleSaveManager: Directory creation failed, exiting" <<endl;
       return false;
     }
+  }
+  
+  closedir(test_open);
+  // Save XML tree to temporary file
+  bool saveSucceeded = doc.save_file((location+".part").c_str());
+  // Rename file to indicate that it has been completely saved
+  // If we crash during saving, we will just end up with an extraneous file,
+  // once it's named correctly we know that it was saved correctly.
+  if(saveSucceeded){
+    rename((location+".part").c_str(),location.c_str());
+  }
+  else{
+    cerr << "SimpleSaveManager: Saving to "<<location<<".part failed"<<endl;
+    return false;
   }
   return true;
 }

@@ -35,7 +35,7 @@ are available, as is an IsOk variable which is (optionally) set to true on a saf
 interface-configuration.xml contains configuration details for the checkpoint adapter.
 SaveConfiguration-Directory: The directory in which saves (in the form x_save.xml or x_save.part)
 			     are saved.
-			     Default "./"
+			     Default "./saves"
 
 
 AdapterConfiguration-OKOnExit: Whether IsBootOK is set to true when the executive exits normally.
