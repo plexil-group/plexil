@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,30 +35,95 @@
 #define PLEXIL_UTILITY_ADAPTER_HH
 
 #include "InterfaceAdapter.hh"
+#include "AdapterConfiguration.hh"
 
 namespace PLEXIL {
 
 class UtilityAdapter : public InterfaceAdapter
 {
+  typedef void (InterfaceAdapter::*LookupNowHandler)(const State &, StateCacheEntry&);
+  typedef void (InterfaceAdapter::*SetThresholdsDoubleHandler)(const State &, double, double);
+  typedef void (InterfaceAdapter::*SetThresholdsIntHandler)(const State &, int, int);
+  typedef void (InterfaceAdapter::*SubscribeHandler)(const State &);
+  typedef void (InterfaceAdapter::*UnsubscribeHandler)(const State &);
+  
+  class UtilityLookupHandler : public AbstractLookupHandler {
+    InterfaceAdapter &m_context;
+    LookupNowHandler m_lookupNowHandler;
+    SetThresholdsDoubleHandler m_setThresholdsDoubleHandler;
+    SetThresholdsIntHandler m_setThresholdsIntHandler;
+    SubscribeHandler m_subscribeHandler;
+    UnsubscribeHandler m_unsubscribeHandler;
+  public:
+    UtilityLookupHandler(InterfaceAdapter &ctx, LookupNowHandler ln, SetThresholdsDoubleHandler setTD = nullptr, 
+        SetThresholdsIntHandler setTI = nullptr, SubscribeHandler sub = nullptr,
+        UnsubscribeHandler unsub = nullptr) : m_context(ctx),
+        m_lookupNowHandler(ln), m_setThresholdsDoubleHandler(setTD),
+        m_setThresholdsIntHandler(setTI), m_subscribeHandler(sub), m_unsubscribeHandler(unsub) {}
+    virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+      (m_context.*m_lookupNowHandler)(state, cacheEntry);
+    }
+    void setThresholds(const State &state, double hi, double lo) {
+      if(m_setThresholdsDoubleHandler)
+        (m_context.*m_setThresholdsDoubleHandler)(state, hi, lo);
+    }
+    void setThresholds(const State &state, int32_t hi, int32_t lo) {
+      if(m_setThresholdsIntHandler)
+        (m_context.*m_setThresholdsIntHandler)(state, hi, lo);
+    }
+    void subscribe(const State &state) {
+      if(m_subscribeHandler)
+        (m_context.*m_subscribeHandler)(state);
+    }
+    void unsubscribe(const State &state) {
+      if(m_unsubscribeHandler)
+        (m_context.*m_unsubscribeHandler)(state);
+    }
+  };
+
+  typedef void (InterfaceAdapter::*ExecuteCommandHandler)(Command *);
+  typedef void (InterfaceAdapter::*AbortCommandHandler)(Command *);
+
+  class UtilityCommandHandler : public AbstractCommandHandler {
+    InterfaceAdapter &m_context;
+    ExecuteCommandHandler m_executeCommandHandler;
+    AbortCommandHandler m_abortCommandHandler;
+  public:
+    UtilityCommandHandler(InterfaceAdapter &ctx, ExecuteCommandHandler exec, AbortCommandHandler abort = nullptr) :
+      m_context(ctx), m_executeCommandHandler(exec), m_abortCommandHandler(abort) {}
+    virtual void executeCommand(Command *cmd) {
+      (m_context.*m_executeCommandHandler)(cmd);
+    }
+    void abortCommand(Command *cmd) {
+      if(m_abortCommandHandler)
+        (m_context.*m_abortCommandHandler)(cmd);
+    }
+  };
 public:
   UtilityAdapter (AdapterExecInterface&, pugi::xml_node const);
 
-  bool initialize();
-  bool start();
-  bool stop();
-  bool reset();
-  bool shutdown();
+  virtual bool initialize();
+  virtual bool start();
+  virtual bool stop();
+  virtual bool reset();
+  virtual bool shutdown();
 
-  void executeCommand(Command *cmd);
+  void print1(Command *cmd);
 
-  void invokeAbort(Command *cmd);
+  void pprint1(Command *cmd);
+
+  void printToString1(Command *cmd);
+
+  void pprintToString1(Command *cmd);
+
+  void abortCommand(Command *cmd);
 
 };
+
+} // namespace PLEXIL
 
 extern "C" {
   void initUtilityAdapter();
 }
-
-} // namespace PLEXIL
 
 #endif

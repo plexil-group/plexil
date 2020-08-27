@@ -1,0 +1,92 @@
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+Command print(...);
+
+Boolean Lookup IsBootOK(...);
+Boolean Lookup CheckpointState(...);
+String Lookup  CheckpointInfo(...);
+Real Lookup TimeOfBoot(...);
+
+Command set_checkpoint(...);
+Command set_boot_ok(...);
+Boolean Command flush_checkpoints();
+
+Test1:
+{
+  // | is used as a separator because print doesn't print lonely whitespace due to a bug
+  // Waits are used such that the supervisor has more opportunity to interrupt the plan (as opposed to the setup)
+  Boolean flush_success;
+  print("---START|");
+  print("FLUSH1BEGIN|");
+  SynchronousCommand flush_success = flush_checkpoints();
+  print("FLUSH1END|");
+  print("FLUSHSUCCESS=",flush_success,"|");
+  print("STARTIME=",Lookup(TimeOfBoot(0)),"|");
+  print("CHECKPOINT1BEGIN|");
+  Checkpoint1:{ // Make sure checkpoint received by system
+    EndCondition Checkpoint1.command_handle == COMMAND_RCVD_BY_SYSTEM ||
+      Checkpoint1.command_handle == COMMAND_SUCCESS;
+    set_checkpoint("C1",true,"valid");
+  }
+  print("CHECKPOINT1END|");
+  print("CHECKPOINT1STATE=",Lookup(CheckpointState("C1",0)),"|");
+  print("CHECKPOINT1INFO=",Lookup(CheckpointInfo("C1",0)),"|");
+  print("FLUSH2BEGIN|");
+  SynchronousCommand flush_success = flush_checkpoints();
+  print("FLUSH2END|");
+  Checkpoint1Handle:{ // Verify that checkpoint is a success after flush
+    SkipCondition Checkpoint1.command_handle != COMMAND_SUCCESS;
+    print("CHECKPOINT1HANDLE=1|");
+  }
+  Checkpoint1HandleNegative:{
+    SkipCondition Checkpoint1.command_handle == COMMAND_SUCCESS;
+    print("CHECKPOINT1HANDLE=0|");
+  }
+  print("FLUSHSUCCESS=",flush_success,"|");
+  print("OK1BEGIN|");
+  SetOK1:{
+    EndCondition SetOK1.command_handle == COMMAND_RCVD_BY_SYSTEM ||
+      Checkpoint1.command_handle == COMMAND_SUCCESS;
+    set_boot_ok(true,0);
+  }
+  print("OK1END|");
+  print("OK1STATE=",Lookup(IsBootOK(0)),"|");
+  print("FLUSH3BEGIN|");
+  SynchronousCommand flush_success = flush_checkpoints();
+  print("FLUSH3END|");
+  print("FLUSHSUCCESS=",flush_success,"|");
+  
+  OK1Handle:{ // Verify that OK is a success after flush
+    SkipCondition SetOK1.command_handle != COMMAND_SUCCESS;
+    print("OKT1HANDLE=1|");
+  }
+ OK1HandleNegative:{
+    SkipCondition SetOK1.command_handle == COMMAND_SUCCESS;
+    print("OK1HANDLE=0|");
+  }
+  print("END---");
+}
