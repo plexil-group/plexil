@@ -45,7 +45,7 @@
 namespace PLEXIL
 {
   ExecApplication::ExecApplication()
-    :
+    : 
 #ifdef PLEXIL_WITH_THREADS
       m_execThread(),
       m_execMutex(),
@@ -54,6 +54,7 @@ namespace PLEXIL
       m_markSem(),
       m_shutdownSem(),
 #endif
+      m_manager(new InterfaceManager(*this)),
       m_nBlockedSignals(0),
       m_state(APP_UNINITED),
       m_threadLaunched(false),
@@ -68,16 +69,17 @@ namespace PLEXIL
     g_configuration = new AdapterConfiguration();
     g_exec = makePlexilExec();
     g_exec->setExecListener(g_configuration->getListenerHub());
-    g_manager = new InterfaceManager(*this);
-    g_interface = static_cast<ExternalInterface *>(g_manager);
+    g_execInterface = static_cast<AdapterExecInterface *>(m_manager);
+    g_interface = static_cast<ExternalInterface *>(m_manager);
   }
 
   ExecApplication::~ExecApplication()
   {
+    delete g_exec;
     delete g_configuration;
     g_interface = NULL;
-    delete g_manager;
-    delete g_exec;
+    g_execInterface = NULL;
+    delete m_manager;
   }
 
   /**
@@ -130,7 +132,7 @@ namespace PLEXIL
     }
 
     // Initialize them
-    if (!g_manager->initialize()) {
+    if (!m_manager->initialize()) {
       debugMsg("ExecApplication:initialize",
 	       " initialization of interfaces failed");
       return false;
@@ -151,7 +153,7 @@ namespace PLEXIL
 
     // Start 'em up!
 
-    if (!g_manager->start()) {
+    if (!m_manager->start()) {
       debugMsg("ExecApplication:startInterfaces",
                " failed to start interfaces");
       return false;
@@ -174,8 +176,8 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
       RTMutexGuard guard(m_execMutex);
 #endif
-      g_manager->processQueue();           // for effect
-      double now = g_manager->queryTime(); // update time before attempting to step
+      m_manager->processQueue();           // for effect
+      double now = m_manager->queryTime(); // update time before attempting to step
       if (g_exec->needsStep()) {
 	g_exec->step(now);
         debugMsg("ExecApplication:step", " complete");
@@ -215,12 +217,12 @@ namespace PLEXIL
       RTMutexGuard guard(m_execMutex);
 #endif
       debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
-      g_manager->processQueue(); // for effect
-      double now = g_manager->queryTime(); // update time before attempting to step
+      m_manager->processQueue(); // for effect
+      double now = m_manager->queryTime(); // update time before attempting to step
       while (g_exec->needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
         g_exec->step(now);
-	now = g_manager->queryTime(); // update time before attempting to step again
+	now = m_manager->queryTime(); // update time before attempting to step again
       }
       g_exec->deleteFinishedPlans();
     }
@@ -307,7 +309,7 @@ namespace PLEXIL
       return false;
 
     // Stop interfaces
-    g_manager->stop();
+    m_manager->stop();
 
 #ifdef PLEXIL_WITH_THREADS
     // Stop the Exec
@@ -363,7 +365,7 @@ namespace PLEXIL
       return false;
 
     // Reset interfaces
-    g_manager->reset();
+    m_manager->reset();
 
     // Clear suspended flag
     m_suspended = false;
@@ -390,7 +392,7 @@ namespace PLEXIL
     // *** NYI ***
 
     // Shut down interfaces
-    g_manager->shutdown();
+    m_manager->shutdown();
     
     debugMsg("ExecApplication:shutdown", " completed");
     return setApplicationState(APP_SHUTDOWN);
@@ -406,7 +408,7 @@ namespace PLEXIL
       return false;
 
     // Delegate to InterfaceManager
-    if (g_manager->handleAddLibrary(libraryXml)) {
+    if (m_manager->handleAddLibrary(libraryXml)) {
       debugMsg("ExecApplication:addLibrary", " Library added");
       return true;
     }
@@ -430,7 +432,7 @@ namespace PLEXIL
 
     // Delegate to InterfaceManager
     try {
-      result = g_manager->handleLoadLibrary(name);
+      result = m_manager->handleLoadLibrary(name);
     }
     catch (const ParserException& e) {
       std::cerr << "ExecApplication::loadLibrary: Error:\n" << e.what() << std::endl;
@@ -457,7 +459,7 @@ namespace PLEXIL
 
     // Delegate to InterfaceManager
     try {
-      g_manager->handleAddPlan(planXml->document_element());
+      m_manager->handleAddPlan(planXml->document_element());
       debugMsg("ExecApplication:addPlan", " successful");
       return true;
     }
@@ -540,21 +542,21 @@ namespace PLEXIL
 #endif
     if (stepFirst) {
       debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
-      g_exec->step(g_manager->queryTime());
+      g_exec->step(m_manager->queryTime());
     }
     if (m_suspended) {
       debugMsg("ExecApplication:runExec", " Suspended");
     }
     else {
-      g_manager->processQueue(); // for effect
+      m_manager->processQueue(); // for effect
       do {
-        double now = g_manager->queryTime(); // update time before attempting to step
+        double now = m_manager->queryTime(); // update time before attempting to step
         while (g_exec->needsStep()) {
           debugMsg("ExecApplication:runExec", " Stepping exec");
           g_exec->step(now);
-          now = g_manager->queryTime(); // update time before stepping again
+          now = m_manager->queryTime(); // update time before stepping again
         }
-      } while (g_manager->processQueue());
+      } while (m_manager->processQueue());
       debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
     }
 
@@ -659,7 +661,7 @@ namespace PLEXIL
     case APP_INITED:
     case APP_READY:
       // Shut down interfaces
-      g_manager->shutdown();
+      m_manager->shutdown();
       break;
 
     case APP_RUNNING:
@@ -1008,9 +1010,9 @@ namespace PLEXIL
   {
 #ifdef PLEXIL_WITH_THREADS
     debugMsg("ExecApplication:notifyAndWait", " received external event");
-    unsigned int sequence = g_manager->markQueue();
+    unsigned int sequence = m_manager->markQueue();
     notifyExec();
-    while (g_manager->getLastMark() < sequence) {
+    while (m_manager->getLastMark() < sequence) {
       m_markSem.wait();
       m_markSem.post(); // in case it's not our mark and we got there first
     }

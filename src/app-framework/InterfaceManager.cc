@@ -157,16 +157,6 @@ namespace PLEXIL
   //
   // API for exec
   //
-
-  /**
-   * @brief Delete any entries in the queue.
-   */
-  void InterfaceManager::resetQueue()
-  {
-    assertTrue_1(m_inputQueue);
-    m_inputQueue->flush();
-  }
-    
     
   /**
    * @brief Updates the state cache from the items in the queue.
@@ -308,49 +298,34 @@ namespace PLEXIL
   InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("lookupNow: No interface adapter found for lookup "
+    
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    if (!handler) {
+      warn("lookupNow: No interface handler found for lookup "
            << state.name() << ", returning UNKNOWN");
       return;
     }
 
-    if (g_configuration->lookupIsTelemetry(state.name())) {
-      // LookupNow not supported for this state, use last cached value
-      debugStmt("InterfaceManager:lookupNow", {
-	  CachedValue const *cv = cacheEntry.cachedValue();
-	  if (cv) {
-	  debugMsg("InterfaceManager:lookupNow", " lookup " << state
-		   << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
-	  }
-	  else {
-	    debugMsg("InterfaceManager:lookupNow", " lookup " << state
-		     << " is telemetry only, no cached value, so is UNKNOWN");
-	  }
-	});
-      return;
-    }
-
     try {
-      adapter->lookupNow(state, cacheEntry);
+      handler->lookupNow(state, cacheEntry);
     }
     catch (InterfaceError &e) {
-      warn("lookupNow: Error in interface adapter for lookup " << state << ":\n"
+      warn("lookupNow: Error in interface handler for lookup " << state << ":\n"
            << e.what() << "\n Returning UNKNOWN");
       cacheEntry.setUnknown();
     }
 
     debugStmt("InterfaceManager:lookupNow", {
-	CachedValue const *cv = cacheEntry.cachedValue();
-	if (cv) {
-	  debugMsg("InterfaceManager:lookupNow",
-		   " returning " << cacheEntry.cachedValue()->toValue());
-	}
-	else {
-	  debugMsg("InterfaceManager:lookupNow",
-		   " no cached value, so is UNKNOWN");
-	}
-      });
+      CachedValue const *cv = cacheEntry.cachedValue();
+      if (cv) {
+        debugMsg("InterfaceManager:lookupNow",
+          " returning " << cacheEntry.cachedValue()->toValue());
+      }
+      else {
+        debugMsg("InterfaceManager:lookupNow",
+          " no cached value, so is UNKNOWN");
+      }
+    });
     // update internal idea of time if required
     if (state == State::timeState()) {
       CachedValue const *val = cacheEntry.cachedValue();
@@ -378,12 +353,12 @@ namespace PLEXIL
   void InterfaceManager::subscribe(const State& state)
   {
     debugMsg("InterfaceManager:subscribe", " to state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("subscribe: No interface adapter found for lookup " << state);
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    if (!handler) {
+      warn("subscribe: No handler found for lookup " << state.name());
       return;
     }
-    adapter->subscribe(state);
+    handler->subscribe(state);
   }
 
   /**
@@ -392,12 +367,12 @@ namespace PLEXIL
   void InterfaceManager::unsubscribe(const State& state)
   {
     debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("unsubscribe: No interface adapter found for lookup " << state);
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    if (!handler) {
+      warn("unsubscribe: No interface handler found for lookup " << state);
       return;
     }
-    adapter->unsubscribe(state);
+    handler->unsubscribe(state);
   }
 
   /**
@@ -409,25 +384,25 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("setThresholds: No interface adapter found for lookup "
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    if (!handler) {
+      warn("setThresholds: No interface handler found for lookup "
            << state);
       return;
     }
-    adapter->setThresholds(state, hi, lo);
+    handler->setThresholds(state, hi, lo);
   }
 
   void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("setThresholds: No interface adapter found for lookup "
+    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    if (!handler) {
+      warn("setThresholds: No interface handler found for lookup "
            << state);
       return;
     }
-    adapter->setThresholds(state, hi, lo);
+    handler->setThresholds(state, hi, lo);
   }
 
   // *** To do:
@@ -437,17 +412,17 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    InterfaceAdapter *intf = g_configuration->getPlannerUpdateInterface();
-    if (!intf) {
+    AbstractPlannerUpdateHandler *handler = g_configuration->getPlannerUpdateHandler();
+    if (!handler) {
       // Fake the ack
-      warn("executeUpdate: no interface adapter for updates");
+      warn("executeUpdate: no handler adapter for updates");
       g_interface->acknowledgeUpdate(update, true);
       return;
     }
     debugMsg("InterfaceManager:updatePlanner",
              " sending planner update for node "
              << update->getSource()->getNodeId());
-    intf->sendPlannerUpdate(update);
+    handler->sendPlannerUpdate(update);
   }
 
   // executes a command with the given arguments by looking up the command name 
@@ -458,14 +433,14 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf) {
-      intf->executeCommand(cmd);
+    AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    if (handler) {
+      handler->executeCommand(cmd);
     }
     else {
       // return error status
-      warn("executeCommand: no interface adapter for command " << cmd->getName());
-      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
+      warn("executeCommand: no handler for command " << cmd->getName());
+      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR); // TODO: make new error for handler
     }
   }
 
@@ -483,12 +458,12 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf) {
-      intf->invokeAbort(cmd);
+    AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    if (handler) {
+      handler->abortCommand(cmd);
     }
     else {
-      warn("invokeAbort: null interface adapter for command " << cmd->getCommand());
+      warn("invokeAbort: null handler for command " << cmd->getCommand());
       g_interface->commandAbortAcknowledge(cmd, false);
     }
   }
@@ -768,8 +743,5 @@ namespace PLEXIL
     else
       return it->second;
   }
-
-  // Initialize global variable
-  InterfaceManager *g_manager = NULL;
 
 }

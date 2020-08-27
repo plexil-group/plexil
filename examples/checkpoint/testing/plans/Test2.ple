@@ -24,40 +24,40 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "AdapterExecInterface.hh"
+Command print(...);
 
-#include "Debug.hh"
-#include "Expression.hh"
-#include "State.hh"
-#include "Value.hh"
+Integer Lookup NumberOfAccessibleBoots;
+Integer Lookup NumberOfTotalBoots;
+Integer Lookup NumberOfUnhandledBoots;
 
-#include <iomanip>
-#include <sstream>
+Boolean Lookup IsBootOK(...);
+Boolean Lookup CheckpointState(...);
+String Lookup  CheckpointInfo(...);
+Real Lookup TimeOfBoot(...);
+Real Lookup TimeOfLastSave(...);
 
-#if defined(HAVE_CSTRING)
-#include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
+Boolean Command flush_checkpoints();
 
-namespace PLEXIL
+// Prints information from the previous save, if available
+
+Test2:
 {
-
-  // Initialize global variable
-  AdapterExecInterface *g_execInterface = NULL;
-
-  /**
-   * @brief Default constructor method.
-   */
-  AdapterExecInterface::AdapterExecInterface()
-  {
-  }
-
-  /**
-   * @brief Destructor method.
-   */
-  AdapterExecInterface::~AdapterExecInterface()
-  {
-  }
-
+  Boolean flush_success;
+  print("---START|");
+  print("FLUSH1BEGIN|");
+  SynchronousCommand flush_success = flush_checkpoints();
+  print("FLUSH1END|");
+  print("FLUSHSUCCESS=",flush_success,"|");
+  print("NUMBERACCESSIBLE=",Lookup(NumberOfAccessibleBoots),"|");
+  print("NUMBERTOTAL=",Lookup(NumberOfTotalBoots),"|");
+  print("NUMBERUNHANDLED=",Lookup(NumberOfUnhandledBoots),"|");
+  print("CHECKPOINT1STATE=",Lookup(CheckpointState("C1",1)),"|");
+  print("CHECKPOINT1INFO=",Lookup(CheckpointInfo("C1",1)),"|");
+  print("OK1STATE=",Lookup(IsBootOK(1)),"|");
+  print("STARTIME=",Lookup(TimeOfBoot(1)),"|");
+  print("ENDTIME=",Lookup(TimeOfLastSave(1)),"|");
+  print("END---");
 }
+
+
+  
