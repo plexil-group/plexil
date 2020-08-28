@@ -111,13 +111,21 @@ public class CommandNode extends ExpressionNode
                     }
                 }
                 else {
-                    // Parameters expected
+                    // No parameters given
                     if (m_parameters == null) {
-                        // None supplied
-                        state.addDiagnostic(nameNode,
-                                            "Command \"" + name + "\" expects "
-                                            + String.valueOf(parmSpecs.size()) + " parameters, but none were supplied",
-                                            Severity.ERROR);
+
+                        // No parameters required, do nothing
+                        if(parmSpecs.size() == 1 &&
+                           parmSpecs.elementAt(0) instanceof WildcardVariableName){
+
+                        }
+
+                         else{
+                            state.addDiagnostic(nameNode,
+                                                "Command \"" + name + "\" expects "
+                                                + String.valueOf(parmSpecs.size()) + " parameters, but none were supplied",
+                                                Severity.ERROR);
+                        }
                     }
                     else {
                         m_parameters.earlyCheckArgumentList(context,
