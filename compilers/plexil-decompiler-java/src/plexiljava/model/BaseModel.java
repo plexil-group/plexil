@@ -206,7 +206,12 @@ public class BaseModel implements Decompilable {
 		if( !verify() && !Decompiler.UNSAFE ) {
 			throwPatternRecognitionFailureException();
 		}
-		return translate(indentLevel);
+		//try {
+			return translate(indentLevel);
+		//} catch(Exception e) {
+		//	throwPatternRecognitionFailureException();
+		//	return null;
+		//}
 	}
 	
 	@Override

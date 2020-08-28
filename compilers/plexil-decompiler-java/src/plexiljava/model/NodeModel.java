@@ -53,21 +53,26 @@ import plexiljava.model.failures.InvariantConditionFailedFailureModel;
 import plexiljava.model.failures.ParentFailedFailureModel;
 import plexiljava.model.failures.PostConditionFailedFailureModel;
 import plexiljava.model.failures.PreConditionFailedFailureModel;
+import plexiljava.model.functions.ABSFunctionModel;
+import plexiljava.model.functions.MAXFunctionModel;
+import plexiljava.model.functions.MINFunctionModel;
+import plexiljava.model.functions.MODFunctionModel;
+import plexiljava.model.functions.SQRTFunctionModel;
 import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
 import plexiljava.model.lookups.LookupWithFrequencyModel;
-import plexiljava.model.operations.ADDOperatorModel;
-import plexiljava.model.operations.ANDOperatorModel;
-import plexiljava.model.operations.DIVOperatorModel;
-import plexiljava.model.operations.EQOperatorModel;
-import plexiljava.model.operations.GTEOperatorModel;
-import plexiljava.model.operations.GTOperatorModel;
-import plexiljava.model.operations.LTEOperatorModel;
-import plexiljava.model.operations.LTOperatorModel;
-import plexiljava.model.operations.MULOperatorModel;
-import plexiljava.model.operations.NEQOperatorModel;
-import plexiljava.model.operations.OROperatorModel;
-import plexiljava.model.operations.SUBOperatorModel;
+import plexiljava.model.operators.ADDOperatorModel;
+import plexiljava.model.operators.ANDOperatorModel;
+import plexiljava.model.operators.DIVOperatorModel;
+import plexiljava.model.operators.EQOperatorModel;
+import plexiljava.model.operators.GTEOperatorModel;
+import plexiljava.model.operators.GTOperatorModel;
+import plexiljava.model.operators.LTEOperatorModel;
+import plexiljava.model.operators.LTOperatorModel;
+import plexiljava.model.operators.MULOperatorModel;
+import plexiljava.model.operators.NEQOperatorModel;
+import plexiljava.model.operators.OROperatorModel;
+import plexiljava.model.operators.SUBOperatorModel;
 import plexiljava.model.outcomes.FailureOutcomeModel;
 import plexiljava.model.outcomes.SkippedOutcomeModel;
 import plexiljava.model.outcomes.SuccessOutcomeModel;
@@ -243,6 +248,22 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "PreConditionFailedFailureModel":
 				children.add(new PreConditionFailedFailureModel(child));
 				break;
+			/* Functions */
+			case "ABS":
+				children.add(new ABSFunctionModel(child));
+				break;
+			case "MAX":
+				children.add(new MAXFunctionModel(child));
+				break;
+			case "MIN":
+				children.add(new MINFunctionModel(child));
+				break;
+			case "MOD":
+				children.add(new MODFunctionModel(child));
+				break;
+			case "SQRT":
+				children.add(new SQRTFunctionModel(child));
+				break;
 			/* Lookups */
 			case "LookupOnChange":
 				children.add(new LookupOnChangeModel(child));
@@ -262,6 +283,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "AND":
 				children.add(new ANDOperatorModel(child));
+				break;
+			case "Concat":
+				children.add(new ADDOperatorModel(child));
 				break;
 			case "DIV":
 				children.add(new DIVOperatorModel(child));
@@ -394,6 +418,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "NodeFailureVariable":
 				children.add(new NodeFailureVariableModel(child));
+				break;
 			case "Out":
 				children.add(new OutModel(child));
 				break;

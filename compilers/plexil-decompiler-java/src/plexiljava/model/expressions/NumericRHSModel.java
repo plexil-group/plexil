@@ -3,8 +3,9 @@ package plexiljava.model.expressions;
 import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
+import plexiljava.model.functions.FunctionModel;
 import plexiljava.model.lookups.LookupModel;
-import plexiljava.model.operations.OperatorModel;
+import plexiljava.model.operators.OperatorModel;
 
 public class NumericRHSModel extends NodeModel {
 
@@ -28,6 +29,8 @@ public class NumericRHSModel extends NodeModel {
 			dsb.append(getChild(LookupModel.class).decompile(0));
 		} else if( hasChild(ArrayElementModel.class) ) {
 			dsb.append(getChild(ArrayElementModel.class).decompile(0));
+		} else if( hasChild(FunctionModel.class) ) {
+			dsb.append(getChild(FunctionModel.class).decompile(0));
 		} else {
 			dsb.append(qualities.get(0).getValue());
 		}

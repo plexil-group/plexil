@@ -26,7 +26,13 @@ public class LookupModel extends TypedNodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		
-		dsb.append("Lookup (", getChild(NameModel.class).getQuality("StringValue").getValue());
+		if( getChild(NameModel.class).hasQuality("StringValue") ) {
+			dsb.append("Lookup (", getChild(NameModel.class).getQuality("StringValue").getValue());
+		} else if( getChild(NameModel.class).hasQuality("StringVariable") ) {
+			dsb.append("Lookup (", getChild(NameModel.class).getQuality("StringVariable").getValue());
+		} else {
+			dsb.append("Lookup (", getChild(NameModel.class).decompile(0));
+		}
 		if( hasChild(ArgumentsModel.class) ) {
 			dsb.append("(", getChild(ArgumentsModel.class).decompile(0), ")");
 		}

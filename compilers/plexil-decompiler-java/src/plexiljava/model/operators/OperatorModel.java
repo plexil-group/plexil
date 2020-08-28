@@ -1,4 +1,4 @@
-package plexiljava.model.operations;
+package plexiljava.model.operators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class OperatorModel extends TypedNodeModel {
 		super(node, "Default");
 	}
 	
-	protected OperatorModel(BaseModel node, String type) {
+	public OperatorModel(BaseModel node, String type) {
 		super(node, type);
 	}
 	
@@ -48,7 +48,11 @@ public class OperatorModel extends TypedNodeModel {
 						dsb.append(" ", type, " ");
 					}
 				} else {
-					dsb.append(nextQuality.getValue());
+					if( nextQuality.getName().equals("StringValue") ) {
+						dsb.append("\"" + nextQuality.getValue() + "\"");
+					} else {
+						dsb.append(nextQuality.getValue());
+					}
 					iterQualities.remove(0);
 					if( !iterChildren.isEmpty() || !iterQualities.isEmpty() ) {
 						dsb.append(" ", type, " ");
@@ -61,7 +65,11 @@ public class OperatorModel extends TypedNodeModel {
 					dsb.append(" ", type, " ");
 				}
 			} else {
-				dsb.append(nextQuality.getValue());
+				if( nextQuality.getName().equals("StringValue") ) {
+					dsb.append("\"" + nextQuality.getValue() + "\"");
+				} else {
+					dsb.append(nextQuality.getValue());
+				}
 				iterQualities.remove(0);
 				if( !iterChildren.isEmpty() || !iterQualities.isEmpty() ) {
 					dsb.append(" ", type, " ");

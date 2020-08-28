@@ -29,9 +29,6 @@ public class EmptyNodeModel extends NodeModel {
 			dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
 		}
 		for( BaseModel child : children ) {
-			if( child instanceof ConditionModel ) {
-				continue;
-			}
 			dsb.addLine(child.decompile(indentLevel+1));
 		}
 		if( !children.isEmpty() ) {

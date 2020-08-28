@@ -13,14 +13,14 @@ public class ArrayElementModel extends NodeModel {
 	
 	@Override
 	public boolean verify() {
-		return hasQuality("ArrayVariable") && hasChild(IndexModel.class);
+		return (hasQuality("ArrayVariable") || hasQuality("Name")) && hasChild(IndexModel.class);
 	}
 	
 	@Override
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append(getQuality("ArrayVariable").getValue(), "[", getChild(IndexModel.class).decompile(0), "]");
+		dsb.append(hasQuality("ArrayVariable") ? getQuality("ArrayVariable").getValue() : getQuality("Name").getValue(), "[", getChild(IndexModel.class).decompile(0), "]");
 		return dsb.toString();
 	}
 	

@@ -4,7 +4,7 @@ import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.NodeModel;
 import plexiljava.model.lookups.LookupModel;
-import plexiljava.model.operations.OperatorModel;
+import plexiljava.model.operators.OperatorModel;
 
 public class ArrayRHSModel extends NodeModel {
 

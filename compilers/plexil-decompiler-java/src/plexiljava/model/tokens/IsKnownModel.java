@@ -12,14 +12,14 @@ public class IsKnownModel extends NodeModel {
 	
 	@Override
 	public boolean verify() {
-		return !qualities.isEmpty();
+		return !qualities.isEmpty() || !children.isEmpty();
 	}
 	
 	@Override
 	public String translate(int indentLevel) {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append("isKnown(", qualities.get(0).getValue(), ")");
+		dsb.append("isKnown(", qualities.isEmpty() ? children.get(0).getValue() : qualities.get(0).getValue(), ")");
 		return dsb.toString();
 	}
 

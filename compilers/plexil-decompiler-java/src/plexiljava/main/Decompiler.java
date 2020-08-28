@@ -62,17 +62,17 @@ public class Decompiler {
 		if( infileName == null ) {
 			infileName = argList.get(0);
 		}
+		if( !infileName.endsWith(".plx") ) {
+			logger.setLevel(Level.SEVERE);
+			logger.severe("Unsupported file type (must be a .plx file)!");
+			return;
+		}
 		if( outfileName == null || outfileName.equals("") ) {
 			if( argList.size() > 1 ) {
 				outfileName = argList.get(1);
 			} else {
 				outfileName = infileName.substring(0, infileName.length()-4) + ".ple";
 			}
-		}
-		if( !infileName.endsWith(".plx") ) {
-			logger.setLevel(Level.SEVERE);
-			logger.severe("Unsupported file type (must be a .plx file)!");
-			return;
 		}
 		if( infileName.equals(outfileName) ) {
 			logger.setLevel(Level.WARNING);

@@ -9,12 +9,12 @@ public class ReferringNodeModel extends NodeModel {
 	}
 
 	public String getReference() {
-		return getQuality("NodeRef").getValue();
+		return hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId").getValue();
 	}
 	
 	@Override
 	public boolean verify() {
-		return hasQuality("NodeRef");
+		return hasQuality("NodeRef") || hasQuality("NodeId");
 	}
 	
 	@Override

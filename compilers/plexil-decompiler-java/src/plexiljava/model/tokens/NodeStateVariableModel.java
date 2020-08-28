@@ -12,14 +12,14 @@ public class NodeStateVariableModel extends NodeModel {
 	
 	@Override
 	public boolean verify() {
-		return hasQuality("NodeRef");
+		return hasQuality("NodeRef") || hasQuality("NodeId");
 	}
 	
 	@Override
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append(getQuality("NodeRef").getValue(), ".state");
+		dsb.append(hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId"), ".state");
 		return dsb.toString();
 	}
 }

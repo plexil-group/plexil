@@ -1,4 +1,4 @@
-package plexiljava.model.operations;
+package plexiljava.model.operators;
 
 import plexiljava.model.BaseModel;
 
