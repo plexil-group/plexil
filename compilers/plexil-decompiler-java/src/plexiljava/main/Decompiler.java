@@ -22,8 +22,7 @@ public class Decompiler {
 	
 	public static Logger logger = Logger.getLogger(Decompiler.class.getName());
 	public static boolean VERBOSE = false;
-	public static boolean FORCE = false;
-	public static boolean YES = false;
+	public static boolean UNSAFE = true;
 	
 	public static String infileName = null;
 	public static String outfileName = null;
@@ -33,14 +32,11 @@ public class Decompiler {
 		for( String arg : args ) {
 			if( arg.startsWith("-") ) {
 				switch( arg.charAt(1) ) {
-					case 'd':
+					case 'v':
 						VERBOSE = true;
 						break;
-					case 'f':
-						FORCE = true;
-						break;
-					case 'y':
-						YES = true;
+					case 's':
+						UNSAFE = false;
 						break;
 					default:
 						logger.setLevel(Level.WARNING);
@@ -51,25 +47,34 @@ public class Decompiler {
 				argList.add(arg);
 			}
 		}
-		if( argList.size() < 2 ) {
+		if( argList.size() < 1 ) {
 			logger.setLevel(Level.WARNING);
-			logger.warning("usage: [options] file_to_decompile output_file\n  options:\n    -d\tPrint debug statements\n    -f\tForce decompile with errors\n    -y\tOverwrite files without confirmation");
+			logger.warning("usage: [options] file_to_decompile [output_file]\n  options:\n    -v\tPrint all debug statements\n    -s\tDo not decompile if errors exist");
 			
 			Scanner sc = new Scanner(System.in);
 			logger.setLevel(Level.INFO);
 			logger.info("file_to_decompile: ");
 			infileName = sc.nextLine();
 			logger.setLevel(Level.INFO);
-			logger.info("output_file: ");
+			logger.info("output_file (blank for default): ");
 			outfileName = sc.nextLine();
 		}
 		if( infileName == null ) {
 			infileName = argList.get(0);
 		}
-		if( outfileName == null ) {
-			outfileName = argList.get(1);
+		if( outfileName == null || outfileName.equals("") ) {
+			if( argList.size() > 1 ) {
+				outfileName = argList.get(1);
+			} else {
+				outfileName = infileName.substring(0, infileName.length()-4) + ".ple";
+			}
 		}
-		if( infileName.equals(outfileName) && !YES ) {
+		if( !infileName.endsWith(".plx") ) {
+			logger.setLevel(Level.SEVERE);
+			logger.severe("Unsupported file type (must be a .plx file)!");
+			return;
+		}
+		if( infileName.equals(outfileName) ) {
 			logger.setLevel(Level.WARNING);
 			logger.warning("The output file will replace the contents of the input file.\nAre you sure you wish to continue? (y/n): ");
 			Scanner sc = new Scanner(System.in);
@@ -86,34 +91,27 @@ public class Decompiler {
 			logger.severe("Infile doesn't exist!");
 			return;
 		}
-		File outfile = new File(outfileName);
-		if( outfile.exists() && !YES ) {
-			logger.setLevel(Level.WARNING);
-			logger.warning("Outfile already exists; this operation will override the existing outfile.\nAre you sure you wish to continue? (y/n): ");
-			Scanner sc = new Scanner(System.in);
-			String response = sc.nextLine();
-			if( !(response.startsWith("y") || response.startsWith("Y")) ) {
-				logger.setLevel(Level.INFO);
-				logger.info("Operation aborted.");
-				return;
+		try {
+			XMLIO.deformatFile(infile);
+			infile = new File("_plexildformatted");
+			Element rootNode = XMLIO.readToNode(infile);
+			NodeModel planRoot = new NodeModel(new BaseModel(rootNode, null, 0));
+			String decompilation = "";
+			if( planRoot.getChildren().size() > 1 ) {
+				for( BaseModel child : planRoot.getChildren() ) {
+					decompilation += child.decompile(0) + "\n";
+				}
+			} else {
+				decompilation += planRoot.getChildren().get(0).decompile(0);
+				//decompilation += (new NodeModel(new BaseModel(rootNode.getFirstChild(), null, 0))).decompile(0);
 			}
+			XMLIO.writeToXML(outfileName, decompilation);
+			logger.setLevel(Level.INFO);
+			logger.info("Operation completed.");
+		} catch(PatternRecognitionFailureException e) {
+			logger.setLevel(Level.SEVERE);
+			logger.severe(e.getMessage());
 		}
-		XMLIO.deformatFile(infile);
-		infile = new File("_plexildformatted");
-		Element rootNode = XMLIO.readToNode(infile);
-		NodeModel planRoot = new NodeModel(new BaseModel(rootNode, null, 0));
-		String decompilation = "";
-		if( planRoot.getChildren().size() > 1 ) {
-			for( BaseModel child : planRoot.getChildren() ) {
-				decompilation += child.decompile(0) + "\n";
-			}
-		} else {
-			decompilation += planRoot.getChildren().get(0).decompile(0);
-			//decompilation += (new NodeModel(new BaseModel(rootNode.getFirstChild(), null, 0))).decompile(0);
-		}
-		XMLIO.writeToXML(outfileName, decompilation);
-		logger.setLevel(Level.INFO);
-		logger.info("Operation completed.");
 	}
 
 }

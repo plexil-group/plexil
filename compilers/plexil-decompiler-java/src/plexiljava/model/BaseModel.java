@@ -203,7 +203,7 @@ public class BaseModel implements Decompilable {
 	
 	@Override
 	public final String decompile(int indentLevel) throws PatternRecognitionFailureException {
-		if( !verify() && !Decompiler.FORCE ) {
+		if( !verify() && !Decompiler.UNSAFE ) {
 			throwPatternRecognitionFailureException();
 		}
 		return translate(indentLevel);
