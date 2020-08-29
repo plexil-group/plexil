@@ -34,6 +34,8 @@
 
 #include <iostream>
 #include <algorithm> //transform
+#include <cstdlib> // strtol
+#include <cmath> // HUGE_VAL
 
 
 using namespace PLEXIL;
@@ -53,7 +55,22 @@ static string error = "Error in StringAdapter: ";
 // A prettier name for the "unknown" value.
 static Value Unknown;
 
+inline bool isInteger(const std::string & s)
+{
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
 
+   char * p;
+   strtol(s.c_str(), &p, 10);
+
+   return (*p == 0);
+}
+
+bool isDouble(const std::string& s)
+{
+    char* end = 0;
+    double val = strtod(s.c_str(), &end);
+    return end != s.c_str() && *end == '\0' && val != HUGE_VAL;
+}
 ///////////////////////////// State support //////////////////////////////////
 
 // Queries the system for the value of a state and its arguments.
@@ -86,6 +103,10 @@ static Value fetch (const string& name, const vector<Value>& args){
       retval = Unknown;
       cerr<<"Invalid number of arguments to "<<name<<endl;
     }
+    if(!isInteger(args[0].valueToString())){
+      retval = Unknown;
+      cerr<<"Non-integer string passed to "<<name<<endl;
+    }
     else{
       int32_t i;
       std::istringstream(args[0].valueToString()) >> i; // Streams string to integer
@@ -97,6 +118,10 @@ static Value fetch (const string& name, const vector<Value>& args){
     if(args.size()!=1){
       retval = Unknown;
       cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    if(!isDouble(args[0].valueToString())){
+      retval = Unknown;
+      cerr<<"Non-double string passed to "<<name<<endl;
     }
     else{
       double d;
@@ -112,14 +137,15 @@ static Value fetch (const string& name, const vector<Value>& args){
     else{
       string data = args[0].valueToString();
       std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-      std::istringstream is(data);
-      // Allows us to look for 1 or true, all other values return false
-      bool b;
-      bool b2;
-      is >> std::boolalpha >> b;
-      is.clear();
-      is >> std::noboolalpha >> b2;
-      retval = b||b2;
+      // True
+      if(0==data.compare("true") || 0==data.compare("1")) retval = true;
+      // False
+      else if(0==data.compare("false") || 0==data.compare("0")) retval = false;
+      // Invalid
+      else{
+        retval = Unknown;
+        cerr<<"Non-boolean string passed to "<<name<<endl;
+      }
     }
   }
   else if (name == "substr"){
