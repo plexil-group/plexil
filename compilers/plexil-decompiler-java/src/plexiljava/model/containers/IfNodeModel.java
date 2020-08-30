@@ -54,7 +54,7 @@ public class IfNodeModel extends NodeModel {
 			ifCondition = getChild(ConditionNodeModel.class).decompile(0);
 		} else {
 			ifCondition = then.getChild(StartConditionModel.class).decompile(0);
-			if( ifCondition.startsWith("@") ) {
+			if( ifCondition.startsWith(DecompilableStringBuilder.REFERENCE_IDENTIFIER) ) {
 				String id = ifCondition.substring(1);
 				ifCondition = dereference(id);
 			}

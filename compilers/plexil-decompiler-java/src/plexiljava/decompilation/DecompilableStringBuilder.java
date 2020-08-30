@@ -4,6 +4,8 @@ public class DecompilableStringBuilder {
 
 	public StringBuilder sb;
 	
+	public static final String REFERENCE_IDENTIFIER = "__@__";
+	
 	public DecompilableStringBuilder() {
 		sb = new StringBuilder();
 	}
@@ -58,7 +60,7 @@ public class DecompilableStringBuilder {
 	}
 	
 	public DecompilableStringBuilder addReference(String reference) {
-		sb.append("@");
+		sb.append(REFERENCE_IDENTIFIER);
 		sb.append(reference);
 		return this;
 	}

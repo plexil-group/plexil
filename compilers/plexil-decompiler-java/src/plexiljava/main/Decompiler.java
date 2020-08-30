@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import plexiljava.commons.xml.XMLIO;
+import plexiljava.decompilation.DecompilableStringBuilder;
 import plexiljava.model.BaseModel;
 import plexiljava.model.BaseModel.PatternRecognitionFailureException;
 import plexiljava.model.NodeModel;
@@ -105,6 +106,7 @@ public class Decompiler {
 				decompilation += planRoot.getChildren().get(0).decompile(0);
 				//decompilation += (new NodeModel(new BaseModel(rootNode.getFirstChild(), null, 0))).decompile(0);
 			}
+			decompilation = decompilation.replaceAll("\\n[^\\n]*" + DecompilableStringBuilder.REFERENCE_IDENTIFIER + "[^\\n]*\\n", "\n");
 			XMLIO.writeToXML(outfileName, decompilation);
 			logger.setLevel(Level.INFO);
 			logger.info("Operation completed.");
