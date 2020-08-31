@@ -25,9 +25,23 @@ public class ConditionModel extends TypedNodeModel {
 				dsb.append(getType(), " ");
 			}
 			if( hasQuality("BooleanValue") ) {
-				dsb.append(getQuality("BooleanValue").getValue());
+				String bool = getQuality("BooleanValue").getValue();
+				if( bool.equals("0") ) {
+					bool = "false";
+				}
+				if( bool.equals("1") ) {
+					bool = "true";
+				}
+				dsb.append(bool);
 			} else if( hasQuality("BooleanVariable") ) {
-				dsb.append(getQuality("BooleanVariable").getValue());
+				String bool = getQuality("BooleanVariable").getValue();
+				if( bool.equals("0") ) {
+					bool = "false";
+				}
+				if( bool.equals("1") ) {
+					bool = "true";
+				}
+				dsb.append(bool);
 			} else if( !children.isEmpty() ){
 				dsb.append(children.get(0).decompile(0));
 			}

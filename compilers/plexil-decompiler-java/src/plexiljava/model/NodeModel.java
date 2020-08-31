@@ -236,16 +236,16 @@ public class NodeModel extends BaseModel implements Decompilable {
 				children.add(new UpdateModel(child));
 				break;
 			/* Failures */
-			case "InvariantConditionFailed":
+			case "InvariantconditionFailed":
 				children.add(new InvariantConditionFailedFailureModel(child));
 				break;
-			case "ParentFailedFailureModel":
+			case "Parentfailed":
 				children.add(new ParentFailedFailureModel(child));
 				break;
-			case "PostConditionFailedFailureModel":
+			case "PostconditionFailed":
 				children.add(new PostConditionFailedFailureModel(child));
 				break;
-			case "PreConditionFailedFailureModel":
+			case "PreconditionFailed":
 				children.add(new PreConditionFailedFailureModel(child));
 				break;
 			/* Functions */

@@ -16,10 +16,10 @@ public class IsKnownModel extends NodeModel {
 	}
 	
 	@Override
-	public String translate(int indentLevel) {
+	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append("isKnown(", qualities.isEmpty() ? children.get(0).getValue() : qualities.get(0).getValue(), ")");
+		dsb.append("isKnown(", qualities.isEmpty() ? children.get(0).decompile(0) : qualities.get(0).getValue(), ")");
 		return dsb.toString();
 	}
 

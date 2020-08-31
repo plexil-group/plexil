@@ -25,6 +25,9 @@ public class InterfaceModel extends NodeModel {
 		if( !children.isEmpty() ) {
 			dsb.sb.delete(dsb.sb.length()-2, dsb.sb.length());
 		}
+		if( children.size() > 1 && indentLevel != 0 ) {
+			dsb.append(";");
+		}
 		
 		return dsb.toString();
 	}

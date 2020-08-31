@@ -20,7 +20,7 @@ public class NodeFailureVariableModel extends NodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		
-		dsb.append(hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId"), ".Failure");
+		dsb.append(hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId").getValue(), ".failure");
 		return dsb.toString();
 	}
 }

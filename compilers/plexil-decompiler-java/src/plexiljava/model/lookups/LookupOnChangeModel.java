@@ -16,7 +16,7 @@ public class LookupOnChangeModel extends LookupModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		
-		dsb.append("Lookup (", getChild(NameModel.class).getQuality("StringValue").getValue());
+		dsb.append("Lookup (", getChild(NameModel.class).decompile(0));
 		if( hasChild(ArgumentsModel.class) ) {
 			dsb.append("(", getChild(ArgumentsModel.class).decompile(0), ")");
 		}

@@ -21,7 +21,14 @@ public class DeclareVariableModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		dsb.append(getQuality("Type").getValue(), " ", getQuality("Name").getValue());
 		if( children.size() > 0 ) {
-			dsb.append(" = ", getChild(InitialValueModel.class).decompile(0));
+			dsb.append(" = ");
+			if( getQuality("Type").getValue().equals("String") ) {
+				dsb.append("\"");
+			}
+			dsb.append(getChild(InitialValueModel.class).decompile(0));
+			if( getQuality("Type").getValue().equals("String") ) {
+				dsb.append("\"");
+			}
 		}
 		dsb.append(";");
 		return dsb.toString();

@@ -22,14 +22,7 @@ public class DeclareArrayModel extends NodeModel {
 		dsb.append(getQuality("Type").getValue(), " ", getQuality("Name").getValue(), "[", getQuality("MaxSize").getValue(), "]");
 		
 		if( children.size() > 0 ) {
-			dsb.append(" = ");
-			switch( getQuality("Type").getValue() ) {
-				case "Real":
-					dsb.append("#");
-					break;
-				default:
-					break;
-			}
+			dsb.append(" = #");
 			dsb.append("(", getChild(InitialValueModel.class).decompile(0), ")");
 		}
 		dsb.append(";");

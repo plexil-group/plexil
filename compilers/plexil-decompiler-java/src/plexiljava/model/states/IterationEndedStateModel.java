@@ -4,7 +4,7 @@ import plexiljava.model.BaseModel;
 
 public class IterationEndedStateModel extends StateModel {
 	public IterationEndedStateModel(BaseModel node) {
-		super(node, "ITERATIONENDED");
+		super(node, "ITERATION_ENDED");
 	}
 }
 

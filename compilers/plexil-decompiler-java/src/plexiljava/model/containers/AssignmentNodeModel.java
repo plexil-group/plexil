@@ -20,7 +20,7 @@ public class AssignmentNodeModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		if( indentLevel == 0 ) {
+		if( indentLevel == 0 && (getParent() != null && !getParent().getName().equals("PlexilPlan")) ) {
 			dsb.append(getChild(AssignmentModel.class).decompile(0), ";");
 		} else {
 			dsb.append(getQuality("NodeId").getValue());

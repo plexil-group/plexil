@@ -20,7 +20,7 @@ public class NodeOutcomeVariableModel extends NodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		
-		dsb.append(hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId"), ".outcome");
+		dsb.append(hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId").getValue(), ".outcome");
 		return dsb.toString();
 	}
 }
