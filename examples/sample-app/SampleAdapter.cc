@@ -39,6 +39,7 @@
 #include <iostream>
 
 using std::cout;
+using std::string;
 using std::cerr;
 using std::endl;
 using std::map;
@@ -46,6 +47,7 @@ using std::string;
 using std::vector;
 using std::copy;
 
+using namespace PLEXIL;
 
 ///////////////////////////// Conveniences //////////////////////////////////
 
@@ -56,9 +58,6 @@ static string error = "Error in SampleAdaptor: ";
 static Value const Unknown;
 
 // Static member initialization
-SampleSystem *SampleSystem::m_system = 0;
-SampleAdapter *SampleAdapter::m_adapter = 0;
-
 // An empty argument vector.
 static vector<Value> const EmptyArgs;
 
@@ -131,37 +130,24 @@ static State createState (const string& state_name, const vector<Value>& value)
   return state;
 }
 
-static void receiveInt (const string& state_name, int val)
+void SampleAdapter::receiveValue (const string& state_name, Value val)
 {
-  SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
+  propagate (createState(state_name, EmptyArgs),
                                         vector<Value> (1, val));
 }
 
-
-static void receiveFloat (const string& state_name, float val)
+void SampleAdapter::receiveValue (const string& state_name, Value val, Value arg)
 {
-  SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
+  propagate (createState(state_name, vector<Value> (1, arg)),
                                         vector<Value> (1, val));
 }
 
-static void receiveString (const string& state_name, const string& val)
-{
-  SampleAdapter::getInstance()->propagate (createState(state_name, EmptyArgs),
-                                        vector<Value> (1, val));
-}
-
-static void receiveBoolString (const string& state_name, bool val, const string& arg)
-{
-  SampleAdapter::getInstance()->propagate (createState(state_name, vector<Value> (1, arg)),
-                                        vector<Value> (1, val));
-}
-
-static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int arg2)
+void SampleAdapter::receiveValue (const string& state_name, Value val, Value arg1, Value arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  SampleAdapter::getInstance()->propagate (createState(state_name, vec),
+  propagate (createState(state_name, vec),
                                         vector<Value> (1, val));
 }
 
@@ -172,24 +158,13 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
-  m_adapter = this;
   debugMsg("SampleAdapter", " created.");
-}
-
-SampleAdapter::~SampleAdapter ()
-{
-  m_adapter = nullptr;
 }
 
 bool SampleAdapter::initialize()
 {
   g_configuration->defaultRegisterAdapter(this);
-  setSubscriber (receiveInt);
-  setSubscriber (receiveFloat);
-  setSubscriber (receiveString);
-  setSubscriber (receiveBoolString);
-  setSubscriber (receiveBoolIntInt);
-
+  setSubscriber(this);
   debugMsg("SampleAdapter", " initialized.");
   return true;
 }

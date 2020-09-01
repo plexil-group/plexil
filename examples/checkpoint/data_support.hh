@@ -24,29 +24,30 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+#ifndef _H_data_support
+#define _H_data_support
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
+// This defines a datastructure for describing boot information which is used by both SaveManager and CheckpointSystem
+#include "Nullable.hh"
+#include "ValueType.hh"
+#include <map>
 
-#include "Value.hh"
-#include <string>
+// TODO: Evaluate if Nullable<> is necessary or if we should just use 0.0 = no time (which is what we have to assume to use InterfaceManager::queryTime())
+// Alternatively: go back to old system with lookups 
+struct CheckpointData{
+  bool state; /*state of checkpoint*/
+  Nullable<PLEXIL::Real> time; /*time of last checkpoint modification*/
+  std::string info; /*user-defined checkpoint info*/
+};
 
-// For SampleAdapter only
-#include "SampleAdapter.hh"
+struct BootData{
+  Nullable<PLEXIL::Real> boot_time; /*time of boot*/
+  Nullable<PLEXIL::Real> crash_time;  /*time of crash*/
+  bool is_ok;  /*is_OK*/
+  std::map<const std::string, /*checkpoint name*/
+      CheckpointData> checkpoints; /*map of checkpoint info*/
+};
 
 
-
-void setSubscriber(SampleAdapter *i);
-
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const std::string& state_name, PLEXIL::Value val);
-
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 #endif

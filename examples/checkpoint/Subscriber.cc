@@ -24,29 +24,43 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+#include "Subscriber.hh"
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
+// The checkpoint adapter to publish to
+static CheckpointAdapter *instance = 0;
 
-#include "Value.hh"
-#include <string>
+void setSubscriber(CheckpointAdapter *i) {
+  instance = i;
+}
 
-// For SampleAdapter only
-#include "SampleAdapter.hh"
+// The overloaded publish function, one for each number of Values found in this application
 
-
-
-void setSubscriber(SampleAdapter *i);
-
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const std::string& state_name, PLEXIL::Value val);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val){
+  
+  instance->receiveValue(state_name,val);
+}
 
 
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg){
+  
+  instance->receiveValue(state_name,val,arg);
+}
 
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg1,
+	      const PLEXIL::Value& arg2){
+  
+  instance->receiveValue(state_name,val,arg1,arg2);
+}
 
-#endif
+void publishCommandReceived (PLEXIL::Command* cmd){
+  instance->receiveCommandReceived(cmd);
+}
+
+void publishCommandSuccess (PLEXIL::Command* cmd){
+  instance->receiveCommandSuccess(cmd);
+}

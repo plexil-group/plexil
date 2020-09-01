@@ -28,11 +28,12 @@
 #include "Subscriber.hh"
 #include "SampleSystem.hh"
 
+SampleSystem* SampleSystem::s_system = NULL;
+
 using std::cout;
 using std::endl;
 using std::string;
 using std::pair;
-
 SampleSystem::SampleSystem ()
   : m_size (5.1),
     m_speed (4),
@@ -42,12 +43,6 @@ SampleSystem::SampleSystem ()
     m_name ("Devin")
 { }
 
-SampleSystem::~SampleSystem ()
-{
-  if (m_system) {
-    delete m_system;
-  }
-}
 
 void SampleSystem::setSize (float s)
 {

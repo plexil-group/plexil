@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2020-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,29 +24,54 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publisher to call the appropriate methods in SampleAdapter
+#ifndef _H_Nullable
+#define _H_Nullable
+#include <stdexcept>
 
-#ifndef _H__sample_subscriber
-#define _H__sample_subscriber
+// This is a class that wraps objects into nullable objects
+template<typename T>
+class Nullable{
+public:
+  Nullable(T t) : data(t),      some(true) {}
+  Nullable()    : some(false) {}
+  Nullable(const Nullable<T> &o) : data(o.data), some(o.some){}
+  Nullable<T> & operator=(const Nullable<T> &o){
+    data = o.data;
+    some = o.some;
+    return *this;
+  }
+  // Using default destructor
 
-#include "Value.hh"
-#include <string>
+  
+  bool has_value() const{
+    return some;
+  }
 
-// For SampleAdapter only
-#include "SampleAdapter.hh"
+  const T  value() const{
+    if(some){
+      return data;
+    }
+    else{
+      throw std::logic_error("attempting to get nulled object");
+    }
+  }
 
+  const T value_or(T alternate) const{
+    return some?data:alternate;
+  }
 
+  void nullify(){
+    some = false;
+  }
 
-void setSubscriber(SampleAdapter *i);
+  void set_value(T value){
+    some = true;
+    data = value;
+  }
 
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const std::string& state_name, PLEXIL::Value val);
-
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
-
-void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
-
+  
+private:
+  T data;
+  bool some;
+};
 #endif
