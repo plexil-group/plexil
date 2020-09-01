@@ -118,16 +118,23 @@ public class LookupNode extends ExpressionNode
                     // else nothing needs to be done
                 }
                 else {
-                    // State takes parameters
+                    // No parameters given
                     if (m_arguments == null) {
-                        state.addDiagnostic(invocation,
-                                            "State \"" + stateName + "\" requires "
-                                            + Integer.toString(argSpecs.size())
-                                            + " parameters, but none were supplied",
-                                            Severity.ERROR);
+                        // No parameters required, do nothing
+                        if(argSpecs.size() == 1 &&
+                           argSpecs.elementAt(0) instanceof WildcardVariableName){
+
+                        }
+                        else{                       
+                          state.addDiagnostic(invocation,
+                                              "State \"" + stateName + "\" requires "
+                                              + Integer.toString(argSpecs.size())
+                                              + " parameters, but none were supplied",
+                                              Severity.ERROR);
+                        }
                     }
                     // Check arg count
-                    else {
+                    else{
                         m_arguments.earlyCheckArgumentList(context,
                                                            state,
                                                            "State",

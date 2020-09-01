@@ -25,8 +25,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
- array-add array-complex array-copy array_size_test \
+SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
+ ArrayLookup array-add array-complex array-copy array_size_test \
  assignment0 assignment1 assignment2 \
  basic-wait-test boolean1 boolean2 boolean3 boolean4 boolean5 \
  CallWithPostCondition \
