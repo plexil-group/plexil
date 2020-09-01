@@ -48,8 +48,16 @@ public class OperatorModel extends TypedNodeModel {
 						dsb.append(" ", type, " ");
 					}
 				} else {
-					if( nextQuality.getName().equals("StringValue") ) {
+					if( nextQuality.getName().equals("StringValue") && !nextQuality.getValue().startsWith("\"")) {
 						dsb.append("\"" + nextQuality.getValue() + "\"");
+					} else if( nextQuality.getName().equals("BooleanValue") ) {
+						if( nextQuality.getValue().equals("0") ) {
+							dsb.append("false");
+						} else if( nextQuality.getValue().equals("1") ) {
+							dsb.append("true");
+						} else {
+							dsb.append(nextQuality.getValue());
+						}
 					} else {
 						dsb.append(nextQuality.getValue());
 					}
@@ -67,6 +75,14 @@ public class OperatorModel extends TypedNodeModel {
 			} else {
 				if( nextQuality.getName().equals("StringValue") ) {
 					dsb.append("\"" + nextQuality.getValue() + "\"");
+				} else if( nextQuality.getName().equals("BooleanValue") ) {
+					if( nextQuality.getValue().equals("0") ) {
+						dsb.append("false");
+					} else if( nextQuality.getValue().equals("1") ) {
+						dsb.append("true");
+					} else {
+						dsb.append(nextQuality.getValue());
+					}
 				} else {
 					dsb.append(nextQuality.getValue());
 				}

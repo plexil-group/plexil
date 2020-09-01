@@ -17,7 +17,7 @@ public class ArgumentsModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		
 		for( QualityModel quality : qualities ) {
-			if( quality.getName().equals("StringValue") ) {
+			if( quality.getName().equals("StringValue") && !quality.getValue().startsWith("\"")) {
 				dsb.append("\"", quality.getValue(), "\"", ", ");
 			} else {
 				dsb.append(quality.getValue(), ", ");

@@ -20,7 +20,11 @@ public class InitialValueModel extends NodeModel {
 			dsb.append(children.get(0).decompile(0));
 		} else {
 			for( QualityModel quality : qualities ) {
-				dsb.append(quality.getValue(), " ");
+				if( quality.getName().equals("StringValue") && !quality.getValue().startsWith("\"")) {
+					dsb.append("\"", quality.getValue(), "\" ");
+				} else {
+					dsb.append(quality.getValue(), " ");
+				}
 			}
 			dsb.sb.deleteCharAt(dsb.sb.length()-1);
 		}

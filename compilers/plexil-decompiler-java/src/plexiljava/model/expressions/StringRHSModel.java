@@ -29,7 +29,11 @@ public class StringRHSModel extends NodeModel {
 		} else if( hasChild(ArrayElementModel.class) ) {
 			dsb.append(getChild(ArrayElementModel.class).decompile(0));
 		} else {
-			dsb.append(qualities.get(0).getValue());
+			if( !qualities.get(0).getValue().startsWith("\"") && !qualities.get(0).getName().equals("StringVariable") ) {
+				dsb.append("\"", qualities.get(0).getValue(), "\"");
+			} else {
+				dsb.append(qualities.get(0).getValue());
+			}
 		}
 		
 		return dsb.toString();

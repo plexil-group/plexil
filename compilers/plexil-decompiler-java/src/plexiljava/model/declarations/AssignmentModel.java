@@ -21,20 +21,20 @@ public class AssignmentModel extends NodeModel {
 		dsb.addIndent(indentLevel);
 		if( children.size() == 2 ) {
 			dsb.append(children.get(0).decompile(0), " = ");
-			if( children.get(1).getName().equals("StringValue") ) {
+			if( children.get(1).getName().equals("StringValue") && !children.get(1).decompile(0).startsWith("\"") ) {
 				dsb.append("\"");
 			}
 			dsb.append(children.get(1).decompile(0));
-			if( children.get(1).getName().equals("StringValue") ) {
+			if( children.get(1).getName().equals("StringValue") && !children.get(1).decompile(0).endsWith("\"") ) {
 				dsb.append("\"");
 			}
 		} else {
 			dsb.append(qualities.get(0).getValue(), " = ");
-			if( children.get(0).getName().equals("StringValue") ) {
+			if( children.get(0).getName().equals("StringValue") && !children.get(0).decompile(0).startsWith("\"") ) {
 				dsb.append("\"");
 			}
 			dsb.append(children.get(0).decompile(0));
-			if( children.get(0).getName().equals("StringValue") ) {
+			if( children.get(0).getName().equals("StringValue") && !children.get(0).decompile(0).endsWith("\"") ) {
 				dsb.append("\"");
 			}
 		}

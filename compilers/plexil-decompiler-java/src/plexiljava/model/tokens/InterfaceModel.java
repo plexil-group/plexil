@@ -17,9 +17,14 @@ public class InterfaceModel extends NodeModel {
 		
 		for( BaseModel child : children ) {
 			if( indentLevel != 0 && children.size() == 1 ) {
-				dsb.append(child.decompile(-1), ", ");
+				dsb.append(child.decompile(-1), "; ");
 			} else {
-				dsb.append(child.decompile(0), ", ");
+				dsb.append(child.decompile(0));
+				if( indentLevel == 0 ) {
+					dsb.append(", ");
+				} else {
+					dsb.append("; ");
+				}
 			}
 		}
 		if( !children.isEmpty() ) {

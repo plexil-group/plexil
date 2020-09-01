@@ -56,7 +56,6 @@ import plexiljava.model.failures.PreConditionFailedFailureModel;
 import plexiljava.model.functions.ABSFunctionModel;
 import plexiljava.model.functions.MAXFunctionModel;
 import plexiljava.model.functions.MINFunctionModel;
-import plexiljava.model.functions.MODFunctionModel;
 import plexiljava.model.functions.SQRTFunctionModel;
 import plexiljava.model.lookups.LookupNowModel;
 import plexiljava.model.lookups.LookupOnChangeModel;
@@ -69,6 +68,7 @@ import plexiljava.model.operators.GTEOperatorModel;
 import plexiljava.model.operators.GTOperatorModel;
 import plexiljava.model.operators.LTEOperatorModel;
 import plexiljava.model.operators.LTOperatorModel;
+import plexiljava.model.operators.MODOperatorModel;
 import plexiljava.model.operators.MULOperatorModel;
 import plexiljava.model.operators.NEQOperatorModel;
 import plexiljava.model.operators.OROperatorModel;
@@ -258,9 +258,6 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "MIN":
 				children.add(new MINFunctionModel(child));
 				break;
-			case "MOD":
-				children.add(new MODFunctionModel(child));
-				break;
 			case "SQRT":
 				children.add(new SQRTFunctionModel(child));
 				break;
@@ -313,6 +310,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "LT":
 				children.add(new LTOperatorModel(child));
+				break;
+			case "MOD":
+				children.add(new MODOperatorModel(child));
 				break;
 			case "MUL":
 				children.add(new MULOperatorModel(child));
