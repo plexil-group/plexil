@@ -1,4 +1,4 @@
-package plexiljava.model.references;
+package plexiljava.model.tokens;
 
 import plexiljava.model.BaseModel;
 import plexiljava.model.ReferringNodeModel;

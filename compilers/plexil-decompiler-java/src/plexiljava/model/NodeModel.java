@@ -73,10 +73,10 @@ import plexiljava.model.operators.MULOperatorModel;
 import plexiljava.model.operators.NEQOperatorModel;
 import plexiljava.model.operators.OROperatorModel;
 import plexiljava.model.operators.SUBOperatorModel;
+import plexiljava.model.outcomes.FailedOutcomeModel;
 import plexiljava.model.outcomes.FailureOutcomeModel;
 import plexiljava.model.outcomes.SkippedOutcomeModel;
 import plexiljava.model.outcomes.SuccessOutcomeModel;
-import plexiljava.model.references.SucceededModel;
 import plexiljava.model.states.ExecutingStateModel;
 import plexiljava.model.states.FailingStateModel;
 import plexiljava.model.states.FinishedStateModel;
@@ -103,6 +103,7 @@ import plexiljava.model.tokens.ParameterModel;
 import plexiljava.model.tokens.PlusInfinityModel;
 import plexiljava.model.tokens.ReturnModel;
 import plexiljava.model.tokens.StringValueModel;
+import plexiljava.model.tokens.SucceededModel;
 import plexiljava.model.tokens.ToleranceModel;
 
 public class NodeModel extends BaseModel implements Decompilable {
@@ -344,15 +345,14 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Success":
 				children.add(new SuccessOutcomeModel(child));
 				break;
+			case "Failed":
+				children.add(new FailedOutcomeModel(child));
+				break;
 			case "Failure":
 				children.add(new FailureOutcomeModel(child));
 				break;
 			case "Skipped":
 				children.add(new SkippedOutcomeModel(child));
-				break;
-			/* References */
-			case "Succeeded":
-				children.add(new SucceededModel(child));
 				break;
 			/* States */
 			case "Executing":
@@ -436,6 +436,9 @@ public class NodeModel extends BaseModel implements Decompilable {
 				break;
 			case "StringValue":
 				children.add(new StringValueModel(child));
+				break;
+			case "Succeeded":
+				children.add(new SucceededModel(child));
 				break;
 			case "Tolerance":
 				children.add(new ToleranceModel(child));
