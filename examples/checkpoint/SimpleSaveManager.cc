@@ -74,6 +74,7 @@ void SimpleSaveManager::setConfig(const pugi::xml_node* configXml){
   // Prevent writes from occuring concurrently with a directory change
   LOCK;
   m_directory_set = true;
+  bool found_directory = false;
   if(configXml==NULL){
     cerr<<"SimpleSaveManager: No configuration specified, defaulting to directory = ./"<<endl;
     m_file_directory = "./";
@@ -82,17 +83,27 @@ void SimpleSaveManager::setConfig(const pugi::xml_node* configXml){
     for(pugi::xml_attribute attr = configXml->first_attribute();
 	attr;
 	attr = attr.next_attribute()){
-      
-      // We have found all we are looking for
+
       if((string) attr.name() == (string) "Directory"){
 	m_file_directory = attr.value();
-	UNLOCK;
-	return;
+	found_directory = true;
+      }
+
+      if((string) attr.name() == (string) "RemoveOldSaves"){
+	string remove_old_saves = attr.value();
+	std::transform(remove_old_saves.begin(),
+			remove_old_saves.end(),
+			remove_old_saves.begin(), ::tolower);
+	// Defaults to true
+	if(remove_old_saves == "false") m_remove_old_saves = false;
+	else m_remove_old_saves = true;
       }
     }
-    // No directory attribute found
-    cerr << "SimpleSaveManager: No \"Directory\" attribute found in configuration, defaulting to ./"<<endl;
-    m_file_directory = "./";
+    if(!found_directory){
+      // No directory attribute found
+      cerr << "SimpleSaveManager: No \"Directory\" attribute found in configuration, defaulting to ./"<<endl;
+      m_file_directory = "./";
+    }
   }
   UNLOCK;
 }
@@ -236,7 +247,7 @@ bool SimpleSaveManager::writeOut(){
     save_name = m_file_directory+"/"+to_string(oldest_newest.second+1)+"_save.xml"; 
   }
   // If multiple valid files, delete the oldest (never delete the only remaining vaid file)
-  if(oldest_newest.first != oldest_newest.second){
+  if(oldest_newest.first != oldest_newest.second && m_remove_old_saves){
     string to_remove = m_file_directory+"/"+to_string(oldest_newest.first)+"_save.xml";
     remove(to_remove.c_str());
     debug("removing" <<to_remove);

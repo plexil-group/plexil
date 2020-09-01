@@ -2,7 +2,7 @@
 #define H_Persistence
 
 Integer Lookup NumberOfTotalBoots;
-Boolean Lookup IsOK(...);
+Boolean Lookup IsBootOK(...);
 Real    Lookup TimeOfBoot(...);
 Real    Lookup TimeOfLastSave(...);
 Boolean Lookup CheckpointState(...);
@@ -15,8 +15,8 @@ Boolean Lookup DidCrash;
 Integer Lookup CheckpointWhen(...);
 
 
-Command SetCheckpoint(...);
-Boolean Command SetOK(...);
-Boolean Command Flush();
+Command set_checkpoint(...);
+Boolean Command set_boot_ok(...);
+Boolean Command flush_checkpoints();
 
 #endif
