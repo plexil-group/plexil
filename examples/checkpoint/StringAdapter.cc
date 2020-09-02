@@ -67,8 +67,7 @@ static Value fetch (const string& name, const vector<Value>& args){
 // NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
   if (name == "ToString"){
     if(args.size()==0){
-      retval = Unknown;
-      cerr<<"Invalid number of arguments to "<<name<<endl;
+      retval = "";
     }
     else if (args.size()==1){
       retval = args[0].valueToString();
