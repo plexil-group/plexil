@@ -4,6 +4,6 @@ import plexiljava.model.BaseModel;
 
 public class FailedOutcomeModel extends OutcomeModel {
 	public FailedOutcomeModel(BaseModel node) {
-		super(node, "FAILED");
+		super(node, "FAILURE");
 	}
 }

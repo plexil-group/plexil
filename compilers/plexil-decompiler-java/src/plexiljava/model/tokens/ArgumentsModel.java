@@ -23,6 +23,9 @@ public class ArgumentsModel extends NodeModel {
 				dsb.append(quality.getValue(), ", ");
 			}
 		}
+		for( BaseModel child : children ) {
+			dsb.append(child.decompile(0), ", ");
+		}
 		dsb.sb.delete(dsb.sb.length()-2, dsb.sb.length());
 		
 		return dsb.toString();

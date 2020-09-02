@@ -25,7 +25,7 @@ public class CommandModel extends NodeModel {
 			dsb.append(qualities.get(0).getValue(), " = ");
 		}
 		dsb.append(getChild(NameModel.class).decompile(0), "(");
-		if( hasChild(ArgumentsModel.class) && !getChild(ArgumentsModel.class).getQualities().isEmpty() ) {
+		if( hasChild(ArgumentsModel.class) && (!getChild(ArgumentsModel.class).getQualities().isEmpty() || !getChild(ArgumentsModel.class).getChildren().isEmpty()) ) {
 			dsb.append(getChild(ArgumentsModel.class).decompile(0));
 		}
 		dsb.append(");");
