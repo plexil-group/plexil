@@ -147,7 +147,7 @@ summarize()
 }
 
 usage_text="Usage:
-        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch] [-c <interface config>]
+        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
 "
 
 usage()
