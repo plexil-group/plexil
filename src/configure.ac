@@ -41,10 +41,8 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Required to build the expression parser's table
-AS_IF([test ! -f xml-parser/ExpressionMap.hh], [
 AC_PATH_PROG([GPERF], [gperf])
 AS_IF([test "x${GPERF}" = 'x'], [AC_MSG_ERROR([Required program 'gperf' not found. Aborting.])])
-])
 
 # Use this with autoconf 2.62 and newer
 LT_INIT([])
