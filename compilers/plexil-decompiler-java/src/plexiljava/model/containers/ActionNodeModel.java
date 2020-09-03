@@ -1,6 +1,9 @@
-package plexiljava.model;
+package plexiljava.model.containers;
 
 import plexiljava.decompilation.DecompilableStringBuilder;
+import plexiljava.model.BaseModel;
+import plexiljava.model.NodeModel;
+import plexiljava.model.BaseModel.PatternRecognitionFailureException;
 import plexiljava.model.conditions.ConditionModel;
 
 public class ActionNodeModel extends NodeModel {

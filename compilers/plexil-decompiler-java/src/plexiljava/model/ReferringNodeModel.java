@@ -4,10 +4,18 @@ import plexiljava.decompilation.DecompilableStringBuilder;
 
 public class ReferringNodeModel extends NodeModel {
 
+	/**
+	 * Constructs a generic extension of the NodeModel that contains a reference to another node
+	 * @param node BaseModel to be built off of
+	 */
 	public ReferringNodeModel(BaseModel node) {
 		super(node);
 	}
 
+	/**
+	 * 
+	 * @return String referred node ID
+	 */
 	public String getReference() {
 		return hasQuality("NodeRef") ? getQuality("NodeRef").getValue() : getQuality("NodeId").getValue();
 	}

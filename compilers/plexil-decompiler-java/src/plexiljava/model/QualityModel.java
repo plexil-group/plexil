@@ -6,10 +6,19 @@ import plexiljava.decompilation.DecompilableStringBuilder;
 
 public class QualityModel extends BaseModel {
 
+	/**
+	 * Constructs a generic extension of the BaseModel that has only one associated value
+	 * @param node XML node to construct off of
+	 * @param parent node of this one
+	 * @param order relative to its siblings
+	 */
 	public QualityModel(Node node, BaseModel parent, int order) {
 		super(node, parent, order);
 	}
 
+	/**
+	 * @return String associated value of this quality
+	 */
 	@Override
 	public String getValue() {
 		return children.get(0).getValue();

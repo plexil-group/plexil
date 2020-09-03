@@ -22,6 +22,7 @@ import plexiljava.model.conditions.PreConditionModel;
 import plexiljava.model.conditions.RepeatConditionModel;
 import plexiljava.model.conditions.SkipConditionModel;
 import plexiljava.model.conditions.StartConditionModel;
+import plexiljava.model.containers.ActionNodeModel;
 import plexiljava.model.containers.AssignmentNodeModel;
 import plexiljava.model.containers.AuxNodeModel;
 import plexiljava.model.containers.ConcurrenceNodeModel;
@@ -107,7 +108,11 @@ import plexiljava.model.tokens.SucceededModel;
 import plexiljava.model.tokens.ToleranceModel;
 
 public class NodeModel extends BaseModel implements Decompilable {
-		
+	
+	/**
+	 * A generic extension of the BaseModel that decompiles to a generic PLEXIL node
+	 * @param node BaseModel to be built off of
+	 */
 	public NodeModel(BaseModel node) {
 		super(node);
 	}
@@ -123,7 +128,13 @@ public class NodeModel extends BaseModel implements Decompilable {
 		}
 	}
 	
+	/**
+	 * Generates children of the appropriate type based on the child's qualities
+	 * Add cases here for new nodes that are added to the model
+	 * @param child BaseModel to categorize and initialize appropriately
+	 */
 	public void generateChild(BaseModel child) {
+		/** Put cases here based on the element's tag in the XML file **/
 		switch( child.getName() ) {
 			// Special Cases
 			case "#comment":
@@ -443,6 +454,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 			case "Tolerance":
 				children.add(new ToleranceModel(child));
 				break;
+			/** Put cases here based on the XML element's NodeType attribute **/
 			/* Structures */
 			case "Node":
 				switch( child.getAttribute("NodeType").getValue() ) {
@@ -458,6 +470,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 						}
 					default: // NodeBody, NodeList
 						if( child.hasAttribute("epx") ) {
+							/** Put cases here based on the XML element's epx attribute **/
 							switch( child.getAttribute("epx").getValue() ) {
 								case "Sequence":
 									children.add(new NodeModel(child));
@@ -535,6 +548,12 @@ public class NodeModel extends BaseModel implements Decompilable {
 		}
 	}
 	
+	/**
+	 * Links referenced nodes with their contents
+	 * @param nodeId String ID of the node being referenced
+	 * @return String contents of the referenced node
+	 * @throws PatternRecognitionFailureException if decompilation of the referenced node fails
+	 */
 	protected String dereference(String nodeId) throws PatternRecognitionFailureException {
 		for( BaseModel child : children ) {
 			if( child.hasAttribute("epx") ) {
