@@ -578,7 +578,7 @@ public class NodeModel extends BaseModel implements Decompilable {
 		dsb.addIndent(indentLevel);
 		
 		dsb.append(getQuality("NodeId").getValue());
-		dsb.addBlockOpener();
+		dsb.addBlockOpener("Concurrence");
 		
 		for( BaseModel child : children ) {
 			if( child instanceof InvariantConditionModel ) {

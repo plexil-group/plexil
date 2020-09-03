@@ -20,7 +20,7 @@ public class CommandNodeModel extends NodeModel {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
 		dsb.append(getQuality("NodeId").getValue());
-		dsb.addBlockOpener();
+		dsb.addBlockOpener("Concurrence");
 		for( BaseModel child : children ) {
 			dsb.addLine(child.decompile(indentLevel+1));
 		}

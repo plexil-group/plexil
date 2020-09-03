@@ -19,7 +19,7 @@ public class EmptyNodeModel extends NodeModel {
 	public String translate(int indentLevel) throws PatternRecognitionFailureException {
 		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
 		dsb.addIndent(indentLevel);
-		dsb.append(getQuality("NodeId").getValue(), ": {");
+		dsb.append(getQuality("NodeId").getValue(), ": Concurrence {");
 		if( !children.isEmpty() ) {
 			dsb.addLine("");
 		}

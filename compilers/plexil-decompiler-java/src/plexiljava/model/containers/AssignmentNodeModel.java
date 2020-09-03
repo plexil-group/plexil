@@ -24,7 +24,7 @@ public class AssignmentNodeModel extends NodeModel {
 			dsb.append(getChild(AssignmentModel.class).decompile(0), ";");
 		} else {
 			dsb.append(getQuality("NodeId").getValue());
-			dsb.addBlockOpener();
+			dsb.addBlockOpener("Concurrence");
 			if( hasQuality("Priority") ) {
 				dsb.addIndent(indentLevel+1);
 				dsb.addLine("Priority: ", getQuality("Priority").getValue(), ";");
