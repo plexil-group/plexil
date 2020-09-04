@@ -1,6 +1,19 @@
-String Command get_string ();
+String  Lookup s;
+String  Lookup s1;
+String  Lookup s2;
+Real    Lookup r;
+Real    Lookup r1;
+Real    Lookup r2;
+Integer Lookup i;
+Integer Lookup i1;
+Integer Lookup i2;
+Boolean Lookup b;
+Boolean Lookup b1;
+Boolean Lookup b2;
+
+String  Command get_string ();
 Integer Command get_int ();
-Real Command get_real ();
+Real    Command get_real ();
 Boolean Command get_bool ();
 Command pprint (...);
 
@@ -18,21 +31,21 @@ TestUnknown:
                    isKnown(b1) && b1 &&
                    !isKnown(r2) && !isKnown(i2) && !isKnown(s2) && !isKnown(b2));
     r1 = Lookup(r1);
-//    if (isKnown(r1)) pprint("r1: ", r1); endif
+    if (isKnown(r1)) pprint("r1: ", r1); endif
     r2 = Lookup(r2);
-//    if (isKnown(r2)) pprint("r2: ", r2); endif
+    if (isKnown(r2)) pprint("r2: ", r2); endif
     i1 = Lookup(i1);
-//    if (isKnown(i1)) pprint("i1: ", i1); endif    
+    if (isKnown(i1)) pprint("i1: ", i1); endif
     i2 = Lookup(i2);
-//    if (isKnown(i2)) pprint("i2: ", i2); endif    
+    if (isKnown(i2)) pprint("i2: ", i2); endif
     s1 = Lookup(s1);
-//    if (isKnown(s1)) pprint("s1: ", s1); endif        
+    if (isKnown(s1)) pprint("s1: ", s1); endif
     s2 = Lookup(s2);
-//    if (isKnown(s2)) pprint("s2: ", s2); endif    
+    if (isKnown(s2)) pprint("s2: ", s2); endif
     b1 = Lookup(b1);
-//    if (isKnown(b1)) pprint("b1: ", b1); endif        
+    if (isKnown(b1)) pprint("b1: ", b1); endif
     b2 = Lookup(b2);
-//    if (isKnown(b2)) pprint("b2: ", b2); endif    
+    if (isKnown(b2)) pprint("b2: ", b2); endif
   }
 
   TestString1 : {
@@ -48,7 +61,7 @@ TestUnknown:
   TestInt1 : {
     PostCondition isKnown(i) && i==1;
     i = get_int ();
-//    pprint ("i:", i);
+    pprint ("i:", i);
   }
 
   TestInt2 : {
@@ -59,7 +72,7 @@ TestUnknown:
   TestReal1 : {
     PostCondition isKnown(r) && r==1.0;
     r = get_real ();
-//    pprint ("r:", r);    
+    pprint ("r:", r);
   }
 
   TestReal2 : {
@@ -70,7 +83,7 @@ TestUnknown:
   TestBool1 : {
     PostCondition isKnown(b) && !b;
     b = get_bool ();
-//    pprint ("b:", b);        
+    pprint ("b:", b);
   }
 
   TestBool2 : {
@@ -81,7 +94,7 @@ TestUnknown:
   // The following action does not succeed.  For some reason, s1 and b1 do not
   // receive their new values.  This happens for the first two "_1" variables,
   // regardless of how you order them.
-  
+
   // TestVars2: Concurrence {
   //   PostCondition (isKnown(r2) && r2==0.0 &&
   //                  isKnown(i2) && i2==0 &&
