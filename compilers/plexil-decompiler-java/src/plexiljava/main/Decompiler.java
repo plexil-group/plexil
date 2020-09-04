@@ -94,6 +94,8 @@ public class Decompiler {
         }
         try {
             XMLIO.deformatFile(infile);
+            logger.setLevel(Level.INFO);
+            logger.info("Decompiling " + infile + "...");
             infile = new File("_plexildformatted");
             Element rootNode = XMLIO.readToNode(infile);
             NodeModel planRoot = new NodeModel(new BaseModel(rootNode, null, 0));
@@ -109,8 +111,6 @@ public class Decompiler {
             decompilation = decompilation.replaceAll("\\n[^\\n]*" + DecompilableStringBuilder.REFERENCE_IDENTIFIER + "[^\\n]*\\n", "\n");
             decompilation = decompilation.replace(" , ", ", ");
             XMLIO.writeToXML(outfileName, decompilation);
-            logger.setLevel(Level.INFO);
-            logger.info("Operation completed.");
             infile.delete();
         } catch(PatternRecognitionFailureException e) {
             logger.setLevel(Level.SEVERE);
