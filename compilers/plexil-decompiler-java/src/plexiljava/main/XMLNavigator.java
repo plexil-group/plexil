@@ -127,6 +127,7 @@ public class XMLNavigator {
 		System.out.print(getPath());
 		while( handleCommand(sc.nextLine()) ) {}
 		sc.close();
+		infile.delete();
 	}
 	
 }

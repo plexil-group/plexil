@@ -111,6 +111,7 @@ public class Decompiler {
 			XMLIO.writeToXML(outfileName, decompilation);
 			logger.setLevel(Level.INFO);
 			logger.info("Operation completed.");
+			infile.delete();
 		} catch(PatternRecognitionFailureException e) {
 			logger.setLevel(Level.SEVERE);
 			logger.severe(e.getMessage());
