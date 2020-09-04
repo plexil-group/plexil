@@ -6,10 +6,10 @@ This is a decompiler built to convert PLEXIL plans that have been converted to X
 Currently, this project is capable of decompiling most .plx plans, including those compiled from the deprecated PLEXILisp compiler. There are a few unhandled cases, including the OnCommand, OnMessage, Wait, and SynchronousCommand nodes, and no specific handler designated for DateVariable, DurationVariable, and DurationValue. However, the decompiler will (unless explicitly instructed otherwise) attempt to decompile any .plx file it is given to the best of its abillity, rather than failing outright.
 
 ### Building the Decompiler
-To build the decompiler, simply run Ant in the same directory that this README file is located in. This will produce a jar file labeled as `plexild.jar`.
+To build the decompiler, simply type `ant` in the same directory that this README file is located in. This will produce a jar file `plexild.jar`.
 
 ### Running the Decompiler
-To run the decompiler, navigate to the same directory that this README file is located in, and from the commandline, run the jar file that is located in the same directory as follows: `java -jar deplexil.jar FILE_TO_DECOMPILE`.
+To run the decompiler, navigate to the same directory that this README file is located in, and from the commandline, run the jar file that is located in the same directory as follows: `plexild FILE_TO_DECOMPILE`.
 
 Optionally, you may include a `OUTPUT_FILE` option after the `FILE_TO_DECOMPILE` parameter to specify an output target, although it will try to decompile to a file that syntactically matches the target file's name by default.
 
