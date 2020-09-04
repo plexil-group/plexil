@@ -7,21 +7,21 @@ import plexiljava.model.conditions.PostConditionModel;
 
 public class ElseIfNodeModel extends NodeModel {
 
-	public ElseIfNodeModel(BaseModel node) {
-		super(node);
-	}
+    public ElseIfNodeModel(BaseModel node) {
+        super(node);
+    }
 
-	@Override
-	public boolean verify() {
-		return hasChild(PostConditionModel.class);
-	}
-	
-	@Override
-	public String translate(int indentLevel) throws PatternRecognitionFailureException {
-		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
-		dsb.addIndent(indentLevel);
-		dsb.append("elseif (", getChild(PostConditionModel.class).decompile(0), ") {\n");
-		return dsb.toString();
-	}
-	
+    @Override
+    public boolean verify() {
+        return hasChild(PostConditionModel.class);
+    }
+
+    @Override
+    public String translate(int indentLevel) throws PatternRecognitionFailureException {
+        DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+        dsb.addIndent(indentLevel);
+        dsb.append("elseif (", getChild(PostConditionModel.class).decompile(0), ") {\n");
+        return dsb.toString();
+    }
+
 }

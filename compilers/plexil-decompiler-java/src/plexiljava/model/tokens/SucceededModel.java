@@ -5,8 +5,8 @@ import plexiljava.model.ReferringNodeModel;
 
 public class SucceededModel extends ReferringNodeModel {
 
-	public SucceededModel(BaseModel node) {
-		super(node);
-	}
+    public SucceededModel(BaseModel node) {
+        super(node);
+    }
 
 }

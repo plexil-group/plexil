@@ -6,16 +6,16 @@ import plexiljava.model.NodeModel;
 
 public class ElseNodeModel extends NodeModel {
 
-	public ElseNodeModel(BaseModel node) {
-		super(node);
-	}
-	
-	@Override
-	public String translate(int indentLevel) {
-		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
-		dsb.addIndent(indentLevel);
-		dsb.append("else {\n");
-		return dsb.toString();
-	}
+    public ElseNodeModel(BaseModel node) {
+        super(node);
+    }
+
+    @Override
+    public String translate(int indentLevel) {
+        DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+        dsb.addIndent(indentLevel);
+        dsb.append("else {\n");
+        return dsb.toString();
+    }
 
 }

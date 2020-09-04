@@ -6,29 +6,29 @@ import plexiljava.model.TypedNodeModel;
 
 public class OutcomeModel extends TypedNodeModel {
 
-	public OutcomeModel(BaseModel node) {
-		super(node);
-	}
+    public OutcomeModel(BaseModel node) {
+        super(node);
+    }
 
-	public OutcomeModel(BaseModel node, String type) {
-		super(node, type);
-	}
-	
-	@Override
-	public boolean verify() {
-		return hasQuality("NodeRef") || hasQuality("NodeId");
-	}
-	
-	@Override
-	public String translate(int indentLevel) throws PatternRecognitionFailureException {
-		DecompilableStringBuilder dsb = new DecompilableStringBuilder();
-		dsb.addIndent(indentLevel);
-		if( hasQuality("NodeRef") ) {
-			dsb.append(getQuality("NodeRef").getValue(), ".outcome == ", type);
-		} else {
-			dsb.append(getQuality("NodeId").getValue(), ".outcome == ", type);
-		}
-		return dsb.toString();
-	}
-	
+    public OutcomeModel(BaseModel node, String type) {
+        super(node, type);
+    }
+
+    @Override
+    public boolean verify() {
+        return hasQuality("NodeRef") || hasQuality("NodeId");
+    }
+
+    @Override
+    public String translate(int indentLevel) throws PatternRecognitionFailureException {
+        DecompilableStringBuilder dsb = new DecompilableStringBuilder();
+        dsb.addIndent(indentLevel);
+        if( hasQuality("NodeRef") ) {
+            dsb.append(getQuality("NodeRef").getValue(), ".outcome == ", type);
+        } else {
+            dsb.append(getQuality("NodeId").getValue(), ".outcome == ", type);
+        }
+        return dsb.toString();
+    }
+
 }
