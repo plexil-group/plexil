@@ -66,7 +66,7 @@ namespace PLEXIL
       m_blockedSignals[i] = 0;
 
     // connect exec and interface manager
-    g_configuration = new AdapterConfiguration();
+    g_configuration = makeAdapterConfiguration();
     g_exec = makePlexilExec();
     g_exec->setExecListener(g_configuration->getListenerHub());
     g_execInterface = static_cast<AdapterExecInterface *>(m_manager);

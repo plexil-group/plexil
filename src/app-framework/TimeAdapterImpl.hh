@@ -27,8 +27,9 @@
 #ifndef PLEXIL_TIME_ADAPTER_IMPL_HH
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
-#include "InterfaceAdapter.hh"
+#include "lookupHandlerDefs.hh"
 #include "AdapterConfiguration.hh"
+#include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
 
 #if defined(HAVE_CSIGNAL)
@@ -180,23 +181,40 @@ namespace PLEXIL
 
   private:
 
-    class TimeLookupHandler : public AbstractLookupHandler {
+    class TimeLookupHandler : public LookupHandler
+    {
+    private:
+
       InterfaceAdapter* interface;
+
     public:
-      TimeLookupHandler(InterfaceAdapter *intf) : interface(intf) {}
-      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
+
+      TimeLookupHandler(InterfaceAdapter *intf) : interface(intf)
+      {
+      }
+      
+      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry)
+      {
         interface->lookupNow(state, cacheEntry);
       }
-      void setThresholds(const State &state, double hi, double lo) {
+
+      virtual void setThresholds(const State &state, double hi, double lo)
+      {
         interface->setThresholds(state, hi, lo);
       }
-      void setThresholds(const State &state, int32_t hi, int32_t lo) {
+
+      virtual void setThresholds(const State &state, int32_t hi, int32_t lo)
+      {
         interface->setThresholds(state, hi, lo);
       }
-      void subscribe(const State &state) {
+      
+      virtual void subscribe(const State &state, AdapterExecInterface * /* ignored */)
+      {
         interface->subscribe(state);
       }
-      void unsubscribe(const State &state) {
+
+      virtual void unsubscribe(const State &state)
+      {
         interface->unsubscribe(state);
       }
     };
