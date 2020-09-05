@@ -33,6 +33,9 @@
 
 #include <plexil-config.h>
 
+#include "commandHandlerDefs.hh"
+#include "lookupHandlerDefs.hh"
+#include "plannerUpdateHandlerDefs.hh"
 #include "AdapterConfiguration.hh"
 #include "CachedValue.hh"
 #include "Command.hh"
@@ -65,6 +68,24 @@
 
 namespace PLEXIL
 {
+
+  // Convenience function declared in commandHandlerDefs.hh
+  void defaultAbortCommandHandler(Command *cmd, AdapterExecInterface *intf)
+  {
+    // Silently acknowledge abort
+    intf->handleCommandAbortAck(cmd, true);
+    intf->notifyOfExternalEvent();
+  }
+
+  // Convenience function declared in plannerUpdateHandlerDefs.hh
+  void defaultPlannerUpdateFn(Update *upd, AdapterExecInterface *intf)
+  {
+    debugMsg("DefaultPlannerUpdateHandler", " called");
+
+    intf->handleUpdateAck(upd, true);
+    intf->notifyOfExternalEvent();
+  }
+
 
   /**
    * @brief Default constructor.
@@ -101,7 +122,7 @@ namespace PLEXIL
     if (!g_configuration)
       return false;
     bool result = g_configuration->initialize();
-    m_inputQueue = g_configuration->getInputQueue();
+    m_inputQueue = g_configuration->makeInputQueue();
     if (!m_inputQueue)
       return false;
     return result;
@@ -299,13 +320,7 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
     
-    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
-    if (!handler) {
-      warn("lookupNow: No interface handler found for lookup "
-           << state.name() << ", returning UNKNOWN");
-      return;
-    }
-
+    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
     try {
       handler->lookupNow(state, cacheEntry);
     }
@@ -353,12 +368,8 @@ namespace PLEXIL
   void InterfaceManager::subscribe(const State& state)
   {
     debugMsg("InterfaceManager:subscribe", " to state " << state);
-    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
-    if (!handler) {
-      warn("subscribe: No handler found for lookup " << state.name());
-      return;
-    }
-    handler->subscribe(state);
+    g_configuration->getLookupHandler(state.name())->subscribe(state,
+                                                               (AdapterExecInterface *) this);
   }
 
   /**
@@ -367,12 +378,7 @@ namespace PLEXIL
   void InterfaceManager::unsubscribe(const State& state)
   {
     debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
-    if (!handler) {
-      warn("unsubscribe: No interface handler found for lookup " << state);
-      return;
-    }
-    handler->unsubscribe(state);
+    g_configuration->getLookupHandler(state.name())->unsubscribe(state);
   }
 
   /**
@@ -384,25 +390,13 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
-    if (!handler) {
-      warn("setThresholds: No interface handler found for lookup "
-           << state);
-      return;
-    }
-    handler->setThresholds(state, hi, lo);
+    g_configuration->getLookupHandler(state.name())->setThresholds(state, hi, lo);
   }
 
   void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    AbstractLookupHandler *handler = g_configuration->getLookupHandler(state.name());
-    if (!handler) {
-      warn("setThresholds: No interface handler found for lookup "
-           << state);
-      return;
-    }
-    handler->setThresholds(state, hi, lo);
+    g_configuration->getLookupHandler(state.name())->setThresholds(state, hi, lo);
   }
 
   // *** To do:
@@ -412,36 +406,21 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    AbstractPlannerUpdateHandler *handler = g_configuration->getPlannerUpdateHandler();
-    if (!handler) {
-      // Fake the ack
-      warn("executeUpdate: no handler adapter for updates");
-      g_interface->acknowledgeUpdate(update, true);
-      return;
-    }
     debugMsg("InterfaceManager:updatePlanner",
              " sending planner update for node "
              << update->getSource()->getNodeId());
-    handler->sendPlannerUpdate(update);
+    (*g_configuration->getPlannerUpdateHandler())(update, (AdapterExecInterface *) this);
   }
 
   // executes a command with the given arguments by looking up the command name 
   // and passing the information to the appropriate interface adapter
 
-  // *** To do:
+  // *** TODO ?
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
-    if (handler) {
-      handler->executeCommand(cmd);
-    }
-    else {
-      // return error status
-      warn("executeCommand: no handler for command " << cmd->getName());
-      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR); // TODO: make new error for handler
-    }
+    g_configuration->getCommandHandler(cmd->getName())->executeCommand(cmd, g_execInterface);
   }
 
   /**
@@ -458,14 +437,7 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    AbstractCommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
-    if (handler) {
-      handler->abortCommand(cmd);
-    }
-    else {
-      warn("invokeAbort: null handler for command " << cmd->getCommand());
-      g_interface->commandAbortAcknowledge(cmd, false);
-    }
+    g_configuration->getCommandHandler(cmd->getName())->abortCommand(cmd, g_execInterface);
   }
 
   double 
@@ -643,8 +615,7 @@ namespace PLEXIL
 
     entry->initForAddPlan(root);
     m_inputQueue->put(entry);
-    if (g_configuration->getListenerHub())
-      g_configuration->getListenerHub()->notifyOfAddPlan(planXml);
+    g_configuration->getListenerHub()->notifyOfAddPlan(planXml);
     debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
@@ -665,8 +636,7 @@ namespace PLEXIL
     if (l) {
       pugi::xml_node const node = l->doc->document_element().child(NODE_TAG);
       char const *name = node.child_value(NODEID_TAG);
-      if (g_configuration->getListenerHub())
-        g_configuration->getListenerHub()->notifyOfAddLibrary(node);
+      g_configuration->getListenerHub()->notifyOfAddLibrary(node);
       debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
       return true;
     }

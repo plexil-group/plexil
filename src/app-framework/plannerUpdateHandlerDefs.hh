@@ -24,12 +24,56 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "AdapterExecInterface.hh"
+#ifndef PLANNER_UPDATE_HANDLER_DEFS_HH
+#define PLANNER_UPDATE_HANDLER_DEFS_HH
+
+#include <functional>
 
 namespace PLEXIL
 {
+  // Forward reference
+  class AdapterExecInterface;
+  class Update;
 
-  // Initialize global variable
-  AdapterExecInterface *g_execInterface = NULL;
+  //
+  // Type aliases for functions and objects which perform PlannerUpdates in PLEXIL
+  //
 
+#if __cplusplus >= 201103L
+  typedef std::function<void, Update *, AdapterExecInterface *> PlannerUpdateHandlerBase;
+#else
+  typedef std::binary_function<Update *, AdapterExecInterface *, void> PlannerUpdateHandlerBase;
+#endif
+
+  struct PlannerUpdateHandler : public PlannerUpdateHandlerBase
+  {
+    virtual ~PlannerUpdateHandler()
+    {
+    }
+
+    virtual void operator()(Update *, AdapterExecInterface *) = 0;
+  };
+
+
+  //*
+  //
+  // @brief A PlannerUpdateFn function sends the contents of the
+  // Update to an external recipient, typically (but not always) a
+  // planner.  It reports success or failure back to the
+  // AdapterExecInterface.
+  //
+  // @see AdapterExecInterface::handleUpdateAck
+  //
+  // @note This interface has largely been superseded by the
+  // ExecListener abstract base class.
+  // @see ExecListener
+  //
+
+  typedef void (*PlannerUpdateFn)(Update *upd, AdapterExecInterface *intf);
+
+  // A default function for this purpose
+  void defaultPlannerUpdateFn(Update *upd, AdapterExecInterface *intf);
+  
 }
+
+#endif // PLANNER_UPDATE_HANDLER_DEFS_HH
