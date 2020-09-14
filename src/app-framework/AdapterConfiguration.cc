@@ -59,7 +59,7 @@
 #endif
 
 #ifdef HAVE_IPC_ADAPTER
-#include "initIpcAdapter.h"
+#include "IpcAdapter.h"
 #endif
 
 #ifdef HAVE_LUV_LISTENER
@@ -864,6 +864,40 @@ namespace PLEXIL {
                                                      setThresholdsInt));
     }
 
+    virtual void registerCommonLookupHandler(LookupHandler *handler,
+                                             pugi::xml_node const configXml)
+    {
+      pugi::xml_node lookupNamesElt =
+        configXml.child(InterfaceSchema::LOOKUP_NAMES_TAG());
+      size_t nLookupNames = 0;
+      while (lookupNamesElt) {
+        // Register individual lookups
+        char const *lookupNamesStr = lookupNamesElt.child_value();
+        checkError(lookupNamesStr && *lookupNamesStr,
+                   "IpcAdapter: Invalid configuration XML: "
+                   << InterfaceSchema::LOOKUP_NAMES_TAG()
+                   << " requires one or more comma-separated lookup names");
+        // Only register the names if they are not telemetry-only
+        if (!lookupNamesElt.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR()).as_bool()) {
+          std::vector<std::string> *lkupNames =
+            InterfaceSchema::parseCommaSeparatedArgs(lookupNamesStr);
+          nLookupNames += lkupNames->size();
+          for (std::vector<std::string>::const_iterator it = lkupNames->begin();
+               it != lkupNames->end();
+               ++it) {
+            g_configuration->registerLookupHandler(*it, handler);
+          }
+          delete lkupNames;
+        }
+        lookupNamesElt = lookupNamesElt.next_sibling(InterfaceSchema::LOOKUP_NAMES_TAG());
+      }
+
+      // Delete handler now if unused
+      if (nLookupNames == 0) {
+        delete handler;
+      }
+    }
+
     virtual LookupHandler *getLookupHandler(std::string const &stateName) const
     {
       LookupHandlerMap::const_iterator it = m_lookupMap.find(stateName);
@@ -908,6 +942,37 @@ namespace PLEXIL {
 
       registerCommandHandler(stateName,
                              new CommandHandlerWrapper(execCmd, abortCmd));
+    }
+
+    virtual void registerCommonCommandHandler(CommandHandler *handler,
+                                              pugi::xml_node const configXml)
+    {
+      pugi::xml_node commandNamesElt =
+        configXml.child(InterfaceSchema::COMMAND_NAMES_TAG());
+      size_t nCommandNames = 0;
+      while (commandNamesElt) {
+        // Register individual commands
+        char const *commandNamesStr = commandNamesElt.child_value();
+        checkError(commandNamesStr && *commandNamesStr,
+                   "IpcAdapter: Invalid configuration XML: "
+                   << InterfaceSchema::COMMAND_NAMES_TAG()
+                   << " requires one or more comma-separated command names");
+        std::vector<std::string> *cmdNames =
+          InterfaceSchema::parseCommaSeparatedArgs(commandNamesStr);
+        nCommandNames += cmdNames->size();
+        for (std::vector<std::string>::const_iterator it = cmdNames->begin();
+             it != cmdNames->end();
+             ++it) {
+          g_configuration->registerCommandHandler(*it, handler);
+        }
+        delete cmdNames;
+        commandNamesElt = commandNamesElt.next_sibling(InterfaceSchema::COMMAND_NAMES_TAG());
+      }
+
+      // Delete handler now if unused
+      if (nCommandNames == 0) {
+        delete handler;
+      }
     }
 
     virtual CommandHandler *getCommandHandler(std::string const& cmdName) const
@@ -985,10 +1050,11 @@ namespace PLEXIL {
     virtual void defaultRegisterAdapter(InterfaceAdapter *adapter) 
     {
       debugMsg("AdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
+
       // Walk the children of the configuration XML element
       // and register the adapter according to the data found there
       pugi::xml_node element = adapter->getXml().first_child();
-      while (!element.empty()) {
+      while (element) {
         const char* elementType = element.name();
         if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0) {
           setDefaultInterface(adapter);
@@ -1012,8 +1078,11 @@ namespace PLEXIL {
                      << InterfaceSchema::COMMAND_NAMES_TAG()
                      << " requires one or more comma-separated command names");
           std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
-          for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); ++it)
+          for (std::vector<std::string>::const_iterator it = cmdNames->begin();
+               it != cmdNames->end();
+               ++it) {
             registerCommandInterface(*it, adapter);
+          }
           delete cmdNames;
         } 
         else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
@@ -1027,12 +1096,15 @@ namespace PLEXIL {
                      << " requires one or more comma-separated lookup names");
           std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
           bool telemOnly = element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR()).as_bool();
-          for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
+          for (std::vector<std::string>::const_iterator it = lookupNames->begin();
+               it != lookupNames->end();
+               ++it) {
             registerLookupInterface(*it, adapter, telemOnly);
+          }
           delete lookupNames;
         }
-        // ignore other tags, they're for adapter's use
 
+        // ignore other tags, they're for adapter's use
         element = element.next_sibling();
       }
     }
