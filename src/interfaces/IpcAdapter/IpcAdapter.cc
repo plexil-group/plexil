@@ -58,6 +58,8 @@
 
 #define TRANSACTION_ID_SEPARATOR_CHAR ':'
 
+#define TRANSACTION_ID_SEPARATOR_CHAR ':'
+
 namespace PLEXIL 
 {
 
@@ -1090,43 +1092,67 @@ namespace PLEXIL
                " for state " << stateName
                << " with " << nParams << " parameters");
 
-      //send lookup message
-      m_pendingLookupResult.setUnknown();
-      size_t sep_pos = stateName.find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
-      //decide to direct or publish lookup
-      {
-        ThreadMutexGuard g(m_cmdMutex);
-        if (sep_pos != std::string::npos) {
-          std::string const dest(stateName.substr(0, sep_pos));
-          std::string const sentStateName = stateName.substr(sep_pos + 1);
-          m_pendingLookupState = state;
-          m_pendingLookupState.setName(sentStateName);
-          m_pendingLookupSerial = m_ipcFacade.sendLookupNow(sentStateName,
-                                                            dest,
-                                                            params);
+      case REAL_ARRAY_TYPE: {
+        std::vector<std::string> * args =
+          InterfaceSchema::parseCommaSeparatedArgs(value.value());
+        size_t n = args->size();
+        RealArray ra(n);
+        for (size_t i = 0; i < n; ++i) {
+          Real d = 0.0;
+          if (!parseValue<Real>((*args)[i], d)) {
+            reportInterfaceError("IpcAdapter: \"" << (*args)[i] << "\" is not a valid Real number");
+            return Value();
+          }
+          ra.setElement(i, d);
         }
-        else {
-          m_pendingLookupState = state;
-          m_pendingLookupSerial = m_ipcFacade.publishLookupNow(stateName, params);
+        delete args;
+        return Value(ra);
+      }
+      
+      case STRING_ARRAY_TYPE: {
+        std::vector<std::string> * args =
+          InterfaceSchema::parseCommaSeparatedArgs(value.value());
+        size_t n = args->size();
+        StringArray sa(n);
+        for (size_t i = 0; i < n; ++i) {
+          String s = (*args)[i];
+          // TODO: handle escapes?
+          if (s[0] != '"' || s[s.size() - 1] != '"') {
+            reportInterfaceError("IpcAdapter: String \"" << (*args)[i]
+                                 << "\" lacks leading or trailing double-quote character(s)");
+            return Value();
+          }
+          s = s.substr(1, s.size() - 2);
+          sa.setElement(i, s);
         }
+        delete args;
+        return Value(sa);
       }
-
-      // Wait for results
-      // N.B. shouldn't have to worry about signals causing wait to be interrupted -
-      // ExecApplication blocks most of the common ones
-      int errnum = m_lookupSem.wait();
-      assertTrueMsg(errnum == 0,
-                    "IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
-
-      entry.update(m_pendingLookupResult);
-
-      // Clean up
-      {
-        ThreadMutexGuard g(m_cmdMutex);
-        m_pendingLookupSerial = 0;
-        m_pendingLookupState = State();
+      
+      default:
+        errorMsg("IpcAdapter: invalid or unimplemented lookup value type " << type);
+        return Value();
       }
-      m_pendingLookupResult.setUnknown();
+    }
+
+    /**
+     * @brief Returns true if the string starts with the prefix, false otherwise.
+     */
+    // TODO Replace with appropriate parser function
+    static bool hasPrefix(const std::string& s, const std::string& prefix) {
+      if (s.size() < prefix.size())
+        return false;
+      return (0 == s.compare(0, prefix.size(), prefix));
+    }
+
+    /**
+     * @brief Given a sequence of messages, turn the trailers into a Value for the Exec.
+     */
+    static Value parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs) 
+    {
+      size_t nValues = msgs[0]->count;
+      checkError(nValues == 1, "PlexilMsgType_ReturnValue may only have one parameter");
+      return getPlexilMsgValue(msgs[1]);
     }
 
     //
@@ -1502,6 +1528,14 @@ namespace PLEXIL
         debugMsg("IpcAdapter:handleReturnValuesSequence",
                  " no lookup or command found for sequence");
       }
+      else if (command == GET_PARAMETER_COMMAND()) {
+        ss << PARAM_PREFIX() << name;
+      }
+      else {
+        ss << name;
+      }
+      ss << '_' << id;
+      return ss.str();
     }
 
     /**
