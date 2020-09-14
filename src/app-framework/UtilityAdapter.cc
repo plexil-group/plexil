@@ -142,6 +142,6 @@ namespace PLEXIL
 
 extern "C" {
   void initUtilityAdapter() {
-    REGISTER_ADAPTER(PLEXIL::UtilityAdapter, "UtilityAdapter");
+    REGISTER_ADAPTER(PLEXIL::UtilityAdapter, "Utility");
   }
 }
