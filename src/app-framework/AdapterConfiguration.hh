@@ -136,28 +136,31 @@ namespace PLEXIL
 
     /**
      * @brief Register the given LookupHandler instance for lookups
-     * for this state name, overriding any previous handler or
-     * interface adapter registrations for the name.
+     *        for this state name, overriding any previous handler or
+     *        interface adapter registrations for the name.
      * @param stateName The name of the state to map to this handler.
      * @param handler Pointer to the LookupHandler.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
     virtual void registerLookupHandler(std::string const &stateName,
                                        LookupHandler *handler) = 0;
 
     /**
      * @brief Register the given handler function(s) for lookups to
-     * this state, overriding any previous handler or interface
-     * adapter registrations for this name.
+     *        this state, overriding any previous handler or interface
+     *        adapter registrations for this name.
      * @param stateName The name of the state to map to these handler functions.
      * @param lookupNow The lookupNow function for this state.
      * @param setThresholdsReal (Optional) The setThresholdsReal
-     * handler function for this state.
+     *        handler function for this state.
      * @param setThresholdsInteger (Optional) The setThresholdsInteger
-     * handler function for this state.
+     *        handler function for this state.
      * @param subscribe (Optional) The subscribe handler function for
-     * this state.
+     *        this state.
      * @param unsubscribe (Optional) The unsubscribe handler function
-     * for this state.
+     *        for this state.
      */
     virtual void registerLookupHandler(std::string const &stateName,
                                        LookupNowHandler ln,
@@ -167,52 +170,20 @@ namespace PLEXIL
                                        SetThresholdsHandlerInteger setTI = NULL) = 0;
 
     /**
-     * @brief Return the LookupHandler instance in effect for lookups
-     * with this state name.
-     * @param stateName The state.
-     * @return Pointer to the LookupHandler for the named state.
+     * @brief Register the given LookupHandler instance for all LookupNames
+     *        in the adapter's configuration XML.
+     * @param handler Pointer to the LookupHandler instance.
+     * @param configXml Configuration XML for the interface.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no LookupNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific lookup names,
+     *       call registerLookupHandler() after calling this member function.
      */
-    virtual LookupHandler *getLookupHandler(std::string const& stateName) const = 0;
-
-    /**
-     * @brief Return the application's ExecListenerHub.
-     * @return Pointer to the ExecListenerHub.
-     */
-    virtual ExecListenerHub *getListenerHub() const = 0;
-
-    /**
-     * @brief Register the given CommandHandler for this command,
-     * overriding any previous handler or interface adapter
-     * registration.
-     * @param cmdName The name of the command to map to this handler.
-     * @param handler Pointer to the CommandHandler instance to
-     * associate with this command name.
-     */
-    virtual void registerCommandHandler(std::string const &cmdName,
-                                        CommandHandler *handler) = 0;
-
-    /**
-     * @brief Register the given handler functions for the named
-     * command, overriding any previous handler or interface adapter
-     * registration.
-     * @param cmdName The command name to map to this handler.
-     * @param execCmd The function to call when this command is
-     * executed.
-     * @param abortCmd The function to call when this command is
-     * aborted; defaults to defaultAbortCommandHandler.
-     */
-    virtual void registerCommandHandler(std::string const &cmdName,
-                                        ExecuteCommandHandler execCmd,
-                                        AbortCommandHandler abortCmd = defaultAbortCommandHandler)
-    = 0;
-
-    /**
-     * @brief Return the CommandHandler instance for a command name.
-     * @param cmdName The command name.
-     * @return Pointer to the CommandHandler instance for the named
-     * command.
-     */
-    virtual CommandHandler *getCommandHandler(std::string const& stateName) const = 0;
+    virtual void registerCommonLookupHandler(LookupHandler *handler,
+                                             pugi::xml_node const configXml) = 0;
 
     /**
      * @brief Register the given LookupHandler instance as the default
@@ -220,6 +191,9 @@ namespace PLEXIL
      * handler or interface adapter, including the default default
      * handler.
      * @param handler Pointer to the new default LookupHandler.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
     virtual void setDefaultLookupHandler(LookupHandler *handler) = 0;
     
@@ -245,11 +219,73 @@ namespace PLEXIL
     = 0;
 
     /**
+     * @brief Return the LookupHandler instance in effect for lookups
+     * with this state name.
+     * @param stateName The state.
+     * @return Pointer to the LookupHandler for the named state.
+     */
+    virtual LookupHandler *getLookupHandler(std::string const& stateName) const = 0;
+
+    /**
+     * @brief Return the application's ExecListenerHub.
+     * @return Pointer to the ExecListenerHub.
+     */
+    virtual ExecListenerHub *getListenerHub() const = 0;
+
+    /**
+     * @brief Register the given CommandHandler for this command,
+     *        overriding any previous handler or interface adapter
+     *        registration.
+     * @param cmdName The name of the command to map to this handler.
+     * @param handler Pointer to the CommandHandler instance to
+     *        associate with this command name.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
+     */
+    virtual void registerCommandHandler(std::string const &cmdName,
+                                        CommandHandler *handler) = 0;
+
+    /**
+     * @brief Register the given handler functions for the named
+     * command, overriding any previous handler or interface adapter
+     * registration.
+     * @param cmdName The command name to map to this handler.
+     * @param execCmd The function to call when this command is
+     * executed.
+     * @param abortCmd The function to call when this command is
+     * aborted; defaults to defaultAbortCommandHandler.
+     */
+    virtual void registerCommandHandler(std::string const &cmdName,
+                                        ExecuteCommandHandler execCmd,
+                                        AbortCommandHandler abortCmd = defaultAbortCommandHandler)
+    = 0;
+
+    /**
+     * @brief Register the given CommandHandler instance for all
+     *        CommandNames in the adapter's configuration XML.
+     * @param handler Pointer to the CommandHandler instance.
+     * @param configXml Configuration XML for the interface.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no CommandNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific command names,
+     *       call registerCommandHandler() after calling this member function.
+     */
+    virtual void registerCommonCommandHandler(CommandHandler *handler,
+                                              pugi::xml_node const configXml) = 0;
+
+    /**
      * @brief Register the CommandHandler instance as the default for
      * commands without a specific handler, overriding any previously
      * registered default handler or interface adapter, including the
      * default default handler.
      * @param handler Pointer to the CommandHandler instance.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
     virtual void setDefaultCommandHandler(CommandHandler *handler) = 0;
     
@@ -268,28 +304,40 @@ namespace PLEXIL
                                           AbortCommandHandler abortCmd
                                           = &defaultAbortCommandHandler)
     = 0;
+
+    /**
+     * @brief Return the CommandHandler instance for a command name.
+     * @param cmdName The command name.
+     * @return Pointer to the CommandHandler instance for the named
+     * command.
+     */
+    virtual CommandHandler *getCommandHandler(std::string const& stateName) const = 0;
     
     /**
-     * @brief Register the given handler for planner updates,
-     * overriding any previously registered handlers or interface
-     * adapters.
-     * @param sendPlannerUpdate Pointer to the handler instance for
-     * planner updates.
+     *
+     * @brief Register the given handler function for planner updates,
+     *        overriding any previously registered handlers or interface
+     *        adapters.
+     * @param sendPlannerUpdate Pointer to the handler function for
+     *        planner updates.
      */
     virtual void registerPlannerUpdateHandler(PlannerUpdateFn updateFn) = 0;
 
     /**
-     * @brief Register the given handler for planner updates,
-     * overriding any previously registered handlers or interface
-     * adapters.
+     * @brief Register the given handler instance for planner updates,
+     *        overriding any previously registered handlers or interface
+     *        adapters.
      * @param sendPlannerUpdate Pointer to the handler instance for
-     * planner updates.
+     *        planner updates.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
     virtual void registerPlannerUpdateHandler(PlannerUpdateHandler *updateHandler) = 0;
 
     /**
-     * @brief Return the handler in effect for planner updates.
-     * @return Pointer to the handler.
+     * @brief Get the handler instance for planner updates.
+     * @return Pointer to the handler instance.
      */
     virtual PlannerUpdateHandler *getPlannerUpdateHandler() const = 0;
 
