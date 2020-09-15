@@ -72,7 +72,7 @@ namespace PLEXIL
      * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
      */
-    virtual bool initialize();
+    virtual bool initialize(AdapterConfiguration *config);
 
     /**
      * @brief Starts the adapter, possibly using its configuration data.  
@@ -97,35 +97,6 @@ namespace PLEXIL
      * @return true if successful, false otherwise.
      */
     virtual bool shutdown();
-
-    /**
-     * @brief Perform an immediate lookup of the requested state.
-     * @param state The state for this lookup.
-     * @return The current value of the lookup.
-     */
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
-    static void lookupTime(State const &state, StateCacheEntry &cacheEntry);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @param state The state.
-     */
-    void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
-    void setThresholds(const State& state, double hi, double lo);
-    void setThresholds(const State& state, int32_t hi, int32_t lo);
 
   protected:
 
