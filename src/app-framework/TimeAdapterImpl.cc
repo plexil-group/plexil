@@ -26,7 +26,6 @@
 
 #include "TimeAdapterImpl.hh"
 
-#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -63,12 +62,6 @@
 #include "timeval-utils.hh"
 
 #endif
-
-//
-// TODO
-//  Investigate possibility of race condition around m_nextWakeup
-//
-
 
 namespace PLEXIL
 {
@@ -133,6 +126,9 @@ namespace PLEXIL
 
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr)
     : InterfaceAdapter(mgr),
+#ifdef PLEXIL_WITH_THREADS
+      m_timerMutex(),
+#endif      
       m_nextWakeup(0),
       m_stopping(false)
   {
@@ -141,6 +137,9 @@ namespace PLEXIL
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr,
                                    pugi::xml_node const config)
     : InterfaceAdapter(mgr, config),
+#ifdef PLEXIL_WITH_THREADS
+      m_timerMutex(),
+#endif      
       m_nextWakeup(0),
       m_stopping(false)
   {
@@ -244,12 +243,23 @@ namespace PLEXIL
   {
     debugMsg("TimeAdapter:setThresholds",
              " setting wakeup at " << std::setprecision(15) << date);
-    if (this->setTimer(date)) {
-      m_nextWakeup = date;
-      debugMsg("TimeAdapter:setThresholds",
-               " timer set for " << std::setprecision(15) << date);
+    bool timerSet = false;
+
+    // begin critical section
+    {
+#ifdef PLEXIL_WITH_THREADS    
+      ThreadMutexGuard g(m_timerMutex);
+#endif
+      timerSet = this->setTimer(date);
+      if (timerSet)
+        m_nextWakeup = date;
     }
-    else {
+    // end critical section
+
+    condDebugMsg(timerSet,
+                 "TimeAdapter:setThresholds",
+                 " timer set for " << std::setprecision(15) << date);
+    if (!timerSet) {
       debugMsg("TimeAdapter:setThresholds",
                " notifying Exec for missed wakeup at " << std::setprecision(15) << date);
       timerTimeout();
@@ -325,27 +335,40 @@ namespace PLEXIL
    */
   void TimeAdapterImpl::timerTimeout()
   {
-    double now = getCurrentTime();
-    if (m_nextWakeup) {
-      if (now < m_nextWakeup) {
-        // Alarm went off too early. Hit the snooze button.
-        this->setTimer(m_nextWakeup);
-        debugMsg("TimeAdapter:timerTimeout",
-                 " wakeup at " << std::setprecision(15) << now
-                 << " is early, resetting to " << std::setprecision(15) << m_nextWakeup);
+    double now = 0;
+    double was = 0;
+  
+    // begin critical section
+    {
+#ifdef PLEXIL_WITH_THREADS
+      ThreadMutexGuard g(m_timerMutex);
+#endif
+      was = m_nextWakeup;
+      now = getCurrentTime();
+      if (m_nextWakeup) {
+        if (now < m_nextWakeup) {
+          // Alarm went off too early. Hit the snooze button.
+          this->setTimer(m_nextWakeup);
+        }
+        else {
+          m_nextWakeup = 0;
+        }
       }
-      else {
-        double was = m_nextWakeup;
-        m_nextWakeup = 0;
-        debugMsg("TimeAdapter:timerTimeout",
+    }
+    // end critical section
+    
+    // Report what happened for debugging purposes
+    condDebugMsg(was && now < was,
+                 "TimeAdapter:timerTimeout",
+                 " wakeup at " << std::setprecision(15) << now
+                 << " is early, reset to " << std::setprecision(15) << was);
+    condDebugMsg(was && now >= was,
+                 "TimeAdapter:timerTimeout",
                  " wakeup at " << std::setprecision(15) << now
                  << ", scheduled for " << std::setprecision(15) << was);
-      }
-    }
-    else {
-      debugMsg("TimeAdapter:timerTimeout",
-               " unscheduled wakeup at " << std::setprecision(15) << now);
-    }
+    condDebugMsg(!was,
+                 "TimeAdapter:timerTimeout",
+                 " unscheduled wakeup at " << std::setprecision(15) << now);
 
     // Notify in any case, something might be ready to execute.
     m_execInterface.notifyOfExternalEvent();
