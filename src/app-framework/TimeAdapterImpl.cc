@@ -31,6 +31,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh" // for g_interface
+#include "lookupHandlerDefs.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 #ifdef PLEXIL_WITH_THREADS
@@ -66,6 +67,62 @@
 namespace PLEXIL
 {
 
+  //
+  // Time lookup handler implementation
+  //
+
+  class TimeLookupHandler : public LookupHandler
+  {
+  private:
+
+    TimeAdapterImpl &m_adapter;
+
+  public:
+
+    TimeLookupHandler(TimeAdapterImpl &adapter)
+    : LookupHandler(),
+      m_adapter(adapter)
+    {
+    }
+
+    virtual ~TimeLookupHandler()
+    {
+    }
+
+    virtual void lookupNow(const State & /* state */, StateCacheEntry &cacheEntry)
+    {
+      debugMsg("TimeAdapter:lookupNow", " called");
+      cacheEntry.update(m_adapter.getCurrentTime());
+    }
+
+    virtual void subscribe(const State & /* state */, AdapterExecInterface * /* intf */)
+    {
+      debugMsg("TimeAdapter:subscribe", " called");
+    }
+      
+    virtual void unsubscribe(const State &state)
+    {
+      m_adapter.stopTimer();
+      debugMsg("TimeAdapter:unsubscribe", " complete");
+    }
+
+    virtual void setThresholds(const State & /* state */, double hi, double /* lo */)
+    {
+      debugMsg("TimeAdapter:setThresholds", " setting wakeup at " << std::setprecision(15) << hi);
+      m_adapter.setNextWakeup(hi);
+    }
+
+    virtual void setThresholds(const State &state, int32_t hi, int32_t lo)
+    {
+      // This is an internal error, shouldn't be reachable from a plan
+      errorMsg("TimeAdapter: setThresholds not implemented for Integer thresholds");
+    }
+  };
+
+  //
+  // TimeAdapterImpl
+  //
+
   TimeAdapterImpl::TimeAdapterImpl(AdapterExecInterface &mgr)
     : InterfaceAdapter(mgr),
       m_nextWakeup(0),
@@ -87,19 +144,20 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::initialize()
   {
-    if (!configureSignalHandling()) {
+    if (!this->configureSignalHandling()) {
       debugMsg("TimeAdapter:start", " signal handling initialization failed");
       return false;
     }
 
     // Automatically register self for time
-    g_configuration->registerLookupHandler("time", (new TimeAdapterImpl::TimeLookupHandler(this)));
+    g_configuration->registerLookupHandler("time",
+                                           new TimeLookupHandler(*this));
     return true;
   }
 
   bool TimeAdapterImpl::start()
   {
-    if (!initializeTimer()) {
+    if (!this->initializeTimer()) {
       debugMsg("TimeAdapter:start", " timer initialization failed");
       return false;
     }
@@ -113,7 +171,7 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::stop()
   {
-    if (!stopTimer()) {
+    if (!this->stopTimer()) {
       debugMsg("TimeAdapter:stop", " stopTimer() failed");
     }
 
@@ -136,7 +194,7 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::shutdown()
   {
-    if (!deleteTimer()) {
+    if (!this->deleteTimer()) {
       debugMsg("TimeAdapter:shutdown", " deleteTimer() failed");
       return false;
     }
@@ -146,14 +204,7 @@ namespace PLEXIL
 
   void TimeAdapterImpl::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
-    if (state != State::timeState()) {
-      warn("TimeAdapter does not implement lookups for state " << state);
-      cacheEntry.setUnknown();
-      return;
-    }
-
-    debugMsg("TimeAdapter:lookupNow", " called");
-    cacheEntry.update(getCurrentTime());
+    errorMsg("Internal error: TimeAdapterImpl::lookupNow() called");
   }
 
 
@@ -162,6 +213,7 @@ namespace PLEXIL
    * @return A double representing the current time.
    * @note Default method. May be overridden.
    */
+
   double TimeAdapterImpl::getCurrentTime()
   {
     double tym;
@@ -177,49 +229,50 @@ namespace PLEXIL
     checkInterfaceError(0 == gettimeofday(&tv, NULL),
                         "getCurrentTime: gettimeofday() failed, errno = " << errno);
     tym = timevalToDouble(tv);
+#else
+    // Developer should have implemented this in a derived class
+    reportInterfaceError("TimeAdapterImpl::getCurrentTime not implemented for this platform");
 #endif
 
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
   }
 
-  void TimeAdapterImpl::subscribe(const State& state)
+  void TimeAdapterImpl::subscribe(const State& /* state */)
   {
-    debugMsg("TimeAdapter:subscribe", " called");
+    errorMsg("Internal error: TimeAdapterImpl::subscribe() called");
   }
 
-  void TimeAdapterImpl::unsubscribe(const State& state)
+  void TimeAdapterImpl::unsubscribe(const State& /* state */)
   {
-    stopTimer();
-    debugMsg("TimeAdapter:unsubscribe", " complete");
+    errorMsg("Internal error: TimeAdapterImpl::unsubscribe() called");
   }
 
   void TimeAdapterImpl::setThresholds(const State& state, double hi, double lo)
   {
-    if (state != State::timeState()) {
-      warn("TimeAdapter does not implement lookups for state " << state);
-      return;
-    }
-
-    debugMsg("TimeAdapter:setThresholds", " setting wakeup at " << std::setprecision(15) << hi);
-    if (setTimer(hi)) {
-      m_nextWakeup = hi;
-      debugMsg("TimeAdapter:setThresholds",
-               " timer set for " << std::setprecision(15) << hi);
-    }
-    else {
-      debugMsg("TimeAdapter:setThresholds",
-               " sending wakeup for missed timer at " << std::setprecision(15) << hi);
-      timerTimeout();
-    }
+    errorMsg("Internal error: TimeAdapterImpl::setThresholds() (Real) called");
   }
 
   void TimeAdapterImpl::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
-    // This is an internal error, shouldn't be reachable from a plan
-    errorMsg("setThresholds of integer thresholds not implemented");
+    errorMsg("Internal error: TimeAdapterImpl::setThresholds() (Integer) called");
   }
 
+  void TimeAdapterImpl::setNextWakeup(double date)
+  {
+    debugMsg("TimeAdapter:setThresholds",
+             " setting wakeup at " << std::setprecision(15) << date);
+    if (this->setTimer(date)) {
+      m_nextWakeup = date;
+      debugMsg("TimeAdapter:setThresholds",
+               " timer set for " << std::setprecision(15) << date);
+    }
+    else {
+      debugMsg("TimeAdapter:setThresholds",
+               " notifying Exec for missed wakeup at " << std::setprecision(15) << date);
+      timerTimeout();
+    }
+  }
 
 #ifdef PLEXIL_WITH_THREADS
   /**
@@ -231,6 +284,8 @@ namespace PLEXIL
     assertTrue_2(this_as_void_ptr != NULL,
                  "TimeAdapterImpl::timerWaitThread: argument is null!");
     TimeAdapterImpl* myInstance = reinterpret_cast<TimeAdapterImpl*>(this_as_void_ptr);
+    assertTrue_2(myInstance,
+                 "TimeAdapterImpl::timerWaitThread: argument is not a pointer to a TimeAdapterImpl instance");
     return myInstance->timerWaitThreadImpl();
   }
 
@@ -241,7 +296,7 @@ namespace PLEXIL
   {
     // block most common signals for this thread
     sigset_t threadSigset;
-    if (!configureWaitThreadSigmask(&threadSigset)) {
+    if (!this->configureWaitThreadSigmask(&threadSigset)) {
       warn("TimeAdapter: signal mask initialization failed, unable to start timer thread");
       return (void *) 0;
     }
@@ -253,7 +308,7 @@ namespace PLEXIL
     }
 
     sigset_t waitSigset;
-    if (!initializeSigwaitMask(&waitSigset)) {
+    if (!this->initializeSigwaitMask(&waitSigset)) {
       warn("TimeAdapter: signal mask initialization failed, unable to start timer thread");
       return (void *) 0;
     }
@@ -294,12 +349,13 @@ namespace PLEXIL
       if (now < m_nextWakeup) {
         // Alarm went off too early. Hit the snooze button.
         debugMsg("TimeAdapter:timerTimeout", " early wakeup, resetting");
-        setTimer(m_nextWakeup);
+        this->setTimer(m_nextWakeup);
       }
-      else
+      else {
         m_nextWakeup = 0;
+      }
     }
-    // Notify in any case
+    // Notify in any case, something might be ready to execute.
     m_execInterface.notifyOfExternalEvent();
   }
 
