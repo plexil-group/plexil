@@ -44,24 +44,24 @@ namespace PLEXIL
   // Command implementation functions
   //
 
-  static void utilityPrint1(Command *cmd)
+  static void utilityPrint1(Command *cmd, AdapterExecInterface * /* ignored */)
   {
     print(cmd->getArgValues());
   }
 
-  static void utilityPprint1(Command *cmd)
+  static void utilityPprint1(Command *cmd, AdapterExecInterface * /* ignored */)
   {
     pprint(cmd->getArgValues());
   }    
 
-  static void utilityPrintToString1(Command *cmd)
+  static void utilityPrintToString1(Command *cmd, AdapterExecInterface *intf)
   {
-    g_execInterface->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
+    intf->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
   }
   
-  static void utilityPprintToString1(Command *cmd)
+  static void utilityPprintToString1(Command *cmd, AdapterExecInterface *intf)
   {
-    g_execInterface->handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
+    intf->handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
   }
 
   // Helper class
