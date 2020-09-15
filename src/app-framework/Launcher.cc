@@ -346,16 +346,29 @@ namespace PLEXIL
              pugi::xml_node const xml)
       : InterfaceAdapter(execInterface, xml)
     {
-      g_configuration->addExecListener(new LauncherListener());
     }
 
     ~Launcher()
     {
     }
 
-    bool initialize()
+    bool initialize(AdapterConfiguration *config)
     {
-      registerAdapter();
+      // Register command implementations
+      config->registerCommandHandler(START_PLAN_CMD,
+                                     (ExecuteCommandHandler) &executeStartPlanCommand);
+      config->registerCommandHandler(EXIT_PLAN_CMD,
+                                     (ExecuteCommandHandler) &executeExitPlanCommand);
+
+      // Register our special ExecListener
+      config->addExecListener(new LauncherListener());
+
+      // Register these lookups as telemetry-only
+      LookupHandler *handler = new LookupHandler();
+      config->registerLookupHandler(EXIT_PLAN_CMD, handler);
+      config->registerLookupHandler(PLAN_STATE_STATE, handler);
+      config->registerLookupHandler(PLAN_OUTCOME_STATE, handler);
+      config->registerLookupHandler(PLAN_FAILURE_TYPE_STATE, handler);
       return true;
     }
 
@@ -377,32 +390,6 @@ namespace PLEXIL
     bool shutdown()
     {
       return true;
-    }
-
-    void executeCommand(Command * /* cmd */)
-    {
-      errorMsg("Internal error: Launcher::executeCommand() method executed");
-    }
-
-    void invokeAbort(Command *cmd)
-    {
-      errorMsg("Internal error: Launcher::invokeAbort() method executed");
-    }
-
-  private:
-
-    void registerAdapter()
-    {
-      g_configuration->registerCommandHandler(START_PLAN_CMD,
-                                              (ExecuteCommandHandler) &executeStartPlanCommand);
-      g_configuration->registerCommandHandler(EXIT_PLAN_CMD,
-                                              (ExecuteCommandHandler) &executeExitPlanCommand);
-
-      LookupHandler *handler = new LookupHandler();
-      g_configuration->registerLookupHandler(EXIT_PLAN_CMD, handler);
-      g_configuration->registerLookupHandler(PLAN_STATE_STATE, handler);
-      g_configuration->registerLookupHandler(PLAN_OUTCOME_STATE, handler);
-      g_configuration->registerLookupHandler(PLAN_FAILURE_TYPE_STATE, handler);
     }
   };
   
