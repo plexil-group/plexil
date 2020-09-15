@@ -26,7 +26,6 @@
 
 #include "TimeAdapterImpl.hh"
 
-#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -61,12 +60,6 @@
 #include "timeval-utils.hh"
 
 #endif
-
-//
-// TODO
-//  Investigate possibility of race condition around m_nextWakeup
-//
-
 
 namespace PLEXIL
 {
