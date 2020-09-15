@@ -72,6 +72,7 @@ namespace PLEXIL
   typedef void (*PlannerUpdateFn)(Update *upd, AdapterExecInterface *intf);
 
   // A default function for this purpose
+  // Function is defined in InterfaceManager.cc.
   void defaultPlannerUpdateFn(Update *upd, AdapterExecInterface *intf);
   
 }
