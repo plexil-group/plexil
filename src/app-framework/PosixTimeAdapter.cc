@@ -80,7 +80,7 @@ namespace PLEXIL
      * @note The instance maintains a shared pointer to the XML.
      */
     PosixTimeAdapter(AdapterExecInterface& execInterface, 
-		     pugi::xml_node const xml)
+                     pugi::xml_node const xml)
       : TimeAdapterImpl(execInterface, xml)
     {
     }
@@ -88,7 +88,7 @@ namespace PLEXIL
     /**
      * @brief Destructor.
      */
-    ~PosixTimeAdapter()
+    virtual ~PosixTimeAdapter()
     {
     }
 
@@ -98,7 +98,7 @@ namespace PLEXIL
      * @brief Initialize signal handling for the process.
      * @return True if successful, false otherwise.
      */
-    bool configureSignalHandling()
+    virtual bool configureSignalHandling()
     {
       // Mask SIGUSR1 at the process level
       sigset_t mask;
@@ -123,7 +123,7 @@ namespace PLEXIL
      * @brief Construct and initialize the timer as required.
      * @return True if successful, false otherwise.
      */
-    bool initializeTimer()
+    virtual bool initializeTimer()
     {
       // Initialize sigevent
       m_sigevent.sigev_notify = SIGEV_SIGNAL;
@@ -147,7 +147,7 @@ namespace PLEXIL
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    bool setTimer(double date)
+    virtual bool setTimer(double date)
     {
       // Get the current time
       timespec now;
@@ -162,7 +162,7 @@ namespace PLEXIL
       if (tymrSpec.it_value.tv_nsec < 0 || tymrSpec.it_value.tv_sec < 0) {
         // Already past the scheduled time
         debugMsg("TimeAdapter:setTimer",
-                 " new value " << std::setprecision(15) << date << " is in past, waking up Exec");
+                 " new value " << std::setprecision(15) << date << " is in past");
         return false;
       }
 
@@ -171,26 +171,25 @@ namespace PLEXIL
                                              0, // flags: ~TIMER_ABSTIME
                                              &tymrSpec,
                                              NULL),
-                          "TimeAdapter::setTimer: timer_settime failed, errno = " << errno);
-      debugMsg("TimeAdapter:setTimer",
-               " timer set for " << std::setprecision(15) << date
-               << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);
+                          "PosixTimeAdapter::setTimer: timer_settime failed, errno = " << errno);
       return true;
     }
 
     /**
      * @brief Stop the timer.
      */
-    bool stopTimer()
+    virtual bool stopTimer()
     {
       static itimerspec sl_tymrDisable = {{0, 0}, {0, 0}};
       int status = timer_settime(m_timer,
                                  0,
                                  &sl_tymrDisable,
                                  NULL);
-      if (status) {
-        warn("PosixTimeAdapter: timer_settime failed, errno = " << errno);
-      }
+      condDebugMsg(status != 0,
+                   "PosixTimeAdapter:stopTimer",
+                   " timer_settime() failed, errno = " << errno);
+      condDebugMsg(status == 0,
+                   "TimeAdapter:stopTimer", " succeeded");
       return status == 0;
     }
 
@@ -198,7 +197,7 @@ namespace PLEXIL
      * @brief Shut down and delete the timer as required.
      * @return True if successful, false otherwise.
      */
-    bool deleteTimer()
+    virtual bool deleteTimer()
     {
       int status = timer_delete(m_timer);
       if (status) {
@@ -211,7 +210,7 @@ namespace PLEXIL
      * @brief Initialize the wait thread signal mask.
      * @return True if successful, false otherwise.
      */
-    bool configureWaitThreadSigmask(sigset_t* mask)
+    virtual bool configureWaitThreadSigmask(sigset_t* mask)
     {
       if (sigemptyset(mask)) {
         warn("PosixTimeAdapter: sigemptyset failed!");
@@ -235,7 +234,7 @@ namespace PLEXIL
      * @param Pointer to the mask.
      * @return True if successful, false otherwise.
      */
-    bool initializeSigwaitMask(sigset_t* mask)
+    virtual bool initializeSigwaitMask(sigset_t* mask)
     {
       // listen only for SIGUSR1
       if (sigemptyset(mask)) {
