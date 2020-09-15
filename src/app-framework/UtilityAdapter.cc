@@ -44,55 +44,38 @@ namespace PLEXIL
   // Command implementation functions
   //
 
-  static void utilityPrint1(Command *cmd, AdapterExecInterface * /* ignored */)
+  static void utilityPrint1(Command *cmd, AdapterExecInterface *intf)
   {
     print(cmd->getArgValues());
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
   }
 
-  static void utilityPprint1(Command *cmd, AdapterExecInterface * /* ignored */)
+  static void utilityPprint1(Command *cmd, AdapterExecInterface *intf)
   {
     pprint(cmd->getArgValues());
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
   }    
 
   static void utilityPrintToString1(Command *cmd, AdapterExecInterface *intf)
   {
     intf->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
   }
   
   static void utilityPprintToString1(Command *cmd, AdapterExecInterface *intf)
   {
     intf->handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
   }
-
-  // Helper class
-  class UtilityCommandHandler : public CommandHandler
-  {
-    // Member variable
-    ExecuteCommandHandler m_executeCommandHandler;
-
-  public:
-    UtilityCommandHandler(ExecuteCommandHandler exec)
-      : m_executeCommandHandler(exec)
-    {
-    }
-
-    virtual void executeCommand(Command *cmd, AdapterExecInterface *intf)
-    {
-      (m_executeCommandHandler)(cmd, intf);
-      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
-      intf->notifyOfExternalEvent();
-    }
-
-    void abortCommand(Command *cmd, AdapterExecInterface *intf)
-    {
-      defaultAbortCommandHandler(cmd, intf);
-    }
-  };
 
   class UtilityAdapter : public InterfaceAdapter
   {
-
   public:
+
     UtilityAdapter(AdapterExecInterface &execInterface,
                    pugi::xml_node const configXml)
       : InterfaceAdapter(execInterface, configXml)
@@ -100,16 +83,16 @@ namespace PLEXIL
       debugMsg("UtilityAdapter", " created.");
     }
     
-    virtual bool initialize()
+    virtual bool initialize(AdapterConfiguration *config)
     {
-      g_configuration->registerCommandHandler("print",
-                                              new UtilityCommandHandler((ExecuteCommandHandler) (&utilityPrint1)));
-      g_configuration->registerCommandHandler("pprint",
-                                              new UtilityCommandHandler((ExecuteCommandHandler) (&utilityPprint1)));
-      g_configuration->registerCommandHandler("printToString",
-                                              new UtilityCommandHandler((ExecuteCommandHandler) (&utilityPrintToString1)));
-      g_configuration->registerCommandHandler("pprintToString",
-                                              new UtilityCommandHandler((ExecuteCommandHandler) (&utilityPprintToString1)));
+      config->registerCommandHandler("print",
+                                     (ExecuteCommandHandler) (&utilityPrint1));
+      config->registerCommandHandler("pprint",
+                                     (ExecuteCommandHandler) (&utilityPprint1));
+      config->registerCommandHandler("printToString",
+                                     (ExecuteCommandHandler) (&utilityPrintToString1));
+      config->registerCommandHandler("pprintToString",
+                                     (ExecuteCommandHandler) (&utilityPprintToString1));
 
       debugMsg("UtilityAdapter", " initialized.");
       return true;
