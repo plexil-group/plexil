@@ -651,7 +651,7 @@ namespace PLEXIL {
            success && it != m_adapters.end();
            ++it) {
         InterfaceAdapter *a = *it;
-        success = a->initialize();
+        success = a->initialize(this);
         if (!success) {
           warn("initialize: failed for adapter type \""
                << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
@@ -842,7 +842,7 @@ namespace PLEXIL {
       if (it == m_lookupMap.end()) {
         debugMsg("AdapterConfiguration:registerLookupHandler",
                  " replacing handler for lookup '" << stateName << "'");
-        // FIXME
+        // FIXME!!
         //delete *it;
       }
       m_lookupMap[stateName] = handler;
@@ -920,7 +920,7 @@ namespace PLEXIL {
     virtual void registerCommandHandler(std::string const &stateName,
                                         CommandHandler *handler)
     {
-      assertTrueMsg(handler, "CommandHandler pointer must not be NULL");
+      assertTrueMsg(handler, "registerCommandHandler: CommandHandler pointer must not be NULL");
 
       CommandHandlerMap::iterator it = m_commandMap.find(stateName);
       if (it != m_commandMap.end()) {
@@ -937,8 +937,8 @@ namespace PLEXIL {
                                         ExecuteCommandHandler execCmd,
                                         AbortCommandHandler abortCmd = defaultAbortCommandHandler)
     {
-      assertTrueMsg(execCmd, "Command handler function must not be NULL");
-      assertTrueMsg(abortCmd, "Command abort handler function must not be NULL");
+      assertTrueMsg(execCmd, "registerCommandHandler: Command handler function must not be NULL");
+      assertTrueMsg(abortCmd, "registerCommandHandler: Abort handler function must not be NULL");
 
       registerCommandHandler(stateName,
                              new CommandHandlerWrapper(execCmd, abortCmd));
@@ -1047,7 +1047,7 @@ namespace PLEXIL {
     /* -------------------- Deprecated Interface Methods ------------------- */
     /* --------------------------------------------------------------------- */
 
-    virtual void defaultRegisterAdapter(InterfaceAdapter *adapter) 
+    virtual void defaultRegisterAdapter(InterfaceAdapter *adapter)
     {
       debugMsg("AdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
 
@@ -1074,7 +1074,7 @@ namespace PLEXIL {
           if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
             text = firstChild.value();
           checkError(text && *text != '\0',
-                     "registerAdapter: Invalid configuration XML: "
+                     "defaultRegisterAdapter: Invalid configuration XML: "
                      << InterfaceSchema::COMMAND_NAMES_TAG()
                      << " requires one or more comma-separated command names");
           std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
@@ -1091,7 +1091,7 @@ namespace PLEXIL {
           if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
             text = firstChild.value();
           checkError(text && *text != '\0',
-                     "registerAdapter: Invalid configuration XML: "
+                     "defaultRegisterAdapter: Invalid configuration XML: "
                      << InterfaceSchema::LOOKUP_NAMES_TAG()
                      << " requires one or more comma-separated lookup names");
           std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
