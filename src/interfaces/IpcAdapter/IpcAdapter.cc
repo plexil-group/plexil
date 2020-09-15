@@ -740,16 +740,6 @@ namespace PLEXIL
       intf->handleCommandAbortAck(command, true);
       intf->notifyOfExternalEvent();
     }
-    
-    // Default behavior for command aborts: simply acknowledge the abort.
-
-    void acknowledgeAbort(Command *command, AdapterExecInterface *intf)
-    {
-      debugMsg("IpcAdapter:invokeAbort",
-               "Aborting command " << command->getName() << std::endl);
-      intf->handleCommandAbortAck(command, true);
-      intf->notifyOfExternalEvent();
-    }
 
 
     //
@@ -782,7 +772,7 @@ namespace PLEXIL
       // Default method.
       virtual void abortCommand(Command *cmd, AdapterExecInterface *intf)
       {
-        m_adapter.acknowledgeAbort(cmd, intf);
+        defaultAbortCommandHandler(cmd, intf);
       }
 
     protected:
