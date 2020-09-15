@@ -37,9 +37,12 @@
 #include <signal.h>
 #endif
 
+#ifdef PLEXIL_WITH_THREADS
+#include "ThreadMutex.hh"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#endif
+#endif // HAVE_PTHREAD_H
+#endif // PLEXIL_WITH_THREADS
 
 namespace PLEXIL
 {
@@ -197,6 +200,7 @@ namespace PLEXIL
 
     // Wait thread
     pthread_t m_waitThread;
+    ThreadMutex m_timerMutex;
 #endif
 
     // Next scheduled wakeup
