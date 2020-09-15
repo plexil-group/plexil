@@ -44,6 +44,7 @@ namespace PLEXIL
   class StateCacheEntry;
   class Update;
 
+  class AdapterConfiguration;
   class AdapterExecInterface;
 
   /**
@@ -87,8 +88,19 @@ namespace PLEXIL
     /**
      * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
+     * @note The default method does nothing and returns true.
+     * @deprecated This signature is maintained only for backward compatibility.
      */
-    virtual bool initialize() = 0;
+    virtual bool initialize();
+
+    /**
+     * @brief The adapter should initialize itself and
+     *        register itself with the interface registry.
+     * @return true if successful, false otherwise.
+     * @note Default method simply calls the above member function
+     *       for backward compatibility.
+     */
+    virtual bool initialize(AdapterConfiguration *);
 
     /**
      * @brief Starts the adapter, possibly using its configuration data.  
@@ -172,13 +184,6 @@ namespace PLEXIL
      * @note The default method sends a command abort acknowledge value of true.
      */
     virtual void invokeAbort(Command *cmd);
-
-    /**
-     * @brief Register this adapter's functionality with the adapter registry.
-     * @note The adapter is presumed to be fully initialized and working at the time of this call.
-     * @note This is a default method; adapters are free to override it.
-     */
-    virtual void registerAdapter();
 
     /**
      * @brief Get the configuration XML for this instance.
