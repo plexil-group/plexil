@@ -62,6 +62,12 @@
 
 #endif
 
+//
+// TODO
+//  Investigate possibility of race condition around m_nextWakeup
+//
+
+
 namespace PLEXIL
 {
 
