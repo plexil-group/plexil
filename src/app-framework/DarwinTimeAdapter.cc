@@ -94,7 +94,7 @@ namespace PLEXIL
      * @brief Initialize signal handling for the process.
      * @return True if successful, false otherwise.
      */
-    bool configureSignalHandling()
+    virtual bool configureSignalHandling()
     {
       // block SIGALRM and SIGUSR1 for the process as a whole
       sigset_t processSigset, originalSigset;
@@ -122,7 +122,7 @@ namespace PLEXIL
      * @brief Construct and initialize the timer as required.
      * @return True if successful, false otherwise.
      */
-    bool initializeTimer()
+    virtual bool initializeTimer()
     {
       return true; // nothing to do
     }
@@ -136,14 +136,14 @@ namespace PLEXIL
     // N.B. gettimeofday() on macOS rarely performs an actual syscall:
     // https://stackoverflow.com/questions/40967594/does-gettimeofday-on-macos-use-a-system-call
 
-    bool setTimer(double date)
+    virtual bool setTimer(double date)
     {
       static timeval const sl_timezero = {0, 0};
       struct timeval dateval = doubleToTimeval(date);
 
       struct timeval now;
       checkInterfaceError(0 == gettimeofday(&now, NULL),
-                          "TimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
+                          "DarwinTimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
 
       // Check if we're already past the desired time
       dateval = dateval - now;
@@ -157,10 +157,10 @@ namespace PLEXIL
       // Is timer already set for an earlier time?
       struct itimerval myItimerval = {{0, 0}, {0, 0}};
       checkInterfaceError(0 == getitimer(ITIMER_REAL, &myItimerval),
-                          "TimeAdapter:setTimer: getitimer failed, errno = " << errno);
+                          "DarwinTimeAdapter:setTimer: getitimer failed, errno = " << errno);
       if (timerisset(&myItimerval.it_value)
           && (dateval > myItimerval.it_value)) {
-        debugMsg("TimeAdapter:setTimer",
+        debugMsg("DarwinTimeAdapter:setTimer",
                  " already set for " << std::setprecision(15)
                  << timevalToDouble(now + myItimerval.it_value));
         return true;
@@ -170,9 +170,7 @@ namespace PLEXIL
       myItimerval.it_interval = sl_timezero;
       myItimerval.it_value = dateval;
       checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
-                          "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
-      debugMsg("TimeAdapter:setTimer",
-               " set timer for " << std::setprecision(15) << date);
+                          "DarwinTimeAdapter:setTimer: setitimer failed, errno = " << errno);
       return true;
     }
 
@@ -180,12 +178,12 @@ namespace PLEXIL
      * @brief Stop the timer.
      * @return True if successful, false otherwise.
      */
-    bool stopTimer()
+    virtual bool stopTimer()
     {
       static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
       int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
       condDebugMsg(status != 0,
-                   "TimeAdapter:stopTimer",
+                   "DarwinTimeAdapter:stopTimer",
                    " setitimer() failed, errno = " << errno);
       condDebugMsg(status == 0,
                    "TimeAdapter:stopTimer", " succeeded");
@@ -196,7 +194,7 @@ namespace PLEXIL
      * @brief Shut down and delete the timer as required.
      * @return True if successful, false otherwise.
      */
-    bool deleteTimer()
+    virtual bool deleteTimer()
     {
       return true; // nothing to do
     }
@@ -205,7 +203,7 @@ namespace PLEXIL
      * @brief Initialize the wait thread signal mask.
      * @return True if successful, false otherwise.
      */
-    bool configureWaitThreadSigmask(sigset_t* mask)
+    virtual bool configureWaitThreadSigmask(sigset_t* mask)
     {
       if (0 != sigemptyset(mask)) {
         warn("DarwinTimeAdapter: sigemptyset failed!");
@@ -229,7 +227,7 @@ namespace PLEXIL
      * @param Pointer to the mask.
      * @return True if successful, false otherwise.
      */
-    bool initializeSigwaitMask(sigset_t* mask)
+    virtual bool initializeSigwaitMask(sigset_t* mask)
     {
       // listen for SIGALRM and SIGUSR1
       if (0 != sigemptyset(mask)) {
