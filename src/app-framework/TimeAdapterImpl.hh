@@ -27,7 +27,6 @@
 #ifndef PLEXIL_TIME_ADAPTER_IMPL_HH
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
-#include "lookupHandlerDefs.hh"
 #include "AdapterConfiguration.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
@@ -45,8 +44,15 @@
 namespace PLEXIL
 {
 
+  // Forward reference
+
+  class TimeAdapterImpl;
+  
   class TimeAdapterImpl : public InterfaceAdapter
   {
+    // The lookup handler needs access to some protected member functions
+    friend class TimeLookupHandler;
+
   public:
     TimeAdapterImpl(AdapterExecInterface &);
     TimeAdapterImpl(AdapterExecInterface &,
@@ -124,6 +130,17 @@ namespace PLEXIL
   protected:
 
     //
+    // Generic internal functions which should not need to be overridden.
+    // (Famous last words.)
+    //
+
+    /**
+     * @brief Set a wakeup at the given time.
+     * @param date The Unix-epoch wakeup time, as a double.
+     */
+    void setNextWakeup(double date);
+
+    //
     // Internal functions to be implemented by derived classes
     //
 
@@ -148,14 +165,14 @@ namespace PLEXIL
     virtual bool initializeTimer() = 0;
 
     /**
-     * @brief Set the timer.
+     * @brief Set the timer in an implementation-dependent way.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
     virtual bool setTimer(double date) = 0;
 
     /**
-     * @brief Stop the timer.
+     * @brief Stop the timer in an implementation-dependent way.
      * @return True if successful, false otherwise.
      */
     virtual bool stopTimer() = 0;
@@ -180,44 +197,6 @@ namespace PLEXIL
     virtual bool initializeSigwaitMask(sigset_t* mask) = 0;
 
   private:
-
-    class TimeLookupHandler : public LookupHandler
-    {
-    private:
-
-      InterfaceAdapter* interface;
-
-    public:
-
-      TimeLookupHandler(InterfaceAdapter *intf) : interface(intf)
-      {
-      }
-      
-      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry)
-      {
-        interface->lookupNow(state, cacheEntry);
-      }
-
-      virtual void setThresholds(const State &state, double hi, double lo)
-      {
-        interface->setThresholds(state, hi, lo);
-      }
-
-      virtual void setThresholds(const State &state, int32_t hi, int32_t lo)
-      {
-        interface->setThresholds(state, hi, lo);
-      }
-      
-      virtual void subscribe(const State &state, AdapterExecInterface * /* ignored */)
-      {
-        interface->subscribe(state);
-      }
-
-      virtual void unsubscribe(const State &state)
-      {
-        interface->unsubscribe(state);
-      }
-    };
 
     // Not implemented
     TimeAdapterImpl();
