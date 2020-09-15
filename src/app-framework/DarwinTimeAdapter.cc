@@ -37,6 +37,7 @@
 #include "Debug.hh"
 #include "InterfaceError.hh"
 #include "TimeAdapterImpl.hh"
+#include "timespec-utils.hh"
 #include "timeval-utils.hh"
 
 #include <iomanip>
@@ -48,7 +49,7 @@
 #endif
 
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h> // for gettimeofday, itimerval
+#include <sys/time.h> // for gettimeofday, itimerval, TIMESPEC_TO_TIMEVAL
 #endif
 
 namespace PLEXIL
@@ -131,46 +132,70 @@ namespace PLEXIL
      * @brief Set the timer.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
+     * @note This function is not reentrant! Acquire m_timerMutex before calling.
      */
 
     // N.B. gettimeofday() on macOS rarely performs an actual syscall:
     // https://stackoverflow.com/questions/40967594/does-gettimeofday-on-macos-use-a-system-call
 
+    // N.B. setitimer() wants timevals, and won't let us specify a monotonic clock.
+    // So wing it.
+
     virtual bool setTimer(double date)
     {
-      static timeval const sl_timezero = {0, 0};
-      struct timeval dateval = doubleToTimeval(date);
+      static struct timespec const sl_timezero_ts = {0, 0};
+      struct timespec now_ts;
+      struct itimerval myItimerval;
 
-      struct timeval now;
-      checkInterfaceError(0 == gettimeofday(&now, NULL),
-                          "DarwinTimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
+      checkInterfaceError(!clock_gettime(PLEXIL_CLOCK_GETTIME, &now_ts),
+                          "TimeAdapter:setTimer: clock_gettime() failed, errno = " << errno);
 
       // Check if we're already past the desired time
-      dateval = dateval - now;
-      if (dateval < sl_timezero) {
+      struct timespec interval_ts = doubleToTimespec(date) - now_ts;
+      if (interval_ts < sl_timezero_ts) {
         // Already past the scheduled time, tell caller to submit wakeup
         debugMsg("TimeAdapter:setTimer",
                  " desired time " << std::setprecision(15) << date << " is in the past");
         return false;
       }
 
+      struct timeval interval_tv;
+      TIMESPEC_TO_TIMEVAL(&interval_tv, &interval_ts);
+
       // Is timer already set for an earlier time?
-      struct itimerval myItimerval = {{0, 0}, {0, 0}};
-      checkInterfaceError(0 == getitimer(ITIMER_REAL, &myItimerval),
-                          "DarwinTimeAdapter:setTimer: getitimer failed, errno = " << errno);
+      checkInterfaceError(!getitimer(ITIMER_REAL, &myItimerval),
+                          "TimeAdapter:setTimer: getitimer failed, errno = " << errno);
       if (timerisset(&myItimerval.it_value)
-          && (dateval > myItimerval.it_value)) {
-        debugMsg("DarwinTimeAdapter:setTimer",
-                 " already set for " << std::setprecision(15)
-                 << timevalToDouble(now + myItimerval.it_value));
+          && !(interval_tv < myItimerval.it_value)) {
+        debugStmt("TimeAdapter:setTimer",
+                  {
+                    struct timeval now_tv;
+                    TIMESPEC_TO_TIMEVAL(&now_tv, &now_ts);
+                    debugMsg("TimeAdapter:setTimer",
+                             " already set for " << std::setprecision(15)
+                             << timevalToDouble(now_tv + myItimerval.it_value));
+                  });
         return true;
       }
 
-      // Compute the interval and set the timer
-      myItimerval.it_interval = sl_timezero;
-      myItimerval.it_value = dateval;
+      // Actually set the timer (but clear recurrence interval first)
+      myItimerval.it_interval.tv_sec = 0; 
+      myItimerval.it_interval.tv_usec = 0; 
+      myItimerval.it_value = interval_tv;
       checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
-                          "DarwinTimeAdapter:setTimer: setitimer failed, errno = " << errno);
+                          "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
+
+      // Report time actually given to setitimer
+      debugStmt("TimeAdapter:setTimer",
+                {
+                  struct timeval now_tv;
+                  TIMESPEC_TO_TIMEVAL(&now_tv, &now_ts);
+                  debugMsg("TimeAdapter:setTimer",
+                           " timer set for "
+                           << std::setprecision(15)
+                           << timevalToDouble(now_tv + myItimerval.it_value));
+                });
+
       return true;
     }
 

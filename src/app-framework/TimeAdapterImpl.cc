@@ -222,7 +222,7 @@ namespace PLEXIL
     // Prefer clock_gettime() due to greater precision
 #if defined(HAVE_CLOCK_GETTIME)
     timespec ts;
-    checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &ts),
+    checkInterfaceError(!clock_gettime(PLEXIL_CLOCK_GETTIME, &ts),
                         "getCurrentTime: clock_gettime() failed, errno = " << errno);
     tym = timespecToDouble(ts);
 #elif defined(HAVE_GETTIMEOFDAY)
@@ -256,9 +256,6 @@ namespace PLEXIL
     }
     // end critical section
 
-    condDebugMsg(timerSet,
-                 "TimeAdapter:setThresholds",
-                 " timer set for " << std::setprecision(15) << date);
     if (!timerSet) {
       debugMsg("TimeAdapter:setThresholds",
                " notifying Exec for missed wakeup at " << std::setprecision(15) << date);
