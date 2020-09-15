@@ -160,6 +160,8 @@ namespace PLEXIL
     /**
      * @brief Execute a command with the requested arguments.
      * @param cmd The Command instance.
+     * @note Derived classes may implement this method.
+     * @note The default method sends a command handle value of COMMAND_SENT_TO_SYSTEM.
      */
     virtual void executeCommand(Command *cmd);
 
@@ -167,11 +169,12 @@ namespace PLEXIL
      * @brief Abort the pending command.
      * @param cmd Pointer to the command being aborted.
      * @note Derived classes may implement this method.
+     * @note The default method sends a command abort acknowledge value of true.
      */
     virtual void invokeAbort(Command *cmd);
 
     /**
-     * @brief Register this adapter based on its XML configuration data.
+     * @brief Register this adapter's functionality with the adapter registry.
      * @note The adapter is presumed to be fully initialized and working at the time of this call.
      * @note This is a default method; adapters are free to override it.
      */
