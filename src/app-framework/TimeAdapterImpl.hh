@@ -44,6 +44,18 @@
 #endif // HAVE_PTHREAD_H
 #endif // PLEXIL_WITH_THREADS
 
+// Which clock_gettime setting to use
+
+#if defined(HAVE_CLOCK_GETTIME)
+#if defined(CLOCK_MONOTONIC)
+#define PLEXIL_CLOCK_GETTIME CLOCK_MONOTONIC
+#elif defined(CLOCK_REALTIME)
+#define PLEXIL_CLOCK_GETTIME CLOCK_REALTIME
+#else
+#error "clock_gettime() is defined, but not CLOCK_MONOTONIC or CLOCK_REALTIME"
+#endif // defined(CLOCK_MONOTONIC_
+#endif // defined(HAVE_CLOCK_GETTIME)
+
 namespace PLEXIL
 {
 
