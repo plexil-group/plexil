@@ -150,15 +150,16 @@ namespace PLEXIL
     virtual bool setTimer(double date)
     {
       // Get the current time
-      timespec now;
-      if (0 != clock_gettime(CLOCK_REALTIME, &now)) {
-        warn("PosixTimeAdapter: clock_gettime() failed, errno = " << errno);
-        return false;
-      }
-
-      // Set up a timer to go off at the high time
       itimerspec tymrSpec = {{0, 0}, {0, 0}};
-      tymrSpec.it_value = doubleToTimespec(date) - now;
+      tymrSpec.it_value = doubleToTimespec(date);
+      
+      timespec now;
+      checkInterfaceError(0 == clock_gettime(CLOCK_REALTIME, &now), 
+                          "PosixTimeAdapter::setTimer: clock_gettime() failed, errno = "
+                          << errno);
+
+      // Set up a timer to go off at the given time
+      tymrSpec.it_value -= now;
       if (tymrSpec.it_value.tv_nsec < 0 || tymrSpec.it_value.tv_sec < 0) {
         // Already past the scheduled time
         debugMsg("TimeAdapter:setTimer",
@@ -166,12 +167,17 @@ namespace PLEXIL
         return false;
       }
 
-      tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 0; // no repeats
       checkInterfaceError(0 == timer_settime(m_timer,
                                              0, // flags: ~TIMER_ABSTIME
                                              &tymrSpec,
                                              NULL),
-                          "PosixTimeAdapter::setTimer: timer_settime failed, errno = " << errno);
+                          "PosixTimeAdapter::setTimer: timer_settime failed, errno = "
+                          << errno);
+
+      debugMsg("TimeAdapter:setTimer",
+               " timer set for "
+               << std::setprecision(15) << timespecToDouble(now + tymrSpec.it_value));
+
       return true;
     }
 
