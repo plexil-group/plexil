@@ -413,8 +413,8 @@ namespace PLEXIL
       m_pendingLookupState(),
       m_pendingLookupSerial(0)
     {
-      condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
-      condDebugMsg(xml != NULL, "IpcAdapter:IpcAdapter", " configuration XML = " << xml);
+      condDebugMsg(!xml, "IpcAdapter:IpcAdapter", " configuration XML not provided");
+      condDebugMsg(xml, "IpcAdapter:IpcAdapter", " configuration XML = " << xml);
     }
 
     /**
@@ -429,10 +429,11 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Initializes the adapter, possibly using its configuration data.
+     * @brief Initializes the adapter, and registers it with the interface registry.
      * @return true if successful, false otherwise.
      */
-    bool initialize() {
+    bool initialize(AdapterConfiguration *config)
+    {
       debugMsg("IpcAdapter:initialize", " called");
 
       // Get taskName, serverName from XML, if supplied
@@ -475,18 +476,18 @@ namespace PLEXIL
       // Register specific command handlers
       //
 
-      g_configuration->registerCommandHandler(SEND_MESSAGE_COMMAND(),
-                                              new SendMessageCommandHandler(*this));
-      g_configuration->registerCommandHandler(RECEIVE_MESSAGE_COMMAND(),
-                                              new ReceiveMessageCommandHandler(*this));
-      g_configuration->registerCommandHandler(RECEIVE_COMMAND_COMMAND(),
-                                              new ReceiveCommandCommandHandler(*this));
-      g_configuration->registerCommandHandler(GET_PARAMETER_COMMAND(),
-                                              new GetParameterCommandHandler(*this));
-      g_configuration->registerCommandHandler(SEND_RETURN_VALUE_COMMAND(),
-                                              new SendReturnValueCommandHandler(*this));
-      g_configuration->registerCommandHandler(UPDATE_LOOKUP_COMMAND(),
-                                              new UpdateLookupCommandHandler(*this));
+      config->registerCommandHandler(SEND_MESSAGE_COMMAND(),
+                                     new SendMessageCommandHandler(*this));
+      config->registerCommandHandler(RECEIVE_MESSAGE_COMMAND(),
+                                     new ReceiveMessageCommandHandler(*this));
+      config->registerCommandHandler(RECEIVE_COMMAND_COMMAND(),
+                                     new ReceiveCommandCommandHandler(*this));
+      config->registerCommandHandler(GET_PARAMETER_COMMAND(),
+                                     new GetParameterCommandHandler(*this));
+      config->registerCommandHandler(SEND_RETURN_VALUE_COMMAND(),
+                                     new SendReturnValueCommandHandler(*this));
+      config->registerCommandHandler(UPDATE_LOOKUP_COMMAND(),
+                                     new UpdateLookupCommandHandler(*this));
 
       //
       // Register handler for external (published) lookups
@@ -497,7 +498,7 @@ namespace PLEXIL
         for (std::vector<std::string>::const_iterator it = m_externalLookupNames.begin();
              it != m_externalLookupNames.end();
              ++it) {
-          g_configuration->registerLookupHandler(*it, handler);
+          config->registerLookupHandler(*it, handler);
         }
       }
 
@@ -507,30 +508,30 @@ namespace PLEXIL
 
       if (xml.child(InterfaceSchema::DEFAULT_ADAPTER_TAG())) {
         // Is default adapter
-        g_configuration->setDefaultCommandHandler(new IpcCommandHandler(*this));
-        g_configuration->setDefaultLookupHandler(new IpcLookupHandler(*this));
-        g_configuration->registerPlannerUpdateHandler(new IpcPlannerUpdateHandler(*this));
+        config->setDefaultCommandHandler(new IpcCommandHandler(*this));
+        config->setDefaultLookupHandler(new IpcLookupHandler(*this));
+        config->registerPlannerUpdateHandler(new IpcPlannerUpdateHandler(*this));
       }
       else {
         if (xml.child(InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG())) {
           // Is default command adapter
-          g_configuration->setDefaultCommandHandler(new IpcCommandHandler(*this));
+          config->setDefaultCommandHandler(new IpcCommandHandler(*this));
         }
         else {
-          g_configuration->registerCommonCommandHandler(new IpcCommandHandler(*this), xml);
+          config->registerCommonCommandHandler(new IpcCommandHandler(*this), xml);
         }
 
         if (xml.child(InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG())) {
           // Is default lookup adapter
-          g_configuration->setDefaultLookupHandler(new IpcLookupHandler(*this));
+          config->setDefaultLookupHandler(new IpcLookupHandler(*this));
         }
         else {
-          g_configuration->registerCommonLookupHandler(new IpcLookupHandler(*this), xml);
+          config->registerCommonLookupHandler(new IpcLookupHandler(*this), xml);
         }
 
         if (xml.child(InterfaceSchema::PLANNER_UPDATE_TAG())) {
           // Register planner update handler
-          g_configuration->registerPlannerUpdateHandler(new IpcPlannerUpdateHandler(*this));
+          config->registerPlannerUpdateHandler(new IpcPlannerUpdateHandler(*this));
         }
       }
 
@@ -582,93 +583,11 @@ namespace PLEXIL
       return true;
     }
 
-
-    void lookupNow(const State& state, StateCacheEntry & /* entry */) 
-    {
-      errorMsg("IpcAdapter: internal error: lookupNow() method called for state "
-               << state.name());
-    }
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     * @note Since all telemetry received is sent to the Exec, this is a no-op.
-     */
-
-    void subscribe(const State& state)
-    {
-      errorMsg("IpcAdapter: internal error: subscribe() method called for state "
-               << state.name());
-    }
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @param state The state.
-     * @note Since all telemetry received is sent to the Exec, this is a no-op.
-     */
-
-    void unsubscribe(const State& state)
-    {
-      errorMsg("IpcAdapter: internal error: unsubscribe() method called for state "
-               << state.name());
-    }
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     * @note This is a no-op for IpcAdapter.
-     */
-
-    void setThresholds(const State &state, double /* hi */, double /* lo */)
-    {
-      errorMsg("IpcAdapter: internal error: setThresholds() method called for state "
-               << state.name());
-    }
-
-    void setThresholds(const State &state, int32_t /* hi */, int32_t /* lo */)
-    {
-      errorMsg("IpcAdapter: internal error: setThresholds() method called for state "
-               << state.name());
-    }
-
-    /**
-     * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
-     * @param update The Update object.
-     */
-
-    void sendPlannerUpdate(Update* update)
-    {
-      errorMsg("IpcAdapter: internal error: sendPlannerUpdate() method called");
-    }
-
-    /**
-     * @brief Execute a command with the requested arguments.
-     * @param command The Command object.
-     */
-
-    void executeCommand(Command *command) 
-    {
-      errorMsg("IpcAdapter: internal error: executeCommand() method called for command "
-               << command->getName());
-    }
-
-    /**
-     * @brief Abort the pending command.
-     * @param command The Command object.
-     */
-
-    void invokeAbort(Command *command) {
-      errorMsg("IpcAdapter: internal error: invokeAbort() method called for command "
-               << command->getName());
-    }
+  private:
 
     //
     // Implementation methods
     //
-
-  private:
 
     /**
      * @brief Helper method for converting message names into the proper format given the command type and a user-defined id.
