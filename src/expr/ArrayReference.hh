@@ -30,7 +30,6 @@
 #include "Assignable.hh"
 #include "Expression.hh"
 #include "Propagator.hh"
-#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL {
