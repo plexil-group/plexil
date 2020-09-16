@@ -27,8 +27,6 @@
 #ifndef PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
 #define PLEXIL_RESOURCE_ARBITER_INTERFACE_HH
 
-#include "plexil-stdint.h"
-
 #include <fstream>
 #include <string>
 
