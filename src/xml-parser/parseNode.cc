@@ -27,6 +27,7 @@
 #include "parseNode.hh"
 
 #include "Alias.hh"
+#include "Array.hh"
 #include "ArrayLiteralFactory.hh"
 #include "Assignable.hh"
 #include "AssignmentNode.hh"

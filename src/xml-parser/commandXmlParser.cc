@@ -26,11 +26,10 @@
 
 #include "Assignable.hh"
 #include "Command.hh"
-#include "CommandNode.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "ExpressionFactory.hh"
 #include "ExprVec.hh"
+#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"

@@ -27,7 +27,6 @@
 #ifndef PLEXIL_CREATE_EXPRESSION_HH
 #define PLEXIL_CREATE_EXPRESSION_HH
 
-#include "ParserException.hh"
 #include "ValueType.hh"
 
 namespace pugi

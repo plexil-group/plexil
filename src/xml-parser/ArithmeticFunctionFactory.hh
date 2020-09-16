@@ -28,7 +28,6 @@
 #define PLEXIL_ARITHMETIC_FUNCTION_FACTORY_HH
 
 #include "FunctionFactory.hh"
-#include "ParserException.hh"
 
 namespace PLEXIL
 {

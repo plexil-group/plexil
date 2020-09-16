@@ -29,7 +29,6 @@
 
 #include "plexil-stdint.h"
 
-#include "ParserException.hh"
 #include "ValueType.hh"
 
 #include <map>
