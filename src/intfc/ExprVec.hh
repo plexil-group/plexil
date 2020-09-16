@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,21 @@
 #ifndef PLEXIL_EXPR_VEC_HH
 #define PLEXIL_EXPR_VEC_HH
 
-#include "Expression.hh"
-#include "ValueType.hh"
+#include "plexil-config.h"
 
-#include <vector>
+#include <iosfwd> // std::ostream
+
+#if defined(HAVE_CSTDDEF)
+#include <cstddef>  // size_t
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // size_t
+#endif
 
 namespace PLEXIL
 {
+  class Expression;
   class ExpressionListener;
+  class ListenableUnaryOperator;
 
   /**
    * @class ExprVec

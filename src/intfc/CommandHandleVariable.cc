@@ -28,6 +28,8 @@
 
 #include "Command.hh"
 
+#include <ostream>
+
 #if defined(HAVE_CSTDLIB)
 #include <cstdlib> // free()
 #elif defined(HAVE_STDLIB_H)

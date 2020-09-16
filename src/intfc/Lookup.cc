@@ -26,11 +26,11 @@
 
 #include "Lookup.hh"
 
-#include "ArrayImpl.hh"
+//#include "ArrayImpl.hh"
 #include "CachedValue.hh"
 #include "Debug.hh"
 #include "ExprVec.hh"
-#include "ExternalInterface.hh" // for timestamp access
+//#include "ExternalInterface.hh" // for timestamp access
 #include "PlanError.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
