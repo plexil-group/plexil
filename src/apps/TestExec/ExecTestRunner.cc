@@ -31,12 +31,10 @@
 #include "ExecListenerHub.hh"
 #include "Logging.hh"
 #include "NodeImpl.hh"
-#include "parseNode.hh"
 #include "parsePlan.hh"
 #include "parser-utils.hh"
 #include "planLibrary.hh"
 #include "PlexilExec.hh"
-#include "PlexilSchema.hh"
 #include "TestExternalInterface.hh"
 
 #ifdef HAVE_DEBUG_LISTENER
@@ -48,7 +46,6 @@
 #endif
 
 #include <fstream>
-#include <string>
 
 #if defined(HAVE_CSTRING)
 #include <cstring>
@@ -57,7 +54,6 @@
 #endif
 
 using std::endl;
-using std::set;
 using std::string;
 using std::vector;
 
