@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,6 @@
 #define ServerSocket_class
 
 #include "Socket.h"
-
-#define LISTEN_TREAD_SLEEP 10000
 
 class ServerSocket : public Socket
 {
