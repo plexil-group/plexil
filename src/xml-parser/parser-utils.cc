@@ -26,10 +26,9 @@
 
 #include "parser-utils.hh" // for checkParserExceptionWithLocation macro
 
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "pugixml.hpp"
-
-#include <cctype>
 
 #if defined(HAVE_CSTRING)
 #include <cstring>

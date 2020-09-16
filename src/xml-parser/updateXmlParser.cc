@@ -25,12 +25,10 @@
 */
 
 #include "createExpression.hh"
-#include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "Update.hh"
-#include "UpdateNode.hh"
 
 #include "pugixml.hpp"
 

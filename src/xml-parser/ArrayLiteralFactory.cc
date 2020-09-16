@@ -27,18 +27,10 @@
 #include "ArrayLiteralFactory.hh"
 
 #include "Constant.hh"
-#include "Error.hh"
-#include "NodeConnector.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
-
-#if defined(HAVE_CSTDLIB)
-#include <cstdlib>
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
 
 #if defined(HAVE_CSTRING)
 #include <cstring>

@@ -30,7 +30,6 @@
 #include "LibraryCallNode.hh"
 #include "parseNode.hh"
 #include "parsePlan.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "planLibrary.hh"
 #include "PlexilSchema.hh"

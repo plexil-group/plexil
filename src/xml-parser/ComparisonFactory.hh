@@ -28,7 +28,6 @@
 #define PLEXIL_COMPARISON_FACTORY_HH
 
 #include "FunctionFactory.hh"
-#include "ParserException.hh"
 
 namespace PLEXIL
 {

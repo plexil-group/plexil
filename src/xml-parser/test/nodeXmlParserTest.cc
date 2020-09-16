@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArrayImpl.hh"
 #include "Assignable.hh"
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
@@ -31,6 +32,7 @@
 #include "CommandNode.hh"
 #include "ExpressionFactory.hh"
 #include "parseNode.hh"
+#include "ParserException.hh"
 #include "planLibrary.hh"
 #include "TestSupport.hh"
 #include "Update.hh"

@@ -27,8 +27,8 @@
 #include "ConversionFunctionFactory.hh"
 
 #include "createExpression.hh"
-#include "Error.hh"
-#include "NodeConnector.hh"
+#include "Function.hh"
+#include "ParserException.hh"
 #include "parser-utils.hh"
 
 #include "pugixml.hpp"

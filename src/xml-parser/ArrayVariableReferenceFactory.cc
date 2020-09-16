@@ -27,6 +27,7 @@
 #include "ArrayVariableReferenceFactory.hh"
 
 #include "Error.hh"
+#include "Expression.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
 
