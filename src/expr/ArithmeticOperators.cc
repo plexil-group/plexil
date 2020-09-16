@@ -26,6 +26,7 @@
 
 #include "ArithmeticOperators.hh"
 #include "Function.hh"
+#include "PlanError.hh"
 
 #if defined(HAVE_CMATH)
 #include <cmath>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,8 @@
 #include "ArrayVariable.hh"
 #include "Constant.hh"
 #include "TestSupport.hh"
-#include "test/TrivialListener.hh"
-#include "UserVariable.hh"
 #include "Value.hh"
+#include "test/TrivialListener.hh"
 
 using namespace PLEXIL;
 
