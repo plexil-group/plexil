@@ -30,7 +30,6 @@
 #include "pugixml.hpp"
 
 #include <map>
-#include <string>
 
 namespace PLEXIL
 {
