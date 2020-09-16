@@ -38,12 +38,13 @@
 #include "lookupHandlerDefs.hh"
 #include "plannerUpdateHandlerDefs.hh"
 
-#include "pugixml.hpp"
-
-#include <functional>
 #include <vector>
 
-#include "plexil-stdint.h" // int32_t
+// Forward references
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
