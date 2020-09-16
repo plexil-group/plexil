@@ -27,8 +27,6 @@
 #ifndef NODE_IMPL_HH
 #define NODE_IMPL_HH
 
-#include "plexil-stdint.h"
-
 #include "Node.hh"
 #include "NodeVariables.hh"
 #include "Notifier.hh"
