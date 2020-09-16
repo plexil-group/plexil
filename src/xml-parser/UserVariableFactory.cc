@@ -28,8 +28,8 @@
 
 #include "createExpression.hh"
 #include "Error.hh"
-#include "NodeConnector.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "UserVariable.hh"
 
@@ -100,7 +100,7 @@ namespace PLEXIL
   // N.B. Construction of initializer expression happens later.
 
   Expression *UserVariableFactory::allocate(xml_node const expr,
-                                            NodeConnector *node,
+                                            NodeConnector * /* node */,
                                             bool &wasCreated,
                                             ValueType /* returnType */) const
   {

@@ -25,15 +25,15 @@
 */
 
 #include "Alias.hh"
-#include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
 #include "createExpression.hh"
-#include "Debug.hh"
 #include "Expression.hh"
+#include "ParserException.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"
+#include "Value.hh"
 
 #include "pugixml.hpp"
 

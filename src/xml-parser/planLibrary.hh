@@ -27,8 +27,6 @@
 #ifndef PLEXIL_PLAN_LIBRARY_HH
 #define PLEXIL_PLAN_LIBRARY_HH
 
-#include "ParserException.hh"
-
 #include <vector>
 
 namespace pugi

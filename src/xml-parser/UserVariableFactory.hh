@@ -28,7 +28,6 @@
 #define PLEXIL_USER_VARIABLE_FACTORY_HH
 
 #include "ExpressionFactory.hh"
-#include "ParserException.hh"
 
 namespace PLEXIL
 {
