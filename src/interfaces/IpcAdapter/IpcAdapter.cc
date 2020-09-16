@@ -58,8 +58,6 @@
 
 #define TRANSACTION_ID_SEPARATOR_CHAR ':'
 
-#define TRANSACTION_ID_SEPARATOR_CHAR ':'
-
 namespace PLEXIL 
 {
 
