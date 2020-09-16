@@ -26,23 +26,20 @@
 
 #include "Assignable.hh"
 #include "Debug.hh"
-#include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
 #include "ExternalInterface.hh"
 #include "NodeImpl.hh"
 #include "NodeFactory.hh"
 #include "PlexilExec.hh"
 #include "TestSupport.hh"
 #include "test/TransitionExternalInterface.hh"
-#include "lifecycle-utils.h"
 
 #include <iostream>
-#include <map>
 
-#if defined(HAVE_CMATH)
-#include <cmath>
-#elif defined(HAVE_MATH_H)
-#include <math.h>
-#endif
+// #if defined(HAVE_CMATH)
+// #include <cmath>
+// #elif defined(HAVE_MATH_H)
+// #include <math.h>
+// #endif
 
 using namespace PLEXIL;
 

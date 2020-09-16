@@ -28,15 +28,13 @@
 
 #include "BooleanOperators.hh"
 #include "Command.hh"
-#include "Comparisons.hh"
+#include "Constant.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "ExternalInterface.hh"
 #include "Function.hh"
 #include "NodeFunction.hh"
 #include "NodeOperatorImpl.hh"
-#include "PlexilExec.hh"
 
 namespace PLEXIL
 {

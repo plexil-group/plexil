@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,12 @@
 #ifndef PLEXIL_NODE_HH
 #define PLEXIL_NODE_HH
 
+#include "plexil-stdint.h" // int32_t, also includes plexil-config.h
+
 #include "ExpressionListener.hh"
 #include "NodeConnector.hh"
 #include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
-
-#include "plexil-stdint.h"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
