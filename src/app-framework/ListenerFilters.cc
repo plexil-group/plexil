@@ -29,7 +29,6 @@
 #include "Error.hh" // warn() macro
 #include "ExecListenerFilterFactory.hh"
 #include "InterfaceSchema.hh"
-#include "Node.hh"
 #include "NodeConstants.hh"
 
 #define STATES_TAG "States"
@@ -103,7 +102,7 @@ namespace PLEXIL
     }
 
     // Return true if either the previous or new state is in the filter.
-    bool reportNodeTransition(NodeState prevState, NodeState newState, Node *node)
+    bool reportNodeTransition(NodeState prevState, NodeState newState, Node * /* node */)
     {
       return m_stateEnabled[prevState] || m_stateEnabled[newState];
     }

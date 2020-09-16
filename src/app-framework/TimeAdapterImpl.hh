@@ -27,7 +27,6 @@
 #ifndef PLEXIL_TIME_ADAPTER_IMPL_HH
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
-#include "AdapterConfiguration.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
 
@@ -58,10 +57,8 @@
 
 namespace PLEXIL
 {
-
   // Forward reference
-
-  class TimeAdapterImpl;
+  class AdapterConfiguration;
   
   class TimeAdapterImpl : public InterfaceAdapter
   {

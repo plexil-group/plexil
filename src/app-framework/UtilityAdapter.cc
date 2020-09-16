@@ -35,8 +35,6 @@
 #include "InterfaceAdapter.hh"
 #include "plan-utils.hh"
 
-#include <iostream>
-
 namespace PLEXIL
 {
 

@@ -33,7 +33,6 @@
 #include "DynamicLoader.h"
 #include "Error.hh"
 #include "ExecListenerFactory.hh"
-#include "ExecListenerFilterFactory.hh"
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
@@ -51,6 +50,20 @@
 
 #include "UtilityAdapter.hh"
 
+#ifdef PLEXIL_WITH_UNIX_TIME 
+#include "TimeAdapter.hh"
+#endif
+
+//
+// The reason for all this #ifdef'ery is that when this library is built
+// statically linked, it needs to include the interface modules at link time.
+// When dynamically linked, it doesn't need to pull them in
+// until they're requested, which in most cases will never happen.
+//
+// See the AdapterConfigurationImpl constructor for more information.
+//
+
+#ifndef PIC
 #ifdef HAVE_DEBUG_LISTENER
 #include "PlanDebugListener.hh"
 #endif
@@ -70,10 +83,7 @@
 #ifdef HAVE_UDP_ADAPTER
 #include "UdpAdapter.h"
 #endif
-
-#ifdef PLEXIL_WITH_UNIX_TIME 
-#include "TimeAdapter.hh"
-#endif
+#endif // PIC
 
 #include <map>
 #include <set>
@@ -462,7 +472,7 @@ namespace PLEXIL {
       // The reason for all this #ifdef'ery is that when this library is built
       // statically linked, it needs to include the interface modules at link time.
       // When dynamically linked, it doesn't need to pull them in
-      // until they're requested, which in some cases will never happen.
+      // until they're requested, which in most cases will never happen.
       //
 
 #ifdef HAVE_DEBUG_LISTENER

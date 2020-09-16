@@ -32,7 +32,6 @@
 
 #if defined(HAVE_SETITIMER) && !defined(HAVE_TIMER_CREATE)
 
-#include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Debug.hh"
 #include "InterfaceError.hh"
