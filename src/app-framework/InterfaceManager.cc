@@ -31,8 +31,6 @@
 
 #include "InterfaceManager.hh"
 
-#include <plexil-config.h>
-
 #include "commandHandlerDefs.hh"
 #include "lookupHandlerDefs.hh"
 #include "plannerUpdateHandlerDefs.hh"
@@ -58,7 +56,6 @@
 
 #include <iomanip>
 #include <limits>
-#include <sstream>
 
 #if defined(HAVE_CSTRING)
 #include <cstring>
