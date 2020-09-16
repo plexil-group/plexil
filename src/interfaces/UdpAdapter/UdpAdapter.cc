@@ -31,18 +31,15 @@
 #include "AdapterFactory.hh"    // REGISTER_ADAPTER
 #include "ArrayImpl.hh"
 #include "Command.hh"
-#include "ConstantMacros.hh"
 #include "Debug.hh"             // debugMsg
 #include "Error.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
 #include "MessageQueueMap.hh"
-#include "Node.hh"              // struct PLEXIL::Node
-#include "StateCacheEntry.hh"
+#include "NodeConnector.hh"
 #include "ThreadSpawn.hh"
 #include "udp-utils.hh"
 #include "Update.hh"
-#include "stricmp.h"
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
