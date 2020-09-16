@@ -72,8 +72,40 @@ namespace PLEXIL
   namespace {
 
     //
+    // Constants
+    //
+
+    std::string const COMMAND_PREFIX = "__COMMAND__";
+    std::string const PARAM_PREFIX = "__PARAMETER__";
+    std::string const SERIAL_UID_SEPERATOR = ":";
+
+    std::string const SEND_MESSAGE_COMMAND = "SendMessage";
+    std::string const RECEIVE_MESSAGE_COMMAND = "ReceiveMessage";
+    std::string const RECEIVE_COMMAND_COMMAND = "ReceiveCommand";
+    std::string const GET_PARAMETER_COMMAND = "GetParameter";
+    std::string const SEND_RETURN_VALUE_COMMAND = "SendReturnValue";
+    std::string const UPDATE_LOOKUP_COMMAND = "UpdateLookup";
+
+    //
     // Helper functions
     //
+
+    /**
+     * @brief Convert a message name into the proper format,
+     *        given the command type and a user-defined id.
+     */
+    static std::string formatMessageName(const std::string& name,
+                                         const std::string& command,
+                                         int id = 0)
+    {
+      std::ostringstream ss;
+      if (command == RECEIVE_COMMAND_COMMAND)
+        ss << COMMAND_PREFIX;
+      if (command == GET_PARAMETER_COMMAND)
+        ss << PARAM_PREFIX;
+      ss << name << '_' << id;
+      return ss.str();
+    }
 
     // Helper function used in ParseExternalLookups.
     static Value parseTypedValue(char const *type, pugi::xml_attribute const value)
@@ -193,24 +225,6 @@ namespace PLEXIL
   class IpcAdapter: public InterfaceAdapter
   {
   private:
-
-    //
-    // Static class constants
-    //
-
-    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "__COMMAND__")
-    DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "__MESSAGE__")
-    DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "__LOOKUP__")
-    DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "__LOOKUP_ON_CHANGE__")
-    DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "__PARAMETER__")
-    DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPERATOR, ":")
-
-    DECLARE_STATIC_CLASS_CONST(std::string, SEND_MESSAGE_COMMAND, "SendMessage")
-    DECLARE_STATIC_CLASS_CONST(std::string, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
-    DECLARE_STATIC_CLASS_CONST(std::string, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
-    DECLARE_STATIC_CLASS_CONST(std::string, GET_PARAMETER_COMMAND, "GetParameter")
-    DECLARE_STATIC_CLASS_CONST(std::string, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
-    DECLARE_STATIC_CLASS_CONST(std::string, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
 
     //
     // Private data types
@@ -432,7 +446,7 @@ namespace PLEXIL
      * @brief Initializes the adapter, and registers it with the interface registry.
      * @return true if successful, false otherwise.
      */
-    bool initialize(AdapterConfiguration *config)
+    virtual bool initialize(AdapterConfiguration *config)
     {
       debugMsg("IpcAdapter:initialize", " called");
 
@@ -476,17 +490,17 @@ namespace PLEXIL
       // Register specific command handlers
       //
 
-      config->registerCommandHandler(SEND_MESSAGE_COMMAND(),
+      config->registerCommandHandler(SEND_MESSAGE_COMMAND,
                                      new SendMessageCommandHandler(*this));
-      config->registerCommandHandler(RECEIVE_MESSAGE_COMMAND(),
+      config->registerCommandHandler(RECEIVE_MESSAGE_COMMAND,
                                      new ReceiveMessageCommandHandler(*this));
-      config->registerCommandHandler(RECEIVE_COMMAND_COMMAND(),
+      config->registerCommandHandler(RECEIVE_COMMAND_COMMAND,
                                      new ReceiveCommandCommandHandler(*this));
-      config->registerCommandHandler(GET_PARAMETER_COMMAND(),
+      config->registerCommandHandler(GET_PARAMETER_COMMAND,
                                      new GetParameterCommandHandler(*this));
-      config->registerCommandHandler(SEND_RETURN_VALUE_COMMAND(),
+      config->registerCommandHandler(SEND_RETURN_VALUE_COMMAND,
                                      new SendReturnValueCommandHandler(*this));
-      config->registerCommandHandler(UPDATE_LOOKUP_COMMAND(),
+      config->registerCommandHandler(UPDATE_LOOKUP_COMMAND,
                                      new UpdateLookupCommandHandler(*this));
 
       //
@@ -543,7 +557,7 @@ namespace PLEXIL
      * @brief Starts the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
      */
-    bool start() {
+    virtual bool start() {
       // Spawn listener thread
       assertTrueMsg(m_ipcFacade.start() == IPC_OK,
                     "IpcAdapter: Unable to spawn IPC dispatch thread");
@@ -557,7 +571,7 @@ namespace PLEXIL
      * @brief Stops the adapter.
      * @return true if successful, false otherwise.
      */
-    bool stop() {
+    virtual bool stop() {
       m_ipcFacade.stop();
 
       debugMsg("IpcAdapter:stop", " succeeded");
@@ -565,19 +579,10 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Resets the adapter.
-     * @return true if successful, false otherwise.
-     */
-    bool reset() {
-      // No-op (?)
-      return true;
-    }
-
-    /**
      * @brief Shuts down the adapter, releasing any of its resources.
      * @return true if successful, false otherwise.
      */
-    bool shutdown() {
+    virtual bool shutdown() {
       m_ipcFacade.shutdown();
       debugMsg("IpcAdapter:shutdown", " succeeded");
       return true;
@@ -588,43 +593,6 @@ namespace PLEXIL
     //
     // Implementation methods
     //
-
-    /**
-     * @brief Helper method for converting message names into the proper format given the command type and a user-defined id.
-     */
-    static std::string formatMessageName(const std::string& name,
-                                         const std::string& command,
-                                         int id) 
-    {
-      std::ostringstream ss;
-      if (command == RECEIVE_COMMAND_COMMAND()) {
-        ss << COMMAND_PREFIX() << name;
-      }
-      else if (command == GET_PARAMETER_COMMAND()) {
-        ss << PARAM_PREFIX() << name;
-      }
-      else {
-        ss << name;
-      }
-      ss << '_' << id;
-      return ss.str();
-    }
-
-    /**
-     * @brief Helper function for converting message names into the proper format given the command type.
-     */
-    static std::string formatMessageName(const std::string& name, const std::string& command)
-    {
-      return formatMessageName(name, command, 0);
-    }
-
-    /**
-     * @brief Helper function for converting message names into the proper format given the command type.
-     */
-    static std::string formatMessageName(const char* name, const std::string& command)
-    {
-      return formatMessageName(std::string(name), command, 0);
-    }
 
     //
     // Perform a command abort for a handler.
@@ -834,7 +802,7 @@ namespace PLEXIL
       args.front().getValuePointer(front);
       uint32_t serial;
       //grab serial from parameter
-      std::string::size_type sep_pos = front->find(SERIAL_UID_SEPERATOR(), 1);
+      std::string::size_type sep_pos = front->find(SERIAL_UID_SEPERATOR, 1);
       assertTrueMsg(sep_pos != std::string::npos, "Could not find UID seperator in first parameter of return value");
       std::string const serial_string = front->substr(0, sep_pos);
       serial = atoi(serial_string.c_str());
@@ -937,14 +905,14 @@ namespace PLEXIL
       std::vector<Value> const &args = command->getArgValues();
       // Check for one argument, the message
       assertTrueMsg(args.size() == 1,
-                    "IpcAdapter: The " << RECEIVE_COMMAND_COMMAND().c_str() << " command requires exactly one argument");
+                    "IpcAdapter: The " << RECEIVE_COMMAND_COMMAND << " command requires exactly one argument");
       assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
-                    "IpcAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND()
+                    "IpcAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND
                     << " command, " << args.front()
                     << ", is not a string");
       std::string const *cmdName = NULL;
       args.front().getValuePointer(cmdName);
-      std::string msgName(formatMessageName(*cmdName, RECEIVE_COMMAND_COMMAND()));
+      std::string msgName(formatMessageName(*cmdName, RECEIVE_COMMAND_COMMAND));
       m_messageQueues.addRecipient(msgName, command);
       intf->handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
       intf->notifyOfExternalEvent();
@@ -980,25 +948,25 @@ namespace PLEXIL
       std::vector<Value> const &args = command->getArgValues();
       // Check for one argument, the message
       assertTrueMsg(args.size() == 1 || args.size() == 2,
-                    "IpcAdapter: The " << GET_PARAMETER_COMMAND().c_str() << " command requires either one or two arguments");
+                    "IpcAdapter: The " << GET_PARAMETER_COMMAND << " command requires either one or two arguments");
       assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
-                    "IpcAdapter: The first argument to the " << GET_PARAMETER_COMMAND() << " command, "
+                    "IpcAdapter: The first argument to the " << GET_PARAMETER_COMMAND << " command, "
                     << args.front() << ", is not a string");
       int32_t id;
       if (args.size() == 1)
         id = 0;
       else {
         assertTrueMsg(args[1].isKnown() && args[1].valueType() == INTEGER_TYPE,
-                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND() << " command, " << args[1]
+                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND << " command, " << args[1]
                       << ", is not an Integer");
         args[1].getValue(id);
         assertTrueMsg(id >= 0,
-                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND() << " command, " << args[1]
+                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND << " command, " << args[1]
                       << ", is not a valid index");
       }
       std::string const *cmdName = NULL;
       args.front().getValuePointer(cmdName);
-      std::string msgName(formatMessageName(*cmdName, GET_PARAMETER_COMMAND(), id));
+      std::string msgName(formatMessageName(*cmdName, GET_PARAMETER_COMMAND, id));
       m_messageQueues.addRecipient(msgName, command);
       intf->handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
       intf->notifyOfExternalEvent();
@@ -1035,10 +1003,10 @@ namespace PLEXIL
       std::vector<Value> const &args = command->getArgValues();
       size_t nargs = args.size();
       assertTrueMsg(nargs >= 2,
-                    "IpcAdapter: The " << UPDATE_LOOKUP_COMMAND()
+                    "IpcAdapter: The " << UPDATE_LOOKUP_COMMAND
                     << " command requires at least two arguments");
       assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
-                    "IpcAdapter: The argument to the " << UPDATE_LOOKUP_COMMAND().c_str()
+                    "IpcAdapter: The argument to the " << UPDATE_LOOKUP_COMMAND
                     << " command, " << args.front() << ", is not a string");
       ThreadMutexGuard guard(m_cmdMutex);
 
@@ -1423,15 +1391,15 @@ namespace PLEXIL
       //TODO: support more parameters
       const PlexilStringValueMsg* header = reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
       std::ostringstream uid;
-      uid << ((int) header->header.serial) << SERIAL_UID_SEPERATOR() << header->header.senderUID;
+      uid << ((int) header->header.serial) << SERIAL_UID_SEPERATOR << header->header.senderUID;
       std::string uid_lbl(uid.str());
       debugMsg("IpcAdapter:handleCommandSequence",
                " adding \"" << header->stringValue << "\" to the command queue");
-      const std::string& msg(formatMessageName(header->stringValue, RECEIVE_COMMAND_COMMAND()));
+      const std::string& msg(formatMessageName(header->stringValue, RECEIVE_COMMAND_COMMAND));
       m_messageQueues.addMessage(msg, uid_lbl);
       int i = 0;
       for (std::vector<const PlexilMsgBase*>::const_iterator it = ++msgs.begin(); it != msgs.end(); ++it, ++i) {
-        std::string const paramLbl(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND(), i));
+        std::string const paramLbl(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND, i));
         m_messageQueues.addMessage(paramLbl, getPlexilMsgValue(*it));
       }
     }
