@@ -31,7 +31,6 @@
 #include "AdapterFactory.hh"    // REGISTER_ADAPTER
 #include "ArrayImpl.hh"
 #include "Command.hh"
-#include "ConstantMacros.hh"
 #include "Debug.hh"             // debugMsg
 #include "Error.hh"
 #include "InterfaceAdapter.hh"
