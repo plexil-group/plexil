@@ -26,12 +26,11 @@
 
 #include "TimeAdapterImpl.hh"
 
+#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExternalInterface.hh" // for g_interface
 #include "lookupHandlerDefs.hh"
-#include "State.hh"
 #include "StateCacheEntry.hh"
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadSpawn.hh"

@@ -26,12 +26,9 @@
 
 #include "InterfaceAdapter.hh"
 
-#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
-#include "Command.hh"
 #include "Debug.hh"
-#include "Update.hh"
-#include "StateCacheEntry.hh"
+#include "State.hh" // for operator<<() used in debugMsg
 
 namespace PLEXIL
 {
@@ -97,7 +94,7 @@ namespace PLEXIL
     return true;
   }
 
-  void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry &cacheEntry)
+  void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry & /* cacheEntry */)
   {
     debugMsg("InterfaceAdapter:lookupNow", " default method called for state " << state);
   }

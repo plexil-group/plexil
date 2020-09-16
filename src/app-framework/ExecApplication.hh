@@ -39,10 +39,7 @@
 #endif
 #endif
 
-// STL
-#include <set>
 #include <string>
-#include <vector>
 
 #if defined(HAVE_CSIGNAL)
 #include <csignal>
@@ -61,9 +58,7 @@ namespace pugi
 
 namespace PLEXIL
 {
-
   // forward references
-  class InterfaceAdapter;
   class InterfaceManager;
 
   /**

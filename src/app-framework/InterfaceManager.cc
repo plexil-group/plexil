@@ -41,11 +41,9 @@
 #include "ExecApplication.hh"
 #include "ExecListenerHub.hh"
 #include "InputQueue.hh"
-#include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
 #include "NodeImpl.hh"
 #include "parsePlan.hh"
-#include "parser-utils.hh"
 #include "planLibrary.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
@@ -53,6 +51,8 @@
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
+
+#include "pugixml.hpp"
 
 #include <iomanip>
 #include <limits>

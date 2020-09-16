@@ -29,23 +29,17 @@
 
 #include "pugixml.hpp"
 
-#include <map>
-#include <set>
-#include <vector>
-
 #include "plexil-stdint.h"
 
 namespace PLEXIL
 {
   // forward references 
+  class AdapterConfiguration;
+  class AdapterExecInterface;
   class Command;
-  class Expression;
   class State;
   class StateCacheEntry;
   class Update;
-
-  class AdapterConfiguration;
-  class AdapterExecInterface;
 
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
