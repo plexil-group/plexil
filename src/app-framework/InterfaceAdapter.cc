@@ -25,11 +25,12 @@
 */
 
 #include "InterfaceAdapter.hh"
+
 #include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
-#include "Update.hh"
 #include "Debug.hh"
+#include "Update.hh"
 #include "StateCacheEntry.hh"
 
 namespace PLEXIL
@@ -61,9 +62,11 @@ namespace PLEXIL
   }
 
   //
-  // For backwards compatibility with older API
+  // Default methods for InterfaceManager API
+  // All are no-ops
   //
 
+  // For backwards compatibility with older API
   bool InterfaceAdapter::initialize()
   {
     return true;
@@ -74,10 +77,25 @@ namespace PLEXIL
     return this->initialize();
   }
 
-  //
-  // Default methods for InterfaceManager API
-  // All are no-ops
-  //
+  bool InterfaceAdapter::start()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::stop()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::reset()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::shutdown()
+  {
+    return true;
+  }
 
   void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry &cacheEntry)
   {
