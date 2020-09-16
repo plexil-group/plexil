@@ -36,6 +36,12 @@
 #include <string>
 #include <stack>
 
+#if defined(HAVE_CSTDDEF)
+#include <cstddef> // atexit()
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // atexit()
+#endif
+
 #if defined(HAVE_CSTDLIB)
 #include <cstdlib> // atexit()
 #elif defined(HAVE_STDLIB_H)

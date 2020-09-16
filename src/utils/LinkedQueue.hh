@@ -32,9 +32,9 @@
 #include "Error.hh"
 
 #if defined(HAVE_CSTDDEF)
-#include <cstddef> // size_t
+#include <cstddef> // size_t, NULL
 #elif defined(HAVE_STDDEF_H)
-#include <stddef.h> // size_t
+#include <stddef.h> // size_t, NULL
 #endif
 
 namespace PLEXIL

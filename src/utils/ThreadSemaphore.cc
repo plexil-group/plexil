@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,9 @@
 
 
 #ifdef PLEXIL_USE_MACH_SEMAPHORES
-#include <mach/mach_init.h> // for mach_task_self()
+#include <mach/mach_init.h>   // mach_task_self()
+#include <mach/semaphore.h>   // semaphore_signal(), semaphore_wait(), SYNC_POLICY_FIFO
+#include <mach/task.h>        // semaphore_create(), semaphore_destroy()
 #endif
 
 namespace PLEXIL
