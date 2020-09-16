@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "Comparisons.hh"
 
 #include "Array.hh"
+#include "Error.hh"
 #include "Function.hh"
 #include "PlexilTypeTraits.hh"
 
