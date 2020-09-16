@@ -24,14 +24,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ExecApplication.hh"
-#include "ExternalInterface.hh"
-#include "InterfaceManager.hh"
-#include "InterfaceSchema.hh"
-#include "TimeAdapter.hh"
-#include "AdapterFactory.hh"
 #include "Debug.hh"
-#include "Node.hh"
+#include "ExecApplication.hh"
+#include "ExternalInterface.hh" // g_interface
+#include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
 
 #ifdef HAVE_LUV_LISTENER
@@ -65,7 +61,6 @@ int main_internal(int argc, char** argv)
                     [-c <interface_config_file>] (default ./interface-config.xml)\n\
                     [-d <debug_config_file>]     (default ./Debug.cfg)\n\
                     [+d]                         (disable debug messages)\n");
-  bool luvRequest = false;
 
 #ifdef HAVE_LUV_LISTENER
   std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
@@ -74,6 +69,7 @@ int main_internal(int argc, char** argv)
   usage += "                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
 #endif
 
+  bool luvRequest = false;
   bool debugConfigSupplied = false;
   bool useDebugConfig = true;
   bool resourceFileSupplied = false;
