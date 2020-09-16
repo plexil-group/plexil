@@ -35,6 +35,7 @@
 #include "ExecListenerFactory.hh"
 #include "ExecListenerFilterFactory.hh"
 #include "ExecListenerHub.hh"
+#include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "Launcher.hh"
 #include "ListenerFilters.hh"
@@ -67,7 +68,7 @@
 #endif
 
 #ifdef HAVE_UDP_ADAPTER
-#include "UdpAdapter.hh"
+#include "UdpAdapter.h"
 #endif
 
 #ifdef PLEXIL_WITH_UNIX_TIME 
