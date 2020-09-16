@@ -88,9 +88,6 @@
 #include <map>
 #include <set>
 
-#include <map>
-#include <set>
-
 #if defined(HAVE_CSTRING)
 #include <cstring>
 #elif defined(HAVE_STRING_H)

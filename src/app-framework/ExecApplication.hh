@@ -40,7 +40,6 @@
 #endif
 
 #include <string>
-#include <vector>
 
 #if defined(HAVE_CSIGNAL)
 #include <csignal>

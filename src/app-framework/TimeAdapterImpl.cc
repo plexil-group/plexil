@@ -26,6 +26,7 @@
 
 #include "TimeAdapterImpl.hh"
 
+#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
