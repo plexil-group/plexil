@@ -30,10 +30,9 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerHub.hh"
-#include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
+#include "ParserException.hh"
 #include "PlexilExec.hh"
-#include "PlexilSchema.hh"
 #include "pugixml.hpp"
 
 #if defined(HAVE_CSTRING)

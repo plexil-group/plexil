@@ -28,9 +28,6 @@
 #define PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 
 #include "CommandHandle.hh"
-#include "ParserException.hh"
-
-#include <vector>
 
 // forward reference
 namespace pugi

@@ -37,10 +37,10 @@
 #include "InterfaceAdapter.hh"
 #include "lookupHandlerDefs.hh"
 #include "Node.hh"
+#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilExec.hh" // g_exec
 #include "State.hh"
-#include "StateCacheEntry.hh"
 
 #include <algorithm>
 

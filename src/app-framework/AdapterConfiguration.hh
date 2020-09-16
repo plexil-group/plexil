@@ -54,7 +54,6 @@ namespace PLEXIL
   class ExecListenerHub;
   class InterfaceAdapter;
   class InputQueue;
-  class Update;
 
   //*
   // @class AdapterConfiguration
