@@ -27,6 +27,8 @@
 #ifndef LINKED_QUEUE_HH
 #define LINKED_QUEUE_HH
 
+#include "plexil-config.h"
+
 #include "Error.hh"
 
 #if defined(HAVE_CSTDDEF)

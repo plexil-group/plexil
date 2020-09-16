@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "Error.hh"
 
 #include <bitset>
