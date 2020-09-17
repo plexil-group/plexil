@@ -40,7 +40,7 @@ namespace PLEXIL
   //
 
 #if __cplusplus >= 201103L
-  typedef std::function<void, Update *, AdapterExecInterface *> PlannerUpdateHandlerBase;
+  typedef std::function<void(Update *, AdapterExecInterface *)> PlannerUpdateHandlerBase;
 #else
   typedef std::binary_function<Update *, AdapterExecInterface *, void> PlannerUpdateHandlerBase;
 #endif
