@@ -36,6 +36,8 @@
 // #include "PlanError.hh"
 // #include "PlexilTypeTraits.hh"
 
+#include <ostream>
+
 namespace PLEXIL
 {
   NodeFunction::NodeFunction(NodeOperator const *op, NodeImpl *node)
