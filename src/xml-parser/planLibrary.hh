@@ -27,6 +27,7 @@
 #ifndef PLEXIL_PLAN_LIBRARY_HH
 #define PLEXIL_PLAN_LIBRARY_HH
 
+#include <string>
 #include <vector>
 
 namespace pugi
