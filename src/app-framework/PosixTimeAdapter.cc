@@ -157,6 +157,7 @@ namespace PLEXIL
       itimerspec tymrSpec = {{0, 0}, {0, 0}};
       tymrSpec.it_value = doubleToTimespec(date);
       
+      // Get the current time
       timespec now;
       checkInterfaceError(0 == clock_gettime(PLEXIL_CLOCK_GETTIME, &now), 
                           "TimeAdapter::setTimer: clock_gettime() failed, errno = "
