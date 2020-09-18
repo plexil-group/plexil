@@ -86,7 +86,6 @@
 #endif // PIC
 
 #include <map>
-#include <set>
 
 #if defined(HAVE_CSTRING)
 #include <cstring>
@@ -416,6 +415,7 @@ namespace PLEXIL {
 
     typedef SimpleSet<CommandHandler *> CommandHandlerSet;
     typedef SimpleSet<LookupHandler *> LookupHandlerSet;
+    typedef SimpleSet<InterfaceAdapter *> InterfaceAdapterSet;
 
     //
     // Member variables
@@ -431,7 +431,7 @@ namespace PLEXIL {
     LookupHandlerSet m_lookupHandlers;
     
     //* Set of all known InterfaceAdapter instances
-    std::set<InterfaceAdapter *> m_adapters;
+    InterfaceAdapterSet m_adapters;
 
     //* List of directory names for plan file search paths
     std::vector<std::string> m_planPath;
@@ -443,6 +443,9 @@ namespace PLEXIL {
     CommandHandler *m_defaultCommandHandler;
     LookupHandler *m_defaultLookupHandler;
 
+    //* Dummy handler for telemetry lookups
+    LookupHandler *m_telemetryLookupHandler;
+
     //* Handler to use for Update nodes
     PlannerUpdateHandler *m_plannerUpdateHandler;
 
@@ -452,10 +455,13 @@ namespace PLEXIL {
       : m_listenerHub(new ExecListenerHub()),
         m_defaultCommandHandler(new DefaultCommandHandler()),
         m_defaultLookupHandler(new DefaultLookupHandler()),
+        m_telemetryLookupHandler(NULL),
         m_plannerUpdateHandler(new PlannerUpdateHandlerWrapper(&defaultPlannerUpdateFn))
     {
       m_commandHandlers.insert(m_defaultCommandHandler);
       m_lookupHandlers.insert(m_defaultLookupHandler);
+
+      m_telemetryLookupHandler = m_defaultLookupHandler;
 
       // Every application has access to the utility and launcher adapters
       initUtilityAdapter();
@@ -530,6 +536,10 @@ namespace PLEXIL {
       m_commandMap.clear();
       m_lookupMap.clear();
 
+      m_defaultCommandHandler = NULL;
+      m_defaultLookupHandler = NULL;
+      m_telemetryLookupHandler = NULL;
+
       CommandHandlerSet::iterator csit = m_commandHandlers.begin();
       while (csit != m_commandHandlers.end()) {
         CommandHandler *ch = *csit;
@@ -546,7 +556,7 @@ namespace PLEXIL {
         delete lh;
       }
 
-      std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
+      InterfaceAdapterSet::iterator it = m_adapters.begin();
       while (it != m_adapters.end()) {
         InterfaceAdapter *ia = *it;
         m_adapters.erase(it);
@@ -658,7 +668,7 @@ namespace PLEXIL {
     {
       debugMsg("AdapterConfiguration:initialize", " initializing interface adapters");
       bool success = true;
-      for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
+      for (InterfaceAdapterSet::iterator it = m_adapters.begin();
            success && it != m_adapters.end();
            ++it) {
         InterfaceAdapter *a = *it;
@@ -686,7 +696,7 @@ namespace PLEXIL {
     {
       debugMsg("AdapterConfiguration:start", " starting interface adapters");
       bool success = true;
-      for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
+      for (InterfaceAdapterSet::iterator it = m_adapters.begin();
            success && it != m_adapters.end();
            ++it) {
         success = (*it)->start();
@@ -713,7 +723,7 @@ namespace PLEXIL {
 
       // halt adapters
       bool success = true;
-      for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
+      for (InterfaceAdapterSet::iterator it = m_adapters.begin();
            it != m_adapters.end();
            ++it)
         success = (*it)->stop() && success;
@@ -732,7 +742,7 @@ namespace PLEXIL {
       debugMsg("AdapterConfiguration:reset", " entered");
 
       bool success = true;
-      for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
+      for (InterfaceAdapterSet::iterator it = m_adapters.begin();
            it != m_adapters.end();
            ++it)
         success = (*it)->reset() && success;
@@ -749,7 +759,7 @@ namespace PLEXIL {
       debugMsg("AdapterConfiguration:shutdown", " entered");
 
       bool success = true;
-      for (std::set<InterfaceAdapter *>::iterator it = m_adapters.begin();
+      for (InterfaceAdapterSet::iterator it = m_adapters.begin();
            it != m_adapters.end();
            ++it)
         success = (*it)->shutdown() && success;
@@ -843,19 +853,25 @@ namespace PLEXIL {
 
     virtual void registerTelemetryLookup(std::string const &stateName)
     {
-       registerLookupHandler(stateName, new LookupHandler());
+       registerLookupHandler(stateName, m_telemetryLookupHandler);
     }
 
     virtual void registerLookupHandler(std::string const &stateName, 
                                        LookupHandler *handler)
     {
-      LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
-      if (it == m_lookupMap.end()) {
-        debugMsg("AdapterConfiguration:registerLookupHandler",
-                 " replacing handler for lookup '" << stateName << "'");
-        // FIXME!!
-        //delete *it;
-      }
+      assertTrue_2(handler, "registerLookupHandler: LookupHandler pointer must not be NULL");
+      debugStmt("AdapterConfiguration:registerLookupHandler",
+                {
+                  LookupHandlerMap::iterator it = m_lookupMap.find(stateName);
+                  if (it != m_lookupMap.end()) {
+                    debugMsg("AdapterConfiguration:registerLookupHandler",
+                             " replacing former lookup handler for '" << stateName << "'");
+                  }
+                  else {
+                    debugMsg("AdapterConfiguration:registerLookupHandler",
+                             " registering handler for command '" << stateName << "'");
+                  }
+                });
       m_lookupMap[stateName] = handler;
       m_lookupHandlers.insert(handler);
     }
@@ -878,6 +894,7 @@ namespace PLEXIL {
     virtual void registerCommonLookupHandler(LookupHandler *handler,
                                              pugi::xml_node const configXml)
     {
+      assertTrue_2(handler, "registerCommonLookupHandler: Handler must not be NULL");
       pugi::xml_node lookupNamesElt =
         configXml.child(InterfaceSchema::LOOKUP_NAMES_TAG());
       size_t nLookupNames = 0;
@@ -931,15 +948,19 @@ namespace PLEXIL {
     virtual void registerCommandHandler(std::string const &stateName,
                                         CommandHandler *handler)
     {
-      assertTrueMsg(handler, "registerCommandHandler: CommandHandler pointer must not be NULL");
-
-      CommandHandlerMap::iterator it = m_commandMap.find(stateName);
-      if (it != m_commandMap.end()) {
-        debugMsg("AdapterConfiguration:registerCommandHandler",
-                 " replacing existing handler for command '" << stateName << "'");
-      }
-      debugMsg("AdapterConfiguration:registerCommandHandler",
-               " registering handler for command '" << stateName << "'");
+      assertTrue_2(handler, "registerCommandHandler: CommandHandler pointer must not be NULL");
+      debugStmt("AdapterConfiguration:registerCommandHandler",
+                {
+                  CommandHandlerMap::iterator it = m_commandMap.find(stateName);
+                  if (it != m_commandMap.end()) {
+                    debugMsg("AdapterConfiguration:registerCommandHandler",
+                             " replacing former command handler for '" << stateName << "'");
+                  }
+                  else {
+                    debugMsg("AdapterConfiguration:registerCommandHandler",
+                             " registering handler for command '" << stateName << "'");
+                  }
+                });
       m_commandMap[stateName] = handler;
       m_commandHandlers.insert(handler);
     }
@@ -948,8 +969,8 @@ namespace PLEXIL {
                                         ExecuteCommandHandler execCmd,
                                         AbortCommandHandler abortCmd = defaultAbortCommandHandler)
     {
-      assertTrueMsg(execCmd, "registerCommandHandler: Command handler function must not be NULL");
-      assertTrueMsg(abortCmd, "registerCommandHandler: Abort handler function must not be NULL");
+      assertTrue_2(execCmd, "registerCommandHandler: Command handler function must not be NULL");
+      assertTrue_2(abortCmd, "registerCommandHandler: Abort handler function must not be NULL");
 
       registerCommandHandler(stateName,
                              new CommandHandlerWrapper(execCmd, abortCmd));
@@ -958,6 +979,7 @@ namespace PLEXIL {
     virtual void registerCommonCommandHandler(CommandHandler *handler,
                                               pugi::xml_node const configXml)
     {
+      assertTrue_2(handler, "registerCommonCommandHandler: Handler must not be NULL");
       pugi::xml_node commandNamesElt =
         configXml.child(InterfaceSchema::COMMAND_NAMES_TAG());
       size_t nCommandNames = 0;
@@ -996,13 +1018,13 @@ namespace PLEXIL {
         return (*it).second;
       }
       debugMsg("AdapterConfiguration:getCommandHandler",
-               " using defualt handler for command '" << cmdName << "'");
+               " using default handler for command '" << cmdName << "'");
       return m_defaultCommandHandler;
     }
 
     virtual void setDefaultLookupHandler(LookupHandler *handler)
     {
-      assertTrueMsg(handler, "Default LookupHandler must not be NULL");
+      assertTrue_2(handler, "setDefaultLookupHandler: Handler must not be NULL");
       debugMsg("AdapterConfiguration:setDefaultLookupHandler",
                " replacing default lookup handler");
       m_defaultLookupHandler = handler;
@@ -1024,7 +1046,7 @@ namespace PLEXIL {
 
     virtual void setDefaultCommandHandler(CommandHandler *handler)
     {
-      assertTrueMsg(handler, "Default CommandHandler must not be NULL");
+      assertTrue_2(handler, "Default CommandHandler must not be NULL");
       debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
                " replacing default command handler");
       m_defaultCommandHandler = handler;
@@ -1037,11 +1059,15 @@ namespace PLEXIL {
       setDefaultCommandHandler(new CommandHandlerWrapper(execCmd, abortCmd));
     }
 
-    virtual void registerPlannerUpdateHandler(PlannerUpdateHandler *updateHandler)
+    virtual void registerPlannerUpdateHandler(PlannerUpdateHandler *newHandler)
     {
+      assertTrue_2(newHandler, "Default PlannerUpdateHandler must not be NULL");
       debugMsg("AdapterConfiguration:registerPlannerUpdateHandler",
-                 " replacing existing planner update handler");
-      m_plannerUpdateHandler = updateHandler;
+               " replacing planner update handler");
+
+      PlannerUpdateHandler *oldHandler = m_plannerUpdateHandler;
+      m_plannerUpdateHandler = newHandler;
+      delete oldHandler;
     }
 
     virtual void registerPlannerUpdateHandler(PlannerUpdateFn updateFn)
@@ -1060,6 +1086,8 @@ namespace PLEXIL {
 
     virtual void defaultRegisterAdapter(InterfaceAdapter *adapter)
     {
+      assertTrue_2(adapter, "defaultRegisterAdapter: Adapter must not be NULL");
+
       debugMsg("AdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
 
       // Walk the children of the configuration XML element
@@ -1123,6 +1151,7 @@ namespace PLEXIL {
     virtual bool registerCommandInterface(std::string const &commandName,
                                           InterfaceAdapter *intf)
     {
+      assertTrue_2(intf, "registerCommandInterface: Adapter must not be NULL");
       registerCommandHandler(commandName, new AdapterCommandHandler(intf));
       return true;
     }
@@ -1131,6 +1160,7 @@ namespace PLEXIL {
                                          InterfaceAdapter *intf,
                                          bool telemetryOnly)
     {
+      assertTrue_2(intf, "registerLookupInterface: Adapter must not be NULL");
       if (telemetryOnly) {
         registerTelemetryLookup(stateName);
       }
@@ -1142,6 +1172,7 @@ namespace PLEXIL {
 
     virtual bool setDefaultInterface(InterfaceAdapter *intf)
     {
+      assertTrue_2(intf, "setDefaultInterface: Adapter must not be NULL");
       setDefaultCommandInterface(intf);
       setDefaultLookupInterface(intf);
       registerPlannerUpdateInterface(intf);
@@ -1150,35 +1181,26 @@ namespace PLEXIL {
 
     virtual bool setDefaultLookupInterface(InterfaceAdapter *intf)
     {
+      assertTrue_2(intf, "setDefaultLookupInterface: Adapter must not be NULL")
       setDefaultLookupHandler(new AdapterLookupHandler(intf));
+      m_adapters.insert(intf);
       return true;
     }
 
     virtual bool setDefaultCommandInterface(InterfaceAdapter *intf)
     {
+      assertTrue_2(intf, "setDefaultCommandInterface: Adapter must not be NULL")
       setDefaultCommandHandler(new AdapterCommandHandler(intf));
+      m_adapters.insert(intf);
       return true;
     }
 
     virtual bool registerPlannerUpdateInterface(InterfaceAdapter *intf)
     {
+      assertTrue_2(intf, "registerPlannerHandlerInterface: Adapter must not be NULL")
       registerPlannerUpdateHandler(new AdapterPlannerUpdateHandler(intf));
+      m_adapters.insert(intf);
       return true;
-    }
-
-  private:
-
-    //
-    // Internal member functions
-    // 
-
-    /**
-     * @brief Deletes the given adapter from the interface manager
-     * @return true if the given adapter existed and was deleted. False if not found
-     */
-    bool deleteAdapter(InterfaceAdapter *intf) {
-      int res = m_adapters.erase(intf);
-      return res != 0;
     }
 
   };
