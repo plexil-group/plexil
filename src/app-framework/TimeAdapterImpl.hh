@@ -46,13 +46,13 @@
 // Which clock_gettime setting to use
 
 #if defined(HAVE_CLOCK_GETTIME)
-#if defined(CLOCK_MONOTONIC)
-#define PLEXIL_CLOCK_GETTIME CLOCK_MONOTONIC
-#elif defined(CLOCK_REALTIME)
+#if defined(CLOCK_REALTIME)
 #define PLEXIL_CLOCK_GETTIME CLOCK_REALTIME
+#elif defined(CLOCK_MONOTONIC)
+#define PLEXIL_CLOCK_GETTIME CLOCK_MONOTONIC
 #else
 #error "clock_gettime() is defined, but not CLOCK_MONOTONIC or CLOCK_REALTIME"
-#endif // defined(CLOCK_MONOTONIC_
+#endif // defined(CLOCK_REALTIME)_
 #endif // defined(HAVE_CLOCK_GETTIME)
 
 namespace PLEXIL
