@@ -93,9 +93,6 @@
 #include <string.h>
 #endif
 
-// TODO
-// * Dealing with handler/adapter deletion at destructor time
-
 namespace PLEXIL {
 
   // Construct global variable
@@ -895,6 +892,8 @@ namespace PLEXIL {
                                              pugi::xml_node const configXml)
     {
       assertTrue_2(handler, "registerCommonLookupHandler: Handler must not be NULL");
+      m_lookupHandlers.insert(handler); // ensure it gets cleaned up later
+
       pugi::xml_node lookupNamesElt =
         configXml.child(InterfaceSchema::LOOKUP_NAMES_TAG());
       size_t nLookupNames = 0;
@@ -912,18 +911,27 @@ namespace PLEXIL {
           nLookupNames += lkupNames->size();
           for (std::vector<std::string>::const_iterator it = lkupNames->begin();
                it != lkupNames->end();
-               ++it) {
-            g_configuration->registerLookupHandler(*it, handler);
-          }
+               ++it)
+            m_lookupMap[*it] = handler;
           delete lkupNames;
         }
         lookupNamesElt = lookupNamesElt.next_sibling(InterfaceSchema::LOOKUP_NAMES_TAG());
       }
+    }
 
-      // Delete handler now if unused
-      if (nLookupNames == 0) {
-        delete handler;
-      }
+    virtual void registerCommonLookupHandler(LookupHandler *handler,
+                                             std::vector<std::string> const &names)
+    {
+      assertTrue_2(handler, "registerCommonLookupHandler: Handler must not be NULL");
+      m_lookupHandlers.insert(handler); // ensure it gets cleaned up later
+
+      if (names.empty())
+        return;
+
+      for (std::vector<std::string>::const_iterator nameit = names.begin();
+           nameit != names.end();
+           ++nameit)
+        m_lookupMap[*nameit] = handler;
     }
 
     virtual LookupHandler *getLookupHandler(std::string const &stateName) const
@@ -936,7 +944,7 @@ namespace PLEXIL {
         return (*it).second;
       }
       debugMsg("AdapterConfiguration:getLookupHandler",
-                 " using defualt handler for lookup '" << stateName << "'");
+                 " using default handler for lookup '" << stateName << "'");
       return m_defaultLookupHandler;
     }
 
@@ -980,6 +988,8 @@ namespace PLEXIL {
                                               pugi::xml_node const configXml)
     {
       assertTrue_2(handler, "registerCommonCommandHandler: Handler must not be NULL");
+      m_commandHandlers.insert(handler); // ensure it gets cleaned up later
+
       pugi::xml_node commandNamesElt =
         configXml.child(InterfaceSchema::COMMAND_NAMES_TAG());
       size_t nCommandNames = 0;
@@ -995,17 +1005,26 @@ namespace PLEXIL {
         nCommandNames += cmdNames->size();
         for (std::vector<std::string>::const_iterator it = cmdNames->begin();
              it != cmdNames->end();
-             ++it) {
-          g_configuration->registerCommandHandler(*it, handler);
-        }
+             ++it)
+          m_commandMap[*it] = handler;
         delete cmdNames;
         commandNamesElt = commandNamesElt.next_sibling(InterfaceSchema::COMMAND_NAMES_TAG());
       }
+    }
 
-      // Delete handler now if unused
-      if (nCommandNames == 0) {
-        delete handler;
-      }
+    virtual void registerCommonCommandHandler(CommandHandler *handler,
+                                              std::vector<std::string> const &names)
+    {
+      assertTrue_2(handler, "registerCommonCommandHandler: Handler must not be NULL");
+      m_commandHandlers.insert(handler); // ensure it gets cleaned up later
+
+      if (names.empty())
+        return;
+
+      for (std::vector<std::string>::const_iterator it = names.begin();
+             it != names.end();
+             ++it)
+          m_commandMap[*it] = handler;
     }
 
     virtual CommandHandler *getCommandHandler(std::string const& cmdName) const

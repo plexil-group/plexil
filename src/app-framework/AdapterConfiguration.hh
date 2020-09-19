@@ -186,6 +186,22 @@ namespace PLEXIL
                                              pugi::xml_node const configXml) = 0;
 
     /**
+     * @brief Register the given LookupHandler instance for all LookupNames
+     *        in the adapter's configuration XML.
+     * @param handler Pointer to the LookupHandler instance.
+     * @param names Const reference to a vector of name strings.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no LookupNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific lookup names,
+     *       call registerLookupHandler() after calling this member function.
+     */
+    virtual void registerCommonLookupHandler(LookupHandler *handler,
+                                             std::vector<std::string> const &names) = 0;
+
+    /**
      * @brief Register the given LookupHandler instance as the default
      * for lookups, overriding any previously registered default
      * handler or interface adapter, including the default default
@@ -276,6 +292,22 @@ namespace PLEXIL
      */
     virtual void registerCommonCommandHandler(CommandHandler *handler,
                                               pugi::xml_node const configXml) = 0;
+
+    /**
+     * @brief Register the given CommandHandler instance for all
+     *        CommandNames in the adapter's configuration XML.
+     * @param handler Pointer to the CommandHandler instance.
+     * @param names Const reference to Vector of command name strings.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no CommandNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific command names,
+     *       call registerCommandHandler() after calling this member function.
+     */
+    virtual void registerCommonCommandHandler(CommandHandler *handler,
+                                              std::vector<std::string> const &names) = 0;
 
     /**
      * @brief Register the CommandHandler instance as the default for
