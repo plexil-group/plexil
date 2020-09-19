@@ -36,6 +36,7 @@
 #include "InterfaceAdapter.hh"
 #include "Value.hh"
 
+#include <set>
 
 class SampleAdapter : public PLEXIL::InterfaceAdapter
 {
@@ -43,22 +44,22 @@ public:
 
   SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
 
-  virtual bool initialize();
+  virtual bool initialize(PLEXIL::AdapterConfiguration *config);
   virtual bool start();
   virtual bool stop();
   virtual bool reset();
   virtual bool shutdown();
 
   // Command Handlers
-  static void setSize(PLEXIL::Command *cmd);
-  static void setSpeed(PLEXIL::Command *cmd);
-  static void setColor(PLEXIL::Command *cmd);
-  static void setName(PLEXIL::Command *cmd);
-  static void move(PLEXIL::Command *cmd);
-  static void hello(PLEXIL::Command *cmd);
-  static void square(PLEXIL::Command *cmd);
-  static void cube(PLEXIL::Command *cmd);
-  static void defaultHandler(PLEXIL::Command *cmd);
+  static void setSize(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void setSpeed(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void setColor(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void setName(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void move(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void hello(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void square(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void cube(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
+  static void defaultHandler(PLEXIL::Command *cmd, PLEXIL::AdapterExecInterface *intf);
 
   // Lookup handlers
   static void getSize (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
@@ -68,7 +69,7 @@ public:
   static void getAt (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
   static void getDefault (const PLEXIL::State& state, PLEXIL::StateCacheEntry &entry);
 
-  static void subscribeToState(const PLEXIL::State& state);
+  static void subscribeToState(const PLEXIL::State& state, PLEXIL::AdapterExecInterface *intf);
   static void unsubscribeFromState(const PLEXIL::State& state);
   static void setStateThresholds(const PLEXIL::State& state, double hi, double lo);
   static void setStateThresholds(const PLEXIL::State& state, int32_t hi, int32_t lo);

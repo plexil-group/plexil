@@ -52,7 +52,7 @@ using namespace PLEXIL;
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.
-static string error = "Error in SampleAdaptor: ";
+static string error = "Error in SampleAdapter: ";
 
 // A prettier name for the "unknown" value.
 static Value const Unknown;
@@ -113,40 +113,40 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
   debugMsg("SampleAdapter", " created.");
 }
 
-bool SampleAdapter::initialize()
+bool SampleAdapter::initialize(AdapterConfiguration *config)
 {
   // Register command handlers for each command
-  g_configuration->registerCommandHandler("SetSize", SampleAdapter::setSize);
-  g_configuration->registerCommandHandler("SetSpeed", SampleAdapter::setSpeed);
-  g_configuration->registerCommandHandler("SetColor", SampleAdapter::setColor);
-  g_configuration->registerCommandHandler("SetName", SampleAdapter::setName);
-  g_configuration->registerCommandHandler("Move", SampleAdapter::move);
-  g_configuration->registerCommandHandler("Hello", SampleAdapter::hello);
-  g_configuration->registerCommandHandler("Square", SampleAdapter::square);
-  g_configuration->registerCommandHandler("Cube", SampleAdapter::cube);
+  config->registerCommandHandler("SetSize", SampleAdapter::setSize);
+  config->registerCommandHandler("SetSpeed", SampleAdapter::setSpeed);
+  config->registerCommandHandler("SetColor", SampleAdapter::setColor);
+  config->registerCommandHandler("SetName", SampleAdapter::setName);
+  config->registerCommandHandler("Move", SampleAdapter::move);
+  config->registerCommandHandler("Hello", SampleAdapter::hello);
+  config->registerCommandHandler("Square", SampleAdapter::square);
+  config->registerCommandHandler("Cube", SampleAdapter::cube);
   // Register a default command handler
-  g_configuration->setDefaultCommandHandler(SampleAdapter::defaultHandler);
+  config->setDefaultCommandHandler(SampleAdapter::defaultHandler);
 
   // Register lookup handlers for each state
-  g_configuration->registerLookupHandler("Size", SampleAdapter::getSize, 
-      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds,
-      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState);
-  g_configuration->registerLookupHandler("Color", SampleAdapter::getColor, 
-      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds,
-      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState);
-  g_configuration->registerLookupHandler("Speed", SampleAdapter::getSpeed, 
-      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds,
-      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState);
-  g_configuration->registerLookupHandler("SystemName", SampleAdapter::getSystemName, 
-      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds,
-      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState);
-  g_configuration->registerLookupHandler("at", SampleAdapter::getAt, 
-      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds,
-      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState);
+  config->registerLookupHandler("Size", SampleAdapter::getSize, 
+      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState,
+      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds);
+  config->registerLookupHandler("Color", SampleAdapter::getColor, 
+      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState,
+      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds);
+  config->registerLookupHandler("Speed", SampleAdapter::getSpeed, 
+      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState,
+      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds);
+  config->registerLookupHandler("SystemName", SampleAdapter::getSystemName, 
+      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState,
+      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds);
+  config->registerLookupHandler("at", SampleAdapter::getAt, 
+      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState,
+      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds);
   //Register a default lookup handler
-  g_configuration->setDefaultLookupHandler(SampleAdapter::getDefault, 
-      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds,
-      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState);
+  config->setDefaultLookupHandler(SampleAdapter::getDefault, 
+      SampleAdapter::subscribeToState, SampleAdapter::unsubscribeFromState,
+      SampleAdapter::setStateThresholds, SampleAdapter::setStateThresholds);
 
   setSubscriber(this);
   debugMsg("SampleAdapter", " initialized.");
@@ -178,47 +178,47 @@ bool SampleAdapter::shutdown()
 
 //////////////////////////// Command Handlers /////////////////////////////////
 
-void SampleAdapter::setSize(Command *cmd) {
+void SampleAdapter::setSize(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   double d;
   cmd->getArgValues()[0].getValue(d);
   SampleSystem::getInstance()->setSize (d);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::setSpeed(Command *cmd) {
+void SampleAdapter::setSpeed(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   int32_t i = 0;
   cmd->getArgValues()[0].getValue(i);
     SampleSystem::getInstance()->setSpeed (i);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::setColor(Command *cmd) {
+void SampleAdapter::setColor(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   string s;
   cmd->getArgValues()[0].getValue(s);
     SampleSystem::getInstance()->setColor (s);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::setName(Command *cmd) {
+void SampleAdapter::setName(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   string s;
   cmd->getArgValues()[0].getValue(s);
     SampleSystem::getInstance()->setName (s);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::move(Command *cmd) {
+void SampleAdapter::move(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   string s;
@@ -228,43 +228,43 @@ void SampleAdapter::move(Command *cmd) {
   args[1].getValue(i1);
   args[2].getValue(i2);
   SampleSystem::getInstance()->move (s, i1, i2);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::hello(Command *cmd) {
+void SampleAdapter::hello(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name); 
   SampleSystem::getInstance()->hello ();
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::square(Command *cmd) {
+void SampleAdapter::square(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   int32_t i = 0;
   cmd->getArgValues()[0].getValue(i);
-  g_execInterface->handleCommandReturn(cmd, SampleSystem::getInstance()->square (i));
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandReturn(cmd, SampleSystem::getInstance()->square (i));
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::cube(Command *cmd) {
+void SampleAdapter::cube(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name);
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   int32_t i = 0;
   cmd->getArgValues()[0].getValue(i);
-  g_execInterface->handleCommandReturn(cmd, SampleSystem::getInstance()->cube (i));
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandReturn(cmd, SampleSystem::getInstance()->cube (i));
+  intf->notifyOfExternalEvent();
 }
 
-void SampleAdapter::defaultHandler(Command *cmd) {
+void SampleAdapter::defaultHandler(Command *cmd, AdapterExecInterface *intf) {
   string const &name = cmd->getName();
   cerr << error << "invalid command: " << name << endl;
-  g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  g_execInterface->notifyOfExternalEvent();
+  intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+  intf->notifyOfExternalEvent();
 }
 
 ///////////////////////////// Lookup Handlers /////////////////////////////////
@@ -335,7 +335,7 @@ void SampleAdapter::getDefault (const State& state, StateCacheEntry &entry)
   entry.update(Unknown);
 }
 
-void SampleAdapter::subscribeToState(const State& state)
+void SampleAdapter::subscribeToState(const State& state, AdapterExecInterface * /* ignored */)
 {
   debugMsg("SampleAdapter:subscribe", " processing state " << state.name());
   m_subscribedStates.insert(state);
