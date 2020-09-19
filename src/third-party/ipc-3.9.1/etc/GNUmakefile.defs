@@ -310,9 +310,10 @@ MKDIR           = mkdir -p
 # You can also override the default DEFINES with DEFINES="-DMYDEFINE"
 #
 
-TCL_INC_DIR = /afs/cs/local/tcl/common/beta/include
-TCL_LIB_DIR = /afs/cs/local/tcl/@sys/beta/lib
-TK_LIB_DIR  = /afs/cs/local/tk/@sys/beta/lib
+# This may require tweaking for Darwin
+TCL_INC_DIR ?= /usr/include
+TCL_LIB_DIR ?= /usr/lib
+TK_LIB_DIR  ?= /usr/lib
 
 INC_PATH_OSF1	= -I/usr/local/include
 INC_PATH_Mach	= 
