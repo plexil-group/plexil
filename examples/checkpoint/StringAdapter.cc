@@ -23,6 +23,7 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "StringAdapter.hh"
 
 #include "AdapterConfiguration.hh"
@@ -32,8 +33,10 @@
 #include "Expression.hh"
 #include "StateCacheEntry.hh"
 
-#include <iostream>
 #include <algorithm> //transform
+#include <iostream>
+#include <sstream>
+
 #include <cstdlib> // strtol
 #include <cmath> // HUGE_VAL
 
