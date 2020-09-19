@@ -500,12 +500,8 @@ namespace PLEXIL
       //
 
       if (!m_externalLookupNames.empty()) {
-        LookupHandler *handler = new IpcExternalLookupHandler(*this);
-        for (std::vector<std::string>::const_iterator it = m_externalLookupNames.begin();
-             it != m_externalLookupNames.end();
-             ++it) {
-          config->registerLookupHandler(*it, handler);
-        }
+        config->registerCommonLookupHandler(new IpcExternalLookupHandler(*this),
+                                            m_externalLookupNames);
       }
 
       //
