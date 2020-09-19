@@ -35,6 +35,26 @@ fi
 
 . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
+ROBOSIM_DIR="$PLEXIL_HOME"/examples/robosim/2DRobotSimulator
+ROBOSIM_PROG="$ROBOSIM_DIR"/robotSimulator
+
+usage()
+{
+    echo "Usage: $(basename "$0") [ start | stop | restart ] [ <robotSimulator options> ]"
+    echo ' Script commands:'
+    echo '  start   starts up IPC central and the simulator'
+    echo '  stop    shuts down the simulator and IPC central'
+    echo '  restart shuts down and restarts the simulator (assumes IPC central is running)'
+    echo ' With no script command, simply starts robotSimulator with the specified options.'
+    echo " Execute '$(basename "$0") -h' to get a list of robotSimulator options."
+}
+
+if [ -z "$1" ] || [ '-help' = "$1" ]
+then
+    usage
+    exit 2
+fi
+
 plexil_check_prog()
 {
     if [ ! -e "$1" ]
@@ -45,20 +65,16 @@ plexil_check_prog()
     fi
 }
 
-# FIXME! Get current location
-prog="$PLEXIL_HOME"/bin/robotSimulator
-
-plexil_check_prog "$prog"
+plexil_check_prog "$ROBOSIM_PROG"
 
 # Data files live in this directory
-dir="$PLEXIL_HOME"/examples/robosim/2DRobotSimulator
-cd "$dir"
+cd "$ROBOSIM_DIR"
 
 if [ "$1" = "start" ]; then
     echo "Starting ipc and simulator..."
     ipc -s -u &
     shift
-    "$prog" "$@" &
+    "$ROBOSIM_PROG" "$@" &
     sleep 2    
     echo "Done."
 elif [ "$1" = "stop" ]; then
@@ -70,9 +86,9 @@ elif [ "$1" = "restart" ]; then
     echo "Restarting simulator..."
     pkill robotSimulator
     shift
-    "$prog" "$@" &
+    "$ROBOSIM_PROG" "$@" &
     sleep 2
     echo "Done." 
 else
-    exec "$prog" "$@"
+    exec "$ROBOSIM_PROG" "$@"
 fi

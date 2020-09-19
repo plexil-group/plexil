@@ -252,9 +252,9 @@ void readRobotLocations(const std::string& fName)
 
 int main(int argc, char** argv)
 { 
-  std::string usage("Usage: robotSimulator [-w <window-width>] [-centralhost <host:port>] [-d <debug config file>];\
-  window-width defaults to 1024\
-  host:port defaults to localhost:1381\
+  std::string usage("Usage: robotSimulator [-w <window-width>] [-centralhost <host:port>] [-d <debug config file>]\n\
+  window-width defaults to 1024\n\
+  host:port defaults to localhost:1381\n\
   debug config file defaults to Debug.cfg");
 
   // parse command line parameters
