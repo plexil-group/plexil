@@ -124,17 +124,6 @@ namespace PLEXIL
     void setNextWakeup(double date);
 
     //
-    // Generic internal functions which should not need to be overridden.
-    // (Famous last words.)
-    //
-
-    /**
-     * @brief Set a wakeup at the given time.
-     * @param date The Unix-epoch wakeup time, as a double.
-     */
-    void setNextWakeup(double date);
-
-    //
     // Internal functions to be implemented by derived classes
     //
 
