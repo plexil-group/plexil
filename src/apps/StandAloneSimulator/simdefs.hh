@@ -31,8 +31,8 @@
 #include <map>
 #include <string>
 
-class ResponseMessageManager;
-typedef std::map<const std::string, ResponseMessageManager*> ResponseManagerMap;
+class CommandResponseManager;
+typedef std::map<const std::string, CommandResponseManager*> ResponseManagerMap;
 
 /*
  * @brief Function template to parse one object from an input stream.

@@ -23,18 +23,19 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #ifndef RESPONSE_MESSAGE_HH
 #define RESPONSE_MESSAGE_HH
 
-#include <string>
+#include "plexil-config.h"
+
+#include "Value.hh"
 
 #if defined(HAVE_CSTDDEF)
 #include <cstddef> // NULL
 #elif defined(HAVE_STDDEF_H)
 #include <stddef.h> // NULL
 #endif
-
-class ResponseBase;
 
 /**
  * @brief Enumeration value representing the kind of message.
@@ -49,27 +50,46 @@ enum MsgType
 /**
  * @brief ResponseMessage represents an outgoing message that has been scheduled for output.
  */
-class ResponseMessage
+struct ResponseMessage
 {
-public:
-  ResponseMessage(const ResponseBase* _base,
-		  void* _id = NULL, 
-		  int _type=MSG_COMMAND);
-  virtual ~ResponseMessage();
+  ResponseMessage(std::string const &nam,
+                  PLEXIL::Value const &val,
+                  int typ = MSG_TELEMETRY,
+                  void* id_ = NULL)
+    : name(nam),
+      value(val),
+      id(id_),
+      messageType(typ)
+  {
+  }
 
-  const ResponseBase* getResponseBase() const;
+  virtual ~ResponseMessage()
+  {
+  }
 
-  void* getId() const;
+  void* getId() const
+  {
+    return id;
+  }
 
-  int getMessageType() const;
+  int getMessageType() const
+  {
+    return messageType;
+  }
 
-  const std::string& getName() const;
+  const std::string& getName() const
+  {
+    return name;
+  }
+
+  PLEXIL::Value const &getValue() const
+  {
+    return value;
+  }
 
 private:  
-  // deliberately not implemented
-  ResponseMessage();
-
-  const ResponseBase* base;
+  std::string name;
+  PLEXIL::Value value;
   void* id;
   int messageType;
 };

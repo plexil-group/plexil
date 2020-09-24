@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,49 +23,39 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef RESPONSE_BASE_HH
-#define RESPONSE_BASE_HH
+
+#ifndef STAND_ALONE_SIMULATOR_HH
+#define STAND_ALONE_SIMULATOR_HH
 
 #include "plexil-config.h"
 
-#include <string>
-
-#ifdef HAVE_SYS_TIME_H
+#ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
 #endif
 
-class ResponseMessageManager;
-
 /**
- * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
+ * @class Agenda The schedule of simulator responses to send.
  */
-class ResponseBase
+
+struct ResponseMessage;
+
+class Agenda
 {
 public:
-  ResponseBase();
-  virtual ~ResponseBase();
+  virtual size_t size() const = 0;
+  virtual bool empty() const = 0;
+  virtual void setSimulatorStartTime(timeval const &tym) = 0;
+  virtual timeval nextResponseTime() const = 0;
+  virtual ResponseMessage *getNextResponse(timeval &tym) = 0;
+  virtual void pop() = 0;
+  virtual void scheduleResponse(timeval tym, ResponseMessage *msg) = 0;
 
-  void setManager(ResponseMessageManager* mgr);
-  ResponseMessageManager* getManager() const;
+  virtual ~Agenda()
+  {
+  }
 
-  void notifyMessageSent();
-
-  void setNumberOfResponses(int numOfResp);
-  int getNumberOfResponses() const;
-
-  const timeval& getDelay() const;
-  void setDelay(const timeval& delay);
-
-  const std::string& getName() const;
-
-private:
-  // Deliberately not implemented
-  ResponseBase(const ResponseBase&);
-  ResponseBase& operator=(const ResponseBase&);
-
-  ResponseMessageManager* m_Manager;
-  timeval m_Delay;
-  int m_NumberOfResponses;
 };
 
-#endif // RESPONSE_BASE_HH
+Agenda *makeAgenda();
+
+#endif // STAND_ALONE_SIMULATOR_HH

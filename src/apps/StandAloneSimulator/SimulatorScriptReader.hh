@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,32 @@
 #ifndef SIMULATOR_SCRIPT_READER_HH
 #define SIMULATOR_SCRIPT_READER_HH
 
-#include <string>
 #include "simdefs.hh"
 
-class ResponseFactory;
+class Agenda;
 
 /**
- * @brief SimulatorScriptReader initializes the response managers used by the simulator.
+ * @brief SimulatorScriptReader initializes the response managers and agenda
+ *        used by the simulator.
  */
 
 class SimulatorScriptReader
 {
 public:
-  SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
-  virtual ~SimulatorScriptReader();
+  virtual ~SimulatorScriptReader()
+  {
+  }
 
-  bool readScript(const std::string& fName, bool telemetry=false);
+  virtual bool readScript(const std::string &fName, bool telemetry = false) = 0;
 
-  // Deprecated
-  bool readCommandScript(const std::string& fName);
-  bool readTelemetryScript(const std::string& fName);
+protected:
+  SimulatorScriptReader()
+  {
+  }
 
-private:
-
-  // Deliberately not implemented
-  SimulatorScriptReader();
-  SimulatorScriptReader(const SimulatorScriptReader&);
-  SimulatorScriptReader& operator=(const SimulatorScriptReader&);
-
-  //
-  // Helpers
-  //
-  ResponseMessageManager* ensureResponseMessageManager(const std::string& name,
-						       bool telemetry);
-  virtual ResponseMessageManager* constructResponseMessageManager(const std::string& name,
-								  bool telemetry);
-
-  ResponseManagerMap& m_map;
-  ResponseFactory& m_factory;
 };
 
+SimulatorScriptReader *makeScriptReader(ResponseManagerMap *map,
+                                        Agenda *agenda);
 
 #endif // SIMULATOR_SCRIPT_READER_HH
