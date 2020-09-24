@@ -56,7 +56,6 @@ public:
   virtual void lookupNow (PLEXIL::State const &state, PLEXIL::StateCacheEntry &cacheEntry);
   virtual void executeCommand(PLEXIL::Command *cmd);
 
-
 private:
   // Disallow default constructor, copy, assign
   StringAdapter();

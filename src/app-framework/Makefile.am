@@ -51,17 +51,21 @@ if VIEWER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I$(top_srcdir)/interfaces/LuvListener
 endif
 
+# Headers that need to be seen by interface developers
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
- AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListener.hh \
- ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
- PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh UtilityAdapter.hh
+ AdapterFactory.hh ExecApplication.hh ExecListener.hh ExecListenerFactory.hh \
+ ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
+ InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
+ PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh
+
+# Headers of internal interest only
+noinst_HEADERS = DummyAdapter.hh Launcher.hh UtilityAdapter.hh
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
  AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc ExecApplication.cc \
  ExecListener.cc ExecListenerFactory.cc ExecListenerFilter.cc \
  ExecListenerFilterFactory.cc ExecListenerHub.cc InterfaceAdapter.cc \
- InterfaceManager.cc ListenerFilters.cc SerializedInputQueue.cc \
+ InterfaceManager.cc Launcher.cc ListenerFilters.cc SerializedInputQueue.cc \
  SimpleInputQueue.cc UtilityAdapter.cc
 
 if UNIX_TIME_OPT

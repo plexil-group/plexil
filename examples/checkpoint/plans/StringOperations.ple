@@ -80,12 +80,12 @@ StringOperations:{
   SynchronousCommand a = strupr(d);
   pprint("Uppercase: ",a);
 
-  pprint("Iterating over elements of 'Hello World' with '000'");
+  pprint("Iterating over elements of 'Hello World'");
   for(Integer i = 0; i<strlen(d); i+1){
     SynchronousCommand a = strindex(d,i);
     pprint(a);
   }
-  pprint("Replacing elements of 'Hello World'");
+  pprint("Replacing elements of 'Hello World' with '000'");
   for(Integer i = 0; i<strlen(d); i+1){
     SynchronousCommand a = strindex(d,i,"000");
     pprint(a);

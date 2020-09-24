@@ -19,6 +19,7 @@ and the other for persistent plans. All files other than StringAdapter.hh and
 StringAdapter.cc are used for the CheckpointAdapter.
 
 StringAdapter contains a number of useful string manipulation functions.
+These are available as Lookups or Commands.
 
 
 CheckpointAdapter allows writing persistent checkpoints such that following
@@ -34,14 +35,14 @@ are available, as is an IsOk variable which is (optionally) set to true on a saf
 interface-configuration.xml contains configuration details for the checkpoint adapter.
 SaveConfiguration-Directory: The directory in which saves (in the form x_save.xml or x_save.part)
 			     are saved.
-			     Default "./"
+			     Default "./saves"
 
 
-AdapterConfiguration-OKOnExit: Whether IsOK is set to true when the executive exits normally.
+AdapterConfiguration-OKOnExit: Whether IsBootOK is set to true when the executive exits normally.
 			       It is not recommended to set this without also setting FlushOnExit.
 			       Default "true"
 			       
-AdapterConfigurationn-FlushOnExit: Whether checkpoint data/IsOK/last_save_time is flushed
+AdapterConfigurationn-FlushOnExit: Whether checkpoint data/IsBootOK/last_save_time is flushed
 				   to disk on exit.
 			       	   Default "true"
 				   
@@ -60,5 +61,6 @@ To fully test PanoramaCrashTest, run it four times. The first two will crash,
 and the second two will succeed, and each time, new checkpoints will be passed.
 
 StringOperations exercises the StringAdapter and demonstrates its functionality.
+StringOperationsLookup does the same with lookups.
 
 The adapters will be moved to more appropriate locations in a later version.

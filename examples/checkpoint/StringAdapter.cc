@@ -34,6 +34,8 @@
 
 #include <iostream>
 #include <algorithm> //transform
+#include <cstdlib> // strtol
+#include <cmath> // HUGE_VAL
 
 
 using namespace PLEXIL;
@@ -53,93 +55,36 @@ static string error = "Error in StringAdapter: ";
 // A prettier name for the "unknown" value.
 static Value Unknown;
 
+inline bool isInteger(const std::string & s)
+{
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
 
+   char * p;
+   strtol(s.c_str(), &p, 10);
+
+   return (*p == 0);
+}
+
+bool isDouble(const std::string& s)
+{
+    char* end = 0;
+    double val = strtod(s.c_str(), &end);
+    return end != s.c_str() && *end == '\0' && val != HUGE_VAL;
+}
 ///////////////////////////// State support //////////////////////////////////
 
 // Queries the system for the value of a state and its arguments.
-// No Lookups are supported
-static Value fetch (const string& state_name, const vector<Value>& args)
-{
-  debugMsg("StringAdapter:fetch",
-           "Fetch called on " << state_name << " with " << args.size() << " args");
-  return Unknown;
-}
-
-
-
-///////////////////////////// Member functions //////////////////////////////////
-
-
-StringAdapter::StringAdapter(AdapterExecInterface& execInterface,
-                             const pugi::xml_node& configXml) :
-    InterfaceAdapter(execInterface, configXml)
-{
-  debugMsg("StringAdapter", " created.");
-}
-
-bool StringAdapter::initialize()
-{
-  g_configuration->defaultRegisterAdapter(this);
-
-  g_configuration->registerCommandInterface("ToString", this);
-  g_configuration->registerCommandInterface("StringToInteger", this);
-  g_configuration->registerCommandInterface("StringToReal", this);
-  g_configuration->registerCommandInterface("StringToBoolean", this);
-  
-  g_configuration->registerCommandInterface("substr", this);
-  g_configuration->registerCommandInterface("strlwr", this);
-  g_configuration->registerCommandInterface("strupr", this);
-  g_configuration->registerCommandInterface("strindex", this);
-  g_configuration->registerCommandInterface("find_first_of", this);
-  g_configuration->registerCommandInterface("find_last_of", this);
-  
-  debugMsg("StringAdapter", " initialized.");
-  return true;
-}
-
-bool StringAdapter::start()
-{
-  debugMsg("StringAdapter", " started.");
-  return true;
-}
-
-bool StringAdapter::stop()
-{
-  debugMsg("StringAdapter", " stopped.");
-  return true;
-}
-
-bool StringAdapter::reset()
-{
-  debugMsg("StringAdapter", " reset.");
-  return true;
-}
-
-bool StringAdapter::shutdown()
-{
-  debugMsg("StringAdapter", " shut down.");
-  return true;
-}
-
-
-// Sends a command (as invoked in a Plexil command node) to the system and sends
-// the status, and return value if applicable, back to the executive.
 //
-void StringAdapter::executeCommand(Command *cmd)
-{
-  const string &name = cmd->getName();
-  debugMsg("StringAdapter", "Received executeCommand for " << name);  
-
-  
+static Value fetch (const string& name, const vector<Value>& args){
+  debugMsg("CheckpointAdapter:fetch",
+           "Fetch called on " << name << " with " << args.size() << " args");
+ 
   Value retval = Unknown;
-  const vector<Value>& args = cmd->getArgValues();
 
-
-  // NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
+// NOTE: many of these are restricted to <2GB strings which really shouldn't be an issue
   if (name == "ToString"){
     if(args.size()==0){
-      retval = Unknown;
-      cerr<<"Invalid number of arguments to "<<name<<endl;
+      retval = "";
     }
     else if (args.size()==1){
       retval = args[0].valueToString();
@@ -157,6 +102,10 @@ void StringAdapter::executeCommand(Command *cmd)
       retval = Unknown;
       cerr<<"Invalid number of arguments to "<<name<<endl;
     }
+    if(!isInteger(args[0].valueToString())){
+      retval = Unknown;
+      cerr<<"Non-integer string passed to "<<name<<endl;
+    }
     else{
       int32_t i;
       std::istringstream(args[0].valueToString()) >> i; // Streams string to integer
@@ -168,6 +117,10 @@ void StringAdapter::executeCommand(Command *cmd)
     if(args.size()!=1){
       retval = Unknown;
       cerr<<"Invalid number of arguments to "<<name<<endl;
+    }
+    if(!isDouble(args[0].valueToString())){
+      retval = Unknown;
+      cerr<<"Non-double string passed to "<<name<<endl;
     }
     else{
       double d;
@@ -183,35 +136,38 @@ void StringAdapter::executeCommand(Command *cmd)
     else{
       string data = args[0].valueToString();
       std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-      std::istringstream is(data);
-      // Allows us to look for 1 or true, all other values return false
-      bool b;
-      bool b2;
-      is >> std::boolalpha >> b;
-      is.clear();
-      is >> std::noboolalpha >> b2;
-      retval = b||b2;
+      // True
+      if(0==data.compare("true") || 0==data.compare("1")) retval = true;
+      // False
+      else if(0==data.compare("false") || 0==data.compare("0")) retval = false;
+      // Invalid
+      else{
+        retval = Unknown;
+        cerr<<"Non-boolean string passed to "<<name<<endl;
+      }
     }
   }
   else if (name == "substr"){
     string data = args[0].valueToString();
     if(args.size()==1){
-      retval = data.substr();
+      retval = data;
     }
-    if(args.size()==2){
+    else if(args.size()==2){
       int32_t pos;
       args[1].getValue(pos);
-      retval = data.substr(pos);
+      if(pos<0) retval = Unknown;
+      else      retval = data.substr(pos);
     }
-    if(args.size()==3){
+    else if(args.size()==3){
       int32_t pos;
       int32_t len;
       args[1].getValue(pos);
       args[2].getValue(len);
-      retval = data.substr(pos,len);
+      if(pos<0 || len<0) retval = Unknown;
+      else               retval = data.substr(pos,len);
     }
     else{
-      cerr<<"Invalid number of arguments to "<<name<<endl;
+      cerr<<"Invalid number of arguments to "<<name<<", expected 1-3, got "<<args.size()<<endl;
       retval = Unknown;
     }
   }
@@ -291,7 +247,7 @@ void StringAdapter::executeCommand(Command *cmd)
     else{
       string data = args[0].valueToString();
       string toSearchFor = args[1].valueToString();
-      int pos = 0;
+      int pos = data.length();
       if(args.size()==3){
 	args[2].getValue(pos);
       }
@@ -302,6 +258,99 @@ void StringAdapter::executeCommand(Command *cmd)
   else{ 
     cerr << error << "invalid command: " << name << endl;
   }
+  debugMsg("StringAdapter:fetch", "Fetch returning " << retval);
+  return retval;
+}
+
+
+///////////////////////////// Member functions //////////////////////////////////
+
+
+StringAdapter::StringAdapter(AdapterExecInterface& execInterface,
+                             const pugi::xml_node& configXml) :
+    InterfaceAdapter(execInterface, configXml)
+{
+  debugMsg("StringAdapter", " created.");
+}
+
+bool StringAdapter::initialize()
+{
+  g_configuration->defaultRegisterAdapter(this);
+
+  g_configuration->registerCommandInterface("ToString", this);
+  g_configuration->registerCommandInterface("StringToInteger", this);
+  g_configuration->registerCommandInterface("StringToReal", this);
+  g_configuration->registerCommandInterface("StringToBoolean", this);
+  
+  g_configuration->registerCommandInterface("substr", this);
+  g_configuration->registerCommandInterface("strlwr", this);
+  g_configuration->registerCommandInterface("strupr", this);
+  g_configuration->registerCommandInterface("strindex", this);
+  g_configuration->registerCommandInterface("find_first_of", this);
+  g_configuration->registerCommandInterface("find_last_of", this);
+
+
+  g_configuration->registerLookupInterface("ToString", this);
+  g_configuration->registerLookupInterface("StringToInteger", this);
+  g_configuration->registerLookupInterface("StringToReal", this);
+  g_configuration->registerLookupInterface("StringToBoolean", this);
+  
+  g_configuration->registerLookupInterface("substr", this);
+  g_configuration->registerLookupInterface("strlwr", this);
+  g_configuration->registerLookupInterface("strupr", this);
+  g_configuration->registerLookupInterface("strindex", this);
+  g_configuration->registerLookupInterface("find_first_of", this);
+  g_configuration->registerLookupInterface("find_last_of", this);
+  
+  debugMsg("StringAdapter", " initialized.");
+  return true;
+}
+
+bool StringAdapter::start()
+{
+  debugMsg("StringAdapter", " started.");
+  return true;
+}
+
+bool StringAdapter::stop()
+{
+  debugMsg("StringAdapter", " stopped.");
+  return true;
+}
+
+bool StringAdapter::reset()
+{
+  debugMsg("StringAdapter", " reset.");
+  return true;
+}
+
+bool StringAdapter::shutdown()
+{
+  debugMsg("StringAdapter", " shut down.");
+  return true;
+}
+
+
+void StringAdapter::lookupNow (const State& state, StateCacheEntry &entry)
+{
+  entry.update(fetch(state.name(), state.parameters()));
+}
+
+
+
+// Sends a command (as invoked in a Plexil command node) to the system and sends
+// the status, and return value if applicable, back to the executive.
+// This uses the same lookup, but is also implemented as a command for
+// convenience and backwards compatibiity. TODO: remove?
+
+void StringAdapter::executeCommand(Command *cmd)
+{
+  const string &name = cmd->getName();
+  const vector<Value>& args = cmd->getArgValues();
+  debugMsg("StringAdapter", "Received executeCommand for " << name);  
+
+  
+  Value retval = fetch(name,args);
 
   
   // This sends a command handle back to the executive.
@@ -313,10 +362,6 @@ void StringAdapter::executeCommand(Command *cmd)
   m_execInterface.notifyOfExternalEvent();
 }
 
-void StringAdapter::lookupNow (const State& state, StateCacheEntry &entry)
-{
-  entry.update(fetch(state.name(), state.parameters()));
-}
 
 
 // Necessary boilerplate

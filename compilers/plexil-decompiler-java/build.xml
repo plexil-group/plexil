@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project plexil-decompiler-java">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="${dir.buildfile}"/>
+    <property name="dir.src" value="${dir.buildfile}/src"/>
+    <property name="dir.classes" value="${dir.buildfile}/classes"/>
+    
+    <target name="init" description="Create directories">
+      <mkdir dir="${dir.classes}"/>
+    </target>
+
+    <target name="compile" depends="init">
+      <javac srcdir="${dir.src}"
+             destdir="${dir.classes}"
+             includeAntRuntime="false">
+      </javac>
+    </target>
+
+    <target name="create_run_jar" depends="compile">
+        <jar destfile="${dir.jarfile}/plexild.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="plexiljava.main.Decompiler"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.classes}"/>
+        </jar>
+    </target>
+
+    <target name="clean">
+      <delete file="${dir.jarfile}/plexild.jar" failonerror="false"/>
+      <delete dir="${dir.classes}" failonerror="false"/>
+    </target>
+</project>

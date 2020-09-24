@@ -83,7 +83,10 @@ namespace PLEXIL
                                      "Alias for \"" << name
                                      << "\" without value expression in LibraryNodeCall node "
                                      << callerId);
-    checkParserExceptionWithLocation(temp.type() == node_element && temp.first_child(),
+    // Don't need to have a child if is of string type, otherwise do
+    checkParserExceptionWithLocation(temp.type() == node_element &&
+                                     (temp.first_child() || !strcmp(temp.name(),"StringValue")),
+                                      
                                      temp,
                                      "Alias for \"" << name
                                      << "\" has malformed value expression in LibraryNodeCall node " 

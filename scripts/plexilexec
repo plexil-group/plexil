@@ -139,8 +139,9 @@ summarize()
     echo
 }
 
-usage_text="Usage:\n\tplexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-L <library dir>]* [-l <library>]*\
- [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q] \n"
+usage_text="Usage:
+	plexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q]
+"
 
 usage()
 {
@@ -148,37 +149,36 @@ usage()
     echo "For more options enter 'plexilexec -help'"
 }
 
-help_text=" Options:\n\
-\n\
- -help \n\
-\t	displays this message\n\
- -p | -plan <plan> \n\
-\t	The plan to run \n\
- -c | -config <config> \n\
-\t 	Interface configuration file (default interface-config.xml) \n\
- -d | -debug <file name> \n\
-\t 	Debug configuration file (default is Debug.cfg) \n\
- -L | -libraryPath <directory name> \n\
-\t 	A directory to search for plan library files (option may be repeated) \n\
- -l | -library <file name> \n\
-\t 	A plan library to load; may be node name or filename (option may be repeated) \n\
- -q | -quiet \n\
-\t 	Minimize output \n\
- -v | -viewer \n\
-\t 	Starts the Plexil Viewer \n\
- -b | -blocking \n\
-\t 	Enables breakpoints in Viewer \n\
- -h | -hostname <name> \n\
-\t 	Name of remote host where Viewer is running\n\
- -n | -port <number> \n\
-\t 	Port number to use for Viewer \n\
- -ch | -check \n\
-\t 	Runs the PLEXIL static checker prior to executing plan \n\
- -a | -autorun \n\
-\t  Runs the specified plan immediately at Viewer startup \n\
- --for-viewer \n\
-\t  Runs the exec with the supplied options, without checking them, and without starting the Viewer. \n\
-\t  Intended for use by the Plexil Viewer or other scripts."
+help_text=" Options:
+ -help 
+	displays this message
+ -p | -plan <plan>
+	The plan to run
+ -c | -config <config> 
+	Interface configuration file (default interface-config.xml) 
+ -d | -debug <file name> 
+	Debug configuration file (default is Debug.cfg) 
+ -L | -libraryPath <directory name> 
+	A directory to search for plan library files (option may be repeated) 
+ -l | -library <file name> 
+	A plan library to load; may be node name or filename (option may be repeated) 
+ -q | -quiet 
+	Minimize output 
+ -v | -viewer 
+	Starts the Plexil Viewer 
+ -b | -blocking 
+	Enables breakpoints in Viewer 
+ -h | -hostname <name> 
+	Name of remote host where Viewer is running
+ -n | -port <number> 
+	Port number to use for Viewer 
+ -ch | -check 
+	Runs the PLEXIL static checker prior to executing plan 
+ -a | -autorun 
+	Runs the specified plan immediately at Viewer startup 
+ --for-viewer 
+	Runs the exec with the supplied options, without checking them, and without starting the Viewer. 
+	Intended for use by the Plexil Viewer or other scripts."
 
 if [ -n "$PLEXIL_EXECUTABLE" ] && [ -x "$PLEXIL_EXECUTABLE" ]
 then
