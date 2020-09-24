@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,58 +28,72 @@
 #Validate file
 valid()
 {
-  if [ ! -e $1 ] && [ $quiet = 1 ]
-    then
-      echo "WARNING: $1 does not exist"
+  if [ ! -e "$1" ] && [ -z "$quiet" ]
+  then
+      echo "Error: file $1 does not exist" >&2
+      exit 2
   fi
-  return
 }
 
 warn()
 {
-   if [ $quiet = 1 ]
-     then
-       echo "$1"
+   if [ -z "$quiet" ]
+   then
+       echo "$1" >&2
    fi
 }
 
-usage="Usage: plexilsim -p <plan> [-script <script>]+ [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-                     [-ch] [-l <library>]* [-L <library dir>]*\n Use -help for more options"
-help="Options:\n\
-\n\
- -p | -plan <plan> \n\
-\t	load plan (required) \n\
-\t	specify PLEXIL plan (required) \n\
- -s | -script <scrpt>+ \n\
-\t	specify simulation script (required) \n\
- -q | -quiet \n\
-\t 	suppresses a leading printed summary and default debug messages.\n\
- -v | -viewer \n\
-\t 	requests that plan state be transmitted to the Plexil viewer.\n\
- -h | -hostname <name> \n\
-\t 	hostname of viewer\n\
- -n | -port <number> \n\
-\t 	portnumber of viewer\n\
- -b | -blocking \n\
-\t 	enables breakpoints in viewer (recommended)\n\
- -d | -debug <file name> \n\
-\t 	debug file (default is Debug.cfg)\n\
- -ch | -check \n\
-\t 	runs the PLEXIL static checker prior to executing plan\n\
- -l | -library <file name>\n\
-\t 	specifies a plan library (.plx file)\n\
- -L | -libraryPath <directory name>\n\
-\t 	specifies a directory for finding plan library files\n\
- -? | -help \n\
-\t	displays this message"
+usage()
+{
+    printf 'Usage: plexilsim -p <plan> -s <script> [options]* \n'
+    echo
+    printf 'Options: \n'
+    printf ' -p | -plan <plan> \n'
+    printf '\PLEXIL plan to run (required) \n'
+    printf '  Plan options: \n'
+    printf '   -ch | -check \n'
+    printf '\t  runs the PLEXIL static checker on the plan prior to execution \n'
+    printf '   -l | -library <file name> \n'
+    printf '\t  specifies a plan library to load (.plx file) \n'
+    printf '   -L | -libraryPath <directory name> \n'
+    printf '\t  specifies a directory for finding plan library files \n'
+    echo
+    printf '  Script options: \n'
+    printf ' -s | -script <script> \n'
+    printf '\tspecify simulation script (required) \n'
+    printf ' -t | -telemetry <script> \n'
+    printf '\tspecify telemetry simulation script (DEPRECATED) \n'
+    echo
+    printf ' General options: \n'
+    printf ' -help | --help  \n'
+    printf '\tdisplays this message and exits\n'
+    printf ' -a | -automate \n'
+    printf '\trun PLEXIL executive in background \n'
+    printf ' -d | -debug <file name> \n'
+    printf '\tdebug file (default is Debug.cfg) \n'
+    printf ' -q | -quiet \n'
+    printf '\tsuppresses a leading printed summary and default debug messages \n'
+    echo
+    printf ' Viewer options: \n'
+    printf ' -v | -viewer \n'
+    printf '\trequests that plan state be transmitted to the Plexil viewer \n'
+    printf ' -n | -port <number> \n'
+    printf '\tport number of viewer \n'
+    printf ' -h | -hostname <name> \n'
+    printf '\thost name of viewer (default localhost) \n'
+    printf ' -b | -blocking \n'
+    printf '\tenables breakpoints in viewer \n'
+    echo
+}
+
 # -a used only for viewer acquire PID
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    echo Exiting.
-    exit 1
+    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
+    echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
+    echo 'Exiting.' >&2
+    exit 2
 fi
 
 . $PLEXIL_HOME/scripts/plexil-setup.sh
@@ -87,132 +101,174 @@ fi
 #separate command-line from run-ue output
 echo
 
-platform=`uname`
-quiet=1 #quiet default
-plan_nm="" #plan name
-plan_cmd="" #plan command
-script="" #script
+quiet=          # not quiet by default
+plan_nm=        # plan name
+plan_cmd=       # plan command
 config_nm="${PLEXIL_HOME}/src/apps/StandAloneSimulator/PlexilSimulator/test/config.xml"
 config_cmd="-c ${config_nm}"
-script="" #command script name
-libraries="" #library files
-library_dirs="" #library directories
-debug_file="" #debug file
-check="false" #run static checker
+script=         # command script name(s)
+telemetry=      # telemetry script name(s)
+libraries=      # library files
+library_dirs=   # library directories
+debug_file=     # debug file
+check="false"   # run static checker
 
-if [ ! $1 ]
-  then
-  echo -e $usage
-  exit 1
-fi
-
-for i in $*
+while [ -n "$1" ]
 do
-    case $1 in 	
-        -q | -quiet ) quiet=0;;	
-	-p | -plan ) shift
-	plan_nm="$1"
-	plan_cmd="-p $1";;
-	-s | -script ) shift
-	valid $1
-	script="$script $1";;
-	-c | -config ) shift
-	valid $1
-	config_nm="$1"
-	config_cmd="-c $1";;
-	-s | -script ) shift
-	valid $1
-	script="$1";;
-	-l | -library ) shift
-	valid $1
-	libraries="$libraries -l $1";;
-	-L | -libraryPath ) shift
-	valid $1	
-	library_dirs="$library_dirs -L $1";;
-	-d | -debug ) shift
-	valid $1
-	debug_file="-d $1";;
-	-v | -viewer ) viewer="-v";;	#viewer listener enabled	
-	-h | -hostname ) shift
-	host_in="-h $1";;	#viewer host name
-	-n | -port ) shift
-	port_in="-n $1"
-	skip=1;;	#viewer port
-	-b | -blocking ) block="-b";;	#enable viewer break point	
-	-k | -check ) check="true";;	
-	-a ) automate="true";;
-	-help ) echo -e $help
-	  exit 2;;
-	-? ) echo 'Error: missing argument for option' $1
-	  echo -e $usage
-	  exit 2;; 
+    case "$1" in 	
+	    -a | -automate)
+            automate="true"
+            ;;
+	    -b | -blocking )
+            block="-b"	#enable viewer break point
+            ;;
+	    -c | -config )
+            shift
+	        valid "$1"
+	        config_nm="$1"
+	        config_cmd="-c $1"
+            ;;
+	    -d | -debug )
+            shift
+	        valid "$1"
+	        debug_file="-d $1"
+            ;;
+	    -h | -hostname )
+            shift
+            if [ -z "$1" ]
+            then
+                usage
+                exit 0
+            fi
+	        host_in="-h $1"	#viewer host name
+            ;; 
+	    -help | --help )
+            echo -e $help
+	        exit 0
+            ;;
+	    -k | -check )
+            check="true"
+            ;;	
+	    -l | -library )
+            shift
+	        valid "$1"
+	        libraries="$libraries -l $1"
+            ;;
+	    -L | -libraryPath )
+            shift
+	        valid "$1"	
+	        library_dirs="$library_dirs -L $1"
+            ;;
+        -q | -quiet )
+            quiet="$1"
+            ;;	
+	    -p | -plan )
+            shift
+	        plan_nm="$1"
+	        plan_cmd="-p $1"
+            ;;
+	    -s | -script )
+            shift
+	        valid "$1"
+            if [ -n "$script" ]
+            then
+                echo 'Error: multiple simulator scripts supplied'
+                usage >&2
+                exit 2
+            fi
+	        script="$1"
+            ;;
+	    -t | -telemetry )
+            shift
+	        valid "$1"
+            if [ -n "$telemetry" ]
+            then
+                echo 'Error: multiple telemetry scripts supplied'
+                usage >&2
+                exit 2
+            fi
+	        telemetry="$1"
+            ;;
+	    -v | -viewer )
+            viewer="-v"	#viewer listener enabled
+            ;;
+	    -n | -port )
+            shift
+	        port_in="-n $1"
+	        skip=1 #viewer port
+            ;;
+	    * )
+            echo "Error: unrecognized option $1"
+	        usage >&2
+	        exit 2
+            ;; 
     esac
     shift
 done
 
+echo "Done parsing command line"
+
 # Check the plan's existence
-if [ "$plan_nm" = "" ] 
-  then
-    warn "Error: No plan defined"
+if [ -z "$plan_nm" ] 
+then
+    echo 'Error: No plan specified' >&2
+    exit 2
+elif [ ! -r "$plan_nm" ]
+then
+    echo "Error: Plan file $plan_nm unreadable or not found" >&2
     exit 1
 fi    
 
-# Check if user typed invalid plan
-if [ ! -e "$plan_nm" ]
-  then
-        echo Error: Plan $plan_nm, does not exist.
-        exit 1    
-fi
-
-# Redefine current path config to look for dummy config on current path
-if [ ! -e "$script_nm" ] || [ "$script_nm" = "" ]
-   then
-        if [ ! -e "$current_config" ] ; then
-	  current_config=$default_config_name
-	fi
-fi
+# Check the plan's existence
+if [ -z "$script" ] 
+then
+    echo 'Error: No script file specified' >&2
+    exit 2
+elif [ ! -r "$script" ]
+then
+    echo "Error: Script file $script unreadable or not found" >&2
+    exit 1
+fi    
 
 # Check plan for errors
-if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/scripts/checkPlexil ]
-  then 
-       echo "Checking Plan..."
-       $PLEXIL_HOME/scripts/checkPlexil $plan_nm
-       if [ ! -e "$plan_nm" ] && [ $? -gt 0 ]
-         then
-	   echo Error: $plan_nm, contains runtime error
-           exit 1
+if [ "$check" = "true" ] && [ -x "$PLEXIL_HOME"/scripts/checkPlexil ]
+then 
+    echo "Checking Plan..."
+    if ! "$PLEXIL_HOME"/scripts/checkPlexil "$plan_nm"
+    then
+	    echo "Error: Static checker found errors in $plan_nm" >&2
+        exit 1
 	fi
-    elif [ ! -f $PLEXIL_HOME/scripts/checkPlexil ]
-      then
-	echo Error: $PLEXIL_HOME/scripts/checkPlexil not found.	
-	exit 1
 fi  
 
 # Print summary if desired
-if [ $quiet -eq 1 ] 
-  then
-    echo Running executive from $PLEXIL_HOME
-    echo "  Plan:              $plan_nm"
-    echo "  Scripts:    	$script"
-#    echo "  Telemetry:         $tele_scr"
-    echo "  Libraries:         $libraries"
-    echo "  Library directories: $library_dirs"
+if [ -z "$quiet" ] 
+then
+    echo "Running executive from $PLEXIL_HOME"
+    echo "  Plan:                $plan_nm"
+    echo "  Script:              $script"
+    [ -n "$telemetry" ] && echo "  Telemetry:           $telemetry"
+    [ -n "$libraries" ] && echo "  Libraries:           $libraries"
+    [ -n "$library_dirs" ] && echo "  Library directories: $library_dirs"
     echo
 fi
+
 xterm -e ipc &
-`xterm -e run-sas $script` &
+xterm -e run-sas "$script" "$telemetry" &
 sas_kill=$!
+
 trap "{ kill $sas_kill; }" SIGINT
 trap "{ kill $sas_kill; }" SIGQUIT
 sleep 2
 
 if [ "$automate" = "true" ]
-  then    
+then    
     plexilexec -a $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $library_dirs $libraries &    
     trap "{ kill $!; }" SIGINT
     trap "{ kill $!; }" SIGQUIT    
-  else     
+else     
     plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $library_dirs $libraries
 fi
+
 trap "{ killall ipc; }" EXIT
 trap "{ killall central; }" EXIT

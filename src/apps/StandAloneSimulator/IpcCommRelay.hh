@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,19 +28,7 @@
 #define IPC_COMM_RELAY_HH
 
 #include "CommRelayBase.hh"
-#include "ipc-data-formats.h"
 #include "IpcFacade.hh"
-
-#include <ipc.h>
-
-#include <map>
-#include <string>
-#include <vector>
-
-#include <pthread.h>
-
-// forward references
-class ResponseMessage;
 
 class IpcCommRelay : public CommRelayBase
 {
