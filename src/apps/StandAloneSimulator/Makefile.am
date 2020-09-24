@@ -23,32 +23,21 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-AUTOMAKE_OPTIONS = subdir-objects
+bin_PROGRAMS = simulator
 
-lib_LTLIBRARIES = libstandalonesimulator.la
-
-libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
+simulator_CPPFLAGS = $(AM_CPPFLAGS) \
  -I$(top_srcdir)/interfaces/IpcUtils \
  -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
-include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
- ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
- SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
+noinst_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
+ GenericResponse.hh IpcCommRelay.hh ResponseMessage.hh Simulator.hh \
+ SimulatorScriptReader.hh TimingService.hh simdefs.hh
 
-libstandalonesimulator_la_SOURCES = IpcCommRelay.cc \
- ResponseBase.cc ResponseFactory.cc ResponseMessage.cc ResponseMessageManager.cc \
- Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc TimingService.cc
+simulator_SOURCES = Agenda.cc CommandResponseManager.cc IpcCommRelay.cc \
+ PlexilSimulator.cc Simulator.cc SimulatorScriptReader.cc \
+ TimingService.cc
 
-bin_PROGRAMS = simulator
-
-noinst_HEADERS = PlexilSimulator/PlexilSimResponseFactory.hh
-
-simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
- PlexilSimulator/PlexilSimulator.cc
-simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
-
-simulator_LDADD = libstandalonesimulator.la \
- $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
+simulator_LDADD = $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
  $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 
 simulator_LDFLAGS = -L$(libdir) -lipc

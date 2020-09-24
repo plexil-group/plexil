@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,59 +24,51 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ResponseBase.hh"
-#include "ResponseMessageManager.hh"
+#ifndef COMMAND_RESPONSE_MANAGER_HH
+#define COMMAND_RESPONSE_MANAGER_HH
+
+#include "ResponseMessage.hh" // enum MsgType
+
+#include <map>
+
+struct GenericResponse;
 
 /**
- * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
+ * @brief Class which represents the simulation script for the named command.
  */
-ResponseBase::ResponseBase() 
-  : m_Manager(NULL),
-    m_NumberOfResponses(0)
-{
-}
 
-ResponseBase::~ResponseBase()
+class CommandResponseManager
 {
-}
+public:
+  CommandResponseManager(const std::string& id);
 
-void ResponseBase::setManager(ResponseMessageManager* mgr)
-{
-  m_Manager = mgr;
-}
+  virtual ~CommandResponseManager();
 
-ResponseMessageManager* ResponseBase::getManager() const
-{
-  return m_Manager;
-}
+  const std::string& getIdentifier() const;
 
-void ResponseBase::notifyMessageSent()
-{
-  if (m_Manager != NULL)
-    m_Manager->notifyMessageSent(this);
-}
+  const GenericResponse* getDefaultResponse();
 
-void ResponseBase::setNumberOfResponses(int numOfResp)
-{
-  m_NumberOfResponses = numOfResp;
-}
+  void addResponse(GenericResponse* resp, int cmdIndex);
 
-int ResponseBase::getNumberOfResponses() const 
-{
-  return m_NumberOfResponses;
-}
+  const GenericResponse* getResponses(timeval& tDelay);
 
-const timeval& ResponseBase::getDelay() const 
-{
-  return m_Delay;
-}
+private:
 
-void ResponseBase::setDelay(const timeval& delay) 
-{
-  m_Delay = delay;
-}
+  //
+  // Member variables
+  //
 
-const std::string& ResponseBase::getName() const 
-{
-  return m_Manager->getIdentifier();
-}
+  const std::string m_Identifier;
+  typedef std::map<int, const GenericResponse*> IndexResponseMap;
+  IndexResponseMap m_CmdIdToResponse;
+  const GenericResponse* m_DefaultResponse;
+  int m_Counter;
+
+  // Deliberately not implemented
+  CommandResponseManager();
+  CommandResponseManager(const CommandResponseManager&);
+  CommandResponseManager& operator=(const CommandResponseManager&);
+
+};
+
+#endif // COMMAND_RESPONSE_MANAGER_HH

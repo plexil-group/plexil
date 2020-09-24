@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,15 +68,9 @@ IpcCommRelay::~IpcCommRelay() {
  * @brief Send a response from the sim back to the UE.
  */
 
-// *** TODO: isolate this method from the format of the response base!
-
 void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
   // Get the response message
-  const GenericResponse* gr = dynamic_cast<const GenericResponse*> (respMsg->getResponseBase());
-  assertTrueMsg(gr != NULL,
-      "IpcCommRelay::sendResponse: invalid ResponseBase object");
-  const std::vector<PLEXIL::Value>& values = gr->getReturnValue();
-  std::vector<PLEXIL::Value> ret_list(values.begin(), values.end());
+  const PLEXIL::Value &value = respMsg->getValue();
 
   // Format the leader
   switch (respMsg->getMessageType()) {
@@ -84,18 +78,19 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
   case MSG_LOOKUP: {
     // Return values message
     debugMsg("IpcCommRelay:sendResponse",
-        " sending " << values.size() << " return value(s) for "
-        << ((respMsg->getMessageType() == MSG_COMMAND) ? "command" : "lookup")
-        << " \"" << respMsg->getName() << "\"");
+             " sending 1 return value for "
+             << ((respMsg->getMessageType() == MSG_COMMAND) ? "command" : "lookup")
+             << " \"" << respMsg->getName() << "\"");
     const IpcMessageId* transId = static_cast<const IpcMessageId*> (respMsg->getId());
-    m_ipcFacade.publishReturnValues(transId->second, transId->first, values.front());
+    m_ipcFacade.publishReturnValues(transId->second, transId->first, value);
   }
     break;
 
   case MSG_TELEMETRY: {
     // Telemetry values message
+    std::vector<PLEXIL::Value> ret_list = std::vector<PLEXIL::Value>(1, value);
     debugMsg("IpcCommRelay:sendResponse",
-        " sending telemetry message for \"" << respMsg->getName() << "\"");
+             " sending telemetry message for \"" << respMsg->getName() << "\"");
     m_ipcFacade.publishTelemetry(respMsg->getName(), ret_list);
   }
     break;
@@ -132,10 +127,10 @@ void IpcCommRelay::processLookupNow(const std::vector<const PlexilMsgBase*>& msg
     // Simply send the response
     debugMsg("IpcCommRelay:lookupNow", " sending response for " << stateName);
   } else {
+    static const PLEXIL::Value sl_unknown;
     // Create a bogus response that returns 0 values (i.e. unknown)
     debugMsg("IpcCommRelay:lookupNow", " " << stateName << " not found, returning UNKNOWN");
-    static GenericResponse gr(std::vector<PLEXIL::Value>(1));
-    response = new ResponseMessage(&gr, static_cast<void*> (transId), MSG_LOOKUP);
+    response = new ResponseMessage(stateName, sl_unknown, MSG_LOOKUP, static_cast<void*> (transId));
   }
   // Simply send the response
   sendResponse(response); // deletes response
