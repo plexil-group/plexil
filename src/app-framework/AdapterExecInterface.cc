@@ -26,38 +26,10 @@
 
 #include "AdapterExecInterface.hh"
 
-#include "Debug.hh"
-#include "Expression.hh"
-#include "State.hh"
-#include "Value.hh"
-
-#include <iomanip>
-#include <sstream>
-
-#if defined(HAVE_CSTRING)
-#include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
-
 namespace PLEXIL
 {
 
   // Initialize global variable
   AdapterExecInterface *g_execInterface = NULL;
-
-  /**
-   * @brief Default constructor method.
-   */
-  AdapterExecInterface::AdapterExecInterface()
-  {
-  }
-
-  /**
-   * @brief Destructor method.
-   */
-  AdapterExecInterface::~AdapterExecInterface()
-  {
-  }
 
 }

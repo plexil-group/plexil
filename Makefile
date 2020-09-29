@@ -192,7 +192,7 @@ clean::
 	@ echo Done.
 
 # Clean up after autotools
-squeaky-clean: | clean
+distclean squeaky-clean: | clean
 	@(cd src && $(RM) */Makefile */Makefile.in)
 	@(cd src/apps && $(RM) */Makefile */Makefile.in)
 	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)

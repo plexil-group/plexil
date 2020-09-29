@@ -26,7 +26,7 @@
 # IpcAdapter library submodule of PlexilExec
 
 add_library(IpcAdapter ${PlexilExec_SHARED_OR_STATIC}
-  IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc)
+  IpcAdapter.cc MessageQueueMap.cc)
 
 target_include_directories(IpcAdapter PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
@@ -55,5 +55,5 @@ install(TARGETS IpcAdapter
 
 # Public includes
 install(FILES
-  IpcAdapter.hh MessageQueueMap.hh
+  IpcAdapter.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

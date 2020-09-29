@@ -41,15 +41,8 @@ namespace pugi
 
 namespace PLEXIL 
 {
-  class AdapterConfiguration;
-
   // Forward references
   class ExecApplication;
-
-  class InterfaceAdapter;
-
-  class AdapterConfiguration;
-
   class InputQueue;
 
   /**

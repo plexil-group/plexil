@@ -26,10 +26,12 @@
 
 #include "ArithmeticFunctionFactory.hh"
 
-#include "ArithmeticOperators.hh"
 #include "createExpression.hh"
+#include "Expression.hh"
 #include "Error.hh"
-#include "NodeConnector.hh"
+#include "Function.hh"
+#include "Operator.hh"
+#include "ParserException.hh" // checkParserException()
 #include "parser-utils.hh"
 
 #include "pugixml.hpp"

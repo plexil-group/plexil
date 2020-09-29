@@ -24,12 +24,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PLEXIL_INIT_IPC_ADAPTER_H
-#define PLEXIL_INIT_IPC_ADAPTER_H
-
 #ifdef __cplusplus
 extern "C"
 #endif
-void initIpcAdapter();
-
-#endif /* PLEXIL_INIT_IPC_ADAPTER_H */
+void initUdpAdapter();

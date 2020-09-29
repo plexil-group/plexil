@@ -67,8 +67,8 @@
 #endif // PLEXIL_USE_POSIX_SEMAPHORES
 
 #ifdef PLEXIL_USE_MACH_SEMAPHORES
-#include <mach/semaphore.h>
-#include <mach/task.h> // for semaphore_create(), semaphore_destroy()
+#include <mach/kern_return.h>  // for KERN_ABORTED
+#include <mach/mach_types.h>   // for semaphore_t, task_t
 
 //* @brief Error status showing that the wait() call was interrupted.
 #define PLEXIL_SEMAPHORE_STATUS_INTERRUPTED KERN_ABORTED

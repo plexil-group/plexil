@@ -27,7 +27,6 @@
 #include "parseNodeReference.hh"
 
 #include "NodeImpl.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 

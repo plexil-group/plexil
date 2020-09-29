@@ -1,19 +1,26 @@
 #include "SimpleSaveManager.hh"
 #include "Subscriber.hh"
-#include <iostream>
-#include <dirent.h>
-#include <algorithm>    // std::min std::max
-#include <stdio.h>
-#include <stdlib.h>     /* strtod */
-#include <climits>
-#include <sstream> // in to_string
-#include <sys/stat.h> //mkdir
-#include <limits> //numeric_limits
-#include <errno.h>
-#include "InterfaceManager.hh" // g_manager
+
+// PLEXIL includes
+#include "AdapterExecInterface.hh" // g_execInterface
 #include "Debug.hh"
 #include "pugixml.hpp"
-#include "plexil-stdint.h"
+
+// POSIX includes
+#include <dirent.h>
+#include <sys/stat.h> //mkdir
+
+// C++ Standard Library includes
+#include <algorithm>    // std::min std::max
+#include <iostream>
+#include <limits> //numeric_limits
+#include <sstream> // in to_string
+
+// C library includes 
+#include <climits>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>     /* strtod */
 
 using std::cerr;
 using std::endl;

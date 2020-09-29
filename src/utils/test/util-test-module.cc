@@ -100,6 +100,7 @@
 
 extern bool LinkedQueueTest();
 extern bool SimpleMapTest();
+extern bool SimpleSetTest();
 extern bool bitsetUtilsTest();
 
 /**
@@ -546,6 +547,7 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(StricmpTests::test);
 
   runTestSuite(SimpleMapTest);
+  runTestSuite(SimpleSetTest);
   runTestSuite(LinkedQueueTest);
   runTestSuite(bitsetUtilsTest);
 

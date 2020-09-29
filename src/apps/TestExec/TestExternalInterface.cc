@@ -30,7 +30,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "NodeImpl.hh"
-#include "NodeConstants.hh"
+#include "ParserException.hh"
 #include "PlexilExec.hh"
 #include "StateCacheEntry.hh"
 #include "Update.hh"
@@ -38,9 +38,6 @@
 #include "plan-utils.hh"
 #include "pugixml.hpp"
 #include "stricmp.h"
-
-#include <limits>
-#include <sstream>
 
 #if defined(HAVE_CSTRING)
 #include <cstring>

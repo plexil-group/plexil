@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,101 +26,103 @@
 
 #include "UtilityAdapter.hh"
 
+#include "commandHandlerDefs.hh"
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
 #include "Debug.hh"
+#include "InterfaceAdapter.hh"
 #include "plan-utils.hh"
 
-#include <iostream>
-
-namespace PLEXIL {
-
-UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-                               pugi::xml_node const configXml) :
-    InterfaceAdapter(execInterface, configXml)
+namespace PLEXIL
 {
-  debugMsg("UtilityAdapter", " created.");
-}
 
-bool UtilityAdapter::initialize()
-{
-  g_configuration->registerCommandObjectHandler("print", new UtilityCommandHandler(*this,
-      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::print1),
-      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
-  g_configuration->registerCommandObjectHandler("pprint", new UtilityCommandHandler(*this,
-      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::pprint1),
-      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
-  g_configuration->registerCommandObjectHandler("printToString", new UtilityCommandHandler(*this,
-      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::printToString1),
-      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
-  g_configuration->registerCommandObjectHandler("pprintToString", new UtilityCommandHandler(*this,
-      (UtilityAdapter::ExecuteCommandHandler)(&UtilityAdapter::pprintToString1),
-      (UtilityAdapter::AbortCommandHandler)(&UtilityAdapter::abortCommand)));
-  debugMsg("UtilityAdapter", " initialized.");
-  return true;
-}
+  //
+  // Command implementation functions
+  //
 
-bool UtilityAdapter::start()
-{
-  debugMsg("UtilityAdapter", " started.");
-  return true;
-}
+  static void utilityPrint1(Command *cmd, AdapterExecInterface *intf)
+  {
+    print(cmd->getArgValues());
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
+  }
 
-bool UtilityAdapter::stop()
-{
-  debugMsg("UtilityAdapter", " stopped.");
-  return true;
-}
+  static void utilityPprint1(Command *cmd, AdapterExecInterface *intf)
+  {
+    pprint(cmd->getArgValues());
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
+  }    
 
-bool UtilityAdapter::reset()
-{
-  debugMsg("UtilityAdapter", " reset.");
-  return true;
-}
+  static void utilityPrintToString1(Command *cmd, AdapterExecInterface *intf)
+  {
+    intf->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
+  }
+  
+  static void utilityPprintToString1(Command *cmd, AdapterExecInterface *intf)
+  {
+    intf->handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
+  }
 
-bool UtilityAdapter::shutdown()
-{
-  debugMsg("UtilityAdapter", " shut down.");
-  return true;
-}
+  class UtilityAdapter : public InterfaceAdapter
+  {
+  public:
 
-void UtilityAdapter::print1(Command *cmd) {
-  print(cmd->getArgValues());
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
-}
+    UtilityAdapter(AdapterExecInterface &execInterface,
+                   pugi::xml_node const configXml)
+      : InterfaceAdapter(execInterface, configXml)
+    {
+      debugMsg("UtilityAdapter", " created.");
+    }
+    
+    virtual bool initialize(AdapterConfiguration *config)
+    {
+      config->registerCommandHandler("print",
+                                     (ExecuteCommandHandler) (&utilityPrint1));
+      config->registerCommandHandler("pprint",
+                                     (ExecuteCommandHandler) (&utilityPprint1));
+      config->registerCommandHandler("printToString",
+                                     (ExecuteCommandHandler) (&utilityPrintToString1));
+      config->registerCommandHandler("pprintToString",
+                                     (ExecuteCommandHandler) (&utilityPprintToString1));
 
-void UtilityAdapter::pprint1(Command *cmd) {
-  pprint(cmd->getArgValues());
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
-}
+      debugMsg("UtilityAdapter", " initialized.");
+      return true;
+    }
 
-void UtilityAdapter::printToString1(Command *cmd) {
-  m_execInterface.handleCommandReturn(cmd, printToString(cmd->getArgValues()));
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
-}
+    // Adapter has no state, so just return true from each of these.
+    
+    virtual bool start()
+    {
+      return true;
+    }
 
-void UtilityAdapter::pprintToString1(Command *cmd) {
-  m_execInterface.handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
-}
+    virtual bool stop()
+    {
+      return true;
+    }
 
-void UtilityAdapter::abortCommand(Command *cmd)
-{
-  // Just silently acknowledge
-  m_execInterface.handleCommandAbortAck(cmd, false);
-  m_execInterface.notifyOfExternalEvent();
-}
+    virtual bool reset()
+    {
+      return true;
+    }
+
+    virtual bool shutdown()
+    {
+      return true;
+    }
+  };
+
+} // namespace PLEXIL
 
 extern "C" {
   void initUtilityAdapter() {
-    REGISTER_ADAPTER(UtilityAdapter, "UtilityAdapter");
+    REGISTER_ADAPTER(PLEXIL::UtilityAdapter, "Utility");
   }
 }
-
-} // namespace PLEXIL

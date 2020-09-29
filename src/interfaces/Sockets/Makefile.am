@@ -28,12 +28,15 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilSockets.la
 include_HEADERS = ClientSocket.h ServerSocket.h Socket.h SocketException.h
 libPlexilSockets_la_SOURCES = ClientSocket.cpp ServerSocket.cpp Socket.cpp
-libPlexilSockets_la_CPPFLAGS = $(AM_CPPFLAGS)
+# Be sure to include plexil-stdint.h from src/utils, plexil-config.h from src
+libPlexilSockets_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir) -I$(top_srcdir)/utils
 
 if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/simple_client_main test/simple_server_main
   test_simple_client_main_SOURCES = test/simple_client_main.cpp
   test_simple_client_main_LDADD = libPlexilSockets.la 
+  test_simple_client_main_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir) -I$(top_srcdir)/utils
   test_simple_server_main_SOURCES = test/simple_server_main.cpp
   test_simple_server_main_LDADD = libPlexilSockets.la
+  test_simple_server_main_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir) -I$(top_srcdir)/utils
 endif

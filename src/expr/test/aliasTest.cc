@@ -29,7 +29,6 @@
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "ExpressionConstants.hh"
-#include "Function.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
 #include "UserVariable.hh"

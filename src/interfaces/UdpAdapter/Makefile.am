@@ -26,7 +26,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libUdpUtils.la libUdpAdapter.la
-include_HEADERS = MessageQueueMap.hh UdpAdapter.hh udp-utils.hh
+include_HEADERS = MessageQueueMap.hh UdpAdapter.h udp-utils.hh
 libUdpUtils_la_SOURCES = udp-utils.cc
 libUdpUtils_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/utils
 

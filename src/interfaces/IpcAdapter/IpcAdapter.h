@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "IpcAdapter.hh"
-#include "AdapterFactory.hh"
-#include "ExecListenerFactory.hh"
-
-extern "C" void initIpcAdapter()
-{
-  REGISTER_ADAPTER(PLEXIL::IpcAdapter, "IpcAdapter")
-}
+#ifdef __cplusplus
+extern "C"
+#endif
+void initIpcAdapter();

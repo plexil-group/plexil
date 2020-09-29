@@ -39,8 +39,6 @@
 #endif
 #endif
 
-// STL
-#include <set>
 #include <string>
 #include <vector>
 
@@ -61,9 +59,7 @@ namespace pugi
 
 namespace PLEXIL
 {
-
   // forward references
-  class InterfaceAdapter;
   class InterfaceManager;
 
   /**

@@ -25,7 +25,6 @@
 */
 
 #include "Debug.hh"
-#include "Error.hh"
 #include "NodeImpl.hh"
 #include "parseGlobalDeclarations.hh"
 #include "parseNode.hh"

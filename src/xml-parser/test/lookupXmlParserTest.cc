@@ -27,7 +27,6 @@
 #include "createExpression.hh"
 #include "Expression.hh"
 #include "test/FactoryTestNodeConnector.hh"
-#include "Lookup.hh"
 #include "SymbolTable.hh"
 #include "TestSupport.hh"
 

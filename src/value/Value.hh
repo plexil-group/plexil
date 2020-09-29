@@ -29,6 +29,8 @@
 
 #include "ValueType.hh"
 
+#include <vector>
+
 #if __cplusplus >= 201103L
 #include "Array.hh"
 #include <memory> // std::unique_ptr

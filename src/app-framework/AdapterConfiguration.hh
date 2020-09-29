@@ -34,317 +34,344 @@
 #ifndef ADAPTERCONFIGURATION_HH_
 #define ADAPTERCONFIGURATION_HH_
 
-#include "pugixml.hpp"
+#include "commandHandlerDefs.hh"
+#include "lookupHandlerDefs.hh"
+#include "plannerUpdateHandlerDefs.hh"
 
-#include <map>
-#include <set>
 #include <vector>
 
-namespace PLEXIL {
+// Forward references
+namespace pugi
+{
+  class xml_node;
+}
 
-  // forward references
-  class Command;
+namespace PLEXIL
+{
+
+  // Forward references
   class ExecListener;
   class ExecListenerHub;
   class InterfaceAdapter;
   class InputQueue;
-  class State;
-  class StateCacheEntry;
-  class Update;
 
-  typedef void (*LookupNowHandler)(const State &, StateCacheEntry&);
-  typedef void (*SetThresholdsDoubleHandler)(const State &, double, double);
-  typedef void (*SetThresholdsIntHandler)(const State &, int, int);
-  typedef void (*SubscribeHandler)(const State &);
-  typedef void (*UnsubscribeHandler)(const State &);
-
-  /**
-   * @brief An absract parent class to describe the functionality of a
-   *    lookup handler object.
-   */
-  class AbstractLookupHandler {
-  public:
-    virtual ~AbstractLookupHandler() {} // Virtual destructor
-    virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) = 0;
-    virtual void setThresholds(const State &state, double hi, double lo) { } // default no-op
-    virtual void setThresholds(const State &state, int32_t hi, int32_t lo) { } // default no-op
-    virtual void subscribe(const State &state) { } // default no-op
-    virtual void unsubscribe(const State &state) { } // default no-op
-  };
-
-  typedef void (*ExecuteCommandHandler)(Command *);
-  typedef void (*AbortCommandHandler)(Command *);
-
-  /**
-   * @brief An absract parent class to describe the functionality of a
-   *    command handler object.
-   */
-  class AbstractCommandHandler {
-  public:
-    virtual ~AbstractCommandHandler() {} // Virtual destructor
-    virtual void executeCommand(Command *cmd) = 0;
-    virtual void abortCommand(Command *cmd) { }
-  };
-
-  typedef void (*PlannerUpdateHandler)(Update *);
-
-  /**
-   * @brief An absract parent class to describe the functionality of a
-   *    planner update handler object.
-   */
-  class AbstractPlannerUpdateHandler {
-  public:
-    virtual ~AbstractPlannerUpdateHandler() {} // Virtual destructor
-    virtual void sendPlannerUpdate(Update *update) = 0;
-  };
-
-  class AdapterConfiguration {
+  //*
+  // @class AdapterConfiguration
+  // @brief Abstract base class for registering external interfaces
+  class AdapterConfiguration
+  {
   public:
 
     /**
-     * @brief Constructor.
+     * @brief Virtual destructor.
      */
-    AdapterConfiguration();
-
-    /**
-     * @brief Destructor.
-     */
-    ~AdapterConfiguration();
+    virtual ~AdapterConfiguration()
+    {
+    }
 
     /**
      * @brief Constructs interface adapters from the provided XML.
      * @param configXml The XML element used for interface configuration.
      * @return true if successful, false otherwise.
      */
-    bool constructInterfaces(pugi::xml_node const configXml);
+    virtual bool constructInterfaces(pugi::xml_node const configXml) = 0;
 
     /**
      * @brief Performs basic initialization of the interface and all adapters.
      * @return true if successful, false otherwise.
      */
-    bool initialize();
+    virtual bool initialize() = 0;
 
     /**
      * @brief Prepares the interface and adapters for execution.
      * @return true if successful, false otherwise.
      */
-    bool start();
+    virtual bool start() = 0;
 
     /**
      * @brief Halts all interfaces.
      * @return true if successful, false otherwise.
      */
-    bool stop();
+    virtual bool stop() = 0;
 
     /**
      * @brief Resets the interface prior to restarting.
      * @return true if successful, false otherwise.
      */
-    bool reset();
+    virtual bool reset() = 0;
 
     /**
      * @brief Shuts down the interface.
      * @return true if successful, false otherwise.
      */
-    bool shutdown();
+    virtual bool shutdown() = 0;
 
     /**
+     * @deprecated
      * @brief Add an externally constructed interface adapter.
-     * @param adapter The adapter ID.
+     * @param adapter Pointer to the InterfaceAdapter instance.
+     *
+     * @note The AdapterConfiguration is responsible for deleting the
+     * adapter.
      */
-    void addInterfaceAdapter(InterfaceAdapter *adapter);
-
-    /**
-     * @brief Clears the interface adapter registry.
-     */
-    void clearAdapterRegistry();
+    virtual void addInterfaceAdapter(InterfaceAdapter *adapter) = 0;
 
     /**
      * @brief Add an externally constructed ExecListener.
-     * @param listener Pointer to the listener
+     * @param listener Pointer to the ExecListener instance to add.
      */
-    void addExecListener(ExecListener *listener);
+    virtual void addExecListener(ExecListener *listener) = 0;
 
     /**
-     * @brief Register the given state to handle telemetry lookups
+     * @brief Register this state name as a telemetry-only lookup.
      * @param stateName The name of the state
+     *
+     * @note "Telemetry-only" means that there is no lookupNow method
+     * for this state.  Use AdapterExecInterface::handleValueChange()
+     * to publish updates for the state.
+     * 
+     * @see AdapterExecInterface::handleValueChange
      */
-    bool registerTelemetryLookup(std::string const &stateName);
+    virtual void registerTelemetryLookup(std::string const &stateName) = 0;
 
     /**
-     * @brief Register the given object to be a handler for lookups to this state
-     * @param stateName The name of the state to map to this object
-     * @param handler An object handler to register as the handler.
-     */
-    bool registerLookupObjectHandler(std::string const &stateName, AbstractLookupHandler *handler);
-
-    /**
-     * @brief Register the given handler for lookups to this state.
-     Returns true if successful.  Fails and returns false
-     if the state name already has a handler registered
-     or registering a handler is not implemented.
+     * @brief Register the given LookupHandler instance for lookups
+     *        for this state name, overriding any previous handler or
+     *        interface adapter registrations for the name.
      * @param stateName The name of the state to map to this handler.
-     * @param context An object on which the handler functions can be called.
-     * @param lookupNow The lookup handler function for this state.
-     * @param setThresholdsDouble The setThresholdsDouble handler function for this state. 
-     * @param setThresholdsInt The setThresholdsInt handler function for this state.
-     * @param subscribe The subscribe handler function for this state.
-     * @param unsubscribe The lookup handler function for this state.
+     * @param handler Pointer to the LookupHandler.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
-    bool registerLookupHandler(std::string const &stateName,
-                               LookupNowHandler ln,
-                               SetThresholdsDoubleHandler setTD = NULL,
-                               SetThresholdsIntHandler setTI = NULL,
-                               SubscribeHandler sub = NULL,
-                               UnsubscribeHandler unsub = NULL);
+    virtual void registerLookupHandler(std::string const &stateName,
+                                       LookupHandler *handler) = 0;
 
     /**
-     * @brief Return the lookup handler in effect for lookups with this state name,
-     whether specifically registered or default. May return NULL.
-     * @param stateName The state.
+     * @brief Register the given handler function(s) for lookups to
+     *        this state, overriding any previous handler or interface
+     *        adapter registrations for this name.
+     * @param stateName The name of the state to map to these handler functions.
+     * @param lookupNow The lookupNow function for this state.
+     * @param setThresholdsReal (Optional) The setThresholdsReal
+     *        handler function for this state.
+     * @param setThresholdsInteger (Optional) The setThresholdsInteger
+     *        handler function for this state.
+     * @param subscribe (Optional) The subscribe handler function for
+     *        this state.
+     * @param unsubscribe (Optional) The unsubscribe handler function
+     *        for this state.
      */
-    AbstractLookupHandler *getLookupHandler(std::string const& stateName) const;
+    virtual void registerLookupHandler(std::string const &stateName,
+                                       LookupNowHandler ln,
+                                       SubscribeHandler sub = NULL,
+                                       UnsubscribeHandler unsub = NULL,
+                                       SetThresholdsHandlerReal setTD = NULL,
+                                       SetThresholdsHandlerInteger setTI = NULL) = 0;
 
     /**
-     * @brief Query configuration data to determine if a state is only available as telemetry.
-     * @param stateName The state.
-     * @return True if state is declared telemetry-only, false otherwise.
-     * @note In the absence of a declaration, a state is presumed not to be telemetry.
+     * @brief Register the given LookupHandler instance for all LookupNames
+     *        in the adapter's configuration XML.
+     * @param handler Pointer to the LookupHandler instance.
+     * @param configXml Configuration XML for the interface.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no LookupNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific lookup names,
+     *       call registerLookupHandler() after calling this member function.
      */
-    bool lookupIsTelemetry(std::string const &stateName) const;
+    virtual void registerCommonLookupHandler(LookupHandler *handler,
+                                             pugi::xml_node const configXml) = 0;
 
     /**
-     * @brief Return the listenerHub 
+     * @brief Register the given LookupHandler instance for all LookupNames
+     *        in the adapter's configuration XML.
+     * @param handler Pointer to the LookupHandler instance.
+     * @param names Const reference to a vector of name strings.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no LookupNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific lookup names,
+     *       call registerLookupHandler() after calling this member function.
      */
-    ExecListenerHub *getListenerHub() const
-    {
-      return m_listenerHub;
-    }
+    virtual void registerCommonLookupHandler(LookupHandler *handler,
+                                             std::vector<std::string> const &names) = 0;
 
     /**
-     * @brief Register the given object handler for lookups to this state.
-     Returns true if successful.  Fails and returns false
-     if the state name already has a handler registered
-     or registering an object handler is not implemented.
-     * @param stateName The name of the state to map to this object
-     * @param handler An object to register as the handler.
+     * @brief Register the given LookupHandler instance as the default
+     * for lookups, overriding any previously registered default
+     * handler or interface adapter, including the default default
+     * handler.
+     * @param handler Pointer to the new default LookupHandler.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
-    bool registerCommandObjectHandler(std::string const &stateName, AbstractCommandHandler *handler);
-
-    /**
-     * @brief Register the given handler for lookups to this state.
-     Returns true if successful.  Fails and returns false
-     if the state name already has a handler registered
-     or registering a handler is not implemented.
-     * @param stateName The name of the state to map to this handler.
-     * @param execCmd The function to call when this command is executed
-     * @param abortCmd The function to call when this command is aborted
-     */
-    bool registerCommandHandler(std::string const &stateName,
-                                ExecuteCommandHandler execCmd,
-                                AbortCommandHandler abortCmd = NULL);
-
-    /**
-     * @brief Return the command object handler in effect for commands with this state name,
-     whether specifically registered or default. May return NULL.
-     * @param stateName The state.
-     */
-    AbstractCommandHandler *getCommandHandler(std::string const& stateName) const;
-
-    /**
-     * @brief Register the given handler as the default for lookups.
-     This handler will be used for all lookups which do not have
-     a specific handler.
-     Returns true if successful.
-     Fails and returns false if there is already a default lookup handler registered
-     or setting the default lookup handler is not implemented.
-     * @param handler The object handler to call by default
-     * @return True if successful, false if there is already a default handler registered.
-     */
-    bool setDefaultLookupObjectHandler(AbstractLookupHandler *handler);
+    virtual void setDefaultLookupHandler(LookupHandler *handler) = 0;
     
     /**
-     * @brief Register the given handler as the default for lookups.
-     This handler will be used for all lookups which do not have
-     a specific handler.
-     Returns true if successful.
-     Fails and returns false if there is already a default lookup handler registered
-     or setting the default lookup handler is not implemented.
-     * @param lookupNow The lookup handler function for this state.
-     * @param setThresholdsDouble The setThresholdsDouble handler function for this state (optional). 
-     * @param setThresholdsInt The setThresholdsInt handler function for this state (optional).
-     * @param subscribe The subscribe handler function for this state (optional).
-     * @param unsubscribe The lookup handler function for this state (optional).
-     * @return True if successful, false if there is already a default handler registered.
+     * @brief Register the given handler function(s) as the default
+     * for lookups, overriding any previously registered default
+     * handler or interface adapter, including the default default
+     * handler.
+     * @param lookupNow The lookup handler function to use as a
+     * default.
+     * @param setThresholdsReal (Optional) The setThresholdsReal
+     * handler function.
+     * @param setThresholdsInteger (Optional) The setThresholdsInteger
+     * handler function.
+     * @param subscribe (Optional) The subscribe handler function.
+     * @param unsubscribe (Optional) The unsubscribe handler function.
      */
-    bool setDefaultLookupHandler(          
-                                 LookupNowHandler lookupNow,
-                                 SetThresholdsDoubleHandler setThresholdsDouble = NULL,
-                                 SetThresholdsIntHandler setThresholdsInt = NULL,
-                                 SubscribeHandler subscribe = NULL,
-                                 UnsubscribeHandler unsubscribe = NULL);
+    virtual void setDefaultLookupHandler(LookupNowHandler lookupNow,
+                                         SubscribeHandler subscribe = NULL,
+                                         UnsubscribeHandler unsubscribe = NULL,
+                                         SetThresholdsHandlerReal setThresholdsReal = NULL,
+                                         SetThresholdsHandlerInteger setThresholdsInteger = NULL)
+    = 0;
 
     /**
-     * @brief Register the given handler as the default for commands.
-     This handler will be used for all commands which do not have
-     a specific handler.
-     Returns true if successful.
-     Fails and returns false if there is already a default command handler registered.
-     * @param context The object on which handlers can be called.
-     * @param handler The handler object to use by default for commands.
-     * @return True if successful, false if there is already a default handler registered.
+     * @brief Return the LookupHandler instance in effect for lookups
+     * with this state name.
+     * @param stateName The state.
+     * @return Pointer to the LookupHandler for the named state.
      */
-    bool setDefaultCommandObjectHandler(AbstractCommandHandler *handler);
+    virtual LookupHandler *getLookupHandler(std::string const& stateName) const = 0;
+
+    /**
+     * @brief Return the application's ExecListenerHub.
+     * @return Pointer to the ExecListenerHub.
+     */
+    virtual ExecListenerHub *getListenerHub() const = 0;
+
+    /**
+     * @brief Register the given CommandHandler for this command,
+     *        overriding any previous handler or interface adapter
+     *        registration.
+     * @param cmdName The name of the command to map to this handler.
+     * @param handler Pointer to the CommandHandler instance to
+     *        associate with this command name.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
+     */
+    virtual void registerCommandHandler(std::string const &cmdName,
+                                        CommandHandler *handler) = 0;
+
+    /**
+     * @brief Register the given handler functions for the named
+     * command, overriding any previous handler or interface adapter
+     * registration.
+     * @param cmdName The command name to map to this handler.
+     * @param execCmd The function to call when this command is
+     * executed.
+     * @param abortCmd The function to call when this command is
+     * aborted; defaults to defaultAbortCommandHandler.
+     */
+    virtual void registerCommandHandler(std::string const &cmdName,
+                                        ExecuteCommandHandler execCmd,
+                                        AbortCommandHandler abortCmd = defaultAbortCommandHandler)
+    = 0;
+
+    /**
+     * @brief Register the given CommandHandler instance for all
+     *        CommandNames in the adapter's configuration XML.
+     * @param handler Pointer to the CommandHandler instance.
+     * @param configXml Configuration XML for the interface.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no CommandNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific command names,
+     *       call registerCommandHandler() after calling this member function.
+     */
+    virtual void registerCommonCommandHandler(CommandHandler *handler,
+                                              pugi::xml_node const configXml) = 0;
+
+    /**
+     * @brief Register the given CommandHandler instance for all
+     *        CommandNames in the adapter's configuration XML.
+     * @param handler Pointer to the CommandHandler instance.
+     * @param names Const reference to Vector of command name strings.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates. If there is no CommandNames
+     *       element in the configuration XML, the handler is deleted
+     *       immediately.
+     * @note To override the common handler for specific command names,
+     *       call registerCommandHandler() after calling this member function.
+     */
+    virtual void registerCommonCommandHandler(CommandHandler *handler,
+                                              std::vector<std::string> const &names) = 0;
+
+    /**
+     * @brief Register the CommandHandler instance as the default for
+     * commands without a specific handler, overriding any previously
+     * registered default handler or interface adapter, including the
+     * default default handler.
+     * @param handler Pointer to the CommandHandler instance.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
+     */
+    virtual void setDefaultCommandHandler(CommandHandler *handler) = 0;
     
     /**
-     * @brief Register the given handler as the default for commands.
-     This handler will be used for all commands which do not have
-     a specific handler.
-     Returns true if successful.
-     Fails and returns false if there is already a default command handler registered.
-     * @param execCmd The execute command handler.
-     * @param abortCmd The abort command handler.
-     * @return True if successful, false if there is already a default handler registered.
+     * @brief Register the given handler function(s) as the default
+     * for commands without a specific handler, overriding any
+     * previously registered default handler or interface adapter,
+     * including the default default handler.
+     * @param execCmd The execute command handler function.
+     * @param abortCmd (Optional) The abort command handler function.
+     * Defaults to defaultAbortCommandHandler if not supplied.
+     *
+     * @see defaultAbortCommandHandler
      */
-    bool setDefaultCommandHandler(
-                                  ExecuteCommandHandler execCmd,
-                                  AbortCommandHandler abortCmd = NULL);
+    virtual void setDefaultCommandHandler(ExecuteCommandHandler execCmd,
+                                          AbortCommandHandler abortCmd
+                                          = &defaultAbortCommandHandler)
+    = 0;
 
     /**
-     * @brief Return the current default handler for commands.
-     May return NULL. Returns NULL if default handlers are not implemented.
-    */
-    AbstractCommandHandler *getDefaultCommandHandler() const;
-
-    /**
-     * @brief Return the current default handler for lookups.
-     May return NULL. Returns NULL if default lookup handlers are not implemented.
-    */
-    AbstractLookupHandler *getDefaultLookupHandler() const;
+     * @brief Return the CommandHandler instance for a command name.
+     * @param cmdName The command name.
+     * @return Pointer to the CommandHandler instance for the named
+     * command.
+     */
+    virtual CommandHandler *getCommandHandler(std::string const& stateName) const = 0;
     
     /**
-     * @brief Register the given object handler for planner updates.
-     Returns true if successful.  Fails and returns false
-     iff a handler is already registered
-     or setting the default planner update interface is not implemented.
-     * @param handler The object handler to handle planner updates.
+     *
+     * @brief Register the given handler function for planner updates,
+     *        overriding any previously registered handlers or interface
+     *        adapters.
+     * @param sendPlannerUpdate Pointer to the handler function for
+     *        planner updates.
      */
-    bool registerPlannerUpdateObjectHandler(AbstractPlannerUpdateHandler *handler);
+    virtual void registerPlannerUpdateHandler(PlannerUpdateFn updateFn) = 0;
 
     /**
-     * @brief Register the given function handler for planner updates.
-     Returns true if successful.  Fails and returns false
-     iff a handler is already registered
-     or setting the default planner update interface is not implemented.
-     * @param sendPlannerUpdate The function to call for planner updates.
+     * @brief Register the given handler instance for planner updates,
+     *        overriding any previously registered handlers or interface
+     *        adapters.
+     * @param sendPlannerUpdate Pointer to the handler instance for
+     *        planner updates.
+     * @note The AdapterConfiguration instance takes ownership of the
+     *       handler, and is responsible for its deletion when the
+     *       application terminates.
      */
-    bool registerPlannerUpdateHandler(PlannerUpdateHandler sendPlannerUpdate);
+    virtual void registerPlannerUpdateHandler(PlannerUpdateHandler *updateHandler) = 0;
 
     /**
-     * @brief Return the object handler in effect for planner updates,
-     whether specifically registered or default. May return NULL.
-    */
-    AbstractPlannerUpdateHandler *getPlannerUpdateHandler() const;
+     * @brief Get the handler instance for planner updates.
+     * @return Pointer to the handler instance.
+     */
+    virtual PlannerUpdateHandler *getPlannerUpdateHandler() const = 0;
 
     //
     // Plan, library path access
@@ -354,59 +381,43 @@ namespace PLEXIL {
      * @brief Get the search path for library nodes.
      * @return A reference to the library search path.
      */
-    const std::vector<std::string>& getLibraryPath() const;
+    virtual const std::vector<std::string>& getLibraryPath() const = 0;
 
     /**
      * @brief Get the search path for plan files.
      * @return A reference to the plan search path.
      */
-    const std::vector<std::string>& getPlanPath() const;
+    virtual const std::vector<std::string>& getPlanPath() const = 0;
 
     /**
      * @brief Add the specified directory name to the end of the library node loading path.
      * @param libdir The directory name.
      */
-    void addLibraryPath(const std::string& libdir);
+    virtual void addLibraryPath(const std::string& libdir) = 0;
 
     /**
      * @brief Add the specified directory names to the end of the library node loading path.
      * @param libdirs The vector of directory names.
      */
-    void addLibraryPath(const std::vector<std::string>& libdirs);
+    virtual void addLibraryPath(const std::vector<std::string>& libdirs) = 0;
 
     /**
      * @brief Add the specified directory name to the end of the plan loading path.
      * @param libdir The directory name.
      */
-    void addPlanPath(const std::string& libdir);
+    virtual void addPlanPath(const std::string& libdir) = 0;
 
     /**
      * @brief Add the specified directory names to the end of the plan loading path.
      * @param libdirs The vector of directory names.
      */
-    void addPlanPath(const std::vector<std::string>& libdirs);
-
-    /**
-     * @brief Return the set of registered adapters
-     */
-    std::set<InterfaceAdapter *> & getAdapters()
-    {
-      return m_adapters;
-    }
-
-    /**
-     * @brief Return the set of registered adapters
-     */
-    std::set<InterfaceAdapter *> const & getAdapters() const
-    {
-      return m_adapters;
-    }
+    virtual void addPlanPath(const std::vector<std::string>& libdirs) = 0;
 
     /**
      * @brief Construct the input queue specified by the configuration data.
      * @return Pointer to instance of a class derived from InputQueue.
      */
-    InputQueue *getInputQueue() const;
+    virtual InputQueue *makeInputQueue() const = 0;
 
 
     /* --------------------------------------------------------------------- */
@@ -418,168 +429,76 @@ namespace PLEXIL {
     //
 
     /**
-     * @deprecated interface adapters are no longer stored.
-     * @brief Returns true if the given adapter is a known interface in the system. False otherwise
-     */
-    bool isKnown(InterfaceAdapter *intf);
-
-    /**
      * @deprecated
-     * @brief Register the given interface adapter for this command.
-     Returns true if successful.  Fails and returns false
-     iff the command name already has an adapter registered
-     or setting a command interface is not implemented.
+     * @brief Register the given interface adapter for this command,
+     * overriding any previously registered adapters and the default
+     * CommandHandler.
      * @param commandName The command to map to this adapter.
-     * @param intf The interface adapter to handle this command.
+     * @param intf Pointer to the interface adapter to handle this
+     * command.
+     * @return Always returns true.
      */
-    bool registerCommandInterface(std::string const &commandName,
-                                  InterfaceAdapter *intf);
+    virtual bool registerCommandInterface(std::string const &commandName,
+                                          InterfaceAdapter *intf) = 0;
 
     /**
      * @deprecated
-     * @brief Register the given interface adapter for lookups to this state.
-     Returns true if successful.  Fails and returns false
-     if the state name already has an adapter registered
-     or registering a lookup interface is not implemented.
+     * @brief Register the given interface adapter for lookups to this
+     * state name, overriding any previously registered adapter or
+     * handler.
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
      * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
+     * @return Always returns true.
      */
-    bool registerLookupInterface(std::string const &stateName,
-                                 InterfaceAdapter *intf,
-                                 bool telemetryOnly = false);
+    virtual bool registerLookupInterface(std::string const &stateName,
+                                         InterfaceAdapter *intf,
+                                         bool telemetryOnly = false) = 0;
 
     /**
      * @deprecated
-     * @brief Return the interface adapter in effect for this command, whether
-     specifically registered or default. May return NULL.
-     * @param commandName The command.
-     */
-    InterfaceAdapter *getCommandInterface(std::string const &commandName) const;
-
-    /**
-     * @deprecated
-     * @brief Return the interface adapter in effect for lookups with this state name,
-     whether specifically registered or default. May return NULL.
-     * @param stateName The state.
-     */
-    InterfaceAdapter *getLookupInterface(std::string const& stateName) const;
-
-    /**
-     * @brief Register the given interface adapter.
+     * @brief Register the given interface adapter using the
+     * information in the configuration XML.
      * @param adapter The interface adapter to be registered.
      */
-    void defaultRegisterAdapter(InterfaceAdapter *adapter);
+    virtual void defaultRegisterAdapter(InterfaceAdapter *adapter) = 0;
 
     /**
      * @deprecated
-     * @brief Register the given interface adapter as the default for all lookups and commands
-     which do not have a specific adapter.  Returns true if successful.
-     Fails and returns false if there is already a default adapter registered
-     or setting the default interface is not implemented.
+     * @brief Register the given interface adapter as the default for
+     * lookups and commands which do not have a specific adapter, and
+     * for planner updates if no other adapter or handler has been
+     * registered. Overrides any previous default settings.
      * @param intf The interface adapter to use as the default.
+     * @return Always returns true.
      */
-    bool setDefaultInterface(InterfaceAdapter *intf);
+    virtual bool setDefaultInterface(InterfaceAdapter *intf) = 0;
 
     /**
      * @deprecated
-     * @brief Register the given interface adapter as the default for lookups.
-     This interface will be used for all lookups which do not have
-     a specific adapter.
-     Returns true if successful.
-     Fails and returns false if there is already a default lookup adapter registered
-     or setting the default lookup interface is not implemented.
+     * @brief Register the given interface adapter as the default for
+     * lookups which do not have a specific adapter or handler
+     * registered, overriding any previous default adapter or handler
+     * registration.
      * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
+     * @return Always returns true.
      */
-    bool setDefaultLookupInterface(InterfaceAdapter *intf);
+    virtual bool setDefaultLookupInterface(InterfaceAdapter *intf) = 0;
 
     /**
      * @deprecated
-     * @brief Register the given interface adapter as the default for commands.
-     This interface will be used for all commands which do not have
-     a specific adapter.
-     Returns true if successful.
-     Fails and returns false if there is already a default command adapter registered.
+     * @brief Register the given interface adapter as the default for
+     * commands which do not have a specific adapter or handler
+     * registered, overriding any previous default adapter or handler
+     * registration.
      * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
+     * @return Always returns true.
      */
-    bool setDefaultCommandInterface(InterfaceAdapter *intf);
-
-    /**
-     * @deprecated
-     * @brief Return the current default interface adapter for commands.
-     May return NULL.
-    */
-    InterfaceAdapter *getDefaultCommandInterface() const;
-
-    /**
-     * @deprecated
-     * @brief Return the current default interface adapter for lookups.
-     May return NULL.
-    */
-    InterfaceAdapter *getDefaultLookupInterface() const;
-
-    /**
-     * @deprecated
-     * @brief Return the current default interface adapter. May return NULL.
-     */
-    InterfaceAdapter *getDefaultInterface() const;
-
-    /**
-     * @deprecated
-     * @brief Register the given interface adapter for planner updates.
-     Returns true if successful.  Fails and returns false
-     iff an adapter is already registered
-     or setting the default planner update interface is not implemented.
-     * @param intf The interface adapter to handle planner updates.
-     */
-    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
-
-    /**
-     * @deprecated
-     * @brief Return the interface adapter in effect for planner updates,
-     whether specifically registered or default. May return NULL.
-    */
-    InterfaceAdapter *getPlannerUpdateInterface() const;
-
-  private:
-
-    // Not implemented
-    AdapterConfiguration(AdapterConfiguration const &);
-    AdapterConfiguration &operator=(AdapterConfiguration const &);
-
-    /**
-     * @brief Deletes the given adapter from the interface manager
-     * @return true if the given adapter existed and was deleted. False if not found
-     */
-    bool deleteAdapter(InterfaceAdapter *intf);
-
-    //* Default InterfaceAdapters
-    AbstractCommandHandler *m_defaultCommandHandler;
-    AbstractLookupHandler *m_defaultLookupHandler;
-
-    //* InterfaceAdapter to use for PlannerUpdate nodes
-    AbstractPlannerUpdateHandler *m_plannerUpdateHandler;
-
-    // Maps by command/lookup
-
-    // Interface handler maps
-    typedef std::map<std::string, AbstractCommandHandler *> CommandHandlerMap;
-    typedef std::map<std::string, AbstractLookupHandler *> LookupHandlerMap;
-
-    LookupHandlerMap m_lookupMap;
-    CommandHandlerMap m_commandMap;
-
-    //* ExecListener hub
-    ExecListenerHub *m_listenerHub;
-
-    //* Set of all known InterfaceAdapter instances
-    std::set<InterfaceAdapter *> m_adapters;
-
-    //* List of directory names for plan file search paths
-    std::vector<std::string> m_planPath;
+    virtual bool setDefaultCommandInterface(InterfaceAdapter *intf) = 0;
   };
+
+  //* @brief Abstract factory for AdapterConfiguration
+  AdapterConfiguration *makeAdapterConfiguration();
 
   extern AdapterConfiguration *g_configuration;
 

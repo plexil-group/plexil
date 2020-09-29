@@ -27,12 +27,15 @@
 #ifndef PLEXIL_VALUE_TYPE_HH
 #define PLEXIL_VALUE_TYPE_HH
 
-#include "ParserException.hh"
-
 #include "ArrayFwd.hh"
 
-#include <iosfwd>
-#include <vector>
+#ifdef HAVE_CSTDDEF
+#include <cstddef>  // size_t
+#elif HAVE_STDDEF_H
+#include <stddef.h> // size_t
+#endif
+
+#include <iosfwd> // std::ostream
 
 namespace PLEXIL
 {

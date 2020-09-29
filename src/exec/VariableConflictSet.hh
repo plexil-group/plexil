@@ -29,7 +29,6 @@
 
 #include "plexil-config.h"
 
-#include <set>
 #include <vector>
 
 #if defined(HAVE_CSTDDEF)

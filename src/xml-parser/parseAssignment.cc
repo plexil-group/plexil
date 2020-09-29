@@ -32,7 +32,7 @@
 #include "AssignmentNode.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "ExpressionFactory.hh"
+#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 

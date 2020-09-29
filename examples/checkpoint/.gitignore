@@ -1,5 +1,6 @@
+saves
+*.a
+*.d
 *.o
 *.so
-*.d
 *.dylib
-*.plx

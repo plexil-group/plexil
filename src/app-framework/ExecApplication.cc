@@ -30,10 +30,9 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerHub.hh"
-#include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
+#include "ParserException.hh"
 #include "PlexilExec.hh"
-#include "PlexilSchema.hh"
 #include "pugixml.hpp"
 
 #if defined(HAVE_CSTRING)
@@ -66,7 +65,7 @@ namespace PLEXIL
       m_blockedSignals[i] = 0;
 
     // connect exec and interface manager
-    g_configuration = new AdapterConfiguration();
+    g_configuration = makeAdapterConfiguration();
     g_exec = makePlexilExec();
     g_exec->setExecListener(g_configuration->getListenerHub());
     g_execInterface = static_cast<AdapterExecInterface *>(m_manager);
