@@ -29,9 +29,17 @@
 
 #include "plexil-config.h"
 
+// timeval
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
 #endif
+
+// size_t
+#if defined(HAVE_CSTDDEF)
+#include <cstddef>
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h>
+#endif 
 
 /**
  * @class Agenda The schedule of simulator responses to send.

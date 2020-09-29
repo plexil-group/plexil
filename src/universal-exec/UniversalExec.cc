@@ -34,6 +34,8 @@
 #include "LuvListener.hh"
 #endif
 
+#include "pugixml.hpp"
+
 #include <fstream>
 
 #if defined(HAVE_CSTRING)
