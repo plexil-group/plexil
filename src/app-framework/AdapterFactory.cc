@@ -25,8 +25,7 @@
 */
 
 #include "AdapterFactory.hh"
-#include "InterfaceAdapter.hh"
-#include "AdapterExecInterface.hh"
+
 #include "Debug.hh"
 #include "DynamicLoader.h"
 #include "Error.hh"

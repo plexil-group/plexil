@@ -25,7 +25,6 @@
 */
 
 #include "Alias.hh"
-#include "Error.hh"
 #include "Value.hh"
 
 #if defined(HAVE_CSTDLIB)

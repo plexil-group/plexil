@@ -31,7 +31,6 @@
 #include "LinkedQueue.hh"
 
 #include <algorithm> // std::stable_sort()
-#include <cctype>
 #include <map>
 #include <set>
 

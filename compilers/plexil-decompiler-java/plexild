@@ -1,0 +1,21 @@
+#! /bin/sh
+
+if [ -z "$(command -v java)" ]
+then
+    echo 'Error: java runtime not found.' >& 2
+    exit 1
+fi
+
+# Directory containing this script - jar file should be here
+PLEXILD_DIR="$(cd "$(dirname "$(command -v "$0")")" && pwd)"
+
+if [ ! -r "${PLEXILD_DIR}/plexild.jar" ]
+then
+    echo "Error: jar file ${PLEXILD_DIR}/jar not found." >&2
+    echo 'To build it: ' >&2
+    echo " cd ${PLEXILD_DIR}" >&2
+    echo ' ant' >&2
+    exit 1
+fi
+
+exec java -jar "${PLEXILD_DIR}/plexild.jar" "$@"

@@ -27,7 +27,7 @@
 #ifndef PLEXIL_EXEC_LISTENER_HH
 #define PLEXIL_EXEC_LISTENER_HH
 
-#include "NodeTransition.hh"
+#include "NodeConstants.hh" // enum NodeState
 
 #include "pugixml.hpp"
 
@@ -40,6 +40,8 @@ namespace PLEXIL
   class Expression;
   class Node;
   class Value;
+
+  struct NodeTransition;
 
   /**
    * @brief A base class for implementing notifications to external agents about exec state changes.

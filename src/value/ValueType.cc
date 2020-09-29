@@ -30,13 +30,10 @@
 
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
-#include "Error.hh"
 #include "map-utils.hh"
 #include "NodeConstants.hh"
+#include "ParserException.hh"
 #include "stricmp.h"
-
-// TEMP DEBUG
-#include "Debug.hh"
 
 #include <iomanip>
 #include <iostream>
@@ -422,9 +419,6 @@ namespace PLEXIL
   bool parseValue(char const *str, Boolean &result)
   {
     assertTrue_1(str);
-    // TEMP DEBUG
-    debugMsg("parseValue<Boolean>",
-             " value = \"" << str << "\" length = " << strlen(str));
 
     switch (strlen(str)) {
     case 1:

@@ -32,7 +32,6 @@
 namespace PLEXIL
 {
   // Forward references
-  class ExpressionListener;
   class ListenableUnaryOperator;
   class NodeImpl;
   class Value;

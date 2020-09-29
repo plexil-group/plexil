@@ -29,7 +29,6 @@
 
 #include "Debug.hh"
 #include "ExecListenerFactory.hh"
-#include "Expression.hh"
 #include "Node.hh"
 
 #include "ClientSocket.h"

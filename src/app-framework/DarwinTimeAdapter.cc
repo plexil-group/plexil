@@ -32,11 +32,11 @@
 
 #if defined(HAVE_SETITIMER) && !defined(HAVE_TIMER_CREATE)
 
-#include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Debug.hh"
 #include "InterfaceError.hh"
 #include "TimeAdapterImpl.hh"
+#include "timespec-utils.hh"
 #include "timeval-utils.hh"
 
 #include <iomanip>
@@ -48,7 +48,7 @@
 #endif
 
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h> // for gettimeofday, itimerval
+#include <sys/time.h> // for gettimeofday, itimerval, TIMESPEC_TO_TIMEVAL
 #endif
 
 namespace PLEXIL
@@ -94,7 +94,7 @@ namespace PLEXIL
      * @brief Initialize signal handling for the process.
      * @return True if successful, false otherwise.
      */
-    bool configureSignalHandling()
+    virtual bool configureSignalHandling()
     {
       // block SIGALRM and SIGUSR1 for the process as a whole
       sigset_t processSigset, originalSigset;
@@ -122,7 +122,7 @@ namespace PLEXIL
      * @brief Construct and initialize the timer as required.
      * @return True if successful, false otherwise.
      */
-    bool initializeTimer()
+    virtual bool initializeTimer()
     {
       return true; // nothing to do
     }
@@ -131,48 +131,70 @@ namespace PLEXIL
      * @brief Set the timer.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
+     * @note This function is not reentrant! Acquire m_timerMutex before calling.
      */
 
     // N.B. gettimeofday() on macOS rarely performs an actual syscall:
     // https://stackoverflow.com/questions/40967594/does-gettimeofday-on-macos-use-a-system-call
 
-    bool setTimer(double date)
-    {
-      static timeval const sl_timezero = {0, 0};
-      struct timeval dateval = doubleToTimeval(date);
+    // N.B. setitimer() wants timevals, and won't let us specify a monotonic clock.
+    // So wing it.
 
-      struct timeval now;
-      checkInterfaceError(0 == gettimeofday(&now, NULL),
-                          "TimeAdapter:setTimer: gettimeofday() failed, errno = " << errno);
+    virtual bool setTimer(double date)
+    {
+      static struct timespec const sl_timezero_ts = {0, 0};
+      struct timespec now_ts;
+      struct itimerval myItimerval;
+
+      checkInterfaceError(!clock_gettime(PLEXIL_CLOCK_GETTIME, &now_ts),
+                          "TimeAdapter:setTimer: clock_gettime() failed, errno = " << errno);
 
       // Check if we're already past the desired time
-      dateval = dateval - now;
-      if (dateval < sl_timezero) {
+      struct timespec interval_ts = doubleToTimespec(date) - now_ts;
+      if (interval_ts < sl_timezero_ts) {
         // Already past the scheduled time, tell caller to submit wakeup
         debugMsg("TimeAdapter:setTimer",
                  " desired time " << std::setprecision(15) << date << " is in the past");
         return false;
       }
 
+      struct timeval interval_tv;
+      TIMESPEC_TO_TIMEVAL(&interval_tv, &interval_ts);
+
       // Is timer already set for an earlier time?
-      struct itimerval myItimerval = {{0, 0}, {0, 0}};
-      checkInterfaceError(0 == getitimer(ITIMER_REAL, &myItimerval),
+      checkInterfaceError(!getitimer(ITIMER_REAL, &myItimerval),
                           "TimeAdapter:setTimer: getitimer failed, errno = " << errno);
       if (timerisset(&myItimerval.it_value)
-          && (dateval > myItimerval.it_value)) {
-        debugMsg("TimeAdapter:setTimer",
-                 " already set for " << std::setprecision(15)
-                 << timevalToDouble(now + myItimerval.it_value));
+          && !(interval_tv < myItimerval.it_value)) {
+        debugStmt("TimeAdapter:setTimer",
+                  {
+                    struct timeval now_tv;
+                    TIMESPEC_TO_TIMEVAL(&now_tv, &now_ts);
+                    debugMsg("TimeAdapter:setTimer",
+                             " already set for " << std::setprecision(15)
+                             << timevalToDouble(now_tv + myItimerval.it_value));
+                  });
         return true;
       }
 
-      // Compute the interval and set the timer
-      myItimerval.it_interval = sl_timezero;
-      myItimerval.it_value = dateval;
+      // Actually set the timer (but clear recurrence interval first)
+      myItimerval.it_interval.tv_sec = 0; 
+      myItimerval.it_interval.tv_usec = 0; 
+      myItimerval.it_value = interval_tv;
       checkInterfaceError(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
                           "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
-      debugMsg("TimeAdapter:setTimer",
-               " set timer for " << std::setprecision(15) << date);
+
+      // Report time actually given to setitimer
+      debugStmt("TimeAdapter:setTimer",
+                {
+                  struct timeval now_tv;
+                  TIMESPEC_TO_TIMEVAL(&now_tv, &now_ts);
+                  debugMsg("TimeAdapter:setTimer",
+                           " timer set for "
+                           << std::setprecision(15)
+                           << timevalToDouble(now_tv + myItimerval.it_value));
+                });
+
       return true;
     }
 
@@ -180,12 +202,12 @@ namespace PLEXIL
      * @brief Stop the timer.
      * @return True if successful, false otherwise.
      */
-    bool stopTimer()
+    virtual bool stopTimer()
     {
       static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
       int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
       condDebugMsg(status != 0,
-                   "TimeAdapter:stopTimer",
+                   "DarwinTimeAdapter:stopTimer",
                    " setitimer() failed, errno = " << errno);
       condDebugMsg(status == 0,
                    "TimeAdapter:stopTimer", " succeeded");
@@ -196,7 +218,7 @@ namespace PLEXIL
      * @brief Shut down and delete the timer as required.
      * @return True if successful, false otherwise.
      */
-    bool deleteTimer()
+    virtual bool deleteTimer()
     {
       return true; // nothing to do
     }
@@ -205,7 +227,7 @@ namespace PLEXIL
      * @brief Initialize the wait thread signal mask.
      * @return True if successful, false otherwise.
      */
-    bool configureWaitThreadSigmask(sigset_t* mask)
+    virtual bool configureWaitThreadSigmask(sigset_t* mask)
     {
       if (0 != sigemptyset(mask)) {
         warn("DarwinTimeAdapter: sigemptyset failed!");
@@ -229,7 +251,7 @@ namespace PLEXIL
      * @param Pointer to the mask.
      * @return True if successful, false otherwise.
      */
-    bool initializeSigwaitMask(sigset_t* mask)
+    virtual bool initializeSigwaitMask(sigset_t* mask)
     {
       // listen for SIGALRM and SIGUSR1
       if (0 != sigemptyset(mask)) {

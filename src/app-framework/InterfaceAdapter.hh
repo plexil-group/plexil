@@ -29,22 +29,17 @@
 
 #include "pugixml.hpp"
 
-#include <map>
-#include <set>
-#include <vector>
-
 #include "plexil-stdint.h"
 
 namespace PLEXIL
 {
   // forward references 
+  class AdapterConfiguration;
+  class AdapterExecInterface;
   class Command;
-  class Expression;
   class State;
   class StateCacheEntry;
   class Update;
-
-  class AdapterExecInterface;
 
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
@@ -87,40 +82,61 @@ namespace PLEXIL
     /**
      * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
+     * @note The default method does nothing and returns true.
+     * @deprecated This signature is maintained only for backward compatibility.
      */
-    virtual bool initialize() = 0;
+    virtual bool initialize();
+
+    /**
+     * @brief The adapter should initialize itself and
+     *        register itself with the interface registry.
+     * @return true if successful, false otherwise.
+     * @note Adapters should provide their own methods as required.
+     * @note Default method simply calls the above member function
+     *       for backward compatibility.
+     */
+    virtual bool initialize(AdapterConfiguration *);
 
     /**
      * @brief Starts the adapter, possibly using its configuration data.  
      * @return true if successful, false otherwise.
+     * @note Adapters should provide their own methods as required.
+     * @note Default method simply returns true.
      */
-    virtual bool start() = 0;
+    virtual bool start();
 
     /**
      * @brief Stops the adapter.  
      * @return true if successful, false otherwise.
+     * @note Adapters should provide their own methods as required.
+     * @note Default method simply returns true.
      */
-    virtual bool stop() = 0;
+    virtual bool stop();
 
     /**
      * @brief Resets the adapter.  
      * @return true if successful, false otherwise.
-     * @note Adapters should provide their own methods.
+     * @note Adapters should provide their own methods as required.
+     * @note Default method simply returns true.
+     * @deprecated This member function will be removed in a future release.
      */
-    virtual bool reset() = 0;
+    virtual bool reset();
 
     /**
      * @brief Shuts down the adapter, releasing any of its resources.
      * @return true if successful, false otherwise.
-     * @note Adapters should provide their own methods.
+     * @note Adapters should provide their own methods as required.
+     * @note Default method simply returns true.
      */
-    virtual bool shutdown() = 0;
+    virtual bool shutdown();
 
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
      * @return The current value for the state.
-     * @note Adapters should provide their own methods. The default method does nothing.
+     * @note The default method does nothing.
+     * @deprecated If you must implement lookupNow(), register a lookup handler.
+     * @see LookupHandler
      */
     virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
@@ -128,12 +144,19 @@ namespace PLEXIL
      * @brief Inform the interface that it should report changes in value of this state.
      * @param state The state.
      * @note Adapters should provide their own methods.
+     * @note The default method does nothing.
+     * @deprecated If you must implement this functionality, register a lookup handler.
+     * @see LookupHandler
      */
     virtual void subscribe(const State& state);
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
+     * @param state The state.
      * @note Adapters should provide their own methods.
+     * @note The default method does nothing.
+     * @deprecated If you must implement this functionality, register a lookup handler.
+     * @see LookupHandler
      */
     virtual void unsubscribe(const State& state);
 
@@ -142,24 +165,33 @@ namespace PLEXIL
      * @param state The state.
      * @param hi The upper threshold, at or above which to report changes.
      * @param lo The lower threshold, at or below which to report changes.
-     * @note Adapters should provide their own methods as appropriate.  The default methods do nothing.
+     * @note Adapters should provide their own methods.
+     * @note The default methods do nothing.
+     * @deprecated If you must implement this functionality, register a lookup handler.
+     * @see LookupHandler
      */
     virtual void setThresholds(const State& state, double hi, double lo);
     virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
 
     /**
      * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
-     * @param node The Node requesting the update.
-     * @param valuePairs A map of <string_key, value> pairs.
-     * @param ack The expression in which to store an acknowledgement of completion.
-     * @note Derived classes may implement this method.
+     * @param update Pointer to the Update instance containing the data to report to the planner.
+     * @note Adapters may implement this method.
+     * @note The default method does nothing.
+     * @deprecated If you must implement this behavior, implement an exec listener 
+     *             or a planner update handler instead.
+     * @see ExecListener
+     * @see PlannerUpdateHandler
      */
-
     virtual void sendPlannerUpdate(Update *update);
 
     /**
      * @brief Execute a command with the requested arguments.
      * @param cmd The Command instance.
+     * @note Derived classes may implement this method.
+     * @note The default method sends a command handle value of COMMAND_SENT_TO_SYSTEM.
+     * @deprecated If you must implement this functionality, register a command handler.
+     * @see CommandHandler
      */
     virtual void executeCommand(Command *cmd);
 
@@ -167,15 +199,11 @@ namespace PLEXIL
      * @brief Abort the pending command.
      * @param cmd Pointer to the command being aborted.
      * @note Derived classes may implement this method.
+     * @note The default method sends a command abort acknowledge value of true.
+     * @deprecated If you must implement this functionality, register a command handler.
+     * @see CommandHandler
      */
     virtual void invokeAbort(Command *cmd);
-
-    /**
-     * @brief Register this adapter based on its XML configuration data.
-     * @note The adapter is presumed to be fully initialized and working at the time of this call.
-     * @note This is a default method; adapters are free to override it.
-     */
-    virtual void registerAdapter();
 
     /**
      * @brief Get the configuration XML for this instance.

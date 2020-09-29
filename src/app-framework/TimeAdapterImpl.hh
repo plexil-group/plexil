@@ -28,7 +28,6 @@
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
 #include "InterfaceAdapter.hh"
-#include "AdapterConfiguration.hh"
 #include "InterfaceError.hh"
 
 #if defined(HAVE_CSIGNAL)
@@ -37,15 +36,35 @@
 #include <signal.h>
 #endif
 
+#ifdef PLEXIL_WITH_THREADS
+#include "ThreadMutex.hh"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#endif
+#endif // HAVE_PTHREAD_H
+#endif // PLEXIL_WITH_THREADS
+
+// Which clock_gettime setting to use
+
+#if defined(HAVE_CLOCK_GETTIME)
+#if defined(CLOCK_REALTIME)
+#define PLEXIL_CLOCK_GETTIME CLOCK_REALTIME
+#elif defined(CLOCK_MONOTONIC)
+#define PLEXIL_CLOCK_GETTIME CLOCK_MONOTONIC
+#else
+#error "clock_gettime() is defined, but not CLOCK_MONOTONIC or CLOCK_REALTIME"
+#endif // defined(CLOCK_REALTIME)_
+#endif // defined(HAVE_CLOCK_GETTIME)
 
 namespace PLEXIL
 {
-
+  // Forward reference
+  class AdapterConfiguration;
+  
   class TimeAdapterImpl : public InterfaceAdapter
   {
+    // The lookup handler needs access to some protected member functions
+    friend class TimeLookupHandler;
+
   public:
     TimeAdapterImpl(AdapterExecInterface &);
     TimeAdapterImpl(AdapterExecInterface &,
@@ -65,7 +84,7 @@ namespace PLEXIL
      * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
      */
-    virtual bool initialize();
+    virtual bool initialize(AdapterConfiguration *config);
 
     /**
      * @brief Starts the adapter, possibly using its configuration data.  
@@ -91,36 +110,18 @@ namespace PLEXIL
      */
     virtual bool shutdown();
 
-    /**
-     * @brief Perform an immediate lookup of the requested state.
-     * @param state The state for this lookup.
-     * @return The current value of the lookup.
-     */
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
-    static void lookupTime(State const &state, StateCacheEntry &cacheEntry);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @param state The state.
-     */
-    void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
-    void setThresholds(const State& state, double hi, double lo);
-    void setThresholds(const State& state, int32_t hi, int32_t lo);
-
   protected:
+
+    //
+    // Generic internal functions which should not need to be overridden.
+    // (Famous last words.)
+    //
+
+    /**
+     * @brief Set a wakeup at the given time.
+     * @param date The Unix-epoch wakeup time, as a double.
+     */
+    void setNextWakeup(double date);
 
     //
     // Internal functions to be implemented by derived classes
@@ -147,14 +148,14 @@ namespace PLEXIL
     virtual bool initializeTimer() = 0;
 
     /**
-     * @brief Set the timer.
+     * @brief Set the timer in an implementation-dependent way.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
     virtual bool setTimer(double date) = 0;
 
     /**
-     * @brief Stop the timer.
+     * @brief Stop the timer in an implementation-dependent way.
      * @return True if successful, false otherwise.
      */
     virtual bool stopTimer() = 0;
@@ -179,27 +180,6 @@ namespace PLEXIL
     virtual bool initializeSigwaitMask(sigset_t* mask) = 0;
 
   private:
-
-    class TimeLookupHandler : public AbstractLookupHandler {
-      InterfaceAdapter* interface;
-    public:
-      TimeLookupHandler(InterfaceAdapter *intf) : interface(intf) {}
-      virtual void lookupNow(const State &state, StateCacheEntry &cacheEntry) {
-        interface->lookupNow(state, cacheEntry);
-      }
-      void setThresholds(const State &state, double hi, double lo) {
-        interface->setThresholds(state, hi, lo);
-      }
-      void setThresholds(const State &state, int32_t hi, int32_t lo) {
-        interface->setThresholds(state, hi, lo);
-      }
-      void subscribe(const State &state) {
-        interface->subscribe(state);
-      }
-      void unsubscribe(const State &state) {
-        interface->unsubscribe(state);
-      }
-    };
 
     // Not implemented
     TimeAdapterImpl();
@@ -229,6 +209,7 @@ namespace PLEXIL
 
     // Wait thread
     pthread_t m_waitThread;
+    ThreadMutex m_timerMutex;
 #endif
 
     // Next scheduled wakeup

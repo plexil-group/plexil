@@ -27,13 +27,19 @@
 #ifndef PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 #define PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 
-#include "CommandHandleVariable.hh"
 #include "ConcreteExpressionFactory.hh"
-#include "NodeTimepointValue.hh"
-#include "NodeVariables.hh"
 
 namespace PLEXIL
 {
+
+  // Forward references
+  class CommandHandleVariable;
+  class Expression;
+  class FailureVariable;
+  class NodeConnector;
+  class NodeTimepointValue;
+  class OutcomeVariable;
+  class StateVariable;
 
   //
   // Declaration of templates for internal variable/reference factories

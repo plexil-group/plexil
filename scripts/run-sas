@@ -40,20 +40,23 @@ if [ ! $PLEXIL_HOME ]
 fi
 
 # Determine executable
-prog=$PLEXIL_HOME/src/apps/StandAloneSimulator/simulator
-#prog=$PLEXIL_HOME/bin/simulator
+prog="$PLEXIL_HOME"/bin/simulator
+if [ ! -e "$prog" ]
+then
+    prog="$PLEXIL_HOME"/src/apps/StandAloneSimulator/simulator
+fi
 
 # Make sure executable exists.
-if [ ! -e $prog ]
-  then
-    echo Error: $prog does not exist.
-    echo You probably need to build it.
+if [ ! -e "$prog" ]
+then
+    echo "Error: $prog does not exist."
+    echo 'You probably need to build it.'
     exit 1
 fi
 
 # Not enough arguments?
 if [ $# -lt 1 ]
-  then
+then
     echo $usage
     exit 1
 fi

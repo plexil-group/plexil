@@ -39,6 +39,7 @@
 #include "Value.hh"
 #include "InterfaceAdapter.hh"
 
+#include <set>
 
 class CheckpointAdapter : public PLEXIL::InterfaceAdapter
 {

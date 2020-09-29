@@ -37,7 +37,7 @@ install(TARGETS PlexilUtils
 install(FILES
   ConstantMacros.hh Debug.hh DebugMessage.hh DynamicLoader.h Error.hh
   LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh
-  SimpleMap.hh TestSupport.hh 
+  SimpleMap.hh SimpleSet.hh TestSupport.hh 
   bitsetUtils.hh lifecycle-utils.h map-utils.hh stricmp.h
   timespec-utils.hh timeval-utils.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
@@ -72,8 +72,9 @@ endif()
 
 if(MODULE_TESTS)
   add_executable(utils-module-tests
-    test/LinkedQueueTest.cc test/SimpleMapTest.cc test/TestData.cc
-    test/bitsetUtilsTest.cc test/module-tests.cc test/util-test-module.cc)
+    test/LinkedQueueTest.cc test/SimpleMapTest.cc test/SimpleSetTest.cc
+    test/TestData.cc test/bitsetUtilsTest.cc test/module-tests.cc
+    test/util-test-module.cc)
 
   install(TARGETS utils-module-tests
     DESTINATION ${CMAKE_INSTALL_BINDIR})

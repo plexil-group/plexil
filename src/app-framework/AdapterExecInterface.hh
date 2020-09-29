@@ -28,9 +28,6 @@
 #define PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 
 #include "CommandHandle.hh"
-#include "ParserException.hh"
-
-#include <vector>
 
 // forward reference
 namespace pugi
@@ -48,15 +45,18 @@ namespace PLEXIL
   class Value;
 
   /**
-   * @brief An abstract base class representing the InterfaceManager API
-   *        from the interface adapter's point of view.
-   * @note This class exists so that InterfaceAdapter and its derived classes
-   *       need not be aware of the implementation details of InterfaceManager.
+   * @brief An abstract base class representing the PLEXIL Exec API
+   *        from the interface implementor's point of view.
    */
 
   class AdapterExecInterface
   {
   public:
+
+    // Virtual destructor
+    virtual ~AdapterExecInterface()
+    {
+    }
 
     /**
      * @brief Notify of the availability of a new value for a lookup.
@@ -97,16 +97,14 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planXml The pugixml representation of the new plan.
      */
-    virtual void handleAddPlan(pugi::xml_node const planXml)
-      = 0;
+    virtual void handleAddPlan(pugi::xml_node const planXml) = 0;
 
     /**
      * @brief Notify the executive of a new library node.
      * @param planXml The XML document containing the new library node
      * @return true if successful, false otherwise.
      */
-    virtual bool handleAddLibrary(pugi::xml_document *planXml)
-      = 0;
+    virtual bool handleAddLibrary(pugi::xml_document *planXml) = 0;
 
     /**
      * @brief Notify the executive that it should run one cycle.  This should be sent after
@@ -151,25 +149,6 @@ namespace PLEXIL
      * @return The property value as an untyped pointer.
      */
     virtual void* getProperty(const std::string& name) = 0;
-
-  protected:
-
-    /**
-     * @brief Default constructor method.
-     */
-    AdapterExecInterface();
-
-    /**
-     * @brief Destructor method.
-     */
-    virtual ~AdapterExecInterface();
-
-  private:
-
-    // Deliberately unimplemented
-    AdapterExecInterface(const AdapterExecInterface&);
-    AdapterExecInterface& operator=(const AdapterExecInterface&);
-
   };
 
   extern AdapterExecInterface *g_execInterface;

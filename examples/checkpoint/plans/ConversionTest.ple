@@ -1,0 +1,34 @@
+String Lookup ToString(...);
+Integer Lookup StringToInteger(String);
+Real Lookup StringToReal(String);
+Boolean Lookup StringToBoolean(String);
+Command pprint(...);
+ConversionTest:
+{
+  pprint("intial print");
+  pprint(Lookup(StringToInteger("1.1")));
+  pprint(Lookup(StringToInteger("11")));
+  pprint(Lookup(StringToInteger("11000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+  pprint(Lookup(StringToInteger("-1")));
+  pprint(Lookup(StringToInteger("-1-")));
+  pprint(Lookup(StringToInteger("--1")));
+  pprint(Lookup(StringToInteger("-11000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+
+  pprint(Lookup(StringToReal("1.1")));
+  pprint(Lookup(StringToReal("11")));
+  pprint(Lookup(StringToReal("11000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+  pprint(Lookup(StringToReal("-1")));
+  pprint(Lookup(StringToReal("-1-")));
+  pprint(Lookup(StringToReal("--1")));
+  pprint(Lookup(StringToReal("-11000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+  pprint(Lookup(StringToReal("1.1.1")));
+
+  pprint(Lookup(StringToBoolean("true")));
+  pprint(Lookup(StringToBoolean("TrUe")));
+  pprint(Lookup(StringToBoolean("false")));
+  pprint(Lookup(StringToBoolean("FaLse")));
+  pprint(Lookup(StringToBoolean("1")));
+  pprint(Lookup(StringToBoolean("0")));
+  pprint(Lookup(StringToBoolean("10")));
+  pprint(Lookup(StringToBoolean("truebutter")));
+}

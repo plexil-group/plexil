@@ -29,9 +29,6 @@
 
 #include "Error.hh" // PLEXIL_NOEXCEPT
 
-#include <exception>
-#include <sstream>
-
 /**
  * @def reportParserException
  * @brief Unconditionally throw a ParserException with the given message

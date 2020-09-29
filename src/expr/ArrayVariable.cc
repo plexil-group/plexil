@@ -27,7 +27,6 @@
 #include "ArrayVariable.hh"
 
 #include "ArrayImpl.hh"
-#include "Constant.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"

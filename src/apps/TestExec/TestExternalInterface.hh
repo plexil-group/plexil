@@ -28,11 +28,9 @@
 #define PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 
 #include "ExternalInterface.hh"
-#include "ParserException.hh"
 
 #include <iostream>
 #include <map>
-#include <set>
 
 // Forward reference
 namespace pugi
@@ -42,9 +40,6 @@ namespace pugi
 
 namespace PLEXIL 
 {
-  // Forward declaration
-  class ParserException;
-
   class TestExternalInterface : public ExternalInterface 
   {
   public:

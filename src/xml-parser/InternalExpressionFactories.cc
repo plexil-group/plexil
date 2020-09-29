@@ -27,10 +27,12 @@
 #include "InternalExpressionFactories.hh"
 
 #include "Command.hh"
+#include "CommandHandleVariable.hh"
 #include "CommandNode.hh"
-#include "Error.hh"
 #include "NodeImpl.hh"
 #include "NodeConstantExpressions.hh"
+#include "NodeTimepointValue.hh"
+#include "NodeVariables.hh"
 #include "parseNodeReference.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"

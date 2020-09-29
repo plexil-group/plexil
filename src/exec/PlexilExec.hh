@@ -34,12 +34,7 @@ namespace PLEXIL
   // Forward references
   class Assignment;
   class ExecListenerBase;
-  class ExternalInterface;
-  class Expression;
   class Node;
-
-
-  struct NodeConflictComparator;
 
   /**
    * @brief The API of the core PLEXIL executive.

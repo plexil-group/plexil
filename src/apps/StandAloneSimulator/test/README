@@ -1,0 +1,5 @@
+This directory contains a small example using the UE with the Standalone Simulator.
+
+To run it, simply execute:
+
+  $ ./test-sas.sh

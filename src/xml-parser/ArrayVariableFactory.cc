@@ -30,13 +30,10 @@
 #include "Constant.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "NodeConnector.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
-
-#include <limits>
 
 #if defined(HAVE_CSTDLIB)
 #include <cstdlib>

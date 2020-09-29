@@ -1,0 +1,17 @@
+# Format of command entries is:
+# command_name nth_invocation n_responses delay 
+# response ...
+
+MoveRight 1 1 0.0
+5
+
+MoveRight 2 1 0.0
+10
+
+MoveRight 3 1 0.0
+15
+
+MoveRight 4 1 0.0
+20
+
+

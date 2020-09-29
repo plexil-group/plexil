@@ -31,14 +31,16 @@
 #include "AdapterFactory.hh"
 #include "Array.hh"
 #include "Command.hh"
+#include "commandHandlerDefs.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
+#include "lookupHandlerDefs.hh"
 #include "Node.hh"
+#include "ParserException.hh"
 #include "parser-utils.hh"
-#include "PlexilExec.hh"
+#include "PlexilExec.hh" // g_exec
 #include "State.hh"
-#include "StateCacheEntry.hh"
 
 #include <algorithm>
 
@@ -72,19 +74,25 @@ namespace PLEXIL
                                                NodeState newState,
                                                Node * node) const
     {
+      assertTrue_2(node,
+                   "LauncherListener:implementNotifyNodeTransition received null Node pointer");
+
+      // We only care about root nodes
+      // Cheaper to implement here than as an ExecListenerFilter
       if (node->getParent())
         return;
+
       Value const nodeIdValue(node->getNodeId());
       g_execInterface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
-                                   Value(nodeStateName(newState)));
+                                         Value(nodeStateName(newState)));
       NodeOutcome o = node->getOutcome();
       if (o != NO_OUTCOME) {
         g_execInterface->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
-                                     Value(outcomeName(o)));
+                                           Value(outcomeName(o)));
         FailureType f = node->getFailureType();
         if (f != NO_FAILURE)
           g_execInterface->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
-                                       Value(failureTypeName(f)));
+                                             Value(failureTypeName(f)));
       }
     }
   };
@@ -100,12 +108,14 @@ namespace PLEXIL
       v.getValuePointer(ary); // better succeed!
       for (size_t i = 0; i < ary->size(); ++i) {
         // quick & dirty
-        aryxml.append_child(eltType).append_child(pugi::node_pcdata).set_value(ary->getElementValue(i).valueToString().c_str());
+        aryxml.append_child(eltType).append_child(pugi::node_pcdata)
+          .set_value(ary->getElementValue(i).valueToString().c_str());
       }
     }
     else {
       // Scalar value
-      parent.append_child(typeNameAsValue(vt)).append_child(pugi::node_pcdata).set_value(v.valueToString().c_str());
+      parent.append_child(typeNameAsValue(vt)).append_child(pugi::node_pcdata)
+        .set_value(v.valueToString().c_str());
     }
   }
 
@@ -115,48 +125,86 @@ namespace PLEXIL
     return ++sl_next;
   }
 
-  static void executeStartPlanCommand(Command *cmd)
+  //
+  // Helper function
+  //
+
+  static bool checkPlanNameArgument(Command *cmd)
   {
     std::vector<Value> const &args = cmd->getArgValues();
     size_t nargs = args.size();
+    if (nargs < 1) {
+      warn("Not enough parameters to " << cmd->getName() << " command");
+      return false;
+    }
+    if (args[0].valueType() != STRING_TYPE) {
+      warn("First argument to " << cmd->getName() << " command is not a string");
+      return false;
+    }
+
+    std::string const *nodeName = NULL;
+    if (!args[0].getValuePointer(nodeName)) {
+      warn("Node name parameter value to " << cmd->getName() << " command is UNKNOWN");
+      return false;
+    }
+
+    return true;
+  }
+
+  //
+  // StartPlan command handler function
+  //
+
+  static void executeStartPlanCommand(Command *cmd, AdapterExecInterface *intf)
+  {
+    if (!checkPlanNameArgument(cmd)) {
+      intf->handleCommandAck(cmd, COMMAND_FAILED);
+      intf->notifyOfExternalEvent();
+      return;
+    }
+
+    std::vector<Value> const &args = cmd->getArgValues();
+    size_t nargs = args.size();
+
     std::vector<std::string> formals;
     std::vector<Value> actuals;
 
     for (size_t i = 1; i < nargs; i += 2) {
       if (i + 1 >= nargs) {
         warn("Arguments to " << cmd->getName() << " command not in name-value pairs");
-        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-	g_execInterface->notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
       if (args[i].valueType() != STRING_TYPE) {
         warn("StartPlan command argument " << i << " is not a String");
-        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-	g_execInterface->notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       std::string const *formal = NULL;
       if (!args[i].getValuePointer(formal)) {
         warn("StartPlan command argument " << i << " is UNKNOWN");
-        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-	g_execInterface->notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       formals.push_back(*formal);
 
       if (!args[i + 1].isKnown()) {
-	warn("StartPlan command argument " << i + 1 << " is UNKNOWN");
-        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-	g_execInterface->notifyOfExternalEvent();
+        warn("StartPlan command argument " << i + 1 << " is UNKNOWN");
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       actuals.push_back(args[i + 1]);
     }
     
-    // Construct XML for LibraryNodeCall node
+    // Construct XML for wrapper plan (a LibraryNodeCall node)
     std::string const *nodeName = NULL;
-    args[0].getValuePointer(nodeName);
+    args[0].getValuePointer(nodeName); // for effect, value is known
+
     std::ostringstream s;
     s << *nodeName << '_' << nextSerialNumber();
     std::string callerId = s.str();
@@ -165,34 +213,40 @@ namespace PLEXIL
     pugi::xml_node plan = doc.append_child("PlexilPlan");
     pugi::xml_node rootNode = plan.append_child("Node");
     rootNode.append_attribute("NodeType").set_value("LibraryNodeCall");
-    rootNode.append_child("NodeId").append_child(pugi::node_pcdata).set_value(callerId.c_str());
+    rootNode.append_child("NodeId").append_child(pugi::node_pcdata)
+      .set_value(callerId.c_str());
 
     // Construct ExitCondition
-    pugi::xml_node exitLookup = rootNode.append_child("ExitCondition").append_child("LookupNow");
-    exitLookup.append_child("Name").append_child("StringValue").append_child(pugi::node_pcdata).set_value(EXIT_PLAN_CMD);
-    exitLookup.append_child("Arguments").append_child("StringValue").append_child(pugi::node_pcdata).set_value(callerId.c_str());
+    pugi::xml_node exitLookup = rootNode.append_child("ExitCondition")
+      .append_child("LookupNow");
+    exitLookup.append_child("Name").append_child("StringValue")
+      .append_child(pugi::node_pcdata).set_value(EXIT_PLAN_CMD);
+    exitLookup.append_child("Arguments").append_child("StringValue")
+      .append_child(pugi::node_pcdata).set_value(callerId.c_str());
 
-    pugi::xml_node call = rootNode.append_child("NodeBody").append_child("LibraryNodeCall");
+    pugi::xml_node call = rootNode.append_child("NodeBody")
+      .append_child("LibraryNodeCall");
     call.append_child("NodeId").append_child(pugi::node_pcdata).set_value(nodeName->c_str());
     for (size_t i = 0; i < formals.size(); ++i) {
       pugi::xml_node alias = call.append_child("Alias");
-      alias.append_child("NodeParameter").append_child(pugi::node_pcdata).set_value(formals[i].c_str());
+      alias.append_child("NodeParameter").append_child(pugi::node_pcdata)
+        .set_value(formals[i].c_str());
       valueToExprXml(alias, actuals[i]);
     }
     
     try {
-      g_execInterface->handleAddPlan(plan);
+      intf->handleAddPlan(plan);
     }
     catch (ParserException &e) {
       warn("Launching plan " << nodeName << " failed:\n"
            << e.what());
-      g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-      g_execInterface->notifyOfExternalEvent();
+      intf->handleCommandAck(cmd, COMMAND_FAILED);
+      intf->notifyOfExternalEvent();
       return;
     }
-    g_execInterface->handleCommandReturn(cmd, Value(callerId));
-    g_execInterface->handleCommandAck(cmd, COMMAND_SUCCESS);
-    g_execInterface->notifyOfExternalEvent();
+    intf->handleCommandReturn(cmd, Value(callerId));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
   }
 
   // Helper class
@@ -248,6 +302,38 @@ namespace PLEXIL
     return result;
   }
 
+  // ExitPlan command handler function
+
+  static void executeExitPlanCommand(Command *cmd, AdapterExecInterface *intf)
+  {
+    if (!checkPlanNameArgument(cmd)) {
+      intf->handleCommandAck(cmd, COMMAND_FAILED);
+      intf->notifyOfExternalEvent();
+      return;
+    }
+
+    std::vector<Value> const &args = cmd->getArgValues();
+    if (args.size() > 1) {
+      warn("Too many parameters to " << cmd->getName() << " command");
+      intf->handleCommandAck(cmd, COMMAND_FAILED);
+      intf->notifyOfExternalEvent();
+      return;
+    }
+
+    std::string const *nodeName = NULL;
+    args[0].getValuePointer(nodeName); // for effect, value is known
+    Node *node = findNode(*nodeName);
+    if (!node) {
+      // Not found or multiples with same name
+      intf->handleCommandAck(cmd, COMMAND_FAILED);
+      intf->notifyOfExternalEvent();
+      return;
+    }
+    intf->handleValueChange(State(EXIT_PLAN_CMD, args[0]), Value(true));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->notifyOfExternalEvent();
+  }
+
   class Launcher : public InterfaceAdapter
   {
   public:
@@ -260,21 +346,34 @@ namespace PLEXIL
              pugi::xml_node const xml)
       : InterfaceAdapter(execInterface, xml)
     {
-      g_configuration->addExecListener(new LauncherListener());
     }
 
     ~Launcher()
     {
     }
 
-    bool initialize()
+    bool initialize(AdapterConfiguration *config)
     {
+      // Register command implementations
+      config->registerCommandHandler(START_PLAN_CMD,
+                                     (ExecuteCommandHandler) &executeStartPlanCommand);
+      config->registerCommandHandler(EXIT_PLAN_CMD,
+                                     (ExecuteCommandHandler) &executeExitPlanCommand);
+
+      // Register our special ExecListener
+      config->addExecListener(new LauncherListener());
+
+      // Register these lookups as telemetry-only
+      LookupHandler *handler = new LookupHandler();
+      config->registerLookupHandler(EXIT_PLAN_CMD, handler);
+      config->registerLookupHandler(PLAN_STATE_STATE, handler);
+      config->registerLookupHandler(PLAN_OUTCOME_STATE, handler);
+      config->registerLookupHandler(PLAN_FAILURE_TYPE_STATE, handler);
       return true;
     }
 
     bool start()
     {
-      registerAdapter();
       return true;
     }
 
@@ -291,85 +390,6 @@ namespace PLEXIL
     bool shutdown()
     {
       return true;
-    }
-    
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry)
-    {
-    }
-
-    void subscribe(const State& state)
-    {
-      // TODO
-    }
-
-    void unsubscribe(const State& state)
-    {
-      // TODO
-    }
-
-    void executeCommand(Command *cmd)
-    {
-      // All commands require at least one arg, the first must be a String
-      std::vector<Value> const &args = cmd->getArgValues();
-      if (args.size() < 1) {
-        warn("Not enough parameters to " << cmd->getName() << " command");
-        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-      }
-      if (args[0].valueType() != STRING_TYPE) {
-        warn("First argument to " << cmd->getName() << " command is not a string");
-        g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-      }
-      else {
-        std::string const *nodeName = NULL;
-        if (!args[0].getValuePointer(nodeName)) {
-          warn("Node name parameter value to " << cmd->getName() << " command is UNKNOWN");
-          g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-        }
-        else {
-          std::string const &name = cmd->getName();
-          if (name == START_PLAN_CMD) {
-            executeStartPlanCommand(cmd);
-          }
-          else if (name == EXIT_PLAN_CMD) {
-            if (args.size() > 1) {
-              warn("Too many parameters to " << name << " command");
-              g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-            }
-            Node *node = findNode(*nodeName);
-            if (!node) {
-              // Not found or multiples with same name
-              g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-            }
-            else {
-              g_execInterface->handleValueChange(State(EXIT_PLAN_CMD, args[0]),
-                                           Value(true));
-              g_execInterface->handleCommandAck(cmd, COMMAND_SUCCESS);
-            }
-          }
-          else {
-            warn("Launcher adapter: Unimplemented command \"" << name << '"');
-            g_execInterface->handleCommandAck(cmd, COMMAND_FAILED);
-          }
-        }
-      }
-      g_execInterface->notifyOfExternalEvent();
-    }
-
-    void invokeAbort(Command *cmd)
-    {
-      // not implemented
-      g_execInterface->handleCommandAbortAck(cmd, false);
-      g_execInterface->notifyOfExternalEvent();
-    }
-
-    void registerAdapter()
-    {
-      g_configuration->registerCommandInterface(START_PLAN_CMD, this);
-      g_configuration->registerCommandInterface(EXIT_PLAN_CMD, this);
-      g_configuration->registerLookupInterface(EXIT_PLAN_CMD, this, true);
-      g_configuration->registerLookupInterface(PLAN_STATE_STATE, this, true);
-      g_configuration->registerLookupInterface(PLAN_OUTCOME_STATE, this, true);
-      g_configuration->registerLookupInterface(PLAN_FAILURE_TYPE_STATE, this, true);
     }
   };
   

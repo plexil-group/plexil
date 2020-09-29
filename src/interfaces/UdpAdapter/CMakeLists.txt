@@ -86,5 +86,5 @@ install(TARGETS UdpUtils UdpAdapter
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES 
-  MessageQueueMap.hh UdpAdapter.hh
+  MessageQueueMap.hh UdpAdapter.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

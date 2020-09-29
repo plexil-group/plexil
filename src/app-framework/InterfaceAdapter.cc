@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,10 @@
 */
 
 #include "InterfaceAdapter.hh"
-#include "AdapterConfiguration.hh"
+
 #include "AdapterExecInterface.hh"
-#include "Command.hh"
-#include "Update.hh"
 #include "Debug.hh"
-#include "StateCacheEntry.hh"
+#include "State.hh" // for operator<<() used in debugMsg
 
 namespace PLEXIL
 {
@@ -60,13 +58,43 @@ namespace PLEXIL
   {
   }
 
-
   //
   // Default methods for InterfaceManager API
   // All are no-ops
   //
 
-  void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry &cacheEntry)
+  // For backwards compatibility with older API
+  bool InterfaceAdapter::initialize()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::initialize(AdapterConfiguration * /* ignored */)
+  {
+    return this->initialize();
+  }
+
+  bool InterfaceAdapter::start()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::stop()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::reset()
+  {
+    return true;
+  }
+
+  bool InterfaceAdapter::shutdown()
+  {
+    return true;
+  }
+
+  void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry & /* cacheEntry */)
   {
     debugMsg("InterfaceAdapter:lookupNow", " default method called for state " << state);
   }
@@ -96,24 +124,22 @@ namespace PLEXIL
     debugMsg("InterfaceAdapter:sendPlannerUpdate", " default method called");
   }
 
-  void InterfaceAdapter::executeCommand(Command * /* cmd */)
+  // Send a valid command handle value so the node can finish
+
+  void InterfaceAdapter::executeCommand(Command *cmd)
   {
     debugMsg("InterfaceAdapter:executeCommand", " default method called");
+    g_execInterface->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    g_execInterface->notifyOfExternalEvent();
   }
 
-  void InterfaceAdapter::invokeAbort(Command * /* cmd */)
+  // Send a valid abort ack so the node can finish
+
+  void InterfaceAdapter::invokeAbort(Command *cmd)
   {
     debugMsg("InterfaceAdapter:invokeAbort", " default method called");
-  }
-
-  /**
-   * @brief Register this adapter based on its XML configuration data.
-   * @note The adapter is presumed to be fully initialized and working at the time of this call.
-   * @note This is a default method; adapters are free to override it.
-   */
-  void InterfaceAdapter::registerAdapter()
-  {
-    g_configuration->defaultRegisterAdapter(this);
+    g_execInterface->handleCommandAbortAck(cmd, true);
+    g_execInterface->notifyOfExternalEvent();
   }
 
 }

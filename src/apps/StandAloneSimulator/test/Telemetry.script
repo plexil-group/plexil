@@ -1,0 +1,15 @@
+# Format of telemetry entries is:
+# telemetry_name delay_from_simulator_start
+# response
+
+x 3.0
+5
+
+x 4.0
+10
+
+x 5.0
+15
+
+x 6.0
+20
