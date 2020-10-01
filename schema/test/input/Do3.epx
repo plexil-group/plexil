@@ -1,0 +1,133 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <GlobalDeclarations>
+    <CommandDeclaration>
+      <Name>pprint</Name>
+      <AnyParameters />
+    </CommandDeclaration>
+  </GlobalDeclarations>
+
+  <Sequence>
+    <NodeId>Do3</NodeId>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>i</Name>
+        <Type>Integer</Type>
+        <InitialValue>
+          <IntegerValue>0</IntegerValue>
+        </InitialValue>
+      </DeclareVariable>
+    </VariableDeclarations>
+
+    <Node NodeType="Command">
+      <NodeId>print-a-message</NodeId>
+      <NodeBody>
+        <Command>
+          <Name><StringValue>pprint</StringValue></Name>
+          <Arguments>
+            <StringValue>Begin do loop test</StringValue>
+          </Arguments>
+        </Command>
+      </NodeBody>
+    </Node>
+
+    <Do>
+      <NodeId>outer-do</NodeId>
+      <Action>
+        <Sequence>
+          <VariableDeclarations>
+            <DeclareVariable>
+              <Name>j</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>0</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
+          </VariableDeclarations>
+          <Do>
+            <NodeId>inner-do</NodeId>
+            <Action>
+              <Sequence>
+                <Node NodeType="Assignment">
+                  <NodeBody>
+                    <Assignment>
+                      <IntegerVariable>j</IntegerVariable>
+                      <NumericRHS>
+                        <ADD>
+                          <IntegerVariable>j</IntegerVariable>
+                          <IntegerValue>1</IntegerValue>
+                        </ADD>
+                      </NumericRHS>
+                    </Assignment>
+                  </NodeBody>
+                </Node>
+                <Node NodeType="Command">
+                  <NodeId>print-inner-loop-message</NodeId>
+                  <NodeBody>
+                    <Command>
+                      <Name><StringValue>pprint</StringValue></Name>
+                      <Arguments>
+                        <StringValue>  j is</StringValue>
+                        <IntegerVariable>j</IntegerVariable>
+                      </Arguments>
+                    </Command>
+                  </NodeBody>
+                </Node>
+              </Sequence>
+            </Action>
+            <Condition>
+              <LT>
+                <IntegerVariable>j</IntegerVariable>
+                <IntegerValue>5</IntegerValue>
+              </LT>
+            </Condition>
+          </Do>
+
+          <Node NodeType="Assignment">
+            <NodeBody>
+              <Assignment>
+                <IntegerVariable>i</IntegerVariable>
+                <NumericRHS>
+                  <ADD>
+                    <IntegerVariable>i</IntegerVariable>
+                    <IntegerValue>1</IntegerValue>
+                  </ADD>
+                </NumericRHS>
+              </Assignment>
+            </NodeBody>
+          </Node>
+
+          <Node NodeType="Command">
+            <NodeId>print-outer-loop-message</NodeId>
+            <NodeBody>
+              <Command>
+                <Name><StringValue>pprint</StringValue></Name>
+                <Arguments>
+                  <StringValue>i is</StringValue>
+                  <IntegerVariable>i</IntegerVariable>
+                </Arguments>
+              </Command>
+            </NodeBody>
+          </Node>
+          
+        </Sequence>
+      </Action>
+      <Condition>
+        <LT>
+          <IntegerVariable>i</IntegerVariable>
+          <IntegerValue>4</IntegerValue>
+        </LT>
+      </Condition>
+    </Do>
+    <Node NodeType="Command">
+      <NodeId>print-exit-message</NodeId>
+      <NodeBody>
+        <Command>
+          <Name><StringValue>pprint</StringValue></Name>
+          <Arguments>
+            <StringValue>Done.</StringValue>
+          </Arguments>
+        </Command>
+      </NodeBody>
+    </Node>
+  </Sequence>
+</PlexilPlan>

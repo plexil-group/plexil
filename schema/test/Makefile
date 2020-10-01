@@ -43,6 +43,7 @@ REST = UncheckedSequence1 UncheckedSequence2 \
     If1 If2 If3 If4 If5 If6 If7 If8 If9 \
 	While1 While2 While3 While4 While5 While6 \
     For1 For2 For3 For4 For5 \
+	Do0 Do1 Do2 Do3 \
 	Try1 Try2 Try3 Try4 \
 	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
 	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
