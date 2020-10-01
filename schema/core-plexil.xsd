@@ -42,6 +42,17 @@
     </xs:choice>
   </xs:group>
 
+  <!-- NodeId is required in Core Plexil. -->
+  
+  <xs:complexType name="NodeType">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:group ref="ActionClauses"/>
+      <xs:element ref="NodeId"/>
+      <xs:element ref="NodeBody" minOccurs="0"/>
+    </xs:choice>
+    <xs:attributeGroup ref="NodeAttributes"/>
+  </xs:complexType>
+
   <xs:group name="BooleanExpression">
     <xs:choice>
 	  <xs:group ref="LogicalOperator"/>

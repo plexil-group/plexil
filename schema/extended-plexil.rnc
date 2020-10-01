@@ -32,6 +32,10 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
 # Elements
+Name = element Name { GeneralizedStringExpression, SourceLocators }
+ActionType = (ActionClauses | NodeId?)*, SourceLocators
+# NodeId is optional in Extended PLEXIL
+NodeType = (ActionClauses | NodeId? | NodeBody?)*, NodeAttributes
 Action =
   Node
   | Concurrence
@@ -40,6 +44,7 @@ Action =
   | UncheckedSequence
   | Try
   | If
+  | Do
   | While
   | For
   | OnCommand
@@ -79,7 +84,6 @@ DeclaredVariable =
   | ArrayVariable
   | ArrayElement
 LookupGroup = LookupOnChange | LookupNow | Lookup
-Name = element Name { GeneralizedStringExpression, SourceLocators }
 NumericExpression =
   ArithmeticOperator
   | IntegerVariable
@@ -117,61 +121,50 @@ DurationVariable = element DurationVariable { xsd:NCName }
 DateVariable = element DateVariable { xsd:NCName }
 DateValue = element DateValue { xsd:string }
 DurationValue = element DurationValue { xsd:string }
-# Node clauses, which can occur in any action.
-NodeClauses =
-  NodeId?
-  | element Comment { xsd:string }?
-  | StartCondition?
-  | RepeatCondition?
-  | PreCondition?
-  | PostCondition?
-  | InvariantCondition?
-  | EndCondition?
-  | SkipCondition?
-  | element Priority { xsd:nonNegativeInteger }?
-  | Interface?
-  | VariableDeclarations?
 # Sequence forms
-SequenceType = NodeClauses*, Action*
+SequenceType = ActionType, Action*
 # Actions are performed concurrently.  This is just a List Node.
-Concurrence = element Concurrence { SequenceType, SourceLocators }
+Concurrence = element Concurrence { SequenceType }
 # Each action in the sequence is performed in the given order.  If
 # one fails, the Sequence form terminates with failure.
-Sequence = element Sequence { SequenceType, SourceLocators }
+Sequence = element Sequence { SequenceType }
 # Each action in the sequence is performed in the given order.  If
 # one fails, the CheckedSequence form terminates with failure.
-CheckedSequence =
-  element CheckedSequence { SequenceType, SourceLocators }
+CheckedSequence = element CheckedSequence { SequenceType }
 # Like Sequence, except the actions are not checked for success.
 # They will all be executed
-UncheckedSequence =
-  element UncheckedSequence { SequenceType, SourceLocators }
+UncheckedSequence = element UncheckedSequence { SequenceType }
 # Each action in the sequence is performed in turn, until one of
 # them succeeds; the rest are ignored.  The Try form fails if and
 # only if all its actions fail.
-Try = element Try { SequenceType, SourceLocators }
+Try = element Try { SequenceType }
 # Conditionals and loops
 
 # If statement with optional ElseIf and Else.
 If =
   element If {
-    NodeClauses*,
+    ActionType,
     element Condition { GeneralizedBooleanExpression },
     element Then { Action },
     element ElseIf {
       element Condition { GeneralizedBooleanExpression },
       element Then { Action }
     }*,
-    element Else { Action }?,
-    SourceLocators
+    element Else { Action }?
+  }
+# A classic do-while loop
+Do =
+  element Do {
+    ActionType,
+    element Action { Action },
+    element Condition { GeneralizedBooleanExpression }
   }
 # A classic while loop
 While =
   element While {
-    NodeClauses*,
+    ActionType,
     element Condition { GeneralizedBooleanExpression },
-    element Action { Action },
-    SourceLocators
+    element Action { Action }
   }
 # A For loop.  First a variable is declared (it must be numeric).
 # Next is a boolean expression that determines when to keep the loop
@@ -180,12 +173,11 @@ While =
 # to execute.
 For =
   element For {
-    NodeClauses*,
+    ActionType,
     element LoopVariable { DeclareVariable },
     element Condition { GeneralizedBooleanExpression },
     element LoopVariableUpdate { GeneralizedNumericExpression },
-    element Action { Action },
-    SourceLocators
+    element Action { Action }
   }
 # Node Predicates
 IterationSucceeded = element IterationSucceeded { node-reference }
@@ -201,33 +193,29 @@ MessageReceived =
   element MessageReceived {
     GeneralizedStringExpression, SourceLocators
   }
-OnCommand =
-  element OnCommand { NodeClauses*, Name, Action?, SourceLocators }
+OnCommand = element OnCommand { ActionType, Name, Action? }
 OnMessage =
   element OnMessage {
-    NodeClauses*,
+    ActionType,
     element Message { GeneralizedStringExpression },
-    Action?,
-    SourceLocators
+    Action?
   }
 # Specialized actions
 
 # Wait a specified duration, with optional tolerance for the time reading
 Wait =
   element Wait {
-    NodeClauses*,
+    ActionType,
     element Units { GeneralizedNumericExpression },
-    Tolerance?,
-    SourceLocators
+    Tolerance?
   }
 # Command action that waits for its return value or status handle
 SynchronousCommand =
   element SynchronousCommand {
-    NodeClauses*,
+    ActionType,
     element Timeout { GeneralizedNumericExpression }?,
     Tolerance?,
-    Command,
-    SourceLocators
+    Command
   }
 # Generic lookup form
 Lookup = element Lookup { Name, Tolerance?, Arguments?, SourceLocators }

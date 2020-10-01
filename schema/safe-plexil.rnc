@@ -37,6 +37,8 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 include "plexil-base.rnc"
 # Elements
 Action = Node
+# NodeId is required in Safe Plexil.
+NodeType = (ActionClauses | NodeId | NodeBody?)+, NodeAttributes
 BooleanExpression =
   LogicalOperator
   | Equality

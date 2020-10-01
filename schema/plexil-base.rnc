@@ -115,40 +115,45 @@ Return =
     element MaxSize { xsd:nonNegativeInteger }?
   }
 NCNameOrEmpty = xsd:NCName | ("")
-Node =
-  element Node {
-    (element Comment { xsd:string }?
-     & NodeId
-     & Assume?
-     & Desire?
-     & Expect?
-     & StartCondition?
-     & RepeatCondition?
-     & PreCondition?
-     & PostCondition?
-     & InvariantCondition?
-     & EndCondition?
-     & ExitCondition?
-     & SkipCondition?
-     & element Priority { xsd:nonNegativeInteger }?
-     & Interface?
-     & VariableDeclarations?
-     & NodeBody?),
-    attribute NodeType {
-      "NodeList"
-      | "Command"
-      | "Assignment"
-      | "Update"
-      | "Empty"
-      | "LibraryNodeCall"
-    },
-    # The epx attribute indicates a node that is a translation of an
-    # Extended Plexil construct (i.e. macro).  Its value is the type of
-    # this construct, or 'aux' indicating it is an auxilliary generated
-    # node.
-    attribute epx { xsd:NCName }?,
-    SourceLocators
-  }
+# The basis for Node, and various Extended Plexil elements.
+
+# NodeType is defined in the schemata which include this file.
+Node = element Node { NodeType }
+NodeAttributes =
+  attribute NodeType {
+    "NodeList"
+    | "Command"
+    | "Assignment"
+    | "Update"
+    | "Empty"
+    | "LibraryNodeCall"
+  },
+  # The epx attribute indicates a node that is a translation of an
+  # Extended Plexil construct (i.e. macro).  Its value is the type of
+  # this construct, or 'aux' indicating it is an auxilliary generated
+  # node.
+  attribute epx { xsd:NCName }?,
+  SourceLocators
+ActionClauses =
+  # Annotations for static analysis
+  Assume?
+  | Desire?
+  | Expect?
+  | # Variable declarations
+    VariableDeclarations?
+  | Interface?
+  | # User conditions
+    StartCondition?
+  | RepeatCondition?
+  | PreCondition?
+  | PostCondition?
+  | InvariantCondition?
+  | EndCondition?
+  | ExitCondition?
+  | SkipCondition?
+  | # Currently only relevant for Assignment nodes
+    element Priority { xsd:nonNegativeInteger }?
+  | element Comment { xsd:string }*
 NodeBody =
   element NodeBody {
     NodeList | Command | Assignment | Update | LibraryNodeCall

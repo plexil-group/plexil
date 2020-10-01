@@ -49,9 +49,11 @@ It is used as an included schema only.
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xml:lang="en">
+
   <xs:attribute name="FileName" type="xs:string"/>
   <xs:attribute name="LineNo" type="xs:integer"/>
   <xs:attribute name="ColNo" type="xs:integer"/>
+
   <xs:attributeGroup name="SourceLocators">
     <xs:attribute ref="FileName"/>
     <xs:attribute ref="LineNo"/>
@@ -191,51 +193,67 @@ It is used as an included schema only.
     </xs:union>
   </xs:simpleType>
 
-  <xs:element name="Node">
-    <xs:complexType>
-      <xs:all>
-        <xs:element name="Comment" type="xs:string" minOccurs="0"/>
-        <xs:element ref="NodeId"/>
-        <xs:element ref="Assume" minOccurs="0"/>
-        <xs:element ref="Desire" minOccurs="0"/>
-        <xs:element ref="Expect" minOccurs="0"/>
-        <xs:element ref="StartCondition" minOccurs="0"/>
-        <xs:element ref="RepeatCondition" minOccurs="0"/>
-        <xs:element ref="PreCondition" minOccurs="0"/>
-        <xs:element ref="PostCondition" minOccurs="0"/>
-        <xs:element ref="InvariantCondition" minOccurs="0"/>
-        <xs:element ref="EndCondition" minOccurs="0"/>
-        <xs:element ref="ExitCondition" minOccurs="0"/>
-        <xs:element ref="SkipCondition" minOccurs="0"/>
-        <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
-        <xs:element ref="Interface" minOccurs="0"/>
-        <xs:element ref="VariableDeclarations" minOccurs="0"/>
-        <xs:element ref="NodeBody" minOccurs="0"/>
-      </xs:all>
-      <xs:attribute name="NodeType" use="required">
-        <xs:simpleType>
-          <xs:restriction base="xs:NMTOKEN">
-            <xs:enumeration value="NodeList"/>
-            <xs:enumeration value="Command"/>
-            <xs:enumeration value="Assignment"/>
-            <xs:enumeration value="Update"/>
-            <xs:enumeration value="Empty"/>
-            <xs:enumeration value="LibraryNodeCall"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <!-- The epx attribute indicates a node that is a translation of an
-           Extended Plexil construct (i.e. macro).  Its value is the type of
-           this construct, or 'aux' indicating it is an auxilliary generated
-           node. -->
-      <xs:attribute name="epx" use="optional">
-        <xs:simpleType>
-          <xs:restriction base="xs:NCName"/>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <!-- The basis for Node, and various Extended Plexil elements. -->
+
+  <!-- NodeType is defined in the schemata which include this file. -->
+
+  <xs:element name="Node" type="NodeType" />
+
+  <xs:attributeGroup name="NodeAttributes">
+    <xs:attribute name="NodeType" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:NMTOKEN">
+          <xs:enumeration value="NodeList"/>
+          <xs:enumeration value="Command"/>
+          <xs:enumeration value="Assignment"/>
+          <xs:enumeration value="Update"/>
+          <xs:enumeration value="Empty"/>
+          <xs:enumeration value="LibraryNodeCall"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <!-- The epx attribute indicates a node that is a translation of an
+         Extended Plexil construct (i.e. macro).  Its value is the type of
+         this construct, or 'aux' indicating it is an auxilliary generated
+         node. -->
+    <xs:attribute name="epx">
+      <xs:simpleType>
+        <xs:restriction base="xs:NCName"/>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:attributeGroup>
+
+  <xs:group name="ActionClauses">
+    <xs:choice>
+      
+      <!-- Annotations for static analysis -->
+      <xs:element ref="Assume" minOccurs="0"/>
+      <xs:element ref="Desire" minOccurs="0"/>
+      <xs:element ref="Expect" minOccurs="0"/>
+
+      <!-- Variable declarations -->
+      <xs:element ref="VariableDeclarations" minOccurs="0"/>
+      <xs:element ref="Interface" minOccurs="0"/>
+
+      <!-- User conditions -->
+      <xs:element ref="StartCondition" minOccurs="0"/>
+      <xs:element ref="RepeatCondition" minOccurs="0"/>
+      <xs:element ref="PreCondition" minOccurs="0"/>
+      <xs:element ref="PostCondition" minOccurs="0"/>
+      <xs:element ref="InvariantCondition" minOccurs="0"/>
+      <xs:element ref="EndCondition" minOccurs="0"/>
+      <xs:element ref="ExitCondition" minOccurs="0"/>
+      <xs:element ref="SkipCondition" minOccurs="0"/>
+
+      <!-- Currently only relevant for Assignment nodes -->
+      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
+
+      <xs:element name="Comment" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:group>
 
   <xs:element name="NodeBody">
     <xs:complexType>
