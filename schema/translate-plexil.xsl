@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,8 @@
                xmlns:tr="extended-plexil-translator"
                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-               exclude-result-prefixes="xs">
+               xmlns:fn="http://www.w3.org/2005/xpath-functions"
+               exclude-result-prefixes="fn tr xs">
 
   <xsl:output method="xml" indent="no"/>
   <!-- <xsl:output method="xml" indent="yes"/> FOR TESTING ONLY -->
@@ -56,7 +57,7 @@
   <xsl:key name="action"
            match="Node|Concurrence|
                   Sequence|CheckedSequence|UncheckedSequence|
-                  Try|If|While|For|OnCommand|OnMessage|
+                  Try|If|Do|While|For|OnCommand|OnMessage|
                   Wait|SynchronousCommand"
            use="." />
 
@@ -716,6 +717,13 @@
     </xsl:choose>
   </xsl:template>
 
+
+  <!-- ****************** -->
+  <!-- Looping constructs -->
+  <!-- ****************** -->
+
+  <!-- while loop -->
+
   <xsl:template match="While">
     <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="While">
@@ -830,6 +838,107 @@
       </PostconditionFailed>
     </SkipCondition>
   </xsl:template>
+
+  <!-- Do-while loop -->
+
+  <xsl:template match="Do">
+    <xsl:param name="mode" />
+    <xsl:variable name="expanded-conditions" as="element()*">
+      <xsl:call-template name="translate-conditions">
+        <xsl:with-param name="mode" select="$mode" />
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="expanded-declarations" as="element()*">
+      <xsl:apply-templates select="VariableDeclarations" />
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$expanded-declarations or $expanded-conditions">
+        <!-- must create outer wrapper node -->
+        <Node NodeType="NodeList" epx="DoWrapper">
+          <xsl:call-template name="copy-source-locator-attributes" />
+          <xsl:sequence select="NodeId" />
+          <xsl:call-template name="handle-common-clauses" />
+          <xsl:sequence select="$expanded-declarations" />
+          <xsl:sequence select="$expanded-conditions" />
+          <NodeBody>
+            <NodeList>
+              <xsl:call-template name="do-body" >
+                <xsl:with-param name="node-id" />
+              </xsl:call-template>
+            </NodeList>
+          </NodeBody>
+        </Node>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="do-body">
+          <xsl:with-param name="node-id" select="NodeId/text()" />
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="do-body"> 
+    <!-- May be empty -->
+    <xsl:param name="node-id"/>
+    <!-- Action must be a single action -->
+    <xsl:variable name="expanded-action">
+      <xsl:apply-templates select="fn:exactly-one(Action/*)" />
+    </xsl:variable>
+    <xsl:choose>
+      <!-- Must wrap any expansion which contains a RepeatCondition -->
+      <xsl:when test="$expanded-action/Node/RepeatCondition">
+        <xsl:call-template name="do-body-wrapper">
+          <xsl:with-param name="node-id" select="$node-id" />
+          <xsl:with-param name="expanded-action" select="$expanded-action" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- Simple (sorta) case: hoist the expanded node up and tweak it a bit -->
+        <Node epx="Do">
+          <xsl:attribute name="NodeType" select="$expanded-action/Node/@NodeType" />
+          <NodeId>
+            <xsl:choose>
+              <!-- Prefer NodeId passed in from above, if any -->
+              <xsl:when test="$node-id">
+                <xsl:value-of select="$node-id" />
+              </xsl:when>
+              <!-- Hoist up NodeId from expansion, if any -->
+              <xsl:when test="$expanded-action/Node/NodeId/text()">
+                <xsl:value-of select="$expanded-action/Node/NodeId/text()" />
+              </xsl:when>
+              <!-- Else gensym one -->
+              <xsl:otherwise>
+                <xsl:value-of select="tr:prefix('DoBody')" />
+              </xsl:otherwise>
+            </xsl:choose>
+          </NodeId>
+          <xsl:call-template name="handle-common-clauses" />
+          <RepeatCondition>
+            <xsl:apply-templates select="Condition/*" />
+          </RepeatCondition>
+          <xsl:sequence select="$expanded-action/Node/(* except NodeId)" />
+        </Node>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="do-body-wrapper">
+    <xsl:param name="node-id" />
+    <xsl:param name="expanded-action" />
+    <Node epx="Do" NodeType="ListNode">
+      <NodeId>
+        
+      </NodeId>
+      <RepeatCondition>
+        <xsl:apply-templates select="Condition/*" />
+      </RepeatCondition>
+      <NodeBody>
+        <xsl:sequence select="$expanded-action" />
+      </NodeBody>
+    </Node>
+  </xsl:template>
+
+  <!-- for loop -->
 
   <xsl:template match="For">
     <xsl:param name="mode" />
@@ -1290,12 +1399,12 @@
   </xsl:template>
 
   <xsl:template name="copy-source-locator-attributes">
-    <xsl:param name="context" />
+    <xsl:param name="context" select="." />
     <xsl:copy-of select="$context/(@FileName|@LineNo|@ColNo)" />
   </xsl:template>
 
   <xsl:template name="handle-common-clauses">
-    <xsl:param name="context" />
+    <xsl:param name="context" select="." />
     <xsl:sequence select="$context/(Comment|Priority)" />
     <xsl:apply-templates select="$context/Interface"/>
   </xsl:template>
