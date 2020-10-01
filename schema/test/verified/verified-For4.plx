@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="For">
     <NodeId>Root</NodeId>
     <VariableDeclarations>
@@ -36,7 +36,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="Sequence">
-                <NodeId>ep2cp_Sequence_d1e71</NodeId>
+                <NodeId>ep2cp_Sequence_d1e60</NodeId>
                 <InvariantCondition>
                   <NoChildFailed>
                     <NodeRef dir="self"/>
@@ -62,7 +62,7 @@
                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
                   <Finished>
-                    <NodeRef dir="sibling">ep2cp_Sequence_d1e71</NodeRef>
+                    <NodeRef dir="sibling">ep2cp_Sequence_d1e60</NodeRef>
                   </Finished>
                 </StartCondition>
                 <NodeBody>
