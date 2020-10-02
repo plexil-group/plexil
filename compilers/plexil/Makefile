@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,10 @@ DIRT			+= $(PARSER_JAVA) $(PARSER_CLASSES) $(JAVA_CLASSES)
 
 # Invoking ANTLR 3
 ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.5.2-complete-no-st3.jar
-ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR)
+ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR) -trace
+# Debug options
+#ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR) -trace
+#ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR) -trace -report
 ANTLR			:= $(JAVA) -jar $(ANTLR3_TOOL_JAR)
 
 # Other necessities
