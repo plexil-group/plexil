@@ -1,0 +1,22 @@
+Command pprint(...);
+
+Do3:
+{
+  Integer i = 0;
+  pprint("Starting Do3");
+  OuterDo:
+  do {
+    Integer j = 0;
+
+    InnerDo:
+    do {
+      j = j + 1;
+      pprint("  j =", j);
+
+    } while j < 5;
+
+    i = i + 1;
+    pprint("i =", i);
+  } while i < 4;
+  pprint("Do3 finished");
+}

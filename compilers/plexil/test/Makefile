@@ -33,7 +33,8 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  command0 command1 command2 command3 command4 command5 command-handle1 \
  comment1 ComputedCommandName concat1 concurrence0 concurrence1 concurrence2 \
  concurrence3 CopyReals CruiseControl \
- date1 Decrement DriveToSchool DriveToTarget duplicate-node-name \
+ date1 Decrement Do1 Do2 Do3 \
+ DriveToSchool DriveToTarget duplicate-node-name \
  empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
  Exchange executing1 executing2 expr1 expr3 expr4 \
  failed1 Fibs Fib PrintFib FibTest finished1 for1 for2 \
@@ -60,7 +61,7 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
  timed-iteration tolerance1 try1 \
  UnaryMinus update1 update2 update3 \
- wait1 waiting1 while1
+ wait1 waiting1 While0 while1
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
