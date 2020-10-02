@@ -53,7 +53,7 @@ DIRT			+= $(PARSER_JAVA) $(PARSER_CLASSES) $(JAVA_CLASSES)
 
 # Invoking ANTLR 3
 ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.5.2-complete-no-st3.jar
-ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR) -trace
+ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR)
 # Debug options
 #ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR) -trace
 #ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR) -trace -report
