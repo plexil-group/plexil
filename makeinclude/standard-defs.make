@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,18 @@ endif
 CONFIGURE_ENV := $(PLEXIL_HOME)/src/configure.env
 
 ifneq ($(wildcard $(CONFIGURE_ENV)),)
-include $(PLEXIL_HOME)/src/configure.env
+# Get the info from the existing configure.env
+include $(CONFIGURE_ENV)
+
+# ... but in case we are reconfiguring:
+INITIAL_CPPFLAGS	?= $(CONFIGURED_CPPFLAGS)
+INITIAL_CFLAGS		?= $(CONFIGURED_CFLAGS)
+INITIAL_CXXFLAGS	?= $(CONFIGURED_CXXFLAGS)
+
 else 
 #
-# Set defaults to use with 'configure'
+# Set defaults to supply to 'configure'
+# but allow them to be overridden in the environment
 # 
 
 ##### C/C++ compiler options
@@ -53,20 +61,22 @@ else
 ##### *** and cross-compilers could be anything.
 ##### *** Fortunately clang emulates gcc's option parsing.
 
-# Install the products into this hierarchy by default.
-INITIAL_PREFIX 		:= $(PLEXIL_HOME)
+# Install the products into the source tree by default.
+PREFIX 		?= $(PLEXIL_HOME)
+INCLUDEDIR  ?= $(PREFIX)/include
+EXEC_PREFIX ?= $(PREFIX)
+BINDIR      ?= $(EXEC_PREFIX)/bin
+LIBDIR      ?= $(EXEC_PREFIX)/lib
+# more?
 
 # Use the platform's default compilers.
-INITIAL_CC			:= cc
-INITIAL_CXX			:= c++
+CC			?= cc
+CXX			?= c++
 
 # Sane defaults for compiler flags.
-INITIAL_CPPFLAGS	:=
-INITIAL_CFLAGS		:= -g -O2 -Wall
-INITIAL_CXXFLAGS	:= $(INITIAL_CFLAGS)
-
-# PLEXIL_UNSAFE disables some error checking macros
-# INITIAL_CPPFLAGS += -DPLEXIL_UNSAFE
+INITIAL_CPPFLAGS	?=
+INITIAL_CFLAGS		?= -g -O2 -Wall
+INITIAL_CXXFLAGS	?= $(INITIAL_CFLAGS) -std=c++03
 
 # end defaults for configure
 endif
@@ -81,35 +91,27 @@ ETAGS		?= etags
 LN_S		?= /bin/ln -s
 SHELL       ?= /bin/sh
 
-# Where to install product files. 
-ifeq ($(prefix),)
-PREFIX		:= $(PLEXIL_HOME)
-else
-PREFIX		:= $(prefix)
+# Where build products should be installed.
+# The defaults may be individually overridden by 'configure'.
+
+ifeq ($(BINDIR),)
+BINDIR		:= $(PREFIX)/bin
 endif
 
-# The defaults may be individually overridden by 'configure'.
-ifeq ($(libdir),)
-LIB_DIR		:= $(PREFIX)/lib
-else
-LIB_DIR		:=$(libdir)
+ifeq ($(INCLUDEDIR),)
+INCLUDEDIR	:= $(PREFIX)/include
 endif
+
+ifeq ($(LIBDIR),)
+LIBDIR		:= $(PREFIX)/lib
+endif
+
+
 
 LIBRARY_SEARCH_PATH_FLAG	= -L
-LIB_PATH_FLAGS				= $(LIBRARY_PATH_SEARCH_FLAG)$(LIB_DIR)
+LIB_PATH_FLAGS				= $(LIBRARY_PATH_SEARCH_FLAG)$(LIBDIR)
 
-# FIXME: Determine whether we really need . in the list
-ifeq ($(includedir),)
-INC_DIRS	:= . $(PREFIX)/include
-else
-INC_DIRS	:= . $(includedir)
-endif
-
-ifeq ($(bindir),)
-BIN_DIR		:= $(PREFIX)/bin
-else
-BIN_DIR		:= $(bindir)
-endif
+INC_DIRS	:= $(INCLUDEDIR)
 
 # FIXME: find way to integrate with 'configure', libtool settings
 # Which variant(s) to build by default
@@ -217,7 +219,8 @@ endif
 endif
 
 ifneq ($(PLEXIL_SHARED),)
-VARIANT_CPPFLAGS +=
+# Emulate libtool
+VARIANT_CPPFLAGS += -DPIC
 VARIANT_CFLAGS   += $(POSITION_INDEPENDENT_CODE_FLAG)
 VARIANT_CXXFLAGS += $(POSITION_INDEPENDENT_CODE_FLAG)
 endif
