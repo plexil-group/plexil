@@ -155,10 +155,11 @@ most-build: src/Makefile
 most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
-# INITIAL_ variables come from makeinclude/standard-defs.make and related
+# At bootstrap time, values of these variables come from makeinclude/standard-defs.make
 src/Makefile: src/configure
-	cd ./src && ./configure --prefix=$(INITIAL_PREFIX) \
- CC="$(INITIAL_CC)" CXX="$(INITIAL_CXX)" \
+	cd ./src && ./configure --prefix="$(PREFIX)" --exec-prefix="$(EXEC_PREFIX)" \
+ --bindir="$(BINDIR)" --includedir="$(INCLUDEDIR)" --libdir="$(LIBDIR)" \
+ CC="$(CC)" CXX="$(CXX)" \
  CPPFLAGS="$(INITIAL_CPPFLAGS)" CFLAGS="$(INITIAL_CFLAGS)" CXXFLAGS="$(INITIAL_CXXFLAGS)" \
  --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 

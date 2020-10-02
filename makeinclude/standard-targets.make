@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,8 @@ DIRT    = $(OBJ) $(DEPS) $(DEP_TMP)
 
 ifneq ($(LIBRARY),)
 
-$(LIB_DIR):
-	mkdir -p $(LIB_DIR)
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
 
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
@@ -63,15 +63,15 @@ SHLIB	:= lib$(LIBRARY)$(SUFSHARE)
 
 plexil-default: shlib
 
-shlib $(LIB_DIR)/$(SHLIB): $(SHLIB) $(LIB_DIR)
-	$(RM) $(LIB_DIR)/$(SHLIB)
-	$(CP) $(SHLIB) $(LIB_DIR)/$(SHLIB)
+shlib $(LIBDIR)/$(SHLIB): $(SHLIB) $(LIBDIR)
+	$(RM) $(LIBDIR)/$(SHLIB)
+	$(CP) $(SHLIB) $(LIBDIR)/$(SHLIB)
 
 $(SHLIB): $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
 
 localclean::
-	@$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB) $(SHLIB).dSYM
+	@$(RM) $(SHLIB) $(LIBDIR)/$(SHLIB) $(SHLIB).dSYM
 endif
 
 ifneq ($(PLEXIL_STATIC),)
@@ -81,9 +81,9 @@ ARCHIVE := lib$(LIBRARY).a
 
 plexil-default: archive
 
-archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE) $(LIB_DIR)
-	$(RM) $(LIB_DIR)/$(ARCHIVE)
-	$(CP) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+archive $(LIBDIR)/$(ARCHIVE): $(ARCHIVE) $(LIBDIR)
+	$(RM) $(LIBDIR)/$(ARCHIVE)
+	$(CP) $(ARCHIVE) $(LIBDIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
@@ -92,7 +92,7 @@ $(ARCHIVE): $(OBJ)
 	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
-	@$(RM) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+	@$(RM) $(ARCHIVE) $(LIBDIR)/$(ARCHIVE)
 endif
 
 endif # $(LIBRARY)
@@ -103,11 +103,11 @@ plexil-default: executable
 
 # handle case of multiple targets in EXECUTABLE
 # see src/interfaces/Sockets/test/Makefile
-executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE) $(BIN_DIR)
-	$(CP) $(EXECUTABLE) $(BIN_DIR)
+executable $(foreach exec,$(EXECUTABLE),$(BINDIR)/$(exec)): $(EXECUTABLE) $(BINDIR)
+	$(CP) $(EXECUTABLE) $(BINDIR)
 
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
@@ -115,7 +115,7 @@ $(EXECUTABLE): $(OBJ)
 	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
 
 localclean::
-	@$(RM) $(EXECUTABLE) $(EXECUTABLE).dSYM $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
+	@$(RM) $(EXECUTABLE) $(EXECUTABLE).dSYM $(foreach e,$(EXECUTABLE),$(BINDIR)/$(e))
 endif
 
 ##### Delete extraneous by-products of compilation.
