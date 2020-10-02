@@ -38,7 +38,10 @@
   was part of the original Core Plexil.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
+           xml:lang="en">
+
   <xs:include schemaLocation='plexil-base.xsd' />
 
   <!-- Elements -->

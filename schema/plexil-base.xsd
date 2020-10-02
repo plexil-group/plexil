@@ -47,7 +47,7 @@ It is used as an included schema only.
 -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
            xml:lang="en">
 
   <xs:attribute name="FileName" type="xs:string"/>
@@ -167,6 +167,7 @@ It is used as an included schema only.
 		<!-- MaxSize indicates an array value, Type is the element type -->
         <xs:element name="MaxSize" type="xs:nonNegativeInteger" minOccurs="0" />
       </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
@@ -180,6 +181,7 @@ It is used as an included schema only.
 		<!-- MaxSize indicates an array value, Type is the element type -->
         <xs:element name="MaxSize" type="xs:nonNegativeInteger" minOccurs="0" />
       </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
@@ -272,6 +274,7 @@ It is used as an included schema only.
       <xs:sequence>
         <xs:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
@@ -398,26 +401,31 @@ It is used as an included schema only.
         <xs:element name="ResourceName">
           <xs:complexType>
             <xs:group ref="GeneralizedStringExpression"/>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
         <xs:element name="ResourcePriority">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
         <xs:element name="ResourceLowerBound" minOccurs="0">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
         <xs:element name="ResourceUpperBound" minOccurs="0">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
         <xs:element name="ResourceReleaseAtTermination" minOccurs="0">
           <xs:complexType>
             <xs:group ref="GeneralizedBooleanExpression"/>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
       </xs:all>
@@ -442,6 +450,7 @@ It is used as an included schema only.
               <xs:group ref="DeclaredVariable"/>
               <xs:group ref="Value"/>
             </xs:choice>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -478,6 +487,7 @@ It is used as an included schema only.
         <xs:element ref="DeclareVariable"/>
         <xs:element ref="DeclareArray"/>
       </xs:choice>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
@@ -527,6 +537,7 @@ It is used as an included schema only.
         <xs:element name="Name" type="xs:NCName"/>
         <xs:group ref="Expression"/>
       </xs:sequence>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
@@ -718,29 +729,15 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="OR">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"
-                 minOccurs="0" maxOccurs="unbounded"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="NaryBooleanOperator">
+    <xs:group ref="GeneralizedBooleanExpression"
+              minOccurs="0" maxOccurs="unbounded"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xs:element name="XOR">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"
-                 minOccurs="0" maxOccurs="unbounded"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="AND">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"
-                 minOccurs="0" maxOccurs="unbounded"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="OR" type="NaryBooleanOperator"/>
+  <xs:element name="XOR" type="NaryBooleanOperator"/>
+  <xs:element name="AND" type="NaryBooleanOperator"/>
 
   <xs:element name="NOT">
     <xs:complexType>
@@ -749,49 +746,27 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="GT">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <!-- Numeric comparisons -->
 
-  <xs:element name="GE">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="NumericComparison">
+    <xs:group ref="GeneralizedNumericExpression"
+              minOccurs="2" maxOccurs="2"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xs:element name="LT">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="GT" type="NumericComparison"/>
+  <xs:element name="GE" type="NumericComparison"/>
+  <xs:element name="LT" type="NumericComparison"/>
+  <xs:element name="LE" type="NumericComparison"/>
 
-  <xs:element name="LE">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <!-- Generalized equality tests -->
+
+  <xs:element name="EQNumeric" type="NumericComparison"/>
+  <xs:element name="NENumeric" type="NumericComparison"/>
 
   <xs:element name="EQBoolean">
     <xs:complexType>
       <xs:group ref="GeneralizedBooleanExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="EQNumeric">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -828,14 +803,6 @@ It is used as an included schema only.
   <xs:element name="NEBoolean">
     <xs:complexType>
       <xs:group ref="GeneralizedBooleanExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="NENumeric">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
                  minOccurs="2" maxOccurs="2"/>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -1040,6 +1007,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
+  <!-- Functions (operators) which take strings and return strings -->
   <xs:group name="StringOperator">
 	<xs:choice>
       <xs:element ref="Concat"/>
@@ -1053,13 +1021,18 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- Numeric expressions -->
+
   <xs:group name="GeneralizedNumericExpression">
     <xs:choice>
       <xs:group ref="NumericExpression"/>
       <xs:group ref="LookupGroup"/>
       <xs:element ref="ArrayElement"/>
+      <xs:element ref="STRLEN"/>
     </xs:choice>
   </xs:group>
+
+  <!-- Expressions which take numbers and return numbers -->
 
   <xs:group name="ArithmeticOperator">
     <xs:choice>
@@ -1077,9 +1050,63 @@ It is used as an included schema only.
       <xs:element ref="ROUND"/>
       <xs:element ref="TRUNC"/>
       <xs:element ref="REAL_TO_INT"/>
-      <xs:element ref="STRLEN"/>
     </xs:choice>
   </xs:group>
+
+  <xs:complexType name="UnaryNumericExpression">
+    <xs:group ref="GeneralizedNumericExpression"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <xs:element name="SQRT" type="UnaryNumericExpression"/>
+  <xs:element name="ABS" type="UnaryNumericExpression"/>
+  <xs:element name="CEIL" type="UnaryNumericExpression"/>
+  <xs:element name="FLOOR" type="UnaryNumericExpression"/>
+  <xs:element name="ROUND" type="UnaryNumericExpression"/>
+  <xs:element name="TRUNC" type="UnaryNumericExpression"/>
+  <xs:element name="REAL_TO_INT" type="UnaryNumericExpression"/>
+
+  <xs:complexType name="BinaryNumericExpression">
+    <xs:group ref="GeneralizedNumericExpression"
+              minOccurs="2" maxOccurs="2"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <xs:element name="DIV" type="BinaryNumericExpression"/>
+  <xs:element name="MOD" type="BinaryNumericExpression"/>
+
+  <!-- N-ary in this case meaning at least 1 -->
+  <xs:complexType name="NaryNumericExpression">
+    <xs:group ref="GeneralizedNumericExpression"
+              minOccurs="1" maxOccurs="unbounded"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+  
+  <xs:element name="ADD" type="NaryNumericExpression"/>
+  <xs:element name="SUB" type="NaryNumericExpression"/>
+  <xs:element name="MUL" type="NaryNumericExpression"/>
+
+  <xs:element name="MAX" type="NaryNumericExpression"/>
+  <xs:element name="MIN" type="NaryNumericExpression"/>
+
+  <!-- Other functions which return numbers -->
+
+  <xs:element name="STRLEN">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="UnaryArrayOperator">
+    <xs:group ref="GeneralizedArrayExpression"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <xs:element name="ArraySize" type="UnaryArrayOperator"/>
+  <xs:element name="ArrayMaxSize" type="UnaryArrayOperator"/>
+
+  <!-- Array reference -->
 
   <xs:element name="ArrayElement">
     <xs:complexType>
@@ -1091,6 +1118,7 @@ It is used as an included schema only.
         <xs:element name="Index">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>
+            <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -1098,131 +1126,7 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="ADD">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="unbounded"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="SUB">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="1" maxOccurs="unbounded"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="MUL">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="unbounded"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="DIV">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="MOD">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="MAX">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="MIN">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"
-                 minOccurs="2" maxOccurs="2"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="SQRT">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="ABS">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="CEIL">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="FLOOR">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="ROUND">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="TRUNC">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="REAL_TO_INT">
-    <xs:complexType>
-      <xs:group ref="GeneralizedNumericExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="STRLEN">
-    <xs:complexType>
-      <xs:group ref="GeneralizedStringExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="ArraySize">
-    <xs:complexType>
-      <xs:group ref="GeneralizedArrayExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="ArrayMaxSize">
-    <xs:complexType>
-      <xs:group ref="GeneralizedArrayExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <!-- Lookups -->
 
   <xs:element name="LookupOnChange">
     <xs:complexType>
@@ -1245,9 +1149,12 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
+  <!-- This is separate because it is used in
+       Extended PLEXIL's Lookup and Wait elements -->
   <xs:element name="Tolerance">
     <xs:complexType>
       <xs:group ref="GeneralizedNumericExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 

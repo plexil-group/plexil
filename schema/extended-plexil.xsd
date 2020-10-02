@@ -34,7 +34,10 @@ This schema extends Core PLEXIL with syntactic sugar: convenient forms
 that are translated into Core PLEXIL for execution (see translate.xsl).
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
+           xml:lang="en">
+
   <xs:include schemaLocation='plexil-base.xsd'/>
 
   <!-- Elements -->
@@ -251,11 +254,13 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xs:element name="Condition">
               <xs:complexType>
                 <xs:group ref="GeneralizedBooleanExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name="Then">
               <xs:complexType>
                 <xs:group ref="Action"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name="ElseIf" minOccurs="0" maxOccurs="unbounded">
@@ -264,19 +269,23 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
                   <xs:element name="Condition">
                     <xs:complexType>
                       <xs:group ref="GeneralizedBooleanExpression"/>
+                      <xs:attributeGroup ref="SourceLocators"/>
                     </xs:complexType>
                   </xs:element>
                   <xs:element name="Then">
                     <xs:complexType>
                       <xs:group ref="Action"/>
+                      <xs:attributeGroup ref="SourceLocators"/>
                     </xs:complexType>
                   </xs:element>
                 </xs:sequence>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name="Else" minOccurs="0">
               <xs:complexType>
                 <xs:group ref="Action"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
           </xs:sequence>
@@ -294,11 +303,13 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xs:element name="Action">
               <xs:complexType>
                 <xs:group ref="Action"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name="Condition">
               <xs:complexType>
                 <xs:group ref="GeneralizedBooleanExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
           </xs:sequence>
@@ -316,11 +327,13 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xs:element name="Condition">
               <xs:complexType>
                 <xs:group ref="GeneralizedBooleanExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name="Action">
               <xs:complexType>
                 <xs:group ref="Action"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
           </xs:sequence>
@@ -344,21 +357,25 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
                 <xs:all>
                   <xs:element ref="DeclareVariable"/>
                 </xs:all>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name= "Condition">
               <xs:complexType>
                 <xs:group ref="GeneralizedBooleanExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name= "LoopVariableUpdate">
               <xs:complexType>
                 <xs:group ref="GeneralizedNumericExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element name= "Action">
               <xs:complexType>
                 <xs:group ref="Action"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
           </xs:sequence>
@@ -407,6 +424,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xs:element name="Message">
               <xs:complexType>
                 <xs:group ref="GeneralizedStringExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:group ref="Action" minOccurs="0" maxOccurs="1"/>
@@ -428,6 +446,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xs:element name="Units">
               <xs:complexType>
                 <xs:group ref="GeneralizedNumericExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element ref="Tolerance" minOccurs="0"/>
@@ -447,6 +466,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xs:element name= "Timeout" minOccurs= "0">
               <xs:complexType>
                 <xs:group ref="GeneralizedNumericExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
             <xs:element ref="Tolerance" minOccurs="0"/>

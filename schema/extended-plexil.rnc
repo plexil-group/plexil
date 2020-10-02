@@ -144,27 +144,30 @@ Try = element Try { SequenceType }
 If =
   element If {
     ActionType,
-    element Condition { GeneralizedBooleanExpression },
-    element Then { Action },
+    element Condition { GeneralizedBooleanExpression, SourceLocators },
+    element Then { Action, SourceLocators },
     element ElseIf {
-      element Condition { GeneralizedBooleanExpression },
-      element Then { Action }
+      element Condition {
+        GeneralizedBooleanExpression, SourceLocators
+      },
+      element Then { Action, SourceLocators },
+      SourceLocators
     }*,
-    element Else { Action }?
+    element Else { Action, SourceLocators }?
   }
 # A classic do-while loop
 Do =
   element Do {
     ActionType,
-    element Action { Action },
-    element Condition { GeneralizedBooleanExpression }
+    element Action { Action, SourceLocators },
+    element Condition { GeneralizedBooleanExpression, SourceLocators }
   }
 # A classic while loop
 While =
   element While {
     ActionType,
-    element Condition { GeneralizedBooleanExpression },
-    element Action { Action }
+    element Condition { GeneralizedBooleanExpression, SourceLocators },
+    element Action { Action, SourceLocators }
   }
 # A For loop.  First a variable is declared (it must be numeric).
 # Next is a boolean expression that determines when to keep the loop
@@ -174,10 +177,12 @@ While =
 For =
   element For {
     ActionType,
-    element LoopVariable { DeclareVariable },
-    element Condition { GeneralizedBooleanExpression },
-    element LoopVariableUpdate { GeneralizedNumericExpression },
-    element Action { Action }
+    element LoopVariable { (DeclareVariable), SourceLocators },
+    element Condition { GeneralizedBooleanExpression, SourceLocators },
+    element LoopVariableUpdate {
+      GeneralizedNumericExpression, SourceLocators
+    },
+    element Action { Action, SourceLocators }
   }
 # Node Predicates
 IterationSucceeded = element IterationSucceeded { node-reference }
@@ -197,7 +202,7 @@ OnCommand = element OnCommand { ActionType, Name, Action? }
 OnMessage =
   element OnMessage {
     ActionType,
-    element Message { GeneralizedStringExpression },
+    element Message { GeneralizedStringExpression, SourceLocators },
     Action?
   }
 # Specialized actions
@@ -206,14 +211,14 @@ OnMessage =
 Wait =
   element Wait {
     ActionType,
-    element Units { GeneralizedNumericExpression },
+    element Units { GeneralizedNumericExpression, SourceLocators },
     Tolerance?
   }
 # Command action that waits for its return value or status handle
 SynchronousCommand =
   element SynchronousCommand {
     ActionType,
-    element Timeout { GeneralizedNumericExpression }?,
+    element Timeout { GeneralizedNumericExpression, SourceLocators }?,
     Tolerance?,
     Command
   }

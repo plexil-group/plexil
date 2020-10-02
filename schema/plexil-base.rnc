@@ -42,7 +42,6 @@
 default namespace = ""
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
-namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 
 attr_FileName = attribute FileName { xsd:string }?
 attr_LineNo = attribute LineNo { xsd:integer }?
@@ -103,7 +102,8 @@ Parameter =
     element Name { xsd:NCName }?,
     element Type { ParameterTypeValues },
     # MaxSize indicates an array value, Type is the element type
-    element MaxSize { xsd:nonNegativeInteger }?
+    element MaxSize { xsd:nonNegativeInteger }?,
+    SourceLocators
   }
 Return =
   element Return {
@@ -112,7 +112,8 @@ Return =
     element Name { xsd:NCName }?,
     element Type { AtomicTypeValues },
     # MaxSize indicates an array value, Type is the element type
-    element MaxSize { xsd:nonNegativeInteger }?
+    element MaxSize { xsd:nonNegativeInteger }?,
+    SourceLocators
   }
 NCNameOrEmpty = xsd:NCName | ("")
 # The basis for Node, and various Extended Plexil elements.
@@ -158,7 +159,7 @@ NodeBody =
   element NodeBody {
     NodeList | Command | Assignment | Update | LibraryNodeCall
   }
-NodeList = element NodeList { Action* }
+NodeList = element NodeList { Action*, SourceLocators }
 Assume = element Assume { GeneralizedBooleanExpression, SourceLocators }
 Desire = element Desire { GeneralizedBooleanExpression, SourceLocators }
 Expect = element Expect { GeneralizedBooleanExpression, SourceLocators }
@@ -192,12 +193,20 @@ ResourceList = element ResourceList { Resource*, SourceLocators }
 # FIXME: make these tags less verbose
 Resource =
   element Resource {
-    (element ResourceName { GeneralizedStringExpression }
-     & element ResourcePriority { GeneralizedNumericExpression }
-     & element ResourceLowerBound { GeneralizedNumericExpression }?
-     & element ResourceUpperBound { GeneralizedNumericExpression }?
+    (element ResourceName {
+       GeneralizedStringExpression, SourceLocators
+     }
+     & element ResourcePriority {
+         GeneralizedNumericExpression, SourceLocators
+       }
+     & element ResourceLowerBound {
+         GeneralizedNumericExpression, SourceLocators
+       }?
+     & element ResourceUpperBound {
+         GeneralizedNumericExpression, SourceLocators
+       }?
      & element ResourceReleaseAtTermination {
-         GeneralizedBooleanExpression
+         GeneralizedBooleanExpression, SourceLocators
        }?),
     SourceLocators
   }
@@ -210,7 +219,9 @@ DeclareVariable =
   element DeclareVariable {
     element Name { xsd:NCName },
     element Type { AtomicTypeValues },
-    element InitialValue { DeclaredVariable | Value }?,
+    element InitialValue {
+      (DeclaredVariable | Value), SourceLocators
+    }?,
     SourceLocators
   }
 DeclareArray =
@@ -229,7 +240,9 @@ DeclareArray =
     SourceLocators
   }
 VariableDeclarations =
-  element VariableDeclarations { (DeclareVariable | DeclareArray)+ }
+  element VariableDeclarations {
+    (DeclareVariable | DeclareArray)+, SourceLocators
+  }
 Command =
   element Command {
     ResourceList?, DeclaredVariable?, Name, Arguments?, SourceLocators
@@ -247,7 +260,8 @@ Update = element Update { Pair*, SourceLocators }
 Pair =
   element Pair {
     element Name { xsd:NCName },
-    Expression
+    Expression,
+    SourceLocators
   }
 LibraryNodeCall =
   element LibraryNodeCall { NodeId, Alias*, SourceLocators }
@@ -310,44 +324,27 @@ ALL_KNOWN =
 ANY_KNOWN =
   element ANY_KNOWN { GeneralizedArrayExpression, SourceLocators }
 KnownTest = IsKnown | ALL_KNOWN | ANY_KNOWN
-OR = element OR { GeneralizedBooleanExpression*, SourceLocators }
-XOR = element XOR { GeneralizedBooleanExpression*, SourceLocators }
-AND = element AND { GeneralizedBooleanExpression*, SourceLocators }
+NaryBooleanOperator = GeneralizedBooleanExpression*, SourceLocators
+OR = element OR { NaryBooleanOperator }
+XOR = element XOR { NaryBooleanOperator }
+AND = element AND { NaryBooleanOperator }
 NOT = element NOT { GeneralizedBooleanExpression, SourceLocators }
-GT =
-  element GT {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-GE =
-  element GE {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-LT =
-  element LT {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-LE =
-  element LE {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
+# Numeric comparisons
+NumericComparison =
+  GeneralizedNumericExpression,
+  GeneralizedNumericExpression,
+  SourceLocators
+GT = element GT { NumericComparison }
+GE = element GE { NumericComparison }
+LT = element LT { NumericComparison }
+LE = element LE { NumericComparison }
+# Generalized equality tests
+EQNumeric = element EQNumeric { NumericComparison }
+NENumeric = element NENumeric { NumericComparison }
 EQBoolean =
   element EQBoolean {
     GeneralizedBooleanExpression,
     GeneralizedBooleanExpression,
-    SourceLocators
-  }
-EQNumeric =
-  element EQNumeric {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
     SourceLocators
   }
 EQInternal =
@@ -378,12 +375,6 @@ NEBoolean =
   element NEBoolean {
     GeneralizedBooleanExpression,
     GeneralizedBooleanExpression,
-    SourceLocators
-  }
-NENumeric =
-  element NENumeric {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
     SourceLocators
   }
 NEInternal =
@@ -491,10 +482,13 @@ Timepoint = element Timepoint { "START" | "END" }
 GeneralizedStringExpression =
   StringExpression | LookupGroup | ArrayElement
 StringExpression = StringVariable | StringValue | StringOperator
+# Functions (operators) which take strings and return strings
 StringOperator = Concat
 Concat = element Concat { GeneralizedStringExpression*, SourceLocators }
+# Numeric expressions
 GeneralizedNumericExpression =
-  NumericExpression | LookupGroup | ArrayElement
+  NumericExpression | LookupGroup | ArrayElement | STRLEN
+# Expressions which take numbers and return numbers
 ArithmeticOperator =
   ADD
   | SUB
@@ -510,57 +504,47 @@ ArithmeticOperator =
   | ROUND
   | TRUNC
   | REAL_TO_INT
-  | STRLEN
+UnaryNumericExpression = GeneralizedNumericExpression, SourceLocators
+SQRT = element SQRT { UnaryNumericExpression }
+ABS = element ABS { UnaryNumericExpression }
+CEIL = element CEIL { UnaryNumericExpression }
+FLOOR = element FLOOR { UnaryNumericExpression }
+ROUND = element ROUND { UnaryNumericExpression }
+TRUNC = element TRUNC { UnaryNumericExpression }
+REAL_TO_INT = element REAL_TO_INT { UnaryNumericExpression }
+BinaryNumericExpression =
+  GeneralizedNumericExpression,
+  GeneralizedNumericExpression,
+  SourceLocators
+DIV = element DIV { BinaryNumericExpression }
+MOD = element MOD { BinaryNumericExpression }
+# N-ary in this case meaning at least 1
+NaryNumericExpression = GeneralizedNumericExpression+, SourceLocators
+ADD = element ADD { NaryNumericExpression }
+SUB = element SUB { NaryNumericExpression }
+MUL = element MUL { NaryNumericExpression }
+MAX = element MAX { NaryNumericExpression }
+MIN = element MIN { NaryNumericExpression }
+# Other functions which return numbers
+STRLEN = element STRLEN { GeneralizedStringExpression, SourceLocators }
+UnaryArrayOperator = GeneralizedArrayExpression, SourceLocators
+ArraySize = element ArraySize { UnaryArrayOperator }
+ArrayMaxSize = element ArrayMaxSize { UnaryArrayOperator }
+# Array reference
 ArrayElement =
   element ArrayElement {
     (GeneralizedArrayExpression
      | element Name { xsd:NCName }),
-    element Index { GeneralizedNumericExpression },
+    element Index { GeneralizedNumericExpression, SourceLocators },
     SourceLocators
   }
-ADD = element ADD { GeneralizedNumericExpression+, SourceLocators }
-SUB = element SUB { GeneralizedNumericExpression+, SourceLocators }
-MUL = element MUL { GeneralizedNumericExpression+, SourceLocators }
-DIV =
-  element DIV {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-MOD =
-  element MOD {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-MAX =
-  element MAX {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-MIN =
-  element MIN {
-    GeneralizedNumericExpression,
-    GeneralizedNumericExpression,
-    SourceLocators
-  }
-SQRT = element SQRT { GeneralizedNumericExpression, SourceLocators }
-ABS = element ABS { GeneralizedNumericExpression, SourceLocators }
-CEIL = element CEIL { GeneralizedNumericExpression, SourceLocators }
-FLOOR = element FLOOR { GeneralizedNumericExpression, SourceLocators }
-ROUND = element ROUND { GeneralizedNumericExpression, SourceLocators }
-TRUNC = element TRUNC { GeneralizedNumericExpression, SourceLocators }
-REAL_TO_INT =
-  element REAL_TO_INT { GeneralizedNumericExpression, SourceLocators }
-STRLEN = element STRLEN { GeneralizedStringExpression, SourceLocators }
-ArraySize =
-  element ArraySize { GeneralizedArrayExpression, SourceLocators }
-ArrayMaxSize =
-  element ArrayMaxSize { GeneralizedArrayExpression, SourceLocators }
+# Lookups
 LookupOnChange =
   element LookupOnChange {
     Name, Tolerance?, Arguments?, SourceLocators
   }
 LookupNow = element LookupNow { Name, Arguments?, SourceLocators }
-Tolerance = element Tolerance { GeneralizedNumericExpression }
+# This is separate because it is used in
+# Extended PLEXIL's Lookup and Wait elements
+Tolerance =
+  element Tolerance { GeneralizedNumericExpression, SourceLocators }
