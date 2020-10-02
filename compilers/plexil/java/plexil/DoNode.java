@@ -119,7 +119,8 @@ public class DoNode extends PlexilTreeNode
         IXMLElement condition = new XMLElement("Condition");
         m_xml.addChild(condition);
         condition.addChild(this.getChild(1).getXML());
-        condition.addSourceLocatorAttributes();
+        condition.setAttribute("LineNo", String.valueOf(this.getChild(1).getLine()));
+        condition.setAttribute("ColNo", String.valueOf(this.getChild(1).getCharPositionInLine()));
     }
 
     protected String getXMLElementName() { return "Do"; }
