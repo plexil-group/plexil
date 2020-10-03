@@ -36,7 +36,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="Sequence">
-                <NodeId>ep2cp_Sequence_d1e60</NodeId>
+                <NodeId generated="1">ep2cp_Sequence_d1e60</NodeId>
                 <InvariantCondition>
                   <NoChildFailed>
                     <NodeRef dir="self"/>

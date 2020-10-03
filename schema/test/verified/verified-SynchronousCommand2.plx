@@ -32,7 +32,7 @@
                 <EndCondition>
                   <IsKnown>
                     <ArrayElement>
-                      <Name>ep2cp_return</Name>
+                      <ArrayVariable>ep2cp_return</ArrayVariable>
                       <Index>
                         <IntegerValue>0</IntegerValue>
                       </Index>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Sequence">
-    <NodeId>ep2cp_Sequence_d1e3</NodeId>
+    <NodeId generated="1">ep2cp_Sequence_d1e3</NodeId>
     <VariableDeclarations>
       <!-- This is the array used for command FOO: -->
       <DeclareArray>
@@ -37,7 +37,7 @@
                       <EndCondition>
                         <IsKnown>
                           <ArrayElement>
-                            <Name>ep2cp_return</Name>
+                            <ArrayVariable>ep2cp_return</ArrayVariable>
                             <Index>
                               <IntegerValue>0</IntegerValue>
                             </Index>
@@ -118,7 +118,7 @@
                       <EndCondition>
                         <IsKnown>
                           <ArrayElement>
-                            <Name>ep2cp_return</Name>
+                            <ArrayVariable>ep2cp_return</ArrayVariable>
                             <Index>
                               <IntegerValue>0</IntegerValue>
                             </Index>

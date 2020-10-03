@@ -37,32 +37,43 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="NodeList" epx="DoWrapper">
+        <Node epx="Do" NodeType="NodeList">
           <NodeId>outer-do</NodeId>
+          <VariableDeclarations>
+            <DeclareVariable>
+              <Name>j</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>0</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
+          </VariableDeclarations>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">print-a-message</NodeRef>
             </Finished>
           </StartCondition>
+          <RepeatCondition>
+            <LT>
+              <IntegerVariable>i</IntegerVariable>
+              <IntegerValue>4</IntegerValue>
+            </LT>
+          </RepeatCondition>
+          <InvariantCondition>
+            <NoChildFailed>
+              <NodeRef dir="self"/>
+            </NoChildFailed>
+          </InvariantCondition>
           <NodeBody>
             <NodeList>
               <Node epx="Do" NodeType="NodeList">
-                <NodeId>ep2cp_Sequence_d1e57</NodeId>
+                <NodeId>inner-do</NodeId>
                 <RepeatCondition>
                   <LT>
-                    <IntegerVariable>i</IntegerVariable>
-                    <IntegerValue>4</IntegerValue>
+                    <IntegerVariable>j</IntegerVariable>
+                    <IntegerValue>5</IntegerValue>
                   </LT>
                 </RepeatCondition>
-                <VariableDeclarations>
-                  <DeclareVariable>
-                    <Name>j</Name>
-                    <Type>Integer</Type>
-                    <InitialValue>
-                      <IntegerValue>0</IntegerValue>
-                    </InitialValue>
-                  </DeclareVariable>
-                </VariableDeclarations>
                 <InvariantCondition>
                   <NoChildFailed>
                     <NodeRef dir="self"/>
@@ -70,70 +81,14 @@
                 </InvariantCondition>
                 <NodeBody>
                   <NodeList>
-                    <Node epx="Do" NodeType="NodeList">
-                      <NodeId>inner-do</NodeId>
-                      <RepeatCondition>
-                        <LT>
-                          <IntegerVariable>j</IntegerVariable>
-                          <IntegerValue>5</IntegerValue>
-                        </LT>
-                      </RepeatCondition>
-                      <InvariantCondition>
-                        <NoChildFailed>
-                          <NodeRef dir="self"/>
-                        </NoChildFailed>
-                      </InvariantCondition>
-                      <NodeBody>
-                        <NodeList>
-                          <Node NodeType="Assignment">
-                            <NodeId>ep2cp_Node_d1e82</NodeId>
-                            <NodeBody>
-                              <Assignment>
-                                <IntegerVariable>j</IntegerVariable>
-                                <NumericRHS>
-                                  <ADD>
-                                    <IntegerVariable>j</IntegerVariable>
-                                    <IntegerValue>1</IntegerValue>
-                                  </ADD>
-                                </NumericRHS>
-                              </Assignment>
-                            </NodeBody>
-                          </Node>
-                          <Node NodeType="Command">
-                            <NodeId>print-inner-loop-message</NodeId>
-                            <StartCondition>
-                              <Finished>
-                                <NodeRef dir="sibling">ep2cp_Node_d1e82</NodeRef>
-                              </Finished>
-                            </StartCondition>
-                            <NodeBody>
-                              <Command>
-                                <Name>
-                                  <StringValue>pprint</StringValue>
-                                </Name>
-                                <Arguments>
-                                  <StringValue>  j is</StringValue>
-                                  <IntegerVariable>j</IntegerVariable>
-                                </Arguments>
-                              </Command>
-                            </NodeBody>
-                          </Node>
-                        </NodeList>
-                      </NodeBody>
-                    </Node>
                     <Node NodeType="Assignment">
-                      <NodeId>ep2cp_Node_d1e137</NodeId>
-                      <StartCondition>
-                        <Finished>
-                          <NodeRef dir="sibling">inner-do</NodeRef>
-                        </Finished>
-                      </StartCondition>
+                      <NodeId generated="1">ep2cp_Node_d1e82</NodeId>
                       <NodeBody>
                         <Assignment>
-                          <IntegerVariable>i</IntegerVariable>
+                          <IntegerVariable>j</IntegerVariable>
                           <NumericRHS>
                             <ADD>
-                              <IntegerVariable>i</IntegerVariable>
+                              <IntegerVariable>j</IntegerVariable>
                               <IntegerValue>1</IntegerValue>
                             </ADD>
                           </NumericRHS>
@@ -141,10 +96,10 @@
                       </NodeBody>
                     </Node>
                     <Node NodeType="Command">
-                      <NodeId>print-outer-loop-message</NodeId>
+                      <NodeId>print-inner-loop-message</NodeId>
                       <StartCondition>
                         <Finished>
-                          <NodeRef dir="sibling">ep2cp_Node_d1e137</NodeRef>
+                          <NodeRef dir="sibling">ep2cp_Node_d1e82</NodeRef>
                         </Finished>
                       </StartCondition>
                       <NodeBody>
@@ -153,13 +108,51 @@
                             <StringValue>pprint</StringValue>
                           </Name>
                           <Arguments>
-                            <StringValue>i is</StringValue>
-                            <IntegerVariable>i</IntegerVariable>
+                            <StringValue>  j is</StringValue>
+                            <IntegerVariable>j</IntegerVariable>
                           </Arguments>
                         </Command>
                       </NodeBody>
                     </Node>
                   </NodeList>
+                </NodeBody>
+              </Node>
+              <Node NodeType="Assignment">
+                <NodeId generated="1">ep2cp_Node_d1e137</NodeId>
+                <StartCondition>
+                  <Finished>
+                    <NodeRef dir="sibling">inner-do</NodeRef>
+                  </Finished>
+                </StartCondition>
+                <NodeBody>
+                  <Assignment>
+                    <IntegerVariable>i</IntegerVariable>
+                    <NumericRHS>
+                      <ADD>
+                        <IntegerVariable>i</IntegerVariable>
+                        <IntegerValue>1</IntegerValue>
+                      </ADD>
+                    </NumericRHS>
+                  </Assignment>
+                </NodeBody>
+              </Node>
+              <Node NodeType="Command">
+                <NodeId>print-outer-loop-message</NodeId>
+                <StartCondition>
+                  <Finished>
+                    <NodeRef dir="sibling">ep2cp_Node_d1e137</NodeRef>
+                  </Finished>
+                </StartCondition>
+                <NodeBody>
+                  <Command>
+                    <Name>
+                      <StringValue>pprint</StringValue>
+                    </Name>
+                    <Arguments>
+                      <StringValue>i is</StringValue>
+                      <IntegerVariable>i</IntegerVariable>
+                    </Arguments>
+                  </Command>
                 </NodeBody>
               </Node>
             </NodeList>

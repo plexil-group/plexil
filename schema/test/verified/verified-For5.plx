@@ -36,7 +36,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="While">
-                <NodeId>ep2cp_While_d1e60</NodeId>
+                <NodeId generated="1">ep2cp_While_d1e60</NodeId>
                 <RepeatCondition>
                   <Succeeded>
                     <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
