@@ -51,13 +51,11 @@ It is used as an included schema only.
            xml:lang="en">
 
   <xs:attribute name="FileName" type="xs:string"/>
-  <xs:attribute name="LineNo" type="xs:integer"/>
-  <xs:attribute name="ColNo" type="xs:integer"/>
 
   <xs:attributeGroup name="SourceLocators">
     <xs:attribute ref="FileName"/>
-    <xs:attribute ref="LineNo"/>
-    <xs:attribute ref="ColNo"/>
+    <xs:attribute name="LineNo" type="xs:integer"/>
+    <xs:attribute name="ColNo" type="xs:integer"/>
   </xs:attributeGroup>
 
   <!-- This is the sole root element allowed! -->
@@ -65,7 +63,7 @@ It is used as an included schema only.
     <xs:complexType>
       <xs:sequence> 
         <xs:element ref="GlobalDeclarations" minOccurs="0"/>
-        <xs:group ref="Action"/>
+        <xs:group ref="ActionGroup"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
       <!-- Attempt to imitate rncfix -->
@@ -82,11 +80,20 @@ It is used as an included schema only.
   </xs:group>
 
   <xs:complexType name="node-reference">
-    <xs:group ref= "NodeReference"/>
-	<xs:attributeGroup ref="SourceLocators"/>
+    <xs:group ref="NodeReference"/>
   </xs:complexType>
 
-  <xs:element name="NodeId" type="xs:NCName"/>
+  <!-- Allow translators to reason about automatically generated names -->
+  <xs:element name="NodeId">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:NCName">
+          <xs:attribute name="generated" type="xs:boolean" />
+	      <xs:attributeGroup ref="SourceLocators"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="NodeRef">
     <xs:complexType>
@@ -102,6 +109,7 @@ It is used as an included schema only.
               </xs:restriction>
             </xs:simpleType>
           </xs:attribute>
+	      <xs:attributeGroup ref="SourceLocators"/>
         </xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -228,7 +236,7 @@ It is used as an included schema only.
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:attributeGroup>
 
-  <xs:group name="ActionClauses">
+  <xs:group name="ActionCommonClauses">
     <xs:choice>
       
       <!-- Annotations for static analysis -->
@@ -272,7 +280,7 @@ It is used as an included schema only.
   <xs:element name="NodeList">
     <xs:complexType>
       <xs:sequence>
-        <xs:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:group ref="ActionGroup" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -299,61 +307,19 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="StartCondition">
-    <xs:complexType>
+  <xs:complexType name="ConditionType">
       <xs:group ref="GeneralizedBooleanExpression"/>
       <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  </xs:complexType>
 
-  <xs:element name="RepeatCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="PreCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="PostCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="InvariantCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="EndCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="ExitCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="SkipCondition">
-    <xs:complexType>
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="StartCondition" type="ConditionType"/>
+  <xs:element name="RepeatCondition" type="ConditionType"/>
+  <xs:element name="PreCondition" type="ConditionType"/>
+  <xs:element name="PostCondition" type="ConditionType"/>
+  <xs:element name="InvariantCondition" type="ConditionType"/>
+  <xs:element name="EndCondition" type="ConditionType"/>
+  <xs:element name="ExitCondition" type="ConditionType"/>
+  <xs:element name="SkipCondition" type="ConditionType"/>
 
   <xs:element name="Interface">
     <xs:complexType>
@@ -561,23 +527,9 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="IntegerValue">
-    <xs:simpleType>
-      <xs:restriction base="xs:integer" />
-    </xs:simpleType>
-  </xs:element>
-
-  <xs:element name="RealValue">
-    <xs:simpleType>
-      <xs:restriction base="xs:double" />
-    </xs:simpleType>
-  </xs:element>
-
-  <xs:element name="BooleanValue">
-    <xs:simpleType>
-      <xs:restriction base="xs:boolean" />
-    </xs:simpleType>
-  </xs:element>
+  <xs:element name="IntegerValue" type="xs:integer"/>
+  <xs:element name="RealValue" type="xs:double" />
+  <xs:element name="BooleanValue" type="xs:boolean" />
 
   <xs:element name="StringValue">
     <xs:simpleType>
@@ -945,7 +897,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeFailureVariable" type= "node-reference"/>
+  <xs:element name="NodeFailureVariable" type="node-reference"/>
 
   <xs:element name="NodeFailureValue">
     <xs:simpleType>
@@ -974,7 +926,7 @@ It is used as an included schema only.
   <xs:element name="NodeTimepointValue">
     <xs:complexType>
       <xs:sequence>
-        <xs:group ref= "NodeReference"/>
+        <xs:group ref="NodeReference"/>
         <xs:element ref="NodeStateValue"/>
         <xs:element ref="Timepoint"/>
       </xs:sequence>

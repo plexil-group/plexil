@@ -33,10 +33,10 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 include "plexil-base.rnc"
 # Elements
 Name = element Name { GeneralizedStringExpression, SourceLocators }
-ActionType = (ActionClauses | NodeId?)*, SourceLocators
+ActionBase = (ActionCommonClauses | NodeId?)*, SourceLocators
 # NodeId is optional in Extended PLEXIL
-NodeType = (ActionClauses | NodeId? | NodeBody?)*, NodeAttributes
-Action =
+NodeType = (ActionCommonClauses | NodeId? | NodeBody?)*, NodeAttributes
+ActionGroup =
   Node
   | Concurrence
   | Sequence
@@ -52,27 +52,22 @@ Action =
   | Wait
   | SynchronousCommand
 BooleanExpression =
-  LogicalOperator
+  BooleanVariable
+  | BooleanValue
+  | LogicalOperator
   | Equality
   | NumericComparison
   | KnownTest
-  | BooleanVariable
-  | BooleanValue
-  | Finished
-  | IterationEnded
-  | Executing
-  | Waiting
-  | Inactive
-  | Succeeded
-  | IterationSucceeded
-  | Failed
+  | NodeStatePredicate
+  | NodeOutcomePredicate
+  | NodeFailurePredicate
+  | # Extended PLEXIL macros
+    IterationSucceeded
   | Interrupted
   | IterationFailed
-  | Skipped
   | InvariantFailed
-  | PreconditionFailed
-  | PostconditionFailed
   | ParentFailed
+  | PreconditionFailed
   | MessageReceived
 DeclaredVariable =
   IntegerVariable
@@ -122,7 +117,7 @@ DateVariable = element DateVariable { xsd:NCName }
 DateValue = element DateValue { xsd:string }
 DurationValue = element DurationValue { xsd:string }
 # Sequence forms
-SequenceType = ActionType, Action*
+SequenceType = ActionBase, ActionGroup*
 # Actions are performed concurrently.  This is just a List Node.
 Concurrence = element Concurrence { SequenceType }
 # Each action in the sequence is performed in the given order.  If
@@ -140,35 +135,28 @@ UncheckedSequence = element UncheckedSequence { SequenceType }
 Try = element Try { SequenceType }
 # Conditionals and loops
 
+# Common components of the following statements
+Condition =
+  element Condition { GeneralizedBooleanExpression, SourceLocators }
+ActionType = ActionGroup, SourceLocators
+Action = element Action { ActionType }
 # If statement with optional ElseIf and Else.
 If =
   element If {
-    ActionType,
-    element Condition { GeneralizedBooleanExpression, SourceLocators },
-    element Then { Action, SourceLocators },
+    ActionBase,
+    Condition,
+    element Then { ActionType },
     element ElseIf {
-      element Condition {
-        GeneralizedBooleanExpression, SourceLocators
-      },
-      element Then { Action, SourceLocators },
+      Condition,
+      element Then { ActionType },
       SourceLocators
     }*,
-    element Else { Action, SourceLocators }?
+    element Else { ActionType }?
   }
 # A classic do-while loop
-Do =
-  element Do {
-    ActionType,
-    element Action { Action, SourceLocators },
-    element Condition { GeneralizedBooleanExpression, SourceLocators }
-  }
+Do = element Do { ActionBase, Action, Condition }
 # A classic while loop
-While =
-  element While {
-    ActionType,
-    element Condition { GeneralizedBooleanExpression, SourceLocators },
-    element Action { Action, SourceLocators }
-  }
+While = element While { ActionBase, Condition, Action }
 # A For loop.  First a variable is declared (it must be numeric).
 # Next is a boolean expression that determines when to keep the loop
 # going.  Next is a numeric expression used to update the variable
@@ -176,21 +164,23 @@ While =
 # to execute.
 For =
   element For {
-    ActionType,
+    ActionBase,
     element LoopVariable { (DeclareVariable), SourceLocators },
-    element Condition { GeneralizedBooleanExpression, SourceLocators },
+    Condition,
     element LoopVariableUpdate {
       GeneralizedNumericExpression, SourceLocators
     },
-    element Action { Action, SourceLocators }
+    Action
   }
 # Node Predicates
+
+# TODO: implement these in the Exec, move to plexil-base schema
 IterationSucceeded = element IterationSucceeded { node-reference }
 Interrupted = element Interrupted { node-reference }
 IterationFailed = element IterationFailed { node-reference }
 InvariantFailed = element InvariantFailed { node-reference }
-PreconditionFailed = element PreconditionFailed { node-reference }
 ParentFailed = element ParentFailed { node-reference }
+PreconditionFailed = element PreconditionFailed { node-reference }
 # Support for message passing between executives
 
 # Deprecated
@@ -198,26 +188,26 @@ MessageReceived =
   element MessageReceived {
     GeneralizedStringExpression, SourceLocators
   }
-OnCommand = element OnCommand { ActionType, Name, Action? }
+OnCommand = element OnCommand { ActionBase, Name, ActionGroup? }
 OnMessage =
   element OnMessage {
-    ActionType,
+    ActionBase,
     element Message { GeneralizedStringExpression, SourceLocators },
-    Action?
+    ActionGroup?
   }
 # Specialized actions
 
 # Wait a specified duration, with optional tolerance for the time reading
 Wait =
   element Wait {
-    ActionType,
+    ActionBase,
     element Units { GeneralizedNumericExpression, SourceLocators },
     Tolerance?
   }
 # Command action that waits for its return value or status handle
 SynchronousCommand =
   element SynchronousCommand {
-    ActionType,
+    ActionBase,
     element Timeout { GeneralizedNumericExpression, SourceLocators }?,
     Tolerance?,
     Command

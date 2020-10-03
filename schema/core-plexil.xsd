@@ -39,7 +39,7 @@
 
   <!-- Elements -->
 
-  <xs:group name="Action">
+  <xs:group name="ActionGroup">
     <xs:choice>
       <xs:element ref="Node"/>
     </xs:choice>
@@ -49,8 +49,8 @@
   
   <xs:complexType name="NodeType">
     <xs:choice minOccurs="1" maxOccurs="unbounded">
-      <xs:group ref="ActionClauses"/>
       <xs:element ref="NodeId"/>
+      <xs:group ref="ActionCommonClauses"/>
       <xs:element ref="NodeBody" minOccurs="0"/>
     </xs:choice>
     <xs:attributeGroup ref="NodeAttributes"/>
@@ -58,6 +58,8 @@
 
   <xs:group name="BooleanExpression">
     <xs:choice>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
 	  <xs:group ref="LogicalOperator"/>
 	  <xs:group ref="Equality"/>
 	  <xs:group ref="NumericComparison"/>
@@ -65,8 +67,6 @@
       <xs:group ref="NodeStatePredicate"/>
       <xs:group ref="NodeOutcomePredicate"/>
       <xs:group ref="NodeFailurePredicate"/>
-      <xs:element ref="BooleanVariable"/>
-      <xs:element ref="BooleanValue"/>
     </xs:choice>
   </xs:group>
 

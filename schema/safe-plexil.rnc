@@ -36,19 +36,19 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
 # Elements
-Action = Node
+ActionGroup = Node
 # NodeId is required in Safe Plexil.
-NodeType = (ActionClauses | NodeId | NodeBody?)+, NodeAttributes
+NodeType = (ActionCommonClauses | NodeId | NodeBody?)+, NodeAttributes
 BooleanExpression =
-  LogicalOperator
+  BooleanVariable
+  | BooleanValue
+  | LogicalOperator
   | Equality
   | NumericComparison
   | KnownTest
   | NodeStatePredicate
   | NodeOutcomePredicate
   | NodeFailurePredicate
-  | BooleanVariable
-  | BooleanValue
 DeclaredVariable =
   IntegerVariable
   | RealVariable

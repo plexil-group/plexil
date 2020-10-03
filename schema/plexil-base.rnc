@@ -44,26 +44,34 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 attr_FileName = attribute FileName { xsd:string }?
-attr_LineNo = attribute LineNo { xsd:integer }?
-attr_ColNo = attribute ColNo { xsd:integer }?
-SourceLocators = attr_FileName, attr_LineNo, attr_ColNo
+SourceLocators =
+  attr_FileName,
+  attribute LineNo { xsd:integer }?,
+  attribute ColNo { xsd:integer }?
 # This is the sole root element allowed!
 start = starting_PlexilPlan
 starting_PlexilPlan =
   element PlexilPlan {
     GlobalDeclarations?,
-    Action,
+    ActionGroup,
     SourceLocators,
     # Attempt to imitate rncfix
     attribute * { text }
   }
 NodeReference = NodeId | NodeRef
-node-reference = NodeReference, SourceLocators
-NodeId = element NodeId { xsd:NCName }
+node-reference = NodeReference
+# Allow translators to reason about automatically generated names
+NodeId =
+  element NodeId {
+    xsd:NCName,
+    attribute generated { xsd:boolean }?,
+    SourceLocators
+  }
 NodeRef =
   element NodeRef {
     NCNameOrEmpty,
-    attribute dir { "parent" | "sibling" | "child" | "self" }?
+    attribute dir { "parent" | "sibling" | "child" | "self" }?,
+    SourceLocators
   }
 GlobalDeclarations =
   element GlobalDeclarations {
@@ -135,7 +143,7 @@ NodeAttributes =
   # node.
   attribute epx { xsd:NCName }?,
   SourceLocators
-ActionClauses =
+ActionCommonClauses =
   # Annotations for static analysis
   Assume?
   | Desire?
@@ -159,32 +167,19 @@ NodeBody =
   element NodeBody {
     NodeList | Command | Assignment | Update | LibraryNodeCall
   }
-NodeList = element NodeList { Action*, SourceLocators }
+NodeList = element NodeList { ActionGroup*, SourceLocators }
 Assume = element Assume { GeneralizedBooleanExpression, SourceLocators }
 Desire = element Desire { GeneralizedBooleanExpression, SourceLocators }
 Expect = element Expect { GeneralizedBooleanExpression, SourceLocators }
-StartCondition =
-  element StartCondition {
-    GeneralizedBooleanExpression, SourceLocators
-  }
-RepeatCondition =
-  element RepeatCondition {
-    GeneralizedBooleanExpression, SourceLocators
-  }
-PreCondition =
-  element PreCondition { GeneralizedBooleanExpression, SourceLocators }
-PostCondition =
-  element PostCondition { GeneralizedBooleanExpression, SourceLocators }
-InvariantCondition =
-  element InvariantCondition {
-    GeneralizedBooleanExpression, SourceLocators
-  }
-EndCondition =
-  element EndCondition { GeneralizedBooleanExpression, SourceLocators }
-ExitCondition =
-  element ExitCondition { GeneralizedBooleanExpression, SourceLocators }
-SkipCondition =
-  element SkipCondition { GeneralizedBooleanExpression, SourceLocators }
+ConditionType = GeneralizedBooleanExpression, SourceLocators
+StartCondition = element StartCondition { ConditionType }
+RepeatCondition = element RepeatCondition { ConditionType }
+PreCondition = element PreCondition { ConditionType }
+PostCondition = element PostCondition { ConditionType }
+InvariantCondition = element InvariantCondition { ConditionType }
+EndCondition = element EndCondition { ConditionType }
+ExitCondition = element ExitCondition { ConditionType }
+SkipCondition = element SkipCondition { ConditionType }
 Interface = element Interface { (In? & InOut?), SourceLocators }
 In = element In { (DeclareVariable | DeclareArray)+, SourceLocators }
 InOut =
