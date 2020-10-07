@@ -61,7 +61,7 @@ starting_PlexilPlan =
     attribute * { text }
   }
 NodeReference = NodeId | NodeRef
-node-reference = NodeReference
+node-reference = NodeReference, SourceLocators
 # Allow translators to reason about automatically generated names
 NodeId =
   element NodeId {

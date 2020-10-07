@@ -34,7 +34,38 @@ include "plexil-base.rnc"
 # Elements
 Name = element Name { GeneralizedStringExpression, SourceLocators }
 # NodeId is optional in Extended PLEXIL Actions
+
+# This could be implemented as xs:all in XML Schema 1.1,
+# IF we could find a validator that understood it.
 ActionBase =
+  (NodeId?
+   | # Annotations for static analysis
+     Assume?
+   | Desire?
+   | Expect?
+   | # Variable declarations
+     VariableDeclarations?
+   | Interface?
+   | # User conditions
+     StartCondition?
+   | RepeatCondition?
+   | PreCondition?
+   | PostCondition?
+   | InvariantCondition?
+   | EndCondition?
+   | ExitCondition?
+   | SkipCondition?
+   | # Any number of Comment elements COULD be included
+     # if we could implement XML Schema 1.1.
+     element Comment { xsd:string }?
+   | # Currently only relevant for Assignment nodes
+     element Priority { xsd:nonNegativeInteger }?)*,
+  SourceLocators
+# NodeId is optional in Extended PLEXIL Node
+
+# NodeType could inherit from ActionBase if
+# we could implement XML Schema 1.1.
+NodeType =
   (NodeId?
    & Assume?
    & Desire?
@@ -50,10 +81,9 @@ ActionBase =
    & ExitCondition?
    & SkipCondition?
    & element Comment { xsd:string }?
-   & element Priority { xsd:nonNegativeInteger }?),
-  SourceLocators
-# NodeId is optional in Extended PLEXIL Node
-NodeType = ActionBase, NodeBody?, NodeAttributes
+   & element Priority { xsd:nonNegativeInteger }?
+   & NodeBody?),
+  NodeAttributes
 ActionGroup =
   Node
   | Concurrence
