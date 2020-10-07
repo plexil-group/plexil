@@ -24,6 +24,7 @@
 # * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Common elements that are included in several PLEXIL schemas.
+# 
 # NOTE: this is an incomplete schema, as it doesn't define the following elements
 # and types, which differ between Safe PLEXIL, Core PLEXIL, and Extended PLEXIL:
 # 
@@ -38,6 +39,7 @@
 #  Value
 # 
 # It is used as an included schema only.
+#
 
 default namespace = ""
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
@@ -143,26 +145,6 @@ NodeAttributes =
   # node.
   attribute epx { xsd:NCName }?,
   SourceLocators
-ActionCommonClauses =
-  # Annotations for static analysis
-  Assume?
-  | Desire?
-  | Expect?
-  | # Variable declarations
-    VariableDeclarations?
-  | Interface?
-  | # User conditions
-    StartCondition?
-  | RepeatCondition?
-  | PreCondition?
-  | PostCondition?
-  | InvariantCondition?
-  | EndCondition?
-  | ExitCondition?
-  | SkipCondition?
-  | # Currently only relevant for Assignment nodes
-    element Priority { xsd:nonNegativeInteger }?
-  | element Comment { xsd:string }*
 NodeBody =
   element NodeBody {
     NodeList | Command | Assignment | Update | LibraryNodeCall

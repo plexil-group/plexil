@@ -33,9 +33,27 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 include "plexil-base.rnc"
 # Elements
 Name = element Name { GeneralizedStringExpression, SourceLocators }
-ActionBase = (ActionCommonClauses | NodeId?)*, SourceLocators
-# NodeId is optional in Extended PLEXIL
-NodeType = (ActionCommonClauses | NodeId? | NodeBody?)*, NodeAttributes
+# NodeId is optional in Extended PLEXIL Actions
+ActionBase =
+  (NodeId?
+   & Assume?
+   & Desire?
+   & Expect?
+   & VariableDeclarations?
+   & Interface?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & ExitCondition?
+   & SkipCondition?
+   & element Comment { xsd:string }?
+   & element Priority { xsd:nonNegativeInteger }?),
+  SourceLocators
+# NodeId is optional in Extended PLEXIL Node
+NodeType = ActionBase, NodeBody?, NodeAttributes
 ActionGroup =
   Node
   | Concurrence
@@ -114,8 +132,8 @@ ParameterTypeValues =
 # Extensions to Core Plexil
 DurationVariable = element DurationVariable { xsd:NCName }
 DateVariable = element DateVariable { xsd:NCName }
-DateValue = element DateValue { xsd:string }
-DurationValue = element DurationValue { xsd:string }
+DateValue = element DateValue { xsd:dateTime, SourceLocators }
+DurationValue = element DurationValue { xsd:duration, SourceLocators }
 # Sequence forms
 SequenceType = ActionBase, ActionGroup*
 # Actions are performed concurrently.  This is just a List Node.
