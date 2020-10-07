@@ -83,6 +83,7 @@ It is used as an included schema only.
 
   <xs:complexType name="node-reference">
     <xs:group ref="NodeReference"/>
+	<xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
   <!-- Allow translators to reason about automatically generated names -->
