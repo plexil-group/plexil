@@ -36,7 +36,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdWait</NodeId>
+                <NodeId generated="1">ep2cp_CmdWait</NodeId>
                 <EndCondition>
                   <IsKnown>
                     <StringVariable>ep2cp_hdl</StringVariable>
@@ -55,7 +55,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg1</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
@@ -80,7 +80,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg2</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg1</NodeRef>
@@ -105,7 +105,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg3</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg2</NodeRef>
@@ -130,7 +130,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg4</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg3</NodeRef>
@@ -155,7 +155,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="NodeList">
-                <NodeId>ep2cp_CmdAction_recv_test</NodeId>
+                <NodeId generated="1">ep2cp_CmdAction_recv_test</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg4</NodeRef>
@@ -184,7 +184,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdReturn</NodeId>
+                <NodeId generated="1">ep2cp_CmdReturn</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdAction_recv_test</NodeRef>
@@ -245,7 +245,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdWait</NodeId>
+                <NodeId generated="1">ep2cp_CmdWait</NodeId>
                 <EndCondition>
                   <IsKnown>
                     <StringVariable>ep2cp_hdl</StringVariable>
@@ -264,7 +264,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg1</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
@@ -289,7 +289,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg2</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg1</NodeRef>
@@ -314,7 +314,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg3</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg2</NodeRef>
@@ -339,7 +339,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
+                <NodeId generated="1">ep2cp_CmdGetParam_arg4</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg3</NodeRef>
@@ -364,7 +364,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="NodeList">
-                <NodeId>ep2cp_CmdAction_recv_test</NodeId>
+                <NodeId generated="1">ep2cp_CmdAction_recv_test</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdGetParam_arg4</NodeRef>
@@ -393,7 +393,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Command">
-                <NodeId>ep2cp_CmdReturn</NodeId>
+                <NodeId generated="1">ep2cp_CmdReturn</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_CmdAction_recv_test</NodeRef>

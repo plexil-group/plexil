@@ -14,7 +14,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>ep2cp_WhileBody</NodeId>
+          <NodeId generated="1">ep2cp_WhileBody</NodeId>
           <RepeatCondition>
             <Succeeded>
               <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
@@ -23,7 +23,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="Empty" epx="Condition">
-                <NodeId>ep2cp_WhileTest</NodeId>
+                <NodeId generated="1">ep2cp_WhileTest</NodeId>
                 <PostCondition>
                   <LT>
                     <IntegerVariable>i</IntegerVariable>

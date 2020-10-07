@@ -14,7 +14,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>ep2cp_ForLoop</NodeId>
+          <NodeId generated="1">ep2cp_ForLoop</NodeId>
           <SkipCondition>
             <NOT>
               <LT>
@@ -42,7 +42,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
-                <NodeId>ep2cp_ForLoopUpdater</NodeId>
+                <NodeId generated="1">ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_Concurrence_d1e42</NodeRef>

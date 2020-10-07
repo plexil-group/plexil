@@ -16,7 +16,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">
-          <NodeId>ep2cp_CmdWait</NodeId>
+          <NodeId generated="1">ep2cp_CmdWait</NodeId>
           <EndCondition>
             <IsKnown>
               <StringVariable>ep2cp_hdl</StringVariable>
@@ -35,7 +35,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="NodeList">
-          <NodeId>ep2cp_MsgAction_</NodeId>
+          <NodeId generated="1">ep2cp_MsgAction_</NodeId>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>

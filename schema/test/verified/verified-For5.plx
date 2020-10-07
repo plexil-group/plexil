@@ -21,7 +21,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>ep2cp_ForLoop</NodeId>
+          <NodeId generated="1">ep2cp_ForLoop</NodeId>
           <SkipCondition>
             <NOT>
               <LT>
@@ -45,7 +45,7 @@
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Empty" epx="Condition">
-                      <NodeId>ep2cp_WhileTest</NodeId>
+                      <NodeId generated="1">ep2cp_WhileTest</NodeId>
                       <PostCondition>
                         <LT>
                           <IntegerVariable>total</IntegerVariable>
@@ -84,7 +84,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
-                <NodeId>ep2cp_ForLoopUpdater</NodeId>
+                <NodeId generated="1">ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_While_d1e60</NodeRef>

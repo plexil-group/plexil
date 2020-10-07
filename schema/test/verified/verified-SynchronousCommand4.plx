@@ -29,7 +29,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <VariableDeclarations>
                   <DeclareArray>
                     <Name>ep2cp_return</Name>
@@ -40,7 +40,7 @@
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <IsKnown>
                           <ArrayElement>
@@ -61,7 +61,7 @@
                       </NodeBody>
                     </Node>
                     <Node NodeType="Assignment" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandAssignment</NodeId>
                       <StartCondition>
                         <Finished>
                           <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>

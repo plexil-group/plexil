@@ -24,7 +24,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">
-          <NodeId>ep2cp_CmdWait</NodeId>
+          <NodeId generated="1">ep2cp_CmdWait</NodeId>
           <EndCondition>
             <IsKnown>
               <StringVariable>ep2cp_hdl</StringVariable>
@@ -43,7 +43,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="Command">
-          <NodeId>ep2cp_CmdGetParam_distance</NodeId>
+          <NodeId generated="1">ep2cp_CmdGetParam_distance</NodeId>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
@@ -68,7 +68,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="Command">
-          <NodeId>ep2cp_CmdGetParam_direction</NodeId>
+          <NodeId generated="1">ep2cp_CmdGetParam_direction</NodeId>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">ep2cp_CmdGetParam_distance</NodeRef>
@@ -93,7 +93,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="NodeList">
-          <NodeId>ep2cp_CmdAction_moveRover</NodeId>
+          <NodeId generated="1">ep2cp_CmdAction_moveRover</NodeId>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">ep2cp_CmdGetParam_direction</NodeRef>
@@ -108,7 +108,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="Command">
-          <NodeId>ep2cp_CmdReturn</NodeId>
+          <NodeId generated="1">ep2cp_CmdReturn</NodeId>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">ep2cp_CmdAction_moveRover</NodeRef>

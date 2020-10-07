@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+
+
 <!--
 * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
@@ -28,6 +30,7 @@
 -->
 
 <!-- This stylesheet requires XSLT 2.0 for xsl:function, xsl:sequence -->
+<!-- This stylesheet requires XPath 2.0 for 'except' -->
 
 <xsl:transform version="2.0"
                xmlns:tr="extended-plexil-translator"
@@ -119,7 +122,7 @@
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
       <xsl:sequence
-          select="$conds except $conds/InvariantCondition" />
+          select="$conds/(* except InvariantCondition)" />
       <xsl:call-template name="success-invariant-condition" >
         <xsl:with-param name="expanded-invariant"
                         select="$conds/InvariantCondition" />
@@ -293,7 +296,7 @@
     <Node NodeType="NodeList" epx="Try">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:sequence select="$conds except $conds/(EndCondition|PostCondition)" />
+      <xsl:sequence select="$conds/(* except EndCondition|PostCondition)" />
 
       <xsl:call-template name="try-end-condition">
         <xsl:with-param name="original-condition" select="$conds/EndCondition"/>
@@ -595,7 +598,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Empty" epx="Condition">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="$test-node-id" />
           </NodeId>
           <PostCondition>
@@ -628,7 +631,7 @@
       <xsl:when test="$expanded-clause/Node/(StartCondition|SkipCondition)">
         <!-- must create wrapper node -->
         <Node NodeType="NodeList" epx="{name(.)}">
-          <NodeId><xsl:value-of select="tr:prefix(name(.))" /></NodeId>
+          <NodeId generated="1"><xsl:value-of select="tr:prefix(name(.))" /></NodeId>
           <StartCondition>
             <xsl:sequence select="$start-condition" />
           </StartCondition>
@@ -700,7 +703,7 @@
       </Succeeded>
     </xsl:variable>
     <Node NodeType="Empty" epx="ElseIf">
-      <NodeId>
+      <NodeId generated="1">
         <xsl:value-of select="$test-node-id" />
       </NodeId>
       <StartCondition>
@@ -823,7 +826,7 @@
         <NodeBody>
           <NodeList>
             <Node NodeType="NodeList" epx="aux">
-              <NodeId>
+              <NodeId generated="1">
                 <xsl:value-of select="tr:prefix('WhileBody')" />
               </NodeId>
               <xsl:call-template name="while-body-1" />
@@ -849,7 +852,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Empty" epx="Condition">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="$test-id" />
           </NodeId>
           <PostCondition>
@@ -872,7 +875,7 @@
       <xsl:when test="$expanded-action/Node/(StartCondition|SkipCondition)">
         <!-- must create wrapper node -->
         <Node NodeType="NodeList" epx="Action">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('WhileAction')" />
           </NodeId>
           <xsl:call-template name="while-body-conds">
@@ -921,6 +924,7 @@
 
   <!-- Do-while loop -->
 
+  <!-- FIXME: Identify generated node IDs -->
   <xsl:template match="Do">
     <xsl:variable name="expanded-conditions" as="element()*">
       <xsl:call-template name="translate-conditions" />
@@ -973,6 +977,7 @@
         <!-- Simple (sorta) case: hoist the expanded node up and tweak it a bit -->
         <Node epx="Do">
           <xsl:attribute name="NodeType" select="$expanded-action/Node/@NodeType" />
+          <!-- FIXME: identify automatically generated node IDs -->
           <NodeId>
             <xsl:choose>
               <!-- Prefer NodeId passed in from above, if any -->
@@ -1033,7 +1038,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="$loop-node-id" />
           </NodeId>
           <SkipCondition>
@@ -1048,7 +1053,7 @@
             <NodeList>
               <xsl:sequence select="$expanded-action" />
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
-                <NodeId>
+                <NodeId generated="1">
                   <xsl:value-of select="tr:prefix('ForLoopUpdater')" />
                 </NodeId>
                 <StartCondition>
@@ -1111,7 +1116,7 @@
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:sequence select="$conds except $conds/EndCondition" />
+      <xsl:sequence select="$conds/(* except EndCondition)" />
       <xsl:call-template name="wait-end-condition" >
         <xsl:with-param name="original-condition"
                         select="$conds/EndCondition" />
@@ -1190,7 +1195,7 @@
 
   <xsl:template name="command-with-return">
     <Node NodeType="NodeList" epx="aux">
-      <NodeId>
+      <NodeId generated="1">
         <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
       </NodeId>
       <xsl:choose>
@@ -1231,7 +1236,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Command" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
           </NodeId>
           <EndCondition>
@@ -1247,7 +1252,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="Assignment" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
           </NodeId>
           <StartCondition>
@@ -1313,7 +1318,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Command" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
           </NodeId>
           <EndCondition>
@@ -1334,7 +1339,7 @@
           </NodeBody>
         </Node>
         <Node NodeType="Assignment" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
           </NodeId>
           <StartCondition>
@@ -1357,7 +1362,7 @@
   
   <xsl:template name="command-without-return">
     <Node NodeType="NodeList" epx="aux">
-      <NodeId>
+      <NodeId generated="1">
         <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
       </NodeId>
       <xsl:if test="Timeout">
@@ -1370,7 +1375,7 @@
       <NodeBody>
         <NodeList>
           <Node NodeType="Command" epx="aux">
-            <NodeId>
+            <NodeId generated="1">
               <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
             </NodeId>
             <EndCondition>
@@ -1686,7 +1691,7 @@
       </xsl:call-template>
       <!-- Action for this message -->
       <Node NodeType="NodeList" epx="aux">
-        <NodeId>
+        <NodeId generated="1">
           <xsl:value-of
             select="concat(tr:prefix('MsgAction'), '_', Name/StringValue/text())" />
         </NodeId>
@@ -1759,7 +1764,7 @@
       <!-- Cmd get parameters nodes -->
       <xsl:for-each select="VariableDeclarations/DeclareVariable | VariableDeclarations/DeclareArray">
         <Node NodeType="Command" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of
               select="concat(tr:prefix('CmdGetParam'), '_', Name/text())" />
           </NodeId>
@@ -1809,7 +1814,7 @@
       </xsl:for-each>
       <!-- Action for this command -->
       <Node NodeType="NodeList" epx="aux">
-        <NodeId>
+        <NodeId generated="1">
           <xsl:value-of
             select="concat(tr:prefix('CmdAction'), '_', Name/StringValue/text())" />
         </NodeId>
@@ -1832,7 +1837,7 @@
       <xsl:if
         test="not(.//Command/Name/StringValue/text() = 'SendReturnValue')">
         <Node NodeType="Command" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('CmdReturn')" />
           </NodeId>
           <NodeBody>
@@ -1884,7 +1889,7 @@
     <xsl:param name="dest" />
     <xsl:param name="args" />
     <Node NodeType="Command" epx="aux">
-      <NodeId>
+      <NodeId generated="1">
         <xsl:copy-of select="tr:prefix('CmdWait')" />
       </NodeId>
       <EndCondition>

@@ -19,7 +19,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Empty" epx="Condition">
-          <NodeId>ep2cp_WhileTest</NodeId>
+          <NodeId generated="1">ep2cp_WhileTest</NodeId>
           <PostCondition>
             <LookupNow>
               <Name>

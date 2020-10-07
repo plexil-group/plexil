@@ -9,11 +9,11 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <OR>
                           <EQInternal>
@@ -69,11 +69,11 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <OR>
                           <EQInternal>
