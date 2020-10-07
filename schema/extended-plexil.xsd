@@ -50,7 +50,50 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
   </xs:element>
 
   <!-- NodeId is optional in Extended PLEXIL Actions -->
+
+  <!-- This could be implemented as xs:all in XML Schema 1.1,
+       IF we could find a validator that understood it.
+  -->
   <xs:complexType name="ActionBase">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="NodeId" minOccurs="0"/>
+
+      <!-- Annotations for static analysis -->
+      <xs:element ref="Assume" minOccurs="0"/>
+      <xs:element ref="Desire" minOccurs="0"/>
+      <xs:element ref="Expect" minOccurs="0"/>
+
+      <!-- Variable declarations -->
+      <xs:element ref="VariableDeclarations" minOccurs="0"/>
+      <xs:element ref="Interface" minOccurs="0"/>
+
+      <!-- User conditions -->
+      <xs:element ref="StartCondition" minOccurs="0"/>
+      <xs:element ref="RepeatCondition" minOccurs="0"/>
+      <xs:element ref="PreCondition" minOccurs="0"/>
+      <xs:element ref="PostCondition" minOccurs="0"/>
+      <xs:element ref="InvariantCondition" minOccurs="0"/>
+      <xs:element ref="EndCondition" minOccurs="0"/>
+      <xs:element ref="ExitCondition" minOccurs="0"/>
+      <xs:element ref="SkipCondition" minOccurs="0"/>
+
+      <!-- Any number of Comment elements COULD be included
+           if we could implement XML Schema 1.1.
+      -->
+      <xs:element name="Comment" type="xs:string" minOccurs="0"/>
+
+      <!-- Currently only relevant for Assignment nodes -->
+      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
+    </xs:choice>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <!-- NodeId is optional in Extended PLEXIL Node -->
+
+  <!-- NodeType could inherit from ActionBase if
+       we could implement XML Schema 1.1.
+  -->
+  <xs:complexType name="NodeType">
     <xs:all>
       <xs:element ref="NodeId" minOccurs="0"/>
 
@@ -80,20 +123,10 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
       <!-- Currently only relevant for Assignment nodes -->
       <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
-    </xs:all>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
 
-  <!-- NodeId is optional in Extended PLEXIL Node -->
-  <xs:complexType name="NodeType">
-    <xs:complexContent>
-      <xs:extension base="ActionBase">
-        <xs:sequence>
-          <xs:element ref="NodeBody" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attributeGroup ref="NodeAttributes"/>
-      </xs:extension>
-    </xs:complexContent>
+      <xs:element ref="NodeBody" minOccurs="0"/>
+    </xs:all>
+    <xs:attributeGroup ref="NodeAttributes"/>
   </xs:complexType>
   
   <xs:group name="ActionGroup">
