@@ -9,7 +9,9 @@ HERE="$( ( cd $(dirname "$0") ; pwd ) )"
 # Bootstrapping
 #
 
-if [ ! -r "$HERE/environment" ]
+VENV_DIR="$HERE/.venv"
+
+if [ ! -d "$VENV_DIR" ]
 then
     echo 'Setting up validator environment; this will take a moment...'
     "$HERE/setup.sh"
@@ -29,4 +31,4 @@ fi
 # Now we can do the translation
 #
 
-. "$ACTIVATE" && "$PYTHON" "$HERE/validate-plexil.py" "$@"
+. "$ACTIVATE" && exec "$PYTHON" "$HERE/validate-plexil.py" "$@"
