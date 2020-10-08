@@ -3,6 +3,41 @@
 
 set -e
 
+usage()
+{
+    echo "Usage: $(basename "$0") [ --with-python <PYTHON> ] [ --upgrade ]"
+    echo "PYTHON defaults to $(command -v python3)"
+    echo 'Requires Python 3.5 or newer'
+}
+
+UPGRADE=
+
+while [ -n "$1" ]
+do
+    case "$1" in
+        --with-python)
+            shift
+            PYTHON="$1"
+            ;;
+
+        --upgrade)
+            UPGRADE="$1"
+            ;;
+
+        -h | --help | help)
+            usage
+            exit 0
+            ;;
+
+        *)
+            echo "Error: argument '$1' is not understood" >&2
+            usage >&2
+            exit 2
+            ;;
+    esac
+    shift
+done
+
 # Get Python from environment, if supplied
 # Prefer python3 if not
 PYTHON=${PYTHON:-"$(command -v python3)"}
@@ -10,14 +45,12 @@ PYTHON=${PYTHON:-"$(command -v python3)"}
 if [ -z "$PYTHON" ]
 then
     echo 'Error: no Python executable found or supplied.' >&2
-    echo 'Set environment variable PYTHON to a Python interpreter' >&2
-    echo ' and try again.' >&2
+    echo 'Please specify a Python 3.5 (or newer) interpreter.' >&2
     exit 2
 elif [ ! -x "$PYTHON" ]
 then
     echo "Error: $PYTHON is not executable." >&2
-    echo 'Set environment variable PYTHON to a working Python interpreter' >&2
-    echo ' and try again.' >&2
+    echo 'Try again with a Python 3.5 (or newer) interpreter.' >&2
     exit 2
 fi
 
@@ -27,25 +60,43 @@ PIP="$VENV_DIR/bin/pip"
 ACTIVATE="$VENV_DIR/bin/activate"
 
 #
-# Start from clean
+# Start from clean if not upgrading
 #
 
-rm -rf "$VENV_DIR" "$HERE/environment"
+if [ -z "$UPGRADE" ] && [ -d "$VENV_DIR" ]
+then
+    echo 'Deleting existing virtual environment'
+    rm -rf "$VENV_DIR" "$HERE/environment"
+fi
 
-#
-# Bootstrapping
-#
-
-echo Initializing Python virtual environment
-"$PYTHON" -m venv "$VENV_DIR"
+if [ ! -d "$VENV_DIR" ]
+then
+    echo 'Initializing Python virtual environment'
+    if ! "$PYTHON" -m venv "$VENV_DIR"
+    then
+        echo 'Error: creating Python virtual environment failed.' >&2
+        echo 'Check that your Python is version 3.5 or newer.' >&2
+        exit 2
+    fi
+elif [ -n "$UPGRADE" ]
+then
+    echo 'Upgrading Python virtual environment'
+    if ! "$PYTHON" -m venv $UPGRADE "$VENV_DIR"
+    then
+        echo 'Error: upgrading Python virtual environment failed.' >&2
+        exit 2
+    fi
+fi
 
 if [ ! -r "$ACTIVATE" ]
 then
-    echo 'Error: creating Python virtual environment failed.' >&2
+    echo 'Error: Python virtual environment setup failed.' >&2
     exit 1
 fi
 
-( . "$ACTIVATE" && "$PIP" install --upgrade --requirement "$HERE/requirements.txt" )
+( . "$ACTIVATE" && \
+      "$PIP" install -q -U pip && \
+      "$PIP" install -q $UPGRADE -r "$HERE/requirements.txt" )
 
 # Write out environment for validate script
 cat << EOF > "$HERE/environment"
