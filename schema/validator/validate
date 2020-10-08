@@ -1,0 +1,32 @@
+#! /bin/sh
+# Validate PLEXIL files using an XML Schema 1.1 compliant schema
+
+set -e
+
+HERE="$( ( cd $(dirname "$0") ; pwd ) )"
+
+#
+# Bootstrapping
+#
+
+if [ ! -r "$HERE/environment" ]
+then
+    echo 'Setting up validator environment; this will take a moment...'
+    "$HERE/setup.sh"
+    echo '... done.'
+fi
+
+if [ ! -r "$HERE/environment" ]
+then
+    echo 'Error: setting up validator environment failed.' >&2
+    exit 2
+fi
+
+# Get the locations of 'activate' and 'python'
+. "$HERE/environment"
+
+#
+# Now we can do the translation
+#
+
+. "$ACTIVATE" && "$PYTHON" "$HERE/validate-plexil.py" "$@"
