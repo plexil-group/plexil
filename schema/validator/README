@@ -34,3 +34,6 @@ Options:
   -v, --verbose  Generate extra output
   --schema PATH  Schema file to validate against
   --help         Show this message and exit.
+
+Return status is 0 if all files were valid, 1 if one or more failed
+validation, 2 if some other error occurred.
