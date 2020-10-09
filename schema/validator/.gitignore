@@ -1,4 +1,5 @@
 .venv
 environment
+schema_cache
 *~
 \#*#

@@ -26,7 +26,9 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import click
+import os
 import os.path as path
+import pickle
 import sys
 import xml.etree.ElementTree as ElementTree
 import xmlschema
@@ -49,15 +51,19 @@ defaultSchemaFile = path.join(path.dirname(path.dirname(path.realpath(__file__))
               default=defaultSchemaFile,
               help="Schema file to validate against")
 
+@click.option('--cache',
+              is_flag=True,
+              help="Use schema cache")
+
 @click.argument('infiles',
                 type=click.Path(exists=True),
                 nargs=-1)
 
 # Main function
-def validate(infiles, schema, silent, verbose):
+def validate(infiles, schema, silent, verbose, cache):
     """Validate XML files against a schema."""
 
-    schm = loadSchema(schema)
+    schm = loadSchema(schema, cache, verbose)
     if schm is None:
         sys.exit(1)
 
@@ -84,7 +90,7 @@ def validate(infiles, schema, silent, verbose):
                 print(infile, 'could not be validated due to error')
         else:
             nValid = nValid + 1
-            if not silent:
+            if verbose:
                 print(infile, 'is valid')
 
     if nFiles > 1 and not silent:
@@ -104,9 +110,20 @@ def validate(infiles, schema, silent, verbose):
 
 # Load the named schema file and return it.
 # Return None in event of error.
-def loadSchema(schema):
+def loadSchema(schema, cache, verbose):
+    name = path.basename(schema).replace('.xsd', '', 1)
+
+    if cache:
+        result = loadCachedSchema(name)
+        if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
+            if verbose:
+                print('Loaded schema', schema, 'from cache')
+            return result;
+
     try:
-        return xmlschema.XMLSchema11(schema, validation='lax')
+        result = xmlschema.XMLSchema11(schema, validation='lax')
+        if verbose:
+            print('Loaded schema', schema)
 
     except xmlschema.exceptions.XMLSchemaException as x:
         print('Error reading schema ', schema, ':\n ', str(x),
@@ -122,6 +139,77 @@ def loadSchema(schema):
         print('Error of type ', type(e).__name__, ' reading schema ', schema, ':\n ', str(e),
               sep='', file=sys.stderr)
         return None;
+
+    if cache:
+        cachename = cacheSchema(result, name)
+        if verbose and cachename is not None:
+            print('Schema cached to', cachename)
+
+    return result
+
+# Return the file path if successful, None if not
+def cacheSchema(schm, name):
+    dumpname = schemaCachePath(name)
+
+    dumpdir = path.dirname(dumpname)
+    if not path.isdir(dumpdir):
+        try:
+            os.makedirs(dumpdir, mode=0o755, exist_ok=True)
+        except Exception as e:
+            print('Exception of type ', type(e).__name__,
+                  ' creating directory ', dumpdir, ':\n ', str(e),
+                  sep='', file=sys.stderr)
+            return None
+
+    try:
+        with open(dumpname, mode='w+b') as dumpfile:
+            pickle.dump(schm, dumpfile)
+            return dumpname
+
+    except OSError as o:
+        print('OS error writing schema to ', dumpname, ':\n ', str(o),
+              sep='', file=sys.stderr)
+        return None
+
+    except Exception as e:
+        print('Exception of type ', type(e).__name__,
+              ' writing schema to ', dumpname, ':\n ', str(e),
+              sep='', file=sys.stderr)
+        close(dumpfile)
+        return None
+
+# Return the cached schema for the name, if it exists.
+def loadCachedSchema(name):
+    loadpath = schemaCachePath(name)
+    if not path.exists(loadpath) or not path.isfile(loadpath):
+        return None
+
+    try:
+        with open(loadpath, mode='r+b') as loadfile:
+            result = pickle.load(loadfile)
+
+    except OSError as o:
+        print('OS error reading schema from ', loadname, ':\n ', str(o),
+              sep='', file=sys.stderr)
+        return None
+
+    except Exception as e:
+        print('Exception of type ', type(e).__name__,
+              ' reading schema from ', loadname, ':\n ', str(e),
+              sep='', file=sys.stderr)
+        return None
+
+    if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
+        return result
+    else:
+        return None
+    
+def schemaCacheDir():
+    return path.join(path.dirname(__file__), 'schema_cache')
+    
+def schemaCachePath(name):
+    return path.join(schemaCacheDir(), "{0}.xsc".format(name))
+
 
 # Validate the file, returning 0 if valid,
 # 1 if invalid, or -1 if an exception occurred
