@@ -30,6 +30,7 @@ import os
 import os.path as path
 import pickle
 import sys
+import traceback # debugging help
 from urllib.parse import urlsplit
 import xml.etree.ElementTree as ElementTree
 import xmlschema
@@ -124,8 +125,11 @@ def loadSchema(schemaUrl, cache, verbose):
     if cache and schemaIsCacheable(schemaUrl):
         schemaPath = schemaLocalPath(schemaUrl)
         if not schemaNewerThanCache(schemaPath):
-            result = loadCachedSchema(name)
+            cachePath = schemaCachePath(schemaNameFromUrl(schemaUrl))            
+            result = loadCachedSchema(cachePath)
             if result:
+                if verbose:
+                    print('Loaded cached schema from', cachePath)
                 return result
 
     # Continue here if loading from cache failed somehow
@@ -187,8 +191,8 @@ def cacheSchema(schema, name):
             return None
 
     try:
-        with open(dumpname, mode='w+b') as dumpfile:
-            pickle.dump(schema, dumpfile)
+        with open(dumpname, mode='wb') as dumpfile:
+            pickle.dump(schema, dumpfile, pickle.HIGHEST_PROTOCOL)
             return dumpname
 
     except OSError as o:
@@ -213,12 +217,20 @@ def loadCachedSchema(loadpath):
         return None
 
     try:
-        with open(loadpath, mode='r+b') as loadfile:
+        with open(loadpath, mode='rb') as loadfile:
             result = pickle.load(loadfile)
 
     except OSError as o:
         print('OS error reading schema from cache file ', loadpath, ':\n ', str(o),
               sep='', file=sys.stderr)
+        return None
+
+    except pickle.UnpicklingError as u:
+        print('Unpickling error reading schema from cache file ', loadpath, ':\n ', str(u),
+              sep='', file=sys.stderr)
+        excInfo = sys.exc_info()
+        if excInfo[2]: # we have a traceback
+            traceback.print_exception(excInfo[0], excInfo[1], excInfo[2], file=sys.stderr)
         return None
 
     except Exception as e:
@@ -238,7 +250,7 @@ def loadCachedSchema(loadpath):
 def schemaNameFromUrl(schemaUrl):
     try:
         parsedUrl = urlsplit(schemaUrl);
-        return path.splitext(path.basename(parsedUrl.path))
+        return path.splitext(path.basename(parsedUrl.path))[0]
 
     except Exception as e:
         print('Error getting schema short name from ', schemaUrl, ':\n ', str(e),
@@ -250,7 +262,7 @@ def schemaIsCacheable(schemaUrl):
 
     """Determine whether schema can be cached locally based on its URL."""
 
-    return url_path_is_file(schemaUrl) and schemaNameFromURL(schemaURL)
+    return url_path_is_file(schemaUrl) and schemaNameFromUrl(schemaUrl)
 
 
 # Only called if schemaIsCacheable returns true and schemaFile exists
