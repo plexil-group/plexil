@@ -30,8 +30,10 @@ import os
 import os.path as path
 import pickle
 import sys
+from urllib.parse import urlsplit
 import xml.etree.ElementTree as ElementTree
 import xmlschema
+from xmlschema.resources import is_local_url, normalize_url, url_path_is_file
 
 defaultSchemaFile = path.join(path.dirname(path.dirname(path.realpath(__file__))),
                               'core-plexil.xsd')
@@ -53,7 +55,12 @@ defaultSchemaFile = path.join(path.dirname(path.dirname(path.realpath(__file__))
 
 @click.option('--cache',
               is_flag=True,
-              help="Use schema cache")
+              help="Use cache if schema is a local file")
+
+# Maybe later
+# @click.option('--forceCache',
+#               is_flag=True,
+#               help="Use cache even if schema is not a local file")
 
 @click.argument('infiles',
                 type=click.Path(exists=True),
@@ -106,51 +113,69 @@ def validate(infiles, schema, silent, verbose, cache):
         sys.exit(1)
     else:
         sys.exit(0)
-        
+
 
 # Load the named schema file and return it.
 # Return None in event of error.
-def loadSchema(schema, cache, verbose):
-    name = path.basename(schema).replace('.xsd', '', 1)
+def loadSchema(schemaUrl, cache, verbose):
 
-    if cache:
-        result = loadCachedSchema(name)
-        if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
-            if verbose:
-                print('Loaded schema', schema, 'from cache')
-            return result;
+    """Load an XML schema from the given URL, or from a local cache file."""
+
+    if cache and schemaIsCacheable(schemaUrl):
+        schemaPath = schemaLocalPath(schemaUrl)
+        if not schemaNewerThanCache(schemaPath):
+            result = loadCachedSchema(name)
+            if result:
+                return result
+
+    # Continue here if loading from cache failed somehow
+    result = loadSchemaFromUrl(schemaUrl, verbose)
+    if result and cache and schemaIsCacheable(schemaUrl):
+        cachename = cacheSchema(result, schemaNameFromUrl(schemaUrl))
+        if verbose and cachename:
+            print('Schema', schemaUrl, 'cached to', cachename)
+
+    return result
+
+
+def loadSchemaFromUrl(schemaUrl, verbose):
+
+    """Load an XML Schema 1.1 schema instance from the given URL.
+       Returns None in the event of failure."""
 
     try:
-        result = xmlschema.XMLSchema11(schema, validation='lax')
-        if verbose:
-            print('Loaded schema', schema)
+        result = xmlschema.XMLSchema11(schemaUrl, validation='lax')
+        if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
+            if verbose:
+                print('Loaded schema', schemaUrl)
+            return result;
+        else:
+            print('Schema URL', schemaUrl, 'does not contain a valid XML 1.1 schema',
+                  file=syst.stderr)
+            return None;
 
     except xmlschema.exceptions.XMLSchemaException as x:
-        print('Error reading schema ', schema, ':\n ', str(x),
+        print('Error reading schema ', schemaUrl, ':\n ', str(x),
               sep='', file=sys.stderr)
         return None;
 
     except ElementTree.ParseError as p:
-        print('XML parse error reading schema ', schema, ':\n ', str(p),
+        print('XML parse error reading schema ', schemaUrl, ':\n ', str(p),
               sep='', file=sys.stderr)
         return None;
 
     except Exception as e:
-        print('Error of type ', type(e).__name__, ' reading schema ', schema, ':\n ', str(e),
+        print('Error of type ', type(e).__name__, ' reading schema ', schemaUrl, ':\n ', str(e),
               sep='', file=sys.stderr)
         return None;
 
-    if cache:
-        cachename = cacheSchema(result, name)
-        if verbose and cachename is not None:
-            print('Schema cached to', cachename)
 
-    return result
+def cacheSchema(schema, name):
 
-# Return the file path if successful, None if not
-def cacheSchema(schm, name):
+    """Cache the schema instance under the given name.
+       Returns the pathname of the cache file if successful."""
+
     dumpname = schemaCachePath(name)
-
     dumpdir = path.dirname(dumpname)
     if not path.isdir(dumpdir):
         try:
@@ -163,25 +188,28 @@ def cacheSchema(schm, name):
 
     try:
         with open(dumpname, mode='w+b') as dumpfile:
-            pickle.dump(schm, dumpfile)
+            pickle.dump(schema, dumpfile)
             return dumpname
 
     except OSError as o:
-        print('OS error writing schema to ', dumpname, ':\n ', str(o),
+        print('OS error writing schema ', schema.url, '  to ', dumpname, ':\n ', str(o),
               sep='', file=sys.stderr)
         return None
 
     except Exception as e:
         print('Exception of type ', type(e).__name__,
-              ' writing schema to ', dumpname, ':\n ', str(e),
+              ' writing schema ', schema.url, ' to ', dumpname, ':\n ', str(e),
               sep='', file=sys.stderr)
         close(dumpfile)
         return None
 
-# Return the cached schema for the name, if it exists.
-def loadCachedSchema(name):
-    loadpath = schemaCachePath(name)
-    if not path.exists(loadpath) or not path.isfile(loadpath):
+
+def loadCachedSchema(loadpath):
+
+    """Load a cached schema from the named file. 
+       Returns None in the event of failure."""
+
+    if not loadpath or not path.isfile(loadpath):
         return None
 
     try:
@@ -189,31 +217,114 @@ def loadCachedSchema(name):
             result = pickle.load(loadfile)
 
     except OSError as o:
-        print('OS error reading schema from ', loadname, ':\n ', str(o),
+        print('OS error reading schema from cache file ', loadpath, ':\n ', str(o),
               sep='', file=sys.stderr)
         return None
 
     except Exception as e:
         print('Exception of type ', type(e).__name__,
-              ' reading schema from ', loadname, ':\n ', str(e),
+              ' reading schema from cache file ', loadpath, ':\n ', str(e),
               sep='', file=sys.stderr)
         return None
 
     if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
         return result
+
     else:
+        print('Warning: cache file ', loadpath, ' did not contain a valid schema',
+              sep='', file=sys.stderr)
         return None
+
+def schemaNameFromUrl(schemaUrl):
+    try:
+        parsedUrl = urlsplit(schemaUrl);
+        return path.splitext(path.basename(parsedUrl.path))
+
+    except Exception as e:
+        print('Error getting schema short name from ', schemaUrl, ':\n ', str(e),
+              sep='', file=sys.stderr)
+        return None
+
+# Only cache schema from local files for now
+def schemaIsCacheable(schemaUrl):
+
+    """Determine whether schema can be cached locally based on its URL."""
+
+    return url_path_is_file(schemaUrl) and schemaNameFromURL(schemaURL)
+
+
+# Only called if schemaIsCacheable returns true and schemaFile exists
+def schemaNewerThanCache(schemaFile):
+
+    """Returns True if schema is newer than or as old as its local cache file,
+       False if older. Returns True on error."""
+
+    cachePath = schemaCachePath(schemaNameFromUrl(schemaFile))
+    if not path.isfile(cachePath):
+        return True
+    try:
+        cacheDate = path.getmtime(cachePath)
+
+    except OSError as o:
+        print('OS error getting modified date from ', cachePath, ':\n ', str(o),
+              sep='', file=sys.stderr)
+        return True
+
+    except Exception as e:
+        print('Error getting modified date from ', cachePath, ':\n ', str(e),
+              sep='', file=sys.stderr)
+        return True
+
+    # We know schemaFile exists
+    try:
+        return path.getmtime(schemaFile) >= cacheDate
+
+    except OSError as o:
+        print('OS error getting modified date from ', schemaFile, ':\n ', str(o),
+              sep='', file=sys.stderr)
+        return True
+
+    except Exception as e:
+        print('Error getting modified date from ', schemaFile, ':\n ', str(e),
+              sep='', file=sys.stderr)
+        return True
+
+
+def schemaLocalPath(schemaUrl):
     
+    """Returns the path of the local file for this schema URL"""
+
+    if not is_local_url(schemaUrl):
+        return None
+
+    if path.isfile(schemaUrl):
+        return schemaUrl;
+
+    normalizedPath = urlsplit(normalize_url(schemaUrl)).path
+    if path.isfile(normalizedPath):
+        return normalizedPath
+
+    return None
+    
+
+# FIXME: allow caching in locations other than this directory
 def schemaCacheDir():
     return path.join(path.dirname(__file__), 'schema_cache')
-    
+
+
+
 def schemaCachePath(name):
+
+    """Returns the file name for the schema cache, based on the schema name"""
+
     return path.join(schemaCacheDir(), "{0}.xsc".format(name))
 
 
-# Validate the file, returning 0 if valid,
-# 1 if invalid, or -1 if an exception occurred
 def validateSilently(schm, infile):
+
+    """Validate the file, returning 0 if valid,
+       1 if invalid, or -1 if an error occurred."""
+
     try:
         if schm.is_valid(infile):
             return 0
@@ -221,7 +332,7 @@ def validateSilently(schm, infile):
             return 1
 
     except ElementTree.ParseError as p:
-        print(infile, 'could not be parsed as XML')
+        print(infile, 'could not be parsed as XML', file=sys.stderr)
         return -1
 
     except Exception as e:
@@ -229,9 +340,12 @@ def validateSilently(schm, infile):
               sep='', file=sys.stderr)
         return -1
 
-# Validate the file, printing each validation error
-# Return the number of errors, or -1 if some other exception occurred
+    
 def validateWithErrorMessages(schm, infile, verbose):
+
+    """Validate the file, printing each validation error.
+       Return the number of errors, or -1 if some error occurred."""
+
     if verbose:
         print('Validating', infile)
 
@@ -257,6 +371,7 @@ def validateWithErrorMessages(schm, infile, verbose):
         print('Unknown error while validating ', infile, ':\n ', str(e),
               sep='', file=sys.stderr)
         return -1
+
         
 if __name__ == '__main__':
     validate()
