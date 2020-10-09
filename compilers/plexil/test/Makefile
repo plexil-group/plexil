@@ -85,8 +85,9 @@ all: test syntax-error-tests semantic-error-tests
 setup:
 	@rm -f tempRegressionResults ; touch tempRegressionResults
 
-# Temporary file
-DIFF = /tmp/plexil-$$$$
+output:
+	@mkdir -p output
+	@$(RM) -f output/*.epx
 
 test: | setup output
 	@ echo Translating Standard Plexil tests...
@@ -105,26 +106,14 @@ test: | setup output
 	fi ; \
 	echo '--- Validation and verification tests complete ---'
 
-# For developers: Check the current output agains the benchmarks.
-checkall:
-	@ for i in $(TESTS); do \
-		./check $$i ; \
-	  done
-
-# For developers: Bless the current output, making it the new benchmark.
-passall:
-	@ for i in $(TESTS); do \
-		./pass $$i ; \
-	  done
-
 syntax-error-tests: | setup output
 	@ syntactic_failure=0; \
 	echo '--- Begin syntax checking tests ---' ; \
 	echo '--- Begin syntax checking tests ---' >> tempRegressionResults ; \
 	for f in $(SYNTAX_ERROR_TESTS) ; do \
 		echo $$f >> tempRegressionResults ; \
-		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
-		if [ $$? -eq 0 ] ; then syntactic_failure=1 ; echo $$f.ple: failed to detect expected syntax error ; fi ; \
+		if ../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
+		then syntactic_failure=1 ; echo $$f.ple: failed to detect expected syntax error ; fi ; \
 	done ; \
 	if [ $${syntactic_failure} -ne 0 ] ; then \
 		echo '*** Syntax checking tests failed ***' ; \
@@ -138,8 +127,8 @@ semantic-error-tests: | setup output
 	echo '--- Begin semantic checking tests ---' >> tempRegressionResults ; \
 	for f in $(SEMANTIC_ERROR_TESTS) ; do \
 		echo $$f >> tempRegressionResults ; \
-		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
-		if [ $$? -eq 0 ] ; then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
+		if ../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
+		then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
 	done ; \
 	if [ $${semantic_failure} -ne 0 ] ; then \
 		echo '*** Semantic checking tests failed ***' ; \
@@ -147,13 +136,19 @@ semantic-error-tests: | setup output
 	fi ; \
 	echo '--- Semantic checking tests passed ---'
 
-output:
-	@mkdir -p output
-	@$(RM) -f output/*.epx
+# For developers: Check the current output agains the benchmarks.
+checkall:
+	@ for i in $(TESTS); do \
+		./check $$i ; \
+	  done
+
+# For developers: Bless the current output, making it the new benchmark.
+passall:
+	@ for i in $(TESTS); do \
+		./pass $$i ; \
+	  done
 
 clean::
 	-@$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
 
-dust:: ;
-
-.PHONY: setup output clean dust
+.PHONY: setup output test syntax-error-tests semantic-error-tests checkall passall clean
