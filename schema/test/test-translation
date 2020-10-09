@@ -1,6 +1,8 @@
-#! /usr/bin/env sh
+#! /bin/sh
+# Test the translation of one Extended Plexil test case
+# stdout is presumed to be a log file
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,4 +27,47 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-exec xmllint --noout --schema ../core-plexil.xsd output/$1.plx
+set -e 
+
+EPLEXIL='../../scripts/eplexil'
+
+# Slower, XML Schema 1.1 capable Python validator
+#VALIDATE='../validator/validate'
+#VALIDATE_OPTS=
+#VALIDATE_OPTS='--cache'
+
+# xmllint
+VALIDATE="$(command -v xmllint)"
+VALIDATE_OPTS='--noout --schema ../core-plexil.xsd'
+
+
+echo "$1"
+
+INPUT="input/$1.epx"
+OUTPUT="output/$1.plx"
+
+rm -f "$OUTPUT" "${OUTPUT}.formatted"
+
+if ! "$EPLEXIL" "$INPUT" "$OUTPUT"
+then
+	test_failed=1
+	echo "*** Translation of $INPUT failed ***" >&2
+	echo "*** Translation of $INPUT failed ***"
+	exit 1
+fi
+
+if ! "$VALIDATE" $VALIDATE_OPTS "$OUTPUT"
+then
+	echo "*** Validation of $1 failed ***" >&2
+	echo "*** Validation of $1 failed ***"
+    exit 1
+elif ! ./check "$1"
+then
+	echo "*** $OUTPUT failed verification ***" >&2
+	echo "*** $OUTPUT failed verification ***"
+	xmllint --format "$OUTPUT" > "$OUTPUT.formatted"
+    exit 1
+fi
+
+printf "%s verifies\n" "$OUTPUT" >&2
+exit 0

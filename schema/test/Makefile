@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,8 @@ PLEXIL_HOME ?= ../..
 
 EPLEXIL = ../../scripts/eplexil
 
+CHECKER = ./test-translation
+
 LOG = verify.out
 
 default: test
@@ -67,27 +69,7 @@ test: output
 	rm -f $(LOG) ; touch $(LOG) ; \
 	test_failed=0; \
 	for i in $(TESTS); do \
-		echo "$$i" >> $(LOG) ; \
-		rm -f output/$$i.plx output/$$i.plx.formatted ; \
-		$(EPLEXIL) input/$$i.epx output/$$i.plx ; \
-		if [ $$? -ne 0 ] ; then \
-			test_failed=1 ; \
-			echo "*** Translation of input/$$i.epx failed ***" >> $(LOG) ; \
-			echo "*** Translation of input/$$i.epx failed ***" ; \
-			exit 1 ; \
-		fi ; \
-		./validate $$i ; \
-		if [ $$? -ne 0 ] ; then \
-			echo "*** Validation of $$i failed ***" >> $(LOG); \
-            test_failed=1 ; \
-        else \
-			./check $$i >> $(LOG) ; \
-			if [ $$? -ne 0 ] ; then \
-				test_failed=1 ; \
-				echo "*** output/$$i.plx failed verification ***" ; \
-				xmllint --format output/$$i.plx > output/$$i.plx.formatted ; \
-			fi ; \
-        fi ; \
+		if ! $(CHECKER) $$i >> $(LOG) ; then test_failed=1 ; fi ; \
 	done ; \
 	if [ $$test_failed -ne 0 ] ; then \
 		echo "Test(s) failed. See $(LOG) for details." ; \
