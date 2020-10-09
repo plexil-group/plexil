@@ -33,6 +33,7 @@ Options:
   -s, --silent   Don't generate output, only set exit status
   -v, --verbose  Generate extra output
   --schema PATH  Schema file to validate against
+  --cache        Use cache if schema is a local file
   --help         Show this message and exit.
 
 Return status is 0 if all files were valid, 1 if one or more failed
