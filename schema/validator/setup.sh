@@ -79,7 +79,7 @@ then
     exit 2
 fi
 
-HERE="$( ( cd $(dirname "$0") ; pwd ) )"
+HERE="$( cd "$(dirname "$0")" ; pwd )"
 VENV_DIR="$HERE/.venv"
 PIP="$VENV_DIR/bin/pip"
 ACTIVATE="$VENV_DIR/bin/activate"

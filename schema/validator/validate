@@ -28,7 +28,7 @@
 
 set -e
 
-HERE="$( ( cd $(dirname "$0") ; pwd ) )"
+HERE="$( cd "$(dirname "$0")" ; pwd )"
 
 #
 # Bootstrapping
