@@ -32,13 +32,12 @@ set -e
 EPLEXIL='../../scripts/eplexil'
 
 # Slower, XML Schema 1.1 capable Python validator
-#VALIDATE='../validator/validate'
-#VALIDATE_OPTS=
-#VALIDATE_OPTS='--cache'
+VALIDATE='../validator/validate'
+VALIDATE_OPTS='--cache'
 
-# xmllint
-VALIDATE="$(command -v xmllint)"
-VALIDATE_OPTS='--noout --schema ../core-plexil.xsd'
+# xmllint only supports XML Schema 1.0
+#VALIDATE="$(command -v xmllint)"
+#VALIDATE_OPTS='--noout --schema ../core-plexil.xsd'
 
 
 echo "$1"
