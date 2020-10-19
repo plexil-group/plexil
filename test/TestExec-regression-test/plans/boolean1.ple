@@ -1,0 +1,6 @@
+Boolean Lookup flag;
+
+boolean1:
+{
+    PreCondition LookupNow(flag);
+}
