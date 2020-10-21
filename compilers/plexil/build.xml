@@ -1,0 +1,90 @@
+<project name="PlexilCompiler" default="install" basedir=".">
+
+  <description>
+    Build instructions for the Standard PLEXIL compiler.
+  </description>
+
+  <property environment="env"/>
+  <property name="dir.install_prefix" location="${env.PLEXIL_HOME}"/>
+  <property name="dir.install.jars" location="${dir.install_prefix}/jars"/>
+
+  <property name="dir.grammars" location="antlr"/>
+  <property name="dir.jars" location="jars"/>
+  <property name="dir.java" location="java"/>
+  <property name="dir.generated" location="generated"/>
+  <property name="dir.classes" location="classes"/>
+
+  <!-- All located in dir.install.jars -->
+  <property name="jar.antlr"
+            location="${dir.install.jars}/antlr-3.5.2-complete-no-st3.jar"/>
+  <file id ="jar.nanoxml" 
+        file="${dir.install.jars}/nanoxml.jar"/>
+  <file id="jar.saxon"
+        file="${dir.install.jars}/saxon9he.jar"/>
+
+  <path id="plexil.sourcepath">
+    <pathelement location="${dir.java}"/>
+  </path>
+
+  <path id="plexil.classpath">
+    <file file="${jar.antlr}"/>
+    <file refid="jar.nanoxml"/>
+    <file refid="jar.saxon"/>
+    <pathelement location="${dir.classes}/plexil"/>
+  </path>
+
+  <target name="install" depends="compiler-jar">
+    <copy file="${dir.jars}/PlexilCompiler.jar"
+	      todir="${dir.install.jars}"
+	      preservelastmodified="true"/>
+  </target>
+
+  <target name="init"
+	      description="Create directories">
+    <mkdir dir="${dir.generated}/plexil"/>
+    <mkdir dir="${dir.classes}/plexil"/>
+    <mkdir dir="${dir.jars}"/>
+  </target>
+
+  <target name="plexil-grammar"
+	      depends="init"
+	      description="Generate Plexil parser code from .g file">
+    <java jar="${jar.antlr}" fork="true">
+      <arg value="-fo"/>
+      <arg path="${dir.generated}/plexil"/>
+      <arg file="${dir.grammars}/Plexil.g"/>
+    </java>
+  </target>
+
+  <target name="plexil-tree-grammar"
+	      depends="plexil-grammar"
+	      description="Generate Plexil AST transformations from .g file">
+    <java jar="${jar.antlr}" fork="true">
+      <arg value="-fo"/>
+      <arg path="${dir.generated}/plexil"/>
+      <arg file="${dir.grammars}/PlexilTreeTransforms.g"/>
+    </java>
+  </target>
+
+  <target name="plexil-compile" depends="plexil-tree-grammar">
+    <!-- N.B. there are cross dependencies between these!! -->
+    <javac destdir="${dir.classes}"
+           sourcepathref="plexil.sourcepath"
+           includeantruntime="no">
+      <src path="${dir.generated}/plexil"/>
+      <src path="${dir.java}/plexil"/>
+      <classpath refid="plexil.classpath"/>
+    </javac>
+  </target>
+
+  <target name="compiler-jar" depends="plexil-compile">
+    <jar destfile="${dir.jars}/PlexilCompiler.jar" basedir="${dir.classes}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${dir.classes}" failonerror="false"/>
+    <delete dir="${dir.generated}" failonerror="false"/>
+    <delete dir="${dir.jars}" failonerror="false"/>
+  </target>
+
+</project>
