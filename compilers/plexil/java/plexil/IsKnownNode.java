@@ -52,12 +52,6 @@ public class IsKnownNode extends ExpressionNode
         super.check (context, myState);
     }
 
-    public void constructXML()
-    {
-        super.constructXML();
-        m_xml.appendChild(this.getChild(0).getXML());
-    }
-
     public String getXMLElementName()
     {
         return "IsKnown";
