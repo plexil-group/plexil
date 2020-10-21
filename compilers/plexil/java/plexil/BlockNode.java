@@ -33,7 +33,8 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import plexil.xml.DOMUtils;
 
 public class BlockNode extends PlexilTreeNode
 {
@@ -315,8 +316,8 @@ public class BlockNode extends PlexilTreeNode
                 Element rlist = CompilerState.newElement("ResourceList");
                 for (PlexilTreeNode n : m_resources)
                     rlist.appendChild(n.getXML());
-                Element nodeBody = (Element) m_xml.getElementsByTagName("NodeBody").item(0);
-                Element commandXml = (Element) nodeBody.getElementsByTagName("Command").item(0);
+                Element nodeBody = DOMUtils.getFirstElementNamed(m_xml, "NodeBody");
+                Element commandXml = DOMUtils.getFirstElementNamed(nodeBody, "Command");
                 commandXml.insertBefore(rlist, m_xml.getFirstChild());
             } else {
                 // TODO?: generate warning
