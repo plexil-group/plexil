@@ -64,16 +64,6 @@ public class EqualityNode extends ExpressionNode
                             Severity.ERROR);
     }
 
-    /**
-     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-     */
-    protected void constructXML()
-    {
-        super.constructXML();
-        m_xml.appendChild(this.getChild(0).getXML());
-        m_xml.appendChild(this.getChild(1).getXML());
-    }
-
     protected String getXMLElementName()
     {
         String op =
