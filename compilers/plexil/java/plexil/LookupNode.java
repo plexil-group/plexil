@@ -210,9 +210,10 @@ public class LookupNode extends ExpressionNode
         this.checkChildren(context, state);
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         // Add state
         Element nameXML = CompilerState.newElement("Name");
