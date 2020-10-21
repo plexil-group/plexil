@@ -31,6 +31,8 @@ import org.antlr.runtime.tree.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import plexil.xml.DOMUtils;
+
 public class AssignmentNode extends PlexilTreeNode
 {
     public AssignmentNode(Token t)
@@ -139,33 +141,26 @@ public class AssignmentNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
         PlexilTreeNode lhs = this.getChild(0);
         ExpressionNode rhs = (ExpressionNode) this.getChild(1);
         if (rhs.getType() == PlexilLexer.COMMAND) {
             // This is really a Command node, 
-            // so insert LHS into RHS's XML in the appropriate place
+            // so find Name element and insert LHS in front of it
             m_xml = rhs.getXML();
-            Element body = (Element) m_xml.getElementsByTagName("NodeBody").item(0);
+            Element body = DOMUtils.getFirstElementNamed(m_xml, "NodeBody");
             Element command = (Element) body.getFirstChild();
-            Node tmp = command.getFirstChild();
-            // Find Name element and insert LHS in front of it
-            while (tmp != null) {
-                if (tmp.getNodeType() == Node.ELEMENT_NODE
-                    && ((Element) tmp).getTagName().equals("Name")) {
-                    command.insertBefore(lhs.getXML(), tmp);
-                    break;
-                }
-                tmp = tmp.getNextSibling();
-            }
+            Element tmp = DOMUtils.getFirstElementNamed(command, "Name");
+            command.insertBefore(lhs.getXML(), tmp);
 
             // set Command element source location to the loc'n of the LHS
             command.setAttribute("LineNo", String.valueOf(lhs.getLine()));
             command.setAttribute("ColNo", String.valueOf(lhs.getCharPositionInLine()));
         }
         else {
-            super.constructXML();
+            super.constructXMLBase();
             m_xml.setAttribute("NodeType", "Assignment");
 
             Element assign = CompilerState.newElement("Assignment");
