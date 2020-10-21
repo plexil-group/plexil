@@ -118,7 +118,11 @@ public class Compiler
             return (PlexilTreeNode) planReturn.getTree();
         }
         catch (RecognitionException x) {
-            System.out.println("First pass error: " + x);
+            System.out.println("Parser error: " + x);
+        }
+        catch (Throwable t) {
+            System.err.println("Internal error in parser:");
+            t.printStackTrace(System.err);
         }
         return null;
     }
@@ -126,10 +130,17 @@ public class Compiler
     // Perform checks on the plan
     public static boolean pass2(PlexilTreeNode plan, CompilerState state)
     {
-        GlobalContext gcontext = GlobalContext.getGlobalContext();
-        plan.earlyCheck(gcontext, state);
-        plan.check(gcontext, state);
-        return state.maxErrorSeverity() <= 0;
+        try {
+            GlobalContext gcontext = GlobalContext.getGlobalContext();
+            plan.earlyCheck(gcontext, state);
+            plan.check(gcontext, state);
+            return state.maxErrorSeverity() <= 0;
+        }
+        catch (Throwable t) {
+            System.err.println("Internal error in semantic check pass:");
+            t.printStackTrace(System.err);
+        }
+        return false;
     }
 
     // Transform the plan prior to output generation
@@ -145,13 +156,13 @@ public class Compiler
             if (state.maxErrorSeverity() > 0)
                 return null; // errors already reported
             PlexilTreeNode rewritePlan = (PlexilTreeNode) rewriteResult;
-            if (rewritePlan == null) {
-                return null; // TODO: error message
-            }
+            if (rewritePlan == null) 
+                System.err.println("Internal error: Plan transformation pass resulted in empty plan");
             return rewritePlan;
         }
-        catch (Throwable x) {
-            System.err.println("Second pass error: " + x);
+        catch (Throwable t) {
+            System.err.println("Internal error in plan transformation pass:");
+            t.printStackTrace(System.err);
         }
         return null;
     }
@@ -162,8 +173,9 @@ public class Compiler
         Element rootElement = null;
         try {
             rootElement = plan.getXML();
-        } catch (Exception e) {
-            System.err.println("Error while generating XML:\n" + e);
+        } catch (Throwable t) {
+            System.err.println("Internal error while generating XML:");
+            t.printStackTrace(System.err);
             return null;
         }
 
@@ -180,8 +192,11 @@ public class Compiler
                 if (state.debug)
                     System.err.println("Writing Extended PLEXIL file " + state.getEpxFile());
                 writer.write(planDoc);
-            } catch (Exception e) {
-                System.err.println("Error while writing Extended Plexil file:\n" + e);
+            } catch (Throwable t) {
+                System.err.println("Internal error while writing Extended Plexil file:");
+                t.printStackTrace(System.err);
+                if (state.epxOnly)
+                    return null; // this output was the whole point of the exercise
             }
         }
 
