@@ -61,14 +61,6 @@ public class PlexilPlanNode extends PlexilTreeNode
         // Add namespace, etc.
         // Maybe later - breaks validation
         // m_xml.setAttribute("xmlns", "http://plexil.sourceforge.net/");
-
-        // Add the children
-        for (int i = 0; i < this.getChildCount(); i++) {
-            // Allow for declarations to return null.
-            Element childXML = this.getChild(i).getXML();
-            if (childXML != null)
-                m_xml.appendChild(childXML);
-        }
     }
 
     /**
