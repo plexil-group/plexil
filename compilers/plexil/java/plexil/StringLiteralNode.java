@@ -53,9 +53,10 @@ public class StringLiteralNode extends LiteralNode
 		return new StringLiteralNode(this);
 	}
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
         String myText = getText();
         StringBuilder myContent = new StringBuilder(myText.length());
         int index = 1;
