@@ -62,14 +62,6 @@ public class LogicalOperatorNode extends ExpressionNode
         }
     }
 
-    public void constructXML()
-    {
-        super.constructXML();
-        for (int i = 0; i < this.getChildCount(); i++) {
-            m_xml.appendChild(this.getChild(i).getXML());
-        }
-    }
-
     public String getXMLElementName()
     {
         switch (this.getType()) {
