@@ -49,16 +49,11 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
 	}
 
     @Override
-    public void constructXML()
+    protected void constructXML()
     {
         super.constructXML();
-        for (int i = 0; i < this.getChildCount(); i++) {
-            Element childXML = this.getChild(i).getXML();
-            if (childXML != null)
-                m_xml.appendChild(childXML);
-        }
 
-        // set source locator to location of 1st child
+        // set source locator to location of 1st child (?)
         PlexilTreeNode firstChild = this.getChild(0);
         if (firstChild != null) {
             m_xml.setAttribute("LineNo",
