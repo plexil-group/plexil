@@ -40,7 +40,7 @@ import javax.xml.transform.dom.DOMSource;
 
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class SimpleXmlWriter
 {
@@ -60,9 +60,9 @@ public class SimpleXmlWriter
         m_result = new StreamResult(s);
     }
 
-    public void write(Document domDoc)
+    public void write(Node domNode)
     {
-        Source src = new DOMSource(domDoc);
+        Source src = new DOMSource(domNode);
         try {
             m_xformer.transform(src, m_result);
         } catch (TransformerException t) {
