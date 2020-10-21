@@ -68,9 +68,13 @@
 
   <target name="plexil-compile" depends="plexil-tree-grammar">
     <!-- N.B. there are cross dependencies between these!! -->
+    <!-- debuglevel options are lines,vars,source -->
     <javac destdir="${dir.classes}"
            sourcepathref="plexil.sourcepath"
-           includeantruntime="no">
+           debug="true"
+           debuglevel="lines,source"
+           includeantruntime="no"
+           >
       <src path="${dir.generated}/plexil"/>
       <src path="${dir.java}/plexil"/>
       <classpath refid="plexil.classpath"/>
