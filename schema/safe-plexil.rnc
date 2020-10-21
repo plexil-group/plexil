@@ -53,7 +53,7 @@ NodeType =
    & EndCondition?
    & ExitCondition?
    & SkipCondition?
-   & element Comment { xsd:string }?
+   & Comment?
    & element Priority { xsd:nonNegativeInteger }?
    & NodeBody?),
   NodeAttributes
