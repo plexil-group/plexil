@@ -188,9 +188,10 @@ public class ResourceNode extends PlexilTreeNode
 		}
 	}
 
-	public void constructXML()
+    @Override
+	protected void constructXML()
 	{
-		super.constructXML();
+		super.constructXMLBase();
 		Element nameElt = CompilerState.newElement("ResourceName");
 		nameElt.appendChild(m_name.getXML());
 		m_xml.appendChild(nameElt);
