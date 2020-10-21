@@ -156,9 +156,10 @@ public class IfNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML(); // constructs "If" element
+        super.constructXMLBase(); // constructs "If" element
 
         // Insert if-condition
         Element condition = CompilerState.newElement("Condition");
