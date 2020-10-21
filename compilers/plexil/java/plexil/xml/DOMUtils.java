@@ -44,7 +44,7 @@ public class DOMUtils
         Node child = l.item(0);
         while (child != null) {
             if (child.getNodeType() == Node.ELEMENT_NODE
-                && name.equals(child.getNodeValue()))
+                && name.equals(child.getNodeName()))
                 return (Element) child;
             child = child.getNextSibling();
         }
