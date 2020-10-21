@@ -84,9 +84,10 @@ public class LibraryDeclarationNode extends PlexilTreeNode
         GlobalContext.getGlobalContext().addLibraryNode(this, libraryName, ifSpecs);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
         Element nameXML = CompilerState.newElement("Name");
         nameXML.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
         m_xml.appendChild(nameXML);
