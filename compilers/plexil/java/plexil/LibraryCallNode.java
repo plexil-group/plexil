@@ -179,9 +179,10 @@ public class LibraryCallNode extends PlexilTreeNode
         checkChildren(context, state);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        m_xml = CompilerState.newElement("Node");
+        this.constructXMLBase();
         m_xml.setAttribute("NodeType", "LibraryNodeCall");
         Element bodyXML = CompilerState.newElement("NodeBody");
         m_xml.appendChild(bodyXML);
@@ -205,6 +206,12 @@ public class LibraryCallNode extends PlexilTreeNode
                 aliasXML.appendChild(alias.getChild(1).getXML());
             }
         }
+    }
+
+    @Override
+    protected String getXMLElementName()
+    {
+        return "Node";
     }
 
 }
