@@ -30,6 +30,8 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
+import plexil.xml.DOMUtils;
+
 public class ActionNode extends PlexilTreeNode
 {
     protected String m_nodeId = null;
@@ -124,7 +126,7 @@ public class ActionNode extends PlexilTreeNode
         // Insert Node ID element if was explicitly supplied
         // or child didn't already have one
         if (hasNodeId()
-            || 0 == m_xml.getElementsByTagName("NodeId").getLength()) {
+            || DOMUtils.getFirstElementNamed(m_xml, "NodeId") == null) {
             Element nodeIdElt = CompilerState.newElement("NodeId");
             nodeIdElt.appendChild(CompilerState.newTextNode(m_nodeId));
             m_xml.insertBefore(nodeIdElt, m_xml.getFirstChild());
