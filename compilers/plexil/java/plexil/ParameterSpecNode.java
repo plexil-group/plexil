@@ -215,7 +215,8 @@ public class ParameterSpecNode extends PlexilTreeNode
     }
 
     // For library node
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
         m_xml = CompilerState.newElement(this.getXMLElementName()); // no source locators desired
         if (m_parameterSpecs != null) {
