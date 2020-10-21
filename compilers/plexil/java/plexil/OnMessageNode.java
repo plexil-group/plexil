@@ -61,9 +61,10 @@ public class OnMessageNode extends PlexilTreeNode
 		}
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
         Element messageXML = CompilerState.newElement("Message");
         m_xml.appendChild(messageXML);
         messageXML.appendChild(this.getChild(0).getXML());
