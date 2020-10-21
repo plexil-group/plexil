@@ -71,9 +71,10 @@ public class VariableNode extends ExpressionNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
         m_xml.appendChild(CompilerState.newTextNode(this.getText()));
     }
 
@@ -82,7 +83,7 @@ public class VariableNode extends ExpressionNode
         return m_dataType.typeName() + "Variable";
     }
 
-    // Source locators are not allowed on variable elements.
+    // Source locators are not allowed on variable elements. (Yet.)
     protected void addSourceLocatorAttributes() {}
 
     public boolean isAssignable()
