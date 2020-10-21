@@ -170,12 +170,10 @@ public class ArrayLiteralNode extends LiteralNode
         }
     }
 
-    // Must override LiteralNode method
     @Override
-    public void constructXML()
+    protected void constructXML()
     {
-        // PlexilTreeNode base method
-        constructXMLBase();
+        this.constructXMLBase();
 
         m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
         for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
