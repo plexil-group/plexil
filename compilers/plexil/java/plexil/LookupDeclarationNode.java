@@ -91,10 +91,10 @@ public class LookupDeclarationNode extends PlexilTreeNode
         GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-
-        super.constructXML();
+        super.constructXMLBase();
 
         // add name
         PlexilTreeNode nameTree = this.getChild(0);
