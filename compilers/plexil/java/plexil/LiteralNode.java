@@ -252,9 +252,10 @@ public class LiteralNode extends ExpressionNode
         return Integer.parseInt(txt, radix);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         String txt = this.getText();
         String childTxt = (this.getChildCount() >= 1) ? this.getChild(0).getText() : null;
