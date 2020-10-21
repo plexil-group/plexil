@@ -110,13 +110,6 @@ public class ArgumentListNode extends PlexilTreeNode
         }
     }
 
-    public void constructXML()
-    {
-        m_xml = CompilerState.newElement(this.getXMLElementName()); // no source locators desired
-        for (int i = 0; i < this.getChildCount(); i++) 
-            m_xml.appendChild(this.getChild(i).getXML());
-    }
-
     public String getXMLElementName() { return "Arguments"; }
 
 }
