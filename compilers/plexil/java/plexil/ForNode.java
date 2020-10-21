@@ -130,9 +130,10 @@ public class ForNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         Element loopVar = CompilerState.newElement("LoopVariable");
         m_xml.appendChild(loopVar);
