@@ -160,13 +160,22 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-     * @note This is a base method. Derived classes should extend or override it as required.
+     * @note This is a default method. Derived classes should extend or override it as required.
      */
     protected void constructXML()
     {
         constructXMLBase();
+        for (int i = 0; i < this.getChildCount(); i++) {
+            Element childXml = this.getChild(i).getXML();
+            if (childXml != null)
+                m_xml.appendChild(childXml);
+        }
     }
 
+    /**
+     * @brief Construct the XML element representing this part of the parse tree, and store it in m_xml.
+     * @note This is a default method. Derived classes should extend or override it as required.
+     */
     protected void constructXMLBase()
     {
         m_xml = CompilerState.newElement(this.getXMLElementName());
