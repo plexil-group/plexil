@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,12 +186,10 @@ public class Compiler
             if (state.debug)
                 System.err.println("Translating to Core PLEXIL file " + outputFile);
 
-            String[] saxonArgs = new String[3];
-            saxonArgs[0] = "-o:" + outputFile.toString();
-            saxonArgs[1] = "-s:" + epxFile.toString();
-            saxonArgs[2] = "-xsl:" + System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl";
-            net.sf.saxon.Transform.main(saxonArgs);
-
+            plexil.xml.SaxonTransformer xformer = new plexil.xml.SaxonTransformer();
+            File stylesheet =
+                new File(System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl");
+            boolean result = xformer.translateFiles(stylesheet, epxFile, outputFile);
             if (!state.keepEpx) {
                 try {
                     if (!epxFile.delete())
@@ -201,7 +199,7 @@ public class Compiler
                     System.err.println("Error deleting " + epxFile.toString() + ": " + e);
                 }
             }
-            return true;
+            return result;
         }
         catch (Exception e) {
             System.err.println("Extended Plexil translation error: " + e);
