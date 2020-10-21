@@ -57,13 +57,6 @@ public class ConditionNode extends PlexilTreeNode
         }
     }
 
-    public void constructXML()
-    {
-        super.constructXML();
-        // Add expression
-        m_xml.appendChild(this.getChild(0).getXML());
-    }
-
     public String getXMLElementName()
     {
         switch (this.getType()) {
