@@ -30,6 +30,8 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
+import plexil.xml.DOMUtils;
+
 public class SynchronousCommandNode extends PlexilTreeNode
 {
     public SynchronousCommandNode(Token t)
@@ -128,10 +130,10 @@ public class SynchronousCommandNode extends PlexilTreeNode
         }
     }
 
-
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         // Generate XML for timeout if supplied
         if (this.getChildCount() > 1) {
@@ -149,7 +151,7 @@ public class SynchronousCommandNode extends PlexilTreeNode
         Element commandNodeXML = this.getChild(0).getXML();
         // command is inside NodeBody element
         Element commandXML =
-            (Element) commandNodeXML.getElementsByTagName("NodeBody").item(0).getFirstChild();
+            (Element) DOMUtils.getFirstElementNamed(commandNodeXML, "NodeBody").getFirstChild();
         m_xml.appendChild(commandXML);
     }
 
