@@ -121,9 +121,10 @@ class WaitNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
         Element unitsElt = CompilerState.newElement("Units");
         m_xml.appendChild(unitsElt);
         unitsElt.appendChild(this.getChild(0).getXML());
