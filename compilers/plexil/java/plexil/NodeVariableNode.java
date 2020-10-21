@@ -110,12 +110,10 @@ public class NodeVariableNode extends ExpressionNode
             nodeRef.check(context, state);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        // NOTE: not invoking super, because it adds line/col attributes that I
-        // want to omit for now, becuase it's messy to add them to the schema
-        // for this construct.
-        m_xml = CompilerState.newElement(this.getXMLElementName());
+        this.constructXMLBase();
 
 		PlexilTreeNode nodeRef = this.getChild(0);
 		if (nodeRef.getToken().getType() == PlexilLexer.NCNAME) {
