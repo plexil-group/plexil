@@ -109,9 +109,10 @@ public class WhileNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         Element condition = CompilerState.newElement("Condition");
         m_xml.appendChild(condition);
