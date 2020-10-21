@@ -62,9 +62,10 @@ public class PriorityNode extends PlexilTreeNode
         // Don't.
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
         m_xml.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
     }
 
