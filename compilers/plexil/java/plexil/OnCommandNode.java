@@ -135,9 +135,10 @@ public class OnCommandNode extends PlexilTreeNode
 		}
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         // Construct the name element, but don't output it yet.
         Element name = CompilerState.newElement ("Name");
