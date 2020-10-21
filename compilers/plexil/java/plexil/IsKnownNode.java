@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public class IsKnownNode extends ExpressionNode
     public void constructXML()
     {
         super.constructXML();
-        m_xml.addChild(this.getChild(0).getXML());
+        m_xml.appendChild(this.getChild(0).getXML());
     }
 
     public String getXMLElementName()

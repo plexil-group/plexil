@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -88,8 +88,8 @@ public class RelationalNode extends ExpressionNode
     protected void constructXML()
     {
         super.constructXML();
-        m_xml.addChild(this.getChild(0).getXML());
-        m_xml.addChild(this.getChild(1).getXML());
+        m_xml.appendChild(this.getChild(0).getXML());
+        m_xml.appendChild(this.getChild(1).getXML());
     }
 
     protected String getXMLElementName()

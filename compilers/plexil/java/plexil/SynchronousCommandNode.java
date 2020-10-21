@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class SynchronousCommandNode extends PlexilTreeNode
 {
@@ -135,21 +135,22 @@ public class SynchronousCommandNode extends PlexilTreeNode
 
         // Generate XML for timeout if supplied
         if (this.getChildCount() > 1) {
-            IXMLElement timeoutXML = new XMLElement("Timeout");
-            m_xml.addChild(timeoutXML);
-            timeoutXML.addChild(this.getChild(1).getXML());
+            Element timeoutXML = CompilerState.newElement("Timeout");
+            m_xml.appendChild(timeoutXML);
+            timeoutXML.appendChild(this.getChild(1).getXML());
             if (this.getChildCount() > 2) {
-                IXMLElement tolXML = new XMLElement("Tolerance");
-                m_xml.addChild(tolXML);
-                tolXML.addChild(this.getChild(2).getXML());
+                Element tolXML = CompilerState.newElement("Tolerance");
+                m_xml.appendChild(tolXML);
+                tolXML.appendChild(this.getChild(2).getXML());
             }
         }
 		
         // Construct command XML by extracting from command node XML
-        IXMLElement commandNodeXML = this.getChild(0).getXML();
+        Element commandNodeXML = this.getChild(0).getXML();
         // command is inside NodeBody element
-        IXMLElement commandXML = commandNodeXML.getFirstChildNamed("NodeBody").getChildAtIndex(0);
-        m_xml.addChild(commandXML);
+        Element commandXML =
+            (Element) commandNodeXML.getElementsByTagName("NodeBody").item(0).getFirstChild();
+        m_xml.appendChild(commandXML);
     }
 
 }

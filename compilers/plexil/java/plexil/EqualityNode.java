@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-
-import plexil.PlexilTreeNode;
 
 public class EqualityNode extends ExpressionNode
 {
@@ -72,8 +70,8 @@ public class EqualityNode extends ExpressionNode
     protected void constructXML()
     {
         super.constructXML();
-        m_xml.addChild(this.getChild(0).getXML());
-        m_xml.addChild(this.getChild(1).getXML());
+        m_xml.appendChild(this.getChild(0).getXML());
+        m_xml.appendChild(this.getChild(1).getXML());
     }
 
     protected String getXMLElementName()

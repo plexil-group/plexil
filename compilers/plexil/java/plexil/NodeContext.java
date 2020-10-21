@@ -30,8 +30,6 @@ import java.util.Vector;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.n3.nanoxml.IXMLElement;
-
 //
 // A class to represent the context of one PLEXIL node in the translator.
 //

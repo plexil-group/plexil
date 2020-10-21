@@ -28,7 +28,8 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class AssignmentNode extends PlexilTreeNode
 {
@@ -146,15 +147,17 @@ public class AssignmentNode extends PlexilTreeNode
             // This is really a Command node, 
             // so insert LHS into RHS's XML in the appropriate place
             m_xml = rhs.getXML();
-            IXMLElement body = m_xml.getFirstChildNamed("NodeBody");
-            XMLElement command = (XMLElement) body.getChildAtIndex(0);
+            Element body = (Element) m_xml.getElementsByTagName("NodeBody").item(0);
+            Element command = (Element) body.getFirstChild();
+            Node tmp = command.getFirstChild();
             // Find Name element and insert LHS in front of it
-            for (int i = 0; i < command.getChildrenCount(); i++) {
-                IXMLElement child = command.getChildAtIndex(i);
-                if (child.getName().equals("Name")) {
-                    command.insertChild(lhs.getXML(), i);
+            while (tmp != null) {
+                if (tmp.getNodeType() == Node.ELEMENT_NODE
+                    && ((Element) tmp).getTagName().equals("Name")) {
+                    command.insertBefore(lhs.getXML(), tmp);
                     break;
                 }
+                tmp = tmp.getNextSibling();
             }
 
             // set Command element source location to the loc'n of the LHS
@@ -165,21 +168,21 @@ public class AssignmentNode extends PlexilTreeNode
             super.constructXML();
             m_xml.setAttribute("NodeType", "Assignment");
 
-            IXMLElement assign = new XMLElement("Assignment");
+            Element assign = CompilerState.newElement("Assignment");
             // set source location to the loc'n of the LHS
             assign.setAttribute("LineNo", String.valueOf(lhs.getLine()));
             assign.setAttribute("ColNo", String.valueOf(lhs.getCharPositionInLine()));
 
-            assign.addChild(lhs.getXML());
+            assign.appendChild(lhs.getXML());
 
-            IXMLElement rhsXML = new XMLElement(rhs.assignmentRHSElementName());
-            rhsXML.addChild(rhs.getXML());
-            assign.addChild(rhsXML);
+            Element rhsXML = CompilerState.newElement(rhs.assignmentRHSElementName());
+            rhsXML.appendChild(rhs.getXML());
+            assign.appendChild(rhsXML);
 
-            IXMLElement body = new XMLElement("NodeBody");
-            body.addChild(assign);
+            Element body = CompilerState.newElement("NodeBody");
+            body.appendChild(assign);
 
-            m_xml.addChild(body);
+            m_xml.appendChild(body);
         }
     }
 

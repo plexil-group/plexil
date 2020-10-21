@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,20 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.RecognizerSharedState;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import java.util.Vector;
 
-import net.n3.nanoxml.XMLWriter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 public class CompilerState
 {
@@ -56,6 +66,10 @@ public class CompilerState
     public RecognizerSharedState sharedState; //* shared state to pass between parsers
 
     Vector<Diagnostic> m_diagnostics = new Vector<Diagnostic>();
+
+    private Document m_rootDocument = null;
+
+    private static DocumentBuilder s_documentBuilder = null;
 
     protected static CompilerState s_instance = null;
 
@@ -158,6 +172,7 @@ public class CompilerState
         System.out.println("Usage:  PlexilCompiler [options] [sourcefile]");
         System.out.println("Options: ");
         System.out.println("  -h, --help            Prints this message and exits");
+
         System.out.println("  -o filename           Writes output to filename");
         System.out.println("  -v, --version         Prints version number and exits");
         System.out.println("  -d, --debug           Enable debug output to standard-error stream");
@@ -185,20 +200,19 @@ public class CompilerState
         return m_instream; 
     }
 
-    public XMLWriter getEpxWriter()
+    public OutputStream getEpxStream()
     {
         File epxFile = getEpxFile();
         if (epxFile == null)
-            return new XMLWriter(System.out);
-        else {
-            try {
-                OutputStream os = new FileOutputStream(epxFile);
-                return new XMLWriter(os);
-            }
-            catch (IOException x) {
-                System.err.println("Unable to open Extended Plexil output file " + epxFile.toString() + ": " + x.toString());
-                return null;
-            }
+            return System.out;
+
+        try {
+            return new FileOutputStream(epxFile);
+        }
+        catch (IOException x) {
+            System.err.println("Unable to open Extended Plexil output file "
+                               + epxFile.toString() + ": " + x.toString());
+            return null;
         }
     }
 
@@ -270,6 +284,39 @@ public class CompilerState
                 result = d.severity();
         }
         return result;
+    }
+
+    public Document getRootDocument()
+    {
+        // Bootstrapping
+        if (s_documentBuilder == null) {
+            // Configuration??
+            try {
+            s_documentBuilder =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            } catch (ParserConfigurationException p) {
+                System.err.println("Fatal error: unable to boostrap XML construction:\n"
+                                   + p.toString());
+                return null;
+            };
+        }
+
+        // Construct a new Extended PLEXIL XML document
+        if (m_rootDocument == null) {
+            m_rootDocument = s_documentBuilder.newDocument();
+            m_rootDocument.setXmlVersion("1.0");
+        }
+        return m_rootDocument;
+    }
+
+    public static Element newElement(String tagName)
+    {
+        return getCompilerState().getRootDocument().createElement(tagName);
+    }
+
+    public static Text newTextNode(String contents)
+    {
+        return getCompilerState().getRootDocument().createTextNode(contents);
     }
 
 }

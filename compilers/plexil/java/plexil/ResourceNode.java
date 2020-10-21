@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class ResourceNode extends PlexilTreeNode
 {
@@ -191,28 +191,28 @@ public class ResourceNode extends PlexilTreeNode
 	public void constructXML()
 	{
 		super.constructXML();
-		IXMLElement nameElt = new XMLElement("ResourceName");
-		nameElt.addChild(m_name.getXML());
-		m_xml.addChild(nameElt);
+		Element nameElt = CompilerState.newElement("ResourceName");
+		nameElt.appendChild(m_name.getXML());
+		m_xml.appendChild(nameElt);
 
-        IXMLElement prio = new XMLElement("ResourcePriority");
-        prio.addChild(m_priority.getXML());
-        m_xml.addChild(prio);
+        Element prio = CompilerState.newElement("ResourcePriority");
+        prio.appendChild(m_priority.getXML());
+        m_xml.appendChild(prio);
 
 		if (m_lowerBound != null) {
-			IXMLElement lbound = new XMLElement("ResourceLowerBound");
-			lbound.addChild(m_lowerBound.getXML());
-			m_xml.addChild(lbound);
+			Element lbound = CompilerState.newElement("ResourceLowerBound");
+			lbound.appendChild(m_lowerBound.getXML());
+			m_xml.appendChild(lbound);
 		}
 		if (m_upperBound != null) {
-			IXMLElement ubound = new XMLElement("ResourceUpperBound");
-			ubound.addChild(m_upperBound.getXML());
-			m_xml.addChild(ubound);
+			Element ubound = CompilerState.newElement("ResourceUpperBound");
+			ubound.appendChild(m_upperBound.getXML());
+			m_xml.appendChild(ubound);
 		}
 		if (m_releaseAtTermination != null) {
-			IXMLElement rat = new XMLElement("ResourceReleaseAtTermination");
-			rat.addChild(m_releaseAtTermination.getXML());
-			m_xml.addChild(rat);
+			Element rat = CompilerState.newElement("ResourceReleaseAtTermination");
+			rat.appendChild(m_releaseAtTermination.getXML());
+			m_xml.appendChild(rat);
 		}
 	}
 

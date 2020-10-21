@@ -28,11 +28,11 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 {
-    protected XMLElement m_xml = null;
+    protected Element m_xml = null;
 
     //
     // Constructors
@@ -150,8 +150,8 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
             this.getChild(i).check(context, state);
     }
 	
-    //* Returns the NanoXML representation of this part of the parse tree.
-    public XMLElement getXML()
+    //* Returns the DOM representation of this part of the parse tree.
+    public Element getXML()
     {
         if (m_xml == null)
             constructXML();
@@ -169,7 +169,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 
     protected void constructXMLBase()
     {
-        m_xml = new XMLElement(this.getXMLElementName());
+        m_xml = CompilerState.newElement(this.getXMLElementName());
         this.addSourceLocatorAttributes();
     }
 

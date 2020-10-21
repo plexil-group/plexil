@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class DoNode extends PlexilTreeNode
 {
@@ -112,13 +112,13 @@ public class DoNode extends PlexilTreeNode
     {
         super.constructXML();
 
-        IXMLElement action = new XMLElement("Action");
-        m_xml.addChild(action);
-        action.addChild(this.getChild(0).getXML());
+        Element action = CompilerState.newElement("Action");
+        m_xml.appendChild(action);
+        action.appendChild(this.getChild(0).getXML());
 
-        IXMLElement condition = new XMLElement("Condition");
-        m_xml.addChild(condition);
-        condition.addChild(this.getChild(1).getXML());
+        Element condition = CompilerState.newElement("Condition");
+        m_xml.appendChild(condition);
+        condition.appendChild(this.getChild(1).getXML());
         condition.setAttribute("LineNo", String.valueOf(this.getChild(1).getLine()));
         condition.setAttribute("ColNo", String.valueOf(this.getChild(1).getCharPositionInLine()));
     }

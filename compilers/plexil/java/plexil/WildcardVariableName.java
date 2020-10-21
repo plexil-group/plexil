@@ -25,9 +25,7 @@
 
 package plexil;
 
-// XML
-import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.XMLElement;
+import org.w3c.dom.Element;
 
 public class WildcardVariableName extends VariableName
 {
@@ -38,9 +36,9 @@ public class WildcardVariableName extends VariableName
         super(decl, s_wildcardName, PlexilDataType.ANY_TYPE);
     }
 
-    public IXMLElement makeGlobalDeclarationElement(String ignoredElementType)
+    public Element makeGlobalDeclarationElement(String ignoredElementType)
     {
-        return new XMLElement("AnyParameters");
+        return CompilerState.newElement("AnyParameters");
     }
 
 }

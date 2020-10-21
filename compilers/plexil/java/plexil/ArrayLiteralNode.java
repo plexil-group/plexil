@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,6 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-
-import net.n3.nanoxml.*;
 
 // 
 // A specialized AST node that does code generation for literals.
@@ -173,6 +171,7 @@ public class ArrayLiteralNode extends LiteralNode
     }
 
     // Must override LiteralNode method
+    @Override
     public void constructXML()
     {
         // PlexilTreeNode base method
@@ -181,7 +180,7 @@ public class ArrayLiteralNode extends LiteralNode
         m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
         for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
             LiteralNode child = (LiteralNode) this.getChild(childIdx);
-            m_xml.addChild(child.getXML());
+            m_xml.appendChild(child.getXML());
         }
     }
         

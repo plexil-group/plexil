@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class WhileNode extends PlexilTreeNode
 {
@@ -113,13 +113,13 @@ public class WhileNode extends PlexilTreeNode
     {
         super.constructXML();
 
-        IXMLElement condition = new XMLElement("Condition");
-        m_xml.addChild(condition);
-        condition.addChild(this.getChild(0).getXML());
+        Element condition = CompilerState.newElement("Condition");
+        m_xml.appendChild(condition);
+        condition.appendChild(this.getChild(0).getXML());
 
-        IXMLElement action = new XMLElement("Action");
-        m_xml.addChild(action);
-        action.addChild(this.getChild(1).getXML());
+        Element action = CompilerState.newElement("Action");
+        m_xml.appendChild(action);
+        action.appendChild(this.getChild(1).getXML());
     }
 
     protected String getXMLElementName() { return "While"; }

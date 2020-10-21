@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class LogicalOperatorNode extends ExpressionNode
     {
         super.constructXML();
         for (int i = 0; i < this.getChildCount(); i++) {
-            m_xml.addChild(this.getChild(i).getXML());
+            m_xml.appendChild(this.getChild(i).getXML());
         }
     }
 

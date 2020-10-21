@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class PlexilPlanNode extends PlexilTreeNode
 {
@@ -57,11 +57,17 @@ public class PlexilPlanNode extends PlexilTreeNode
     protected void constructXML()
     {
         super.constructXML();
+
+        // Add namespace, etc.
+        // Maybe later - breaks validation
+        // m_xml.setAttribute("xmlns", "http://plexil.sourceforge.net/");
+
+        // Add the children
         for (int i = 0; i < this.getChildCount(); i++) {
             // Allow for declarations to return null.
-            IXMLElement childXML = this.getChild(i).getXML();
+            Element childXML = this.getChild(i).getXML();
             if (childXML != null)
-                m_xml.addChild(childXML);
+                m_xml.appendChild(childXML);
         }
     }
 
@@ -91,7 +97,5 @@ public class PlexilPlanNode extends PlexilTreeNode
                 m_xml.setAttribute("FileName", fname);
         }
     }
-
-
 
 }

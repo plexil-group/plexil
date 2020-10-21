@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class ReturnSpecNode extends PlexilTreeNode
 {
@@ -84,10 +84,10 @@ public class ReturnSpecNode extends PlexilTreeNode
         }
     }
 
-    public void constructReturnXML(IXMLElement parent)
+    public void constructReturnXML(Element parent)
     {
         for (VariableName vn : m_returnSpecs)
-            parent.addChild(vn.makeGlobalDeclarationElement("Return"));
+            parent.appendChild(vn.makeGlobalDeclarationElement("Return"));
     }
 
 }

@@ -29,8 +29,7 @@ package plexil;
 import plexil.PlexilName;
 import plexil.PlexilDataType;
 
-// XML
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class VariableName extends PlexilName
 {
@@ -143,34 +142,34 @@ public class VariableName extends PlexilName
     // For code generation purposes
     // Subclasses may override this method
 
-    public IXMLElement makeGlobalDeclarationElement(String elementType)
+    public Element makeGlobalDeclarationElement(String elementType)
     {
-        IXMLElement result = new XMLElement(elementType);
+        Element result = CompilerState.newElement(elementType);
         if (m_name != null) {
-            IXMLElement nameXML = new XMLElement("Name");
-            nameXML.setContent(getName());
-            result.addChild(nameXML);
+            Element nameXML = CompilerState.newElement("Name");
+            nameXML.appendChild(CompilerState.newTextNode(getName()));
+            result.appendChild(nameXML);
         }
-        IXMLElement typeXML = new XMLElement("Type");
-        result.addChild(typeXML);
+        Element typeXML = CompilerState.newElement("Type");
+        result.appendChild(typeXML);
         if (m_variableType.isArray()) {
-            typeXML.setContent(m_variableType.arrayElementType().typeName());
-            IXMLElement sizeXML = new XMLElement("MaxSize");
-            sizeXML.setContent(Integer.toString(m_maxSize));
-            result.addChild(sizeXML);
+            typeXML.appendChild(CompilerState.newTextNode(m_variableType.arrayElementType().typeName()));
+            Element sizeXML = CompilerState.newElement("MaxSize");
+            sizeXML.appendChild(CompilerState.newTextNode(Integer.toString(m_maxSize)));
+            result.appendChild(sizeXML);
         }
         else {
-            typeXML.setContent(getVariableTypeName());
+            typeXML.appendChild(CompilerState.newTextNode(getVariableTypeName()));
         }
         return result;
     }
 
 
     // For code generation purposes
-    public IXMLElement makeDeclarationXML()
+    public Element makeDeclarationXML()
     {
-        IXMLElement result = 
-            new XMLElement(isArray() ? "DeclareArray" : "DeclareVariable");
+        Element result = 
+            CompilerState.newElement(isArray() ? "DeclareArray" : "DeclareVariable");
 
         // add source locators
         if (m_declaration != null) {
@@ -178,37 +177,37 @@ public class VariableName extends PlexilName
             result.setAttribute("ColNo", String.valueOf(m_declaration.getCharPositionInLine()));
         }
 
-        IXMLElement xname = new XMLElement("Name");
-        xname.setContent(getName());
-        result.addChild(xname);
+        Element xname = CompilerState.newElement("Name");
+        xname.appendChild(CompilerState.newTextNode(getName()));
+        result.appendChild(xname);
 
         String typeName =
             isArray() ? getArrayElementTypeName()
             : getVariableTypeName(); 
-        IXMLElement xtype = new XMLElement("Type");
-        xtype.setContent(typeName);
-        result.addChild(xtype);
+        Element xtype = CompilerState.newElement("Type");
+        xtype.appendChild(CompilerState.newTextNode(typeName));
+        result.appendChild(xtype);
 
         if (isArray()) {
-            IXMLElement xsize = new XMLElement("MaxSize");
-            xsize.setContent(Integer.toString(m_maxSize));
-            result.addChild(xsize);
+            Element xsize = CompilerState.newElement("MaxSize");
+            xsize.appendChild(CompilerState.newTextNode(Integer.toString(m_maxSize)));
+            result.appendChild(xsize);
         }
 
         if (m_initialValue != null) {
-            IXMLElement init = new XMLElement("InitialValue");
-            result.addChild(init);
+            Element init = CompilerState.newElement("InitialValue");
+            result.appendChild(init);
             if (m_initialValue.getDataType().isArray()) {
                 // handle array initial value
-                IXMLElement val = new XMLElement("ArrayValue");
+                Element val = CompilerState.newElement("ArrayValue");
                 val.setAttribute("Type", getArrayElementTypeName());
                 for (int i = 0; i < m_initialValue.getChildCount(); i++) {
-                    val.addChild(m_initialValue.getChild(i).getXML());
+                    val.appendChild(m_initialValue.getChild(i).getXML());
                 }
-                init.addChild(val);
+                init.appendChild(val);
             }
             else {
-                init.addChild(m_initialValue.getXML());
+                init.appendChild(m_initialValue.getXML());
             }
         }
 

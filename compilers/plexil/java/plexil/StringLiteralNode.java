@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
-
 // 
 // A specialized AST node that does code generation for string literals.
 // 
@@ -59,8 +57,7 @@ public class StringLiteralNode extends LiteralNode
     {
         super.constructXML();
         String myText = getText();
-        // N.B. should be StringBuilder for Java 1.5 up
-        StringBuffer myContent = new StringBuffer(myText.length());
+        StringBuilder myContent = new StringBuilder(myText.length());
         int index = 1;
         // check leading/trailing double quotes
         if (myText.charAt(0) != '"' || myText.charAt(myText.length() - 1) != '"') {
@@ -177,7 +174,7 @@ public class StringLiteralNode extends LiteralNode
             }
             index = nextIdx;
         }
-        m_xml.setContent(myContent.toString());
+        m_xml.appendChild(CompilerState.newTextNode(myContent.toString()));
     }
 
 }

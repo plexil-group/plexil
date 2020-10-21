@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class LibraryDeclarationNode extends PlexilTreeNode
 {
@@ -87,11 +87,11 @@ public class LibraryDeclarationNode extends PlexilTreeNode
     public void constructXML()
     {
         super.constructXML();
-        IXMLElement nameXML = new XMLElement("Name");
-        nameXML.setContent(this.getChild(0).getText());
-        m_xml.addChild(nameXML);
+        Element nameXML = CompilerState.newElement("Name");
+        nameXML.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+        m_xml.appendChild(nameXML);
         if (this.getChildCount() > 1 && this.getChild(1).getChildCount() > 0)
-            m_xml.addChild(this.getChild(1).getXML());
+            m_xml.appendChild(this.getChild(1).getXML());
     }
 
     public String getXMLElementName() { return "LibraryNodeDeclaration"; }

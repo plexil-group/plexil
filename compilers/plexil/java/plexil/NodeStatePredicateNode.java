@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class NodeStatePredicateNode extends ExpressionNode
 {
@@ -154,15 +154,15 @@ public class NodeStatePredicateNode extends ExpressionNode
 
 		PlexilTreeNode target = this.getChild(0);
 		if (target.getToken().getType() == PlexilLexer.NCNAME) {
-			IXMLElement nodeId = new XMLElement("NodeId");
-			nodeId.setContent(target.getToken().getText());
-			m_xml.addChild(nodeId);
+			Element nodeId = CompilerState.newElement("NodeId");
+			nodeId.appendChild(CompilerState.newTextNode(target.getToken().getText()));
+			m_xml.appendChild(nodeId);
 		}
 		else if (target instanceof NodeRefNode) {
-			m_xml.addChild(target.getXML());
+			m_xml.appendChild(target.getXML());
 		}
 		else {
-			m_xml.addChild(new XMLElement("_NODE_REF_ERROR_"));
+			m_xml.appendChild(CompilerState.newElement("_NODE_REF_ERROR_"));
 		}
 	}
 
