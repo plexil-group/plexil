@@ -189,10 +189,11 @@ public class CommandNode extends ExpressionNode
         return true;
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
         // construct Node XML
-        super.constructXML();
+        super.constructXMLBase();
         m_xml.setAttribute("NodeType", "Command");
 
         // construct node body

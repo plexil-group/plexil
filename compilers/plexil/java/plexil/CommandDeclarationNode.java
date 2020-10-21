@@ -95,9 +95,10 @@ public class CommandDeclarationNode extends PlexilTreeNode
         GlobalContext.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpecs);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        this.constructXMLBase();
 
         // add name
         PlexilTreeNode nameTree = this.getChild(0);

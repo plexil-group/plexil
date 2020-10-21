@@ -108,9 +108,10 @@ public class DoNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         Element action = CompilerState.newElement("Action");
         m_xml.appendChild(action);
