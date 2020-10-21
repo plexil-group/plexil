@@ -148,9 +148,10 @@ public class NodeStatePredicateNode extends ExpressionNode
 		}
 	}
 
-	public void constructXML()
+    @Override
+	protected void constructXML()
 	{
-		super.constructXML();
+		super.constructXMLBase();
 
 		PlexilTreeNode target = this.getChild(0);
 		if (target.getToken().getType() == PlexilLexer.NCNAME) {
