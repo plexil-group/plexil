@@ -270,6 +270,7 @@ public class BlockNode extends PlexilTreeNode
         // Add comment
         if (m_comment != null) {
             Element comment = m_comment.getXML();
+
             // Extract the string from the StringLiteralNode
             // and substitute it for the StringValue element
             Node stringText = comment.getFirstChild().getFirstChild();
@@ -318,7 +319,7 @@ public class BlockNode extends PlexilTreeNode
                     rlist.appendChild(n.getXML());
                 Element nodeBody = DOMUtils.getFirstElementNamed(m_xml, "NodeBody");
                 Element commandXml = DOMUtils.getFirstElementNamed(nodeBody, "Command");
-                commandXml.insertBefore(rlist, m_xml.getFirstChild());
+                commandXml.insertBefore(rlist, commandXml.getFirstChild());
             } else {
                 // TODO?: generate warning
             }
