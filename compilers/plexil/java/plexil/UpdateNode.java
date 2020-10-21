@@ -61,9 +61,10 @@ public class UpdateNode extends PlexilTreeNode
 		}
 	}
 
+    @Override
 	protected void constructXML()
 	{
-		super.constructXML();
+		super.constructXMLBase();
 		m_xml.setAttribute("NodeType", "Update");
 
         // construct node body
