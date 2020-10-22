@@ -29,6 +29,7 @@ package plexil.xml;
 import java.io.File;
 import java.io.OutputStream;
 
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -57,7 +58,19 @@ public class SimpleXmlWriter
             System.err.println("Error creating XML writer:\n"
                                + c.toString());
         }
+        m_xformer.setOutputProperty(OutputKeys.METHOD, "xml");
         m_result = new StreamResult(s);
+    }
+
+    public void setIndent(boolean indent)
+    {
+        try {
+            m_xformer.setOutputProperty(OutputKeys.INDENT,
+                                        (indent ? "yes" : "no"));
+        } catch (IllegalArgumentException i) {
+            System.err.println("Error: unable to set indent property:\n"
+                               + i.toString());
+        }
     }
 
     public void write(Node domNode)

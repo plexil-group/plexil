@@ -54,12 +54,35 @@ public class SaxonTransformer
 {
     private Processor m_processor;
     private XsltCompiler m_compiler;
+    private String m_method;
+    private boolean m_indent;
 
     public SaxonTransformer()
     {
-        // TODO: configuration?
         m_processor = new Processor(false);
         m_compiler = m_processor.newXsltCompiler();
+        m_method = "xml"; 
+        m_indent = false;
+    }
+
+    public boolean getIndent()
+    {
+        return m_indent;
+    }
+
+    public void setIndent(boolean indent)
+    {
+        m_indent = indent;
+    }
+
+    public String getMethod()
+    {
+        return m_method;
+    }
+
+    public void setMethod(String outputMethod)
+    {
+        m_method = outputMethod;
     }
 
     // Construct an XsltExecutable from the given stylesheet path.
@@ -89,17 +112,14 @@ public class SaxonTransformer
         if (m_processor == null)
             return null;
         Serializer result = m_processor.newSerializer(dest);
-        result.setOutputProperty(Serializer.Property.METHOD, "xml");
-        return result;
-    }
-
-    // Construct a serializer to write output of the translator to a file.
-    protected Serializer makeFileSerializer(File dest, boolean indent)
-    {
-        Serializer result = makeFileSerializer(dest);
-        if (result == null)
-            return null;
-        result.setOutputProperty(Serializer.Property.INDENT, (indent ? "yes" : "no"));
+        try {
+            result.setOutputProperty(Serializer.Property.METHOD, m_method);
+            result.setOutputProperty(Serializer.Property.INDENT,
+                                     m_indent ? "yes" : "no");
+        } catch (IllegalArgumentException i) {
+            System.err.println("SaxonTransformer: error setting output properties:\n"
+                               + i.toString());
+        }
         return result;
     }
 
