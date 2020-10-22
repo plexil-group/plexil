@@ -183,12 +183,10 @@ public class Compiler
         planDoc.appendChild(rootElement);
 
         // Only write .epx file if requested to
-        if (state.epxOnly || state.keepEpx) {
+        if (state.writeEpx) {
             try {
                 SimpleXmlWriter writer = new SimpleXmlWriter(state.getEpxStream());
-                if (writer == null) {
-                    System.err.println("Unable to create Extended Plexil output stream");
-                }
+                writer.setIndent(state.indentOutput);
                 if (state.debug)
                     System.err.println("Writing Extended PLEXIL file " + state.getEpxFile());
                 writer.write(planDoc);
@@ -213,8 +211,11 @@ public class Compiler
                 System.err.println("Translating to Core PLEXIL file " + outputFile);
 
             plexil.xml.SaxonTransformer xformer = new plexil.xml.SaxonTransformer();
+            xformer.setIndent(state.indentOutput);
+
             File stylesheet =
-                new File(System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl");
+                new File(System.getenv("PLEXIL_HOME"), "schema/translate-plexil.xsl");
+
             return xformer.translateDOM(stylesheet, planDoc, outputFile);
         }
         catch (Exception e) {

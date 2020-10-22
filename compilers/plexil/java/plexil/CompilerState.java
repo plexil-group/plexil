@@ -57,9 +57,10 @@ public class CompilerState
     // Processing-related flags
     public boolean debug = false;
     public boolean epxOnly = false;
-    public boolean keepEpx = false;
+    public boolean indentOutput = false;
     public boolean semanticsOnly = false;
     public boolean syntaxOnly = false;
+    public boolean writeEpx = false;
 
     protected CharStream m_instream; //* the stream to use initially
 
@@ -134,13 +135,16 @@ public class CompilerState
             }
             else if (m_args[i].equals("-e") || m_args[i].equals("--epx-only")) {
                 epxOnly = true;
-                keepEpx = true;
+                writeEpx = true;
             }
-            else if (m_args[i].equals("-k") || m_args[i].equals("--keep-epx")) {
-                keepEpx = true;
+            else if (m_args[i].equals("-w") || m_args[i].equals("--write-epx")) {
+                writeEpx = true;
             }
             else if (m_args[i].equals("-o")) {
                 m_outfile = new File(m_args[++i]);
+            }
+            else if (m_args[i].equals("-p") || m_args[i].equals("--pretty-print")) {
+                indentOutput = true;
             }
             else if (m_args[i].equals("-m") || m_args[i].equals("--semantics-only")) {
                 semanticsOnly = true;
@@ -149,7 +153,7 @@ public class CompilerState
                 syntaxOnly = true;
             }
             else {
-                // Not a recognized option, go on to process input file names
+                // Not a recognized option, go on to process input file name(s)
                 break;
             }
             ++i;
@@ -170,14 +174,16 @@ public class CompilerState
     public void usage()
     {
         System.out.println("Usage:  PlexilCompiler [options] [sourcefile]");
-        System.out.println("Options: ");
+        System.out.println(" Options for information (no sourcefile required): ");
         System.out.println("  -h, --help            Prints this message and exits");
-
-        System.out.println("  -o filename           Writes output to filename");
         System.out.println("  -v, --version         Prints version number and exits");
+        System.out.println(" Options for output control: ");
+        System.out.println("  -o <filename>         Writes output to filename");
+        System.out.println("  -p, --pretty-print    Format XML output for readability");
+        System.out.println(" Options primarily for compiler testing:");
         System.out.println("  -d, --debug           Enable debug output to standard-error stream");
-        System.out.println("  -e, --epx-only        Do not translate output to Core Plexil XML");
-        System.out.println("  -k, --keep-epx        Do not delete Extended Plexil XML intermediate file");
+        System.out.println("  -w, --write-epx       Write an Extended Plexil XML output file");
+        System.out.println("  -e, --epx-only        Write EPX and do not translate to Core Plexil");
         System.out.println("  -m, --semantics-only  Perform syntax and semantic checks, but do not generate code");
         System.out.println("  -s, --syntax-only     Perform surface syntax parsing only");
     }
