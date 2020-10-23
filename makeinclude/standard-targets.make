@@ -155,17 +155,6 @@ tags:	$(SVN_FILES)
 
 #doc: $(DOC)
 
-##### Default pattern rules for generating Plexil XML
-
-%.plx: %.ple
-	$(PLEXIL_HOME)/scripts/plexilc $<
-
-%.plx: %.pli
-	$(PLEXIL_HOME)/scripts/plexilc $<
-
-%.plx: %.epx
-	$(PLEXIL_HOME)/scripts/plexilc $<
-
 ##### Test Directory
 # These targets apply to any directory that has a 'test' subdirectory.
 
