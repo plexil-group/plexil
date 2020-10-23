@@ -24,22 +24,23 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
-# TODO: figure out why fPIC is necessary in c++98
-CXXFLAGS= -std=c++98 -g -pedantic-errors -fPIC
+
 LIBRARY = CheckpointAdapter
 SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
 INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh data_support.hh Guard.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
-test1:
-	plexilc plans/PanoramaCrashTest.ple
+include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
+
+test1: plans/PanoramaCrashTest.plx
 	plexilexec -p plans/PanoramaCrashTest.plx
 
-test2:
-	plexilc plans/StringOperations.ple
+test2: plans/StringOperations.plx
 	plexilexec -p plans/StringOperations.plx
 
-test3:
-	plexilc plans/StringOperationsLookup.ple
+test3: plans/StringOperationsLookup.plx
 	plexilexec -p plans/StringOperationsLookup.plx
+
+localclean::
+	@$(RM) plans/*.plx
