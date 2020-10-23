@@ -25,6 +25,22 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+SHELL = /bin/sh
+
+# Check environment, in case the user has somehow forgotten to set PLEXIL_HOME
+
+TOP_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),../../..))
+
+ifeq ($(PLEXIL_HOME),)
+PLEXIL_HOME := $(TOP_DIR)
+else
+ifneq ($(PLEXIL_HOME),$(TOP_DIR))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(TOP_DIR) before proceeding)
+endif
+endif
+
+export PLEXIL_HOME
+
 SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  ArrayLookup array-add array-complex array-copy array_size_test \
  assignment0 assignment1 assignment2 \
@@ -148,7 +164,7 @@ passall:
 		./pass $$i ; \
 	  done
 
-clean::
+clean:
 	-@$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
 
 .PHONY: setup output test syntax-error-tests semantic-error-tests checkall passall clean
