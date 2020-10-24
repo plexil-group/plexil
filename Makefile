@@ -28,14 +28,14 @@
 SHELL = /bin/sh
 
 # Check environment
-# N.B.: this has a trailing /
-MAKEFILE_DIR := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+# N.B.: dir leaves a trailing /
+MAKEFILE_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),.))
 
 ifeq ($(PLEXIL_HOME),)
-PLEXIL_HOME := $(MAKEFILE_DIR:/=)
+PLEXIL_HOME := $(MAKEFILE_DIR)
 else
-ifneq ($(PLEXIL_HOME),$(MAKEFILE_DIR:/=))
-$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MAKEFILE_DIR:/=) before proceeding)
+ifneq ($(PLEXIL_HOME),$(MAKEFILE_DIR))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MAKEFILE_DIR) before proceeding)
 endif
 endif
 
@@ -209,6 +209,8 @@ clean-examples:
 
 # Clean up after autotools
 distclean squeaky-clean: | clean
+	@(cd compilers/plexil && ant uninstall)
+	@(cd compilers/plexilscript && ant uninstall)
 	@(cd src && $(RM) */Makefile */Makefile.in)
 	@(cd src/apps && $(RM) */Makefile */Makefile.in)
 	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)
