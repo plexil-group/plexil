@@ -80,14 +80,14 @@ public class NodeVariableNode extends ExpressionNode
 	}
 
     @Override
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE)
             m_dataType = GlobalContext.getGlobalContext().getTimeType();
     }
 
     @Override
-    public void checkChildren(NodeContext context, CompilerState state)
+    protected void checkChildren(NodeContext context, CompilerState state)
     {
         // Verify that referenced node is reachable from context
         PlexilTreeNode nodeRef = this.getChild(0);

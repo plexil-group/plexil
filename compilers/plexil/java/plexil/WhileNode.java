@@ -62,6 +62,7 @@ public class WhileNode extends PlexilTreeNode
     /**
      * @brief Prepare for the semantic check.
      */
+    @Override
     public void earlyCheck(NodeContext parentContext, CompilerState state)
     {
         earlyCheckSelf(parentContext, state);
@@ -69,7 +70,8 @@ public class WhileNode extends PlexilTreeNode
         this.getChild(1).earlyCheck(m_bodyContext, state); // body
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    @Override
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -92,6 +94,7 @@ public class WhileNode extends PlexilTreeNode
      * @brief Semantic check.
      * @note Uses separate context for body.
      */
+    @Override
     public void check(NodeContext parentContext, CompilerState state)
     {
         checkSelf(parentContext, state);
@@ -99,7 +102,8 @@ public class WhileNode extends PlexilTreeNode
         this.getChild(1).check(m_bodyContext, state); // body
     }
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    @Override
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
         if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {

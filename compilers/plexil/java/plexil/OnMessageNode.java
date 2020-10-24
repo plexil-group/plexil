@@ -50,7 +50,7 @@ public class OnMessageNode extends PlexilTreeNode
 	// Format is:
 	// ^(ON_MESSAGE_KYWD expression action)
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
 		// Ensure that the message is a string expression
 		ExpressionNode msgName = (ExpressionNode) this.getChild(0);

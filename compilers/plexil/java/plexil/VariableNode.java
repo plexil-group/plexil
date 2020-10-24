@@ -57,7 +57,7 @@ public class VariableNode extends ExpressionNode
      * @brief Prepare for the semantic check.
      */
     @Override
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         // Get variable from context, if possible
         m_variable = context.findVariable(this.getText());
@@ -78,6 +78,7 @@ public class VariableNode extends ExpressionNode
         m_xml.appendChild(CompilerState.newTextNode(this.getText()));
     }
 
+    @Override
     protected String getXMLElementName()
     {
         return m_dataType.typeName() + "Variable";

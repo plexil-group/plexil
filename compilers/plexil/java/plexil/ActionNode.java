@@ -75,7 +75,7 @@ public class ActionNode extends PlexilTreeNode
     // Format is
     // (ACTION NCName? baseAction)
 
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         // If supplied, get the node ID
         PlexilTreeNode firstChild = this.getChild(0);
@@ -96,7 +96,7 @@ public class ActionNode extends PlexilTreeNode
         }
         else {
             // Gensym a name but don't log it, since it never appeared in the source
-            m_nodeId = context.generateChildNodeName(firstChild.getToken().getText());
+            m_nodeId = context.generateChildNodeName(firstChild.getText());
         }
     }
 

@@ -58,7 +58,8 @@ public class ResourceNode extends PlexilTreeNode
 		return new ResourceNode(this);
 	}
 
-	public void earlyCheckSelf(NodeContext context, CompilerState state)
+    @Override
+	protected void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
 		// format is:
 		// ^(RESOURCE_KYWD name_expr [ option_kywd value_expr ]* )
@@ -148,7 +149,8 @@ public class ResourceNode extends PlexilTreeNode
         }
 	}
 
-	public void checkSelf(NodeContext context, CompilerState state)
+    @Override
+	protected void checkSelf(NodeContext context, CompilerState state)
 	{
 		// Type check name
 		if (m_name.getDataType() != PlexilDataType.STRING_TYPE) {

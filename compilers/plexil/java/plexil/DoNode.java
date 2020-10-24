@@ -69,7 +69,7 @@ public class DoNode extends PlexilTreeNode
         this.getChild(1).earlyCheck(parentContext, state); // do-test expression
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -98,7 +98,7 @@ public class DoNode extends PlexilTreeNode
         this.getChild(1).check(parentContext, state); // do test
     }
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         ExpressionNode doTest = (ExpressionNode) this.getChild(1);
         if (!doTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {

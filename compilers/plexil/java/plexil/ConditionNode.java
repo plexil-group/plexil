@@ -46,7 +46,7 @@ public class ConditionNode extends PlexilTreeNode
 		return new ConditionNode(this);
 	}
 
-    public void checkSelf(NodeContext context, CompilerState myState)
+    protected void checkSelf(NodeContext context, CompilerState myState)
     {
         ExpressionNode exp = (ExpressionNode) this.getChild(0);
         if (exp.getDataType() != PlexilDataType.BOOLEAN_TYPE) {

@@ -57,7 +57,7 @@ public class NodeStatePredicateNode extends ExpressionNode
 	}
 
     @Override
-	public void checkChildren(NodeContext context, CompilerState state)
+	protected void checkChildren(NodeContext context, CompilerState state)
 	{
 		PlexilTreeNode child = this.getChild(0);
 		switch (child.getToken().getType()) {

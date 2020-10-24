@@ -93,7 +93,7 @@ public class BlockNode extends PlexilTreeNode
             this.getChild(i).earlyCheck(m_context, state);
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -127,7 +127,7 @@ public class BlockNode extends PlexilTreeNode
     }
 
     // N.B. Interface and variable decl's, and conditions, check themselves.
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         // Check for duplicate conditions
         TreeSet<Integer> conditionsSeen = new TreeSet<Integer>();

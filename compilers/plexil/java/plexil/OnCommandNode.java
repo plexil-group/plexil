@@ -123,7 +123,7 @@ public class OnCommandNode extends PlexilTreeNode
 		getBody().check(m_context, state);
 	}
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
 		// Coerce name expression to string
         ExpressionNode nameExp = (ExpressionNode) this.getChild(0);

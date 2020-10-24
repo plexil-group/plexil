@@ -110,6 +110,7 @@ public class IfNode extends PlexilTreeNode
      * @brief Semantic check.
      * @note Uses separate contexts for then and else bodies.
      */
+    @Override
     public void check(NodeContext parentContext, CompilerState myState)
     {
         checkSelf(parentContext, myState);
@@ -131,7 +132,8 @@ public class IfNode extends PlexilTreeNode
         }
     }
 
-    public void checkSelf(NodeContext context, CompilerState myState)
+    @Override
+    protected void checkSelf(NodeContext context, CompilerState myState)
     {
         // Assert Boolean type on tests
         if (!((ExpressionNode) getChild(0)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
@@ -148,9 +150,6 @@ public class IfNode extends PlexilTreeNode
                     myState.addDiagnostic(getChild(i),
                                           "ElseIf test expression is not Boolean",
                                           Severity.ERROR);
-                }
-                else {
-                    // final else clause
                 }
             }
         }

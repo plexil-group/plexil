@@ -64,7 +64,7 @@ public class CommandNode extends ExpressionNode
     // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
         if (this.getChildCount() > 1)
@@ -147,13 +147,12 @@ public class CommandNode extends ExpressionNode
     }
 
     @Override
-    public void check(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
-
-        // if name is not literal
         if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {
-            // Check that name expression returns a string
+            // if name is not literal, 
+            // check that name expression returns a string
             ExpressionNode nameExp = (ExpressionNode) nameAST;
             if (nameExp.getDataType() != PlexilDataType.STRING_TYPE) {
                 state.addDiagnostic(nameExp,
@@ -163,16 +162,12 @@ public class CommandNode extends ExpressionNode
         }
 
         if (m_commandDeclaration != null) {
-            // Check parameter list
+            // Check parameter list against declaration
             String cmdName = m_commandDeclaration.getName();
             Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
             if (parmSpecs != null && m_parameters != null)
                 m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
         }
-        // Resource list is self-checking
-
-        // Perform recursive checks on subexprs
-        this.checkChildren(context, state);
     }
 
     /**

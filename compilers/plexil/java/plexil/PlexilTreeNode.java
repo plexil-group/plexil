@@ -110,7 +110,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @brief Establish local bindings and do initial self checks.
      * @note This default method does nothing. Derived classes should override it.
      */
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
     }
 
@@ -118,7 +118,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @brief Establish bindings and do initial checks of this node's children.
      * @note Derived classes should override this as applicable.
      */
-    public void earlyCheckChildren(NodeContext context, CompilerState state)
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
     {
         for (int i = 0; i < this.getChildCount(); i++)
             this.getChild(i).earlyCheck(context, state);
@@ -137,14 +137,14 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @brief Perform a semantic check of this node's requirements.
      * @note This is a default method. Derived classes should implement their own. 
      */
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
     }
 
     /**
      * @brief Perform semantic checks on the node's children.
      */
-    public void checkChildren(NodeContext context, CompilerState state)
+    protected void checkChildren(NodeContext context, CompilerState state)
     {
         for (int i = 0; i < this.getChildCount(); i++)
             this.getChild(i).check(context, state);
@@ -189,7 +189,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      */
     protected String getXMLElementName()
     {
-        return this.getToken().getText();
+        return this.getText();
     }
 
     /**
