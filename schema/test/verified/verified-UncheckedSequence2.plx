@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="UncheckedSequence">
-    <NodeId>ep2cp_UncheckedSequence_d1e3</NodeId>
+    <NodeId generated="1">ep2cp_UncheckedSequence_d1e3</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>

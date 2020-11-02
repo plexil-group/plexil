@@ -1,0 +1,40 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <GlobalDeclarations>
+    <CommandDeclaration>
+      <Name>bar</Name>
+      <Return><Type>Boolean</Type></Return>
+    </CommandDeclaration>
+  </GlobalDeclarations>
+  <Concurrence>
+    <NodeId>Do2</NodeId>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>foo</Name>
+        <Type>Boolean</Type>
+        <InitialValue>
+            <BooleanValue>true</BooleanValue>
+        </InitialValue>
+      </DeclareVariable>
+    </VariableDeclarations>
+    <Node NodeType="Command">
+      <NodeId>invoke-bar</NodeId>
+      <NodeBody>
+        <Command>
+          <BooleanVariable>foo</BooleanVariable>
+          <Name><StringValue>bar</StringValue></Name>
+        </Command>
+      </NodeBody>
+    </Node>
+    <Do>
+      <NodeId>Do1</NodeId>
+      <Action>
+        <Node NodeType="Empty">
+          <NodeId>One</NodeId>
+        </Node>
+      </Action>
+      <Condition>
+        <BooleanVariable>foo</BooleanVariable>
+      </Condition>
+    </Do>
+  </Concurrence>
+</PlexilPlan>

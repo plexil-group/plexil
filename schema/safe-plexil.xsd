@@ -38,19 +38,61 @@
   was part of the original Core Plexil.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
+           xml:lang="en">
+
   <xs:include schemaLocation='plexil-base.xsd' />
 
   <!-- Elements -->
 
-  <xs:group name="Action">
+  <xs:group name="ActionGroup">
     <xs:choice>
       <xs:element ref="Node"/>
     </xs:choice>
   </xs:group>
 
+  <!-- NodeId is required in Safe Plexil. -->
+  <xs:complexType name="NodeType">
+    <xs:all>
+      <xs:element ref="NodeId"/>
+
+      <!-- Annotations for static analysis -->
+      <xs:element ref="Assume" minOccurs="0"/>
+      <xs:element ref="Desire" minOccurs="0"/>
+      <xs:element ref="Expect" minOccurs="0"/>
+
+      <!-- Variable declarations -->
+      <xs:element ref="VariableDeclarations" minOccurs="0"/>
+      <xs:element ref="Interface" minOccurs="0"/>
+
+      <!-- User conditions -->
+      <xs:element ref="StartCondition" minOccurs="0"/>
+      <xs:element ref="RepeatCondition" minOccurs="0"/>
+      <xs:element ref="PreCondition" minOccurs="0"/>
+      <xs:element ref="PostCondition" minOccurs="0"/>
+      <xs:element ref="InvariantCondition" minOccurs="0"/>
+      <xs:element ref="EndCondition" minOccurs="0"/>
+      <xs:element ref="ExitCondition" minOccurs="0"/>
+      <xs:element ref="SkipCondition" minOccurs="0"/>
+
+      <!-- Any number of Comment elements COULD be included
+           if we could implement XML Schema 1.1.
+      -->
+      <xs:element name="Comment" type="xs:string" minOccurs="0"/>
+
+      <!-- Currently only relevant for Assignment nodes -->
+      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
+
+      <xs:element ref="NodeBody" minOccurs="0"/>
+    </xs:all>
+    <xs:attributeGroup ref="NodeAttributes"/>
+  </xs:complexType>
+
   <xs:group name="BooleanExpression">
     <xs:choice>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
 	  <xs:group ref="LogicalOperator"/>
 	  <xs:group ref="Equality"/>
 	  <xs:group ref="NumericComparison"/>
@@ -58,8 +100,6 @@
       <xs:group ref="NodeStatePredicate"/>
       <xs:group ref="NodeOutcomePredicate"/>
       <xs:group ref="NodeFailurePredicate"/>
-      <xs:element ref="BooleanVariable"/>
-      <xs:element ref="BooleanValue"/>
     </xs:choice>
   </xs:group>
 

@@ -33,19 +33,40 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check environment variables
-if [ ! "$PLEXIL_HOME" ]
-then
-    echo "Error: Please set environment variable PLEXIL_HOME"
-    echo "to the full pathname of your 'plexil' or 'trunk' directory."
-    exit 1
-fi
+# N.B. Presumes PLEXIL_HOME is correctly set in environment
 
 # shellcheck source=../../../scripts/plexil-setup.sh
 . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 SCHEMA_DIR="$PLEXIL_HOME"/schema
 EPX_SCHEMA="$SCHEMA_DIR"/extended-plexil.xsd
+
+# Old validator
+# VALIDATOR="$(command -v xmllint)"
+# VALIDATOR_OPTS='--noout --schema'
+
+# if [ -z "$VALIDATOR" ]
+# then
+#     echo 'Error: "xmllint" utility not found.' >&2
+#     echo 'Please install it, or amend PATH, and try again.' >&2
+#     exit 1
+# fi
+
+# New validator
+VALIDATOR="$SCHEMA_DIR"/validator/validate
+VALIDATOR_OPTS='--schema'
+
+if [ ! -e "$VALIDATOR" ]
+then
+    echo "Error: validator $VALIDATOR is not executable." >&2
+    exit 1
+fi
+
+epx_validate()
+{
+    "$VALIDATOR" ${VALIDATOR_OPTS} "$EPX_SCHEMA" "$1"
+}
+
 
 if ! ../PlexilCompiler --epx-only -o output/"$1".epx input/"$1".ple
 then
@@ -54,7 +75,7 @@ then
     exit 1
 fi
 
-if ! xmllint --noout --schema "$EPX_SCHEMA" output/"$1".epx 2>>tempRegressionResults 1>&2 
+if ! epx_validate output/"$1".epx 2>>tempRegressionResults 1>&2 
 then
 	echo "*** Validation of $1.epx failed ***" >> tempRegressionResults 
 	echo "*** Validation of $1.epx failed ***" 
