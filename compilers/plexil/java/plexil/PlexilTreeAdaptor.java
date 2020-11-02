@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -154,6 +154,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
             // Other syntactic features
         case PlexilLexer.ARGUMENT_LIST:
             return new ArgumentListNode(payload);
+
+        case PlexilLexer.DO_KYWD:
+            return new DoNode(payload);
 
         case PlexilLexer.FOR_KYWD:
             return new ForNode(payload);

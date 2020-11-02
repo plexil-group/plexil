@@ -157,7 +157,6 @@ trivialReduction:
     |   ^(OR_KYWD arg=.) -> $arg
     |   ^(PLUS arg=.) -> $arg
     |   ^(ASTERISK arg=.) -> $arg
-    |   ^(SLASH arg=.) -> $arg  // ???
     |   ^(MAX_KYWD arg=.) -> $arg
     |   ^(MIN_KYWD arg=.) -> $arg
     ;

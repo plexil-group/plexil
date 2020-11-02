@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+
+
 <!--
-* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,13 +30,14 @@
 -->
 
 <!-- This stylesheet requires XSLT 2.0 for xsl:function, xsl:sequence -->
-<!-- This stylesheet requires XPath 2.0 for 'intersect' operator -->
+<!-- This stylesheet requires XPath 2.0 for 'except' -->
 
 <xsl:transform version="2.0"
                xmlns:tr="extended-plexil-translator"
                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-               exclude-result-prefixes="xs">
+               xmlns:fn="http://www.w3.org/2005/xpath-functions"
+               exclude-result-prefixes="fn tr xs">
 
   <xsl:output method="xml" indent="no"/>
   <!-- <xsl:output method="xml" indent="yes"/> FOR TESTING ONLY -->
@@ -49,17 +52,24 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- Abstraction for Action constructs.  Unfortunately, this is not
-       allowed in 'select' attributes, so the actions are enumerated
-       there. -->
+  <!-- Function to select actions -->
+  <xsl:function name="tr:actions" as="element()*">
+    <xsl:param name="context" />
+    <xsl:sequence
+        select="$context/(Node|Concurrence|Sequence|CheckedSequence|UncheckedSequence|
+                Try|If|Do|While|For|OnCommand|OnMessage|
+                Wait|SynchronousCommand)" />
+  </xsl:function>
 
-  <xsl:key name="action"
-           match="Node|Concurrence|
-                  Sequence|CheckedSequence|UncheckedSequence|
-                  Try|If|While|For|OnCommand|OnMessage|
-                  Wait|SynchronousCommand"
-           use="." />
-
+  <!-- Function to select user conditions -->
+  <xsl:function name="tr:conditions" as="element()*">
+    <xsl:param name="context" />
+    <xsl:sequence
+        select="$context/(EndCondition|ExitCondition|InvariantCondition|
+                PostCondition|PreCondition|RepeatCondition|
+                SkipCondition|StartCondition)" />
+  </xsl:function>
+  
   <!-- Entry point -->
   <xsl:template match="PlexilPlan">
     <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -67,90 +77,67 @@
       <!-- 0 or 1 expected -->
       <xsl:copy-of select="GlobalDeclarations"/>
       <!-- 1 expected -->
-      <xsl:apply-templates select="key('action', *)">
-        <xsl:with-param name="mode" select="'unordered'" />
-      </xsl:apply-templates>
+      <xsl:apply-templates select="tr:actions(.)"/>
     </PlexilPlan>
   </xsl:template>
 
   <xsl:template match="Node">
-    <xsl:param name="mode" select="'unordered'" />
-    <xsl:call-template name="translate-node">
-      <xsl:with-param name="mode" select="$mode" />
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template name="translate-node">
-    <xsl:param name="mode" />
     <Node>
       <!-- Parts that are copied directly -->
       <xsl:copy-of select="@NodeType" />
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations"/>
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions"/>
       <xsl:apply-templates select="NodeBody" />
     </Node>
   </xsl:template>
 
   <!-- Sequence, CheckedSequence, UncheckedSequence -->
+  <!-- We may switch Sequence to be an UncheckedSequence
+       in future releases -->
 
   <xsl:template match="UncheckedSequence">
-    <xsl:param name="mode" />
-    <xsl:call-template name="UncheckedSequence">
-      <xsl:with-param name="mode" select="$mode" />
-    </xsl:call-template>
+    <xsl:call-template name="UncheckedSequence" />
   </xsl:template>
-  
+
   <xsl:template name="UncheckedSequence">
-    <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="{name(.)}">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
 
   <xsl:template match="Sequence|CheckedSequence">
-    <xsl:param name="mode" />
-    <xsl:call-template name="CheckedSequence">
-      <xsl:with-param name="mode" select="$mode" />
-    </xsl:call-template>
+    <xsl:call-template name="CheckedSequence" />
   </xsl:template>
 
   <xsl:template name="CheckedSequence">
-    <xsl:param name="mode" />
+    <xsl:variable name="conds">
+      <xsl:call-template name="translate-conditions" />
+    </xsl:variable>
+    
     <Node NodeType="NodeList" epx="{name(.)}">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:choose>
-        <xsl:when test="$mode='ordered'">
-          <xsl:call-template name="ordered-start-condition" />
-          <xsl:call-template name="ordered-skip-condition" />
-          <xsl:apply-templates select="RepeatCondition|PreCondition|PostCondition|
-                                       ExitCondition|EndCondition" />
-        </xsl:when>
-        <xsl:when test="$mode='unordered'">
-          <xsl:apply-templates select="StartCondition|SkipCondition|
-                                       RepeatCondition|PreCondition|PostCondition|
-                                       ExitCondition|EndCondition" />
-        </xsl:when>
-      </xsl:choose>
-      <xsl:call-template name="success-invariant-condition" />
+      <xsl:sequence
+          select="$conds/(* except InvariantCondition)" />
+      <xsl:call-template name="success-invariant-condition" >
+        <xsl:with-param name="expanded-invariant"
+                        select="$conds/InvariantCondition" />
+      </xsl:call-template>
       <xsl:call-template name="sequence-body" />
     </Node>
   </xsl:template>
 
   <xsl:template name="success-invariant-condition">
+    <xsl:param name="expanded-invariant" />
     <InvariantCondition>
       <xsl:choose>
-        <xsl:when test="InvariantCondition/*">
+        <xsl:when test="$expanded-invariant">
           <AND>
-            <xsl:apply-templates select="InvariantCondition/*" />
+            <xsl:sequence select="$expanded-invariant/*" />
             <NoChildFailed> <NodeRef dir="self" /> </NoChildFailed>
           </AND>
         </xsl:when>
@@ -161,69 +148,185 @@
     </InvariantCondition>
   </xsl:template>
 
-  <xsl:template match="Concurrence">
-    <xsl:param name="mode" />
-    <Node NodeType="NodeList" epx="Concurrence">
-      <xsl:call-template name="basic-clauses" />
-      <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
-      <xsl:call-template name="concurrent-body" />
-    </Node>
+  <!-- Sequence guts -->
+
+  <!-- Handle sequences in two steps: 
+       1. Expand children. Generate node IDs as required.
+       2. Generate start and skip conditions to enforce the sequence.
+  -->
+
+  <!-- The individual pieces of this are broken out separately
+       because some macro expansions need to get information
+       from the expanded child actions before constructing the body.
+  -->
+
+  <xsl:template name="sequence-body">
+    <xsl:call-template name="link-sequence-children">
+      <xsl:with-param name="children">
+        <xsl:call-template name="expand-child-actions" />
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
-  <xsl:template name="concurrent-body">
+  <!-- Useful in a number of templates -->
+  <xsl:template name="expand-child-actions">
+    <xsl:apply-templates select="tr:actions(.)" />
+  </xsl:template>
+
+  <xsl:template name="link-sequence-children">
+    <xsl:param name="children" />
     <NodeBody>
       <NodeList>
-        <xsl:for-each select="child::* intersect key('action', *)">
-          <xsl:apply-templates select=".">
-            <xsl:with-param name="mode" select="'unordered'" />
-          </xsl:apply-templates>
+        <xsl:for-each select="$children/*">
+          <xsl:call-template name="sequence-linkage" />
         </xsl:for-each>
       </NodeList>
     </NodeBody>
   </xsl:template>
 
+  <!-- Called only on Node elements
+       Node is expected to have a NodeId -->
+
+  <xsl:template name="sequence-linkage">
+    <Node>
+      <xsl:copy-of select="@*"/>
+      <!-- Make an attempt to preserve ordering -->
+      <xsl:sequence select="NodeId|Comment|Priority|Interface|
+                            VariableDeclarations|Assume|Desire|Expect" />
+      <xsl:call-template name="ordered-start-condition" />
+      <xsl:call-template name="ordered-skip-condition" />
+      <xsl:sequence
+          select="EndCondition|ExitCondition|InvariantCondition|
+                  PostCondition|PreCondition|RepeatCondition|NodeBody"/>
+    </Node>
+  </xsl:template>
+
+  <!-- Templates used only in sequence-linkage -->
+  <!-- Note that each is called with a pre-expanded Node as its context
+       and therefore need not worry whether its preceding sibling is an action.
+  -->
+
+  <xsl:template name="ordered-start-condition">
+    <xsl:param name="context" select="." />
+    <xsl:choose>
+      <xsl:when test="$context/preceding-sibling::*[1]">
+        <xsl:variable name="start-test">
+          <Finished>
+            <NodeRef dir="sibling">
+              <xsl:call-template name="node-id">
+                <xsl:with-param name="context"
+                                select="$context/preceding-sibling::*[1]" />
+              </xsl:call-template>
+            </NodeRef>
+          </Finished>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="$context/StartCondition">
+            <StartCondition>
+              <AND>
+                <xsl:sequence select="$start-test" />
+                <xsl:sequence select="$context/StartCondition/*" />
+              </AND>
+            </StartCondition>
+          </xsl:when>
+          <xsl:otherwise>
+            <StartCondition>
+              <xsl:sequence select="$start-test" />
+            </StartCondition>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$context/StartCondition" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template name="ordered-skip-condition">
+    <xsl:param name="context" select="." />
+    <xsl:if test="$context/SkipCondition">
+      <xsl:choose>
+        <xsl:when test="$context/preceding-sibling::*[1]">
+          <SkipCondition>
+            <AND>
+              <Finished>
+                <NodeRef dir="sibling">
+                  <xsl:call-template name="node-id">
+                    <xsl:with-param name="context"
+                                    select="$context/preceding-sibling::*[1]" />
+                  </xsl:call-template>
+                </NodeRef>
+              </Finished>
+              <xsl:apply-templates select="$context/SkipCondition/*" />
+            </AND>
+          </SkipCondition>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="$context/SkipCondition" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+
+  <!-- Concurrence -->
+
+  <xsl:template match="Concurrence">
+    <Node NodeType="NodeList" epx="Concurrence">
+      <xsl:call-template name="basic-clauses" />
+      <xsl:apply-templates select="VariableDeclarations" />
+      <xsl:call-template name="translate-conditions"/>
+      <NodeBody>
+        <NodeList>
+          <xsl:call-template name="expand-child-actions" />
+        </NodeList>
+      </NodeBody>
+    </Node>
+  </xsl:template>
+
+  <!-- Try (not to be confused with try/catch) -->
 
   <xsl:template match="Try">
-    <xsl:param name="mode" />
+    <xsl:variable name="conds">
+      <xsl:call-template name="translate-conditions" />
+    </xsl:variable>
+    <xsl:variable name="expanded-children">
+      <xsl:call-template name="expand-child-actions" />
+    </xsl:variable>
+
     <Node NodeType="NodeList" epx="Try">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:choose>
-        <xsl:when test="$mode='ordered'">
-          <xsl:call-template name="ordered-start-condition" />
-          <xsl:call-template name="ordered-skip-condition" />
-        </xsl:when>
-        <xsl:when test="$mode='unordered'">
-          <xsl:apply-templates
-              select="StartCondition|SkipCondition" />
-        </xsl:when>
-      </xsl:choose>
-      <xsl:apply-templates
-          select="RepeatCondition|PreCondition|
-                  ExitCondition|InvariantCondition" />
-      <xsl:call-template name="try-end-condition" />
-      <xsl:call-template name="try-post-condition" />
-      <xsl:call-template name="sequence-body" />
+      <xsl:sequence select="$conds/(* except EndCondition|PostCondition)" />
+
+      <xsl:call-template name="try-end-condition">
+        <xsl:with-param name="original-condition" select="$conds/EndCondition"/>
+        <xsl:with-param name="children" select="$expanded-children" />
+      </xsl:call-template>
+      <xsl:call-template name="try-post-condition" >
+        <xsl:with-param name="original-condition" select="$conds/PostCondition"/>
+        <xsl:with-param name="children" select="$expanded-children" />
+      </xsl:call-template>
+
+      <xsl:call-template name="link-sequence-children" >
+        <xsl:with-param name="children" select="$expanded-children" />
+      </xsl:call-template>
     </Node>
   </xsl:template>
 
   <xsl:template name="try-end-condition">
-    <xsl:variable name="children"
-                  select="child::* intersect key('action', *)" />
+    <xsl:param name="original-condition" />
+    <xsl:param name="children" />
     <xsl:choose>
-      <xsl:when test="count($children) = 1">
+      <xsl:when test="count($children/*) lt 2">
         <!-- No test needed, default all-children-finished is
              sufficient -->
-        <xsl:apply-templates select="EndCondition" />
+        <xsl:sequence select="$original-condition" />
       </xsl:when>
       <xsl:otherwise>
         <EndCondition>
           <OR>
-            <xsl:apply-templates select="EndCondition/*" />
-            <xsl:for-each select="$children">
+            <xsl:sequence select="$original-condition" />
+            <xsl:for-each select="$children/*">
               <xsl:variable name="kid-ref">
                 <NodeRef dir="child">
                   <xsl:call-template name="node-id" />
@@ -241,24 +344,11 @@
   </xsl:template>
 
   <xsl:template name="try-post-condition">
-    <PostCondition>
-      <xsl:choose>
-        <xsl:when test="PostCondition">
-          <AND>
-            <xsl:apply-templates select="PostCondition/*" />
-            <xsl:call-template name="try-post-test" />
-          </AND>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="try-post-test" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </PostCondition>
-  </xsl:template>
-  
-  <xsl:template name="try-post-test">
+    <xsl:param name="original-condition" />
+    <xsl:param name="children"/>
+
     <xsl:variable name="post-tests">
-      <xsl:for-each select="child::* intersect key('action', *)">
+      <xsl:for-each select="$children/*">
         <Succeeded>
           <NodeRef dir="child">
             <xsl:call-template name="node-id" />
@@ -266,65 +356,69 @@
         </Succeeded>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="count($post-tests/*) = 1">
-        <xsl:sequence select="$post-tests" />
-      </xsl:when>
-      <xsl:otherwise>
-        <OR>
+
+    <xsl:variable name="post-test">
+      <xsl:choose>
+        <xsl:when test="count($post-tests/*) gt 1">
+          <OR>
+            <xsl:sequence select="$post-tests" />
+          </OR>
+        </xsl:when>
+        <xsl:when test="count($post-tests/*) = 1">
           <xsl:sequence select="$post-tests" />
-        </OR>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-  
-  <xsl:template name="sequence-body">
-    <NodeBody>
-      <NodeList>
-        <xsl:for-each select="child::* intersect key('action', *)">
-          <xsl:apply-templates select=".">
-            <xsl:with-param name="mode" select="'ordered'" />
-          </xsl:apply-templates>
-        </xsl:for-each>
-      </NodeList>
-    </NodeBody>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:if test="$original-condition or $post-test">
+      <PostCondition>
+        <xsl:choose>
+          <xsl:when test="$original-condition and $post-test">
+            <AND>
+              <xsl:sequence select="$original-condition" />
+              <xsl:sequence select="$post-test" />
+            </AND>
+          </xsl:when>
+          <xsl:when test="PostCondition">
+            <xsl:sequence select="$original-condition" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="$post-test" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </PostCondition>
+    </xsl:if>
   </xsl:template>
 
+  <!-- If-Then-Elseif-Else -->
+
   <xsl:template match="If">
-    <xsl:param name="mode" />
     <xsl:choose>
       <!-- General case -->
       <xsl:when test="ElseIf">
-        <xsl:call-template name="generalized-if">
-          <xsl:with-param name="mode" select="$mode" />
-        </xsl:call-template>
+        <xsl:call-template name="generalized-if" />
       </xsl:when>
 
       <!-- If-Then-Else -->
       <!-- Requires a wrapper node, but can skip the test node. -->
       <xsl:when test="Else">
-        <xsl:call-template name="basic-if-then-else">
-          <xsl:with-param name="mode" select="$mode" />
-        </xsl:call-template>
+        <xsl:call-template name="basic-if-then-else" />
       </xsl:when>
 
       <!-- If-Then -->
       <xsl:otherwise>
-        <xsl:call-template name="basic-if-then">
-          <xsl:with-param name="mode" select="$mode" />
-        </xsl:call-template>
+        <xsl:call-template name="basic-if-then" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
+  <!-- TODO: figure out when we can collapse simple if-then to a single node -->
+
   <xsl:template name="basic-if-then">
-    <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="If">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <NodeBody>
         <NodeList>
           <xsl:call-template name="basic-if-then-body" />
@@ -397,13 +491,10 @@
   </xsl:template>
   
   <xsl:template name="basic-if-then-else">
-    <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="If">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <NodeBody>
         <NodeList>
           <xsl:call-template name="basic-if-then-body" />
@@ -477,13 +568,10 @@
   </xsl:template>
 
   <xsl:template name="generalized-if">
-    <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="If">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <xsl:call-template name="if-body" />
     </Node>
   </xsl:template>
@@ -510,7 +598,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Empty" epx="Condition">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="$test-node-id" />
           </NodeId>
           <PostCondition>
@@ -533,12 +621,53 @@
     </NodeBody>
   </xsl:template>
 
+  <xsl:template name="if-clause-body">
+    <xsl:param name="start-condition" required="yes" />
+    <xsl:param name="skip-condition" required="yes" />
+    <xsl:variable name="expanded-clause">
+      <xsl:apply-templates /> <!-- WARNING: NOT select='.', only apply to children of . -->
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$expanded-clause/Node/(StartCondition|SkipCondition)">
+        <!-- must create wrapper node -->
+        <Node NodeType="NodeList" epx="{name(.)}">
+          <NodeId generated="1"><xsl:value-of select="tr:prefix(name(.))" /></NodeId>
+          <StartCondition>
+            <xsl:sequence select="$start-condition" />
+          </StartCondition>
+          <SkipCondition>
+            <xsl:sequence select="$skip-condition" />
+          </SkipCondition>
+          <NodeBody>
+            <NodeList>
+              <xsl:sequence select="$expanded-clause/Node" />
+            </NodeList>
+          </NodeBody>
+        </Node>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- copy existing node and add conditions -->
+        <Node NodeType="{$expanded-clause/Node/@NodeType}" epx="{name(.)}">
+          <xsl:call-template name="standard-preamble">
+            <xsl:with-param name="context" select="$expanded-clause/Node" />
+          </xsl:call-template>
+          <StartCondition>
+            <xsl:sequence select="$start-condition" />
+          </StartCondition>
+          <SkipCondition>
+            <xsl:sequence select="$skip-condition" />
+          </SkipCondition>
+          <xsl:sequence select="$expanded-clause/Node/NodeBody" />
+        </Node>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="elseif-test-node-id">
     <xsl:param name="element" select="." />
     <xsl:value-of select="tr:prefix('ElseIf-')" />
     <xsl:value-of
-        select="count($element/preceding-sibling::ElseIf)
-                + 1" />
+        select="count($element/preceding-sibling::ElseIf) + 1" />
   </xsl:template>
 
   <xsl:template name="elseif-clause">
@@ -574,7 +703,7 @@
       </Succeeded>
     </xsl:variable>
     <Node NodeType="Empty" epx="ElseIf">
-      <NodeId>
+      <NodeId generated="1">
         <xsl:value-of select="$test-node-id" />
       </NodeId>
       <StartCondition>
@@ -674,56 +803,18 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="if-clause-body">
-    <xsl:param name="start-condition" required="yes" />
-    <xsl:param name="skip-condition" required="yes" />
-    <xsl:variable name="expanded-clause">
-      <xsl:apply-templates />
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="$expanded-clause/Node/(StartCondition|SkipCondition)">
-        <!-- must create wrapper node -->
-        <Node NodeType="NodeList" epx="{name(.)}">
-          <NodeId><xsl:value-of select="tr:prefix(name(.))" /></NodeId>
-          <StartCondition>
-            <xsl:sequence select="$start-condition" />
-          </StartCondition>
-          <SkipCondition>
-            <xsl:sequence select="$skip-condition" />
-          </SkipCondition>
-          <NodeBody>
-            <NodeList>
-              <xsl:sequence select="$expanded-clause/Node" />
-            </NodeList>
-          </NodeBody>
-        </Node>
-      </xsl:when>
-      <xsl:otherwise>
-        <!-- copy existing node and add conditions -->
-        <Node NodeType="{$expanded-clause/Node/@NodeType}" epx="{name(.)}">
-          <xsl:call-template name="standard-preamble">
-            <xsl:with-param name="context" select="$expanded-clause/Node" />
-          </xsl:call-template>
-          <StartCondition>
-            <xsl:sequence select="$start-condition" />
-          </StartCondition>
-          <SkipCondition>
-            <xsl:sequence select="$skip-condition" />
-          </SkipCondition>
-          <xsl:sequence select="$expanded-clause/Node/NodeBody" />
-        </Node>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
+
+  <!-- ****************** -->
+  <!-- Looping constructs -->
+  <!-- ****************** -->
+
+  <!-- while loop -->
 
   <xsl:template match="While">
-    <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="While">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <xsl:call-template name="while-body" />
     </Node>
   </xsl:template>
@@ -735,7 +826,7 @@
         <NodeBody>
           <NodeList>
             <Node NodeType="NodeList" epx="aux">
-              <NodeId>
+              <NodeId generated="1">
                 <xsl:value-of select="tr:prefix('WhileBody')" />
               </NodeId>
               <xsl:call-template name="while-body-1" />
@@ -761,7 +852,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Empty" epx="Condition">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="$test-id" />
           </NodeId>
           <PostCondition>
@@ -784,7 +875,7 @@
       <xsl:when test="$expanded-action/Node/(StartCondition|SkipCondition)">
         <!-- must create wrapper node -->
         <Node NodeType="NodeList" epx="Action">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('WhileAction')" />
           </NodeId>
           <xsl:call-template name="while-body-conds">
@@ -831,14 +922,109 @@
     </SkipCondition>
   </xsl:template>
 
+  <!-- Do-while loop -->
+
+  <!-- FIXME: Identify generated node IDs -->
+  <xsl:template match="Do">
+    <xsl:variable name="expanded-conditions" as="element()*">
+      <xsl:call-template name="translate-conditions" />
+    </xsl:variable>
+    <xsl:variable name="expanded-declarations" as="element()*">
+      <xsl:apply-templates select="VariableDeclarations" />
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$expanded-declarations or $expanded-conditions">
+        <!-- must create outer wrapper node -->
+        <Node NodeType="NodeList" epx="DoWrapper">
+          <xsl:call-template name="copy-source-locator-attributes" />
+          <xsl:sequence select="NodeId" />
+          <xsl:call-template name="handle-common-clauses" />
+          <xsl:sequence select="$expanded-declarations" />
+          <xsl:sequence select="$expanded-conditions" />
+          <NodeBody>
+            <NodeList>
+              <xsl:call-template name="do-body" >
+                <xsl:with-param name="node-id" />
+              </xsl:call-template>
+            </NodeList>
+          </NodeBody>
+        </Node>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="do-body">
+          <xsl:with-param name="node-id" select="NodeId/text()" />
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="do-body"> 
+    <!-- May be empty -->
+    <xsl:param name="node-id"/>
+    <!-- Action must be a single action -->
+    <xsl:variable name="expanded-action">
+      <xsl:apply-templates select="fn:exactly-one(Action/*)" />
+    </xsl:variable>
+    <xsl:choose>
+      <!-- Must wrap any expansion which contains a RepeatCondition -->
+      <xsl:when test="$expanded-action/Node/RepeatCondition">
+        <xsl:call-template name="do-body-wrapper">
+          <xsl:with-param name="node-id" select="$node-id" />
+          <xsl:with-param name="expanded-action" select="$expanded-action" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- Simple (sorta) case: hoist the expanded node up and tweak it a bit -->
+        <Node epx="Do">
+          <xsl:attribute name="NodeType" select="$expanded-action/Node/@NodeType" />
+          <!-- FIXME: identify automatically generated node IDs -->
+          <NodeId>
+            <xsl:choose>
+              <!-- Prefer NodeId passed in from above, if any -->
+              <xsl:when test="$node-id">
+                <xsl:value-of select="$node-id" />
+              </xsl:when>
+              <!-- Hoist up NodeId from expansion, if any -->
+              <xsl:when test="$expanded-action/Node/NodeId/text()">
+                <xsl:value-of select="$expanded-action/Node/NodeId/text()" />
+              </xsl:when>
+              <!-- Else gensym one -->
+              <xsl:otherwise>
+                <xsl:value-of select="tr:prefix('DoBody')" />
+              </xsl:otherwise>
+            </xsl:choose>
+          </NodeId>
+          <xsl:call-template name="handle-common-clauses" />
+          <RepeatCondition>
+            <xsl:apply-templates select="Condition/*" />
+          </RepeatCondition>
+          <xsl:sequence select="$expanded-action/Node/(* except NodeId)" />
+        </Node>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="do-body-wrapper">
+    <xsl:param name="node-id" />
+    <xsl:param name="expanded-action" />
+    <Node epx="Do" NodeType="ListNode">
+      <NodeId> <xsl:value-of select="$node-id" /> </NodeId>
+      <RepeatCondition>
+        <xsl:apply-templates select="Condition/*" />
+      </RepeatCondition>
+      <NodeBody>
+        <xsl:sequence select="$expanded-action" />
+      </NodeBody>
+    </Node>
+  </xsl:template>
+
+  <!-- for loop -->
+
   <xsl:template match="For">
-    <xsl:param name="mode" />
     <Node NodeType="NodeList" epx="For">
       <xsl:call-template name="basic-clauses" />
       <xsl:call-template name="for-loop-variable-declarations" />
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <xsl:call-template name="for-body" />
     </Node>
   </xsl:template>
@@ -852,7 +1038,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="$loop-node-id" />
           </NodeId>
           <SkipCondition>
@@ -867,7 +1053,7 @@
             <NodeList>
               <xsl:sequence select="$expanded-action" />
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
-                <NodeId>
+                <NodeId generated="1">
                   <xsl:value-of select="tr:prefix('ForLoopUpdater')" />
                 </NodeId>
                 <StartCondition>
@@ -923,30 +1109,23 @@
   <!-- Wait -->
 
   <xsl:template match="Wait">
-    <xsl:param name="mode" />
+    <xsl:variable name="conds">
+      <xsl:call-template name="translate-conditions" />
+    </xsl:variable>
+
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses" />
       <xsl:apply-templates select="VariableDeclarations" />
-      <xsl:choose>
-        <xsl:when test="$mode='unordered'">
-          <xsl:apply-templates select="StartCondition|RepeatCondition|
-                                       PreCondition|PostCondition|
-                                       InvariantCondition|ExitCondition|
-                                       SkipCondition" />
-        </xsl:when>
-        <xsl:when test="$mode='ordered'">
-          <xsl:call-template name="ordered-start-condition"/>
-          <xsl:call-template name="ordered-skip-condition"/>
-          <xsl:apply-templates select="RepeatCondition|
-                                       PreCondition|PostCondition|
-                                       InvariantCondition|ExitCondition" />
-        </xsl:when>
-      </xsl:choose>
-      <xsl:call-template name="wait-end-condition" />
+      <xsl:sequence select="$conds/(* except EndCondition)" />
+      <xsl:call-template name="wait-end-condition" >
+        <xsl:with-param name="original-condition"
+                        select="$conds/EndCondition" />
+      </xsl:call-template>
     </Node>
   </xsl:template>
 
   <xsl:template name="wait-end-condition">
+    <xsl:param name="original-condition" />
     <xsl:variable name="timeout-test">
       <xsl:call-template name="timed-out">
         <xsl:with-param name="element" select="Units/*" />
@@ -954,9 +1133,9 @@
     </xsl:variable>
     <EndCondition>
       <xsl:choose>
-        <xsl:when test="EndCondition">
+        <xsl:when test="$original-condition">
           <OR>
-            <xsl:apply-templates select="EndCondition/*" />
+            <xsl:sequence select="original-condition/*" />
             <xsl:sequence select="$timeout-test" />
           </OR>
         </xsl:when>
@@ -988,7 +1167,7 @@
       <ADD>
         <xsl:apply-templates select="$element"/>
         <NodeTimepointValue>
-          <xsl:call-template name="insert-node-id"/>
+          <NodeId><xsl:call-template name="node-id"/></NodeId>
           <NodeStateValue>EXECUTING</NodeStateValue>
           <Timepoint>START</Timepoint>
         </NodeTimepointValue>
@@ -997,190 +1176,242 @@
   </xsl:template>
 
   <xsl:template match="SynchronousCommand">
-    <xsl:param name="mode" />
-    <xsl:choose>
-      <xsl:when test="Command/(IntegerVariable|RealVariable|
-                      BooleanVariable|StringVariable|ArrayVariable)">
-        <xsl:call-template name="command-with-return">
-          <xsl:with-param name="mode" select="$mode" />
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="command-without-return">
-          <xsl:with-param name="mode" select="$mode" />
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
+    <Node NodeType="NodeList" epx="SynchronousCommand">
+      <xsl:call-template name="standard-preamble" />
+      <NodeBody>
+        <NodeList>
+          <xsl:choose>
+            <xsl:when test="Command/*[fn:ends-with(fn:name(), 'Variable')]">
+              <xsl:call-template name="command-with-return" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="command-without-return" />
+            </xsl:otherwise>
+          </xsl:choose>
+        </NodeList>
+      </NodeBody>
+    </Node>
   </xsl:template>
-
-<!-- NOTE: the following two templates could be refactored a bit! -->
 
   <xsl:template name="command-with-return">
-    <xsl:param name="mode" />
-    <xsl:variable name="return" select="tr:prefix('return')"/>
-    <!-- Hack to save array name, iff command's return is an array -->
-    <xsl:variable name="array_name" select="Command/ArrayVariable"/>
-    <xsl:variable name="decl">
+    <Node NodeType="NodeList" epx="aux">
+      <NodeId generated="1">
+        <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
+      </NodeId>
       <xsl:choose>
-        <xsl:when test="Command/IntegerVariable">
-          <IntegerVariable><xsl:value-of select="$return"/></IntegerVariable>
-        </xsl:when>
-        <xsl:when test="Command/RealVariable">
-          <RealVariable><xsl:value-of select="$return"/></RealVariable>
-        </xsl:when>
-        <xsl:when test="Command/StringVariable">
-          <StringVariable><xsl:value-of select="$return"/></StringVariable>
-        </xsl:when>
-        <xsl:when test="Command/BooleanVariable">
-          <BooleanVariable><xsl:value-of select="$return"/></BooleanVariable>
-        </xsl:when>
         <xsl:when test="Command/ArrayVariable">
-          <ArrayVariable><xsl:value-of select="$return"/></ArrayVariable>
+          <xsl:call-template name="command-with-array-return-body" />
         </xsl:when>
         <xsl:otherwise>
-          <error>Unrecognized variable type in SynchronousCommand</error>
+          <xsl:call-template name="command-with-scalar-return-body" />
         </xsl:otherwise>
       </xsl:choose>
+    </Node>
+  </xsl:template>
+
+  <xsl:template name="command-with-scalar-return-body">
+    <xsl:variable name="return" select="tr:prefix('return')"/>
+    <xsl:variable name="orig-ref"
+                  select="Command/(BooleanVariable|IntegerVariable|RealVariable|StringVariable)" />
+    <xsl:variable name="var-type" select="fn:substring-before(name($orig-ref), 'Variable')" />
+    <xsl:variable name="ref">
+      <xsl:element name="{name($orig-ref)}">
+        <xsl:value-of select="$return"/>
+      </xsl:element>
     </xsl:variable>
-    <xsl:variable name="known-test">
-      <xsl:choose>
-        <xsl:when test="not(Command/ArrayVariable)">
-          <IsKnown><xsl:sequence select="$decl"/></IsKnown>
-        </xsl:when>
-        <xsl:otherwise>
-          <IsKnown>
-            <ArrayElement>
-              <Name><xsl:value-of select="$return"/></Name>
-              <Index><IntegerValue>0</IntegerValue></Index>
-          </ArrayElement>
-          </IsKnown>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <Node NodeType="NodeList" epx="SynchronousCommand">
-      <xsl:call-template name="standard-preamble">
-        <xsl:with-param name="mode" select="$mode" />
+
+    <VariableDeclarations>
+      <xsl:call-template name="declare-variable">
+        <xsl:with-param name="name" select="$return"/>
+        <xsl:with-param name="type" select="$var-type"/>
       </xsl:call-template>
-      <NodeBody>
-        <NodeList>
-          <Node NodeType="NodeList" epx="aux">
-            <NodeId>
-              <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
-            </NodeId>
-            <VariableDeclarations>
+    </VariableDeclarations>
+    <xsl:if test="Timeout">
+      <InvariantCondition>
+        <xsl:call-template name="timed-out">
+          <xsl:with-param name="element" select="Timeout/*"/>
+        </xsl:call-template>
+      </InvariantCondition>
+    </xsl:if>
+    <NodeBody>
+      <NodeList>
+        <Node NodeType="Command" epx="aux">
+          <NodeId generated="1">
+            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+          </NodeId>
+          <EndCondition>
+            <IsKnown><xsl:sequence select="$ref"/></IsKnown>
+          </EndCondition>
+          <NodeBody>
+            <Command>
+              <xsl:sequence select="Command/ResourceList"/>
+              <xsl:sequence select="$ref"/>
+              <xsl:sequence select="Command/Name"/>
+              <xsl:sequence select="Command/Arguments"/>
+            </Command>
+          </NodeBody>
+        </Node>
+        <Node NodeType="Assignment" epx="aux">
+          <NodeId generated="1">
+            <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
+          </NodeId>
+          <StartCondition>
+            <Finished>
+              <NodeRef dir="sibling">
+                <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+              </NodeRef>
+            </Finished>
+          </StartCondition>
+          <NodeBody>
+            <Assignment>
+              <xsl:sequence select="$orig-ref"/>
               <xsl:choose>
-                <xsl:when test="Command/IntegerVariable">
-                  <xsl:call-template name="declare-variable">
-                    <xsl:with-param name="name" select="$return"/>
-                    <xsl:with-param name="type" select="'Integer'"/>
-                  </xsl:call-template>
-                </xsl:when>
-                <xsl:when test="Command/RealVariable">
-                  <xsl:call-template name="declare-variable">
-                    <xsl:with-param name="name" select="$return"/>
-                    <xsl:with-param name="type" select="'Real'"/>
-                  </xsl:call-template>
+                <xsl:when test="Command/BooleanVariable">
+                  <BooleanRHS><xsl:sequence select="$ref"/></BooleanRHS>
                 </xsl:when>
                 <xsl:when test="Command/StringVariable">
-                  <xsl:call-template name="declare-variable">
-                    <xsl:with-param name="name" select="$return"/>
-                    <xsl:with-param name="type" select="'String'"/>
-                  </xsl:call-template>
-                </xsl:when>
-                <xsl:when test="Command/BooleanVariable">
-                  <xsl:call-template name="declare-variable">
-                    <xsl:with-param name="name" select="$return"/>
-                    <xsl:with-param name="type" select="'Boolean'"/>
-                  </xsl:call-template>
-                </xsl:when>
-                <xsl:when test="Command/ArrayVariable">
-                  <DeclareArray>
-                    <Name><xsl:value-of select="$return"/></Name>
-                    <!-- A royal hack!  Couldn't find a more compact expression that worked. -->
-                    <xsl:choose>
-                      <!-- First see if the array we are proxying is local -->
-                      <xsl:when test="VariableDeclarations/DeclareArray[Name = $array_name][last()]">
-                        <xsl:sequence select="VariableDeclarations/DeclareArray[Name = $array_name][last()]/Type"/>
-                        <xsl:sequence select="VariableDeclarations/DeclareArray[Name = $array_name][last()]/MaxSize"/>
-                        <!-- Otherwise find it in the closest ancestor -->
-                      </xsl:when>
-                      <xsl:when test="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]">
-                        <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]/Type"/>
-                        <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]/MaxSize"/>
-                      </xsl:when>
-                    </xsl:choose>
-                  </DeclareArray>
+                  <StringRHS><xsl:sequence select="$ref"/></StringRHS>
                 </xsl:when>
                 <xsl:otherwise>
-                  <error>Unrecognized variable type in SynchronousCommand</error>
+                  <NumericRHS><xsl:sequence select="$ref"/></NumericRHS>
                 </xsl:otherwise>
               </xsl:choose>
-            </VariableDeclarations>
-            <xsl:if test="Timeout">
-              <InvariantCondition>
-                <xsl:call-template name="timed-out">
-                  <xsl:with-param name="element" select="Timeout/*"/>
-                </xsl:call-template>
-              </InvariantCondition>
-            </xsl:if>
+            </Assignment>
+          </NodeBody>
+        </Node>
+      </NodeList>
+    </NodeBody>
+  </xsl:template>
+
+  <xsl:template name="command-with-array-return-body">
+    <xsl:variable name="return" select="tr:prefix('return')"/>
+    <xsl:variable name="array_name" select="Command/ArrayVariable"/>
+    <xsl:variable name="ref">
+      <ArrayVariable> <xsl:value-of select="$return"/> </ArrayVariable>
+    </xsl:variable>
+
+    <VariableDeclarations>
+      <DeclareArray>
+        <Name><xsl:value-of select="$return"/></Name>
+        <!-- A royal hack!  Couldn't find a more compact expression that worked. -->
+        <xsl:choose>
+          <!-- First see if the array we are proxying is local -->
+          <xsl:when test="VariableDeclarations/DeclareArray[Name = $array_name][last()]">
+            <xsl:sequence select="VariableDeclarations/DeclareArray[Name = $array_name][last()]/Type"/>
+            <xsl:sequence select="VariableDeclarations/DeclareArray[Name = $array_name][last()]/MaxSize"/>
+            <!-- Otherwise find it in the closest ancestor -->
+          </xsl:when>
+          <xsl:when test="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]">
+            <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]/Type"/>
+            <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]/MaxSize"/>
+          </xsl:when>
+        </xsl:choose>
+      </DeclareArray>
+    </VariableDeclarations>
+    <xsl:if test="Timeout">
+      <InvariantCondition>
+        <xsl:call-template name="timed-out">
+          <xsl:with-param name="element" select="Timeout/*"/>
+        </xsl:call-template>
+      </InvariantCondition>
+    </xsl:if>
+    <NodeBody>
+      <NodeList>
+        <Node NodeType="Command" epx="aux">
+          <NodeId generated="1">
+            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+          </NodeId>
+          <EndCondition>
+            <IsKnown>
+              <ArrayElement>
+                <xsl:sequence select="$ref"/>
+                <Index><IntegerValue>0</IntegerValue></Index>
+              </ArrayElement>
+            </IsKnown>
+          </EndCondition>
+          <NodeBody>
+            <Command>
+              <xsl:sequence select="Command/ResourceList"/>
+              <xsl:sequence select="$ref"/>
+              <xsl:sequence select="Command/Name"/>
+              <xsl:sequence select="Command/Arguments"/>
+            </Command>
+          </NodeBody>
+        </Node>
+        <Node NodeType="Assignment" epx="aux">
+          <NodeId generated="1">
+            <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
+          </NodeId>
+          <StartCondition>
+            <Finished>
+              <NodeRef dir="sibling">
+                <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+              </NodeRef>
+            </Finished>
+          </StartCondition>
+          <NodeBody>
+            <Assignment>
+              <xsl:sequence select="$array_name"/>
+              <ArrayRHS><xsl:sequence select="$ref"/></ArrayRHS>
+            </Assignment>
+          </NodeBody>
+        </Node>
+      </NodeList>
+    </NodeBody>
+  </xsl:template>
+  
+  <xsl:template name="command-without-return">
+    <Node NodeType="NodeList" epx="aux">
+      <NodeId generated="1">
+        <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
+      </NodeId>
+      <xsl:if test="Timeout">
+        <InvariantCondition>
+          <xsl:call-template name="timed-out">
+            <xsl:with-param name="element" select="Timeout/*"/>
+          </xsl:call-template>
+        </InvariantCondition>
+      </xsl:if>
+      <NodeBody>
+        <NodeList>
+          <Node NodeType="Command" epx="aux">
+            <NodeId generated="1">
+              <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+            </NodeId>
+            <EndCondition>
+              <OR>
+                <EQInternal>
+                  <NodeCommandHandleVariable>
+                    <NodeId>
+                      <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+                    </NodeId>
+                  </NodeCommandHandleVariable>
+                  <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                </EQInternal>
+                <EQInternal>
+                  <NodeCommandHandleVariable>
+                    <NodeId>
+                      <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+                    </NodeId>
+                  </NodeCommandHandleVariable>
+                  <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
+                </EQInternal>
+                <EQInternal>
+                  <NodeCommandHandleVariable>
+                    <NodeId>
+                      <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+                    </NodeId>
+                  </NodeCommandHandleVariable>
+                  <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
+                </EQInternal>
+              </OR>
+            </EndCondition>
             <NodeBody>
-              <NodeList>
-                <Node NodeType="Command" epx="aux">
-                  <NodeId>
-                    <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                  </NodeId>
-                  <EndCondition>
-                    <xsl:sequence select="$known-test"/>
-                  </EndCondition>
-                  <NodeBody>
-                    <Command>
-                      <xsl:sequence select="Command/ResourceList"/>
-                      <xsl:sequence select="$decl"/>
-                      <xsl:sequence select="Command/Name"/>
-                      <xsl:sequence select="Command/Arguments"/>
-                    </Command>
-                  </NodeBody>
-                </Node>
-                <Node NodeType="Assignment" epx="aux">
-                  <NodeId>
-                    <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
-                  </NodeId>
-                  <StartCondition>
-                    <Finished>
-                      <NodeRef dir="sibling">
-                        <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                      </NodeRef>
-                    </Finished>
-                  </StartCondition>
-                  <NodeBody>
-                    <Assignment>
-                      <xsl:sequence select="Command/IntegerVariable|
-                                            Command/RealVariable|
-                                            Command/StringVariable|
-                                            Command/BooleanVariable|
-                                            Command/ArrayVariable"/>
-                      <xsl:choose>
-                        <xsl:when test="Command/IntegerVariable|
-                                         Command/RealVariable">
-                          <NumericRHS><xsl:sequence select="$decl"/></NumericRHS>
-                        </xsl:when>
-                        <xsl:when test="Command/StringVariable">
-                          <StringRHS><xsl:sequence select="$decl"/></StringRHS>
-                        </xsl:when>
-                        <xsl:when test="Command/BooleanVariable">
-                          <BooleanRHS><xsl:sequence select="$decl"/></BooleanRHS>
-                        </xsl:when>
-                        <xsl:when test="Command/ArrayVariable">
-                          <ArrayRHS><xsl:sequence select="$decl"/></ArrayRHS>
-                        </xsl:when>
-                        <xsl:otherwise>
-                          <error>Unrecognized variable type in SynchronousCommand</error>
-                        </xsl:otherwise>
-                      </xsl:choose>
-                    </Assignment>
-                  </NodeBody>
-                </Node>
-              </NodeList>
+              <Command>
+                <xsl:sequence select="Command/ResourceList"/>
+                <xsl:sequence select="Command/Name"/>
+                <xsl:sequence select="Command/Arguments"/>
+              </Command>
             </NodeBody>
           </Node>
         </NodeList>
@@ -1188,85 +1419,15 @@
     </Node>
   </xsl:template>
 
-  <xsl:template name="command-without-return">
-    <xsl:param name="mode"/>
-    <Node NodeType="NodeList" epx="SynchronousCommand">
-      <xsl:call-template name="standard-preamble">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
-      <NodeBody>
-        <NodeList>
-          <Node NodeType="NodeList" epx="aux">
-            <NodeId>
-              <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
-            </NodeId>
-            <xsl:if test="Timeout">
-              <InvariantCondition>
-                <xsl:call-template name="timed-out">
-                  <xsl:with-param name="element" select="Timeout/*"/>
-                </xsl:call-template>
-              </InvariantCondition>
-            </xsl:if>
-            <NodeBody>
-              <NodeList>
-                <Node NodeType="Command" epx="aux">
-                  <NodeId>
-                    <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                  </NodeId>
-                  <EndCondition>
-                    <OR>
-                      <EQInternal>
-                        <NodeCommandHandleVariable>
-                          <NodeId>
-                            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                          </NodeId>
-                        </NodeCommandHandleVariable>
-                        <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
-                      </EQInternal>
-                      <EQInternal>
-                        <NodeCommandHandleVariable>
-                          <NodeId>
-                            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                          </NodeId>
-                        </NodeCommandHandleVariable>
-                        <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
-                      </EQInternal>
-                      <EQInternal>
-                        <NodeCommandHandleVariable>
-                          <NodeId>
-                            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                          </NodeId>
-                        </NodeCommandHandleVariable>
-                        <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
-                      </EQInternal>
-                    </OR>
-                  </EndCondition>
-                  <NodeBody>
-                    <Command>
-                      <xsl:sequence select="Command/ResourceList"/>
-                      <xsl:sequence select="Command/Name"/>
-                      <xsl:sequence select="Command/Arguments"/>
-                    </Command>
-                  </NodeBody>
-                </Node>
-              </NodeList>
-            </NodeBody>
-          </Node>
-        </NodeList>
-      </NodeBody>
-    </Node>
-  </xsl:template>
 
   <xsl:template name="standard-preamble">
     <xsl:param name="context" select="." />
-    <xsl:param name="mode" />
     <xsl:call-template name="basic-clauses">
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
     <xsl:apply-templates select="$context/VariableDeclarations" />
     <xsl:call-template name="translate-conditions">
       <xsl:with-param name="context" select="$context" />
-      <xsl:with-param name="mode" select="$mode" />
     </xsl:call-template>
   </xsl:template>
 
@@ -1280,7 +1441,8 @@
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
     <!-- Then handle NodeId -->
-    <xsl:call-template name="insert-node-id">
+    <!-- THIS SHOULD BE THE ONLY CALLER OF ensure-node-id -->
+    <xsl:call-template name="ensure-node-id">
       <xsl:with-param name="node" select="$context" />
     </xsl:call-template>
     <!-- Copy clauses that don't need translation -->
@@ -1290,133 +1452,21 @@
   </xsl:template>
 
   <xsl:template name="copy-source-locator-attributes">
-    <xsl:param name="context" />
+    <xsl:param name="context" select="." />
     <xsl:copy-of select="$context/(@FileName|@LineNo|@ColNo)" />
   </xsl:template>
 
   <xsl:template name="handle-common-clauses">
-    <xsl:param name="context" />
-    <xsl:sequence select="$context/(Comment|Priority)" />
+    <xsl:param name="context" select="." />
+    <xsl:copy-of select="$context/(Comment|Priority)" />
     <xsl:apply-templates select="$context/Interface"/>
+    <xsl:copy-of select="$context/(Assume|Desire|Expect)" />
   </xsl:template>
 
-  <xsl:template name="translate-conditions">
-    <xsl:param name="context" select="." />
-    <xsl:param name="mode" />
-    <xsl:choose>
-      <xsl:when test="$mode = 'ordered'">
-        <xsl:call-template name="ordered-start-condition">
-          <xsl:with-param name="context" select="$context" />
-        </xsl:call-template>
-        <xsl:call-template name="ordered-skip-condition">
-          <xsl:with-param name="context" select="$context" />
-        </xsl:call-template>
-        <xsl:apply-templates
-            select="$context/(RepeatCondition|PreCondition|
-                    ExitCondition|InvariantCondition|
-                    EndCondition|PostCondition)" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates
-            select="$context/(StartCondition|SkipCondition|
-                    RepeatCondition|PreCondition|
-                    ExitCondition|InvariantCondition|
-                    EndCondition|PostCondition)" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="ordered-start-condition">
-    <xsl:param name="context" select="." />
-    <xsl:choose>
-      <xsl:when
-          test="key('action', $context/preceding-sibling::element()[1])">
-        <xsl:variable name="start-test">
-          <xsl:call-template name="ordered-start-test">
-            <xsl:with-param name="context" select="$context" />
-          </xsl:call-template>
-        </xsl:variable>
-        <StartCondition>
-          <xsl:choose>
-            <xsl:when test="$context/StartCondition">
-              <AND>
-                <xsl:sequence select="$start-test" />
-                <xsl:apply-templates select="$context/StartCondition/*" />
-              </AND>
-            </xsl:when>
-            <xsl:when test="count($start-test/*) > 1">
-              <AND>
-                <xsl:sequence select="$start-test" />
-              </AND>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:sequence select="$start-test" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </StartCondition>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates select="$context/StartCondition" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="ordered-start-test">
-    <xsl:param name="context"/>
-    <Finished>
-      <NodeRef dir="sibling">
-        <xsl:call-template name="node-id">
-          <xsl:with-param name="context"
-                          select="$context/preceding-sibling::*[1]" />
-        </xsl:call-template>
-      </NodeRef>
-    </Finished>
-  </xsl:template>
-  
-  <xsl:template name="ordered-skip-condition">
-    <xsl:param name="context" select="." />
-    <xsl:if test="SkipCondition">
-      <xsl:choose>
-        <xsl:when
-            test="key('action', $context/preceding-sibling::element()[1])">
-          <SkipCondition>
-            <AND>
-              <xsl:call-template name="ordered-skip-test">
-                <xsl:with-param name="context" select="$context" />
-              </xsl:call-template>
-              <xsl:apply-templates select="$context/SkipCondition/*" />
-            </AND>
-          </SkipCondition>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates select="$context/SkipCondition" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template name="ordered-skip-test">
-    <xsl:param name="context" />
-    <Finished>
-      <NodeRef dir="sibling">
-        <xsl:call-template name="node-id">
-          <xsl:with-param name="context"
-                          select="$context/preceding-sibling::*[1]" />
-        </xsl:call-template>
-      </NodeRef>
-    </Finished>
-  </xsl:template>
-
+  <!-- This template should NEVER generate a new node ID. -->
   <xsl:template name="node-id">
     <xsl:param name="context" select="." />
-    <xsl:choose>
-      <xsl:when test="$context/NodeId">
-        <xsl:value-of select="$context/NodeId" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="tr:node-id($context)" />
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:value-of select="$context/NodeId" />
   </xsl:template>
   
   <xsl:template match="Interface">
@@ -1434,26 +1484,31 @@
 
   <xsl:template match="InOut">
 	<InOut>
-    <xsl:apply-templates select="*"/>
+      <xsl:apply-templates select="*"/>
 	</InOut>
+  </xsl:template>
+
+  <xsl:template name="translate-conditions">
+    <xsl:param name="context" select="." />
+    <xsl:apply-templates select="tr:conditions($context)" />
   </xsl:template>
   
   <xsl:template
-      match="StartCondition|RepeatCondition|PreCondition|
-             PostCondition|InvariantCondition|EndCondition|
-             ExitCondition|SkipCondition">
+      match="EndCondition|ExitCondition|InvariantCondition|
+             PostCondition|PreCondition|RepeatCondition|
+             SkipCondition|StartCondition">
     <xsl:element name="{name()}">
-      <xsl:apply-templates select="*" />
+      <xsl:apply-templates select="*" /> <!-- I _think_ this is redundant -->
     </xsl:element>
   </xsl:template>
 
-  <xsl:template name="insert-node-id">
+  <xsl:template name="ensure-node-id">
     <xsl:param name="node" select="." />
     <!-- Supply missing NodeId or copy existing one -->
     <xsl:choose>
       <xsl:when test="not($node/NodeId)">
-        <NodeId>
-          <xsl:value-of select="tr:node-id($node)" />
+        <NodeId generated="1">
+          <xsl:value-of select="tr:gen-node-id($node)" />
         </NodeId>
       </xsl:when>
       <xsl:otherwise>
@@ -1500,7 +1555,7 @@
        for dates and durations) -->
   <xsl:template match="BooleanVariable|BooleanValue|LookupOnChange|LookupNow|ArrayElement">
     <xsl:copy>
-      <xsl:apply-templates/>
+      <xsl:apply-templates /> <!-- WARNING: select='.' will cause infinite loop here -->
     </xsl:copy>
   </xsl:template>
 
@@ -1592,20 +1647,15 @@
   </xsl:template>
 
   <xsl:template match="OnMessage">
-    <xsl:param name="mode" />
     <xsl:variable name="Msg_staging">
       <xsl:call-template name="OnMessage-staging" />
     </xsl:variable>
-    <xsl:apply-templates select="$Msg_staging">
-      <xsl:with-param name="mode" select="$mode" />
-    </xsl:apply-templates>
+    <xsl:apply-templates select="$Msg_staging" />
   </xsl:template>
 
   <xsl:template name="OnMessage-staging">
     <Sequence>
-      <xsl:copy-of select="@FileName" />
-      <xsl:copy-of select="@LineNo" />
-      <xsl:copy-of select="@ColNo" />
+      <xsl:call-template name="copy-source-locator-attributes" />
       <VariableDeclarations>
         <DeclareVariable>
           <Name>
@@ -1641,13 +1691,13 @@
       </xsl:call-template>
       <!-- Action for this message -->
       <Node NodeType="NodeList" epx="aux">
-        <NodeId>
+        <NodeId generated="1">
           <xsl:value-of
             select="concat(tr:prefix('MsgAction'), '_', Name/StringValue/text())" />
         </NodeId>
         <NodeBody>
           <NodeList>
-            <xsl:sequence select="key('action', *)" />
+            <xsl:call-template name="expand-child-actions" />
           </NodeList>
         </NodeBody>
       </Node>
@@ -1655,23 +1705,15 @@
   </xsl:template>
 
   <xsl:template match="OnCommand">
-    <xsl:param name="mode" />
     <xsl:variable name="Cmd_staging">
-      <xsl:call-template name="OnCommand-staging">
-        <xsl:with-param name="mode" select="$mode" />
-      </xsl:call-template>
+      <xsl:call-template name="OnCommand-staging" />
     </xsl:variable>
-    <xsl:apply-templates select="$Cmd_staging">
-      <xsl:with-param name="mode" select="$mode" />
-    </xsl:apply-templates>
+    <xsl:apply-templates select="$Cmd_staging" />
   </xsl:template>
 
   <xsl:template name="OnCommand-staging">
-    <xsl:param name="mode"/>
     <Sequence>
-      <xsl:copy-of select="@FileName" />
-      <xsl:copy-of select="@LineNo" />
-      <xsl:copy-of select="@ColNo" />
+      <xsl:call-template name="copy-source-locator-attributes"/>
       <VariableDeclarations>
         <xsl:apply-templates select="VariableDeclarations/DeclareVariable"/>
         <!-- Arrays are variables too -->
@@ -1684,9 +1726,7 @@
         </DeclareVariable>
       </VariableDeclarations>
       <!-- Handle the OnCommand node conditions -->
-      <xsl:call-template name="translate-conditions">
-        <xsl:with-param name="mode" select="$mode"/>
-      </xsl:call-template>
+      <xsl:call-template name="translate-conditions" />
       <!-- Find parent node and set invariant, if exists -->
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
@@ -1724,7 +1764,7 @@
       <!-- Cmd get parameters nodes -->
       <xsl:for-each select="VariableDeclarations/DeclareVariable | VariableDeclarations/DeclareArray">
         <Node NodeType="Command" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of
               select="concat(tr:prefix('CmdGetParam'), '_', Name/text())" />
           </NodeId>
@@ -1774,14 +1814,22 @@
       </xsl:for-each>
       <!-- Action for this command -->
       <Node NodeType="NodeList" epx="aux">
-        <NodeId>
+        <NodeId generated="1">
           <xsl:value-of
             select="concat(tr:prefix('CmdAction'), '_', Name/StringValue/text())" />
         </NodeId>
         <NodeBody>
           <NodeList>
-            <xsl:apply-templates select="key('action', *)"
-              mode="oncommand-mode" />
+            <xsl:for-each select="tr:actions(.)">
+              <xsl:choose>
+                <xsl:when test="Command">
+                  <xsl:call-template name="on-command-command" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates select="." />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:for-each>
           </NodeList>
         </NodeBody>
       </Node>
@@ -1789,7 +1837,7 @@
       <xsl:if
         test="not(.//Command/Name/StringValue/text() = 'SendReturnValue')">
         <Node NodeType="Command" epx="aux">
-          <NodeId>
+          <NodeId generated="1">
             <xsl:value-of select="tr:prefix('CmdReturn')" />
           </NodeId>
           <NodeBody>
@@ -1817,11 +1865,10 @@
   <xsl:template name="parent-id-value">
     <xsl:param name="start_path" select="." />
     <xsl:choose>
-      <!-- Insert NodeId via insert-node-id template -->
-      <xsl:when test="key('action', $start_path/..)">
+      <xsl:when test="tr:actions($start_path/..)">
         <xsl:variable name="id">
-          <xsl:call-template name="insert-node-id">
-            <xsl:with-param name="node" select="$start_path/.." />
+          <xsl:call-template name="node-id">
+            <xsl:with-param name="context" select="$start_path/.." />
           </xsl:call-template>
         </xsl:variable>
         <xsl:value-of select="$id/NodeId" />
@@ -1842,7 +1889,7 @@
     <xsl:param name="dest" />
     <xsl:param name="args" />
     <Node NodeType="Command" epx="aux">
-      <NodeId>
+      <NodeId generated="1">
         <xsl:copy-of select="tr:prefix('CmdWait')" />
       </NodeId>
       <EndCondition>
@@ -1866,7 +1913,7 @@
     </Node>
   </xsl:template>
 
-  <xsl:template match="Command" mode="oncommand-mode">
+  <xsl:template name="on-command-command">
     <Command>
       <xsl:sequence select="node()[./local-name()!='Arguments'] " />
       <xsl:choose>
@@ -1883,13 +1930,6 @@
         </xsl:otherwise>
       </xsl:choose>
     </Command>
-  </xsl:template>
-
-  <xsl:template match="*" mode="oncommand-mode">
-    <xsl:copy>
-      <xsl:copy-of select="@*" />
-      <xsl:apply-templates mode="oncommand-mode" />
-    </xsl:copy>
   </xsl:template>
 
   <!-- Node state/outcome/failure tests -->
@@ -2047,16 +2087,16 @@
     <RealValue><xsl:value-of select="tr:seconds(.)"/></RealValue>
   </xsl:template>
 
+  <!-- Functions -->
+
   <!-- Return the (total) number of seconds in and ISO 8601 duration -->
   <xsl:function name="tr:seconds">
     <xsl:param name="duration"/>
     <xsl:value-of select="xs:dayTimeDuration($duration) div xs:dayTimeDuration('PT1.0S')"/>
   </xsl:function>
 
-  <!-- Functions -->
-
   <!-- Computes a unique NodeID -->
-  <xsl:function name="tr:node-id">
+  <xsl:function name="tr:gen-node-id">
     <xsl:param name="node" />
     <xsl:value-of
       select="tr:prefix(concat(name($node), '_', generate-id($node)))" />

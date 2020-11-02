@@ -31,17 +31,37 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
 # Elements
-Action = Node
+ActionGroup = Node
+# NodeId is required in Core Plexil.
+NodeType =
+  (NodeId
+   & Assume?
+   & Desire?
+   & Expect?
+   & VariableDeclarations?
+   & Interface?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & ExitCondition?
+   & SkipCondition?
+   & element Comment { xsd:string }?
+   & element Priority { xsd:nonNegativeInteger }?
+   & NodeBody?),
+  NodeAttributes
 BooleanExpression =
-  LogicalOperator
+  BooleanVariable
+  | BooleanValue
+  | LogicalOperator
   | Equality
   | NumericComparison
   | KnownTest
   | NodeStatePredicate
   | NodeOutcomePredicate
   | NodeFailurePredicate
-  | BooleanVariable
-  | BooleanValue
 DeclaredVariable =
   IntegerVariable
   | RealVariable

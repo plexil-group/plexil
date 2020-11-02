@@ -186,6 +186,7 @@ CHECKED_SEQUENCE_KYWD = 'CheckedSequence';
 SEQUENCE_KYWD = 'Sequence';
 WAIT_KYWD = 'Wait';
 
+DO_KYWD = 'do';
 ELSE_KYWD = 'else';
 ELSEIF_KYWD = 'elseif';
 ENDIF_KYWD = 'endif';
@@ -447,6 +448,7 @@ baseAction :
      | forAction
      | onCommandAction
      | onMessageAction
+     | doAction
      | whileAction
      | block
      | simpleAction
@@ -486,7 +488,6 @@ ifAction
     (ELSEIF_KYWD! expression consequentAction)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!?
-    SEMICOLON!?
  ;
 
 consequentAction :
@@ -499,6 +500,7 @@ consequent :
  forAction
  | onCommandAction
  | onMessageAction
+ | doAction
  | whileAction
  | block
  | simpleAction
@@ -523,6 +525,14 @@ whileAction
 @after { m_paraphrases.pop(); }
  :
     WHILE_KYWD^ expression action
+ ;
+
+
+doAction
+@init { m_paraphrases.push("in \"do\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
+    DO_KYWD^ action WHILE_KYWD! expression SEMICOLON!
  ;
 
 synchCmd

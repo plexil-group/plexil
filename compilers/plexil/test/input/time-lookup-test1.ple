@@ -2,6 +2,6 @@ Date Lookup time;
 
 time_lookup_test1:
 {
-  EndCondition Lookup (time) >= time_lookup_test1.EXECUTING.START + Duration ("P5S");
+  EndCondition Lookup (time) >= time_lookup_test1.EXECUTING.START + Duration ("PT5S");
   PostCondition isKnown(Self.EXECUTING.END);
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Tests Unknown result, when there's no Else clause -->
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="If">
-    <NodeId>ep2cp_If_d1e4</NodeId>
+    <NodeId generated="1">ep2cp_If_d1e4</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>test</Name>

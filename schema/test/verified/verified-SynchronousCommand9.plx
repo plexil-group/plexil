@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Sequence">
-    <NodeId>ep2cp_Sequence_d1e3</NodeId>
+    <NodeId generated="1">ep2cp_Sequence_d1e3</NodeId>
     <InvariantCondition>
       <NoChildFailed>
         <NodeRef dir="self"/>
@@ -14,11 +14,11 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <OR>
                           <EQInternal>
@@ -79,11 +79,11 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <OR>
                           <EQInternal>
