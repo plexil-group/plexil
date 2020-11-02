@@ -1,0 +1,12 @@
+String Lookup name;
+String Lookup name2;
+
+concat2:
+{
+  String foo = "blank";
+  String bar = "Two";
+
+  PostCondition foo == "OneTwoThreeFourFive";
+
+  foo = "One" + bar + LookupNow(name) + "Four" + LookupNow(name2);
+}

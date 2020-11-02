@@ -1,0 +1,12 @@
+String Lookup CommandName;
+
+command4:
+Concurrence
+{
+  Comment "Tests command with return value";
+
+  String result_string;
+
+ StringCommand:
+  result_string = (LookupNow(CommandName))();
+}

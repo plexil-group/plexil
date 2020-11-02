@@ -1,0 +1,13 @@
+String Command get_string;
+
+command3:
+Concurrence
+{
+  Comment "Tests command with return value";
+
+  String result_string;
+
+ StringCommand:
+  result_string = get_string();
+}
+  

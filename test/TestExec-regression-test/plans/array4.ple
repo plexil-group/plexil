@@ -1,0 +1,10 @@
+Real[500] Lookup a4;
+
+array4:
+{
+  Real a4[500];
+
+  PostCondition a4[1] == 0.0;
+
+  a4 = LookupNow(a4);
+}
