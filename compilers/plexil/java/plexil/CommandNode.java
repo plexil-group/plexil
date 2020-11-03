@@ -154,7 +154,7 @@ public class CommandNode extends ExpressionNode
             // if name is not literal, 
             // check that name expression returns a string
             ExpressionNode nameExp = (ExpressionNode) nameAST;
-            if (nameExp.getDataType() != PlexilDataType.STRING_TYPE) {
+            if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
                 state.addDiagnostic(nameExp,
                                     "Command name expression is not a string expression",
                                     Severity.ERROR);
