@@ -24,7 +24,7 @@
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-;;; PLEXIL -- A Major Mode for PLEXIL.
+;;; plexil-mode -- A Major Mode for PLEXIL, derived from c++-mode
 
 ;;; Example installation instructions (variations are possible):
 ;;;    1. In your home directory, place this in your .emacs file.
@@ -35,6 +35,9 @@
 ;;;           (add-to-list 'auto-mode-alist '("\\.plp\\'" . plexil-mode))
 ;;;
 ;;;    2. Place this file (plexil-mode.el) in your ~/.emacs.d/lisp directory.
+
+(require 'cc-mode)
+(require 'derived) ; for now - may try to take advantage of c-lang features later
 
 
 (defconst plexil-mode-syntax-table
@@ -50,33 +53,73 @@
   )
 
 ;; Set keywords
-(setq builtinRegexp (regexp-opt '("Command" "Lookup" "StartCondition" "EndCondition"
-				  "RepeatCondition" "SkipCondition" "PreCondition"
-				  "PostCondition" "InvariantCondtion" "Concurrence"
-				  "UncheckedSequence" "Sequence" "LibraryCall"
-				  "LibraryAction" "Update" "Try" "OnCommand"
-				  "OnMessage" "SynchronousCommand" "Wait"
-				  "Start" "Exit" "Repeat" "Comment" "Pre"
-				  "Post" "Repeat" "Repeat-while") 'words))
+(defconst plexil-mode-builtin-regexp
+  (regexp-opt '("CheckedSequence" "Command" "Concurrence"
+                "End" "EndCondition"
+                "Exit" "ExitCondition"
+                "Invariant" "InvariantCondtion"
+                "LibraryAction" "LibraryCall"
+                "Lookup" "LookupNow" "LookupOnChange"
+                "OnCommand" "OnMessage"
+                "Post" "PostCondition"
+                "Pre" "PreCondition"
+                "Repeat" "RepeatCondition"
+                "Sequence"
+                "Skip" "SkipCondition"
+                "Start" "StartCondition"
+                "SynchronousCommand"
+                "Try"
+                "UncheckedSequence" "Update"
+                "Wait"
+                )
+              'words)
+  )
 
-(setq functionsRegexp (regexp-opt '( "sqrt" "abs" "ceil" "floor" "round" "trunc"
-				     "real_to_int" "pprint" "print") 'words))
+(defconst plexil-mode-functions-regexp
+  (regexp-opt '(
+                "abs" "arrayMaxSize" "arraySize"
+                "ceil"
+                "floor"
+                "isKnown"
+                "max" "min" "mod"
+                "pprint"
+                "print"
+                "real_to_int"
+                "round"
+                "sqrt" "strlen"
+                "trunc"
+                )
+              'words)
+  )
 
-(setq keywordsRegexp (regexp-opt '("InOut" "In" "if" "else" "elseif" "endif" "while"
-				   "for" "Priority") 'words))
+(defconst plexil-mode-keywords-regexp
+  (regexp-opt '("In" "InOut"
+                "Priority"
+                "do"
+                "else" "elseif" "endif"
+                "for"
+                "if"
+                "while"
+                )
+              'words))
 
-(setq constantsRegexp (regexp-opt '("true" "false" "Unknown") 'words))
+(defconst plexil-mode-constants-regexp
+  (regexp-opt '("true" "false")
+              'words)
+  )
 
-;; set highlights
-(setq plexilHighlights
-      `(("[a-z0-9A-Z_]+:\\|time" . font-lock-type-face)
-	("Integer\\|Boolean\\|Real\\|String\\|Date" . font-lock-type-face)
-	(,keywordsRegexp . font-lock-keyword-face)
-	(,builtinRegexp . font-lock-builtin-face)
-	(,constantsRegexp . font-lock-constant-face)
-	("Comment" . font-lock-comment-face)
-	(,functionsRegexp . font-lock-function-name-face)
-	))
+;;; Highlighted elements
+;;; See the documentation for variable font-lock-defaults
+(defconst plexil-mode-font-lock-defaults
+  `(("[a-z0-9A-Z_]+:\\|time"                    . font-lock-type-face)
+    ("Integer\\|Boolean\\|Real\\|String\\|Date" . font-lock-type-face)
+    (,plexil-mode-keywords-regexp               . font-lock-keyword-face)
+    (,plexil-mode-builtin-regexp                . font-lock-builtin-face)
+    (,plexil-mode-constants-regexp              . font-lock-constant-face)
+    ("Comment"                                  . font-lock-comment-face)
+    (,plexil-mode-functions-regexp              . font-lock-function-name-face)
+    )
+  )
 
 
 (defcustom plexil-mode-common-hook nil
@@ -91,12 +134,12 @@ See 'run-hooks'."
 
   (if (looking-at "[ \t]*[a-z0-9A-Z_]+[:]?[ ]+[a-z0-9A-Z]*")
       (progn (local-set-key (kbd ":") '(":"))
-	     (local-set-key (kbd "{") '("{"))
-	     (local-set-key (kbd "}") '("}"))
-	     (local-set-key (kbd ")") '(")"))
-	     (local-set-key (kbd "(") '("("))
-	     (local-set-key (kbd ";") '(";"))
-	     ))
+         (local-set-key (kbd "{") '("{"))
+         (local-set-key (kbd "}") '("}"))
+         (local-set-key (kbd ")") '(")"))
+         (local-set-key (kbd "(") '("("))
+         (local-set-key (kbd ";") '(";"))
+         ))
   (if (looking-at "[...]*{")
       ;;(local-set-key (kbd TAB) '(DEL))
     (local-set-key (kbd "RET") '("RET"))
@@ -105,7 +148,7 @@ See 'run-hooks'."
 
   ;; Supposed to stop TAB from indenting on an empty line in a new node. Not currently working.
   (if (looking-at "[...]*{[ \t]*[\n]+")
-      (local-set-key (kbd TAB) '(nil)))
+      (local-set-key (kbd "TAB") '(nil)))
 
   )
 
@@ -115,14 +158,13 @@ See 'run-hooks'."
 ;; Set C++ style to a more appropriate indentation style for PLEXIL
 ;; and a proper offset.
 (add-hook 'plexil-mode-hook
-	  (setq c-default-style "ellemtel")
-          (setq	c-basic-offset 2)
-	  )
+          (setq c-default-style "ellemtel")
+          (setq c-basic-offset 2)
+          )
 
 ;; Define mode, derive from c++-mode. Set syntax highlighting and indentation.
 (define-derived-mode plexil-mode c++-mode "PLEXIL"
   :syntax-table plexil-mode-syntax-table
-  (setq font-lock-defaults '(plexilHighlights))
-  (font-lock-fontify-buffer)
-  (run-mode-hooks 'plexil-mode-hook)
+  (setq font-lock-defaults '(plexil-mode-font-lock-defaults))
+  (font-lock-ensure)
   )
