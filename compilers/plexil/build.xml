@@ -33,13 +33,15 @@
 
   <property environment="env"/>
 
-  <property name="dir.source" location="${env.PLEXIL_HOME}"/>
+  <property name="dir.plexil_home" location="../.."/>
+
+  <property name="dir.source" location="${dir.plexil_home}"/>
   <property name="dir.source.jars" location="${dir.source}/jars"/>
   <property name="dir.source.grammars" location="antlr"/>
   <property name="dir.source.java" location="java"/>
 
   <!-- We might want to do out-of-tree installs in the future -->
-  <property name="dir.install" location="${env.PLEXIL_HOME}"/>
+  <property name="dir.install" location="${dir.plexil_home}"/>
   <property name="dir.install.jars" location="${dir.install}/jars"/>
 
   <!-- We might want to do out-of-tree builds in the future -->
@@ -80,7 +82,7 @@
           unless="plexil-grammar.up-to-date"
 	      description="Generate Plexil parser code from .g file">
     <mkdir dir="${dir.generated}/plexil"/>
-    <java jar="${jar.antlr}" fork="true">
+    <java jar="${jar.antlr}" fork="true" failonerror="true">
       <arg value="-fo"/>
       <arg path="${dir.generated}/plexil"/>
       <arg file="${dir.source.grammars}/Plexil.g"/>
