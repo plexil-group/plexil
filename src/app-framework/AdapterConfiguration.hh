@@ -38,6 +38,7 @@
 #include "lookupHandlerDefs.hh"
 #include "plannerUpdateHandlerDefs.hh"
 
+#include <string>
 #include <vector>
 
 // Forward references
