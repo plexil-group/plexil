@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -194,7 +194,8 @@ public class Node
         // no-op for leaf nodes
     }
 
-    public Enumeration children() {
+    // javax.swing.tree.TreeNode API
+    public Enumeration<? extends TreeNode> children() {
         return null;
     }
 
