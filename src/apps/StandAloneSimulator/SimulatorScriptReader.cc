@@ -93,7 +93,7 @@ public:
   {
     close();
     m_linecount = 0;
-    m_filestream.open(fname);
+    m_filestream.open(fname.c_str());
     if (m_filestream.fail()) {
       debugMsg("LineInStream:open", " for " << fname << " failed");
       return false;
