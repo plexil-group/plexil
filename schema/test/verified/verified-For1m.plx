@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <DeclareMutex>
       <Name>m</Name>
@@ -7,6 +7,9 @@
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="For">
     <NodeId>Root</NodeId>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>
@@ -23,13 +26,10 @@
         </InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>ep2cp_ForLoop</NodeId>
+          <NodeId generated="1">ep2cp_ForLoop</NodeId>
           <SkipCondition>
             <NOT>
               <LT>
@@ -47,7 +47,7 @@
                 <NodeId>Two</NodeId>
               </Node>
               <Node NodeType="Assignment" epx="LoopVariableUpdate">
-                <NodeId>ep2cp_ForLoopUpdater</NodeId>
+                <NodeId generated="1">ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">Two</NodeRef>
