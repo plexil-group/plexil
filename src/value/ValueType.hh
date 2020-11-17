@@ -32,9 +32,13 @@
 #include "NodeConstants.hh"
 #include "ParserException.hh"
 
-// #include <cstdint> // included by ArrayFwd.hh
 #include <iosfwd>
-#include <vector>
+
+#if defined(HAVE_CSTDDEF)
+#include <cstddef> // size_t
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // size_t
+#endif
 
 namespace PLEXIL
 {

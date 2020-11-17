@@ -1,28 +1,28 @@
 /* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "ArrayImpl.hh"
 #include "TestSupport.hh"
@@ -51,7 +51,7 @@ static bool testBasicConstructorsAndAccessors()
 
   {
     Value *intv = new Value((Integer) 42);
-    int32_t tempi;
+    Integer tempi;
     assertTrue_1(intv->isKnown());
     assertTrue_1(INTEGER_TYPE == intv->valueType());
     assertTrue_1(intv->getValue(tempi));
@@ -61,7 +61,7 @@ static bool testBasicConstructorsAndAccessors()
 
   {
     Value *realv = new Value(2.5);
-    double tempr;
+    Real tempr;
     assertTrue_1(realv->isKnown());
     assertTrue_1(REAL_TYPE == realv->valueType());
     assertTrue_1(realv->getValue(tempr));
@@ -111,9 +111,9 @@ static bool testBasicConstructorsAndAccessors()
   }
 
   {
-    std::string temps;
-    std::string const *tempsp;
-    std::string foo("Foo");
+    String temps;
+    String const *tempsp;
+    String foo("Foo");
 
     {
       Value *stringv = new Value(foo);
@@ -162,7 +162,7 @@ static bool testBasicConstructorsAndAccessors()
       delete sizedBool;
     }
     {
-      std::vector<bool> bv(2);
+      std::vector<Boolean> bv(2);
       bv[0] = false;
       bv[1] = true;
       BooleanArray *initedBool = new BooleanArray(bv);
@@ -202,7 +202,7 @@ static bool testBasicConstructorsAndAccessors()
     }
 
     {
-      std::vector<int32_t> iv(2);
+      std::vector<Integer> iv(2);
       iv[0] = 42;
       iv[1] = 6;
       IntegerArray *initedInt = new IntegerArray(iv);
@@ -241,7 +241,7 @@ static bool testBasicConstructorsAndAccessors()
     }
 
     {
-      std::vector<double> dv(2);
+      std::vector<Real> dv(2);
       dv[0] = 3.14;
       dv[1] = 4.5;
       RealArray *initedReal = new RealArray(dv);
@@ -281,9 +281,9 @@ static bool testBasicConstructorsAndAccessors()
     }
 
     {
-      std::vector<std::string> sv(2);
-      sv[0] = std::string("yo ");
-      sv[1] = std::string("mama");
+      std::vector<String> sv(2);
+      sv[0] = String("yo ");
+      sv[1] = String("mama");
       StringArray *initedString = new StringArray(sv);
       Value *isav = new Value(*initedString);
       assertTrue_1(isav->isKnown());
@@ -319,7 +319,7 @@ static bool testMoveConstructors()
 
   {
     Value *intv = new Value(Value((Integer) 42));
-    int32_t tempi;
+    Integer tempi;
     assertTrue_1(intv->isKnown());
     assertTrue_1(INTEGER_TYPE == intv->valueType());
     assertTrue_1(intv->getValue(tempi));
@@ -329,7 +329,7 @@ static bool testMoveConstructors()
 
   {
     Value *realv = new Value(Value(2.5));
-    double tempr;
+    Real tempr;
     assertTrue_1(realv->isKnown());
     assertTrue_1(REAL_TYPE == realv->valueType());
     assertTrue_1(realv->getValue(tempr));
@@ -379,9 +379,9 @@ static bool testMoveConstructors()
   }
 
   {
-    std::string temps;
-    std::string const *tempsp;
-    std::string foo("Foo");
+    String temps;
+    String const *tempsp;
+    String foo("Foo");
 
     {
       Value *stringv = new Value(Value(foo));
@@ -430,7 +430,7 @@ static bool testMoveConstructors()
       delete sizedBool;
     }
     {
-      std::vector<bool> bv(2);
+      std::vector<Boolean> bv(2);
       bv[0] = false;
       bv[1] = true;
       BooleanArray *initedBool = new BooleanArray(bv);
@@ -470,7 +470,7 @@ static bool testMoveConstructors()
     }
 
     {
-      std::vector<int32_t> iv(2);
+      std::vector<Integer> iv(2);
       iv[0] = 42;
       iv[1] = 6;
       IntegerArray *initedInt = new IntegerArray(iv);
@@ -509,7 +509,7 @@ static bool testMoveConstructors()
     }
 
     {
-      std::vector<double> dv(2);
+      std::vector<Real> dv(2);
       dv[0] = 3.14;
       dv[1] = 4.5;
       RealArray *initedReal = new RealArray(dv);
@@ -549,9 +549,9 @@ static bool testMoveConstructors()
     }
 
     {
-      std::vector<std::string> sv(2);
-      sv[0] = std::string("yo ");
-      sv[1] = std::string("mama");
+      std::vector<String> sv(2);
+      sv[0] = String("yo ");
+      sv[1] = String("mama");
       StringArray *initedString = new StringArray(sv);
       Value *isav = new Value(Value(*initedString));
       assertTrue_1(isav->isKnown());
@@ -571,7 +571,7 @@ static bool testScalarEquality()
   // Basics
   Value *stringv = nullptr;
   {
-    std::string foo("Foo");
+    String foo("Foo");
     stringv = new Value(foo);
   }
   Value *unkv = new Value;
@@ -873,7 +873,7 @@ static bool testIntegerArrayEquality()
 
   Value *iiav = nullptr;
   {
-    std::vector<int32_t> iv(2);
+    std::vector<Integer> iv(2);
     iv[0] = 42;
     iv[1] = 6;
     IntegerArray *initedInt = new IntegerArray(iv);
@@ -970,7 +970,7 @@ static bool testRealArrayEquality()
 
   Value *irav = nullptr;
   {
-    std::vector<double> dv(2);
+    std::vector<Real> dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
     RealArray* initedReal = new RealArray(dv);
@@ -1067,9 +1067,9 @@ static bool testStringArrayEquality()
 
   Value *isav = nullptr;
   {
-    std::vector<std::string> sv(2);
-    sv[0] = std::string("yo ");
-    sv[1] = std::string("mama");
+    std::vector<String> sv(2);
+    sv[0] = String("yo ");
+    sv[1] = String("mama");
     StringArray *initedString = new StringArray(sv);
     isav = new Value(*initedString);
     delete initedString;
@@ -1163,9 +1163,9 @@ static bool testEmptyArrayEquality()
     {
       Value *bav = nullptr;
       {
-	BooleanArray *emptyBool = new BooleanArray;
-	bav = new Value(*emptyBool);
-	delete emptyBool;
+        BooleanArray *emptyBool = new BooleanArray;
+        bav = new Value(*emptyBool);
+        delete emptyBool;
       }
 
       assertTrue_1(!(*bav == *iav));
@@ -1342,7 +1342,7 @@ static bool testScalarIntegerArrayEquality()
   }
   Value *iiav = nullptr;
   {
-    std::vector<int32_t> iv(2);
+    std::vector<Integer> iv(2);
     iv[0] = 42;
     iv[1] = 6;
     IntegerArray *initedInt = new IntegerArray(iv);
@@ -1457,7 +1457,7 @@ static bool testScalarRealArrayEquality()
   }
   Value *irav = nullptr;
   {
-    std::vector<double> dv(2);
+    std::vector<Real> dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
     RealArray* initedReal = new RealArray(dv);
@@ -1572,9 +1572,9 @@ static bool testScalarStringArrayEquality()
   }
   Value *isav = nullptr;
   {
-    std::vector<std::string> sv(2);
-    sv[0] = std::string("yo ");
-    sv[1] = std::string("mama");
+    std::vector<String> sv(2);
+    sv[0] = String("yo ");
+    sv[1] = String("mama");
     StringArray *initedString = new StringArray(sv);
     isav = new Value(*initedString);
     delete initedString;
@@ -2032,7 +2032,7 @@ static bool testIntegerArrayLessThan()
 
   Value *iiav = nullptr;
   {
-    std::vector<int32_t> iv(2);
+    std::vector<Integer> iv(2);
     iv[0] = 42;
     iv[1] = 6;
     IntegerArray *initedInt = new IntegerArray(iv);
@@ -2052,7 +2052,7 @@ static bool testIntegerArrayLessThan()
 
   Value *iiav2 = nullptr;
   {
-    std::vector<int32_t> iv2(2);
+    std::vector<Integer> iv2(2);
     iv2[0] = 42;
     iv2[1] = 7;
     IntegerArray *initedInt2 = new IntegerArray(iv2);
@@ -2114,7 +2114,7 @@ static bool testRealArrayLessThan()
 
   Value *irav = nullptr;
   {
-    std::vector<double> dv(2);
+    std::vector<Real> dv(2);
     dv[0] = 3.14;
     dv[1] = 4.5;
     RealArray *initedReal = new RealArray(dv);
@@ -2134,7 +2134,7 @@ static bool testRealArrayLessThan()
 
   Value *irav2 = nullptr;
   {
-    std::vector<double> dv2(2);
+    std::vector<Real> dv2(2);
     dv2[0] = 3.14;
     dv2[1] = 4.6;
     RealArray *initedReal2 = new RealArray(dv2);
@@ -2200,9 +2200,9 @@ static bool testStringArrayLessThan()
 
   Value *isav = nullptr;
   {
-    std::vector<std::string> sv(2);
-    sv[0] = std::string("yo ");
-    sv[1] = std::string("mama");
+    std::vector<String> sv(2);
+    sv[0] = String("yo ");
+    sv[1] = String("mama");
     StringArray *initedString = new StringArray(sv);
     isav = new Value(*initedString);
   }
@@ -2219,9 +2219,9 @@ static bool testStringArrayLessThan()
 
   Value *isav2 = nullptr;
   {
-    std::vector<std::string> sv2(2);
-    sv2[0] = std::string("yo ");
-    sv2[1] = std::string("mamb");
+    std::vector<String> sv2(2);
+    sv2[0] = String("yo ");
+    sv2[1] = String("mamb");
     StringArray *initedString2 = new StringArray(sv2);
     isav2 = new Value(*initedString2);
     delete initedString2;
@@ -2252,19 +2252,19 @@ static bool testStringArrayLessThan()
 
   return true;
 }
-  // *** TODO ***
+// *** TODO ***
 
-  // Cross array type
+// Cross array type
 
-  // Array to unknown
+// Array to unknown
 
-  // Array to Boolean
+// Array to Boolean
 
-  // Array to Integer
+// Array to Integer
 
-  // Array to Real
+// Array to Real
 
-  // Array to String
+// Array to String
 
 bool valueTest()
 {
