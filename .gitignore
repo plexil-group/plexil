@@ -1,5 +1,6 @@
 bin
 include
 # Emacs backup file names
-\#*#
 *~
+\#*#
+.#*

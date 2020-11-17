@@ -1,1 +1,6 @@
+*.a
+*.d
+*.o
+*.dylib
 *.plx
+*.so
