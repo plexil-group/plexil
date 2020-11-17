@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -31,77 +31,126 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
-include "plexil-base.rnc" {
-  Action =
-    Node
-    | Concurrence
-    | Sequence
-    | CheckedSequence
-    | UncheckedSequence
-    | Try
-    | If
-    | While
-    | For
-    | OnCommand
-    | OnMessage
-    | Wait
-    | SynchronousCommand
-  BooleanExpression =
-    LogicalOperator
-    | Equality
-    | NumericComparison
-    | KnownTest
-    | BooleanVariable
-    | BooleanValue
-    | Finished
-    | IterationEnded
-    | Executing
-    | Waiting
-    | Inactive
-    | Succeeded
-    | IterationSucceeded
-    | Failed
-    | Interrupted
-    | IterationFailed
-    | Skipped
-    | InvariantFailed
-    | PreconditionFailed
-    | PostconditionFailed
-    | ParentFailed
-    | MessageReceived
-  LookupGroup = LookupOnChange | LookupNow | Lookup
-  DeclaredVariable =
-    IntegerVariable
-    | RealVariable
-    | BooleanVariable
-    | StringVariable
-    | DateVariable
-    | DurationVariable
-    | ArrayVariable
-    | ArrayElement
-  Value =
-    IntegerValue
-    | RealValue
-    | BooleanValue
-    | StringValue
-    | DateValue
-    | DurationValue
-  NumericExpression =
-    ArithmeticOperator
-    | IntegerVariable
-    | RealVariable
-    | IntegerValue
-    | RealValue
-    | DateVariable
-    | DateValue
-    | DurationVariable
-    | DurationValue
-    | NodeTimepointValue
-    | #  read operations for arrays
-      ArraySize
-    | ArrayMaxSize
-}
+# Elements
 Name = element Name { GeneralizedStringExpression, SourceLocators }
+# NodeId is optional in Extended PLEXIL Actions
+
+# This could be implemented as xs:all in XML Schema 1.1,
+# IF we could find a validator that understood it.
+ActionBase =
+  (NodeId?
+   | # Annotations for static analysis
+     Assume?
+   | Desire?
+   | Expect?
+   | # Variable declarations
+     VariableDeclarations?
+   | Interface?
+   | UsingMutex?
+   | # User conditions
+     StartCondition?
+   | RepeatCondition?
+   | PreCondition?
+   | PostCondition?
+   | InvariantCondition?
+   | EndCondition?
+   | ExitCondition?
+   | SkipCondition?
+   | # Any number of Comment elements COULD be included
+     # if we could implement XML Schema 1.1.
+     element Comment { xsd:string }?
+   | # Currently only relevant for Assignment nodes
+     element Priority { xsd:nonNegativeInteger }?)*,
+  SourceLocators
+# NodeId is optional in Extended PLEXIL Node
+
+# NodeType could inherit from ActionBase if
+# we could implement XML Schema 1.1.
+NodeType =
+  (NodeId?
+   & Assume?
+   & Desire?
+   & Expect?
+   & VariableDeclarations?
+   & Interface?
+   & UsingMutex?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & ExitCondition?
+   & SkipCondition?
+   & element Comment { xsd:string }?
+   & element Priority { xsd:nonNegativeInteger }?
+   & NodeBody?),
+  NodeAttributes
+ActionGroup =
+  Node
+  | Concurrence
+  | Sequence
+  | CheckedSequence
+  | UncheckedSequence
+  | Try
+  | If
+  | Do
+  | While
+  | For
+  | OnCommand
+  | OnMessage
+  | Wait
+  | SynchronousCommand
+BooleanExpression =
+  BooleanVariable
+  | BooleanValue
+  | LogicalOperator
+  | Equality
+  | NumericComparison
+  | KnownTest
+  | NodeStatePredicate
+  | NodeOutcomePredicate
+  | NodeFailurePredicate
+  | # Extended PLEXIL macros
+    IterationSucceeded
+  | Interrupted
+  | IterationFailed
+  | InvariantFailed
+  | ParentFailed
+  | PreconditionFailed
+  | MessageReceived
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | DateVariable
+  | DurationVariable
+  | ArrayVariable
+  | ArrayElement
+LookupGroup = LookupOnChange | LookupNow | Lookup
+NumericExpression =
+  ArithmeticOperator
+  | IntegerVariable
+  | RealVariable
+  | IntegerValue
+  | RealValue
+  | DateVariable
+  | DateValue
+  | DurationVariable
+  | DurationValue
+  | NodeTimepointValue
+  | #  read operations for arrays
+    ArraySize
+  | ArrayMaxSize
+Value =
+  IntegerValue
+  | RealValue
+  | BooleanValue
+  | StringValue
+  | DateValue
+  | DurationValue
+# Schema types
 AtomicTypeValues =
   "Integer" | "Real" | "Boolean" | "String" | "Date" | "Duration"
 ParameterTypeValues =
@@ -112,67 +161,52 @@ ParameterTypeValues =
   | "Date"
   | "Duration"
   | "Any"
+# Extensions to Core Plexil
 DurationVariable = element DurationVariable { xsd:NCName }
 DateVariable = element DateVariable { xsd:NCName }
-DateValue = element DateValue { xsd:string }
-DurationValue = element DurationValue { xsd:string }
-# Node clauses, which can occur in any action.
-NodeClauses =
-  NodeId?
-  | element Comment { xsd:string }?
-  | StartCondition?
-  | RepeatCondition?
-  | PreCondition?
-  | PostCondition?
-  | InvariantCondition?
-  | EndCondition?
-  | SkipCondition?
-  | element Priority { xsd:nonNegativeInteger }?
-  | Interface?
-  | VariableDeclarations?
-  | UsingMutex?
+DateValue = element DateValue { xsd:dateTime, SourceLocators }
+DurationValue = element DurationValue { xsd:duration, SourceLocators }
 # Sequence forms
-SequenceType = NodeClauses*, Action*
+SequenceType = ActionBase, ActionGroup*
 # Actions are performed concurrently.  This is just a List Node.
-Concurrence = element Concurrence { SequenceType, SourceLocators }
+Concurrence = element Concurrence { SequenceType }
 # Each action in the sequence is performed in the given order.  If
 # one fails, the Sequence form terminates with failure.
-Sequence = element Sequence { SequenceType, SourceLocators }
+Sequence = element Sequence { SequenceType }
 # Each action in the sequence is performed in the given order.  If
 # one fails, the CheckedSequence form terminates with failure.
-CheckedSequence =
-  element CheckedSequence { SequenceType, SourceLocators }
+CheckedSequence = element CheckedSequence { SequenceType }
 # Like Sequence, except the actions are not checked for success.
 # They will all be executed
-UncheckedSequence =
-  element UncheckedSequence { SequenceType, SourceLocators }
+UncheckedSequence = element UncheckedSequence { SequenceType }
 # Each action in the sequence is performed in turn, until one of
 # them succeeds; the rest are ignored.  The Try form fails if and
 # only if all its actions fail.
-Try = element Try { SequenceType, SourceLocators }
+Try = element Try { SequenceType }
 # Conditionals and loops
 
+# Common components of the following statements
+Condition =
+  element Condition { GeneralizedBooleanExpression, SourceLocators }
+ActionType = ActionGroup, SourceLocators
+Action = element Action { ActionType }
 # If statement with optional ElseIf and Else.
 If =
   element If {
-    NodeClauses*,
-    element Condition { GeneralizedBooleanExpression },
-    element Then { Action },
+    ActionBase,
+    Condition,
+    element Then { ActionType },
     element ElseIf {
-      element Condition { GeneralizedBooleanExpression },
-      element Then { Action }
+      Condition,
+      element Then { ActionType },
+      SourceLocators
     }*,
-    element Else { Action }?,
-    SourceLocators
+    element Else { ActionType }?
   }
+# A classic do-while loop
+Do = element Do { ActionBase, Action, Condition }
 # A classic while loop
-While =
-  element While {
-    NodeClauses*,
-    element Condition { GeneralizedBooleanExpression },
-    element Action { Action },
-    SourceLocators
-  }
+While = element While { ActionBase, Condition, Action }
 # A For loop.  First a variable is declared (it must be numeric).
 # Next is a boolean expression that determines when to keep the loop
 # going.  Next is a numeric expression used to update the variable
@@ -180,20 +214,23 @@ While =
 # to execute.
 For =
   element For {
-    NodeClauses*,
-    element LoopVariable { DeclareVariable },
-    element Condition { GeneralizedBooleanExpression },
-    element LoopVariableUpdate { GeneralizedNumericExpression },
-    element Action { Action },
-    SourceLocators
+    ActionBase,
+    element LoopVariable { (DeclareVariable), SourceLocators },
+    Condition,
+    element LoopVariableUpdate {
+      GeneralizedNumericExpression, SourceLocators
+    },
+    Action
   }
 # Node Predicates
+
+# TODO: implement these in the Exec, move to plexil-base schema
 IterationSucceeded = element IterationSucceeded { node-reference }
 Interrupted = element Interrupted { node-reference }
 IterationFailed = element IterationFailed { node-reference }
 InvariantFailed = element InvariantFailed { node-reference }
-PreconditionFailed = element PreconditionFailed { node-reference }
 ParentFailed = element ParentFailed { node-reference }
+PreconditionFailed = element PreconditionFailed { node-reference }
 # Support for message passing between executives
 
 # Deprecated
@@ -201,33 +238,29 @@ MessageReceived =
   element MessageReceived {
     GeneralizedStringExpression, SourceLocators
   }
-OnCommand =
-  element OnCommand { NodeClauses*, Name, Action?, SourceLocators }
+OnCommand = element OnCommand { ActionBase, Name, ActionGroup? }
 OnMessage =
   element OnMessage {
-    NodeClauses*,
-    element Message { GeneralizedStringExpression },
-    Action?,
-    SourceLocators
+    ActionBase,
+    element Message { GeneralizedStringExpression, SourceLocators },
+    ActionGroup?
   }
 # Specialized actions
 
 # Wait a specified duration, with optional tolerance for the time reading
 Wait =
   element Wait {
-    NodeClauses*,
-    element Units { GeneralizedNumericExpression },
-    Tolerance?,
-    SourceLocators
+    ActionBase,
+    element Units { GeneralizedNumericExpression, SourceLocators },
+    Tolerance?
   }
 # Command action that waits for its return value or status handle
 SynchronousCommand =
   element SynchronousCommand {
-    NodeClauses*,
-    element Timeout { GeneralizedNumericExpression }?,
+    ActionBase,
+    element Timeout { GeneralizedNumericExpression, SourceLocators }?,
     Tolerance?,
-    Command,
-    SourceLocators
+    Command
   }
 # Generic lookup form
 Lookup = element Lookup { Name, Tolerance?, Arguments?, SourceLocators }

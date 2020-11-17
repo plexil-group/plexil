@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,125 @@
 
 <!-- Schema for Core PLEXIL as implemented by the Plexil Executive. -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
+           xml:lang="en">
+
   <xs:include schemaLocation='plexil-base.xsd' />
+
+  <!-- Elements -->
+
+  <xs:group name="ActionGroup">
+    <xs:choice>
+      <xs:element ref="Node"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- NodeId is required in Core Plexil. -->
+  <xs:complexType name="NodeType">
+    <xs:all>
+      <xs:element ref="NodeId"/>
+
+      <!-- Annotations for static analysis -->
+      <xs:element ref="Assume" minOccurs="0"/>
+      <xs:element ref="Desire" minOccurs="0"/>
+      <xs:element ref="Expect" minOccurs="0"/>
+
+      <!-- Variable declarations -->
+      <xs:element ref="VariableDeclarations" minOccurs="0"/>
+      <xs:element ref="Interface" minOccurs="0"/>
+      <xs:element ref="UsingMutex" minOccurs="0"/>
+
+      <!-- User conditions -->
+      <xs:element ref="StartCondition" minOccurs="0"/>
+      <xs:element ref="RepeatCondition" minOccurs="0"/>
+      <xs:element ref="PreCondition" minOccurs="0"/>
+      <xs:element ref="PostCondition" minOccurs="0"/>
+      <xs:element ref="InvariantCondition" minOccurs="0"/>
+      <xs:element ref="EndCondition" minOccurs="0"/>
+      <xs:element ref="ExitCondition" minOccurs="0"/>
+      <xs:element ref="SkipCondition" minOccurs="0"/>
+
+      <!-- Any number of Comment elements COULD be included
+           if we could implement XML Schema 1.1.
+      -->
+      <xs:element name="Comment" type="xs:string" minOccurs="0"/>
+
+      <!-- Currently only relevant for Assignment nodes -->
+      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
+
+      <xs:element ref="NodeBody" minOccurs="0"/>
+    </xs:all>
+    <xs:attributeGroup ref="NodeAttributes"/>
+  </xs:complexType>
+
+  <xs:group name="BooleanExpression">
+    <xs:choice>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
+	  <xs:group ref="LogicalOperator"/>
+	  <xs:group ref="Equality"/>
+	  <xs:group ref="NumericComparison"/>
+      <xs:group ref="KnownTest"/>
+      <xs:group ref="NodeStatePredicate"/>
+      <xs:group ref="NodeOutcomePredicate"/>
+      <xs:group ref="NodeFailurePredicate"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="DeclaredVariable">
+    <xs:choice>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="StringVariable"/>
+      <xs:element ref="ArrayVariable"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="LookupGroup">
+    <xs:choice>
+      <xs:element ref="LookupOnChange"/>
+      <xs:element ref="LookupNow"/>
+    </xs:choice>
+  </xs:group>
+  
   <xs:element name="Name">
     <xs:complexType>
       <xs:group ref="GeneralizedStringExpression"/>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
+
+  <xs:group name="NumericExpression">
+    <xs:choice>
+	  <xs:group ref="ArithmeticOperator"/>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="NodeTimepointValue"/>
+      <!-- read operations for arrays-->
+      <xs:element ref="ArraySize"/>
+      <xs:element ref="ArrayMaxSize"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Note: ArrayValue is not included here because arrays
+       are handled independently (and NOT supported in places
+       were Value is) -->
+  <xs:group name="Value">
+    <xs:choice>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="BooleanValue"/>
+      <xs:element ref="StringValue"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Schema types -->
+
   <xs:simpleType name="AtomicTypeValues">
     <xs:restriction base="xs:NMTOKEN">
       <xs:enumeration value="Integer"/>
@@ -47,6 +158,7 @@
       <xs:enumeration value="String"/>
     </xs:restriction>
   </xs:simpleType>
+
   <xs:simpleType name="ParameterTypeValues">
     <xs:restriction base="xs:NMTOKEN">
       <xs:enumeration value="Integer"/>
@@ -56,4 +168,5 @@
       <xs:enumeration value="Any"/>
     </xs:restriction>
   </xs:simpleType>
+
 </xs:schema>
