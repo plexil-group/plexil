@@ -218,7 +218,7 @@ namespace PLEXIL
     }
   }
 
-  void Command::setDestination(Assignable *dest, bool isGarbage)
+  void Command::setDestination(Expression *dest, bool isGarbage)
   {
     m_dest = dest;
     m_destIsGarbage = isGarbage;
@@ -274,7 +274,7 @@ namespace PLEXIL
     return sl_emptyList;
   }
 
-  Assignable *Command::getDest()
+  Expression *Command::getDest()
   {
     return m_dest;
   }

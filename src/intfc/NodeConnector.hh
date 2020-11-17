@@ -27,8 +27,6 @@
 #ifndef NODE_CONNECTOR_HH
 #define NODE_CONNECTOR_HH
 
-#include "plexil-config.h" // ???
-
 #include <string>
 
 namespace PLEXIL

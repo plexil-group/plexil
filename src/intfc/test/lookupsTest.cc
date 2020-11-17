@@ -35,7 +35,6 @@
 #include "UserVariable.hh"
 
 #include <map>
-#include <set>
 
 using namespace PLEXIL;
 

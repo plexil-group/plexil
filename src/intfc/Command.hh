@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,7 @@ namespace PLEXIL
     Command(std::string const &nodeName);
     ~Command();
 
-    Assignable *getDest();
+    Expression *getDest();
     Expression *getAck() {return &m_ack;}
     Expression *getAbortComplete() {return &m_abortComplete;}
     State const &getCommand() const;
@@ -122,7 +122,7 @@ namespace PLEXIL
     bool isActive() const { return m_active; }
 
     // Interface to plan parser
-    void setDestination(Assignable *dest, bool isGarbage);
+    void setDestination(Expression *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void setArgumentVector(ExprVec *vec);
     void setResourceList(ResourceList *l);
@@ -177,7 +177,7 @@ namespace PLEXIL
     SimpleBooleanVariable m_abortComplete;
     State m_command;
     Expression *m_nameExpr;
-    Assignable *m_dest;
+    Expression *m_dest;
     ExprVec *m_argVec;
     ResourceList *m_resourceList;
     ResourceValueList *m_resourceValueList;

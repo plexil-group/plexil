@@ -27,8 +27,13 @@
 #include "InterfaceError.hh"
 
 #include "Logging.hh"
+#include "plexil-config.h"
 
+#if defined(HAVE_CASSERT)
 #include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
+#endif
 
 namespace PLEXIL
 {

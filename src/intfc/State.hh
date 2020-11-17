@@ -29,6 +29,8 @@
 
 #include "Value.hh"
 
+#include <vector>
+
 namespace PLEXIL
 {
   /**

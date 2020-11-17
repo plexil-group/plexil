@@ -28,8 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "Debug.hh"
-#include "ExternalInterface.hh"
-#include "InterfaceError.hh"
+#include "Error.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 

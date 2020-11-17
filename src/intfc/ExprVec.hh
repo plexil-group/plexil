@@ -27,10 +27,17 @@
 #ifndef PLEXIL_EXPR_VEC_HH
 #define PLEXIL_EXPR_VEC_HH
 
-#include "ValueType.hh"
+#include "plexil-config.h"
 
 #include <functional>
+#include <iosfwd> // std::ostream
 #include <vector>
+
+#if defined(HAVE_CSTDDEF)
+#include <cstddef> // size_t
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // size_t
+#endif
 
 namespace PLEXIL
 {
