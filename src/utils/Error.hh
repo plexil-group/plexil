@@ -61,10 +61,10 @@
 #ifndef PLEXIL_ERROR_HH
 #define PLEXIL_ERROR_HH
 
+#include <exception>
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <stdexcept>
 
 // Helper macro for telling compiler that error handler won't return
 #if (__cplusplus >= 201103L)

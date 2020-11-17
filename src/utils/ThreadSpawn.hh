@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,14 @@
 #ifndef THREAD_SPAWN_HEADER
 #define THREAD_SPAWN_HEADER
 
+#include "plexil-config.h"
 
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-
+#endif
 
 #define THREAD_FUNC_PTR void* (*)(void*)
 
 bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id);
-
 
 #endif // THREAD_SPAWN_HEADER

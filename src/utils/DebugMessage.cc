@@ -28,12 +28,16 @@
 
 #include "Error.hh"
 
-#ifdef STDC_HEADERS
-#include <cstring> // strstr()
-#endif
+#include "plexil-config.h"
 
 #include <iostream>
 #include <vector>
+
+#if defined(HAVE_CSTRING)
+#include <cstring> // strstr()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strstr()
+#endif
 
 namespace PLEXIL
 {
