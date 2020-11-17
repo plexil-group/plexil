@@ -1,0 +1,12 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Do>
+    <Action>
+      <Node NodeType="Empty">
+        <NodeId>Do0</NodeId>
+      </Node>
+    </Action>
+    <Condition>
+      <BooleanValue>true</BooleanValue>
+    </Condition>
+  </Do>
+</PlexilPlan>
