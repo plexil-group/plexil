@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,17 @@
 #include "ConversionOperators.hh"
 
 #include "plexil-config.h"
-#include "Function.hh"
 
-#ifdef HAVE_MATH_H
-#include <cmath>
-#endif
+#include "Function.hh"
+#include "PlanError.hh"
 
 #include <limits>
+
+#if defined(HAVE_CMATH)
+#include <cmath>
+#elif defined(HAVE_MATH_H)
+#include <math.h>
+#endif
 
 namespace PLEXIL
 {

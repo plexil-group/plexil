@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 namespace PLEXIL
 {
 
-  class ArraySize : public OperatorImpl<int32_t>
+  class ArraySize : public OperatorImpl<Integer>
   {
   public:
     ArraySize();
@@ -42,9 +42,9 @@ namespace PLEXIL
 
     bool checkArgTypes(Function const *ev) const;
 
-    bool operator()(int32_t &result, Expression const *arg) const;
+    bool operator()(Integer &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(ArraySize, int32_t);
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArraySize, Integer);
 
   private:
     // Disallow copy, assign
@@ -52,7 +52,7 @@ namespace PLEXIL
     ArraySize &operator=(const ArraySize &);
   };
 
-  class ArrayMaxSize : public OperatorImpl<int32_t>
+  class ArrayMaxSize : public OperatorImpl<Integer>
   {
   public:
     ArrayMaxSize();
@@ -62,9 +62,9 @@ namespace PLEXIL
 
     bool checkArgTypes(Function const *ev) const;
 
-    bool operator()(int32_t &result, Expression const *arg) const;
+    bool operator()(Integer &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayMaxSize, int32_t);
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayMaxSize, Integer);
 
   private:
     // Disallow copy, assign
@@ -72,7 +72,7 @@ namespace PLEXIL
     ArrayMaxSize &operator=(const ArrayMaxSize &);
   };
 
-  class AllElementsKnown : public OperatorImpl<bool>
+  class AllElementsKnown : public OperatorImpl<Boolean>
   {
   public:
     AllElementsKnown();
@@ -82,9 +82,9 @@ namespace PLEXIL
 
     bool checkArgTypes(Function const *ev) const;
 
-    bool operator()(bool &result, Expression const *arg) const;
+    bool operator()(Boolean &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(AllElementsKnown, bool);
+    DECLARE_OPERATOR_STATIC_INSTANCE(AllElementsKnown, Boolean);
 
   private:
     // Disallow copy, assign
@@ -92,7 +92,7 @@ namespace PLEXIL
     AllElementsKnown &operator=(const AllElementsKnown &);
   };
 
-  class AnyElementsKnown : public OperatorImpl<bool>
+  class AnyElementsKnown : public OperatorImpl<Boolean>
   {
   public:
     AnyElementsKnown();
@@ -102,9 +102,9 @@ namespace PLEXIL
 
     bool checkArgTypes(Function const *ev) const;
 
-    bool operator()(bool &result, Expression const *arg) const;
+    bool operator()(Boolean &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(AnyElementsKnown, bool);
+    DECLARE_OPERATOR_STATIC_INSTANCE(AnyElementsKnown, Boolean);
 
   private:
     // Disallow copy, assign

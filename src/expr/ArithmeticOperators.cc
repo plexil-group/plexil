@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,13 @@
 
 #include "ArithmeticOperators.hh"
 #include "Function.hh"
-// #include "PlanError.hh" // included by OperatorImpl.hh
+#include "PlanError.hh"
 
+#if defined(HAVE_CMATH)
 #include <cmath>
+#elif defined(HAVE_MATH_H)
+#include <math.h>
+#endif
 
 namespace PLEXIL
 {

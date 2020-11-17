@@ -32,12 +32,19 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#ifdef STDC_HEADERS
+#include <algorithm> // std::remove()
+
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib> // free()
-#include <cstring> // strdup()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // free()
 #endif
 
-#include <algorithm> // std::remove()
+#if defined(HAVE_CSTRING)
+#include <cstring> // strdup()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strdup()
+#endif
 
 namespace PLEXIL
 {

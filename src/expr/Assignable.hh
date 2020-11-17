@@ -32,9 +32,7 @@
 namespace PLEXIL {
   
   // Forward declarations
-  class Array;
   class Node;
-  class Value;
 
   /**
    * @class Assignable
