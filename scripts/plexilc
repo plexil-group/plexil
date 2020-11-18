@@ -274,7 +274,9 @@ compile_plp()
     compile_std_plexil "$ple_fname"
 
     # Delete preprocessor output file
-    /bin/rm -f "$ple_fname"
+    # TEMP Comment this out until the compiler is capable of reporting
+    # line numbers correctly.
+    # /bin/rm -f "$ple_fname"
 
     return 0
 }
