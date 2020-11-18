@@ -175,11 +175,13 @@ compile_std_plexil()
     # Plexil plan
     if [ ! -r "$PLEXIL_COMPILER_JAR" ]
     then
-        echo 'Fatal error: the Standard PLEXIL compiler has not been built.' >&2
-        echo 'To build it:' >&2
-        echo " \$ cd \"${PLEXIL_HOME}/compilers/plexil\"" >&2
-        echo ' $ ant' >&2
-        echo 'Aborting.' >&2
+        cat >&2 <<EOF
+Fatal error: the Standard PLEXIL compiler has not been built.
+To build it:
+  \$ cd "${PLEXIL_HOME}/compilers/plexil"
+  \$ ant
+Aborting.
+EOF
         exit 1
     fi
 
@@ -198,6 +200,7 @@ compile_std_plexil()
             exit $status
         fi
     fi
+    return $status
 }
 
 # Perform the compilation of a Plexilisp source file.
@@ -237,6 +240,8 @@ compile_plexilisp()
         if [ -n "$exit_on_fail" ]
         then
             exit 1
+        else
+            return 1
         fi
     fi
 
@@ -248,6 +253,7 @@ compile_plexilisp()
     # Delete turds left behind by Plexilisp translator
     local turd_base="$(echo "$1" | sed -e 's|.pli$|.epx|')"
     /bin/rm -f "$turd_base" "$turd_base".last
+    return 0
 }
 
 # Compile a .epx file
@@ -266,6 +272,7 @@ compile_ext_plexil()
             exit $status
         fi
     fi
+    return $status
 }
 
 # Compile a .pst file
@@ -275,11 +282,13 @@ compile_plexilscript()
 {
     if [ ! -r "$PLEXILSCRIPT_JAR" ]
     then
-        echo 'Fatal error: the Plexilscript compiler has not been built.' >&2
-        echo 'To build it:' >&2
-        echo " \$ cd \"${PLEXIL_HOME}/compilers/plexilscript\"" >&2
-        echo ' $ ant' >&2
-        echo 'Aborting.' >&2
+        cat >&2 <<EOF
+Fatal error: the Plexilscript compiler has not been built.
+To build it:
+  \$ cd "${PLEXIL_HOME}/compilers/plexilscript"
+  \$ ant
+Aborting.
+EOF
         exit 1
     fi
 
@@ -294,6 +303,7 @@ compile_plexilscript()
             exit $status
         fi
     fi
+    return $status
 }
 
 # Compile a .plp file
@@ -315,15 +325,23 @@ compile_plp()
         if [ -n "$exit_on_fail" ]
         then
             exit $status
-        fi
-    else
-        if compile_std_plexil "$ple_fname" "$2"
-        then
-            # Delete preprocessor output file
-            /bin/rm -f "$ple_fname"
+        else
+            return $status
         fi
     fi
-    return 0
+    
+    compile_std_plexil "$ple_fname" "$2"
+    local status=$?
+    
+    # Delete preprocessor output file if successful
+    # TEMP Comment this out until the compiler is capable of reporting
+    # line numbers correctly.
+    # if [ $status -eq 0 ]
+    # then
+    #     /bin/rm -f "$ple_fname"
+    # fi
+
+    return $status
 }
 
 # Determine the type of input file, where to write the output,
@@ -395,17 +413,23 @@ compile_one_file()
             fi
             ;;
     esac
+    status=$?
 
-    if [ -n "$check" ]
+    if [ $status -eq 0 ]
     then
-        if [ "$in_ext" != "pst" ]
+        if [ -n "$check" ]
         then
-            test -z "$quiet" && echo "Warning: Not checking Plexilscript file $(display_name "$dest")"
-        elif [ -r "$dest" ]
-        then
-            $plexil_checker "$dest"
-        fi      
+            if [ "$in_ext" != "pst" ]
+            then
+                test -z "$quiet" && echo "Warning: Not checking Plexilscript file $(display_name "$dest")"
+            elif [ -r "$dest" ]
+            then
+                $plexil_checker "$dest"
+                status=$?
+            fi      
+        fi
     fi
+    return $status
 }
 
 # Parse options
