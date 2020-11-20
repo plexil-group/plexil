@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/sh
 # Environment setup for TestExec regression tests
 
 # Copyright (c) 2006-2020, Universities Space Research Association (USRA).
@@ -29,13 +29,13 @@
 # Defining library path redundantly for both Mac and Linux
 
 # Linux
-LD_LIBRARY_PATH=${PLEXIL_HOME}/lib
+LD_LIBRARY_PATH="${PLEXIL_HOME}/lib"
 
 # Mac
-DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
+DYLD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH DYLD_LIBRARY_PATH
 
-TEST_DIR=${PLEXIL_HOME}/test/TestExec-regression-test
+TEST_DIR="${PLEXIL_HOME}/test/TestExec-regression-test"
 
 EMPTY_SCRIPT=scripts/empty.psx
 REGRESSION_PL=regression.pl
@@ -47,10 +47,10 @@ then
     # Prefer the uninstalled one
     if [ -x "$PLEXIL_HOME/src/apps/TestExec/TestExec" ]
     then
-        EXEC_PROG=${PLEXIL_HOME}/src/apps/TestExec/TestExec
-    elif [ -x "$PLEXIL_HOME"/bin/TestExec ]
+        EXEC_PROG="${PLEXIL_HOME}/src/apps/TestExec/TestExec"
+    elif [ -x "${PLEXIL_HOME}/bin/TestExec" ]
     then 
-        EXEC_PROG="$PLEXIL_HOME"/bin/TestExec
+        EXEC_PROG="${PLEXIL_HOME}/bin/TestExec"
     else
         echo 'Error: Unable to find the TestExec program' >&2
         exit 1

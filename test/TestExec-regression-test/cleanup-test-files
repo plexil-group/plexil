@@ -1,6 +1,6 @@
-#! /usr/bin/env bash
+#! /bin/sh
 
-# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,10 @@
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo "$0: Environment variable PLEXIL_HOME not set"
+    echo "$0: Environment variable PLEXIL_HOME not set" >&2
     exit 1
 fi
 
-. ${PLEXIL_HOME}/test/TestExec-regression-test/test-env.sh
-cd ${TEST_DIR}
+. "${PLEXIL_HOME}/test/TestExec-regression-test/test-env.sh"
+cd "${TEST_DIR}"
 rm -f RegressionResults tempRegressionResults output/*.out 

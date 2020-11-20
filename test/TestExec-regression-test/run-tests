@@ -1,7 +1,7 @@
-#! /usr/bin/env bash
+#! /bin/sh
 # Run all TestExec regression tests
 
-# Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,26 @@
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo "$0: Environment variable PLEXIL_HOME not set"
+    # Attempt to guess location of this script (but don't try too hard)
+    PLEXIL_TEST_DIR="$( cd "$(dirname "$(command -v "$0")")" && cd .. && pwd -P )"
+    if [ "test" = "$(basename "$PLEXIL_TEST_DIR")" ]
+    then
+        export PLEXIL_HOME="$(dirname "$PLEXIL_TEST_DIR")"
+    fi
+    unset PLEXIL_TEST_DIR
+fi
+
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
+    echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
     exit 1
 fi
 
 . ${PLEXIL_HOME}/test/TestExec-regression-test/test-env.sh
 
 # Parser error detection tests
-PARSER_ERROR_TESTS=`(cd ${TEST_DIR}/plans/parser-tests; ls *.plx | sed -e 's/.plx//g')`
+PARSER_ERROR_TESTS="$(cd "${TEST_DIR}/plans/parser-tests"; ls *.plx | sed -e 's/.plx//g')"
 
 # Tests requiring no external interaction, for which root node success is sufficient
 EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9
@@ -88,9 +100,9 @@ RESOURCE_ARBITRATION_TESTS='resource1 Resource1RepeatCond
 # Simple-drive tests
 SIMPLE_DRIVE_SCRIPTS='single-drive double-drive'
 
-export PATH=${TEST_DIR}:${PATH}
+export PATH="${TEST_DIR}:${PATH}"
 
-cd ${TEST_DIR}
+cd "${TEST_DIR}"
 
 # Make temp output directory if needed
 mkdir -p output
