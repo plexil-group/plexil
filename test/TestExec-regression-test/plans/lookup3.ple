@@ -1,0 +1,7 @@
+Integer Lookup foo;
+
+lookup3:
+{
+  Integer x;
+  x = LookupNow(foo);
+}

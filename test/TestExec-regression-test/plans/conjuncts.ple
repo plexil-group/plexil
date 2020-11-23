@@ -1,0 +1,21 @@
+Integer Lookup A(String);
+Integer Lookup B(String);
+Integer Lookup C(String);
+
+Command Execute1;
+
+conjuncts:
+Concurrence
+{
+  EndCondition NodeFinished(ConjunctTest1);
+
+ ConjunctTest1:
+  {
+    PreCondition
+      LookupOnChange(A("is")) == 1 &&
+      LookupOnChange(B("is")) == 2 &&
+      LookupOnChange(C("is")) == 3;
+
+    Execute1();
+  }
+}

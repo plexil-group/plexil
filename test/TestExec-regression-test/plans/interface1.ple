@@ -1,0 +1,16 @@
+interface1:
+Concurrence
+{
+  Integer foo, bar;
+
+ One: bar = 55;
+ Two:
+  {
+    Comment "The following interface declaration, in combination with 
+bar's assignment above, breaks this plan.";
+
+    In bar;
+
+    foo = bar;
+  }
+}

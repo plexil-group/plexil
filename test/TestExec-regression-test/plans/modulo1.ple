@@ -1,0 +1,13 @@
+modulo1:
+Concurrence
+  {
+    Integer x = 0;
+    Real y = 0.0;
+
+    PostCondition x == 1 && y == 2.0;
+
+  One:
+    x = 7 % 3;
+  Two:
+    y = 7.0 % 2.5;
+  }

@@ -1,0 +1,292 @@
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Integer Command get_next_inspection_point;
+Integer Command move_to_waypoint(String, String,
+                                 Real, Real,
+                                 Real, Real,
+                                 Real, Real,
+                                 Real, Real);
+Integer Command acquire;
+
+String Lookup name;
+String Lookup frame;
+Real Lookup waypoint_x;
+Real Lookup waypoint_y;
+Real Lookup waypoint_z;
+Real Lookup waypoint_a;
+Real Lookup isDirectional;
+Real Lookup tolerance;
+Real Lookup headingTolerance;
+Real Lookup hintedSpeed;
+Integer Lookup inspect_waypoint;
+Integer Lookup task_id;
+Real Lookup timeout;
+Boolean Lookup plan_paused;
+Boolean Lookup abort_plan;
+
+SiteSurveyWithEOF:
+Concurrence
+  {
+    Integer task_type;
+    Boolean is_aborted = false;
+    Boolean abort_due_to_exception = false;
+    Integer waypt_id;
+
+    EndCondition
+      NodeFinished(SignalEndOfPlan) ||
+      NodeFinished(SendAbortUpdate) ||
+      true == abort_due_to_exception;
+
+  SiteSurveyWrapper:
+    Concurrence
+      {
+        Integer task_type;
+        Boolean is_paused = false;
+
+        EndCondition
+          0 == task_type || true == is_aborted || true == abort_due_to_exception;
+
+      SiteSurvey:
+        Concurrence
+          {
+            String task_result_str;
+            Integer cmd_return_val;
+            String cmd_name = "nil";
+
+            RepeatCondition 0 != task_type;
+
+          Loop:
+            Concurrence
+              {
+                StartCondition false == is_paused;
+                EndCondition NodeFinished(CheckIfAbortPlan);
+
+              RequestNextWaypt:
+                {
+                  Integer ret_val;
+                  StartCondition false == is_paused;
+                  EndCondition isKnown(ret_val);
+                  PostCondition 0 == ret_val;
+                  ret_val = get_next_inspection_point();
+                } // end RequestNextWaypt
+
+              SetWaypointRequestFailed:
+                {
+                  StartCondition NodeFailed(RequestNextWaypt);
+                  cmd_name = "get_next_inspection_point";
+                } // end SetWaypointRequestFailed
+
+              GetAndProcessWaypoint:
+                Concurrence
+                  {
+                    String waypt_name, waypt_frame;
+                    Real waypt_x, waypt_y, waypt_z, waypt_a;
+                    Real waypt_is_directional;
+                    Real waypt_tolerance;
+                    Real waypt_heading_tolerance;
+                    Real waypt_hinted_speed;
+                    Real waypt_timeout;
+
+                    StartCondition false == is_paused && NodeFinished(RequestNextWaypt);
+                    PreCondition NodeSucceeded(RequestNextWaypt);
+                    InvariantCondition false == is_paused;
+                    EndCondition NodeFailed(GetNewWaypt) || NodeFinished(DriveAndAcquire);
+
+                  GetNewWaypt:
+                    Concurrence
+                      {
+                        PostCondition
+                          NodeSucceeded(Get_x) &&
+                          NodeSucceeded(Get_y) &&
+                          NodeSucceeded(Get_task_type) &&
+                          NodeSucceeded(Get_task_id);
+
+                      Get_name:
+                        waypt_name = LookupNow(name);
+
+                      Get_frame:
+                        waypt_frame = LookupNow(frame);
+
+                      Get_x:
+                        waypt_x = LookupNow(waypoint_x);
+
+                      Get_y:
+                        waypt_y = LookupNow(waypoint_y);
+
+                      Get_z:
+                        waypt_z = LookupNow(waypoint_z);
+
+                      Get_a:
+                        waypt_a = LookupNow(waypoint_a);
+
+                      Get_dir:
+                        waypt_is_directional = LookupNow(isDirectional);
+
+                      Get_tolerance:
+                        waypt_tolerance = LookupNow(tolerance);
+
+                      Get_heading_tolerance:
+                        waypt_heading_tolerance = LookupNow(headingTolerance);
+
+                      Get_hinted_speed:
+                        waypt_hinted_speed = LookupNow(hintedSpeed);
+
+                      Get_task_type:
+                        task_type = LookupNow(inspect_waypoint);
+
+                      Get_task_id:
+                        waypt_id = LookupNow(task_id);
+
+                      Get_timeout:
+                        waypt_timeout = LookupNow(timeout);
+                      }  // end GetNewWaypt
+
+                  Cmd_Resest1: // sic
+                    cmd_return_val = -1000;
+
+                  DriveAndAcquire:
+                    Concurrence
+                      {
+                        StartCondition NodeFinished(GetNewWaypt);
+                        PreCondition NodeSucceeded(GetNewWaypt);
+
+                        if (! (0 == task_type))
+                        ProcessWaypoint:
+                          Concurrence
+                            {
+                              Sequence
+                                {
+                                DriveToWaypoint:
+                                  {
+                                    PostCondition 0 == cmd_return_val;
+                                    InvariantCondition
+                                      -1000 == cmd_return_val ||
+                                      0 == cmd_return_val ||
+                                      2 == cmd_return_val ||
+                                      3 == cmd_return_val;
+
+                                    cmd_return_val =
+                                      move_to_waypoint(waypt_name, waypt_frame,
+                                                       waypt_x, waypt_y, waypt_z, waypt_a,
+                                                       waypt_is_directional,
+                                                       waypt_tolerance,
+                                                       waypt_heading_tolerance,
+                                                       waypt_hinted_speed);
+                                  }
+                                SetNameToDrive:
+                                  cmd_name = "drive";
+                                WrapperNode:
+                                  Concurrence
+                                    {
+                                      PreCondition NodeSucceeded(DriveToWaypoint);
+                                      if (! (1 == task_type))
+                                        Sequence
+                                          {
+                                          Cmd_Resest2: // sic
+                                            cmd_return_val = -1000;
+
+                                          TakeSample:
+                                            {
+                                              PostCondition 0 == cmd_return_val;
+                                              InvariantCondition
+                                                -1000 == cmd_return_val ||
+                                                0 == cmd_return_val ||
+                                                3 == cmd_return_val ||
+                                                2 == cmd_return_val;
+                                              EndCondition
+                                                (! (-1000 == cmd_return_val)) ||
+                                                true == is_aborted;
+                                              cmd_return_val = acquire();
+                                            }
+
+                                          SetNameToAcquire:
+                                            cmd_name = "acquire";
+
+                                          }
+                                    }
+                                }
+                            } // end ProcessWaypoint
+                      } // end DriveAndAcquire
+                  } // end GetAndProcessWaypoint
+
+              SetPauseResult:
+                {
+                  StartCondition NodeFinished(GetAndProcessWaypoint) && true == is_paused;
+                  cmd_return_val = -3;
+                }
+
+              SendUpdate:
+                {
+                  StartCondition
+                    (NodeFinished(GetAndProcessWaypoint) && false == is_paused) ||
+                    NodeFinished(SetWaypointRequestFailed) ||
+                    NodeFinished(SetPauseResult);
+                  Update taskId = waypt_id, result = cmd_return_val, commandName = cmd_name;
+                }
+
+              CheckIfAbortPlan:
+                Concurrence
+                  {
+                    StartCondition NodeFinished(SendUpdate);
+
+                    // Once we have failure type implemeted in PLEXIL this can be simplified
+                    if (-1 == cmd_return_val ||
+                        1 == cmd_return_val ||
+                        4 == cmd_return_val ||
+                        5 == cmd_return_val ||
+                        6 == cmd_return_val)
+                    SetAbort:
+                      abort_due_to_exception = true;
+                  } // end CheckIfAbortPlan
+              } // end Loop
+          } // end SiteSurvey
+
+      MonitorPauseSignal:
+        {
+          StartCondition is_paused != LookupOnChange(plan_paused);
+          RepeatCondition true;
+          is_paused = LookupNow(plan_paused);
+        }
+      } // end SiteSurveyWrapper
+
+  SignalEndOfPlan:
+    {
+      StartCondition NodeFinished(SiteSurveyWrapper) && NodeWaiting(MonitorAbortSignal);
+      Update endOfPlan = true;
+    }
+
+  MonitorAbortSignal:
+    {
+      StartCondition true == LookupOnChange(abort_plan);
+      is_aborted = true;
+    }
+
+  SendAbortUpdate:
+    {
+      StartCondition NodeFinished(MonitorAbortSignal);
+      Update taskId = waypt_id, result = -2;
+    }
+  } // end SiteSurveyWithEOF

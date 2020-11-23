@@ -1,0 +1,6 @@
+command1:
+{
+  String CommandName = "foo";
+
+  (CommandName)("");
+}

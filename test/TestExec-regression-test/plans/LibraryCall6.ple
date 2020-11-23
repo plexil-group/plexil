@@ -1,0 +1,10 @@
+LibraryAction library6(InOut String x, In String y);
+
+LibraryCall6:
+{
+  String name;
+
+  EndCondition isKnown(name);
+  PostCondition NodeSucceeded(library6);
+  LibraryCall library6(x = name, y = "foo");
+}

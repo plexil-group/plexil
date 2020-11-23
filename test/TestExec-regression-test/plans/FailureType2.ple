@@ -1,0 +1,13 @@
+FailureType2:
+Concurrence
+{
+ One:
+  {
+    PostCondition 1 == 0;
+  }
+
+ Two:
+  {
+    StartCondition NodePostconditionFailed(One);
+  }
+}
