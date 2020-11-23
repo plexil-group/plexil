@@ -1,0 +1,12 @@
+FailureType4:
+Concurrence
+{
+ One:
+  {
+    PreCondition 0 == 1;
+  }
+ Two:
+  {
+    EndCondition NodePreconditionFailed(One);
+  }
+}

@@ -1,0 +1,12 @@
+skip2:
+Concurrence
+  {
+    PostCondition NodeSkipped(SkipMe);
+    
+  SkipMe:
+    {
+      SkipCondition true;
+      PostCondition 1 == 2;
+    }
+
+  }

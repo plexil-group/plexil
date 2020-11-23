@@ -1,0 +1,20 @@
+Command check(Integer, Integer);
+
+AtomicAssignment:
+Concurrence
+{
+   Integer x = 0;
+   Integer y = 1;
+
+  xy:
+   x = y;
+
+  yx:
+   y = x;
+
+  check:
+   {
+      StartCondition NodeFinished(xy) && NodeFinished(yx);
+      check(x, y);
+   }
+}

@@ -1,0 +1,22 @@
+String[10] Command get_a2;
+Boolean[500] Command get_a3;
+
+array3:
+Concurrence
+{
+  Integer a1[10];
+  String a2[10];
+  Boolean a3[500];
+
+  PostCondition NodeSucceeded(Two) && NodeSucceeded(Three);
+ Two:
+  {
+    PostCondition a2[0] == "hello"; 
+    a2 = get_a2();
+  }
+ Three:
+  {
+    PostCondition a3[3];
+    a3 = get_a3();
+  }
+}

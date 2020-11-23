@@ -1,0 +1,16 @@
+Integer Lookup B;
+Command Execute1;
+
+conjuncts1:
+Concurrence
+{
+  EndCondition NodeFinished(ConjunctTest1);
+
+ ConjunctTest1:
+  {
+    StartCondition
+      LookupNow(B) == 2 || LookupNow(B) == 2 || LookupNow(B) == 2;
+
+    Execute1();
+  }
+}

@@ -1,0 +1,19 @@
+variables1:
+Concurrence
+  {
+    Integer x;
+
+    Sequence
+      {
+        x = 1;
+
+        Concurrence
+          {
+            Integer y;
+            String s;
+
+            y = x + 4;
+            s = "foo";
+          }
+      }
+  }

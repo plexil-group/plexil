@@ -1,0 +1,18 @@
+// Illustrate that the array gets initialized with UNKNOWN as elements at every
+// iteration of the loop.
+
+ArrayInLoop:
+Concurrence
+{
+  Boolean success = true;
+  InvariantCondition success;
+  for (Integer i = 0 ; i < 3 ; i + 1)
+  A: Try {
+      Integer array1[5];
+    BUG: {
+        PreCondition !isKnown(array1[0]);
+        array1[0] = 1;
+      }
+      success = false;
+    }   
+}
