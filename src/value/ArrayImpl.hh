@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,8 @@ namespace PLEXIL
     virtual Array &operator=(Array const &) override;
     virtual Array &operator=(Array &&) override;
 
-    ArrayImpl &operator=(ArrayImpl<T> const &);
-    ArrayImpl &operator=(ArrayImpl<T> &&);
+    virtual ArrayImpl &operator=(ArrayImpl<T> const &);
+    virtual ArrayImpl &operator=(ArrayImpl<T> &&);
 
     virtual void resize(size_t size) override;
 
