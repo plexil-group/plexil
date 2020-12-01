@@ -45,8 +45,8 @@
 
 usage ()
 {
-    echo "Usage: $(basename "$0") [options] <source-file>"
-    echo ' Compile a Plexil plan or simulator script to XML'
+    echo "Usage: $(basename "$0") [options] file..."
+    echo ' Compile Plexil plans or simulator scripts to XML'
     echo 'Options:'
     echo '  -h, -help, --help       Print this help and exit'
     echo '  -v, -version            Print translator version and exit'
@@ -55,10 +55,13 @@ usage ()
     echo '  -d, -debug              Print debug information to stderr'
     echo '                          (.plp, .ple files only)'
     echo '  -o, -output <outfile>   Write translator output to <outfile>'
-    echo '                          (ignored for .pli files)'
+    echo '                          (only allowed when compiling a single file'
+    echo '                           and ignored for .pli files)'
     echo '  -q, -quiet              Parse files quietly'
     echo '  -I <directory>          Include directory'
     echo '                          (.plp files only)'
+    echo '  -e, -exit-on-failure    If compillation of any file fails, exit'
+    echo '                          immediately'
     echo 'Not all options are supported for all file formats.'
     echo
     echo 'Recognized extensions are:'
@@ -104,23 +107,35 @@ ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
 # Commands to execute
 plexil_checker="$PLEXIL_HOME/scripts/checkPlexil"
 
+# Create the output filename for the file being compiled
+# $1: the file being compiled
+# $2: A cleaned filename for display
 generate_output_fname()
 {
     in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
-    case "$in_ext" in
-        ( ple | pli | plp | epx )
-        echo "$1" | sed -e "s/$in_ext$/plx/"
-        ;;
 
-        pst )
-            echo "$1" | sed -e "s/$in_ext$/psx/"
+    if [ -z "$modified_output" ] || [ "$in_ext" = "pli" ]
+    then
+        case "$in_ext" in
+            ( ple | pli | plp | epx )
+            echo "$1" | sed -e "s/$in_ext$/plx/"
             ;;
-        * )
-            echo "Error: Unrecognized filename extension \"$in_ext\" for $1" >&2
-            echo 'Supported extensions are: epx ple pli plp pst' >&2
-            exit 1
-            ;;
-    esac
+
+            pst )
+                echo "$1" | sed -e "s/$in_ext$/psx/"
+                ;;
+            * )
+                echo "Error: Unrecognized filename extension \"$in_ext\" for $2" >&2
+                echo 'Supported extensions are: epx ple pli plp pst' >&2
+                if [ -n "${exit_on_fail}" ]
+                then
+                    exit 1
+                fi
+                ;;
+        esac
+    else
+        echo "$modified_output"
+    fi
 }
 
 std_plexil_compiler()
@@ -128,6 +143,9 @@ std_plexil_compiler()
     "$JAVA" -classpath "$JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar" plexil.Compiler ${debug:+--debug} -o "$output" "$1"
 }
 
+# Compile a .ple file
+# $1: the file to compile
+# $2: A cleaned filename for display
 compile_std_plexil()
 {
     # Plexil plan
@@ -140,8 +158,11 @@ compile_std_plexil()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Standard Plexil compilation of $1 failed." >&2
-        exit $status
+        echo "Error: Standard Plexil compilation of $2 failed." >&2
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit $status
+        fi
     fi
 }
 
@@ -151,11 +172,17 @@ plexilisp_compiler()
     if [ -z "$EMACS" ]
     then
         echo 'Error: emacs not found. Cannot compile Plexilisp.' >&2
-        exit 1
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit 1
+        fi
     fi
     "$EMACS" --batch --no-site-file --load "$PLEXIL_HOME"/compilers/plexilisp/plexil.el "$1" --eval '(plexil)'
 }
 
+# Compile a .pli file
+# $1: the file to compile
+# $2: A cleaned filename for display
 compile_plexilisp()
 {
     # Plexilisp plan/script
@@ -168,11 +195,14 @@ compile_plexilisp()
 
     # Translator can fail silently without producing a .plx file.
     # If translator generates a plan, move it to the desired location.
-    actual_output="$(generate_output_fname "$1")"
+    actual_output="$(generate_output_fname "$1" "$2")"
     if [ ! -r "$actual_output" ]
     then
-        echo "Error: Plexilisp translation of $1 failed." >&2
-        exit 1
+        echo "Error: Plexilisp translation of $2 failed." >&2
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit 1
+        fi
     fi
 
     if [ "$output" != "$actual_output" ]
@@ -185,6 +215,9 @@ compile_plexilisp()
     /bin/rm -f "$turd_base" "$turd_base".last
 }
 
+# Compile a .epx file
+# $1: the file to compile
+# $2: A cleaned filename for display
 compile_ext_plexil()
 {
     # Extended Plexil XML plan
@@ -192,11 +225,17 @@ compile_ext_plexil()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Extended Plexil translation of $1 failed." >&2
-        exit $status
+        echo "Error: Extended Plexil translation of $2 failed." >&2
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit $status
+        fi
     fi
 }
 
+# Compile a .pst file
+# $1: the file to compile
+# $2: A cleaned filename for display
 compile_plexilscript()
 {
     # Plexilscript
@@ -204,11 +243,17 @@ compile_plexilscript()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: compilation of $1 failed." >&2
-        exit $status
+        echo "Error: compilation of $2 failed." >&2
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit $status
+        fi
     fi
 }
 
+# Compile a .plp file
+# $1: the file to compile
+# $2: A cleaned filename for display
 compile_plp()
 {
     # Standard Plexil w/ preprocessing
@@ -218,8 +263,11 @@ compile_plp()
     status=$?
     if [ $status -ne 0 ]
     then
-        echo "Error: Preprocessing of $1 failed." >&2
-        exit $status
+        echo "Error: Preprocessing of $2 failed." >&2
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit $status
+        fi
     fi
 
     # Exits if error detected
@@ -229,6 +277,60 @@ compile_plp()
     /bin/rm -f "$ple_fname"
 
     return 0
+}
+
+# Determine the type of plexil file and run the appropriate compilation script
+# $1: the file to compile
+# $2: A cleaned filename for display
+compile_argument()
+{
+    if [ ! -r "$1" ]
+    then
+        echo "Error: file $2 does not exist or is not readable" >&2
+        if [ -n "${exit_on_fail}" ]
+        then
+            exit 1
+        fi
+    fi
+    output="$(generate_output_fname "$1" "$2")"
+    # Select translator for this file based on extension
+    in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
+
+    case "$in_ext" in
+        epx )
+            compile_ext_plexil "$1" "$2"
+            ;;
+        
+        ple )
+            compile_std_plexil "$1" "$2"
+            ;;
+        
+        pli )
+            compile_plexilisp "$1" "$2"
+            ;;
+        
+        plp )
+            compile_plp "$1" "$2"
+            ;;
+
+        pst )
+            compile_plexilscript "$1" "$2"
+            ;;
+
+        * )
+            echo "Unable to select compiler for $2" >&2
+            usage
+            if [ -n "${exit_on_fail}" ]
+            then
+                exit 2
+            fi
+            ;;
+    esac
+
+    if [ -n "$check" ] && [ "$in_ext" != "pst" ] && [ -r "$output" ]
+    then
+        $plexil_checker "$output"
+    fi
 }
 
 # Parse options
@@ -262,7 +364,7 @@ do
             usage
             exit 2
         fi
-        output="$2"
+        modified_output="$2"
         shift 2
         ;;
 
@@ -272,9 +374,14 @@ do
         ;;
 
         ( -v | -version )
-        echo 'plexilc script version 1.2'
+        echo 'plexilc script version 1.3'
         std_plexil_compiler --version
         exit 0
+        ;;
+
+        (-e | -exit-on-failiure )
+        exit_on_fail="$1"
+        shift
         ;;
 
         *)
@@ -288,53 +395,34 @@ done
 # If we got this far, we are expecting a filename to translate
 if [ $# -lt 1 ]
 then
-    echo "Error: no filename supplied."
+    echo "Error: no filename supplied." >&2
     usage
     exit 2
 fi
 
-if [ ! -r "$1" ]
+# If the -o option was used we only expect one file to compile
+if [ ! -z "$modified_output" ] && [ $# -gt 1 ]
 then
-    echo "Error: file $1 does not exist or is not readable" >&2
-    exit 1
+    echo "Error: attempting to use -output flag with more than one input file." >&2
+    usage
+    exit 2
 fi
 
-output="${output:-"$(generate_output_fname "$1")"}"
-
-# Select translator for this file based on extension
-in_ext="$(expr "$1" : '.*\.\([a-z][a-z][a-z]\)$')"
-
-case "$in_ext" in
-    epx )
-        compile_ext_plexil "$1"
-        ;;
-    
-    ple )
-        compile_std_plexil "$1"
-        ;;
-    
-    pli )
-        compile_plexilisp "$1"
-        ;;
-    
-    plp )
-        compile_plp "$1"
-        ;;
-
-    pst )
-        compile_plexilscript "$1"
-        ;;
-
-    * )
-        echo "Unable to select compiler for $1" >&2
-        usage
-        exit 2
-        ;;
-esac
-
-if [ -n "$check" ] && [ "$in_ext" != "pst" ] && [ -r "$output" ]
-then
-    $plexil_checker "$output"
-fi
+# Once we have read the options and know that we have files we can compile each of them sequentialy
+while [ $#  -gt 0 ]
+do
+    if [ -z "$quiet" ]
+    then
+        display_filename="$(printf "'%s'" "$1" | LC_ALL=POSIX tr -d '[:cntrl:]')"
+        echo "Compiling file: $display_filename"
+    fi
+    if ( echo "$1" | grep -q -e '^-.*' )
+    then
+        compile_argument "./$1" "$display_filename"
+    else
+        compile_argument "$1" "$display_filename"
+    fi
+    shift
+done
 
 exit 0
