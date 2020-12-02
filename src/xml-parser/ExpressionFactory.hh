@@ -27,8 +27,7 @@
 #ifndef EXPRESSION_FACTORY_HH
 #define EXPRESSION_FACTORY_HH
 
-#include "Expression.hh"
-#include "ParserException.hh"
+#include "ValueType.hh"
 
 // Forward declaration
 namespace pugi
@@ -39,6 +38,7 @@ namespace pugi
 namespace PLEXIL
 {
   // Forward declarations
+  class Expression;
   class NodeConnector;
 
   /**

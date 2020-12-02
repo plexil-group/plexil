@@ -27,6 +27,7 @@
 #include "parseNode.hh"
 
 #include "Alias.hh"
+#include "Array.hh"
 #include "ArrayLiteralFactory.hh"
 #include "Assignable.hh"
 #include "AssignmentNode.hh"
@@ -35,7 +36,6 @@
 #include "commandXmlParser.hh"
 #include "createExpression.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "Mutex.hh"
@@ -49,12 +49,19 @@
 
 #include "pugixml.hpp"
 
-#include <algorithm>
+#include <algorithm> // std::distance(), std::find_if()
 #include <limits>
 
-#ifdef STDC_HEADERS
-#include <cstdlib> // for strtoul()
-#include <cstring> // strcmp()
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib>  // strtoul()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // strtoul()
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using pugi::xml_attribute;

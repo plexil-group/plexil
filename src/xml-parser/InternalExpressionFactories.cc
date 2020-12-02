@@ -28,18 +28,20 @@
 
 #include "Command.hh"
 #include "CommandNode.hh"
-#include "Error.hh"
 #include "NodeImpl.hh"
 #include "NodeConstantExpressions.hh"
+#include "NodeTimepointValue.hh"
+#include "NodeVariables.hh"
 #include "parseNodeReference.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL

@@ -27,8 +27,6 @@
 #ifndef PLEXIL_PARSE_ASSIGNMENT_HH
 #define PLEXIL_PARSE_ASSIGNMENT_HH
 
-#include "ParserException.hh"
-
 namespace pugi
 {
   class xml_node;

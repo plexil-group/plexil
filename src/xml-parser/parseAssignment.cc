@@ -28,17 +28,18 @@
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
 #include "createExpression.hh"
-#include "Error.hh"
-#include "ExpressionFactory.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
 #include <cerrno>
 
-#ifdef HAVE_STDLIB_H
-#include <cstdlib> // for strtoul()
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib>  // strtoul()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // strtoul()
 #endif
 
 #include <limits>

@@ -59,10 +59,11 @@ createExpression.$(OBJEXT): ExpressionMap.hh
 	$(GPERF) -m 8 --output-file=$@ $<
 
 
+# Libraries referenced by the executables below
 DEPENDED_LIBS = libPlexilXmlParser.la \
- @top_srcdir@/third-party/pugixml/src/libpugixml.la @top_srcdir@/exec/libPlexilExec.la \
- @top_srcdir@/intfc/libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+ @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 
 bin_PROGRAMS = analyzePlan
 

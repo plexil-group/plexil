@@ -27,8 +27,6 @@
 #ifndef PLEXIL_PARSER_UTILS_HH
 #define PLEXIL_PARSER_UTILS_HH
 
-#include "Error.hh" // PLEXIL_NORETURN macro
-#include "ParserException.hh"
 #include "ValueType.hh"
 
 //

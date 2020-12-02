@@ -30,16 +30,15 @@
 #include "Constant.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "NodeConnector.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
-#include <limits>
-
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
 #endif
 
 using pugi::xml_node;
@@ -162,7 +161,7 @@ namespace PLEXIL
   // N.B. Construction of initializer expression happens later.
 
   Expression *ArrayVariableFactory::allocate(xml_node const expr,
-                                             NodeConnector *node,
+                                             NodeConnector * /* node */,
                                              bool &wasCreated,
                                              ValueType /* returnType */) const
   {

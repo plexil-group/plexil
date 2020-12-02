@@ -25,11 +25,11 @@
 */
 
 #include "Debug.hh"
-#include "Error.hh"
 #include "NodeImpl.hh"
 #include "parseGlobalDeclarations.hh"
 #include "parseNode.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
 

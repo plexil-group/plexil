@@ -25,20 +25,22 @@
 */
 
 #include "Alias.hh"
-#include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
 #include "createExpression.hh"
-#include "Debug.hh"
 #include "Expression.hh"
+#include "ParserException.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"
+#include "Value.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
-#include <cstring> // for strcmp()
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using namespace PLEXIL;

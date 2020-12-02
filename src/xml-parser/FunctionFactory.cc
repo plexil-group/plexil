@@ -26,13 +26,12 @@
 
 #include "FunctionFactory.hh"
 
-#include "ArithmeticOperators.hh"
-#include "BooleanOperators.hh"
 #include "CachedFunction.hh"
-#include "Comparisons.hh"
 #include "createExpression.hh"
-#include "NodeConnector.hh"
+#include "Function.hh"
+#include "Operator.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 
 #include "pugixml.hpp"
 

@@ -26,11 +26,10 @@
 
 #include "ComparisonFactory.hh"
 
-#include "Comparisons.hh"
 #include "createExpression.hh"
-#include "Error.hh"
-#include "NodeConnector.hh"
+#include "Function.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 
 #include "pugixml.hpp"
 

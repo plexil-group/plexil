@@ -24,23 +24,25 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
+#include "DebugMessage.hh"
 #include "Error.hh"
 #include "NodeImpl.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
+#include "ParserException.hh"
 #include "planLibrary.hh"
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
 
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <map>
 #include <string>
 
-#ifdef STDC_HEADERS
-#include <cstring> // strcmp()
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using PLEXIL::Expression;

@@ -27,9 +27,10 @@
 #include "ConversionFunctionFactory.hh"
 
 #include "createExpression.hh"
-#include "Error.hh"
-#include "NodeConnector.hh"
+#include "Function.hh"
+#include "Operator.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 
 #include "pugixml.hpp"
 
@@ -92,7 +93,7 @@ namespace PLEXIL
   }
 
   Expression *ConversionFunctionFactory::allocate(xml_node const expr,
-                                                  NodeConnector *node,
+                                                  NodeConnector * node,
                                                   bool & wasCreated,
                                                   ValueType returnType) const
   {

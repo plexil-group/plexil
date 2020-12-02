@@ -26,19 +26,20 @@
 
 #include "Assignable.hh"
 #include "Command.hh"
-#include "CommandNode.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "ExpressionFactory.hh"
 #include "ExprVec.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;

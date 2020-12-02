@@ -31,20 +31,22 @@
 #include "Constant.hh"
 #include "createExpression.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
+#include "PlexilTypeTraits.hh"
 #include "UserVariable.hh"
 
 #include "pugixml.hpp"
 
 #include <sstream>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;

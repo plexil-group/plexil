@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
+#include "DebugMessage.hh"
 #include "Error.hh"
 #include "NodeImpl.hh"
 #include "lifecycle-utils.h"
@@ -38,9 +38,16 @@
 #include <iostream>
 #include <string>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_CSTRING)
+#include <string.h>
 #endif
 
 #if defined(HAVE_GETTIMEOFDAY) && !defined(__VXWORKS__)

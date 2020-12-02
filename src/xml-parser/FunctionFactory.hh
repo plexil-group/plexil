@@ -28,10 +28,12 @@
 #define PLEXIL_FUNCTION_FACTORY_HH
 
 #include "ExpressionFactory.hh"
-#include "Function.hh"
 
 namespace PLEXIL
 {
+  // Forward reference
+  class Function;
+  class Operator;
 
   // Base class
   class FunctionFactory : public ExpressionFactory

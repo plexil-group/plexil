@@ -26,11 +26,9 @@
 
 #include "createExpression.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "LibraryCallNode.hh"
 #include "parseNode.hh"
 #include "parsePlan.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "planLibrary.hh"
 #include "PlexilSchema.hh"
@@ -38,8 +36,10 @@
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;
@@ -81,7 +81,9 @@ namespace PLEXIL
                                      "Alias for \"" << name
                                      << "\" without value expression in LibraryNodeCall node "
                                      << callerId);
-    checkParserExceptionWithLocation(temp.type() == node_element && temp.first_child(),
+    // Don't need to have a child if it is of string type, otherwise do
+    checkParserExceptionWithLocation(temp.type() == node_element &&
+                                     (temp.first_child() || !strcmp(temp.name(), "StringValue")),
                                      temp,
                                      "Alias for \"" << name
                                      << "\" has malformed value expression in LibraryNodeCall node " 

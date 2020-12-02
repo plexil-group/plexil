@@ -28,6 +28,7 @@
 #include "Assignable.hh"
 #include "createExpression.hh"
 #include "Expression.hh"
+#include "ParserException.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
 

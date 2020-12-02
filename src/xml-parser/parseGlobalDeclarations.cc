@@ -24,15 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Error.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;

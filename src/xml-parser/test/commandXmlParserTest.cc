@@ -24,7 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ExpressionFactory.hh"
 #include "Command.hh"
 #include "commandXmlParser.hh"
 #include "test/FactoryTestNodeConnector.hh"
