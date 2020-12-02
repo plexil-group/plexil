@@ -94,6 +94,16 @@ namespace PLEXIL {
 
     // Make the node active.
     virtual void activateNode() = 0;
+        
+    //
+    // NodeConnector API to expressions
+    //
+
+    /**
+     * @brief Accessor for the NodeId as it was written in the XML.
+     * @return This node's node id.
+     */
+    virtual std::string const &getNodeId() const = 0;
 
     /**
      * @brief Gets the destination state of this node, were it to transition,

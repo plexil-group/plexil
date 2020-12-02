@@ -29,17 +29,15 @@
 #include "Assignable.hh"
 #include "Assignment.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecListenerBase.hh"
 #include "ExternalInterface.hh"
 #include "LinkedQueue.hh"
 #include "Mutex.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
-#include "PlanError.hh"
 
-#include "lifecycle-utils.h"
-
-#include <algorithm> // std::find
+#include <algorithm> // std::remove_if()
 
 namespace PLEXIL 
 {
@@ -156,6 +154,13 @@ namespace PLEXIL
           return false; // some node is not finished
       }
       return result;
+    }
+
+    virtual void markRootNodeFinished(Node *node) override
+    {
+      checkError(node,
+                 "PlexilExec::markRootNodeFinished: node pointer is invalid");
+      addFinishedRootNode(node);
     }
 
     virtual void deleteFinishedPlans() override
@@ -344,13 +349,6 @@ namespace PLEXIL
     virtual void enqueueAssignmentForRetraction(Assignment *assign) override
     {
       m_assignmentsToRetract.push(assign);
-    }
-
-    virtual void markRootNodeFinished(Node *node) override
-    {
-      checkError(node,
-                 "PlexilExec::markRootNodeFinished: node pointer is invalid");
-      addFinishedRootNode(node);
     }
 
   private:

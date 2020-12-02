@@ -28,7 +28,6 @@
 #define COMMAND_NODE_HH
 
 #include "NodeImpl.hh"
-#include "Constant.hh"
 
 namespace PLEXIL
 {

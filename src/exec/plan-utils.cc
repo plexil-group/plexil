@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <iostream>
 #include "plan-utils.hh"
+
+#include <ostream>
+#include <sstream> // std::ostringstream
 
 using std::vector;
 using std::cout;
@@ -48,7 +50,7 @@ namespace PLEXIL {
 
   static Value printToString_aux (const vector<Value>& args, bool pretty)
   {
-    std::stringstream ss;
+    std::ostringstream ss;
     print_aux(ss, args, pretty);
     return Value(ss.str());
   }

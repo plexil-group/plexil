@@ -29,12 +29,8 @@
 #include "BooleanOperators.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExprVec.hh"
 #include "Function.hh"
 #include "NodeOperatorImpl.hh"
-#include "UserVariable.hh"
-
-#include <algorithm> // for find_if
 
 namespace PLEXIL
 {
@@ -430,10 +426,10 @@ namespace PLEXIL
 
   void ListNode::transitionToExecuting()
   {
+    // From WAITING, AncestorExit, AncestorInvariant, Exit are active
     activateLocalVariables();
 
     activateInvariantCondition();
-    activateExitCondition();
     activateEndCondition();
 
     // These conditions are for the children.

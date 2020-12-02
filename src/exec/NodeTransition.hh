@@ -37,19 +37,23 @@ namespace PLEXIL
   /**
    * @brief A data structure for recording or reporting node state transitions.
    */
-  struct NodeTransition
-  {
+  struct NodeTransition {
     Node *node;
-    NodeState oldState, newState;
+    NodeState oldState;
+    NodeState newState;
 
     // default constructor
     NodeTransition()
-      : node(), oldState(INACTIVE_STATE), newState(INACTIVE_STATE)
+      : node(),
+        oldState(INACTIVE_STATE),
+        newState(INACTIVE_STATE)
     {}
 
     // trivial constructor
     NodeTransition(Node *nod, NodeState oldStat, NodeState newStat)
-      : node(nod), oldState(oldStat), newState(newStat)
+      : node(nod),
+        oldState(oldStat),
+        newState(newStat)
     {}
 
     NodeTransition(NodeTransition const &) = default;

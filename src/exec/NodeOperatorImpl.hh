@@ -29,14 +29,10 @@
 
 #include "NodeOperator.hh"
 
-#include "PlanError.hh"
-#include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
 namespace PLEXIL
 {
-  class Node;
-
   template <typename R>
   class NodeOperatorImpl : public NodeOperator
   {

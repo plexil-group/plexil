@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,16 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
+#include "DebugMessage.hh"
 #include "TestSupport.hh"
 #include "lifecycle-utils.h"
 
-#ifdef STDC_HEADERS
-#include <cstring> // strcmp()
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 #include <fstream>
-#include <iostream>
 #include <string>
 
 // Declarations of tests

@@ -26,18 +26,14 @@
 
 #include "Assignable.hh"
 #include "Debug.hh"
-#include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
 #include "ExternalInterface.hh"
 #include "NodeImpl.hh"
 #include "NodeFactory.hh"
 #include "PlexilExec.hh"
 #include "TestSupport.hh"
 #include "test/TransitionExternalInterface.hh"
-#include "lifecycle-utils.h"
 
-#include <iostream>
-#include <map>
-#include <cmath>
+#include <ostream>
 
 using namespace PLEXIL;
 

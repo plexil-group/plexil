@@ -33,9 +33,6 @@
 
 namespace PLEXIL
 {
-  // forward reference
-  class ExprVec;
-
   class ListNode : public NodeImpl
   {
   public:

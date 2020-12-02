@@ -116,6 +116,29 @@ namespace PLEXIL
     virtual ~NodeImpl();
 
     //
+    // Listenable API
+    //
+    
+    virtual bool isPropagationSource() const override
+    {
+      return true;
+    }
+
+    // Override Notifier method
+    virtual bool isActive() const override
+    {
+      return true;
+    }
+
+    virtual void activate() override
+    {
+    }
+
+    virtual void deactivate() override
+    {
+    }
+
+    //
     // LinkedQueue API used by PlexilExec
     //
     
@@ -153,29 +176,6 @@ namespace PLEXIL
     virtual void notifyChanged() override;
 
     //
-    // Listenable API
-    //
-    
-    virtual bool isPropagationSource() const override
-    {
-      return true;
-    }
-
-    // Override Notifier method
-    virtual bool isActive() const override
-    {
-      return true;
-    }
-
-    virtual void activate() override
-    {
-    }
-
-    virtual void deactivate() override
-    {
-    }
-
-    //
     // Node API
     //
 
@@ -193,7 +193,6 @@ namespace PLEXIL
     /**
      * @brief Gets the previously calculated destination state of this node.
      * @return The destination state.
-
      */
     virtual NodeState getNextState() const override
     {
@@ -321,6 +320,14 @@ namespace PLEXIL
      * @note Used by GanttListener and PlanDebugListener.
      */
     double getCurrentStateStartTime() const;
+
+    /**
+     * @brief Gets the time at which this node entered the given state.
+     * @param state The state.
+     * @return Time value as a double. If not found, returns -DBL_MAX.
+     * @note Used by GanttListener and PlanDebugListener.
+     */
+    double getStateStartTime(NodeState state) const;
 
     /**
      * @brief Find the named variable in this node, ignoring its ancestors.

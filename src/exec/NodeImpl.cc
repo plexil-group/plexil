@@ -26,29 +26,31 @@
 
 #include "NodeImpl.hh"
 
-#include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExpressionConstants.hh"
 #include "ExternalInterface.hh"
 #include "Mutex.hh"
 #include "NodeConstants.hh"
 #include "NodeTimepointValue.hh"
 #include "PlexilExec.hh"
 #include "NodeVariableMap.hh"
-#include "SimpleMap.hh"
 #include "UserVariable.hh"
-#include "lifecycle-utils.h"
-#include "map-utils.hh"
 
-#include <algorithm> // for std::sort
+#include <algorithm> // std::sort
 
-#ifdef STDC_HEADERS
-#include <cfloat>    // for DBL_MAX
-#include <cstring>   // strcmp(), strnlen()
+#if defined(HAVE_CFLOAT)
+#include <cfloat>    // DBL_MAX
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>   // DBL_MAX
 #endif
 
-#include <iomanip>   // for std::setprecision
+#if defined(HAVE_CSTRING)
+#include <cstring>   // strcmp(), strnlen()
+#elif defined(HAVE_STRING_H)
+#include <string.h>  // strcmp(), strnlen()
+#endif
+
+#include <iomanip>   // std::setprecision
 #include <sstream>
 
 namespace PLEXIL
@@ -1487,6 +1489,32 @@ namespace PLEXIL
     }
   }
 
+  /**
+   * @brief Gets the time at which this node entered the given state.
+   * @param state The state.
+   * @return Time value as a double.
+   * @note Used by GanttListener and PlanDebugListener.
+   */
+  double NodeImpl::getStateStartTime(NodeState state) const
+  {
+    if (state == (NodeState) m_state)
+      return m_currentStateStartTime;
+
+    // Search for the desired state
+    double result = -DBL_MAX; // default value if not found
+    NodeTimepointValue *tp = m_timepoints.get();
+    while (tp) {
+      if (tp->state() == state && !tp->isEnd()) {
+        tp->getValue(result);
+        return result;
+      }
+      tp = tp->next();
+    }
+
+    // Not found
+    return result;
+  }
+
   double NodeImpl::getCurrentStateStartTime() const
   {
     return m_currentStateStartTime;
@@ -1829,6 +1857,7 @@ namespace PLEXIL
   void NodeImpl::print(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');
+
     stream << indentStr << m_nodeId << "{\n";
     stream << indentStr << " State: " << nodeStateName(m_state) <<
       " (" << getCurrentStateStartTime() << ")\n";

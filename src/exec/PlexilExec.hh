@@ -27,8 +27,6 @@
 #ifndef PLEXIL_EXEC_HH
 #define PLEXIL_EXEC_HH
 
-#include "NodeTransition.hh"
-
 #include <list>
 #include <memory>
 
@@ -37,8 +35,6 @@ namespace PLEXIL
   // Forward references
   class Assignment;
   class ExecListenerBase; 
-  class ExternalInterface;
-  class Expression;
   class Node;
   using NodePtr = std::unique_ptr<Node>;
 

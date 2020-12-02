@@ -26,13 +26,17 @@
 
 #include "NodeFunction.hh"
 
-#include "ArrayImpl.hh"
-#include "Error.hh"
 #include "NodeImpl.hh"
 #include "NodeOperator.hh"
-#include "PlanError.hh"
-#include "PlexilTypeTraits.hh"
 #include "Value.hh"
+
+// Uncomment these if NodeFunction return types are extended
+// to String or Array
+// #include "ArrayImpl.hh"
+// #include "PlanError.hh"
+// #include "PlexilTypeTraits.hh"
+
+#include <ostream>
 
 namespace PLEXIL
 {
