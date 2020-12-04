@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 namespace PLEXIL {
   // Forward declarations
   class Command;
-  class StateCacheEntry;
+  class LookupReceiver;
   class ResourceArbiterInterface;
   class Update;
 
@@ -50,7 +50,7 @@ namespace PLEXIL {
     virtual ~ExternalInterface();
 
     //
-    // API to Lookup and StateCacheEntry
+    // API for Lookup
     //
 
     //
@@ -67,10 +67,10 @@ namespace PLEXIL {
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
-     * @param cacheEntry The entry in the state cache.
-     * @note Value is returned via callback on StateCacheEntry.
+     * @param receiver Callback object to receive the lookup result.
+     * @note Value is returned via methods on the LookupReceiver callback.
      */
-    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) = 0;
+    virtual void lookupNow(State const &state, LookupReceiver *receiver) = 0;
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.

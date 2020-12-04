@@ -24,51 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_STATE_CACHE_MAP_HH
-#define PLEXIL_STATE_CACHE_MAP_HH
+#ifndef LOOKUP_RECEIVER_IMPL_HH
+#define LOOKUP_RECEIVER_IMPL_HH
+
+#include "LookupReceiver.hh"
 
 namespace PLEXIL
 {
-  // Forward references
-  class LookupReceiver;
-  class State;
   class StateCacheEntry;
 
-  /**
-   * @class StateCacheMap
-   * @brief An index to the currently active StateCacheEntry instances
-   */
-  class StateCacheMap
-  {
-  public:
-    virtual ~StateCacheMap() = default;
+  LookupReceiver *makeLookupReceiver(StateCacheEntry &);
+}
 
-    static StateCacheMap &instance();
-
-    /**
-     * @brief Construct or find the cache entry for this state.
-     * @param state The state being looked up.
-     * @return Pointer to the StateCacheEntry for the state.
-     * @note Return value can be presumed to be non-null.
-     */
-    virtual StateCacheEntry *ensureStateCacheEntry(State const &state) = 0;
-
-    virtual LookupReceiver *getLookupReceiver(State const &state) = 0;
-
-  protected:
-
-    // Default constructor is only accessible to the implementation class
-    StateCacheMap() = default;
-
-  private:
-
-    // Unimplemented
-    StateCacheMap(StateCacheMap const &) = delete;
-    StateCacheMap(StateCacheMap &&) = delete;
-    StateCacheMap &operator=(StateCacheMap const &) = delete;
-    StateCacheMap &operator=(StateCacheMap &&) = delete;
-  };
-
-} // namespace PLEXIL
-
-#endif // PLEXIL_STATE_CACHE_MAP_HH
+#endif // LOOKUP_RECEIVER_IMPL_HH

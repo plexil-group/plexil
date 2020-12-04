@@ -33,22 +33,24 @@ libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandFunction.hh CommandHandleVariable.hh ExprVec.hh \
  ExternalInterface.hh InputQueue.hh InterfaceError.hh Lookup.hh \
- NodeConnector.hh QueueEntry.hh ResourceArbiterInterface.hh State.hh \
- StateCacheEntry.hh StateCacheMap.hh Update.hh
+ LookupReceiver.hh NodeConnector.hh QueueEntry.hh ResourceArbiterInterface.hh \
+ State.hh StateCacheMap.hh Update.hh
+
+noinst_HEADERS = LookupReceiverImpl.hh StateCacheEntry.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
  CommandFunction.cc CommandHandleVariable.cc CommandOperator.cc \
  CommandOperatorImpl.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
- Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc State.cc \
- StateCacheEntry.cc StateCacheMap.cc Update.cc
+ Lookup.cc LookupReceiverImpl.cc QueueEntry.cc ResourceArbiterInterface.cc \
+ State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
-  noinst_HEADERS =
   test_intfc_module_tests_SOURCES = @top_srcdir@/expr/test/TrivialListener.cc \
  test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc \
  test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = $(libPlexilIntfc_la_CPPFLAGS)
-  test_intfc_module_tests_LDADD = libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+  test_intfc_module_tests_LDADD = libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
 endif

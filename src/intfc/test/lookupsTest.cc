@@ -28,6 +28,7 @@
 #include "ExternalInterface.hh"
 #include "Constant.hh"
 #include "Lookup.hh"
+#include "LookupReceiver.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "TestSupport.hh"
@@ -54,10 +55,10 @@ public:
   // ExternalInterface API
   //
 
-  void lookupNow(const State& state, StateCacheEntry &entry) 
+  void lookupNow(const State& state, LookupReceiver *rcvr) 
   {
     if (state.name() == "test1") {
-      entry.update((Real) 2.0);
+      rcvr->update((Real) 2.0);
       return;
     }
     else if (state.name() == "test2") {
@@ -65,25 +66,25 @@ public:
       std::string const *param = nullptr;
       state.parameters()[0].getValuePointer(param);
       if (*param == "high") {
-        entry.update((Real) 1.0);
+        rcvr->update((Real) 1.0);
         return;
       }
       else if (*param == "low") {
-        entry.update((Real) -1.0);
+        rcvr->update((Real) -1.0);
         return;
       }
       assertTrue_2(ALWAYS_FAIL, "ERROR: no matching param for TestInterface::lookupNow, state name = \"test2\"");
     }
     else if (state.name() == "time") {
-      entry.update((Real) 0.0);
+      rcvr->update((Real) 0.0);
       return;
     }
     else {
-      entry.update(m_changingExprs[state.name()]->toValue());
+      rcvr->update(m_changingExprs[state.name()]->toValue());
       return;
     }
     assertTrue_2(ALWAYS_FAIL, "ERROR: reached end of TestInterface::lookupNow()");
-    entry.update((Real) 0.0);
+    rcvr->update((Real) 0.0);
   }
 
   void subscribe(const State& /* state */)
@@ -177,7 +178,7 @@ protected:
     std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second);
-      StateCacheMap::instance().ensureStateCacheEntry(st)->update(expression->toValue());
+      StateCacheMap::instance().getLookupReceiver(st)->update(expression->toValue());
       ++it;
     }
   }

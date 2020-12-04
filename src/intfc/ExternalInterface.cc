@@ -29,8 +29,8 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "LookupReceiver.hh"
 #include "ResourceArbiterInterface.hh"
-#include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
 
@@ -166,7 +166,7 @@ namespace PLEXIL
   void ExternalInterface::lookupReturn(State const &state, Value const &value)
   {
     debugMsg("ExternalInterface:lookupReturn", '(' << state << ", " << value << ')');
-    StateCacheMap::instance().ensureStateCacheEntry(state)->update(value);
+    StateCacheMap::instance().getLookupReceiver(state)->update(value);
   }
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)

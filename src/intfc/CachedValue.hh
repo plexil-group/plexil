@@ -29,6 +29,8 @@
 
 #include "ValueType.hh"
 
+#include <memory>
+
 namespace PLEXIL
 {
   class Value;

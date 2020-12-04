@@ -24,51 +24,63 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_STATE_CACHE_MAP_HH
-#define PLEXIL_STATE_CACHE_MAP_HH
+//
+// An object which receives data from a LookupNow implementation function
+//
+
+#ifndef LOOKUP_RECEIVER_HH
+#define LOOKUP_RECEIVER_HH
+
+#include "ValueType.hh"
 
 namespace PLEXIL
 {
-  // Forward references
-  class LookupReceiver;
-  class State;
-  class StateCacheEntry;
+  // Forward reference
+  class Value;
 
-  /**
-   * @class StateCacheMap
-   * @brief An index to the currently active StateCacheEntry instances
-   */
-  class StateCacheMap
+  //!
+  // @class LookupReceiver
+  // @brief A callback object passed to an interface implementation.
+  //
+
+  class LookupReceiver
   {
   public:
-    virtual ~StateCacheMap() = default;
+    virtual ~LookupReceiver() = default;
 
-    static StateCacheMap &instance();
+    // PLEXIL internal representation
+    virtual void update(Value const &) = 0;
 
-    /**
-     * @brief Construct or find the cache entry for this state.
-     * @param state The state being looked up.
-     * @return Pointer to the StateCacheEntry for the state.
-     * @note Return value can be presumed to be non-null.
-     */
-    virtual StateCacheEntry *ensureStateCacheEntry(State const &state) = 0;
+    virtual void setUnknown() = 0;
 
-    virtual LookupReceiver *getLookupReceiver(State const &state) = 0;
+    // Convenience overloads
+    virtual void update(Boolean) = 0;
+    virtual void update(Integer) = 0;
+    virtual void update(Real) = 0;
+
+    virtual void update(String const &) = 0;
+    // virtual void update(String &&) = 0; // ?
+    virtual void update(char const *) = 0;
+
+    virtual void update(Boolean const ary[], size_t size) = 0;
+    virtual void update(Integer const ary[], size_t size) = 0;
+    virtual void update(Real const ary[], size_t size) = 0;
+    virtual void update(String const ary[], size_t size) = 0;
 
   protected:
-
-    // Default constructor is only accessible to the implementation class
-    StateCacheMap() = default;
+    // Default constructor only available to implementation class
+    LookupReceiver() = default;
 
   private:
+    // Copy disallowed
+    LookupReceiver(LookupReceiver const &) = default;
+    LookupReceiver(LookupReceiver &&) = default;
 
-    // Unimplemented
-    StateCacheMap(StateCacheMap const &) = delete;
-    StateCacheMap(StateCacheMap &&) = delete;
-    StateCacheMap &operator=(StateCacheMap const &) = delete;
-    StateCacheMap &operator=(StateCacheMap &&) = delete;
+    // Assignment disallowed
+    LookupReceiver &operator=(LookupReceiver const &) = default;
+    LookupReceiver &operator=(LookupReceiver &&) = default;
   };
 
-} // namespace PLEXIL
+}
 
-#endif // PLEXIL_STATE_CACHE_MAP_HH
+#endif // LOOKUP_RECEIVER_HH

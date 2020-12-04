@@ -30,16 +30,19 @@
 #include "StateCacheEntry.hh"
 
 #include <map>
+#include <memory>
 
 namespace PLEXIL
 {
-  class StateCacheMapImpl : public StateCacheMap
+  class StateCacheMapImpl final : public StateCacheMap
   {
   private:
-    typedef std::map<State, StateCacheEntry> EntryMap;
+
+    using EntryMap = std::map<State, std::unique_ptr<StateCacheEntry> >;
     EntryMap m_map;
 
   public:
+
     StateCacheMapImpl()
       : StateCacheMap()
     {
@@ -47,33 +50,29 @@ namespace PLEXIL
       ensureStateCacheEntry(State::timeState())->update((double) 0);
     }
 
-    virtual ~StateCacheMapImpl()
-    {
-    }
+    virtual ~StateCacheMapImpl() = default;
 
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
     {
       EntryMap::iterator iter = m_map.find(state);
       if (iter == m_map.end())
-        iter = m_map.insert(std::make_pair(state, StateCacheEntry())).first;
-      return &(iter->second);
+        iter = m_map.emplace(state, makeStateCacheEntry()).first;
+      return iter->second.get();
     }
 
-    virtual StateCacheEntry *findStateCacheEntry(State const &state)
+    virtual LookupReceiver *getLookupReceiver(State const &state)
     {
-      EntryMap::iterator iter = m_map.find(state);
-      if (iter == m_map.end())
-        return nullptr;
-      return &(iter->second);
+      return ensureStateCacheEntry(state)->getLookupReceiver();
     }
 
-    virtual void removeStateCacheEntry(State const &state)
-    {
-      EntryMap::iterator iter = m_map.find(state);
-      if (iter == m_map.end())
-        return;
-      m_map.erase(iter);
-    }
+  private:
+
+    // Unimplemented
+    StateCacheMapImpl(StateCacheMapImpl const &) = delete;
+    StateCacheMapImpl(StateCacheMapImpl &&) = delete;
+    StateCacheMapImpl &operator=(StateCacheMapImpl const &) = delete;
+    StateCacheMapImpl &operator=(StateCacheMapImpl &&) = delete;
+
   };
 
   StateCacheMap &StateCacheMap::instance()
