@@ -41,7 +41,7 @@ AC_CONFIG_MACRO_DIR([m4])
 # This version of PLEXIL requires C++11 or later, so set the standard
 # in the CXXFLAGS defaults.
 # This bit of hackery is straight out of the GNU Autoconf manual
-: ${CXXFLAGS="-std=c++11 -g -O2"}
+: ${CXXFLAGS="-std=c++14 -g -O2"}
 
 AC_PROG_CXX
 AC_PROG_CC
@@ -159,12 +159,12 @@ AC_SEARCH_LIBS([timer_create], [rt])
 # Checks for header files.
 
 # C++ standard headers for PLEXIL core functionality
-AC_CHECK_HEADERS_ONCE([cassert cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
+AC_CHECK_HEADERS_ONCE([cassert ctype cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
 
 # Standard C (C90, C99, etc.) headers for PLEXIL core functionality
 # Some platforms (e.g. vxWorks) may lack some of these
 # NOTE: checks only apply to PLEXIL source code, not imported third party code
-AC_CHECK_HEADERS_ONCE([assert.h errno.h float.h inttypes.h math.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
+AC_CHECK_HEADERS_ONCE([assert.h ctype.h errno.h float.h inttypes.h math.h signal.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
 # POSIX dependencies for core functionality
 AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
