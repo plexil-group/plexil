@@ -251,9 +251,8 @@ namespace PLEXIL
           ValueType tolType = tol->valueType();
           checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
                                "createExpression: LookupOnChange tolerance expression must be numeric");
-          return new LookupOnChange(stateName, stateNameGarbage, returnType,
-                                    tol, tolGarbage,
-                                    argVec);
+          return makeLookupOnChange(stateName, stateNameGarbage, returnType,
+                                    tol, tolGarbage, argVec);
         }
         catch (ParserException &e) {
           if (tolGarbage)
@@ -262,7 +261,7 @@ namespace PLEXIL
         }
       }
       else
-        return new Lookup(stateName, stateNameGarbage, returnType, argVec);
+        return makeLookup(stateName, stateNameGarbage, returnType, argVec);
     }
     catch (ParserException &e) {
       delete argVec;
