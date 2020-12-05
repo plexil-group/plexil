@@ -32,8 +32,9 @@
 #include "Mutex.hh"
 #include "NodeConstants.hh"
 #include "NodeTimepointValue.hh"
-#include "PlexilExec.hh"
 #include "NodeVariableMap.hh"
+#include "PlexilExec.hh"
+#include "StateCache.hh" // currentTime()
 #include "UserVariable.hh"
 
 #include <algorithm> // std::sort
@@ -291,7 +292,7 @@ namespace PLEXIL
     debugMsg("NodeImpl:NodeImpl", " common initialization");
 
     // Initialize transition trace
-    logTransition(g_interface->currentTime(), (NodeState) m_state);
+    logTransition(StateCache::currentTime(), (NodeState) m_state);
   }
 
   void NodeImpl::allocateVariables(size_t n)
