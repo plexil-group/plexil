@@ -49,11 +49,11 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
   noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
+  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
   test_exec_module_tests_LDADD = libPlexilExec.la @top_srcdir@/intfc/libPlexilIntfc.la \
  @top_srcdir@/expr/libPlexilExpr.la @top_srcdir@/value/libPlexilValue.la \
  @top_srcdir@/utils/libPlexilUtils.la
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc
