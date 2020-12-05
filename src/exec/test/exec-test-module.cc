@@ -30,6 +30,7 @@
 #include "NodeImpl.hh"
 #include "NodeFactory.hh"
 #include "PlexilExec.hh"
+#include "StateCache.hh"
 #include "TestSupport.hh"
 #include "test/TransitionExternalInterface.hh"
 
@@ -515,7 +516,7 @@ static bool finishedDestTest()
                          ITERATION_ENDED_STATE};
 
   for (size_t s = 0; s < 7; ++s) {
-    parent->setState(states[s], tif.currentTime());
+    parent->setState(states[s], StateCache::currentTime());
     node->getDestState();
     NodeState destState = node->getNextState();
     if (states[s] == WAITING_STATE) {
@@ -551,7 +552,7 @@ static bool finishedTransTest()
   for (size_t s = 0; s < 7; ++s) {
     for (int i = 0; i < 4; ++i) {
       NodeImpl *node = NodeFactory::createNode(types[i], std::string("finishedTransTest"), FINISHED_STATE, parent);
-      parent->setState(states[s], tif.currentTime());
+      parent->setState(states[s], StateCache::currentTime());
 
       debugMsg("UnitTest:finishedTransition",
                "Testing node type " << types[i]
