@@ -1,34 +1,39 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//    // Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//    // Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//    // Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//
+// AdapterFactory implementation
+//
+
+#include "plexil-config.h" // may be redundant
 
 #include "AdapterFactory.hh"
+
 #include "InterfaceAdapter.hh"
-#include "AdapterExecInterface.hh"
 #include "Debug.hh"
-#ifdef HAVE_DLFCN_H
+#if defined(HAVE_DLFCN_H)
 #include "DynamicLoader.h"
 #endif
 #include "Error.hh"
@@ -47,12 +52,12 @@ namespace PLEXIL
    */
 
   InterfaceAdapter *
-  AdapterFactory::createInstance(pugi::xml_node const xml,
-                                 AdapterExecInterface& execInterface)
+  AdapterFactory::createInstance(pugi::xml_node const xml)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml,
                   "AdapterFactory::createInstance: null configuration XML");
+    debugMsg("AdapterFactory:createInstance", " xml = " << xml);
 
     // Get the kind of adapter to make
     const char* adapterType = 
@@ -65,7 +70,7 @@ namespace PLEXIL
     }
 
     // Make it
-    return createInstance(adapterType, xml, execInterface);
+    return createInstance(adapterType, xml);
   }
 
   /**
@@ -73,16 +78,13 @@ namespace PLEXIL
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-   * @param execInterface Reference to the parent InterfaceManager instance.
-   * @return The Id for the new InterfaceAdapter.  May not be unique.
+   * @return Pointer to the new InterfaceAdapter.
    */
 
   InterfaceAdapter *
   AdapterFactory::createInstance(std::string const& name,
-                                 pugi::xml_node const xml,
-                                 AdapterExecInterface& execInterface)
+                                 pugi::xml_node const xml)
   {
-    debugMsg("AdapterFactory:createInstance", " xml = " << xml);
     std::map<std::string, AdapterFactoryPtr>::const_iterator it = factoryMap().find(name);
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
@@ -108,7 +110,7 @@ namespace PLEXIL
            << "\".");
       return nullptr;
     }
-    InterfaceAdapter *retval = it->second->create(xml, execInterface);
+    InterfaceAdapter *retval = it->second->create(xml);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
     return retval;
   }
@@ -143,15 +145,7 @@ namespace PLEXIL
    */
   void AdapterFactory::registerFactory(std::string const& name, AdapterFactory* factory)
   {
-    assertTrue_1(factory);
-    if (factoryMap().find(name) != factoryMap().end()) {
-      warn("Attempted to register an adapter factory for name \""
-           << name.c_str()
-           << "\" twice, ignoring.");
-      delete factory;
-      return;
-    }
-    factoryMap()[name] = AdapterFactoryPtr(factory);
+    factoryMap()[name].reset(factory);
     debugMsg("AdapterFactory:registerFactory",
              " Registered adapter factory for name \"" << name.c_str() << "\"");
   }

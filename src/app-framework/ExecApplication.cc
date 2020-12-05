@@ -34,10 +34,14 @@
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
+#include "StateCache.hh"
+
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL
@@ -63,18 +67,21 @@ namespace PLEXIL
       m_blockedSignals[i] = 0;
 
     // connect exec and interface manager
-    g_configuration = new AdapterConfiguration();
+    g_configuration.reset(makeAdapterConfiguration());
     g_exec = makePlexilExec();
     g_exec->setExecListener(g_configuration->getListenerHub());
-    g_manager = new InterfaceManager(*this);
-    g_interface = static_cast<ExternalInterface *>(g_manager);
+    g_manager.reset(new InterfaceManager(*this));
+    g_interface = static_cast<ExternalInterface *>(g_manager.get());
+    g_execInterface = static_cast<AdapterExecInterface *>(g_manager.get());
   }
 
   ExecApplication::~ExecApplication()
   {
-    delete g_configuration;
+    // FIXME: order of deletion and inter-object references
+    g_configuration.reset();
     g_interface = nullptr;
-    delete g_manager;
+    g_execInterface = nullptr;
+    g_manager.reset();
     delete g_exec;
   }
 
@@ -173,7 +180,7 @@ namespace PLEXIL
       RTMutexGuard guard(m_execMutex);
 #endif
       g_manager->processQueue();           // for effect
-      double now = g_manager->queryTime(); // update time before attempting to step
+      double now = StateCache::queryTime(); // update time before attempting to step
       if (g_exec->needsStep()) {
         g_exec->step(now);
         debugMsg("ExecApplication:step", " complete");
@@ -214,11 +221,11 @@ namespace PLEXIL
 #endif
       debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
       g_manager->processQueue(); // for effect
-      double now = g_manager->queryTime(); // update time before attempting to step
+      double now = StateCache::queryTime(); // update time before attempting to step
       while (g_exec->needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
         g_exec->step(now);
-        now = g_manager->queryTime(); // update time before attempting to step again
+        now = StateCache::queryTime(); // update time before attempting to step again
       }
       g_exec->deleteFinishedPlans();
     }
@@ -304,9 +311,6 @@ namespace PLEXIL
         && m_state != APP_READY)
       return false;
 
-    // Stop interfaces
-    g_manager->stop();
-
 #ifdef PLEXIL_WITH_THREADS
     // Stop the Exec
     if (m_threadLaunched) {
@@ -345,53 +349,11 @@ namespace PLEXIL
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
     }
 #endif // PLEXIL_WITH_THREADS
+
+    // Stop interfaces
+    g_manager->stop();
     
     return setApplicationState(APP_STOPPED);
-  }
-
-   
-  /**
-   * @brief Resets a stopped Exec so that it can be run again.
-   * @return true if successful, false otherwise.
-   */
-  bool ExecApplication::reset()
-  {
-    debugMsg("ExecApplication:reset", " entered");
-    if (m_state != APP_STOPPED)
-      return false;
-
-    // Reset interfaces
-    g_manager->reset();
-
-    // Clear suspended flag
-    m_suspended = false;
-
-    // Reset the Exec
-    // *** NYI ***
-    
-    debugMsg("ExecApplication:reset", " completed");
-    return setApplicationState(APP_INITED);
-  }
-
-
-  /**
-   * @brief Shuts down a stopped Exec.
-   * @return true if successful, false otherwise.
-   */
-  bool ExecApplication::shutdown()
-  {
-    debugMsg("ExecApplication:shutdown", " entered");
-    if (m_state != APP_STOPPED)
-      return false;
-
-    // Shut down the Exec
-    // *** NYI ***
-
-    // Shut down interfaces
-    g_manager->shutdown();
-    
-    debugMsg("ExecApplication:shutdown", " completed");
-    return setApplicationState(APP_SHUTDOWN);
   }
 
   /**
@@ -538,7 +500,7 @@ namespace PLEXIL
 #endif
     if (stepFirst) {
       debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
-      g_exec->step(g_manager->queryTime());
+      g_exec->step(StateCache::queryTime());
     }
     if (m_suspended) {
       debugMsg("ExecApplication:runExec", " Suspended");
@@ -546,11 +508,11 @@ namespace PLEXIL
     else {
       g_manager->processQueue(); // for effect
       do {
-        double now = g_manager->queryTime(); // update time before attempting to step
+        double now = StateCache::queryTime(); // update time before attempting to step
         while (g_exec->needsStep()) {
           debugMsg("ExecApplication:runExec", " Stepping exec");
           g_exec->step(now);
-          now = g_manager->queryTime(); // update time before stepping again
+          now = StateCache::queryTime(); // update time before stepping again
         }
       } while (g_manager->processQueue());
       debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
@@ -620,7 +582,7 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
+   * @brief Suspend the current thread until the application reaches APP_STOPPED state.
    * @note May be called by multiple threads
    * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
    */
@@ -648,22 +610,18 @@ namespace PLEXIL
 
     switch (initState) {
     case APP_UNINITED:
-    case APP_SHUTDOWN:
+    case APP_STOPPED:
       // nothing to do
       break;
 
     case APP_INITED:
     case APP_READY:
       // Shut down interfaces
-      g_manager->shutdown();
+      g_manager->stop();
       break;
 
     case APP_RUNNING:
       stop();
-      // fall through to shutdown
-
-    case APP_STOPPED:
-      shutdown();
       break;
     }
     std::cout << "PLEXIL Exec terminated" << std::endl;
@@ -735,15 +693,6 @@ namespace PLEXIL
         m_state = newState;
         break;
 
-      case APP_SHUTDOWN:
-        if (m_state != APP_STOPPED) {
-          debugMsg("ExecApplication:setApplicationState", 
-                   " Illegal application state transition to APP_SHUTDOWN");
-          return false;
-        }
-        m_state = newState;
-        break;
-
       default:
         debugMsg("ExecApplication:setApplicationState",
                  " Attempt to set state to illegal value " << newState);
@@ -753,7 +702,7 @@ namespace PLEXIL
       // end variable binding context for guard -- DO NOT DELETE THESE BRACES!
     }
 
-    if (newState == APP_SHUTDOWN) {
+    if (newState == APP_STOPPED) {
 #ifdef PLEXIL_WITH_THREADS
       // Notify any threads waiting for this state
       m_shutdownSem.post();
@@ -953,10 +902,6 @@ namespace PLEXIL
 
     case APP_STOPPED:
       return "APP_STOPPED";
-      break;
-
-    case APP_SHUTDOWN:
-      return "APP_SHUTDOWN";
       break;
 
     default:

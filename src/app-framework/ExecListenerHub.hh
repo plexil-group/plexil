@@ -27,6 +27,7 @@
 #ifndef EXEC_LISTENER_HUB_HH
 #define EXEC_LISTENER_HUB_HH
 
+#include "ExecListener.hh" // leaving this out causes compiler errors
 #include "PlexilListener.hh"
 #include "Value.hh"
 
@@ -34,7 +35,6 @@
 
 namespace PLEXIL
 {
-  class ExecListener;
   using ExecListenerPtr = std::unique_ptr<ExecListener>;
   
   /**

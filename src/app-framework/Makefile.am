@@ -39,16 +39,18 @@ if VIEWER_OPT
 endif
 
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
- AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListener.hh \
+ AdapterFactory.hh ExecApplication.hh ExecListener.hh \
  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
  PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh UtilityAdapter.hh
 
+noinst_HEADERS =
+
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
- AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc ExecApplication.cc \
+ AdapterExecInterface.cc AdapterFactory.cc ExecApplication.cc \
  ExecListener.cc ExecListenerFactory.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc InterfaceAdapter.cc \
- InterfaceManager.cc ListenerFilters.cc SerializedInputQueue.cc \
+ ExecListenerFilterFactory.cc ExecListenerHub.cc \
+ InterfaceManager.cc Launcher.cc ListenerFilters.cc SerializedInputQueue.cc \
  SimpleInputQueue.cc UtilityAdapter.cc
 
 if UNIX_TIME_OPT
@@ -58,8 +60,8 @@ libPlexilAppFramework_la_SOURCES += TimeAdapterImpl.cc PosixTimeAdapter.cc \
 endif
 
 # Libraries to link against
-libPlexilAppFramework_la_LIBADD = @top_srcdir@/xml-parser/libPlexilXmlParser.la \
- @top_srcdir@/third-party/pugixml/src/libpugixml.la @top_srcdir@/exec/libPlexilExec.la \
- @top_srcdir@/intfc/libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 

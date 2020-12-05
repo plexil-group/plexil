@@ -24,12 +24,37 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "AdapterExecInterface.hh"
+#ifndef PLANNER_UPDATE_HANDLER_DEFS_HH
+#define PLANNER_UPDATE_HANDLER_DEFS_HH
+
+//
+// Types and objects which perform PlannerUpdates in PLEXIL
+//
+
+#include <functional>
+#include <memory>
 
 namespace PLEXIL
 {
+  // Forward reference
+  class AdapterExecInterface;
+  class Update;
 
-  // Initialize global variable
-  AdapterExecInterface *g_execInterface = nullptr;
+  //*
+  // @brief A PlannerUpdateHandler function sends the contents of the
+  //        Update to an external recipient, typically (but not always) a
+  //        planner.  It reports success or failure via
+  //        AdapterExecInterface::handleUpdateAck().
+  //
+  // @see AdapterExecInterface::handleUpdateAck
+  //
+  // @note This interface has largely been superseded by the
+  // ExecListener abstract base class.
+  // @see ExecListener
+  //
 
+  using PlannerUpdateHandler = std::function<void(Update *, AdapterExecInterface *)>;
+  using PlannerUpdateHandlerPtr = std::unique_ptr<PlannerUpdateHandler>;
 }
+
+#endif // PLANNER_UPDATE_HANDLER_DEFS_HH

@@ -26,742 +26,863 @@
 
 #include "AdapterConfiguration.hh"
 
+#include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
+#include "Command.hh"
 #include "Debug.hh"
-#include "DummyAdapter.hh"
 #include "DynamicLoader.h"
 #include "Error.hh"
-#include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
-#include "ExecListenerFilterFactory.hh"
 #include "ExecListenerHub.hh"
-#include "InterfaceManager.hh"
+#include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
+#include "Launcher.hh"
 #include "ListenerFilters.hh"
 #include "planLibrary.hh"
+#include "State.hh"
+
 #ifdef PLEXIL_WITH_THREADS
 #include "SerializedInputQueue.hh"
 #else
 #include "SimpleInputQueue.hh"
 #endif
+
 #include "UtilityAdapter.hh"
-
-#ifdef HAVE_LUV_LISTENER
-#include "LuvListener.hh"
-#endif
-
-#ifdef HAVE_DEBUG_LISTENER
-#include "PlanDebugListener.hh"
-#endif
 
 #ifdef PLEXIL_WITH_UNIX_TIME 
 #include "TimeAdapter.hh"
 #endif
 
-#include <algorithm>
+//
+// The reason for all this #ifdef'ery is that when this library is built
+// statically linked, it needs to include the interface modules at link time.
+// When dynamically linked, it doesn't need to pull them in
+// until they're requested, which in most cases will never happen.
+//
+// See the AdapterConfigurationImpl constructor for more information.
+//
 
-#ifdef STDC_HEADERS
+#ifndef PIC
+#ifdef HAVE_DEBUG_LISTENER
+#include "PlanDebugListener.hh"
+#endif
+
+#ifdef HAVE_GANTT_LISTENER
+#include "GanttListener.hh"
+#endif
+
+#ifdef HAVE_IPC_ADAPTER
+#include "IpcAdapter.h"
+#endif
+
+#ifdef HAVE_LUV_LISTENER
+#include "LuvListener.hh"
+#endif
+
+#ifdef HAVE_UDP_ADAPTER
+#include "UdpAdapter.h"
+#endif
+#endif // not defined(PIC)
+
+#include <map>
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL {
 
-  AdapterConfiguration::AdapterConfiguration() :
-    m_defaultInterface(),
-    m_defaultCommandInterface(),
-    m_defaultLookupInterface(),
-    m_plannerUpdateInterface(),
-    m_listenerHub(new ExecListenerHub())
+  // Construct global variable
+  AdapterConfigurationPtr g_configuration = nullptr;
+
+  //*
+  // @class AdapterConfigurationImpl
+  // @brief Implementation class for AdapterConfiguration
+  //
+  class AdapterConfigurationImpl : public AdapterConfiguration
   {
-    // Every application has access to the dummy and utility adapters
-    REGISTER_ADAPTER(DummyAdapter, "Dummy");
-    REGISTER_ADAPTER(UtilityAdapter, "Utility");
+  private:
+
+    // Internal typedefs
+    using ExecListenerHubPtr = std::unique_ptr<ExecListenerHub>;
+    using InterfaceAdapterPtr = std::unique_ptr<InterfaceAdapter>;
+
+    using CommandHandlerMap = std::map<std::string, CommandHandlerPtr>;
+    using LookupHandlerMap = std::map<std::string, LookupHandlerPtr>;
+
+    // punt for now
+    using InterfaceAdapterSet = std::vector<InterfaceAdapterPtr>;
+
+  public:
+
+    AdapterConfigurationImpl()
+      : m_listenerHub(new ExecListenerHub()),
+        m_defaultCommandHandler(new CommandHandler()),
+        m_defaultLookupHandler(new LookupHandler()),
+        m_plannerUpdateHandler(nullptr)
+    {
+      // Every application has access to the utility and launcher adapters
+      initUtilityAdapter();
+      initLauncher();
 
 #ifdef PLEXIL_WITH_UNIX_TIME
-    // Every application has access to the OS-native time adapter
-    registerTimeAdapter();
+      // Every application has access to the OS-native time adapter
+      registerTimeAdapter();
 #endif
 
-    registerExecListenerFilters();
+      registerExecListenerFilters();
+
+      //
+      // The reason for all this #ifdef'ery is that when this library is built
+      // statically linked, it needs to include the interface modules at link time.
+      // When dynamically linked, it doesn't need to pull them in
+      // until they're requested, which in most cases will never happen.
+      //
 
 #ifdef HAVE_DEBUG_LISTENER
-    // Every application should have access to the Plan Debug Listener
-    dynamicLoadModule("PlanDebugListener", nullptr);
+      // Every application should have access to the Plan Debug Listener
+#ifdef PIC
+      dynamicLoadModule("PlanDebugListener", nullptr);
+#else
+      initPlanDebugListener();
+#endif
+#endif
+
+#ifdef HAVE_GANTT_LISTENER
+      // Every application should have access to the GANTT Listener
+#ifdef PIC
+      dynamicLoadModule("GanttListener", nullptr);
+#else
+      initGanttListener();
+#endif
+#endif
+
+#ifdef HAVE_IPC_ADAPTER
+      // Every application should have access to the IPC Adapter
+#ifdef PIC
+      dynamicLoadModule("IpcAdapter", nullptr);
+#else
+      initIpcAdapter();
+#endif
 #endif
 
 #ifdef HAVE_LUV_LISTENER
-    // Every application should have access to the Plexil Viewer (formerly LUV) Listener
-    dynamicLoadModule("LuvListener", nullptr);
+      // Every application should have access to the Plexil Viewer (formerly LUV) Listener
+#ifdef PIC
+      dynamicLoadModule("LuvListener", nullptr);
+#else
+      initLuvListener();
 #endif
-  }
+#endif
 
-  AdapterConfiguration::~AdapterConfiguration()
-  {
-    // unregister adapters
-    clearAdapterRegistry();
-  }
+#ifdef HAVE_UDP_ADAPTER
+      // Every application should have access to the UDP Adapter
+#ifdef PIC
+      dynamicLoadModule("UdpAdapter", nullptr);
+#else
+      initUdpAdapter();
+#endif
+#endif
 
-  /**
-   * @brief Constructs interface adapters from the provided XML.
-   * @param configXml The XML element used for interface configuration.
-   * @return true if successful, false otherwise.
-   */
-  bool AdapterConfiguration::constructInterfaces(pugi::xml_node const configXml)
-  {
-    if (configXml.empty()) {
-      debugMsg("AdapterConfiguration:constructInterfaces",
-               " empty configuration, nothing to construct");
+    }
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~AdapterConfigurationImpl() = default;
+
+    // FIXME:
+    // * Need new constructor paradigm for handlers
+    virtual bool constructInterfaces(pugi::xml_node const configXml)
+    {
+      if (configXml.empty()) {
+        debugMsg("AdapterConfiguration:constructInterfaces",
+                 " empty configuration, nothing to construct");
+        return true;
+      }
+
+      debugMsg("AdapterConfiguration:verboseConstructInterfaces",
+               " parsing configuration XML");
+      const char* elementType = configXml.name();
+      if (strcmp(elementType, InterfaceSchema::INTERFACES_TAG) != 0) {
+        debugMsg("AdapterConfiguration:constructInterfaces",
+                 " invalid configuration XML: no "
+                 << InterfaceSchema::INTERFACES_TAG << " element");
+        return false;
+      }
+
+      // Walk the children of the configuration XML element
+      // and register the adapter according to the data found there
+      pugi::xml_node element = configXml.first_child();
+      while (!element.empty()) {
+        debugMsg("AdapterConfiguration:verboseConstructInterfaces",
+                 " found element " << element.name());
+        const char* elementType = element.name();
+        if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG) == 0) {
+          if (!constructAdapter(element)) {
+            warn("constructInterfaces: failed to construct adapter type \""
+                 << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
+                 << "\"");
+            return false;
+          }
+        }
+        else if (strcmp(elementType, InterfaceSchema::COMMAND_HANDLER_TAG) == 0) {
+          if (!constructCommandHandler(element)) {
+            warn("constructInterfaces: failed to construct command handler type \""
+                 << element.attribute(InterfaceSchema::HANDLER_TYPE_ATTR).value()
+                 << "\"");
+            return false;
+          }
+        }
+        else if (strcmp(elementType, InterfaceSchema::LOOKUP_HANDLER_TAG) == 0) {
+          if (!constructLookupHandler(element)) {
+            warn("constructInterfaces: failed to construct command handler type \""
+                 << element.attribute(InterfaceSchema::HANDLER_TYPE_ATTR).value()
+                 << "\"");
+            return false;
+          }
+        }
+        else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_HANDLER_TAG) == 0) {
+          if (!constructPlannerUpdateHandler(element)) {
+            warn("constructInterfaces: failed to construct command handler type \""
+                 << element.attribute(InterfaceSchema::HANDLER_TYPE_ATTR).value()
+                 << "\"");
+            return false;
+          }
+        }
+        else if (strcmp(elementType, InterfaceSchema::INTERFACE_LIBRARY_TAG) == 0) {
+          if (!ensureInterfaceLibraryLoaded(element)) {
+            warn("constructInterfaces: unable to locate library \""
+                 << element.attribute(InterfaceSchema::NAME_ATTR).value()
+                 << "\"");
+            return false;
+          }
+        }
+        else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG) == 0) {
+          // Construct an ExecListener instance and attach it to the Exec
+          debugMsg("AdapterConfiguration:constructInterfaces",
+                   " constructing listener type \""
+                   << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+                   << '"');
+          ExecListener *listener = 
+            ExecListenerFactory::createInstance(element);
+          if (!listener) {
+            warn("constructInterfaces: failed to construct listener type \""
+                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+                 << '"');
+            return false;
+          }
+          m_listenerHub->addListener(listener);
+        }
+        else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG) == 0) {
+          // Add to library path
+          const char* pathstring = element.child_value();
+          if (*pathstring != '\0') {
+            std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+            for (std::vector<std::string>::const_iterator it = path->begin();
+                 it != path->end();
+                 ++it)
+              appendLibraryPath(*it);
+            delete path;
+          }
+        }
+        else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG) == 0) {
+          // Add to plan path
+          const char* pathstring = element.child_value();
+          if (*pathstring != '\0') {
+            std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+            for (std::vector<std::string>::const_iterator it = path->begin();
+                 it != path->end();
+                 ++it)
+              m_planPath.push_back(*it);
+            delete path;
+          }
+        }
+        else {
+          debugMsg("AdapterConfiguration:constructInterfaces",
+                   " ignoring unrecognized XML element \""
+                   << elementType << "\"");
+        }
+
+        element = element.next_sibling();
+      }
+
+      debugMsg("AdapterConfiguration:verboseConstructInterfaces", " done.");
       return true;
     }
 
-    debugMsg("AdapterConfiguration:verboseConstructInterfaces", " parsing configuration XML");
-    const char* elementType = configXml.name();
-    if (strcmp(elementType, InterfaceSchema::INTERFACES_TAG) != 0) {
-      debugMsg("AdapterConfiguration:constructInterfaces",
-               " invalid configuration XML: no " << InterfaceSchema::INTERFACES_TAG << " element");
-      return false;
-    }
-
-    // Walk the children of the configuration XML element
-    // and register the adapter according to the data found there
-    pugi::xml_node element = configXml.first_child();
-    while (!element.empty()) {
-      debugMsg("AdapterConfiguration:verboseConstructInterfaces",
-               " found element " << element.name());
-      const char* elementType = element.name();
-      if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG) == 0) {
-        // Construct the adapter
-        debugMsg("AdapterConfiguration:constructInterfaces",
-                 " constructing adapter type \""
-                 << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
-                 << "\"");
-        InterfaceAdapter *adapter = 
-          AdapterFactory::createInstance(element,
-                                         *static_cast<AdapterExecInterface *>(g_manager));
-        if (!adapter) {
-          warn("constructInterfaces: failed to construct adapter type \""
-               << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
-               << "\"");
-          return false;
-        }
-        addInterfaceAdapter(adapter);
-      }
-      else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG) == 0) {
-        // Construct an ExecListener instance and attach it to the Exec
-        debugMsg("AdapterConfiguration:constructInterfaces",
-                 " constructing listener type \""
-                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
-                 << '"');
-        ExecListener *listener = 
-          ExecListenerFactory::createInstance(element);
-        if (!listener) {
-          warn("constructInterfaces: failed to construct listener type \""
-               << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+    virtual bool initialize()
+    {
+      debugMsg("AdapterConfiguration:initialize", " initializing interface adapters");
+      bool success = true;
+      for (InterfaceAdapterPtr &a : m_adapters) {
+        success = a->initialize(this);
+        if (!success) {
+          warn("initialize: failed for adapter type \""
+               << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
                << '"');
           return false;
         }
-        m_listenerHub->addListener(listener);
       }
-      else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG) == 0) {
-        // Add to library path
-        const char* pathstring = element.child_value();
-        if (*pathstring != '\0') {
-          std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-          for (std::vector<std::string>::const_iterator it = path->begin();
-               it != path->end();
-               ++it)
-            appendLibraryPath(*it);
-          delete path;
-        }
-      }
-      else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG) == 0) {
-        // Add to plan path
-        const char* pathstring = element.child_value();
-        if (*pathstring != '\0') {
-          std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-          for (std::vector<std::string>::const_iterator it = path->begin();
-               it != path->end();
-               ++it)
-            m_planPath.push_back(*it);
-          delete path;
-        }
-      }
-      else {
-        debugMsg("AdapterConfiguration:constructInterfaces",
-                 " ignoring unrecognized XML element \""
-                 << elementType << "\"");
-      }
-
-      element = element.next_sibling();
-    }
-
-    debugMsg("AdapterConfiguration:verboseConstructInterfaces", " done.");
-    return true;
-  }
-
-  /**
-   * @brief Performs basic initialization of the interface and all adapters.
-   * @return true if successful, false otherwise.
-   */
-  bool AdapterConfiguration::initialize()
-  {
-    debugMsg("AdapterConfiguration:initialize", " initializing interface adapters");
-    bool success = true;
-    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters) {
-      success = intf->initialize();
+      success = m_listenerHub->initialize();
       if (!success) {
-        warn("initialize: failed for adapter type \""
-		 << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
-		 << '"');
+        warn("initialize: failed to initialize Exec listener(s)");
         return false;
       }
-    }
-    success = m_listenerHub->initialize();
-    if (!success) {
-      warn("initialize: failed to initialize Exec listener(s)");
-      return false;
+      return success;
     }
 
-    return success;
-  }
+    // FIXME:
+    // * Need new startup paradigm for handlers
+    virtual bool start()
+    {
+      debugMsg("AdapterConfiguration:start", " starting interface adapters");
+      bool success = true;
+      for (InterfaceAdapterPtr &a : m_adapters) {
+        success = a->start();
+        if (!success) {
+          warn("start: start failed for adapter type \""
+               << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
+               << '"');
+          return false;
+        }
+      }
 
-  /**
-   * @brief Prepares the interface and adapters for execution.
-   * @return true if successful, false otherwise.
-   */
-  bool AdapterConfiguration::start()
-  {
-    debugMsg("AdapterConfiguration:start", " starting interface adapters");
-    bool success = true;
-    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters) {
-      success = intf->start();
+      success = m_listenerHub->start();
       if (!success) {
-        warn("start: start failed for adapter type \""
-             << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
-             << '"');
-        return false;
+        warn("start: failed to start Exec listener(s)");
       }
+      return success;
     }
 
-    success = m_listenerHub->start();
-    if (!success) {
-      warn("start: failed to start Exec listener(s)");
-    }
-    return success;
-  }
+    // FIXME:
+    // * Need new stop paradigm for handlers
+    virtual bool stop()
+    {
+      debugMsg("AdapterConfiguration:stop", " entered");
 
-  /**
-   * @brief Halts all interfaces.
-   * @return true if successful, false otherwise.
-   */
-  bool AdapterConfiguration::stop()
-  {
-    debugMsg("AdapterConfiguration:stop", " entered");
+      // halt adapters
+      bool success = true;
+      for (InterfaceAdapterPtr &a : m_adapters) {
+        success = a->stop() && success;
+      }
 
-    // halt adapters
-    bool success = true;
-    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters) {
-      debugMsg("AdapterConfiguration:stop",
-               " stopping "
-               << intf->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value());
-      success = intf->stop() && success;
+      success = m_listenerHub->stop() && success;
+
+      debugMsg("AdapterConfiguration:stop", " completed");
+      return success;
     }
 
-    debugMsg("AdapterConfiguration:stop", " stopping listener hub");
-    success = m_listenerHub->stop() && success;
+    //
+    // Command handler registration
+    //
 
-    debugMsg("AdapterConfiguration:stop", " completed");
-    return success;
-  }
-
-  /**
-   * @brief Resets the interface prior to restarting.
-   * @return true if successful, false otherwise.
-   */
-  bool AdapterConfiguration::reset()
-  {
-    debugMsg("AdapterConfiguration:reset", " entered");
-
-    clearAdapterRegistry();
-    bool success = true;
-    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters)
-      success = intf->reset() && success;
-
-    success = m_listenerHub->reset() && success;
-    debugMsg("AdapterConfiguration:reset", " completed");
-    return success;
-  }
-
-  /**
-   * @brief Shuts down the interface.
-   * @return true if successful, false otherwise.
-   */
-  bool AdapterConfiguration::shutdown()
-  {
-    debugMsg("AdapterConfiguration:shutdown", " entered");
-    clearAdapterRegistry();
-
-    bool success = true;
-    for (std::unique_ptr<InterfaceAdapter> &intf : m_adapters)
-      success = intf->shutdown() && success;
-    success = m_listenerHub->shutdown() && success;
-
-    // Clean up
-    // *** NYI ***
-
-    debugMsg("AdapterConfiguration:shutdown", " completed");
-    return success;
-  }
-
-  /**
-   * @brief Add an externally constructed interface adapter.
-   * @param The adapter ID.
-   */
-  void AdapterConfiguration::addInterfaceAdapter(InterfaceAdapter *adapter)
-  {
-    if (std::find_if(m_adapters.begin(), m_adapters.end(),
-                     [adapter] (std::unique_ptr<InterfaceAdapter> const &a) -> bool
-                     { return adapter == a.get(); })
-        == m_adapters.end())
-      m_adapters.push_back(std::unique_ptr<InterfaceAdapter>(adapter));
-  }
-
-  /**
-   * @brief Add an externally constructed ExecListener.
-   * @param listener Pointer to the ExecListener.
-   */
-  void AdapterConfiguration::addExecListener(ExecListener *listener)
-  {
-    m_listenerHub->addListener(listener);
-  }
-
-  /**
-   * @brief Construct the input queue specified by the configuration data.
-   * @return Pointer to instance of a class derived from InputQueue.
-   */
-  // TODO: actually get type from input data
-  std::unique_ptr<InputQueue> AdapterConfiguration::constructInputQueue() const
-  {
-    return 
-#ifdef PLEXIL_WITH_THREADS
-      std::unique_ptr<InputQueue>(new SerializedInputQueue());
-#else
-      std::unique_ptr<InputQueue>(new SimpleInputQueue());
-#endif
-  }
-
-  /**
-   * @brief Get the search path for library nodes.
-   * @return A reference to the library search path.
-   */
-  const std::vector<std::string>& AdapterConfiguration::getLibraryPath() const
-  {
-    return getLibraryPaths();
-  }
-
-  /**
-   * @brief Get the search path for plans.
-   * @return A reference to the plan search path.
-   */
-  const std::vector<std::string>& AdapterConfiguration::getPlanPath() const
-  {
-    return m_planPath;
-  }
-
-  /**
-   * @brief Add the specified directory name to the end of the library node loading path.
-   * @param libdir The directory name.
-   */
-  void AdapterConfiguration::addLibraryPath(const std::string &libdir)
-  {
-    appendLibraryPath(libdir);
-  }
-
-  /**
-   * @brief Add the specified directory names to the end of the library node loading path.
-   * @param libdirs The vector of directory names.
-   */
-  void AdapterConfiguration::addLibraryPath(const std::vector<std::string>& libdirs)
-  {
-    for (std::vector<std::string>::const_iterator it = libdirs.begin();
-         it != libdirs.end();
-         ++it)
-      appendLibraryPath(*it);
-  }
-
-  /**
-   * @brief Add the specified directory name to the end of the plan loading path.
-   * @param libdir The directory name.
-   */
-  void AdapterConfiguration::addPlanPath(const std::string &libdir)
-  {
-    m_planPath.push_back(libdir);
-  }
-
-  /**
-   * @brief Add the specified directory names to the end of the plan loading path.
-   * @param libdirs The vector of directory names.
-   */
-  void AdapterConfiguration::addPlanPath(const std::vector<std::string>& libdirs)
-  {
-    for (std::vector<std::string>::const_iterator it = libdirs.begin();
-         it != libdirs.end();
-         ++it) {
-      m_planPath.push_back(*it);
-    }
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default.
-   * @param adapter The interface adapter.
-   */
-
-  void AdapterConfiguration::defaultRegisterAdapter(InterfaceAdapter *adapter) 
-  {
-    debugMsg("AdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
-    // Walk the children of the configuration XML element
-    // and register the adapter according to the data found there
-    pugi::xml_node element = adapter->getXml().first_child();
-    while (!element.empty()) {
-      const char* elementType = element.name();
-      if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG) == 0) {
-        setDefaultInterface(adapter);
-      } 
-      else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG) == 0) {
-        setDefaultCommandInterface(adapter);
-      }
-      else if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG) == 0) {
-        setDefaultLookupInterface(adapter);
-      }
-      else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG) == 0) {
-        registerPlannerUpdateInterface(adapter);
-      }
-      else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG) == 0) {
-        const pugi::xml_node firstChild = element.first_child();
-        const char* text = nullptr;
-        if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
-          text = firstChild.value();
-        checkError(text && *text != '\0',
-                   "registerAdapter: Invalid configuration XML: "
+    virtual void registerCommandHandler(CommandHandler *handler,
+                                        pugi::xml_node const configXml)
+    {
+      assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
+      pugi::xml_node commandNamesElt =
+        configXml.child(InterfaceSchema::COMMAND_NAMES_TAG);
+      size_t nCommandNames = 0;
+      while (commandNamesElt) {
+        // Register individual commands
+        char const *commandNamesStr = commandNamesElt.child_value();
+        checkError(commandNamesStr && *commandNamesStr,
+                   "IpcAdapter: Invalid configuration XML: "
                    << InterfaceSchema::COMMAND_NAMES_TAG
                    << " requires one or more comma-separated command names");
-        std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
-        for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); ++it)
-          registerCommandInterface(*it, adapter);
-        delete cmdNames;
-      } 
-      else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG) == 0) {
-        const pugi::xml_node firstChild = element.first_child();
-        const char* text = nullptr;
-        if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
-          text = firstChild.value();
-        checkError(text && *text != '\0',
-                   "registerAdapter: Invalid configuration XML: "
+        std::vector<std::string> *cmdNames =
+          InterfaceSchema::parseCommaSeparatedArgs(commandNamesStr);
+        if (cmdNames) {
+          for (std::string &name : *cmdNames)
+            m_commandMap[name].reset(handler);
+          delete cmdNames;
+        }
+        commandNamesElt = commandNamesElt.next_sibling(InterfaceSchema::COMMAND_NAMES_TAG);
+      }
+    }
+
+    virtual void registerCommandHandler(CommandHandler *handler,
+                                        std::vector<std::string> const &names)
+    {
+      assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
+      for (std::string const &name : names)
+        m_commandMap[name].reset(handler);
+    }
+
+    virtual void registerCommandHandler(CommandHandler *handler,
+                                        std::string const &cmdName)
+    {
+      assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
+      m_commandMap[cmdName].reset(handler);
+    }
+
+    virtual void registerCommandHandlerFunction(std::string const &stateName,
+                                                ExecuteCommandHandler execCmd,
+                                                AbortCommandHandler abortCmd =
+                                                defaultAbortCommandHandler)
+    {
+      assertTrue_2(execCmd, "registerCommandHandlerFunction: Handler function must not be null");
+      registerCommandHandler(new CommandHandlerWrapper(execCmd, abortCmd),
+                             stateName);
+    }
+
+    virtual void setDefaultCommandHandler(CommandHandler *handler)
+    {
+      assertTrue_2(handler, "setDefaultCommandHandler: Handler must not be null");
+      debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
+               " replacing default command handler");
+      m_defaultCommandHandler.reset(handler);
+    }
+
+    virtual void setDefaultCommandHandlerFunction(ExecuteCommandHandler execCmd,
+                                                  AbortCommandHandler abortCmd =
+                                                  defaultAbortCommandHandler)
+    {
+      assertTrue_2(execCmd, "setDefaultCommandHandlerFunction: Handler function must not be null");
+      setDefaultCommandHandler(new CommandHandlerWrapper(execCmd, abortCmd));
+    }
+
+    //
+    // Lookup handler registration
+    //
+
+    virtual void registerLookupHandler(LookupHandler *handler,
+                                       pugi::xml_node const configXml)
+    {
+      assertTrue_2(handler, "registerLookupHandler: Handler must not be null");
+
+      pugi::xml_node lookupNamesElt =
+        configXml.child(InterfaceSchema::LOOKUP_NAMES_TAG);
+      size_t nLookupNames = 0;
+      while (lookupNamesElt) {
+        // Register individual lookups
+        char const *lookupNamesStr = lookupNamesElt.child_value();
+        checkError(lookupNamesStr && *lookupNamesStr,
+                   "IpcAdapter: Invalid configuration XML: "
                    << InterfaceSchema::LOOKUP_NAMES_TAG
                    << " requires one or more comma-separated lookup names");
-        std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
-        bool telemOnly = element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR).as_bool();
-        for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
-          registerLookupInterface(*it, adapter, telemOnly);
-        delete lookupNames;
+        std::vector<std::string> *lkupNames =
+          InterfaceSchema::parseCommaSeparatedArgs(lookupNamesStr);
+        for (std::string const &name : *lkupNames)
+          m_lookupMap[name].reset(handler);
+        delete lkupNames;
+        lookupNamesElt = lookupNamesElt.next_sibling(InterfaceSchema::LOOKUP_NAMES_TAG);
       }
-      // ignore other tags, they're for adapter's use
-
-      element = element.next_sibling();
     }
-  }
 
-  /**
-   * @brief Register the given interface adapter for this command.
-   Returns true if successful.  Fails and returns false
-   iff the command name already has an adapter registered
-            or setting a command interface is not implemented.
-   * @param commandName The command to map to this adapter.
-   * @param intf The interface adapter to handle this command.
-   */
-  bool AdapterConfiguration::registerCommandInterface(std::string const &commandName,
-                                                      InterfaceAdapter *intf) {
-    InterfaceMap::iterator it = m_commandMap.find(commandName);
-    if (it == m_commandMap.end()) {
-      // Not found, OK to add
-      debugMsg("AdapterConfiguration:registerCommandInterface",
-               " registering interface " << intf << " for command '" << commandName << "'");
-      m_commandMap.insert(std::pair<std::string, InterfaceAdapter *>(commandName, intf));
-      addInterfaceAdapter(intf);
+    virtual void registerLookupHandler(LookupHandler *handler,
+                                       std::vector<std::string> const &names)
+    {
+      assertTrue_2(handler, "registerLookupHandler: Handler must not be null");
+      for (std::string const &name : names)
+        m_lookupMap[name].reset(handler);
+    }
+
+    virtual void registerLookupHandler(LookupHandler *handler,
+                                       std::string const &stateName)
+    {
+      assertTrue_2(handler, "registerLookupHandler: Handler must not be null");
+      m_lookupMap[stateName].reset(handler);
+    }
+
+    virtual void registerLookupHandlerFunction(std::string const &stateName,
+                                               LookupNowHandler lookupNow,
+                                               SetThresholdsHandlerReal setThresholdsReal =
+                                               SetThresholdsHandlerReal(),
+                                               SetThresholdsHandlerInteger setThresholdsInt =
+                                               SetThresholdsHandlerInteger(),
+                                               ClearThresholdsHandler clrThresholds =
+                                               ClearThresholdsHandler())
+    {
+      assertTrue_2(lookupNow, "registerLookupHandlerFunction: LookupNow function must not be null");
+      registerLookupHandler(new LookupHandlerWrapper(lookupNow,
+                                                     setThresholdsReal,
+                                                     setThresholdsInt,
+                                                     clrThresholds),
+                            stateName);
+    }
+
+    virtual void setDefaultLookupHandler(LookupHandler *handler)
+    {
+      assertTrue_2(handler, "setDefaultLookupHandler: Handler must not be null");
+      m_defaultLookupHandler.reset(handler);
+    }
+
+    virtual void setDefaultLookupHandler(LookupNowHandler lookupNow,
+                                         SetThresholdsHandlerReal setThresholdsReal =
+                                         SetThresholdsHandlerReal(),
+                                         SetThresholdsHandlerInteger setThresholdsInt =
+                                         SetThresholdsHandlerInteger(),
+                                         ClearThresholdsHandler clrThresholds =
+                                         ClearThresholdsHandler())
+    {
+      assertTrue_2(lookupNow,
+                   "setDefaultLookupHandler: LookupNow function must not be null");
+      setDefaultLookupHandler(new LookupHandlerWrapper(lookupNow,
+                                                       setThresholdsReal,
+                                                       setThresholdsInt,
+                                                       clrThresholds));
+    }
+
+    //
+    // Planner Update handler registration
+    //
+
+    virtual void registerPlannerUpdateHandler(PlannerUpdateHandler handler)
+    {
+      assertTrue_2(handler, "registerPlannerUpdateHandler: Handler must not be null");
+      m_plannerUpdateHandler = handler;
+    }
+
+    //
+    // Interface adapter registration
+    //
+
+    virtual void addInterfaceAdapter(InterfaceAdapter *adapter)
+    {
+      m_adapters.emplace_back(InterfaceAdapterPtr(adapter));
+    }
+
+    //
+    // Exec listener registration
+    //
+
+    virtual void addExecListener(ExecListener *listener)
+    {
+      m_listenerHub->addListener(listener);
+    }
+
+    //
+    // Handler accessors
+    //
+
+    virtual CommandHandler *getCommandHandler(std::string const &cmdName) const
+    {
+      CommandHandlerMap::const_iterator it = m_commandMap.find(cmdName);
+      if (it != m_commandMap.end()) {
+        debugMsg("AdapterConfiguration:getCommandHandler",
+                 " found registered handler for command '" << cmdName << "'");
+        return (*it).second.get();
+      }
+      debugMsg("AdapterConfiguration:getCommandHandler",
+               " using default handler for command '" << cmdName << "'");
+      return m_defaultCommandHandler.get();
+    }
+
+    virtual LookupHandler *getLookupHandler(std::string const &stateName) const
+    {
+      LookupHandlerMap::const_iterator it = m_lookupMap.find(stateName);
+      if (it != m_lookupMap.end()) {
+        debugMsg("AdapterConfiguration:getLookupHandler",
+                 " found registered handler for lookup '" << stateName << "'");
+        return (*it).second.get();
+      }
+      debugMsg("AdapterConfiguration:getLookupHandler",
+                 " using default handler for lookup '" << stateName << "'");
+      return m_defaultLookupHandler.get();
+    }
+
+    virtual PlannerUpdateHandler getPlannerUpdateHandler() const
+    {
+      return m_plannerUpdateHandler;
+    }
+
+    virtual ExecListenerHub *getListenerHub() const
+    {
+      return m_listenerHub.get();
+    }
+
+    //
+    // Search path registration for plans and libraries
+    //
+
+    /**
+     * @brief Add the specified directory name to the end of the plan loading path.
+     * @param libdir The directory name.
+     */
+    virtual void addPlanPath(const std::string &libdir)
+    {
+      m_planPath.push_back(libdir);
+    }
+
+    /**
+     * @brief Add the specified directory names to the end of the plan loading path.
+     * @param libdirs The vector of directory names.
+     */
+    virtual void addPlanPath(const std::vector<std::string>& libdirs)
+    {
+      for (std::vector<std::string>::const_iterator it = libdirs.begin();
+           it != libdirs.end();
+           ++it) {
+        m_planPath.push_back(*it);
+      }
+    }
+
+    /**
+     * @brief Add the specified directory name to the end of the library node loading path.
+     * @param libdir The directory name.
+     */
+    virtual void addLibraryPath(const std::string &libdir)
+    {
+      appendLibraryPath(libdir);
+    }
+
+    /**
+     * @brief Add the specified directory names to the end of the library node loading path.
+     * @param libdirs The vector of directory names.
+     */
+    virtual void addLibraryPath(const std::vector<std::string>& libdirs)
+    {
+      for (std::vector<std::string>::const_iterator it = libdirs.begin();
+           it != libdirs.end();
+           ++it)
+        appendLibraryPath(*it);
+    }
+
+    //
+    // Search path access for plans and libraries
+    //
+
+    virtual const std::vector<std::string>& getPlanPath() const
+    {
+      return m_planPath;
+    }
+
+    virtual const std::vector<std::string>& getLibraryPath() const
+    {
+      return getLibraryPaths();
+    }
+
+    //
+    // Input queue
+    //
+
+    // TODO: actually get queue type from input data
+    virtual InputQueue *makeInputQueue() const
+    {
+      return 
+#ifdef PLEXIL_WITH_THREADS
+        new SerializedInputQueue();
+#else
+        new SimpleInputQueue();
+#endif
+    }
+
+  private:
+
+    //
+    // Private helpers
+    //
+
+    //!
+    // @brief Construct the adapter described by the given XML.
+    // @param element The XML element specifying the adapter to be constructed.
+    // @return True if an adapter was constructed, false otherwise.
+    //
+    bool constructAdapter(pugi::xml_node const element)
+    {
+      InterfaceAdapter *adapter = 
+        AdapterFactory::createInstance(element);
+      if (!adapter) {
+        warn("constructInterfaces: failed to construct adapter type \""
+             << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
+             << "\"");
+        return false;
+      }
+      m_adapters.emplace_back(InterfaceAdapterPtr(adapter));
       return true;
     }
-    else {
-      debugMsg("AdapterConfiguration:registerCommandInterface",
-               " interface already registered for command '" << commandName << "'");
-      return false;
-    }
-  }
 
-  /**
-   * @brief Register the given interface adapter for lookups to this state.
-   Returns true if successful.  Fails and returns false
-   if the state name already has an adapter registered
-            or registering a lookup interface is not implemented.
-   * @param stateName The name of the state to map to this adapter.
-   * @param intf The interface adapter to handle this lookup.
-   * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
-   */
-  bool AdapterConfiguration::registerLookupInterface(std::string const &stateName,
-                                                     InterfaceAdapter *intf,
-                                                     bool telemetryOnly) {
-    InterfaceMap::iterator it = m_lookupMap.find(stateName);
-    if (it == m_lookupMap.end()) {
-      // Not found, OK to add
-      debugMsg("AdapterConfiguration:registerLookupInterface",
-               " registering interface " << intf << " for lookup '" << stateName << "'");
-      m_lookupMap.insert(std::pair<std::string, InterfaceAdapter *>(stateName, intf));
-      addInterfaceAdapter(intf);
-      if (telemetryOnly)
-        m_telemetryLookups.insert(stateName);
+    bool constructCommandHandler(pugi::xml_node const element)
+    {
+      // TODO -- see InterfaceFactory.hh
       return true;
-    } else {
-      debugMsg("AdapterConfiguration:registerLookupInterface",
-               " interface already registered for lookup '" << stateName << "'");
-      return false;
     }
-  }
 
-  /**
-   * @brief Register the given interface adapter for planner updates.
-            Returns true if successful.  Fails and returns false
-            iff an adapter is already registered
-            or setting the default planner update interface is not implemented.
-   * @param intf The interface adapter to handle planner updates.
-   */
-  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapter *intf) {
-    if (m_plannerUpdateInterface) {
-      debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
-               " planner update interface already registered");
-      return false;
-    }
-    debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
-             " registering planner update interface " << intf);
-    m_plannerUpdateInterface = intf;
-    addInterfaceAdapter(intf);
-    return true;
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default for all lookups and commands
-   which do not have a specific adapter.  Returns true if successful.
-   Fails and returns false if there is already a default adapter registered
-            or setting the default interface is not implemented.
-   * @param intf The interface adapter to use as the default.
-   */
-  bool AdapterConfiguration::setDefaultInterface(InterfaceAdapter *intf) {
-    if (m_defaultInterface) {
-      debugMsg("AdapterConfiguration:setDefaultInterface",
-               " attempt to overwrite default interface adapter " << m_defaultInterface);
-      return false;
-    }
-    m_defaultInterface = intf;
-    addInterfaceAdapter(intf);
-    debugMsg("AdapterConfiguration:setDefaultInterface",
-             " setting default interface " << intf);
-    return true;
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default for lookups.
-            This interface will be used for all lookups which do not have
-        a specific adapter.
-            Returns true if successful.
-        Fails and returns false if there is already a default lookup adapter registered
-            or setting the default lookup interface is not implemented.
-   * @param intf The interface adapter to use as the default.
-   * @return True if successful, false if there is already a default adapter registered.
-   */
-  bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapter *intf) {
-    if (m_defaultLookupInterface) {
-      debugMsg("AdapterConfiguration:setDefaultLookupInterface",
-               " attempt to overwrite default lookup interface adapter " << m_defaultLookupInterface);
-      return false;
-    }
-    m_defaultLookupInterface = intf;
-    addInterfaceAdapter(intf);
-    debugMsg("AdapterConfiguration:setDefaultLookupInterface",
-             " setting default lookup interface " << intf);
-    return true;
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default for commands.
-            This interface will be used for all commands which do not have
-        a specific adapter.
-            Returns true if successful.
-        Fails and returns false if there is already a default command adapter registered.
-   * @param intf The interface adapter to use as the default.
-   * @return True if successful, false if there is already a default adapter registered.
-   */
-  bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapter *intf) {
-    if (m_defaultCommandInterface) {
-      debugMsg("AdapterConfiguration:setDefaultCommandInterface",
-               " attempt to overwrite default command interface adapter " << m_defaultCommandInterface);
-      return false;
-    }
-    m_defaultCommandInterface = intf;
-    addInterfaceAdapter(intf);
-    debugMsg("AdapterConfiguration:setDefaultCommandInterface",
-             " setting default command interface " << intf);
-    return true;
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for this command, whether
-   specifically registered or default. May return nullptr.
-   * @param commandName The command.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
-    InterfaceMap::iterator it = m_commandMap.find(commandName);
-    if (it != m_commandMap.end()) {
-      debugMsg("AdapterConfiguration:getCommandInterface",
-               " found specific interface " << (*it).second
-               << " for command '" << commandName << "'");
-      return (*it).second;
-    }
-    // check default command i/f
-    if (m_defaultCommandInterface) {
-      debugMsg("AdapterConfiguration:getCommandInterface",
-               " returning default command interface " << m_defaultCommandInterface
-               << " for command '" << commandName << "'");
-      return m_defaultCommandInterface;
-    }
-    // fall back on default default
-    debugMsg("AdapterConfiguration:getCommandInterface",
-             " returning default interface " << m_defaultInterface
-             << " for command '" << commandName << "'");
-    return m_defaultInterface;
-  }
-
-  /**
-   * @brief Return the current default interface adapter for commands.
-            May return nullptr. Returns nullptr if default interfaces are not implemented.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
-    return m_defaultCommandInterface;
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for lookups with this state name,
-   whether specifically registered or default. May return nullptr. Returns nullptr if default interfaces are not implemented.
-   * @param stateName The state.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
-    InterfaceMap::iterator it = m_lookupMap.find(stateName);
-    if (it != m_lookupMap.end()) {
-      debugMsg("AdapterConfiguration:getLookupInterface",
-               " found specific interface " << (*it).second
-               << " for lookup '" << stateName << "'");
-      return (*it).second;
-    }
-    // try defaults
-    if (m_defaultLookupInterface) {
-      debugMsg("AdapterConfiguration:getLookupInterface",
-               " returning default lookup interface " << m_defaultLookupInterface
-               << " for lookup '" << stateName << "'");
-      return m_defaultLookupInterface;
-    }
-    // try default defaults
-    debugMsg("AdapterConfiguration:getLookupInterface",
-             " returning default interface " << m_defaultInterface
-             << " for lookup '" << stateName << "'");
-    return m_defaultInterface;
-  }
-
-  /**
-   * @brief Query configuration data to determine if a state is only available as telemetry.
-   * @param stateName The state.
-   * @return True if state is declared telemetry-only, false otherwise.
-   * @note In the absence of a declaration, a state is presumed not to be telemetry.
-   */
-  bool AdapterConfiguration::lookupIsTelemetry(std::string const &stateName) const
-  {
-    return m_telemetryLookups.find(stateName) != m_telemetryLookups.end();
-  }
-
-  /**
-   * @brief Return the current default interface adapter for lookups.
-            May return nullptr.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
-    return m_defaultLookupInterface;
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for planner updates,
-            whether specifically registered or default. May return nullptr.
-            Returns nullptr if default interfaces are not defined.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
-    if (!m_plannerUpdateInterface) {
-      debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
-               " returning default interface " << m_defaultInterface);
-      return m_defaultInterface;
-    }
-    debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
-             " found specific interface " << m_plannerUpdateInterface);
-    return m_plannerUpdateInterface;
-  }
-
-  /**
-   * @brief Return the current default interface adapter. May return nullptr.
-   */
-  InterfaceAdapter *AdapterConfiguration:: getDefaultInterface() {
-    return m_defaultInterface;
-  }
-
-  /**
-   * @brief Returns true if the given adapter is a known interface in the system. False otherwise
-   */
-  bool AdapterConfiguration::isKnown(InterfaceAdapter *intf) {
-    // Check the easy places first
-    if (intf == m_defaultInterface
-        || intf == m_defaultCommandInterface
-        || intf == m_defaultLookupInterface
-        || intf == m_plannerUpdateInterface)
+    bool constructLookupHandler(pugi::xml_node const element)
+    {
+      // TODO -- see InterfaceFactory.hh
       return true;
+    }
 
-    // See if the adapter is in any of the tables
-    for (InterfaceMap::iterator it = m_lookupMap.begin(); it != m_lookupMap.end(); ++it)
-      if (it->second == intf)
+    bool constructPlannerUpdateHandler(pugi::xml_node const element)
+    {
+      // TODO -- see InterfaceFactory.hh
+      return true;
+    }
+
+    bool ensureInterfaceLibraryLoaded(pugi::xml_node const element)
+    {
+      const char* libName = element.attribute(InterfaceSchema::NAME_ATTR).value();
+      if (!libName || !*libName) {
+        warn("AdapterConfiguration: missing or empty "
+             << InterfaceSchema::NAME_ATTR << " attribute in "
+             << element.name());
+        return false;
+      }
+
+      debugMsg("AdapterConfiguration:constructInterfaces", 
+               " Loading library \"" << libName << "\"");
+      // Attempt to dynamically load library
+      const char* libPath =
+        element.attribute(InterfaceSchema::LIB_PATH_ATTR).value();
+      if (dynamicLoadModule(libName, libPath)) {
+        debugMsg("AdapterConfiguration:constructInterfaces", 
+                 " Successfully loaded library \"" << libName << "\"");
         return true;
-    for (InterfaceMap::iterator it = m_commandMap.begin(); it != m_commandMap.end(); ++it)
-      if (it->second == intf)
-        return true;
-    return false;
-  }
+      }
+      warn("constructInterfaces: unable to load library \"" << libName << "\"");
+      return false;
+    }
 
-  /**
-   * @brief Clears the interface adapter registry.
-   */
-  void AdapterConfiguration:: clearAdapterRegistry() 
+    //
+    // Internal classes typedefs
+    //
+ 
+    //*
+    // @brief A wrapper class for user-provided command handler
+    // functions.
+    //
+    struct CommandHandlerWrapper : public CommandHandler
+    {
+      //
+      // Constructors
+      //
+
+      CommandHandlerWrapper(ExecuteCommandHandler exec,
+                            AbortCommandHandler abrt)
+        : m_executeCommandFn(exec),
+          m_abortCommandFn(abrt)
+      {
+      }
+    
+      CommandHandlerWrapper(const CommandHandlerWrapper &) = default;
+      CommandHandlerWrapper(CommandHandlerWrapper &&) = default;
+
+      // Destructor
+      virtual ~CommandHandlerWrapper() = default;
+
+      // Assignment (shouldn't be used but won't hurt anything)
+      CommandHandlerWrapper &operator=(const CommandHandlerWrapper &) = default;
+      CommandHandlerWrapper &operator=(CommandHandlerWrapper &&) = default;
+
+      virtual void executeCommand(Command *cmd, AdapterExecInterface *intf) override
+      {
+        (m_executeCommandFn)(cmd, intf);
+      }
+
+      // Call the base class method if no abort handler function provided
+      virtual void abortCommand(Command *cmd, AdapterExecInterface *intf) override
+      {
+        if (m_abortCommandFn)
+          (m_abortCommandFn)(cmd, intf);
+        else
+          CommandHandler::abortCommand(cmd, intf);
+      }
+
+    private:
+      //
+      // Not implemented
+      //
+      CommandHandlerWrapper() = delete;
+
+      ExecuteCommandHandler m_executeCommandFn;
+      AbortCommandHandler m_abortCommandFn;
+    };
+
+    //*
+    // @brief A wrapper class for user-provided lookup handler functions.
+    //
+    struct LookupHandlerWrapper final : public LookupHandler
+    {
+      //
+      // Constructors
+      //
+      LookupHandlerWrapper(LookupNowHandler lkup,
+                           SetThresholdsHandlerReal setThReal,
+                           SetThresholdsHandlerInteger setThInt,
+                           ClearThresholdsHandler clrTh)
+        : lookupNowFn(lkup),
+          setThresholdsRealFn(setThReal),
+          setThresholdsIntFn(setThInt),
+          clearThresholdsFn(clrTh)
+      {
+      }
+
+      LookupHandlerWrapper(const LookupHandlerWrapper &) = default;
+      LookupHandlerWrapper(LookupHandlerWrapper &&) = default;
+
+      // Destructor
+      virtual ~LookupHandlerWrapper() = default;
+
+      // Assignment (shouldn't be used but doesn't hurt anything)
+      LookupHandlerWrapper &operator=(const LookupHandlerWrapper &) = default;
+      LookupHandlerWrapper &operator=(LookupHandlerWrapper &&) = default;
+
+      virtual void lookupNow(const State &state, LookupReceiver *rcvr) override
+      {
+        if (lookupNowFn)
+          (lookupNowFn)(state, rcvr);
+      }
+
+      virtual void setThresholds(const State &state, Real hi, Real lo) override
+      {
+        if (setThresholdsRealFn)
+          (setThresholdsRealFn)(state, hi, lo);
+      }
+
+      virtual void setThresholds(const State &state, Integer hi, Integer lo) override
+      {
+        if (setThresholdsIntFn)
+          (setThresholdsIntFn)(state, hi, lo);
+      }
+
+      virtual void clearThresholds(const State &state) override
+      {
+        if (clearThresholdsFn)
+          (clearThresholdsFn)(state);
+      }
+
+      LookupNowHandler lookupNowFn;
+      SetThresholdsHandlerReal setThresholdsRealFn;
+      SetThresholdsHandlerInteger setThresholdsIntFn;
+      ClearThresholdsHandler clearThresholdsFn;
+
+    private:
+      LookupHandlerWrapper() = delete;    
+    };
+
+    //
+    // Member variables
+    //
+
+    // Maps by command/lookup
+    LookupHandlerMap m_lookupMap;
+    CommandHandlerMap m_commandMap;
+    
+    //* Set of all known InterfaceAdapter instances
+    InterfaceAdapterSet m_adapters;
+
+    //* List of directory names for plan file search paths
+    std::vector<std::string> m_planPath;
+
+    //* ExecListener hub
+    ExecListenerHubPtr m_listenerHub;
+
+    //* Default handlers
+    CommandHandlerPtr m_defaultCommandHandler;
+    LookupHandlerPtr m_defaultLookupHandler;
+
+    //* Handler to use for Update nodes
+    PlannerUpdateHandler m_plannerUpdateHandler;
+  };
+
+  AdapterConfiguration *makeAdapterConfiguration()
   {
-    m_lookupMap.clear();
-    m_commandMap.clear();
-    m_telemetryLookups.clear();
-    m_plannerUpdateInterface = nullptr;
-    m_defaultInterface = nullptr;
-    m_defaultCommandInterface = nullptr;
-    m_defaultLookupInterface = nullptr;
+    return new AdapterConfigurationImpl;
   }
-
-  /**
-   * @brief Deletes the given adapter from the interface manager
-   * @return true if the given adapter existed and was deleted. False if not found
-   */
-  bool AdapterConfiguration::deleteAdapter(InterfaceAdapter *intf) {
-    return (m_adapters.end() != 
-            std::remove_if(m_adapters.begin(), m_adapters.end(),
-                           [intf] (std::unique_ptr<InterfaceAdapter> &a) -> bool
-                           { return intf == a.get(); }));
-  }
-
-  // Initialize global variable
-  AdapterConfiguration *g_configuration = nullptr;
 
 }

@@ -1,184 +1,131 @@
 /* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #ifndef INTERFACE_ADAPTER_H
 #define INTERFACE_ADAPTER_H
 
-#include "ValueType.hh"
 #include "pugixml.hpp"
-
-#include <map>
-#include <set>
-#include <vector>
-
-#ifdef STDC_HEADERS
-#include <cstdint>
-#endif
 
 namespace PLEXIL
 {
   // forward references 
-  class Command;
-  class Expression;
-  class State;
-  class StateCacheEntry;
-  class Update;
-
+  class AdapterConfiguration;
   class AdapterExecInterface;
 
-  /**
-   * @brief An abstract base class for interfacing the PLEXIL Universal Exec
-   *        to other systems.
-   * @see InterfaceManager, AdapterExecInterface
-   */
+  //!
+  // @brief An abstract base class for constructing the handlers which 
+  //        interface the PLEXIL Universal Exec to external systems,
+  //        and maintaining their shared state as the application requires.
+  //
+  // InterfaceAdapter is an optional feature of the PLEXIL Application Framework.
+  // It is intended to serve these purposes:
+  //
+  // * Centralizing shared state required to access an external system
+  //   with multiple commands and/or states
+  // * A channel for publishing external data to the Exec
+  //
+  // @see AdapterConfiguration
+  // @see CommandHandler
+  // @see LookupHandler
+  // @see PlannerUpdateHandler
+  //
+
+  // ISSUES:
+  // * 
+
   class InterfaceAdapter
   {
-
   public:
 
-    //
-    // Class constants
-    //
-
     /**
-     * @brief Constructor.
-     * @param execInterface Reference to the parent AdapterExecInterface object.
+     * @brief Default constructor.
      */
-    InterfaceAdapter(AdapterExecInterface& execInterface);
 
     /**
      * @brief Constructor from configuration XML.
-     * @param execInterface Reference to the parent AdapterExecInterface object.
-     * @param xml Const reference to the XML element describing this adapter
-     * @note The instance maintains a shared reference to the XML.
+     * @param xml The const XML element (handle) describing this adapter
+     *
+     * @note The instance maintains a shared reference to the XML, though
+     *       perhaps this should be passed in via the initialize() method.
      */
-    InterfaceAdapter(AdapterExecInterface& execInterface, 
-                     pugi::xml_node const xml);
+    InterfaceAdapter(AdapterExecInterface &intf, pugi::xml_node const xml)
+      : m_interface(intf),
+        m_xml(xml)
+    {
+    }
 
     /**
      * @brief Destructor.
      */
-    virtual ~InterfaceAdapter();
+    virtual ~InterfaceAdapter() = default;
 
     //
     // API to ExecApplication
     //
 
     /**
-     * @brief Initializes the adapter, possibly using its configuration data.
+     * @brief Construct the appropriate handler objects as specified in the
+     *        configuration XML, and register them with the AdapterConfiguration
+     *        instance.
+     * @param config Pointer to the AdapterConfiguration interface registry.
      * @return true if successful, false otherwise.
+     * 
+     * @note The default method simply returns true.
      */
-    virtual bool initialize() = 0;
+    virtual bool initialize(AdapterConfiguration * /* config */)
+    {
+      return true;
+    }
 
     /**
-     * @brief Starts the adapter, possibly using its configuration data.  
+     * @brief Start the interface.
      * @return true if successful, false otherwise.
+     * 
+     * @note The default method simply returns true.
      */
-    virtual bool start() = 0;
+    virtual bool start()
+    {
+      return true;
+    }
 
     /**
-     * @brief Stops the adapter.  
+     * @brief Stop the interface.
      * @return true if successful, false otherwise.
+     * 
+     * @note The default method simply returns true.
      */
-    virtual bool stop() = 0;
+    virtual bool stop()
+    {
+      return true;
+    }
 
-    /**
-     * @brief Resets the adapter.  
-     * @return true if successful, false otherwise.
-     * @note Adapters should provide their own methods.
-     */
-    virtual bool reset() = 0;
-
-    /**
-     * @brief Shuts down the adapter, releasing any of its resources.
-     * @return true if successful, false otherwise.
-     * @note Adapters should provide their own methods.
-     */
-    virtual bool shutdown() = 0;
-
-    /**
-     * @brief Perform an immediate lookup on an existing state.
-     * @param state The state.
-     * @return The current value for the state.
-     * @note Adapters should provide their own methods. The default method does nothing.
-     */
-    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     * @note Adapters should provide their own methods.
-     */
-    virtual void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @note Adapters should provide their own methods.
-     */
-    virtual void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     * @note Adapters should provide their own methods as appropriate.  The default methods do nothing.
-     */
-    virtual void setThresholds(const State& state, Real hi, Real lo);
-    virtual void setThresholds(const State& state, Integer hi, Integer lo);
-
-    /**
-     * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
-     * @param node The Node requesting the update.
-     * @param valuePairs A map of <string_key, value> pairs.
-     * @param ack The expression in which to store an acknowledgement of completion.
-     * @note Derived classes may implement this method.
-     */
-
-    virtual void sendPlannerUpdate(Update *update);
-
-    /**
-     * @brief Execute a command with the requested arguments.
-     * @param cmd The Command instance.
-     */
-    virtual void executeCommand(Command *cmd);
-
-    /**
-     * @brief Abort the pending command.
-     * @param cmd Pointer to the command being aborted.
-     * @note Derived classes may implement this method.
-     */
-    virtual void invokeAbort(Command *cmd);
-
-    /**
-     * @brief Register this adapter based on its XML configuration data.
-     * @note The adapter is presumed to be fully initialized and working at the time of this call.
-     * @note This is a default method; adapters are free to override it.
-     */
-    virtual void registerAdapter();
+    AdapterExecInterface &getInterface()
+    {
+      return m_interface;
+    }
 
     /**
      * @brief Get the configuration XML for this instance.
@@ -188,35 +135,24 @@ namespace PLEXIL
       return m_xml;
     }
 
-    /**
-     * @brief Get the AdapterExecInterface for this instance.
-     */
-    AdapterExecInterface& getExecInterface()
-    {
-      return m_execInterface;
-    }
-
-  protected:
-
-    //
-    // API which all subclasses must implement
-    //
-
-    AdapterExecInterface& m_execInterface;
-
   private:
 
     // Deliberately unimplemented
-    InterfaceAdapter();
-    InterfaceAdapter(const InterfaceAdapter &);
-    InterfaceAdapter & operator=(const InterfaceAdapter &);
+    InterfaceAdapter() = delete;
+    InterfaceAdapter(const InterfaceAdapter &) = delete;
+    InterfaceAdapter(InterfaceAdapter &&) = delete;
+
+    InterfaceAdapter &operator=(const InterfaceAdapter &) = delete;
+    InterfaceAdapter &operator=(InterfaceAdapter &&) = delete;
 
     //
     // Member variables
     //
 
     const pugi::xml_node m_xml;
+    AdapterExecInterface &m_interface;
   };
+
 }
 
 #endif // INTERFACE_ADAPTER_H

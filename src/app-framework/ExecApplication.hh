@@ -32,7 +32,11 @@
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadSemaphore.hh"
 #include <mutex>
+
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
+#endif
+
 #endif
 
 #include <set>
@@ -73,8 +77,7 @@ namespace PLEXIL
         APP_INITED,
         APP_READY,
         APP_RUNNING,
-        APP_STOPPED,
-        APP_SHUTDOWN
+        APP_STOPPED
       };
 
     /**
@@ -166,12 +169,6 @@ namespace PLEXIL
      * @return true if successful, false otherwise.
      */
     virtual bool stop();
-   
-    /**
-     * @brief Resets a stopped Exec so that it can be run again.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool reset();
 
     /**
      * @brief Shuts down a stopped Exec.

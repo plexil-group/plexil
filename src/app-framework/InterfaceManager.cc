@@ -1,28 +1,28 @@
 /* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 //
 // TODO:
@@ -40,6 +40,7 @@
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceError.hh"
+#include "LookupReceiver.hh"
 #include "NodeImpl.hh"
 #include "parsePlan.hh"
 #include "parser-utils.hh"
@@ -47,20 +48,24 @@
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
 #include "QueueEntry.hh"
-#include "StateCacheEntry.hh"
-#include "StateCacheMap.hh"
+#include "State.hh"
 #include "Update.hh"
 
 #include <iomanip>
 #include <limits>
 #include <sstream>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL
 {
+
+  // Initialize global variable
+  std::unique_ptr<InterfaceManager> g_manager = nullptr;
 
   /**
    * @brief Default constructor.
@@ -69,8 +74,7 @@ namespace PLEXIL
     : ExternalInterface(),
       AdapterExecInterface(),
       m_application(app),
-      m_inputQueue(nullptr), // configurable
-      m_currentTime(std::numeric_limits<double>::min()),
+      m_inputQueue(),
       m_lastMark(0),
       m_markCount(0)
   {
@@ -96,7 +100,7 @@ namespace PLEXIL
     if (!g_configuration)
       return false;
     bool result = g_configuration->initialize();
-    m_inputQueue = g_configuration->constructInputQueue();
+    m_inputQueue.reset(g_configuration->makeInputQueue());
     if (!m_inputQueue)
       return false;
     return result;
@@ -113,40 +117,13 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Halts all interfaces.
+   * @brief Commands all interfaces to stop.
    * @return true if successful, false otherwise.
    */
   bool InterfaceManager::stop()
   {
     assertTrue_1(g_configuration);
     return g_configuration->stop();
-  }
-
-  /**
-   * @brief Resets the interface prior to restarting.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceManager::reset()
-  {
-    debugMsg("InterfaceManager:reset", " entered");
-
-    // reset queue etc. to freshly initialized state
-    // *** NYI ***
-
-    assertTrue_1(g_configuration);
-    return g_configuration->reset();
-  }
-
-  /**
-   * @brief Shuts down the interface.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceManager::shutdown()
-  {
-    assertTrue_1(g_configuration);
-    bool success = g_configuration->shutdown();
-    debugMsg("InterfaceManager:shutdown", " completed");
-    return success;
   }
 
   //
@@ -161,7 +138,6 @@ namespace PLEXIL
     assertTrue_1(m_inputQueue);
     m_inputQueue->flush();
   }
-    
     
   /**
    * @brief Updates the state cache from the items in the queue.
@@ -189,24 +165,6 @@ namespace PLEXIL
 
         debugMsg("InterfaceManager:processQueue",
                  " Received new value " << entry->value << " for " << *(entry->state));
-
-        // If this is a time state update message, grab it
-        if (*(entry->state) == State::timeState()) {
-          // FIXME: assumes time is a double
-          double newValue;
-          if (!entry->value.getValue(newValue)) {
-            warn("processQueue: time is unknown");
-            m_currentTime = 0.0;
-          }
-          else {
-#if PARANOID_ABOUT_TIME_DIRECTION
-            assertTrue_2(newValue >= m_currentTime, "Time is going backwards!");
-#endif
-            debugMsg("InterfaceManager:processQueue",
-                     " setting current time to " << std::setprecision(15) << newValue);
-            m_currentTime = newValue;
-          }
-        }
 
         g_interface->lookupReturn(*(entry->state), entry->value);
         needsStep = true;
@@ -300,99 +258,18 @@ namespace PLEXIL
    * @param state The state.
    */
   void 
-  InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
+  InterfaceManager::lookupNow(State const &state, LookupReceiver *rcvr)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("lookupNow: No interface adapter found for lookup "
-           << state.name() << ", returning UNKNOWN");
-      return;
-    }
-
-    if (g_configuration->lookupIsTelemetry(state.name())) {
-      // LookupNow not supported for this state, use last cached value
-      debugStmt("InterfaceManager:lookupNow", {
-	  CachedValue const *cv = cacheEntry.cachedValue();
-	  if (cv) {
-	  debugMsg("InterfaceManager:lookupNow", " lookup " << state
-		   << " is telemetry only, using cached value " << cacheEntry.cachedValue()->toValue());
-	  }
-	  else {
-	    debugMsg("InterfaceManager:lookupNow", " lookup " << state
-		     << " is telemetry only, no cached value, so is UNKNOWN");
-	  }
-	});
-      return;
-    }
-
+    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
     try {
-      adapter->lookupNow(state, cacheEntry);
+      handler->lookupNow(state, rcvr);
     }
-    catch (InterfaceError &e) {
-      warn("lookupNow: Error in interface adapter for lookup " << state << ":\n"
+    catch (InterfaceError const &e) {
+      warn("lookupNow: Error performing lookup of " << state << ":\n"
            << e.what() << "\n Returning UNKNOWN");
-      cacheEntry.setUnknown();
+      rcvr->setUnknown();
     }
-
-    debugStmt("InterfaceManager:lookupNow", {
-	CachedValue const *cv = cacheEntry.cachedValue();
-	if (cv) {
-	  debugMsg("InterfaceManager:lookupNow",
-		   " returning " << cacheEntry.cachedValue()->toValue());
-	}
-	else {
-	  debugMsg("InterfaceManager:lookupNow",
-		   " no cached value, so is UNKNOWN");
-	}
-      });
-    // update internal idea of time if required
-    if (state == State::timeState()) {
-      CachedValue const *val = cacheEntry.cachedValue();
-      assertTrue_2(val, "Internal error: No cached value for 'time' state");
-      double newTime; // FIXME
-      if (!val->getValue(newTime)) {
-        warn("lookupNow: time is unknown!");
-        m_currentTime = 0.0;
-      }
-      else {
-#if PARANOID_ABOUT_TIME_DIRECTION
-        assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
-#endif
-        debugMsg("InterfaceManager:lookupNow",
-                 " setting current time to " << std::setprecision(15) << newTime);
-        m_currentTime = newTime;
-      }
-    }
-  }
-
-  /**
-   * @brief Inform the interface that it should report changes in value of this state.
-   * @param state The state.
-   */
-  void InterfaceManager::subscribe(const State& state)
-  {
-    debugMsg("InterfaceManager:subscribe", " to state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("subscribe: No interface adapter found for lookup " << state);
-      return;
-    }
-    adapter->subscribe(state);
-  }
-
-  /**
-   * @brief Inform the interface that a lookup should no longer receive updates.
-   */
-  void InterfaceManager::unsubscribe(const State& state)
-  {
-    debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("unsubscribe: No interface adapter found for lookup " << state);
-      return;
-    }
-    adapter->unsubscribe(state);
   }
 
   /**
@@ -404,25 +281,15 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, Real hi, Real lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("setThresholds: No interface adapter found for lookup "
-           << state);
-      return;
-    }
-    adapter->setThresholds(state, hi, lo);
+    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    handler->setThresholds(state, hi, lo);
   }
 
   void InterfaceManager::setThresholds(const State& state, Integer hi, Integer lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter) {
-      warn("setThresholds: No interface adapter found for lookup "
-           << state);
-      return;
-    }
-    adapter->setThresholds(state, hi, lo);
+    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    handler->setThresholds(state, hi, lo);
   }
 
   // *** To do:
@@ -432,17 +299,17 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    InterfaceAdapter *intf = g_configuration->getPlannerUpdateInterface();
-    if (!intf) {
+    PlannerUpdateHandler handler = g_configuration->getPlannerUpdateHandler();
+    if (!handler) {
       // Fake the ack
-      warn("executeUpdate: no interface adapter for updates");
+      warn("executeUpdate: no handler for updates");
       g_interface->acknowledgeUpdate(update, true);
       return;
     }
     debugMsg("InterfaceManager:updatePlanner",
              " sending planner update for node "
              << update->getSource()->getNodeId());
-    intf->sendPlannerUpdate(update);
+    (handler)(update, this);
   }
 
   // executes a command with the given arguments by looking up the command name 
@@ -450,16 +317,16 @@ namespace PLEXIL
 
   // *** To do:
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
-  void
-  InterfaceManager::executeCommand(Command *cmd)
+  void InterfaceManager::executeCommand(Command *cmd)
   {
-    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf) {
-      intf->executeCommand(cmd);
+    CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName()); 
+    try {
+      handler->executeCommand(cmd, this);
     }
-    else {
+    catch (InterfaceError const &e) {
       // return error status
-      warn("executeCommand: no interface adapter for command " << cmd->getName());
+      warn("executeCommand: Error executing command " << cmd->getName()
+           << ":\n" << e.what());
       g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
     }
   }
@@ -478,35 +345,19 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf) {
-      intf->invokeAbort(cmd);
+    CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    try {
+      handler->abortCommand(cmd, this);
     }
-    else {
-      warn("invokeAbort: null interface adapter for command " << cmd->getCommand());
+    catch (InterfaceError const &e) {
+      warn("invokeAbort: error aborting command " << cmd->getCommand()
+           << ":\n" << e.what());
       g_interface->commandAbortAcknowledge(cmd, false);
     }
   }
 
-  Real 
-  InterfaceManager::currentTime()
-  {
-    return m_currentTime;
-  }
-
-  Real
-  InterfaceManager::queryTime()
-  {
-    assertTrue_1(g_configuration);
-    StateCacheEntry *cacheEntry = 
-      StateCacheMap::instance().ensureStateCacheEntry(State::timeState());
-    this->lookupNow(State::timeState(), *cacheEntry); // sets m_currentTime as side effect
-    debugMsg("InterfaceManager:queryTime", " returning " << std::setprecision(15) << m_currentTime);
-    return m_currentTime;
-  }
-
   //
-  // API to interface adapters
+  // API to handlers
   //
 
   /**
@@ -739,32 +590,5 @@ namespace PLEXIL
     m_application.notifyAndWaitForCompletion();
   }
 #endif
-
-  /**
-   * @brief Associate an arbitrary object with a string.
-   * @param name The string naming the property.
-   * @param thing The property value as an untyped pointer.
-   */
-  void InterfaceManager::setProperty(const std::string &name, void * thing)
-  {
-    m_propertyMap[name] = thing;
-  }
-
-  /**
-   * @brief Fetch the named property.
-   * @param name The string naming the property.
-   * @return The property value as an untyped pointer.
-   */
-  void* InterfaceManager::getProperty(const std::string &name) const
-  {
-    PropertyMap::const_iterator it = m_propertyMap.find(name);
-    if (it == m_propertyMap.end())
-      return nullptr;
-    else
-      return it->second;
-  }
-
-  // Initialize global variable
-  InterfaceManager *g_manager = nullptr;
 
 }
