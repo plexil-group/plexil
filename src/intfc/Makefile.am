@@ -34,7 +34,7 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandFunction.hh CommandHandleVariable.hh ExprVec.hh \
  ExternalInterface.hh InputQueue.hh InterfaceError.hh Lookup.hh \
  LookupReceiver.hh NodeConnector.hh QueueEntry.hh ResourceArbiterInterface.hh \
- State.hh StateCacheMap.hh Update.hh
+ State.hh StateCache.hh Update.hh
 
 noinst_HEADERS = LookupReceiverImpl.hh StateCacheEntry.hh
 
@@ -42,7 +42,7 @@ libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
  CommandFunction.cc CommandHandleVariable.cc CommandOperator.cc \
  CommandOperatorImpl.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
  Lookup.cc LookupReceiverImpl.cc QueueEntry.cc ResourceArbiterInterface.cc \
- State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc
+ State.cc StateCacheEntry.cc StateCache.cc Update.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests

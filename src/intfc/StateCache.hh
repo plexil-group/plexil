@@ -24,26 +24,43 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_STATE_CACHE_MAP_HH
-#define PLEXIL_STATE_CACHE_MAP_HH
+#ifndef PLEXIL_STATE_CACHE_HH
+#define PLEXIL_STATE_CACHE_HH
+
+#include "State.hh"
 
 namespace PLEXIL
 {
   // Forward references
   class LookupReceiver;
-  class State;
   class StateCacheEntry;
 
   /**
-   * @class StateCacheMap
-   * @brief An index to the currently active StateCacheEntry instances
+   * @class StateCache
+   * @brief Where the Exec's notion of external state is stored
    */
-  class StateCacheMap
+  class StateCache
   {
   public:
-    virtual ~StateCacheMap() = default;
+    virtual ~StateCache() = default;
 
-    static StateCacheMap &instance();
+    static StateCache &instance();
+
+    //!
+    // @brief Get the most recently cached value of the time.
+    // @return The cached time value, as a double.
+    //
+    // @note The return type of this function may change when
+    //       PLEXIL implements a real Date type.
+    static double currentTime();
+
+    //!
+    // @brief Query the clock to get the time.
+    // @return The actual time, as a double.
+    //
+    // @note The return type of this function may change when
+    //       PLEXIL implements a real Date type.
+    static double queryTime();
 
     /**
      * @brief Construct or find the cache entry for this state.
@@ -58,17 +75,20 @@ namespace PLEXIL
   protected:
 
     // Default constructor is only accessible to the implementation class
-    StateCacheMap() = default;
+    StateCache() = default;
+
+    // Time entry has to be initialized by the implementation constructor
+    StateCacheEntry *m_timeEntry;
 
   private:
 
     // Unimplemented
-    StateCacheMap(StateCacheMap const &) = delete;
-    StateCacheMap(StateCacheMap &&) = delete;
-    StateCacheMap &operator=(StateCacheMap const &) = delete;
-    StateCacheMap &operator=(StateCacheMap &&) = delete;
+    StateCache(StateCache const &) = delete;
+    StateCache(StateCache &&) = delete;
+    StateCache &operator=(StateCache const &) = delete;
+    StateCache &operator=(StateCache &&) = delete;
   };
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_STATE_CACHE_MAP_HH
+#endif // PLEXIL_STATE_CACHE_HH

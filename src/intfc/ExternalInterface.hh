@@ -72,25 +72,24 @@ namespace PLEXIL {
      */
     virtual void lookupNow(State const &state, LookupReceiver *receiver) = 0;
 
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    virtual void subscribe(const State& state) = 0;
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     */
-    virtual void unsubscribe(const State& state) = 0;
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
+    //!
+    // @brief Advise the interface of the current thresholds to use when reporting this state.
+    // @param state The state.
+    // @param hi The upper threshold, at or above which to report changes.
+    // @param lo The lower threshold, at or below which to report changes.
+    //
+    // @note This is a kludge which is only used for the 'time' state, to set
+    //       wakeups in tickless systems.
+    //
     virtual void setThresholds(const State& state, Real hi, Real lo) = 0;
     virtual void setThresholds(const State& state, Integer hi, Integer lo) = 0;
+
+    //!
+    // @brief Tell the interface that thresholds are no longer in effect
+    //        for this state.
+    // @param state The state.
+    //
+    virtual void clearThresholds(const State& state) = 0;
 
     //
     // API to Node classes
@@ -136,10 +135,6 @@ namespace PLEXIL {
      * @return True if both empty, false otherwise.
      */
     bool outboundQueueEmpty() const;
-
-    // Returns the current time.
-    // FIXME - use real time type
-    virtual Real currentTime() = 0;
 
     /**
      * @brief Increment the macro step count and return the new value.
@@ -231,8 +226,10 @@ namespace PLEXIL {
   private:
 
     // Copy, assign disallowed
-    ExternalInterface(ExternalInterface const &);
-    ExternalInterface &operator=(ExternalInterface const &);
+    ExternalInterface(ExternalInterface const &) = delete;
+    ExternalInterface(ExternalInterface &&) = delete;
+    ExternalInterface &operator=(ExternalInterface const &) = delete;
+    ExternalInterface &operator=(ExternalInterface &&) = delete;
 
     LinkedQueue<Update> m_updatesToExecute;
     LinkedQueue<Command> m_commandsToExecute;

@@ -30,16 +30,20 @@
 #include "Lookup.hh"
 #include "LookupReceiver.hh"
 #include "StateCacheEntry.hh"
-#include "StateCacheMap.hh"
+#include "StateCache.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
 #include "UserVariable.hh"
 
 #include <map>
+#include <memory>
 
 using namespace PLEXIL;
 
-class TestInterface : public ExternalInterface 
+using ExpressionPtr = std::unique_ptr<Expression>;
+using LookupPtr = std::unique_ptr<Lookup>;
+
+class TestInterface final : public ExternalInterface 
 {
 public:
   TestInterface()
@@ -55,7 +59,7 @@ public:
   // ExternalInterface API
   //
 
-  void lookupNow(const State& state, LookupReceiver *rcvr) 
+  virtual void lookupNow(const State& state, LookupReceiver *rcvr) 
   {
     if (state.name() == "test1") {
       rcvr->update((Real) 2.0);
@@ -87,29 +91,19 @@ public:
     rcvr->update((Real) 0.0);
   }
 
-  void subscribe(const State& /* state */)
-  {
-    // TODO
-  }
-
-  void unsubscribe(State const &state)
-  {
-    m_thresholds.erase(state.name());
-  }
-
-  void setThresholds(State const &state, Real hi, Real lo)
+  virtual void setThresholds(State const &state, Real hi, Real lo)
   {
     m_thresholds[state.name()] = std::make_pair(hi, lo);
   }
 
-  void setThresholds(const State& /* state */, Integer /* hi */, Integer /* lo */)
+  virtual void setThresholds(const State& /* state */, Integer /* hi */, Integer /* lo */)
   {
     // TODO
   }
 
-  Real currentTime()
+  virtual void clearThresholds(const State& state)
   {
-    return 0.0;
+    m_thresholds.erase(state.name());
   }
 
   //
@@ -178,7 +172,7 @@ protected:
     std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second);
-      StateCacheMap::instance().getLookupReceiver(st)->update(expression->toValue());
+      StateCache::instance().getLookupReceiver(st)->update(expression->toValue());
       ++it;
     }
   }
@@ -247,17 +241,17 @@ static bool testLookupNow()
   StringVariable test4;
   test4.setInitializer(new StringConstant("test1"), true);
 
-  Expression *l1 = new Lookup(&test1, false, UNKNOWN_TYPE);
+  ExpressionPtr l1(makeLookup(&test1, false, UNKNOWN_TYPE, nullptr));
 
   ExprVec *t2vec = makeExprVec(1);
   t2vec->setArgument(0, &high, false);
-  Expression *l2 = new Lookup(&test2, false, UNKNOWN_TYPE, t2vec);
+  ExpressionPtr l2(makeLookup(&test2, false, UNKNOWN_TYPE, t2vec));
 
   ExprVec *t3vec = makeExprVec(1);
   t3vec->setArgument(0, &low, false);
-  Expression *l3 = new Lookup(&test2, false, UNKNOWN_TYPE, t3vec);
+  ExpressionPtr l3(makeLookup(&test2, false, UNKNOWN_TYPE, t3vec));
 
-  Expression *l4 = new Lookup(&test4, false, UNKNOWN_TYPE);
+  ExpressionPtr l4(makeLookup(&test4, false, UNKNOWN_TYPE, nullptr));
 
   bool l1changed = false;
   bool l2changed = false;
@@ -332,11 +326,6 @@ static bool testLookupNow()
   l3->removeListener(&l3listener);
   l4->removeListener(&l4listener);
 
-  delete l4;
-  delete l3;
-  delete l2;
-  delete l1;
-
   return true;
 }
 
@@ -358,32 +347,33 @@ static bool testLookupOnChange()
   tolerance.setInitializer(new RealConstant(0.5), true);
   Real temp;
 
-  Lookup l1(&changeTest, false, UNKNOWN_TYPE);
-  LookupOnChange l2(&changeWithToleranceTest, false, UNKNOWN_TYPE,
-                    &tolerance, false);
+  LookupPtr l1(dynamic_cast<Lookup *>(makeLookup(&changeTest, false, UNKNOWN_TYPE, nullptr)));
+  LookupPtr l2(dynamic_cast<Lookup *>(makeLookupOnChange(&changeWithToleranceTest, false,
+                                                         UNKNOWN_TYPE,
+                                                         &tolerance, false, nullptr)));
 
   bool changeNotified = false;
   bool changeWithToleranceNotified = false;
   TrivialListener changeListener(changeNotified);
   TrivialListener changeWithToleranceListener(changeWithToleranceNotified);
-  l1.addListener(&changeListener);
-  l2.addListener(&changeWithToleranceListener);
+  l1->addListener(&changeListener);
+  l2->addListener(&changeWithToleranceListener);
 
-  assertTrue_1(!l1.isKnown());
-  assertTrue_1(!l2.isKnown());
+  assertTrue_1(!l1->isKnown());
+  assertTrue_1(!l2->isKnown());
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  l1.activate();
-  assertTrue_1(l1.getValue(temp));
+  l1->activate();
+  assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(changeNotified);
 
   changeWithToleranceTest.activate();
-  l2.activate();
+  l2->activate();
   assertTrue_1(tolerance.isActive());
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(changeWithToleranceNotified);
 
@@ -394,10 +384,10 @@ static bool testLookupOnChange()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 0.1);
   assertTrue_1(changeNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(!changeWithToleranceNotified);
 
@@ -407,14 +397,14 @@ static bool testLookupOnChange()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 0.6);
   assertTrue_1(changeNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.6);
   assertTrue_1(changeWithToleranceNotified);
 
-  l1.deactivate();
+  l1->deactivate();
   changeNotified = false;
   changeWithToleranceNotified = false;
 
@@ -423,9 +413,9 @@ static bool testLookupOnChange()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(!l1.isKnown());
+  assertTrue_1(!l1->isKnown());
   assertTrue_1(!changeNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.6);
   assertTrue_1(!changeWithToleranceNotified);
 
@@ -434,14 +424,14 @@ static bool testLookupOnChange()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(!l1.isKnown());
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(!l1->isKnown());
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.1);
   assertTrue_1(changeWithToleranceNotified);
 
   // Test changing tolerance
 
-  l1.activate();
+  l1->activate();
   changeNotified = false;
   changeWithToleranceNotified = false;
   watchVar.setValue(1.4);
@@ -449,17 +439,17 @@ static bool testLookupOnChange()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l1.isKnown());
-  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(l1->isKnown());
+  assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 1.4);
   assertTrue_1(changeNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.1);
   assertTrue_1(!changeWithToleranceNotified);
 
   tolerance.setValue(0.25);
   assertTrue_1(changeWithToleranceNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.4);
 
   // Test making tolerance unknown
@@ -471,7 +461,7 @@ static bool testLookupOnChange()
   theInterface->incrementCycleCount();
 
   assertTrue_1(changeWithToleranceNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.5); // should update on every change
 
   // Test making tolerance known again
@@ -483,7 +473,7 @@ static bool testLookupOnChange()
   theInterface->incrementCycleCount();
 
   assertTrue_1(!changeWithToleranceNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.5); // threshold should be back in effect
 
   watchVar.setValue(1.7);
@@ -492,7 +482,7 @@ static bool testLookupOnChange()
   theInterface->incrementCycleCount();
 
   assertTrue_1(changeWithToleranceNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.7); // threshold should be back in effect
 
   // Test making state name unknown
@@ -500,21 +490,21 @@ static bool testLookupOnChange()
   changeWithToleranceTest.setUnknown();
 
   assertTrue_1(changeWithToleranceNotified);
-  assertTrue_1(!l2.getValue(temp));
+  assertTrue_1(!l2->getValue(temp));
 
   // Set state name back
   changeWithToleranceNotified = false;
   changeWithToleranceTest.setValue("changeWithToleranceTest");
 
   assertTrue_1(changeWithToleranceNotified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.7);
 
-  l1.deactivate();
-  l2.deactivate();
+  l1->deactivate();
+  l2->deactivate();
 
-  l1.removeListener(&changeListener);
-  l2.removeListener(&changeWithToleranceListener);
+  l1->removeListener(&changeListener);
+  l2->removeListener(&changeWithToleranceListener);
 
   theInterface->unwatch("changeTest", &watchVar);
   theInterface->unwatch("changeWithToleranceTest", &watchVar);
@@ -540,20 +530,20 @@ static bool testThresholdUpdate()
   tolerance3.setInitializer(new RealConstant(0.75), true);
   Real temp, hi, lo;
 
-  LookupOnChange l2(&thresholdTest, false, UNKNOWN_TYPE,
-                    &tolerance2, false);
-  LookupOnChange l3(&thresholdTest, false, UNKNOWN_TYPE,
-                    &tolerance3, false);
+  LookupPtr l2(dynamic_cast<Lookup *>(makeLookupOnChange(&thresholdTest, false, UNKNOWN_TYPE,
+                                                         &tolerance2, false, nullptr)));
+  LookupPtr l3(dynamic_cast<Lookup *>(makeLookupOnChange(&thresholdTest, false, UNKNOWN_TYPE,
+                                                         &tolerance3, false, nullptr)));
   
   bool l2Notified = false;
   bool l3Notified = false;
   TrivialListener l2Listener(l2Notified);
   TrivialListener l3Listener(l3Notified);
-  l2.addListener(&l2Listener);
-  l3.addListener(&l3Listener);
+  l2->addListener(&l2Listener);
+  l3->addListener(&l3Listener);
 
-  assertTrue_1(!l2.isKnown());
-  assertTrue_1(!l3.isKnown());
+  assertTrue_1(!l2->isKnown());
+  assertTrue_1(!l3->isKnown());
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
@@ -561,16 +551,21 @@ static bool testThresholdUpdate()
   // Check that thresholds are not yet set
   assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
 
-  l2.activate();
-  assertTrue_1(tolerance2.isActive());
-  assertTrue_1(l2.getValue(temp));
-  assertTrue_1(temp == 0.0);
-  assertTrue_1(l2Notified);
-  l3.activate();
+  l3->activate();
   assertTrue_1(tolerance3.isActive());
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(l3Notified);
+  // Thresholds should now be set to the looser tolerance
+  assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
+  assertTrue_1(hi = 0.75);
+  assertTrue_1(lo = -0.75);
+  
+  l2->activate();
+  assertTrue_1(tolerance2.isActive());
+  assertTrue_1(l2->getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(l2Notified);
   // Thresholds should now be set to the tighter tolerance
   assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
   assertTrue_1(hi = 0.5);
@@ -583,10 +578,10 @@ static bool testThresholdUpdate()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(!l2Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(!l3Notified);
   // Thresholds should not have changed
@@ -599,10 +594,10 @@ static bool testThresholdUpdate()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.5);
   assertTrue_1(l2Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(!l3Notified);
   // Low threshold should have updated with l2; high should now follow l3
@@ -617,10 +612,10 @@ static bool testThresholdUpdate()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.5);
   assertTrue_1(!l2Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 0.75);
   assertTrue_1(l3Notified);
   // Low threshold should be unchanged (l2 & l3 same); high should now follow l2
@@ -635,10 +630,10 @@ static bool testThresholdUpdate()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.25);
   assertTrue_1(l2Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 0.75);
   assertTrue_1(!l3Notified);
   // High follows l3, low l2
@@ -654,10 +649,10 @@ static bool testThresholdUpdate()
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.25);
   assertTrue_1(!l2Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 1.5);
   assertTrue_1(l3Notified);
   // High should follow l2, low is both
@@ -668,10 +663,10 @@ static bool testThresholdUpdate()
   l3Notified = false;
 
   tolerance2.setValue(0.25);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.5);
   assertTrue_1(l2Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 1.5);
   assertTrue_1(!l3Notified);
   // Low and high should follow l2
@@ -692,7 +687,7 @@ static bool testThresholdUpdate()
   assertTrue_1(lo == 0.75);
 
   // Test deactivation
-  l3.deactivate();
+  l3->deactivate();
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
@@ -700,22 +695,22 @@ static bool testThresholdUpdate()
   // Thresholds should no longer be in effect
   // Unfortunately there's no API to tell the interface that!
   // assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
-  assertTrue_1(!l3.getValue(temp));
+  assertTrue_1(!l3->getValue(temp));
   assertTrue_1(!l3Notified);
 
 
   // Test deactivation
-  l2.deactivate();
+  l2->deactivate();
 
   // NOW thresholds should no longer be in effect
   assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
-  assertTrue_1(!l2.getValue(temp));
+  assertTrue_1(!l2->getValue(temp));
   assertTrue_1(!l2Notified);
 
   // Test reactivation
-  l3.activate();
+  l3->activate();
 
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 1.5);
   assertTrue_1(l3Notified);
   // Thresholds should track l3 again
@@ -723,9 +718,9 @@ static bool testThresholdUpdate()
   assertTrue_1(hi == 2.25);
   assertTrue_1(lo == 0.75);
 
-  l2.activate(); // restores initial value 0.5
+  l2->activate(); // restores initial value 0.5
 
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.5);
   assertTrue_1(l2Notified);
   // Thresholds should now track l2
@@ -743,10 +738,10 @@ static bool testThresholdUpdate()
   theInterface->incrementCycleCount();
 
   assertTrue_1(!l2Notified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.5); // threshold should be back in effect
   assertTrue_1(!l3Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 1.5);
 
   watchVar.setValue(1.75);
@@ -755,17 +750,17 @@ static bool testThresholdUpdate()
   theInterface->incrementCycleCount();
 
   assertTrue_1(l2Notified);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.75); // threshold should be back in effect
   assertTrue_1(!l3Notified);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == 1.5);
 
-  l2.deactivate();
-  l3.deactivate();
+  l2->deactivate();
+  l3->deactivate();
 
-  l2.removeListener(&l2Listener);
-  l3.removeListener(&l3Listener);
+  l2->removeListener(&l2Listener);
+  l3->removeListener(&l3Listener);
 
   theInterface->unwatch("thresholdTest", &watchVar);
 

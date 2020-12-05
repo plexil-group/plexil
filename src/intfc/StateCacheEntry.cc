@@ -87,12 +87,7 @@ namespace PLEXIL
 
     virtual void registerLookup(State const &state, Lookup *lkup)
     {
-      bool unsubscribed = m_lookups.empty();
       m_lookups.push_back(lkup);
-      if (unsubscribed) {
-        debugMsg("StateCacheEntry:registerLookup", ' ' << state << " subscribing to interface")
-          g_interface->subscribe(state);
-      }
       debugMsg("StateCacheEntry:registerLookup",
                ' ' << state << " now has " << m_lookups.size() << " lookups");
       // Update if stale
@@ -104,10 +99,10 @@ namespace PLEXIL
 
     virtual void unregisterLookup(State const &state, Lookup *lkup)
     {
-      debugMsg("StateCacheEntry:unregisterLookup", ' ' << state)
+      debugMsg("StateCacheEntry:unregisterLookup", ' ' << state);
 
-        if (m_lookups.empty())
-          return; // can't possibly be registered
+      if (m_lookups.empty())
+        return; // can't possibly be registered
 
       // Somewhat likely to remove last item first, so check for that special case.
       // TODO: analyze to see if this is true!
@@ -127,7 +122,6 @@ namespace PLEXIL
       if (m_lookups.empty()) {
         debugMsg("StateCacheEntry:unregisterLookup",
                  ' ' << state << " no lookups remaining, unsubscribing");
-        g_interface->unsubscribe(state);
         if (m_lowThreshold || m_highThreshold) {
           m_lowThreshold.reset();
           m_highThreshold.reset();
@@ -285,10 +279,8 @@ namespace PLEXIL
 
     void notify() const
     {
-      for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
-           it != m_lookups.end();
-           ++it)
-        (*it)->valueChanged();
+      for (Lookup *lkup : m_lookups)
+        lkup->valueChanged();
     }
 
     bool ensureCachedValue(ValueType typ)
@@ -329,10 +321,8 @@ namespace PLEXIL
       bool hasThresholds = false;
       Integer ihi, ilo;
       Integer newihi, newilo;
-      for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
-           it != m_lookups.end();
-           ++it) {
-        if ((*it)->getThresholds(newihi, newilo)) {
+      for (Lookup *l : m_lookups) {
+        if (l->getThresholds(newihi, newilo)) {
           if (hasThresholds) {
             if (newilo > ilo)
               ilo = newilo;
@@ -346,6 +336,7 @@ namespace PLEXIL
           }
         }
       }
+      unsigned int timestamp = g_interface->getCycleCount();
       if (hasThresholds) {
         debugMsg("StateCacheEntry:updateThresholds",
                  ' ' << state << " resetting thresholds " << ilo << ", " << ihi);
@@ -353,10 +344,15 @@ namespace PLEXIL
           m_lowThreshold.reset(CachedValueFactory(INTEGER_TYPE));
           m_highThreshold.reset(CachedValueFactory(INTEGER_TYPE));
         }
-        unsigned int timestamp = g_interface->getCycleCount();
         m_lowThreshold->update(timestamp, ilo);
         m_highThreshold->update(timestamp, ihi);
         g_interface->setThresholds(state, ihi, ilo);
+      }
+      else if (m_lowThreshold) {
+        // Had thresholds, but they're no longer in effect
+        m_lowThreshold->setUnknown(timestamp);
+        m_highThreshold->setUnknown(timestamp);
+        g_interface->clearThresholds(state);
       }
       return hasThresholds;
     }
@@ -366,10 +362,8 @@ namespace PLEXIL
       bool hasThresholds = false;
       Real rhi, rlo;
       Real newrhi, newrlo;
-      for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
-           it != m_lookups.end();
-           ++it) {
-        if ((*it)->getThresholds(newrhi, newrlo)) {
+      for (Lookup *l : m_lookups) {
+        if (l->getThresholds(newrhi, newrlo)) {
           if (hasThresholds) {
             if (newrlo > rlo)
               rlo = newrlo;
@@ -383,6 +377,7 @@ namespace PLEXIL
           }
         }
       }
+      unsigned int timestamp = g_interface->getCycleCount();
       if (hasThresholds) {
         debugMsg("StateCacheEntry:updateThresholds",
                  ' ' << state << " setting thresholds " << rlo << ", " << rhi);
@@ -390,10 +385,15 @@ namespace PLEXIL
           m_lowThreshold.reset(CachedValueFactory(REAL_TYPE));
           m_highThreshold.reset(CachedValueFactory(REAL_TYPE));
         }
-        unsigned int timestamp = g_interface->getCycleCount();
         m_lowThreshold->update(timestamp, rlo);
         m_highThreshold->update(timestamp, rhi);
         g_interface->setThresholds(state, rhi, rlo);
+      }
+      else if (m_lowThreshold) {
+        // Had thresholds, but they're no longer in effect
+        m_lowThreshold->setUnknown(timestamp);
+        m_highThreshold->setUnknown(timestamp);
+        g_interface->clearThresholds(state);
       }
       return hasThresholds;
     }

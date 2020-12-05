@@ -24,8 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "StateCacheMap.hh"
+#include "StateCache.hh"
 
+#include "CachedValue.hh"
+#include "Error.hh"
+#include "ExternalInterface.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 
@@ -34,7 +37,25 @@
 
 namespace PLEXIL
 {
-  class StateCacheMapImpl final : public StateCacheMap
+
+  // Implementation of time query functions
+  double StateCache::currentTime()
+  {
+    double result = 0.0;
+    instance().m_timeEntry->cachedValue()->getValue(result);
+    return result;
+  }
+
+  double StateCache::queryTime()
+  {
+    // Update the cached value
+    g_interface->lookupNow(State::timeState(),
+                           instance().m_timeEntry->getLookupReceiver());
+    // and return it
+    return currentTime();
+  }
+
+  class StateCacheImpl final : public StateCache
   {
   private:
 
@@ -43,14 +64,16 @@ namespace PLEXIL
 
   public:
 
-    StateCacheMapImpl()
-      : StateCacheMap()
+    StateCacheImpl()
+      : StateCache(),
+        m_map()
     {
       // Initialize time state to 0
-      ensureStateCacheEntry(State::timeState())->update((double) 0);
+      m_timeEntry = ensureStateCacheEntry(State::timeState());
+      m_timeEntry->update((double) 0);
     }
 
-    virtual ~StateCacheMapImpl() = default;
+    virtual ~StateCacheImpl() = default;
 
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
     {
@@ -68,17 +91,17 @@ namespace PLEXIL
   private:
 
     // Unimplemented
-    StateCacheMapImpl(StateCacheMapImpl const &) = delete;
-    StateCacheMapImpl(StateCacheMapImpl &&) = delete;
-    StateCacheMapImpl &operator=(StateCacheMapImpl const &) = delete;
-    StateCacheMapImpl &operator=(StateCacheMapImpl &&) = delete;
+    StateCacheImpl(StateCacheImpl const &) = delete;
+    StateCacheImpl(StateCacheImpl &&) = delete;
+    StateCacheImpl &operator=(StateCacheImpl const &) = delete;
+    StateCacheImpl &operator=(StateCacheImpl &&) = delete;
 
   };
 
-  StateCacheMap &StateCacheMap::instance()
+  StateCache &StateCache::instance()
   {
-    static StateCacheMapImpl sl_instance;
-    return static_cast<StateCacheMap &>(sl_instance);
+    static StateCacheImpl sl_instance;
+    return static_cast<StateCache &>(sl_instance);
   }
 
 } // namespace PLEXIL
