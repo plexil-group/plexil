@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 namespace PLEXIL
 {
 
-class TransitionExternalInterface : public ExternalInterface
+class TransitionExternalInterface final : public ExternalInterface
 {
 public:
   TransitionExternalInterface()
@@ -40,26 +40,24 @@ public:
   {
   }
 
-  ~TransitionExternalInterface()
+  virtual ~TransitionExternalInterface()
   {
   }
 
-  void lookupNow(State const & /* state */, StateCacheEntry & /* entry */) {}
-  void subscribe(State const & /* state */) {}
-  void unsubscribe(State const & /* state */) {}
-  void setThresholds(State const & /* state */, double /* hi */, double /* lo */) {}
-  void setThresholds(State const & /* state */, int32_t /* hi */, int32_t /* lo */) {}
-  void enqueueCommand(Command *cmd) {}
-  void abortCommand(Command *cmd) {}
-  void enqueueUpdate(Update *update) {}
-  void executeOutboundQueue() {}
-  double currentTime() {return 0.0;}
+  virtual void lookupNow(State const & /* state */, LookupReceiver * /* rcvr */) {}
+  virtual void setThresholds(State const & /* state */, double /* hi */, double /* lo */) {}
+  virtual void setThresholds(State const & /* state */, int32_t /* hi */, int32_t /* lo */) {}
+  virtual void clearThresholds(State const & /* state */) {}
+  virtual void enqueueCommand(Command *cmd) {}
+  virtual void abortCommand(Command *cmd) {}
+  virtual void enqueueUpdate(Update *update) {}
+  virtual void executeOutboundQueue() {}
 
 protected:
-  void executeCommand(Command * /* cmd */) {}
-  void reportCommandArbitrationFailure(Command * /* cmd */) {}
-  void invokeAbort(Command * /* cmd */) {}
-  void executeUpdate(Update * /* update */) {}
+  virtual void executeCommand(Command * /* cmd */) {}
+  virtual void reportCommandArbitrationFailure(Command * /* cmd */) {}
+  virtual void invokeAbort(Command * /* cmd */) {}
+  virtual void executeUpdate(Update * /* update */) {}
 
 };
 
