@@ -42,33 +42,29 @@ namespace pugi
 namespace PLEXIL 
 {
 
-  class TestExternalInterface : public ExternalInterface 
+  class TestExternalInterface final : public ExternalInterface 
   {
   public:
     TestExternalInterface();
-    ~TestExternalInterface();
+    virtual ~TestExternalInterface();
 
     void run(pugi::xml_node const input);
 
-    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) override;
+    virtual void lookupNow(State const &state, LookupReceiver *rcvr);
 
     // LookupOnChange
-    virtual void subscribe(const State& state) override;
-    virtual void unsubscribe(const State& state) override;
-    virtual void setThresholds(const State& state, Real hi, Real lo) override;
-    virtual void setThresholds(const State& state, Integer hi, Integer lo) override;
-
-    virtual Real currentTime() override;
+    virtual void setThresholds(const State& state, Real hi, Real lo);
+    virtual void setThresholds(const State& state, Integer hi, Integer lo);
 
   protected:
 
     // Commands
-    virtual void executeCommand(Command *cmd) override;
-    virtual void reportCommandArbitrationFailure(Command *cmd) override;
-    virtual void invokeAbort(Command *cmd) override;
+    virtual void executeCommand(Command *cmd);
+    virtual void reportCommandArbitrationFailure(Command *cmd);
+    virtual void invokeAbort(Command *cmd);
 
     // Updates
-    virtual void executeUpdate(Update * update) override;
+    virtual void executeUpdate(Update * update);
 
   private:
     

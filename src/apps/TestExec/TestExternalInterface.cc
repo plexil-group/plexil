@@ -30,11 +30,12 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "LookupReceiver.hh"
 #include "NodeImpl.hh"
 #include "NodeConstants.hh"
 #include "ParserException.hh"
 #include "PlexilExec.hh"
-#include "StateCacheEntry.hh"
+#include "StateCache.hh"
 #include "Update.hh"
 #include "parsePlan.hh"
 #include "plan-utils.hh"
@@ -139,14 +140,14 @@ namespace PLEXIL
          
       // step the exec forward
       if (true /* g_exec->processQueue() */ ) // *** FIXME ***
-        g_exec->step(currentTime());
+        g_exec->step(StateCache::currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
     // Script is complete
     // Continue stepping the Exec til quiescent
     while (g_exec->needsStep()) {
-      g_exec->step(currentTime());
+      g_exec->step(StateCache::currentTime());
     }
   }
 
@@ -168,7 +169,7 @@ namespace PLEXIL
         }
       }
     }
-    g_exec->step(currentTime());
+    g_exec->step(StateCache::currentTime());
   }
 
   void TestExternalInterface::handleState(pugi::xml_node const elt)
@@ -497,7 +498,7 @@ namespace PLEXIL
   }
 
   void TestExternalInterface::lookupNow(State const &state,
-                                        StateCacheEntry &cacheEntry)
+                                        LookupReceiver *rcvr)
   {
     debugMsg("Test:testOutput", "Looking up immediately " << state);
     StateMap::const_iterator it = m_states.find(state);
@@ -507,25 +508,8 @@ namespace PLEXIL
     }
     const Value& value = it->second;
     debugMsg("Test:testOutput", "Returning value " << value);
-    cacheEntry.update(value);
+    rcvr->update(value);
   }
-
-  void TestExternalInterface::subscribe(const State& state)
-  {
-    debugMsg("Test:testOutput",
-             "Registering change lookup for " << state);
-
-    //ignore source, because we don't care about bandwidth here
-    StateMap::iterator it = m_states.find(state);
-    if (it == m_states.end()) {
-      std::pair<State, Value> p = 
-        std::make_pair(state, Value());
-      m_states.insert(p);
-    }
-  }
-
-  void TestExternalInterface::unsubscribe(const State& /* state */)
-  {}
 
   void TestExternalInterface::setThresholds(const State& /* state */,
                                             Real /* highThreshold */,
@@ -629,10 +613,4 @@ namespace PLEXIL
     return retval.str();
   }
 
-  Real TestExternalInterface::currentTime()
-  {
-    Real result = 0; // default if unknown
-    m_states[State::timeState()].getValue(result);
-    return result;
-  }
 }
