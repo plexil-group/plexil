@@ -1,0 +1,99 @@
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+Command pprint(...);
+Command print(...);
+
+String Lookup ToString(...);
+Integer Lookup StringToInteger(String);
+Real Lookup StringToReal(String);
+Boolean Lookup StringToBoolean(String);
+String Lookup substr(...);
+String Lookup strlwr(String);
+String Lookup strupr(String);
+String Lookup strindex(...);
+Integer Lookup find_first_of(...);
+Integer Lookup find_last_of(...);
+
+StringOperations:{
+  Integer int = 5;
+  Integer int2 = 0;
+  Real real = 3.14;
+  Real real2 = 0;
+  Boolean bool = true;
+  Boolean bool2 = false;
+  String a = "";
+  String b = "";
+  String c = "";
+  String d = "Hello World";
+  Integer j;
+  Integer k;
+  Integer x;
+  Integer y;
+  Integer z;
+
+  a = Lookup(ToString(int));
+  int2 = Lookup(StringToInteger(a));
+  b = Lookup(ToString(real));
+  real2 = Lookup(StringToReal(b));
+  c = Lookup(ToString(bool));
+  bool2 = Lookup(StringToBoolean(c));
+  pprint("Converting to string and back:");
+  pprint("Integer Conversion: ",int,"-->",a,"-->",int2);
+  pprint("Real Conversion: ",real,"-->",b,"-->",real2);
+  pprint("Boolean Conversion: ",bool,"-->",c,"-->",bool2);
+
+  j = strlen(d); // floor returns an error otherwise
+  k = floor(strlen(d)/2);
+  for(Integer i = 0; i<k; i+1){
+    String cut;
+    cut = Lookup(substr(d,i,j));
+    print("substr('Hello World'",i,",",j,") = ",cut);
+    pprint("");//for new line
+    j = j-2;
+  }
+  a = Lookup(strlwr(d));
+  pprint("Lowercase: ",a);
+  a = Lookup(strupr(d));
+  pprint("Uppercase: ",a);
+
+  pprint("Iterating over elements of 'Hello World'");
+  for(Integer i = 0; i<strlen(d); i+1){
+    a = Lookup(strindex(d,i));
+    pprint(a);
+  }
+  pprint("Replacing elements of 'Hello World' with '000'");
+  for(Integer i = 0; i<strlen(d); i+1){
+    a = Lookup(strindex(d,i,"000"));
+    pprint(a);
+  }
+  x = Lookup(find_first_of(d,"l",5));
+  y = Lookup(find_last_of(d,"l",5));
+  z = Lookup(find_first_of(d,"el",0));
+  pprint("Find first 'l' in 'Hello World' starting at position 5 (0-indexed): ",x);
+  pprint("Find last 'l' in 'Hello World' ending at position 5 (0-indexed): ",y);
+  pprint("Find first 'l' or 'e' in 'Hello World' starting at position 0 (0-indexed): ",z);
+}

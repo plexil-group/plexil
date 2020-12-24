@@ -1,0 +1,6 @@
+saves
+*.a
+*.d
+*.o
+*.so
+*.dylib

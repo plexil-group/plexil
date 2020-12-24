@@ -1,0 +1,12 @@
+<Interfaces>
+  <Adapter AdapterType="CheckpointAdapter">
+    <SaveConfiguration Directory="./saves" />
+    <!-- Configuration allows test to intentionally "crash"-->
+    <AdapterConfiguration OKOnExit="true"
+			  FlushOnExit="true"
+			  UseTime="true" />
+  </Adapter>
+  <Adapter AdapterType="StringAdapter"/>
+  <Adapter AdapterType="OSNativeTime"/>
+  <Adapter AdapterType="Utility"/>
+</Interfaces>

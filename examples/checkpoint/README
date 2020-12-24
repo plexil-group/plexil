@@ -1,0 +1,66 @@
+This directory contains Adapters to allow string manipulation and a Checkpoint system.   
+
+Build this example by typing 'make'.
+
+Run the checkpoint example by typing 'make test1' or
+
+  plexilexec -p plans/PanoramaCrashTest.plx
+
+Run the string manipulation example by typing 'make test2' or
+
+  plexilexec -p plans/StringOperations.plx
+
+Description
+-----------
+
+
+This contains two Adapters, one for handling simple string manipulation commands
+and the other for persistent plans. All files other than StringAdapter.hh and
+StringAdapter.cc are used for the CheckpointAdapter.
+
+StringAdapter contains a number of useful string manipulation functions.
+These are available as Lookups or Commands.
+
+
+CheckpointAdapter allows writing persistent checkpoints such that following
+a crash, its is possible to look up checkpoints set in previous boots.
+For example, CheckpointState("abc",1) will return the state (set or not)
+of the checkpoint named "abc" in the previous boot. The time of last modification
+and an information string (user set) are also available.
+
+Additionally, metadata about each boot, including time of boot and time of last save
+are available, as is an IsOk variable which is (optionally) set to true on a safe exit.
+
+
+interface-configuration.xml contains configuration details for the checkpoint adapter.
+SaveConfiguration-Directory: The directory in which saves (in the form x_save.xml or x_save.part)
+			     are saved.
+			     Default "./saves"
+
+
+AdapterConfiguration-OKOnExit: Whether IsBootOK is set to true when the executive exits normally.
+			       It is not recommended to set this without also setting FlushOnExit.
+			       Default "true"
+			       
+AdapterConfigurationn-FlushOnExit: Whether checkpoint data/IsBootOK/last_save_time is flushed
+				   to disk on exit.
+			       	   Default "true"
+				   
+AdapterConfiguration-UseTime: Whether the checkpoint system attempts to find and use a time adapter
+			      This is useful since the Adapter does not know if a functioning
+			      time adapter exists, and attempting to use it can lead to lower
+			      performance. Other than performance, the checkpoint adapter will
+			      behave the same if this is on or off when no time adapter exists.
+			      Default "true"
+			       
+
+
+Example plans are found in the 'plans' directory.
+
+To fully test PanoramaCrashTest, run it four times. The first two will crash,
+and the second two will succeed, and each time, new checkpoints will be passed.
+
+StringOperations exercises the StringAdapter and demonstrates its functionality.
+StringOperationsLookup does the same with lookups.
+
+The adapters will be moved to more appropriate locations in a later version.
