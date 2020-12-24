@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,29 +24,39 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #
-# C/C++ compiler flags specific to Mac OS X
+# C/C++ compiler flag overrides
 #
 
-# Doesn't seem to be recognized by clang/clang++; only relevant under gcc
-#DEBUG_FLAGS		+= -gfull
+CPPFLAGS += -DDarwin
+
+#
+# Default locations
+#
+
+JAVA_HOME ?= /System/Library/Frameworks/JavaVM.framework/Versions/Current
 
 #
 # Compiler/linker option overrides
 #
 
-DEFINES		+=
-
 # Compiler flag to pass an argument to the linker
-LINKER_PASSTHROUGH_FLAG			:= 
+LINKER_PASSTHROUGH_FLAG				:= -Wl,
 # Linker flag for run-time library search path
 RUNTIME_SHARED_LIBRARY_PATH_FLAG	:=
 # Linker flag to construct shared library
-# -dynamiclib is gcc/Darwin only
-SHARED_FLAGS				:= -dynamiclib
+SHARED_CFLAGS						:= -fno-common -dynamiclib
+SHARED_CXXFLAGS						:= -fno-common -dynamiclib
 # Extension for shared library
-SUFSHARE				:= .dylib
-# Name of the library with the pthreads API
-PTHREAD_LIB 		   	       	:= pthread
-# Name of system library with realtime clock API
-# Is in libc on OS X
-RT_LIB					:= 
+SUFSHARE							:= .dylib
+
+# No way to create completely static executable on macOS
+ifneq ($(PLEXIL_STATIC),)
+STATIC_EXE_FLAG = -read_only_relocs,suppress
+LD	= $(CXX) $(filter-out $(STATIC_FLAG),$(CXXFLAGS)) \
+ $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
+endif
+
+OPENGL_LIBS			:=
+OPENGL_LIB_FLAGS	:= -framework OpenGL -framework GLUT
+OPENGL_LIB_PATH		:=
+OPENGL_INCLUDES		:=
