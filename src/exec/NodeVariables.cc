@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ namespace PLEXIL
   bool OutcomeVariable::isKnown() const
   {
     uint16_t outcome = m_node.getOutcome();
-    return (outcome == NO_OUTCOME);
+    return (outcome != NO_OUTCOME);
   }
 
   bool OutcomeVariable::getValue(uint16_t &result) const
@@ -151,7 +151,7 @@ namespace PLEXIL
   bool FailureVariable::isKnown() const
   {
     uint16_t ftype = m_node.getFailureType();
-    return (ftype == NO_FAILURE);
+    return (ftype != NO_FAILURE);
   }
 
   bool FailureVariable::getValue(uint16_t &result) const
