@@ -1,39 +1,45 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//    // Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//    // Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//    // Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef PLEXIL_TIME_ADAPTER_IMPL_HH
 #define PLEXIL_TIME_ADAPTER_IMPL_HH
 
 #include "plexil-config.h"
+
 #include "InterfaceAdapter.hh"
 
+#if defined(HAVE_CSIGNAL)
 #include <csignal> // sigset_t
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h> // sigset_t
+#endif
 
 #ifdef PLEXIL_WITH_THREADS
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
+#endif
 #endif
 
 namespace PLEXIL
@@ -42,9 +48,8 @@ namespace PLEXIL
   class TimeAdapterImpl : public InterfaceAdapter
   {
   public:
-    TimeAdapterImpl(AdapterExecInterface &);
-    TimeAdapterImpl(AdapterExecInterface &,
-                    pugi::xml_node const);
+    TimeAdapterImpl();
+    TimeAdapterImpl(pugi::xml_node const);
 
     virtual ~TimeAdapterImpl();
 
@@ -60,59 +65,7 @@ namespace PLEXIL
      * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
      */
-    virtual bool initialize();
-
-    /**
-     * @brief Starts the adapter, possibly using its configuration data.  
-     * @return true if successful, false otherwise.
-     */
-    virtual bool start();
-
-    /**
-     * @brief Stops the adapter.  
-     * @return true if successful, false otherwise.
-     */
-    virtual bool stop();
-
-    /**
-     * @brief Resets the adapter.  
-     * @return true if successful, false otherwise.
-     */
-    virtual bool reset();
-
-    /**
-     * @brief Shuts down the adapter, releasing any of its resources.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool shutdown();
-
-    /**
-     * @brief Perform an immediate lookup of the requested state.
-     * @param state The state for this lookup.
-     * @return The current value of the lookup.
-     */
-    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @param state The state.
-     */
-    void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
-    void setThresholds(const State& state, Real hi, Real lo);
-    void setThresholds(const State& state, Integer hi, Integer lo);
+    virtual bool initialize(AdapterConfiguration *config) override;
 
   protected:
 
@@ -126,7 +79,7 @@ namespace PLEXIL
      * @note Default method uses clock_gettime() or gettimeofday() as available;
      *       specializations may override this method.
      */
-    virtual double getCurrentTime();
+    virtual Date getCurrentTime();
 
     /**
      * @brief Initialize signal handling for the process.
@@ -142,10 +95,10 @@ namespace PLEXIL
 
     /**
      * @brief Set the timer.
-     * @param date The Unix-epoch wakeup time, as a Real.
+     * @param date The Unix-epoch wakeup time, as a Date.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    virtual bool setTimer(Real date) = 0;
+    virtual bool setTimer(Date date) = 0;
 
     /**
      * @brief Stop the timer.

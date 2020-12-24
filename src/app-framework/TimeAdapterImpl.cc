@@ -30,34 +30,37 @@
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExternalInterface.hh" // for g_interface
 #include "InterfaceError.hh"
+#include "LookupReceiver.hh"
 #include "State.hh"
-#include "StateCacheEntry.hh"
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadSpawn.hh"
 #endif
 
 #include <iomanip>
 
-#if defined(STDC_HEADERS)
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME)
-#if defined(HAVE_TIME_H)
-#if defined(STDC_HEADERS)
+
+#if defined(HAVE_CTIME)
 #include <ctime>
-#else
+#elif defined(HAVE_TIME_H)
 #include <time.h>
 #endif
-#endif
 #include "timespec-utils.hh"
+
 #elif defined(HAVE_GETTIMEOFDAY)
+
 #if defined(HAVE_SYS_TIME_H)
 #include <sys/time.h>
 #endif
 #include "timeval-utils.hh"
+
 #endif
 
 namespace PLEXIL
@@ -133,6 +136,7 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::shutdown()
   {
+    stopTimer();
     if (!deleteTimer()) {
       debugMsg("TimeAdapter:shutdown", " deleteTimer() failed");
       return false;
@@ -141,18 +145,17 @@ namespace PLEXIL
     return true;
   }
 
-  void TimeAdapterImpl::lookupNow(State const &state, StateCacheEntry &cacheEntry)
+  void TimeAdapterImpl::lookupNow(State const &state, LookupReceiver *rcvr)
   {
     if (state != State::timeState()) {
       warn("TimeAdapter does not implement lookups for state " << state);
-      cacheEntry.setUnknown();
+      rcvr->setUnknown();
       return;
     }
 
     debugMsg("TimeAdapter:lookupNow", " called");
-    cacheEntry.update(getCurrentTime());
+    rcvr->update(getCurrentTime());
   }
-
 
   /**
    * @brief Get the current time from the operating system.
@@ -178,17 +181,6 @@ namespace PLEXIL
 
     debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
-  }
-
-  void TimeAdapterImpl::subscribe(const State& state)
-  {
-    debugMsg("TimeAdapter:subscribe", " called");
-  }
-
-  void TimeAdapterImpl::unsubscribe(const State& state)
-  {
-    stopTimer();
-    debugMsg("TimeAdapter:unsubscribe", " complete");
   }
 
   void TimeAdapterImpl::setThresholds(const State& state, Real hi, Real lo)
