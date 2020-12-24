@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,8 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
-# Name of the library with the pthreads API
-PTHREAD_LIB   	      	       	        := pthread
-# Name of system library with realtime clock API
-RT_LIB					:= rt
+
+OPENGL_LIBS			:= GL GLU glut Xi Xmu
+OPENGL_LIB_PATH		:= /usr/X11R6/lib
+OPENGL_LIB_FLAGS	:=
+OPENGL_INCLUDES		:= -I/usr/local/include

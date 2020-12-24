@@ -1,6 +1,6 @@
 # Platform definitions for cross-compilation for VxWorks RTOS
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ include $(WIND_BASE)/target/h/make/defs.library
 #
 
 # Header file path for targets
-INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/wrn/coreip $(WIND_BASE)/target/h/wrn/coreip
+SYSTEM_INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/wrn/coreip $(WIND_BASE)/target/h/wrn/coreip
 
 # Define this as a Real Time Process project
 
@@ -74,9 +74,11 @@ CPU_FAMILY := PPC32
 endif
 
 ifeq ($(CPU_FAMILY),PPC32)
-SHARED_CFLAGS		= -fno-common -fpic
 STANDARD_CFLAGS		+= -mhard-float -mstrict-align -mregnames -ansi -mrtp -Wall  -MD -MP
 STANDARD_CXXFLAGS	+= -mhard-float -mstrict-align -mregnames -ansi -mrtp -Wall  -MD -MP
+
+# Compiler flags for shared libraries
+POSITION_INDEPENDENT_CODE_FLAG	:= -fpic
 endif
 
 #
@@ -91,5 +93,3 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
-# Name of the library with the pthreads API
-PTHREAD_LIB   	      	       		:= pthreadLib

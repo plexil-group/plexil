@@ -32,61 +32,58 @@
 #
 #       INC - .H files
 #       SRC - .C files
-#       TAG - the command to create an Emacs tags table
+#       ETAGS - the command to create an Emacs tags table
 #       SVN_FILES - a list of all files under SVN control
 #       INCLUDES - "-I" flags
-#       RM - command to remove files
-#       TARGET - the name of the product of compilation (library or executable)
+#       RM - command to remove files (GNU make defaults to 'rm -f')
+#       DEPEND_FLAGS - compiler option(s) to generate header dependencies
 #       LIBRARY - the base name of the binary library file
+#       EXECUTABLE - the name of the executable file
+#		EXTRA_LIBS - libraries beyond the standard Plexil core libraries
 
 ##### Wrapup defs
 
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
-DEPS    = $(OBJ:.o=.d)
+DEPS    = $(addsuffix .d,$(basename $(SRC)))
+DEP_TMP	= $(wildcard $(addsuffix .*,$(DEPS)))
+DIRT    = $(OBJ) $(DEPS) $(DEP_TMP)
 
 ##### Internal Targets -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
 
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
+
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
 
-SHLIB	= lib$(LIBRARY)$(SUFSHARE)
+SHLIB	:= lib$(LIBRARY)$(SUFSHARE)
 
-plexil-default: $(LIB_DIR)/$(SHLIB)
+plexil-default: shlib
 
-$(LIB_DIR)/$(SHLIB): $(SHLIB)
-	@ if [ -d $(LIB_DIR) ] ; \
-	then \
-	 $(RM) $(LIB_DIR)/$(SHLIB) ; \
-	else \
-	 $(MKDIR) $(LIB_DIR) ; \
-	fi
-	$(CP) $(SHLIB) $(LIB_DIR)/$(SHLIB)
+shlib $(LIBDIR)/$(SHLIB): $(SHLIB) $(LIBDIR)
+	$(RM) $(LIBDIR)/$(SHLIB)
+	$(CP) $(SHLIB) $(LIBDIR)/$(SHLIB)
 
 $(SHLIB): $(OBJ)
-	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
+	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
 
 localclean::
-	-$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB)
+	@$(RM) $(SHLIB) $(LIBDIR)/$(SHLIB) $(SHLIB).dSYM
 endif
 
 ifneq ($(PLEXIL_STATIC),)
 ## Build an archive library (.a file)
 
-ARCHIVE = lib$(LIBRARY).a
+ARCHIVE := lib$(LIBRARY).a
 
-plexil-default: $(LIB_DIR)/$(ARCHIVE)
+plexil-default: archive
 
-$(LIB_DIR)/$(ARCHIVE): $(ARCHIVE)
-	@ if [ -d $(LIB_DIR) ] ; \
-	then \
-	 $(RM) $(LIB_DIR)/$(ARCHIVE) ; \
-	else \
-	 $(MKDIR) $(LIB_DIR) ; \
-	fi
-	$(CP) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+archive $(LIBDIR)/$(ARCHIVE): $(ARCHIVE) $(LIBDIR)
+	$(RM) $(LIBDIR)/$(ARCHIVE)
+	$(CP) $(ARCHIVE) $(LIBDIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
@@ -95,7 +92,7 @@ $(ARCHIVE): $(OBJ)
 	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
-	-$(RM) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+	@$(RM) $(ARCHIVE) $(LIBDIR)/$(ARCHIVE)
 endif
 
 endif # $(LIBRARY)
@@ -106,35 +103,57 @@ plexil-default: executable
 
 # handle case of multiple targets in EXECUTABLE
 # see src/interfaces/Sockets/test/Makefile
-executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE) $(BIN_DIR)
-	$(CP) $(EXECUTABLE) $(BIN_DIR)
+executable $(foreach exec,$(EXECUTABLE),$(BINDIR)/$(exec)): $(EXECUTABLE) $(BINDIR)
+	$(CP) $(EXECUTABLE) $(BINDIR)
 
-$(BIN_DIR):
-	$(MKDIR) -p $(BIN_DIR)
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
 $(EXECUTABLE): $(OBJ)
-	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
+	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
 
 localclean::
-	-$(RM) $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
+	@$(RM) $(EXECUTABLE) $(EXECUTABLE).dSYM $(foreach e,$(EXECUTABLE),$(BINDIR)/$(e))
 endif
 
 ##### Delete extraneous by-products of compilation.
 
 localdust::
-	$(RM) $(OBJ) $(DEPS)
+	@if [ -n "$(DIRT)" ] ; then $(RM) $(DIRT); fi
+
+##### Dependencies
+
+## Derived from the GNU make manual
+%.d : %.c
+	@$(RM) $@; \
+	 if $(CC) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$ 2> /dev/null; \
+     then sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; fi; \
+     $(RM) $@.$$$$
+
+%.d : %.cc
+	@$(RM) $@; \
+	 if $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$ 2> /dev/null; \
+     then sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; fi; \
+     $(RM) $@.$$$$
+
+%.d : %.cpp
+	@$(RM) $@; \
+	 if $(CXX) $(DEPEND_FLAGS) $(CPPFLAGS) $< > $@.$$$$ 2> /dev/null; \
+     then sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; fi; \
+     $(RM) $@.$$$$
+
+# does anyone use .C for C++?
 
 ##### Rebuild an Emacs tags table (the TAGS file).
 
 tags:	$(SVN_FILES)
-	$(TAG) $?
+	$(ETAGS) $?
 
 ##### Generate documentation
 
 #doc: $(DOC)
-
 
 ##### Test Directory
 # These targets apply to any directory that has a 'test' subdirectory.
@@ -150,47 +169,21 @@ test: plexil-default
 	fi
 
 ## Clean module and test directories
-clean: dust localclean
+clean:: dust localclean
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test $@; \
 	fi
 
 ## Dust module and test directories
-dust: localdust
+dust:: localdust
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test $@; \
 	fi
 
-##### Dependencies
+.PHONY: dust clean localclean localdust
 
-# Automatic generation of dependency files
-# See http://scottmcpeak.com/autodepend/autodepend.html and
-# http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
-
-%.o: %.c
-%.o: %.c %.d
-	@$(COMPILE.c) $< -o $*.o
-	@$(CC) $(MKDEP_FLAGS) $(CPPFLAGS) $(CFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
-
-%.o: %.cc
-%.o: %.cc %.d
-	@$(COMPILE.cc) $< -o $*.o
-	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $(CXXFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
-
-%.o: %.cpp
-%.o: %.cpp %.d
-	@$(COMPILE.cpp) $< -o $*.o
-	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $(CXXFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
-
-%.o: %.C
-%.o: %.C %.d
-	@$(COMPILE.C) $< -o $*.o
-	@$(CXX) $(MKDEP_FLAGS) $(CPPFLAGS) $(CXXFLAGS) $< | sed -e '1s|$@:|$@ $*.d:|' > $*.d
-
-%.d: ;
-
+ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS)
-
-.PHONY: all plexil-default clean dust localclean localdust
+endif
