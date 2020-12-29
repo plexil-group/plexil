@@ -67,9 +67,9 @@ namespace PLEXIL
   // Initialize global variable
   std::unique_ptr<InterfaceManager> g_manager = nullptr;
 
-  /**
-   * @brief Default constructor.
-   */
+  //!
+  // @brief Constructor.
+  //
   InterfaceManager::InterfaceManager(ExecApplication &app)
     : ExternalInterface(),
       AdapterExecInterface(),
@@ -80,9 +80,9 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Destructor.
-   */
+  //!
+  // @brief Destructor.
+  //
   InterfaceManager::~InterfaceManager()
   {
   }
@@ -91,10 +91,10 @@ namespace PLEXIL
   // Top-level loop
   //
 
-  /**
-   * @brief Performs basic initialization of the interface and all adapters.
-   * @return true if successful, false otherwise.
-   */
+  //!
+  // @brief Performs basic initialization of the interface and all adapters.
+  // @return true if successful, false otherwise.
+  //
   bool InterfaceManager::initialize()
   {
     if (!g_configuration)
@@ -106,20 +106,20 @@ namespace PLEXIL
     return result;
   }
 
-  /**
-   * @brief Prepares the interface and adapters for execution.
-   * @return true if successful, false otherwise.
-   */
+  //!
+  // @brief Prepares the interface and adapters for execution.
+  // @return true if successful, false otherwise.
+  //
   bool InterfaceManager::start()
   {
     assertTrue_1(g_configuration);
     return g_configuration->start();
   }
 
-  /**
-   * @brief Commands all interfaces to stop.
-   * @return true if successful, false otherwise.
-   */
+  //!
+  // @brief Commands all interfaces to stop.
+  // @return true if successful, false otherwise.
+  //
   bool InterfaceManager::stop()
   {
     assertTrue_1(g_configuration);
@@ -130,19 +130,19 @@ namespace PLEXIL
   // API for exec
   //
 
-  /**
-   * @brief Delete any entries in the queue.
-   */
+  //!
+  // @brief Delete any entries in the queue.
+  //
   void InterfaceManager::resetQueue()
   {
     assertTrue_1(m_inputQueue);
     m_inputQueue->flush();
   }
     
-  /**
-   * @brief Updates the state cache from the items in the queue.
-   * @return True if the Exec needs to be stepped, false otherwise.
-   */
+  //!
+  // @brief Updates the state cache from the items in the queue.
+  // @return True if the Exec needs to be stepped, false otherwise.
+  //
   bool InterfaceManager::processQueue()
   {
     assertTrue_1(m_inputQueue);
@@ -253,10 +253,10 @@ namespace PLEXIL
     return needsStep;
   }
 
-  /**
-   * @brief Perform an immediate lookup on a new state.
-   * @param state The state.
-   */
+  //!
+  // @brief Perform an immediate lookup on a new state.
+  // @param state The state.
+  //
   void 
   InterfaceManager::lookupNow(State const &state, LookupReceiver *rcvr)
   {
@@ -272,12 +272,12 @@ namespace PLEXIL
     }
   }
 
-  /**
-   * @brief Advise the interface of the current thresholds to use when reporting this state.
-   * @param state The state.
-   * @param hi The upper threshold, at or above which to report changes.
-   * @param lo The lower threshold, at or below which to report changes.
-   */
+  //!
+  // @brief Advise the interface of the current thresholds to use when reporting this state.
+  // @param state The state.
+  // @param hi The upper threshold, at or above which to report changes.
+  // @param lo The lower threshold, at or below which to report changes.
+  //
   void InterfaceManager::setThresholds(const State& state, Real hi, Real lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
@@ -331,18 +331,18 @@ namespace PLEXIL
     }
   }
 
-  /**
-   * @brief Report the failure in the appropriate way for the application.
-   */
+  //!
+  // @brief Report the failure in the appropriate way for the application.
+  //
   void InterfaceManager::reportCommandArbitrationFailure(Command *cmd)
   {
     this->handleCommandAck(cmd, COMMAND_DENIED);
   }
 
-  /**
-   * @brief Abort one command in execution.
-   * @param cmd The command.
-   */
+  //!
+  // @brief Abort one command in execution.
+  // @param cmd The command.
+  //
   void InterfaceManager::invokeAbort(Command *cmd)
   {
     CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
@@ -360,13 +360,13 @@ namespace PLEXIL
   // API to handlers
   //
 
-  /**
-   * @brief Notify of the availability of a new value for a lookup.
-   * @param state The state for the new value.
-   * @param value The new value.
-   */
+  //!
+  // @brief Notify of the availability of a new value for a lookup.
+  // @param state The state for the new value.
+  // @param value The new value.
+  //
   void
-  InterfaceManager::handleValueChange(const State& state, const Value& value)
+  InterfaceManager::handleValueChange(const State &state, const Value &value)
   {
     debugMsg("InterfaceManager:handleValueChange",
              " for state " << state << ", new value = " << value);
@@ -379,11 +379,53 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  /**
-   * @brief Notify of the availability of a command handle value for a command.
-   * @param cmd Pointer to the Command instance.
-   * @param value The new value.
-   */
+  void
+  InterfaceManager::handleValueChange(const State &state, Value &&value)
+  {
+    debugMsg("InterfaceManager:handleValueChange",
+             " for state " << state << ", new value = " << value);
+
+    assertTrue_1(m_inputQueue);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+
+    entry->initForLookup(state, value);
+    m_inputQueue->put(entry);
+  }
+
+  void
+  InterfaceManager::handleValueChange(State &&state, const Value &value)
+  {
+    debugMsg("InterfaceManager:handleValueChange",
+             " for state " << state << ", new value = " << value);
+
+    assertTrue_1(m_inputQueue);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+
+    entry->initForLookup(state, value);
+    m_inputQueue->put(entry);
+  }
+
+  void
+  InterfaceManager::handleValueChange(State &&state, Value &&value)
+  {
+    debugMsg("InterfaceManager:handleValueChange",
+             " for state " << state << ", new value = " << value);
+
+    assertTrue_1(m_inputQueue);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+
+    entry->initForLookup(state, value);
+    m_inputQueue->put(entry);
+  }
+
+  //!
+  // @brief Notify of the availability of a command handle value for a command.
+  // @param cmd Pointer to the Command instance.
+  // @param value The new value.
+  //
   void
   InterfaceManager::handleCommandAck(Command * cmd, CommandHandleValue value)
   {
@@ -408,11 +450,11 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  /**
-   * @brief Notify of the availability of a return value for a command.
-   * @param cmd Pointer to the Command instance.
-   * @param value The new value.
-   */
+  //!
+  // @brief Notify of the availability of a return value for a command.
+  // @param cmd Pointer to the Command instance.
+  // @param value The new value.
+  //
   void
   InterfaceManager::handleCommandReturn(Command * cmd, Value const &value)
   {
@@ -432,11 +474,30 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  /**
-   * @brief Notify of the availability of a command abort acknowledgment.
-   * @param cmd Pointer to the Command instance.
-   * @param ack The acknowledgment value.
-   */
+  void
+  InterfaceManager::handleCommandReturn(Command * cmd, Value &&value)
+  {
+    if (!cmd) {
+      warn("handleCommandReturn: null command");
+      return;
+    }
+    debugMsg("InterfaceManager:handleCommandReturn",
+             " for command " << cmd->getCommand()
+             << ", value = " << value);
+
+    assertTrue_1(m_inputQueue);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+
+    entry->initForCommandReturn(cmd, value);
+    m_inputQueue->put(entry);
+  }
+
+  //!
+  // @brief Notify of the availability of a command abort acknowledgment.
+  // @param cmd Pointer to the Command instance.
+  // @param ack The acknowledgment value.
+  //
   void
   InterfaceManager::handleCommandAbortAck(Command * cmd, bool ack)
   {
@@ -457,11 +518,11 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  /**
-   * @brief Notify of the availability of a planner update acknowledgment.
-   * @param upd Pointer to the Update instance.
-   * @param ack The acknowledgment value.
-   */
+  //!
+  // @brief Notify of the availability of a planner update acknowledgment.
+  // @param upd Pointer to the Update instance.
+  // @param ack The acknowledgment value.
+  //
   void
   InterfaceManager::handleUpdateAck(Update * upd, bool ack)
   {
@@ -496,10 +557,10 @@ namespace PLEXIL
     return sequence;
   }
 
-  /**
-   * @brief Notify the executive of a new plan.
-   * @param planXml The XML representation of the new plan.
-   */
+  //!
+  // @brief Notify the executive of a new plan.
+  // @param planXml The XML representation of the new plan.
+  //
   void
   InterfaceManager::handleAddPlan(pugi::xml_node const planXml)
   {
@@ -519,11 +580,11 @@ namespace PLEXIL
     debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
-  /**
-   * @brief Notify the executive of a new library node.
-   * @param doc The XML document containing the library node.
-   * @return True if successful, false otherwise.
-   */
+  //!
+  // @brief Notify the executive of a new library node.
+  // @param doc The XML document containing the library node.
+  // @return True if successful, false otherwise.
+  //
   bool
   InterfaceManager::handleAddLibrary(pugi::xml_document *doc)
   {
@@ -547,11 +608,11 @@ namespace PLEXIL
     }
   }
 
-  /**
-   * @brief Load the named library from the library path.
-   * @param libname Name of the library node.
-   * @return True if successful, false if not found.
-   */
+  //!
+  // @brief Load the named library from the library path.
+  // @param libname Name of the library node.
+  // @return True if successful, false if not found.
+  //
   bool
   InterfaceManager::handleLoadLibrary(std::string const &libName)
   {
@@ -560,19 +621,19 @@ namespace PLEXIL
     return PLEXIL::isLibraryLoaded(libName.c_str());
   }
 
-  /**
-   * @brief Determine whether the named library is loaded.
-   * @return True if loaded, false otherwise.
-   */
+  //!
+  // @brief Determine whether the named library is loaded.
+  // @return True if loaded, false otherwise.
+  //
   bool
   InterfaceManager::isLibraryLoaded(const std::string &libName) const
   {
     return PLEXIL::isLibraryLoaded(libName.c_str());
   }
 
-  /**
-   * @brief Notify the executive that it should run one cycle.  
-   */
+  //!
+  // @brief Notify the executive that it should run one cycle.  
+  //
   void
   InterfaceManager::notifyOfExternalEvent()
   {
@@ -581,9 +642,9 @@ namespace PLEXIL
   }
 
 #ifdef PLEXIL_WITH_THREADS
-  /**
-   * @brief Notify the executive that it should run one cycle.  
-   */
+  //!
+  // @brief Notify the executive that it should run one cycle.  
+  //
   void
   InterfaceManager::notifyAndWaitForCompletion()
   {

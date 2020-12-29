@@ -23,13 +23,18 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+//
+// *** TODO: REFACTOR TO SMALLER PIECES ***
+// The Exec -> world interface and the world -> Exec interface
+// should be two different objects, as they share almost nothing.
+//
+
 #ifndef PLEXIL_INTERFACE_MANAGER_HH
 #define PLEXIL_INTERFACE_MANAGER_HH
 
 #include "AdapterExecInterface.hh"
 #include "ExternalInterface.hh"
 
-#include <map>
 #include <memory>
 
 // Forward reference
@@ -198,12 +203,38 @@ namespace PLEXIL
     // @param state The state for the new value.
     // @param value The new value.
     //
-    virtual void handleValueChange(const State& state, const Value& value);
+    virtual void handleValueChange(const State &state, const Value &value);
+    virtual void handleValueChange(const State &state, Value &&value);
+    virtual void handleValueChange(State &&state, const Value &value);
+    virtual void handleValueChange(State &&state, Value &&value);
 
-    virtual void handleCommandReturn(Command * cmd, Value const& value);
+    //!
+    // @brief Notify of the availability of a return value for a command
+    // @param cmd The command.
+    // @param value The new value.
+    //
+    virtual void handleCommandReturn(Command * cmd, const Value &value);
+    virtual void handleCommandReturn(Command * cmd, Value &&value);
+
+    //!
+    // @brief Notify of the availability of a new command handle value.
+    // @param cmd The command.
+    // @param value The new value.
+    //
     virtual void handleCommandAck(Command * cmd, CommandHandleValue value);
+
+    //!
+    // @brief Notify of completion of a command abort.
+    // @param cmd The command.
+    // @param ack Whether or not the abort was successful. 
+    //
     virtual void handleCommandAbortAck(Command * cmd, bool ack);
 
+    //!
+    // @brief Notify of completion of an Update.
+    // @param upd The update.
+    // @param ack Whether or not the update was successful. 
+    //
     virtual void handleUpdateAck(Update * upd, bool ack);
 
     /**

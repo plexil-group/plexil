@@ -24,13 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//
-// *** TODO: REFACTOR TO SMALLER PIECES ***
-// This API seemed logical when external adapters were monolithic.
-// Now that requests are delegated to handlers, it no longer makes sense.
-// Break this down to its component interfaces.
-//
-
 #ifndef PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 #define PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 
@@ -66,66 +59,71 @@ namespace PLEXIL
     // Virtual destructor
     virtual ~AdapterExecInterface() = default;
 
-    /**
-     * @brief Notify of the availability of a new value for a lookup.
-     * @param state The state for the new value.
-     * @param value The new value.
-     */
-    virtual void handleValueChange(State const &state, const Value& value) = 0;
+    //!
+    // @brief Notify of the availability of a new value for a lookup.
+    // @param state The state for the new value.
+    // @param value The new value.
+    //
+    virtual void handleValueChange(State const &state, const Value &value) = 0;
+    virtual void handleValueChange(State const &state, Value &&value) = 0;
+    virtual void handleValueChange(State &&state, const Value &value) = 0;
+    virtual void handleValueChange(State &&state, Value &&value) = 0;
 
-    /**
-     * @brief Notify of the availability of a command handle value for a command.
-     * @param cmd Pointer to the Command instance.
-     * @param value The new value.
-     */
-    virtual void handleCommandAck(Command * cmd, CommandHandleValue value) = 0;
+    //!
+    // @brief Notify of the availability of a command handle value for a command.
+    // @param cmd Pointer to the Command instance.
+    // @param value The new value.
+    //
+    virtual void handleCommandAck(Command *cmd, CommandHandleValue value) = 0;
 
-    /**
-     * @brief Notify of the availability of a return value for a command.
-     * @param cmd Pointer to the Command instance.
-     * @param value The new value.
-     */
-    virtual void handleCommandReturn(Command * cmd, Value const& value) = 0;
+    //!
+    // @brief Notify of the availability of a return value for a command.
+    // @param cmd Pointer to the Command instance.
+    // @param value The new value.
+    //
+    virtual void handleCommandReturn(Command *cmd, Value const &value) = 0;
+    virtual void handleCommandReturn(Command *cmd, Value &&value) = 0;
 
-    /**
-     * @brief Notify of the availability of a command abort acknowledgment.
-     * @param cmd Pointer to the Command instance.
-     * @param ack The acknowledgment value.
-     */
-    virtual void handleCommandAbortAck(Command * cmd, bool ack) = 0;
+    //!
+    // @brief Notify of the availability of a command abort acknowledgment.
+    // @param cmd Pointer to the Command instance.
+    // @param ack The acknowledgment value.
+    //
+    virtual void handleCommandAbortAck(Command *cmd, bool ack) = 0;
 
-    /**
-     * @brief Notify of the availability of a planner update acknowledgment.
-     * @param upd Pointer to the Update instance.
-     * @param ack The acknowledgment value.
-     */
-    virtual void handleUpdateAck(Update * upd, bool ack) = 0;
+    //!
+    // @brief Notify of the availability of a planner update acknowledgment.
+    // @param upd Pointer to the Update instance.
+    // @param ack The acknowledgment value.
+    //
+    virtual void handleUpdateAck(Update *upd, bool ack) = 0;
 
-    /**
-     * @brief Notify the executive of a new plan.
-     * @param planXml The pugixml representation of the new plan.
-     */
+    //!
+    // @brief Notify the executive of a new plan.
+    // @param planXml The pugixml representation of the new plan.
+    //
     virtual void handleAddPlan(pugi::xml_node const planXml) = 0;
 
-    /**
-     * @brief Notify the executive of a new library node.
-     * @param planXml The XML document containing the new library node
-     * @return true if successful, false otherwise.
-     */
+    //!
+    // @brief Notify the executive of a new library node.
+    // @param planXml The XML document containing the new library node
+    // @return true if successful, false otherwise.
+    //
     virtual bool handleAddLibrary(pugi::xml_document *planXml) = 0;
 
-    /**
-     * @brief Notify the executive that it should run one cycle.  This should be sent after
-     each batch of lookup and command return data.
-    */
+    //!
+    // @brief Notify the executive that it should run one cycle.
+    //
+    // @note This should be called after each batch of lookup and command return data.
+    //
     virtual void notifyOfExternalEvent() = 0;
 
 #ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Run the exec and wait until all events in the queue have been processed.
-     * 
-     * @note Why is this *here*?
-     */
+    //!
+    // @brief Run the exec and wait until all events in the queue have been processed.
+    // 
+    // @note Why is this *here*?
+    //
     virtual void notifyAndWaitForCompletion() = 0;
 #endif
   };
