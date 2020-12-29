@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,93 +27,76 @@
 #include "UtilityAdapter.hh"
 
 #include "AdapterConfiguration.hh"
-#include "AdapterFactory.hh"
+#include "AdapterFactory.hh"        // REGISTER_ADAPTER() macro
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
 #include "Debug.hh"
+#include "InterfaceAdapter.hh"
 #include "plan-utils.hh"
 
 #include <iostream>
 
 namespace PLEXIL {
 
-UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-                               pugi::xml_node const configXml) :
-    InterfaceAdapter(execInterface, configXml)
-{
-  debugMsg("UtilityAdapter", " created.");
-}
+  //
+  // Handlers for UtilityAdapter commands
+  //
 
-bool UtilityAdapter::initialize()
-{
-  g_configuration->registerCommandInterface("print", this);
-  g_configuration->registerCommandInterface("pprint", this);
-  g_configuration->registerCommandInterface("printToString",this);
-  g_configuration->registerCommandInterface("pprintToString",this);
-  debugMsg("UtilityAdapter", " initialized.");
-  return true;
-}
-
-bool UtilityAdapter::start()
-{
-  debugMsg("UtilityAdapter", " started.");
-  return true;
-}
-
-bool UtilityAdapter::stop()
-{
-  debugMsg("UtilityAdapter", " stopped.");
-  return true;
-}
-
-bool UtilityAdapter::reset()
-{
-  debugMsg("UtilityAdapter", " reset.");
-  return true;
-}
-
-bool UtilityAdapter::shutdown()
-{
-  debugMsg("UtilityAdapter", " shut down.");
-  return true;
-}
-
-void UtilityAdapter::executeCommand(Command * cmd) 
-{
-  const std::string& name = cmd->getName();
-  debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
-
-  if (name == "print") 
-    print(cmd->getArgValues());
-  else if (name == "pprint") 
-    pprint(cmd->getArgValues());
-  else if (name == "printToString")
-    m_execInterface.handleCommandReturn(cmd, printToString(cmd->getArgValues()));
-  else if (name == "pprintToString")
-    m_execInterface.handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
-  else {
-    std::cerr << "UtilityAdapter: invalid command "
-              << name << std::endl;
-    m_execInterface.handleCommandAck(cmd, COMMAND_FAILED);
-    m_execInterface.notifyOfExternalEvent();
-    return;
+  void executePrintCommand(Command *cmd, AdapterExecInterface *intf)
+  {
+      print(cmd->getArgValues());
+      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
   }
 
-  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-  m_execInterface.notifyOfExternalEvent();
-}
+  void executePPrintCommand(Command *cmd, AdapterExecInterface *intf)
+  {
+    pprint(cmd->getArgValues());
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+  }
 
-void UtilityAdapter::invokeAbort(Command *cmd)
-{
-  // Just silently acknowledge
-  m_execInterface.handleCommandAbortAck(cmd, false);
-  m_execInterface.notifyOfExternalEvent();
-}
+  void executePrintToStringCommand(Command *cmd, AdapterExecInterface *intf)
+  {
+      intf->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
+      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+  }
 
-extern "C" {
-  void initUtilityAdapter() {
+  void executePPrintToStringCommand(Command *cmd, AdapterExecInterface *intf)
+  {
+    intf->handleCommandReturn(cmd, pprintToString(cmd->getArgValues()));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+  }
+
+  class UtilityAdapter final : public InterfaceAdapter
+  {
+  public:
+    UtilityAdapter(AdapterExecInterface& execInterface,
+                   pugi::xml_node const configXml)
+      : InterfaceAdapter(execInterface, configXml)
+    {
+      debugMsg("UtilityAdapter", " created.");
+    }
+
+    virtual ~UtilityAdapter() = default;
+
+    bool initialize(AdapterConfiguration *config)
+    {
+      config->registerCommandHandlerFunction("print",
+                                             executePrintCommand);
+      config->registerCommandHandlerFunction("pprint",
+                                             executePPrintCommand);
+      config->registerCommandHandlerFunction("printToString",
+                                             executePrintToStringCommand);
+      config->registerCommandHandlerFunction("pprintToString",
+                                             executePPrintToStringCommand);
+      debugMsg("UtilityAdapter", " initialized.");
+      return true;
+    }
+  };
+
+  extern "C"
+  void initUtilityAdapter()
+  {
     REGISTER_ADAPTER(UtilityAdapter, "UtilityAdapter");
   }
-}
 
 } // namespace PLEXIL

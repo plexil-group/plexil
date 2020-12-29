@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,31 +34,7 @@
 #ifndef PLEXIL_UTILITY_ADAPTER_HH
 #define PLEXIL_UTILITY_ADAPTER_HH
 
-#include "InterfaceAdapter.hh"
-
-namespace PLEXIL {
-
-class UtilityAdapter : public InterfaceAdapter
-{
-public:
-  UtilityAdapter (AdapterExecInterface&, pugi::xml_node const);
-
-  bool initialize();
-  bool start();
-  bool stop();
-  bool reset();
-  bool shutdown();
-
-  void executeCommand(Command *cmd);
-
-  void invokeAbort(Command *cmd);
-
-};
-
-extern "C" {
-  void initUtilityAdapter();
-}
-
-} // namespace PLEXIL
+extern "C" 
+void initUtilityAdapter();
 
 #endif
