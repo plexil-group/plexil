@@ -55,6 +55,7 @@ namespace PLEXIL
     // LookupOnChange
     virtual void setThresholds(const State& state, Real hi, Real lo);
     virtual void setThresholds(const State& state, Integer hi, Integer lo);
+    virtual void clearThresholds(const State& state);
 
   protected:
 

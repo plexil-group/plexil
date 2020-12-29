@@ -521,15 +521,17 @@ namespace PLEXIL
                                             Integer /* lowThreshold */)
   {}
 
+  void TestExternalInterface::clearThresholds(const State & /* state */)
+  {}
+
   void TestExternalInterface::executeCommand(Command *cmd)
   {
     State const& command = cmd->getCommand();
-    Assignable *dest = cmd->getDest();
-    Expression *ack = cmd->getAck();
+
+    Expression *dest = cmd->getDest();
     debugMsg("Test:testOutput", "Executing " << command <<
-             " into " <<
-             (dest ? dest->toString() : std::string("noId")) <<
-             " with ack " << ack->toString());
+             (dest ? " into " + dest->toString() : "") <<
+             " with ack " << cmd->getAck()->toString());
     if (dest)
       m_executingCommands[command] = cmd;
 
