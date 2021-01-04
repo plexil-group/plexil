@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 lib_LTLIBRARIES = libPlexilAppFramework.la
 
 libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/xml-parser \
@@ -42,9 +44,9 @@ include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
  AdapterFactory.hh ExecApplication.hh ExecListener.hh \
  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
- PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh UtilityAdapter.hh
+ PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh
 
-noinst_HEADERS =
+noinst_HEADERS = UtilityAdapter.hh
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
  AdapterExecInterface.cc AdapterFactory.cc ExecApplication.cc \
@@ -54,9 +56,9 @@ libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
  SimpleInputQueue.cc UtilityAdapter.cc
 
 if UNIX_TIME_OPT
-include_HEADERS += TimeAdapter.hh
-libPlexilAppFramework_la_SOURCES += TimeAdapterImpl.cc PosixTimeAdapter.cc \
- DarwinTimeAdapter.cc
+include_HEADERS += TimeAdapter.hh Timebase.hh TimebaseFactory.hh
+libPlexilAppFramework_la_SOURCES += TimeAdapter.cc Timebase.cc \
+ TimebaseFactory.cc
 endif
 
 # Libraries to link against
@@ -65,3 +67,13 @@ libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.l
  @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
  @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 
+if MODULE_TESTS_OPT
+  bin_PROGRAMS = test/timebase-test
+  test_timebase_test_SOURCES = test/timebase-test.cc # more later
+  test_timebase_test_CPPFLAGS = $(libPlexilAppFramework_la_CPPFLAGS)
+  test_timebase_test_LDADD = libPlexilAppFramework.la \
+ @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+endif

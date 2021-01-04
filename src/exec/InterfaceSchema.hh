@@ -55,6 +55,7 @@ namespace PLEXIL
     static constexpr char const *PLAN_PATH_TAG = "PlanPath";
     static constexpr char const *PLANNER_UPDATE_TAG = "PlannerUpdate";
     static constexpr char const *PLANNER_UPDATE_HANDLER_TAG = "PlannerUpdateHandler";
+    static constexpr char const *TIMEBASE_TAG = "Timebase";
     static constexpr char const *IP_ADDRESS_TAG = "IpAddress";
     static constexpr char const *PORT_NUMBER_TAG = "PortNumber";
 
@@ -69,7 +70,9 @@ namespace PLEXIL
     static constexpr char const *LIB_PATH_ATTR = "LibPath";
     static constexpr char const *LISTENER_TYPE_ATTR = "ListenerType";
     static constexpr char const *NAME_ATTR = "Name";
-
+    static constexpr char const *TICK_INTERVAL_ATTR = "TickInterval";
+    static constexpr char const *TYPE_ATTR = "Type";
+    
     /**
      * @brief Extract comma separated arguments from a character string.
      * @return pointer to vector of strings

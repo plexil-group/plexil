@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ AC_CONFIG_MACRO_DIR([m4])
 # Check whether compilers exist and work
 
 # Note that AC_PROG_CXX sets CXXFLAGS to '-g -O2' if not already set
-# This version of PLEXIL requires C++11 or later, so set the standard
+# This version of PLEXIL requires C++14 or later, so set the standard
 # in the CXXFLAGS defaults.
 # This bit of hackery is straight out of the GNU Autoconf manual
 : ${CXXFLAGS="-std=c++14 -g -O2"}
@@ -155,6 +155,8 @@ AC_SEARCH_LIBS([cos], [m])
 AC_SEARCH_LIBS([inet_ntoa], [nsl])
 # POSIX timer - not present on macOS
 AC_SEARCH_LIBS([timer_create], [rt])
+# Dispatch queues - macOS
+AC_SEARCH_LIBS([dispatch_main], [dispatch])
 
 # Checks for header files.
 
@@ -171,6 +173,9 @@ AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h unistd.h sys/stat.h sys/time.h]
 AC_CHECK_HEADERS_ONCE([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
 # glibc backtrace functionality
 AC_CHECK_HEADERS_ONCE([execinfo.h])
+
+# Darwin (macOS)
+AC_CHECK_HEADERS_ONCE([dispatch/dispatch.h])
 
 # Non-Unix-like platforms
 AC_CHECK_HEADERS_ONCE([sockLib.h vxWorks.h sys/times.h])
