@@ -29,6 +29,11 @@
 // Fallback for older macOS and possibly others
 //
 
+//
+// FIXME: Signal handler has no user-specifiable context in ancient POSIX API.
+// Means we must do something ugly like global variables.
+//
+
 #include "Timebase.hh"
 
 #include "Debug.hh"
@@ -56,12 +61,6 @@
 #include <string.h> // strerror()
 #endif
 
-// #if defined(HAVE_CTIME)
-// #include <ctime>
-// #elif defined(HAVE_TIME_H)
-// #include <time.h>
-// #endif
-
 #if defined(HAVE_SYS_TIME_H)
 #include <sys/time.h>
 #endif
@@ -73,7 +72,7 @@ namespace PLEXIL
   {
   public:
 
-    ItimerTimebase(pugi::xml_node const xml, WakeupFn fn, intptr_t arg)
+    ItimerTimebase(pugi::xml_node const xml, WakeupFn fn, void *arg)
       : Timebase(fn, arg),
         m_interval_usec(0)
     {
@@ -97,11 +96,12 @@ namespace PLEXIL
       // Set up timer signal handler
 
       // UGLY HACK
-      s_wakeupFn = m_wakeupFn;
-      s_wakeupArg = m_wakeupArg;
+      // Necessary because I cannot find a way to pass user data
+      // into the handler.
+      s_timebase = this;
 
       struct sigaction saction;
-      saction.sa_handler = sigalrmHandler; // UGLY HACK
+      saction.sa_handler = sigalrmHandler;
       sigemptyset(&saction.sa_mask);
       sigaddset(&saction.sa_mask, SIGHUP);
       sigaddset(&saction.sa_mask, SIGINT);
@@ -184,7 +184,7 @@ namespace PLEXIL
                  " new value " << std::setprecision(15) << d
                  << " is in past, calling wakeup function now");
         m_nextWakeup = 0;
-        (m_wakeupFn)((void *) m_wakeupArg);
+        (m_wakeupFn)(m_wakeupArg);
         return;
       }
 
@@ -210,12 +210,10 @@ namespace PLEXIL
     // pass our wakeup function and args through the
     // archaic sigaction() API.
 
-    static WakeupFn s_wakeupFn;
-    static intptr_t s_wakeupArg;
-
+    static ItimerTimebase* s_timebase;
     static void sigalrmHandler(int /* signo */)
     {
-      (s_wakeupFn)((void *) s_wakeupArg);
+      (s_timebase->m_wakeupFn)(s_timebase->m_wakeupArg);
     }
 
     uint32_t m_interval_usec;

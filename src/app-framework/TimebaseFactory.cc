@@ -36,7 +36,7 @@ namespace PLEXIL
 
   Timebase *TimebaseFactory::makeTimebase(pugi::xml_node const xml,
                                           WakeupFn fn,
-                                          intptr_t arg)
+                                          void *arg)
   {
     TimebaseFactory *factory = nullptr;
     if (xml) {

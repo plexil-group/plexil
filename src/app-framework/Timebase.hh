@@ -27,8 +27,6 @@
 #ifndef PLEXIL_TIMEBASE_HH
 #define PLEXIL_TIMEBASE_HH
 
-#include "plexil-stdint.h" // intptr_t
-
 namespace PLEXIL
 {
 
@@ -59,7 +57,7 @@ namespace PLEXIL
   protected:
 
     // Constructor only accessible to derived classes
-    Timebase(WakeupFn f, intptr_t arg)
+    Timebase(WakeupFn f, void *arg)
       : m_nextWakeup(0),
         m_wakeupFn(f),
         m_wakeupArg(arg)
@@ -68,7 +66,7 @@ namespace PLEXIL
 
     double m_nextWakeup;
     WakeupFn m_wakeupFn;
-    intptr_t m_wakeupArg;
+    void *m_wakeupArg;
   };
 
 } // namespace PLEXIL

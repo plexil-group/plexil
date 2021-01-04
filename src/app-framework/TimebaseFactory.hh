@@ -60,14 +60,14 @@ namespace PLEXIL
     //
     static Timebase *makeTimebase(pugi::xml_node const xml,
                                   WakeupFn fn,
-                                  intptr_t arg = 0);
+                                  void *arg = 0);
     
   protected:
     TimebaseFactory(std::string const &name);
 
     virtual Timebase *create(pugi::xml_node const xml,
                              WakeupFn fn,
-                             intptr_t arg) const = 0;
+                             void *arg) const = 0;
 
   private:
 
@@ -94,7 +94,7 @@ namespace PLEXIL
 
     virtual Timebase *create(pugi::xml_node const xml,
                              WakeupFn fn,
-                             intptr_t arg) const override
+                             void *arg) const override
     {
       return new TimebaseType(xml, fn, arg);
     }

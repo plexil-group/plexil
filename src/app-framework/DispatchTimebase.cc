@@ -61,7 +61,7 @@ namespace PLEXIL
   class DispatchTimebase : public Timebase
   {
   public:
-    DispatchTimebase(pugi::xml_node const xml, WakeupFn fn, intptr_t arg)
+    DispatchTimebase(pugi::xml_node const xml, WakeupFn fn, void *arg)
       : Timebase(fn, arg),
         m_queue(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)),
         m_interval_usec(0)
@@ -71,10 +71,14 @@ namespace PLEXIL
       if (m_interval_usec > 0) {
         // Interval is valid, create a timer
         m_timer =
-          dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, m_queue);
-        // And set its event handler
-        dispatch_source_set_event_handler_f(m_timer,
-                                            fn); // *** this is not right ***
+          dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER,
+                                 0,                     // handle
+                                 DISPATCH_TIMER_STRICT, // flags
+                                 m_queue);
+        // Set handler
+        dispatch_source_set_event_handler_f(m_timer, m_wakeupFn);
+        // Set timer context, i.e. argument for wakeup fn
+        dispatch_set_context(m_timer, m_wakeupArg);
       }
       debugMsg("DispatchTimebase", " exit constructor");
     }
@@ -93,8 +97,8 @@ namespace PLEXIL
         dispatch_source_set_timer(m_timer,
                                   dispatch_time(DISPATCH_TIME_NOW, interval_nsec),
                                   interval_nsec,
-                                  NSEC_PER_SEC/1000);
-        dispatch_resume(m_timer);
+                                  NSEC_PER_SEC/1000); // i.e. 1 ms
+        dispatch_activate(m_timer);
       }
       else {
         debugMsg("DispatchTimebase:start", " deadline based");
@@ -138,7 +142,7 @@ namespace PLEXIL
                  " new value " << std::setprecision(15) << d
                  << " is in past, calling wakeup function now");
         m_nextWakeup = 0;
-        (m_wakeupFn)((void *) m_wakeupArg);
+        (m_wakeupFn)(m_wakeupArg);
         return;
       }
 
@@ -146,7 +150,7 @@ namespace PLEXIL
       dispatch_time_t deadline = dispatch_walltime(&deadline_ts, 0);
       dispatch_after_f(deadline,
                        m_queue,
-                       (void *) m_wakeupArg,
+                       m_wakeupArg,
                        m_wakeupFn);
 
       m_nextWakeup = timespecToDouble(deadline_ts);

@@ -62,7 +62,7 @@ namespace PLEXIL
   {
   public:
 
-    PosixTimebase(pugi::xml_node const xml, WakeupFn fn, intptr_t arg)
+    PosixTimebase(pugi::xml_node const xml, WakeupFn fn, void *arg)
       : Timebase(fn, arg),
         m_interval_usec(0)
     {

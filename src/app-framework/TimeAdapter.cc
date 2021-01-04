@@ -129,7 +129,7 @@ namespace PLEXIL
       // Construct Timebase
       pugi::xml_node const tb_xml = getXml().child(InterfaceSchema::TIMEBASE_TAG);
       m_timebase.reset(TimebaseFactory::makeTimebase(tb_xml, &timeout,
-                                                     (intptr_t) this));
+                                                     (void *) this));
       config->registerLookupHandler(new TimeLookupHandler(m_timebase.get()),
                                     "time");
       return true;
