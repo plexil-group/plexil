@@ -49,11 +49,12 @@ include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
 noinst_HEADERS = UtilityAdapter.hh
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
- AdapterExecInterface.cc AdapterFactory.cc ExecApplication.cc \
+ AdapterExecInterface.cc AdapterFactory.cc CommandHandler.cc \
+ ExecApplication.cc \
  ExecListener.cc ExecListenerFactory.cc ExecListenerFilter.cc \
  ExecListenerFilterFactory.cc ExecListenerHub.cc \
- InterfaceManager.cc Launcher.cc ListenerFilters.cc SerializedInputQueue.cc \
- SimpleInputQueue.cc UtilityAdapter.cc
+ InterfaceManager.cc Launcher.cc ListenerFilters.cc LookupHandler.cc \
+ SerializedInputQueue.cc SimpleInputQueue.cc UtilityAdapter.cc
 
 if UNIX_TIME_OPT
 include_HEADERS += TimeAdapter.hh Timebase.hh TimebaseFactory.hh
