@@ -36,6 +36,7 @@
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
 #include "Node.hh"
+#include "NodeTransition.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilExec.hh" // g_exec
@@ -69,18 +70,15 @@ namespace PLEXIL
      * @param newState The new state.
      * @param node The node that has transitioned.
      */
-    virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               NodeState newState,
-                                               Node * node) const
+    virtual void implementNotifyNodeTransition(NodeTransition const &transition) const override
     {
-      assertTrue_2(node,
-                   "LauncherListener:implementNotifyNodeTransition received null Node pointer");
-
       // We only care about root nodes
       // Cheaper to implement here than as an ExecListenerFilter
+      Node const *node = transition.node;
       if (node->getParent())
         return;
 
+      NodeState newState = transition.newState;
       Value const nodeIdValue(node->getNodeId());
       g_execInterface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
                                          Value(nodeStateName(newState)));
@@ -94,7 +92,7 @@ namespace PLEXIL
                                              Value(failureTypeName(f)));
       }
     }
-  };
+  }; // class LauncherListener
 
   static void valueToExprXml(pugi::xml_node parent, Value const &v)
   {
