@@ -27,7 +27,6 @@
 #include "TimebaseFactory.hh"
 
 #include "Debug.hh"
-#include "Error.hh"
 #include "InterfaceError.hh"
 #include "InterfaceSchema.hh"
 
