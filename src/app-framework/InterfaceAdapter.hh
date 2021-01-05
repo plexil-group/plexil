@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,8 +72,8 @@ namespace PLEXIL
      *       perhaps this should be passed in via the initialize() method.
      */
     InterfaceAdapter(AdapterExecInterface &intf, pugi::xml_node const xml)
-      : m_interface(intf),
-        m_xml(xml)
+      : m_xml(xml),
+        m_interface(intf)
     {
     }
 
