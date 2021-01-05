@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -290,6 +290,18 @@ namespace PLEXIL
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
     LookupHandler *handler = g_configuration->getLookupHandler(state.name());
     handler->setThresholds(state, hi, lo);
+  }
+
+  //!
+  // @brief Tell the interface that thresholds are no longer in effect
+  //        for this state.
+  // @param state The state.
+  //
+  void InterfaceManager::clearThresholds(const State& state)
+  {
+    debugMsg("InterfaceManager:clearThresholds", " for state " << state);
+    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    handler->clearThresholds(state);
   }
 
   // *** To do:
