@@ -38,10 +38,8 @@
 
 #include "Debug.hh"
 #include "InterfaceError.hh"
-#include "TimebaseFactory.hh"
+#include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timeval-utils.hh"
-
-#include "pugixml.hpp"
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -72,14 +70,12 @@ namespace PLEXIL
   {
   public:
 
-    ItimerTimebase(pugi::xml_node const xml, WakeupFn fn, void *arg)
+    ItimerTimebase(WakeupFn fn, void *arg)
       : Timebase(fn, arg),
-        m_interval_usec(0)
+        m_interval_usec(0),
+        m_started(false)
     {
-      debugMsg("ItimerTimebase", " enter constructor");
-      m_interval_usec = parseInterval(xml);
-
-      debugMsg("ItimerTimebase", " exit constructor");
+      debugMsg("ItimerTimebase", " constructor");
     }
 
     virtual ~ItimerTimebase() = default;
@@ -89,19 +85,35 @@ namespace PLEXIL
       return getPosixTime();
     }
 
+    virtual void setTickInterval(uint32_t intvl)
+    {
+      checkInterfaceError(!m_started,
+                          "ItimerTimebase: setTickInterval() called while running");
+      m_interval_usec = intvl;
+    }
+
+    virtual uint32_t getTickInterval() const
+    {
+      return m_interval_usec;
+    }
+
     virtual void start()
     {
-      debugMsg("ItimerTimebase:start", " entered");
+      if (m_started) {
+        debugMsg("ItimerTimebase:start", " already running, ignored");
+        return;
+      }
 
-      // Set up timer signal handler
+      m_started = true;
+      debugMsg("ItimerTimebase:start", " entered");
 
       // UGLY HACK
       // Necessary because I cannot find a way to pass user data
-      // into the handler.
+      // into the handler through this archaic API.
       s_timebase = this;
 
+      // Set up timer signal handling
       struct sigaction saction;
-      saction.sa_handler = sigalrmHandler;
       sigemptyset(&saction.sa_mask);
       sigaddset(&saction.sa_mask, SIGHUP);
       sigaddset(&saction.sa_mask, SIGINT);
@@ -110,7 +122,7 @@ namespace PLEXIL
       sigaddset(&saction.sa_mask, SIGUSR1);
       sigaddset(&saction.sa_mask, SIGUSR2);
       saction.sa_flags = 0;  // !SA_SIGINFO
-      saction.sa_sigaction = nullptr;
+      saction.sa_handler = (void(*)(int)) &sigalrmHandler;
 
       checkInterfaceError(!sigaction(SIGALRM, &saction, nullptr),
                           "ItimerTimebase::start: sigaction failed, errno = "
@@ -129,31 +141,36 @@ namespace PLEXIL
                             "ItimerTimebase::setTimer: setitimer failed, errno = "
                             << errno << ":\n " << strerror(errno));
 
-        debugMsg("ItimerTimebase:start", " tick timer started");
+        debugMsg("ItimerTimebase:start", " tick mode");
       }
+      else {
+        debugMsg("ItimerTimebase:start", " deadline mode");
+      }        
     }
 
     virtual void stop()
     {
+      if (!m_started) {
+        debugMsg("ItimerTimebase:stop", " not running, ignored");
+        return;
+      }
+
       debugMsg("ItimerTimebase:stop", " entered");
 
-      // Uninstall signal handler
-      struct sigaction saction;
-      saction.sa_handler = SIG_DFL;
-      sigemptyset(&saction.sa_mask);
-      saction.sa_flags = 0;
-      saction.sa_sigaction = nullptr;
-      if (!sigaction(SIGALRM, &saction, nullptr)) {
-        warn("ItimerTimebase::stop: sigaction failed, errno = "
+      // Disable the timer
+      struct itimerval tymrVal = {{0, 0}, {0, 0}};
+      if (setitimer(ITIMER_REAL, &tymrVal, NULL)) {
+        warn("ItimerTimebase::stop: setitimer failed, errno = "
              << errno << ":\n " << strerror(errno));
       }
 
-      // Whether tick or deadline, disable the timer
-      struct itimerval tymrVal = {{0, 0}, {0, 0}};
-      if (!setitimer(ITIMER_REAL,
-                     &tymrVal,
-                     NULL)) {
-        warn("ItimerTimebase::stop: setitimer failed, errno = "
+      // Restore default signal handler
+      struct sigaction saction;
+      sigemptyset(&saction.sa_mask);
+      saction.sa_flags = 0;
+      saction.sa_handler = SIG_DFL;
+      if (sigaction(SIGALRM, &saction, nullptr)) {
+        warn("ItimerTimebase::stop: sigaction failed, errno = "
              << errno << ":\n " << strerror(errno));
       }
 
@@ -162,20 +179,23 @@ namespace PLEXIL
 
     virtual void setTimer(double d)
     {
+      checkInterfaceError(m_started,
+                          "ItimerTimebase: setTimer() called when inactive");
+
       if (m_interval_usec) {
-        debugMsg("ItimerTimebase:setTimer", " tick based, ignoring");
+        debugMsg("ItimerTimebase:setTimer", " tick mode, ignoring");
         return;
       }
 
       debugMsg("ItimerTimebase:setTimer", 
-               " for " << std::setprecision(15) << d);
+               " deadline " << std::setprecision(15) << d);
 
       // Convert the deadline to timeval and get the current time
       struct timeval deadline, now;
       deadline = doubleToTimeval(d);
       checkInterfaceError(!gettimeofday(&now, nullptr),
-                          "ItimerTimebase:setTimer: gettimeofday failed, errno = " << errno
-                          << ":\n " << strerror(errno));
+                          "ItimerTimebase:setTimer: gettimeofday failed, errno = "
+                          << errno << ":\n " << strerror(errno));
                           
       // Have we missed the deadline already?
       if (deadline < now) {
@@ -200,7 +220,7 @@ namespace PLEXIL
       // Report what we've done
       m_nextWakeup = timevalToDouble(deadline);
       debugMsg("ItimerTimebase:setTimer",
-               " timer set for " << std::setprecision(15) << m_nextWakeup);
+               " deadline set for " << std::setprecision(15) << m_nextWakeup);
     }
 
   private:
@@ -217,11 +237,14 @@ namespace PLEXIL
     }
 
     uint32_t m_interval_usec;
+    bool m_started;
   };
+
+  ItimerTimebase* ItimerTimebase::s_timebase = nullptr;
 
   void registerItimerTimebase()
   {
-    REGISTER_TIMEBASE(ItimerTimebase, "Itimer");
+    REGISTER_TIMEBASE(ItimerTimebase, "Itimer", 1);
   }
 
 } // namespace PLEXIL
