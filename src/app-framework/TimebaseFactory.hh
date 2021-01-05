@@ -29,83 +29,156 @@
 
 #include "Timebase.hh"
 
-#include "pugixml.hpp"
-
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 //
-// Abstract factory API for Timebase instances
+// Abstract factory for Timebase instances
 //
+
+//
+// Forward references
+//
+
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
 
-  //!
-  // @class TimebaseFactory
-  //
+  //! User function to construct a Timebase instance.
+  //! @param descriptor XML element describing the desired Timebase; may be empty.
+  //! @param fn Pointer to the function to call on a timer timeout.
+  //! @param arg Argument value passed to the timeout function.
+  Timebase *makeTimebase(pugi::xml_node const descriptor,
+                         WakeupFn fn,
+                         void *arg);
+
+  //! @class TimebaseFactory
+  //! Abstract base class for an abstract factory for Timebase instances.
+
+  //! Public static member functions get() and getBest() are used to
+  //! select a particular factory instance. Public member accessors
+  //! name() and priority() help inform the selection process.
+
+  //! Public virtual member function create() is called on the
+  //! selected factory to construct the desired Timebase instance.
+
+  //! The map of available factories is only accessible by the base
+  //! class. Factories are added to the map when the concrete factory
+  //! class is instantiated.
+
   class TimebaseFactory
   {
-
   public:
-    virtual ~TimebaseFactory() = default;
 
-    //!
-    // @brief Construct the specified Timebase instance.
-    // @param xml The XML describing the desired Timebase (may be empty).
-    // @param fn The function to be called on timer timeouts.
-    // @param arg The argument to pass to the timer timeout function.
-    // @return A newly constructed Timebase instance.
-    //
-    static Timebase *makeTimebase(pugi::xml_node const xml,
-                                  WakeupFn fn,
-                                  void *arg = 0);
+    //! Get the TimebaseFactory instance for a particular name.
+    //! @param name Name of the desired TimebaseFactory.
+    //! @return Const pointer to the named TimebaseFactory instance;
+    //!         null if not found.
+    static TimebaseFactory const *get(std::string const &name);
+
+    //! Get the highest priority TimebaseFactory instance.
+    //! @return Const pointer to the named TimebaseFactory instance;
+    //!         null if no factories are known.
+    static TimebaseFactory const *getBest();
+
+    //! Get the names of all known TimebaseFactories.
+    //! @return Vector of name strings.
+    //! @note Facilitates unit testing.
+    static std::vector<std::string> allFactoryNames();
+
+    //! Construct a Timebase of the type assigned to this factory.
+    //! @param fn The function to be called on timer timeouts.
+    //! @param arg The argument to pass to the timer timeout function.
+    //! @return Pointer to a new Timebase instance.
+    virtual Timebase *create(WakeupFn fn, void *arg) const = 0;
+
+    //! Get the name assigned to this factory instance.
+    //! @return Const reference to the name string.
+    std::string const &name() const;
+
+    //! Get the priority assigned to this factory instance.
+    //! @return The priority as an int.
+    int priority() const;
+
+    //! Virtual destructor.
+    virtual ~TimebaseFactory() = default;
     
   protected:
-    TimebaseFactory(std::string const &name);
 
-    virtual Timebase *create(pugi::xml_node const xml,
-                             WakeupFn fn,
-                             void *arg) const = 0;
+    //! Base class constructor, only accessible by derived classes.
+    //! @param name The name to give this factory.
+    //! @param priority The priority of this factory. Priority is used
+    //!                 when no timebase name is specified, and multiple
+    //!                 factories are available.
+    TimebaseFactory(std::string const &name, int priority);
 
   private:
 
-    static TimebaseFactory *get(std::string const &name);
-
+    //! Typedef for pointers in the factory map.
     using TimebaseFactoryPtr = std::unique_ptr<TimebaseFactory>;
-    static std::map<std::string, TimebaseFactoryPtr> &factoryMap();
 
+    //! Typedef for the factory map.
+    using TimebaseFactoryMap = std::map<std::string, TimebaseFactoryPtr>;
+
+    //! Instance accessor for the name -> factory map.
+    //! @return Reference to the factory map.
+    static TimebaseFactoryMap &factoryMap();
+
+    //! Name of this factory instance. 
     std::string const m_name;
+
+    //! The priority of this factory instance.
+    //! The priority is used to select a factory when there are
+    //! multiple factories defined and no name has been specified.
+    int const m_priority;
   };
+
+  //! @class ConcreteTimebaseFactory
+  //! Templated factory class to construct one particular class of Timebase.
 
   template <class TimebaseType>
   class ConcreteTimebaseFactory : public TimebaseFactory
   {
   public:
-    ConcreteTimebaseFactory(std::string const &name)
-      : TimebaseFactory(name)
+
+    //! Constructor for the specialized factory class.
+    //! @param name The name to give this factory.
+    //! @param priority The priority of this factory. Priority is used
+    //!                 when no timebase name is specified, and multiple
+    //!                 factories are available.
+    ConcreteTimebaseFactory(std::string const &name, int priority)
+      : TimebaseFactory(name, priority)
     {
     }
 
+    //! Virtual destructor.
     virtual ~ConcreteTimebaseFactory() = default;
 
-  private:
-
-    virtual Timebase *create(pugi::xml_node const xml,
-                             WakeupFn fn,
-                             void *arg) const override
+    //! Construct an instance of TimebaseType with the given function
+    //! and argument.
+    //! @param fn Pointer to a wakeup function.
+    //! @param arg The argument to pass to the wakeup function.
+    //! @return Pointer to a new instance of TimebaseType.
+    virtual Timebase *create(WakeupFn fn, void *arg) const
     {
-      return new TimebaseType(xml, fn, arg);
+      return new TimebaseType(fn, arg);
     }
       
   };
 
 } // namespace PLEXIL
 
-//!
-// @brief Macro to define and construct factory instances
-//
-#define REGISTER_TIMEBASE(CLASS,NAME) {new PLEXIL::ConcreteTimebaseFactory<CLASS>(NAME);}
+//! Macro to define and construct factory instances
+//! @param CLASS Name of the class the factory will construct.
+//! @param NAME Name used to look up the factory. Should be a string constant.
+//! @param PRIO The priority to give the factory. Should be an int constant.
+#define REGISTER_TIMEBASE(CLASS,NAME,PRIO) \
+  {new PLEXIL::ConcreteTimebaseFactory<CLASS>(NAME, PRIO);}
 
 #endif // PLEXIL_TIMEBASE_FACTORY_HH

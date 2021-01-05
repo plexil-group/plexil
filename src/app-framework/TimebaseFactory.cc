@@ -31,57 +31,103 @@
 #include "InterfaceError.hh"
 #include "InterfaceSchema.hh"
 
+#include "pugixml.hpp"
+
+#if defined(HAVE_CLIMITS)
+#include <climits>   // INT_MIN
+#elif defined(HAVE_LIMITS_H)
+#include <limits.h> // INT_MIN
+#endif
+
 namespace PLEXIL
 {
 
-  Timebase *TimebaseFactory::makeTimebase(pugi::xml_node const xml,
-                                          WakeupFn fn,
-                                          void *arg)
+  Timebase *makeTimebase(pugi::xml_node const descriptor,
+                         WakeupFn fn,
+                         void *arg)
   {
-    TimebaseFactory *factory = nullptr;
-    if (xml) {
-      const char *typnam = xml.attribute(InterfaceSchema::TYPE_ATTR).value();
+    TimebaseFactory const *factory = nullptr;
+    if (descriptor) {
+      const char *typnam = descriptor.attribute(InterfaceSchema::TYPE_ATTR).value();
       if (typnam && *typnam) {
-        factory = get(typnam);
+        factory = TimebaseFactory::get(typnam);
         checkInterfaceError(factory,
-                            "TimebaseFactory: no factory found for type \"" << typnam
-                            << '"');
-        debugMsg("TimebaseFactory::makeTimebase",
-                 " found factory for \"" << typnam << '"');
+                            "makeTimebase: no factory for \"" << typnam << '"');
+        debugMsg("makeTimebase", " found factory \"" << factory->name() << '"');
       }
     }
     if (!factory) {
-      // Type not specified
-      checkInterfaceError(!factoryMap().empty(),
-                          "TimebaseFactory::makeTimebase: no factories found!");
-      // There is likely only one valid factory for this platform. Use it.
-      factory = factoryMap().begin()->second.get();
+      // No type specified - pick the best available factory
+      factory = TimebaseFactory::getBest();
+      checkInterfaceError(factory, "makeTimebase: no known timebases!");
       debugMsg("TimebaseFactory::makeTimebase",
-               " defaulting to type \"" << factory->m_name << '"');
+               " got best factory \"" << factory->name() << '"');
     }
-    return factory->create(xml, fn, arg);
+    return factory->create(fn, arg);
   }
 
-  std::map<std::string, TimebaseFactory::TimebaseFactoryPtr> &TimebaseFactory::factoryMap()
+  TimebaseFactory const *TimebaseFactory::get(std::string const &name)
   {
-    static std::map<std::string, TimebaseFactoryPtr> sl_map;
-    return sl_map;
-  }
-
-  TimebaseFactory::TimebaseFactory(std::string const &name)
-    : m_name(name)
-  {
-    factoryMap()[name].reset(this);
-  }
-
-  TimebaseFactory *TimebaseFactory::get(std::string const &name)
-  {
-    auto it = factoryMap().find(name);
+    TimebaseFactoryMap::const_iterator it = factoryMap().find(name);
     if (it == factoryMap().end()) {
       debugMsg("TimebaseFactory", " no factory for  \"" << name << '"');
       return nullptr;
     }
     return it->second.get();
+  }
+
+  TimebaseFactory const *TimebaseFactory::getBest()
+  {
+    if (factoryMap().empty()) {
+      debugMsg("TimebaseFactory:getBest", " no factories found");
+      return nullptr;
+    }
+
+    // Simple linear search for the highest priority
+    int bestPriority = INT_MIN;
+    TimebaseFactory const *bestFactory = nullptr;
+    for (TimebaseFactoryMap::value_type const &payr : factoryMap()) {
+      if (payr.second->priority() > bestPriority) {
+        bestFactory = payr.second.get();
+        bestPriority = bestFactory->priority();
+      }
+    }
+    debugMsg("TimebaseFactory:getBest",
+             "returning factory " << bestFactory->name()
+             << " at priority " << bestPriority);
+    return bestFactory;
+  }
+
+  std::vector<std::string> TimebaseFactory::allFactoryNames()
+  {
+    std::vector<std::string> result;
+    for (TimebaseFactoryMap::value_type const &payr : factoryMap()) {
+      result.push_back(payr.second->name());
+    }
+    return result;
+  }
+
+  std::string const &TimebaseFactory::name() const
+  {
+    return m_name;
+  }
+
+  int TimebaseFactory::priority() const
+  {
+    return m_priority;
+  }
+
+  TimebaseFactory::TimebaseFactory(std::string const &name, int priority)
+    : m_name(name),
+      m_priority(priority)
+  {
+    factoryMap()[name].reset(this);
+  }
+
+  TimebaseFactory::TimebaseFactoryMap &TimebaseFactory::factoryMap()
+  {
+    static TimebaseFactoryMap sl_map;
+    return sl_map;
   }
 
 } // namespace PLEXIL
