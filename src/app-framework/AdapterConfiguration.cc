@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -385,7 +385,6 @@ namespace PLEXIL {
       assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
       pugi::xml_node commandNamesElt =
         configXml.child(InterfaceSchema::COMMAND_NAMES_TAG);
-      size_t nCommandNames = 0;
       while (commandNamesElt) {
         // Register individual commands
         char const *commandNamesStr = commandNamesElt.child_value();
@@ -456,7 +455,6 @@ namespace PLEXIL {
 
       pugi::xml_node lookupNamesElt =
         configXml.child(InterfaceSchema::LOOKUP_NAMES_TAG);
-      size_t nLookupNames = 0;
       while (lookupNamesElt) {
         // Register individual lookups
         char const *lookupNamesStr = lookupNamesElt.child_value();
