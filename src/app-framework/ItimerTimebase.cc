@@ -29,17 +29,14 @@
 // Fallback for older macOS and possibly others
 //
 
-//
-// FIXME: Signal handler has no user-specifiable context in ancient POSIX API.
-// Means we must do something ugly like global variables.
-//
-
 #include "Timebase.hh"
 
 #include "Debug.hh"
 #include "InterfaceError.hh"
 #include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timeval-utils.hh"
+
+#include <iomanip> // std::fixed, std::setprecision()
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -188,7 +185,8 @@ namespace PLEXIL
       }
 
       debugMsg("ItimerTimebase:setTimer", 
-               " deadline " << std::setprecision(15) << d);
+               " deadline "
+	       << std::fixed << std::setprecision(6) << d);
 
       // Convert the deadline to timeval and get the current time
       struct timeval deadline, now;
@@ -201,7 +199,7 @@ namespace PLEXIL
       if (deadline < now) {
         // Already past the scheduled time
         debugMsg("ItimerTimebase:setTimer",
-                 " new value " << std::setprecision(15) << d
+                 " new value " << std::fixed << std::setprecision(6) << d
                  << " is in past, calling wakeup function now");
         m_nextWakeup = 0;
         (m_wakeupFn)(m_wakeupArg);
@@ -220,7 +218,8 @@ namespace PLEXIL
       // Report what we've done
       m_nextWakeup = timevalToDouble(deadline);
       debugMsg("ItimerTimebase:setTimer",
-               " deadline set for " << std::setprecision(15) << m_nextWakeup);
+               " deadline set for "
+	       << std::fixed << std::setprecision(6) << m_nextWakeup);
     }
 
   private:

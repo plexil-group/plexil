@@ -32,7 +32,7 @@
 
 #include "pugixml.hpp"
 
-#include <iomanip> // std::setprecision()
+#include <iomanip> // std::fixed, std::setprecision()
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -78,10 +78,11 @@ namespace PLEXIL
     double tym = 0;
     struct timespec ts;
     checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &ts),
-                        "getTime: clock_gettime() failed, errno = " << errno
+                        "getPosixTime: clock_gettime failed, errno = " << errno
                         << ":\n " << strerror(errno));
     tym = timespecToDouble(ts);
-    debugMsg("getTime", " returning " << std::setprecision(15) << tym);
+    debugMsg("getTime",
+	     " returning " << std::fixed << std::setprecision(6) << tym);
     return tym;
   }
 
@@ -102,11 +103,12 @@ namespace PLEXIL
   {
     double tym = 0;
     timeval tv;
-    checkInterfaceError(0 == gettimeofday(&tv, nullptr),
-                        "getTime: gettimeofday() failed, errno = " << errno
+    checkInterfaceError(!gettimeofday(&tv, nullptr),
+                        "getPosixTime: gettimeofday failed, errno = " << errno
                         << ":\n " << strerror(errno));
     tym = timevalToDouble(tv);
-    debugMsg("getTime", " returning " << std::setprecision(15) << tym);
+    debugMsg("getTime",
+	     " returning " << std::fixed << std::setprecision(6) << tym);
     return tym;
   }
 
