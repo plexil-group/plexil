@@ -33,9 +33,8 @@
 
 #include "Debug.hh"
 #include "InterfaceError.hh"
+#include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timespec-utils.hh"
-
-#include "pugixml.hpp"
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -62,23 +61,47 @@ namespace PLEXIL
   {
   public:
 
-    PosixTimebase(pugi::xml_node const xml, WakeupFn fn, void *arg)
+    PosixTimebase(WakeupFn fn, void *arg)
       : Timebase(fn, arg),
-        m_interval_usec(0)
+        m_interval_usec(0),
+        m_started(false)
     {
-      debugMsg("PosixTimebase", " enter constructor");
-      if (xml && xml.attribute("TickInterval")) {
-        // Tick-based - parse interval
-        m_interval_usec = parseInterval(xml.attribute("TickInterval").value());
-        if (m_interval_usec > 0) {
-          // Interval is valid, create a repeating timer
-        }
+      debugMsg("PosixTimebase", " constructor");
+    }
+
+    virtual ~PosixTimebase() = default;
+
+    virtual Date getTime() const
+    {
+      return getPosixTime();
+    }
+
+    virtual void setTickInterval(uint32_t intvl)
+    {
+      checkInterfaceError(!m_started,
+                          "PosixTimebase: setTickInterval() called while running");
+      m_interval_usec = intvl;
+    }
+
+    virtual uint32_t getTickInterval() const
+    {
+      return m_interval_usec;
+    }
+
+    virtual void start()
+    {
+      if (m_started) {
+        debugMsg("PosixTimebase:start", " already running, ignored");
+        return;
       }
+
+      m_started = true;
+      debugMsg("PosixTimebase:start", " entered");
 
       // Construct the timer
       strict sigevent event;
       event.sigev_notify = SIGEV_THREAD;
-      // event.sigev_signo = SIGUSR1; // ???
+      // event.sigev_signo = ???;
       event.sigev_value.sival_int = arg;
       event.sigev_notify_function = fn;
       event.sigev_notify_attributes = nullptr;
@@ -89,24 +112,10 @@ namespace PLEXIL
                           "PosixTimebase: timer_create failed, errno = "
                           << errno << ":\n " << strerror(errno));
 
-      debugMsg("PosixTimebase", " exit constructor");
-    }
-
-    virtual ~PosixTimebase() = default;
-
-    virtual Date getTime() const
-    {
-      return getPosixTime();
-    }
-
-    virtual void start()
-    {
       if (!m_interval_usec) {
-        debugMsg("PosixTimebase:start", " deadline based");
+        debugMsg("PosixTimebase:start", " deadline mode");
         return;
       }
-
-      debugMsg("PosixTimebase:start", " entered");
 
       // Start a repeating timer
       struct itimerspec tymrSpec = {{0, 0}, {0, 0}};
@@ -131,11 +140,16 @@ namespace PLEXIL
                           "PosixTimebase::start: timer_settime failed, errno = "
                           << errno << ":\n " << strerror(errno));
 
-      debugMsg("PosixTimebase:start", " tick timer started");
+      debugMsg("PosixTimebase:start", " tick mode");
     }
 
     virtual void stop()
     {
+      if (!m_started) {
+        debugMsg("PosixTimebase:stop", " not running, ignored");
+        return;
+      }
+
       debugMsg("PosixTimebase:stop", " entered");
 
       // Whether tick or deadline, disable the timer
@@ -149,21 +163,21 @@ namespace PLEXIL
       }
 
       if (timer_delete(m_timer)) {
-        warn("PosixTimebase:stop: error in timer_delete, errno " << errno
-             << ":\n " << strerror(errno));
+        warn("PosixTimebase:stop: timer_delete failed, errno = "
+             << errno << ":\n " << strerror(errno));
       }
-      debugMsg("PosixTimebase:stop", " exited");
+      debugMsg("PosixTimebase:stop", " complete");
     }
 
     virtual void setTimer(Date d)
     {
       if (m_interval_usec) {
-        debugMsg("PosixTimebase:setTimer", " tick based, ignoring");
+        debugMsg("PosixTimebase:setTimer", " tick mode, ignoring");
         return;
       }
 
       debugMsg("PosixTimebase:setTimer", 
-               " for " << std::setprecision(15) << d);
+               " deadline " << std::setprecision(15) << d);
 
       // Get the wakeup time into the format timer_settime wants.
       struct itimerspec tymrSpec = {{0, 0}, {0, 0}};
@@ -197,18 +211,19 @@ namespace PLEXIL
       // Truth in advertising
       m_nextWakeup = timespecToDouble(tymrSpec.it_value);
       debugMsg("PosixTimebase:setTimer",
-               " timer set for " << std::setprecision(15) << m_nextWakeup);
+               " deadline set to " << std::setprecision(15) << m_nextWakeup);
     }
 
   private:
 
     struct timer_t m_timer;
     uint32_t m_interval_usec;
+    bool m_started;
   };
 
-    void registerPosixTimebase()
-    {
-      REGISTER_TIMEBASE("Posix", PosixTimebase);
-    }
+  void registerPosixTimebase()
+  {
+    REGISTER_TIMEBASE("Posix", PosixTimebase, 1000);
+  }
 
 } // namespace PLEXIL
