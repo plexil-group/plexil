@@ -31,7 +31,7 @@
 //
 
 //
-// *** FIXME: Deadline wakeups often significantly late ***
+// *** FIXME: First tick timer wakeup comes right after timer set ***
 //
 
 #include "Timebase.hh"
@@ -40,6 +40,8 @@
 #include "InterfaceError.hh"
 #include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timespec-utils.hh"
+
+#include <iomanip> // std::fixed, std::setprecision()
 
 #if defined(HAVE_DISPATCH_DISPATCH_H)
 #include <dispatch/dispatch.h>
@@ -118,7 +120,13 @@ namespace PLEXIL
       }
       else {
         // Set the timer start time and repeat interval
-        uint64_t interval_nsec = NSEC_PER_USEC * m_interval_usec;
+        int64_t interval_nsec = NSEC_PER_USEC * m_interval_usec;
+        struct timespec now;
+        checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &now),
+                            "DispatchTimebase:start: clock_gettime failed, errno = "
+                            << errno << ":\n " << strerror(errno));
+        debugMsg("DispatchTimebase::start",
+                 " setting timer interval of " << interval_nsec << " ns");
         dispatch_source_set_timer(m_timer,
                                   dispatch_time(DISPATCH_TIME_NOW, interval_nsec),
                                   interval_nsec,
@@ -139,6 +147,8 @@ namespace PLEXIL
       }
 
       dispatch_source_cancel(m_timer);
+      // Unset the event handler pointer in case timer gets recycled
+      dispatch_source_set_event_handler_f(m_timer, nullptr);
       dispatch_release(m_timer);
       m_started = false;
       debugMsg("DispatchTimebase:stop", " complete");
@@ -156,7 +166,7 @@ namespace PLEXIL
       
       // Deadline based
       debugMsg("DispatchTimebase:setTimer",
-               " deadline " << std::setprecision(15) << d);
+               " deadline " << std::fixed << std::setprecision(6) << d);
       struct timespec deadline_ts, now;
       doubleToTimespec(d, deadline_ts);
       checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &now),
@@ -167,7 +177,7 @@ namespace PLEXIL
       if (deadline_ts < now) {
         // Already past the scheduled time
         debugMsg("DispatchTimebase:setTimer",
-                 " new value " << std::setprecision(15) << d
+                 " new value " << std::fixed << std::setprecision(6) << d
                  << " is in past, calling wakeup function now");
         m_nextWakeup = 0;
         (m_wakeupFn)(m_wakeupArg);
@@ -188,7 +198,8 @@ namespace PLEXIL
 
       m_nextWakeup = timespecToDouble(deadline_ts);
       debugMsg("DispatchTimebase:setTimer",
-               " deadline set to " << std::setprecision(15) << m_nextWakeup);
+               " deadline set to "
+               << std::fixed << std::setprecision(6) << m_nextWakeup);
     }
 
   private:
