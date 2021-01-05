@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,13 +51,13 @@ namespace PLEXIL
   void LookupHandler::setThresholds(const State &state, Real hi, Real lo)
   {
     debugMsg("LookupHandler:defaultSetThresholds",
-             ' ' << state << " (Real) " << hi << "," << low);
+             ' ' << state << " (Real) " << hi << "," << lo);
   }
 
   void LookupHandler::setThresholds(const State &state, Integer hi, Integer lo)
   {
     debugMsg("LookupHandler:defaultSetThresholds",
-             ' ' << state << " (Integer) " << hi << "," << low);
+             ' ' << state << " (Integer) " << hi << "," << lo);
   }
 
   void LookupHandler::clearThresholds(const State &state)
