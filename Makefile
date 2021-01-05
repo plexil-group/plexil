@@ -195,7 +195,7 @@ src/configure: src/configure.ac $(MAKEFILE_AMS)
 
 clean:: clean-examples
 	-@$(MAKE) -C src $@ > /dev/null 2>&1
-	@(cd compilers/plexil && ant $@)
+	-@($MAKE) -C compilers/plexil $@ > /dev/null 2>&1
 	@(cd compilers/plexilscript && ant $@)
 	@(cd checker && ant $@)
 	@(cd jars && $(RM) plexilscript.jar)
@@ -205,12 +205,10 @@ clean:: clean-examples
 	@ echo Done.
 
 clean-examples:
-	-@$(MAKE) -C examples $@
+#	-@$(MAKE) -C examples $@
 
 # Clean up after autotools
 distclean squeaky-clean: | clean
-	@(cd compilers/plexil && ant uninstall)
-	@(cd compilers/plexilscript && ant uninstall)
 	@(cd src && $(RM) */Makefile */Makefile.in)
 	@(cd src/apps && $(RM) */Makefile */Makefile.in)
 	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)
