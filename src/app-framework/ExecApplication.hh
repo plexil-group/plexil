@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -169,12 +169,6 @@ namespace PLEXIL
      * @return true if successful, false otherwise.
      */
     virtual bool stop();
-
-    /**
-     * @brief Shuts down a stopped Exec.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool shutdown();
 
     /**
      * @brief Notify the executive that it should run one cycle.  This should be sent after
