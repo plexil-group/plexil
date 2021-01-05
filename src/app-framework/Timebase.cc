@@ -24,9 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plexil-config.h"
-
-#include "Timebase.hh"
+#include "Timebase.hh" // includes plexil-config.h
 
 #include "Debug.hh"
 #include "InterfaceError.hh"
@@ -55,12 +53,12 @@
 //    Dispatch timer: no* (for global queues)
 //    Kqueue timer: yes
 
-  //
-  // Utilities for standard timebase types
-  //
+//
+// Utilities for standard timebase types
+//
 
-  // If both clock_gettime() and gettimeofday() are available,
-  // prefer clock_gettime() due to greater precision
+// If both clock_gettime() and gettimeofday() are available,
+// prefer clock_gettime() due to greater precision
 
 #if defined(HAVE_CLOCK_GETTIME)
 
@@ -116,30 +114,6 @@ namespace PLEXIL
 
 #endif
 
-namespace PLEXIL
-{
-
-  // Parse the string as an interval in microseconds.
-  // Valid formats TBD
-  static uint32_t parseInterval(pugi::xml_node const xml)
-  {
-    const char *spec =
-      xml.attribute(InterfaceSchema::TICK_INTERVAL_ATTR).value();
-    if (!spec || !*spec) {
-      debugMsg("Timebase:parseInterval",
-               " no " << InterfaceSchema::TICK_INTERVAL_ATTR
-               << " specified, will use tickless");
-      return 0;
-    }
-
-    // TODO
-    std::cerr << "Error: tick-based timing not yet implemented. Defaulting to tickless."
-              << std::endl;
-    return 0;
-  }
-
-} // namespace PLEXIL
-
 #if defined(HAVE_TIMER_CREATE)
 #include "PosixTimebase.cc"
 #endif
@@ -151,3 +125,23 @@ namespace PLEXIL
 #if defined(HAVE_SETITIMER)
 #include "ItimerTimebase.cc"
 #endif
+
+namespace PLEXIL
+{
+
+  void initTimebaseFactories()
+  {
+#if defined(HAVE_TIMER_CREATE)
+    registerPosixTimebase();
+#endif
+
+#if defined(HAVE_DISPATCH_DISPATCH_H)
+    registerDispatchTimebase();
+#endif
+
+#if defined(HAVE_SETITIMER)
+    registerItimerTimebase();
+#endif
+  }
+
+}
