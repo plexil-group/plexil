@@ -30,14 +30,16 @@
 // Available for BSDs and Linux
 //
 
+//
+// *** FIXME: Deadline wakeups often significantly late ***
+//
+
 #include "Timebase.hh"
 
 #include "Debug.hh"
 #include "InterfaceError.hh"
-#include "TimebaseFactory.hh"
+#include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timespec-utils.hh"
-
-#include "pugixml.hpp"
 
 #if defined(HAVE_DISPATCH_DISPATCH_H)
 #include <dispatch/dispatch.h>
@@ -58,29 +60,19 @@
 namespace PLEXIL
 {
 
+  //! An implementation of the Timebase API for use with the Grand
+  //! Central Dispatch framework. Primarily used on macOS.
+
   class DispatchTimebase : public Timebase
   {
   public:
-    DispatchTimebase(pugi::xml_node const xml, WakeupFn fn, void *arg)
+    DispatchTimebase(WakeupFn fn, void *arg)
       : Timebase(fn, arg),
         m_queue(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)),
-        m_interval_usec(0)
+        m_interval_usec(0),
+        m_started(false)
     {
-      debugMsg("DispatchTimebase", " enter constructor");
-      m_interval_usec = parseInterval(xml);
-      if (m_interval_usec > 0) {
-        // Interval is valid, create a timer
-        m_timer =
-          dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER,
-                                 0,                     // handle
-                                 DISPATCH_TIMER_STRICT, // flags
-                                 m_queue);
-        // Set handler
-        dispatch_source_set_event_handler_f(m_timer, m_wakeupFn);
-        // Set timer context, i.e. argument for wakeup fn
-        dispatch_set_context(m_timer, m_wakeupArg);
-      }
-      debugMsg("DispatchTimebase", " exit constructor");
+      debugMsg("DispatchTimebase", " constructor");
     }
 
     virtual double getTime() const
@@ -88,47 +80,83 @@ namespace PLEXIL
       return getPosixTime();
     }
 
+    virtual void setTickInterval(uint32_t intvl)
+    {
+      checkInterfaceError(!m_started,
+                          "DispatchTimebase: setTickInterval() called while running");
+      m_interval_usec = intvl;
+    }
+
+    virtual uint32_t getTickInterval() const
+    {
+      return m_interval_usec;
+    }
+
     virtual void start()
     {
-      if (m_interval_usec) {
-        // Tick based
-        debugMsg("DispatchTimebase:start", " tick based");
-        uint64_t interval_nsec = 1000ull * m_interval_usec;
+      if (m_started) {
+        debugMsg("DispatchTimebase:start", " already running, ignored");
+        return;
+      }
+
+      m_started = true;
+      debugMsg("DispatchTimebase:start", " entered");
+
+      // Construct the timer whether we are in deadline or tick mode
+      m_timer =
+        dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER,
+                               0,                     // handle
+                               DISPATCH_TIMER_STRICT, // flags
+                               m_queue);
+      // Set handler
+      dispatch_source_set_event_handler_f(m_timer, m_wakeupFn);
+      // Set timer context, i.e. argument for wakeup fn
+      dispatch_set_context(m_timer, m_wakeupArg);
+
+      if (!m_interval_usec) {
+        debugMsg("DispatchTimebase:start", " deadline mode");
+      }
+      else {
+        // Set the timer start time and repeat interval
+        uint64_t interval_nsec = NSEC_PER_USEC * m_interval_usec;
         dispatch_source_set_timer(m_timer,
                                   dispatch_time(DISPATCH_TIME_NOW, interval_nsec),
                                   interval_nsec,
-                                  NSEC_PER_SEC/1000); // i.e. 1 ms
-        dispatch_activate(m_timer);
-      }
-      else {
-        debugMsg("DispatchTimebase:start", " deadline based");
-      }
+                                  NSEC_PER_MSEC); // 1 ms leeway
 
-      // TODO: call dispatch_main on a background thread?
+        // Start the timer
+        dispatch_activate(m_timer);
+
+        debugMsg("DispatchTimebase:start", " tick mode");
+      }
     }
 
     virtual void stop()
     {
-      if (m_interval_usec) {
-        debugMsg("DispatchTimebase:stop", " tick based");
-        dispatch_source_cancel(m_timer);
-        dispatch_release(m_timer);
+      if (!m_started) {
+        debugMsg("DispatchTimebase:stop", " not running, ignored");
+        return;
       }
-      else {
-        debugMsg("DispatchTimebase:stop", " deadline based");
-      }
+
+      dispatch_source_cancel(m_timer);
+      dispatch_release(m_timer);
+      m_started = false;
+      debugMsg("DispatchTimebase:stop", " complete");
     }
 
     virtual void setTimer(double d)
     {
+      checkInterfaceError(m_started,
+                          "DispatchTimer: setTimer() called when inactive");
+
       if (m_interval_usec) {
-        debugMsg("DispatchTimebase:setTimer", " tick based, ignoring");
+        debugMsg("DispatchTimebase:setTimer", " tick mode, ignoring");
         return;
       }
       
       // Deadline based
       debugMsg("DispatchTimebase:setTimer",
-               " for " << std::setprecision(15) << d);
+               " deadline " << std::setprecision(15) << d);
       struct timespec deadline_ts, now;
       doubleToTimespec(d, deadline_ts);
       checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &now),
@@ -146,16 +174,21 @@ namespace PLEXIL
         return;
       }
 
-      // Set the timer
-      dispatch_time_t deadline = dispatch_walltime(&deadline_ts, 0);
-      dispatch_after_f(deadline,
-                       m_queue,
-                       m_wakeupArg,
-                       m_wakeupFn);
+      // Set the timer start time and tell it to (effectively) never repeat
+      struct timespec delta_ts = deadline_ts - now;
+      int64_t delta_nsec = delta_ts.tv_sec * NSEC_PER_SEC + delta_ts.tv_nsec;
+      dispatch_source_set_timer(m_timer,
+                                dispatch_walltime(&now, delta_nsec),
+                                86400 * NSEC_PER_SEC, // i.e. 24 hours
+                                NSEC_PER_MSEC); // 1 ms leeway
+
+      // Activate the timer if not already started
+      if (!m_nextWakeup) 
+        dispatch_activate(m_timer);
 
       m_nextWakeup = timespecToDouble(deadline_ts);
       debugMsg("DispatchTimebase:setTimer",
-               " timer set to " << std::setprecision(15) << m_nextWakeup);
+               " deadline set to " << std::setprecision(15) << m_nextWakeup);
     }
 
   private:
@@ -163,11 +196,12 @@ namespace PLEXIL
     dispatch_source_t m_timer;
     dispatch_queue_t m_queue;
     uint32_t m_interval_usec;
+    bool m_started;
   };
 
   void registerDispatchTimebase()
   {
-    REGISTER_TIMEBASE(DispatchTimebase, "Dispatch");
+    REGISTER_TIMEBASE(DispatchTimebase, "Dispatch", 1000);
   }
 
 } // namespace PLEXIL
