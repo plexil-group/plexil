@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 #define PLEXIL_EXEC_LISTENER_HH
 
 #include "ExecListenerFilter.hh"
-#include "NodeConstants.hh"
 #include "NodeTransition.hh"
 
 #include "pugixml.hpp"
@@ -55,7 +54,7 @@ namespace PLEXIL
     /**
      * @brief Default constructor.
      */
-    ExecListener();
+    ExecListener() = default;
 
     /**
      * @brief Constructor from configuration XML
