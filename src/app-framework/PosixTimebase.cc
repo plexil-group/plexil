@@ -36,6 +36,8 @@
 #include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timespec-utils.hh"
 
+#include <iomanip> // std::fixed, std::setprecision()
+
 #if defined(HAVE_CERRNO)
 #include <cerrno>
 #elif defined(HAVE_ERRNO_H)
@@ -54,6 +56,13 @@
 #include <time.h>
 #endif
 
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
+#endif
+
+// Local constants
+#define NSEC_PER_SEC (1000000000)
+
 namespace PLEXIL
 {
 
@@ -71,7 +80,7 @@ namespace PLEXIL
 
     virtual ~PosixTimebase() = default;
 
-    virtual Date getTime() const
+    virtual double getTime() const
     {
       return getPosixTime();
     }
@@ -99,16 +108,15 @@ namespace PLEXIL
       debugMsg("PosixTimebase:start", " entered");
 
       // Construct the timer
-      strict sigevent event;
+      struct sigevent event;
       event.sigev_notify = SIGEV_THREAD;
-      // event.sigev_signo = ???;
-      event.sigev_value.sival_int = arg;
-      event.sigev_notify_function = fn;
+      event.sigev_value.sival_ptr = m_wakeupArg;
+      event.sigev_notify_function = (void(*)(union sigval)) m_wakeupFn;
       event.sigev_notify_attributes = nullptr;
 
-      checkInterfaceError(timer_create(CLOCK_REALTIME,
-                                       &event,
-                                       &m_timer),
+      checkInterfaceError(!timer_create(CLOCK_REALTIME,
+					&event,
+					&m_timer),
                           "PosixTimebase: timer_create failed, errno = "
                           << errno << ":\n " << strerror(errno));
 
@@ -120,17 +128,17 @@ namespace PLEXIL
       // Start a repeating timer
       struct itimerspec tymrSpec = {{0, 0}, {0, 0}};
 
-      // Calculate interval in nanosec.
+      // Calculate repeat interval in nanosec.
       uint64_t nanos = 1000 * m_interval_usec;
       tymrSpec.it_interval.tv_sec  = nanos / NSEC_PER_SEC; // better be *integer* divide!
       tymrSpec.it_interval.tv_nsec = nanos % NSEC_PER_SEC;
+      // Set initial interval to the same
+      tymrSpec.it_value = tymrSpec.it_interval;
 
-      // Calculate first expiration at now + interval
-      struct timespec now;
-      checkInterfaceError(!clock_gettime(CLOCK_REALTIME, &now),
-                          "PosixTimebase:start: clock_gettime failed, errno = " << errno
-                          << ":\n " << strerror(errno));
-      tymrSpec.it_value = now + tymrSpec.it_interval;
+      debugMsg("PosixTimebase:start",
+	       "Setting initial interval to "
+	       << std::fixed << std::setprecision(6) << timespecToDouble(tymrSpec.it_value)
+	       << ", repeat interval " << timespecToDouble(tymrSpec.it_interval));
 
       // Set the timer
       checkInterfaceError(!timer_settime(m_timer,
@@ -154,10 +162,10 @@ namespace PLEXIL
 
       // Whether tick or deadline, disable the timer
       struct itimerspec tymrSpec = {{0, 0}, {0, 0}};
-      if (!timer_settime(m_timer,
-                         0, // flags
-                         &tymrSpec,
-                         NULL)) {
+      if (timer_settime(m_timer,
+			0, // flags
+			&tymrSpec,
+			NULL)) {
         warn("PosixTimebase::stop: timer_settime failed, errno = "
              << errno << ":\n " << strerror(errno));
       }
@@ -169,7 +177,7 @@ namespace PLEXIL
       debugMsg("PosixTimebase:stop", " complete");
     }
 
-    virtual void setTimer(Date d)
+    virtual void setTimer(double d)
     {
       if (m_interval_usec) {
         debugMsg("PosixTimebase:setTimer", " tick mode, ignoring");
@@ -177,7 +185,7 @@ namespace PLEXIL
       }
 
       debugMsg("PosixTimebase:setTimer", 
-               " deadline " << std::setprecision(15) << d);
+               " deadline " << std::fixed << std::setprecision(6) << d);
 
       // Get the wakeup time into the format timer_settime wants.
       struct itimerspec tymrSpec = {{0, 0}, {0, 0}};
@@ -193,7 +201,7 @@ namespace PLEXIL
       if (tymrSpec.it_value < now) {
         // Already past the scheduled time
         debugMsg("PosixTimebase:setTimer",
-                 " new value " << std::setprecision(15) << d
+                 " new value " << std::fixed << std::setprecision(6) << d
                  << " is in past, calling wakeup function now");
         m_nextWakeup = 0;
         (m_wakeupFn)(m_wakeupArg);
@@ -211,19 +219,20 @@ namespace PLEXIL
       // Truth in advertising
       m_nextWakeup = timespecToDouble(tymrSpec.it_value);
       debugMsg("PosixTimebase:setTimer",
-               " deadline set to " << std::setprecision(15) << m_nextWakeup);
+               " deadline set to "
+	       << std::fixed << std::setprecision(6) << m_nextWakeup);
     }
 
   private:
 
-    struct timer_t m_timer;
+    timer_t m_timer;
     uint32_t m_interval_usec;
     bool m_started;
   };
 
   void registerPosixTimebase()
   {
-    REGISTER_TIMEBASE("Posix", PosixTimebase, 1000);
+    REGISTER_TIMEBASE(PosixTimebase, "Posix", 1000);
   }
 
 } // namespace PLEXIL
