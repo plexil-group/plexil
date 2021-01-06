@@ -27,7 +27,7 @@
 #ifndef EXEC_APPLICATION_H
 #define EXEC_APPLICATION_H
 
-#include <plexil-config.h>
+#include "plexil-config.h"
 
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadSemaphore.hh"
@@ -43,7 +43,11 @@
 #include <string>
 #include <vector>
 
+#if defined(HAVE_CSIGNAL)
 #include <csignal>
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
 
 #define EXEC_APPLICATION_MAX_N_SIGNALS 8
 
@@ -65,336 +69,202 @@ namespace PLEXIL
   // forward references
   class InterfaceAdapter;
 
+  //! Enumeration representing the states of the ExecApplication.
+  enum ApplicationState
+    {
+     APP_UNINITED,
+     APP_INITED,
+     APP_READY,
+     APP_RUNNING,
+     APP_STOPPED
+    };
+
   /**
-   * @brief Provides a "pre-packaged" application skeleton for Universal Exec users.
+   * @brief Return a human-readable name for the ApplicationState.
+   * @param state An ApplicationState.
+   * @return The name of the state as a C string.
    */
+  const char* getApplicationStateName(ApplicationState state);
+
+  //! @class ExecApplication
+  //! Provides the skeleton of a complete PLEXIL Executive application.
   class ExecApplication
   {
   public:
-    enum ApplicationState
-      {
-        APP_UNINITED,
-        APP_INITED,
-        APP_READY,
-        APP_RUNNING,
-        APP_STOPPED
-      };
 
-    /**
-     * @brief Default constructor.
-     */
-    ExecApplication();
+    //! @brief Virtual destructor.
+    virtual ~ExecApplication() = default;
 
-    /**
-     * @brief Destructor.
-     */
-    virtual ~ExecApplication();
+    //
+    // Application state
+    //
 
-    /**
-     * @brief Add the specified directory name to the end of the library node loading path.
-     * @param libdir The directory name.
-     */
-    void addLibraryPath(const std::string& libdir);
+    //! Get the current state of the application.
+    //! @return The application state.
+    virtual ApplicationState getApplicationState() = 0;
 
-    /**
-     * @brief Add the specified directory names to the end of the library node loading path.
-     * @param libdirs The vector of directory names.
-     */
-    void addLibraryPath(const std::vector<std::string>& libdirs);
+    //
+    // General configuration
+    //
 
-    /**
-     * @brief Initialize all internal data structures and interfaces.
-     * @param configXml Configuration data to use.
-     * @return true if successful, false otherwise.
-     * @note The caller must ensure that all adapter and listener factories
-     *       have been created and registered before this call.
-     */
-    virtual bool initialize(pugi::xml_node const configXml);
+    //! Select whether the exec runs opportunistically or only in background thread.
+    //! @param bkgndOnly True if background only, false if opportunistic.
+    //! @note Default is background only.
+    virtual void setRunExecInBkgndOnly(bool bkgndOnly) = 0;
 
-    /**
-     * @brief Start all the interfaces prior to execution.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool startInterfaces();
+    //! Add the specified directory name to the end of the library node loading path.
+    //! @param libdir The directory name.
+    virtual void addLibraryPath(const std::string& libdir) = 0;
 
-    /**
-     * @brief Step the Exec once.
-     * @return true if successful, false otherwise.
-     * @note Can only be called in APP_READY state.
-     * @note Can be called when application is suspended.
-     * @note Acquires m_execMutex and holds until done.  
-     */
-    virtual bool step();
+    //! Add the specified directory names to the end of the library node loading path.
+    //! @param libdirs The vector of directory names.
+    virtual void addLibraryPath(const std::vector<std::string>& libdirs) = 0;
 
-    /**
-     * @brief Ask the Exec whether it is done transitioning.
-     * @return true if all has settled, false if more transitions are possible.
-     * @note Meant to be called after step(), to see if more work needs doing.
-     * @note Acquires m_execMutex and holds until done.  
-     */
-    virtual bool isQuiescent();
+    //
+    // Initialization and startup
+    //
 
-    /**
-     * @brief Step the Exec until the queue is empty.
-     * @return true if successful, false otherwise.
-     * @note Can only be called in APP_READY state.
-     * @note Can be called when application is suspended.
-     * @note Acquires m_execMutex and holds until done.  
-     */
-    virtual bool stepUntilQuiescent();
+    //! initialize all internal data structures and interfaces.
+    //! @param configXml XML element of configuration data to use. May
+    //!                  be empty.
+    //! @return true if successful, false otherwise.
+    //! @note The caller must ensure that all adapter and listener
+    //!       factories have been created and registered before this
+    //!       call.
+    virtual bool initialize(pugi::xml_node const configXml) = 0;
 
-    /**
-     * @brief Runs the initialized Exec.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool run();
+    //! Start all the interfaces prior to execution.
+    //! @return true if successful, false otherwise.
+    //! @note If successful, the application will have transitioned to
+    //!       the APP_READY state.
+    virtual bool startInterfaces() = 0;
 
-    /**
-     * @brief Suspends the running Exec.
-     * @return true if successful, false otherwise.
-     * @note Can only be suspended from APP_RUNNING state.
-     */
-    virtual bool suspend();
+    //
+    // Stepping the Exec under program control
+    //
 
-    /**
-     * @brief Resumes a suspended Exec.
-     * @return true if successful, false otherwise.
-     * @note Can only resume from suspended state, i.e. 
-     *   application state is APP_READY and isSuspended() is true.
-     */
-    virtual bool resume();
+    //! Step the Exec once.
+    //! @return true if successful, false otherwise.
+    //! @note Can only be called in APP_READY state.
+    //! @note Can be called when application is suspended.
+    virtual bool step() = 0; 
 
-    /**
-     * @brief Stops the Exec.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool stop();
+    //! Ask the Exec whether all plan state is stable.
+    //! @return true if stable, false if more transitions are possible.
+    //! @note Meant to be called after step(), to see if more work needs doing.
+    virtual bool isQuiescent() = 0;
 
-    /**
-     * @brief Notify the executive that it should run one cycle.  This should be sent after
-     each batch of lookup and command return data.
-    */
-    virtual void notifyExec();
+    //! Step the Exec until the plan state is quiescent and the queue
+    //! is empty.
+    //! @return true if successful, false otherwise.
+    //! @note Can only be called in APP_READY state.
+    //! @note Can be called when application is suspended.
+    virtual bool stepUntilQuiescent() = 0;
 
-    /**
-     * @brief Notify the application that a queue mark was processed.
-     */
-    virtual void markProcessed();
+    //
+    // Member functions for use in a threaded environment
+    //
 
-    /**
-     * @brief Add a library as an XML document.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool addLibrary(pugi::xml_document* libXml);
+    //! Runs the initialized Exec in its own thread.
+    //! @return true if successful, false otherwise.
+    //! @note Application must be in APP_READY state.
+    //! @note This is a no-op if PLEXIL is built without threads.
+    virtual bool run() = 0;
 
-    /**
-     * @brief Load the named library from the library path.
-     * @param name The name of the library.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool loadLibrary(std::string const &name);
+    //! Suspends the running Exec.
+    //! @return true if successful, false otherwise.
+    virtual bool suspend() = 0;
 
-    /**
-     * @brief Add a plan as an XML document.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool addPlan(pugi::xml_document* planXml);
+    //! Query whether the Exec has been suspended. 
+    //! @return True if suspended, false otherwise.
+    virtual bool isSuspended() const = 0;
 
-    /**
-     * @brief Notify the executive and wait for all queue entries to be processed.
-     */
-    virtual void notifyAndWaitForCompletion();
+    //! Resumes a suspended Exec.
+    //! @return true if successful, false otherwise.
+    //! @note If called when not suspended, does nothing.
+    virtual bool resume() = 0;
 
-    /**
-     * @brief Suspend the current thread until the plan finishes executing.
-     * @note Acquires m_execMutex while checking exec status.
-     */
-    virtual void waitForPlanFinished();
+    //! Stops the Exec and its interfaces.
+    //! @return true if successful, false otherwise.
+    virtual bool stop() = 0;
 
-    /**
-     * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
-     * @note May be called by multiple threads
-     * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
-     */
-    virtual void waitForShutdown();
+    //! Whatever state the application may be in, bring it down in a
+    //! controlled fashion.
+    virtual void terminate() = 0;
 
-    /**
-     * @brief Whatever state the application may be in, bring it down in a controlled fashion.
-     */
-    virtual void terminate();
+    //!
+    //! Notification and waiting
+    //!
 
-    /**
-     * @brief Select whether the exec runs opportunistically or only in background thread.
-     * @param bkgndOnly True if background only, false if opportunistic.
-     * @note Default is background only.
-     */
-    void setRunExecInBkgndOnly(bool bkgndOnly)
-    { 
-      m_runExecInBkgndOnly = bkgndOnly; 
-    }
+    //! Notify the exec thread that it should check the queue and run
+    //! one cycle.
+    //! @note This should be called after each batch of lookup and
+    //!       command return data is enqueued.
+    virtual void notifyExec() = 0;
 
-    /**
-     * @brief Get the application's current state.
-     */
-    ApplicationState getApplicationState();
+    //! Notify the executive and wait for all queue entries up to the
+    //! time of the call to be processed.
+    virtual void notifyAndWaitForCompletion() = 0;
 
-    /**
-     * @brief Return a human-readable name for the ApplicationState.
-     * @param state An ApplicationState.
-     * @return The name of the state as a const char*.
-     */
-    static const char* getApplicationStateName(ApplicationState state);
+    //! Suspend the calling thread until the plan being executed
+    //! finishes.
+    virtual void waitForPlanFinished() = 0;
 
-    /**
-     * @brief Query whether the Exec has been suspended. 
-     * @return True if suspended, false otherwise.
-     * @note Can only be suspended from APP_RUNNING.
-     */
-    bool isSuspended() const
-    {
-      return m_suspended;
-    }
+    //! Suspend the current thread until the application reaches
+    //! APP_STOPPED state.
+    //! @note Wait can be interrupted by signal handling; calling
+    //! threads should block (e.g.) SIGALRM.
+    virtual void waitForShutdown() = 0;
+
+    //
+    // Plans and libraries
+    //
+
+    //! Add a library from an XML document.
+    //! @return true if successful, false otherwise.
+    //! @note The application (actually the InterfaceManager)
+    //        is responsible for deleting the document.
+    virtual bool addLibrary(pugi::xml_document* libXml) = 0;
+
+    //! Load the named library from a file in the library path.
+    //! @param name The name of the library.
+    //! @return true if successful, false otherwise.
+    virtual bool loadLibrary(std::string const &name) = 0;
+
+    //! Add a PLEXIL plan from an XML document.
+    //! @return true if successful, false otherwise.
+    //! @note The application (actually the InterfaceManager)
+    //        is responsible for deleting the document.
+    //! @note May only be called if application is in APP_READY or
+    //!       APP_RUNNING state.
+    virtual bool addPlan(pugi::xml_document* planXml) = 0;
+
+    //!
+    //! Communications with the InterfaceManager
+    //!
+    
+    //! Notify the application that a queue mark was processed.
+    //! @note Used to implement notifyAndWaitForCompletion().
+    virtual void markProcessed() = 0;
 
   protected:
 
-    //
-    // Exec top level
-    //
-
-    /**
-     * @brief Run the exec until the queue is empty.
-     * @param stepFirst True if the exec should be stepped before checking the queue.
-     * @note Acquires m_execMutex and holds until done.  
-     */
-    void runExec(bool stepFirst = false);
-
-#ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Start the exec thread
-     */
-    bool spawnExecThread();
-
-    /**
-     * @brief Exec top level loop for use with pthread_create
-     * @param this_as_void_ptr A pointer to the ExecApplication instance as a void *
-     */
-    static void * execTopLevel(void * this_as_void_ptr);
-
-    /**
-     * @brief Exec top level loop
-     */
-    void runInternal();
-
-    /**
-     * @brief Suspends the calling thread until another thread has
-     *         placed a call to notifyOfExternalEvent().  Can return
-     *         immediately if the calling thread is canceled.
-     * @return true if resumed normally, false if thread was canceled.
-     * @note Can wait here indefinitely while the application is suspended.
-     */
-    bool waitForExternalEvent();
-#endif
-
-
-    //
-    // Common methods provided to subclasses
-    //
-
-    /**
-     * @brief Transitions the application to the new state.
-     * @return true if the new state is a legal transition from the current state, false if not.
-     */ 
-    bool setApplicationState(const ApplicationState& newState);
-
-#ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Establish signal handling environment for exec worker thread.
-     * @return True if successful, false otherwise.
-     */
-    bool initializeWorkerSignalHandling();
-
-    /**
-     * @brief Restore previous signal handling environment for exec worker thread.
-     * @return True if successful, false otherwise.
-     */
-    bool restoreWorkerSignalHandling();
-
-    /**
-     * @brief Establish signal handling environment for main thread.
-     * @return True if successful, false otherwise.
-     */
-    bool initializeMainSignalHandling();
-
-    /**
-     * @brief Restore previous signal handling environment for main thread.
-     * @return True if successful, false otherwise.
-     */
-    bool restoreMainSignalHandling();
-#endif
+    //! Default constructor; only available to implementation classes.
+    ExecApplication() = default;
 
   private:
 
     //
     // Deliberately unimplemented
     //
-    ExecApplication(const ExecApplication&);
-    ExecApplication& operator=(const ExecApplication&);
-    
-    //
-    // Member variables
-    //
-
-#ifdef PLEXIL_WITH_THREADS
-    //
-    // Synchronization and mutual exclusion
-    //
-
-    // Thread in which the Exec runs
-    pthread_t m_execThread;
-
-    // Serialize execution in exec to guarantee in-order processing of events
-    std::recursive_mutex m_execMutex;
-
-    // Mutex for application state
-    std::mutex m_stateMutex;
-
-    // Semaphore for notifying the Exec of external events
-    ThreadSemaphore m_sem;
-
-    // Semaphore for notifyAndWaitForCompletion()
-    ThreadSemaphore m_markSem;
-
-    // Semaphore for notifying external threads that the application is shut down
-    ThreadSemaphore m_shutdownSem;
-#endif 
-
-    //
-    // Signal handling
-    //
-    sigset_t m_workerSigset;
-    sigset_t m_restoreWorkerSigset;
-    sigset_t m_mainSigset;
-    sigset_t m_restoreMainSigset;
-    struct sigaction m_restoreUSR2Handler;
-    size_t m_nBlockedSignals;
-    int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
-
-    // Current state of the application
-    ApplicationState m_state;
-
-    // True if exec is running in a separate thread
-    bool m_threadLaunched;
-
-    // Flag to determine whether exec should run conservatively
-    bool m_runExecInBkgndOnly;
-
-    // Flag for halting the Exec thread
-    bool m_stop;
-
-    // Flag for suspend/resume
-    bool m_suspended;
-
+    ExecApplication(const ExecApplication &) = delete;
+    ExecApplication(ExecApplication &&) = delete;
+    ExecApplication &operator=(const ExecApplication&) = delete;
+    ExecApplication &operator=(ExecApplication &&) = delete;
   };
+
+  // Factory function
+  ExecApplication *makeExecApplication();
 
 }
 
