@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,9 @@
 
 #include "ThreadSemaphore.hh"
 #include "Error.hh"
+
+// Uncomment for debugging.
+//#define PLEXIL_SEMAPHORE_DEBUG
 
 #ifdef PLEXIL_SEMAPHORE_DEBUG
 // debug case
@@ -129,16 +132,25 @@ namespace PLEXIL
   }
 
   // *** N.B. There's a problem here relative to the POSIX version.
-  // POSIX uniquely identifies when the sem_wait() call is interrupted by a signal, 
-  // and isn't documented to unblock when (e.g.) pthread_cancel() is called.
-  // Mach has a catch-all KERN_ABORTED return value for both cases.
+  // POSIX uniquely identifies when the sem_wait() call is interrupted
+  // by a signal, and isn't documented to unblock when (e.g.)
+  // pthread_cancel() is called.  Mach has a catch-all KERN_ABORTED
+  // return value for both cases.
+  //
+  // This becomes a problem when waiting on a semaphore which is
+  // posted to from a signal handler.
   int ThreadSemaphore::wait()
   {
-	myDebugMsg("ThreadSemaphore:wait", " on " << this << ", Mach semaphore " << m_mach_sem);
-    kern_return_t status = semaphore_wait(m_mach_sem);
 	myDebugMsg("ThreadSemaphore:wait",
-               " complete on " << this << ", Mach semaphore "
-               << m_mach_sem << ", status = " << status);
+               ' ' << this << " (Mach) semaphore " << m_mach_sem);
+    kern_return_t status = KERN_SUCCESS;
+    do {
+      status = semaphore_wait(m_mach_sem);
+      myDebugMsg("ThreadSemaphore:wait",
+                 ' ' << this << " (Mach) semaphore_wait returned " << status);
+    }
+    while (status == KERN_ABORTED);
+    myDebugMsg("ThreadSemaphore:wait", " (Mach) returning " << status);
     return status;
   }
 
