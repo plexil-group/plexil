@@ -144,7 +144,7 @@ namespace PLEXIL
       return 0;
     }
 
-    int ThreadSemaphore::post()
+    virtual int post()
     {
       int status = sem_post(&m_posix_sem);
       if (status == -1)
