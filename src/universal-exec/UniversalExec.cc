@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +24,31 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ExecApplication.hh"
-#include "ExternalInterface.hh"
-#include "InterfaceManager.hh"
-#include "InterfaceSchema.hh"
-#include "TimeAdapter.hh"
-#include "AdapterFactory.hh"
 #include "Debug.hh"
-#include "Node.hh"
+#include "ExecApplication.hh"
+#include "ExternalInterface.hh" // g_interface
+#include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
 
 #ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
 #endif
 
-#include <cstring>
+#include "pugixml.hpp"
+
 #include <fstream>
+
+#if defined(HAVE_CSTRING)
+#include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
+#endif
 
 using namespace PLEXIL;
 
 int main_internal(int argc, char** argv)
 {
+  unsigned int const PUGI_PARSE_OPTIONS = pugi::parse_default | pugi::parse_ws_pcdata_single;
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("interface-config.xml");
@@ -59,7 +63,6 @@ int main_internal(int argc, char** argv)
                     [-c <interface_config_file>] (default ./interface-config.xml)\n\
                     [-d <debug_config_file>]     (default ./Debug.cfg)\n\
                     [+d]                         (disable debug messages)\n");
-  bool luvRequest = false;
 
 #ifdef HAVE_LUV_LISTENER
   std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
@@ -68,6 +71,7 @@ int main_internal(int argc, char** argv)
   usage += "                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
 #endif
 
+  bool luvRequest = false;
   bool debugConfigSupplied = false;
   bool useDebugConfig = true;
   bool resourceFileSupplied = false;
@@ -218,7 +222,8 @@ int main_internal(int argc, char** argv)
   pugi::xml_document configDoc;
   if (!interfaceConfig.empty()) {
     std::cout << "Reading interface configuration from " << interfaceConfig << std::endl;
-	pugi::xml_parse_result parseResult = configDoc.load_file(interfaceConfig.c_str());
+	pugi::xml_parse_result parseResult =
+      configDoc.load_file(interfaceConfig.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status != pugi::status_ok) {
       std::cout << "WARNING: unable to load interface configuration file " 
                 << interfaceConfig 
@@ -236,7 +241,7 @@ int main_internal(int argc, char** argv)
 	configElt = configDoc.append_child(PLEXIL::InterfaceSchema::INTERFACES_TAG);
 	// Add a time adapter
 	pugi::xml_node timeElt = configElt.append_child(PLEXIL::InterfaceSchema::ADAPTER_TAG);
-	timeElt.append_attribute("AdapterType").set_value("OSNativeTime");
+	timeElt.append_attribute("AdapterType").set_value("Time");
   }
   else {
 	configElt = configDoc.child(PLEXIL::InterfaceSchema::INTERFACES_TAG);
@@ -269,7 +274,7 @@ int main_internal(int argc, char** argv)
 #endif
 
   // construct the application
-  PLEXIL::ExecApplication _app;
+  std::unique_ptr<PLEXIL::ExecApplication> _app(makeExecApplication());
 
   // initialize it
   std::cout << "Initializing application" << std::endl;
@@ -277,7 +282,7 @@ int main_internal(int argc, char** argv)
     g_interface->readResourceFile(resourceFile);
   }
 
-  if (!_app.initialize(configElt)) {
+  if (!_app->initialize(configElt)) {
       std::cout << "ERROR: unable to initialize application"
                 << std::endl;
       return 1;
@@ -285,11 +290,11 @@ int main_internal(int argc, char** argv)
 
   // add library path
   if (!libraryPath.empty())
-	_app.addLibraryPath(libraryPath);
+	_app->addLibraryPath(libraryPath);
 
   // start interfaces
   std::cout << "Starting interfaces" << std::endl;
-  if (!_app.startInterfaces()) {
+  if (!_app->startInterfaces()) {
       std::cout << "ERROR: unable to start interfaces"
                 << std::endl;
       return 1;
@@ -297,7 +302,7 @@ int main_internal(int argc, char** argv)
 
   // start the application
   std::cout << "Starting the exec" << std::endl;
-  if (!_app.run()) {
+  if (!_app->run()) {
 	std::cout << "ERROR: Failed to start Exec" << std::endl;
 	return 1;
   }
@@ -310,7 +315,7 @@ int main_internal(int argc, char** argv)
        libraryName != libraryNames.end();
        ++libraryName) {
 	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
-    if (!_app.loadLibrary(*libraryName)) {
+    if (!_app->loadLibrary(*libraryName)) {
       std::cout << "ERROR: unable to load library " << *libraryName << std::endl;
 	  error = true;
     }
@@ -319,34 +324,28 @@ int main_internal(int argc, char** argv)
   // load the plan
   if (!error && planName != "error") {
 	pugi::xml_document plan;
-	pugi::xml_parse_result parseResult = plan.load_file(planName.c_str());
+	pugi::xml_parse_result parseResult =
+      plan.load_file(planName.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status != pugi::status_ok) {
       std::cout << "Error parsing plan " << planName
 				<< " (offset " << parseResult.offset << "): "
                 << parseResult.description() << std::endl;
 	  error = true;
     }
-    else if (!_app.addPlan(&plan)) {
+    else if (!_app->addPlan(&plan)) {
 	  std::cout << "Unable to load plan '" << planName << "', exiting" << std::endl;
 	  error = true;
 	}
   }
 
   if (!error) {
-    _app.notifyExec();
-	_app.waitForPlanFinished();
+    _app->notifyExec();
+	_app->waitForPlanFinished();
   }
-
-  std::cout << "UniversalExec " << planName << " finished, cleaning up" << std::endl;
 
   // clean up
-  if (!_app.stop()) {
+  if (!_app->stop()) {
 	std::cout << "ERROR: failed to stop Exec" << std::endl;
-	return 1;
-  }
-
-  if (!_app.shutdown()) {
-	std::cout << "ERROR: failed to shut down Exec" << std::endl;
 	return 1;
   }
 
