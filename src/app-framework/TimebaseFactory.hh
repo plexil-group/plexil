@@ -130,6 +130,9 @@ namespace PLEXIL
     //! @return Reference to the factory map.
     static TimebaseFactoryMap &factoryMap();
 
+    //! Delete the factories in the factory map at program exit.
+    static void purge();
+
     //! Name of this factory instance. 
     std::string const m_name;
 

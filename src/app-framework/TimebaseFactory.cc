@@ -29,6 +29,7 @@
 #include "Debug.hh"
 #include "InterfaceError.hh"
 #include "InterfaceSchema.hh"
+#include "lifecycle-utils.h"
 
 #include "pugixml.hpp"
 
@@ -126,7 +127,17 @@ namespace PLEXIL
   TimebaseFactory::TimebaseFactoryMap &TimebaseFactory::factoryMap()
   {
     static TimebaseFactoryMap sl_map;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      plexilAddFinalizer(&purge);
+      sl_inited = true;
+    }
     return sl_map;
+  }
+
+  void TimebaseFactory::purge()
+  {
+    factoryMap().clear();
   }
 
 } // namespace PLEXIL
