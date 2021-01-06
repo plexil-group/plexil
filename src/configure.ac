@@ -100,7 +100,6 @@ AC_ARG_ENABLE([universal-exec],
 AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([DEBUG_LOGGING_OPT], [test "x$enable_debug_logging" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
-AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
 AM_CONDITIONAL([SHARED_LIB_OPT], [test "x$enable_shared" != "xno"])
@@ -126,9 +125,6 @@ AS_IF([test "x$enable_debug_listener" != "xno"],[
 ])
 AS_IF([test "x$with_threads" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
-])
-AS_IF([test "x$with_unix_time" != "xno"],[
-  AC_DEFINE([PLEXIL_WITH_UNIX_TIME],[1],[Define to 1 if Unix native time facilities are enabled.])
 ])
 AS_IF([test "x$enable_viewer" != "xno"],[
   AC_DEFINE([HAVE_LUV_LISTENER],[1],[Define to 1 if LuvListener is enabled in the build.])
@@ -167,15 +163,20 @@ AC_CHECK_HEADERS_ONCE([cassert ctype cerrno cfloat cinttypes climits cmath csign
 # Some platforms (e.g. vxWorks) may lack some of these
 # NOTE: checks only apply to PLEXIL source code, not imported third party code
 AC_CHECK_HEADERS_ONCE([assert.h ctype.h errno.h float.h inttypes.h math.h signal.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
+
 # POSIX dependencies for core functionality
-AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h unistd.h sys/stat.h sys/time.h])
+AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h semaphore.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
 AC_CHECK_HEADERS_ONCE([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
+
 # glibc backtrace functionality
 AC_CHECK_HEADERS_ONCE([execinfo.h])
 
-# Darwin (macOS)
+# Grand Central Dispatch (macOS)
 AC_CHECK_HEADERS_ONCE([dispatch/dispatch.h])
+
+# Mach semaphores (macOS)
+AC_CHECK_HEADERS_ONCE([mach/semaphore.h])
 
 # Non-Unix-like platforms
 AC_CHECK_HEADERS_ONCE([sockLib.h vxWorks.h sys/times.h])
