@@ -162,7 +162,7 @@ namespace PLEXIL
         debugMsg("TimeAdapter:stop", " complete");
         return true;
       } catch (const InterfaceError &e) {
-        std::cerr << "ERROR: Stoppinng timebase signaled an exception:\n "
+        std::cerr << "ERROR: Stopping timebase threw an exception:\n "
                   << e.what() << std::endl;
       }
       return false;
@@ -203,7 +203,7 @@ namespace PLEXIL
     if (next && now < next) {
       // Alarm went off too early. Hit the snooze button.
       debugMsg("TimeAdapter:timeout", " early wakeup, resetting");
-      tb->setTimer(next); // *** check for reentrancy issues ***
+      tb->setTimer(next); // possibility of reentrant call to this function
     }
 
     // Notify in any case
@@ -213,6 +213,9 @@ namespace PLEXIL
   void registerTimeAdapter()
   {
     REGISTER_ADAPTER(TimeAdapter, "Time");
+
+    // Register timebase factories while we're at it
+    initTimebaseFactories();
   }
 
 } // namespace PLEXIL
