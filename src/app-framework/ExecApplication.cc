@@ -44,6 +44,10 @@
 #include <string.h>
 #endif
 
+#if defined(HAVE_UNISTD_H)
+#include <unistd.h> // sleep()
+#endif
+
 namespace PLEXIL
 {
   
@@ -574,11 +578,10 @@ namespace PLEXIL
     virtual void waitForShutdown()
     {
 #ifdef PLEXIL_WITH_THREADS
-      int waitStatus = PLEXIL_SEMAPHORE_STATUS_INTERRUPTED;
-      while ((waitStatus = m_shutdownSem.wait()) == PLEXIL_SEMAPHORE_STATUS_INTERRUPTED)
-        continue;
-      if (waitStatus == 0)
-        m_shutdownSem.post(); // pass it on to the next, if any
+      int waitStatus = m_shutdownSem.wait();
+      checkError(!waitStatus,
+                 "waitForShutdown: semaphore wait got error " << waitStatus);
+      m_shutdownSem.post(); // pass it on to the next, if any
 #else // !defined(PLEXIL_WITH_THREADS)
       warn("waitForShutdown: threads not enabled in build");
 #endif // PLEXIL_WITH_THREADS
