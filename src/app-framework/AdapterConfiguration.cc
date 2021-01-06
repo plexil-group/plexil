@@ -40,17 +40,13 @@
 #include "ListenerFilters.hh"
 #include "planLibrary.hh"
 #include "State.hh"
+#include "TimeAdapter.hh"
+#include "UtilityAdapter.hh"
 
 #ifdef PLEXIL_WITH_THREADS
 #include "SerializedInputQueue.hh"
 #else
 #include "SimpleInputQueue.hh"
-#endif
-
-#include "UtilityAdapter.hh"
-
-#ifdef PLEXIL_WITH_UNIX_TIME 
-#include "TimeAdapter.hh"
 #endif
 
 //
@@ -123,14 +119,12 @@ namespace PLEXIL {
         m_defaultLookupHandler(new LookupHandler()),
         m_plannerUpdateHandler(nullptr)
     {
+      // Every application has access to a time adapter
+      registerTimeAdapter();
+
       // Every application has access to the utility and launcher adapters
       initUtilityAdapter();
       initLauncher();
-
-#ifdef PLEXIL_WITH_UNIX_TIME
-      // Every application has access to the OS-native time adapter
-      registerTimeAdapter();
-#endif
 
       registerExecListenerFilters();
 
