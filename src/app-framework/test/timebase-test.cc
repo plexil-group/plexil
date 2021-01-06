@@ -42,7 +42,9 @@
 using namespace PLEXIL;
 
 // Local constants
-#define USEC_PER_SEC 1000000
+#ifndef USEC_PER_SEC
+#define USEC_PER_SEC (1000000)
+#endif
 
 // Comparisons between doubles
 static double const EPSILON = 1e-12;
@@ -57,8 +59,7 @@ static bool geq_within_epsilon(double a, double b)
 }
 
 // Simple wakeup function
-static ThreadSemaphore testSem;
-
+// Posts to a semaphore pointed to by its argument
 static void wakeup(void *arg)
 {
   assertTrue_1(arg != 0);
@@ -70,6 +71,7 @@ static bool testTimebaseDeadlines(std::string const &name)
 {
   std::cout << "testTimebaseDeadlines: Testing " << name << std::endl;
   try {
+    ThreadSemaphore testSem;
     std::unique_ptr<Timebase> tb(TimebaseFactory::get(name)->create(wakeup, (void *)  &testSem));
     assertTrue_1(tb->getTickInterval() == 0);
     assertTrue_1(tb->getNextWakeup() == 0);
@@ -81,7 +83,7 @@ static bool testTimebaseDeadlines(std::string const &name)
     tb->setTimer(scheduledTime);
 
     std::cout << "\nTimer set to "
-	      << std::fixed << std::setprecision(6) << scheduledTime
+              << std::fixed << std::setprecision(6) << scheduledTime
               << ", getNextWakeup() returns " << tb->getNextWakeup()
               << std::endl;
     assertTrue_1(eq_within_epsilon(tb->getNextWakeup(), scheduledTime));
@@ -91,7 +93,7 @@ static bool testTimebaseDeadlines(std::string const &name)
     double actualTime = tb->getTime();
 
     std::cout << "\nWakeup scheduled for "
-	      << std::fixed << std::setprecision(6) << scheduledTime
+              << std::fixed << std::setprecision(6) << scheduledTime
               << ", received at " << actualTime
               << ",\n was " << actualTime - scheduledTime
               << " seconds late" << std::endl;
@@ -116,6 +118,7 @@ static bool testTimebaseTick(std::string const &name)
 {
   std::cout << "testTimebaseTick: Testing " << name << std::endl;
   try {
+    ThreadSemaphore testSem;
     std::unique_ptr<Timebase> tb(TimebaseFactory::get(name)->create(wakeup, (void *) &testSem));
     assertTrue_1(tb->getTickInterval() == 0);
     assertTrue_1(tb->getNextWakeup() == 0);
@@ -128,22 +131,22 @@ static bool testTimebaseTick(std::string const &name)
     double endTime;
     tb->start();
     std::cout << "\nStart at "
-	      << std::fixed << std::setprecision(6) << startTime
-	      << '\n' << std::endl;
-			 
+              << std::fixed << std::setprecision(6) << startTime
+              << '\n' << std::endl;
+
     for (int i = 0 ; i < 5; ++i) {
       // Wait for wakeup 
       testSem.wait();
       endTime = tb->getTime();
       std::cout << "Tick at "
-		<< std::fixed << std::setprecision(6) << endTime
-		<< std::endl;
+                << std::fixed << std::setprecision(6) << endTime
+                << std::endl;
     }
     tb->stop();
 
     // TEMP DEBUG (?)
     std::cout << "\nStarted at "
-	      << std::fixed << std::setprecision(6) << startTime
+              << std::fixed << std::setprecision(6) << startTime
               << ", ended at " << endTime
               << ",\n difference was " << endTime - startTime
               << " seconds" << std::endl;
