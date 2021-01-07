@@ -104,11 +104,10 @@ namespace PLEXIL
     //
     virtual void handleAddPlan(pugi::xml_node const planXml) = 0;
 
-    //!
-    // @brief Notify the executive of a new library node.
-    // @param planXml The XML document containing the new library node
-    // @return true if successful, false otherwise.
-    //
+    //! Notify the executive of a new library node.
+    //! @param planXml The XML document containing the new library node
+    //! @return true if successful, false otherwise.
+    //! @note The interface takes ownership of the plan document.
     virtual bool handleAddLibrary(pugi::xml_document *planXml) = 0;
 
     //!

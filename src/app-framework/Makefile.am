@@ -41,7 +41,7 @@ if VIEWER_OPT
 endif
 
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
- AdapterFactory.hh ExecApplication.hh ExecListener.hh \
+ AdapterFactory.hh Configuration.hh ExecApplication.hh ExecListener.hh \
  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
  PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh \
@@ -51,7 +51,7 @@ noinst_HEADERS = UtilityAdapter.hh
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
  AdapterExecInterface.cc AdapterFactory.cc CommandHandler.cc \
- ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
+ Configuration.cc ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
  ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc \
  InterfaceManager.cc Launcher.cc ListenerFilters.cc LookupHandler.cc \
  SerializedInputQueue.cc SimpleInputQueue.cc TimeAdapter.cc Timebase.cc \

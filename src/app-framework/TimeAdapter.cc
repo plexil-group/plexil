@@ -29,6 +29,7 @@
 #include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh" // REGISTER_ADAPTER() macro
+#include "Configuration.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "InterfaceAdapter.hh"
@@ -109,8 +110,8 @@ namespace PLEXIL
   class TimeAdapter : public InterfaceAdapter
   {
   public:
-    TimeAdapter(AdapterExecInterface &intf, pugi::xml_node const xml)
-      : InterfaceAdapter(intf, xml),
+    TimeAdapter(AdapterExecInterface &intf, AdapterConf *conf)
+      : InterfaceAdapter(intf, conf),
         m_timebase()
     {
     }

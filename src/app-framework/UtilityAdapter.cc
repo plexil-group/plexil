@@ -30,6 +30,7 @@
 #include "AdapterFactory.hh"        // REGISTER_ADAPTER() macro
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
+#include "Configuration.hh"
 #include "Debug.hh"
 #include "InterfaceAdapter.hh"
 #include "plan-utils.hh"
@@ -70,8 +71,8 @@ namespace PLEXIL {
   {
   public:
     UtilityAdapter(AdapterExecInterface& execInterface,
-                   pugi::xml_node const configXml)
-      : InterfaceAdapter(execInterface, configXml)
+                   AdapterConf *conf)
+      : InterfaceAdapter(execInterface, conf)
     {
       debugMsg("UtilityAdapter", " created.");
     }

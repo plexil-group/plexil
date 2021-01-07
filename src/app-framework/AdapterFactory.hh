@@ -41,10 +41,12 @@ namespace PLEXIL
   // Forward declarations
   //
 
-  class InterfaceAdapter;
+  struct AdapterConf;
   class AdapterFactory;
+  class InterfaceAdapter;
 
   using AdapterFactoryPtr = std::unique_ptr<AdapterFactory>;
+  using AdapterFactoryMap = std::map<std::string, AdapterFactoryPtr>;
 
   /**
    * @brief Factory class for InterfaceAdapter instances.  
@@ -65,16 +67,6 @@ namespace PLEXIL
     static InterfaceAdapter *createInstance(pugi::xml_node const xml);
 
     /**
-     * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
-     *        the given configuration XML.
-     * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-     * @return The new InterfaceAdapter.  May not be unique.
-     */
-    static InterfaceAdapter *createInstance(std::string const& name, 
-                                            pugi::xml_node const xml);
-
-    /**
      * @brief Checks whether or not an AdapterFactory has been registered
      *        for this name.
      * @param name Const reference to the factory name.
@@ -85,8 +77,8 @@ namespace PLEXIL
 
     /**
      * @brief Deallocate all factories
+     * @note Used in post-run cleanup.
      */
-    // ????
     static void purge();
 
     std::string const& getName() const {return m_name;}
@@ -115,10 +107,10 @@ namespace PLEXIL
 
     /**
      * @brief Instantiates a new InterfaceAdapter of the type named in the XML.
-     * @param xml The configuration XML for the InterfaceAdapter to be constructed.
-     * @return The new InterfaceAdapter.
+     * @param xml The configuration struct for the adapter to be constructed.
+     * @return Pointer to the new InterfaceAdapter.
      */
-    virtual InterfaceAdapter *create(pugi::xml_node const xml) const = 0;
+    virtual InterfaceAdapter *create(AdapterConf *conf) const = 0;
 
   private:
 
@@ -136,7 +128,7 @@ namespace PLEXIL
      * @note This pattern of wrapping static data in a static method
      *       is to ensure proper loading when used as a shared library.
      */
-    static std::map<std::string, AdapterFactoryPtr>& factoryMap();
+    static AdapterFactoryMap& factoryMap();
 
     //
     // Instance variables
@@ -173,10 +165,10 @@ namespace PLEXIL
      * @return The new InterfaceAdapter.
      */
 
-    InterfaceAdapter *create(pugi::xml_node const xml) const
+    InterfaceAdapter *create(AdapterConf *conf) const
     {
-      // FIXME
-      return new AdapterType(*g_execInterface, xml);
+      // FIXME - reference to global variable
+      return new AdapterType(*g_execInterface, conf);
     }
   };
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,13 @@
 
 #include "AdapterFactory.hh"
 
-#include "InterfaceAdapter.hh"
+#include "Configuration.hh"
 #include "Debug.hh"
 #if defined(HAVE_DLFCN_H)
 #include "DynamicLoader.h"
 #endif
 #include "Error.hh"
+#include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
 
@@ -54,64 +55,42 @@ namespace PLEXIL
   InterfaceAdapter *
   AdapterFactory::createInstance(pugi::xml_node const xml)
   {
-    // Can't do anything without the spec
-    assertTrueMsg(xml,
-                  "AdapterFactory::createInstance: null configuration XML");
     debugMsg("AdapterFactory:createInstance", " xml = " << xml);
 
-    // Get the kind of adapter to make
-    const char* adapterType = 
-      xml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value();
-    if (!*adapterType) {
-      warn("AdapterFactory: missing "
-           << InterfaceSchema::ADAPTER_TYPE_ATTR
-           << " attribute in adapter XML:\n" << xml);
+    AdapterConf *conf = parseAdapterConfiguration(xml);
+    if (!conf) {
+      warn("AdapterFactory: unable to parse configuration XML");
       return nullptr;
     }
 
-    // Make it
-    return createInstance(adapterType, xml);
-  }
-
-  /**
-   * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
-   *        the given configuration XML.
-   * @param name The registered name for the factory.
-   * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-   * @return Pointer to the new InterfaceAdapter.
-   */
-
-  InterfaceAdapter *
-  AdapterFactory::createInstance(std::string const& name,
-                                 pugi::xml_node const xml)
-  {
-    std::map<std::string, AdapterFactoryPtr>::const_iterator it = factoryMap().find(name);
+    // Get the kind of adapter to make
+    std::string adapterType = conf->typeName;
+    AdapterFactoryMap::const_iterator it = factoryMap().find(adapterType);
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("AdapterFactory:createInstance", 
-               " Attempting to dynamically load adapter type \"" << name << "\"");
+               " Attempting to dynamically load adapter type \"" << adapterType << "\"");
       // Attempt to dynamically load library
       const char* libCPath =
         xml.attribute(InterfaceSchema::LIB_PATH_ATTR).value();
-      if (!dynamicLoadModule(name.c_str(), libCPath)) {
+      if (!dynamicLoadModule(adapterType.c_str(), libCPath)) {
         warn("AdapterFactory: unable to load module for adapter type \""
-             << name.c_str() << "\"");
+             << adapterType.c_str() << "\"");
         return nullptr;
       }
 
       // See if it's registered now
-      it = factoryMap().find(name);
+      it = factoryMap().find(adapterType);
     }
 #endif
 
     if (it == factoryMap().end()) {
       warn("AdapterFactory: No factory registered for adapter type \""
-           << name.c_str()
-           << "\".");
+           << adapterType << "\".");
       return nullptr;
     }
-    InterfaceAdapter *retval = it->second->create(xml);
-    debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
+    InterfaceAdapter *retval = it->second->create(conf);
+    debugMsg("AdapterFactory:createInstance", " Created adapter " << adapterType);
     return retval;
   }
 
@@ -119,9 +98,9 @@ namespace PLEXIL
     return factoryMap().find(name) != factoryMap().end();
   }
 
-  std::map<std::string, AdapterFactoryPtr>& AdapterFactory::factoryMap() 
+  AdapterFactoryMap& AdapterFactory::factoryMap() 
   {
-    static std::map<std::string, AdapterFactoryPtr> sl_map;
+    static AdapterFactoryMap sl_map;
     static bool sl_inited = false;
     if (!sl_inited) {
       plexilAddFinalizer(&purge);

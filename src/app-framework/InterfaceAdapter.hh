@@ -27,7 +27,11 @@
 #ifndef INTERFACE_ADAPTER_H
 #define INTERFACE_ADAPTER_H
 
+#include "Configuration.hh"
+
 #include "pugixml.hpp"
+
+#include <memory>
 
 namespace PLEXIL
 {
@@ -71,8 +75,8 @@ namespace PLEXIL
      * @note The instance maintains a shared reference to the XML, though
      *       perhaps this should be passed in via the initialize() method.
      */
-    InterfaceAdapter(AdapterExecInterface &intf, pugi::xml_node const xml)
-      : m_xml(xml),
+    InterfaceAdapter(AdapterExecInterface &intf, AdapterConf *conf)
+      : m_conf(conf),
         m_interface(intf)
     {
     }
@@ -127,12 +131,23 @@ namespace PLEXIL
       return m_interface;
     }
 
+    //! Get the parsed configuration for this adapter.
+    //! @return Const reference to the configuration object.
+    AdapterConf const &configuration()
+    {
+      static AdapterConf const sl_empty_conf = AdapterConf();
+      if (m_conf)
+        return *m_conf;
+      else
+        return sl_empty_conf;
+    }
+
     /**
      * @brief Get the configuration XML for this instance.
      */
     pugi::xml_node const getXml()
     {
-      return m_xml;
+      return configuration().xml;
     }
 
   private:
@@ -149,7 +164,7 @@ namespace PLEXIL
     // Member variables
     //
 
-    const pugi::xml_node m_xml;
+    std::unique_ptr<AdapterConf> m_conf;
     AdapterExecInterface &m_interface;
   };
 
