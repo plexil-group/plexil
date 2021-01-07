@@ -27,10 +27,14 @@
 #ifndef PLEXIL_VALUE_HH
 #define PLEXIL_VALUE_HH
 
-#include "ValueType.hh"
+#include "Array.hh"
 
 #include <memory> // std::unique_ptr
-#include <vector>
+
+namespace std
+{
+  template class std::unique_ptr<PLEXIL::Array>;
+}
 
 namespace PLEXIL
 {
@@ -44,6 +48,11 @@ namespace PLEXIL
    */
   class Value final
   {
+  private:
+    // Local typedefs
+    using ArrayPtr = std::unique_ptr<Array>;
+    using StringPtr = std::unique_ptr<String>;
+
   public:
 
     Value();
@@ -140,8 +149,8 @@ namespace PLEXIL
       CommandHandleValue       commandHandleValue;
       Integer                  integerValue;
       Real                     realValue;
-      std::unique_ptr<String>  stringValue;
-      std::unique_ptr<Array>   arrayValue;
+      StringPtr                stringValue;
+      ArrayPtr                 arrayValue;
     };
     ValueType m_type;
     bool m_known;
