@@ -195,7 +195,7 @@ src/configure: src/configure.ac $(MAKEFILE_AMS)
 
 clean:: clean-examples
 	-@$(MAKE) -C src $@ > /dev/null 2>&1
-	-@($MAKE) -C compilers/plexil $@ > /dev/null 2>&1
+	-@$(MAKE) -C compilers/plexil $@ > /dev/null 2>&1
 	@(cd compilers/plexilscript && ant $@)
 	@(cd checker && ant $@)
 	@(cd jars && $(RM) plexilscript.jar)
