@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,9 +25,11 @@
 
 lib_LTLIBRARIES = libIpcAdapter.la
 
-include_HEADERS = IpcAdapter.hh MessageQueueMap.hh
+include_HEADERS = IpcAdapter.h
 
-libIpcAdapter_la_SOURCES = IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc
+noinst_HEADERS = MessageQueueMap.hh
+
+libIpcAdapter_la_SOURCES = IpcAdapter.cc MessageQueueMap.cc
 
 libIpcAdapter_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/interfaces/IpcUtils \
  -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/app-framework \
