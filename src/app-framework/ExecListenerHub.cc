@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -180,30 +180,6 @@ namespace PLEXIL
     bool success = true;
     for (ExecListenerPtr const &listener : m_listeners)
       success = listener->stop() && success;
-    return success;
-  }
-
-  /**
-   * @brief Perform listener-specific actions to reset to initialized state.
-   * @return true if successful, false otherwise.
-   */
-  bool ExecListenerHub::reset()
-  {
-    bool success = true;
-    for (ExecListenerPtr const &listener : m_listeners)
-      success = listener->reset() && success;
-    return success;
-  }
-
-  /**
-   * @brief Perform listener-specific actions to shut down.
-   * @return true if successful, false otherwise.
-   */
-  bool ExecListenerHub::shutdown()
-  {
-    bool success = true;
-    for (ExecListenerPtr const &listener : m_listeners)
-      success = listener->shutdown() && success;
     return success;
   }
 

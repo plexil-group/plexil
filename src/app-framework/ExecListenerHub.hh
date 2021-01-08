@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -127,20 +127,6 @@ namespace PLEXIL
      * @note Default method provided as a convenience for backward compatibility.
      */
     bool stop();
-
-    /**
-     * @brief Perform listener-specific actions to reset to initialized state.
-     * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    bool reset();
-
-    /**
-     * @brief Perform listener-specific actions to shut down.
-     * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    bool shutdown();
 
   private:
 
