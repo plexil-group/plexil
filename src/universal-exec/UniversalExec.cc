@@ -24,9 +24,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "AdapterConfiguration.hh" 
 #include "Debug.hh"
 #include "ExecApplication.hh"
-#include "ExternalInterface.hh" // g_interface
+#include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
 
@@ -65,8 +66,8 @@ int main_internal(int argc, char** argv)
                     [+d]                         (disable debug messages)\n");
 
 #ifdef HAVE_LUV_LISTENER
-  std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
+  std::string luvHost = LUV_DEFAULT_HOSTNAME;
+  int luvPort = LUV_DEFAULT_PORT;
   bool luvBlock = false;
   usage += "                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
 #endif
@@ -254,7 +255,7 @@ int main_internal(int argc, char** argv)
   }
 
 #ifdef HAVE_LUV_LISTENER
-  // if a luv viewer is to be attached,
+  // if a PLEXIL Viewer is to be attached from the command line,
   // command line arguments must override config file
   if (luvRequest) {
     pugi::xml_node existing =
@@ -263,23 +264,25 @@ int main_internal(int argc, char** argv)
                                         "LuvListener");
     if (existing)
       configElt.remove_child(existing);
-
-	pugi::xml_document* luvConfig = 
-	  PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
-													 luvHost.c_str(), 
-													 luvPort);	
-	configElt.append_copy(luvConfig->document_element());
-	delete luvConfig;
   }
 #endif
 
   // construct the application
   std::unique_ptr<PLEXIL::ExecApplication> _app(makeExecApplication());
 
+#ifdef HAVE_LUV_LISTENER
+  // Construct interface to the PLEXIL Viewer if requested on the command line
+  if (luvRequest) {
+    _app->configuration()->addExecListener(makeLuvListener(luvHost.c_str(),
+                                                           luvPort,
+                                                           luvBlock));
+  }
+#endif
+
   // initialize it
   std::cout << "Initializing application" << std::endl;
   if (useResourceFile) {
-    g_interface->readResourceFile(resourceFile);
+    _app->manager()->readResourceFile(resourceFile);
   }
 
   if (!_app->initialize(configElt)) {
