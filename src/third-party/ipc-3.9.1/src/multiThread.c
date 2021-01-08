@@ -66,7 +66,9 @@ typedef enum { Data_None=0, Data_Waiting, Data_Ready } DATA_STATUS;
 
 static int32 pthreadHashFunc(pthread_t *i)
 {
-  int32 val = *i;
+  int32 val;
+  /* modern pthread_t may be larger than 32 bits */
+  val = (int32) (0xFFFFFFFF & (long) *i);
   return (val < 0 ? -val : val);
 }
 
@@ -209,7 +211,8 @@ PING_STATUS initPing(PING_THREAD_PTR ping)
 
 static int32 setPinged (const void *key, const void *data, void *table)
 {
-  if ((DATA_STATUS)data != Data_Ready && *(long *)key != pthread_self()) {
+  if ((DATA_STATUS)data != Data_Ready &&
+      *(pthread_t *)key != pthread_self()) {
     x_ipc_hashTableInsert(key, sizeof(pthread_t),
 			  (void *)Data_Ready, table);
   }
