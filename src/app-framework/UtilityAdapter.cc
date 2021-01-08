@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "UtilityAdapter.hh"
+// This interface adapter provides the following useful utilities for PLEXIL plans:
+//   Command: print(exp1 exp2 ...)  - prints arguments to standard output
+//   Command: pprint(exp1 exp2 ...) - "pretty print", as above but separates 
+//                                    items with whitespace and adds newline
+// This adapter is accessed by including the following entry in your interface
+// configuration file:    <Adapter AdapterType="Utility"/>
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"        // REGISTER_ADAPTER() macro
@@ -37,7 +42,8 @@
 
 #include <iostream>
 
-namespace PLEXIL {
+namespace PLEXIL
+{
 
   //
   // Handlers for UtilityAdapter commands
@@ -45,8 +51,8 @@ namespace PLEXIL {
 
   void executePrintCommand(Command *cmd, AdapterExecInterface *intf)
   {
-      print(cmd->getArgValues());
-      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    print(cmd->getArgValues());
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
   }
 
   void executePPrintCommand(Command *cmd, AdapterExecInterface *intf)
@@ -57,8 +63,8 @@ namespace PLEXIL {
 
   void executePrintToStringCommand(Command *cmd, AdapterExecInterface *intf)
   {
-      intf->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
-      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+    intf->handleCommandReturn(cmd, printToString(cmd->getArgValues()));
+    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
   }
 
   void executePPrintToStringCommand(Command *cmd, AdapterExecInterface *intf)
@@ -73,9 +79,7 @@ namespace PLEXIL {
     UtilityAdapter(AdapterExecInterface& execInterface,
                    AdapterConf *conf)
       : InterfaceAdapter(execInterface, conf)
-    {
-      debugMsg("UtilityAdapter", " created.");
-    }
+    {}
 
     virtual ~UtilityAdapter() = default;
 
@@ -89,15 +93,14 @@ namespace PLEXIL {
                                              executePrintToStringCommand);
       config->registerCommandHandlerFunction("pprintToString",
                                              executePPrintToStringCommand);
-      debugMsg("UtilityAdapter", " initialized.");
       return true;
     }
   };
 
-  extern "C"
-  void initUtilityAdapter()
-  {
-    REGISTER_ADAPTER(UtilityAdapter, "UtilityAdapter");
-  }
-
 } // namespace PLEXIL
+
+extern "C"
+void initUtilityAdapter()
+{
+  REGISTER_ADAPTER(PLEXIL::UtilityAdapter, "Utility");
+}
