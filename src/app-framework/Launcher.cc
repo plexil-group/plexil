@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Launcher.hh"
-
 #include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
@@ -43,10 +41,20 @@
 #include "PlexilExec.hh" // g_exec
 #include "State.hh"
 
-#include <algorithm>
+#include <algorithm> // std::find_if()
 
 namespace PLEXIL
 {
+
+  //
+  // Constants
+  //
+  static constexpr const char START_PLAN_CMD[] = "StartPlan";
+  static constexpr const char EXIT_PLAN_CMD[] = "ExitPlan";
+
+  static constexpr const char PLAN_STATE_STATE[] = "PlanState";
+  static constexpr const char PLAN_OUTCOME_STATE[] = "PlanOutcome";
+  static constexpr const char PLAN_FAILURE_TYPE_STATE[] = "PlanFailureType";
 
   /**
    * @class LauncherListener
@@ -56,14 +64,13 @@ namespace PLEXIL
   class LauncherListener : public ExecListener
   {
   public:
-    LauncherListener()
-      : ExecListener()
+    LauncherListener(AdapterExecInterface *intf)
+      : ExecListener(),
+        m_interface(intf)
     {
     }
 
-    ~LauncherListener()
-    {
-    }
+    virtual ~LauncherListener() = default;
 
     /**
      * @brief Notify that a node has changed state.
@@ -81,19 +88,27 @@ namespace PLEXIL
 
       NodeState newState = transition.newState;
       Value const nodeIdValue(node->getNodeId());
-      g_execInterface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
-                                         Value(nodeStateName(newState)));
+      m_interface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
+                                     Value(nodeStateName(newState)));
       NodeOutcome o = node->getOutcome();
       if (o != NO_OUTCOME) {
-        g_execInterface->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
-                                           Value(outcomeName(o)));
+        m_interface->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
+                                       Value(outcomeName(o)));
         FailureType f = node->getFailureType();
         if (f != NO_FAILURE)
-          g_execInterface->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
-                                             Value(failureTypeName(f)));
+          m_interface->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
+                                         Value(failureTypeName(f)));
       }
     }
+
+  private:
+
+    AdapterExecInterface *m_interface;
   }; // class LauncherListener
+
+  //
+  // Helper functions
+  //
 
   static void valueToExprXml(pugi::xml_node parent, Value const &v)
   {
@@ -122,10 +137,6 @@ namespace PLEXIL
     static unsigned int sl_next = 0;
     return ++sl_next;
   }
-
-  //
-  // Helper function
-  //
 
   static bool checkPlanNameArgument(Command *cmd)
   {
@@ -247,48 +258,17 @@ namespace PLEXIL
     intf->notifyOfExternalEvent();
   }
 
-  // Helper class
-  class NodeNameEquals
-  {
-  public:
-    NodeNameEquals(std::string const &s)
-      : m_string(s)
-    {
-    }
-
-    NodeNameEquals(NodeNameEquals const &other)
-      : m_string(other.m_string)
-    {
-    }
-
-    ~NodeNameEquals()
-    {
-    }
-
-    NodeNameEquals &operator=(NodeNameEquals const &other)
-    {
-      m_string = other.m_string;
-      return *this;
-    }
-
-    bool operator()(NodePtr const &n)
-    {
-      return n->getNodeId() == m_string;
-    }
-
-  private:
-    std::string m_string;
-  };
-
+  // Find a node by its node ID
   static Node *findNode(std::string const &nodeName)
   {
     // Find the named node
-    NodeNameEquals pred(nodeName);
+    auto pred = [&nodeName](NodePtr const &n) -> bool
+                { return n->getNodeId() == nodeName; };
     std::list<NodePtr> const &allNodes = g_exec->getPlans();
     std::list<NodePtr>::const_iterator it =
       std::find_if(allNodes.begin(), allNodes.end(), pred);
     if (it == allNodes.end()) {
-      warn("No such node"); // FIXME
+      warn("No such node" << nodeName); // FIXME
       return NULL;
     }
     Node *result = it->get();
@@ -300,8 +280,7 @@ namespace PLEXIL
     return result;
   }
 
-  // ExitPlan command handler function
-
+  //! ExitPlan command handler function
   static void executeExitPlanCommand(Command *cmd, AdapterExecInterface *intf)
   {
     if (!checkPlanNameArgument(cmd)) {
@@ -341,11 +320,9 @@ namespace PLEXIL
     {
     }
 
-    ~Launcher()
-    {
-    }
+    virtual ~Launcher() = default;
 
-    bool initialize(AdapterConfiguration *config)
+    virtual bool initialize(AdapterConfiguration *config) override
     {
       // Register command implementations
       config->registerCommandHandlerFunction(START_PLAN_CMD,
@@ -354,18 +331,8 @@ namespace PLEXIL
                                              executeExitPlanCommand);
 
       // Register our special ExecListener
-      config->addExecListener(new LauncherListener());
+      config->addExecListener(new LauncherListener(&this->getInterface()));
 
-      return true;
-    }
-
-    bool start()
-    {
-      return true;
-    }
-
-    bool stop()
-    {
       return true;
     }
   };
