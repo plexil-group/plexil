@@ -36,12 +36,12 @@
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "Launcher.hh"
+#include "Launcher.h"
 #include "ListenerFilters.hh"
 #include "planLibrary.hh"
 #include "State.hh"
 #include "TimeAdapter.hh"
-#include "UtilityAdapter.hh"
+#include "UtilityAdapter.h"
 
 #ifdef PLEXIL_WITH_THREADS
 #include "SerializedInputQueue.hh"
@@ -90,8 +90,8 @@
 
 namespace PLEXIL {
 
-  // Construct global variable
-  AdapterConfigurationPtr g_configuration = nullptr;
+  // Initialize global variable
+  AdapterConfiguration *g_configuration = nullptr;
 
   //*
   // @class AdapterConfigurationImpl
@@ -189,7 +189,8 @@ namespace PLEXIL {
 
     // FIXME:
     // * Need new constructor paradigm for handlers
-    virtual bool constructInterfaces(pugi::xml_node const configXml)
+    virtual bool constructInterfaces(pugi::xml_node const configXml,
+                                     AdapterExecInterface &intf)
     {
       if (configXml.empty()) {
         debugMsg("AdapterConfiguration:constructInterfaces",
@@ -215,7 +216,7 @@ namespace PLEXIL {
                  " found element " << element.name());
         const char* elementType = element.name();
         if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG) == 0) {
-          if (!constructAdapter(element)) {
+          if (!constructAdapter(element, intf)) {
             warn("constructInterfaces: failed to construct adapter type \""
                  << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()
                  << "\"");
@@ -669,15 +670,15 @@ namespace PLEXIL {
     // Private helpers
     //
 
-    //!
-    // @brief Construct the adapter described by the given XML.
-    // @param element The XML element specifying the adapter to be constructed.
-    // @return True if an adapter was constructed, false otherwise.
-    //
-    bool constructAdapter(pugi::xml_node const element)
+    //! Construct the adapter described by the given XML.
+    //! @param element The XML element specifying the adapter to be constructed.
+    //! @param intf The AdapterExecInterface the new adapter will report to.
+    //! @return True if an adapter was constructed, false otherwise.
+    bool constructAdapter(pugi::xml_node const element,
+                          AdapterExecInterface &intf)
     {
       InterfaceAdapter *adapter = 
-        AdapterFactory::createInstance(element);
+        AdapterFactory::createInstance(element, intf);
       if (!adapter) {
         warn("constructInterfaces: failed to construct adapter type \""
              << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR).value()

@@ -127,8 +127,6 @@ namespace PLEXIL
 #endif
   };
 
-  extern AdapterExecInterface *g_execInterface;
-
 }
 
 #endif // PLEXIL_ADAPTER_EXEC_INTERFACE_HH

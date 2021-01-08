@@ -27,8 +27,6 @@
 #ifndef ADAPTER_FACTORY_H
 #define ADAPTER_FACTORY_H
 
-#include "AdapterExecInterface.hh"
-
 #include "pugixml.hpp"
 
 #include <map>
@@ -42,6 +40,7 @@ namespace PLEXIL
   //
 
   struct AdapterConf;
+  class AdapterExecInterface;
   class AdapterFactory;
   class InterfaceAdapter;
 
@@ -58,13 +57,12 @@ namespace PLEXIL
 
     virtual ~AdapterFactory() = default;
 
-    /**
-     * @brief Creates a new InterfaceAdapter instance as specified by
-     *        the given configuration XML.
-     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-     * @return The new InterfaceAdapter.  May not be unique.
-     */
-    static InterfaceAdapter *createInstance(pugi::xml_node const xml);
+    //! Creates a new InterfaceAdapter instance as specified by the
+    //! given configuration XML.
+    //! @param xml The configuration XML describing the new adapter.
+    //! @return Pointer to the new adapter.
+    static InterfaceAdapter *createInstance(pugi::xml_node const xml,
+                                            AdapterExecInterface &intf);
 
     /**
      * @brief Checks whether or not an AdapterFactory has been registered
@@ -110,7 +108,8 @@ namespace PLEXIL
      * @param xml The configuration struct for the adapter to be constructed.
      * @return Pointer to the new InterfaceAdapter.
      */
-    virtual InterfaceAdapter *create(AdapterConf *conf) const = 0;
+    virtual InterfaceAdapter *create(AdapterConf *conf,
+                                     AdapterExecInterface &intf) const = 0;
 
   private:
 
@@ -165,10 +164,10 @@ namespace PLEXIL
      * @return The new InterfaceAdapter.
      */
 
-    InterfaceAdapter *create(AdapterConf *conf) const
+    InterfaceAdapter *create(AdapterConf *conf,
+                             AdapterExecInterface &intf) const
     {
-      // FIXME - reference to global variable
-      return new AdapterType(*g_execInterface, conf);
+      return new AdapterType(intf, conf);
     }
   };
 

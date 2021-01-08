@@ -64,16 +64,15 @@
 namespace PLEXIL
 {
 
-  // Initialize global variable
-  std::unique_ptr<InterfaceManager> g_manager = nullptr;
-
   //!
   // @brief Constructor.
   //
-  InterfaceManager::InterfaceManager(ExecApplication &app)
+  InterfaceManager::InterfaceManager(ExecApplication *app,
+                                     AdapterConfiguration *config)
     : ExternalInterface(),
       AdapterExecInterface(),
       m_application(app),
+      m_configuration(config),
       m_inputQueue(),
       m_lastMark(0),
       m_markCount(0)
@@ -97,10 +96,10 @@ namespace PLEXIL
   //
   bool InterfaceManager::initialize()
   {
-    if (!g_configuration)
+    if (!m_configuration)
       return false;
-    bool result = g_configuration->initialize();
-    m_inputQueue.reset(g_configuration->makeInputQueue());
+    bool result = m_configuration->initialize();
+    m_inputQueue.reset(m_configuration->makeInputQueue());
     if (!m_inputQueue)
       return false;
     return result;
@@ -112,8 +111,8 @@ namespace PLEXIL
   //
   bool InterfaceManager::start()
   {
-    assertTrue_1(g_configuration);
-    return g_configuration->start();
+    assertTrue_1(m_configuration);
+    return m_configuration->start();
   }
 
   //!
@@ -122,8 +121,8 @@ namespace PLEXIL
   //
   bool InterfaceManager::stop()
   {
-    assertTrue_1(g_configuration);
-    return g_configuration->stop();
+    assertTrue_1(m_configuration);
+    return m_configuration->stop();
   }
 
   //
@@ -157,7 +156,7 @@ namespace PLEXIL
         debugMsg("InterfaceManager:processQueue", " Received mark");
         // Store sequence number and notify application
         m_lastMark = entry->sequence;
-        m_application.markProcessed();
+        m_application->markProcessed();
         break;
 
       case Q_LOOKUP:
@@ -166,7 +165,7 @@ namespace PLEXIL
         debugMsg("InterfaceManager:processQueue",
                  " Received new value " << entry->value << " for " << *(entry->state));
 
-        g_interface->lookupReturn(*(entry->state), entry->value);
+        lookupReturn(*(entry->state), entry->value);
         needsStep = true;
         break;
 
@@ -181,7 +180,7 @@ namespace PLEXIL
                    " received command handle value "
                    << commandHandleValueName((CommandHandleValue) handle)
                    << " for command " << entry->command->getCommand());
-          g_interface->commandHandleReturn(entry->command, (CommandHandleValue) handle);
+          commandHandleReturn(entry->command, (CommandHandleValue) handle);
         }
         needsStep = true;
         break;
@@ -191,7 +190,7 @@ namespace PLEXIL
         debugMsg("InterfaceManager:processQueue",
                  " received return value " << entry->value
                  << " for command " << entry->command->getCommand());
-        g_interface->commandReturn(entry->command, entry->value);
+        commandReturn(entry->command, entry->value);
         needsStep = true;
         break;
 
@@ -205,7 +204,7 @@ namespace PLEXIL
           debugMsg("InterfaceManager:processQueue",
                    " received command abort ack " << (ack ? "true" : "false")
                    << " for command " << entry->command->getCommand());
-          g_interface->commandAbortAcknowledge(entry->command, ack);
+          commandAbortAcknowledge(entry->command, ack);
         }
         needsStep = true;
         break;
@@ -220,7 +219,7 @@ namespace PLEXIL
                    " received update ack " << (ack ? "true" : "false")
                    << " for node "
                    << entry->update->getSource()->getNodeId());
-          g_interface->acknowledgeUpdate(entry->update, ack);
+          acknowledgeUpdate(entry->update, ack);
         }
         needsStep = true;
         break;
@@ -261,7 +260,7 @@ namespace PLEXIL
   InterfaceManager::lookupNow(State const &state, LookupReceiver *rcvr)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
     try {
       handler->lookupNow(state, rcvr);
     }
@@ -281,14 +280,14 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, Real hi, Real lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
     handler->setThresholds(state, hi, lo);
   }
 
   void InterfaceManager::setThresholds(const State& state, Integer hi, Integer lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
     handler->setThresholds(state, hi, lo);
   }
 
@@ -300,7 +299,7 @@ namespace PLEXIL
   void InterfaceManager::clearThresholds(const State& state)
   {
     debugMsg("InterfaceManager:clearThresholds", " for state " << state);
-    LookupHandler *handler = g_configuration->getLookupHandler(state.name());
+    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
     handler->clearThresholds(state);
   }
 
@@ -311,11 +310,11 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    PlannerUpdateHandler handler = g_configuration->getPlannerUpdateHandler();
+    PlannerUpdateHandler handler = m_configuration->getPlannerUpdateHandler();
     if (!handler) {
       // Fake the ack
       warn("executeUpdate: no handler for updates");
-      g_interface->acknowledgeUpdate(update, true);
+      acknowledgeUpdate(update, true);
       return;
     }
     debugMsg("InterfaceManager:updatePlanner",
@@ -331,7 +330,7 @@ namespace PLEXIL
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
   void InterfaceManager::executeCommand(Command *cmd)
   {
-    CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName()); 
+    CommandHandler *handler = m_configuration->getCommandHandler(cmd->getName()); 
     try {
       handler->executeCommand(cmd, this);
     }
@@ -339,7 +338,7 @@ namespace PLEXIL
       // return error status
       warn("executeCommand: Error executing command " << cmd->getName()
            << ":\n" << e.what());
-      g_interface->commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
+      commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
     }
   }
 
@@ -357,14 +356,14 @@ namespace PLEXIL
   //
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    CommandHandler *handler = g_configuration->getCommandHandler(cmd->getName());
+    CommandHandler *handler = m_configuration->getCommandHandler(cmd->getName());
     try {
       handler->abortCommand(cmd, this);
     }
     catch (InterfaceError const &e) {
       warn("invokeAbort: error aborting command " << cmd->getCommand()
            << ":\n" << e.what());
-      g_interface->commandAbortAcknowledge(cmd, false);
+      commandAbortAcknowledge(cmd, false);
     }
   }
 
@@ -587,8 +586,8 @@ namespace PLEXIL
 
     entry->initForAddPlan(root);
     m_inputQueue->put(entry);
-    if (g_configuration->getListenerHub())
-      g_configuration->getListenerHub()->notifyOfAddPlan(planXml);
+    if (m_configuration->getListenerHub())
+      m_configuration->getListenerHub()->notifyOfAddPlan(planXml);
     debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
@@ -609,8 +608,8 @@ namespace PLEXIL
     if (l) {
       pugi::xml_node const node = l->doc->document_element().child(NODE_TAG);
       char const *name = node.child_value(NODEID_TAG);
-      if (g_configuration->getListenerHub())
-        g_configuration->getListenerHub()->notifyOfAddLibrary(node);
+      if (m_configuration->getListenerHub())
+        m_configuration->getListenerHub()->notifyOfAddLibrary(node);
       debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
       return true;
     }
@@ -650,7 +649,7 @@ namespace PLEXIL
   InterfaceManager::notifyOfExternalEvent()
   {
     debugMsg("InterfaceManager:notify", " received external event");
-    m_application.notifyExec();
+    m_application->notifyExec();
   }
 
 #ifdef PLEXIL_WITH_THREADS
@@ -660,7 +659,7 @@ namespace PLEXIL
   void
   InterfaceManager::notifyAndWaitForCompletion()
   {
-    m_application.notifyAndWaitForCompletion();
+    m_application->notifyAndWaitForCompletion();
   }
 #endif
 

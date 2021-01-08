@@ -67,7 +67,9 @@ namespace PLEXIL
 {
 
   // forward references
+  class AdapterConfiguration;
   class InterfaceAdapter;
+  class InterfaceManager;
 
   //! Enumeration representing the states of the ExecApplication.
   enum ApplicationState
@@ -246,6 +248,13 @@ namespace PLEXIL
     //! Notify the application that a queue mark was processed.
     //! @note Used to implement notifyAndWaitForCompletion().
     virtual void markProcessed() = 0;
+
+    //
+    // Accessors to application objects
+    //
+
+    virtual AdapterConfiguration *configuration() = 0;
+    virtual InterfaceManager *manager() = 0;
 
   protected:
 

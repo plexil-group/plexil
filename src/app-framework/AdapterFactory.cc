@@ -43,17 +43,14 @@
 
 namespace PLEXIL
 {
-  /**
-   * @brief Creates or reuses an InterfaceAdapter instance as specified by
-   *        the given configuration XML.
-   * @param name The registered name for the factory.
-   * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-   * @param execInterface Reference to the parent InterfaceManager instance.
-   * @return Pointer to the InterfaceAdapter.  May not be unique.
-   */
-
+  //! Construct an InterfaceAdapter instance as specified by the given
+  //! configuration XML.
+  //! @param xml The configuration XML describing the new adapter
+  //! @param intf Reference to the parent AdapterExecInterface instance.
+  //! @return Pointer to the new adapter.
   InterfaceAdapter *
-  AdapterFactory::createInstance(pugi::xml_node const xml)
+  AdapterFactory::createInstance(pugi::xml_node const xml,
+                                 AdapterExecInterface &intf)
   {
     debugMsg("AdapterFactory:createInstance", " xml = " << xml);
 
@@ -89,7 +86,7 @@ namespace PLEXIL
            << adapterType << "\".");
       return nullptr;
     }
-    InterfaceAdapter *retval = it->second->create(conf);
+    InterfaceAdapter *retval = it->second->create(conf, intf);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << adapterType);
     return retval;
   }

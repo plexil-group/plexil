@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,6 @@ namespace pugi
 
 namespace PLEXIL 
 {
-  class AdapterConfiguration;
-
   // Forward references
   class ExecApplication;
 
@@ -73,28 +71,18 @@ namespace PLEXIL
   {
   public:
 
-    //!
-    // @brief Constructor.
+    //! Constructor.
     // @param app The ExecApplication instance to which this object belongs.
-    //
-    InterfaceManager(ExecApplication & app);
+    InterfaceManager(ExecApplication *app,
+                     AdapterConfiguration *config);
 
     //!
     // @brief Destructor.
     //
     virtual ~InterfaceManager();
 
-    //!
-    // @brief Get parent application.
     //
-    inline ExecApplication& getApplication() const
-    {
-      return m_application;
-    }
-
-
-    //
-    // API for ExecApplication
+    // API to ExecApplication
     //
 
     /**
@@ -301,7 +289,10 @@ namespace PLEXIL
     //
 
     //! Parent object
-    ExecApplication& m_application;
+    ExecApplication *m_application;
+
+    //! Adapter configuration
+    AdapterConfiguration *m_configuration;
 
     //* The queue
     std::unique_ptr<InputQueue> m_inputQueue;
@@ -313,7 +304,7 @@ namespace PLEXIL
     unsigned int m_markCount;
   };
 
-  extern std::unique_ptr<InterfaceManager> g_manager;
+  using InterfaceManagerPtr = std::unique_ptr<InterfaceManager>;
 
 }
 

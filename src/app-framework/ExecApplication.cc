@@ -115,6 +115,11 @@ namespace PLEXIL
     ThreadSemaphore m_shutdownSem;
 
 #endif 
+    //! Interfacing database and dispatcher
+    AdapterConfigurationPtr m_configuration;
+
+    //! Interface manager
+    InterfaceManagerPtr m_manager;
 
     //
     // Signal handling
@@ -143,7 +148,8 @@ namespace PLEXIL
     bool m_suspended;
 
   public:
-  
+
+    //! Constructor.
     ExecApplicationImpl()
       : ExecApplication(),
 #ifdef PLEXIL_WITH_THREADS
@@ -154,6 +160,8 @@ namespace PLEXIL
         m_markSem(),
         m_shutdownSem(),
 #endif
+        m_configuration(makeAdapterConfiguration()),
+        m_manager(new InterfaceManager(this, m_configuration.get())),
         m_nBlockedSignals(0),
         m_state(APP_UNINITED),
         m_threadLaunched(false),
@@ -164,23 +172,37 @@ namespace PLEXIL
       for (size_t i = 0; i <= EXEC_APPLICATION_MAX_N_SIGNALS; i++)
         m_blockedSignals[i] = 0;
 
-      // connect exec and interface manager
-      g_configuration.reset(makeAdapterConfiguration());
+      // Set globals that other pieces rely on
+      g_configuration = m_configuration.get();
+      // Required by Exec core
+      g_interface = static_cast<ExternalInterface *>(m_manager.get());
+
       g_exec = makePlexilExec();
-      g_exec->setExecListener(g_configuration->getListenerHub());
-      g_manager.reset(new InterfaceManager(*this));
-      g_interface = static_cast<ExternalInterface *>(g_manager.get());
-      g_execInterface = static_cast<AdapterExecInterface *>(g_manager.get());
+      g_exec->setExecListener(m_configuration->getListenerHub());
     }
 
     virtual ~ExecApplicationImpl()
     {
-      // FIXME: order of deletion and inter-object references
-      g_configuration.reset();
+      // Reset global pointers to objects we own
       g_interface = nullptr;
-      g_execInterface = nullptr;
-      g_manager.reset();
+      g_configuration = nullptr;
+
       delete g_exec;
+      g_exec = nullptr;
+    }
+
+    //
+    // Accessors
+    //
+
+    virtual AdapterConfiguration *configuration() override
+    {
+      return m_configuration.get();
+    }
+
+    virtual InterfaceManager *manager() override
+    {
+      return m_manager.get();
     }
 
     //
@@ -189,7 +211,7 @@ namespace PLEXIL
     
     //! Get the application's current state.
     //! @return The application state.
-    virtual ApplicationState getApplicationState()
+    virtual ApplicationState getApplicationState() override
     {
 #ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_stateMutex);
@@ -203,23 +225,23 @@ namespace PLEXIL
 
     //! Select whether the exec runs opportunistically or only in background thread.
     //! @param bkgndOnly True if background only, false if opportunistic.
-    virtual void setRunExecInBkgndOnly(bool bkgndOnly)
+    virtual void setRunExecInBkgndOnly(bool bkgndOnly) override
     { 
       m_runExecInBkgndOnly = bkgndOnly; 
     }
 
     //! Add the specified directory name to the end of the library node loading path.
     //! @param libdir The directory name.
-    virtual void addLibraryPath(const std::string& libdir)
+    virtual void addLibraryPath(const std::string& libdir) override
     {
-      g_configuration->addLibraryPath(libdir);
+      m_configuration->addLibraryPath(libdir);
     }
 
     //! Add the specified directory names to the end of the library node loading path.
     //! @param libdirs The vector of directory names.
-    virtual void addLibraryPath(const std::vector<std::string>& libdirs)
+    virtual void addLibraryPath(const std::vector<std::string>& libdirs) override
     {
-      g_configuration->addLibraryPath(libdirs);
+      m_configuration->addLibraryPath(libdirs);
     }
 
     //
@@ -232,7 +254,7 @@ namespace PLEXIL
     //! @note The caller must ensure that all adapter and listener
     //!       factories have been created and registered before this
     //!       call.
-    virtual bool initialize(pugi::xml_node const configXml)
+    virtual bool initialize(pugi::xml_node const configXml) override
     {
       condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is null");
       condDebugMsg(!configXml.empty(), "ExecApplication:initialize",
@@ -250,14 +272,14 @@ namespace PLEXIL
       // *** NYI ***
 
       // Construct interfaces
-      if (!g_configuration->constructInterfaces(configXml)) {
+      if (!m_configuration->constructInterfaces(configXml, *m_manager)) {
         debugMsg("ExecApplication:initialize",
                  " construction of interfaces failed");
         return false;
       }
 
       // Initialize them
-      if (!g_manager->initialize()) {
+      if (!m_manager->initialize()) {
         debugMsg("ExecApplication:initialize",
                  " initialization of interfaces failed");
         return false;
@@ -269,13 +291,13 @@ namespace PLEXIL
 
     //! Start all the interfaces prior to execution.
     //! @return true if successful, false otherwise.
-    virtual bool startInterfaces()
+    virtual bool startInterfaces() override
     {
       if (m_state != APP_INITED)
         return false;
 
       // Start 'em up!
-      if (!g_manager->start()) {
+      if (!m_manager->start()) {
         debugMsg("ExecApplication:startInterfaces",
                  " failed to start interfaces");
         return false;
@@ -286,7 +308,7 @@ namespace PLEXIL
 
     //! Step the Exec once.
     // @return true if successful, false otherwise.
-    virtual bool step()
+    virtual bool step() override
     {
       if (m_state != APP_READY)
         return false;
@@ -295,7 +317,7 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
         RTMutexGuard guard(m_execMutex);
 #endif
-        g_manager->processQueue();           // for effect
+        m_manager->processQueue();           // for effect
         double now = StateCache::queryTime(); // update time before attempting to step
         if (g_exec->needsStep()) {
           g_exec->step(now);
@@ -311,7 +333,7 @@ namespace PLEXIL
 
     //! Query whether the Exec has finished propagating state.
     //! @return True if quiescent, false otherwise.
-    virtual bool isQuiescent()
+    virtual bool isQuiescent() override
     {
       if (m_state != APP_READY)
         return true; // can't execute if not ready
@@ -326,7 +348,7 @@ namespace PLEXIL
 
     //! Step the Exec until the queue is empty.
     //! @return true if successful, false otherwise.
-    virtual bool stepUntilQuiescent()
+    virtual bool stepUntilQuiescent() override
     {
       if (m_state != APP_READY)
         return false;
@@ -336,7 +358,7 @@ namespace PLEXIL
         RTMutexGuard guard(m_execMutex);
 #endif
         debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
-        g_manager->processQueue(); // for effect
+        m_manager->processQueue(); // for effect
         double now = StateCache::queryTime(); // update time before attempting to step
         while (g_exec->needsStep()) {
           debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
@@ -357,7 +379,7 @@ namespace PLEXIL
 
     //! Runs the initialized Exec.
     //! @return true if successful, false otherwise.
-    virtual bool run()
+    virtual bool run() override
     {
 #ifdef PLEXIL_WITH_THREADS
       if (m_state != APP_READY)
@@ -382,7 +404,7 @@ namespace PLEXIL
 
     //! Suspends the running Exec.
     //! @return true if successful, false otherwise.
-    virtual bool suspend()
+    virtual bool suspend() override
     {
       if (m_state == APP_READY)
         return true; // already paused
@@ -402,14 +424,14 @@ namespace PLEXIL
 
     //! Query whether the Exec has been suspended. 
     //! @return True if suspended, false otherwise.
-    virtual bool isSuspended() const
+    virtual bool isSuspended() const override
     {
       return m_state == APP_READY || m_suspended;
     }
 
     //! Resumes a suspended Exec.
     //! @return true if successful, false otherwise.
-    virtual bool resume()
+    virtual bool resume() override
     {
       // Can only resume if ready and suspended
       if (m_state != APP_READY)
@@ -426,7 +448,7 @@ namespace PLEXIL
 
     //! Stops the Exec and its interfaces.
     //! @return true if successful, false otherwise.
-    virtual bool stop()
+    virtual bool stop() override
     {
       if (m_state != APP_RUNNING
           && m_state != APP_READY)
@@ -470,7 +492,7 @@ namespace PLEXIL
 #endif // PLEXIL_WITH_THREADS
 
       // Stop interfaces
-      g_manager->stop();
+      m_manager->stop();
     
       return setApplicationState(APP_STOPPED);
     }
@@ -478,7 +500,7 @@ namespace PLEXIL
     /**
      * @brief Whatever state the application may be in, bring it down in a controlled fashion.
      */
-    virtual void terminate()
+    virtual void terminate() override
     {
       std::cout << "Terminating PLEXIL Exec application" << std::endl;
       ApplicationState initState = getApplicationState();
@@ -493,7 +515,7 @@ namespace PLEXIL
       case APP_INITED:
       case APP_READY:
         // Shut down interfaces
-        g_manager->stop();
+        m_manager->stop();
         break;
 
       case APP_RUNNING:
@@ -505,7 +527,7 @@ namespace PLEXIL
 
     //! Notify the Exec thread that it should check the queue and run
     //! one cycle.
-    virtual void notifyExec()
+    virtual void notifyExec() override
     {
 #ifdef PLEXIL_WITH_THREADS
       if (!m_runExecInBkgndOnly && m_execMutex.try_lock()) {
@@ -532,13 +554,13 @@ namespace PLEXIL
     }
 
     //! Run the exec and wait until all events in the queue have been processed. 
-    virtual void notifyAndWaitForCompletion()
+    virtual void notifyAndWaitForCompletion() override
     {
 #ifdef PLEXIL_WITH_THREADS
       debugMsg("ExecApplication:notifyAndWait", " received external event");
-      unsigned int sequence = g_manager->markQueue();
+      unsigned int sequence = m_manager->markQueue();
       notifyExec();
-      while (g_manager->getLastMark() < sequence) {
+      while (m_manager->getLastMark() < sequence) {
         m_markSem.wait();
         m_markSem.post(); // in case it's not our mark and we got there first
       }
@@ -550,7 +572,7 @@ namespace PLEXIL
     /**
      * @brief Suspend the current thread until the plan finishes executing.
      */
-    virtual void waitForPlanFinished()
+    virtual void waitForPlanFinished() override
     {
 #ifdef PLEXIL_WITH_THREADS
       bool finished = false;
@@ -575,7 +597,7 @@ namespace PLEXIL
      * @note May be called by multiple threads
      * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
      */
-    virtual void waitForShutdown()
+    virtual void waitForShutdown() override
     {
 #ifdef PLEXIL_WITH_THREADS
       int waitStatus = m_shutdownSem.wait();
@@ -595,13 +617,13 @@ namespace PLEXIL
      * @brief Add a library as an XML document.
      * @return true if successful, false otherwise.
      */
-    virtual bool addLibrary(pugi::xml_document* libraryXml)
+    virtual bool addLibrary(pugi::xml_document* libraryXml) override
     {
       if (m_state != APP_RUNNING && m_state != APP_READY)
         return false;
 
       // Delegate to InterfaceManager
-      if (g_manager->handleAddLibrary(libraryXml)) {
+      if (m_manager->handleAddLibrary(libraryXml)) {
         debugMsg("ExecApplication:addLibrary", " Library added");
         return true;
       }
@@ -616,7 +638,7 @@ namespace PLEXIL
      * @param name The name of the library.
      * @return true if successful, false otherwise.
      */
-    virtual bool loadLibrary(std::string const &name)
+    virtual bool loadLibrary(std::string const &name) override
     {
       if (m_state != APP_RUNNING && m_state != APP_READY)
         return false;
@@ -625,7 +647,7 @@ namespace PLEXIL
 
       // Delegate to InterfaceManager
       try {
-        result = g_manager->handleLoadLibrary(name);
+        result = m_manager->handleLoadLibrary(name);
       }
       catch (const ParserException& e) {
         std::cerr << "loadLibrary: Error:\n" << e.what() << std::endl;
@@ -645,14 +667,14 @@ namespace PLEXIL
      * @brief Add a plan as an XML document.
      * @return true if successful, false otherwise.
      */
-    virtual bool addPlan(pugi::xml_document* planXml)
+    virtual bool addPlan(pugi::xml_document* planXml) override
     {
       if (m_state != APP_RUNNING && m_state != APP_READY)
         return false;
 
       // Delegate to InterfaceManager
       try {
-        g_manager->handleAddPlan(planXml->document_element());
+        m_manager->handleAddPlan(planXml->document_element());
         debugMsg("ExecApplication:addPlan", " successful");
         return true;
       }
@@ -663,7 +685,7 @@ namespace PLEXIL
     }
 
     //! Notify the application that a queue mark was processed.
-    virtual void markProcessed()
+    virtual void markProcessed() override
     {
 #ifdef PLEXIL_WITH_THREADS
       m_markSem.post();
@@ -753,7 +775,7 @@ namespace PLEXIL
         debugMsg("ExecApplication:runExec", " Suspended");
       }
       else {
-        g_manager->processQueue(); // for effect
+        m_manager->processQueue(); // for effect
         do {
           double now = StateCache::queryTime(); // update time before attempting to step
           while (g_exec->needsStep()) {
@@ -761,7 +783,7 @@ namespace PLEXIL
             g_exec->step(now);
             now = StateCache::queryTime(); // update time before stepping again
           }
-        } while (g_manager->processQueue());
+        } while (m_manager->processQueue());
         debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
       }
 
@@ -1038,7 +1060,7 @@ namespace PLEXIL
 
   ExecApplication *makeExecApplication()
   {
-    return new ExecApplicationImpl;
+    return new ExecApplicationImpl();
   }
 
 }

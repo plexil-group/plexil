@@ -70,12 +70,12 @@ namespace PLEXIL
      */
     virtual ~AdapterConfiguration() = default;
 
-    /**
-     * @brief Constructs interface adapters from the provided XML.
-     * @param configXml The XML element used for interface configuration.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool constructInterfaces(pugi::xml_node const configXml) = 0;
+    //! Constructs concrete interfaces as specified by the configuration XML.
+    //! @param configXml The interface specifications.
+    //! @param intf The AdapterExecInterface the new interfaces will report to.
+    //! @return true if successful, false otherwise.
+    virtual bool constructInterfaces(pugi::xml_node const configXml,
+                                     AdapterExecInterface &intf) = 0;
 
     /**
      * @brief Performs basic initialization of the interface and all adapters.
@@ -410,7 +410,8 @@ namespace PLEXIL
   //* @brief Abstract factory for AdapterConfiguration
   AdapterConfiguration *makeAdapterConfiguration();
 
-  extern AdapterConfigurationPtr g_configuration;
+  //! Global pointer to the current configuration
+  extern AdapterConfiguration *g_configuration;
 
 }
 
