@@ -27,175 +27,71 @@
 #ifndef LUV_LISTENER_HH
 #define LUV_LISTENER_HH
 
-#include "ConstantMacros.hh"
 #include "ExecListener.hh"
 
-#include <cstdint> // uint16_t
-#include <string>
+//
+// Forward references
+//
 
-// forward references outside of namespace
-
-class Socket;
+namespace pugi
+{
+  class xml_document;
+}
 
 namespace PLEXIL 
 {
 
-  // forward references in namespace PLEXIL
+  // Forward declarations
+  class LuvListener;
+
+  //
+  // Public constants referred to elsewhere
+  //
+  constexpr char const LUV_DEFAULT_HOSTNAME[] = "localhost";
+  constexpr unsigned int LUV_DEFAULT_PORT = 49100;
 
   /**
-   * @brief An Exec listener which supports the Plexil Viewer (nee' LUV).
+   * @brief (API of) An ExecListener which supports the Plexil Viewer (nee' LUV).
    */
   class LuvListener : public ExecListener
   {
   public:
-    //
-    // Public class constants
-    //
-
-    // Defaults
-    DECLARE_STATIC_CLASS_CONST(char*, LUV_DEFAULT_HOSTNAME, "localhost");
-    DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 49100);
-
-    // Configuration XML
-    DECLARE_STATIC_CLASS_CONST(char*, LUV_HOSTNAME_ATTR, "HostName");
-    DECLARE_STATIC_CLASS_CONST(char*, LUV_PORT_ATTR, "Port");
-    DECLARE_STATIC_CLASS_CONST(char*, LUV_BLOCKING_ATTR, "Blocking");
-    DECLARE_STATIC_CLASS_CONST(char*, IGNORE_CONNECT_FAILURE_ATTR, "IgnoreConnectFailure");
-
-    // Literal strings (yes, this is redundant with LuvFormat.hh)
-    DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");
-    DECLARE_STATIC_CLASS_CONST(char*, FALSE_STR, "false");
-
-    // End-of-message marker
-    DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
 
     /**
      * @brief Constructor from configuration XML.
      */
-    LuvListener(pugi::xml_node const xml);
+    LuvListener(pugi::xml_node const xml)
+      : ExecListener(xml)
+    {}
 
-	//* Constructor from TestExec.
-	LuvListener(const std::string& host, 
-				const uint16_t port, 
-				const bool block = false,
-				const bool ignoreConnectionFailure = true);
+	//! Destructor.
+	virtual ~LuvListener() = default;
 
-	//* Destructor.
-	virtual ~LuvListener();
+    //
+    // Additions to the ExecListener API
+    //
 
-    /**
-     * @brief Notify that a node has changed state.
-     * @param transition Record of the state transition.
-     */
-    void implementNotifyNodeTransition(NodeTransition const &transition) const;
-
-    /**
-     * @brief Notify that a plan has been received by the Exec.
-     * @param plan The intermediate representation of the plan.
-     * @param parent The name of the parent node under which this plan will be inserted.
-     */
-    void implementNotifyAddPlan(pugi::xml_node const plan) const;
-
-    /**
-     * @brief Notify that a library node has been received by the Exec.
-     * @param libNode The intermediate representation of the plan.
-     * @note The default method is deprecated and will go away in a future release.
-     */
-    void implementNotifyAddLibrary(pugi::xml_node const libNode) const;
-
-    /**
-     * @brief Notify that a variable assignment has been performed.
-     * @param dest The Expression being assigned to.
-     * @param destName A string naming the destination.
-     * @param value The value (in internal Exec representation) being assigned.
-     */
-    void implementNotifyAssignment(Expression const *dest,
-								   const std::string& destName,
-								   const Value& value) const;
-
-    /**
-     * @brief Perform listener-specific initialization.
-     * @return true if successful, false otherwise.
-     */
-    bool initialize();
-
-    /**
-     * @brief Perform listener-specific startup.
-     * @return true if successful, false otherwise.
-     */
-    bool start();
-
-    /**
-     * @brief Perform listener-specific actions to stop.
-     * @return true if successful, false otherwise.
-     */
-    bool stop();
-
-    /**
-     * @brief Perform listener-specific actions to reset to initialized state.
-     * @return true if successful, false otherwise.
-     */
-    bool reset();
-
-    /**
-     * @brief Perform listener-specific actions to shut down.
-     * @return true if successful, false otherwise.
-     */
-    bool shutdown();
-
-	//* Report whether the listener is connected to the viewer.
-	bool isConnected();
-
-    /**
-     * @brief Construct the appropriate configuration XML for the desired settings.
-     * @param block true if the Exec should block until the user steps forward, false otherwise.
-     * @param hostname The host name where the Luv instance is running.
-     * @param port The port number for the Luv instance.
-     */
-    static pugi::xml_document* constructConfigurationXml(const bool& block = false,
-														 const char* hostname = LUV_DEFAULT_HOSTNAME(),
-														 const unsigned int port = LUV_DEFAULT_PORT());
+	//! Report whether the listener is connected to the viewer.
+	virtual bool isConnected() = 0;
 
   private:
 
 	// deliberately unimplemented
-	LuvListener();
-	LuvListener(const LuvListener&);
-	LuvListener& operator=(const LuvListener&);
-
-	/**
-	 * @brief Open the socket connection to the viewer.
-	 * @param port The IP port to which we are connecting.
-	 * @param host The hostname to which we are connecting.
-	 * @param ignoreFailure If true, failure is silently ignored.
-	 * @return False if the connection fails and ignoreFailure is false, true otherwise.
-	 */
-	bool openSocket(uint16_t port, 
-					const char* host, 
-					bool ignoreFailure);
-
-	//* Close the socket.
-	void closeSocket();
-
-	//* Send a plan info header to the viewer.
-	void sendPlanInfo() const;
-
-	//* Send the message to the viewer.
-	void sendMessage(const std::string& msg) const;
-
-	//* Wait for acknowledgement from the viewer.
-	void waitForAck() const;
-
-	//
-	// Member variables
-	//
-    Socket* m_socket;
-	const char* m_host;
-	uint16_t m_port;
-    bool m_block;
-    bool m_ignoreConnectFailure;
+	LuvListener() = delete;
+	LuvListener(LuvListener const &) = delete;
+	LuvListener(LuvListener &&) = delete;
+	LuvListener& operator=(LuvListener const &) = delete;
+	LuvListener& operator=(LuvListener &&) = delete;
   };
 
+  // Convenience function for TestExec and UniversalExec
+  LuvListener *makeLuvListener(const char *hostname,
+                               unsigned int port, 
+                               bool block);
+
 }
+
+extern "C"
+void initLuvListener();
 
 #endif // LUV_LISTENER_HH
