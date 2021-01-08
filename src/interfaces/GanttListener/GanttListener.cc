@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -312,7 +312,7 @@ namespace PLEXIL
          myLocalVariableMapValues.push_back(tempValueString);
          //filter out local variables that are 'state' key  or 'UNKNOWN' value
          if (tempNameString != "state" && tempValueString != "UNKNOWN")
-            myLocalVars << tempString << ", ";
+           myLocalVars << tempString.str() << ", ";
       }
       return myLocalVars.str();
    }
@@ -321,16 +321,15 @@ namespace PLEXIL
    {
       std::ostringstream myChildNode;
       //get child nodes
-      const vector<NodeImpl *>& tempChildList = nodeId->getChildren();
+      const vector<NodeImplPtr>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
          return std::string();
       }
       else
       {
-         for (vector<NodeImpl *>::const_iterator i = tempChildList.begin(); 
-            i != tempChildList.end(); i++) 
-           myChildNode << (*i)->getNodeId() << ", ";
+        for (NodeImplPtr const &n : tempChildList)
+           myChildNode << n->getNodeId() << ", ";
       }
       return myChildNode.str();
    }
