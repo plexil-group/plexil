@@ -149,7 +149,7 @@ namespace PLEXIL
      * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
      */
-    bool initialize(AdapterConfiguration *config) override
+    virtual bool initialize(AdapterConfiguration *config) override
     {
       debugMsg("IpcAdapter:initialize", " called");
 
@@ -205,7 +205,7 @@ namespace PLEXIL
 
     //! Starts the adapter, possibly using its configuration data.
     //! @return true if successful, false otherwise.
-    bool start() override
+    virtual bool start() override
     {
       // Get taskName, serverName from XML, if supplied
       const char* taskName = "";
@@ -252,10 +252,9 @@ namespace PLEXIL
      * @brief Stops the adapter.
      * @return true if successful, false otherwise.
      */
-    bool stop()
+    virtual bool stop() override
     {
       m_ipcFacade.stop();
-
       debugMsg("IpcAdapter:stop", " succeeded");
       return true;
     }
