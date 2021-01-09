@@ -314,7 +314,8 @@ namespace PLEXIL
     if (!handler) {
       // Fake the ack
       warn("executeUpdate: no handler for updates");
-      acknowledgeUpdate(update, true);
+      handleUpdateAck(update, true);
+      notifyOfExternalEvent(); // possibility of reentrancy?
       return;
     }
     debugMsg("InterfaceManager:updatePlanner",
