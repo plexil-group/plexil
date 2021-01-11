@@ -36,6 +36,18 @@ if DEBUG_LISTENER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
 endif
 
+if GANTT_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/GanttListener
+endif
+
+if IPC_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/IpcAdapter
+endif
+
+if UDP_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/UdpAdapter
+endif
+
 if VIEWER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
 endif
@@ -62,6 +74,26 @@ libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.l
  @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
  @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
  @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+
+if DEBUG_LISTENER_OPT
+  libPlexilAppFramework_la_LIBADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la
+endif
+
+if GANTT_OPT
+  libPlexilAppFramework_la_LIBADD += @top_builddir@/interfaces/GanttListener/libGanttListener.la
+endif
+
+if IPC_OPT
+  libPlexilAppFramework_la_LIBADD += @top_builddir@/interfaces/IpcAdapter/libIpcAdapter.la
+endif
+
+if UDP_OPT
+  libPlexilAppFramework_la_LIBADD += @top_builddir@/interfaces/UdpAdapter/libUdpAdapter.la
+endif
+
+if VIEWER_OPT
+  libPlexilAppFramework_la_LIBADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la
+endif
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/timebase-test
