@@ -64,9 +64,7 @@
 namespace PLEXIL
 {
 
-  //!
-  // @brief Constructor.
-  //
+  //! Constructor.
   InterfaceManager::InterfaceManager(ExecApplication *app,
                                      AdapterConfiguration *config)
     : ExternalInterface(),
@@ -79,69 +77,25 @@ namespace PLEXIL
   {
   }
 
-  //!
-  // @brief Destructor.
-  //
-  InterfaceManager::~InterfaceManager()
-  {
-  }
-
   //
   // Top-level loop
   //
 
-  //!
-  // @brief Performs basic initialization of the interface and all adapters.
+  //! Performs basic initialization of the interface manager.
   // @return true if successful, false otherwise.
-  //
   bool InterfaceManager::initialize()
   {
-    if (!m_configuration)
-      return false;
-    bool result = m_configuration->initialize();
     m_inputQueue.reset(m_configuration->makeInputQueue());
-    if (!m_inputQueue)
-      return false;
-    return result;
-  }
-
-  //!
-  // @brief Prepares the interface and adapters for execution.
-  // @return true if successful, false otherwise.
-  //
-  bool InterfaceManager::start()
-  {
-    assertTrue_1(m_configuration);
-    return m_configuration->start();
-  }
-
-  //!
-  // @brief Commands all interfaces to stop.
-  // @return true if successful, false otherwise.
-  //
-  bool InterfaceManager::stop()
-  {
-    assertTrue_1(m_configuration);
-    return m_configuration->stop();
+    return (bool) m_inputQueue;
   }
 
   //
   // API for exec
   //
-
-  //!
-  // @brief Delete any entries in the queue.
-  //
-  void InterfaceManager::resetQueue()
-  {
-    assertTrue_1(m_inputQueue);
-    m_inputQueue->flush();
-  }
     
-  //!
-  // @brief Updates the state cache from the items in the queue.
-  // @return True if the Exec needs to be stepped, false otherwise.
-  //
+  //! Updates the Exec's knowledge of the outside world from the items
+  //! in the queue.
+  //! @return True if the Exec needs to be stepped, false otherwise.
   bool InterfaceManager::processQueue()
   {
     assertTrue_1(m_inputQueue);
@@ -252,10 +206,8 @@ namespace PLEXIL
     return needsStep;
   }
 
-  //!
-  // @brief Perform an immediate lookup on a new state.
-  // @param state The state.
-  //
+  //! Perform an immediate lookup for a state.
+  //! @param state The state.
   void 
   InterfaceManager::lookupNow(State const &state, LookupReceiver *rcvr)
   {
@@ -271,12 +223,10 @@ namespace PLEXIL
     }
   }
 
-  //!
-  // @brief Advise the interface of the current thresholds to use when reporting this state.
-  // @param state The state.
-  // @param hi The upper threshold, at or above which to report changes.
-  // @param lo The lower threshold, at or below which to report changes.
-  //
+  //! Advise the interface of the current thresholds to use when reporting this state.
+  //! @param state The state.
+  //! @param hi The upper threshold, at or above which to report changes.
+  //! @param lo The lower threshold, at or below which to report changes.
   void InterfaceManager::setThresholds(const State& state, Real hi, Real lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
@@ -291,11 +241,9 @@ namespace PLEXIL
     handler->setThresholds(state, hi, lo);
   }
 
-  //!
-  // @brief Tell the interface that thresholds are no longer in effect
-  //        for this state.
-  // @param state The state.
-  //
+  //! Tell the interface that thresholds are no longer in effect for
+  //! this state.
+  //! @param state The state.
   void InterfaceManager::clearThresholds(const State& state)
   {
     debugMsg("InterfaceManager:clearThresholds", " for state " << state);
@@ -306,8 +254,9 @@ namespace PLEXIL
   // *** To do:
   //  - bookkeeping (i.e. tracking non-acked updates) ?
 
-  void
-  InterfaceManager::executeUpdate(Update *update)
+  //! Pass information from the plan to an outside recipient.
+  //! @param update The list of name-value pairs to send.
+  void InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
     PlannerUpdateHandler handler = m_configuration->getPlannerUpdateHandler();
@@ -324,11 +273,8 @@ namespace PLEXIL
     (handler)(update, this);
   }
 
-  // executes a command with the given arguments by looking up the command name 
-  // and passing the information to the appropriate interface adapter
-
-  // *** To do:
-  //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
+  //! Issue the given command to the appropriate interface.
+  //! @param cmd The comamnd being executed.
   void InterfaceManager::executeCommand(Command *cmd)
   {
     CommandHandler *handler = m_configuration->getCommandHandler(cmd->getName()); 
@@ -343,18 +289,15 @@ namespace PLEXIL
     }
   }
 
-  //!
-  // @brief Report the failure in the appropriate way for the application.
-  //
+  //! Report arbitration failure from a command.
+  //! @param The command for which arbitiration failed.
   void InterfaceManager::reportCommandArbitrationFailure(Command *cmd)
   {
     this->handleCommandAck(cmd, COMMAND_DENIED);
   }
 
-  //!
-  // @brief Abort one command in execution.
-  // @param cmd The command.
-  //
+  //! Abort one command in execution.
+  //! @param cmd The command.
   void InterfaceManager::invokeAbort(Command *cmd)
   {
     CommandHandler *handler = m_configuration->getCommandHandler(cmd->getName());
@@ -372,11 +315,9 @@ namespace PLEXIL
   // API to handlers
   //
 
-  //!
-  // @brief Notify of the availability of a new value for a lookup.
+  //! Notify of the availability of a new value for a lookup.
   // @param state The state for the new value.
   // @param value The new value.
-  //
   void
   InterfaceManager::handleValueChange(const State &state, const Value &value)
   {
@@ -433,11 +374,9 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  //!
-  // @brief Notify of the availability of a command handle value for a command.
-  // @param cmd Pointer to the Command instance.
-  // @param value The new value.
-  //
+  //! Receive a command handle value for a command in execution.
+  //! @param cmd Pointer to the Command instance.
+  //! @param value The new value.
   void
   InterfaceManager::handleCommandAck(Command * cmd, CommandHandleValue value)
   {
@@ -462,11 +401,9 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  //!
-  // @brief Notify of the availability of a return value for a command.
-  // @param cmd Pointer to the Command instance.
-  // @param value The new value.
-  //
+  //! Receive a return value from a command.
+  //! @param cmd Pointer to the Command instance.
+  //! @param value The new value.
   void
   InterfaceManager::handleCommandReturn(Command * cmd, Value const &value)
   {
@@ -505,11 +442,9 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  //!
-  // @brief Notify of the availability of a command abort acknowledgment.
-  // @param cmd Pointer to the Command instance.
-  // @param ack The acknowledgment value.
-  //
+  //! Receive acknowledgement of a command abort.
+  //! @param cmd The command being aborted.
+  //! @param ack The acknowledgment value.
   void
   InterfaceManager::handleCommandAbortAck(Command * cmd, bool ack)
   {
@@ -530,11 +465,9 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  //!
-  // @brief Notify of the availability of a planner update acknowledgment.
-  // @param upd Pointer to the Update instance.
-  // @param ack The acknowledgment value.
-  //
+  //! Receive acknowledgement of a planner update.
+  //! @param upd Pointer to the Update instance.
+  //! @param ack The acknowledgment value.
   void
   InterfaceManager::handleUpdateAck(Update * upd, bool ack)
   {
@@ -555,6 +488,8 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
+  //! Place a mark in the input queue.
+  //! @return The sequence number of the mark.
   unsigned int InterfaceManager::markQueue()
   {
     assertTrue_1(m_inputQueue);
@@ -569,10 +504,8 @@ namespace PLEXIL
     return sequence;
   }
 
-  //!
-  // @brief Notify the executive of a new plan.
-  // @param planXml The XML representation of the new plan.
-  //
+  //! Receive a new plan and give it to the Exec.
+  //! @param planXml The XML representation of the new plan.
   void
   InterfaceManager::handleAddPlan(pugi::xml_node const planXml)
   {
@@ -592,11 +525,9 @@ namespace PLEXIL
     debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
-  //!
-  // @brief Notify the executive of a new library node.
-  // @param doc The XML document containing the library node.
-  // @return True if successful, false otherwise.
-  //
+  //! Receive a new or updated library node.
+  //! @param doc The XML document containing the library node.
+  //! @return True if successful, false otherwise.
   bool
   InterfaceManager::handleAddLibrary(pugi::xml_document *doc)
   {
@@ -620,10 +551,9 @@ namespace PLEXIL
     }
   }
 
-  //!
-  // @brief Load the named library from the library path.
-  // @param libname Name of the library node.
-  // @return True if successful, false if not found.
+  //! Load the named library from the library path.
+  //! @param libname Name of the library node.
+  //! @return True if successful, false if not found.
   //
   bool
   InterfaceManager::handleLoadLibrary(std::string const &libName)
@@ -633,19 +563,16 @@ namespace PLEXIL
     return PLEXIL::isLibraryLoaded(libName.c_str());
   }
 
-  //!
-  // @brief Determine whether the named library is loaded.
-  // @return True if loaded, false otherwise.
-  //
+  //! Determine whether the named library is loaded.
+  //! @param libName Name of the library.
+  //! @return True if the named library has been loaded, false otherwise.
   bool
   InterfaceManager::isLibraryLoaded(const std::string &libName) const
   {
     return PLEXIL::isLibraryLoaded(libName.c_str());
   }
 
-  //!
-  // @brief Notify the executive that it should run one cycle.  
-  //
+  //! Notify the application that the executive should run one cycle.  
   void
   InterfaceManager::notifyOfExternalEvent()
   {
@@ -654,9 +581,9 @@ namespace PLEXIL
   }
 
 #ifdef PLEXIL_WITH_THREADS
-  //!
-  // @brief Notify the executive that it should run one cycle.  
-  //
+  //! Notify the executive that it should run one cycle. Block the
+  //! calling thread until all the items in the input queue at the
+  //! time of the call have been processed.
   void
   InterfaceManager::notifyAndWaitForCompletion()
   {

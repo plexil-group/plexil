@@ -55,16 +55,12 @@ namespace PLEXIL
 
   class InputQueue;
 
-  //!
-  // @brief A concrete derived class implementing the APIs of the
-  //        ExternalInterface and AdapterExecInterface classes.
-  // @details The InterfaceManager class is responsible for keeping track
-  //          of all the external interfaces used by the PlexilExec.  It
-  //          maintains a queue of messages for the Exec to process.  Interface
-  //          instantiation, initialization, startup, stopping, shutdown, and
-  //          deallocation are all handled by the InterfaceManager instance.
-  // @note Supersedes the old ThreadedExternalInterface class.
-  //
+  //! @class InterfaceManager
+  //! @brief A concrete derived class implementing the APIs of the
+  //!        ExternalInterface and AdapterExecInterface classes.
+  //! @details The InterfaceManager class is responsible for managing
+  //!          input and output for the PlexilExec.  It maintains a
+  //!          queue of messages for the Exec to process.
   class InterfaceManager :
     public ExternalInterface,
     public AdapterExecInterface
@@ -72,55 +68,36 @@ namespace PLEXIL
   public:
 
     //! Constructor.
-    // @param app The ExecApplication instance to which this object belongs.
+    //! @param app The ExecApplication instance to which this object belongs.
+    //! @param config The AdapterConfiguration instance which
+    //!               delegates commands and lookups to the
+    //!               appropriate adapters and handlers.
     InterfaceManager(ExecApplication *app,
                      AdapterConfiguration *config);
 
-    //!
-    // @brief Destructor.
-    //
-    virtual ~InterfaceManager();
+    //! Virtual destructor.
+    virtual ~InterfaceManager() = default;
 
     //
     // API to ExecApplication
     //
 
-    /**
-     * @brief Performs basic initialization of the interface and all adapters.
-     * @return true if successful, false otherwise.
-     */
+    //! Initialize the interface manager.
+    //! @return true if successful, false otherwise.
     virtual bool initialize();
-
-    /**
-     * @brief Prepares the interface and adapters for execution.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool start();
-
-    /**
-     * @brief Commands all interfaces to stop.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool stop();
     
-    /**
-     * @brief Updates the state cache from the items in the queue.
-     * @return True if the exec needs to be stepped, false otherwise.
-     *
-     * @note Should only be called with exec locked by the current thread.
-     */
+    //! Read the input queue and give the received data to the Exec.
+    //! @return True if the exec needs to be stepped as a result of
+    //! queue processing, false otherwise.
+    //! @note Should only be called with exec locked by the current thread.
     bool processQueue();
 
-    /**
-     * @brief Insert a mark in the value queue.
-     * @return The sequence number of the mark.
-     */
+    //! Insert a mark in the value queue.
+    //! @return The sequence number of the mark.
     unsigned int markQueue();
 
-    /**
-     * @brief Get the sequence number of the most recently processed mark.
-     * @return The sequence number, 0 if no marks have yet been processed.
-     */
+    //! Get the sequence number of the most recently processed mark.
+    //! @return The sequence number; 0 if no marks have yet been processed.
     unsigned int getLastMark() const
     {
       return m_lastMark;
@@ -130,136 +107,99 @@ namespace PLEXIL
     // API for exec
     //
     
-    /**
-     * @brief Delete any entries in the queue.
-     */
-    void resetQueue();
-
-    /**
-     * @brief Perform an immediate lookup on an existing state.
-     * @param state The state.
-     * @@param rcvr Callback object used to return the result.
-     * @note The current value of the state or UNKNOWN().
-     */
+    //! Perform an immediate lookup on an existing state.
+    //! @param state The state.
+    //! @@param rcvr Callback object used to return the result of the query.
     virtual void lookupNow(State const &state, LookupReceiver *rcvr);
 
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
+    //! Advise the interface of the current thresholds to use when reporting this state.
+    //! @param state The state.
+    //! @param hi The upper threshold, at or above which to report changes.
+    //! @param lo The lower threshold, at or below which to report changes.
+    //! @note This is primarily used to set deadlines for the TimeAdapter.
     virtual void setThresholds(const State& state, Real hi, Real lo);
     virtual void setThresholds(const State& state, Integer hi, Integer lo);
 
-    //!
-    // @brief Tell the interface that thresholds are no longer in effect
-    //        for this state.
-    // @param state The state.
-    //
+    //! Tell the interface that thresholds are no longer in effect
+    //! for this state.
+    //! @param state The state.
     virtual void clearThresholds(const State& state);
 
-    //!
-    // @brief Execute a command.
-    // @param The command to be executed.
-    //
+    //! Execute a command.
+    //! @param The command to be executed.
     virtual void executeCommand(Command *cmd);
 
-    /**
-     * @brief Report the failure in the appropriate way for the application.
-     */
+    //! Report a command arbitration failure in the appropriate way
+    //! for the application.
+    //! @param cmd Command whose arbitration request failed.
     virtual void reportCommandArbitrationFailure(Command *cmd);
 
-    /**
-     * @brief Abort a command in execution.
-     * @param cmd The command to abort..
-     */
+    //! Abort a command in execution.
+    //! @param cmd The command to abort..
     virtual void invokeAbort(Command *cmd);
 
-    //!
-    // @brief Send a planner update.
-    // @param upd The update to be sent.
-    //
+    //! Send a planner update.
+    //! @param upd The update to be sent.
     virtual void executeUpdate(Update *upd);
 
     //
     // API to interface handlers
     //
 
-    //!
-    // @brief Notify of the availability of a new value for a lookup.
-    // @param state The state for the new value.
-    // @param value The new value.
-    //
+    //! Notify of the availability of a new value for a lookup.
+    //! @param state The state for the new value.
+    //! @param value The new value.
     virtual void handleValueChange(const State &state, const Value &value);
     virtual void handleValueChange(const State &state, Value &&value);
     virtual void handleValueChange(State &&state, const Value &value);
     virtual void handleValueChange(State &&state, Value &&value);
 
-    //!
-    // @brief Notify of the availability of a return value for a command
-    // @param cmd The command.
-    // @param value The new value.
-    //
+    //! Notify of the availability of a return value for a command
+    //! @param cmd The command.
+    //! @param value The new value.
     virtual void handleCommandReturn(Command * cmd, const Value &value);
     virtual void handleCommandReturn(Command * cmd, Value &&value);
 
-    //!
-    // @brief Notify of the availability of a new command handle value.
-    // @param cmd The command.
-    // @param value The new value.
-    //
+    //! Notify of the availability of a new command handle value.
+    //! @param cmd The command.
+    //! @param value The new value.
     virtual void handleCommandAck(Command * cmd, CommandHandleValue value);
 
-    //!
-    // @brief Notify of completion of a command abort.
-    // @param cmd The command.
-    // @param ack Whether or not the abort was successful. 
-    //
+    //! Notify of completion of a command abort.
+    //! @param cmd The command.
+    //! @param ack Whether or not the abort was successful. 
     virtual void handleCommandAbortAck(Command * cmd, bool ack);
 
-    //!
-    // @brief Notify of completion of an Update.
-    // @param upd The update.
-    // @param ack Whether or not the update was successful. 
-    //
+    //! Notify of completion of an Update.
+    //! @param upd The update.
+    //! @param ack Whether or not the update was successful. 
     virtual void handleUpdateAck(Update * upd, bool ack);
 
-    /**
-     * @brief Notify the executive of a new plan.
-     * @param planXml The pugixml representation of the new plan.
-     */
+    //! Notify the executive of a new plan.
+    //! @param planXml The XML representation of the new plan.
     virtual void handleAddPlan(pugi::xml_node const planXml);
 
-    /**
-     * @brief Notify the executive of a new library node.
-     * @param planXml The XML document containing the new library node.
-     * @return True if successful, false otherwise.
-     */
+    //! Notify the executive of a new library node.
+    //! @param planXml The XML document containing the new library node.
+    //! @return True if successful, false otherwise.
     virtual bool handleAddLibrary(pugi::xml_document *planXml);
 
-    /**
-     * @brief Load the named library from the library path.
-     * @param libname Name of the library node.
-     * @return True if successful, false if not found.
-     */
+    //! Load the named library from the library path.
+    //! @param libname Name of the library node.
+    //! @return True if successful, false if not found.
     bool handleLoadLibrary(std::string const &libName);
 
-    /**
-     * @brief Determine whether the named library is loaded.
-     * @return True if loaded, false otherwise.
-     */
+    //! Determine whether the named library is loaded.
+    //! @param libName Name of the library.
+    //! @return True if the named library has been loaded, false otherwise.
     bool isLibraryLoaded(const std::string& libName) const;
 
-    /**
-     * @brief Notify the executive that it should run one cycle.
-    */
+    //! Notify the executive that it should run one cycle.
     virtual void notifyOfExternalEvent();
 
 #ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Run the exec and wait until all events in the queue have been processed.
-     */
+    //! Run the exec and block the calling thread until all events in
+    //! the queue at the time of the call have been processed.
     virtual void notifyAndWaitForCompletion();
 #endif
 
@@ -271,8 +211,6 @@ namespace PLEXIL
 
     // rejects a command due to non-availability of resources
     void rejectCommand(Command *cmd);
-
-    friend class AdapterConfiguration;
 
   private:
 
@@ -291,20 +229,18 @@ namespace PLEXIL
     //! Parent object
     ExecApplication *m_application;
 
-    //! Adapter configuration
+    //! Adapter registry
     AdapterConfiguration *m_configuration;
 
-    //* The queue
+    //! The queue of input data for the Exec.
     std::unique_ptr<InputQueue> m_inputQueue;
 
-    //* Most recent mark processed.
+    //! Index of most recent queue mark processed.
     unsigned int m_lastMark;
 
-    //* Last mark enqueued.
+    //! Index of last queue mark enqueued.
     unsigned int m_markCount;
   };
-
-  using InterfaceManagerPtr = std::unique_ptr<InterfaceManager>;
 
 }
 
