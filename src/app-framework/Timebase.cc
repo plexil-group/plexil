@@ -53,6 +53,44 @@
 //    Dispatch timer: no* (for global queues)
 //    Kqueue timer: yes
 
+namespace PLEXIL
+{
+
+  //
+  // Timebase base class methods
+  //
+
+  Timebase *Timebase::s_instance = nullptr;
+
+  Timebase::Timebase(WakeupFn f, void *arg)
+    : m_nextWakeup(0),
+      m_wakeupFn(f),
+      m_wakeupArg(arg)
+  {
+    if (!s_instance)
+      s_instance = this;
+  }
+
+  Timebase::~Timebase()
+  {
+    if (s_instance == this)
+      s_instance = nullptr;
+  }
+
+  double Timebase::getNextWakeup() const
+  {
+    return m_nextWakeup;
+  }
+
+  double Timebase::queryTime()
+  {
+    if (s_instance)
+      return s_instance->getTime();
+    return 0;
+  }
+
+} // namespace PLEXIL
+
 //
 // Utilities for standard timebase types
 //

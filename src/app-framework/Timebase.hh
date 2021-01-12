@@ -75,11 +75,16 @@ namespace PLEXIL
   {
   public:
 
+    //! Convenience function. Gets the time from an existing timebase.
+    //! @return Time in seconds, as a double. Returns 0 if there is no
+    //!         existing timebase.
+    static double queryTime();
+
     //! Virtual destructor.
-    virtual ~Timebase() = default;
+    virtual ~Timebase();
 
     //! Get the current time.
-    //! @return The time as a double-precision float.
+    //! @return The time in seconds as a double-precision float.
     virtual double getTime() const = 0;
 
     //! Set the interval between ticks.
@@ -111,15 +116,14 @@ namespace PLEXIL
     //!       *before* the requested time.
     virtual void setTimer(double d) = 0;
 
-    //! Get the time of the next scheduled deadline wakeup.
-    //! @return The scheduled wakeup time; 0 if no deadline wakeup has been scheduled.
-    //! @note If the tick interval has been set to a non-zero value,
-    //!       this function will always return 0.
-    //! @note The next-wakeup time need not be cleared by a wakeup event.
-    virtual double getNextWakeup() const
-    {
-      return m_nextWakeup;
-    }
+    //! Get the time of the most recently scheduled deadline wakeup.
+    //! @return The scheduled wakeup time; 0 if no deadline wakeup has
+    //!         ever been scheduled.
+    //! @note The next-wakeup time is not cleared by a wakeup event.
+    //! @note If the timebase is in tick mode, i.e. getTickInterval()
+    //!       returns a non-zero value, this function will always
+    //!       return 0.
+    double getNextWakeup() const;
 
   protected:
 
@@ -127,12 +131,7 @@ namespace PLEXIL
     //! @param f Pointer to a C function of one argument, returning void.
     //! @param arg The argument to pass to that function when it is called.
     //! @note Constructor is only accessible to derived classes.
-    Timebase(WakeupFn f, void *arg)
-      : m_nextWakeup(0),
-        m_wakeupFn(f),
-        m_wakeupArg(arg)
-    {
-    }
+    Timebase(WakeupFn f, void *arg);
 
     //! The time of the next scheduled deadline wakeup.
     double m_nextWakeup;
@@ -142,6 +141,12 @@ namespace PLEXIL
 
     //! The argument to be passed to the wakeup function.
     void *m_wakeupArg;
+
+  private:
+
+    //! Pointer to the existing instance, if any.
+    static Timebase *s_instance;
+
   };
 
   //! Make the default timebase factories accessible.
