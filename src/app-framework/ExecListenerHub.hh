@@ -28,105 +28,74 @@
 #define EXEC_LISTENER_HUB_HH
 
 #include "ExecListener.hh" // leaving this out causes compiler errors
-#include "PlexilListener.hh"
+#include "ExecListenerBase.hh"
 #include "Value.hh"
 
 #include <memory>
 
 namespace PLEXIL
 {
-  using ExecListenerPtr = std::unique_ptr<ExecListener>;
-  
-  /**
-   * @brief A central dispatcher for multiple exec listeners,
-   *        and an adapter between the old ExecListener API and the current Exec API.
-   */
-  class ExecListenerHub : public PlexilListener
+  //! @class ExecListenerHub
+  //! A central dispatcher for multiple exec listeners.
+  class ExecListenerHub : public ExecListenerBase
   {
   public:
     ExecListenerHub();
     virtual ~ExecListenerHub() = default;
 
     //
-    // Interface management API
-    // 
-
-    /**
-     * @brief Adds an Exec listener for publication of plan events.
-     */
-    void addListener(ExecListener *listener);
-
-    /**
-     * @brief Removes an Exec listener.
-     */
-    void removeListener(ExecListener *listener);
-
-    //
-    // API to Exec
+    // ExecListenerBase API to PlexilExec
     //
 
-    /**
-     * @brief Notify that a plan has been received by the Exec.
-     * @param plan The intermediate representation of the plan.
-     */
+	//! Notify that some set of nodes has changed state.
+	//! @param transitions Const reference to vector of node transition records.
+    virtual void
+    notifyOfTransitions(std::vector<NodeTransition> const &transitions) override;
+
+    //! Notify that a variable assignment has been performed.
+    //! @param dest The Expression being assigned to.
+    //! @param destName A string naming the destination.
+    //! @param value The value being assigned.
+    virtual void notifyOfAssignment(Expression const *dest,
+                                    std::string const &destName,
+                                    Value const &value) override;
+
+    //! Notify that a step is complete and the listener may publish
+    //! transitions and assignments.
+    virtual void stepComplete(unsigned int cycleNum) override;
+
+    //
+    // API to ExecApplication
+    //
+
+    //! Notify that a plan has been received by the Exec.
+    //! @param plan The XML representation of the plan.
     void notifyOfAddPlan(pugi::xml_node const plan);
 
-    /**
-     * @brief Notify that a library node has been received by the Exec.
-     * @param libNode The intermediate representation of the plan.
-     */
+    //! Notify that a library node has been received by the Exec.
+    //! @param libNode The XML representation of the plan.
     void notifyOfAddLibrary(pugi::xml_node const libNode);
 
-	/**
-	 * @brief Notify that some set of nodes has changed state.
-	 * @param transitions Const reference to vector of node transition records.
-     * @note This is called synchronously from the outer loop of the Exec.
-     *       Listeners should not do any I/O during this call.
-	 */
-    void notifyOfTransitions(std::vector<NodeTransition> const &transitions);
-
-    /**
-     * @brief Notify that a variable assignment has been performed.
-     * @param dest The Expression being assigned to.
-     * @param destName A string naming the destination.
-     * @param value The value (in internal Exec representation) being assigned.
-     * @note This is called synchronously from the inner loop of the Exec.
-     *       Listeners should not do any I/O during this call.
-     */
-    void notifyOfAssignment(Expression const *dest,
-                            std::string const &destName,
-                            Value const &value);
-
-    /**
-     * @brief Notify that a step is complete and the listener
-     *        may publish transitions and assignments.
-     */
-    void stepComplete(unsigned int cycleNum);
-
     //
-    // API to InterfaceManager
-    //
+    // Interface management API to AdapterConfiguration
+    // 
 
-    /**
-     * @brief Perform listener-specific initialization.
-     * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
+    //! Adds an Exec listener for publication of plan events.
+    //! @param Pointer to an ExecListener instance.
+    //! @note The ExecListenerHub takes ownership of the listener
+    //!       instance, and will delete it when the hub is deleted.
+    void addListener(ExecListener *listener);
+
+    //! Initialize all the listeners registered with addListener().
+    //! @return true if successful, false otherwise.
     bool initialize();
 
-    /**
-     * @brief Perform listener-specific startup.
-     * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
+    //! Start all the registered listeners.
+    //! @return true if successful, false otherwise.
     bool start();
 
-    /**
-     * @brief Perform listener-specific actions to stop.
-     * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    bool stop();
+    //! Stop all the registered listeners.
+    void stop();
 
   private:
 
@@ -147,6 +116,9 @@ namespace PLEXIL
       // use default destructor, copy constructor, assignment
     };
 
+    // Local typedefs
+    using ExecListenerPtr = std::unique_ptr<ExecListener>;
+
     // Deliberately unimplemented
     ExecListenerHub(ExecListenerHub const &) = delete;
     ExecListenerHub(ExecListenerHub &&) = delete;
@@ -159,7 +131,6 @@ namespace PLEXIL
     // Queues
     std::vector<NodeTransition> m_transitions;
     std::vector<AssignmentRecord> m_assignments;
-
   };
 
 }

@@ -33,8 +33,6 @@
 
 #include "pugixml.hpp"
 
-#include <algorithm>
-
 namespace PLEXIL
 {
   ExecListenerHub::ExecListenerHub()
@@ -44,54 +42,9 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Adds an Exec listener for publication of plan events.
-   */
-  void ExecListenerHub::addListener(ExecListener *listener)
-  {
-    check_error_1(listener);
-    // Is this search for repeats really necessary?
-    if (std::any_of(m_listeners.begin(), m_listeners.end(),
-                    [listener] (ExecListenerPtr &ptr) -> bool
-                    { return ptr.get() == listener; }))
-      return;
-    m_listeners.emplace_back(ExecListenerPtr(listener));
-  }
-
-  /**
-   * @brief Removes an Exec listener.
-   */
-  void ExecListenerHub::removeListener(ExecListener *listener)
-  {
-    std::remove_if(m_listeners.begin(), m_listeners.end(),
-                   [listener] (ExecListenerPtr &ptr) -> bool
-                   { return ptr.get() == listener; });
-  }
-
   //
   // API to Exec
   //
-
-
-  /**
-   * @brief Notify that a plan has been received by the Exec.
-   * @param plan The intermediate representation of the plan.
-   */
-  void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan)
-  {
-    for (ExecListenerPtr const &listener : m_listeners)
-      listener->notifyOfAddPlan(plan);
-  }
-
-  /**
-   * @brief Notify that a library node has been received by the Exec.
-   * @param libNode The intermediate representation of the plan.
-   */
-  void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode)
-  {
-    for (ExecListenerPtr const &listener : m_listeners)
-      listener->notifyOfAddLibrary(libNode);
-  }
 
   /**
    * @brief Notify that some set of nodes has changed state.
@@ -119,6 +72,30 @@ namespace PLEXIL
     m_assignments.push_back(AssignmentRecord(dest, destName, value));
   }
 
+  //
+  // API to ExecApplication
+  //
+  
+  /**
+   * @brief Notify that a plan has been received by the Exec.
+   * @param plan The intermediate representation of the plan.
+   */
+  void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan)
+  {
+    for (ExecListenerPtr const &listener : m_listeners)
+      listener->notifyOfAddPlan(plan);
+  }
+
+  /**
+   * @brief Notify that a library node has been received by the Exec.
+   * @param libNode The intermediate representation of the plan.
+   */
+  void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode)
+  {
+    for (ExecListenerPtr const &listener : m_listeners)
+      listener->notifyOfAddLibrary(libNode);
+  }
+
   /**
    * @brief Notify that a step is complete and the listener
    *        may publish transitions and assignments.
@@ -135,8 +112,17 @@ namespace PLEXIL
   }
 
   //
-  // API to InterfaceManager
+  // API to AdapterConfiguration
   //
+
+  /**
+   * @brief Adds an Exec listener for publication of plan events.
+   */
+  void ExecListenerHub::addListener(ExecListener *listener)
+  {
+    check_error_1(listener);
+    m_listeners.emplace_back(ExecListenerPtr(listener));
+  }
 
   /**
    * @brief Perform listener-specific initialization.
@@ -173,14 +159,11 @@ namespace PLEXIL
 
   /**
    * @brief Perform listener-specific actions to stop.
-   * @return true if successful, false otherwise.
    */
-  bool ExecListenerHub::stop()
+  void ExecListenerHub::stop()
   {
-    bool success = true;
     for (ExecListenerPtr const &listener : m_listeners)
-      success = listener->stop() && success;
-    return success;
+      listener->stop();
   }
 
 }
