@@ -92,25 +92,12 @@ namespace PLEXIL
   static constexpr char const PARAM_PREFIX[] = "__PARAMETER__";
 
   //
-  // Local helper functions
+  // Local helper function
   //
 
-  static std::string formatMessageName(const std::string& name,
-                                       const std::string& command,
-                                       int /* id */)
-  {
-    return formatMessageName(name.c_str(), command, 0);
-  }
-
-  static std::string formatMessageName(const std::string& name,
-                                       const std::string& command)
-  {
-    return formatMessageName(name.c_str(), command, 0);
-  }
-
-  static std::string formatMessageName(const char* name,
-                                       const std::string& command,
-                                       int id)
+  static std::string formatMessageName(const std::string &name,
+                                       const char *command,
+                                       int id = 0)
   {
     std::ostringstream ss;
     if (command == RECEIVE_COMMAND_COMMAND)
@@ -248,11 +235,10 @@ namespace PLEXIL
     }
 
     // Stop method
-    virtual bool stop() override
+    virtual void stop() override
     {
       debugMsg("UdpAdapter:stop", " called");
       // Stop the UDP listener thread
-      return true;
     }
 
   private:
