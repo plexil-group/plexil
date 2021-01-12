@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@
       <!-- Any number of Comment elements COULD be included
            if we could implement XML Schema 1.1.
       -->
-      <xs:element name="Comment" type="xs:string" minOccurs="0"/>
+      <xs:element ref="Comment" minOccurs="0"/>
 
       <!-- Currently only relevant for Assignment nodes -->
       <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>

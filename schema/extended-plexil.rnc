@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ ActionBase =
    | SkipCondition?
    | # Any number of Comment elements COULD be included
      # if we could implement XML Schema 1.1.
-     element Comment { xsd:string }?
+     Comment?
    | # Currently only relevant for Assignment nodes
      element Priority { xsd:nonNegativeInteger }?)*,
   SourceLocators
@@ -82,7 +82,7 @@ NodeType =
    & EndCondition?
    & ExitCondition?
    & SkipCondition?
-   & element Comment { xsd:string }?
+   & Comment?
    & element Priority { xsd:nonNegativeInteger }?
    & NodeBody?),
   NodeAttributes
