@@ -124,12 +124,10 @@ namespace PLEXIL
 
     /**
      * @brief Perform listener-specific actions to stop.
-     * @return true if successful, false otherwise.
      */
-    virtual bool stop() override
+    virtual void stop() override
     {
-      this->closeSocket();
-      return true; 
+      closeSocket();
     }
 
     //
