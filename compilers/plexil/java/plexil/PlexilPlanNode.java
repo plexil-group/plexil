@@ -51,7 +51,6 @@ public class PlexilPlanNode extends PlexilTreeNode
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
      */
-
     @Override
     protected void constructXML()
     {
@@ -67,6 +66,7 @@ public class PlexilPlanNode extends PlexilTreeNode
      * @return A non-null String.
      */
 
+    @Override
     protected String getXMLElementName()
     {
         return "PlexilPlan";

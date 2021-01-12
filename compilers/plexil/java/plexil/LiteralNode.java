@@ -84,7 +84,6 @@ public class LiteralNode extends ExpressionNode
             break;
 
             // internal data types
-
         case PlexilLexer.EXECUTING_STATE_KYWD:
         case PlexilLexer.FAILING_STATE_KYWD:
         case PlexilLexer.FINISHED_STATE_KYWD:

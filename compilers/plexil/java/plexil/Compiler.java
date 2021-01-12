@@ -92,7 +92,7 @@ public class Compiler
         if (!state.epxOnly) {
             if (!pass5(plan2, state, planXML)) {
                 state.displayDiagnostics();
-                System.out.println("Translation from Extended Plexil XML failed. Compilation aborted.");
+                System.out.println("Translation from Extended Plexil failed. Compilation aborted.");
                 System.exit(1);
             }
         }

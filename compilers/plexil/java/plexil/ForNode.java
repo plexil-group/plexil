@@ -102,7 +102,7 @@ public class ForNode extends PlexilTreeNode
 
     // format is:
     // ^(FOR_KYWD (VARIABLE_DECLARATION typeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
-    public void checkSelf(NodeContext context, CompilerState myState)
+    protected void checkSelf(NodeContext context, CompilerState myState)
     {
         PlexilTreeNode loopVarDecl = this.getChild(0);
         PlexilTreeNode typeNode = loopVarDecl.getChild(0);

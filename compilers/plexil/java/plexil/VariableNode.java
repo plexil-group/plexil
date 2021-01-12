@@ -78,6 +78,7 @@ public class VariableNode extends ExpressionNode
         m_xml.appendChild(CompilerState.newTextNode(this.getText()));
     }
 
+    @Override
     protected String getXMLElementName()
     {
         return m_dataType.typeName() + "Variable";

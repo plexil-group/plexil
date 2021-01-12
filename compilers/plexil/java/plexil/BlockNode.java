@@ -267,6 +267,9 @@ public class BlockNode extends PlexilTreeNode
             bodyStart = m_xml.getFirstChild();
         }
 
+        // Set source locators after (potentially) hoisting child up
+        this.addSourceLocatorAttributes();
+
         // Add comment
         if (m_comment != null) {
             Element comment = m_comment.getXML();

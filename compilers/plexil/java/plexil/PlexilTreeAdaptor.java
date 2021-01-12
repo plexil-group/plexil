@@ -232,7 +232,6 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.NEG_INT:
         case PlexilLexer.DOUBLE:
         case PlexilLexer.NEG_DOUBLE:
-            // Specialized literals
             // Command handle
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
@@ -263,16 +262,16 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
             return new LiteralNode(payload);
 
+            // Specialized literals
         case PlexilLexer.ARRAY_LITERAL:
             return new ArrayLiteralNode(payload);
 
-            // Date/duration
+        case PlexilLexer.STRING:
+            return new StringLiteralNode(payload);
+
         case PlexilLexer.DATE_LITERAL:
         case PlexilLexer.DURATION_LITERAL:
             return new TemporalLiteralNode(payload);
-
-        case PlexilLexer.STRING:
-            return new StringLiteralNode(payload);
 
         default:
             return new PlexilTreeNode(payload);

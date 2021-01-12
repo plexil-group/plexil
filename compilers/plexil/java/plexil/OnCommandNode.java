@@ -123,7 +123,6 @@ public class OnCommandNode extends PlexilTreeNode
 		getBody().check(m_context, state);
 	}
 
-
     protected void checkSelf(NodeContext context, CompilerState state)
     {
 		// Coerce name expression to string
@@ -181,4 +180,3 @@ public class OnCommandNode extends PlexilTreeNode
 	}
 
 }
-

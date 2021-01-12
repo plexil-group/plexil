@@ -53,7 +53,7 @@ public class ArrayLiteralNode extends LiteralNode
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
-        super.earlyCheck(context, state); 
+        super.earlyCheck(context, state);
 
         // See if we can determine our own type from type of children
         PlexilDataType workingType = null;
@@ -175,12 +175,11 @@ public class ArrayLiteralNode extends LiteralNode
     @Override
     protected void constructXML()
     {
-        // PlexilTreeNode base method
         this.constructXMLBase();
 
         m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
         for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-            m_xml.appendChild(((LiteralNode) this).getChild(childIdx).getXML());
+            m_xml.appendChild(((LiteralNode) this.getChild(childIdx)).getXML());
         }
     }
         

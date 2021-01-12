@@ -122,15 +122,6 @@ public class ExpressionNode extends PlexilTreeNode
         }
     }
 
-
-    /**
-     * @brief Check the expression for type consistency.
-     * @note This is a default method.  Derived classes should override it.
-     */
-    protected void checkTypeConsistency(NodeContext context, CompilerState myState)
-    {
-    }
-
     /**
      * @brief Perform a recursive semantic check.
      * @note The top level check comes first because it establishes types for the children.
@@ -141,6 +132,14 @@ public class ExpressionNode extends PlexilTreeNode
     {
         super.check(context, myState); // can establish types for children
         checkTypeConsistency(context, myState);
+    }
+
+    /**
+     * @brief Check the expression for type consistency.
+     * @note This is a default method.  Derived classes should override it.
+     */
+    protected void checkTypeConsistency(NodeContext context, CompilerState myState)
+    {
     }
 
     /**

@@ -31,9 +31,6 @@ import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import plexil.xml.DOMUtils;
 
 public class CommandDeclarationNode extends PlexilTreeNode
 {

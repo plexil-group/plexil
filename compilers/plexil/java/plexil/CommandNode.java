@@ -149,7 +149,7 @@ public class CommandNode extends ExpressionNode
     }
 
     @Override
-    public void check(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
         if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {

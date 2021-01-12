@@ -150,7 +150,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
             this.getChild(i).check(context, state);
     }
 	
-    //* Returns the NanoXML representation of this part of the parse tree.
+    //* Returns the DOM representation of this part of the parse tree.
     public Element getXML()
     {
         if (m_xml == null)
@@ -173,7 +173,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     }
 
     /**
-     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
+     * @brief Construct the XML element representing this part of the parse tree, and store it in m_xml.
      * @note This is a default method. Derived classes should extend or override it as required.
      */
     protected void constructXMLBase()
