@@ -32,6 +32,7 @@
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
+#include "InputQueue.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
 #include "StateCache.hh"
@@ -282,10 +283,17 @@ namespace PLEXIL
         return false;
       }
 
-      // Initialize them
+      // Initialize interfaces
       if (!m_configuration->initialize()) {
         debugMsg("ExecApplication:initialize",
                  " initialization of interfaces failed");
+        return false;
+      }
+
+      // Initialize interface manager
+      if (!m_manager->initialize()) {
+        debugMsg("ExecApplication:initialize",
+                 " initialization of interface manager failed");
         return false;
       }
 
