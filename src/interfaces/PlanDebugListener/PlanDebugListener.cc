@@ -66,14 +66,14 @@ namespace PLEXIL
                     "PlanDebugListener:implementNotifyNodeTransition: not a node");
       condDebugMsg((trans.newState == FINISHED_STATE),
                    "Node:clock",
-                   "Node '" << node->getNodeId() <<
-                   "' finished at " << std::setprecision(15) <<
+                   " Node '" << node->getNodeId() <<
+                   "' finished at " << std::fixed << std::setprecision(6) <<
                    node->getCurrentStateStartTime() << " (" <<
-                   node->getOutcome() << ")");
+                   outcomeName(node->getOutcome()) << ")");
       condDebugMsg((trans.newState == EXECUTING_STATE),
                    "Node:clock",
-                   "Node '" << node->getNodeId() <<
-                   "' started at " << std::setprecision(15) <<
+                   " Node '" << node->getNodeId() <<
+                   "' started at " << std::fixed << std::setprecision(6) <<
                    node->getCurrentStateStartTime());
     }
   };
