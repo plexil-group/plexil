@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,15 +25,16 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
- array-add array-complex array-copy array_size_test \
+SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
+ ArrayLookup array-add array-complex array-copy array_size_test \
  assignment0 assignment1 assignment2 \
  basic-wait-test boolean1 boolean2 boolean3 boolean4 boolean5 \
  CallWithPostCondition \
  command0 command1 command2 command3 command4 command5 command-handle1 \
  comment1 ComputedCommandName concat1 concurrence0 concurrence1 concurrence2 \
  concurrence3 CopyReals CruiseControl \
- date1 Decrement DriveToSchool DriveToTarget duplicate-node-name \
+ date1 Decrement Do1 Do2 Do3 \
+ DriveToSchool DriveToTarget duplicate-node-name \
  empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
  Exchange executing1 executing2 expr1 expr3 expr4 \
  failed1 Fibs Fib PrintFib FibTest finished1 for1 for2 \
@@ -43,7 +44,7 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 library-call1 \
  LibraryCallWithArray library-node1 literal-format-test \
  lookup2 LookupWithComputedStateName \
- maxTest minTest mod1 MultipleMutex MutexBasics MutexTest \
+ maxTest minTest mod1 \
  NestedBlocks1 NestedBlocks2 NestedBlocks3 NestedBlocks4 NestedBlocks5 \
  NestedBlocks6 NestedBlocks7 NoChildFailedTest nodeOutcome1 nodeState1 nodeState2 \
  on-command1 on-command2 on-message1 on-message2 \
@@ -60,14 +61,14 @@ SMALL_TESTS = AddArray ArglistArithmeticType ArrayEquality ArrayLookup \
  test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
  timed-iteration tolerance1 try1 \
  UnaryMinus update1 update2 update3 \
- wait1 waiting1 while1
+ wait1 waiting1 While0 while1
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
 SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 \
- duplicateLookupDecl1 DuplicateMutex expr5 expr2 \
- lookup1 LibraryCall5 LibraryCall6 MutexNestingError \
- on-message3 SeekGoalAndEnergy UndeclaredMutex
+ duplicateLookupDecl1 expr5 expr2 \
+ lookup1 LibraryCall5 LibraryCall6 \
+ on-message3 SeekGoalAndEnergy
 
 TESTS	         := $(SMALL_TESTS)
 
@@ -84,15 +85,16 @@ all: test syntax-error-tests semantic-error-tests
 setup:
 	@rm -f tempRegressionResults ; touch tempRegressionResults
 
-# Temporary file
-DIFF = /tmp/plexil-$$$$
+output:
+	@mkdir -p output
+	@$(RM) -f output/*.epx
 
 test: | setup output
 	@ echo Translating Standard Plexil tests...
 	@ failure=0;\
 	echo '--- Begin validation and verification tests ---' ; \
 	for i in $(TESTS) ; \
-	do \
+    do \
 		if ! ./compile-validate "$$i" ; \
 	    then \
 			failure=1 ; \
@@ -104,26 +106,14 @@ test: | setup output
 	fi ; \
 	echo '--- Validation and verification tests complete ---'
 
-# For developers: Check the current output agains the benchmarks.
-checkall:
-	@ for i in $(TESTS); do \
-		./check $$i ; \
-	  done
-
-# For developers: Bless the current output, making it the new benchmark.
-passall:
-	@ for i in $(TESTS); do \
-		./pass $$i ; \
-	  done
-
 syntax-error-tests: | setup output
 	@ syntactic_failure=0; \
 	echo '--- Begin syntax checking tests ---' ; \
 	echo '--- Begin syntax checking tests ---' >> tempRegressionResults ; \
 	for f in $(SYNTAX_ERROR_TESTS) ; do \
 		echo $$f >> tempRegressionResults ; \
-		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
-		if [ $$? -eq 0 ] ; then syntactic_failure=1 ; echo $$f.ple: failed to detect expected syntax error ; fi ; \
+		if ../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
+		then syntactic_failure=1 ; echo $$f.ple: failed to detect expected syntax error ; fi ; \
 	done ; \
 	if [ $${syntactic_failure} -ne 0 ] ; then \
 		echo '*** Syntax checking tests failed ***' ; \
@@ -137,8 +127,8 @@ semantic-error-tests: | setup output
 	echo '--- Begin semantic checking tests ---' >> tempRegressionResults ; \
 	for f in $(SEMANTIC_ERROR_TESTS) ; do \
 		echo $$f >> tempRegressionResults ; \
-		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
-		if [ $$? -eq 0 ] ; then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
+		if ../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
+		then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
 	done ; \
 	if [ $${semantic_failure} -ne 0 ] ; then \
 		echo '*** Semantic checking tests failed ***' ; \
@@ -146,13 +136,19 @@ semantic-error-tests: | setup output
 	fi ; \
 	echo '--- Semantic checking tests passed ---'
 
-output:
-	@mkdir -p output
-	@$(RM) -f output/*.epx
+# For developers: Check the current output agains the benchmarks.
+checkall:
+	@ for i in $(TESTS); do \
+		./check $$i ; \
+	  done
+
+# For developers: Bless the current output, making it the new benchmark.
+passall:
+	@ for i in $(TESTS); do \
+		./pass $$i ; \
+	  done
 
 clean::
 	-@$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
 
-dust:: ;
-
-.PHONY: setup output clean dust
+.PHONY: setup output test syntax-error-tests semantic-error-tests checkall passall clean
