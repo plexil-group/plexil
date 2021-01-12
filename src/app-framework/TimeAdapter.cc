@@ -152,21 +152,16 @@ namespace PLEXIL
       return false;
     }
 
-    //!
-    // @brief Stop the interface.
-    // @return true if successful, false otherwise.
-    //
-    virtual bool stop() override
+    //! @brief Stop the interface.
+    virtual void stop() override
     {
       try {
-        m_timebase->start(); 
+        m_timebase->stop(); 
         debugMsg("TimeAdapter:stop", " complete");
-        return true;
       } catch (const InterfaceError &e) {
         std::cerr << "ERROR: Stopping timebase threw an exception:\n "
                   << e.what() << std::endl;
       }
-      return false;
     }
 
     //!
@@ -187,9 +182,8 @@ namespace PLEXIL
     std::unique_ptr<Timebase> m_timebase;
   };
 
-  //!
-  // @brief Wake up the Exec on a timer signal.
-  //
+  //! @brief Wake up the Exec on a timer signal.
+  //! @param arg Pointer to the TimeAdapter, cast as a void *.
   static void timeout(void *arg)
   {
     TimeAdapter *adpt = reinterpret_cast<TimeAdapter *>(arg);
