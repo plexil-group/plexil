@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class ParameterSpecNode extends PlexilTreeNode
 {
@@ -206,18 +206,19 @@ public class ParameterSpecNode extends PlexilTreeNode
     }
 
     // For command and lookup
-    public void constructParameterXML(IXMLElement parent)
+    public void constructParameterXML(Element parent)
     {
         if (m_parameterSpecs != null) {
             for (VariableName vn : m_parameterSpecs) 
-                parent.addChild(vn.makeGlobalDeclarationElement("Parameter"));
+                parent.appendChild(vn.makeGlobalDeclarationElement("Parameter"));
         }
     }
 
     // For library node
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        m_xml = new XMLElement(this.getXMLElementName()); // no source locators desired
+        m_xml = CompilerState.newElement(this.getXMLElementName()); // no source locators desired
         if (m_parameterSpecs != null) {
             Vector<VariableName> inVars = new Vector<VariableName>();
             Vector<VariableName> inOutVars = new Vector<VariableName>();
@@ -228,16 +229,16 @@ public class ParameterSpecNode extends PlexilTreeNode
                     inVars.add(vn);
             }
             if (inVars.size() > 0) {
-                IXMLElement inXML = new XMLElement("In");
-                m_xml.addChild(inXML);
+                Element inXML = CompilerState.newElement("In");
+                m_xml.appendChild(inXML);
                 for (VariableName inVar : inVars)
-                    inXML.addChild(inVar.makeDeclarationXML());
+                    inXML.appendChild(inVar.makeDeclarationXML());
             }
             if (inOutVars.size() > 0) {
-                IXMLElement inOutXML = new XMLElement("InOut");
-                m_xml.addChild(inOutXML);
+                Element inOutXML = CompilerState.newElement("InOut");
+                m_xml.appendChild(inOutXML);
                 for (VariableName inOutVar : inOutVars)
-                    inOutXML.addChild(inOutVar.makeDeclarationXML());
+                    inOutXML.appendChild(inOutVar.makeDeclarationXML());
             }
         }
     }

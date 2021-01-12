@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-import org.antlr.runtime.Token;
-import net.n3.nanoxml.*;
 
 public class PriorityNode extends PlexilTreeNode
 {
@@ -63,10 +61,11 @@ public class PriorityNode extends PlexilTreeNode
         // Don't.
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
         super.constructXML();
-        m_xml.setContent (this.getChild(0).getText());
+        m_xml.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
     }
 
     public String getXMLElementName()

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,10 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import plexil.xml.DOMUtils;
 
 public class CommandNode extends ExpressionNode
 {
@@ -64,7 +67,7 @@ public class CommandNode extends ExpressionNode
     // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
         if (this.getChildCount() > 1)
@@ -111,13 +114,20 @@ public class CommandNode extends ExpressionNode
                     }
                 }
                 else {
-                    // Parameters expected
+                    // No parameters given
                     if (m_parameters == null) {
-                        // None supplied
-                        state.addDiagnostic(nameNode,
-                                            "Command \"" + name + "\" expects "
-                                            + String.valueOf(parmSpecs.size()) + " parameters, but none were supplied",
-                                            Severity.ERROR);
+                        if (parmSpecs.size() == 1 &&
+                           parmSpecs.elementAt(0) instanceof WildcardVariableName) {
+                            // No parameters required, do nothing
+                        }
+                        else {
+                            // None supplied
+                            state.addDiagnostic(nameNode,
+                                                "Command \"" + name + "\" expects "
+                                                + String.valueOf(parmSpecs.size())
+                                                + " parameters, but none were supplied",
+                                                Severity.ERROR);
+                        }
                     }
                     else {
                         m_parameters.earlyCheckArgumentList(context,
@@ -142,12 +152,11 @@ public class CommandNode extends ExpressionNode
     public void check(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
-
-        // if name is not literal
         if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {
-            // Check that name expression returns a string
+            // if name is not literal,
+            // check that name expression returns a string
             ExpressionNode nameExp = (ExpressionNode) nameAST;
-            if (nameExp.getDataType() != PlexilDataType.STRING_TYPE) {
+            if (nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
                 state.addDiagnostic(nameExp,
                                     "Command name expression is not a string expression",
                                     Severity.ERROR);
@@ -155,16 +164,12 @@ public class CommandNode extends ExpressionNode
         }
 
         if (m_commandDeclaration != null) {
-            // Check parameter list
+            // Check parameter list against declaration
             String cmdName = m_commandDeclaration.getName();
             Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
             if (parmSpecs != null && m_parameters != null)
                 m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
         }
-        // Resource list is self-checking
-
-        // Perform recursive checks on subexprs
-        this.checkChildren(context, state);
     }
 
     /**
@@ -181,42 +186,43 @@ public class CommandNode extends ExpressionNode
         return true;
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
         // construct Node XML
-        super.constructXML();
+        super.constructXMLBase();
         m_xml.setAttribute("NodeType", "Command");
 
         // construct node body
-        IXMLElement nodeBody = new XMLElement("NodeBody");
-        m_xml.addChild(nodeBody);
+        Element nodeBody = CompilerState.newElement("NodeBody");
+        m_xml.appendChild(nodeBody);
 
-        IXMLElement commandBody = new XMLElement("Command");
+        Element commandBody = CompilerState.newElement("Command");
         // set source location to the loc'n of the command name (expression)
         commandBody.setAttribute("LineNo", String.valueOf(this.getChild(0).getLine()));
         commandBody.setAttribute("ColNo", String.valueOf(this.getChild(0).getCharPositionInLine()));
-        nodeBody.addChild(commandBody);
+        nodeBody.appendChild(commandBody);
 
         // BlockNode handles resource list
 
         // Add name (expression)
         PlexilTreeNode commandName = this.getChild(0);
-        IXMLElement nameXML = new XMLElement("Name");
-        commandBody.addChild(nameXML);
+        Element nameXML = CompilerState.newElement("Name");
+        commandBody.appendChild(nameXML);
         if (commandName.getType() == PlexilLexer.COMMAND_KYWD) {
             // Literal command name
-            IXMLElement stringVal = new XMLElement("StringValue");
-            stringVal.setContent(commandName.getChild(0).getText());
-            nameXML.addChild(stringVal);
+            Element stringVal = CompilerState.newElement("StringValue");
+            stringVal.appendChild(CompilerState.newTextNode(commandName.getChild(0).getText()));
+            nameXML.appendChild(stringVal);
         }
         else {
             // Command name expression
-            nameXML.addChild(commandName.getXML());
+            nameXML.appendChild(commandName.getXML());
         }
 
         // Handle parameters
         if (m_parameters != null) {
-            commandBody.addChild(m_parameters.getXML());
+            commandBody.appendChild(m_parameters.getXML());
         }
     }
 

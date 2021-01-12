@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
-
 // 
 // A specialized AST node that does code generation for literals.
 // The data type should be specified by the parser from the content.
@@ -55,6 +53,8 @@ public class ArrayLiteralNode extends LiteralNode
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
+        super.earlyCheck(context, state); 
+
         // See if we can determine our own type from type of children
         PlexilDataType workingType = null;
         boolean workingTypeChanged = false;
@@ -172,16 +172,15 @@ public class ArrayLiteralNode extends LiteralNode
         }
     }
 
-    // Must override LiteralNode method
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
         // PlexilTreeNode base method
-        constructXMLBase();
+        this.constructXMLBase();
 
         m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
         for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-            LiteralNode child = (LiteralNode) this.getChild(childIdx);
-            m_xml.addChild(child.getXML());
+            m_xml.appendChild(((LiteralNode) this).getChild(childIdx).getXML());
         }
     }
         

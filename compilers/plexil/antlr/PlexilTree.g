@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,22 @@ action :
 
 actionBody : compoundAction | simpleAction | block ;
 
-compoundAction : forAction | ifAction | onCommandAction | onMessageAction | whileAction ;
+compoundAction :
+     doAction
+   | forAction
+   | ifAction
+   | onCommandAction
+   | onMessageAction
+   | whileAction
+   ;
+
+doAction :
+    ^(DO_KYWD
+      action
+      { /* Check that expression is Boolean */ }
+      expression
+      )
+ ;
 
 forAction : 
     ^(FOR_KYWD
@@ -124,6 +139,9 @@ ifAction :
 	  expression
       { /* Check that expression is Boolean */ }
       action
+      (expression
+       { /* Check that expression is Boolean */ }
+       action)*
       action?
      )
  ;

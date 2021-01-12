@@ -1,0 +1,164 @@
+<!--
+* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<project name="PlexilCompiler" default="install" basedir=".">
+
+  <description>
+    Build instructions for the Standard PLEXIL compiler.
+  </description>
+
+  <property environment="env"/>
+
+  <property name="dir.plexil_home" location="../.."/>
+
+  <property name="dir.source" location="${dir.plexil_home}"/>
+  <property name="dir.source.jars" location="${dir.source}/jars"/>
+  <property name="dir.source.grammars" location="antlr"/>
+  <property name="dir.source.java" location="java"/>
+
+  <!-- We might want to do out-of-tree installs in the future -->
+  <property name="dir.install" location="${dir.plexil_home}"/>
+  <property name="dir.install.jars" location="${dir.install}/jars"/>
+
+  <!-- We might want to do out-of-tree builds in the future -->
+  <property name="dir.generated" location="generated"/>
+  <property name="dir.classes" location="classes"/>
+  <property name="dir.jars" location="jars"/>
+
+  <!-- All located in dir.source.jars -->
+  <property name="jar.antlr"
+            location="${dir.source.jars}/antlr-3.5.2-complete-no-st3.jar"/>
+  <file id="jar.saxon"
+        file="${dir.source.jars}/saxon9he.jar"/>
+
+  <path id="plexil.sourcepath">
+    <pathelement location="${dir.source.java}"/>
+  </path>
+
+  <path id="plexil.classpath">
+    <file file="${jar.antlr}"/>
+    <file refid="jar.saxon"/>
+    <pathelement location="${dir.classes}/plexil"/>
+  </path>
+
+  <!-- Dependency checking because ANTLR 3 doesn't provide an 'ant' task' -->
+  <uptodate property="plexil-grammar.up-to-date"
+            srcfile="${dir.source.grammars}/Plexil.g">
+    <compositemapper>
+      <globmapper from="${dir.source.grammars}/*.g"
+                  to="${dir.generated}/plexil/*Lexer.java"/>
+      <globmapper from="${dir.source.grammars}/*.g"
+                  to="${dir.generated}/plexil/*Parser.java"/>
+      <globmapper from="${dir.source.grammars}/*.g"
+                  to="${dir.generated}/plexil/*.tokens"/>
+    </compositemapper>
+  </uptodate>
+
+  <target name="plexil-grammar"
+          unless="plexil-grammar.up-to-date"
+	      description="Generate Plexil parser code from .g file">
+    <mkdir dir="${dir.generated}/plexil"/>
+    <java jar="${jar.antlr}" fork="true" failonerror="true">
+      <arg value="-fo"/>
+      <arg path="${dir.generated}/plexil"/>
+      <arg file="${dir.source.grammars}/Plexil.g"/>
+    </java>
+  </target>
+
+  <!-- Dependency checking because ANTLR 3 doesn't provide an 'ant' task' -->
+  <condition property="plexil-tree-grammar.up-to-date">
+    <and>
+      <uptodate property="plexil-tree-grammar.source.up-to-date"
+                srcfile="${dir.source.grammars}/PlexilTreeTransforms.g">
+        <compositemapper>
+          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.java"/>
+          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.tokens"/>
+        </compositemapper>
+      </uptodate>
+      <uptodate property="plexil-tree-grammar.plexil-grammar.up-to-date">
+        <srcfiles dir="${dir.generated}/plexil">
+          <filename name="PlexilLexer.java"/>
+          <filename name="PlexilParser.java"/>
+          <filename name="Plexil.tokens"/>
+        </srcfiles>
+        <compositemapper>
+          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.java"/>
+          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.tokens"/>
+        </compositemapper>
+      </uptodate>
+    </and>
+  </condition>
+
+  <target name="plexil-tree-grammar"
+	      depends="plexil-grammar"
+          unless="plexil-tree-grammar.up-to-date"
+	      description="Generate Plexil AST transformations from .g file">
+    <java jar="${jar.antlr}" fork="true">
+      <arg value="-fo"/>
+      <arg path="${dir.generated}/plexil"/>
+      <arg file="${dir.source.grammars}/PlexilTreeTransforms.g"/>
+    </java>
+  </target>
+
+  <target name="plexil-compile" depends="plexil-tree-grammar">
+    <mkdir dir="${dir.classes}/plexil"/>
+    <!-- debuglevel options are lines,vars,source -->
+    <javac destdir="${dir.classes}"
+           sourcepathref="plexil.sourcepath"
+           debug="true"
+           debuglevel="lines,source"
+           includeantruntime="no"
+           >
+      <src path="${dir.generated}/plexil"/>
+      <src path="${dir.source.java}/plexil"/>
+      <classpath refid="plexil.classpath"/>
+    </javac>
+  </target>
+
+  <target name="compiler-jar" depends="plexil-compile">
+    <mkdir dir="${dir.jars}"/>
+    <jar destfile="${dir.jars}/PlexilCompiler.jar" basedir="${dir.classes}"/>
+  </target>
+
+  <target name="install" depends="compiler-jar">
+    <copy file="${dir.jars}/PlexilCompiler.jar"
+	      todir="${dir.install.jars}"
+	      preservelastmodified="true"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${dir.classes}" failonerror="false"/>
+    <delete dir="${dir.generated}" failonerror="false"/>
+    <delete dir="${dir.jars}" failonerror="false"/>
+  </target>
+
+  <target name="uninstall" depends="clean">
+    <delete file="${dir.install.jars}/PlexilCompiler.jar"
+            failonerror="false"/>
+  </target>
+
+</project>

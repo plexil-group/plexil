@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-import net.n3.nanoxml.*;
+
+import org.w3c.dom.Element;
 
 public class NodeVariableNode extends ExpressionNode
 {
@@ -79,14 +80,14 @@ public class NodeVariableNode extends ExpressionNode
 	}
 
     @Override
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE)
             m_dataType = GlobalContext.getGlobalContext().getTimeType();
     }
 
     @Override
-    public void checkChildren(NodeContext context, CompilerState state)
+    protected void checkChildren(NodeContext context, CompilerState state)
     {
         // Verify that referenced node is reachable from context
         PlexilTreeNode nodeRef = this.getChild(0);
@@ -109,36 +110,34 @@ public class NodeVariableNode extends ExpressionNode
             nodeRef.check(context, state);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        // NOTE: not invoking super, because it adds line/col attributes that I
-        // want to omit for now, becuase it's messy to add them to the schema
-        // for this construct.
-        m_xml = new XMLElement(this.getXMLElementName());
+        this.constructXMLBase();
 
 		PlexilTreeNode nodeRef = this.getChild(0);
 		if (nodeRef.getToken().getType() == PlexilLexer.NCNAME) {
-			IXMLElement id = new XMLElement("NodeId");
-			id.setContent(this.getChild(0).getText());
-			m_xml.addChild(id);
+			Element id = CompilerState.newElement("NodeId");
+			id.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+			m_xml.appendChild(id);
 		}
 		else if (nodeRef instanceof NodeRefNode) {
 			// NodeRef
-			m_xml.addChild(nodeRef.getXML());
+			m_xml.appendChild(nodeRef.getXML());
 		}
 		else {
-			IXMLElement err = new XMLElement("_NODE_REF_ERROR_");
-			m_xml.addChild(err);
+			Element err = CompilerState.newElement("_NODE_REF_ERROR_");
+			m_xml.appendChild(err);
 		}
 
 		if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE) {
-			IXMLElement state = new XMLElement("NodeStateValue");
-			state.setContent(this.getChild(1).getText());
-			m_xml.addChild(state);
+			Element state = CompilerState.newElement("NodeStateValue");
+			state.appendChild(CompilerState.newTextNode(this.getChild(1).getText()));
+			m_xml.appendChild(state);
 
-			IXMLElement tp = new XMLElement("Timepoint");
-			tp.setContent(this.getChild(2).getText());
-			m_xml.addChild(tp);
+			Element tp = CompilerState.newElement("Timepoint");
+			tp.appendChild(CompilerState.newTextNode(this.getChild(2).getText()));
+			m_xml.appendChild(tp);
 		}
     }
 

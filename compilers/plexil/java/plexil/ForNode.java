@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class ForNode extends PlexilTreeNode
 {
@@ -72,7 +72,7 @@ public class ForNode extends PlexilTreeNode
             this.getChild(i).earlyCheck(m_context, state);
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -130,27 +130,28 @@ public class ForNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
-        IXMLElement loopVar = new XMLElement("LoopVariable");
-        m_xml.addChild(loopVar);
+        Element loopVar = CompilerState.newElement("LoopVariable");
+        m_xml.appendChild(loopVar);
         // Get the declaration from the VariableName, not the declaration AST
         VariableName var = ((VariableDeclNode) this.getChild(0)).getVariableName();
-        loopVar.addChild(var.makeDeclarationXML());
+        loopVar.appendChild(var.makeDeclarationXML());
 
-        IXMLElement condition = new XMLElement("Condition");
-        m_xml.addChild(condition);
-        condition.addChild(this.getChild(1).getXML());
+        Element condition = CompilerState.newElement("Condition");
+        m_xml.appendChild(condition);
+        condition.appendChild(this.getChild(1).getXML());
 
-        IXMLElement loopVarUpdate = new XMLElement("LoopVariableUpdate");
-        m_xml.addChild(loopVarUpdate);
-        loopVarUpdate.addChild(this.getChild(2).getXML());
+        Element loopVarUpdate = CompilerState.newElement("LoopVariableUpdate");
+        m_xml.appendChild(loopVarUpdate);
+        loopVarUpdate.appendChild(this.getChild(2).getXML());
 
-        IXMLElement action = new XMLElement("Action");
-        m_xml.addChild(action);
-        action.addChild(this.getChild(3).getXML());
+        Element action = CompilerState.newElement("Action");
+        m_xml.appendChild(action);
+        action.appendChild(this.getChild(3).getXML());
     }
 
     protected String getXMLElementName() { return "For"; }

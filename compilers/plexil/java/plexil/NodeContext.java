@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@ package plexil;
 import java.util.Vector;
 import java.util.Map;
 import java.util.TreeMap;
-
-import net.n3.nanoxml.IXMLElement;
 
 //
 // A class to represent the context of one PLEXIL node in the translator.

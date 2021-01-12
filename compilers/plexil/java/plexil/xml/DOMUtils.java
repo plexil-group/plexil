@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -23,68 +23,40 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plexil;
+// Utilities for working with the W3C DOM representation
 
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
+package plexil.xml;
 
-public class PlexilPlanNode extends PlexilTreeNode
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+
+public class DOMUtils
 {
-    public PlexilPlanNode(int ttype)
+
+    // Get the first Element with the given name in node n's direct children.
+    public static Element getFirstElementNamed(Node n, String name)
     {
-        super(new CommonToken(ttype, "PLEXIL"));
-        this.getToken().setLine(0);
-        this.getToken().setCharPositionInLine(0);
-    }
-
-    public PlexilPlanNode(PlexilPlanNode n)
-    {
-        super(n);
-    }
-
-    @Override
-    public Tree dupNode()
-    {
-        return new PlexilPlanNode(this);
-    }
-
-    /**
-     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-     */
-
-    @Override
-    protected void constructXML()
-    {
-        super.constructXML();
-
-        // Add namespace, etc.
-        // Maybe later - breaks validation
-        // m_xml.setAttribute("xmlns", "http://plexil.sourceforge.net/");
-    }
-
-    /**
-     * @brief Get the string to use for the XML element's name.
-     * @return A non-null String.
-     */
-
-    protected String getXMLElementName()
-    {
-        return "PlexilPlan";
-    }
-
-    /**
-     * @brief Add new source locator attributes to m_xml, or replace the existing ones.
-     * @note Don't bother with LineNo, ColNo attributes here.
-     */
-
-    @Override
-    protected void addSourceLocatorAttributes()
-    {
-        if (m_xml != null) {
-            String fname = CompilerState.getCompilerState().getSourceFileName();
-            if (fname != null)
-                m_xml.setAttribute("FileName", fname);
+        NodeList l = n.getChildNodes();
+        if (l.getLength() == 0)
+            return null;
+        Node child = l.item(0);
+        while (child != null) {
+            if (child.getNodeType() == Node.ELEMENT_NODE
+                && name.equals(child.getNodeName()))
+                return (Element) child;
+            child = child.getNextSibling();
         }
+        return null;
+    }
+
+    public static String getTextChildValue(Element e)
+    {
+        Node child = e.getFirstChild();
+        if (child.getNodeType() == Node.TEXT_NODE)
+            return child.getNodeValue();
+        return null;
     }
 
 }

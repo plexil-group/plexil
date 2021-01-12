@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,16 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-public class WhileNode extends PlexilTreeNode
+public class DoNode extends PlexilTreeNode
 {
     private NodeContext m_bodyContext = null;
 
-    public WhileNode(Token t)
+    public DoNode(Token t)
     {
         super(t);
     }
 
-    public WhileNode(WhileNode n)
+    public DoNode(DoNode n)
     {
         super(n);
 		m_bodyContext = n.m_bodyContext;
@@ -50,27 +50,25 @@ public class WhileNode extends PlexilTreeNode
 
 	public Tree dupNode()
 	{
-		return new WhileNode(this);
+		return new DoNode(this);
 	}
 
     //
     // N.B. The extra complexity in the checking logic is to ensure the body
-    // is contained in a separate name binding context from the while loop
+    // is contained in a separate name binding context from the do loop
     // as a whole.
     //
 
     /**
      * @brief Prepare for the semantic check.
      */
-    @Override
     public void earlyCheck(NodeContext parentContext, CompilerState state)
     {
         earlyCheckSelf(parentContext, state);
-        this.getChild(0).earlyCheck(parentContext, state); // while-test expression
-        this.getChild(1).earlyCheck(m_bodyContext, state); // body
+        this.getChild(0).earlyCheck(m_bodyContext, state); // body
+        this.getChild(1).earlyCheck(parentContext, state); // do-test expression
     }
 
-    @Override
     protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
@@ -82,33 +80,30 @@ public class WhileNode extends PlexilTreeNode
         else {
             // should never happen
             state.addDiagnostic(this,
-                                "Internal error: WhileNode instance has no parent ActionNode",
+                                "Internal error: DoNode instance has no parent ActionNode",
                                 Severity.FATAL);
         }
         // Construct body binding context
-        // FIXME: change suffix to match generated code!
-        m_bodyContext = new NodeContext(parentContext, nodeId + "_WHILE_BODY");
+        m_bodyContext = new NodeContext(parentContext, nodeId + "_DO_BODY");
     }
 
     /**
      * @brief Semantic check.
      * @note Uses separate context for body.
      */
-    @Override
     public void check(NodeContext parentContext, CompilerState state)
     {
         checkSelf(parentContext, state);
-        this.getChild(0).check(parentContext, state); // while test
-        this.getChild(1).check(m_bodyContext, state); // body
+        this.getChild(0).check(m_bodyContext, state); // body
+        this.getChild(1).check(parentContext, state); // do test
     }
 
-    @Override
     protected void checkSelf(NodeContext context, CompilerState state)
     {
-        ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
-        if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
-            state.addDiagnostic(whileTest,
-                                "\"while\" test expression is not Boolean",
+        ExpressionNode doTest = (ExpressionNode) this.getChild(1);
+        if (!doTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
+            state.addDiagnostic(doTest,
+                                "\"do\" test expression is not Boolean",
                                 Severity.ERROR);
         }
     }
@@ -117,15 +112,18 @@ public class WhileNode extends PlexilTreeNode
     protected void constructXML()
     {
         super.constructXMLBase();
-        Element condition = CompilerState.newElement("Condition");
-        m_xml.appendChild(condition);
-        condition.appendChild(this.getChild(0).getXML());
 
         Element action = CompilerState.newElement("Action");
         m_xml.appendChild(action);
-        action.appendChild(this.getChild(1).getXML());
+        action.appendChild(this.getChild(0).getXML());
+
+        Element condition = CompilerState.newElement("Condition");
+        m_xml.appendChild(condition);
+        condition.appendChild(this.getChild(1).getXML());
+        condition.setAttribute("LineNo", String.valueOf(this.getChild(1).getLine()));
+        condition.setAttribute("ColNo", String.valueOf(this.getChild(1).getCharPositionInLine()));
     }
 
-    protected String getXMLElementName() { return "While"; }
+    protected String getXMLElementName() { return "Do"; }
 
 }

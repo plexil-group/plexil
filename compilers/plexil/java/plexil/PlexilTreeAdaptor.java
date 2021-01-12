@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -155,6 +155,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.ARGUMENT_LIST:
             return new ArgumentListNode(payload);
 
+        case PlexilLexer.DO_KYWD:
+            return new DoNode(payload);
+
         case PlexilLexer.FOR_KYWD:
             return new ForNode(payload);
 
@@ -229,9 +232,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.NEG_INT:
         case PlexilLexer.DOUBLE:
         case PlexilLexer.NEG_DOUBLE:
-            // Date/duration
-        case PlexilLexer.DATE_LITERAL:
-        case PlexilLexer.DURATION_LITERAL:
+            // Specialized literals
             // Command handle
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
@@ -264,6 +265,11 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
         case PlexilLexer.ARRAY_LITERAL:
             return new ArrayLiteralNode(payload);
+
+            // Date/duration
+        case PlexilLexer.DATE_LITERAL:
+        case PlexilLexer.DURATION_LITERAL:
+            return new TemporalLiteralNode(payload);
 
         case PlexilLexer.STRING:
             return new StringLiteralNode(payload);

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class LibraryCallNode extends PlexilTreeNode
 {
@@ -179,30 +179,31 @@ public class LibraryCallNode extends PlexilTreeNode
         checkChildren(context, state);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        m_xml = new XMLElement("Node");
+        m_xml = CompilerState.newElement("Node");
         m_xml.setAttribute("NodeType", "LibraryNodeCall");
-        IXMLElement bodyXML = new XMLElement("NodeBody");
-        m_xml.addChild(bodyXML);
-        IXMLElement callXML = new XMLElement("LibraryNodeCall");
+        Element bodyXML = CompilerState.newElement("NodeBody");
+        m_xml.appendChild(bodyXML);
+        Element callXML = CompilerState.newElement("LibraryNodeCall");
         callXML.setAttribute("LineNo", String.valueOf(this.getLine()));
         callXML.setAttribute("ColNo", String.valueOf(this.getCharPositionInLine()));
-        bodyXML.addChild(callXML);
-        IXMLElement idXML = new XMLElement("NodeId");
-        idXML.setContent(this.getChild(0).getText());
-        callXML.addChild(idXML);
+        bodyXML.appendChild(callXML);
+        Element idXML = CompilerState.newElement("NodeId");
+        idXML.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+        callXML.appendChild(idXML);
         if (this.getChildCount() > 1) {
-            // TODO: Add aliases
+            // Add aliases
             PlexilTreeNode aliases = this.getChild(1);
             for (int i = 0; i < aliases.getChildCount(); i++) {
                 PlexilTreeNode alias = aliases.getChild(i);
-                IXMLElement aliasXML = new XMLElement("Alias");
-                callXML.addChild(aliasXML);
-                IXMLElement nameXML = new XMLElement("NodeParameter");
-                nameXML.setContent(alias.getChild(0).getText());
-                aliasXML.addChild(nameXML);
-                aliasXML.addChild(alias.getChild(1).getXML());
+                Element aliasXML = CompilerState.newElement("Alias");
+                callXML.appendChild(aliasXML);
+                Element nameXML = CompilerState.newElement("NodeParameter");
+                nameXML.appendChild(CompilerState.newTextNode(alias.getChild(0).getText()));
+                aliasXML.appendChild(nameXML);
+                aliasXML.appendChild(alias.getChild(1).getXML());
             }
         }
     }

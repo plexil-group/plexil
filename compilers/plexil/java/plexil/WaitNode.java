@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 class WaitNode extends PlexilTreeNode
 {
@@ -121,16 +121,17 @@ class WaitNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
-        IXMLElement unitsElt = new XMLElement("Units");
-        m_xml.addChild(unitsElt);
-        unitsElt.addChild(this.getChild(0).getXML());
+        super.constructXMLBase();
+        Element unitsElt = CompilerState.newElement("Units");
+        m_xml.appendChild(unitsElt);
+        unitsElt.appendChild(this.getChild(0).getXML());
         if (this.getChildCount() > 1) {
-            IXMLElement toleranceElt = new XMLElement("Tolerance");
-            m_xml.addChild(toleranceElt);
-            toleranceElt.addChild(this.getChild(1).getXML());
+            Element toleranceElt = CompilerState.newElement("Tolerance");
+            m_xml.appendChild(toleranceElt);
+            toleranceElt.appendChild(this.getChild(1).getXML());
         }
     }
 

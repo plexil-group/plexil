@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class GlobalDeclarationsNode extends PlexilTreeNode
 {
@@ -49,20 +49,14 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
 	}
 
     @Override
-    public void constructXML()
+    protected void constructXML()
     {
         super.constructXML();
-        for (int i = 0; i < this.getChildCount(); i++) {
-            IXMLElement childXML = this.getChild(i).getXML();
-            if (childXML != null)
-                m_xml.addChild(childXML);
-        }
-
         // Generate mutex declarations separately
         for (MutexName mn : GlobalContext.getGlobalContext().getMutexes())
-            m_xml.addChild(mn.makeDeclarationXML());
+            m_xml.appendChild(mn.makeDeclarationXML());
 
-        // set source locator to location of 1st child
+        // set source locator to location of 1st child (?)
         PlexilTreeNode firstChild = this.getChild(0);
         if (firstChild != null) {
             m_xml.setAttribute("LineNo",

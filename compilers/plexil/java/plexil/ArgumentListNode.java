@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@ import java.util.Vector;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-
-import net.n3.nanoxml.XMLElement;
 
 public class ArgumentListNode extends PlexilTreeNode
 {
@@ -110,13 +108,6 @@ public class ArgumentListNode extends PlexilTreeNode
             }
             // TODO: array size checks
         }
-    }
-
-    public void constructXML()
-    {
-        m_xml = new XMLElement(this.getXMLElementName()); // no source locators desired
-        for (int i = 0; i < this.getChildCount(); i++) 
-            m_xml.addChild(this.getChild(i).getXML());
     }
 
     public String getXMLElementName() { return "Arguments"; }

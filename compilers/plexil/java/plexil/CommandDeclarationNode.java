@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,10 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import plexil.xml.DOMUtils;
 
 public class CommandDeclarationNode extends PlexilTreeNode
 {
@@ -95,15 +98,16 @@ public class CommandDeclarationNode extends PlexilTreeNode
         GlobalContext.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpecs);
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        this.constructXMLBase();
 
         // add name
         PlexilTreeNode nameTree = this.getChild(0);
-        IXMLElement nameXML = new XMLElement("Name");
-        nameXML.setContent(nameTree.getText());
-        m_xml.addChild(nameXML);
+        Element nameXML = CompilerState.newElement("Name");
+        nameXML.appendChild(CompilerState.newTextNode(nameTree.getText()));
+        m_xml.appendChild(nameXML);
 
         if (this.getChildCount() > 1) {
             // Add return spec(s) if provided

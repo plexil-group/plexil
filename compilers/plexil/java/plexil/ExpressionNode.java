@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -106,24 +106,11 @@ public class ExpressionNode extends PlexilTreeNode
     }
 
     /**
-     * @brief Perform a recursive semantic check.
-     * @note The top level check comes first because it establishes types for the children.
-     * @note Derived classes should override this where appropriate.
-     */
-    @Override
-    public void check(NodeContext context, CompilerState myState)
-    {
-        checkSelf(context, myState); // can establish types for children
-        checkChildren(context, myState);
-        checkTypeConsistency(context, myState);
-    }
-
-    /**
      * @brief Establish bindings and do initial checks of this node's children.
      * @note Derived classes should override this as applicable.
      */
     @Override
-    public void earlyCheckChildren(NodeContext context, CompilerState state)
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
     {
         for (int i = 0; i < this.getChildCount(); i++) {
             PlexilTreeNode child = this.getChild(i);
@@ -142,6 +129,18 @@ public class ExpressionNode extends PlexilTreeNode
      */
     protected void checkTypeConsistency(NodeContext context, CompilerState myState)
     {
+    }
+
+    /**
+     * @brief Perform a recursive semantic check.
+     * @note The top level check comes first because it establishes types for the children.
+     * @note Derived classes should override this where appropriate.
+     */
+    @Override
+    public void check(NodeContext context, CompilerState myState)
+    {
+        super.check(context, myState); // can establish types for children
+        checkTypeConsistency(context, myState);
     }
 
     /**
