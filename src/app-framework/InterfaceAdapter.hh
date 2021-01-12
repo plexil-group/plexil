@@ -117,13 +117,10 @@ namespace PLEXIL
 
     /**
      * @brief Stop the interface.
-     * @return true if successful, false otherwise.
-     * 
-     * @note The default method simply returns true.
+     * @note The default method does nothing.
      */
-    virtual bool stop()
+    virtual void stop()
     {
-      return true;
     }
 
     AdapterExecInterface &getInterface()
