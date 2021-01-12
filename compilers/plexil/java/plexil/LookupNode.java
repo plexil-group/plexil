@@ -212,7 +212,7 @@ public class LookupNode extends ExpressionNode
     @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         // Add state
         Element nameXML = CompilerState.newElement("Name");

@@ -178,7 +178,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      */
     protected void constructXMLBase()
     {
-        m_xml = CompilerState.newElement(this.getElementName());
+        m_xml = CompilerState.newElement(this.getXMLElementName());
         this.addSourceLocatorAttributes();
     }
 
@@ -187,7 +187,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @return A non-null String.
      * @note This is a base method. Derived classes should override it as required.
      */
-    protected String getElementName()
+    protected String getXMLElementName()
     {
         return this.getText();
     }
