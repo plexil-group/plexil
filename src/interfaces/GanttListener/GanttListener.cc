@@ -638,21 +638,20 @@ namespace PLEXIL
    *  grabs info from nodes in finished state,
    *  nodes info is stored in each node's NodeObj struct
    **/
-   void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
-                                                     Node *nodeId) const
+   void GanttListener::implementNotifyNodeTransition(NodeTransition const &transition) const
    {  
       static GanttListener myListener;
       //get state
-      const NodeState& newState = nodeId->getState();
+      const NodeState newState = transition.node->getState();
       switch (newState) {
          case EXECUTING_STATE:
-            myListener.m_nodes.push_back(myListener.createNodeObj(nodeId));
+            myListener.m_nodes.push_back(myListener.createNodeObj(transition.node));
             break;
          case FAILING_STATE:
             myListener.m_planFailureState = true;
             // fall through to FINISHED_STATE
          case FINISHED_STATE:
-            myListener.processOutputData(nodeId);
+            myListener.processOutputData(transition.node);
             break;
          default:
             break;
