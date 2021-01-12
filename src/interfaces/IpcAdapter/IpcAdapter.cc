@@ -250,13 +250,11 @@ namespace PLEXIL
 
     /**
      * @brief Stops the adapter.
-     * @return true if successful, false otherwise.
      */
-    virtual bool stop() override
+    virtual void stop() override
     {
       m_ipcFacade.stop();
-      debugMsg("IpcAdapter:stop", " succeeded");
-      return true;
+      debugMsg("IpcAdapter:stop", " complete");
     }
 
     //
