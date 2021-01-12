@@ -187,8 +187,7 @@ namespace PLEXIL
     virtual bool resume() = 0;
 
     //! Stops the Exec and its interfaces.
-    //! @return true if successful, false otherwise.
-    virtual bool stop() = 0;
+    virtual void stop() = 0;
 
     //! Whatever state the application may be in, bring it down in a
     //! controlled fashion.

@@ -86,7 +86,12 @@ namespace PLEXIL
   class ExecApplicationImpl final : public ExecApplication
   {
   private:
-    
+    //
+    // Typedefs
+    //
+    using AdapterConfigurationPtr = std::unique_ptr<AdapterConfiguration>;
+    using InterfaceManagerPtr = std::unique_ptr<InterfaceManager>;
+
     //
     // Member variables
     //
@@ -173,19 +178,18 @@ namespace PLEXIL
         m_blockedSignals[i] = 0;
 
       // Set globals that other pieces rely on
-      g_configuration = m_configuration.get();
       // Required by Exec core
       g_interface = static_cast<ExternalInterface *>(m_manager.get());
-
       g_exec = makePlexilExec();
+
+      // Link the Exec to the listener hub
       g_exec->setExecListener(m_configuration->getListenerHub());
     }
 
     virtual ~ExecApplicationImpl()
     {
-      // Reset global pointers to objects we own
+      // Reset global pointers to objects we own before they are deleted
       g_interface = nullptr;
-      g_configuration = nullptr;
 
       delete g_exec;
       g_exec = nullptr;
@@ -279,7 +283,7 @@ namespace PLEXIL
       }
 
       // Initialize them
-      if (!m_manager->initialize()) {
+      if (!m_configuration->initialize()) {
         debugMsg("ExecApplication:initialize",
                  " initialization of interfaces failed");
         return false;
@@ -297,7 +301,7 @@ namespace PLEXIL
         return false;
 
       // Start 'em up!
-      if (!m_manager->start()) {
+      if (!m_configuration->start()) {
         debugMsg("ExecApplication:startInterfaces",
                  " failed to start interfaces");
         return false;
@@ -447,12 +451,11 @@ namespace PLEXIL
     }
 
     //! Stops the Exec and its interfaces.
-    //! @return true if successful, false otherwise.
-    virtual bool stop() override
+    virtual void stop() override
     {
       if (m_state != APP_RUNNING
           && m_state != APP_READY)
-        return false;
+        return;
 
 #ifdef PLEXIL_WITH_THREADS
       // Stop the Exec
@@ -462,7 +465,7 @@ namespace PLEXIL
         int status = m_sem.post();
         if (status) {
           warn("ExecApplication: semaphore post failed, status = " << status);
-          return false;
+          return;
         }
         sleep(1);
 
@@ -471,7 +474,7 @@ namespace PLEXIL
           status = pthread_kill(m_execThread, SIGUSR2);
           if (status) {
             warn("ExecApplication: pthread_kill failed, status = " << status);
-            return false;
+            return;
           }
           sleep(1);
         }
@@ -480,21 +483,20 @@ namespace PLEXIL
         if (status) {
           debugMsg("ExecApplication:stop", 
                    " pthread_join() failed, error = " << status);
-          return false;
+          return;
         }
         debugMsg("ExecApplication:stop", " Top level thread halted");
 
         if (!restoreMainSignalHandling()) {
           warn("ExecApplication: failed to restore signal handling for main thread");
-          return false;
+          return;
         }
       }
 #endif // PLEXIL_WITH_THREADS
 
       // Stop interfaces
-      m_manager->stop();
-    
-      return setApplicationState(APP_STOPPED);
+      m_configuration->stop();
+      setApplicationState(APP_STOPPED);
     }
 
     /**
@@ -515,7 +517,7 @@ namespace PLEXIL
       case APP_INITED:
       case APP_READY:
         // Shut down interfaces
-        m_manager->stop();
+        m_configuration->stop();
         break;
 
       case APP_RUNNING:
