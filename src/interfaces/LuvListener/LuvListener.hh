@@ -57,14 +57,7 @@ namespace PLEXIL
   {
   public:
 
-    /**
-     * @brief Constructor from configuration XML.
-     */
-    LuvListener(pugi::xml_node const xml)
-      : ExecListener(xml)
-    {}
-
-	//! Destructor.
+	//! Virtual destructor.
 	virtual ~LuvListener() = default;
 
     //
@@ -74,14 +67,15 @@ namespace PLEXIL
 	//! Report whether the listener is connected to the viewer.
 	virtual bool isConnected() = 0;
 
-  private:
+  protected:
 
-	// deliberately unimplemented
-	LuvListener() = delete;
-	LuvListener(LuvListener const &) = delete;
-	LuvListener(LuvListener &&) = delete;
-	LuvListener& operator=(LuvListener const &) = delete;
-	LuvListener& operator=(LuvListener &&) = delete;
+    //! Constructor from configuration XML.
+    //! @param xml Description of the listener configuration.
+    //! @note Only available to the implementation class.
+    LuvListener(pugi::xml_node const xml)
+      : ExecListener(xml)
+    {}
+
   };
 
   // Convenience function for TestExec and UniversalExec
