@@ -347,10 +347,7 @@ int main_internal(int argc, char** argv)
   }
 
   // clean up
-  if (!_app->stop()) {
-	std::cout << "ERROR: failed to stop Exec" << std::endl;
-	return 1;
-  }
+  _app->stop();
 
   std::cout << "Plan complete, Exec exited with"
             << (error ? " " : "out ") << "errors" << std::endl;
