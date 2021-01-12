@@ -91,9 +91,8 @@ namespace PLEXIL
 
     /**
      * @brief Stops all interfaces.
-     * @return true if successful, false otherwise.
      */
-    virtual bool stop() = 0;
+    virtual void stop() = 0;
 
     //
     // Handler registration functions
@@ -405,13 +404,8 @@ namespace PLEXIL
     virtual InputQueue *makeInputQueue() const = 0;
   };
 
-  using AdapterConfigurationPtr = std::unique_ptr<AdapterConfiguration>;
-
   //* @brief Abstract factory for AdapterConfiguration
   AdapterConfiguration *makeAdapterConfiguration();
-
-  //! Global pointer to the current configuration
-  extern AdapterConfiguration *g_configuration;
 
 }
 

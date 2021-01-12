@@ -90,9 +90,6 @@
 
 namespace PLEXIL {
 
-  // Initialize global variable
-  AdapterConfiguration *g_configuration = nullptr;
-
   //*
   // @class AdapterConfigurationImpl
   // @brief Implementation class for AdapterConfiguration
@@ -354,20 +351,17 @@ namespace PLEXIL {
 
     // FIXME:
     // * Need new stop paradigm for handlers
-    virtual bool stop()
+    virtual void stop()
     {
       debugMsg("AdapterConfiguration:stop", " entered");
 
       // halt adapters
-      bool success = true;
-      for (InterfaceAdapterPtr &a : m_adapters) {
-        success = a->stop() && success;
-      }
+      for (InterfaceAdapterPtr &a : m_adapters)
+        a->stop();
 
-      success = m_listenerHub->stop() && success;
+      m_listenerHub->stop();
 
       debugMsg("AdapterConfiguration:stop", " completed");
-      return success;
     }
 
     //
