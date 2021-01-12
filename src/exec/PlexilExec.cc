@@ -147,12 +147,18 @@ namespace PLEXIL
     {
       bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
+      debugMsg("PlexilExec:allPlansFinished", ' ' << m_plan.size() << " plans");
       for (NodePtr const &root : m_plan) {
-        if (root->getState() == FINISHED_STATE)
-          result = true;
+        if (root->getState() != FINISHED_STATE) {
+          // Some node is not finished
+          debugMsg("PlexilExec:allPlansFinished", " return false");
+          return false;
+        }
         else
-          return false; // some node is not finished
+          result = true;
       }
+      debugMsg("PlexilExec:allPlansFinished",
+               " return " << (result ? "true" : "false"));
       return result;
     }
 
@@ -170,11 +176,12 @@ namespace PLEXIL
         m_finishedRootNodes.pop();
         debugMsg("PlexilExec:deleteFinishedPlans",
                  " deleting node " << node->getNodeId() << ' ' << node);
-        std::remove_if(m_plan.begin(), m_plan.end(),
-                       [node] (NodePtr const &n) -> bool
-                       { return node == n.get(); });
+        m_plan.remove_if([node] (NodePtr const &n) -> bool
+                         { return node == n.get(); });
       }
       m_finishedRootNodesDeleted = true;
+      debugMsg("PlexilExec:deleteFinishedPlans",
+               " now " << m_plan.size() << " root nodes");
     }
 
     virtual bool needsStep() const override
@@ -279,6 +286,7 @@ namespace PLEXIL
         // Transition the nodes
         while (!m_stateChangeQueue.empty()) {
           Node *node = getStateChangeNode();
+          NodeState oldState = node->getState(); // for listener
           debugMsg("PlexilExec:step",
                    "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                    "] Transitioning " << nodeTypeString(node->getType())
@@ -287,9 +295,10 @@ namespace PLEXIL
                    << " to " << nodeStateName(node->getNextState()));
           node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
           if (m_listener)
+            // After transition, old state is lost, so use cached state
             m_transitionsToPublish.emplace_back(NodeTransition(node,
-                                                               node->getState(),
-                                                               node->getNextState()));
+                                                               oldState,
+                                                               node->getState()));
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
           ++microStepCount;
 #endif
