@@ -39,6 +39,10 @@
 #include <math.h> // fabs()
 #endif
 
+#if defined(HAVE_UNISTD_H)
+#include <unistd.h> // sleep()
+#endif
+
 using namespace PLEXIL;
 
 // Local constants
@@ -65,6 +69,45 @@ static void wakeup(void *arg)
   assertTrue_1(arg != 0);
   ThreadSemaphore *mySem = reinterpret_cast<ThreadSemaphore *>(arg);
   mySem->post();
+}
+
+static bool testGetTime(std::string const &name)
+{
+  std::cout << "testGetTime: Testing " << name << std::endl;
+  // Ensure queryTime() returns 0 when no timebase exists
+  assertTrue_1(0 == Timebase::queryTime());
+  try {
+    ThreadSemaphore testSem;
+    std::unique_ptr<Timebase> tb(TimebaseFactory::get(name)->create(wakeup, (void *) &testSem));
+
+    // Check that getTime() method works
+    double first_time = tb->getTime();
+    assertTrue_1(0 != first_time);
+    sleep(1);
+    double second_time = tb->getTime();
+    assertTrue_1(0 != second_time);
+    assertTrue_1(second_time - first_time >= 1.0);
+    
+    // Check that queryTime() works
+    first_time = Timebase::queryTime();
+    assertTrue_1(0 != first_time);
+    sleep(1);
+    second_time = Timebase::queryTime();
+    assertTrue_1(0 != second_time);
+    assertTrue_1(second_time - first_time >= 1.0);
+
+    // Ensure queryTime() returns 0 when the previous timebase has been deleted
+    tb.reset();
+    assertTrue_1(0 == Timebase::queryTime());
+
+    std::cout << "testGetTime: " << name << " passed\n" << std::endl;
+    return true;
+  } catch (Error const &e) {
+    std::cerr << "*** Test error: " << e.what() << std::endl;
+  }
+
+  std::cout << "\ntestGetTime: " << name << " failed\n" << std::endl;
+  return false;
 }
 
 static bool testTimebaseDeadlines(std::string const &name)
@@ -104,13 +147,13 @@ static bool testTimebaseDeadlines(std::string const &name)
     // more todo
     tb->stop();
 
-    std::cout << "\ntestTimebaseDeadlines: " << name << " passed" << std::endl;
+    std::cout << "testTimebaseDeadlines: " << name << " passed\n" << std::endl;
     return true;
   } catch (Error const &e) {
     std::cerr << "*** Test error: " << e.what() << std::endl;
   }
 
-  std::cout << "testTimebaseDeadlines: " << name << " failed" << std::endl;
+  std::cout << "\ntestTimebaseDeadlines: " << name << " failed\n" << std::endl;
   return false;
 }
 
@@ -126,7 +169,7 @@ static bool testTimebaseTick(std::string const &name)
     tb->setTickInterval(USEC_PER_SEC);
     assertTrue_1(tb->getTickInterval() == USEC_PER_SEC);
 
-    // Test 
+    // Test tick wakeups
     double startTime = tb->getTime();
     double endTime;
     tb->start();
@@ -144,7 +187,6 @@ static bool testTimebaseTick(std::string const &name)
     }
     tb->stop();
 
-    // TEMP DEBUG (?)
     std::cout << "\nStarted at "
               << std::fixed << std::setprecision(6) << startTime
               << ", ended at " << endTime
@@ -162,7 +204,7 @@ static bool testTimebaseTick(std::string const &name)
     std::cerr << "*** Test error: " << e.what() << std::endl;
   }
 
-  std::cout << "\n testTimebaseTick: " << name << " failed" << std::endl;
+  std::cout << "\n testTimebaseTick: " << name << " failed\n" << std::endl;
   return false;
 }
 
@@ -188,16 +230,21 @@ int main(int argc, char *argv[])
 
   std::vector<std::string> timebaseNames = TimebaseFactory::allFactoryNames();
 
-  std::cout << "\nTesting deadline timers\n" << std::endl;
+  std::cout << "Testing getTime() and queryTime()" << std::endl;
+  for (std::string const &name : timebaseNames) {
+    success = success && testGetTime(name);
+  }
+
+  std::cout << "Testing deadline timers" << std::endl;
   for (std::string const &name : timebaseNames) {
     success = success && testTimebaseDeadlines(name);
   }
 
-  std::cout << "\nTesting tick timers\n" << std::endl;
+  std::cout << "Testing tick timers" << std::endl;
   for (std::string const &name : timebaseNames) {
     success = success && testTimebaseTick(name);
   }
 
-  std::cout << "Test " << (success ? "succeeded" : "failed") << std::endl;
+  std::cout << "Timebase test " << (success ? "succeeded" : "failed") << std::endl;
   return (success ? 0 : 1);
 }
