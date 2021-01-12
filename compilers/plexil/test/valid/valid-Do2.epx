@@ -1,0 +1,1 @@
+<PlexilPlan FileName="input/Do2.ple"><Do LineNo="1" ColNo="0"><NodeId>Do2</NodeId><Action><Node NodeType="Empty" LineNo="2" ColNo="3"><NodeId>BLOCK__0</NodeId></Node></Action><Condition LineNo="2" ColNo="13"><BooleanValue>false</BooleanValue></Condition></Do></PlexilPlan>
