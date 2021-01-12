@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 library-call1 \
  LibraryCallWithArray library-node1 literal-format-test \
  lookup2 LookupWithComputedStateName \
- maxTest minTest mod1 \
+ maxTest minTest mod1 MultipleMutex MutexBasics MutexTest \
  NestedBlocks1 NestedBlocks2 NestedBlocks3 NestedBlocks4 NestedBlocks5 \
  NestedBlocks6 NestedBlocks7 NoChildFailedTest nodeOutcome1 nodeState1 nodeState2 \
  on-command1 on-command2 on-message1 on-message2 \
@@ -66,9 +66,9 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
 SYNTAX_ERROR_TESTS   = array-library-call
 
 SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 \
- duplicateLookupDecl1 expr5 expr2 \
+ duplicateLookupDecl1 DuplicateMutex expr5 expr2 \
  lookup1 LibraryCall5 LibraryCall6 \
- on-message3 SeekGoalAndEnergy
+ MutexNestingError on-message3 SeekGoalAndEnergy UndeclaredMutex
 
 TESTS	         := $(SMALL_TESTS)
 
