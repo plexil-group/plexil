@@ -31,6 +31,7 @@
 #include "Command.hh"
 #include "CommandHandler.hh"
 #include "Configuration.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
@@ -72,37 +73,54 @@ namespace PLEXIL
 
     virtual ~LauncherListener() = default;
 
-    /**
-     * @brief Notify that a node has changed state.
-     * @param prevState The old state.
-     * @param newState The new state.
-     * @param node The node that has transitioned.
-     */
-    virtual void implementNotifyNodeTransition(NodeTransition const &transition) const override
+    //! Wrapper method to ensure we don't notify the Exec too often.
+    virtual void
+    implementNotifyNodeTransitions(std::vector<NodeTransition> const &transitions) const override
     {
-      // We only care about root nodes
-      // Cheaper to implement here than as an ExecListenerFilter
-      Node const *node = transition.node;
-      if (node->getParent())
-        return;
+      bool notify = false;
+      for (NodeTransition const &t : transitions) {
+        // We only care about root nodes
+        if (t.node->getParent())
+          continue;
 
-      NodeState newState = transition.newState;
-      Value const nodeIdValue(node->getNodeId());
-      m_interface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
-                                     Value(nodeStateName(newState)));
-      NodeOutcome o = node->getOutcome();
-      if (o != NO_OUTCOME) {
-        m_interface->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
-                                       Value(outcomeName(o)));
-        FailureType f = node->getFailureType();
-        if (f != NO_FAILURE)
-          m_interface->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
-                                         Value(failureTypeName(f)));
+        // Report a root node transition
+        Node const *node = t.node;
+        NodeState newState = t.newState;
+        Value const nodeIdValue(node->getNodeId());
+        debugMsg("LauncherListener:notify",
+                 ' ' << node->getNodeId() << " -> " << nodeStateName(newState));
+
+        // Report the node state change
+        m_interface->handleValueChange(State(PLAN_STATE_STATE, nodeIdValue),
+                                       Value(nodeStateName(newState)));
+
+        NodeOutcome o = node->getOutcome();
+        if (o != NO_OUTCOME) {
+          // Report the outcome
+          debugMsg("LauncherListener:notify",
+                   ' ' << node->getNodeId() << " outcome " << outcomeName(o));
+          m_interface->handleValueChange(State(PLAN_OUTCOME_STATE, nodeIdValue),
+                                         Value(outcomeName(o)));
+          FailureType f = node->getFailureType();
+          if (f != NO_FAILURE) {
+            // Report the failure type
+            debugMsg("LauncherListener:notify",
+                     ' ' << node->getNodeId() << " failure " << failureTypeName(f));
+            m_interface->handleValueChange(State(PLAN_FAILURE_TYPE_STATE, nodeIdValue),
+                                           Value(failureTypeName(f)));
+          }
+        }
+
+        // Be sure to wake the exec
+        notify = true;
       }
+
+      // Notify if any root node has changed state.
+      if (notify)
+        m_interface->notifyOfExternalEvent();
     }
 
   private:
-
     AdapterExecInterface *m_interface;
   }; // class LauncherListener
 
@@ -160,6 +178,39 @@ namespace PLEXIL
     return true;
   }
 
+  //! Construct the wrapper plan
+  static pugi::xml_document makeWrapperPlanXml(const char *callerName,
+                                               const char *calleeName,
+                                               std::vector<std::string> const &formals,
+                                               std::vector<Value> const &actuals)
+  {
+    pugi::xml_document doc;
+    pugi::xml_node plan = doc.append_child("PlexilPlan");
+    pugi::xml_node rootNode = plan.append_child("Node");
+    rootNode.append_attribute("NodeType").set_value("LibraryNodeCall");
+    rootNode.append_child("NodeId").append_child(pugi::node_pcdata)
+      .set_value(callerName);
+
+    // Construct ExitCondition
+    pugi::xml_node exitLookup = rootNode.append_child("ExitCondition")
+      .append_child("LookupNow");
+    exitLookup.append_child("Name").append_child("StringValue")
+      .append_child(pugi::node_pcdata).set_value(EXIT_PLAN_CMD);
+    exitLookup.append_child("Arguments").append_child("StringValue")
+      .append_child(pugi::node_pcdata).set_value(callerName);
+
+    pugi::xml_node call = rootNode.append_child("NodeBody")
+      .append_child("LibraryNodeCall");
+    call.append_child("NodeId").append_child(pugi::node_pcdata).set_value(calleeName);
+    for (size_t i = 0; i < formals.size(); ++i) {
+      pugi::xml_node alias = call.append_child("Alias");
+      alias.append_child("NodeParameter").append_child(pugi::node_pcdata)
+        .set_value(formals[i].c_str());
+      valueToExprXml(alias, actuals[i]);
+    }
+    return doc;
+  }
+
   //
   // StartPlan command handler function
   //
@@ -180,21 +231,21 @@ namespace PLEXIL
 
     for (size_t i = 1; i < nargs; i += 2) {
       if (i + 1 >= nargs) {
-        warn("Arguments to " << cmd->getName() << " command not in name-value pairs");
+        warn("Launcher: Arguments to " << cmd->getName() << " command not in name-value pairs");
         intf->handleCommandAck(cmd, COMMAND_FAILED);
         intf->notifyOfExternalEvent();
         return;
       }
 
       if (args[i].valueType() != STRING_TYPE) {
-        warn("StartPlan command argument " << i << " is not a String");
+        warn("Launcher: StartPlan command argument " << i << " is not a String");
         intf->handleCommandAck(cmd, COMMAND_FAILED);
         intf->notifyOfExternalEvent();
         return;
       }
       std::string const *formal = NULL;
       if (!args[i].getValuePointer(formal)) {
-        warn("StartPlan command argument " << i << " is UNKNOWN");
+        warn("Launcher: StartPlan command argument " << i << " is UNKNOWN");
         intf->handleCommandAck(cmd, COMMAND_FAILED);
         intf->notifyOfExternalEvent();
         return;
@@ -202,7 +253,7 @@ namespace PLEXIL
       formals.push_back(*formal);
 
       if (!args[i + 1].isKnown()) {
-        warn("StartPlan command argument " << i + 1 << " is UNKNOWN");
+        warn("Launcher: StartPlan command argument " << i + 1 << " is UNKNOWN");
         intf->handleCommandAck(cmd, COMMAND_FAILED);
         intf->notifyOfExternalEvent();
         return;
@@ -210,41 +261,27 @@ namespace PLEXIL
       actuals.push_back(args[i + 1]);
     }
     
-    // Construct XML for wrapper plan (a LibraryNodeCall node)
+    // Get the callee's name
     std::string const *nodeName = NULL;
-    args[0].getValuePointer(nodeName); // for effect, value is known
+    args[0].getValuePointer(nodeName); // for effect, value is known to be known
 
+    // Create the caller's name
     std::ostringstream s;
     s << *nodeName << '_' << nextSerialNumber();
-    std::string callerId = s.str();
-    
-    pugi::xml_document doc;
-    pugi::xml_node plan = doc.append_child("PlexilPlan");
-    pugi::xml_node rootNode = plan.append_child("Node");
-    rootNode.append_attribute("NodeType").set_value("LibraryNodeCall");
-    rootNode.append_child("NodeId").append_child(pugi::node_pcdata)
-      .set_value(callerId.c_str());
+    std::string const callerId = s.str();
 
-    // Construct ExitCondition
-    pugi::xml_node exitLookup = rootNode.append_child("ExitCondition")
-      .append_child("LookupNow");
-    exitLookup.append_child("Name").append_child("StringValue")
-      .append_child(pugi::node_pcdata).set_value(EXIT_PLAN_CMD);
-    exitLookup.append_child("Arguments").append_child("StringValue")
-      .append_child(pugi::node_pcdata).set_value(callerId.c_str());
-
-    pugi::xml_node call = rootNode.append_child("NodeBody")
-      .append_child("LibraryNodeCall");
-    call.append_child("NodeId").append_child(pugi::node_pcdata).set_value(nodeName->c_str());
-    for (size_t i = 0; i < formals.size(); ++i) {
-      pugi::xml_node alias = call.append_child("Alias");
-      alias.append_child("NodeParameter").append_child(pugi::node_pcdata)
-        .set_value(formals[i].c_str());
-      valueToExprXml(alias, actuals[i]);
-    }
+    // Construct XML for wrapper plan (a LibraryNodeCall node)
+    pugi::xml_document const doc =
+      makeWrapperPlanXml(callerId.c_str(), nodeName->c_str(), formals, actuals);
+    pugi::xml_node const plan = doc.document_element();
     
     try {
       intf->handleAddPlan(plan);
+      intf->handleCommandReturn(cmd, Value(callerId));
+      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+      intf->notifyOfExternalEvent();
+      debugMsg("LauncherAdapter:startPlan",
+               ' ' << *nodeName << ": successfully added wrapper plan " << callerId)
     }
     catch (ParserException &e) {
       warn("Launching plan " << nodeName << " failed:\n"
@@ -253,9 +290,6 @@ namespace PLEXIL
       intf->notifyOfExternalEvent();
       return;
     }
-    intf->handleCommandReturn(cmd, Value(callerId));
-    intf->handleCommandAck(cmd, COMMAND_SUCCESS);
-    intf->notifyOfExternalEvent();
   }
 
   // Find a node by its node ID
@@ -309,6 +343,8 @@ namespace PLEXIL
     intf->handleValueChange(State(EXIT_PLAN_CMD, args[0]), Value(true));
     intf->handleCommandAck(cmd, COMMAND_SUCCESS);
     intf->notifyOfExternalEvent();
+    debugMsg("LauncherAdapter:exitPlan",
+              " exit request sent to " << *nodeName);
   }
 
   class Launcher : public InterfaceAdapter
