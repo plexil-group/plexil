@@ -150,7 +150,7 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific initialization.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
+   * @note Default method provided as a convenience.
    */
   bool ExecListener::initialize()
   {
@@ -162,7 +162,7 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific startup.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
+   * @note Default method provided as a convenience.
    */
   bool ExecListener::start() 
   { 
@@ -172,11 +172,10 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific actions to stop.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
+   * @note Default method provided as a convenience.
    */
-  bool ExecListener::stop() 
+  void ExecListener::stop() 
   {
-    return true; 
   }
 
   /**

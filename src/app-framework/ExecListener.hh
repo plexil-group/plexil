@@ -108,9 +108,8 @@ namespace PLEXIL
     virtual bool start();
 
     //! Perform listener-specific actions to stop.
-    //! @return true if successful, false otherwise.
-    //! @note Default method simply returns true.
-    virtual bool stop();
+    //! @note Default method does nothing.
+    virtual void stop();
 
     //
     // Public configuration API
