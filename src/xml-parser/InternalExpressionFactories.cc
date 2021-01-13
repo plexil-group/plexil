@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,8 @@ namespace PLEXIL
   ValueType ConcreteExpressionFactory<StateVariable>::check(char const * nodeId,
                                                             pugi::xml_node const expr) const
   {
-    // TODO
+    checkHasChildElement(expr);
+    checkNodeReference(expr.first_child());
     return NODE_STATE_TYPE;
   }    
 
@@ -74,7 +75,8 @@ namespace PLEXIL
   ValueType ConcreteExpressionFactory<OutcomeVariable>::check(char const *nodeId,
                                                               pugi::xml_node const expr) const
   {
-    // TODO
+    checkHasChildElement(expr);
+    checkNodeReference(expr.first_child());
     return OUTCOME_TYPE;
   }    
   
@@ -96,7 +98,8 @@ namespace PLEXIL
   ValueType ConcreteExpressionFactory<FailureVariable>::check(char const *nodeId,
                                                               pugi::xml_node const expr) const
   {
-    // TODO
+    checkHasChildElement(expr);
+    checkNodeReference(expr.first_child());
     return FAILURE_TYPE;
   }    
 
@@ -117,7 +120,8 @@ namespace PLEXIL
   ValueType ConcreteExpressionFactory<CommandHandleVariable>::check(char const *nodeId,
                                                                     pugi::xml_node const expr) const
   {
-    // TODO
+    checkHasChildElement(expr);
+    checkNodeReference(expr.first_child());
     return COMMAND_HANDLE_TYPE;
   }    
 
@@ -147,7 +151,8 @@ namespace PLEXIL
   ValueType ConcreteExpressionFactory<NodeTimepointValue>::check(char const *nodeId,
                                                                  pugi::xml_node const expr) const
   {
-    // TODO
+    checkHasChildElement(expr);
+    checkNodeReference(expr.first_child());
     return DATE_TYPE;
   }    
 
