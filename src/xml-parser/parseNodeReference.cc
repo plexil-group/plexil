@@ -237,6 +237,10 @@ namespace PLEXIL
   {
     // search for node ID
     char const *name = nodeRef.child_value();
+    if (!*name) {
+      // Caller didn't call checkNodeReference() first
+      errorMsg("parseNodeId: Internal error: empty name for NodeId");
+    }
     NodeImpl *result = findLocalNodeId(name, node);
     if (result)
       return result;
