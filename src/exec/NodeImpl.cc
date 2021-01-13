@@ -1645,9 +1645,12 @@ namespace PLEXIL
     }
 
     // Search global mutexes
-    // TODO
+    result = getGlobalMutex(name);
+    if (result) {
+      debugMsg("Node:findMutex", " returning global mutex " << name);
+      return result;
+    }
 
-    // Fall through
     debugMsg("Node:findMutex", ' ' << name << " not found");
     return nullptr;
   }
