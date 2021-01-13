@@ -192,8 +192,6 @@ namespace PLEXIL
     virtual void clearThresholds(const State& state);
   };
 
-  using LookupHandlerPtr = std::shared_ptr<LookupHandler>;
-
 }
 
 #endif // ABSTRACT_LOOKUP_HANDLER_HH

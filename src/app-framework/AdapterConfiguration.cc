@@ -99,10 +99,13 @@ namespace PLEXIL {
   private:
 
     // Internal typedefs
-    using ExecListenerHubPtr = std::unique_ptr<ExecListenerHub>;
+    using ExecListenerHubPtr  = std::unique_ptr<ExecListenerHub>;
     using InterfaceAdapterPtr = std::unique_ptr<InterfaceAdapter>;
 
+    using CommandHandlerPtr = std::shared_ptr<CommandHandler>;
     using CommandHandlerMap = std::map<std::string, CommandHandlerPtr>;
+
+    using LookupHandlerPtr = std::shared_ptr<LookupHandler>;
     using LookupHandlerMap = std::map<std::string, LookupHandlerPtr>;
 
     // punt for now
@@ -114,7 +117,7 @@ namespace PLEXIL {
       : m_listenerHub(new ExecListenerHub()),
         m_defaultCommandHandler(new CommandHandler()),
         m_defaultLookupHandler(new LookupHandler()),
-        m_plannerUpdateHandler(nullptr)
+        m_plannerUpdateHandler()
     {
       // Every application has access to a time adapter
       registerTimeAdapter();
@@ -182,7 +185,23 @@ namespace PLEXIL {
     /**
      * @brief Destructor.
      */
-    virtual ~AdapterConfigurationImpl() = default;
+    virtual ~AdapterConfigurationImpl()
+    {
+      // Clear the handlers first, as they might point back to the adapters
+      m_lookupMap.clear();
+      m_commandMap.clear();
+      m_defaultCommandHandler.reset();
+      m_defaultLookupHandler.reset();
+
+      // *** what to do about planner update handler? ***
+
+      // ExecListenerHub next, as listeners may point back to adapters too
+      // (e.g. Launcher)
+      m_listenerHub.reset();
+
+      // Now the adapters
+      m_adapters.clear();
+    }
 
     // FIXME:
     // * Need new constructor paradigm for handlers

@@ -138,8 +138,6 @@ namespace PLEXIL
     virtual void abortCommand(Command *cmd, AdapterExecInterface *intf);
   };
 
-  using CommandHandlerPtr = std::shared_ptr<CommandHandler>;
-  
 }
 
 #endif // ABSTRACT_COMMAND_HANDLER_HH
