@@ -114,7 +114,7 @@
     
     <Node NodeType="NodeList" epx="{name(.)}">
       <xsl:call-template name="basic-clauses" />
-      <xsl:apply-templates select="VariableDeclarations" />
+      <xsl:apply-templates select="VariableDeclarations|UsingMutex" />
       <xsl:sequence
           select="$conds/(* except InvariantCondition)" />
       <xsl:call-template name="success-invariant-condition" >
@@ -186,7 +186,7 @@
       <xsl:copy-of select="@*"/>
       <!-- Make an attempt to preserve ordering -->
       <xsl:sequence select="NodeId|Comment|Priority|Interface|
-                            VariableDeclarations|Assume|Desire|Expect" />
+                            VariableDeclarations|UsingMutex|Assume|Desire|Expect" />
       <xsl:call-template name="ordered-start-condition" />
       <xsl:call-template name="ordered-skip-condition" />
       <xsl:sequence
@@ -288,7 +288,7 @@
 
     <Node NodeType="NodeList" epx="Try">
       <xsl:call-template name="basic-clauses" />
-      <xsl:apply-templates select="VariableDeclarations" />
+      <xsl:apply-templates select="VariableDeclarations|UsingMutex" />
       <xsl:sequence select="$conds/(* except EndCondition|PostCondition)" />
 
       <xsl:call-template name="try-end-condition">
@@ -806,7 +806,7 @@
 
   <xsl:template name="while-body"> 
     <xsl:choose>
-      <xsl:when test="VariableDeclarations|RepeatCondition|StartCondition">
+      <xsl:when test="VariableDeclarations|UsingMutex|RepeatCondition|StartCondition">
         <!-- must create outer wrapper node -->
         <NodeBody>
           <NodeList>
@@ -915,7 +915,7 @@
       <xsl:call-template name="translate-conditions" />
     </xsl:variable>
     <xsl:variable name="expanded-declarations" as="element()*">
-      <xsl:apply-templates select="VariableDeclarations" />
+      <xsl:apply-templates select="VariableDeclarations|UsingMutex" />
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="$expanded-declarations or $expanded-conditions">
@@ -1086,6 +1086,7 @@
       <xsl:apply-templates select="VariableDeclarations/*"/>
       <xsl:sequence select="LoopVariable/*" />
     </VariableDeclarations>
+    <xsl:apply-templates select="UsingMutex" />
   </xsl:template>
  
 
@@ -1098,7 +1099,7 @@
 
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses" />
-      <xsl:apply-templates select="VariableDeclarations" />
+      <xsl:apply-templates select="VariableDeclarations|UsingMutex" />
       <xsl:sequence select="$conds/(* except EndCondition)" />
       <xsl:call-template name="wait-end-condition" >
         <xsl:with-param name="original-condition"
@@ -1411,7 +1412,7 @@
     <xsl:call-template name="basic-clauses">
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
-    <xsl:apply-templates select="$context/VariableDeclarations" />
+    <xsl:apply-templates select="$context/VariableDeclarations|UsingMutex" />
     <xsl:call-template name="translate-conditions">
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
@@ -1446,7 +1447,6 @@
     <xsl:param name="context" select="." />
     <xsl:sequence select="$context/(Comment|Priority)" />
     <xsl:apply-templates select="$context/Interface"/>
-    <xsl:apply-templates select="$context/UsingMutex" />
     <xsl:copy-of select="$context/(Assume|Desire|Expect)" />
   </xsl:template>
 
@@ -1712,6 +1712,7 @@
           <Type>String</Type>
         </DeclareVariable>
       </VariableDeclarations>
+      <xsl:apply-templates select="UsingMutex" />
       <!-- Handle the OnCommand node conditions -->
       <xsl:call-template name="translate-conditions" />
       <!-- Find parent node and set invariant, if exists -->
