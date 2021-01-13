@@ -239,26 +239,36 @@ namespace PLEXIL
   static bool isMutexInScope(char const *mutexName, xml_node ref)
   {
     // Search containing nodes first
-    xml_node container = ref.parent().parent();
+    xml_node container = ref.parent().parent(); // UsingMutex, Node
     while (container) {
       checkParserExceptionWithLocation(container && !strcmp(NODE_TAG, container.name()),
                                        container,
                                        "isMutexInScope internal error: Expected " << NODE_TAG
                                        << ", got " << container.name());
       for (xpath_node const xnode : container.select_nodes("./VariableDeclarations/DeclareMutex/Name")) {
-        if (!strcmp(mutexName, xnode.node().child_value()))
+        debugMsg("isMutexInScope", " \"" << mutexName << "\" trying local mutex \""
+                 << xnode.node().child_value() << '"');
+        if (!strcmp(mutexName, xnode.node().child_value())) {
+          debugMsg("isMutexInScope",
+                   " \"" << mutexName << "\" found in containing node, returning true");
           return true;
+        }
       }
       container = container.parent().parent().parent(); // NodeList, NodeBody, Node
     }
 
     // Check global decls
     xml_node const doc = ref.root();
-    for (xpath_node const xnode : doc.select_nodes("/PlexilPlan/GlobalDeclarations/DeclareMutex")) {
-      if (!strcmp(mutexName, xnode.node().child_value()))
+    for (xpath_node const xnode : doc.select_nodes("/PlexilPlan/GlobalDeclarations/DeclareMutex/Name")) {
+      debugMsg("isMutexInScope", " \"" << mutexName << "\" trying global mutex \""
+               << xnode.node().child_value() << '"');
+      if (!strcmp(mutexName, xnode.node().child_value())) {
+        debugMsg("isMutexInScope", " \"" << mutexName << "\" found global mutex, returning true");
         return true;
+      }
     }
 
+    debugMsg("isMutexInScope", " \"" << mutexName << "\" not found, returning false");
     return false;
   }
   
