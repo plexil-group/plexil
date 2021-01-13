@@ -719,21 +719,21 @@ It is used as an included schema only.
 
   <!-- Numeric comparisons -->
 
-  <xs:complexType name="NumericComparison">
+  <xs:complexType name="NumericComparisonType">
     <xs:group ref="GeneralizedNumericExpression"
               minOccurs="2" maxOccurs="2"/>
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="GT" type="NumericComparison"/>
-  <xs:element name="GE" type="NumericComparison"/>
-  <xs:element name="LT" type="NumericComparison"/>
-  <xs:element name="LE" type="NumericComparison"/>
+  <xs:element name="GT" type="NumericComparisonType"/>
+  <xs:element name="GE" type="NumericComparisonType"/>
+  <xs:element name="LT" type="NumericComparisonType"/>
+  <xs:element name="LE" type="NumericComparisonType"/>
 
   <!-- Generalized equality tests -->
 
-  <xs:element name="EQNumeric" type="NumericComparison"/>
-  <xs:element name="NENumeric" type="NumericComparison"/>
+  <xs:element name="EQNumeric" type="NumericComparisonType"/>
+  <xs:element name="NENumeric" type="NumericComparisonType"/>
 
   <xs:element name="EQBoolean">
     <xs:complexType>
