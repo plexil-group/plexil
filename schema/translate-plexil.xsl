@@ -1151,7 +1151,7 @@
       <ADD>
         <xsl:apply-templates select="$element"/>
         <NodeTimepointValue>
-          <NodeId><xsl:call-template name="node-id"/></NodeId>
+          <NodeRef dir="self"/>
           <NodeStateValue>EXECUTING</NodeStateValue>
           <Timepoint>START</Timepoint>
         </NodeTimepointValue>
