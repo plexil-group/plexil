@@ -63,7 +63,7 @@ plexil-targets:
 ##### PLEXIL Compiler defaults
 
 PLEXIL_COMPILER = $(PLEXIL_HOME)/scripts/plexilc
-PLEXILC_OPTS    = -p
+PLEXILC_OPTS    =
 
 ##### Default pattern rules for generating Plexil XML
 
