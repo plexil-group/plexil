@@ -146,9 +146,13 @@ namespace PLEXIL
         return;
       }
 
-      dispatch_source_cancel(m_timer);
       // Unset the event handler pointer in case timer gets recycled
       dispatch_source_set_event_handler_f(m_timer, nullptr);
+      dispatch_source_cancel(m_timer);
+      // If we have never started the timer,
+      // we must resume (activate?) it before we can release it.
+      if (!m_interval_usec && !m_nextWakeup)
+        dispatch_activate(m_timer);
       dispatch_release(m_timer);
       m_started = false;
       debugMsg("DispatchTimebase:stop", " complete");
@@ -204,9 +208,16 @@ namespace PLEXIL
 
   private:
 
+    //! The timer object
     dispatch_source_t m_timer;
+
+    //! The queue on which our handler gets called.
     dispatch_queue_t m_queue;
+
+    //! Repeat interval in microseconds
     uint32_t m_interval_usec;
+
+    // true if the start() method has been called, false otherwise
     bool m_started;
   };
 
