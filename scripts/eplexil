@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
@@ -31,6 +31,17 @@ then
     exit 2
 fi
 
+if [ -z "$PLEXIL_HOME" ]
+then
+    # Attempt to guess location of this script (but don't try too hard)
+    PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
+    if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
+    then
+        export PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+    fi
+    unset PLEXILC_SCRIPT_DIR
+fi
+
 # Check environment
 if [ -z "$PLEXIL_HOME" ]
 then
@@ -61,6 +72,10 @@ else
     fi
 fi
 
+# Presume that anyone running this script wants to see the output formatted
+# Sadly, the '!saxon:indent-spaces' option is not available in saxon9he.
+SAXON_OPTS='!indent=yes'
+
 input_file="$1"
 if [ -n "$2" ]
 then
@@ -69,4 +84,4 @@ else
     output_file="$(echo "$1" | sed -e 's|.epx$||').plx"
 fi
 
-exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file"
+exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file" $SAXON_OPTS
