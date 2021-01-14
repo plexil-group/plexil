@@ -7,15 +7,15 @@
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="SynchronousCommand" FileName="foo.ple" LineNo="104" ColNo="1">
     <NodeId>A</NodeId>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>x</Name>
         <Type>Integer</Type>
       </DeclareVariable>
     </VariableDeclarations>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">

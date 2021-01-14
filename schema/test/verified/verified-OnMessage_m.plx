@@ -7,15 +7,15 @@
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="Sequence">
     <NodeId generated="1">ep2cp_OnMessage_d1e11</NodeId>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>ep2cp_hdl</Name>
         <Type>String</Type>
       </DeclareVariable>
     </VariableDeclarations>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <InvariantCondition>
       <NoChildFailed>
         <NodeRef dir="self"/>

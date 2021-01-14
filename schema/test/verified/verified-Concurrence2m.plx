@@ -7,9 +7,6 @@
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="Concurrence">
     <NodeId generated="1">ep2cp_Concurrence_d1e11</NodeId>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>
@@ -19,6 +16,9 @@
         </InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="Assignment">

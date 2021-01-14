@@ -7,9 +7,6 @@
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="If">
     <NodeId>Root</NodeId>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>
@@ -19,6 +16,9 @@
         </InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="Empty" epx="Then">
