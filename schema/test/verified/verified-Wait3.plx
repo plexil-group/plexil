@@ -36,7 +36,7 @@
                   <RealVariable>x</RealVariable>
                 </ADD>
                 <NodeTimepointValue>
-                  <NodeId>Wait1</NodeId>
+                  <NodeRef dir="self"/>
                   <NodeStateValue>EXECUTING</NodeStateValue>
                   <Timepoint>START</Timepoint>
                 </NodeTimepointValue>
@@ -82,7 +82,7 @@
                   </SUB>
                 </ABS>
                 <NodeTimepointValue>
-                  <NodeId>Wait2</NodeId>
+                  <NodeRef dir="self"/>
                   <NodeStateValue>EXECUTING</NodeStateValue>
                   <Timepoint>START</Timepoint>
                 </NodeTimepointValue>

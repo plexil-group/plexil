@@ -15,7 +15,7 @@
         <ADD>
           <RealValue>23.9</RealValue>
           <NodeTimepointValue>
-            <NodeId>Wait1</NodeId>
+            <NodeRef dir="self"/>
             <NodeStateValue>EXECUTING</NodeStateValue>
             <Timepoint>START</Timepoint>
           </NodeTimepointValue>
