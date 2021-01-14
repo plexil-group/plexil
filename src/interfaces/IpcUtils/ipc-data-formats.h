@@ -27,20 +27,17 @@
 #ifndef IPC_DATA_FORMATS_H
 #define IPC_DATA_FORMATS_H
 
-#include "plexil-config.h"
+#include "plexil-stdint.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#endif
-
+#if defined(HAVE_CLIMITS)
+#include <climits>
+#elif defined(HAVE_LIMITS_H)
 #include <limits.h>
+#endif
 
 /*
  * Data formats used by IpcAdapter
