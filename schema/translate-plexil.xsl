@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -276,7 +276,6 @@
   </xsl:template>
 
   <!-- Try (not to be confused with try/catch) -->
-
 
   <xsl:template match="Try">
     <xsl:variable name="conds">
@@ -844,6 +843,7 @@
             <xsl:apply-templates select="Condition/*" />
           </PostCondition>
         </Node>
+        <!-- Note: context is still the While element -->
         <xsl:call-template name="while-body-2">
           <xsl:with-param name="test-id" select="$test-id"/>
         </xsl:call-template>
@@ -1412,7 +1412,7 @@
     <xsl:call-template name="basic-clauses">
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
-    <xsl:apply-templates select="$context/VariableDeclarations|UsingMutex" />
+    <xsl:apply-templates select="$context/(VariableDeclarations|UsingMutex)" />
     <xsl:call-template name="translate-conditions">
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
@@ -1651,6 +1651,8 @@
           <Type>String</Type>
         </DeclareVariable>
       </VariableDeclarations>
+      <xsl:sequence select="UsingMutex" />
+
       <!-- Find parent node and set invariant, if exists -->
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
@@ -1690,6 +1692,21 @@
     </Sequence>
   </xsl:template>
 
+<!-- OnCommand
+
+This is a macro designed to work with the IpcAdapter commands ReceiveCommand,
+GetParameter, and SendReturnValue. It looks like:
+
+<OnCommand>
+  <VariableDeclarations> ... command parameters... </VariableDeclarations>
+  <Name><StringValue>name-of-command</StringValue></Name>
+
+   ... action * ...
+
+</OnCommand>
+
+-->
+
   <xsl:template match="OnCommand">
     <xsl:variable name="Cmd_staging">
       <xsl:call-template name="OnCommand-staging" />
@@ -1698,19 +1715,31 @@
   </xsl:template>
 
   <xsl:template name="OnCommand-staging">
+    <!-- Name of the command identifier ("handle") variable -->
+    <xsl:variable name="hdl_name">
+      <xsl:value-of select="tr:prefix('hdl')" />
+    </xsl:variable>
+    <!-- Command identifier variable, as a reference -->
+    <xsl:variable name="hdl_ref">
+      <StringVariable><xsl:value-of select="$hdl_name" /></StringVariable>
+    </xsl:variable>
+    <!-- The result of expanding the body actions -->
+    <xsl:variable name="body-expansion">
+      <xsl:apply-templates select="tr:actions(.)" />
+    </xsl:variable>
+
     <Sequence>
       <xsl:call-template name="basic-clauses" />
       <VariableDeclarations>
-        <xsl:apply-templates select="VariableDeclarations/DeclareVariable" />
-        <!-- Arrays and mutexes are variables too -->
-        <xsl:apply-templates select="VariableDeclarations/DeclareArray" />
-        <xsl:apply-templates select="VariableDeclarations/DeclareMutex" />
+        <!-- These are the command parameters -->
+        <xsl:apply-templates select="VariableDeclarations/(DeclareVariable|DeclareArray)" />
+        <!-- Declare the command identifier variable -->
         <DeclareVariable>
-          <Name>
-            <xsl:value-of select="tr:prefix('hdl')" />
-          </Name>
+          <Name><xsl:value-of select="$hdl_name" /></Name>
           <Type>String</Type>
         </DeclareVariable>
+        <!-- Mutexes are variables too (but not command parameters) -->
+        <xsl:apply-templates select="VariableDeclarations/DeclareMutex" />
       </VariableDeclarations>
       <xsl:apply-templates select="UsingMutex" />
       <!-- Handle the OnCommand node conditions -->
@@ -1732,73 +1761,29 @@
           </Executing>
         </InvariantCondition>
       </xsl:if> -->
-      <!-- Cmd wait node -->
-      <xsl:variable name="hdl_dec">
-        <StringVariable>
-          <xsl:value-of select="tr:prefix('hdl')" />
-        </StringVariable>
-      </xsl:variable>
+
+      <!-- The command name for which we wait -->
       <xsl:variable name="arg_dec">
         <StringValue>
           <xsl:value-of select="Name/StringValue" />
         </StringValue>
       </xsl:variable>
+
+      <!-- Generate command wait command node -->
       <xsl:call-template name="run-wait-command">
         <xsl:with-param name="command" select="'ReceiveCommand'" />
-        <xsl:with-param name="dest" select="$hdl_dec" />
+        <xsl:with-param name="dest" select="$hdl_ref" />
         <xsl:with-param name="args" select="$arg_dec" />
       </xsl:call-template>
-      <!-- Cmd get parameters nodes -->
-      <xsl:for-each select="VariableDeclarations/DeclareVariable | VariableDeclarations/DeclareArray">
-        <Node NodeType="Command" epx="aux">
-          <NodeId generated="1">
-            <xsl:value-of
-              select="concat(tr:prefix('CmdGetParam'), '_', Name/text())" />
-          </NodeId>
-          <EndCondition>
-            <IsKnown>
-              <xsl:choose>
-                <xsl:when test="MaxSize"> <!-- Arrays -->
-                  <ArrayElement>
-                    <Name><xsl:value-of select="Name"/></Name>
-                    <Index><IntegerValue>0</IntegerValue></Index>
-                  </ArrayElement>
-                </xsl:when>
-                <xsl:otherwise> <!-- Scalars -->
-                  <xsl:element name='{concat(Type/text(), "Variable")}'>
-                    <xsl:value-of select="Name/text()" />
-                  </xsl:element>
-                </xsl:otherwise>
-              </xsl:choose>
-            </IsKnown>
-          </EndCondition>
-          <NodeBody>
-            <Command>
-              <xsl:choose>
-                <xsl:when test="MaxSize"> <!-- Arrays -->
-                  <ArrayVariable><xsl:value-of select="Name"/></ArrayVariable>
-                </xsl:when>
-                <xsl:otherwise> <!-- Scalars -->
-                  <xsl:element name='{concat(Type/text(), "Variable")}'>
-                    <xsl:value-of select="Name/text()" />
-                  </xsl:element>
-                </xsl:otherwise>
-              </xsl:choose>
-              <Name>
-                <StringValue>GetParameter</StringValue>
-              </Name>
-              <Arguments>
-                <StringVariable>
-                  <xsl:value-of select="tr:prefix('hdl')" />
-                </StringVariable>
-                <IntegerValue>
-                  <xsl:value-of select="position() - 1" />
-                </IntegerValue>
-              </Arguments>
-            </Command>
-          </NodeBody>
-        </Node>
+      
+      <!-- Generate get parameters command nodes -->
+      <xsl:for-each select="VariableDeclarations/(DeclareVariable|DeclareArray)">
+        <xsl:call-template name="get-param-command">
+          <xsl:with-param name="hdl_ref" select="$hdl_ref"/>
+          <xsl:with-param name="index" select="position() - 1"/>
+        </xsl:call-template>
       </xsl:for-each>
+
       <!-- Action for this command -->
       <Node NodeType="NodeList" epx="aux">
         <NodeId generated="1">
@@ -1807,19 +1792,15 @@
         </NodeId>
         <NodeBody>
           <NodeList>
-            <xsl:for-each select="tr:actions(.)">
-              <xsl:choose>
-                <xsl:when test="Command">
-                  <xsl:call-template name="on-command-command" />
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:apply-templates select="." />
-                </xsl:otherwise>
-              </xsl:choose>
+            <xsl:for-each select="$body-expansion">
+              <xsl:call-template name="amend-send-return">
+                <xsl:with-param name="hdl_ref" select="$hdl_ref"/>
+              </xsl:call-template>
             </xsl:for-each>
           </NodeList>
         </NodeBody>
       </Node>
+
       <!--  Insert return value command if not present -->
       <xsl:if
         test="not(.//Command/Name/StringValue/text() = 'SendReturnValue')">
@@ -1833,9 +1814,7 @@
                 <StringValue>SendReturnValue</StringValue>
               </Name>
               <Arguments>
-                <StringVariable>
-                  <xsl:value-of select="tr:prefix('hdl')" />
-                </StringVariable>
+                <xsl:sequence select="$hdl_ref"/>
                 <BooleanValue>true</BooleanValue>
               </Arguments>
             </Command>
@@ -1868,10 +1847,9 @@
         </xsl:call-template>
       </xsl:when>
     </xsl:choose>
-
   </xsl:template>
 
-
+  <!-- Construct the receive wait node for OnMessage and OnCommand -->
   <xsl:template name="run-wait-command">
     <xsl:param name="command" />
     <xsl:param name="dest" />
@@ -1901,23 +1879,95 @@
     </Node>
   </xsl:template>
 
-  <xsl:template name="on-command-command">
-    <Command>
-      <xsl:sequence select="node()[./local-name()!='Arguments'] " />
-      <xsl:choose>
-        <xsl:when test="Name/StringValue/text()='SendReturnValue'">
+  <!-- Construct one GetParameter command node for OnCommand -->
+  <xsl:template name="get-param-command">
+    <xsl:param name="hdl_ref"/>     <!-- Reference to the "handle" variable -->
+    <xsl:param name="index"/>       <!-- position in the declaration list, 0-based -->
+
+    <Node NodeType="Command" epx="OnCommand_param" >
+      <NodeId generated="1">
+        <xsl:value-of select="concat(tr:prefix('CmdGetParam'), '_', Name/text())" />
+      </NodeId>
+      <EndCondition>
+        <IsKnown>
+          <xsl:choose>
+            <xsl:when test="self::DeclareArray"> <!-- Arrays -->
+              <ArrayElement>
+                <Name><xsl:value-of select="Name"/></Name>
+                <Index><IntegerValue>0</IntegerValue></Index>
+              </ArrayElement>
+            </xsl:when>
+            <xsl:otherwise> <!-- Scalars -->
+              <xsl:element name='{concat(Type/text(), "Variable")}'>
+                <xsl:value-of select="Name/text()" />
+              </xsl:element>
+            </xsl:otherwise>
+          </xsl:choose>
+        </IsKnown>
+      </EndCondition>
+      <NodeBody>
+        <Command>
+          <xsl:choose>
+            <xsl:when test="self::DeclareArray"> <!-- Arrays -->
+              <ArrayVariable><xsl:value-of select="Name"/></ArrayVariable>
+            </xsl:when>
+            <xsl:otherwise> <!-- Scalars -->
+              <xsl:element name='{concat(Type/text(), "Variable")}'>
+                <xsl:value-of select="Name/text()" />
+              </xsl:element>
+            </xsl:otherwise>
+          </xsl:choose>
+          <Name>
+            <StringValue>GetParameter</StringValue>
+          </Name>
           <Arguments>
-            <StringVariable>
-              <xsl:value-of select="tr:prefix('hdl')" />
-            </StringVariable>
-            <xsl:sequence select="Arguments/node()" />
+            <xsl:copy-of select="$hdl_ref" />
+            <IntegerValue><xsl:value-of select="$index" /></IntegerValue>
           </Arguments>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:sequence select="Arguments" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </Command>
+        </Command>
+      </NodeBody>
+    </Node>
+  </xsl:template>
+
+  <!-- Recurse looking for a SendReturnValue command -->
+  <!-- Called on PLEXIL which has already been expanded -->
+  <xsl:template name="amend-send-return">
+    <xsl:param name="hdl_ref"/>
+    <xsl:choose>
+      <xsl:when test="NodeBody/NodeList">
+        <Node>
+          <xsl:copy-of select="@*" />
+          <xsl:sequence select="* except NodeBody" />
+          <NodeBody>
+            <NodeList>
+              <xsl:for-each select="NodeBody/NodeList">
+                <xsl:call-template name="amend-send-return">
+                  <xsl:with-param name="hdl_ref" select="$hdl_ref" />
+                </xsl:call-template>
+              </xsl:for-each>
+            </NodeList>
+          </NodeBody>
+        </Node>
+      </xsl:when>
+      <xsl:when test="NodeBody/Command/Name/StringValue/text()='SendReturnValue'">
+        <Node>
+          <xsl:copy-of select="@*" />
+          <xsl:sequence select="* except NodeBody" />
+          <NodeBody>
+            <Command>
+              <xsl:sequence select="NodeBody/Command/(* except Arguments)" />
+              <Arguments>
+                <xsl:sequence select="$hdl_ref" />
+                <xsl:sequence select="NodeBody/Command/Arguments/*" />
+              </Arguments>
+            </Command>
+          </NodeBody>
+        </Node>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- Node state/outcome/failure tests -->
