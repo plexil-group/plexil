@@ -154,8 +154,14 @@ namespace PLEXIL
     bool valChanged = !mq.empty() && !rq.empty();
     while (!mq.empty() && !rq.empty()) {
       debugMsg("MessageQueueMap:updateQueue", ' ' << queue->m_name << " returning value");
-      if (rq.front()->isActive())
+      if (rq.front()->isActive()) {
+        debugMsg("MessageQueueMap:updateQueue", ' ' << queue->m_name << " returning value");
         m_execInterface.handleCommandReturn(rq.front(), mq.front());
+      }
+      else {
+        debugMsg("MessageQueueMap:updateQueue", ' ' << queue->m_name
+                 << " recipient inactive, ignoring");
+      }
       rq.pop();
       mq.pop();
     }
