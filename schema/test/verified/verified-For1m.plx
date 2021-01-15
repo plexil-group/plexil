@@ -28,7 +28,7 @@
     </UsingMutex>
     <NodeBody>
       <NodeList>
-        <Node NodeType="NodeList" epx="aux">
+        <Node NodeType="NodeList" epx="For-body">
           <NodeId generated="1">ep2cp_ForLoop</NodeId>
           <SkipCondition>
             <NOT>

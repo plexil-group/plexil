@@ -31,7 +31,7 @@
     </InvariantCondition>
     <NodeBody>
       <NodeList>
-        <Node NodeType="Command">
+        <Node NodeType="Command" epx="aux">
           <NodeId generated="1">ep2cp_CmdWait</NodeId>
           <EndCondition>
             <IsKnown>
@@ -50,7 +50,7 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="Command">
+        <Node NodeType="Command" epx="OnCommand_param">
           <NodeId generated="1">ep2cp_CmdGetParam_distance</NodeId>
           <StartCondition>
             <Finished>
@@ -75,7 +75,7 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="Command">
+        <Node NodeType="Command" epx="OnCommand_param">
           <NodeId generated="1">ep2cp_CmdGetParam_direction</NodeId>
           <StartCondition>
             <Finished>
@@ -100,7 +100,7 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="NodeList">
+        <Node NodeType="NodeList" epx="aux">
           <NodeId generated="1">ep2cp_CmdAction_moveRover</NodeId>
           <StartCondition>
             <Finished>
@@ -115,7 +115,7 @@
             </NodeList>
           </NodeBody>
         </Node>
-        <Node NodeType="Command">
+        <Node NodeType="Command" epx="aux">
           <NodeId generated="1">ep2cp_CmdReturn</NodeId>
           <StartCondition>
             <Finished>

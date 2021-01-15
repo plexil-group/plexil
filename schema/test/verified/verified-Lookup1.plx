@@ -3,7 +3,7 @@
   <Node NodeType="Empty">
     <NodeId>root</NodeId>
     <StartCondition>
-      <LookupOnChange>
+      <LookupOnChange epx="Lookup">
         <Name>
           <StringValue>Foo</StringValue>
         </Name>
@@ -16,7 +16,7 @@
       </LookupOnChange>
     </StartCondition>
     <PostCondition>
-      <LookupNow>
+      <LookupNow epx="Lookup">
         <Name>
           <StringValue>Bar</StringValue>
         </Name>

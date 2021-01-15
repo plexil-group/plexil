@@ -17,7 +17,7 @@
           <StartCondition>
             <EQNumeric>
               <IntegerValue>2</IntegerValue>
-              <LookupNow>
+              <LookupNow epx="Lookup">
                 <Name>
                   <StringValue>X</StringValue>
                 </Name>
@@ -28,7 +28,7 @@
             <NOT>
               <EQNumeric>
                 <IntegerValue>2</IntegerValue>
-                <LookupNow>
+                <LookupNow epx="Lookup">
                   <Name>
                     <StringValue>X</StringValue>
                   </Name>

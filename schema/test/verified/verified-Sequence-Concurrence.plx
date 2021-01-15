@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" FileName="Plan.ple">
-  <Node NodeType="NodeList" LineNo="2" ColNo="1">
+  <Node ColNo="1" LineNo="2" NodeType="NodeList">
     <NodeId>Interface</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
@@ -36,7 +36,7 @@
           </InvariantCondition>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Assignment" LineNo="8" ColNo="34">
+              <Node ColNo="34" LineNo="8" NodeType="Assignment">
                 <NodeId>DoFirst</NodeId>
                 <NodeBody>
                   <Assignment>
@@ -50,7 +50,7 @@
                   </Assignment>
                 </NodeBody>
               </Node>
-              <Node NodeType="Assignment" LineNo="9" ColNo="35">
+              <Node ColNo="35" LineNo="9" NodeType="Assignment">
                 <NodeId>DoSecond</NodeId>
                 <StartCondition>
                   <Finished>
@@ -76,7 +76,7 @@
           <NodeId>Two</NodeId>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Assignment" LineNo="12" ColNo="38">
+              <Node ColNo="38" LineNo="12" NodeType="Assignment">
                 <NodeId>DoFirstDiff</NodeId>
                 <NodeBody>
                   <Assignment>
@@ -90,7 +90,7 @@
                   </Assignment>
                 </NodeBody>
               </Node>
-              <Node NodeType="Assignment" LineNo="13" ColNo="35">
+              <Node ColNo="35" LineNo="13" NodeType="Assignment">
                 <NodeId>DoSecond</NodeId>
                 <NodeBody>
                   <Assignment>

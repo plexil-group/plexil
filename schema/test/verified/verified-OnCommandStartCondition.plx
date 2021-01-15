@@ -35,7 +35,7 @@
           </InvariantCondition>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="aux">
                 <NodeId generated="1">ep2cp_CmdWait</NodeId>
                 <EndCondition>
                   <IsKnown>
@@ -54,7 +54,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg1</NodeId>
                 <StartCondition>
                   <Finished>
@@ -79,7 +79,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg2</NodeId>
                 <StartCondition>
                   <Finished>
@@ -104,7 +104,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg3</NodeId>
                 <StartCondition>
                   <Finished>
@@ -129,7 +129,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg4</NodeId>
                 <StartCondition>
                   <Finished>
@@ -154,7 +154,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="NodeList">
+              <Node NodeType="NodeList" epx="aux">
                 <NodeId generated="1">ep2cp_CmdAction_recv_test</NodeId>
                 <StartCondition>
                   <Finished>
@@ -183,7 +183,7 @@
                   </NodeList>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="aux">
                 <NodeId generated="1">ep2cp_CmdReturn</NodeId>
                 <StartCondition>
                   <Finished>
@@ -244,7 +244,7 @@
           </InvariantCondition>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="aux">
                 <NodeId generated="1">ep2cp_CmdWait</NodeId>
                 <EndCondition>
                   <IsKnown>
@@ -263,7 +263,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg1</NodeId>
                 <StartCondition>
                   <Finished>
@@ -288,7 +288,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg2</NodeId>
                 <StartCondition>
                   <Finished>
@@ -313,7 +313,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg3</NodeId>
                 <StartCondition>
                   <Finished>
@@ -338,7 +338,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="OnCommand_param">
                 <NodeId generated="1">ep2cp_CmdGetParam_arg4</NodeId>
                 <StartCondition>
                   <Finished>
@@ -363,7 +363,7 @@
                   </Command>
                 </NodeBody>
               </Node>
-              <Node NodeType="NodeList">
+              <Node NodeType="NodeList" epx="aux">
                 <NodeId generated="1">ep2cp_CmdAction_recv_test</NodeId>
                 <StartCondition>
                   <Finished>
@@ -392,7 +392,7 @@
                   </NodeList>
                 </NodeBody>
               </Node>
-              <Node NodeType="Command">
+              <Node NodeType="Command" epx="aux">
                 <NodeId generated="1">ep2cp_CmdReturn</NodeId>
                 <StartCondition>
                   <Finished>

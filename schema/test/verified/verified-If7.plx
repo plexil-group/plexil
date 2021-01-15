@@ -15,7 +15,7 @@
       <NodeList>
         <Node NodeType="Empty" epx="Then">
           <StartCondition>
-            <LookupNow>
+            <LookupNow epx="Lookup">
               <Name>
                 <StringValue>flag</StringValue>
               </Name>
@@ -23,7 +23,7 @@
           </StartCondition>
           <SkipCondition>
             <NOT>
-              <LookupNow>
+              <LookupNow epx="Lookup">
                 <Name>
                   <StringValue>flag</StringValue>
                 </Name>
