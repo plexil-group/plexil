@@ -52,10 +52,23 @@ It is used as an included schema only.
            xmlns:xml="http://www.w3.org/XML/1998/namespace"
            xml:lang="en">
 
-  <xs:attribute name="FileName" type="xs:string"/>
+  <!-- The epx attribute indicates an element which is a translation of an
+       Extended Plexil construct (i.e. macro).  Its value is the type
+       of this construct, a descriptive name identifying its role in
+       the expansion of an Extended Plexil construct, or 'aux'
+       indicating it is an auxiliary generated element.
+  -->
+  <xs:attribute name="epx">
+    <xs:simpleType>
+      <xs:restriction base="xs:NCName"/>
+    </xs:simpleType>
+  </xs:attribute>
 
+  <!-- Attributes identifying the origin of an element in a source
+       file or Extended PLEXIL macro. -->
   <xs:attributeGroup name="SourceLocators">
-    <xs:attribute ref="FileName"/>
+    <xs:attribute ref="epx"/>
+    <xs:attribute name="FileName" type="xs:string"/>
     <xs:attribute name="LineNo" type="xs:integer"/>
     <xs:attribute name="ColNo" type="xs:integer"/>
   </xs:attributeGroup>
@@ -243,16 +256,6 @@ It is used as an included schema only.
       </xs:simpleType>
     </xs:attribute>
 
-    <!-- The epx attribute indicates a node that is a translation of an
-         Extended Plexil construct (i.e. macro).  Its value is the type of
-         this construct, or 'aux' indicating it is an auxilliary generated
-         node. -->
-    <xs:attribute name="epx">
-      <xs:simpleType>
-        <xs:restriction base="xs:NCName"/>
-      </xs:simpleType>
-    </xs:attribute>
-
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:attributeGroup>
 
@@ -309,8 +312,8 @@ It is used as an included schema only.
   </xs:element>
 
   <xs:complexType name="ConditionType">
-      <xs:group ref="GeneralizedBooleanExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
+    <xs:group ref="GeneralizedBooleanExpression"/>
+    <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
   <xs:element name="StartCondition" type="ConditionType"/>
