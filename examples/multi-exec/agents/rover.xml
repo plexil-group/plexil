@@ -1,7 +1,10 @@
 <Interfaces>
   <Adapter AdapterType="Time" />
   <Adapter AdapterType="Utility"/>
-  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+  <Adapter AdapterType="IpcAdapter"
+           TaskName="rover"
+           Server="localhost"
+           AllowDuplicateMessages="true">
     <DefaultCommandAdapter/>
   </Adapter>
   <Listener ListenerType="PlanDebugListener"/>
