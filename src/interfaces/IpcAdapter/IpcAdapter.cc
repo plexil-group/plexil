@@ -44,6 +44,7 @@
 #include "MessageQueueMap.hh"
 #include "NodeConnector.hh"
 #include "parsePlan.hh"
+#include "PlanError.hh"
 #include "PlannerUpdateHandler.hh"
 #include "State.hh"
 #include "ThreadSemaphore.hh"
@@ -76,8 +77,6 @@ namespace PLEXIL
 {
 
   // Helper functions
-  static bool hasPrefix(const std::string &s, const std::string &prefix);
-
   static std::string formatMessageName(const std::string &name,
                                        const std::string &command,
                                        int id = 0);
@@ -87,7 +86,7 @@ namespace PLEXIL
   static Value parseTypedValue(const char *type,
                                pugi::xml_attribute const value);
 
-  static Value parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs); 
+  static Value parseReturnValue(const std::vector<PlexilMsgBase*>& msgs); 
   
   //
   // String constants
@@ -105,9 +104,10 @@ namespace PLEXIL
   // Constants used internally
 
   static constexpr char const COMMAND_PREFIX[] = "__COMMAND__";
-  static constexpr char const MESSAGE_PREFIX[] = "__MESSAGE__";
-  static constexpr char const LOOKUP_PREFIX[] = "__LOOKUP__";
-  static constexpr char const LOOKUP_ON_CHANGE_PREFIX[] = "__LOOKUP_ON_CHANGE__";
+  // Not used at present
+  // static constexpr char const MESSAGE_PREFIX[] = "__MESSAGE__";
+  // static constexpr char const LOOKUP_PREFIX[] = "__LOOKUP__";
+  // static constexpr char const LOOKUP_ON_CHANGE_PREFIX[] = "__LOOKUP_ON_CHANGE__";
   static constexpr char const PARAM_PREFIX[] = "__PARAMETER__";
   static constexpr char const SERIAL_UID_SEPARATOR[] = ":";
   static constexpr char const TRANSACTION_ID_SEPARATOR_CHAR = ':';
@@ -262,12 +262,17 @@ namespace PLEXIL
     //
 
     //! Called from the IPC thread whenever messages are received.
-    void receiveMessages(const std::vector<const PlexilMsgBase*>& msgs)
+    void receiveMessages(const std::vector<PlexilMsgBase*>& msgs)
     {
-      const PlexilMsgBase *leader = msgs.front();
+      PlexilMsgBase *leader = msgs.front();
       PlexilMsgType msgType = (PlexilMsgType) leader->msgType;
-      debugMsg("IpcAdapter:receiveMessages", " received message type = " << msgType);
+
+      debugMsg("IpcAdapter:receiveMessages",
+               ' ' << m_ipcFacade.getUID() << " received " << msgs.size()
+               << " messages, leader type = " << msgType);
+
       switch (msgType) {
+
         // NotifyExec is a PlexilMsgBase
       case PlexilMsgType_NotifyExec:
         // Simply notify the exec
@@ -288,7 +293,6 @@ namespace PLEXIL
 
         // Command is a PlexilStringValueMsg, optionally followed by parameters
       case PlexilMsgType_Command:
-        // Stash this and wait for the rest
         debugMsg("IpcAdapter:receiveMessages", " processing as command");
         handleCommandSequence(msgs);
         break;
@@ -441,7 +445,7 @@ namespace PLEXIL
       args.front().getValuePointer(theMessage);
       debugMsg("IpcAdapter:executeCommand",
                " SendMessage(\"" << *theMessage << "\")");
-      checkInterfaceError(m_ipcFacade.publishMessage(*theMessage) != IpcFacade::ERROR_SERIAL(),
+      checkInterfaceError(m_ipcFacade.publishMessage(*theMessage) != IpcFacade::ERROR_SERIAL,
                           "Message publish failed");
       // store ack
       intf->handleCommandAck(command, COMMAND_SUCCESS);
@@ -457,7 +461,8 @@ namespace PLEXIL
       std::vector<Value> const &args = command->getArgValues();
       // Check for two arguments, the message and the value
       assertTrueMsg(args.size() == 2,
-                    "IpcAdapter: The SendReturnValue command requires exactly two arguments.");
+                    "IpcAdapter: SendReturnValue command requires exactly two arguments"
+                    << "\n but was given " << args.size());
       assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
                     "IpcAdapter: The message name argument to the SendReturnValue command, "
                     << args.front() << ", is not a valid String value");
@@ -474,7 +479,7 @@ namespace PLEXIL
                " SendReturnValue(sender_serial:\"" << serial << "\" \"" << front_string << "\")");
       //publish
       serial = m_ipcFacade.publishReturnValues(serial, front_string, args[1]);
-      checkInterfaceError(serial != IpcFacade::ERROR_SERIAL(),
+      checkInterfaceError(serial != IpcFacade::ERROR_SERIAL,
                           "Return values failed to be sent");
 
       // store ack
@@ -501,7 +506,8 @@ namespace PLEXIL
       m_messageQueues.addRecipient(*theMessage, command);
       intf->handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
       intf->notifyOfExternalEvent();
-      debugMsg("IpcAdapter:executeReceiveMessageCommand", " message handler for \"" << *theMessage << "\" registered.");
+      debugMsg("IpcAdapter:receiveMessageCommand", ' ' << m_ipcFacade.getUID()
+               << " message handler for \"" << *theMessage << "\" registered.");
     }
 
     /**
@@ -511,20 +517,25 @@ namespace PLEXIL
     {
       std::vector<Value> const &args = command->getArgValues();
       // Check for one argument, the message
-      assertTrueMsg(args.size() == 1,
-                    "IpcAdapter: The " << RECEIVE_COMMAND_COMMAND << " command requires exactly one argument");
-      assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
+      checkPlanError(args.size() == 1,
+                     "IpcAdapter: The " << RECEIVE_COMMAND_COMMAND
+                     << " command requires exactly one argument");
+      checkPlanError(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
                     "IpcAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND
                     << " command, " << args.front()
                     << ", is not a string");
+
       std::string const *cmdName = nullptr;
       args.front().getValuePointer(cmdName);
+      debugMsg("IpcAdapter:receiveCommand", ' ' << m_ipcFacade.getUID()
+               << " for \"" << *cmdName << '"');
+
       std::string msgName(formatMessageName(*cmdName, RECEIVE_COMMAND_COMMAND));
       m_messageQueues.addRecipient(msgName, command);
       intf->handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
       intf->notifyOfExternalEvent();
-      debugMsg("IpcAdapter:executeReceiveCommandCommand",
-               " command handler for \"" << msgName << "\" registered.");
+      debugMsg("IpcAdapter:receiveCommand", ' ' << m_ipcFacade.getUID()
+               << " command handler for \"" << msgName << "\" registered.");
     }
 
     /**
@@ -534,30 +545,37 @@ namespace PLEXIL
     {
       std::vector<Value> const &args = command->getArgValues();
       // Check for one argument, the message
-      assertTrueMsg(args.size() == 1 || args.size() == 2,
-                    "IpcAdapter: The " << GET_PARAMETER_COMMAND << " command requires either one or two arguments");
-      assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
-                    "IpcAdapter: The first argument to the " << GET_PARAMETER_COMMAND << " command, "
-                    << args.front() << ", is not a string");
+      checkPlanError(args.size() == 1 || args.size() == 2,
+                    "IpcAdapter: The " << GET_PARAMETER_COMMAND
+                     << " command requires either one or two arguments");
+      checkPlanError(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
+                    "IpcAdapter: The first argument to the " << GET_PARAMETER_COMMAND
+                     << " command, " << args.front() << ", is not a string");
       int32_t id;
       if (args.size() == 1)
+        // Default to parameter 0
         id = 0;
       else {
         assertTrueMsg(args[1].isKnown() && args[1].valueType() == INTEGER_TYPE,
-                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND << " command, " << args[1]
+                      "IpcAdapter: The second argument to the "
+                      << GET_PARAMETER_COMMAND << " command, " << args[1]
                       << ", is not an Integer");
         args[1].getValue(id);
         assertTrueMsg(id >= 0,
-                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND << " command, " << args[1]
+                      "IpcAdapter: The second argument to the "
+                      << GET_PARAMETER_COMMAND << " command, " << args[1]
                       << ", is not a valid index");
       }
       std::string const *cmdName = nullptr;
       args.front().getValuePointer(cmdName);
+      debugMsg("IpcAdapter:getParameter", ' ' << m_ipcFacade.getUID()
+               << " for \"" << *cmdName << "\" parameter # " << id);
+
       std::string msgName(formatMessageName(*cmdName, GET_PARAMETER_COMMAND, id));
       m_messageQueues.addRecipient(msgName, command);
       intf->handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
       intf->notifyOfExternalEvent();
-      debugMsg("IpcAdapter:executeGetParameterCommand",
+      debugMsg("IpcAdapter:getParameter",
                " message handler for \"" << msgName << "\" registered.");
     }
 
@@ -605,7 +623,7 @@ namespace PLEXIL
       for (size_t i = 1; i < nargs; ++i)
         result_and_args[i - 1] = args[i];
       uint32_t publishStatus = m_ipcFacade.publishTelemetry(*lookupName, result_and_args);
-      if (publishStatus == IpcFacade::ERROR_SERIAL()) {
+      if (publishStatus == IpcFacade::ERROR_SERIAL) {
         warn("IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
         intf->handleCommandAck(command, COMMAND_FAILED);
       }
@@ -622,8 +640,9 @@ namespace PLEXIL
     void executeDefaultCommand(Command *command, AdapterExecInterface *intf) 
     {
       std::string const &name = command->getName();
-      debugMsg("IpcAdapter:executeCommand", " for \"" << name << "\"");
       std::vector<Value> const &args = command->getArgValues();
+      debugMsg("IpcAdapter:executeCommand", ' ' << m_ipcFacade.getUID()
+               << " for \"" << name << "\", " << args.size() << " parameters");
       if (!args.empty())
         debugMsg("IpcAdapter:executeCommand", " first parameter is \""
                  << args.front()
@@ -631,17 +650,24 @@ namespace PLEXIL
 
       uint32_t serial;
       size_t sep_pos = name.find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
+      // decide to direct or publish command
+      if (sep_pos != std::string::npos) {
+        debugMsg("IpcAdapter:executeCommand", ' ' << m_ipcFacade.getUID()
+                 << " sending \"" << name.substr(sep_pos + 1)
+                 << "\" to \"" << name.substr(0, sep_pos) << '"');
+        serial = m_ipcFacade.sendCommand(name.substr(sep_pos + 1),
+                                         name.substr(0, sep_pos),
+                                         args);
+      }
+      else {
+        debugMsg("IpcAdapter:executeCommand", ' ' << m_ipcFacade.getUID()
+                 << " publishing \"" << name << '"');
+        serial = m_ipcFacade.publishCommand(name, args);
+      }
+      assertTrueMsg(serial != IpcFacade::ERROR_SERIAL,
+                    "executeCommand: IPC Error, IPC_errno = " << m_ipcFacade.getError());
+      // log ack and return variables in case we get values for them
       {
-        //decide to direct or publish command
-        if (sep_pos != std::string::npos) {
-          serial = m_ipcFacade.sendCommand(name.substr(sep_pos + 1), name.substr(0, sep_pos), args);
-        }
-        else {
-          serial = m_ipcFacade.publishCommand(name, args);
-        }
-        // log ack and return variables in case we get values for them
-        assertTrueMsg(serial != IpcFacade::ERROR_SERIAL(),
-                      "executeCommand: IPC Error, IPC_errno = " << m_ipcFacade.getError());
         std::lock_guard<std::mutex> guard(m_cmdMutex);
         m_pendingCommands[serial] = command;
       }
@@ -767,7 +793,7 @@ namespace PLEXIL
       }
 
       uint32_t serial = m_ipcFacade.publishUpdate(name, args);
-      checkInterfaceError(serial != IpcFacade::ERROR_SERIAL(),
+      checkInterfaceError(serial != IpcFacade::ERROR_SERIAL,
                           "sendPlannerUpdate: IPC Error, IPC_errno = " <<
                           m_ipcFacade.getError());
       intf->handleUpdateAck(update, true);
@@ -849,32 +875,42 @@ namespace PLEXIL
     }
 
     //! Handle a received command.
-    void handleCommandSequence(const std::vector<const PlexilMsgBase*>& msgs)
+    void handleCommandSequence(const std::vector<PlexilMsgBase*> &msgs)
     {
-      //only support one parameter, the id
-      //TODO: support more parameters
+      assertTrue_2(!msgs.empty(), "IpcAdapter::handleCommandSequence: empty message sequence");
+      assertTrue_2(msgs.front(), "IpcAdapter::handleCommandSequence: leader is null");
+
+      debugMsg("IpcAdapter:handleCommandSequence", ' ' << m_ipcFacade.getUID()
+               << ' ' << msgs.size() << " messages");
+
+      debugMsg("IpcAdapter:handleCommandSequence", ' ' << m_ipcFacade.getUID()
+               << " leader: count " << msgs.front()->count
+               << ", serial " << msgs.front()->serial
+               << ", sender " << msgs.front()->senderUID);
+
       const PlexilStringValueMsg* header =
-        reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
+        reinterpret_cast<const PlexilStringValueMsg*>(msgs.front());
       assertTrue_2(header->stringValue,
-                   "handleCommandSequence: stringValue of leader is null");
+                   "IpcAdapter::handleCommandSequence: stringValue of leader is null");
+      debugMsg("IpcAdapter:handleCommandSequence",
+               ' ' << m_ipcFacade.getUID() <<
+               " adding \"" << header->stringValue << "\" to the command queue");
+
+      // Construct the command identifier
       std::ostringstream uid;
       uid << ((int) header->header.serial) << SERIAL_UID_SEPARATOR << header->header.senderUID;
       std::string uid_lbl(uid.str());
-      debugMsg("IpcAdapter:handleCommandSequence",
-               " adding \"" << header->stringValue << "\" to the command queue");
       m_messageQueues.addMessage(formatMessageName(header->stringValue,
                                                    RECEIVE_COMMAND_COMMAND),
                                  uid_lbl);
-      int i = 0;
-      for (const PlexilMsgBase *msg : msgs) {
-        m_messageQueues.addMessage(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND, i),
-                                   getPlexilMsgValue(msg));
-        ++i;
+      for (int i = 1; i < msgs.size(); ++i) {
+        m_messageQueues.addMessage(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND, i - 1),
+                                   getPlexilMsgValue(msgs.at(i)));
       }
     }
 
     //! Process a TelemetryValues message sequence
-    void handleTelemetryValuesSequence(const std::vector<const PlexilMsgBase*>& msgs) 
+    void handleTelemetryValuesSequence(const std::vector<PlexilMsgBase*>& msgs) 
     {
       const PlexilStringValueMsg* tv =
         reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
@@ -926,7 +962,7 @@ namespace PLEXIL
 
     //! Process a ReturnValues message sequence
     //! @param msgs Const reference to vector of message pointers.
-    void handleReturnValuesSequence(const std::vector<const PlexilMsgBase*>& msgs) 
+    void handleReturnValuesSequence(const std::vector<PlexilMsgBase*>& msgs) 
     {
       const PlexilReturnValuesMsg* rv = (const PlexilReturnValuesMsg*) msgs[0];
       //lock mutex to ensure all sending procedures are complete.
@@ -952,6 +988,7 @@ namespace PLEXIL
 
         cmd = cit->second;
         assertTrue_1(cmd);
+
         if (!cmd->isActive()) {
           warn("IpcAdapter: ignoring return value messages for inactive command");
           m_pendingCommands.erase(rv->requestSerial);
@@ -986,7 +1023,7 @@ namespace PLEXIL
     //! are not defined in config or published.
     //! @param Const reference to a vector of message pointers.
     //! @note Executed in IPC handler thread.
-    void handleLookupNowMessages(const std::vector<const PlexilMsgBase*>& msgs) 
+    void handleLookupNowMessages(const std::vector<PlexilMsgBase*>& msgs) 
     {
       debugMsg("IpcAdapter:handleLookupNowMessages", " received LookupNow");
       const PlexilStringValueMsg* msg =
@@ -1052,7 +1089,7 @@ namespace PLEXIL
 
       virtual ~MessageListener() = default;
 
-      void ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs)
+      void ReceiveMessage(const std::vector<PlexilMsgBase*>& msgs)
       {
         m_adapter.receiveMessages(msgs);
       }
@@ -1173,14 +1210,6 @@ namespace PLEXIL
   //
   // Helper functions
   //
-
-  //! Returns true if the string starts with the prefix, false otherwise.
-  bool hasPrefix(const std::string &s, const std::string &prefix)
-  {
-    if (s.size() < prefix.size())
-      return false;
-    return (0 == s.compare(0, prefix.size(), prefix));
-  }
 
   //! Helper function for converting message names into the proper
   //! format given the command type and a user-defined id.
@@ -1307,7 +1336,7 @@ namespace PLEXIL
   /**
    * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
    */
-  Value parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs) 
+  Value parseReturnValue(const std::vector<PlexilMsgBase *>& msgs) 
   {
     size_t nValues = msgs[0]->count;
     checkError(nValues == 1, "PlexilMsgType_ReturnValue may only have one parameter");
