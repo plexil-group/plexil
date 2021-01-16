@@ -24,73 +24,59 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "PlexilSimResponseFactory.hh"
-//#include "PlexilSimResponse.hh"
+
 #include "GenericResponse.hh"
-#include "simdefs.hh"
+#include "parseType.hh"
 
 #include "Debug.hh"
 
-
-PlexilSimResponseFactory::PlexilSimResponseFactory()
-  : ResponseFactory()
-{
-}
-
-PlexilSimResponseFactory::~PlexilSimResponseFactory()
-{
-}
-
 ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& cmdName,
-							    const std::string& line,
-							    unsigned int lineCount)
+                                                            const std::string& line,
+                                                            unsigned int lineCount)
 {
   std::istringstream inStr(line);
-  if (cmdName == "move")
-    {
-      int returnValue;
-      if (!parseType<int>(inStr, returnValue))
-	{
-	  std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
-		    << cmdName << "\"" << std::endl;
-	  return nullptr;
-	}
-      return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
-    }
-  else if (cmdName == "foo")
-    {
-      int returnValue;
-      if (!parseType<int>(inStr, returnValue))
-	{
-	  std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
-		    << cmdName << "\"" << std::endl;
-	  return nullptr;
-	}
-      return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
-    }
-  else
-    {
-      // No customization present. See if the default version can be used.
+  if (cmdName == "move") {
+    int returnValue;
+    if (!parseType<int>(inStr, returnValue))
+      {
+        std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
+                  << cmdName << "\"" << std::endl;
+        return nullptr;
+      }
+    return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
+  }
+  else if (cmdName == "foo") {
+    int returnValue;
+    if (!parseType<int>(inStr, returnValue))
+      {
+        std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
+                  << cmdName << "\"" << std::endl;
+        return nullptr;
+      }
+    return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
+  }
+  else {
+    // No customization present. See if the default version can be used.
       
-      std::vector<PLEXIL::Value> returnValue;
-      while (!inStr.eof())
-        {
-          double retVal;
-          if (parseType<double>(inStr, retVal))
-            {
-              returnValue.push_back(retVal);
-            }
-          else if (!inStr.eof())
-            {
-              std::cout << "Error: The return value structure neither matches "
-                        << " any customization nor the generic structure."
-                        << std::endl;
-              return nullptr;
-            }
-        }
-      debugMsg("PlexilSimResponseFactory:parse", 
-	       " Returning new GenericResponse with " << returnValue.size() << " values");
-      return new GenericResponse(returnValue);
+    std::vector<PLEXIL::Value> returnValue;
+    while (!inStr.eof()) {
+      double retVal;
+      if (parseType<double>(inStr, retVal)) {
+        returnValue.push_back(retVal);
+      }
+      else if (!inStr.eof()) {
+        std::cout << "Error: The return value structure neither matches "
+                  << " any customization nor the generic structure."
+                  << std::endl;
+        return nullptr;
+      }
     }
+
+    debugMsg("PlexilSimResponseFactory:parse", 
+             " Returning new GenericResponse with " << returnValue.size() << " values");
+    return new GenericResponse(returnValue);
+  }
+
   // fall-thru return
   return nullptr;
 }
