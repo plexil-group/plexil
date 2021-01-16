@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,7 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #ifndef RESPONSE_FACTORY_HH
 #define RESPONSE_FACTORY_HH
 
@@ -37,8 +38,8 @@ class ResponseBase;
 class ResponseFactory
 {
 public:
-  ResponseFactory();
-  virtual ~ResponseFactory();
+  ResponseFactory() = default;
+  virtual ~ResponseFactory() = default;
 
   /**
    * @brief Parse the line and return the corresponding response object.
@@ -49,14 +50,6 @@ public:
   virtual ResponseBase* parseResponseValues(const std::string& cmdName,
 					    const std::string& line,
 					    unsigned int lineCount);
-
-private:
-
-  // deliberately not implemented
-  ResponseFactory(ResponseFactory const &) = delete;
-  ResponseFactory(ResponseFactory &&) = delete;
-  ResponseFactory& operator=(ResponseFactory const &) = delete;
-  ResponseFactory& operator=(ResponseFactory &&) = delete;
 
 };
 

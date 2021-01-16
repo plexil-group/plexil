@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,42 +25,35 @@
 */
 
 #include "ResponseFactory.hh"
+
 #include "GenericResponse.hh"
+#include "parseType.hh"
+
 #include "Debug.hh"
 #include "Error.hh"
-#include "simdefs.hh"
 
 #include <sstream>
 
-ResponseFactory::ResponseFactory()
-{
-}
-
-ResponseFactory::~ResponseFactory()
-{
-}
-
 ResponseBase* ResponseFactory::parseResponseValues(const std::string& cmdName,
-						   const std::string& line,
-						   unsigned int lineCount)
+                                                   const std::string& line,
+                                                   unsigned int lineCount)
 {
   std::istringstream inStr(line);
   std::vector<PLEXIL::Value> returnVector;
 
-  while (!inStr.eof())
-    {
-      double returnValue;
-      if (!parseType<double>(inStr, returnValue))
-	{
-	  std::cerr << "Line " << lineCount << ": Unable to parse script entry" 
-		    << std::endl;
-	  return nullptr;
-	}
-      returnVector.push_back(returnValue);
+  while (!inStr.eof()) {
+    double returnValue;
+    if (!parseType<double>(inStr, returnValue)) {
+      std::cerr << "Line " << lineCount << ": Unable to parse script entry" 
+                << std::endl;
+      return nullptr;
     }
+    returnVector.push_back(returnValue);
+  }
+
   debugMsg("ResponseFactory::parse",
 	   " Returning new GenericResponse of length " << returnVector.size());
-  ResponseBase* result = 
-    new GenericResponse(returnVector);
+
+  ResponseBase* result = new GenericResponse(returnVector);
   return result;
 }
