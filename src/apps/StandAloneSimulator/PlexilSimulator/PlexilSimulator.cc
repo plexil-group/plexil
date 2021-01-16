@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,17 +25,20 @@
 */
 
 #include "Simulator.hh"
+
+#include "Debug.hh"
 #include "IpcCommRelay.hh"
 #include "PlexilSimResponseFactory.hh"
-#include "Debug.hh"
+#include "SimulatorScriptReader.hh"
 
 #include <fstream>
+#include <memory> // std::unique_ptr
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
-
-Simulator* _the_simulator_ = nullptr;
 
 int main(int argc, char** argv)
 {
@@ -134,15 +137,15 @@ at the top of the script."
   //
   
   // Comm Relay has to be destroyed before we can nuke the simulator
-  IpcCommRelay* plexilRelay = new IpcCommRelay("RobotYellow", centralhost);
-  Simulator mySimulator(plexilRelay, mgrMap);
-  _the_simulator_ = &mySimulator;
+  std::unique_ptr<IpcCommRelay> plexilRelay(new IpcCommRelay("RobotYellow"));
+  if (!plexilRelay->initialize(centralhost)) {
+    std::cerr << "PlexilSimulator: initializing comm relay failed" << std::endl;
+    return 1;
+  }
 
   // Run until interrupted
-  _the_simulator_->simulatorTopLevel();
-
-  delete plexilRelay;
-  _the_simulator_ = nullptr;
+  Simulator mySimulator(plexilRelay.get(), mgrMap);
+  mySimulator.simulatorTopLevel();
 
   return 0;
 }
