@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ class ResponseBase
 {
 public:
   ResponseBase();
-  virtual ~ResponseBase();
+  virtual ~ResponseBase() = default;
 
   void setManager(ResponseMessageManager* mgr);
   ResponseMessageManager* getManager() const;
@@ -59,9 +59,12 @@ public:
   const std::string& getName() const;
 
 private:
+
   // Deliberately not implemented
-  ResponseBase(const ResponseBase&);
-  ResponseBase& operator=(const ResponseBase&);
+  ResponseBase(const ResponseBase &) = delete;
+  ResponseBase(ResponseBase &&) = delete;
+  ResponseBase& operator=(const ResponseBase &) = delete;
+  ResponseBase& operator=(ResponseBase &&) = delete;
 
   ResponseMessageManager* m_Manager;
   timeval m_Delay;

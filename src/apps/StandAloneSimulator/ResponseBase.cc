@@ -36,10 +36,6 @@ ResponseBase::ResponseBase()
 {
 }
 
-ResponseBase::~ResponseBase()
-{
-}
-
 void ResponseBase::setManager(ResponseMessageManager* mgr)
 {
   m_Manager = mgr;
