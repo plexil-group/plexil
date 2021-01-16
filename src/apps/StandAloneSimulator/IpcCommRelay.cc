@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,29 +41,42 @@
 /**
  * @brief Constructor. Opens the connection and spawns a listener thread.
  */
-IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost) :
-  CommRelayBase(id),
-  m_ipcFacade(),
-  m_stateUIDMap(),
-  m_listener(*this)
+IpcCommRelay::IpcCommRelay(const std::string& id)
+  : CommRelayBase(id),
+    m_ipcFacade(),
+    m_stateUIDMap(),
+    m_listener(*this)
 {
-  assertTrueMsg(m_ipcFacade.initialize(id.c_str(), centralhost.c_str()) == IPC_OK,
-		"IpcCommRelay: Unable to initialize ipc to central server at " << centralhost);
-
-  // Spawn listener thread
-  assertTrueMsg(m_ipcFacade.start() == IPC_OK,
-		"IpcCommRelay constructor: Unable to start IPC dispatch thread");
-
-  // Subscribe only to messages we care about
-  m_ipcFacade.subscribe(&m_listener, PlexilMsgType_Command);
-  m_ipcFacade.subscribe(&m_listener, PlexilMsgType_LookupNow);
-  debugMsg("IpcRobotAdapter:IpcRobotAdapter", " succeeded");
 }
 
 /**
  * @brief Destructor. Shuts down the listener thread and closes the connection.
  */
 IpcCommRelay::~IpcCommRelay() {
+}
+
+//! Start IPC.
+//! @param centralhost The location of the IPC 'central' server.
+//! @return True if succeeded, false if not.
+bool IpcCommRelay::initialize(const std::string& centralhost)
+{
+  if (IPC_OK != m_ipcFacade.initialize(m_Identifier.c_str(), centralhost.c_str())) {
+    warn("IpcCommRelay: Unable to initialize ipc to central server at " << centralhost);
+    return false;
+  }
+
+  // Spawn listener thread
+  if (IPC_OK != m_ipcFacade.start()) {
+    warn("IpcCommRelay constructor: Unable to start IPC dispatch thread");
+    return false;
+  }
+
+  // Subscribe only to messages we care about
+  m_ipcFacade.subscribe(&m_listener, PlexilMsgType_Command);
+  m_ipcFacade.subscribe(&m_listener, PlexilMsgType_LookupNow);
+
+  debugMsg("IpcCommRelay:initialise", " succeeded");
+  return true;
 }
 
 /**
@@ -113,7 +126,7 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
 /**
  * @brief Send a command to the simulator
  */
-void IpcCommRelay::processCommand(const std::vector<const PlexilMsgBase*>& msgs) {
+void IpcCommRelay::processCommand(const std::vector<PlexilMsgBase*>& msgs) {
   std::string cmdName(((const PlexilStringValueMsg*) msgs[0])->stringValue);
   IpcMessageId* transId = new IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
   m_Simulator->scheduleResponseForCommand(cmdName, static_cast<void*> (transId));
@@ -122,7 +135,7 @@ void IpcCommRelay::processCommand(const std::vector<const PlexilMsgBase*>& msgs)
 /**
  * @brief Deal with a LookupNow request
  */
-void IpcCommRelay::processLookupNow(const std::vector<const PlexilMsgBase*>& msgs) {
+void IpcCommRelay::processLookupNow(const std::vector<PlexilMsgBase*>& msgs) {
   std::string stateName(((const PlexilStringValueMsg*) msgs[0])->stringValue);
   debugMsg("IpcCommRelay:lookupNow", " for " << stateName);
   if (msgs[0]->count != 0)
@@ -149,8 +162,8 @@ IpcCommRelay::MessageListener::MessageListener(IpcCommRelay& adapter) :
 }
 IpcCommRelay::MessageListener::~MessageListener() {
 }
-void IpcCommRelay::MessageListener::ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs) {
-  const PlexilMsgBase* leader = msgs[0];
+void IpcCommRelay::MessageListener::ReceiveMessage(const std::vector<PlexilMsgBase*>& msgs) {
+  PlexilMsgBase* leader = msgs[0];
   switch (leader->msgType) {
   case PlexilMsgType_Command:
     m_adapter.processCommand(msgs);
