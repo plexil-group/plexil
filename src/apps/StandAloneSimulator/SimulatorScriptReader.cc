@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,15 +23,17 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "SimulatorScriptReader.hh"
-#include "Simulator.hh"
-#include "timeval-utils.hh"
+
 #include "ResponseMessageManager.hh"
 #include "ResponseBase.hh"
 #include "ResponseFactory.hh"
+// #include "Simulator.hh"
 #include "TelemetryResponseManager.hh"
 
 #include "Debug.hh"
+#include "timeval-utils.hh"
 
 #include <fstream>
 #include <iostream>
@@ -41,10 +43,6 @@ SimulatorScriptReader::SimulatorScriptReader(ResponseManagerMap& map,
 					     ResponseFactory& factory)
   : m_map(map),
     m_factory(factory)
-{
-}
-
-SimulatorScriptReader::~SimulatorScriptReader()
 {
 }
 

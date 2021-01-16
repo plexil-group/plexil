@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,7 @@
 #ifndef SIMULATOR_SCRIPT_READER_HH
 #define SIMULATOR_SCRIPT_READER_HH
 
-#include <string>
-#include "simdefs.hh"
+#include "simdefs.hh" // ResponseManagerMap; includes <string>
 
 class ResponseFactory;
 
@@ -39,7 +38,7 @@ class SimulatorScriptReader
 {
 public:
   SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
-  virtual ~SimulatorScriptReader();
+  virtual ~SimulatorScriptReader() = default;
 
   bool readScript(const std::string& fName, bool telemetry=false);
 
@@ -50,17 +49,20 @@ public:
 private:
 
   // Deliberately not implemented
-  SimulatorScriptReader();
-  SimulatorScriptReader(const SimulatorScriptReader&);
-  SimulatorScriptReader& operator=(const SimulatorScriptReader&);
+  SimulatorScriptReader() = delete;;
+  SimulatorScriptReader(const SimulatorScriptReader &) = delete;
+  SimulatorScriptReader(SimulatorScriptReader &&) = delete;
+  SimulatorScriptReader& operator=(const SimulatorScriptReader &) = delete;
+  SimulatorScriptReader& operator=(SimulatorScriptReader &&) = delete;
 
   //
   // Helpers
   //
-  ResponseMessageManager* ensureResponseMessageManager(const std::string& name,
-						       bool telemetry);
-  virtual ResponseMessageManager* constructResponseMessageManager(const std::string& name,
-								  bool telemetry);
+  ResponseMessageManager*
+  ensureResponseMessageManager(const std::string& name, bool telemetry);
+
+  virtual ResponseMessageManager*
+  constructResponseMessageManager(const std::string& name, bool telemetry);
 
   ResponseManagerMap& m_map;
   ResponseFactory& m_factory;
