@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,20 +25,24 @@
  */
 
 #include "Simulator.hh"
-#include "timeval-utils.hh"
+
 #include "CommRelayBase.hh"
 #include "ResponseBase.hh"
 #include "ResponseMessage.hh"
 #include "ResponseMessageManager.hh"
+#include "SimulatorScriptReader.hh"
 
 #include "Debug.hh"
 #include "Error.hh"
 #include "ThreadSpawn.hh"
+#include "timeval-utils.hh"
 
 #include <iomanip>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
 #endif
 
 Simulator::Simulator(CommRelayBase* commRelay, ResponseManagerMap& map) : 

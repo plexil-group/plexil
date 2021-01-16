@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,11 @@
 #define SIMULATOR_HH
 
 #include "simdefs.hh"
-#include "SimulatorScriptReader.hh"
 #include "TimingService.hh"
 
 #include <map>
 #include <mutex>
 
-class ResponseMessageManager;
 class ResponseMessage;
 class CommRelayBase;
 
