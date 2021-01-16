@@ -33,7 +33,7 @@ libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
 
 include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
  ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
- SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
+ SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh parseType.hh simdefs.hh
 
 libstandalonesimulator_la_SOURCES = IpcCommRelay.cc \
  ResponseBase.cc ResponseFactory.cc ResponseMessage.cc ResponseMessageManager.cc \
