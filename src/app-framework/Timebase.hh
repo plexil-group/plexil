@@ -149,9 +149,11 @@ namespace PLEXIL
 
   };
 
-  //! Make the default timebase factories accessible.
-  void initTimebaseFactories();
 
 } // namespace PLEXIL
+
+//! Make the default timebase factories accessible.
+extern "C"
+void initTimebaseFactories();
 
 #endif // PLEXIL_TIMEBASE_HH

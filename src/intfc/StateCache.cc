@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 #include "CachedValue.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh"
+#include "LookupReceiver.hh"
+#include "Message.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 
@@ -75,6 +77,14 @@ namespace PLEXIL
 
     virtual ~StateCacheImpl() = default;
 
+    //! Update the value for this state's Lookup.
+    //! @param state The state.
+    //! @param value The new value.
+    virtual void lookupReturn(State const &state, Value const &value)
+    {
+      getLookupReceiver(state)->update(value);
+    }
+
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
     {
       EntryMap::iterator iter = m_map.find(state);
@@ -88,7 +98,102 @@ namespace PLEXIL
       return ensureStateCacheEntry(state)->getLookupReceiver();
     }
 
+    //
+    // Message API to external interfaces
+    //
+
+    //! Receive notification of a message becoming available.
+    //! @param msg Const pointer to the new message.
+    virtual void messageReceived(Message const *msg)
+    {
+      ensureStateCacheEntry(s_haveMessage)->update(true);
+      ensureStateCacheEntry(s_peekAtMessage)->update(msg->message.name());
+      ensureStateCacheEntry(s_peekAtMessageSender)->update(msg->sender);
+    }
+
+    //! Receive notification that the message queue is empty.
+    virtual void messageQueueEmpty()
+    {
+      ensureStateCacheEntry(s_haveMessage)->update(false);
+      ensureStateCacheEntry(s_peekAtMessage)->setUnknown();
+      ensureStateCacheEntry(s_peekAtMessageSender)->setUnknown();
+    }
+
+    //! Accept an incoming message and associate it with the handle.
+    //! @param msg Pointer to the message. StateCache takes ownership of the message.
+    //! @param handle String used as a handle for the message.
+    //! @note The message can be deleted as soon as this method is done.
+    virtual void assignMessageHandle(Message *msg, std::string const &handle)
+    {
+      Value handleValue(handle);
+      ensureStateCacheEntry(State("MessageText", handleValue))->update(msg->message.name());
+      size_t count = msg->message.parameterCount();
+      ensureStateCacheEntry(State("MessageParameterCount", handleValue))->update(Value((Integer) count));
+      for (size_t i = 0; i < count; ++i) {
+        ensureStateCacheEntry(State("MessageParameter",
+                                    handleValue,
+                                    Value((Integer) i)))->update(msg->message.parameter(i));
+      }
+      ensureStateCacheEntry(State("MessageSender", handleValue))->update(Value(msg->sender));
+      ensureStateCacheEntry(State("MessageArrived", handleValue))->update(Value(msg->timestamp));
+      delete msg;
+    }
+
+    //! Release the message handle, and clear the message data
+    //! associated with that handle.
+    //! @param handle The handle being released.
+    virtual void releaseMessageHandle(std::string const &handle)
+    {
+      // Need the parameter count to delete all the parameters
+      Value handleValue(handle);
+      EntryMap::iterator iter = m_map.find(State("MessageParameterCount", handleValue));
+      if (iter == m_map.end())
+        return; // not there, therefore already deleted or never existed
+
+      Integer count;
+      if (!iter->second->cachedValue()->getValue(count)) {
+        // warn of internal error (NYI)
+        return;
+      }
+      
+      if (iter->second->hasRegisteredLookups()) {
+        // BIG OOPS - can't delete these w/o leaving dangling pointers
+        // warn (NYI)
+        return;
+      }
+
+      m_map.erase(iter);
+      for (Integer i = 0; i < count; ++i) {
+        deleteStateCacheEntry(State("MessageParameter",
+                                    handleValue,
+                                    Value(i)));
+      }
+      deleteStateCacheEntry(State("MessageText", handleValue));
+      deleteStateCacheEntry(State("MessageSender", handleValue));
+      deleteStateCacheEntry(State("MessageArrived", handleValue));
+    }
+
   private:
+
+    virtual StateCacheEntry *getStateCacheEntry(State const &state)
+    {
+      EntryMap::iterator iter = m_map.find(state);
+      if (iter == m_map.end())
+        iter = m_map.emplace(state, makeStateCacheEntry()).first;
+      return iter->second.get();
+    }
+
+    void deleteStateCacheEntry(State const &state)
+    {
+      EntryMap::iterator iter = m_map.find(state);
+      if (iter == m_map.end())
+        return; // already deleted or never there
+      if (iter->second->hasRegisteredLookups()) {
+        // warn (NYI) and bail out
+        return;
+      }
+      m_map.erase(iter);
+    }
 
     // Unimplemented
     StateCacheImpl(StateCacheImpl const &) = delete;
@@ -96,7 +201,15 @@ namespace PLEXIL
     StateCacheImpl &operator=(StateCacheImpl const &) = delete;
     StateCacheImpl &operator=(StateCacheImpl &&) = delete;
 
+    // Static member variables for messaging
+    static const State s_haveMessage;
+    static const State s_peekAtMessage;
+    static const State s_peekAtMessageSender;
   };
+
+  const State StateCacheImpl::s_haveMessage = State("HaveMessage");
+  const State StateCacheImpl::s_peekAtMessage = State("PeekAtMessage");
+  const State StateCacheImpl::s_peekAtMessageSender = State("PeekAtMessageSender");
 
   StateCache &StateCache::instance()
   {

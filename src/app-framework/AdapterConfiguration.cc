@@ -38,9 +38,10 @@
 #include "InterfaceSchema.hh"
 #include "Launcher.h"
 #include "ListenerFilters.hh"
+#include "MessageAdapter.hh"
 #include "planLibrary.hh"
 #include "State.hh"
-#include "TimeAdapter.hh"
+#include "TimeAdapter.h"
 #include "UtilityAdapter.h"
 
 #ifdef PLEXIL_WITH_THREADS
@@ -119,8 +120,11 @@ namespace PLEXIL {
         m_defaultLookupHandler(new LookupHandler()),
         m_plannerUpdateHandler()
     {
-      // Every application has access to a time adapter
-      registerTimeAdapter();
+      // Every application has access to the time adapter
+      initTimeAdapter();
+
+      // Every application has access to the message adapter
+      initMessageAdapter();
 
       // Every application has access to the utility and launcher adapters
       initUtilityAdapter();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ namespace PLEXIL {
   // Forward declarations
   class Command;
   class LookupReceiver;
+  class Message;
   class ResourceArbiterInterface;
   class Update;
 
@@ -180,6 +181,30 @@ namespace PLEXIL {
      * @param value The ack value.
      */
     void acknowledgeUpdate(Update *upd, bool val);
+
+    //
+    // Message API
+    //
+
+    //! Receive notification of a message becoming available.
+    //! @param msg Const pointer to the new message.
+    //! @note Populates the PeekAtMessage and PeekAtMessageSender states.
+    void messageReceived(Message const *msg);
+
+    //! Receive notification that the message queue is empty.
+    //! @note Sets the PeekAtMessage and PeekAtMessageSender states to unknown.
+    void messageQueueEmpty();
+
+    //! Accept an incoming message and associate it with the handle.
+    //! @param msg Pointer to the message.  StateCache takes ownership of the message.
+    //! @param handle String used as a handle for the message.
+    //! @note StateCache is responsible to populate the message lookups.
+    void assignMessageHandle(Message *msg, std::string const &handle);
+
+    //! Release the message handle, and clear the message data
+    //! associated with that handle.
+    //! @param handle The handle being released.
+    void releaseMessageHandle(std::string const &handle);
 
     //
     // API to application

@@ -56,18 +56,19 @@ include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
  AdapterFactory.hh Configuration.hh ExecApplication.hh ExecListener.hh \
  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh \
- ListenerFilters.hh SerializedInputQueue.hh SimpleInputQueue.hh TimeAdapter.hh \
- Timebase.hh TimebaseFactory.hh
+ ListenerFilters.hh MessageAdapter.hh SerializedInputQueue.hh \
+ SimpleInputQueue.hh Timebase.hh TimebaseFactory.hh
 
-noinst_HEADERS = Launcher.h UtilityAdapter.h
+# Internal use only
+noinst_HEADERS = Launcher.h TimeAdapter.h UtilityAdapter.h
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
  AdapterFactory.cc CommandHandler.cc \
  Configuration.cc ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
  ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc \
  InterfaceManager.cc Launcher.cc ListenerFilters.cc LookupHandler.cc \
- SerializedInputQueue.cc SimpleInputQueue.cc TimeAdapter.cc Timebase.cc \
- TimebaseFactory.cc UtilityAdapter.cc
+ MessageAdapter.cc SerializedInputQueue.cc SimpleInputQueue.cc TimeAdapter.cc \
+ Timebase.cc TimebaseFactory.cc UtilityAdapter.cc
 
 # Libraries to link against
 libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.la \

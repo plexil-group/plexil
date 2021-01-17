@@ -89,123 +89,6 @@ namespace PLEXIL
     return (bool) m_inputQueue;
   }
 
-  //
-  // API for exec
-  //
-    
-  //! Updates the Exec's knowledge of the outside world from the items
-  //! in the queue.
-  //! @return True if the Exec needs to be stepped, false otherwise.
-  bool InterfaceManager::processQueue()
-  {
-    assertTrue_1(m_inputQueue);
-    if (m_inputQueue->isEmpty())
-      return false;
-
-    bool needsStep = false;
-    QueueEntry *entry;
-    while ((entry = m_inputQueue->get())) {
-      switch (entry->type) {
-      case Q_MARK:
-        debugMsg("InterfaceManager:processQueue", " Received mark");
-        // Store sequence number and notify application
-        m_lastMark = entry->sequence;
-        m_application->markProcessed();
-        break;
-
-      case Q_LOOKUP:
-        assertTrue_1(entry->state);
-
-        debugMsg("InterfaceManager:processQueue",
-                 " Received new value " << entry->value << " for " << *(entry->state));
-
-        lookupReturn(*(entry->state), entry->value);
-        needsStep = true;
-        break;
-
-      case Q_COMMAND_ACK:
-        assertTrue_1(entry->command);
-
-        {
-          CommandHandleValue handle = NO_COMMAND_HANDLE;
-          entry->value.getValue(handle);
-          assertTrue_1(handle != NO_COMMAND_HANDLE);
-          debugMsg("InterfaceManager:processQueue",
-                   " received command handle value "
-                   << commandHandleValueName((CommandHandleValue) handle)
-                   << " for command " << entry->command->getCommand());
-          commandHandleReturn(entry->command, (CommandHandleValue) handle);
-        }
-        needsStep = true;
-        break;
-
-      case Q_COMMAND_RETURN:
-        assertTrue_1(entry->command);
-        debugMsg("InterfaceManager:processQueue",
-                 " received return value " << entry->value
-                 << " for command " << entry->command->getCommand());
-        commandReturn(entry->command, entry->value);
-        needsStep = true;
-        break;
-
-      case Q_COMMAND_ABORT:
-        assertTrue_1(entry->command);
-
-        {
-          bool ack;
-          bool known = entry->value.getValue(ack);
-          assertTrue_1(known);
-          debugMsg("InterfaceManager:processQueue",
-                   " received command abort ack " << (ack ? "true" : "false")
-                   << " for command " << entry->command->getCommand());
-          commandAbortAcknowledge(entry->command, ack);
-        }
-        needsStep = true;
-        break;
-
-      case Q_UPDATE_ACK:
-        assertTrue_1(entry->update);
-        {
-          bool ack;
-          bool known = entry->value.getValue(ack);
-          assertTrue_1(known);
-          debugMsg("InterfaceManager:processQueue",
-                   " received update ack " << (ack ? "true" : "false")
-                   << " for node "
-                   << entry->update->getSource()->getNodeId());
-          acknowledgeUpdate(entry->update, ack);
-        }
-        needsStep = true;
-        break;
-
-      case Q_ADD_PLAN:
-        {
-          NodeImpl *pid = entry->plan;
-          assertTrue_1(pid);
-          debugMsg("InterfaceManager:processQueue",
-                   " adding plan " << entry->plan->getNodeId());
-          g_exec->addPlan(pid);
-        }
-        entry->plan = nullptr;
-        needsStep = true;
-        break;
-
-      default:
-        // Internal error
-        errorMsg("InterfaceManager:processQueue: Invalid entry type "
-                 << entry->type);
-        break;
-      }
-
-      // Recycle the queue entry
-      m_inputQueue->release(entry);
-    }
-
-    debugMsg("InterfaceManager:processQueue",
-             " Queue empty, returning " << (needsStep ? "true" : "false"));
-    return needsStep;
-  }
-
   //! Perform an immediate lookup for a state.
   //! @param state The state.
   void 
@@ -315,6 +198,10 @@ namespace PLEXIL
   // API to handlers
   //
 
+  //
+  // Lookups
+  //
+
   //! Notify of the availability of a new value for a lookup.
   // @param state The state for the new value.
   // @param value The new value.
@@ -373,6 +260,10 @@ namespace PLEXIL
     entry->initForLookup(state, value);
     m_inputQueue->put(entry);
   }
+
+  //
+  // Command API
+  //
 
   //! Receive a command handle value for a command in execution.
   //! @param cmd Pointer to the Command instance.
@@ -465,6 +356,10 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
+  //
+  // Update API
+  //
+
   //! Receive acknowledgement of a planner update.
   //! @param upd Pointer to the Update instance.
   //! @param ack The acknowledgment value.
@@ -488,20 +383,37 @@ namespace PLEXIL
     m_inputQueue->put(entry);
   }
 
-  //! Place a mark in the input queue.
-  //! @return The sequence number of the mark.
-  unsigned int InterfaceManager::markQueue()
-  {
-    assertTrue_1(m_inputQueue);
-    QueueEntry *entry = m_inputQueue->allocate();
-    assertTrue_1(entry);
+  //
+  // Message API
+  //
 
-    unsigned int sequence = ++m_markCount;
-    entry->initForMark(sequence);
-    m_inputQueue->put(entry);
-    debugMsg("InterfaceManager:markQueue",
-             " sequence # " << sequence);
-    return sequence;
+
+  //! Notify the executive that a message has been received.
+  //! @param message The message.
+  void
+  InterfaceManager::notifyMessageReceived(Message *message)
+  {
+  }
+
+  //! Notify the executive that the message queue is empty.
+  void
+  InterfaceManager::notifyMessageQueueEmpty()
+  {
+  }
+
+  //! Notify the executive that a message has been accepted.
+  //! @param message The message
+  //! @param handle The message handle.
+  void
+  InterfaceManager::notifyMessageAccepted(Message *message, std::string const &handle)
+  {
+  }
+
+  //! Notify the executive that a message handle has been released.
+  //! @param handle The message handle.
+  void
+  InterfaceManager::notifyMessageHandleReleased(std::string const &handle)
+  {
   }
 
   //! Receive a new plan and give it to the Exec.
@@ -572,12 +484,32 @@ namespace PLEXIL
     return PLEXIL::isLibraryLoaded(libName.c_str());
   }
 
+  //
+  // Notify API
+  //
+
   //! Notify the application that the executive should run one cycle.  
   void
   InterfaceManager::notifyOfExternalEvent()
   {
     debugMsg("InterfaceManager:notify", " received external event");
     m_application->notifyExec();
+  }
+
+  //! Place a mark in the input queue.
+  //! @return The sequence number of the mark.
+  unsigned int InterfaceManager::markQueue()
+  {
+    assertTrue_1(m_inputQueue);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+
+    unsigned int sequence = ++m_markCount;
+    entry->initForMark(sequence);
+    m_inputQueue->put(entry);
+    debugMsg("InterfaceManager:markQueue",
+             " sequence # " << sequence);
+    return sequence;
   }
 
 #ifdef PLEXIL_WITH_THREADS
@@ -590,5 +522,150 @@ namespace PLEXIL
     m_application->notifyAndWaitForCompletion();
   }
 #endif
+
+  //
+  // API for exec
+  //
+    
+  //! Updates the Exec's knowledge of the outside world from the items
+  //! in the queue.
+  //! @return True if the Exec needs to be stepped, false otherwise.
+  bool InterfaceManager::processQueue()
+  {
+    assertTrue_1(m_inputQueue);
+    if (m_inputQueue->isEmpty())
+      return false;
+
+    bool needsStep = false;
+    QueueEntry *entry;
+    while ((entry = m_inputQueue->get())) {
+      switch (entry->type) {
+      case Q_MARK:
+        debugMsg("InterfaceManager:processQueue", " Received mark");
+        // Store sequence number and notify application
+        m_lastMark = entry->sequence;
+        m_application->markProcessed();
+        break;
+
+      case Q_LOOKUP:
+        assertTrue_1(entry->state);
+
+        debugMsg("InterfaceManager:processQueue",
+                 " Received new value " << entry->value << " for " << *(entry->state));
+
+        lookupReturn(*(entry->state), entry->value);
+        needsStep = true;
+        break;
+
+      case Q_COMMAND_ACK:
+        assertTrue_1(entry->command);
+
+        {
+          CommandHandleValue handle = NO_COMMAND_HANDLE;
+          entry->value.getValue(handle);
+          assertTrue_1(handle != NO_COMMAND_HANDLE);
+          debugMsg("InterfaceManager:processQueue",
+                   " received command handle value "
+                   << commandHandleValueName((CommandHandleValue) handle)
+                   << " for command " << entry->command->getCommand());
+          commandHandleReturn(entry->command, (CommandHandleValue) handle);
+        }
+        needsStep = true;
+        break;
+
+      case Q_COMMAND_RETURN:
+        assertTrue_1(entry->command);
+        debugMsg("InterfaceManager:processQueue",
+                 " received return value " << entry->value
+                 << " for command " << entry->command->getCommand());
+        commandReturn(entry->command, entry->value);
+        needsStep = true;
+        break;
+
+      case Q_COMMAND_ABORT:
+        assertTrue_1(entry->command);
+
+        {
+          bool ack;
+          bool known = entry->value.getValue(ack);
+          assertTrue_1(known);
+          debugMsg("InterfaceManager:processQueue",
+                   " received command abort ack " << (ack ? "true" : "false")
+                   << " for command " << entry->command->getCommand());
+          commandAbortAcknowledge(entry->command, ack);
+        }
+        needsStep = true;
+        break;
+
+      case Q_UPDATE_ACK:
+        assertTrue_1(entry->update);
+        {
+          bool ack;
+          bool known = entry->value.getValue(ack);
+          assertTrue_1(known);
+          debugMsg("InterfaceManager:processQueue",
+                   " received update ack " << (ack ? "true" : "false")
+                   << " for node "
+                   << entry->update->getSource()->getNodeId());
+          acknowledgeUpdate(entry->update, ack);
+        }
+        needsStep = true;
+        break;
+
+      case Q_ADD_PLAN:
+        {
+          NodeImpl *pid = entry->plan;
+          assertTrue_1(pid);
+          debugMsg("InterfaceManager:processQueue",
+                   " adding plan " << entry->plan->getNodeId());
+          g_exec->addPlan(pid);
+        }
+        entry->plan = nullptr;
+        needsStep = true;
+        break;
+
+      case Q_RECEIVE_MSG:
+        messageReceived(entry->message);
+        needsStep = true;
+        break;
+        
+      case Q_ACCEPT_MSG:
+        {
+          std::string handle;
+          assertTrue_2(entry->value.getValue(handle),
+                       "InterfaceManager::processQueue: message handle is unknown or wrong type");
+          assignMessageHandle(entry->message, handle);
+        }
+        entry->message = nullptr;
+        needsStep = true;
+        break;
+
+      case Q_RELEASE_MSG_HANDLE:
+        {
+          std::string handle;
+          assertTrue_2(entry->value.getValue(handle),
+                       "InterfaceManager::processQueue: message handle is unknown or wrong type");
+          releaseMessageHandle(handle);
+        }
+        needsStep = true;
+        break;
+
+      default:
+        // Internal error
+        errorMsg("InterfaceManager:processQueue: Invalid entry type "
+                 << entry->type);
+        break;
+      }
+
+      // Recycle the queue entry
+      m_inputQueue->release(entry);
+    }
+
+
+
+    debugMsg("InterfaceManager:processQueue",
+             " Queue empty, returning " << (needsStep ? "true" : "false"));
+    return needsStep;
+  }
 
 }

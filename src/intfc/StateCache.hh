@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class LookupReceiver;
+  class Message;
   class StateCacheEntry;
 
   /**
@@ -62,6 +63,19 @@ namespace PLEXIL
     //       PLEXIL implements a real Date type.
     static double queryTime();
 
+    //
+    // API to ExternalInterface
+    //
+
+    //! Update the value for this state's Lookup.
+    //! @param state The state.
+    //! @param value The new value.
+    virtual void lookupReturn(State const &state, Value const &value) = 0;
+
+    //
+    // API to Lookup
+    //
+    
     /**
      * @brief Construct or find the cache entry for this state.
      * @param state The state being looked up.
@@ -71,6 +85,27 @@ namespace PLEXIL
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state) = 0;
 
     virtual LookupReceiver *getLookupReceiver(State const &state) = 0;
+
+    //
+    // Message API to external interfaces
+    //
+
+    //! Receive notification of a message becoming available.
+    //! @param msg Const pointer to the new message.
+    virtual void messageReceived(Message const *msg) = 0;
+
+    //! Receive notification that the message queue is empty.
+    virtual void messageQueueEmpty() = 0;
+
+    //! Accept an incoming message and associate it with the handle.
+    //! @param msg Pointer to the message. StateCache takes ownership of the message.
+    //! @param handle String used as a handle for the message.
+    virtual void assignMessageHandle(Message *msg, std::string const &handle) = 0;
+
+    //! Release the message handle, and clear the message data
+    //! associated with that handle.
+    //! @param handle The handle being released.
+    virtual void releaseMessageHandle(std::string const &handle) = 0;
 
   protected:
 

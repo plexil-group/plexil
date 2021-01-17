@@ -85,6 +85,11 @@ namespace PLEXIL
       return m_receiver.get();
     }
 
+    virtual bool hasRegisteredLookups() const
+    {
+      return !m_lookups.empty();
+    }
+
     virtual void registerLookup(State const &state, Lookup *lkup)
     {
       m_lookups.push_back(lkup);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,9 @@ namespace PLEXIL
 
     // Callback object for interface implementations
     virtual LookupReceiver *getLookupReceiver() = 0;
+
+    // Safety check before deleting entry
+    virtual bool hasRegisteredLookups() const = 0;
 
     // API to Lookup
     virtual void registerLookup(State const &s, Lookup *l) = 0;

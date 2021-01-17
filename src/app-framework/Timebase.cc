@@ -154,6 +154,10 @@ namespace PLEXIL
 
 #endif
 
+//
+// Factory registration
+//
+
 #if defined(HAVE_TIMER_CREATE)
 #include "PosixTimebase.cc"
 #endif
@@ -166,22 +170,18 @@ namespace PLEXIL
 #include "ItimerTimebase.cc"
 #endif
 
-namespace PLEXIL
+extern "C"
+void initTimebaseFactories()
 {
-
-  void initTimebaseFactories()
-  {
 #if defined(HAVE_TIMER_CREATE)
-    registerPosixTimebase();
+  PLEXIL::registerPosixTimebase();
 #endif
 
 #if defined(HAVE_DISPATCH_DISPATCH_H)
-    registerDispatchTimebase();
+  PLEXIL::registerDispatchTimebase();
 #endif
 
 #if defined(HAVE_SETITIMER)
-    registerItimerTimebase();
+  PLEXIL::registerItimerTimebase();
 #endif
-  }
-
 }

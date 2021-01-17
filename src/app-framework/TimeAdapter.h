@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,9 @@
 #ifndef TIME_ADAPTER_H
 #define TIME_ADAPTER_H
 
-namespace PLEXIL
-{
-
-  // Delegated to implementations
-  extern void registerTimeAdapter();
-
-} // namespace PLEXIL
+#ifdef __cplusplus
+extern "C"
+#endif
+void initTimeAdapter();
 
 #endif // TIME_ADAPTER_H

@@ -118,6 +118,24 @@ namespace PLEXIL
     type = Q_ADD_PLAN;
   }
 
+  void QueueEntry::initForReceiveMessage(Message *msg)
+  {
+    message = msg;
+    type = Q_RECEIVE_MSG;
+  }
+
+  void QueueEntry::initForAcceptMessage(Message *msg, std::string const &handle)
+  {
+    message = msg;
+    type = Q_ACCEPT_MSG;
+  }
+
+  void QueueEntry::initForReleaseMessageHandle(std::string const &handle)
+  {
+    value = handle;
+    type = Q_RELEASE_MSG_HANDLE;
+  }
+
   void QueueEntry::initForMark(unsigned int seq)
   {
     sequence = seq;

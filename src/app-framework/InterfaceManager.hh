@@ -146,6 +146,10 @@ namespace PLEXIL
     // API to interface handlers
     //
 
+    //
+    // Lookup API
+    //
+
     //! Notify of the availability of a new value for a lookup.
     //! @param state The state for the new value.
     //! @param value The new value.
@@ -153,6 +157,10 @@ namespace PLEXIL
     virtual void handleValueChange(const State &state, Value &&value);
     virtual void handleValueChange(State &&state, const Value &value);
     virtual void handleValueChange(State &&state, Value &&value);
+
+    //
+    // Command API
+    //
 
     //! Notify of the availability of a return value for a command
     //! @param cmd The command.
@@ -175,6 +183,30 @@ namespace PLEXIL
     //! @param ack Whether or not the update was successful. 
     virtual void handleUpdateAck(Update * upd, bool ack);
 
+    //
+    // Message API
+    //
+
+    //! Notify the executive that a message has been received.
+    //! @param message The message.
+    virtual void notifyMessageReceived(Message *message);
+
+    //! Notify the executive that the message queue is empty.
+    virtual void notifyMessageQueueEmpty();
+
+    //! Notify the executive that a message has been accepted.
+    //! @param message The message
+    //! @param handle The message handle.
+    virtual void notifyMessageAccepted(Message *message, std::string const &handle);
+
+    //! Notify the executive that a message handle has been released.
+    //! @param handle The message handle.
+    virtual void notifyMessageHandleReleased(std::string const &handle);
+
+    //
+    // Plan API
+    //
+
     //! Notify the executive of a new plan.
     //! @param planXml The XML representation of the new plan.
     virtual void handleAddPlan(pugi::xml_node const planXml);
@@ -193,6 +225,10 @@ namespace PLEXIL
     //! @param libName Name of the library.
     //! @return True if the named library has been loaded, false otherwise.
     bool isLibraryLoaded(const std::string& libName) const;
+
+    //
+    // Notify API
+    //
 
     //! Notify the executive that it should run one cycle.
     virtual void notifyOfExternalEvent();

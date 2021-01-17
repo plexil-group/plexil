@@ -205,12 +205,13 @@ namespace PLEXIL
     adpt->getInterface().notifyOfExternalEvent();
   }
 
-  void registerTimeAdapter()
-  {
-    REGISTER_ADAPTER(TimeAdapter, "Time");
-
-    // Register timebase factories while we're at it
-    initTimebaseFactories();
-  }
-
 } // namespace PLEXIL
+
+extern "C"
+void initTimeAdapter()
+{
+  REGISTER_ADAPTER(PLEXIL::TimeAdapter, "Time");
+
+  // Register timebase factories while we're at it
+  initTimebaseFactories();
+}

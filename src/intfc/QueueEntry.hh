@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class Command;
+  class Message;
   class NodeImpl;
   class State;
   class Update;
@@ -45,6 +46,9 @@ namespace PLEXIL
     Q_COMMAND_ABORT,
     Q_UPDATE_ACK,
     Q_ADD_PLAN,
+    Q_RECEIVE_MSG,
+    Q_ACCEPT_MSG,
+    Q_RELEASE_MSG_HANDLE,
     Q_MARK,
 
     Q_INVALID
@@ -55,9 +59,10 @@ namespace PLEXIL
     QueueEntry *next;
     union {
       Command *command;
-      Update *update;
+      Message *message;
       NodeImpl *plan;
       State *state;
+      Update *update;
       unsigned int sequence;
     };
     Value value;
@@ -86,6 +91,10 @@ namespace PLEXIL
     void initForUpdateAck(Update *upd, bool ack);
 
     void initForAddPlan(NodeImpl *p);
+
+    void initForReceiveMessage(Message *msg);
+    void initForAcceptMessage(Message *msg, std::string const &handle);
+    void initForReleaseMessageHandle(std::string const &handle);
 
     void initForMark(unsigned int seq);
 

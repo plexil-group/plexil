@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ namespace PLEXIL
 {
   // forward references
   class Command;
+  class Message;
   class State;
   class Update;
   class Value;
@@ -59,6 +60,10 @@ namespace PLEXIL
     // Virtual destructor
     virtual ~AdapterExecInterface() = default;
 
+    //
+    // Lookup API
+    //
+
     //!
     // @brief Notify of the availability of a new value for a lookup.
     // @param state The state for the new value.
@@ -68,6 +73,10 @@ namespace PLEXIL
     virtual void handleValueChange(State const &state, Value &&value) = 0;
     virtual void handleValueChange(State &&state, const Value &value) = 0;
     virtual void handleValueChange(State &&state, Value &&value) = 0;
+
+    //
+    // Command API
+    //
 
     //!
     // @brief Notify of the availability of a command handle value for a command.
@@ -91,12 +100,40 @@ namespace PLEXIL
     //
     virtual void handleCommandAbortAck(Command *cmd, bool ack) = 0;
 
+    //
+    // Update API
+    //
+
     //!
     // @brief Notify of the availability of a planner update acknowledgment.
     // @param upd Pointer to the Update instance.
     // @param ack The acknowledgment value.
     //
     virtual void handleUpdateAck(Update *upd, bool ack) = 0;
+
+    //
+    // Message API
+    //
+
+    //! Notify the executive that a message has been received.
+    //! @param message The message.
+    virtual void notifyMessageReceived(Message *message) = 0;
+
+    //! Notify the executive that the message queue is empty.
+    virtual void notifyMessageQueueEmpty() = 0;
+
+    //! Notify the executive that a message has been accepted.
+    //! @param message The message
+    //! @param handle The message handle.
+    virtual void notifyMessageAccepted(Message *message, std::string const &handle) = 0;
+
+    //! Notify the executive that a message handle has been released.
+    //! @param handle The message handle.
+    virtual void notifyMessageHandleReleased(std::string const &handle) = 0;
+
+    //
+    // Plan API
+    //
 
     //!
     // @brief Notify the executive of a new plan.
@@ -110,11 +147,11 @@ namespace PLEXIL
     //! @note The interface takes ownership of the plan document.
     virtual bool handleAddLibrary(pugi::xml_document *planXml) = 0;
 
-    //!
-    // @brief Notify the executive that it should run one cycle.
     //
-    // @note This should be called after each batch of lookup and command return data.
+    // Notify API
     //
+
+    //! Notify the executive that it should run one cycle.
     virtual void notifyOfExternalEvent() = 0;
 
 #ifdef PLEXIL_WITH_THREADS

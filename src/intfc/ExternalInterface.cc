@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -189,5 +189,36 @@ namespace PLEXIL
     upd->acknowledge(val);
   }
 
+  //! Receive notification of a message becoming available.
+  //! @param msg Const pointer to the new message.
+  //! @note Populates the PeekAtMessage and PeekAtMessageSender states.
+  void ExternalInterface::messageReceived(Message const *msg)
+  {
+    StateCache::instance().messageReceived(msg);
+  }
+
+  //! Receive notification that the message queue is empty.
+  void ExternalInterface::messageQueueEmpty()
+  {
+    StateCache::instance().messageQueueEmpty();
+  }
+
+  //! Accept an incoming message and associate it with the handle.
+  //! @param msg Pointer to the message. StateCache takes ownership of the message.
+  //! @param handle String used as a handle for the message.
+  void ExternalInterface::assignMessageHandle(Message *msg, std::string const &handle)
+  {
+    StateCache::instance().assignMessageHandle(msg, handle);
+  }
+
+  //! Release the message handle, and clear the message data
+  //! associated with that handle.
+  //! @param handle The handle being released.
+  void ExternalInterface::releaseMessageHandle(std::string const &handle)
+  {
+    StateCache::instance().releaseMessageHandle(handle);
+  }
+
 }
+
 
