@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@
 
 #include "Value.hh"
 
-#include <vector>
-
 namespace PLEXIL
 {
   /**
@@ -49,6 +47,8 @@ namespace PLEXIL
 
     // Convenience for interface adapters
     State(std::string const &name, Value const &arg0);
+    State(std::string const &name, Value const &arg0, Value const &arg1);
+    State(std::string const &name, std::vector<Value> const &args);
 
     ~State();
 
