@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #include "ArrayLiteralFactory.hh"
 #include "Assignable.hh"
 #include "AssignmentNode.hh"
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "CommandNode.hh"
 #include "commandXmlParser.hh"
 #include "createExpression.hh"
@@ -882,7 +882,7 @@ namespace PLEXIL
         break;
 
       case NodeType_Command:
-        dynamic_cast<CommandNode *>(node)->setCommand(new Command(node->getNodeId()));
+        dynamic_cast<CommandNode *>(node)->setCommand(new CommandImpl(node->getNodeId()));
         break;
 
       case NodeType_LibraryNodeCall:

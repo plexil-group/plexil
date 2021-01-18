@@ -26,7 +26,7 @@
 
 #include "ExternalInterface.hh"
 
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "LookupReceiver.hh"
@@ -84,7 +84,7 @@ namespace PLEXIL
   /**
    * @brief Schedule this command for execution.
    */
-  void ExternalInterface::enqueueCommand(Command *cmd)
+  void ExternalInterface::enqueueCommand(CommandImpl *cmd)
   {
     m_commandsToExecute.push(cmd);
   }
@@ -92,7 +92,7 @@ namespace PLEXIL
   /**
    * @brief Abort the pending command.
    */
-  void ExternalInterface::abortCommand(Command *cmd)
+  void ExternalInterface::abortCommand(CommandImpl *cmd)
   {
     this->invokeAbort(cmd);
   }
@@ -101,7 +101,7 @@ namespace PLEXIL
    * @brief Release resources in use by the command.
    */
 
-  void ExternalInterface::releaseResourcesForCommand(Command *cmd)
+  void ExternalInterface::releaseResourcesForCommand(CommandImpl *cmd)
   {
     m_raInterface->releaseResourcesForCommand(cmd);
   }
@@ -120,8 +120,8 @@ namespace PLEXIL
   void ExternalInterface::executeOutboundQueue()
   {
     if (!m_commandsToExecute.empty()) {
-      LinkedQueue<Command> resourceCmds;
-      while (Command *cmd = m_commandsToExecute.front()) {
+      LinkedQueue<CommandImpl> resourceCmds;
+      while (CommandImpl *cmd = m_commandsToExecute.front()) {
         m_commandsToExecute.pop();
         if (cmd->getResourceValues().empty()) {
           // Execute it now
@@ -136,13 +136,13 @@ namespace PLEXIL
       }
 
       if (!resourceCmds.empty()) {
-        LinkedQueue<Command> acceptCmds, rejectCmds;
+        LinkedQueue<CommandImpl> acceptCmds, rejectCmds;
         m_raInterface->arbitrateCommands(resourceCmds, acceptCmds, rejectCmds);
-        while (Command *cmd = acceptCmds.front()) {
+        while (CommandImpl *cmd = acceptCmds.front()) {
           acceptCmds.pop();
           this->executeCommand(cmd);
         }
-        while (Command *cmd = rejectCmds.front()) {
+        while (CommandImpl *cmd = rejectCmds.front()) {
           rejectCmds.pop();
           debugMsg("Test:testOutput", 
                    "Permission to execute " << cmd->getName()
@@ -171,17 +171,23 @@ namespace PLEXIL
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)
   {
-    cmd->returnValue(value);
+    CommandImpl *impl = dynamic_cast<CommandImpl *>(cmd);
+    assertTrue_1(impl);
+    impl->returnValue(value);
   }
 
   void ExternalInterface::commandHandleReturn(Command *cmd, CommandHandleValue val)
   {
-    cmd->setCommandHandle(val);
+    CommandImpl *impl = dynamic_cast<CommandImpl *>(cmd);
+    assertTrue_1(impl);
+    impl->setCommandHandle(val);
   }
 
   void ExternalInterface::commandAbortAcknowledge(Command *cmd, bool ack)
   {
-    cmd->acknowledgeAbort(ack);
+    CommandImpl *impl = dynamic_cast<CommandImpl *>(cmd);
+    assertTrue_1(impl);
+    impl->acknowledgeAbort(ack);
   }
 
   void ExternalInterface::acknowledgeUpdate(Update *upd, bool val)

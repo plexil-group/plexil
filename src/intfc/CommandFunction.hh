@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 
 namespace PLEXIL
 {
-  class Command;
+  class CommandImpl;
   class CommandOperator;
 
   /**
@@ -46,7 +46,7 @@ namespace PLEXIL
       public Propagator
   {
   public:
-    CommandFunction(CommandOperator const *op, Command &cmd);
+    CommandFunction(CommandOperator const *op, CommandImpl &cmd);
     virtual ~CommandFunction();
 
     //
@@ -93,7 +93,7 @@ namespace PLEXIL
     CommandFunction(const CommandFunction &);
     CommandFunction& operator=(const CommandFunction &);
 
-    Command &m_command;
+    CommandImpl &m_command;
   };
 
 } // namespace PLEXIL

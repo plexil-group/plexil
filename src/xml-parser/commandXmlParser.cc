@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 */
 
 #include "Assignable.hh"
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "createExpression.hh"
 #include "Error.hh"
 #include "ExprVec.hh"
@@ -280,7 +280,7 @@ namespace PLEXIL
 
   // Pass 3
   static void finalizeResourceList(NodeConnector *node,
-                                   Command *cmd,
+                                   CommandImpl *cmd,
                                    xml_node const rlist)
   {
     ResourceList *resources =
@@ -362,7 +362,7 @@ namespace PLEXIL
   }
 
   // Pass 3
-  void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const cmdXml)
+  void finalizeCommand(CommandImpl *cmd, NodeConnector *node, xml_node const cmdXml)
   {
     xml_node temp = cmdXml.first_child();
 

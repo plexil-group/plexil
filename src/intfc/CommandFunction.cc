@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "CommandOperator.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
@@ -36,7 +36,7 @@
 
 namespace PLEXIL
 {
-  CommandFunction::CommandFunction(CommandOperator const *op, Command &command)
+  CommandFunction::CommandFunction(CommandOperator const *op, CommandImpl &command)
     : Propagator(),
       m_op(op),
       m_command(command)

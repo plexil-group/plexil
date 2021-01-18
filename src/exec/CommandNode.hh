@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 namespace PLEXIL
 {
   // Forward reference
-  class Command;
+  class CommandImpl;
 
   class CommandNode final : public NodeImpl
   {
@@ -73,15 +73,15 @@ namespace PLEXIL
     /**
      * @brief Get the node's command.
      */
-    Command const *getCommand() const { return m_command.get(); }
-    Command *getCommand() { return m_command.get(); }
+    CommandImpl const *getCommand() const { return m_command.get(); }
+    CommandImpl *getCommand() { return m_command.get(); }
 
     /**
      * @brief Set the command.
      * @param cmd The command.
      * @note Should only be used by plan parser and unit test.
      */
-    void setCommand(Command *cmd);
+    void setCommand(CommandImpl *cmd);
 
   protected:
 
@@ -111,7 +111,7 @@ namespace PLEXIL
     // Unit test support
     void initDummyCommand(); // unit test variant
 
-    std::unique_ptr<Command> m_command; /*<! The command to be performed. */
+    std::unique_ptr<CommandImpl> m_command; /*<! The command to be performed. */
   };
 
 }

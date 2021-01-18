@@ -26,7 +26,7 @@
 
 #include "InternalExpressionFactories.hh"
 
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "CommandNode.hh"
 #include "NodeImpl.hh"
 #include "NodeConstantExpressions.hh"

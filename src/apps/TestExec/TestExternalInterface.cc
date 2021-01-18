@@ -528,12 +528,7 @@ namespace PLEXIL
   {
     State const& command = cmd->getCommand();
 
-    Expression *dest = cmd->getDest();
-    debugMsg("Test:testOutput", "Executing " << command <<
-             (dest ? " into " + dest->toString() : "") <<
-             " with ack " << cmd->getAck()->toString());
-    if (dest)
-      m_executingCommands[command] = cmd;
+    debugMsg("Test:testOutput", "Executing " << command);
 
     // Special handling of the utility commands (a bit of a hack!):
     std::string const & cmdName = command.name();
@@ -556,6 +551,8 @@ namespace PLEXIL
     else {
       // Usual case - set up for scripted ack value
       m_commandAcks[command] = cmd;
+      if (cmd->isReturnExpected())
+        m_executingCommands[command] = cmd;
     }
   }
 

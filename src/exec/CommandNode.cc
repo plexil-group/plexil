@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #include "CommandNode.hh"
 
 #include "BooleanOperators.hh"
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "Constant.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -106,7 +106,7 @@ namespace PLEXIL
                            NodeState state,
                            NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_command(new Command(name))
+      m_command(new CommandImpl(name))
   {
     // Set up dummy command for unit test
     initDummyCommand();
@@ -170,7 +170,7 @@ namespace PLEXIL
     m_cleanedBody = true;
   }
 
-  void CommandNode::setCommand(Command *cmd)
+  void CommandNode::setCommand(CommandImpl *cmd)
   {
     assertTrue_1(cmd);
     m_command.reset(cmd);

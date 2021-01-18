@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Command.hh"
+#include "CommandImpl.hh"
 
 #include "CommandOperatorImpl.hh"
 #include "Assignable.hh"
@@ -141,13 +141,13 @@ namespace PLEXIL
     
     DECLARE_COMMAND_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
 
-    bool operator()(Boolean &result, Command const *command) const
+    bool operator()(Boolean &result, CommandImpl const *command) const
     {
       result = (NO_COMMAND_HANDLE != command->getCommandHandle());
       return true;
     }
 
-    void doPropagationSources(Command *command, ListenableUnaryOperator const &oper) const
+    void doPropagationSources(CommandImpl *command, ListenableUnaryOperator const &oper) const
     {
       (oper)(command->getAck());
     }
@@ -164,7 +164,7 @@ namespace PLEXIL
     CommandHandleKnown &operator=(CommandHandleKnown const &);
   };
 
-  Command::Command(std::string const &nodeName)
+  CommandImpl::CommandImpl(std::string const &nodeName)
     : m_next(nullptr),
       m_handleKnownFn(CommandHandleKnown::instance(), *this),
       m_ack(*this),
@@ -188,12 +188,13 @@ namespace PLEXIL
     m_ack.setName(nodeName);
   }
 
-  Command::~Command() 
+  CommandImpl::~CommandImpl() 
   {
     cleanUp();
   }
 
-  void Command::cleanUp()
+
+  void CommandImpl::cleanUp()
   {
     if (m_nameIsGarbage)
       delete m_nameExpr;
@@ -218,53 +219,35 @@ namespace PLEXIL
     }
   }
 
-  void Command::setDestination(Expression *dest, bool isGarbage)
-  {
-    m_dest = dest;
-    m_destIsGarbage = isGarbage;
-  }
-
-  void Command::setNameExpr(Expression *nameExpr, bool isGarbage)
-  {
-    m_nameExpr = nameExpr;
-    m_nameIsGarbage = isGarbage;
-  }
-
-  void Command::setResourceList(ResourceList *lst)
-  {
-    if (m_resourceList && m_resourceList != lst) // unlikely, but...
-      delete m_resourceList;
-
-    m_resourceList = lst;
-    m_resourcesAreConstant = false; // must check
-  }
-
-  void Command::setArgumentVector(ExprVec *vec)
-  {
-    delete m_argVec;
-    m_argVec = vec;
-    // TODO: check whether argument vector is constant
-  }
-
-  State const &Command::getCommand() const
+  State const &CommandImpl::getCommand() const
   {
     assertTrue_1(m_commandIsConstant || m_commandFixed);
     return m_command;
   }
 
-  std::string const &Command::getName() const
+  std::string const &CommandImpl::getName() const
   {
     assertTrue_1(m_commandNameIsConstant || m_commandFixed);
     return m_command.name();
   }
 
-  std::vector<Value> const &Command::getArgValues() const
+  std::vector<Value> const &CommandImpl::getArgValues() const
   {
     assertTrue_1(m_commandIsConstant || m_commandFixed);
     return m_command.parameters();
   }
 
-  const ResourceValueList &Command::getResourceValues() const
+  bool CommandImpl::isReturnExpected() const
+  {
+    return (bool) m_dest;
+  }
+
+  CommandHandleValue CommandImpl:: getCommandHandle() const
+  {
+    return m_commandHandle;
+  }
+
+  const ResourceValueList &CommandImpl::getResourceValues() const
   {
     static ResourceValueList const sl_emptyList;
 
@@ -274,17 +257,45 @@ namespace PLEXIL
     return sl_emptyList;
   }
 
-  Expression *Command::getDest()
+  void CommandImpl::setDestination(Expression *dest, bool isGarbage)
+  {
+    m_dest = dest;
+    m_destIsGarbage = isGarbage;
+  }
+
+  void CommandImpl::setNameExpr(Expression *nameExpr, bool isGarbage)
+  {
+    m_nameExpr = nameExpr;
+    m_nameIsGarbage = isGarbage;
+  }
+
+  void CommandImpl::setResourceList(ResourceList *lst)
+  {
+    if (m_resourceList && m_resourceList != lst) // unlikely, but...
+      delete m_resourceList;
+
+    m_resourceList = lst;
+    m_resourcesAreConstant = false; // must check
+  }
+
+  void CommandImpl::setArgumentVector(ExprVec *vec)
+  {
+    delete m_argVec;
+    m_argVec = vec;
+    // TODO: check whether argument vector is constant
+  }
+
+  Expression *CommandImpl::getDest()
   {
     return m_dest;
   }
 
-  bool Command::isCommandNameConstant() const
+  bool CommandImpl::isCommandNameConstant() const
   {
     return m_nameExpr->isConstant();
   }
 
-  bool Command::isCommandConstant() const
+  bool CommandImpl::isCommandConstant() const
   {
     if (!isCommandNameConstant())
       return false;
@@ -295,7 +306,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Command::areResourcesConstant() const
+  bool CommandImpl::areResourcesConstant() const
   {
     if (!m_resourceList)
       return true;
@@ -312,7 +323,7 @@ namespace PLEXIL
     return true;
   }
 
-  void Command::fixValues() 
+  void CommandImpl::fixValues() 
   {
     assertTrue_1(m_active);
     std::string const *name;
@@ -327,7 +338,7 @@ namespace PLEXIL
     m_commandFixed = true;
   }
 
-  void Command::fixResourceValues()
+  void CommandImpl::fixResourceValues()
   {
     check_error_1(m_active);
     if (!m_resourceList)
@@ -369,7 +380,7 @@ namespace PLEXIL
     m_resourcesFixed = true;
   }
 
-  void Command::activate()
+  void CommandImpl::activate()
   {
     check_error_1(!m_active);
     check_error_1(m_nameExpr);
@@ -415,7 +426,7 @@ namespace PLEXIL
     m_active = true;
   }
 
-  void Command::execute()
+  void CommandImpl::execute()
   {
     check_error_1(m_active);
     if (!m_commandFixed)
@@ -425,7 +436,7 @@ namespace PLEXIL
     g_interface->enqueueCommand(this);
   }
 
-  void Command::setCommandHandle(CommandHandleValue handle)
+  void CommandImpl::setCommandHandle(CommandHandleValue handle)
   {
     if (!m_active)
       return;
@@ -435,14 +446,14 @@ namespace PLEXIL
     m_ack.publishChange();
   }
 
-  void Command::returnValue(Value const &val)
+  void CommandImpl::returnValue(Value const &val)
   {
     if (!m_active || !m_dest)
       return;
     m_dest->asAssignable()->setValue(val);
   }
 
-  void Command::abort()
+  void CommandImpl::abort()
   {
     check_error_1(m_active);
     // Handle stupid unit test
@@ -451,7 +462,7 @@ namespace PLEXIL
     }
   }
 
-  void Command::acknowledgeAbort(bool ack)
+  void CommandImpl::acknowledgeAbort(bool ack)
   {
     // Ignore late or erroneous acks
     if (!m_active)
@@ -459,7 +470,7 @@ namespace PLEXIL
     m_abortComplete.setValue(ack);
   }
 
-  void Command::deactivate() 
+  void CommandImpl::deactivate() 
   {
     check_error_1(m_active);
     m_active = false;

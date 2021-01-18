@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "CommandHandleVariable.hh"
 
-#include "Command.hh"
+#include "CommandImpl.hh"
 
 #if defined(HAVE_CSTDLIB)
 #include <cstdlib> // free()
@@ -47,7 +47,7 @@ namespace PLEXIL
   // CommandHandleVariable
   //
 
-  CommandHandleVariable::CommandHandleVariable(Command const &cmd)
+  CommandHandleVariable::CommandHandleVariable(CommandImpl const &cmd)
     : Notifier(),
     m_command(cmd),
     m_name(nullptr)

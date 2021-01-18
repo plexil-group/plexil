@@ -161,6 +161,8 @@ namespace PLEXIL
     //
     // Command API
     //
+    // Note that these member functions take the abstract base class
+    // Command rather than the full-featured CommandImpl.
 
     //! Notify of the availability of a return value for a command
     //! @param cmd The command.
@@ -238,15 +240,6 @@ namespace PLEXIL
     //! the queue at the time of the call have been processed.
     virtual void notifyAndWaitForCompletion();
 #endif
-
-  protected:
-
-    //
-    // Internal functionality
-    //
-
-    // rejects a command due to non-availability of resources
-    void rejectCommand(Command *cmd);
 
   private:
 

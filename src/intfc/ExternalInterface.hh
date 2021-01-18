@@ -35,6 +35,7 @@
 namespace PLEXIL {
   // Forward declarations
   class Command;
+  class CommandImpl;
   class LookupReceiver;
   class Message;
   class ResourceArbiterInterface;
@@ -101,12 +102,12 @@ namespace PLEXIL {
     /**
      * @brief Schedule this command for execution.
      */
-    virtual void enqueueCommand(Command *cmd);
+    virtual void enqueueCommand(CommandImpl *cmd);
 
     /**
      * @brief Abort the pending command.
      */
-    virtual void abortCommand(Command *cmd);
+    virtual void abortCommand(CommandImpl *cmd);
 
     /**
      * @brief Schedule this update for execution.
@@ -114,13 +115,13 @@ namespace PLEXIL {
     virtual void enqueueUpdate(Update *update);
 
     //
-    // API to Command
+    // API to CommandImpl
     //
     
     /**
      * @brief Release resources in use by the command.
      */
-    void releaseResourcesForCommand(Command *cmd);
+    void releaseResourcesForCommand(CommandImpl *cmd);
 
     //
     // API to Exec
@@ -257,7 +258,7 @@ namespace PLEXIL {
     ExternalInterface &operator=(ExternalInterface &&) = delete;
 
     LinkedQueue<Update> m_updatesToExecute;
-    LinkedQueue<Command> m_commandsToExecute;
+    LinkedQueue<CommandImpl> m_commandsToExecute;
     ResourceArbiterInterface *m_raInterface;
     unsigned int m_cycleCount;
   };

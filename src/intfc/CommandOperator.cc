@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ namespace PLEXIL
 {
 
 #define DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(_rtype_) \
-  bool CommandOperator::operator()(_rtype_ & /* result */, Command const * /* command */) const \
+  bool CommandOperator::operator()(_rtype_ & /* result */, CommandImpl const * /* command */) const \
   { errorMsg("No method defined for" #_rtype_); return false; }
 
   DEFINE_COMMAND_OPERATOR_DEFAULT_METHOD(Boolean)

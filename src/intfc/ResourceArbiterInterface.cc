@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "ResourceArbiterInterface.hh"
 
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "Debug.hh"
 #include "LinkedQueue.hh"
 
@@ -123,7 +123,7 @@ namespace PLEXIL
 
   struct CommandPriorityEntry
   {
-    CommandPriorityEntry(int32_t prio, Command *cmd)
+    CommandPriorityEntry(int32_t prio, CommandImpl *cmd)
       : resources(),
         command(cmd),
         priority(prio)
@@ -136,7 +136,7 @@ namespace PLEXIL
     CommandPriorityEntry &operator=(CommandPriorityEntry &&) = default;
 
     ResourceSet resources;
-    Command *command;
+    CommandImpl *command;
     int32_t priority;
   };
 
@@ -162,8 +162,8 @@ namespace PLEXIL
   typedef std::map<std::string, ResourceEstimate> EstimateMap;
 
   // Type names
-  typedef std::pair<Command *, ResourceSet> ResourceMapEntry;
-  typedef std::map<Command *, ResourceSet> ResourceMap;
+  typedef std::pair<CommandImpl *, ResourceSet> ResourceMapEntry;
+  typedef std::map<CommandImpl *, ResourceSet> ResourceMap;
   typedef std::map<std::string, ResourceNode> ResourceHierarchyMap;
   typedef std::vector<CommandPriorityEntry> CommandPriorityList;
 
@@ -358,9 +358,9 @@ namespace PLEXIL
       return true;
     }
     
-    virtual void arbitrateCommands(LinkedQueue<Command> &cmds,
-                                   LinkedQueue<Command> &acceptCmds,
-                                   LinkedQueue<Command> &rejectCmds)
+    virtual void arbitrateCommands(LinkedQueue<CommandImpl> &cmds,
+                                   LinkedQueue<CommandImpl> &acceptCmds,
+                                   LinkedQueue<CommandImpl> &rejectCmds)
     {
       debugMsg("ResourceArbiterInterface:arbitrateCommands",
                " processing " << cmds.size() << " commands");
@@ -380,7 +380,7 @@ namespace PLEXIL
                 printAllocatedResources());
     }
 
-    virtual void releaseResourcesForCommand(Command *cmd)
+    virtual void releaseResourcesForCommand(CommandImpl *cmd)
     {
       // loop through all the resources used by the command and remove each of them
       // from the locked list as well as the command list if there are releasable.
@@ -405,10 +405,10 @@ namespace PLEXIL
   private:
     
     // Consumes cmds
-    void partitionCommands(LinkedQueue<Command> &cmds,
+    void partitionCommands(LinkedQueue<CommandImpl> &cmds,
                            CommandPriorityList &sortedCommands)
     {
-      while (Command *cmd = cmds.front()) {
+      while (CommandImpl *cmd = cmds.front()) {
         cmds.pop();
         const ResourceValueList& resList = cmd->getResourceValues();
         sortedCommands.emplace_back(CommandPriorityEntry(resList.front().priority, cmd));
@@ -428,8 +428,8 @@ namespace PLEXIL
     }
 
     // Populates acceptCmds, rejectCmds
-    void optimalResourceArbitration(LinkedQueue<Command> &acceptCmds,
-                                    LinkedQueue<Command> &rejectCmds,
+    void optimalResourceArbitration(LinkedQueue<CommandImpl> &acceptCmds,
+                                    LinkedQueue<CommandImpl> &rejectCmds,
                                     CommandPriorityList const &sortedCommands)
     {
       EstimateMap estimates;
@@ -450,7 +450,7 @@ namespace PLEXIL
 
       for (CommandPriorityEntry const entry : sortedCommands) {
         EstimateMap savedEstimates = estimates;
-        Command *cmd = entry.command;
+        CommandImpl *cmd = entry.command;
         ResourceSet const &requests = entry.resources;
         bool invalid = false;
         
@@ -537,10 +537,10 @@ namespace PLEXIL
         debugMsg("ResourceArbiterInterface:printAllocatedResources", ' ' << it->first << " = " << it->second);
     }
 
-    void printAcceptedCommands(LinkedQueue<Command> const &acceptCmds)
+    void printAcceptedCommands(LinkedQueue<CommandImpl> const &acceptCmds)
     {
       // Print accepted commands and the resources they consume.
-      Command *cmd = acceptCmds.front();
+      CommandImpl *cmd = acceptCmds.front();
       while (cmd) {
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
                  " Accepted command: " << cmd->getName()
