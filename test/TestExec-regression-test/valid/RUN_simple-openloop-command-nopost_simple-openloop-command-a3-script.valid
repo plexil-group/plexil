@@ -6,91 +6,91 @@ simple-openloop-command-nopost{
   }
 }
 
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step] ==>Start cycle 1
 [PlexilExec:step][1:0] Check queue: simple-openloop-command-nopost 
-[PlexilExec:step] Node simple-openloop-command-nopost 0x55e3a3986e80 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding simple-openloop-command-nopost 0x55e3a3986e80 to state change queue
+[PlexilExec:step] Node simple-openloop-command-nopost 0x7f8fa9d051f0 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to state change queue
 [PlexilExec:step][1:0] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][1:0:0] Transitioning NodeList node simple-openloop-command-nopost 0x55e3a3986e80 from INACTIVE to WAITING
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][1:0:0] Transitioning NodeList node simple-openloop-command-nopost 0x7f8fa9d051f0 from INACTIVE to WAITING
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][1:1] Check queue: simple-openloop-command-nopost 
-[PlexilExec:step] Node simple-openloop-command-nopost 0x55e3a3986e80 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding simple-openloop-command-nopost 0x55e3a3986e80 to state change queue
+[PlexilExec:step] Node simple-openloop-command-nopost 0x7f8fa9d051f0 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to state change queue
 [PlexilExec:step][1:1] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][1:1:0] Transitioning NodeList node simple-openloop-command-nopost 0x55e3a3986e80 from WAITING to EXECUTING
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
-[Node:notifyChanged] adding Drive 0x55e3a3987170 to check queue
+[PlexilExec:step][1:1:0] Transitioning NodeList node simple-openloop-command-nopost 0x7f8fa9d051f0 from WAITING to EXECUTING
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
+[Node:notifyChanged] adding Drive 0x7f8fa9d05510 to check queue
 [PlexilExec:step][1:2] Check queue: simple-openloop-command-nopost Drive 
-[PlexilExec:step] Node Drive 0x55e3a3987170 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding Drive 0x55e3a3987170 to state change queue
+[PlexilExec:step] Node Drive 0x7f8fa9d05510 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding Drive 0x7f8fa9d05510 to state change queue
 [PlexilExec:step][1:2] State change queue: Drive 
-[PlexilExec:step][1:2:0] Transitioning Command node Drive 0x55e3a3987170 from INACTIVE to WAITING
-[Node:notifyChanged] adding Drive 0x55e3a3987170 to check queue
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][1:2:0] Transitioning Command node Drive 0x7f8fa9d05510 from INACTIVE to WAITING
+[Node:notifyChanged] adding Drive 0x7f8fa9d05510 to check queue
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][1:3] Check queue: Drive simple-openloop-command-nopost 
-[PlexilExec:step] Node Drive 0x55e3a3987170 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding Drive 0x55e3a3987170 to state change queue
+[PlexilExec:step] Node Drive 0x7f8fa9d05510 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding Drive 0x7f8fa9d05510 to state change queue
 [PlexilExec:step][1:3] State change queue: Drive 
-[PlexilExec:step][1:3:0] Transitioning Command node Drive 0x55e3a3987170 from WAITING to EXECUTING
-[Node:notifyChanged] adding Drive 0x55e3a3987170 to check queue
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
-[Test:testOutput]Executing drive() with ack (CommandHandleVariable NodeCommandHandle 0x55e3a3987320 [a]([unknown_value]))
+[PlexilExec:step][1:3:0] Transitioning Command node Drive 0x7f8fa9d05510 from WAITING to EXECUTING
+[Node:notifyChanged] adding Drive 0x7f8fa9d05510 to check queue
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
+[Test:testOutput]Executing drive()
 [PlexilExec:step] ==>End cycle 1
 [PlexilExec:printPlan]
 simple-openloop-command-nopost{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean simple-openloop-command-nopost 0x55e3a3987018 [a](false))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-openloop-command-nopost 0x55e3a3986fd0 [i](false))
+ EndCondition: (AllChildrenFinished Boolean simple-openloop-command-nopost 0x7f8fa9d05380 [a](false))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean simple-openloop-command-nopost 0x7f8fa9d05338 [i](false))
   Drive{
    State: EXECUTING (0)
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x55e3a39872d8 [i](false))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x55e3a3987360 [a](false))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x55e3a3987320 [a]([unknown_value]))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f8fa9d05670 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f8fa9d056f8 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8fa9d056b8 [a]([unknown_value]))
   }
 }
 
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_DENIED
 [PlexilExec:step] ==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: Drive simple-openloop-command-nopost 
-[PlexilExec:step] Node Drive 0x55e3a3987170 can transition from EXECUTING to FINISHING
-[PlexilExec:step] adding Drive 0x55e3a3987170 to state change queue
+[PlexilExec:step] Node Drive 0x7f8fa9d05510 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding Drive 0x7f8fa9d05510 to state change queue
 [PlexilExec:step][2:0] State change queue: Drive 
-[PlexilExec:step][2:0:0] Transitioning Command node Drive 0x55e3a3987170 from EXECUTING to FINISHING
-[Node:notifyChanged] adding Drive 0x55e3a3987170 to check queue
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][2:0:0] Transitioning Command node Drive 0x7f8fa9d05510 from EXECUTING to FINISHING
+[Node:notifyChanged] adding Drive 0x7f8fa9d05510 to check queue
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][2:1] Check queue: Drive simple-openloop-command-nopost 
-[PlexilExec:step] Node Drive 0x55e3a3987170 can transition from FINISHING to ITERATION_ENDED
-[PlexilExec:step] adding Drive 0x55e3a3987170 to state change queue
+[PlexilExec:step] Node Drive 0x7f8fa9d05510 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding Drive 0x7f8fa9d05510 to state change queue
 [PlexilExec:step][2:1] State change queue: Drive 
-[PlexilExec:step][2:1:0] Transitioning Command node Drive 0x55e3a3987170 from FINISHING to ITERATION_ENDED
-[Node:notifyChanged] adding Drive 0x55e3a3987170 to check queue
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][2:1:0] Transitioning Command node Drive 0x7f8fa9d05510 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding Drive 0x7f8fa9d05510 to check queue
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][2:2] Check queue: Drive simple-openloop-command-nopost 
-[PlexilExec:step] Node Drive 0x55e3a3987170 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding Drive 0x55e3a3987170 to state change queue
+[PlexilExec:step] Node Drive 0x7f8fa9d05510 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding Drive 0x7f8fa9d05510 to state change queue
 [PlexilExec:step][2:2] State change queue: Drive 
-[PlexilExec:step][2:2:0] Transitioning Command node Drive 0x55e3a3987170 from ITERATION_ENDED to FINISHED
-[Node:notifyChanged] adding Drive 0x55e3a3987170 to check queue
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][2:2:0] Transitioning Command node Drive 0x7f8fa9d05510 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding Drive 0x7f8fa9d05510 to check queue
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][2:3] Check queue: Drive simple-openloop-command-nopost 
-[PlexilExec:step] Node simple-openloop-command-nopost 0x55e3a3986e80 can transition from EXECUTING to FINISHING
-[PlexilExec:step] adding simple-openloop-command-nopost 0x55e3a3986e80 to state change queue
+[PlexilExec:step] Node simple-openloop-command-nopost 0x7f8fa9d051f0 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to state change queue
 [PlexilExec:step][2:3] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][2:3:0] Transitioning NodeList node simple-openloop-command-nopost 0x55e3a3986e80 from EXECUTING to FINISHING
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][2:3:0] Transitioning NodeList node simple-openloop-command-nopost 0x7f8fa9d051f0 from EXECUTING to FINISHING
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][2:4] Check queue: simple-openloop-command-nopost 
-[PlexilExec:step] Node simple-openloop-command-nopost 0x55e3a3986e80 can transition from FINISHING to ITERATION_ENDED
-[PlexilExec:step] adding simple-openloop-command-nopost 0x55e3a3986e80 to state change queue
+[PlexilExec:step] Node simple-openloop-command-nopost 0x7f8fa9d051f0 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to state change queue
 [PlexilExec:step][2:4] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][2:4:0] Transitioning NodeList node simple-openloop-command-nopost 0x55e3a3986e80 from FINISHING to ITERATION_ENDED
-[Node:notifyChanged] adding simple-openloop-command-nopost 0x55e3a3986e80 to check queue
+[PlexilExec:step][2:4:0] Transitioning NodeList node simple-openloop-command-nopost 0x7f8fa9d051f0 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to check queue
 [PlexilExec:step][2:5] Check queue: simple-openloop-command-nopost 
-[PlexilExec:step] Node simple-openloop-command-nopost 0x55e3a3986e80 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding simple-openloop-command-nopost 0x55e3a3986e80 to state change queue
+[PlexilExec:step] Node simple-openloop-command-nopost 0x7f8fa9d051f0 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding simple-openloop-command-nopost 0x7f8fa9d051f0 to state change queue
 [PlexilExec:step][2:5] State change queue: simple-openloop-command-nopost 
-[PlexilExec:step][2:5:0] Transitioning NodeList node simple-openloop-command-nopost 0x55e3a3986e80 from ITERATION_ENDED to FINISHED
-[PlexilExec:step] Marking simple-openloop-command-nopost 0x55e3a3986e80 as a finished root node
+[PlexilExec:step][2:5:0] Transitioning NodeList node simple-openloop-command-nopost 0x7f8fa9d051f0 from ITERATION_ENDED to FINISHED
+[PlexilExec:step] Marking simple-openloop-command-nopost 0x7f8fa9d051f0 as a finished root node
 [PlexilExec:step] ==>End cycle 2
 [PlexilExec:printPlan]
 simple-openloop-command-nopost{
@@ -99,7 +99,7 @@ simple-openloop-command-nopost{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x55e3a3987320 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8fa9d056b8 [i]([unknown_value]))
   }
 }
 
