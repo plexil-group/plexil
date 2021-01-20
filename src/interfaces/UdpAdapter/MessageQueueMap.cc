@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -154,8 +154,10 @@ namespace PLEXIL
     bool valChanged = !mq.empty() && !rq.empty();
     while (!mq.empty() && !rq.empty()) {
       debugMsg("MessageQueueMap:updateQueue", ' ' << queue->m_name << " returning value");
-      if (rq.front()->isActive())
-        m_execInterface.handleCommandReturn(rq.front(), mq.front());
+      debugMsg("MessageQueueMap:updateQueue", ' ' << queue->m_name << " returning value");
+      m_execInterface.handleCommandReturn(rq.front(), mq.front());
+      debugMsg("MessageQueueMap:updateQueue", ' ' << queue->m_name
+               << " recipient inactive, ignoring");
       rq.pop();
       mq.pop();
     }
