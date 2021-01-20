@@ -988,12 +988,6 @@ namespace PLEXIL
 
         cmd = cit->second;
         assertTrue_1(cmd);
-
-        if (!cmd->isActive()) {
-          warn("IpcAdapter: ignoring return value messages for inactive command");
-          m_pendingCommands.erase(rv->requestSerial);
-          return;
-        }
       }
 
       size_t nValues = msgs[0]->count;
