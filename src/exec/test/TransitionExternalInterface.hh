@@ -48,8 +48,8 @@ public:
   virtual void setThresholds(State const & /* state */, double /* hi */, double /* lo */) {}
   virtual void setThresholds(State const & /* state */, int32_t /* hi */, int32_t /* lo */) {}
   virtual void clearThresholds(State const & /* state */) {}
-  virtual void enqueueCommand(Command *cmd) {}
-  virtual void abortCommand(Command *cmd) {}
+  virtual void enqueueCommand(CommandImpl *cmd) {}
+  virtual void abortCommand(CommandImpl *cmd) {}
   virtual void enqueueUpdate(Update *update) {}
   virtual void executeOutboundQueue() {}
 
