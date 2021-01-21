@@ -34,9 +34,7 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
-#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
 
 /**
  * @brief Constructor. Opens the connection and spawns a listener thread.
@@ -49,15 +47,6 @@ IpcCommRelay::IpcCommRelay(const std::string& id)
 {
 }
 
-/**
- * @brief Destructor. Shuts down the listener thread and closes the connection.
- */
-IpcCommRelay::~IpcCommRelay() {
-}
-
-//! Start IPC.
-//! @param centralhost The location of the IPC 'central' server.
-//! @return True if succeeded, false if not.
 bool IpcCommRelay::initialize(const std::string& centralhost)
 {
   if (IPC_OK != m_ipcFacade.initialize(m_Identifier.c_str(), centralhost.c_str())) {
@@ -67,15 +56,14 @@ bool IpcCommRelay::initialize(const std::string& centralhost)
 
   // Spawn listener thread
   if (IPC_OK != m_ipcFacade.start()) {
-    warn("IpcCommRelay constructor: Unable to start IPC dispatch thread");
+    warn("IpcCommRelay: Unable to start IPC dispatch thread");
     return false;
   }
 
   // Subscribe only to messages we care about
   m_ipcFacade.subscribe(&m_listener, PlexilMsgType_Command);
   m_ipcFacade.subscribe(&m_listener, PlexilMsgType_LookupNow);
-
-  debugMsg("IpcCommRelay:initialise", " succeeded");
+  debugMsg("IpcCommRelay:initialize", " succeeded");
   return true;
 }
 
@@ -83,15 +71,9 @@ bool IpcCommRelay::initialize(const std::string& centralhost)
  * @brief Send a response from the sim back to the UE.
  */
 
-// *** TODO: isolate this method from the format of the response base!
-
 void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
   // Get the response message
-  const GenericResponse* gr = dynamic_cast<const GenericResponse*> (respMsg->getResponseBase());
-  assertTrueMsg(gr,
-                "IpcCommRelay::sendResponse: invalid ResponseBase object");
-  const std::vector<PLEXIL::Value>& values = gr->getReturnValue();
-  std::vector<PLEXIL::Value> ret_list(values.begin(), values.end());
+  const PLEXIL::Value &value = respMsg->getValue();
 
   // Format the leader
   switch (respMsg->getMessageType()) {
@@ -99,18 +81,19 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
   case MSG_LOOKUP: {
     // Return values message
     debugMsg("IpcCommRelay:sendResponse",
-        " sending " << values.size() << " return value(s) for "
-        << ((respMsg->getMessageType() == MSG_COMMAND) ? "command" : "lookup")
-        << " \"" << respMsg->getName() << "\"");
+             " sending 1 return value for "
+             << ((respMsg->getMessageType() == MSG_COMMAND) ? "command" : "lookup")
+             << " \"" << respMsg->getName() << "\"");
     const IpcMessageId* transId = static_cast<const IpcMessageId*> (respMsg->getId());
-    m_ipcFacade.publishReturnValues(transId->second, transId->first, values.front());
+    m_ipcFacade.publishReturnValues(transId->second, transId->first, value);
   }
     break;
 
   case MSG_TELEMETRY: {
     // Telemetry values message
+    std::vector<PLEXIL::Value> ret_list = std::vector<PLEXIL::Value>(1, value);
     debugMsg("IpcCommRelay:sendResponse",
-        " sending telemetry message for \"" << respMsg->getName() << "\"");
+             " sending telemetry message for \"" << respMsg->getName() << "\"");
     m_ipcFacade.publishTelemetry(respMsg->getName(), ret_list);
   }
     break;
@@ -143,14 +126,14 @@ void IpcCommRelay::processLookupNow(const std::vector<PlexilMsgBase*>& msgs) {
         " ignoring parameters for state \"" << stateName << "\"");
   IpcMessageId* transId = new IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
   ResponseMessage* response = m_Simulator->getLookupNowResponse(stateName, static_cast<void*> (transId));
-  if (response) {
+  if (response != NULL) {
     // Simply send the response
     debugMsg("IpcCommRelay:lookupNow", " sending response for " << stateName);
   } else {
+    static const PLEXIL::Value sl_unknown;
     // Create a bogus response that returns 0 values (i.e. unknown)
     debugMsg("IpcCommRelay:lookupNow", " " << stateName << " not found, returning UNKNOWN");
-    static GenericResponse gr(std::vector<PLEXIL::Value>(1));
-    response = new ResponseMessage(&gr, static_cast<void*> (transId), MSG_LOOKUP);
+    response = new ResponseMessage(stateName, sl_unknown, MSG_LOOKUP, static_cast<void*> (transId));
   }
   // Simply send the response
   sendResponse(response); // deletes response

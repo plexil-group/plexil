@@ -28,9 +28,10 @@
 #define SIMDEFS_HH
 
 #include <map>
+#include <memory>
 #include <string>
 
-class ResponseMessageManager;
-typedef std::map<const std::string, ResponseMessageManager*> ResponseManagerMap;
+class CommandResponseManager;
+typedef std::map<const std::string, std::unique_ptr<CommandResponseManager> > ResponseManagerMap;
 
 #endif // SIMDEFS_HH

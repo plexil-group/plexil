@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,42 +24,32 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ResponseMessage.hh"
+#ifndef COMMAND_RESPONSE_MANAGER_HH
+#define COMMAND_RESPONSE_MANAGER_HH
 
-#include "ResponseBase.hh"
+#include "ResponseMessage.hh" // enum MsgType
 
-ResponseMessage::ResponseMessage(const ResponseBase* _base,
-				 void* _id, 
-				 int _type)
-  : base(_base),
-    id(_id), 
-    messageType(_type) 
-{}
+#include <map>
 
-ResponseMessage::~ResponseMessage()
+struct GenericResponse;
+
+/**
+ * @brief Class which represents the simulation script for the named command.
+ */
+
+class CommandResponseManager
 {
-}
+public:
+  virtual ~CommandResponseManager() = default;
+  virtual const std::string& getIdentifier() const = 0;
+  virtual const GenericResponse* getDefaultResponse() = 0;
+  virtual const GenericResponse* getResponses(timeval& tDelay) = 0;
+  virtual void addResponse(GenericResponse* resp, int cmdIndex) = 0;
 
-const ResponseBase* ResponseMessage::getResponseBase() const
-{
-  return base;
-}
+protected:
+  CommandResponseManager() = default;
+};
 
-void* ResponseMessage::getId() const
-{
-  return id;
-}
+CommandResponseManager *makeCommandResponseManager(std::string const &name);
 
-int ResponseMessage::getMessageType() const
-{
-  return messageType;
-}
-
-const std::string& ResponseMessage::getName() const
-{
-  static const std::string emptyString("");
-  if (!base)
-    return emptyString;
-  return base->getName();
-}
-
+#endif // COMMAND_RESPONSE_MANAGER_HH

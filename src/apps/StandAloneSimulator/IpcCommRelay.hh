@@ -32,13 +32,6 @@
 
 #include <map>
 
-// Part of IpcFacade API, no need to include them here.
-// #include <string>
-// #include <vector>
-
-// forward references
-class ResponseMessage;
-
 class IpcCommRelay : public CommRelayBase
 {
 public:
@@ -51,7 +44,7 @@ public:
   /**
    * @brief Destructor. Shuts down the listener thread and closes the connection.
    */
-  ~IpcCommRelay();
+  virtual ~IpcCommRelay() = default;
 
   //! Start IPC.
   //! @param centralhost The location of the IPC 'central' server.

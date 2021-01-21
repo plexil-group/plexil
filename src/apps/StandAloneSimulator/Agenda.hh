@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,55 +24,46 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ResponseBase.hh"
-#include "ResponseMessageManager.hh"
+#ifndef STAND_ALONE_SIMULATOR_HH
+#define STAND_ALONE_SIMULATOR_HH
+
+#include "plexil-config.h"
+
+// timeval
+#ifdef HAVE_SYS_TIME_H 
+#include <sys/time.h>
+#endif
+
+// size_t
+#if defined(HAVE_CSTDDEF)
+#include <cstddef>
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h>
+#endif 
 
 /**
- * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
+ * @class Agenda The schedule of simulator responses to send.
  */
-ResponseBase::ResponseBase() 
-  : m_Manager(nullptr),
-    m_NumberOfResponses(0)
-{
-}
 
-void ResponseBase::setManager(ResponseMessageManager* mgr)
-{
-  m_Manager = mgr;
-}
+struct ResponseMessage;
 
-ResponseMessageManager* ResponseBase::getManager() const
+class Agenda
 {
-  return m_Manager;
-}
+public:
+  virtual size_t size() const = 0;
+  virtual bool empty() const = 0;
+  virtual void setSimulatorStartTime(timeval const &tym) = 0;
+  virtual timeval nextResponseTime() const = 0;
+  virtual ResponseMessage *getNextResponse(timeval &tym) = 0;
+  virtual void pop() = 0;
+  virtual void scheduleResponse(timeval tym, ResponseMessage *msg) = 0;
 
-void ResponseBase::notifyMessageSent()
-{
-  if (m_Manager)
-    m_Manager->notifyMessageSent(this);
-}
+  virtual ~Agenda() = default;
 
-void ResponseBase::setNumberOfResponses(int numOfResp)
-{
-  m_NumberOfResponses = numOfResp;
-}
+protected:
+  Agenda() = default;
+};
 
-int ResponseBase::getNumberOfResponses() const 
-{
-  return m_NumberOfResponses;
-}
+Agenda *makeAgenda();
 
-const timeval& ResponseBase::getDelay() const 
-{
-  return m_Delay;
-}
-
-void ResponseBase::setDelay(const timeval& delay) 
-{
-  m_Delay = delay;
-}
-
-const std::string& ResponseBase::getName() const 
-{
-  return m_Manager->getIdentifier();
-}
+#endif // STAND_ALONE_SIMULATOR_HH
