@@ -37,4 +37,4 @@ libIpcAdapter_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/interfaces/IpcUtils \
  -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
-libIpcAdapter_la_LIBADD = @top_srcdir@/interfaces/IpcUtils/libIpcUtils.la
+libIpcAdapter_la_LIBADD = @top_builddir@/interfaces/IpcUtils/libIpcUtils.la
