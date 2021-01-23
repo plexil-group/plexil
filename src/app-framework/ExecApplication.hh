@@ -29,32 +29,9 @@
 
 #include "plexil-config.h"
 
-#ifdef PLEXIL_WITH_THREADS
-#include "ThreadSemaphore.hh"
-#include <mutex>
-
-#if defined(HAVE_PTHREAD_H)
-#include <pthread.h>
-#endif
-
-#endif
-
 #include <set>
 #include <string>
 #include <vector>
-
-#if defined(HAVE_CSIGNAL)
-#include <csignal>
-#elif defined(HAVE_SIGNAL_H)
-#include <signal.h>
-#endif
-
-#define EXEC_APPLICATION_MAX_N_SIGNALS 8
-
-#ifdef PLEXIL_WITH_THREADS
-using ThreadMutexGuard = std::lock_guard<std::mutex>;
-using RTMutexGuard = std::lock_guard<std::recursive_mutex>;
-#endif
 
 // Forward references
 namespace pugi
