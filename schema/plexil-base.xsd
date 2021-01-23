@@ -454,9 +454,7 @@ It is used as an included schema only.
         <xs:element name="InitialValue" minOccurs="0">
           <xs:complexType>
             <xs:choice>
-              <!-- backward compatibility for scalar literals -->
-              <xs:group ref="Value" maxOccurs="unbounded"/>
-              <!-- preferred new style -->
+              <!-- literal value -->
               <xs:element ref="ArrayValue"/>
               <!-- variable reference -->
               <xs:element ref="ArrayVariable"/>
