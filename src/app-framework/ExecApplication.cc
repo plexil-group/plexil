@@ -39,6 +39,12 @@
 
 #include "pugixml.hpp"
 
+#if defined(HAVE_CSIGNAL)
+#include <csignal>
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
+
 #if defined(HAVE_CSTRING)
 #include <cstring>
 #elif defined(HAVE_STRING_H)
@@ -48,6 +54,27 @@
 #if defined(HAVE_UNISTD_H)
 #include <unistd.h> // sleep()
 #endif
+
+#ifdef PLEXIL_WITH_THREADS
+#include "ThreadSemaphore.hh"
+#include <exception>
+#include <mutex>
+#include <thread>
+
+using ThreadMutexGuard = std::lock_guard<std::mutex>;
+using RTMutexGuard = std::lock_guard<std::recursive_mutex>;
+
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
+#endif
+
+#if defined(HAVE_SYS_TYPES_H)
+#include <sys/types.h> // pid_t
+#endif
+
+#endif // PLEXIL_WITH_THREADS
+
+#define EXEC_APPLICATION_MAX_N_SIGNALS 8
 
 namespace PLEXIL
 {
@@ -103,7 +130,7 @@ namespace PLEXIL
     //
 
     // Thread in which the Exec runs
-    pthread_t m_execThread;
+    std::thread m_execThread;
 
     // Serialize execution in exec to guarantee in-order processing of events
     std::recursive_mutex m_execMutex;
@@ -141,9 +168,6 @@ namespace PLEXIL
     // Current state of the application
     ApplicationState m_state;
 
-    // True if exec is running in a separate thread
-    bool m_threadLaunched;
-
     // Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
 
@@ -170,7 +194,6 @@ namespace PLEXIL
         m_manager(new InterfaceManager(this, m_configuration.get())),
         m_nBlockedSignals(0),
         m_state(APP_UNINITED),
-        m_threadLaunched(false),
         m_runExecInBkgndOnly(true),
         m_stop(false),
         m_suspended(false)
@@ -467,7 +490,7 @@ namespace PLEXIL
 
 #ifdef PLEXIL_WITH_THREADS
       // Stop the Exec
-      if (m_threadLaunched) {
+      if (m_execThread.joinable()) {
         debugMsg("ExecApplication:stop", " Halting top level thread");
         m_stop = true;
         int status = m_sem.post();
@@ -477,23 +500,19 @@ namespace PLEXIL
         }
         sleep(1);
 
+        // FIXME
         if (m_stop) {
           // Exec thread failed to acknowledge stop - resort to stronger measures
-          status = pthread_kill(m_execThread, SIGUSR2);
+          status = kill(getpid(), SIGUSR2);
           if (status) {
-            warn("ExecApplication: pthread_kill failed, status = " << status);
-            return;
+            warn("ExecApplication: kill failed, status = " << status);
+            return; // not much else we can do
           }
           sleep(1);
         }
 
-        status = pthread_join(m_execThread, nullptr);
-        if (status) {
-          debugMsg("ExecApplication:stop", 
-                   " pthread_join() failed, error = " << status);
-          return;
-        }
-        debugMsg("ExecApplication:stop", " Top level thread halted");
+        m_execThread.join();
+        debugMsg("ExecApplication:stop", " Top level thread stopped");
 
         if (!restoreMainSignalHandling()) {
           warn("ExecApplication: failed to restore signal handling for main thread");
@@ -716,26 +735,26 @@ namespace PLEXIL
     bool spawnExecThread()
     {
       debugMsg("ExecApplication:run", " Spawning top level thread");
-      int success = pthread_create(&m_execThread,
-                                   nullptr,
-                                   execTopLevel,
-                                   this);
-      if (success != 0) {
-        std::cerr << "Error: unable to spawn exec thread" << std::endl;
-        return false;
-      }
-      m_threadLaunched = true;
+      m_execThread = std::thread([this]() -> void {this->runInternal();});
       debugMsg("ExecApplication:run", " Top level thread running");
       return setApplicationState(APP_RUNNING);
     }
 
-    static void *execTopLevel(void *this_as_void_ptr)
-    {
-      assertTrue_1(this_as_void_ptr); 
-      (reinterpret_cast<ExecApplicationImpl *>(this_as_void_ptr))->runInternal();
-      return 0;
-    }
+    //
+    // Exception used when the exec thread fails to stop as requested
+    //
 
+    class EmergencyBrake final : public std::exception
+    {
+    public:
+      EmergencyBrake() noexcept = default;
+      virtual ~EmergencyBrake() noexcept = default;
+
+      virtual const char *what() const noexcept
+      { return "PLEXIL Exec emergency stop"; }
+    };
+
+    //! The top level of the worker thread.
     void runInternal()
     {
       debugMsg("ExecApplication:runInternal", " Thread started");
@@ -746,17 +765,24 @@ namespace PLEXIL
         return;
       }
 
-      // must step exec once to initialize time
-      runExec(true);
-      debugMsg("ExecApplication:runInternal", " Initial step complete");
+      try {
+        // must step exec once to initialize time
+        runExec(true);
+        debugMsg("ExecApplication:runInternal", " Initial step complete");
 
-      while (waitForExternalEvent()) {
-        if (m_stop) {
-          debugMsg("ExecApplication:runInternal", " Received stop request");
-          m_stop = false; // acknowledge stop request
-          break;
+        while (waitForExternalEvent()) {
+          if (m_stop) {
+            debugMsg("ExecApplication:runInternal", " Received stop request");
+            m_stop = false; // acknowledge stop request
+            break;
+          }
+          runExec(false);
         }
-        runExec(false);
+      } catch (EmergencyBrake const &b) {
+        debugMsg("ExecApplication:runInternal", " exiting on signal");
+      } catch (std::exception const &e) {
+        debugMsg("ExecApplication:runInternal",
+                 " exiting due to exception:\n " << e.what());
       }
 
       // restore old signal handlers for this thread
@@ -928,7 +954,7 @@ namespace PLEXIL
     static void emergencyStop(int signo) 
     {
       debugMsg("ExecApplication:stop", " Received signal " << signo);
-      pthread_exit((void *) 0);
+      throw EmergencyBrake();
     }
 
     // Prevent the Exec run thread from seeing the signals listed below.
