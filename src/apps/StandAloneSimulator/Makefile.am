@@ -29,7 +29,7 @@ simulator_CPPFLAGS = $(AM_CPPFLAGS) \
  -I$(top_srcdir)/interfaces/IpcUtils \
  -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
-noinst_HEADERS = Agenda.hh CommRelayBase.hh CommandResponsemanager.hh \
+noinst_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
  GenericResponse.hh IpcCommRelay.hh ResponseMessage.hh Simulator.hh \
  SimulatorScriptReader.hh TimingService.hh parseType.hh simdefs.hh
 
