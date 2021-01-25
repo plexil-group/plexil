@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,29 +37,24 @@ universalExec_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
  @top_builddir@/utils/libPlexilUtils.la
 
 if DEBUG_LISTENER_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la
 endif
 
 if GANTT_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/GanttListener/libGanttListener.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += @top_builddir@/interfaces/GanttListener/libGanttListener.la
 endif
 
 if IPC_OPT
   universalExec_LDADD += @top_builddir@/interfaces/IpcAdapter/libIpcAdapter.la \
- @top_builddir@/interfaces/IpcUtils/libIpcUtils.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+ @top_builddir@/interfaces/IpcUtils/libIpcUtils.la
 endif
 
 if UDP_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/UdpAdapter/libUdpAdapter.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += @top_builddir@/interfaces/UdpAdapter/libUdpAdapter.la
 endif
 
 if VIEWER_OPT
   universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
   universalExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
- @top_builddir@/interfaces/Sockets/libPlexilSockets.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+ @top_builddir@/interfaces/Sockets/libPlexilSockets.la
 endif
