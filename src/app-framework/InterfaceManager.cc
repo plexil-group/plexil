@@ -72,7 +72,6 @@ namespace PLEXIL
       m_application(app),
       m_configuration(config),
       m_inputQueue(),
-      m_lastMark(0),
       m_markCount(0)
   {
   }
@@ -543,8 +542,7 @@ namespace PLEXIL
       case Q_MARK:
         debugMsg("InterfaceManager:processQueue", " Received mark");
         // Store sequence number and notify application
-        m_lastMark = entry->sequence;
-        m_application->markProcessed();
+        m_application->markProcessed(entry->sequence);
         break;
 
       case Q_LOOKUP:

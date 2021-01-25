@@ -39,6 +39,24 @@
 
 #include "pugixml.hpp"
 
+#ifdef PLEXIL_WITH_THREADS
+#include "ThreadSemaphore.hh"
+#include <exception>
+#include <mutex>
+#include <thread>
+
+using ThreadMutexGuard = std::lock_guard<std::mutex>;
+
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
+#endif
+
+#if defined(HAVE_SYS_TYPES_H)
+#include <sys/types.h> // pid_t
+#endif
+
+#endif // PLEXIL_WITH_THREADS
+
 #if defined(HAVE_CSIGNAL)
 #include <csignal>
 #elif defined(HAVE_SIGNAL_H)
@@ -55,62 +73,118 @@
 #include <unistd.h> // sleep()
 #endif
 
-#ifdef PLEXIL_WITH_THREADS
-#include "ThreadSemaphore.hh"
-#include <exception>
-#include <mutex>
-#include <thread>
-
-using ThreadMutexGuard = std::lock_guard<std::mutex>;
-using RTMutexGuard = std::lock_guard<std::recursive_mutex>;
-
-#if defined(HAVE_PTHREAD_H)
-#include <pthread.h>
-#endif
-
-#if defined(HAVE_SYS_TYPES_H)
-#include <sys/types.h> // pid_t
-#endif
-
-#endif // PLEXIL_WITH_THREADS
-
-#define EXEC_APPLICATION_MAX_N_SIGNALS 8
-
 namespace PLEXIL
 {
-  
-  //! @brief Return a human-readable name for the ApplicationState.
-  //! @param state An ApplicationState.
-  //! @return The name of the state as a C string.
-  const char* getApplicationStateName(ApplicationState state)
+
+#ifdef PLEXIL_WITH_THREADS
+  //
+  // Helpers to configure signal handling
+  //
+
+  //! Exception thrown when the exec thread fails to stop as requested
+  class EmergencyBrake final : public std::exception
   {
-    switch (state) {
-    case APP_UNINITED:
-      return "APP_UNINITED";
-      break;
+  public:
+    EmergencyBrake() noexcept = default;
+    virtual ~EmergencyBrake() noexcept = default;
 
-    case APP_INITED:
-      return "APP_INITED";
-      break;
+    virtual const char *what() const noexcept
+    { return "PLEXIL Exec emergency stop"; }
+  };
 
-    case APP_READY:
-      return "APP_READY";
-      break;
-
-    case APP_RUNNING:
-      return "APP_RUNNING";
-      break;
-
-    case APP_STOPPED:
-      return "APP_STOPPED";
-      break;
-
-    default:
-      return "*** ILLEGAL APPLICATION STATE ***";
-      break;
-    }
+  //! @brief Handler for asynchronous kill of Exec thread
+  //! @param signo The signal.
+  static void emergencyStop(int signo) 
+  {
+    debugMsg("ExecApplication:stop", " Received signal " << signo);
+    throw EmergencyBrake();
   }
 
+  // Prevent the worker thread from seeing the signals listed below.
+  // Applications are free to deal with them in other ways.
+  static bool initializeWorkerSignalHandling()
+  {
+    static int signumsToIgnore[] =
+      {
+        SIGINT,   // user interrupt (i.e. control-C)
+        SIGHUP,   // hangup
+        SIGQUIT,  // quit
+        SIGTERM,  // kill
+        SIGALRM,  // timer interrupt, used by (e.g.) ItimerTimebase
+        SIGUSR1,  // user defined
+        0,
+      };
+    int errnum = 0;
+
+    // Initialize the mask
+    sigset_t workerSigset;
+    errnum = sigemptyset(&workerSigset);
+    if (errnum != 0) {
+      debugMsg("initializeWorkerSignalHandling", " sigemptyset returned " << errnum);
+      return false;
+    }
+    int *sigptr = signumsToIgnore;
+    while (*sigptr) {
+      int sig = *sigptr++;
+      errnum = sigaddset(&workerSigset, sig);
+      if (errnum != 0) {
+        debugMsg("initializeWorkerSignalHandling",
+                 " sigaddset returned " << errnum);
+        return false;
+      }
+    }
+
+    // Set the mask for this thread
+    errnum = pthread_sigmask(SIG_BLOCK, &workerSigset, nullptr);
+    if (errnum != 0) {
+      debugMsg("initializeWorkerSignalHandling", " pthread_sigmask returned " << errnum);
+      return false;
+    }
+
+    // Add a handler for SIGUSR2 for killing the thread
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = emergencyStop;
+    errnum = sigaction(SIGUSR2, &sa, nullptr);
+    if (errnum != 0) {
+      debugMsg("initializeWorkerSignalHandling", " sigaction returned " << errnum);
+      return errnum;
+    }
+
+    debugMsg("initializeWorkerSignalHandling", " complete");
+    return true;
+  }
+
+  // Prevent the main thread from seeing the worker loop kill signal.
+  bool initializeMainSignalHandling()
+  {
+    // Mask off SIGUSR2
+    sigset_t mainSigset;
+    int errnum = sigemptyset(&mainSigset);
+    if (errnum != 0) {
+      debugMsg("initializeMainSignalHandling", " sigemptyset returned " << errnum);
+      return false;
+    }
+    errnum = sigaddset(&mainSigset, SIGUSR2);
+    if (errnum != 0) {
+      debugMsg("initializeMainSignalHandling", " sigaddset returned " << errnum);
+      return false;
+    }
+    // Set the mask for this thread
+    errnum = pthread_sigmask(SIG_BLOCK, &mainSigset, nullptr); // sigprocmask()?
+    if (errnum != 0) {
+      debugMsg("initializeMainSignalHandling", " pthread_sigmask returned " << errnum);
+      return false;
+    }
+
+    debugMsg("initializeMainSignalHandling", " complete");
+    return true;
+  }
+#endif // PLEXIL_WITH_THREADS
+
+  //! @class ExecApplicationImpl
+  //! Implements the ExecApplication API
   class ExecApplicationImpl final : public ExecApplication
   {
   private:
@@ -129,14 +203,16 @@ namespace PLEXIL
     // Synchronization and mutual exclusion
     //
 
-    // Thread in which the Exec runs
-    std::thread m_execThread;
+    //! Thread in which the Exec runs
+    std::thread m_workerThread;
 
-    // Serialize execution in exec to guarantee in-order processing of events
-    std::recursive_mutex m_execMutex;
+    //! Serialize access to exec state to guarantee in-order processing of events
 
-    // Mutex for application state
-    std::mutex m_stateMutex;
+    //! This mutex must be held by the working thread from the start
+    //! of input queue processing until the PlexilExec has reached
+    //! quiescence. It can be held briefly by other threads for
+    //! queries about the exec state.
+    std::mutex m_execMutex;
 
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;
@@ -147,29 +223,30 @@ namespace PLEXIL
     // Semaphore for notifying external threads that the application is shut down
     ThreadSemaphore m_shutdownSem;
 
+    // Semaphore for waiting on all plans to finish
+    ThreadSemaphore m_allFinishedSem;
+
+    //! Last mark seen
+    unsigned int m_lastMark;
 #endif 
+
     //! Interfacing database and dispatcher
     AdapterConfigurationPtr m_configuration;
 
     //! Interface manager
     InterfaceManagerPtr m_manager;
 
-    //
-    // Signal handling
-    //
-    sigset_t m_workerSigset;
-    sigset_t m_restoreWorkerSigset;
-    sigset_t m_mainSigset;
-    sigset_t m_restoreMainSigset;
-    struct sigaction m_restoreUSR2Handler;
-    size_t m_nBlockedSignals;
-    int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
-
-    // Current state of the application
-    ApplicationState m_state;
-
     // Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
+
+    // True if application initialized, false otherwise.
+    bool m_initialized;
+
+    // True if interfaces have been started, false otherwise.
+    bool m_interfacesStarted;
+
+    //! True if at least one plan has been loaded.
+    bool m_planLoaded;
 
     // Flag for halting the Exec thread
     bool m_stop;
@@ -183,24 +260,23 @@ namespace PLEXIL
     ExecApplicationImpl()
       : ExecApplication(),
 #ifdef PLEXIL_WITH_THREADS
-        m_execThread(),
+        m_workerThread(),
         m_execMutex(),
-        m_stateMutex(),
         m_sem(),
         m_markSem(),
         m_shutdownSem(),
+        m_allFinishedSem(),
+        m_lastMark(0),
 #endif
         m_configuration(makeAdapterConfiguration()),
         m_manager(new InterfaceManager(this, m_configuration.get())),
-        m_nBlockedSignals(0),
-        m_state(APP_UNINITED),
         m_runExecInBkgndOnly(true),
+        m_initialized(false),
+        m_interfacesStarted(false),
+        m_planLoaded(false),
         m_stop(false),
         m_suspended(false)
     {
-      for (size_t i = 0; i <= EXEC_APPLICATION_MAX_N_SIGNALS; i++)
-        m_blockedSignals[i] = 0;
-
       // Set globals that other pieces rely on
       // Required by Exec core
       g_interface = static_cast<ExternalInterface *>(m_manager.get());
@@ -231,20 +307,6 @@ namespace PLEXIL
     virtual InterfaceManager *manager() override
     {
       return m_manager.get();
-    }
-
-    //
-    // Application state
-    //
-    
-    //! Get the application's current state.
-    //! @return The application state.
-    virtual ApplicationState getApplicationState() override
-    {
-#ifdef PLEXIL_WITH_THREADS
-      ThreadMutexGuard guard(m_stateMutex);
-#endif
-      return m_state;
     }
 
     //
@@ -288,10 +350,10 @@ namespace PLEXIL
       condDebugMsg(!configXml.empty(), "ExecApplication:initialize",
                    " configuration = " << configXml); // *** FIXME - PRINTS "1" ***
 
-      if (m_state != APP_UNINITED) {
+      if (m_initialized) {
         debugMsg("ExecApplication:initialize",
-                 " application already initialized");
-        return false;
+                 " application already initialized, ignoring");
+        return true;
       }
 
       // Perform one-time initializations
@@ -321,91 +383,108 @@ namespace PLEXIL
       }
 
       // Set the application state and return
-      return setApplicationState(APP_INITED);
+      m_initialized = true;
+      return true;
     }
 
     //! Start all the interfaces prior to execution.
     //! @return true if successful, false otherwise.
     virtual bool startInterfaces() override
     {
-      if (m_state != APP_INITED)
+      if (!m_initialized) {
+        warn("Error: startInterfaces() called before initialize()");
         return false;
+      }
+
+      if (m_interfacesStarted) {
+        debugMsg("ExecApplication:startInterfaces",
+                 " interfacese already started, ignoring");
+        return true;
+      }
 
       // Start 'em up!
       if (!m_configuration->start()) {
-        debugMsg("ExecApplication:startInterfaces",
-                 " failed to start interfaces");
+        warn("ExecApplication: Error: failed to start interfaces");
         return false;
       }
-      
-      return setApplicationState(APP_READY);
+
+      m_interfacesStarted = true;
+      return true;
     }
 
     //! Step the Exec once.
-    // @return true if successful, false otherwise.
+    //! @return true if Exec needs to be stepped again, false otherwise.
     virtual bool step() override
     {
-      if (m_state != APP_READY)
-        return false;
-
+      assertTrue_2(m_interfacesStarted,
+                   "ExecApplication: Fatal error: step() called before startInterfaces()");
+      unsigned int oldMark = m_lastMark;
+      bool needsStep = false;
+      bool allFinished = false;
       {
 #ifdef PLEXIL_WITH_THREADS
-        RTMutexGuard guard(m_execMutex);
+        ThreadMutexGuard guard(m_execMutex);
 #endif
-        m_manager->processQueue();           // for effect
-        double now = StateCache::queryTime(); // update time before attempting to step
-        if (g_exec->needsStep()) {
-          g_exec->step(now);
-          debugMsg("ExecApplication:step", " complete");
-        }
-        else {
-          debugMsg("ExecApplication:step", " no step required");
-        }
-      }
-
-      return true;
-    }
-
-    //! Query whether the Exec has finished propagating state.
-    //! @return True if quiescent, false otherwise.
-    virtual bool isQuiescent() override
-    {
-      if (m_state != APP_READY)
-        return true; // can't execute if not ready
-
-      {
-#ifdef PLEXIL_WITH_THREADS
-        RTMutexGuard guard(m_execMutex);
-#endif
-        return !g_exec->needsStep();
-      }
-    }
-
-    //! Step the Exec until the queue is empty.
-    //! @return true if successful, false otherwise.
-    virtual bool stepUntilQuiescent() override
-    {
-      if (m_state != APP_READY)
-        return false;
-
-      {
-#ifdef PLEXIL_WITH_THREADS
-        RTMutexGuard guard(m_execMutex);
-#endif
-        debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
-        m_manager->processQueue(); // for effect
-        double now = StateCache::queryTime(); // update time before attempting to step
-        while (g_exec->needsStep()) {
-          debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
-          g_exec->step(now);
-          now = StateCache::queryTime(); // update time before attempting to step again
-        }
+        debugMsg("ExecApplication:step", " Processing queue");
+        m_manager->processQueue();
+        debugMsg("ExecApplication:step", " Stepping exec");
+        g_exec->step(StateCache::queryTime());
+        // Take care of any plans which have finished
         g_exec->deleteFinishedPlans();
+        allFinished = g_exec->allPlansFinished();
+        needsStep = g_exec->needsStep();
       }
-      debugMsg("ExecApplication:stepUntilQuiescent",
-               " completed, queue empty and Exec quiescent.");
+#ifdef PLEXIL_WITH_THREADS
+      if (m_planLoaded && allFinished) {
+        debugMsg("ExecApplication:step", " All plans finished ");
+        m_allFinishedSem.post();
+      }
+      if (m_lastMark > oldMark) {
+        debugMsg("ExecApplication:step", " queue mark(s) processed");
+        m_markSem.post();
+      }
+#endif
+      return needsStep;
+    }
 
-      return true;
+    //! Run the exec until the queue is empty and the plan state is quiescent.
+    //! @note Acquires m_execMutex and holds until done.  
+    virtual void runExec() override
+    {
+      assertTrue_2(m_interfacesStarted,
+                   "ExecApplication: Fatal error: step() called before startInterfaces()");
+
+      unsigned int oldMark = m_lastMark;
+      bool allFinished = false;
+      {
+#ifdef PLEXIL_WITH_THREADS
+        ThreadMutexGuard guard(m_execMutex);
+#endif
+        debugMsg("ExecApplication:runExec", " Processing queue");
+        m_manager->processQueue();
+        do {
+          do {
+            debugMsg("ExecApplication:runExec", " Stepping exec");
+            g_exec->step(StateCache::queryTime());
+          } while (g_exec->needsStep());
+          debugMsg("ExecApplication:runExec", " Processing queue");
+        } while (m_manager->processQueue());
+
+        // Clean up
+        g_exec->deleteFinishedPlans();
+        allFinished = g_exec->allPlansFinished();
+        debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
+      }
+#ifdef PLEXIL_WITH_THREADS
+      if (m_planLoaded && allFinished) {
+        debugMsg("ExecApplication:runExec", " All plans finished ");
+        m_allFinishedSem.post();
+      }
+      if (m_lastMark > oldMark) {
+        debugMsg("ExecApplication:runExec", " queue mark(s) processed");
+        m_markSem.post();
+      }
+#endif
     }
 
     //
@@ -417,11 +496,8 @@ namespace PLEXIL
     virtual bool run() override
     {
 #ifdef PLEXIL_WITH_THREADS
-      if (m_state != APP_READY)
-        return false;
-
-      // Clear suspended flag just in case
-      m_suspended = false;
+      assertTrue_2(m_interfacesStarted,
+                   "ExecApplication: Fatal error: run() called before startInterfaces()");
 
       // Set up signal handling in main thread
       if (!initializeMainSignalHandling()) {
@@ -429,10 +505,13 @@ namespace PLEXIL
         return false;
       }
 
+      // Clear suspended flag just in case
+      m_suspended = false;
+
       // Start the event listener thread
-      return spawnExecThread();
+      return spawnWorkerThread();
 #else // !defined(PLEXIL_WITH_THREADS)
-      warn("ExecApplication: Can't run background thread; threads not enabled in the build");
+      warn("ExecApplication: Threads not enabled");
       return false;
 #endif // PLEXIL_WITH_THREADS
     }
@@ -441,27 +520,22 @@ namespace PLEXIL
     //! @return true if successful, false otherwise.
     virtual bool suspend() override
     {
-      if (m_state == APP_READY)
-        return true; // already paused
-
-      if (m_state != APP_RUNNING)
-        return false;
-
+      if (!m_interfacesStarted)
+        return false; // couldn't possibly be running
       if (m_suspended)
-        return true;
+        return true;  // already suspended, ignore
 
       // Suspend the Exec 
       m_suspended = true;
-    
       // *** NYI: wait here til current step completes ***
-      return setApplicationState(APP_READY);
+      return true;
     }
 
     //! Query whether the Exec has been suspended. 
     //! @return True if suspended, false otherwise.
     virtual bool isSuspended() const override
     {
-      return m_state == APP_READY || m_suspended;
+      return m_suspended;
     }
 
     //! Resumes a suspended Exec.
@@ -469,30 +543,35 @@ namespace PLEXIL
     virtual bool resume() override
     {
       // Can only resume if ready and suspended
-      if (m_state != APP_READY)
-        return false;
+      if (!m_interfacesStarted)
+        return false; // couldn't possibly be running
       if (!m_suspended)
-        return true;
+        return true;  // silently "fail"
 
       // Resume the Exec
       m_suspended = false;
       notifyExec();
-    
-      return setApplicationState(APP_RUNNING);
+      return true;
     }
 
     //! Stops the Exec and its interfaces.
     virtual void stop() override
     {
-      if (m_state != APP_RUNNING
-          && m_state != APP_READY)
-        return;
+      if (!m_interfacesStarted)
+        return; // nothing to stop
+
+      // If sleeping, wake up
+      if (m_suspended) {
+        m_suspended = false;
+        notifyExec();
+      }
 
 #ifdef PLEXIL_WITH_THREADS
       // Stop the Exec
-      if (m_execThread.joinable()) {
+      if (m_workerThread.joinable()) {
         debugMsg("ExecApplication:stop", " Halting top level thread");
         m_stop = true;
+        notifyExec();
         int status = m_sem.post();
         if (status) {
           warn("ExecApplication: semaphore post failed, status = " << status);
@@ -500,7 +579,6 @@ namespace PLEXIL
         }
         sleep(1);
 
-        // FIXME
         if (m_stop) {
           // Exec thread failed to acknowledge stop - resort to stronger measures
           status = kill(getpid(), SIGUSR2);
@@ -511,19 +589,18 @@ namespace PLEXIL
           sleep(1);
         }
 
-        m_execThread.join();
-        debugMsg("ExecApplication:stop", " Top level thread stopped");
-
-        if (!restoreMainSignalHandling()) {
-          warn("ExecApplication: failed to restore signal handling for main thread");
-          return;
-        }
+        m_workerThread.join();
+        debugMsg("ExecApplication:stop", " Worker thread stopped");
       }
 #endif // PLEXIL_WITH_THREADS
 
       // Stop interfaces
       m_configuration->stop();
-      setApplicationState(APP_STOPPED);
+      m_interfacesStarted = false;
+      m_initialized = false;
+
+      // Tell anyone waiting that we're finished
+      m_shutdownSem.post();
     }
 
     /**
@@ -532,24 +609,12 @@ namespace PLEXIL
     virtual void terminate() override
     {
       std::cout << "Terminating PLEXIL Exec application" << std::endl;
-      ApplicationState initState = getApplicationState();
-      debugMsg("ExecApplication:terminate", " from state " << getApplicationStateName(initState));
-
-      switch (initState) {
-      case APP_UNINITED:
-      case APP_STOPPED:
-        // nothing to do
-        break;
-
-      case APP_INITED:
-      case APP_READY:
-        // Shut down interfaces
-        m_configuration->stop();
-        break;
-
-      case APP_RUNNING:
+      if (m_initialized && m_interfacesStarted) {
+        if (m_suspended) {
+          m_suspended = false;
+          notifyExec();
+        }
         stop();
-        break;
       }
       std::cout << "PLEXIL Exec terminated" << std::endl;
     }
@@ -559,10 +624,12 @@ namespace PLEXIL
     virtual void notifyExec() override
     {
 #ifdef PLEXIL_WITH_THREADS
+      // FIXME: Don't run if called from thread holding mutex - undefined behavior
+      // How to fix? Call command handlers from outside the mutex hold.
       if (!m_runExecInBkgndOnly && m_execMutex.try_lock()) {
         // Exec is idle, so run it
         debugMsg("ExecApplication:notify", " exec was idle, stepping it");
-        this->runExec(false);
+        this->runExec();
         m_execMutex.unlock();
       }
       else {
@@ -577,8 +644,6 @@ namespace PLEXIL
           debugMsg("ExecApplication:notify", " released semaphore");
         }
       }
-#else
-      // Don't do a thing - caller will tell us when to run
 #endif
     }
 
@@ -589,12 +654,14 @@ namespace PLEXIL
       debugMsg("ExecApplication:notifyAndWait", " received external event");
       unsigned int sequence = m_manager->markQueue();
       notifyExec();
-      while (m_manager->getLastMark() < sequence) {
+      debugMsg("ExecApplication:notifyAndWait", " waiting for mark #" << sequence);
+      do {
         m_markSem.wait();
         m_markSem.post(); // in case it's not our mark and we got there first
-      }
+      } while (m_lastMark < sequence);
+      debugMsg("ExecApplication:notifyAndWait", " proceeding");
 #else // !defined(PLEXIL_WITH_THREADS)
-      warn("notifyAndWaitForCompletion: threads not enabled in build");
+      warn("notifyAndWaitForCompletion: Threads not enabled");
 #endif // PLEXIL_WITH_THREADS
     }
 
@@ -604,20 +671,13 @@ namespace PLEXIL
     virtual void waitForPlanFinished() override
     {
 #ifdef PLEXIL_WITH_THREADS
-      bool finished = false;
-      while (!finished) {
-        // sleep for a bit so as not to hog the CPU
-        sleep(1);
-
-        debugMsg("ExecApplication:waitForPlanFinished", " checking");
-    
-        // grab the exec and find out if it's finished yet
-        RTMutexGuard guard(m_execMutex);
-        finished = g_exec->allPlansFinished();
-      }
-      debugMsg("ExecApplication:waitForPlanFinished", " succeeded");
+      debugMsg("ExecApplication:waitForPlanFinished", " waiting");
+      int waitStatus = m_allFinishedSem.wait();
+      checkError(!waitStatus,
+                 "waitForPlanFinished: semaphore wait returned error " << waitStatus);
+      debugMsg("ExecApplication:waitForPlanFinished", " proceeding");
 #else // !defined(PLEXIL_WITH_THREADS)
-      warn("waitForPlanFinished: threads not enabled in build");
+      warn("waitForPlanFinished: Threads not enabled");
 #endif // PLEXIL_WITH_THREADS
     }
 
@@ -629,12 +689,14 @@ namespace PLEXIL
     virtual void waitForShutdown() override
     {
 #ifdef PLEXIL_WITH_THREADS
+      debugMsg("ExecApplication:waitForShutdown", " waiting");
       int waitStatus = m_shutdownSem.wait();
       checkError(!waitStatus,
-                 "waitForShutdown: semaphore wait got error " << waitStatus);
+                 "waitForShutdown: semaphore wait returned error " << waitStatus);
+      debugMsg("ExecApplication:waitForShutdown", " proceeding");
       m_shutdownSem.post(); // pass it on to the next, if any
 #else // !defined(PLEXIL_WITH_THREADS)
-      warn("waitForShutdown: threads not enabled in build");
+      warn("waitForShutdown: Threads not enabled");
 #endif // PLEXIL_WITH_THREADS
     }
 
@@ -648,9 +710,6 @@ namespace PLEXIL
      */
     virtual bool addLibrary(pugi::xml_document* libraryXml) override
     {
-      if (m_state != APP_RUNNING && m_state != APP_READY)
-        return false;
-
       // Delegate to InterfaceManager
       if (m_manager->handleAddLibrary(libraryXml)) {
         debugMsg("ExecApplication:addLibrary", " Library added");
@@ -669,26 +728,18 @@ namespace PLEXIL
      */
     virtual bool loadLibrary(std::string const &name) override
     {
-      if (m_state != APP_RUNNING && m_state != APP_READY)
-        return false;
-
       bool result = false;
-
       // Delegate to InterfaceManager
       try {
         result = m_manager->handleLoadLibrary(name);
       }
       catch (const ParserException& e) {
-        std::cerr << "loadLibrary: Error:\n" << e.what() << std::endl;
+        warn("loadLibrary: Error:\n" << e.what());
         return false;
       }
 
-      if (result) {
-        debugMsg("ExecApplication:loadLibrary", " Library " << name << " loaded");
-      }
-      else {
-        debugMsg("ExecApplication:loadLibrary", " Library " << name << " not found");
-      }
+      debugMsg("ExecApplication:loadLibrary",
+               " Library " << name << (result ? " loaded." : " not found."));
       return result;
     }
 
@@ -698,27 +749,36 @@ namespace PLEXIL
      */
     virtual bool addPlan(pugi::xml_document* planXml) override
     {
-      if (m_state != APP_RUNNING && m_state != APP_READY)
+#ifdef PLEXIL_WITH_THREADS
+      if (!m_workerThread.joinable()) {
+        warn("Error: addPlan failed; worker thread not running");
         return false;
+      }
+#else
+      if (!m_interfacesStarted) {
+        warn("Error: addPlan failed; interfaces not started");
+        return false;
+      }
+#endif
 
       // Delegate to InterfaceManager
       try {
         m_manager->handleAddPlan(planXml->document_element());
         debugMsg("ExecApplication:addPlan", " successful");
+        m_planLoaded = true;
         return true;
       }
       catch (const ParserException& e) {
-        std::cerr << "addPlan: Plan parser error: \n" << e.what() << std::endl;
+        warn("addPlan: Plan parser error: \n" << e.what());
         return false;
       }
     }
 
     //! Notify the application that a queue mark was processed.
-    virtual void markProcessed() override
+    virtual void markProcessed(unsigned int sequence) override
     {
-#ifdef PLEXIL_WITH_THREADS
-      m_markSem.post();
-#endif
+      debugMsg("ExecApplication:markProcessed", " sequence #" << sequence);
+      m_lastMark = sequence;
     }
 
   private:
@@ -729,35 +789,21 @@ namespace PLEXIL
 
 #ifdef PLEXIL_WITH_THREADS
     /**
-     * @brief Spawns a thread which runs the exec's top level loop.
+     * @brief Spawns the worker thread which runs the exec's top level loop.
      * @return true if successful, false otherwise.
      */
-    bool spawnExecThread()
+    bool spawnWorkerThread()
     {
       debugMsg("ExecApplication:run", " Spawning top level thread");
-      m_execThread = std::thread([this]() -> void {this->runInternal();});
+      m_workerThread = std::thread([this]() -> void {this->worker();});
       debugMsg("ExecApplication:run", " Top level thread running");
-      return setApplicationState(APP_RUNNING);
+      return m_workerThread.joinable();
     }
 
-    //
-    // Exception used when the exec thread fails to stop as requested
-    //
-
-    class EmergencyBrake final : public std::exception
-    {
-    public:
-      EmergencyBrake() noexcept = default;
-      virtual ~EmergencyBrake() noexcept = default;
-
-      virtual const char *what() const noexcept
-      { return "PLEXIL Exec emergency stop"; }
-    };
-
     //! The top level of the worker thread.
-    void runInternal()
+    void worker()
     {
-      debugMsg("ExecApplication:runInternal", " Thread started");
+      debugMsg("ExecApplication:worker", " started");
 
       // set up signal handling environment for this thread
       if (!initializeWorkerSignalHandling()) {
@@ -766,333 +812,54 @@ namespace PLEXIL
       }
 
       try {
-        // must step exec once to initialize time
-        runExec(true);
-        debugMsg("ExecApplication:runInternal", " Initial step complete");
+        // must step exec once to initialize time and
+        // give any preloaded plans a chance to start
+        bool needsStep = step();
+        debugMsg("ExecApplication:worker", " Initial step complete");
 
         while (waitForExternalEvent()) {
           if (m_stop) {
-            debugMsg("ExecApplication:runInternal", " Received stop request");
+            debugMsg("ExecApplication:worker", " Received stop request");
             m_stop = false; // acknowledge stop request
             break;
           }
-          runExec(false);
+          runExec();
         }
       } catch (EmergencyBrake const &b) {
-        debugMsg("ExecApplication:runInternal", " exiting on signal");
+        debugMsg("ExecApplication:worker", " exiting on signal");
       } catch (std::exception const &e) {
-        debugMsg("ExecApplication:runInternal",
+        debugMsg("ExecApplication:worker",
                  " exiting due to exception:\n " << e.what());
       }
 
-      // restore old signal handlers for this thread
-      // don't bother to check for errors
-      restoreWorkerSignalHandling();
-
-      debugMsg("ExecApplication:runInternal", " Ending the thread loop.");
-    }
-#endif // PLEXIL_WITH_THREADS
-
-    /**
-     * @brief Run the exec until the queue is empty.
-     * @param stepFirst True if the exec should be stepped before checking the queue.
-     * @note Acquires m_execMutex and holds until done.  
-     */
-    void runExec(bool stepFirst)
-    {
-#ifdef PLEXIL_WITH_THREADS
-      RTMutexGuard guard(m_execMutex);
-#endif
-      if (stepFirst) {
-        debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
-        g_exec->step(StateCache::queryTime());
-      }
-      if (m_suspended) {
-        debugMsg("ExecApplication:runExec", " Suspended");
-      }
-      else {
-        m_manager->processQueue(); // for effect
-        do {
-          double now = StateCache::queryTime(); // update time before attempting to step
-          while (g_exec->needsStep()) {
-            debugMsg("ExecApplication:runExec", " Stepping exec");
-            g_exec->step(now);
-            now = StateCache::queryTime(); // update time before stepping again
-          }
-        } while (m_manager->processQueue());
-        debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
-      }
-
-      // Clean up
-      g_exec->deleteFinishedPlans();
+      debugMsg("ExecApplication:worker", " finished.");
     }
 
-#ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Suspends the calling thread until another thread has
-     *         placed a call to notifyExec().  Can return
-     *        immediately if the call to wait() returns an error.
-     * @return true if resumed normally, false if wait resulted in an error.
-     * @note Can wait here indefinitely while the application is suspended.
-     */
+    //! Suspends the calling thread until another thread has placed a
+    //! call to notifyExec(). Can return immediately if the call to
+    //! wait() returns an error.
+    //! @return true if resumed normally, false if wait resulted in an error.
+    //! @note Can wait here indefinitely while the application is suspended.
+    //! @note Stop overrides suspend.
     bool waitForExternalEvent()
     {
-      if (m_nBlockedSignals == 0) {
-        warn("ExecApplication: signal handling not initialized.");
-        return false;
-      }
-
       debugMsg("ExecApplication:wait", " waiting for external event");
       int status;
       do {
-        status = m_sem.wait();
-        if (status == 0) {
-          condDebugMsg(!m_suspended, 
-                       "ExecApplication:wait",
-                       " acquired semaphore, processing external event");
-          condDebugMsg(m_suspended, 
-                       "ExecApplication:wait",
-                       " Application is suspended, ignoring external event");
-        }
-      } 
-      while (m_suspended);
-      return (status == 0);
-    }
-#endif // PLEXIL_WITH_THREADS
-
-    /**
-     * @brief Transitions the application to the new state.
-     * @return true if the new state is a legal transition from the current state, false if not.
-     */ 
-    bool setApplicationState(const ApplicationState& newState)
-    {
-      debugMsg("ExecApplication:setApplicationState",
-               "(" << getApplicationStateName(newState)
-               << ") from " << getApplicationStateName(m_state));
-
-      assertTrueMsg(newState != APP_UNINITED,
-                    "APP_UNINITED is an invalid state for setApplicationState");
-
-      // variable binding context for guard -- DO NOT DELETE THESE BRACES!
-      {
-#ifdef PLEXIL_WITH_THREADS
-        ThreadMutexGuard guard(m_stateMutex);
-#endif
-        switch (newState) {
-        case APP_INITED:
-          if (m_state != APP_UNINITED && m_state != APP_STOPPED) {
-            debugMsg("ExecApplication:setApplicationState",
-                     " Illegal application state transition to APP_INITED");
-            return false;
-          }
-          m_state = newState;
-          break;
-
-        case APP_READY:
-          if (m_state != APP_INITED && m_state != APP_RUNNING) {
-            debugMsg("ExecApplication:setApplicationState",
-                     " Illegal application state transition to APP_READY");
-            return false;
-          }
-          m_state = newState;
-          break;
-
-        case APP_RUNNING:
-          if (m_state != APP_READY) {
-            debugMsg("ExecApplication:setApplicationState", 
-                     " Illegal application state transition to APP_RUNNING");
-            return false;
-          }
-          m_state = newState;
-          break;
-
-        case APP_STOPPED:
-          if (m_state != APP_RUNNING && m_state != APP_READY) {
-            debugMsg("ExecApplication:setApplicationState", 
-                     " Illegal application state transition to APP_STOPPED");
-            return false;
-          }
-          m_state = newState;
-          break;
-
-        default:
-          debugMsg("ExecApplication:setApplicationState",
-                   " Attempt to set state to illegal value " << newState);
-          break;
-
-        }
-        // end variable binding context for guard -- DO NOT DELETE THESE BRACES!
-      }
-
-      if (newState == APP_STOPPED) {
-#ifdef PLEXIL_WITH_THREADS
-        // Notify any threads waiting for this state
-        m_shutdownSem.post();
-#endif
-      }
-
-      debugMsg("ExecApplication:setApplicationState",
-               " to " << getApplicationStateName(newState) << " successful");
-      return true;
-    }
-
-    //
-    // Signal handling
-    //
-
-    /**
-     * @brief Dummy signal handler function for signals we process.
-     * @note This should never be called!
-     */
-    void dummySignalHandler(int /* signo */) {}
-
-#ifdef PLEXIL_WITH_THREADS
-    /**
-     * @brief Handler for asynchronous kill of Exec thread
-     * @param signo The signal.
-     */
-    static void emergencyStop(int signo) 
-    {
-      debugMsg("ExecApplication:stop", " Received signal " << signo);
-      throw EmergencyBrake();
-    }
-
-    // Prevent the Exec run thread from seeing the signals listed below.
-    // Applications are free to deal with them in other ways.
-
-    bool initializeWorkerSignalHandling()
-    {
-      static int signumsToIgnore[EXEC_APPLICATION_MAX_N_SIGNALS] =
-        {
-         SIGINT,   // user interrupt (i.e. control-C)
-         SIGHUP,   // hangup
-         SIGQUIT,  // quit
-         SIGTERM,  // kill
-         SIGALRM,  // timer interrupt, used by (e.g.) ItimerTimebase
-         SIGUSR1,  // user defined
-         0,
-         0
-        };
-      int errnum = 0;
-
-      //
-      // Generate the mask
-      //
-      errnum = sigemptyset(&m_workerSigset);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigemptyset returned " << errnum);
-        return false;
-      }
-      for (m_nBlockedSignals = 0;
-           m_nBlockedSignals < EXEC_APPLICATION_MAX_N_SIGNALS && signumsToIgnore[m_nBlockedSignals] != 0;
-           m_nBlockedSignals++) {
-        int sig = signumsToIgnore[m_nBlockedSignals];
-        m_blockedSignals[m_nBlockedSignals] = sig; // save to restore it later
-        errnum = sigaddset(&m_workerSigset, sig);
-        if (errnum != 0) {
-          debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaddset returned " << errnum);
+        if (m_sem.wait())
           return false;
+        if (!m_stop && m_suspended) {
+          debugMsg("ExecApplication:wait",
+                   " Application is suspended, ignoring external event");
         }
-      }
-      // Set the mask for this thread
-      errnum = pthread_sigmask(SIG_BLOCK, &m_workerSigset, &m_restoreWorkerSigset);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:initializeWorkerSignalHandling", " pthread_sigmask returned " << errnum);
-        return false;
-      }
+      } while (!m_stop && m_suspended);
 
-      // Add a handler for SIGUSR2 for killing the thread
-      struct sigaction sa;
-      sigemptyset(&sa.sa_mask); // *** is this enough?? ***
-      sa.sa_flags = 0;
-      sa.sa_handler = emergencyStop;
-
-      errnum = sigaction(SIGUSR2, &sa, &m_restoreUSR2Handler);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaction returned " << errnum);
-        return errnum;
-      }
-
-      debugMsg("ExecApplication:initializeWorkerSignalHandling", " complete");
-      return true;
-    }
-
-    bool restoreWorkerSignalHandling()
-    {
-      //
-      // Restore old SIGUSR2 handler
-      // 
-      int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, nullptr);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:restoreWorkerSignalHandling", " sigaction returned " << errnum);
-        return errnum;
-      }
-
-      //
-      // Restore old mask
-      //
-      errnum = pthread_sigmask(SIG_SETMASK, &m_restoreWorkerSigset, nullptr);
-      if (errnum != 0) { 
-        debugMsg("ExecApplication:restoreWorkerSignalHandling", " failed; sigprocmask returned " << errnum);
-        return false;
-      }
-
-      // flag as complete
-      m_nBlockedSignals = 0;
-
-      debugMsg("ExecApplication:restoreWorkerSignalHandling", " complete");
-      return true;
-    }
-
-    // Prevent the main thread from seeing the worker loop kill signal.
-
-    bool initializeMainSignalHandling()
-    {
-      //
-      // Generate the mask
-      //
-      int errnum = sigemptyset(&m_mainSigset);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:initializeMainSignalHandling", " sigemptyset returned " << errnum);
-        return false;
-      }
-      errnum = sigaddset(&m_mainSigset, SIGUSR2);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:initializeMainSignalHandling", " sigaddset returned " << errnum);
-        return false;
-      }
-
-      // Set the mask for this thread
-      errnum = pthread_sigmask(SIG_BLOCK, &m_mainSigset, &m_restoreMainSigset);
-      if (errnum != 0) {
-        debugMsg("ExecApplication:initializeMainSignalHandling", " pthread_sigmask returned " << errnum);
-        return false;
-      }
-
-      debugMsg("ExecApplication:initializeMainSignalHandling", " complete");
-      return true;
-    }
-
-    bool restoreMainSignalHandling()
-    {
-      //
-      // Restore old mask
-      //
-      int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, nullptr);
-      if (errnum != 0) { 
-        debugMsg("ExecApplication:restoreMainSignalHandling", " failed; pthread_sigmask returned " << errnum);
-        return false;
-      }
-
-      debugMsg("ExecApplication:restoreMainSignalHandling", " complete");
+      debugMsg("ExecApplication:wait", " processing external event");
       return true;
     }
 #endif // PLEXIL_WITH_THREADS
 
-    //
-    // Static helper methods
-    //
-  };
+  }; // class ExecApplicationImpl
 
   ExecApplication *makeExecApplication()
   {

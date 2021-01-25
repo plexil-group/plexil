@@ -29,7 +29,6 @@
 
 #include "plexil-config.h"
 
-#include <set>
 #include <string>
 #include <vector>
 
@@ -45,25 +44,7 @@ namespace PLEXIL
 
   // forward references
   class AdapterConfiguration;
-  class InterfaceAdapter;
   class InterfaceManager;
-
-  //! Enumeration representing the states of the ExecApplication.
-  enum ApplicationState
-    {
-     APP_UNINITED,
-     APP_INITED,
-     APP_READY,
-     APP_RUNNING,
-     APP_STOPPED
-    };
-
-  /**
-   * @brief Return a human-readable name for the ApplicationState.
-   * @param state An ApplicationState.
-   * @return The name of the state as a C string.
-   */
-  const char* getApplicationStateName(ApplicationState state);
 
   //! @class ExecApplication
   //! Provides the skeleton of a complete PLEXIL Executive application.
@@ -73,14 +54,6 @@ namespace PLEXIL
 
     //! @brief Virtual destructor.
     virtual ~ExecApplication() = default;
-
-    //
-    // Application state
-    //
-
-    //! Get the current state of the application.
-    //! @return The application state.
-    virtual ApplicationState getApplicationState() = 0;
 
     //
     // General configuration
@@ -114,8 +87,6 @@ namespace PLEXIL
 
     //! Start all the interfaces prior to execution.
     //! @return true if successful, false otherwise.
-    //! @note If successful, the application will have transitioned to
-    //!       the APP_READY state.
     virtual bool startInterfaces() = 0;
 
     //
@@ -123,22 +94,14 @@ namespace PLEXIL
     //
 
     //! Step the Exec once.
-    //! @return true if successful, false otherwise.
-    //! @note Can only be called in APP_READY state.
-    //! @note Can be called when application is suspended.
+    //! @return true if the Exec needs to be stepped again, false otherwise.
+    //! @note Interfaces should have been started prior to calling step().
     virtual bool step() = 0; 
 
-    //! Ask the Exec whether all plan state is stable.
-    //! @return true if stable, false if more transitions are possible.
-    //! @note Meant to be called after step(), to see if more work needs doing.
-    virtual bool isQuiescent() = 0;
-
-    //! Step the Exec until the plan state is quiescent and the queue
-    //! is empty.
-    //! @return true if successful, false otherwise.
-    //! @note Can only be called in APP_READY state.
-    //! @note Can be called when application is suspended.
-    virtual bool stepUntilQuiescent() = 0;
+    //! Step the Exec until the queue is empty and the plan state is
+    //! quiescent.
+    //! @note Interfaces should have been started prior to calling runExec().
+    virtual void runExec() = 0;
 
     //
     // Member functions for use in a threaded environment
@@ -146,7 +109,7 @@ namespace PLEXIL
 
     //! Runs the initialized Exec in its own thread.
     //! @return true if successful, false otherwise.
-    //! @note Application must be in APP_READY state.
+    //! @note startInterfaces() must have been called first.
     //! @note This is a no-op if PLEXIL is built without threads.
     virtual bool run() = 0;
 
@@ -223,7 +186,7 @@ namespace PLEXIL
     
     //! Notify the application that a queue mark was processed.
     //! @note Used to implement notifyAndWaitForCompletion().
-    virtual void markProcessed() = 0;
+    virtual void markProcessed(unsigned int sequence) = 0;
 
     //
     // Accessors to application objects
