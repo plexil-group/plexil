@@ -40,32 +40,26 @@ universalExec_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
 if STATIC_LIB_OPT
 
 if DEBUG_LISTENER_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la
 endif
 
 if GANTT_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/GanttListener/libGanttListener.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += @top_builddir@/interfaces/GanttListener/libGanttListener.la
 endif
 
 if IPC_OPT
   universalExec_LDADD += @top_builddir@/interfaces/IpcAdapter/libIpcAdapter.la \
- @top_builddir@/interfaces/IpcUtils/libIpcUtils.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la \
- $(libdir)/libIpc.a
+ @top_builddir@/interfaces/IpcUtils/libIpcUtils.la
 endif
 
 if UDP_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/UdpAdapter/libUdpAdapter.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+  universalExec_LDADD += @top_builddir@/interfaces/UdpAdapter/libUdpAdapter.la
 endif
 
 if VIEWER_OPT
   universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
   universalExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
- @top_builddir@/interfaces/Sockets/libPlexilSockets.la \
- @top_builddir@/app-framework/libPlexilAppFramework.la
+ @top_builddir@/interfaces/Sockets/libPlexilSockets.la
 endif
 
 endif # STATIC_LIB_OPT
