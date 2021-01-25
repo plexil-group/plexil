@@ -32,6 +32,7 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <map>
 
