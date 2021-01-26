@@ -50,7 +50,7 @@ using namespace PLEXIL;
 int main_internal(int argc, char** argv)
 {
   unsigned int const PUGI_PARSE_OPTIONS = pugi::parse_default | pugi::parse_ws_pcdata_single;
-  std::string planName("error");
+  std::string planName;
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("interface-config.xml");
   std::string resourceFile("resource.data");
@@ -295,13 +295,24 @@ int main_internal(int argc, char** argv)
   if (!libraryPath.empty())
 	_app->addLibraryPath(libraryPath);
 
+  // if specified on command line, load Plexil libraries
+  for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
+       libraryName != libraryNames.end();
+       ++libraryName) {
+	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
+    if (!_app->loadLibrary(*libraryName)) {
+      std::cout << "ERROR: unable to load library " << *libraryName << std::endl;
+      return 1;
+    }
+  }
+
   // start interfaces
   std::cout << "Starting interfaces" << std::endl;
   if (!_app->startInterfaces()) {
       std::cout << "ERROR: unable to start interfaces"
                 << std::endl;
       return 1;
-    }
+  }
 
   // start the application
   std::cout << "Starting the exec" << std::endl;
@@ -313,19 +324,13 @@ int main_internal(int argc, char** argv)
   // Below this point, must be careful to shut down gracefully
   bool error = false;
 
-  // if specified on command line, load Plexil libraries
-  for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
-       libraryName != libraryNames.end();
-       ++libraryName) {
-	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
-    if (!_app->loadLibrary(*libraryName)) {
-      std::cout << "ERROR: unable to load library " << *libraryName << std::endl;
-	  error = true;
-    }
+  if (planName.empty()) {
+    // No plan provided, wait for one to arrive
+    // TODO: add SIGINT handler here
+    _app->waitForShutdown();
   }
-
-  // load the plan
-  if (!error && planName != "error") {
+  else {
+    // load the given plan
 	pugi::xml_document plan;
 	pugi::xml_parse_result parseResult =
       plan.load_file(planName.c_str(), PUGI_PARSE_OPTIONS);
@@ -339,18 +344,17 @@ int main_internal(int argc, char** argv)
 	  std::cout << "Unable to load plan '" << planName << "', exiting" << std::endl;
 	  error = true;
 	}
+    if (!error) {
+      // Tell the exec to run it
+      _app->notifyAndWaitForCompletion();
+      // ... then wait for it to finish.
+      _app->waitForPlanFinished();
+    }
+    // clean up
+    _app->stop();
+    std::cout << "Plan complete, Exec exited with"
+              << (error ? " " : "out ") << "errors" << std::endl;
   }
-
-  if (!error) {
-    _app->notifyExec();
-	_app->waitForPlanFinished();
-  }
-
-  // clean up
-  _app->stop();
-
-  std::cout << "Plan complete, Exec exited with"
-            << (error ? " " : "out ") << "errors" << std::endl;
   return (error ? 1 : 0);
 }
 

@@ -96,13 +96,6 @@ namespace PLEXIL
     //! @return The sequence number of the mark.
     unsigned int markQueue();
 
-    //! Get the sequence number of the most recently processed mark.
-    //! @return The sequence number; 0 if no marks have yet been processed.
-    unsigned int getLastMark() const
-    {
-      return m_lastMark;
-    }
-
     //
     // API for exec
     //
@@ -263,9 +256,6 @@ namespace PLEXIL
 
     //! The queue of input data for the Exec.
     std::unique_ptr<InputQueue> m_inputQueue;
-
-    //! Index of most recent queue mark processed.
-    unsigned int m_lastMark;
 
     //! Index of last queue mark enqueued.
     unsigned int m_markCount;

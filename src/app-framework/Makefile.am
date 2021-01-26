@@ -32,6 +32,9 @@ libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/xml-parser \
  -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
+# These additional headers are only required if the build is statically linked.
+if STATIC_LIB_OPT
+
 if DEBUG_LISTENER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
 endif
@@ -51,6 +54,8 @@ endif
 if VIEWER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
 endif
+
+endif # STATIC_LIB_OPT
 
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
  AdapterFactory.hh Configuration.hh ExecApplication.hh ExecListener.hh \
@@ -78,11 +83,9 @@ libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.l
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/timebase-test
-  test_timebase_test_SOURCES = test/timebase-test.cc # more later
+  test_timebase_test_SOURCES = test/timebase-test.cc Timebase.cc TimebaseFactory.cc
   test_timebase_test_CPPFLAGS = $(libPlexilAppFramework_la_CPPFLAGS)
-  test_timebase_test_LDADD = libPlexilAppFramework.la \
- @top_builddir@/xml-parser/libPlexilXmlParser.la \
- @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
+  test_timebase_test_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
  @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
  @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 endif

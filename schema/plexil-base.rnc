@@ -222,10 +222,8 @@ DeclareArray =
     element Type { AtomicTypeValues },
     element MaxSize { xsd:nonNegativeInteger }?,
     element InitialValue {
-      # backward compatibility for scalar literals
-      Value+
-      | # preferred new style
-        ArrayValue
+      # literal value
+      ArrayValue
       | # variable reference
         ArrayVariable
     }?,

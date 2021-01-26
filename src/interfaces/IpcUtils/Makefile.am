@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ libIpcUtils_la_SOURCES = IpcFacade.cc
 libIpcUtils_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
  -I@top_srcdir@/utils -I@top_srcdir@/third-party/ipc/src
 
-libIpcUtils_la_LIBADD = @top_srcdir@/value/libPlexilValue.la \
- @top_srcdir@/utils/libPlexilUtils.la
+libIpcUtils_la_LIBADD = @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
 
 libIpcUtils_la_LDFLAGS = $(AM_LDFLAGS) -L@libdir@ -lipc

@@ -943,51 +943,31 @@ namespace PLEXIL
                                        initXml,
                                        "This variable may not take an initializer");
       checkHasChildElement(initXml);
-      Expression *init;
       ValueType varType = var->valueType();
       bool garbage;
-      if (isArrayType(varType)
-          && testTag(typeNameAsValue(arrayElementType(varType)), initXml.first_child())) {
-        // Handle old style initializer
-        garbage = true; // always constructed
-        switch (varType) {
-        case BOOLEAN_ARRAY_TYPE:
-          init = createArrayLiteral<bool>("Boolean", initXml);
-          break;
 
-        case INTEGER_ARRAY_TYPE:
-          init = createArrayLiteral<int32_t>("Integer", initXml);
-          break;
-
-        case REAL_ARRAY_TYPE:
-          init = createArrayLiteral<double>("Real", initXml);
-          break;
-
-        case STRING_ARRAY_TYPE:
-          init = createArrayLiteral<std::string>("String", initXml);
-          break;
-
-        default:
-          reportParserExceptionWithLocation(initXml,
-                                            "Can't parse initial value for unimplemented or illegal type "
-                                            << valueTypeName(varType));
-          return;
-        }
-      }
-      else {
-        // Simply parse whatever's inside the <InitialValue>
-        initXml = initXml.first_child();
-        init = createExpression(initXml, node, garbage);
-      }
+      // Simply parse whatever's inside the <InitialValue>
+      initXml = initXml.first_child();
+      Expression *init = createExpression(initXml, node, garbage);
       ValueType initType = init->valueType();
       if (!areTypesCompatible(varType, initType)) {
         if (garbage)
           delete init;
-        reportParserExceptionWithLocation(initXml,
-                                          "Node " << node->getNodeId()
-                                          << ": Initialization type mismatch for variable "
-                                          << varName << ", variable is " << valueTypeName(varType)
-                                          << ", initializer is " << valueTypeName(initType));
+        if (isArrayType(varType) && initType == arrayElementType(varType)) {
+          reportParserExceptionWithLocation(initXml,
+                                            "Node " << node->getNodeId()
+                                            << ", array variable \"" << varName
+                                            << "\":\n Old array initial value format is no longer supported.\n"
+                                            << " Please recompile your plan.");
+        }
+        else {
+          reportParserExceptionWithLocation(initXml,
+                                            "Node " << node->getNodeId() << ", variable \""
+                                            << varName 
+                                            << "\": Initialization type mismatch.\n"
+                                            << " Variable type is " << valueTypeName(varType)
+                                            << ", initializer is " << valueTypeName(initType));
+        }
         return; // make cppcheck happy
       }
       if (isArrayType(varType)) {
