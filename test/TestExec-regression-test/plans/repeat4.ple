@@ -1,0 +1,22 @@
+repeat4:
+Concurrence
+  {
+    Boolean done = false;
+    Boolean doset = true;
+
+    EndCondition done;
+    
+  A:
+    {
+      StartCondition doset;
+      RepeatCondition true;
+      doset = false;
+    }
+
+  B:
+    {
+      StartCondition NodeIterationEnded(A);
+      RepeatCondition true;
+      done = true;
+    }
+  }

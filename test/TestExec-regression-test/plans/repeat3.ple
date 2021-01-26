@@ -1,0 +1,13 @@
+repeat3:
+Concurrence
+  {
+    Boolean done = false;
+
+    EndCondition done;
+
+  set:
+    {
+      RepeatCondition true;
+      done = true;
+    }
+  }

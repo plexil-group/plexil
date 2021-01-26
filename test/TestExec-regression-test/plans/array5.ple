@@ -1,0 +1,8 @@
+array5:
+{
+  Real a4[10];
+
+  PostCondition a4[0] == 5.0;
+
+  a4[0] = 5.0;
+}

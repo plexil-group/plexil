@@ -1,0 +1,12 @@
+empty3:
+Concurrence
+{
+  EndCondition NodeFinished(two);
+  PostCondition NodeSucceeded(two);
+
+ one: {}
+ two:
+  {
+    StartCondition NodeFinished(one);
+  }
+}

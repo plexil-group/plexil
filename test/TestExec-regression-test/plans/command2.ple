@@ -1,0 +1,6 @@
+command2:
+{
+  String CommandName = "foo";
+
+  (LookupNow(("bar" + CommandName)))();
+}

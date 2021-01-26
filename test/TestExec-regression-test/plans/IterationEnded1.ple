@@ -1,0 +1,25 @@
+
+IterationEnded1:
+Concurrence
+{
+  Comment "Tests the checking of node iteration outcome";
+
+  Integer x = 0;
+
+  EndCondition x == 4;
+
+ One:
+  {
+    RepeatCondition x < 4;
+    x = x + 1;
+  }
+
+
+ Two:
+  {
+    Comment "Node Two executes on each successful iteration of node One";
+
+    RepeatCondition true;
+    StartCondition NodeIterationSucceeded(One);
+  }
+}

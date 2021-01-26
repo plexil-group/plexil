@@ -1,0 +1,15 @@
+Boolean Lookup continue;
+
+repeat8:
+Concurrence
+  {
+    Integer repeat_count = 0;
+
+    PostCondition 4 == repeat_count;
+
+  repeater:
+    {
+      RepeatCondition LookupOnChange(continue);
+      repeat_count = repeat_count + 1;
+    }
+  }
