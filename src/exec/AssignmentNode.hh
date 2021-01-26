@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,7 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedHandleExecution() override;
+    virtual void specializedHandleExecution(PlexilExec *exec) override;
     virtual void specializedDeactivateExecutable() override;
 
     virtual bool getDestStateFromExecuting() override;
@@ -99,13 +99,11 @@ namespace PLEXIL
     virtual void transitionFromFailing() override;
 
     virtual void transitionToExecuting() override;;
-    virtual void transitionToFailing() override;
+    virtual void transitionToFailing(PlexilExec *exec) override;
 
     virtual void transitionToIterationEnded() override;
 
     virtual void transitionToFinished() override;
-
-    virtual void abort() override;
 
   private:
 

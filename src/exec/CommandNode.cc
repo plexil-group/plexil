@@ -35,6 +35,7 @@
 #include "Function.hh"
 #include "NodeFunction.hh"
 #include "NodeOperatorImpl.hh"
+#include "PlexilExec.hh"
 
 namespace PLEXIL
 {
@@ -468,10 +469,10 @@ namespace PLEXIL
   // Conditions active: AbortComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
-  void CommandNode::transitionToFailing()
+  void CommandNode::transitionToFailing(PlexilExec *exec)
   {
     activateAbortCompleteCondition();
-    abort();
+    exec->enqueueAbortCommand(m_command.get());
   }
 
   bool CommandNode::getDestStateFromFailing()
@@ -534,17 +535,13 @@ namespace PLEXIL
     }
   }
 
-  void CommandNode::specializedHandleExecution()
+  void CommandNode::specializedHandleExecution(PlexilExec *exec)
   {
     assertTrue_1(m_command);
     m_command->activate();
-    m_command->execute();
-  }
-
-  void CommandNode::abort()
-  {
-    assertTrue_1(m_command);
-    m_command->abort();
+    m_command->fixValues();
+    m_command->fixResourceValues();
+    exec->enqueueCommand(m_command.get());
   }
 
   void CommandNode::specializedDeactivateExecutable()

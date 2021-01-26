@@ -122,7 +122,7 @@ namespace PLEXIL
 
     virtual void transitionToExecuting() override;
     virtual void transitionToFinishing() override;
-    virtual void transitionToFailing() override;
+    virtual void transitionToFailing(PlexilExec *exec) override;
 
     NodeFunction m_actionCompleteFn;
     NodeFunction m_allFinishedFn;

@@ -326,6 +326,8 @@ namespace PLEXIL
   void CommandImpl::fixValues() 
   {
     assertTrue_1(m_active);
+    if (m_commandFixed)
+      return;
     std::string const *name;
     m_nameExpr->getValuePointer(name);
     m_command.setName(*name);
@@ -342,6 +344,8 @@ namespace PLEXIL
   {
     check_error_1(m_active);
     if (!m_resourceList)
+      return;
+    if (m_resourcesFixed)
       return;
     
     size_t n = m_resourceList->size();
@@ -426,16 +430,6 @@ namespace PLEXIL
     m_active = true;
   }
 
-  void CommandImpl::execute()
-  {
-    check_error_1(m_active);
-    if (!m_commandFixed)
-      fixValues();
-    if (!m_resourcesFixed)
-      fixResourceValues();
-    g_interface->enqueueCommand(this);
-  }
-
   void CommandImpl::setCommandHandle(CommandHandleValue handle)
   {
     if (!m_active)
@@ -451,15 +445,6 @@ namespace PLEXIL
     if (!m_active || !m_dest)
       return;
     m_dest->asAssignable()->setValue(val);
-  }
-
-  void CommandImpl::abort()
-  {
-    check_error_1(m_active);
-    // Handle stupid unit test
-    if (g_interface) {
-      g_interface->abortCommand(this);
-    }
   }
 
   void CommandImpl::acknowledgeAbort(bool ack)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "PlexilExec.hh" // g_exec
+#include "PlexilExec.hh"
 #include "UserVariable.hh"
 
 namespace PLEXIL
@@ -246,14 +246,14 @@ namespace PLEXIL
     return true;
   }
 
-  void AssignmentNode::specializedHandleExecution()
+  void AssignmentNode::specializedHandleExecution(PlexilExec *exec)
   {
     // Perform assignment
-    assertTrueMsg(m_assignment,
-                  "AssignmentNode::execute(): Assignment is null");
+    assertTrue_2(m_assignment,
+                 "AssignmentNode::execute(): Assignment is null");
     m_assignment->activate();
     m_assignment->fixValue();
-    g_exec->enqueueAssignment(m_assignment.get());
+    exec->enqueueAssignment(m_assignment.get());
   }
 
   void AssignmentNode::transitionFromExecuting()
@@ -290,10 +290,11 @@ namespace PLEXIL
   // Conditions active: AbortComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
-  void AssignmentNode::transitionToFailing()
+  void AssignmentNode::transitionToFailing(PlexilExec *exec)
   {
     activateAbortCompleteCondition();
-    abort();
+    debugMsg("Node:abort", "Aborting node " << m_nodeId << ' ' << this);
+    exec->enqueueAssignmentForRetraction(m_assignment.get());
   }
 
   bool AssignmentNode::getDestStateFromFailing()
@@ -396,12 +397,6 @@ namespace PLEXIL
       for (Node *n : *var->getWaitingNodes())
         n->notifyResourceAvailable();
     }
-  }
-    
-  void AssignmentNode::abort()
-  {
-    debugMsg("Node:abort", "Aborting node " << m_nodeId << ' ' << this);
-    g_exec->enqueueAssignmentForRetraction(m_assignment.get());
   }
 
   void AssignmentNode::specializedDeactivateExecutable() 

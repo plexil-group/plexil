@@ -811,7 +811,7 @@ namespace PLEXIL
       break;
 
     case FAILING_STATE:
-      transitionToFailing();
+      transitionToFailing(exec);
       break;
 
     case ITERATION_ENDED_STATE:
@@ -829,7 +829,7 @@ namespace PLEXIL
         setNodeFailureType((FailureType) m_nextFailureType);
     }
     if (m_nextState == EXECUTING_STATE)
-      execute();
+      execute(exec);
   }
 
   //
@@ -1421,7 +1421,7 @@ namespace PLEXIL
   // Legal successor states: n/a
 
   // Default method
-  void NodeImpl::transitionToFailing()
+  void NodeImpl::transitionToFailing(PlexilExec * /* exec */)
   {
     errorMsg("No transition to FAILING state defined for this node");
   }
@@ -1816,16 +1816,16 @@ namespace PLEXIL
     }
   }
 
-  void NodeImpl::execute() 
+  void NodeImpl::execute(PlexilExec *exec)
   {
     debugMsg("Node:execute",
              " Executing " << nodeTypeString(this->getType())
              << " node " << m_nodeId << ' ' << this);
-    specializedHandleExecution();
+    specializedHandleExecution(exec);
   }
 
   // default method
-  void NodeImpl::specializedHandleExecution()
+  void NodeImpl::specializedHandleExecution(PlexilExec * /* exec */)
   {
   }
 
@@ -1836,12 +1836,6 @@ namespace PLEXIL
     //reset outcome and failure type
     m_outcome = NO_OUTCOME;
     m_failureType = NO_FAILURE;
-  }
-
-  // Default method
-  void NodeImpl::abort() 
-  {
-    errorMsg("Abort illegal for node type " << getType());
   }
 
   void NodeImpl::deactivateExecutable() 

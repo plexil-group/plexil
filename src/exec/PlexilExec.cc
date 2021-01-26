@@ -28,6 +28,7 @@
 
 #include "Assignable.hh"
 #include "Assignment.hh"
+#include "CommandImpl.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerBase.hh"
@@ -36,6 +37,7 @@
 #include "Mutex.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
+#include "Update.hh"
 
 #include <algorithm> // std::remove_if()
 
@@ -76,6 +78,11 @@ namespace PLEXIL
     LinkedQueue<Assignment> m_assignmentsToExecute;
     LinkedQueue<Assignment> m_assignmentsToRetract;
 
+    LinkedQueue<CommandImpl> m_commandsToExecute;
+    LinkedQueue<CommandImpl> m_commandsToAbort;
+
+    LinkedQueue<Update> m_updatesToExecute;
+
     std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
     ExecListenerBase *m_listener;
@@ -95,6 +102,8 @@ namespace PLEXIL
         m_pendingQueue(),
         m_assignmentsToExecute(),
         m_assignmentsToRetract(),
+        m_commandsToExecute(),
+        m_commandsToAbort(),
         m_plan(),
         m_listener(nullptr),
         m_finishedRootNodesDeleted(false)
@@ -108,6 +117,8 @@ namespace PLEXIL
       m_pendingQueue.clear();
       m_assignmentsToExecute.clear();
       m_assignmentsToRetract.clear();
+      m_commandsToExecute.clear();
+      m_commandsToAbort.clear();
     }
 
     virtual void setExecListener(ExecListenerBase *l) override
@@ -320,13 +331,14 @@ namespace PLEXIL
       }
       while (m_assignmentsToExecute.empty()
              && m_assignmentsToRetract.empty()
-             && g_interface->outboundQueueEmpty()
+             && m_commandsToExecute.empty()
+             && m_commandsToAbort.empty()
              && !m_candidateQueue.empty());
       // END QUIESCENCE LOOP
       // Perform side effects
       g_interface->incrementCycleCount();
       performAssignments();
-      g_interface->executeOutboundQueue();
+      executeOutboundQueue();
       if (m_listener)
         m_listener->stepComplete(cycleNum);
 
@@ -359,6 +371,30 @@ namespace PLEXIL
     virtual void enqueueAssignmentForRetraction(Assignment *assign) override
     {
       m_assignmentsToRetract.push(assign);
+    }
+
+    /**
+     * @brief Schedule this command for execution.
+     */
+    virtual void enqueueCommand(CommandImpl *cmd) override
+    {
+      m_commandsToExecute.push(cmd);
+    };
+
+    /**
+     * @brief Schedule this command to be aborted.
+     */
+    virtual void enqueueAbortCommand(CommandImpl *cmd) override
+    {
+      m_commandsToAbort.push(cmd);
+    };
+
+    /**
+     * @brief Schedule this update for execution.
+     */
+    virtual void enqueueUpdate(Update *update) override
+    {
+      m_updatesToExecute.push(update);
     }
 
   private:
@@ -561,6 +597,24 @@ namespace PLEXIL
       m_assignmentsToRetract.clear();
     }
 
+    void executeOutboundQueue()
+    {
+      while (CommandImpl *cmd = m_commandsToExecute.front()) {
+        m_commandsToExecute.pop();
+        g_interface->processCommand(cmd);
+      }
+      g_interface->partitionResourceCommands();
+
+      while (CommandImpl *cmd = m_commandsToAbort.front()) {
+        m_commandsToAbort.pop();
+        g_interface->abortCommand(cmd);
+      }
+
+      while (Update *upd = m_updatesToExecute.front()) {
+        m_updatesToExecute.pop();
+        g_interface->executeUpdate(upd);
+      }
+    }
 
     //
     // Internal queue management

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ namespace PLEXIL
 {
   // Forward declarations in PLEXIL namespace
   class NodeConnector;
+
   struct Pair;
 
   class Update final
@@ -59,15 +60,13 @@ namespace PLEXIL
     NodeConnector *getSource() {return m_source;}
     NodeConnector const *getSource() const {return m_source;}
     void activate();
-    void deactivate();
+    void fixValues();
 
-    void execute();
     void acknowledge(bool ack);
 
-    void cleanUp();
+    void deactivate();
 
-    // Made public for parser unit test
-    void fixValues();
+    void cleanUp();
 
     // LinkedQueue item API
     Update *next() const

@@ -55,6 +55,9 @@ public:
   virtual void addCandidateNode(Node * /* node */) override {}
   virtual void enqueueAssignment(Assignment * /* assign */) override {}
   virtual void enqueueAssignmentForRetraction(Assignment * /* assign */) override {}
+  virtual void enqueueCommand(CommandImpl * /* cmd */) override {}
+  virtual void enqueueAbortCommand(CommandImpl * /* cmd */) override {}
+  virtual void enqueueUpdate(Update * /* upd */) override {}
   virtual void markRootNodeFinished(Node * /* node */) override {}
   virtual bool addPlan(Node * /* root */) override { return false; }
   virtual void step(double /* startTime */) override {}

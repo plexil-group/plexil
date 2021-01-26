@@ -40,8 +40,7 @@ namespace PLEXIL
   ExternalInterface *g_interface = nullptr;
 
   ExternalInterface::ExternalInterface()
-    : m_updatesToExecute(),
-      m_commandsToExecute(),
+    : m_resourceCmds(),
       m_raInterface(makeResourceArbiter()),
       m_cycleCount(1)
   {
@@ -81,16 +80,48 @@ namespace PLEXIL
     return ++m_cycleCount;
   }
 
-  /**
-   * @brief Schedule this command for execution.
-   */
-  void ExternalInterface::enqueueCommand(CommandImpl *cmd)
+  //! If the command has no resource requirements,
+  //! execute it immediately.
+  //! Otherwise set it aside for resource arbitration.
+  //! @param cmd The command.
+  void ExternalInterface::processCommand(CommandImpl *cmd)
   {
-    m_commandsToExecute.push(cmd);
+    if (cmd->getResourceValues().empty()) {
+      // Execute it now
+      debugMsg("ResourceArbiterInterface:partitionCommands",
+               " accepting " << cmd->getName() << " with no resource requests"); // legacy msg
+      this->executeCommand(cmd);
+    }
+    else {
+      // Queue it for arbitration
+      m_resourceCmds.push(cmd);
+    }
+  }
+
+  //! Arbitrate any commands with resource requirements,
+  //! and dispose of them as appropriate.
+  void ExternalInterface::partitionResourceCommands()
+  {
+    if (m_resourceCmds.empty())
+      return;
+
+    LinkedQueue<CommandImpl> acceptCmds, rejectCmds;
+    m_raInterface->arbitrateCommands(m_resourceCmds, acceptCmds, rejectCmds);
+    while (CommandImpl *cmd = acceptCmds.front()) {
+      acceptCmds.pop();
+      this->executeCommand(cmd);
+    }
+    while (CommandImpl *cmd = rejectCmds.front()) {
+      rejectCmds.pop();
+      debugMsg("Test:testOutput", 
+               "Permission to execute " << cmd->getName()
+               << " has been denied by the resource arbiter.");
+      reportCommandArbitrationFailure(cmd);
+    }
   }
 
   /**
-   * @brief Abort the pending command.
+   * @brief Abort the command.
    */
   void ExternalInterface::abortCommand(CommandImpl *cmd)
   {
@@ -104,63 +135,6 @@ namespace PLEXIL
   void ExternalInterface::releaseResourcesForCommand(CommandImpl *cmd)
   {
     m_raInterface->releaseResourcesForCommand(cmd);
-  }
-
-  /**
-   * @brief Schedule this update for execution.
-   */
-  void ExternalInterface::enqueueUpdate(Update *update)
-  {
-    m_updatesToExecute.push(update);
-  }
-
-  /**
-   * @brief Send all pending commands and updates to the external system(s).
-   */
-  void ExternalInterface::executeOutboundQueue()
-  {
-    if (!m_commandsToExecute.empty()) {
-      LinkedQueue<CommandImpl> resourceCmds;
-      while (CommandImpl *cmd = m_commandsToExecute.front()) {
-        m_commandsToExecute.pop();
-        if (cmd->getResourceValues().empty()) {
-          // Execute it now
-          debugMsg("ResourceArbiterInterface:partitionCommands",
-                   " accepting " << cmd->getName() << " with no resource requests"); // legacy msg
-          this->executeCommand(cmd);
-        }
-        else {
-          // Queue it for arbitration
-          resourceCmds.push(cmd);
-        }
-      }
-
-      if (!resourceCmds.empty()) {
-        LinkedQueue<CommandImpl> acceptCmds, rejectCmds;
-        m_raInterface->arbitrateCommands(resourceCmds, acceptCmds, rejectCmds);
-        while (CommandImpl *cmd = acceptCmds.front()) {
-          acceptCmds.pop();
-          this->executeCommand(cmd);
-        }
-        while (CommandImpl *cmd = rejectCmds.front()) {
-          rejectCmds.pop();
-          debugMsg("Test:testOutput", 
-                   "Permission to execute " << cmd->getName()
-                   << " has been denied by the resource arbiter.");
-          reportCommandArbitrationFailure(cmd);
-        }
-      }
-    }
-
-    while (!m_updatesToExecute.empty()) {
-      this->executeUpdate(m_updatesToExecute.front());
-      m_updatesToExecute.pop();
-    }
-  }
-
-  bool ExternalInterface::outboundQueueEmpty() const
-  {
-    return m_commandsToExecute.empty() && m_updatesToExecute.empty();
   }
 
   void ExternalInterface::lookupReturn(State const &state, Value const &value)

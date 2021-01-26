@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,11 @@ namespace PLEXIL
 {
   // Forward references
   class Assignment;
+  class CommandImpl;
   class ExecListenerBase; 
   class Node;
+  class Update;
+
   using NodePtr = std::unique_ptr<Node>;
 
   /**
@@ -74,6 +77,21 @@ namespace PLEXIL
      * @brief Schedule this assignment for execution.
      */
     virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
+
+    /**
+     * @brief Schedule this command for execution.
+     */
+    virtual void enqueueCommand(CommandImpl *cmd) = 0;
+
+    /**
+     * @brief Schedule this command to be aborted.
+     */
+    virtual void enqueueAbortCommand(CommandImpl *cmd) = 0;
+
+    /**
+     * @brief Schedule this update for execution.
+     */
+    virtual void enqueueUpdate(Update *update) = 0;
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.

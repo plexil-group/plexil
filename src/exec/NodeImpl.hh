@@ -456,9 +456,8 @@ namespace PLEXIL
     void commonInit();
 
     // Called from the transition handler
-    void execute();
+    void execute(PlexilExec *exec);
     void reset();
-    virtual void abort();
     void deactivateExecutable();
 
     // Variables
@@ -502,7 +501,7 @@ namespace PLEXIL
     // Specific behaviors for derived classes
     virtual void specializedCreateConditionWrappers();
     virtual void specializedActivate();
-    virtual void specializedHandleExecution();
+    virtual void specializedHandleExecution(PlexilExec *exec);
     virtual void specializedDeactivateExecutable();
 
     //
@@ -538,7 +537,7 @@ namespace PLEXIL
     virtual void transitionToExecuting();
     virtual void transitionToFinishing();
     virtual void transitionToFinished();
-    virtual void transitionToFailing();
+    virtual void transitionToFailing(PlexilExec *exec);
     virtual void transitionToIterationEnded(); 
 
     // Phases of destructor

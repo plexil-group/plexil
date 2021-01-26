@@ -141,10 +141,10 @@ namespace PLEXIL
 
     // Interface to CommandNode
     void activate();
-    void deactivate();
+    void fixValues();
+    void fixResourceValues();
 
-    void execute();
-    void abort();
+    void deactivate();
 
     void cleanUp();
 
@@ -154,12 +154,9 @@ namespace PLEXIL
     void returnValue(Value const &val);
 
     void setCommandHandle(CommandHandleValue handle);
+
     // Delegates to m_abortComplete
     void acknowledgeAbort(bool ack);
-
-    // Public only for testing
-    void fixValues();
-    void fixResourceValues();
 
     // LinkedQueue item API
     CommandImpl *next() const

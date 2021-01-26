@@ -706,7 +706,7 @@ namespace PLEXIL
   // Conditions active: ActionComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
-  void ListNode::transitionToFailing()
+  void ListNode::transitionToFailing(PlexilExec * /* exec */)
   {
     // From EXECUTING: ActionComplete active (see transitionFromExecuting() above)
     // From FINISHING: ActionComplete active

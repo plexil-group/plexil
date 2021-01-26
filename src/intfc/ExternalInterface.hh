@@ -94,27 +94,6 @@ namespace PLEXIL {
     virtual void clearThresholds(const State& state) = 0;
 
     //
-    // API to Node classes
-    //
-
-    // Made virtual for convenience of module tests
-
-    /**
-     * @brief Schedule this command for execution.
-     */
-    virtual void enqueueCommand(CommandImpl *cmd);
-
-    /**
-     * @brief Abort the pending command.
-     */
-    virtual void abortCommand(CommandImpl *cmd);
-
-    /**
-     * @brief Schedule this update for execution.
-     */
-    virtual void enqueueUpdate(Update *update);
-
-    //
     // API to CommandImpl
     //
     
@@ -127,16 +106,25 @@ namespace PLEXIL {
     // API to Exec
     //
 
-    /**
-     * @brief Send all pending commands and updates to the external system(s).
-     */
-    virtual void executeOutboundQueue();
+    // Made virtual for convenience of module tests
 
-    /**
-     * @brief See if the command and update queues are empty.
-     * @return True if both empty, false otherwise.
-     */
-    bool outboundQueueEmpty() const;
+    //! If the command has no resource requirements,
+    //! execute it immediately.
+    //! Otherwise set it aside for resource arbitration.
+    //! @param cmd The command.
+    virtual void processCommand(CommandImpl *cmd);
+
+    //! Arbitrate any commands with resource requirements,
+    //! and dispose of them as appropriate.
+    virtual void partitionResourceCommands();
+
+    //! Delegate this command to be aborted.
+    //! @param cmd The command.
+    virtual void abortCommand(CommandImpl *cmd);
+
+    //! Delegate this update for execution.
+    //1 @param update The update.
+    virtual void executeUpdate(Update *update) = 0;
 
     /**
      * @brief Increment the macro step count and return the new value.
@@ -233,21 +221,13 @@ namespace PLEXIL {
      */
     virtual void reportCommandArbitrationFailure(Command *cmd) = 0;
 
-    /**
-     * @brief Schedule this command for execution.
-     */
+    //! Delegate this command for execution.
+    //! @param cmd The command.
     virtual void executeCommand(Command *cmd) = 0;
 
-    /**
-     * @brief Abort the pending command.
-     * @param cmd The command.
-     */
+    //! Delegate this command to be aborted.
+    //! @param cmd The command.
     virtual void invokeAbort(Command *cmd) = 0;
-
-    /**
-     * @brief Schedule this update for execution.
-     */
-    virtual void executeUpdate(Update *update) = 0;
 
   private:
 
@@ -257,9 +237,11 @@ namespace PLEXIL {
     ExternalInterface &operator=(ExternalInterface const &) = delete;
     ExternalInterface &operator=(ExternalInterface &&) = delete;
 
-    LinkedQueue<Update> m_updatesToExecute;
-    LinkedQueue<CommandImpl> m_commandsToExecute;
+    //! Pending commands to arbitrate
+    LinkedQueue<CommandImpl> m_resourceCmds;
+    //! The resource arbiter
     ResourceArbiterInterface *m_raInterface;
+
     unsigned int m_cycleCount;
   };
 
