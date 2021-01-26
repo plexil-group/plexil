@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -133,7 +133,7 @@ namespace PLEXIL
       m_plan.emplace_back(NodePtr(root));
       debugMsg("PlexilExec:addPlan",
                "Added plan: \n" << root->toString());
-      root->notifyChanged(); // make sure root is considered first
+      root->notifyChanged(this); // make sure root is considered first
       root->activateNode();
       return true;
     }
@@ -284,6 +284,7 @@ namespace PLEXIL
           m_transitionsToPublish.reserve(m_stateChangeQueue.size());
 
         // Transition the nodes
+        // Transition may put node on m_candidateQueue or m_finishedRootNodes
         while (!m_stateChangeQueue.empty()) {
           Node *node = getStateChangeNode();
           NodeState oldState = node->getState(); // for listener
@@ -293,7 +294,7 @@ namespace PLEXIL
                    << " node " << node->getNodeId() << ' ' << node
                    << " from " << nodeStateName(node->getState())
                    << " to " << nodeStateName(node->getNextState()));
-          node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
+          node->transition(this, startTime);
           if (m_listener)
             // After transition, old state is lost, so use cached state
             m_transitionsToPublish.emplace_back(NodeTransition(node,
@@ -553,10 +554,10 @@ namespace PLEXIL
                    << m_assignmentsToExecute.size() <<  " assignments and "
                    << m_assignmentsToRetract.size() << " retractions");
       for (Assignment *assn : m_assignmentsToExecute)
-        assn->execute();
+        assn->execute(m_listener);
       m_assignmentsToExecute.clear();
       for (Assignment *assn : m_assignmentsToRetract)
-        assn->retract();
+        assn->retract(m_listener);
       m_assignmentsToRetract.clear();
     }
 
@@ -590,7 +591,7 @@ namespace PLEXIL
       m_stateChangeQueue.pop();
       result->setQueueStatus(QUEUE_NONE);
       if (was == QUEUE_TRANSITION_CHECK)
-        result->notifyChanged();
+        result->notifyChanged(this);
       return result;
     }
       

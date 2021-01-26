@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ namespace PLEXIL {
   // Forward references
   class Assignable;
   class Mutex;
+  class PlexilExec;
 
   //
   // QueueStatus - Used by PlexilExec and Node classes for queue management
@@ -123,7 +124,7 @@ namespace PLEXIL {
      * @brief Commit a pending state transition based on the statuses of various conditions.
      * @param time The time of the transition.
      */
-    virtual void transition(double time = 0.0) = 0; // FIXME - need a better representation
+    virtual void transition(PlexilExec *exec, double time = 0.0) = 0;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -133,6 +134,12 @@ namespace PLEXIL {
 
     // ExpressionListener API
     virtual void notifyChanged() = 0;
+
+    //! Notify the node that something has changed.
+    //! @param exec The PlexilExec instance.
+    //! @note This is an optimization for cases where the change is
+    //! the direct result of executive action.
+    virtual void notifyChanged(PlexilExec *exec) = 0; 
 
     /**
      * @brief Gets the current state of this node.

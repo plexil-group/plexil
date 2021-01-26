@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -381,27 +381,28 @@ namespace PLEXIL
     m_children.emplace_back(NodeImplPtr(node));
   }
 
-  /**
-   * @brief Sets the state variable to the new state.
-   * @param newValue The new node state.
-   * @note This method notifies the children of a change in the parent node's state.
-   */
-  void ListNode::setState(NodeState newValue, double tym)
+  //! Sets the state variable to the new state.
+  //! @param exec The PlexilExec instance.
+  //! @param newValue The new node state.
+  //! @param tym Time of the transition.
+  //! @note This wrapper method notifies the children of a change in
+  //! the parent node's state.
+  void ListNode::setState(PlexilExec *exec, NodeState newValue, double tym)
   {
-    NodeImpl::setState(newValue, tym);
+    NodeImpl::setState(exec, newValue, tym);
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:
       for (NodeImplPtr &child : m_children)
         if (child->getState() == FINISHED_STATE)
-          child->notifyChanged();
+          child->notifyChanged(exec);
       break;
 
     case EXECUTING_STATE:
     case FINISHED_STATE:
       for (NodeImplPtr &child : m_children)
         if (child->getState() == INACTIVE_STATE)
-          child->notifyChanged();
+          child->notifyChanged(exec);
       break;
 
     default:

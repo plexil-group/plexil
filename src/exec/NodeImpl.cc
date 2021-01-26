@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -577,20 +577,23 @@ namespace PLEXIL
     return sl_emptyNodeVec;
   }
 
-  /**
-   * @brief Notifies the node that one of its conditions has changed.
-   * @note Renamed from conditionChanged.
-   */
-
-  // In addition to expressions to which this node listens, can be called by
-  // ListNodeImpl::setState(), NodeImpl::setState().
-
+  //! Notifies the node that one of its conditions has changed.
+  //! @note This method signature is part of the ExpressionListener API.
   void NodeImpl::notifyChanged()
+  {
+    notifyChanged(g_exec);
+  }
+  
+  //! Notify the node that its conditions may have changed.
+  //! @param exec The PlexilExec instance.
+  //! @note This method signature can be called for notifications
+  //! resulting from action by the executive.
+  void NodeImpl::notifyChanged(PlexilExec *exec)
   {
     switch (m_queueStatus) {
     case QUEUE_NONE:              // add to check queue
       m_queueStatus = QUEUE_CHECK;
-      g_exec->addCandidateNode(this);
+      exec->addCandidateNode(this);
       debugMsg("Node:notifyChanged",
                " adding " << m_nodeId << ' ' << this << " to check queue");
       return;
@@ -714,7 +717,7 @@ namespace PLEXIL
   // State transition logic
   //
 
-  void NodeImpl::transition(double time) 
+  void NodeImpl::transition(PlexilExec *exec, double time) 
   {
     // Fail silently
     if (m_nextState == m_state)
@@ -726,7 +729,7 @@ namespace PLEXIL
              << " at " << std::setprecision(15) << time);
     
     transitionFrom();
-    transitionTo(time);
+    transitionTo(exec, time);
 
     // Clear pending-transition variables
     m_nextState = NO_NODE_STATE;
@@ -784,7 +787,7 @@ namespace PLEXIL
   }
 
   // Common method 
-  void NodeImpl::transitionTo(double time)
+  void NodeImpl::transitionTo(PlexilExec *exec, double time)
   {
     switch (m_nextState) {
     case INACTIVE_STATE:
@@ -819,7 +822,7 @@ namespace PLEXIL
       errorMsg("NodeImpl::transitionTo: Invalid destination state " << m_nextState);
     }
 
-    setState((NodeState) m_nextState, time);
+    setState(exec, (NodeState) m_nextState, time);
     if (m_nextOutcome != NO_OUTCOME) {
       setNodeOutcome((NodeOutcome) m_nextOutcome);
       if (m_nextFailureType != NO_FAILURE) 
@@ -1447,18 +1450,19 @@ namespace PLEXIL
 
   // Some transition handlers call this twice.
   // Called from NodeImpl::transitionTo(), ListNodeImpl::setState() (wrapper method)
-  void NodeImpl::setState(NodeState newValue, double tym) // FIXME
+  void NodeImpl::setState(PlexilExec *exec, NodeState newValue, double tym)
   {
     if (newValue == m_state)
       return;
+    assertTrue_1(exec);
     logTransition(tym, newValue);
     m_state = newValue;
     if (m_state == FINISHED_STATE && !m_parent)
       // Mark this node as ready to be deleted -
       // with no parent, it cannot be reset, therefore cannot transition again.
-      g_exec->markRootNodeFinished(this); // puts node on exec's finished queue
+      exec->markRootNodeFinished(this); // puts node on exec's finished queue
     else
-      notifyChanged(); // check for potential of additional transitions
+      notifyChanged(exec); // check for potential of additional transitions
   }
 
   //

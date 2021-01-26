@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -95,12 +95,13 @@ namespace PLEXIL
     // For initialization and parsing.
     virtual NodeVariableMap const *getChildVariableMap() const override;
 
-    /**
-     * @brief Sets the state variable to the new state.
-     * @param newValue The new node state.
-     * @note This method notifies the children of a change in the parent node's state.
-     */
-    virtual void setState(NodeState newValue, double tym) override; // FIXME
+    //! Sets the state variable to the new state.
+    //! @param exec The PlexilExec instance.
+    //! @param newValue The new node state.
+    //! @param tym Time of the transition.
+    //! @note This wrapper method notifies the children of a change in
+    //! the parent node's state.
+    virtual void setState(PlexilExec *exec, NodeState newValue, double tym) override;
 
   protected:
 

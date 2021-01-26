@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -182,6 +182,12 @@ namespace PLEXIL
     // Make the node active.
     virtual void activateNode() override;
 
+    //! Notify the node that something has changed.
+    //! @param exec The PlexilExec instance.
+    //! @note This is an optimization for cases where the change is
+    //! the direct result of executive action.
+    virtual void notifyChanged(PlexilExec *exec) override;
+
     /**
      * @brief Gets the destination state of this node, were it to transition,
      *        based on the values of various conditions.
@@ -203,7 +209,7 @@ namespace PLEXIL
      * @brief Commit a pending state transition based on the statuses of various conditions.
      * @param time The time of the transition.
      */
-    void transition(double time = 0.0) override; // FIXME - need a better time representation
+    void transition(PlexilExec *exec, double time = 0.0) override;
 
     /**
      * @brief Get the priority of a node.
@@ -303,13 +309,13 @@ namespace PLEXIL
     NodeImpl *getParentNode() {return m_parent; }
     NodeImpl const *getParentNode() const {return m_parent; }
 
-    /**
-     * @brief Sets the state variable to the new state.
-     * @param newValue The new node state.
-     * @note Virtual so it can be overridden by ListNode wrapper method.
-     * @note Only used by node implementation classes and unit tests.
-     */
-    virtual void setState(NodeState newValue, double tym); // FIXME
+    //! Sets the state variable to the new state.
+    //! @param exec The Exec to notify of the change.
+    //! @param newValue The new node state.
+    //! @param tym The time of transition.
+    //! @note Virtual so it can be overridden by ListNode wrapper method.
+    //! @note Only used by node implementation classes and unit tests.
+    virtual void setState(PlexilExec *exec, NodeState newValue, double tym);
 
     // Used by unit tests
     void setNodeFailureType(FailureType f);
@@ -593,7 +599,7 @@ namespace PLEXIL
     // These should only be called from transition().
     void setNodeOutcome(NodeOutcome o);
     void transitionFrom();
-    void transitionTo(double tym); // FIXME
+    void transitionTo(PlexilExec *exec, double tym);
     void logTransition(double time, NodeState newState);
 
     //
