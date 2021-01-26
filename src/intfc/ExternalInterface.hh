@@ -37,7 +37,7 @@ namespace PLEXIL {
   class Command;
   class CommandImpl;
   class LookupReceiver;
-  class Message;
+  struct Message;
   class ResourceArbiterInterface;
   class Update;
 

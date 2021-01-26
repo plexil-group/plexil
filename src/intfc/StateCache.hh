@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class LookupReceiver;
-  class Message;
+  struct Message;
   class StateCacheEntry;
 
   /**

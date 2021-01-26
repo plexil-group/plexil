@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class Command;
-  class Message;
+  struct Message;
   class NodeImpl;
   class State;
   class Update;
