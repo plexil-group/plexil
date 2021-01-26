@@ -2,7 +2,7 @@
 # File: $SVNROOT/scripts/run-agents
 # Note: Script to run two Plexil agent systems using IPC
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ Options:    -v -viewer  := start the Plexil Viewer
             -x -xterms  := run the execs in xterms (if your system has them)
             -i -ipc     := run IPC in an xterm (rather than in the background)
             -n -no-ipc  := do not run IPC at all
+            -d -debug   := log IPC output
 
 Examples:   $(basename "$0") -x sim cmd -l get-int -l get-real
 
@@ -75,7 +76,7 @@ ipc_running="$(ps aux | grep -E 'ipc|central' | grep -v grep)"
 while [ -n "$1" ]
 do
     case "$1" in
-        ( -d )
+        ( -d | -debug )
 	    debug=true
 	    shift
         ;;
@@ -361,7 +362,6 @@ then
     echo "PLEXIL_HOME:  $PLEXIL_HOME"
     echo "make_file:    $make_file"
     echo ' '
-    exit
 fi
 
 # Set up the sleep time.  Java on Mac OS is really slow,
@@ -404,7 +404,12 @@ then
         if [ "$run_ipc_in_background" = 'no' ] ; then
             xterm -g 172x20 -T "IPC" ipc &
         else
-            central -s -L -f/dev/null &
+            IPC_LOG=/dev/null
+            if [ -n "$debug" ]
+            then
+                IPC_LOG="ipc.$$.log"
+            fi
+            central -s -L -f"$IPC_LOG" &
             ipc_pid=$!
             echo "Running IPC in the background (pid: $ipc_pid)..."
             echo ' '
@@ -436,9 +441,18 @@ else
     xterm -e plexilexec ${use_viewer:+'-v -b'} -b -p "$agent2".plx -c "$com2" $libdirs2 $libraries1
 fi
 
-if [ -n "$ipc_pid" ]
+# Wait for things to settle before shutting down IPC
+sleep $sleep_time
+
+if [ -n "$ipc_pid" ] && ps "$ipc_pid" > /dev/null
 then
-    kill -9 "$ipc_pid"
+    kill "$ipc_pid"
+    sleep $sleep_time
+
+    if ps "$ipc_pid" > /dev/null
+    then
+        kill -9 "$ipc_pid"
+    fi
     echo ' '
 fi
 
