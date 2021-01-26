@@ -7,10 +7,11 @@
     <CommandAck name="c3" type="string">
       <Result>COMMAND_SENT_TO_SYSTEM</Result>
     </CommandAck>
-    <CommandAck name="c1" type="int">
+    <Command name="c1" type="int">
       <Param type="int">20</Param>
       <Result>10</Result>
-    </CommandAck>
+    </Command>
+    <Delay/>
     <CommandAck name="c2" type="string">
       <Result>COMMAND_SENT_TO_SYSTEM</Result>
     </CommandAck>

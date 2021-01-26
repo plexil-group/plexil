@@ -1,5 +1,6 @@
 <PLEXILScript>
   <Script>
+    <Delay/>
     <CommandAck name="check" type="string">
       <Param type="int">1</Param>
       <Param type="int">0</Param>

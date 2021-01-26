@@ -1,12 +1,12 @@
 <PLEXILScript>
   <InitialState>
-    <State name="at" type="bool">
+    <State name="At" type="bool">
       <Param type="string">Rock</Param>
       <Value>false</Value>
     </State>
   </InitialState>
   <Script>
-    <State name="at" type="bool">
+    <State name="At" type="bool">
       <Param type="string">Rock</Param>
       <Value>true</Value>
     </State>
