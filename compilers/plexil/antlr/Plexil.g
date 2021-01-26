@@ -488,6 +488,7 @@ ifAction
     (ELSEIF_KYWD! expression consequentAction)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!?
+    SEMICOLON!?
  ;
 
 consequentAction :
