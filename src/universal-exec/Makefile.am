@@ -36,6 +36,14 @@ universalExec_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
  @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
  @top_builddir@/utils/libPlexilUtils.la
 
+# These are required whether or not the build is statically linked, if
+# support for the PLEXIL Viewer is enabled.
+if VIEWER_OPT
+  universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
+  universalExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
+   @top_builddir@/interfaces/Sockets/libPlexilSockets.la
+endif
+
 # These additions are only required if the build is statically linked.
 if STATIC_LIB_OPT
 
@@ -54,12 +62,6 @@ endif
 
 if UDP_OPT
   universalExec_LDADD += @top_builddir@/interfaces/UdpAdapter/libUdpAdapter.la
-endif
-
-if VIEWER_OPT
-  universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
-  universalExec_LDADD += @top_builddir@/interfaces/LuvListener/libLuvListener.la \
- @top_builddir@/interfaces/Sockets/libPlexilSockets.la
 endif
 
 endif # STATIC_LIB_OPT
