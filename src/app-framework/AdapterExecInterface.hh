@@ -43,7 +43,7 @@ namespace PLEXIL
 {
   // forward references
   class Command;
-  class Message;
+  struct Message;
   class State;
   class Update;
   class Value;
