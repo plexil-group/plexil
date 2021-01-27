@@ -1,6 +1,6 @@
-#! /bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,48 +27,39 @@
 
 if [ -z "$1" ]
 then
-   echo "Usage: $0 <test_name>"
+   echo "Usage: $(basename "$0") <test_name>"
    exit 1
 fi
 
-if [ -z "$PLEXIL_HOME" ]
-then
-    echo "$0: Environment variable PLEXIL_HOME not set; exiting"
-    exit 1
-fi
+TEST_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
 
-# shellcheck src=test-env.sh
-. "$PLEXIL_HOME"/test/TestExec-regression-test/test-env.sh
-cd "$TEST_DIR" || ( echo "$0: Unable to change to $TEST_DIR; exiting" ; exit 1 )
+# shellcheck source=test-env.sh
+. "$TEST_DIR"/test-env.sh
 
-PLAN_FILE="plans/$1.plx"
+cd "$TEST_DIR"
+
+PLAN_FILE="plans/${1}.plx"
 if [ ! -r "$PLAN_FILE" ]
 then
-   echo "$0: Plan file $PLAN_FILE not found; exiting"
+   echo "$(basename "$0"): Plan file $PLAN_FILE not found; exiting"
    exit 1
 fi
 
-SCRIPT_FILE="scripts/$1.psx"
+SCRIPT_FILE="scripts/${1}.psx"
 if [ ! -r "$SCRIPT_FILE" ]
 then
-   echo "$0: Script file $SCRIPT_FILE not found; exiting"
+   echo "$(basename "$0"): Script file $SCRIPT_FILE not found; exiting"
    exit 1
 fi
 
-OUT_FILE="output/$1.out"
+OUT_FILE="output/${1}.out"
 
 echo "$1" >> tempRegressionResults
-"$EXEC_PROG" -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -L plans -s "$SCRIPT_FILE" > "$OUT_FILE" 2>> tempRegressionResults
-execstatus=$?
-if [ $execstatus -gt 128 ]
+if ! "$EXEC_PROG" -L plans -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -s "$SCRIPT_FILE" > "$OUT_FILE" 2>> tempRegressionResults
 then
-    sig=$execstatus-128
-    echo "*** Test $1 exited on signal $sig" >> RegressionResults
-    echo "*** Test $1 exited on signal $sig"
-elif [ $execstatus -ne 0 ]
+    echo "*** Test $1 exited due to error" >> RegressionResults
+    echo "*** Test $1 exited due to error"
+elif perl "$REGRESSION_PL" "$OUT_FILE"
 then
-    echo "*** Test $1 exited with status $execstatus" >> RegressionResults
-    echo "*** Test $1 exited with status $execstatus"
+    echo "TEST PASSED: $1" >> RegressionResults
 fi
-
-perl "$REGRESSION_PL" "$OUT_FILE"

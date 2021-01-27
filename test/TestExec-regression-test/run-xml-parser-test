@@ -1,6 +1,6 @@
-#! /bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,31 +27,31 @@
 
 if [ -z "$1" ]
 then
-   echo "Usage: $0 <input-file>"
+   echo "Usage: $(basename "$0") <test_name>" >&2
    exit 1
 fi
 
-if [ -z "$PLEXIL_HOME" ]
-then
-    echo "$0: Environment variable PLEXIL_HOME not set; exiting"
-    exit 1
-fi
+TEST_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
 
 # shellcheck source=test-env.sh
-. "$PLEXIL_HOME"/test/TestExec-regression-test/test-env.sh
-cd "$TEST_DIR" || ( echo "$0: Unable to change to $TEST_DIR ; exiting" ; exit 1 )
+. "$TEST_DIR"/test-env.sh
 
-if [ ! -r "$1" ]
+cd "$TEST_DIR"
+
+PLAN_FILE="plans/parser-tests/${1}.plx"
+if [ ! -r "$PLAN_FILE" ]
 then
-   echo "$0: Plan file $1 not found; exiting"
+   echo "$(basename "$0"): Plan file $PLAN_FILE not found" >&2
    exit 1
 fi
 
-OUT_FILE=output/"$(basename "$1" .plx)".out
+OUT_FILE="output/${1}.out"
 
-basename "$1" .plx >> tempRegressionResults
-if "$EXEC_PROG" -p "$1" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>&1
+echo "$1" >> tempRegressionResults
+if "$EXEC_PROG" -p "$PLAN_FILE" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>&1
 then
-    echo "$0: Failed to detect expected parser error in $(basename "$1")"
-    exit 1
+    echo "*** Parser test ${1}: Failed to detect expected error" >> RegressionResults
+    echo "*** Parser test ${1}: Failed to detect expected error" >&2
+else
+    echo "PARSER TEST PASSED: $1" >> RegressionResults
 fi

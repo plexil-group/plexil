@@ -1,6 +1,6 @@
-#! /bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,55 +27,46 @@
 
 if [ -z "$2" ]
 then
-   echo "Usage: $0 <plan_name> <script_name>"
+   echo "Usage: $(basename "$0") <plan_name> <script_name>"
    exit 1
 fi
 
-if [ -z "$PLEXIL_HOME" ]
-then
-    echo "$0: Environment variable PLEXIL_HOME not set; exiting"
-    exit 1
-fi
+TEST_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
 
 # shellcheck source=test-env.sh
-. "$PLEXIL_HOME"/test/TestExec-regression-test/test-env.sh
-cd "$TEST_DIR" || ( echo "$0: Unable to change to $TEST_DIR; exiting" ; exit 1 )
+. "$TEST_DIR"/test-env.sh
 
-PLAN_FILE="plans/$1.plx"
+cd "$TEST_DIR"
+
+PLAN_FILE="plans/${1}.plx"
 if [ ! -r "$PLAN_FILE" ]
 then
-   echo "$0: Plan file $PLAN_FILE not found; exiting"
+   echo "$(basename "$0"): Plan file $PLAN_FILE not found; exiting"
    exit 1
 fi
 
-SCRIPT_FILE="scripts/$2.psx"
+SCRIPT_FILE="scripts/${2}.psx"
 if [ ! -r "$SCRIPT_FILE" ]
 then
-   echo "$0: Script file $SCRIPT_FILE not found; exiting"
+   echo "$(basename "$0"): Script file $SCRIPT_FILE not found; exiting"
    exit 1
 fi
 
-VALID_FILE="valid/RUN_$1_$2-script.valid"
+VALID_FILE="valid/RUN_${1}_${2}-script.valid"
 if [ ! -r "$VALID_FILE" ]
 then
-   echo "$0: Valid file $VALID_FILE not found; exiting"
+   echo "$(basename "$0"): Valid file $VALID_FILE not found; exiting"
    exit 1
 fi
 
-OUT_FILE="output/$1_$2-script.out"
+OUT_FILE="output/${1}_${2}-script.out"
 
-echo "$1_$2" >> tempRegressionResults
-"$EXEC_PROG" -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -s "$SCRIPT_FILE" > "$OUT_FILE" 2>> tempRegressionResults
-execstatus=$?
-if [ $execstatus -gt 128 ]
+echo "${1}_${2}" >> tempRegressionResults
+if ! "$EXEC_PROG" -L plans -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -s "$SCRIPT_FILE" > "$OUT_FILE" 2>> tempRegressionResults
 then
-    sig=$execstatus-128
-    echo "*** Test $1_$2 exited on signal $sig" >> RegressionResults
-    echo "*** Test $1_$2 exited on signal $sig"
-elif [ $execstatus -ne 0 ]
+    echo "*** Test ${1}_${2} exited due to error" >> RegressionResults
+    echo "*** Test ${1}_${2} exited due to error"
+elif perl "$REGRESSION_PL" "$OUT_FILE" "$VALID_FILE"
 then
-    echo "*** Test $1_$2 exited with status $execstatus" >> RegressionResults
-    echo "*** Test $1_$2 exited with status $execstatus"
+    echo "TEST PASSED: ${1}_${2}" >> RegressionResults
 fi
-
-perl "$REGRESSION_PL" "$OUT_FILE" "$VALID_FILE"
