@@ -162,7 +162,7 @@ namespace PLEXIL
           State st = parseState(state);
           Value value = parseStateValue(state);
           debugMsg("Test:testOutput",
-                   "Creating initial state " << getText(st, value));
+                   "Creating initial state " << st << " = " << value);
           m_states[st] = value;
           this->lookupReturn(st, value);
           state = state.next_sibling();
