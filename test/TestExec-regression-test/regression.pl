@@ -139,24 +139,24 @@ if ($validfile) {
 }
 
 # this doesn't work (tempName) with libraries yet
-my $fileErrs = 'tempRegressionResults';
-open(F3, "< $encoding", $fileErrs);
-my $i = 0;
-my @lines3 = <F3>;
-foreach my $line3 (@lines3) {
-    $i++;
-    if ($line3 =~ s/^RUN_exec-test-runner_g_rt\.-s\.(.*?)\.xml\.-p\.(.*?)\.xml.*/$2 + $1/) {
-        chomp(my $tempName = $line3);
-        if ($tempName eq $testName) {
-            my $line3 = $lines3[$i++];
-            while ($line3 && !($line3 =~ m/^RUN_exec-test-runner_g_rt\.-s\.(.*?)\.xml\.-p\.(.*?)\.xml.*/)) {
-                print DIF $line3;
-                $line3 = $lines3[$i++];
-            }
-        }
-    }
-}
-close(F3);
+# my $fileErrs = 'tempRegressionResults';
+# open(F3, "< $encoding", $fileErrs);
+# my $i = 0;
+# my @lines3 = <F3>;
+# foreach my $line3 (@lines3) {
+#     $i++;
+#     if ($line3 =~ s/^RUN_exec-test-runner_g_rt\.-s\.(.*?)\.xml\.-p\.(.*?)\.xml.*/$2 + $1/) {
+#         chomp(my $tempName = $line3);
+#         if ($tempName eq $testName) {
+#             my $line3 = $lines3[$i++];
+#             while ($line3 && !($line3 =~ m/^RUN_exec-test-runner_g_rt\.-s\.(.*?)\.xml\.-p\.(.*?)\.xml.*/)) {
+#                 print DIF $line3;
+#                 $line3 = $lines3[$i++];
+#             }
+#         }
+#     }
+# }
+# close(F3);
 close(DIF);
 
 exit $exitstatus;
