@@ -23,21 +23,31 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+lib_LTLIBRARIES = libstandalonesimulator.la
+
 bin_PROGRAMS = simulator
 
-simulator_CPPFLAGS = $(AM_CPPFLAGS) \
+libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
  -I$(top_srcdir)/interfaces/IpcUtils \
  -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
-noinst_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
- GenericResponse.hh IpcCommRelay.hh ResponseMessage.hh Simulator.hh \
- SimulatorScriptReader.hh TimingService.hh parseType.hh simdefs.hh
+include_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
+ GenericResponse.hh IpcCommRelay.hh LineInStream.hh ResponseMessage.hh \
+ Simulator.hh SimulatorScriptReader.hh TimingService.hh \
+ parseType.hh simdefs.hh
 
-simulator_SOURCES = Agenda.cc CommandResponseManager.cc IpcCommRelay.cc \
- PlexilSimulator.cc Simulator.cc SimulatorScriptReader.cc \
+noinst_HEADERS =
+
+libstandalonesimulator_la_SOURCES = Agenda.cc CommandResponseManager.cc \
+ IpcCommRelay.cc LineInStream.cc Simulator.cc SimulatorScriptReader.cc \
  TimingService.cc
 
-simulator_LDADD = $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
+simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
+
+simulator_SOURCES = PlexilSimulator.cc
+
+simulator_LDADD = libstandalonesimulator.la \
+ $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
  $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 
 simulator_LDFLAGS = -L$(libdir) -lipc

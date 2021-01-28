@@ -29,6 +29,7 @@
 #include "Agenda.hh"
 #include "CommandResponseManager.hh"
 #include "GenericResponse.hh"
+#include "LineInStream.hh"
 #include "Simulator.hh"
 
 #include "CommandHandle.hh"
@@ -38,11 +39,9 @@
 
 #include <cctype>
 
-#include <fstream>
 #include <iomanip> // std::setw(), std::setfill()
 #include <iostream>
 #include <memory>
-#include <sstream>
 
 using namespace PLEXIL;
 
@@ -68,111 +67,6 @@ struct SimSymbol
   }
 
 };
-
-#define MAX_LINE_LENGTH (1024)
-
-// Helper class
-class LineInStream {
-public:
-
-  LineInStream()
-    : m_filename(),
-      m_filestream(),
-      m_linestream(),
-      m_linecount(0),
-      m_linebuf(MAX_LINE_LENGTH, '\0')
-  {
-  }
-
-  ~LineInStream() = default;
-
-  // (Re)Open the stream with a new file
-  // Returns true on success
-  bool open(std::string const &fname)
-  {
-    close();
-    m_linecount = 0;
-    m_filestream.open(fname.c_str());
-    if (m_filestream.fail()) {
-      debugMsg("LineInStream:open", " for " << fname << " failed");
-      return false;
-    }
-    debugMsg("LineInStream:open", ' ' << fname);
-    m_filename = fname;
-    return true;
-  }
-
-  void close()
-  {
-    if (m_filestream.is_open()) {
-      m_filestream.close();
-      m_filename.clear();
-    }
-  }
-
-  std::istream &getLine()
-  {
-    if (!m_filestream.good() || m_filestream.eof()) {
-      debugMsg("LineInStream:getLine", " at EOF or error");
-      m_linebuf.clear();
-    }
-
-    bool ignoreLine = false;
-    do {
-      debugMsg("LineInStream:getLine", " not EOF");
-      std::getline(m_filestream, m_linebuf);
-      ++m_linecount;
-      size_t firstNonWhitespace = m_linebuf.find_first_not_of(" \t\n\r");
-      ignoreLine = (m_linebuf.size() == 0)
-        || (std::string::npos == firstNonWhitespace)
-        || !isalnum(m_linebuf[firstNonWhitespace]);
-      condDebugMsg(ignoreLine,
-                   "LineInStream:getLine",
-                   " ignoring blank or comment line");
-    }
-    while (ignoreLine && m_filestream.good() && !m_filestream.eof());
-
-    debugMsg("LineInStream:getLine",
-             " line = \"" << m_linebuf << "\"");
-
-    m_linestream.clear();
-    m_linestream.str(m_linebuf);
-    return m_linestream;
-  }
-
-  std::istringstream &getLineStream()
-  {
-    return m_linestream;
-  }
-
-  std::string const &getFileName() const
-  {
-    return m_filename;
-  }
-
-  unsigned int getLineCount() const
-  {
-    return m_linecount;
-  }
-
-  bool good() const
-  {
-    return m_filestream.good();
-  }
-
-  bool eof() const
-  {
-    return m_filestream.eof();
-  }
-
-private:
-  std::string m_filename;
-  std::ifstream m_filestream;
-  std::istringstream m_linestream;
-  unsigned int m_linecount;
-  std::string m_linebuf;
-};
-
 
 class PlexilSimScriptReader : public SimulatorScriptReader
 {
