@@ -384,26 +384,26 @@ private:
     // Send every message with a scheduled time earlier than now.
     //
     while (!m_Agenda->empty()) {
-      timeval responseTime;
-      ResponseMessage* resp = m_Agenda->getNextResponse(responseTime);
-      checkError(resp != NULL,
-                 "Simulator:handleWakeup: Agenda returned NULL for getNextResponse")
-        debugMsg("Simulator:handleWakeUp", " got response " << resp->getName()
-                 << " with time of "
-                 << responseTime.tv_sec << '.' << responseTime.tv_usec);
+      timeval const &responseTime = m_Agenda->nextResponseTime();
+      debugMsg("Simulator:handleWakeUp", " next response at "
+               << responseTime.tv_sec << '.' << responseTime.tv_usec);
       if (responseTime > now)
         break;
     
-      m_Agenda->pop();
-      debugMsg("Simulator:handleWakeUp", " got past m_Agenda->pop()");
+      ResponseMessage *resp = m_Agenda->popResponse();
+      checkError(resp,
+                 "Simulator:handleWakeup: Agenda::popResponse returned null");
       if (resp->getMessageType() == MSG_TELEMETRY) {
         // Store the value for subsequent LookupNow requests
         m_LookupNowValueMap[resp->getName()] = resp->getValue();
       }
-      m_CommRelay->sendResponse(resp);
-      debugMsg("Simulator:handleWakeUp", " got past m_CommRelay->sendResponse()");
+      debugMsg("Simulator:handleWakeUp", " sending response "
+               << resp->getName() << " value " << resp->getValue()
+               << " scheduled for "
+               << responseTime.tv_sec << '.' << responseTime.tv_usec);
+
+      m_CommRelay->sendResponse(resp); // comm relay will delete resp
       debugMsg("Simulator:handleWakeUp", " Sent response");
-      // delete resp; // handled by comm relay
     }
 
     debugMsg("Simulator:handleWakeUp", " done sending responses for now");
