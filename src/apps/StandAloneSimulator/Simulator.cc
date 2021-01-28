@@ -38,11 +38,11 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "ThreadSpawn.hh"
 #include "timeval-utils.hh"
 
 #include <iomanip>
 #include <memory>
+#include <thread>
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -68,7 +68,7 @@ private:
   CommRelayBase *m_CommRelay; // owned by the application
   std::unique_ptr<Agenda> m_Agenda;
   std::unique_ptr<ResponseManagerMap> m_CmdToRespMgr;
-  pthread_t m_SimulatorThread;
+  std::thread m_SimulatorThread;
   bool m_Started;
   bool m_Stop;
 
@@ -80,7 +80,7 @@ public:
       m_CommRelay(commRelay),
       m_Agenda(agenda),
       m_CmdToRespMgr(map),
-      m_SimulatorThread((pthread_t) 0),
+      m_SimulatorThread(),
       m_Started(false),
       m_Stop(false)
   {
@@ -98,97 +98,32 @@ public:
 
   virtual void start()
   {
-    threadSpawn(run, this, m_SimulatorThread);
+    assertTrue_2(!m_Started,
+                 "StandAloneSimulator::start: simulatorTopLevel already running");
+    m_SimulatorThread = std::thread([this]() -> void { this->simulatorTopLevel(); });
+    debugMsg("Simulator:start", " top level thread started");
   }
 
   virtual void stop()
   {
-    debugMsg("Simulator:stop", " called");
     if (!m_Started)
       return;
 
+    debugMsg("Simulator:stop", " called");
     m_TimingService.stopTimer();
 
-    if (m_Stop) {
-      // we tried the gentle approach already -
-      // take more drastic action
-      if (m_SimulatorThread == pthread_self()) {
-        errorMsg("Simulator:stop: Emergency stop!");
-      }
-      else {
-        int pthread_errno = pthread_cancel(m_SimulatorThread);
-        if (pthread_errno == ESRCH) {
-          // no such thread to cancel, i.e. it's already dead
-          m_Stop = false;
-          m_Started = false;
-          return;
-        }
-        else if (pthread_errno != 0) {
-          errorMsg("Simulator:stop: fatal error: pthread_cancel returned " << pthread_errno);
-        }
-
-        // successfully canceled, wait for it to exit
-        pthread_errno = pthread_join(m_SimulatorThread, NULL);
-        if (pthread_errno == 0 || pthread_errno == ESRCH) {
-          // thread joined or died before it could be joined
-          // either way we succeeded
-          m_Stop = false;
-          m_Started = false;
-        }
-        else {
-          errorMsg("Simulator:stop: fatal error: pthread_join returned " << pthread_errno);
-        }
-      }
-    }
-    else {
-      // Usual case
-      // stop the sim thread
-      m_Stop = true;
-      if (m_SimulatorThread != pthread_self()) {
-        // Signal the thread to stop
-        int pthread_errno = pthread_kill(m_SimulatorThread, SIGTERM);
-        if (pthread_errno == 0) {
-          // wait for thread to terminate
-          pthread_errno = pthread_join(m_SimulatorThread, NULL);
-          if (pthread_errno == 0 || pthread_errno == ESRCH) {
-            // thread joined or died before it could be joined
-            // either way we succeeded
-            m_Stop = false;
-            m_Started = false;
-          }
-          else {
-            errorMsg("Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
-          }
-        }
-        else if (pthread_errno != ESRCH) {
-          // thread is already dead
-          m_Stop = false;
-          m_Started = false;
-        }
-        else {
-          errorMsg("Simulator::stop: fatal error: pthread_kill returned " << pthread_errno);
-        }
-      }
-    }
+    // Tell the sim thread to stop and wait for it to join
+    m_Stop = true;
+    m_SimulatorThread.join();
+    debugMsg("Simulator:stop", " succeeded");
   }
 
-  static void* run(void* this_as_void_ptr)
-  {
-    Simulator* _this = reinterpret_cast<Simulator*>(this_as_void_ptr);
-    _this->simulatorTopLevel();
-    return NULL;
-  }
-
+  // *** BEWARE ***
+  // This can be called directly from main() or run as a thread;
+  // see examples/robosim/RoboSimSimulator/RoboSimSimulator.cc
+  // for an example of the latter.
   void simulatorTopLevel()
   {
-    // if called directly from the main() thread,
-    // record our thread ID
-    if (m_SimulatorThread == (pthread_t) 0)
-      m_SimulatorThread = pthread_self();
-  
-    assertTrue_2(m_SimulatorThread == pthread_self(),
-                 "Internal error: simulatorTopLevel running in thread other than m_SimulatorThread");
-
     //
     // Initialize signal handling
     //
@@ -200,7 +135,7 @@ public:
     timeval now;
     gettimeofday(&now, NULL);
     debugMsg("Simulator:start", " at "
-             << std::setiosflags(std::ios_base::fixed) 
+             << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
              << timevalToDouble(now));
 
     // Schedule initial telemetry responses
@@ -218,7 +153,7 @@ public:
     if (firstWakeup.tv_sec != 0 || firstWakeup.tv_usec != 0) {
       debugMsg("Simulator:start",
                " scheduling first event at "
-               << std::setiosflags(std::ios_base::fixed)
+               << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
                << timevalToDouble(firstWakeup));
       scheduleNextResponse(firstWakeup);
     }
@@ -232,7 +167,8 @@ public:
       int waitResult = m_TimingService.wait();
       if (waitResult != 0) {
         // received some other signal
-        debugMsg("Simulator:simulatorTopLevel", " timing service received signal " << waitResult << ", exiting");
+        debugMsg("Simulator:simulatorTopLevel",
+                 " timing service received signal " << waitResult << ", exiting");
         break;
       }
 
@@ -255,7 +191,6 @@ public:
     m_Started = false;
 
     debugMsg("Simulator:simulatorTopLevel", " cleaning up");
-    m_SimulatorThread = (pthread_t) 0;
   }
 
   void scheduleResponseForCommand(const std::string& command,
@@ -340,7 +275,7 @@ private:
     timeval eventTime = now + delay;
     debugMsg("Simulator:scheduleMessage",
              " scheduling message at "
-             << std::setiosflags(std::ios_base::fixed) 
+             << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
              << timevalToDouble(eventTime));
     m_Agenda->scheduleResponse(eventTime, msg);
   }
@@ -357,7 +292,7 @@ private:
       if (timeIsFuture) {
         debugMsg("Simulator:scheduleNextResponse",
                  " Timer set for "
-                 << std::setiosflags(std::ios_base::fixed) 
+                 << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
                  << timevalToDouble(time));
       }
       else {
@@ -377,7 +312,7 @@ private:
     gettimeofday(&now, NULL);
     debugMsg("Simulator:handleWakeUp",
              " entered at "
-             << std::setiosflags(std::ios_base::fixed) 
+             << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
              << timevalToDouble(now));
 
     //
@@ -415,7 +350,7 @@ private:
     if (nextWakeup.tv_sec != 0 && nextWakeup.tv_usec != 0) {
       debugMsg("Simulator:handleWakeUp",
                " Scheduling next wakeup at "
-               << std::setiosflags(std::ios_base::fixed) 
+               << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
                << timevalToDouble(nextWakeup));
       scheduleNextResponse(nextWakeup);
     }
