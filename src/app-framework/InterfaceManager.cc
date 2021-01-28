@@ -32,7 +32,6 @@
 #include "InterfaceManager.hh"
 
 #include "AdapterConfiguration.hh"
-#include "CachedValue.hh"
 #include "Command.hh"
 #include "Debug.hh"
 #include "ExecApplication.hh"
