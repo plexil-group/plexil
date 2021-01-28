@@ -37,6 +37,7 @@
 #include "Mutex.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
+#include "StateCache.hh"
 #include "Update.hh"
 
 #include <algorithm> // std::remove_if()
@@ -212,7 +213,7 @@ namespace PLEXIL
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
       // Only used in debugMsg calls
       unsigned int stepCount = 0;
-      unsigned int cycleNum = g_interface->getCycleCount();
+      unsigned int cycleNum = StateCache::instance().getCycleCount();
 #endif
 
       debugMsg("PlexilExec:step", " ==>Start cycle " << cycleNum);
@@ -336,7 +337,7 @@ namespace PLEXIL
              && !m_candidateQueue.empty());
       // END QUIESCENCE LOOP
       // Perform side effects
-      g_interface->incrementCycleCount();
+      StateCache::instance().incrementCycleCount();
       performAssignments();
       executeOutboundQueue();
       if (m_listener)
