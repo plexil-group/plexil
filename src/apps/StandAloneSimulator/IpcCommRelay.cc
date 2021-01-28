@@ -91,9 +91,10 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
 
   case MSG_TELEMETRY: {
     // Telemetry values message
-    std::vector<PLEXIL::Value> ret_list = std::vector<PLEXIL::Value>(1, value);
+    std::vector<PLEXIL::Value> ret_list = std::vector<PLEXIL::Value>(1, respMsg->getValue());
     debugMsg("IpcCommRelay:sendResponse",
-             " sending telemetry message for \"" << respMsg->getName() << "\"");
+             " sending telemetry message \"" << respMsg->getName()
+             << "\", value " << ret_list[0]);
     m_ipcFacade.publishTelemetry(respMsg->getName(), ret_list);
   }
     break;
