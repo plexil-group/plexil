@@ -48,7 +48,6 @@
 #include "PlannerUpdateHandler.hh"
 #include "State.hh"
 #include "ThreadSemaphore.hh"
-#include "ThreadSpawn.hh"
 #include "Update.hh"
 
 #include "pugixml.hpp"
