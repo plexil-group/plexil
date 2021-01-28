@@ -2,7 +2,7 @@ This directory contains a small example using the UE with the Standalone Simulat
 
 To run it, first compile the sample plan:
 
-  $ plexil sas-test.ple
+  $ plexilc sas-test.ple
 
 Then start the following programs, preferably in separate Unix shells.
 
@@ -17,3 +17,5 @@ Then start the following programs, preferably in separate Unix shells.
 3. Universal Executive
 
    $ run-ue -p sas-test.plx -c config.xml
+
+Or simply run test-sas.sh in this directory.
