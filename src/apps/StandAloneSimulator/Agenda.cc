@@ -91,7 +91,7 @@ public:
   }
     
   // Only valid when not empty.
-  virtual timeval nextResponseTime() const
+  virtual timeval const &nextResponseTime() const
   {
     static struct timeval sl_zero = {0, 0};
     std::lock_guard<std::mutex> g(*m_mutex);
@@ -100,24 +100,15 @@ public:
     return m_queue.front().first;
   }
 
-  virtual ResponseMessage *getNextResponse(timeval &tym)
+  virtual ResponseMessage *popResponse()
   {
     std::lock_guard<std::mutex> g(*m_mutex);
-    if (m_queue.empty()) {
-      tym.tv_sec = 0;
-      tym.tv_usec = 0;
-      return NULL;
-    }
+    if (m_queue.empty())
+      return nullptr;
 
-    tym = m_queue.front().first;
-    return m_queue.front().second.get();
-  }
-
-  virtual void pop()
-  {
-    std::lock_guard<std::mutex> g(*m_mutex);
-    if (!m_queue.empty())
-      m_queue.pop_front();
+    ResponseMessage *msg = m_queue.front().second.release();
+    m_queue.pop_front();
+    return msg;
   }
   
   // Insert into list in earliest-first order.

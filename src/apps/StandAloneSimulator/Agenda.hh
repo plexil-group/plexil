@@ -53,9 +53,8 @@ public:
   virtual size_t size() const = 0;
   virtual bool empty() const = 0;
   virtual void setSimulatorStartTime(timeval const &tym) = 0;
-  virtual timeval nextResponseTime() const = 0;
-  virtual ResponseMessage *getNextResponse(timeval &tym) = 0;
-  virtual void pop() = 0;
+  virtual timeval const &nextResponseTime() const = 0;
+  virtual ResponseMessage *popResponse() = 0;
   virtual void scheduleResponse(timeval tym, ResponseMessage *msg) = 0;
 
   virtual ~Agenda() = default;
