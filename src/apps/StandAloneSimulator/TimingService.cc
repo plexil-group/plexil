@@ -201,7 +201,7 @@ bool TimingService::setTimer(const timeval& time)
 				"TimingService::setTimer: Fatal error: setitimer failed, errno = " << errno);
   debugMsg("TimingService:setTimer",
 		   " Set interval timer for "
-		   << std::setiosflags(std::ios_base::fixed) 
+		   << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
 		   << timevalToDouble(myTimer.it_value));
   return true;
 }
@@ -230,7 +230,7 @@ void TimingService::getTimer(timeval& result)
   result = now + itime.it_value;
   debugMsg("TimingService:getTimer",
 		   " timer set for "
-		   << std::setiosflags(std::ios_base::fixed) 
+		   << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
 		   << timevalToDouble(result));
 }
 
