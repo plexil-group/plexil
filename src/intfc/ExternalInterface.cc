@@ -121,7 +121,7 @@ namespace PLEXIL
   void ExternalInterface::lookupReturn(State const &state, Value const &value)
   {
     debugMsg("ExternalInterface:lookupReturn", '(' << state << ", " << value << ')');
-    StateCache::instance().getLookupReceiver(state)->update(value);
+    StateCache::instance().lookupReturn(state, value);
   }
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)
