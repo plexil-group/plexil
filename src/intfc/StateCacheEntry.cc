@@ -49,13 +49,11 @@ namespace PLEXIL
     //
 
     using CachedValuePtr = std::unique_ptr<CachedValue>;
-    using LookupReceiverPtr = std::unique_ptr<LookupReceiver>;
 
   public:
 
     StateCacheEntryImpl()
       : StateCacheEntry(),
-        m_receiver(),
         m_value(),
         m_lowThreshold(),
         m_highThreshold()
@@ -470,7 +468,6 @@ namespace PLEXIL
     //
 
     std::vector<Lookup *> m_lookups;
-    LookupReceiverPtr m_receiver;
     CachedValuePtr m_value;
     CachedValuePtr m_lowThreshold;
     CachedValuePtr m_highThreshold;
