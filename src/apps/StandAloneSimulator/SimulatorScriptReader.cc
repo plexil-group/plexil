@@ -469,7 +469,8 @@ private:
                   << std::endl;
         return false;
       }
-      returnValue = realVal;
+      // I don't trust Value::operator=(Real)
+      returnValue = Value(realVal);
     }
     else {
       returnValue = parseReturnValue(symbol->returnType);
@@ -478,7 +479,7 @@ private:
 
     timeval timeDelay = doubleToTimeval(delay);
     debugMsg("SimulatorScriptReader:readScript",
-             " Adding telemetry for " << name
+             " Adding telemetry for " << name << " value " << returnValue
              << " at delay " << timeDelay.tv_sec << '.'
              << std::setw(6) << std::setfill('0') << timeDelay.tv_usec);
 
