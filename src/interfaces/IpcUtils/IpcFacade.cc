@@ -30,11 +30,11 @@
 #include "CommandHandle.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ThreadSpawn.hh"
 
 #include <algorithm>
 #include <fstream>
 #include <map>
+#include <thread>
 
 #if defined(HAVE_CSTDIO)
 #include <cstdio>
@@ -52,7 +52,7 @@ namespace PLEXIL
 {
   // forward reference
   static bool definePlexilIPCMessageTypes(std::string uid);
-  static void myIpcDispatch(void *bool_as_void_ptr);
+  static void myIpcDispatch(bool *flag_ptr);
   static void ipcMessageHandler(MSG_INSTANCE /* rawMsg */,
                                 void * unmarshalledMsg,
                                 void * this_as_void_ptr);
@@ -588,10 +588,8 @@ namespace PLEXIL
       // Spawn message thread AFTER all subscribes complete
       // Running thread in parallel with subscriptions resulted in deadlocks
       debugMsg("IpcFacade:start", ' ' << m_myUID << " spawning IPC dispatch thread");
-      if (threadSpawn((THREAD_FUNC_PTR) myIpcDispatch, &m_stopDispatchThread, m_threadHandle)) {
-        debugMsg("IpcFacade:start",' ' << m_myUID <<  " succeeded");
-        m_isStarted = true;
-      }
+      m_thread = std::thread(myIpcDispatch, &m_stopDispatchThread);
+      m_isStarted = true;
     }
     return result;
   }
@@ -610,10 +608,7 @@ namespace PLEXIL
     // Cancel IPC dispatch thread first to prevent deadlocks
     debugMsg("IpcFacade:stop", ' ' << m_myUID << " cancelling dispatch thread");
     m_stopDispatchThread = true;
-    int myErrno = pthread_join(m_threadHandle, nullptr);
-    if (myErrno != 0) {
-      debugMsg("IpcFacade:stop", "Error in pthread_join; errno = " << myErrno);
-    }
+    m_thread.join();
 
     debugMsg("IpcFacade:stop", ' ' << m_myUID << " unsubscribing all");
     unsubscribeAllListeners();
@@ -1129,13 +1124,12 @@ namespace PLEXIL
 
   //! IPC listener thread top level.
   //! Exits when the stop flag is set.
-  void myIpcDispatch(void *bool_as_void_ptr)
+  void myIpcDispatch(bool *flag_ptr)
   {
-    assertTrue_2(bool_as_void_ptr,
+    assertTrue_2(flag_ptr,
                  "IpcFacade dispatch thread: pointer to stop flag is null!");
 
     debugMsg("IpcFacade:myIpcDispatch", " started");
-    bool *flag_ptr = (bool *) bool_as_void_ptr;
     IPC_RETURN_TYPE ipcStatus = IPC_OK;
 
     while (!*flag_ptr && ipcStatus != IPC_Error)

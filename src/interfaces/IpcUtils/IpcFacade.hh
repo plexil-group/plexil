@@ -38,8 +38,8 @@
 #include <map>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
-
 
 namespace PLEXIL {
 
@@ -363,8 +363,8 @@ namespace PLEXIL {
     //* @brief Mutex for registered listener tables.
     std::mutex m_listenersMutex;
 
-    //* @brief The handle for the message thread
-    pthread_t m_threadHandle;
+    //* @brief The message thread
+    std::thread m_thread;
 
     //* @brief Count of # of outgoing commands and requests, starting with 1
     //  @note Should only ever be 0 at initialization
