@@ -916,7 +916,7 @@ namespace PLEXIL
       assertTrue_2(tv->stringValue,
                    "handleTelemetryValuesSequence: stringValue of leader is null");
       char const *stateName = tv->stringValue;
-      if (*stateName) {
+      if (!*stateName) {
         warn("IpcAdapter: state name missing or empty, ignoring");
         return;
       }
@@ -943,7 +943,7 @@ namespace PLEXIL
         state.setParameter(i - 2, getPlexilMsgValue(msgs[i]));
     
       debugMsg("IpcAdapter:handleTelemetryValuesSequence",
-               " state \"" << stateName << "\" found, processing");
+               " state \"" << stateName << "\", value " << result);
 
       // Check to see if a LookupNow is waiting on this value
       {
