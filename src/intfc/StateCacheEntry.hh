@@ -27,33 +27,33 @@
 #ifndef PLEXIL_STATE_CACHE_ENTRY_HH
 #define PLEXIL_STATE_CACHE_ENTRY_HH
 
-#include "ValueType.hh"
+#include "LookupReceiver.hh"
 
 namespace PLEXIL
 {
   // Forward references
   class CachedValue;
   class Lookup;
-  class LookupReceiver;
   class State;
   class Value;
 
-  //!
-  // @class StateCacheEntry
-  // @brief Provides the external API for a state cache entry,
-  //        and value-type-independent state and functionality.
-  //
-  class StateCacheEntry
+  //! @class StateCacheEntry
+  //! Provides the external API for a state cache entry, and
+  //! value-type-independent state and functionality.
+  class StateCacheEntry : public LookupReceiver
   {
   public:
     virtual ~StateCacheEntry() = default;
 
+    // Callback object for interface implementations
+    LookupReceiver *getLookupReceiver()
+    {
+      return static_cast<LookupReceiver *>(this);
+    }
+
     // Utility
     virtual ValueType const valueType() const = 0;
     virtual bool isKnown() const = 0;
-
-    // Callback object for interface implementations
-    virtual LookupReceiver *getLookupReceiver() = 0;
 
     // Safety check before deleting entry
     virtual bool hasRegisteredLookups() const = 0;
@@ -64,45 +64,24 @@ namespace PLEXIL
     virtual void updateThresholds(State const &s) = 0;
 
     // Read access to the actual value is through the helper object.
+    // Only Lookup and StateCache should use this member function.
     virtual CachedValue const *cachedValue() const = 0;
 
-    //!
-    // @brief Set the state to unknown.
-    // @note Notifies all lookups of the new status.
-    //
-    virtual void setUnknown() = 0;
+    //! Update with the given value and timestamp.
+    //! @param val The new value.
+    //! @param timestamp The cycle count at the time of update.
+    //! @note Optimization for StateCache::lookupReturn()
+    virtual void updateValue(Value const &val, unsigned int timestamp) = 0;
 
-    //!
-    // @brief Update the cache entry with the given new value.
-    // @param val The new value.
-    // @note Notifies all lookups of the new value.
-    // @note The caller is responsible for deleting the object pointed to upon return.
-    //
-    virtual void update(Boolean const &val) = 0;
-    virtual void update(Integer const &val) = 0;
-    virtual void update(Real const &val) = 0;
-    virtual void update(String const &val) = 0;
+    //! Update the cache entry with the given new value.
+    //! @param valPtr The new value.
+    //! @note Notifies all lookups of the new value.
+    //! @note The caller is responsible for deleting the object pointed to upon return.
     virtual void updatePtr(String const *valPtr) = 0;
     virtual void updatePtr(BooleanArray const *valPtr) = 0;
     virtual void updatePtr(IntegerArray const *valPtr) = 0;
     virtual void updatePtr(RealArray const *valPtr) = 0;
     virtual void updatePtr(StringArray const *valPtr) = 0;
-
-    // For convenience of TestExternalInterface, others
-    virtual void update(Value const &val) = 0;
-
-  protected:
-    // Constructor is only accessible to the implementation class
-    StateCacheEntry() = default;
-
-  private:
-    // Copy disallowed
-    StateCacheEntry(StateCacheEntry const &orig) = delete;
-    StateCacheEntry(StateCacheEntry &&orig) = delete;
-
-    // Assign disallowed
-    StateCacheEntry &operator=(StateCacheEntry const &) = delete;
-    StateCacheEntry &operator=(StateCacheEntry &&) = delete;
   };
 
   StateCacheEntry *makeStateCacheEntry();

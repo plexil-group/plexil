@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -269,7 +269,7 @@ static bool testLookupNow()
   l4->addListener(&l4listener);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   l1->activate();
   assertTrue_1(l1changed);
@@ -363,7 +363,7 @@ static bool testLookupOnChange()
   assertTrue_1(!l2->isKnown());
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   l1->activate();
   assertTrue_1(l1->getValue(temp));
@@ -382,7 +382,7 @@ static bool testLookupOnChange()
   watchVar.setValue(0.1);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 0.1);
@@ -395,7 +395,7 @@ static bool testLookupOnChange()
   watchVar.setValue(0.6);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l1->getValue(temp));
   assertTrue_1(temp == 0.6);
@@ -411,7 +411,7 @@ static bool testLookupOnChange()
   watchVar.setValue(0.7);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(!l1->isKnown());
   assertTrue_1(!changeNotified);
@@ -422,7 +422,7 @@ static bool testLookupOnChange()
   watchVar.setValue(1.1);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(!l1->isKnown());
   assertTrue_1(l2->getValue(temp));
@@ -437,7 +437,7 @@ static bool testLookupOnChange()
   watchVar.setValue(1.4);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l1->isKnown());
   assertTrue_1(l1->getValue(temp));
@@ -458,7 +458,7 @@ static bool testLookupOnChange()
   watchVar.setValue(1.5);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(changeWithToleranceNotified);
   assertTrue_1(l2->getValue(temp));
@@ -470,7 +470,7 @@ static bool testLookupOnChange()
   watchVar.setValue(1.6);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(!changeWithToleranceNotified);
   assertTrue_1(l2->getValue(temp));
@@ -479,7 +479,7 @@ static bool testLookupOnChange()
   watchVar.setValue(1.7);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(changeWithToleranceNotified);
   assertTrue_1(l2->getValue(temp));
@@ -546,7 +546,7 @@ static bool testThresholdUpdate()
   assertTrue_1(!l3->isKnown());
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   // Check that thresholds are not yet set
   assertTrue_1(!theInterface->getThresholds("thresholdTest", hi, lo));
@@ -576,7 +576,7 @@ static bool testThresholdUpdate()
   watchVar.setValue(0.25);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.0);
@@ -592,7 +592,7 @@ static bool testThresholdUpdate()
   watchVar.setValue(0.5);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.5);
@@ -610,7 +610,7 @@ static bool testThresholdUpdate()
   watchVar.setValue(0.75);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 0.5);
@@ -628,7 +628,7 @@ static bool testThresholdUpdate()
   watchVar.setValue(1.25);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.25);
@@ -647,7 +647,7 @@ static bool testThresholdUpdate()
   watchVar.setValue(1.5);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.25);
@@ -679,7 +679,7 @@ static bool testThresholdUpdate()
   l2Notified = false;
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   // Low and high should now track l3
   assertTrue_1(theInterface->getThresholds("thresholdTest", hi, lo));
@@ -690,7 +690,7 @@ static bool testThresholdUpdate()
   l3->deactivate();
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   // Thresholds should no longer be in effect
   // Unfortunately there's no API to tell the interface that!
@@ -735,7 +735,7 @@ static bool testThresholdUpdate()
   l3Notified = false;
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(!l2Notified);
   assertTrue_1(l2->getValue(temp));
@@ -747,7 +747,7 @@ static bool testThresholdUpdate()
   watchVar.setValue(1.75);
 
   // Bump the cycle count
-  theInterface->incrementCycleCount();
+  StateCache::instance().incrementCycleCount();
 
   assertTrue_1(l2Notified);
   assertTrue_1(l2->getValue(temp));

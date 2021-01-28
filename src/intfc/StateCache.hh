@@ -64,6 +64,22 @@ namespace PLEXIL
     static double queryTime();
 
     //
+    // API to PlexilExec
+    //
+
+    //
+    // The cycle counter is used by the Lookup interface to check whether a value is stale.
+    // It is incremented by the PlexilExec.
+    //
+
+    //! Return the number of "macro steps" since this instance was constructed.
+    //! @return The macro step count.
+    virtual unsigned int getCycleCount() const = 0;
+
+    //! Increment the macro step count.
+    virtual void incrementCycleCount() = 0;
+
+    //
     // API to ExternalInterface
     //
 
@@ -112,16 +128,8 @@ namespace PLEXIL
     // Default constructor is only accessible to the implementation class
     StateCache() = default;
 
-    // Time entry has to be initialized by the implementation constructor
-    StateCacheEntry *m_timeEntry;
-
-  private:
-
-    // Unimplemented
-    StateCache(StateCache const &) = delete;
-    StateCache(StateCache &&) = delete;
-    StateCache &operator=(StateCache const &) = delete;
-    StateCache &operator=(StateCache &&) = delete;
+    // Work around a bootstrapping problem
+    virtual StateCacheEntry *ensureTimeEntry() = 0;
   };
 
 } // namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 #include "Error.hh"
 #include "ExternalInterface.hh"
 #include "Lookup.hh"
-#include "LookupReceiverImpl.hh"
 #include "State.hh"
+#include "StateCache.hh"
 
 #include <algorithm> // std::find
 
@@ -78,13 +78,6 @@ namespace PLEXIL
       return false;
     }
 
-    virtual LookupReceiver *getLookupReceiver()
-    {
-      if (!m_receiver)
-        m_receiver.reset(makeLookupReceiver(*this));
-      return m_receiver.get();
-    }
-
     virtual bool hasRegisteredLookups() const
     {
       return !m_lookups.empty();
@@ -96,7 +89,7 @@ namespace PLEXIL
       debugMsg("StateCacheEntry:registerLookup",
                ' ' << state << " now has " << m_lookups.size() << " lookups");
       // Update if stale
-      if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount()) {
+      if ((!m_value) || m_value->getTimestamp() < StateCache::instance().getCycleCount()) {
         debugMsg("StateCacheEntry:registerLookup", ' ' << state << " updating stale value");
         g_interface->lookupNow(state, getLookupReceiver());
       }
@@ -182,33 +175,57 @@ namespace PLEXIL
       return m_value.get();
     }
 
-    virtual void setUnknown()
+    //! Update with the given value and timestamp.
+    //! @param val The new value.
+    //! @param timestamp The cycle count at the time of update.
+    //! @note Optimization for StateCache::lookupReturn()
+    virtual void updateValue(Value const &val, unsigned int timestamp)
     {
-      if (m_value && m_value->setUnknown(g_interface->getCycleCount()))
+      if (!ensureCachedValue(val.valueType()))
+        return;
+      if (m_value->update(timestamp, val))
         notify();
     }
 
-    virtual void update(Boolean const &val)
+    //
+    // LookupReceiver API
+    //
+
+    virtual void update(Value const &val)
+    {
+      if (!ensureCachedValue(val.valueType()))
+        return;
+      if (m_value->update(StateCache::instance().getCycleCount(), val))
+        notify();
+    }
+    
+    virtual void setUnknown()
+    {
+      if (m_value && m_value->setUnknown(StateCache::instance().getCycleCount()))
+        notify();
+    }
+
+    virtual void update(Boolean val)
     {
       if (!ensureCachedValue(BOOLEAN_TYPE))
         return;
-      if (m_value->update(g_interface->getCycleCount(), val))
+      if (m_value->update(StateCache::instance().getCycleCount(), val))
         notify();
     }
 
-    virtual void update(Integer const &val)
+    virtual void update(Integer val)
     {
       if (!ensureCachedValue(INTEGER_TYPE))
         return;
-      if (m_value->update(g_interface->getCycleCount(), val))
+      if (m_value->update(StateCache::instance().getCycleCount(), val))
         notify();
     }
 
-    virtual void update(Real const &val)
+    virtual void update(Real val)
     {
       if (!ensureCachedValue(REAL_TYPE))
         return;
-      if (m_value->update(g_interface->getCycleCount(), val))
+      if (m_value->update(StateCache::instance().getCycleCount(), val))
         notify();
     }
 
@@ -216,23 +233,63 @@ namespace PLEXIL
     {
       if (!ensureCachedValue(STRING_TYPE))
         return;
-      if (m_value->update(g_interface->getCycleCount(), val))
+      if (m_value->update(StateCache::instance().getCycleCount(), val))
         notify();
     }
 
-    virtual void update(Value const &val)
+    virtual void update(char const *val)
     {
-      if (!ensureCachedValue(val.valueType()))
+      if (!ensureCachedValue(STRING_TYPE))
         return;
-      if (m_value->update(g_interface->getCycleCount(), val))
+      if (m_value->update(StateCache::instance().getCycleCount(), String(val)))
         notify();
     }
+
+    virtual void update(Boolean const ary[], size_t size)
+    {
+      std::vector<Boolean> v(size);
+      for (size_t i = 0; i < size; ++i)
+        v[i] = ary[i];
+      BooleanArray array(v);
+      updatePtr(&array);
+    }
+
+    virtual void update(Integer const ary[], size_t size)
+    {
+      std::vector<Integer> v(size);
+      for (size_t i = 0; i < size; ++i)
+        v[i] = ary[i];
+      IntegerArray array(v);
+      updatePtr(&array);
+    }
+
+    virtual void update(Real const ary[], size_t size)
+    {
+      std::vector<Real> v(size);
+      for (size_t i = 0; i < size; ++i)
+        v[i] = ary[i];
+      RealArray array(v);
+      updatePtr(&array);
+    }
+
+    virtual void update(String const ary[], size_t size)
+    {
+      std::vector<String> v(size);
+      for (size_t i = 0; i < size; ++i)
+        v[i] = ary[i];
+      StringArray array(v);
+      updatePtr(&array);
+    }
+
+    //
+    // StateCacheEntry API
+    //
 
     virtual void updatePtr(String const *valPtr)
     {
       if (!ensureCachedValue(STRING_TYPE))
         return;
-      if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
+      if (m_value->updatePtr(StateCache::instance().getCycleCount(), valPtr))
         notify();
     }
 
@@ -240,7 +297,7 @@ namespace PLEXIL
     {
       if (!ensureCachedValue(BOOLEAN_ARRAY_TYPE))
         return;
-      if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
+      if (m_value->updatePtr(StateCache::instance().getCycleCount(), valPtr))
         notify();
     }
 
@@ -248,7 +305,7 @@ namespace PLEXIL
     {
       if (!ensureCachedValue(INTEGER_ARRAY_TYPE))
         return;
-      if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
+      if (m_value->updatePtr(StateCache::instance().getCycleCount(), valPtr))
         notify();
     }
 
@@ -256,7 +313,7 @@ namespace PLEXIL
     {
       if (!ensureCachedValue(REAL_ARRAY_TYPE))
         return;
-      if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
+      if (m_value->updatePtr(StateCache::instance().getCycleCount(), valPtr))
         notify();
     }
 
@@ -264,7 +321,7 @@ namespace PLEXIL
     {
       if (!ensureCachedValue(STRING_ARRAY_TYPE))
         return;
-      if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
+      if (m_value->updatePtr(StateCache::instance().getCycleCount(), valPtr))
         notify();
     }
 
@@ -288,37 +345,42 @@ namespace PLEXIL
         lkup->valueChanged();
     }
 
+    //! If there is no cached value or it is a placeholder VoidCachedValue,
+    //! construct the appropriate CachedValue instance and return true.
+    //! If there is a CachedValue, and it's of a compatible type, return true.
+    //! Otherwise return false.
     bool ensureCachedValue(ValueType typ)
     {
-      if (m_value) {
-        // Check that requested type is consistent with existing
-        ValueType ctyp = m_value->valueType();
-        if (ctyp == typ             // same type (should be usual case)
-            || typ == UNKNOWN_TYPE) // caller doesn't know or care
-          return true;
-        if (ctyp == UNKNOWN_TYPE) {
-          // Replace placeholder with correct type
-          m_value.reset(CachedValueFactory(typ));
-          return true;
-        }
-        if (typ == INTEGER_TYPE && isNumericType(ctyp)) // can store an integer in any numeric type
-          return true;
-        // Date, Duration are reals
-        // FIXME implement a real time type
-        if (typ == REAL_TYPE && (ctyp == DATE_TYPE || ctyp == DURATION_TYPE))
-          return true;
-
-        // Type mismatch
-        // FIXME this is likely a plan or interface coding error, handle more gracefully
-        debugMsg("StateCacheEntry:update",
-                 " requested type " << valueTypeName(typ)
-                 << " but existing value is type " << valueTypeName(ctyp));
-        return false;
+      if (!m_value) {
+        // Didn't exist before, simply construct the desired type
+        // (will be a VoidCachedValue if typ is UNKNOWN_TYPE)
+        m_value.reset(CachedValueFactory(typ));
+        return true;
       }
 
-      // Didn't exist before, simply construct the desired type
-      m_value.reset(CachedValueFactory(typ));
-      return true;
+      // Check that requested type is consistent with existing
+      ValueType ctyp = m_value->valueType();
+      if (ctyp == typ             // same type (should be usual case)
+          || typ == UNKNOWN_TYPE) // caller doesn't know or care
+        return true;
+      if (ctyp == UNKNOWN_TYPE) {
+        // Replace placeholder with correct type
+        m_value.reset(CachedValueFactory(typ));
+        return true;
+      }
+      if (typ == INTEGER_TYPE && isNumericType(ctyp)) // can store an integer in any numeric type
+        return true;
+      // Date, Duration are reals
+      // FIXME implement a real time type
+      if (typ == REAL_TYPE && (ctyp == DATE_TYPE || ctyp == DURATION_TYPE))
+        return true;
+
+      // Type mismatch
+      // FIXME this is likely a plan or interface coding error, handle more gracefully
+      debugMsg("StateCacheEntry:update",
+               " requested type " << valueTypeName(typ)
+               << " but existing value is type " << valueTypeName(ctyp));
+      return false;
     }
 
     bool integerUpdateThresholds(State const &state)
@@ -341,7 +403,7 @@ namespace PLEXIL
           }
         }
       }
-      unsigned int timestamp = g_interface->getCycleCount();
+      unsigned int timestamp = StateCache::instance().getCycleCount();
       if (hasThresholds) {
         debugMsg("StateCacheEntry:updateThresholds",
                  ' ' << state << " resetting thresholds " << ilo << ", " << ihi);
@@ -382,7 +444,7 @@ namespace PLEXIL
           }
         }
       }
-      unsigned int timestamp = g_interface->getCycleCount();
+      unsigned int timestamp = StateCache::instance().getCycleCount();
       if (hasThresholds) {
         debugMsg("StateCacheEntry:updateThresholds",
                  ' ' << state << " setting thresholds " << rlo << ", " << rhi);

@@ -38,10 +38,9 @@ namespace PLEXIL
   // Forward reference
   class Value;
 
-  //!
-  // @class LookupReceiver
-  // @brief A callback object passed to an interface implementation.
-  //
+  //! @class LookupReceiver
+  //! Pure virtual class representing a callback object passed to an
+  //! interface implementation.
 
   class LookupReceiver
   {
@@ -59,26 +58,12 @@ namespace PLEXIL
     virtual void update(Real) = 0;
 
     virtual void update(String const &) = 0;
-    // virtual void update(String &&) = 0; // ?
     virtual void update(char const *) = 0;
 
     virtual void update(Boolean const ary[], size_t size) = 0;
     virtual void update(Integer const ary[], size_t size) = 0;
     virtual void update(Real const ary[], size_t size) = 0;
     virtual void update(String const ary[], size_t size) = 0;
-
-  protected:
-    // Default constructor only available to implementation class
-    LookupReceiver() = default;
-
-  private:
-    // Copy disallowed
-    LookupReceiver(LookupReceiver const &) = default;
-    LookupReceiver(LookupReceiver &&) = default;
-
-    // Assignment disallowed
-    LookupReceiver &operator=(LookupReceiver const &) = default;
-    LookupReceiver &operator=(LookupReceiver &&) = default;
   };
 
 }

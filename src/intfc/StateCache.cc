@@ -29,7 +29,6 @@
 #include "CachedValue.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh"
-#include "LookupReceiver.hh"
 #include "Message.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
@@ -44,7 +43,7 @@ namespace PLEXIL
   double StateCache::currentTime()
   {
     double result = 0.0;
-    instance().m_timeEntry->cachedValue()->getValue(result);
+    instance().ensureTimeEntry()->cachedValue()->getValue(result);
     return result;
   }
 
@@ -52,7 +51,7 @@ namespace PLEXIL
   {
     // Update the cached value
     g_interface->lookupNow(State::timeState(),
-                           instance().m_timeEntry->getLookupReceiver());
+                           instance().ensureTimeEntry()->getLookupReceiver());
     // and return it
     return currentTime();
   }
@@ -63,26 +62,50 @@ namespace PLEXIL
 
     using EntryMap = std::map<State, std::unique_ptr<StateCacheEntry> >;
     EntryMap m_map;
+    StateCacheEntry *m_timeEntry;
+    unsigned int m_cycleCount;
 
   public:
 
     StateCacheImpl()
       : StateCache(),
-        m_map()
+        m_map(),
+        m_timeEntry(nullptr),
+        m_cycleCount(1)
     {
-      // Initialize time state to 0
-      m_timeEntry = ensureStateCacheEntry(State::timeState());
-      m_timeEntry->update((double) 0);
     }
 
     virtual ~StateCacheImpl() = default;
+
+    //! Return the number of "macro steps" since this instance was constructed.
+    //! @return The macro step count.
+    virtual unsigned int getCycleCount() const
+    {
+      return m_cycleCount;
+    }
+
+    //! Increment the macro step count.
+    virtual void incrementCycleCount()
+    {
+      ++m_cycleCount;
+    }
+
+    virtual StateCacheEntry *ensureTimeEntry()
+    {
+      if (!m_timeEntry) {
+        // Initialize time state to 0
+        m_timeEntry = ensureStateCacheEntry(State::timeState());
+        m_timeEntry->updateValue(Value((Real) 0.0), m_cycleCount);
+      }
+      return m_timeEntry;
+    }
 
     //! Update the value for this state's Lookup.
     //! @param state The state.
     //! @param value The new value.
     virtual void lookupReturn(State const &state, Value const &value)
     {
-      getLookupReceiver(state)->update(value);
+      ensureStateCacheEntry(state)->updateValue(value, m_cycleCount);
     }
 
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
@@ -95,7 +118,7 @@ namespace PLEXIL
 
     virtual LookupReceiver *getLookupReceiver(State const &state)
     {
-      return ensureStateCacheEntry(state)->getLookupReceiver();
+      return static_cast<LookupReceiver *>(ensureStateCacheEntry(state));
     }
 
     //
@@ -128,14 +151,18 @@ namespace PLEXIL
       Value handleValue(handle);
       ensureStateCacheEntry(State("MessageText", handleValue))->update(msg->message.name());
       size_t count = msg->message.parameterCount();
-      ensureStateCacheEntry(State("MessageParameterCount", handleValue))->update(Value((Integer) count));
+      ensureStateCacheEntry(State("MessageParameterCount", handleValue))
+        ->updateValue(Value((Integer) count), m_cycleCount);
       for (size_t i = 0; i < count; ++i) {
         ensureStateCacheEntry(State("MessageParameter",
                                     handleValue,
-                                    Value((Integer) i)))->update(msg->message.parameter(i));
+                                    Value((Integer) i)))
+          ->updateValue(msg->message.parameter(i), m_cycleCount);
       }
-      ensureStateCacheEntry(State("MessageSender", handleValue))->update(Value(msg->sender));
-      ensureStateCacheEntry(State("MessageArrived", handleValue))->update(Value(msg->timestamp));
+      ensureStateCacheEntry(State("MessageSender", handleValue))
+        ->updateValue(Value(msg->sender), m_cycleCount);
+      ensureStateCacheEntry(State("MessageArrived", handleValue))
+        ->updateValue(Value(msg->timestamp), m_cycleCount);
       delete msg;
     }
 

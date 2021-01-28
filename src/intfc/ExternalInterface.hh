@@ -55,17 +55,6 @@ namespace PLEXIL {
     // API for Lookup
     //
 
-    //
-    // The cycle counter is used by the Lookup interface to check whether a value is stale.
-    // It is incremented by the PlexilExec.
-    //
-
-    /**
-     * @brief Return the number of "macro steps" since this instance was constructed.
-     * @return The macro step count.
-     */
-    unsigned int getCycleCount() const;
-
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
@@ -125,12 +114,6 @@ namespace PLEXIL {
     //! Delegate this update for execution.
     //1 @param update The update.
     virtual void executeUpdate(Update *update) = 0;
-
-    /**
-     * @brief Increment the macro step count and return the new value.
-     * @return The updated macro step count.
-     */
-    unsigned int incrementCycleCount();
 
     //
     // Interface from outside world to plan state
@@ -241,8 +224,6 @@ namespace PLEXIL {
     LinkedQueue<CommandImpl> m_resourceCmds;
     //! The resource arbiter
     ResourceArbiterInterface *m_raInterface;
-
-    unsigned int m_cycleCount;
   };
 
   extern ExternalInterface *g_interface;

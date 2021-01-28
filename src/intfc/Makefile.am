@@ -38,12 +38,12 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
 
 # Implementation details which don't need to be advertised
-noinst_HEADERS = LookupReceiverImpl.hh StateCacheEntry.hh
+noinst_HEADERS = StateCacheEntry.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \
  CommandFunction.cc CommandHandleVariable.cc CommandImpl.cc CommandOperator.cc \
  CommandOperatorImpl.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
- Lookup.cc LookupReceiverImpl.cc QueueEntry.cc ResourceArbiterInterface.cc \
+ Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCache.cc Update.cc
 
 if MODULE_TESTS_OPT

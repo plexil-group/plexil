@@ -41,8 +41,7 @@ namespace PLEXIL
 
   ExternalInterface::ExternalInterface()
     : m_resourceCmds(),
-      m_raInterface(makeResourceArbiter()),
-      m_cycleCount(1)
+      m_raInterface(makeResourceArbiter())
   {
   }
 
@@ -60,24 +59,6 @@ namespace PLEXIL
   bool ExternalInterface::readResourceFile(std::string const &fname)
   {
     return m_raInterface->readResourceHierarchyFile(fname);
-  }
-
-  /**
-   * @brief Return the number of "macro steps" since this instance was constructed.
-   * @return The macro step count.
-   */
-  unsigned int ExternalInterface::getCycleCount() const 
-  {
-    return m_cycleCount;
-  }
-
-  /**
-   * @brief Increment the macro step count and return the new value.
-   * @return The updated macro step count.
-   */
-  unsigned int ExternalInterface::incrementCycleCount()
-  {
-    return ++m_cycleCount;
   }
 
   //! If the command has no resource requirements,
