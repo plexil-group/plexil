@@ -70,7 +70,8 @@ namespace PLEXIL
     conf->typeName = typeName;
 
     // Commands
-    if (configXml.child(InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG)) {
+    if (configXml.child(InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG)
+        || configXml.child(InterfaceSchema::DEFAULT_ADAPTER_TAG)) {
       conf->defaultCommandAdapter = true;
     }
     else {
@@ -86,7 +87,8 @@ namespace PLEXIL
     }
 
     // Lookups
-    if (configXml.child(InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG)) {
+    if (configXml.child(InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG)
+        || configXml.child(InterfaceSchema::DEFAULT_ADAPTER_TAG)) {
       conf->defaultLookupAdapter = true;
     }
     else {
@@ -102,7 +104,8 @@ namespace PLEXIL
     }
 
     // Planner update
-    if (configXml.child(InterfaceSchema::PLANNER_UPDATE_TAG))
+    if (configXml.child(InterfaceSchema::PLANNER_UPDATE_TAG)
+        || configXml.child(InterfaceSchema::DEFAULT_ADAPTER_TAG))
       conf->plannerUpdateAdapter = true;
 
     return conf;
