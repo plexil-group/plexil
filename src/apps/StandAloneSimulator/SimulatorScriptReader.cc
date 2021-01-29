@@ -30,6 +30,7 @@
 #include "CommandResponseManager.hh"
 #include "GenericResponse.hh"
 #include "LineInStream.hh"
+#include "PlexilSimResponseFactory.hh"
 #include "Simulator.hh"
 
 #include "CommandHandle.hh"
@@ -68,7 +69,7 @@ struct SimSymbol
 
 };
 
-class PlexilSimScriptReader : public SimulatorScriptReader
+class SimulatorScriptReaderImpl : public SimulatorScriptReader
 {
 private:
 
@@ -77,26 +78,30 @@ private:
   //
 
   std::map<std::string, std::unique_ptr<SimSymbol> > m_symbolTable;
-  LineInStream m_instream;
   ResponseManagerMap *m_map;
   Agenda *m_agenda;
+  std::unique_ptr<ResponseFactory> m_factory;
 
 public:
-  PlexilSimScriptReader(ResponseManagerMap *map,
-                        Agenda *agenda)
+  SimulatorScriptReaderImpl(ResponseManagerMap *map,
+                            Agenda *agenda,
+                            ResponseFactory *factory)
     : SimulatorScriptReader(),
       m_symbolTable(),
-      m_instream(),
       m_map(map),
-      m_agenda(agenda)
+      m_agenda(agenda),
+      m_factory(factory)
   {
-    debugMsg("SimulatorScriptReader:constructor", "");
+    debugMsg("SimulatorScriptReader", " constructor");
   }
 
-  virtual ~PlexilSimScriptReader() = default;
+  virtual ~SimulatorScriptReaderImpl() = default;
 
   virtual bool readScript(const std::string &fName, bool telemetry = false)
   {
+    assertTrue_2(m_factory,
+                 "SimulatorScriptReader: null factory");
+    
     debugMsg("SimulatorScriptReader:readScript",
              " for " << fName << ", telemetry = "
              << (telemetry ? "true" : "false"));
@@ -105,13 +110,14 @@ public:
     if (telemetry)
       compatibilityMode = true;
 
-    if (!m_instream.open(fName)) {
+    LineInStream instream;
+    if (!instream.open(fName)) {
       std::cerr << "Error: cannot open script file \"" << fName << "\"" << std::endl;
       return false;
     }
 
-    while (!m_instream.eof()) {
-      std::istream &linestream = m_instream.getLine();
+    while (!instream.eof()) {
+      std::istream &linestream = instream.getLine();
       std::string firstWord;
       linestream >> firstWord;
       if (firstWord.empty() && linestream.eof()) {
@@ -137,26 +143,27 @@ public:
       }
       else if (compatibilityMode) {
         if (telemetry) {
-          if (!parseTelemetryReturn(firstWord, NULL, compatibilityMode))
+          if (!m_factory->parseTelemetryReturn(m_agenda, instream, firstWord, REAL_TYPE))
             break;
         }
-        else if (!parseCommandReturn(firstWord, NULL, compatibilityMode))
+        else if (!m_factory->parseCommandReturn(ensureResponseMessageManager(firstWord),
+                                                instream, firstWord, REAL_TYPE))
           break;
       }
       else if (UNKNOWN_TYPE != parseValueType(firstWord)) {
         // Is declaration
-        SimSymbol *sym = parseDeclaration(parseValueType(firstWord));
+        SimSymbol *sym = parseDeclaration(instream, parseValueType(firstWord));
         if (!sym) {
           // Report location of error
-          std::cerr << " While parsing " << m_instream.getFileName()
-                    << ", line " << m_instream.getLineCount()
+          std::cerr << " While parsing " << instream.getFileName()
+                    << ", line " << instream.getLineCount()
                     << std::endl;
           return false;
         }
         if (m_symbolTable.find(sym->name) != m_symbolTable.end()) {
           // Report duplicate symbol and return
-          std::cerr << "Error: file " << m_instream.getFileName()
-                    << ", line " << m_instream.getLineCount()
+          std::cerr << "Error: file " << instream.getFileName()
+                    << ", line " << instream.getLineCount()
                     << ": symbol \"" << sym->name << "\" is already declared"
                     << std::endl;
           return false;
@@ -165,18 +172,18 @@ public:
       }
       else if (firstWord == "Command") {
         // Is command declaration w/ no return value
-        SimSymbol *sym = parseCommandDeclaration(UNKNOWN_TYPE);
+        SimSymbol *sym = parseCommandDeclaration(instream, UNKNOWN_TYPE);
         if (!sym) {
           // Report location of error
-          std::cerr << " While parsing " << m_instream.getFileName()
-                    << ", line " << m_instream.getLineCount()
+          std::cerr << " While parsing " << instream.getFileName()
+                    << ", line " << instream.getLineCount()
                     << std::endl;
           return false;
         }
         if (m_symbolTable.find(sym->name) != m_symbolTable.end()) {
           // Report duplicate symbol and return
-          std::cerr << "Error: file " << m_instream.getFileName()
-                    << ", line " << m_instream.getLineCount()
+          std::cerr << "Error: file " << instream.getFileName()
+                    << ", line " << instream.getLineCount()
                     << ": symbol \"" << sym->name << "\" is already declared"
                     << std::endl;
           return false;
@@ -188,29 +195,31 @@ public:
         debugMsg("SimulatorScriptReader:readScript",
                  " presuming old-style command script");
         compatibilityMode = true;
-        if (!parseCommandReturn(firstWord, NULL, compatibilityMode))
+        if (!m_factory->parseCommandReturn(ensureResponseMessageManager(firstWord),
+                                           instream, firstWord, REAL_TYPE))
           break;
       }
       else if (m_symbolTable.find(firstWord) != m_symbolTable.end()) {
         // This is a known symbol, parse according to symbol type
         SimSymbol *sym = m_symbolTable[firstWord].get();
         if (sym->symbolType == LOOKUP_SYM_TYPE) {
-          if (!parseTelemetryReturn(firstWord, sym))
+          if (!m_factory->parseTelemetryReturn(m_agenda, instream, firstWord, sym->returnType))
             break;
         }
-        else if (!parseCommandReturn(firstWord, sym))
+        else if (!m_factory->parseCommandReturn(ensureResponseMessageManager(firstWord),
+                                                instream, firstWord, sym->returnType))
           break;
       }
       else {
-        std::cerr << "Error: file " << m_instream.getFileName()
-                  << ", line " << m_instream.getLineCount()
+        std::cerr << "Error: file " << instream.getFileName()
+                  << ", line " << instream.getLineCount()
                   << ": format error; don't know how to interpret \"" << firstWord << '"'
                   << std::endl;
         return false;
       }
     }
   
-    m_instream.close();
+    instream.close();
 
     return true;
   }
@@ -218,19 +227,19 @@ public:
 private:
 
   // First word has already been parsed as a type
-  SimSymbol *parseDeclaration(ValueType returnType)
+  SimSymbol *parseDeclaration(LineInStream &instream, ValueType returnType)
   {
     std::string word;
-    m_instream.getLineStream() >> word;
+    instream.getLineStream() >> word;
     // Check for I/O error
     // TODO
 
     if (word == "Command")
-      return parseCommandDeclaration(returnType);
+      return parseCommandDeclaration(instream, returnType);
     if (word != "Lookup") {
       // Report parse error
-      std::cerr << "Error: File " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
+      std::cerr << "Error: File " << instream.getFileName()
+                << ", line " << instream.getLineCount()
                 << ":\n found \"" << word << "\", expected Command or Lookup"
                 << std::endl;
       return NULL;
@@ -239,7 +248,7 @@ private:
 
     // Below this point is known to be a Lookup
     // Get name
-    m_instream.getLineStream() >> word;
+    instream.getLineStream() >> word;
     // Check for I/O error
     // TODO
 
@@ -256,11 +265,11 @@ private:
   // When we know the declaration is a command
   // Word 'Command' has already been parsed;
   // if it was preceded by a type name, that is the return type.
-  SimSymbol *parseCommandDeclaration(ValueType returnType)
+  SimSymbol *parseCommandDeclaration(LineInStream &instream, ValueType returnType)
   {
     // Get name
     std::string word;
-    m_instream.getLineStream() >> word;
+    instream.getLineStream() >> word;
     // Check for I/O error
     // TODO
 
@@ -272,197 +281,6 @@ private:
 
     // Construct and return the symbol
     return new SimSymbol(word, COMMAND_SYM_TYPE, returnType);
-  }
-
-  Value parseReturnValue(ValueType returnType)
-  {
-    std::string const &line = m_instream.getLineStream().str();
-
-    switch (returnType) {
-    case BOOLEAN_TYPE: {
-      Boolean bv;
-      parseValue(line, bv);
-      return Value(bv);
-    }
-
-    case INTEGER_TYPE: {
-      Integer iv;
-      parseValue(line, iv);
-      return Value(iv);
-    }
-
-    case REAL_TYPE: {
-      Real rv;
-      parseValue(line, rv);
-      return Value(rv);
-    }
-
-    case STRING_TYPE: {
-      String sv;
-      parseValue(line, sv);
-      return Value(sv);
-    }
-
-    case COMMAND_HANDLE_TYPE:
-      return Value(parseCommandHandleValue(line));
-
-    case DATE_TYPE:
-    case DURATION_TYPE:
-    case ARRAY_TYPE:
-    case BOOLEAN_ARRAY_TYPE:
-    case INTEGER_ARRAY_TYPE:
-    case REAL_ARRAY_TYPE:
-    case STRING_ARRAY_TYPE:
-
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": unimplemented return value type "
-                << valueTypeName(returnType)
-                << std::endl;
-      return Value();
-
-    default:
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": invalid return value type " << returnType
-                << std::endl;
-      return Value();
-    }
-  }
-
-  bool parseTelemetryReturn(std::string name,
-                            SimSymbol const *symbol,
-                            bool compatibilityMode = false)
-  {
-    debugMsg("SimulatorScriptReader:parseTelemetryReturn",
-             ' ' << name << (compatibilityMode ? " (compatibility mode)" : ""));
-    
-    // Construct the ResponseMessage and add it to the agenda
-    double delay;
-    std::istringstream &linestream = m_instream.getLineStream();
-    linestream >> delay;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": parse error in telemetry delay for "
-                << name
-                << std::endl;
-      return false;
-    }
-    Value returnValue;
-    // Return value is on next line
-    m_instream.getLine();
-    if (compatibilityMode) {
-      Real realVal;
-      linestream >> realVal;
-      if (linestream.fail()) {
-        std::cerr << "Error: file " << m_instream.getFileName()
-                  << ", line " << m_instream.getLineCount()
-                  << ": parse error in telemetry return for "
-                  << name
-                  << std::endl;
-        return false;
-      }
-      // I don't trust Value::operator=(Real)
-      returnValue = Value(realVal);
-    }
-    else {
-      returnValue = parseReturnValue(symbol->returnType);
-      // Error handling??
-    }
-
-    timeval timeDelay = doubleToTimeval(delay);
-    debugMsg("SimulatorScriptReader:readScript",
-             " Adding telemetry for " << name << " value " << returnValue
-             << " at delay " << timeDelay.tv_sec << '.'
-             << std::setw(6) << std::setfill('0') << timeDelay.tv_usec);
-
-    m_agenda->scheduleResponse(timeDelay,
-                               new ResponseMessage(name, returnValue, MSG_TELEMETRY));
-    return true;
-  }
-
-  bool parseCommandReturn(std::string name,
-                          SimSymbol const *symbol,
-                          bool compatibilityMode = false)
-  {
-    debugMsg("SimulatorScriptReader:parseCommandReturn",
-             ' ' << name << (compatibilityMode ? " (compatibility mode)" : ""));
-    
-    // Construct the GenericResponse and add it to the manager map
-    unsigned long commandIndex;
-    unsigned int numOfResponses;
-    double delay;
-    std::istringstream &linestream = m_instream.getLineStream();
-    linestream >> commandIndex;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": parse error in command index for "
-                << name
-                << std::endl;
-      return false;
-    }
-    linestream >> numOfResponses;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": parse error in command number of responses for "
-                << name
-                << std::endl;
-      return false;
-    }
-    linestream >> delay;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": parse error in command response delay for "
-                << name
-                << std::endl;
-      return false;
-    }
-
-    Value returnValue;
-    // Return value is on next line
-    m_instream.getLine();
-    if (m_instream.eof()) {
-      std::cerr << "Error: file " << m_instream.getFileName()
-                << ", line " << m_instream.getLineCount()
-                << ": premature end of file reading return value for "
-                << name
-                << std::endl;
-      return false;
-    }
-
-    // TODO: check IO errors
-    if (compatibilityMode) {
-      Real realVal;
-      linestream >> realVal;
-      if (linestream.fail()) {
-        std::cerr << "Error: file " << m_instream.getFileName()
-                  << ", line " << m_instream.getLineCount()
-                  << ": parse error in command return for "
-                  << name
-                  << std::endl;
-        return false;
-      }
-      returnValue = realVal;
-    }
-    else {
-      returnValue = parseReturnValue(symbol->returnType);
-      // TODO: error handling
-    }      
-
-    timeval timeDelay = doubleToTimeval(delay);
-    debugMsg("SimulatorScriptReader:readScript",
-             " Adding command return for " << name
-             << " index " << commandIndex
-             << " at interval " << timeDelay.tv_sec << '.'
-             << std::setw(6) << std::setfill('0') << timeDelay.tv_usec);
-
-    GenericResponse *resp = new GenericResponse(name, returnValue, timeDelay, numOfResponses);
-    ensureResponseMessageManager(name)->addResponse(resp, commandIndex);
-    return true;
   }
 
   CommandResponseManager* 
@@ -485,7 +303,8 @@ private:
 };
 
 SimulatorScriptReader *makeScriptReader(ResponseManagerMap *map,
-                                        Agenda *agenda)
+                                        Agenda *agenda,
+                                        ResponseFactory *factory)
 {
-  return new PlexilSimScriptReader(map, agenda);
+  return new SimulatorScriptReaderImpl(map, agenda, factory);
 }

@@ -29,23 +29,27 @@
 #include "simdefs.hh"
 
 class Agenda;
+struct ResponseFactory;
 
-/**
- * @brief SimulatorScriptReader initializes the response managers and agenda
- *        used by the simulator.
- */
+//! class SimulatorScriptReader
+//! Abstract base class for simulator script readers.
 
 class SimulatorScriptReader
 {
 public:
   virtual ~SimulatorScriptReader() = default;
   virtual bool readScript(const std::string &fName, bool telemetry = false) = 0;
-
-protected:
-  SimulatorScriptReader() = default;
 };
 
+//! Constructs and returns a simulator script reader.
+//! @param map The ResponseManagerMap to populate.
+//! @param agenda The Agenda to populate.
+//! @param factory The ResponseFactory for this particular script.
+//! @return The script reader.
+//! @note The script reader takes ownership of the response factory,
+//!       and deletes it when the reader is deleted.
 SimulatorScriptReader *makeScriptReader(ResponseManagerMap *map,
-                                        Agenda *agenda);
+                                        Agenda *agenda,
+                                        ResponseFactory *factory);
 
 #endif // SIMULATOR_SCRIPT_READER_HH

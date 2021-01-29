@@ -27,6 +27,7 @@
 #include "Agenda.hh"
 #include "CommandResponseManager.hh"
 #include "IpcCommRelay.hh"
+#include "PlexilSimResponseFactory.hh"
 #include "Simulator.hh"
 #include "SimulatorScriptReader.hh"
 
@@ -130,12 +131,11 @@ at the top of the script."
   Agenda *agenda = makeAgenda();
   {
     // The script reader can go away as soon as we finish reading scripts.
-    std::unique_ptr<SimulatorScriptReader> rdr(makeScriptReader(mgrMap, agenda));
-    for (std::vector<std::string>::const_iterator it = scriptNames.begin();
-         it != scriptNames.end();
-         it++) {
-      debugMsg("PlexilSimulator", " reading script " << *it);
-      rdr->readScript(*it);
+    ResponseFactory *factory = makePlexilSimResponseFactory();
+    std::unique_ptr<SimulatorScriptReader> rdr(makeScriptReader(mgrMap, agenda, factory));
+    for (std::string const &scriptName : scriptNames) {
+      debugMsg("PlexilSimulator", " reading script " << scriptName);
+      rdr->readScript(scriptName);
     }
     if (!telemetryScriptName.empty()) {
       debugMsg("PlexilSimulator",  

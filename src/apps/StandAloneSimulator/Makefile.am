@@ -32,22 +32,23 @@ libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
  -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
 include_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
- GenericResponse.hh IpcCommRelay.hh LineInStream.hh ResponseMessage.hh \
- Simulator.hh SimulatorScriptReader.hh TimingService.hh \
+ GenericResponse.hh IpcCommRelay.hh LineInStream.hh ResponseFactory.hh \
+ ResponseMessage.hh Simulator.hh SimulatorScriptReader.hh TimingService.hh \
  parseType.hh simdefs.hh
 
-noinst_HEADERS =
-
 libstandalonesimulator_la_SOURCES = Agenda.cc CommandResponseManager.cc \
- IpcCommRelay.cc LineInStream.cc Simulator.cc SimulatorScriptReader.cc \
- TimingService.cc
+ IpcCommRelay.cc LineInStream.cc ResponseFactory.cc Simulator.cc \
+ SimulatorScriptReader.cc TimingService.cc
 
 simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
 
-simulator_SOURCES = PlexilSimulator.cc
+simulator_SOURCES = PlexilSimulator.cc PlexilSimResponseFactory.cc
 
 simulator_LDADD = libstandalonesimulator.la \
  $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
  $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
 
 simulator_LDFLAGS = -L$(libdir) -lipc
+
+# Private headers for either the library or the app
+noinst_HEADERS = PlexilSimResponseFactory.hh
