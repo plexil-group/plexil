@@ -28,6 +28,10 @@
 
 #include "Value.hh"
 
+#if defined(HAVE_SYS_TIME_H)
+#include <sys/time.h>
+#endif
+
 // Forward references
 class Agenda;
 class CommandResponseManager;
@@ -38,6 +42,7 @@ class LineInStream;
 struct ResponseFactory
 {
 public:
+  ResponseFactory() = default;
   virtual ~ResponseFactory() = default;
 
   //! Parse and schedule one telemetry response.
@@ -61,6 +66,30 @@ public:
                                   LineInStream &instream,
                                   std::string const &name,
                                   PLEXIL::ValueType returnType) = 0;
+
+protected:
+
+  //
+  // Utilities needed by derived classes
+  //
+
+  //! Parse the common parts of a command response.
+  //! @param instream The input stream.
+  //! @param timeDelay Reference to the delay variable.
+  //! @return true if successful, false otherwise.
+  bool parseTelemetryHeader(LineInStream &instream,
+                            timeval &timeDelay);
+
+  //! Parse the common parts of a command response.
+  //! @param instream The input stream.
+  //! @param commandIndex Reference to the command index variable.
+  //! @param numOfResponses Reference to the number-of-responses variable.
+  //! @param timeDelay Reference to the delay variable.
+  //! @return true if successful, false otherwise.
+  bool parseCommandResponseHeader(LineInStream &instream,
+                                  unsigned long &commandIndex,
+                                  unsigned int &numOfResponses,
+                                  timeval &timeDelay);
 
 };
 

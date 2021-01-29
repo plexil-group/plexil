@@ -27,7 +27,63 @@
 
 #include "LineInStream.hh"
 
+#include "timeval-utils.hh"
+
 using namespace PLEXIL;
+
+bool ResponseFactory::parseTelemetryHeader(LineInStream &instream,
+                                           timeval &timeDelay)
+{
+  std::istringstream &linestream = instream.getLineStream();
+  double delay;
+  linestream >> delay;
+  if (linestream.fail()) {
+    std::cerr << "Error: file " << instream.getFileName()
+              << ", line " << instream.getLineCount()
+              << ": parse error in telemetry delay"
+              << std::endl;
+    return false;
+  }
+  timeDelay = doubleToTimeval(delay);
+
+  return true;
+}
+
+bool ResponseFactory::parseCommandResponseHeader(LineInStream &instream,
+                                                 unsigned long &commandIndex,
+                                                 unsigned int &numOfResponses,
+                                                 timeval &timeDelay)
+{
+  std::istringstream &linestream = instream.getLineStream();
+  linestream >> commandIndex;
+  if (linestream.fail()) {
+    std::cerr << "Error: file " << instream.getFileName()
+              << ", line " << instream.getLineCount()
+              << ": parse error in command index"
+              << std::endl;
+    return false;
+  }
+  linestream >> numOfResponses;
+  if (linestream.fail()) {
+    std::cerr << "Error: file " << instream.getFileName()
+              << ", line " << instream.getLineCount()
+              << ": parse error in command number of responses"
+              << std::endl;
+    return false;
+  }
+  double delay;
+  linestream >> delay;
+  if (linestream.fail()) {
+    std::cerr << "Error: file " << instream.getFileName()
+              << ", line " << instream.getLineCount()
+              << ": parse error in command response delay"
+              << std::endl;
+    return false;
+  }
+  timeDelay = doubleToTimeval(delay);
+
+  return true;
+}
 
 Value parseReturnValue(LineInStream &instream, ValueType returnType)
 {

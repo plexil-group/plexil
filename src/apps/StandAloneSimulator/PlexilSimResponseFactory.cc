@@ -33,7 +33,6 @@
 #include "ResponseMessage.hh"
 
 #include "Debug.hh"
-#include "timeval-utils.hh"
 
 using PLEXIL::Value;
 using PLEXIL::ValueType;
@@ -46,28 +45,20 @@ public:
                             std::string const &name,
                             ValueType returnType)
   {
-    debugMsg("SimulatorScriptReader:parseTelemetryReturn", ' ' << name);
+    debugMsg("PlexilSimResponseFactory:parseTelemetryReturn", ' ' << name);
     
     // Construct the ResponseMessage and add it to the agenda
-    double delay;
-    std::istringstream &linestream = instream.getLineStream();
-    linestream >> delay;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << instream.getFileName()
-                << ", line " << instream.getLineCount()
-                << ": parse error in telemetry delay for "
-                << name
-                << std::endl;
+    timeval timeDelay;
+    if (!parseTelemetryHeader(instream, timeDelay))
       return false;
-    }
-    Value returnValue;
+
     // Return value is on next line
+    Value returnValue;
     instream.getLine();
     returnValue = parseReturnValue(instream, returnType);
     // Error handling??
 
-    timeval timeDelay = doubleToTimeval(delay);
-    debugMsg("SimulatorScriptReader:readScript",
+    debugMsg("PlexilSimResponseFactory:parseTelemetryReturn",
              " Adding telemetry for " << name << " value " << returnValue
              << " at delay " << timeDelay.tv_sec << '.'
              << std::setw(6) << std::setfill('0') << timeDelay.tv_usec);
@@ -82,40 +73,14 @@ public:
                           std::string const &name,
                           ValueType returnType)
   {
-    debugMsg("SimulatorScriptReader:parseCommandReturn", ' ' << name);
+    debugMsg("PlexilSimResponseFactory:parseCommandReturn", ' ' << name);
     
     // Construct the GenericResponse and add it to the manager map
     unsigned long commandIndex;
     unsigned int numOfResponses;
-    double delay;
-    std::istringstream &linestream = instream.getLineStream();
-    linestream >> commandIndex;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << instream.getFileName()
-                << ", line " << instream.getLineCount()
-                << ": parse error in command index for "
-                << name
-                << std::endl;
+    timeval timeDelay;
+    if (!parseCommandResponseHeader(instream, commandIndex, numOfResponses, timeDelay))
       return false;
-    }
-    linestream >> numOfResponses;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << instream.getFileName()
-                << ", line " << instream.getLineCount()
-                << ": parse error in command number of responses for "
-                << name
-                << std::endl;
-      return false;
-    }
-    linestream >> delay;
-    if (linestream.fail()) {
-      std::cerr << "Error: file " << instream.getFileName()
-                << ", line " << instream.getLineCount()
-                << ": parse error in command response delay for "
-                << name
-                << std::endl;
-      return false;
-    }
 
     Value returnValue;
     // Return value is on next line
@@ -133,10 +98,10 @@ public:
     returnValue = parseReturnValue(instream, returnType);
     // TODO: error handling
 
-    timeval timeDelay = doubleToTimeval(delay);
-    debugMsg("SimulatorScriptReader:readScript",
+    debugMsg("PlexilSimResponseFactory:parseCommandReturn",
              " Adding command return for " << name
              << " index " << commandIndex
+             << " value " << returnValue
              << " at interval " << timeDelay.tv_sec << '.'
              << std::setw(6) << std::setfill('0') << timeDelay.tv_usec);
 
