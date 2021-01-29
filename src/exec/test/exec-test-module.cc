@@ -139,7 +139,6 @@ static bool inactiveDestTest()
     delete (Node*) parent;
   }
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -221,7 +220,6 @@ static bool inactiveTransTest()
     delete (Node*) parent;
   }
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -287,7 +285,6 @@ static bool waitingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -377,7 +374,6 @@ static bool waitingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -420,7 +416,6 @@ static bool iterationEndedDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -486,7 +481,6 @@ static bool iterationEndedTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -562,7 +556,6 @@ static bool finishedTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -608,7 +601,6 @@ static bool listExecutingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -680,7 +672,6 @@ static bool listExecutingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -719,7 +710,6 @@ static bool listFailingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -770,7 +760,6 @@ static bool listFailingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -828,7 +817,6 @@ static bool listFinishingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -916,7 +904,6 @@ static bool listFinishingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -983,7 +970,6 @@ static bool bindingExecutingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1081,7 +1067,6 @@ static bool bindingExecutingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1121,7 +1106,6 @@ static bool bindingFailingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1171,7 +1155,6 @@ static bool bindingFailingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1226,7 +1209,6 @@ static bool commandExecutingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1306,7 +1288,6 @@ static bool commandExecutingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1344,7 +1325,6 @@ static bool commandFailingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1396,7 +1376,6 @@ static bool commandFailingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1447,7 +1426,6 @@ static bool commandFinishingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1535,7 +1513,6 @@ static bool commandFinishingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1593,7 +1570,6 @@ static bool updateExecutingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1680,7 +1656,6 @@ static bool updateExecutingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1718,7 +1693,6 @@ static bool updateFailingDestTest()
   delete (Node*) node;
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
@@ -1770,7 +1744,6 @@ static bool updateFailingTransTest()
   }
   delete (Node*) parent;
   g_exec = nullptr;
-  g_interface = nullptr;
   return true;
 }
 
