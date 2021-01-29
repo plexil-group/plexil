@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 #include "parsePlan.hh"
 #include "planLibrary.hh"
 #include "pugixml.hpp"
-#include "test/TransitionExternalInterface.hh"
 
 #include <fstream>
 #include <iomanip>
@@ -149,15 +148,12 @@ int main(int argc, char *argv[])
   try {
     // Initialize infrastructure
     PLEXIL::Error::doThrowExceptions();
-    PLEXIL::TransitionExternalInterface intfc;
-    PLEXIL::g_interface = &intfc;
 
     GET_WALL_TIME(&start);
     for (unsigned int i = 0; i < n; ++i)
       loadPlanBenchmark(planFile);
     GET_WALL_TIME(&finish);
 
-    PLEXIL::g_interface = nullptr;
     plexilRunFinalizers();
 
     REPORT_TIME(start, finish);
