@@ -292,6 +292,7 @@ int run(int argc, char** argv)
   // create the exec
 
   g_exec = makePlexilExec();
+  g_exec->setExternalInterface(g_interface);
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);
   if (useResourceFile) {

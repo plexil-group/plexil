@@ -36,6 +36,7 @@ namespace PLEXIL
   class Assignment;
   class CommandImpl;
   class ExecListenerBase; 
+  class ExternalInterface;
   class Node;
   class ResourceArbiterInterface;
   class Update;
@@ -61,8 +62,6 @@ namespace PLEXIL
     //
     // Command arbitration
     //
-
-    virtual ResourceArbiterInterface *getArbiter() = 0;
 
     //
     // API to Node classes
@@ -109,12 +108,21 @@ namespace PLEXIL
     // API to application
     //
 
+    virtual void setExternalInterface(ExternalInterface *intf) = 0;
+
     /**
-     * @brief Add the plan under the node named by the parent.
-     * @param root The internal representation of the plan.
-     * @return True if succesful, false otherwise.
+     * @brief Set the ExecListener instance.
      */
-    virtual bool addPlan(Node *root) = 0;
+    virtual void setExecListener(ExecListenerBase * l) = 0;
+
+    /**
+     * @brief Get the ExecListener instance.
+     * @return The ExecListener. May be null.
+     */
+    virtual ExecListenerBase *getExecListener() = 0;
+
+    //! Get the command resource arbiter.
+    virtual ResourceArbiterInterface *getArbiter() = 0;
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -127,15 +135,11 @@ namespace PLEXIL
     virtual bool needsStep() const = 0;
 
     /**
-     * @brief Set the ExecListener instance.
+     * @brief Add the plan under the node named by the parent.
+     * @param root The internal representation of the plan.
+     * @return True if succesful, false otherwise.
      */
-    virtual void setExecListener(ExecListenerBase * l) = 0;
-
-    /**
-     * @brief Get the ExecListener instance.
-     * @return The ExecListener. May be nullptr.
-     */
-    virtual ExecListenerBase *getExecListener() = 0;
+    virtual bool addPlan(Node *root) = 0;
 
     /**
      * @brief Deletes any finished root nodes.

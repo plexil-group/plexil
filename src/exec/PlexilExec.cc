@@ -88,6 +88,7 @@ namespace PLEXIL
     std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
     std::unique_ptr<ResourceArbiterInterface> m_arbiter;
+    ExternalInterface *m_interface;
     ExecListenerBase *m_listener;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
 
@@ -109,7 +110,8 @@ namespace PLEXIL
         m_commandsToAbort(),
         m_plan(),
         m_arbiter(makeResourceArbiter()),
-        m_listener(nullptr),
+        m_interface(),
+        m_listener(),
         m_finishedRootNodesDeleted(false)
     {}
 
@@ -128,6 +130,11 @@ namespace PLEXIL
     virtual ResourceArbiterInterface *getArbiter() override
     {
       return m_arbiter.get();
+    }
+
+    virtual void setExternalInterface(ExternalInterface *intf) override
+    {
+      m_interface = intf;
     }
 
     virtual void setExecListener(ExecListenerBase *l) override
@@ -608,31 +615,43 @@ namespace PLEXIL
 
     void executeOutboundQueue()
     {
-      // Arbitrate commands to be executed
-      LinkedQueue<CommandImpl> accepted, rejected;
-      m_arbiter->arbitrateCommands(m_commandsToExecute, accepted, rejected);
-      // Execute the ones which can be executed
-      while (CommandImpl *cmd = accepted.front()) {
-        accepted.pop();
-        g_interface->executeCommand(cmd);
-      }
-      // ... and reject the rest
-      while (CommandImpl *cmd = rejected.front()) {
-        rejected.pop();
-        debugMsg("Test:testOutput", 
-                 "Permission to execute " << cmd->getName()
-                 << " has been denied by the resource arbiter."); // legacy message
-        g_interface->reportCommandArbitrationFailure(cmd);
-      }
+      assertTrue_2(m_interface,
+                   "PlexilExec: attempt to execute without an ExternalInterface!");
 
+      if (m_arbiter) {
+        // Arbitrate commands to be executed
+        LinkedQueue<CommandImpl> accepted, rejected;
+        m_arbiter->arbitrateCommands(m_commandsToExecute, accepted, rejected);
+        // Execute the ones which can be executed
+        while (CommandImpl *cmd = accepted.front()) {
+          accepted.pop();
+          m_interface->executeCommand(cmd);
+        }
+        // ... and reject the rest
+        while (CommandImpl *cmd = rejected.front()) {
+          rejected.pop();
+          debugMsg("Test:testOutput", 
+                   "Permission to execute " << cmd->getName()
+                   << " has been denied by the resource arbiter."); // legacy message
+          m_interface->reportCommandArbitrationFailure(cmd);
+        }
+      }
+      else {
+        // Execute them all
+        while (CommandImpl *cmd = m_commandsToExecute.front()) {
+          m_commandsToExecute.pop();
+          m_interface->executeCommand(cmd);
+        }
+      }
+      
       while (CommandImpl *cmd = m_commandsToAbort.front()) {
         m_commandsToAbort.pop();
-        g_interface->invokeAbort(cmd);
+        m_interface->invokeAbort(cmd);
       }
 
       while (Update *upd = m_updatesToExecute.front()) {
         m_updatesToExecute.pop();
-        g_interface->executeUpdate(upd);
+        m_interface->executeUpdate(upd);
       }
     }
 

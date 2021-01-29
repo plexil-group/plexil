@@ -32,7 +32,6 @@
 #include "PlexilExec.hh"
 #include "StateCache.hh"
 #include "TestSupport.hh"
-#include "test/TransitionExternalInterface.hh"
 
 #include <ostream>
 
@@ -45,7 +44,7 @@ using namespace PLEXIL;
 
 std::list<NodePtr> const g_dummyPlanList;
 
-class TransitionExecConnector :
+class TransitionExecConnector final :
   public PlexilExec
 {
 public:
@@ -62,6 +61,7 @@ public:
   virtual bool addPlan(Node * /* root */) override { return false; }
   virtual void step(double /* startTime */) override {}
   virtual bool needsStep() const override {return false;}
+  virtual void setExternalInterface(ExternalInterface * /* intf */) override {}
   virtual void setExecListener(ExecListenerBase * /* l */) override {}
   virtual ExecListenerBase *getExecListener() override { return nullptr; }
   virtual ResourceArbiterInterface *getArbiter() override { return nullptr; }
@@ -74,8 +74,6 @@ static bool inactiveDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
 
   std::string types[5] = {ASSIGNMENT,
                           COMMAND,
@@ -149,8 +147,6 @@ static bool inactiveTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   std::string types[5] = {ASSIGNMENT,
                           COMMAND,
                           LIBRARYNODECALL,
@@ -233,8 +229,6 @@ static bool waitingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(ASSIGNMENT, std::string("waitingDestTest"), WAITING_STATE, parent);
@@ -301,8 +295,6 @@ static bool waitingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -393,8 +385,6 @@ static bool iterationEndedDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(ASSIGNMENT, std::string("iterationEndedDestTest"), ITERATION_ENDED_STATE, parent);
@@ -438,8 +428,6 @@ static bool iterationEndedTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
 
@@ -506,8 +494,6 @@ static bool finishedDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), INACTIVE_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(ASSIGNMENT, std::string("finishedDestTest"), FINISHED_STATE, parent);
@@ -539,8 +525,6 @@ static bool finishedTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), INACTIVE_STATE, nullptr);
 
@@ -586,8 +570,6 @@ static bool listExecutingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(LIST, std::string("listExecutingDestTest"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -634,8 +616,6 @@ static bool listExecutingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
 
@@ -708,8 +688,6 @@ static bool listFailingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(LIST, std::string("listFailingDestTest"), FAILING_STATE, parent);
@@ -749,8 +727,6 @@ static bool listFailingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
 
@@ -802,8 +778,6 @@ static bool listFinishingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(LIST, std::string("listFinishingDestTest"), FINISHING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -862,8 +836,6 @@ static bool listFinishingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
 
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -952,8 +924,6 @@ static bool bindingExecutingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(ASSIGNMENT, std::string("bindingExecutingDestTest"), EXECUTING_STATE, parent);
   Value const values[3] = {Value(), Value(false), Value(true)};
@@ -1021,8 +991,6 @@ static bool bindingExecutingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
 
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1121,8 +1089,6 @@ static bool bindingFailingDestTest()
 {
   TransitionExecConnector con; 
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(ASSIGNMENT, std::string("bindingFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1163,8 +1129,6 @@ static bool bindingFailingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureType[4] = {INVARIANT_CONDITION_FAILED,
@@ -1219,8 +1183,6 @@ static bool commandExecutingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(COMMAND, std::string("commandExecutingDestTest"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1272,8 +1234,6 @@ static bool commandExecutingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
 
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1354,8 +1314,6 @@ static bool commandFailingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(COMMAND, std::string("commandFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1394,8 +1352,6 @@ static bool commandFailingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureTypes[4] = {INVARIANT_CONDITION_FAILED,
@@ -1448,8 +1404,6 @@ static bool commandFinishingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(COMMAND, std::string("commandFinishingDestTest"), FINISHING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1501,8 +1455,6 @@ static bool commandFinishingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
 
@@ -1595,8 +1547,6 @@ static bool updateExecutingDestTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(UPDATE, std::string("updateExecutingDestTest"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1651,8 +1601,6 @@ static bool updateExecutingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
 
@@ -1740,8 +1688,6 @@ static bool updateFailingDestTest()
 {
   TransitionExecConnector con; 
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   NodeImpl *node = NodeFactory::createNode(UPDATE, std::string("updateFailingDestTest"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1780,8 +1726,6 @@ static bool updateFailingTransTest()
 {
   TransitionExecConnector con;
   g_exec = &con;
-  TransitionExternalInterface tif;
-  g_interface = &tif;
   NodeImpl *parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, nullptr);
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureTypes[4] = {INVARIANT_CONDITION_FAILED,

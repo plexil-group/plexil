@@ -287,6 +287,9 @@ namespace PLEXIL
       g_interface = static_cast<ExternalInterface *>(m_manager.get());
       g_exec = m_exec.get();
 
+      // Link the Exec to the External Interface
+      m_exec->setExternalInterface(m_manager.get());
+
       // Link the Exec to the listener hub
       m_exec->setExecListener(m_configuration->getListenerHub());
     }
