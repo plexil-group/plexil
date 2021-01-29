@@ -32,12 +32,11 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "ThreadSpawn.hh"
 
 #include <sys/time.h>
 
 /**
- * @brief Constructor. Opens the connection and spawns a listener thread.
+ * @brief Constructor.
  */
 IpcCommRelay::IpcCommRelay(const std::string& id)
   : CommRelayBase(id),
@@ -47,6 +46,7 @@ IpcCommRelay::IpcCommRelay(const std::string& id)
 {
 }
 
+//! Open the IPC connection and spawn a listener thread.
 bool IpcCommRelay::initialize(const std::string& centralhost)
 {
   if (IPC_OK != m_ipcFacade.initialize(m_Identifier.c_str(), centralhost.c_str())) {
