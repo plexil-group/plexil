@@ -1,52 +1,69 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "RoboSimResponseFactory.hh"
+
+#include "Agenda.hh"
+#include "CommandResponseManager.hh"
 #include "Simulator.hh"
+#include "SimulatorScriptReader.hh"
 
 #include "Debug.hh"
 #include "IpcCommRelay.hh"
 #include "ThreadSemaphore.hh"
 
-#include "RoboSimResponseFactory.hh"
-
-#include <cassert>
-#include <csignal>
-#include <cstring>
 #include <fstream>
+#include <memory>
 
+#if defined(HAVE_CASSERT)
+#include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
+#endif
+
+#if defined(HAVE_CSIGNAL)
+#include <csignal>
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
+#endif
 
 static PLEXIL::ThreadSemaphore doneSemaphore;
 
-static Simulator* _the_simulator_ = NULL;
+static std::unique_ptr<Simulator> _the_simulator_;
 
-static void SIGINT_handler (int signum)
+static void SIGINT_handler(int signum)
 {
-  assert (signum == SIGINT);
+  assert(signum == SIGINT);
   debugMsg("RoboSimSimulator", " Terminating simulator");
-  if (_the_simulator_ != NULL)
+  if (_the_simulator_)
     _the_simulator_->stop();
   doneSemaphore.post();
 }
@@ -101,19 +118,25 @@ int main(int argc, char** argv)
            " Running with command script: " << commandScriptName
            << " and telemetry script: " << telemetryScriptName);
 
-  ResponseManagerMap mgrMap;
+  ResponseManagerMap *mgrMap = new ResponseManagerMap();
+  Agenda *agenda = makeAgenda();
   {
     // These objects can go away as soon as we finish reading scripts.
-    RoboSimResponseFactory respFactory;
-    SimulatorScriptReader rdr(mgrMap, respFactory);
-    rdr.readCommandScript(commandScriptName);
-    rdr.readTelemetryScript(telemetryScriptName);
+    ResponseFactory *factory = makeRoboSimResponseFactory();
+    std::unique_ptr<SimulatorScriptReader> rdr(makeScriptReader(mgrMap, agenda, factory));
+    rdr->readScript(commandScriptName);
+    rdr->readScript(telemetryScriptName, true);
   }
 
   {
     // Comm Relay has to be destroyed before we can nuke the simulator
-    IpcCommRelay roboSimRelay("RobotYellow", centralhost);
-    _the_simulator_ = new Simulator(&roboSimRelay, mgrMap);
+    std::unique_ptr<IpcCommRelay> roboSimRelay(new IpcCommRelay("RobotYellow"));
+    if (!roboSimRelay->initialize(centralhost)) {
+      warn("RoboSimSimulator: failed to initialize IPC. Exiting.");
+      return 1;
+    }
+
+    _the_simulator_.reset(makeSimulator(roboSimRelay.get(), mgrMap, agenda));
 
     struct sigaction sa, previous_sa;
     sigemptyset(&sa.sa_mask);
@@ -130,7 +153,8 @@ int main(int argc, char** argv)
     // Restore previous SIGINT handler
     sigaction(SIGINT, &previous_sa, NULL);
   }
-  delete _the_simulator_;
+  
+  delete _the_simulator_.release();
   std::cout << "RoboSimSimulator exiting" << std::endl;
 
   return 0;
