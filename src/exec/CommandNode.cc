@@ -306,7 +306,7 @@ namespace PLEXIL
     return true;
   }
 
-  void CommandNode::transitionFromExecuting()
+  void CommandNode::transitionFromExecuting(PlexilExec * /* exec */)
   {
     switch (m_nextState) {
 
@@ -437,7 +437,7 @@ namespace PLEXIL
     return false;
   }
 
-  void CommandNode::transitionFromFinishing()
+  void CommandNode::transitionFromFinishing(PlexilExec *exec)
   {
     switch (m_nextState) {
     case FAILING_STATE:
@@ -446,7 +446,7 @@ namespace PLEXIL
 
     case ITERATION_ENDED_STATE:
       activateAncestorEndCondition();
-      deactivateExecutable();
+      deactivateExecutable(exec);
       break;
 
     default:
@@ -512,10 +512,10 @@ namespace PLEXIL
     return false;
   }
 
-  void CommandNode::transitionFromFailing()
+  void CommandNode::transitionFromFailing(PlexilExec *exec)
   {
     deactivateAbortCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 
@@ -544,10 +544,10 @@ namespace PLEXIL
     exec->enqueueCommand(m_command.get());
   }
 
-  void CommandNode::specializedDeactivateExecutable()
+  void CommandNode::specializedDeactivateExecutable(PlexilExec *exec)
   {
     assertTrue_1(m_command);
-    m_command->deactivate();
+    m_command->deactivate(exec->getArbiter());
   }
 
   // Unit test utility

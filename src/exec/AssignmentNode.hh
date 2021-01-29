@@ -90,13 +90,13 @@ namespace PLEXIL
 
     // Specific behaviors for derived classes
     virtual void specializedHandleExecution(PlexilExec *exec) override;
-    virtual void specializedDeactivateExecutable() override;
+    virtual void specializedDeactivateExecutable(PlexilExec *exec) override;
 
     virtual bool getDestStateFromExecuting() override;
     virtual bool getDestStateFromFailing() override;
 
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
     virtual void transitionToExecuting() override;;
     virtual void transitionToFailing(PlexilExec *exec) override;

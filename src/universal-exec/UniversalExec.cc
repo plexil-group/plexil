@@ -30,6 +30,8 @@
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
+#include "PlexilExec.hh"
+#include "ResourceArbiterInterface.hh"
 
 #ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
@@ -282,7 +284,7 @@ int main_internal(int argc, char** argv)
   // initialize it
   std::cout << "Initializing application" << std::endl;
   if (useResourceFile) {
-    _app->manager()->readResourceFile(resourceFile);
+    _app->exec()->getArbiter()->readResourceHierarchyFile(resourceFile);
   }
 
   if (!_app->initialize(configElt)) {

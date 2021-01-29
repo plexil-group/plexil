@@ -37,6 +37,7 @@ namespace PLEXIL
   class CommandImpl;
   class ExecListenerBase; 
   class Node;
+  class ResourceArbiterInterface;
   class Update;
 
   using NodePtr = std::unique_ptr<Node>;
@@ -56,6 +57,12 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~PlexilExec() = default;
+
+    //
+    // Command arbitration
+    //
+
+    virtual ResourceArbiterInterface *getArbiter() = 0;
 
     //
     // API to Node classes

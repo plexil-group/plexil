@@ -45,6 +45,7 @@ namespace PLEXIL
   // forward references
   class AdapterConfiguration;
   class InterfaceManager;
+  class PlexilExec;
 
   //! @class ExecApplication
   //! Provides the skeleton of a complete PLEXIL Executive application.
@@ -194,6 +195,7 @@ namespace PLEXIL
 
     virtual AdapterConfiguration *configuration() = 0;
     virtual InterfaceManager *manager() = 0;
+    virtual PlexilExec *exec() = 0;
 
   protected:
 

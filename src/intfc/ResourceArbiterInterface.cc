@@ -365,6 +365,20 @@ namespace PLEXIL
       debugMsg("ResourceArbiterInterface:arbitrateCommands",
                " processing " << cmds.size() << " commands");
 
+      // Extract the commands with empty resource lists
+      // and push them on acceptCmds immediately
+      CommandImpl *cmd = cmds.front();
+      while (cmd) {
+        CommandImpl *next = cmd->next();
+        if (cmd->getResourceValues().empty()) {
+          debugMsg("ResourceArbiterInterface:partitionCommands",
+                   " accepting " << cmd->getName() << " with no resource requests");
+          cmds.remove(cmd);
+          acceptCmds.push(cmd);
+        }
+        cmd = next;
+      }
+
       CommandPriorityList sortedCommands;
       partitionCommands(cmds, sortedCommands); // consumes cmds
 

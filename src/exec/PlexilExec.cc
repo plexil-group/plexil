@@ -37,6 +37,7 @@
 #include "Mutex.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
+#include "ResourceArbiterInterface.hh"
 #include "StateCache.hh"
 #include "Update.hh"
 
@@ -86,6 +87,7 @@ namespace PLEXIL
 
     std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
+    std::unique_ptr<ResourceArbiterInterface> m_arbiter;
     ExecListenerBase *m_listener;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
 
@@ -106,6 +108,7 @@ namespace PLEXIL
         m_commandsToExecute(),
         m_commandsToAbort(),
         m_plan(),
+        m_arbiter(makeResourceArbiter()),
         m_listener(nullptr),
         m_finishedRootNodesDeleted(false)
     {}
@@ -120,6 +123,11 @@ namespace PLEXIL
       m_assignmentsToRetract.clear();
       m_commandsToExecute.clear();
       m_commandsToAbort.clear();
+    }
+
+    virtual ResourceArbiterInterface *getArbiter() override
+    {
+      return m_arbiter.get();
     }
 
     virtual void setExecListener(ExecListenerBase *l) override
@@ -600,15 +608,26 @@ namespace PLEXIL
 
     void executeOutboundQueue()
     {
-      while (CommandImpl *cmd = m_commandsToExecute.front()) {
-        m_commandsToExecute.pop();
-        g_interface->processCommand(cmd);
+      // Arbitrate commands to be executed
+      LinkedQueue<CommandImpl> accepted, rejected;
+      m_arbiter->arbitrateCommands(m_commandsToExecute, accepted, rejected);
+      // Execute the ones which can be executed
+      while (CommandImpl *cmd = accepted.front()) {
+        accepted.pop();
+        g_interface->executeCommand(cmd);
       }
-      g_interface->partitionResourceCommands();
+      // ... and reject the rest
+      while (CommandImpl *cmd = rejected.front()) {
+        rejected.pop();
+        debugMsg("Test:testOutput", 
+                 "Permission to execute " << cmd->getName()
+                 << " has been denied by the resource arbiter."); // legacy message
+        g_interface->reportCommandArbitrationFailure(cmd);
+      }
 
       while (CommandImpl *cmd = m_commandsToAbort.front()) {
         m_commandsToAbort.pop();
-        g_interface->abortCommand(cmd);
+        g_interface->invokeAbort(cmd);
       }
 
       while (Update *upd = m_updatesToExecute.front()) {

@@ -193,6 +193,7 @@ namespace PLEXIL
     //
     using AdapterConfigurationPtr = std::unique_ptr<AdapterConfiguration>;
     using InterfaceManagerPtr = std::unique_ptr<InterfaceManager>;
+    using PlexilExecPtr = std::unique_ptr<PlexilExec>;
 
     //
     // Member variables
@@ -236,6 +237,9 @@ namespace PLEXIL
     //! Interface manager
     InterfaceManagerPtr m_manager;
 
+    //! Exec
+    PlexilExecPtr m_exec;
+
     // Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
 
@@ -270,6 +274,7 @@ namespace PLEXIL
 #endif
         m_configuration(makeAdapterConfiguration()),
         m_manager(new InterfaceManager(this, m_configuration.get())),
+        m_exec(makePlexilExec()),
         m_runExecInBkgndOnly(true),
         m_initialized(false),
         m_interfacesStarted(false),
@@ -280,18 +285,16 @@ namespace PLEXIL
       // Set globals that other pieces rely on
       // Required by Exec core
       g_interface = static_cast<ExternalInterface *>(m_manager.get());
-      g_exec = makePlexilExec();
+      g_exec = m_exec.get();
 
       // Link the Exec to the listener hub
-      g_exec->setExecListener(m_configuration->getListenerHub());
+      m_exec->setExecListener(m_configuration->getListenerHub());
     }
 
     virtual ~ExecApplicationImpl()
     {
       // Reset global pointers to objects we own before they are deleted
       g_interface = nullptr;
-
-      delete g_exec;
       g_exec = nullptr;
     }
 
@@ -307,6 +310,11 @@ namespace PLEXIL
     virtual InterfaceManager *manager() override
     {
       return m_manager.get();
+    }
+
+    virtual PlexilExec *exec() override
+    {
+      return m_exec.get();
     }
 
     //
@@ -428,11 +436,11 @@ namespace PLEXIL
         debugMsg("ExecApplication:step", " Processing queue");
         m_manager->processQueue();
         debugMsg("ExecApplication:step", " Stepping exec");
-        g_exec->step(StateCache::queryTime());
+        m_exec->step(StateCache::queryTime());
         // Take care of any plans which have finished
-        g_exec->deleteFinishedPlans();
-        allFinished = g_exec->allPlansFinished();
-        needsStep = g_exec->needsStep();
+        m_exec->deleteFinishedPlans();
+        allFinished = m_exec->allPlansFinished();
+        needsStep = m_exec->needsStep();
       }
 #ifdef PLEXIL_WITH_THREADS
       if (m_planLoaded && allFinished) {
@@ -465,14 +473,14 @@ namespace PLEXIL
         do {
           do {
             debugMsg("ExecApplication:runExec", " Stepping exec");
-            g_exec->step(StateCache::queryTime());
-          } while (g_exec->needsStep());
+            m_exec->step(StateCache::queryTime());
+          } while (m_exec->needsStep());
           debugMsg("ExecApplication:runExec", " Processing queue");
         } while (m_manager->processQueue());
 
         // Clean up
-        g_exec->deleteFinishedPlans();
-        allFinished = g_exec->allPlansFinished();
+        m_exec->deleteFinishedPlans();
+        allFinished = m_exec->allPlansFinished();
         debugMsg("ExecApplication:runExec", " Queue empty and exec quiescent");
       }
 #ifdef PLEXIL_WITH_THREADS

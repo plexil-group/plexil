@@ -85,7 +85,7 @@ namespace PLEXIL
     // Specific behaviors for derived classes
     virtual void specializedCreateConditionWrappers() override;
     virtual void specializedHandleExecution(PlexilExec *exec) override;
-    virtual void specializedDeactivateExecutable() override;
+    virtual void specializedDeactivateExecutable(PlexilExec *exec) override;
 
     virtual bool getDestStateFromExecuting() override;
     virtual bool getDestStateFromFinishing() override;
@@ -95,9 +95,9 @@ namespace PLEXIL
     virtual void transitionToFinishing() override;
     virtual void transitionToFailing(PlexilExec *exec) override;
     
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFinishing() override;
-    virtual void transitionFromFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFinishing(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
     virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const override;
 

@@ -37,6 +37,7 @@ namespace PLEXIL
 
   // Forward references
   class ExprVec;
+  class ResourceArbiterInterface;
 
   /**
    * @brief A structure to represent actual resource values after fixing.
@@ -144,7 +145,7 @@ namespace PLEXIL
     void fixValues();
     void fixResourceValues();
 
-    void deactivate();
+    void deactivate(ResourceArbiterInterface *arbiter);
 
     void cleanUp();
 

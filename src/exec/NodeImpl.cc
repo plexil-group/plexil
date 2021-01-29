@@ -728,7 +728,7 @@ namespace PLEXIL
              << " to " << nodeStateName(m_nextState)
              << " at " << std::setprecision(15) << time);
     
-    transitionFrom();
+    transitionFrom(exec);
     transitionTo(exec, time);
 
     // Clear pending-transition variables
@@ -750,7 +750,7 @@ namespace PLEXIL
   }
 
   // Common method 
-  void NodeImpl::transitionFrom()
+  void NodeImpl::transitionFrom(PlexilExec *exec)
   {
     switch (m_state) {
     case INACTIVE_STATE:
@@ -762,11 +762,11 @@ namespace PLEXIL
       break;
 
     case EXECUTING_STATE:
-      transitionFromExecuting();
+      transitionFromExecuting(exec);
       break;
 
     case FINISHING_STATE:
-      transitionFromFinishing();
+      transitionFromFinishing(exec);
       break;
 
     case FINISHED_STATE:
@@ -774,7 +774,7 @@ namespace PLEXIL
       break;
 
     case FAILING_STATE:
-      transitionFromFailing();
+      transitionFromFailing(exec);
       break;
 
     case ITERATION_ENDED_STATE:
@@ -1199,7 +1199,7 @@ namespace PLEXIL
   }
 
   // Empty node method
-  void NodeImpl::transitionFromExecuting()
+  void NodeImpl::transitionFromExecuting(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -1221,7 +1221,7 @@ namespace PLEXIL
       break;
     }
 
-    deactivateExecutable();
+    deactivateExecutable(exec);
   }
 
   //
@@ -1406,7 +1406,7 @@ namespace PLEXIL
   }
 
   // Default method
-  void NodeImpl::transitionFromFinishing()
+  void NodeImpl::transitionFromFinishing(PlexilExec * /* exec */)
   {
     errorMsg("No transition from FINISHING state defined for this node");
   }
@@ -1435,7 +1435,7 @@ namespace PLEXIL
   }
 
   // Default method
-  void NodeImpl::transitionFromFailing()
+  void NodeImpl::transitionFromFailing(PlexilExec * /* exec */)
   {
     errorMsg("No transition from FAILING state defined for this node");
   }
@@ -1838,14 +1838,14 @@ namespace PLEXIL
     m_failureType = NO_FAILURE;
   }
 
-  void NodeImpl::deactivateExecutable() 
+  void NodeImpl::deactivateExecutable(PlexilExec *exec) 
   {
-    specializedDeactivateExecutable();
+    specializedDeactivateExecutable(exec);
     deactivateLocalVariables();
   }
 
   // Default method
-  void NodeImpl::specializedDeactivateExecutable()
+  void NodeImpl::specializedDeactivateExecutable(PlexilExec * /* exec */)
   {
   }
 

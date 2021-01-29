@@ -528,7 +528,7 @@ namespace PLEXIL
     return true;
   }
 
-  void ListNode::transitionFromExecuting()
+  void ListNode::transitionFromExecuting(PlexilExec * /* exec */)
   {
     deactivateEndCondition();
     switch (m_nextState) {
@@ -665,7 +665,7 @@ namespace PLEXIL
     return false;
   }
 
-  void ListNode::transitionFromFinishing()
+  void ListNode::transitionFromFinishing(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -683,7 +683,7 @@ namespace PLEXIL
         m_conditions[ancestorEndIdx]->deactivate();
       // Local conditions
       deactivateActionCompleteCondition();
-      deactivateExecutable();
+      deactivateExecutable(exec);
       activateAncestorEndCondition();
       break;
 
@@ -753,7 +753,7 @@ namespace PLEXIL
     return false;
   }
 
-  void ListNode::transitionFromFailing()
+  void ListNode::transitionFromFailing(PlexilExec *exec)
   {
     // N.B. These are conditions for the children.
     if (m_conditions[ancestorExitIdx])
@@ -764,7 +764,7 @@ namespace PLEXIL
       m_conditions[ancestorEndIdx]->deactivate();
 
     deactivateActionCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 

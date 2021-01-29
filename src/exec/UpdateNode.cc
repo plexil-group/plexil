@@ -244,7 +244,7 @@ namespace PLEXIL
     return true;
   }
 
-  void UpdateNode::transitionFromExecuting()
+  void UpdateNode::transitionFromExecuting(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -260,7 +260,7 @@ namespace PLEXIL
       break;
 
     case ITERATION_ENDED_STATE:
-      deactivateExecutable();
+      deactivateExecutable(exec);
       activateAncestorEndCondition();
       break;
 
@@ -319,10 +319,10 @@ namespace PLEXIL
     return false;
   }
 
-  void UpdateNode::transitionFromFailing()
+  void UpdateNode::transitionFromFailing(PlexilExec *exec)
   {
     deactivateActionCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 
@@ -343,7 +343,7 @@ namespace PLEXIL
   }
 
 
-  void UpdateNode::specializedDeactivateExecutable()
+  void UpdateNode::specializedDeactivateExecutable(PlexilExec * /* exec */)
   {
     m_update->deactivate();
   }

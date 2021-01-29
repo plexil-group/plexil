@@ -458,7 +458,7 @@ namespace PLEXIL
     // Called from the transition handler
     void execute(PlexilExec *exec);
     void reset();
-    void deactivateExecutable();
+    void deactivateExecutable(PlexilExec *exec);
 
     // Variables
     void activateLocalVariables();
@@ -502,7 +502,7 @@ namespace PLEXIL
     virtual void specializedCreateConditionWrappers();
     virtual void specializedActivate();
     virtual void specializedHandleExecution(PlexilExec *exec);
-    virtual void specializedDeactivateExecutable();
+    virtual void specializedDeactivateExecutable(PlexilExec *exec);
 
     //
     // State transition implementation methods
@@ -526,10 +526,10 @@ namespace PLEXIL
     // Transition out of the named current state.
     void transitionFromInactive();
     void transitionFromWaiting();
-    virtual void transitionFromExecuting();
-    virtual void transitionFromFinishing();
+    virtual void transitionFromExecuting(PlexilExec *exec);
+    virtual void transitionFromFinishing(PlexilExec *exec);
     void transitionFromFinished();
-    virtual void transitionFromFailing();
+    virtual void transitionFromFailing(PlexilExec *exec);
     void transitionFromIterationEnded();
 
     void transitionToInactive();
@@ -597,7 +597,7 @@ namespace PLEXIL
 
     // These should only be called from transition().
     void setNodeOutcome(NodeOutcome o);
-    void transitionFrom();
+    void transitionFrom(PlexilExec *exec);
     void transitionTo(PlexilExec *exec, double tym);
     void logTransition(double time, NodeState newState);
 

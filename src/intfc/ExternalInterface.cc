@@ -30,7 +30,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "LookupReceiver.hh"
-#include "ResourceArbiterInterface.hh"
 #include "StateCache.hh"
 #include "Update.hh"
 
@@ -38,85 +37,6 @@ namespace PLEXIL
 {
   // Define global variable
   ExternalInterface *g_interface = nullptr;
-
-  ExternalInterface::ExternalInterface()
-    : m_resourceCmds(),
-      m_raInterface(makeResourceArbiter())
-  {
-  }
-
-  ExternalInterface::~ExternalInterface()
-  {
-    delete m_raInterface;
-  }
-    
-  /**
-   * @brief Read command resource hierarchy from the named file.
-   * @param fname File name.
-   * @return True if successful, false otherwise.
-   */
-
-  bool ExternalInterface::readResourceFile(std::string const &fname)
-  {
-    return m_raInterface->readResourceHierarchyFile(fname);
-  }
-
-  //! If the command has no resource requirements,
-  //! execute it immediately.
-  //! Otherwise set it aside for resource arbitration.
-  //! @param cmd The command.
-  void ExternalInterface::processCommand(CommandImpl *cmd)
-  {
-    if (cmd->getResourceValues().empty()) {
-      // Execute it now
-      debugMsg("ResourceArbiterInterface:partitionCommands",
-               " accepting " << cmd->getName() << " with no resource requests"); // legacy msg
-      this->executeCommand(cmd);
-    }
-    else {
-      // Queue it for arbitration
-      m_resourceCmds.push(cmd);
-    }
-  }
-
-  //! Arbitrate any commands with resource requirements,
-  //! and dispose of them as appropriate.
-  void ExternalInterface::partitionResourceCommands()
-  {
-    if (m_resourceCmds.empty())
-      return;
-
-    LinkedQueue<CommandImpl> acceptCmds, rejectCmds;
-    m_raInterface->arbitrateCommands(m_resourceCmds, acceptCmds, rejectCmds);
-    while (CommandImpl *cmd = acceptCmds.front()) {
-      acceptCmds.pop();
-      this->executeCommand(cmd);
-    }
-    while (CommandImpl *cmd = rejectCmds.front()) {
-      rejectCmds.pop();
-      debugMsg("Test:testOutput", 
-               "Permission to execute " << cmd->getName()
-               << " has been denied by the resource arbiter.");
-      reportCommandArbitrationFailure(cmd);
-    }
-  }
-
-  /**
-   * @brief Abort the command.
-   */
-  void ExternalInterface::abortCommand(CommandImpl *cmd)
-  {
-    this->invokeAbort(cmd);
-  }
-
-  /**
-   * @brief Release resources in use by the command.
-   */
-
-  void ExternalInterface::releaseResourcesForCommand(CommandImpl *cmd)
-  {
-    m_raInterface->releaseResourcesForCommand(cmd);
-  }
 
   void ExternalInterface::lookupReturn(State const &state, Value const &value)
   {
@@ -181,5 +101,3 @@ namespace PLEXIL
   }
 
 }
-
-

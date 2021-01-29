@@ -38,7 +38,6 @@ namespace PLEXIL {
   class CommandImpl;
   class LookupReceiver;
   struct Message;
-  class ResourceArbiterInterface;
   class Update;
 
   /**
@@ -49,10 +48,10 @@ namespace PLEXIL {
   class ExternalInterface {
   public:
 
-    virtual ~ExternalInterface();
+    virtual ~ExternalInterface() = default;
 
     //
-    // API for Lookup
+    // API to Lookup
     //
 
     /**
@@ -83,33 +82,21 @@ namespace PLEXIL {
     virtual void clearThresholds(const State& state) = 0;
 
     //
-    // API to CommandImpl
-    //
-    
-    /**
-     * @brief Release resources in use by the command.
-     */
-    void releaseResourcesForCommand(CommandImpl *cmd);
-
-    //
     // API to Exec
+    // All delegated to derived classes
     //
 
-    // Made virtual for convenience of module tests
-
-    //! If the command has no resource requirements,
-    //! execute it immediately.
-    //! Otherwise set it aside for resource arbitration.
+    //! Delegate this command for execution.
     //! @param cmd The command.
-    virtual void processCommand(CommandImpl *cmd);
+    virtual void executeCommand(Command *cmd) = 0;
 
-    //! Arbitrate any commands with resource requirements,
-    //! and dispose of them as appropriate.
-    virtual void partitionResourceCommands();
+    //! Report the failure in the appropriate way for the application.
+    //! @param cmd Command which has been rejected.
+    virtual void reportCommandArbitrationFailure(Command *cmd) = 0;
 
     //! Delegate this command to be aborted.
     //! @param cmd The command.
-    virtual void abortCommand(CommandImpl *cmd);
+    virtual void invokeAbort(Command *cmd) = 0;
 
     //! Delegate this update for execution.
     //1 @param update The update.
@@ -178,39 +165,10 @@ namespace PLEXIL {
     //! @param handle The handle being released.
     void releaseMessageHandle(std::string const &handle);
 
-    //
-    // API to application
-    //
-    
-    /**
-     * @brief Read command resource hierarchy from the named file.
-     * @param fname File name.
-     * @return True if successful, false otherwise.
-     */
-
-    bool readResourceFile(std::string const &fname);
-
   protected:
 
     // Default constructor.
-    ExternalInterface();
-
-    //
-    // Member functions that are expected to be implemented by derived classes
-    //
-
-    /**
-     * @brief Report the failure in the appropriate way for the application.
-     */
-    virtual void reportCommandArbitrationFailure(Command *cmd) = 0;
-
-    //! Delegate this command for execution.
-    //! @param cmd The command.
-    virtual void executeCommand(Command *cmd) = 0;
-
-    //! Delegate this command to be aborted.
-    //! @param cmd The command.
-    virtual void invokeAbort(Command *cmd) = 0;
+    ExternalInterface() = default;
 
   private:
 
@@ -219,11 +177,6 @@ namespace PLEXIL {
     ExternalInterface(ExternalInterface &&) = delete;
     ExternalInterface &operator=(ExternalInterface const &) = delete;
     ExternalInterface &operator=(ExternalInterface &&) = delete;
-
-    //! Pending commands to arbitrate
-    LinkedQueue<CommandImpl> m_resourceCmds;
-    //! The resource arbiter
-    ResourceArbiterInterface *m_raInterface;
   };
 
   extern ExternalInterface *g_interface;

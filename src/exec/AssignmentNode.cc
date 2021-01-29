@@ -256,7 +256,7 @@ namespace PLEXIL
     exec->enqueueAssignment(m_assignment.get());
   }
 
-  void AssignmentNode::transitionFromExecuting()
+  void AssignmentNode::transitionFromExecuting(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -271,7 +271,7 @@ namespace PLEXIL
 
     case ITERATION_ENDED_STATE:
       activateAncestorEndCondition();
-      deactivateExecutable();
+      deactivateExecutable(exec);
       break;
 
     default:
@@ -335,10 +335,10 @@ namespace PLEXIL
     return true;
   }
 
-  void AssignmentNode::transitionFromFailing()
+  void AssignmentNode::transitionFromFailing(PlexilExec *exec)
   {
     deactivateAbortCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 
@@ -399,7 +399,7 @@ namespace PLEXIL
     }
   }
 
-  void AssignmentNode::specializedDeactivateExecutable() 
+  void AssignmentNode::specializedDeactivateExecutable(PlexilExec * /* exec */) 
   {
     if (m_assignment)
       m_assignment->deactivate();

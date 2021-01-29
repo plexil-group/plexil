@@ -32,6 +32,7 @@
 #include "ExternalInterface.hh"
 #include "InterfaceError.hh"
 #include "PlanError.hh"
+#include "ResourceArbiterInterface.hh"
 
 namespace PLEXIL
 {
@@ -455,13 +456,13 @@ namespace PLEXIL
     m_abortComplete.setValue(ack);
   }
 
-  void CommandImpl::deactivate() 
+  void CommandImpl::deactivate(ResourceArbiterInterface *arbiter)
   {
     check_error_1(m_active);
     m_active = false;
 
-    if (m_commandHandle != COMMAND_DENIED)
-      g_interface->releaseResourcesForCommand(this);
+    if (m_commandHandle != COMMAND_DENIED && arbiter) // handle unit tests
+      arbiter->releaseResourcesForCommand(this);
 
     m_abortComplete.deactivate();
     m_ack.deactivate();

@@ -36,6 +36,7 @@
 #include "planLibrary.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
+#include "ResourceArbiterInterface.hh"
 #include "TestExternalInterface.hh"
 
 #ifdef HAVE_DEBUG_LISTENER
@@ -287,15 +288,15 @@ int run(int argc, char** argv)
 
   TestExternalInterface intf;
   g_interface = &intf;
-  if (useResourceFile) {
-    g_interface->readResourceFile(resourceFile);
-  }
 
   // create the exec
 
   g_exec = makePlexilExec();
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);
+  if (useResourceFile) {
+    g_exec->getArbiter()->readResourceHierarchyFile(resourceFile);
+  }
 
 
 #ifdef HAVE_DEBUG_LISTENER

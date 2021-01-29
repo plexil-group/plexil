@@ -116,9 +116,9 @@ namespace PLEXIL
     virtual bool getDestStateFromFailing() override;
     virtual bool getDestStateFromFinishing() override;
 
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFinishing() override;
-    virtual void transitionFromFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFinishing(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
     virtual void transitionToExecuting() override;
     virtual void transitionToFinishing() override;

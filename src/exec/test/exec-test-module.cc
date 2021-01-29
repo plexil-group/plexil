@@ -64,6 +64,7 @@ public:
   virtual bool needsStep() const override {return false;}
   virtual void setExecListener(ExecListenerBase * /* l */) override {}
   virtual ExecListenerBase *getExecListener() override { return nullptr; }
+  virtual ResourceArbiterInterface *getArbiter() override { return nullptr; }
   virtual void deleteFinishedPlans() override {}
   virtual bool allPlansFinished() const override { return true; }
   virtual std::list<NodePtr> const &getPlans() const override { return g_dummyPlanList; }
