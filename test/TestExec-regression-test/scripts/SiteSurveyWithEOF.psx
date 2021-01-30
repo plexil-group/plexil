@@ -127,7 +127,7 @@
       <Value>1</Value>
     </State>
     <Delay/>
-    <CommandAbort name="move_to_waypoint" type="int">
+    <CommandAbort name="move_to_waypoint" type="bool">
       <Param type="string">UNKNOWN</Param>
       <Param type="string">UNKNOWN</Param>
       <Param type="real">4.0</Param>

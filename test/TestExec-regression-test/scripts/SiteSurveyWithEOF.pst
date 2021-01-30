@@ -105,7 +105,7 @@ script {
      "UNKNOWN" : real,
      "UNKNOWN" : real,
      "UNKNOWN" : real)
-    = 1 : int;
+    = 1 : bool;
   delay;
   delay;
   // cycle 45
