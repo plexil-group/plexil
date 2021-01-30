@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@
 #include "Update.hh"
 #include "UpdateNode.hh"
 #include "test/FactoryTestNodeConnector.hh"
-#include "test/TransitionExternalInterface.hh"
 
 #include "pugixml.hpp"
 
@@ -1877,7 +1876,6 @@ static bool libraryCallNodeXmlParserTest()
 bool nodeXmlParserTest()
 {
   doc = new xml_document();
-  g_interface = new TransitionExternalInterface;
 
   runTest(emptyNodeXmlParserTest);
   runTest(listNodeXmlParserTest);
@@ -1886,8 +1884,6 @@ bool nodeXmlParserTest()
   runTest(updateNodeXmlParserTest);
   runTest(libraryCallNodeXmlParserTest);
 
-  delete g_interface;
-  g_interface = nullptr;
   delete doc;
   doc = nullptr;
   return true;
