@@ -192,6 +192,7 @@ namespace PLEXIL
     // Typedefs
     //
     using AdapterConfigurationPtr = std::unique_ptr<AdapterConfiguration>;
+    using ExecListenerHubPtr  = std::unique_ptr<ExecListenerHub>;
     using InterfaceManagerPtr = std::unique_ptr<InterfaceManager>;
     using PlexilExecPtr = std::unique_ptr<PlexilExec>;
 
@@ -240,6 +241,9 @@ namespace PLEXIL
     //! Exec
     PlexilExecPtr m_exec;
 
+    //! Exec listener hub
+    ExecListenerHubPtr m_listener;
+
     // Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
 
@@ -275,6 +279,7 @@ namespace PLEXIL
         m_configuration(makeAdapterConfiguration()),
         m_manager(new InterfaceManager(this, m_configuration.get())),
         m_exec(makePlexilExec()),
+        m_listener(new ExecListenerHub()),
         m_runExecInBkgndOnly(true),
         m_initialized(false),
         m_interfacesStarted(false),
@@ -284,20 +289,20 @@ namespace PLEXIL
     {
       // Set globals that other pieces rely on
       // Required by Exec core
-      g_interface = static_cast<ExternalInterface *>(m_manager.get());
+      g_dispatcher = static_cast<Dispatcher *>(m_configuration.get());
       g_exec = m_exec.get();
 
-      // Link the Exec to the External Interface
-      m_exec->setExternalInterface(m_manager.get());
+      // Link the Exec to the AdapterConfiguration
+      m_exec->setDispatcher(m_configuration.get());
 
       // Link the Exec to the listener hub
-      m_exec->setExecListener(m_configuration->getListenerHub());
+      m_exec->setExecListener(m_listener.get());
     }
 
     virtual ~ExecApplicationImpl()
     {
       // Reset global pointers to objects we own before they are deleted
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
       g_exec = nullptr;
     }
 
@@ -313,6 +318,11 @@ namespace PLEXIL
     virtual InterfaceManager *manager() override
     {
       return m_manager.get();
+    }
+
+    virtual ExecListenerHub *listenerHub() override
+    {
+      return m_listener.get();
     }
 
     virtual PlexilExec *exec() override
@@ -373,7 +383,7 @@ namespace PLEXIL
       // *** NYI ***
 
       // Construct interfaces
-      if (!m_configuration->constructInterfaces(configXml, *m_manager)) {
+      if (!m_configuration->constructInterfaces(configXml, *m_manager, *m_listener)) {
         debugMsg("ExecApplication:initialize",
                  " construction of interfaces failed");
         return false;
@@ -383,6 +393,13 @@ namespace PLEXIL
       if (!m_configuration->initialize()) {
         debugMsg("ExecApplication:initialize",
                  " initialization of interfaces failed");
+        return false;
+      }
+
+      // Initialize exec listeners
+      if (!m_listener->initialize()) {
+        debugMsg("ExecApplication:initialize",
+                 " initialization of Exec listeners failed");
         return false;
       }
 
@@ -416,6 +433,11 @@ namespace PLEXIL
       // Start 'em up!
       if (!m_configuration->start()) {
         warn("ExecApplication: Error: failed to start interfaces");
+        return false;
+      }
+
+      if (!m_listener->start()) {
+        warn("ExecApplication: Error: failed to start Exec listeners");
         return false;
       }
 
@@ -607,6 +629,8 @@ namespace PLEXIL
 
       // Stop interfaces
       m_configuration->stop();
+      m_listener->stop();
+
       m_interfacesStarted = false;
       m_initialized = false;
 

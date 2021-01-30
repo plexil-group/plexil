@@ -49,6 +49,7 @@ namespace PLEXIL
     Q_RECEIVE_MSG,
     Q_ACCEPT_MSG,
     Q_RELEASE_MSG_HANDLE,
+    Q_MSG_QUEUE_EMPTY,
     Q_MARK,
 
     Q_INVALID
@@ -95,6 +96,7 @@ namespace PLEXIL
     void initForReceiveMessage(Message *msg);
     void initForAcceptMessage(Message *msg, std::string const &handle);
     void initForReleaseMessageHandle(std::string const &handle);
+    void initForMessageQueueEmpty();
 
     void initForMark(unsigned int seq);
 

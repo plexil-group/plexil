@@ -80,6 +80,11 @@ namespace PLEXIL
     // Interface management API to AdapterConfiguration
     // 
 
+    //! Create the listener as described by the configuration XML.
+    //! @param configXml Description of a listener to be constructed.
+    //! @return true if successful, false otherwise.
+    bool constructListener(pugi::xml_node const configXml);
+
     //! Adds an Exec listener for publication of plan events.
     //! @param Pointer to an ExecListener instance.
     //! @note The ExecListenerHub takes ownership of the listener

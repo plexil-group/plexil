@@ -26,7 +26,6 @@
 
 #include "Assignable.hh"
 #include "Debug.hh"
-#include "ExternalInterface.hh"
 #include "NodeImpl.hh"
 #include "NodeFactory.hh"
 #include "PlexilExec.hh"
@@ -61,7 +60,7 @@ public:
   virtual bool addPlan(Node * /* root */) override { return false; }
   virtual void step(double /* startTime */) override {}
   virtual bool needsStep() const override {return false;}
-  virtual void setExternalInterface(ExternalInterface * /* intf */) override {}
+  virtual void setDispatcher(Dispatcher * /* intf */) override {}
   virtual void setExecListener(ExecListenerBase * /* l */) override {}
   virtual ExecListenerBase *getExecListener() override { return nullptr; }
   virtual ResourceArbiterInterface *getArbiter() override { return nullptr; }

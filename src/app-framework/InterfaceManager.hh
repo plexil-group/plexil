@@ -23,17 +23,10 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//
-// *** TODO: REFACTOR TO SMALLER PIECES ***
-// The Exec -> world interface and the world -> Exec interface
-// should be two different objects, as they share almost nothing.
-//
-
 #ifndef PLEXIL_INTERFACE_MANAGER_HH
 #define PLEXIL_INTERFACE_MANAGER_HH
 
 #include "AdapterExecInterface.hh"
-#include "ExternalInterface.hh"
 
 #include <memory>
 
@@ -56,13 +49,12 @@ namespace PLEXIL
   class InputQueue;
 
   //! @class InterfaceManager
-  //! @brief A concrete derived class implementing the APIs of the
-  //!        ExternalInterface and AdapterExecInterface classes.
+  //! A concrete derived class implementing the API of the
+  //! AdapterExecInterface class.
   //! @details The InterfaceManager class is responsible for managing
-  //!          input and output for the PlexilExec.  It maintains a
-  //!          queue of messages for the Exec to process.
+  //!          input for the PlexilExec.  It maintains a queue of
+  //!          messages for the Exec to process.
   class InterfaceManager :
-    public ExternalInterface,
     public AdapterExecInterface
   {
   public:
@@ -95,45 +87,6 @@ namespace PLEXIL
     //! Insert a mark in the value queue.
     //! @return The sequence number of the mark.
     unsigned int markQueue();
-
-    //
-    // API for exec
-    //
-    
-    //! Perform an immediate lookup on an existing state.
-    //! @param state The state.
-    //! @@param rcvr Callback object used to return the result of the query.
-    virtual void lookupNow(State const &state, LookupReceiver *rcvr);
-
-    //! Advise the interface of the current thresholds to use when reporting this state.
-    //! @param state The state.
-    //! @param hi The upper threshold, at or above which to report changes.
-    //! @param lo The lower threshold, at or below which to report changes.
-    //! @note This is primarily used to set deadlines for the TimeAdapter.
-    virtual void setThresholds(const State& state, Real hi, Real lo);
-    virtual void setThresholds(const State& state, Integer hi, Integer lo);
-
-    //! Tell the interface that thresholds are no longer in effect
-    //! for this state.
-    //! @param state The state.
-    virtual void clearThresholds(const State& state);
-
-    //! Execute a command.
-    //! @param The command to be executed.
-    virtual void executeCommand(Command *cmd);
-
-    //! Report a command arbitration failure in the appropriate way
-    //! for the application.
-    //! @param cmd Command whose arbitration request failed.
-    virtual void reportCommandArbitrationFailure(Command *cmd);
-
-    //! Abort a command in execution.
-    //! @param cmd The command to abort..
-    virtual void invokeAbort(Command *cmd);
-
-    //! Send a planner update.
-    //! @param upd The update to be sent.
-    virtual void executeUpdate(Update *upd);
 
     //
     // API to interface handlers

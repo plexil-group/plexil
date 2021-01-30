@@ -287,12 +287,12 @@ int run(int argc, char** argv)
   // create external interface
 
   TestExternalInterface intf;
-  g_interface = &intf;
+  g_dispatcher = &intf;
 
   // create the exec
 
   g_exec = makePlexilExec();
-  g_exec->setExternalInterface(g_interface);
+  g_exec->setDispatcher(g_dispatcher);
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);
   if (useResourceFile) {
@@ -339,7 +339,7 @@ int run(int argc, char** argv)
         // Clean up
         delete g_exec;
         g_exec = nullptr;
-        g_interface = nullptr;
+        g_dispatcher = nullptr;
 
         return 1;
       }
@@ -350,7 +350,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -373,7 +373,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -391,7 +391,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -403,7 +403,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -425,7 +425,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
       
       return 1;
     }
@@ -441,7 +441,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -454,7 +454,7 @@ int run(int argc, char** argv)
 
   delete g_exec;
   g_exec = nullptr;
-  g_interface = nullptr;
+  g_dispatcher = nullptr;
 
   return 0;
 }

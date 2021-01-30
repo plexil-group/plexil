@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@
 #ifndef PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 #define PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 
-#include "ExternalInterface.hh"
+#include "Dispatcher.hh"
+#include "State.hh"
 
 #include <iostream>
 #include <map>
@@ -42,13 +43,18 @@ namespace pugi
 namespace PLEXIL 
 {
 
-  class TestExternalInterface final : public ExternalInterface 
+  class TestExternalInterface final :
+    public Dispatcher
   {
   public:
     TestExternalInterface();
-    virtual ~TestExternalInterface();
+    virtual ~TestExternalInterface() = default;
 
     void run(pugi::xml_node const input);
+
+    //
+    // Dispatcher API
+    //
 
     virtual void lookupNow(State const &state, LookupReceiver *rcvr);
 
@@ -56,8 +62,6 @@ namespace PLEXIL
     virtual void setThresholds(const State& state, Real hi, Real lo);
     virtual void setThresholds(const State& state, Integer hi, Integer lo);
     virtual void clearThresholds(const State& state);
-
-  protected:
 
     // Commands
     virtual void executeCommand(Command *cmd);

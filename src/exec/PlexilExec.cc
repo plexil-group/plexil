@@ -30,9 +30,9 @@
 #include "Assignment.hh"
 #include "CommandImpl.hh"
 #include "Debug.hh"
+#include "Dispatcher.hh"
 #include "Error.hh"
 #include "ExecListenerBase.hh"
-#include "ExternalInterface.hh"
 #include "LinkedQueue.hh"
 #include "Mutex.hh"
 #include "Node.hh"
@@ -88,7 +88,7 @@ namespace PLEXIL
     std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
     std::unique_ptr<ResourceArbiterInterface> m_arbiter;
-    ExternalInterface *m_interface;
+    Dispatcher *m_dispatcher;
     ExecListenerBase *m_listener;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
 
@@ -110,7 +110,7 @@ namespace PLEXIL
         m_commandsToAbort(),
         m_plan(),
         m_arbiter(makeResourceArbiter()),
-        m_interface(),
+        m_dispatcher(),
         m_listener(),
         m_finishedRootNodesDeleted(false)
     {}
@@ -132,9 +132,9 @@ namespace PLEXIL
       return m_arbiter.get();
     }
 
-    virtual void setExternalInterface(ExternalInterface *intf) override
+    virtual void setDispatcher(Dispatcher *intf) override
     {
-      m_interface = intf;
+      m_dispatcher = intf;
     }
 
     virtual void setExecListener(ExecListenerBase *l) override
@@ -615,7 +615,7 @@ namespace PLEXIL
 
     void executeOutboundQueue()
     {
-      assertTrue_2(m_interface,
+      assertTrue_2(m_dispatcher,
                    "PlexilExec: attempt to execute without an ExternalInterface!");
 
       if (m_arbiter) {
@@ -625,7 +625,7 @@ namespace PLEXIL
         // Execute the ones which can be executed
         while (CommandImpl *cmd = accepted.front()) {
           accepted.pop();
-          m_interface->executeCommand(cmd);
+          m_dispatcher->executeCommand(cmd);
         }
         // ... and reject the rest
         while (CommandImpl *cmd = rejected.front()) {
@@ -633,25 +633,25 @@ namespace PLEXIL
           debugMsg("Test:testOutput", 
                    "Permission to execute " << cmd->getName()
                    << " has been denied by the resource arbiter."); // legacy message
-          m_interface->reportCommandArbitrationFailure(cmd);
+          m_dispatcher->reportCommandArbitrationFailure(cmd);
         }
       }
       else {
         // Execute them all
         while (CommandImpl *cmd = m_commandsToExecute.front()) {
           m_commandsToExecute.pop();
-          m_interface->executeCommand(cmd);
+          m_dispatcher->executeCommand(cmd);
         }
       }
       
       while (CommandImpl *cmd = m_commandsToAbort.front()) {
         m_commandsToAbort.pop();
-        m_interface->invokeAbort(cmd);
+        m_dispatcher->invokeAbort(cmd);
       }
 
       while (Update *upd = m_updatesToExecute.front()) {
         m_updatesToExecute.pop();
-        m_interface->executeUpdate(upd);
+        m_dispatcher->executeUpdate(upd);
       }
     }
 

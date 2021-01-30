@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Dispatcher.hh"
 #include "ExprVec.hh"
-#include "ExternalInterface.hh"
 #include "Constant.hh"
 #include "Lookup.hh"
 #include "LookupReceiver.hh"
@@ -43,20 +43,14 @@ using namespace PLEXIL;
 using ExpressionPtr = std::unique_ptr<Expression>;
 using LookupPtr = std::unique_ptr<Lookup>;
 
-class TestInterface final : public ExternalInterface 
+class TestInterface final : public Dispatcher 
 {
 public:
-  TestInterface()
-    : ExternalInterface()
-  {
-  }
-
-  ~TestInterface() 
-  {
-  }
+  TestInterface() = default;
+  virtual ~TestInterface() = default;
 
   //
-  // ExternalInterface API
+  // Dispatcher API
   //
 
   virtual void lookupNow(const State& state, LookupReceiver *rcvr) 
@@ -771,11 +765,11 @@ bool lookupsTest()
 {
   TestInterface foo;
   theInterface = &foo;
-  g_interface = &foo;
+  g_dispatcher = &foo;
 
   runTest(testLookupNow);
   runTest(testLookupOnChange);
   runTest(testThresholdUpdate);
-  g_interface = nullptr;
+  g_dispatcher = nullptr;
   return true;
 }

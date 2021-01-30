@@ -35,8 +35,8 @@ namespace PLEXIL
   // Forward references
   class Assignment;
   class CommandImpl;
+  class Dispatcher;
   class ExecListenerBase; 
-  class ExternalInterface;
   class Node;
   class ResourceArbiterInterface;
   class Update;
@@ -108,7 +108,7 @@ namespace PLEXIL
     // API to application
     //
 
-    virtual void setExternalInterface(ExternalInterface *intf) = 0;
+    virtual void setDispatcher(Dispatcher *intf) = 0;
 
     /**
      * @brief Set the ExecListener instance.

@@ -29,7 +29,6 @@
 #include "CommandOperatorImpl.hh"
 #include "Assignable.hh"
 #include "ExprVec.hh"
-#include "ExternalInterface.hh"
 #include "InterfaceError.hh"
 #include "PlanError.hh"
 #include "ResourceArbiterInterface.hh"

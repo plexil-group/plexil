@@ -27,8 +27,8 @@
 #include "StateCache.hh"
 
 #include "CachedValue.hh"
+#include "Dispatcher.hh"
 #include "Error.hh"
-#include "ExternalInterface.hh"
 #include "Message.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
@@ -50,8 +50,8 @@ namespace PLEXIL
   double StateCache::queryTime()
   {
     // Update the cached value
-    g_interface->lookupNow(State::timeState(),
-                           instance().ensureTimeEntry()->getLookupReceiver());
+    g_dispatcher->lookupNow(State::timeState(),
+                            instance().ensureTimeEntry()->getLookupReceiver());
     // and return it
     return currentTime();
   }

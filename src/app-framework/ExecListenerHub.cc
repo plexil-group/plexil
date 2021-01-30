@@ -29,6 +29,8 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
+#include "ExecListenerFactory.hh"
+#include "InterfaceSchema.hh"
 #include "NodeTransition.hh"
 
 #include "pugixml.hpp"
@@ -115,6 +117,24 @@ namespace PLEXIL
   // API to AdapterConfiguration
   //
 
+  bool ExecListenerHub::constructListener(pugi::xml_node const configXml)
+  {
+    debugMsg("ExecListenerHub:constructListener",
+             " constructing listener type \""
+             << configXml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+             << '"');
+    ExecListener *listener = 
+      ExecListenerFactory::createInstance(configXml);
+    if (!listener) {
+      warn("constructInterfaces: failed to construct listener type \""
+           << configXml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+           << '"');
+      return false;
+    }
+    m_listeners.emplace_back(ExecListenerPtr(listener));
+    return true;
+  }
+
   /**
    * @brief Adds an Exec listener for publication of plan events.
    */
@@ -122,6 +142,7 @@ namespace PLEXIL
   {
     check_error_1(listener);
     m_listeners.emplace_back(ExecListenerPtr(listener));
+    debugMsg("ExecListenerHub:addListener", " called");
   }
 
   /**
@@ -130,16 +151,16 @@ namespace PLEXIL
    */
   bool ExecListenerHub::initialize()
   {
-    bool success = true;
+    debugMsg("ExecListenerHub:initialize", " entered");
     for (ExecListenerPtr const &listener : m_listeners) {
-      success = listener->initialize();
-      if (!success) {
+      if (!listener->initialize()) {
         debugMsg("ExecListenerHub:initialize",
                  " failed to initialize all Exec listeners, returning false");
         return false;
       }
     }
-    return success;
+    debugMsg("ExecListenerHub:initialize", " returns true");
+    return true;
   }
 
   /**
@@ -148,13 +169,15 @@ namespace PLEXIL
    */
   bool ExecListenerHub::start()
   {
-    bool success = true;
     for (ExecListenerPtr const &listener : m_listeners) {
-      success = listener->start();
-      if (!success)
-        break; // stop at first failure
+      if (!listener->start()) {
+        debugMsg("ExecListenerHub:start",
+                 " failed to start all Exec listeners, returning false");
+        return false; // stop at first failure
+      }
     }
-    return success;
+    debugMsg("ExecListenerHub:start", " returns true");
+    return true;
   }
 
   /**

@@ -1,47 +1,50 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "AdapterConfiguration.hh"
 
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Command.hh"
+#include "commandUtils.hh"
 #include "Debug.hh"
 #include "DynamicLoader.h"
-#include "Error.hh"
-#include "ExecListenerFactory.hh"
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
+#include "InterfaceError.hh"
+#include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "Launcher.h"
 #include "ListenerFilters.hh"
+#include "LookupReceiver.hh"
 #include "MessageAdapter.hh"
+#include "NodeConnector.hh"
 #include "planLibrary.hh"
 #include "State.hh"
 #include "TimeAdapter.h"
+#include "Update.hh"
 #include "UtilityAdapter.h"
 
 #ifdef PLEXIL_WITH_THREADS
@@ -95,12 +98,11 @@ namespace PLEXIL {
   // @class AdapterConfigurationImpl
   // @brief Implementation class for AdapterConfiguration
   //
-  class AdapterConfigurationImpl : public AdapterConfiguration
+  class AdapterConfigurationImpl final : public AdapterConfiguration
   {
   private:
 
     // Internal typedefs
-    using ExecListenerHubPtr  = std::unique_ptr<ExecListenerHub>;
     using InterfaceAdapterPtr = std::unique_ptr<InterfaceAdapter>;
 
     using CommandHandlerPtr = std::shared_ptr<CommandHandler>;
@@ -115,8 +117,7 @@ namespace PLEXIL {
   public:
 
     AdapterConfigurationImpl()
-      : m_listenerHub(new ExecListenerHub()),
-        m_defaultCommandHandler(new CommandHandler()),
+      : m_defaultCommandHandler(new CommandHandler()),
         m_defaultLookupHandler(new LookupHandler()),
         m_plannerUpdateHandler()
     {
@@ -199,10 +200,6 @@ namespace PLEXIL {
 
       // *** what to do about planner update handler? ***
 
-      // ExecListenerHub next, as listeners may point back to adapters too
-      // (e.g. Launcher)
-      m_listenerHub.reset();
-
       // Now the adapters
       m_adapters.clear();
     }
@@ -210,8 +207,13 @@ namespace PLEXIL {
     // FIXME:
     // * Need new constructor paradigm for handlers
     virtual bool constructInterfaces(pugi::xml_node const configXml,
-                                     AdapterExecInterface &intf)
+                                     InterfaceManager &intf,
+                                     ExecListenerHub &listenerHub)
     {
+      // Set our member variables for future reference
+      m_manager = &intf;
+      m_listenerHub = &listenerHub;
+
       if (configXml.empty()) {
         debugMsg("AdapterConfiguration:constructInterfaces",
                  " empty configuration, nothing to construct");
@@ -276,20 +278,8 @@ namespace PLEXIL {
           }
         }
         else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG) == 0) {
-          // Construct an ExecListener instance and attach it to the Exec
-          debugMsg("AdapterConfiguration:constructInterfaces",
-                   " constructing listener type \""
-                   << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
-                   << '"');
-          ExecListener *listener = 
-            ExecListenerFactory::createInstance(element);
-          if (!listener) {
-            warn("constructInterfaces: failed to construct listener type \""
-                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
-                 << '"');
+          if (!listenerHub.constructListener(element))
             return false;
-          }
-          m_listenerHub->addListener(listener);
         }
         else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG) == 0) {
           // Add to library path
@@ -341,11 +331,6 @@ namespace PLEXIL {
           return false;
         }
       }
-      success = m_listenerHub->initialize();
-      if (!success) {
-        warn("initialize: failed to initialize Exec listener(s)");
-        return false;
-      }
       return success;
     }
 
@@ -364,12 +349,7 @@ namespace PLEXIL {
           return false;
         }
       }
-
-      success = m_listenerHub->start();
-      if (!success) {
-        warn("start: failed to start Exec listener(s)");
-      }
-      return success;
+      return true;
     }
 
     // FIXME:
@@ -381,9 +361,6 @@ namespace PLEXIL {
       // halt adapters
       for (InterfaceAdapterPtr &a : m_adapters)
         a->stop();
-
-      m_listenerHub->stop();
-
       debugMsg("AdapterConfiguration:stop", " completed");
     }
 
@@ -548,6 +525,14 @@ namespace PLEXIL {
     }
 
     //
+    // Exec listener registration
+    //
+    virtual void addExecListener(ExecListener *listener)
+    {
+      m_listenerHub->addListener(listener);
+    }
+
+    //
     // Interface adapter registration
     //
 
@@ -557,13 +542,110 @@ namespace PLEXIL {
     }
 
     //
-    // Exec listener registration
+    // Dispatcher API
     //
-
-    virtual void addExecListener(ExecListener *listener)
+    
+    //! Perform an immediate lookup on an existing state.
+    //! @param state The state.
+    //! @@param rcvr Callback object used to return the result of the query.
+    virtual void lookupNow(State const &state, LookupReceiver *rcvr)
     {
-      m_listenerHub->addListener(listener);
+      debugMsg("AdapterConfiguration:lookupNow", " of " << state);
+      try {
+        getLookupHandler(state.name())->lookupNow(state, rcvr);
+      }
+      catch (InterfaceError const &e) {
+        warn("lookupNow: Error performing lookup of " << state << ":\n"
+             << e.what() << "\n Returning UNKNOWN");
+        rcvr->setUnknown();
+      }
     }
+
+    //! Advise the interface of the current thresholds to use when reporting this state.
+    //! @param state The state.
+    //! @param hi The upper threshold, at or above which to report changes.
+    //! @param lo The lower threshold, at or below which to report changes.
+    //! @note This is primarily used to set deadlines for the TimeAdapter.
+    virtual void setThresholds(const State& state, Real hi, Real lo)
+    {
+      debugMsg("AdapterConfiguration:setThresholds", " (Real) state " << state);
+      getLookupHandler(state.name())->setThresholds(state, hi, lo);
+    }
+
+    virtual void setThresholds(const State& state, Integer hi, Integer lo)
+    {
+      debugMsg("AdapterConfiguration:setThresholds", " (Integer) state " << state);
+      getLookupHandler(state.name())->setThresholds(state, hi, lo);
+    }
+
+    //! Tell the interface that thresholds are no longer in effect
+    //! for this state.
+    //! @param state The state.
+    virtual void clearThresholds(const State& state)
+    {
+      debugMsg("AdapterConfiguration:clearThresholds", " for state " << state);
+      getLookupHandler(state.name())->clearThresholds(state);
+    }
+
+    //! Execute a command.
+    //! @param The command to be executed.
+    virtual void executeCommand(Command *cmd)
+    {
+      try {
+        getCommandHandler(cmd->getName())->executeCommand(cmd, m_manager);
+      }
+      catch (InterfaceError const &e) {
+        // return error status quickly
+        warn("executeCommand: Error executing command " << cmd->getName()
+             << ":\n" << e.what());
+        commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
+      }
+    }
+
+    //! Report a command arbitration failure in the appropriate way
+    //! for the application.
+    //! @param cmd Command whose arbitration request failed.
+    virtual void reportCommandArbitrationFailure(Command *cmd)
+    {
+      // return denial notice quickly
+      commandHandleReturn(cmd, COMMAND_DENIED);
+    }
+
+    //! Abort a command in execution.
+    //! @param cmd The command to abort..
+    virtual void invokeAbort(Command *cmd)
+    {
+      try {
+        getCommandHandler(cmd->getName())->abortCommand(cmd, m_manager);
+      }
+      catch (InterfaceError const &e) {
+        // return error status quickly
+        warn("invokeAbort: error aborting command " << cmd->getCommand()
+             << ":\n" << e.what());
+        commandAbortAcknowledge(cmd, false);
+      }
+    }
+
+    //! Send a planner update.
+    //! @param upd The update to be sent.
+    virtual void executeUpdate(Update *update)
+    {
+      assertTrue_1(update);
+      PlannerUpdateHandler handler = getPlannerUpdateHandler();
+      if (!handler) {
+        // Fake the ack
+        warn("executeUpdate: no handler for updates");
+        m_manager->handleUpdateAck(update, true);
+        m_manager->notifyOfExternalEvent();
+        return;
+      }
+      debugMsg("AdapterConfiguration:updatePlanner",
+               " sending planner update for node "
+               << update->getSource()->getNodeId());
+      (handler)(update, m_manager);
+    }
+
+  private:
 
     //
     // Handler accessors
@@ -598,11 +680,6 @@ namespace PLEXIL {
     virtual PlannerUpdateHandler getPlannerUpdateHandler() const
     {
       return m_plannerUpdateHandler;
-    }
-
-    virtual ExecListenerHub *getListenerHub() const
-    {
-      return m_listenerHub.get();
     }
 
     //
@@ -879,15 +956,20 @@ namespace PLEXIL {
     //* List of directory names for plan file search paths
     std::vector<std::string> m_planPath;
 
-    //* ExecListener hub
-    ExecListenerHubPtr m_listenerHub;
-
     //* Default handlers
     CommandHandlerPtr m_defaultCommandHandler;
     LookupHandlerPtr m_defaultLookupHandler;
 
     //* Handler to use for Update nodes
     PlannerUpdateHandler m_plannerUpdateHandler;
+
+    //! Pointer to the InterfaceManager instance.
+    //! @note InterfaceManager is owned by ExecApplication.
+    InterfaceManager *m_manager;
+
+    //! Pointer to the ExecListenerHub instance.
+    //! @note ExecListenerHub is owned by ExecApplication.
+    ExecListenerHub *m_listenerHub;
   };
 
   AdapterConfiguration *makeAdapterConfiguration()

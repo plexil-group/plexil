@@ -28,7 +28,6 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExternalInterface.hh"
 #include "Mutex.hh"
 #include "NodeConstants.hh"
 #include "NodeTimepointValue.hh"

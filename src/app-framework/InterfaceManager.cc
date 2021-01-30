@@ -33,6 +33,7 @@
 
 #include "AdapterConfiguration.hh"
 #include "Command.hh"
+#include "commandUtils.hh"
 #include "Debug.hh"
 #include "ExecApplication.hh"
 #include "ExecListenerHub.hh"
@@ -48,6 +49,7 @@
 #include "PlexilSchema.hh"
 #include "QueueEntry.hh"
 #include "State.hh"
+#include "StateCache.hh"
 #include "Update.hh"
 
 #include <iomanip>
@@ -66,8 +68,7 @@ namespace PLEXIL
   //! Constructor.
   InterfaceManager::InterfaceManager(ExecApplication *app,
                                      AdapterConfiguration *config)
-    : ExternalInterface(),
-      AdapterExecInterface(),
+    : AdapterExecInterface(),
       m_application(app),
       m_configuration(config),
       m_inputQueue(),
@@ -85,111 +86,6 @@ namespace PLEXIL
   {
     m_inputQueue.reset(m_configuration->makeInputQueue());
     return (bool) m_inputQueue;
-  }
-
-  //! Perform an immediate lookup for a state.
-  //! @param state The state.
-  void 
-  InterfaceManager::lookupNow(State const &state, LookupReceiver *rcvr)
-  {
-    debugMsg("InterfaceManager:lookupNow", " of " << state);
-    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
-    try {
-      handler->lookupNow(state, rcvr);
-    }
-    catch (InterfaceError const &e) {
-      warn("lookupNow: Error performing lookup of " << state << ":\n"
-           << e.what() << "\n Returning UNKNOWN");
-      rcvr->setUnknown();
-    }
-  }
-
-  //! Advise the interface of the current thresholds to use when reporting this state.
-  //! @param state The state.
-  //! @param hi The upper threshold, at or above which to report changes.
-  //! @param lo The lower threshold, at or below which to report changes.
-  void InterfaceManager::setThresholds(const State& state, Real hi, Real lo)
-  {
-    debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
-    handler->setThresholds(state, hi, lo);
-  }
-
-  void InterfaceManager::setThresholds(const State& state, Integer hi, Integer lo)
-  {
-    debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
-    handler->setThresholds(state, hi, lo);
-  }
-
-  //! Tell the interface that thresholds are no longer in effect for
-  //! this state.
-  //! @param state The state.
-  void InterfaceManager::clearThresholds(const State& state)
-  {
-    debugMsg("InterfaceManager:clearThresholds", " for state " << state);
-    LookupHandler *handler = m_configuration->getLookupHandler(state.name());
-    handler->clearThresholds(state);
-  }
-
-  // *** To do:
-  //  - bookkeeping (i.e. tracking non-acked updates) ?
-
-  //! Pass information from the plan to an outside recipient.
-  //! @param update The list of name-value pairs to send.
-  void InterfaceManager::executeUpdate(Update *update)
-  {
-    assertTrue_1(update);
-    PlannerUpdateHandler handler = m_configuration->getPlannerUpdateHandler();
-    if (!handler) {
-      // Fake the ack
-      warn("executeUpdate: no handler for updates");
-      handleUpdateAck(update, true);
-      notifyOfExternalEvent(); // possibility of reentrancy?
-      return;
-    }
-    debugMsg("InterfaceManager:updatePlanner",
-             " sending planner update for node "
-             << update->getSource()->getNodeId());
-    (handler)(update, this);
-  }
-
-  //! Issue the given command to the appropriate interface.
-  //! @param cmd The comamnd being executed.
-  void InterfaceManager::executeCommand(Command *cmd)
-  {
-    CommandHandler *handler = m_configuration->getCommandHandler(cmd->getName()); 
-    try {
-      handler->executeCommand(cmd, this);
-    }
-    catch (InterfaceError const &e) {
-      // return error status
-      warn("executeCommand: Error executing command " << cmd->getName()
-           << ":\n" << e.what());
-      commandHandleReturn(cmd, COMMAND_INTERFACE_ERROR);
-    }
-  }
-
-  //! Report arbitration failure from a command.
-  //! @param The command for which arbitiration failed.
-  void InterfaceManager::reportCommandArbitrationFailure(Command *cmd)
-  {
-    this->handleCommandAck(cmd, COMMAND_DENIED);
-  }
-
-  //! Abort one command in execution.
-  //! @param cmd The command.
-  void InterfaceManager::invokeAbort(Command *cmd)
-  {
-    CommandHandler *handler = m_configuration->getCommandHandler(cmd->getName());
-    try {
-      handler->abortCommand(cmd, this);
-    }
-    catch (InterfaceError const &e) {
-      warn("invokeAbort: error aborting command " << cmd->getCommand()
-           << ":\n" << e.what());
-      commandAbortAcknowledge(cmd, false);
-    }
   }
 
   //
@@ -391,12 +287,25 @@ namespace PLEXIL
   void
   InterfaceManager::notifyMessageReceived(Message *message)
   {
+    if (!message) {
+      warn("notifyMessageReceived: null message");
+      return;
+    }
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+
+    entry->initForReceiveMessage(message);
+    m_inputQueue->put(entry);
   }
 
   //! Notify the executive that the message queue is empty.
   void
   InterfaceManager::notifyMessageQueueEmpty()
   {
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForMessageQueueEmpty();
+    m_inputQueue->put(entry);
   }
 
   //! Notify the executive that a message has been accepted.
@@ -405,6 +314,19 @@ namespace PLEXIL
   void
   InterfaceManager::notifyMessageAccepted(Message *message, std::string const &handle)
   {
+    if (!message) {
+      warn("notifyMessageAccepted: null message");
+      return;
+    }
+    if (handle.empty()) {
+      warn("notifyMessageAccepted: empty handle");
+      return;
+    }
+
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForAcceptMessage(message, handle);
+    m_inputQueue->put(entry);
   }
 
   //! Notify the executive that a message handle has been released.
@@ -412,6 +334,15 @@ namespace PLEXIL
   void
   InterfaceManager::notifyMessageHandleReleased(std::string const &handle)
   {
+    if (handle.empty()) {
+      warn("notifyMessageAccepted: empty handle");
+      return;
+    }
+
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForReleaseMessageHandle(handle);
+    m_inputQueue->put(entry);
   }
 
   //! Receive a new plan and give it to the Exec.
@@ -430,8 +361,7 @@ namespace PLEXIL
 
     entry->initForAddPlan(root);
     m_inputQueue->put(entry);
-    if (m_configuration->getListenerHub())
-      m_configuration->getListenerHub()->notifyOfAddPlan(planXml);
+    m_application->listenerHub()->notifyOfAddPlan(planXml);
     debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
@@ -450,8 +380,7 @@ namespace PLEXIL
     if (l) {
       pugi::xml_node const node = l->doc->document_element().child(NODE_TAG);
       char const *name = node.child_value(NODEID_TAG);
-      if (m_configuration->getListenerHub())
-        m_configuration->getListenerHub()->notifyOfAddLibrary(node);
+      m_application->listenerHub()->notifyOfAddLibrary(node);
       debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
       return true;
     }
@@ -550,7 +479,7 @@ namespace PLEXIL
         debugMsg("InterfaceManager:processQueue",
                  " Received new value " << entry->value << " for " << *(entry->state));
 
-        lookupReturn(*(entry->state), entry->value);
+        StateCache::instance().lookupReturn(*(entry->state), entry->value);
         needsStep = true;
         break;
 
@@ -559,13 +488,12 @@ namespace PLEXIL
 
         {
           CommandHandleValue handle = NO_COMMAND_HANDLE;
-          entry->value.getValue(handle);
-          assertTrue_1(handle != NO_COMMAND_HANDLE);
+          assertTrue_1(entry->value.getValue(handle));
           debugMsg("InterfaceManager:processQueue",
                    " received command handle value "
                    << commandHandleValueName((CommandHandleValue) handle)
                    << " for command " << entry->command->getCommand());
-          commandHandleReturn(entry->command, (CommandHandleValue) handle);
+          commandHandleReturn(entry->command, handle);
         }
         needsStep = true;
         break;
@@ -581,11 +509,9 @@ namespace PLEXIL
 
       case Q_COMMAND_ABORT:
         assertTrue_1(entry->command);
-
         {
           bool ack;
-          bool known = entry->value.getValue(ack);
-          assertTrue_1(known);
+          assertTrue_1(entry->value.getValue(ack));
           debugMsg("InterfaceManager:processQueue",
                    " received command abort ack " << (ack ? "true" : "false")
                    << " for command " << entry->command->getCommand());
@@ -598,13 +524,12 @@ namespace PLEXIL
         assertTrue_1(entry->update);
         {
           bool ack;
-          bool known = entry->value.getValue(ack);
-          assertTrue_1(known);
+          assertTrue_1(entry->value.getValue(ack));
           debugMsg("InterfaceManager:processQueue",
                    " received update ack " << (ack ? "true" : "false")
                    << " for node "
                    << entry->update->getSource()->getNodeId());
-          acknowledgeUpdate(entry->update, ack);
+          entry->update->acknowledge(ack);
         }
         needsStep = true;
         break;
@@ -622,7 +547,12 @@ namespace PLEXIL
         break;
 
       case Q_RECEIVE_MSG:
-        messageReceived(entry->message);
+        StateCache::instance().messageReceived(entry->message);
+        needsStep = true;
+        break;
+
+      case Q_MSG_QUEUE_EMPTY:
+        StateCache::instance().messageQueueEmpty();
         needsStep = true;
         break;
         
@@ -631,7 +561,7 @@ namespace PLEXIL
           std::string handle;
           assertTrue_2(entry->value.getValue(handle),
                        "InterfaceManager::processQueue: message handle is unknown or wrong type");
-          assignMessageHandle(entry->message, handle);
+          StateCache::instance().assignMessageHandle(entry->message, handle);
         }
         entry->message = nullptr;
         needsStep = true;
@@ -642,7 +572,7 @@ namespace PLEXIL
           std::string handle;
           assertTrue_2(entry->value.getValue(handle),
                        "InterfaceManager::processQueue: message handle is unknown or wrong type");
-          releaseMessageHandle(handle);
+          StateCache::instance().releaseMessageHandle(handle);
         }
         needsStep = true;
         break;
@@ -657,8 +587,6 @@ namespace PLEXIL
       // Recycle the queue entry
       m_inputQueue->release(entry);
     }
-
-
 
     debugMsg("InterfaceManager:processQueue",
              " Queue empty, returning " << (needsStep ? "true" : "false"));

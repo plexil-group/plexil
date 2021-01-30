@@ -37,6 +37,7 @@
 #define ADAPTERCONFIGURATION_HH_
 
 #include "CommandHandler.hh"
+#include "Dispatcher.hh"
 #include "LookupHandler.hh"
 #include "PlannerUpdateHandler.hh"
 
@@ -56,12 +57,13 @@ namespace PLEXIL
   class ExecListener;
   class ExecListenerHub;
   class InterfaceAdapter;
+  class InterfaceManager;
   class InputQueue;
 
   //*
   // @class AdapterConfiguration
   // @brief Abstract base class for registering external interfaces
-  class AdapterConfiguration
+  class AdapterConfiguration : public Dispatcher
   {
   public:
 
@@ -72,10 +74,12 @@ namespace PLEXIL
 
     //! Constructs concrete interfaces as specified by the configuration XML.
     //! @param configXml The interface specifications.
-    //! @param intf The AdapterExecInterface the new interfaces will report to.
+    //! @param intf The InterfaceManager.
+    //! @param listenerHub The ExecListenerHub.
     //! @return true if successful, false otherwise.
     virtual bool constructInterfaces(pugi::xml_node const configXml,
-                                     AdapterExecInterface &intf) = 0;
+                                     InterfaceManager &intf,
+                                     ExecListenerHub &listenerHub) = 0;
 
     /**
      * @brief Performs basic initialization of the interface and all adapters.
@@ -290,6 +294,11 @@ namespace PLEXIL
      */
     virtual void registerPlannerUpdateHandler(PlannerUpdateHandler updateFn) = 0;
 
+    //! Add the ExecListener instance to the application.
+    //! @param listener The ExecListener.
+    //! @note Can be called from adapter initialization functions.
+    virtual void addExecListener(ExecListener *listener) = 0;
+
     /**
      * @deprecated
      * @brief Add an externally constructed interface adapter.
@@ -301,16 +310,6 @@ namespace PLEXIL
      *       in its initialize() method.
      */
     virtual void addInterfaceAdapter(InterfaceAdapter *adapter) = 0;
-
-    /**
-     * @brief Add an externally constructed ExecListener.
-     * @param listener Pointer to the ExecListener instance to add.
-     *
-     * @note The ExecListenerHub instance takes ownership
-     *       and is responsible for deleting the listener.
-     * @see ExecListenerHub
-     */
-    virtual void addExecListener(ExecListener *listener) = 0;
 
     //
     // Handler accessors
@@ -339,12 +338,6 @@ namespace PLEXIL
      * @return The handler function.
      */
     virtual PlannerUpdateHandler getPlannerUpdateHandler() const = 0;
-
-    /**
-     * @brief Return the application's ExecListenerHub.
-     * @return Pointer to the ExecListenerHub.
-     */
-    virtual ExecListenerHub *getListenerHub() const = 0;
 
     //
     // Path registration for plans and libraries

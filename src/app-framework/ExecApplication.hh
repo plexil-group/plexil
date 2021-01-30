@@ -44,6 +44,7 @@ namespace PLEXIL
 
   // forward references
   class AdapterConfiguration;
+  class ExecListenerHub;
   class InterfaceManager;
   class PlexilExec;
 
@@ -195,6 +196,7 @@ namespace PLEXIL
 
     virtual AdapterConfiguration *configuration() = 0;
     virtual InterfaceManager *manager() = 0;
+    virtual ExecListenerHub *listenerHub() = 0;
     virtual PlexilExec *exec() = 0;
 
   protected:

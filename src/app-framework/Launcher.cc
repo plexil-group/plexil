@@ -365,9 +365,11 @@ namespace PLEXIL
                                              executeStartPlanCommand);
       config->registerCommandHandlerFunction(EXIT_PLAN_CMD,
                                              executeExitPlanCommand);
+      debugMsg("LauncherAdapter:initialize", " registered handlers");
 
       // Register our special ExecListener
       config->addExecListener(new LauncherListener(&this->getInterface()));
+      debugMsg("LauncherAdapter:initialize", " registered listener");
 
       return true;
     }

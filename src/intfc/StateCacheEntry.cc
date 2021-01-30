@@ -29,8 +29,8 @@
 #include "ArrayImpl.hh"
 #include "CachedValue.hh"
 #include "Debug.hh"
+#include "Dispatcher.hh"
 #include "Error.hh"
-#include "ExternalInterface.hh"
 #include "Lookup.hh"
 #include "State.hh"
 #include "StateCache.hh"
@@ -89,7 +89,7 @@ namespace PLEXIL
       // Update if stale
       if ((!m_value) || m_value->getTimestamp() < StateCache::instance().getCycleCount()) {
         debugMsg("StateCacheEntry:registerLookup", ' ' << state << " updating stale value");
-        g_interface->lookupNow(state, getLookupReceiver());
+        g_dispatcher->lookupNow(state, getLookupReceiver());
       }
     }
 
@@ -411,13 +411,13 @@ namespace PLEXIL
         }
         m_lowThreshold->update(timestamp, ilo);
         m_highThreshold->update(timestamp, ihi);
-        g_interface->setThresholds(state, ihi, ilo);
+        g_dispatcher->setThresholds(state, ihi, ilo);
       }
       else if (m_lowThreshold) {
         // Had thresholds, but they're no longer in effect
         m_lowThreshold->setUnknown(timestamp);
         m_highThreshold->setUnknown(timestamp);
-        g_interface->clearThresholds(state);
+        g_dispatcher->clearThresholds(state);
       }
       return hasThresholds;
     }
@@ -452,13 +452,13 @@ namespace PLEXIL
         }
         m_lowThreshold->update(timestamp, rlo);
         m_highThreshold->update(timestamp, rhi);
-        g_interface->setThresholds(state, rhi, rlo);
+        g_dispatcher->setThresholds(state, rhi, rlo);
       }
       else if (m_lowThreshold) {
         // Had thresholds, but they're no longer in effect
         m_lowThreshold->setUnknown(timestamp);
         m_highThreshold->setUnknown(timestamp);
-        g_interface->clearThresholds(state);
+        g_dispatcher->clearThresholds(state);
       }
       return hasThresholds;
     }

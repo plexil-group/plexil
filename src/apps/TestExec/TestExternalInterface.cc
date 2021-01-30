@@ -28,6 +28,7 @@
 
 #include "Assignable.hh"
 #include "Command.hh"
+#include "commandUtils.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "LookupReceiver.hh"
@@ -65,16 +66,11 @@ namespace PLEXIL
   static State parseState(pugi::xml_node const elt);
   static Value parseStateValue(pugi::xml_node const stateXml);
 
-
   TestExternalInterface::TestExternalInterface()
-    : ExternalInterface()
+    : Dispatcher()
   {
     // Set a default time of 0
     m_states.insert(std::pair<State, Value>(State::timeState(), Value(0.0)));
-  }
-
-  TestExternalInterface::~TestExternalInterface()
-  {
   }
 
   void TestExternalInterface::run(pugi::xml_node const input)
@@ -164,7 +160,7 @@ namespace PLEXIL
           debugMsg("Test:testOutput",
                    "Creating initial state " << st << " = " << value);
           m_states[st] = value;
-          this->lookupReturn(st, value);
+          StateCache::instance().lookupReturn(st, value);
           state = state.next_sibling();
         }
       }
@@ -179,7 +175,7 @@ namespace PLEXIL
     debugMsg("Test:testOutput",
              "Processing event: " << st << " = " << value);
     m_states[st] = value;
-    this->lookupReturn(st, value);
+    StateCache::instance().lookupReturn(st, value);
   }
 
   void TestExternalInterface::handleCommand(pugi::xml_node const elt)
@@ -192,7 +188,7 @@ namespace PLEXIL
       m_executingCommands.find(command);
     checkError(it != m_executingCommands.end(),
                "No currently executing command " << getText(command));
-    this->commandReturn(it->second, value);
+    commandReturn(it->second, value);
     m_executingCommands.erase(it);
   }
 
@@ -210,14 +206,19 @@ namespace PLEXIL
     StateCommandMap::iterator it = m_commandAcks.find(command);
     assertTrueMsg(it != m_commandAcks.end(), 
                   "No command waiting for acknowledgement " << getText(command));
-
-    this->commandHandleReturn(it->second, handle);
+    commandHandleReturn(it->second, handle);
   }
 
   void TestExternalInterface::handleCommandAbort(pugi::xml_node const elt)
   {
     State command = parseCommand(elt);
     Value value = parseResult(elt);
+    assertTrueMsg(value.valueType() == BOOLEAN_TYPE,
+                  "CommmandAbort value must be Boolean");
+    Boolean ack;
+    assertTrueMsg(value.getValue(ack),
+                  "CommmandAbort value must not be unknown");
+    
     debugMsg("Test:testOutput",
              "Sending abort ACK " << getText(command, value));
     StateCommandMap::iterator it = 
@@ -226,7 +227,7 @@ namespace PLEXIL
                   "No abort waiting for acknowledgement " << getText(command));
     debugMsg("Test:testOutput",
              "Acknowledging abort into " << it->second);
-    this->commandAbortAcknowledge(it->second, true);
+    commandAbortAcknowledge(it->second, ack);
     m_abortingCommands.erase(it);
   }
 
@@ -237,7 +238,7 @@ namespace PLEXIL
     std::map<std::string, Update*>::iterator it = m_waitingUpdates.find(name);
     checkError(it != m_waitingUpdates.end(),
                "No update from node " << name << " waiting for acknowledgement.");
-    this->acknowledgeUpdate(it->second, true);
+    it->second->acknowledge(true);
     m_waitingUpdates.erase(it);
   }
 
@@ -534,19 +535,19 @@ namespace PLEXIL
     std::string const & cmdName = command.name();
     if (cmdName == "print") {
       print(command.parameters());
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else if (cmdName == "pprint") {
       pprint(command.parameters());
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else if (cmdName == "printToString") {
-      this->commandReturn(cmd, printToString(command.parameters()));
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandReturn(cmd, printToString(command.parameters()));
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else if (cmdName == "pprintToString") {
-      this->commandReturn(cmd, pprintToString(command.parameters()));
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandReturn(cmd, pprintToString(command.parameters()));
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else {
       // Usual case - set up for scripted ack value
@@ -561,14 +562,13 @@ namespace PLEXIL
    */
   void TestExternalInterface::reportCommandArbitrationFailure(Command *cmd)
   {
-    this->commandHandleReturn(cmd, COMMAND_DENIED);
+    commandHandleReturn(cmd, COMMAND_DENIED);
   }
 
   /**
    * @brief Abort one command in execution.
    * @param cmd The command.
    */
-
   void TestExternalInterface::invokeAbort(Command *cmd)
   {
     assertTrue_1(cmd);

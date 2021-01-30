@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,11 @@ namespace PLEXIL
   {
     value = handle;
     type = Q_RELEASE_MSG_HANDLE;
+  }
+
+  void QueueEntry::initForMessageQueueEmpty()
+  {
+    type = Q_MSG_QUEUE_EMPTY;
   }
 
   void QueueEntry::initForMark(unsigned int seq)
