@@ -365,22 +365,8 @@ namespace PLEXIL
       debugMsg("ResourceArbiterInterface:arbitrateCommands",
                " processing " << cmds.size() << " commands");
 
-      // Extract the commands with empty resource lists
-      // and push them on acceptCmds immediately
-      CommandImpl *cmd = cmds.front();
-      while (cmd) {
-        CommandImpl *next = cmd->next();
-        if (cmd->getResourceValues().empty()) {
-          debugMsg("ResourceArbiterInterface:partitionCommands",
-                   " accepting " << cmd->getName() << " with no resource requests");
-          cmds.remove(cmd);
-          acceptCmds.push(cmd);
-        }
-        cmd = next;
-      }
-
       CommandPriorityList sortedCommands;
-      partitionCommands(cmds, sortedCommands); // consumes cmds
+      partitionCommands(cmds, acceptCmds, sortedCommands); // consumes cmds
 
       debugStmt("ResourceArbiterInterface:printSortedCommands",
                 printSortedCommands(sortedCommands));
@@ -420,12 +406,20 @@ namespace PLEXIL
     
     // Consumes cmds
     void partitionCommands(LinkedQueue<CommandImpl> &cmds,
+                           LinkedQueue<CommandImpl> &acceptCmds,
                            CommandPriorityList &sortedCommands)
     {
       while (CommandImpl *cmd = cmds.front()) {
         cmds.pop();
         const ResourceValueList& resList = cmd->getResourceValues();
-        sortedCommands.emplace_back(CommandPriorityEntry(resList.front().priority, cmd));
+        if (resList.empty()) {
+          debugMsg("ResourceArbiterInterface:partitionCommands",
+                   " accepting " << cmd->getName() << " with no resource requests");
+          acceptCmds.push(cmd);
+        }
+        else {
+          sortedCommands.emplace_back(CommandPriorityEntry(resList.front().priority, cmd));
+        }
 
         ResourceSet &resources = sortedCommands.back().resources;
         for (ResourceValueList::const_iterator resListIter = resList.begin();
